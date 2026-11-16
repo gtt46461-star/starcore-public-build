@@ -1,0 +1,264 @@
+{
+  "stage": "P5",
+  "at": "2026-11-16T04:12:18.108464+00:00",
+  "state": "PASS_CURRENT_OWN_STAGE_DECLARED_ENGINEERING_GATES",
+  "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+  "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+  "gradle": {
+    "id": "P5-current-complete-chain-gradle",
+    "argv": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "-Dorg.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8",
+      ":app:compileDebugJavaWithJavac",
+      ":app:compileDebugAndroidTestJavaWithJavac",
+      ":app:testDebugUnitTest",
+      ":app:lintDebug"
+    ],
+    "cwd": "/workspace/starcore-r3251-attachment-final",
+    "startedAt": "2026-11-16T03:10:23.701024+00:00",
+    "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+    "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+    "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+    "status": "PASS_COMMAND",
+    "log": "P5-current-complete-chain-gradle.log",
+    "exitCode": 0,
+    "finishedAt": "2026-11-16T04:02:31.636675+00:00",
+    "logSha256": "63b7836399d0a1dab13793c927afecb3d89bf8fb72123f9ec20b7a99087e2655"
+  },
+  "junit": {
+    "PASS": 659
+  },
+  "lintErrors": 0,
+  "lintWarnings": 2,
+  "hostGeneratedEvidencePaths": [],
+  "buildInputsChangedByArchiving": false,
+  "boundHostCommands": {
+    "r31_package_release_selftest": {
+      "status": "PASS",
+      "selected": "P5-bound-r31_package_release_selftest.command.json",
+      "attempts": [
+        {
+          "receipt": "P5-bound-r31_package_release_selftest.command.json",
+          "id": "P5-bound-r31_package_release_selftest",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh r31_package_release_selftest"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:33:39.044644+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-r31_package_release_selftest.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:33:39.940066+00:00",
+          "logSha256": "133b0dc975a076ff3d65713eb85d97b62c288908bb393d05626703fb20301f98"
+        }
+      ]
+    },
+    "r31_retirement_manifest_check": {
+      "status": "PASS",
+      "selected": "P5-bound-r31_retirement_manifest_check.command.json",
+      "attempts": [
+        {
+          "receipt": "P5-bound-r31_retirement_manifest_check.command.json",
+          "id": "P5-bound-r31_retirement_manifest_check",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh r31_retirement_manifest_check"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:33:39.941171+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-r31_retirement_manifest_check.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:35:16.636302+00:00",
+          "logSha256": "865d78fc81ea66801bbb05fa9d1703b0dadd5fec8fece4bda14a635bc4e743b5"
+        }
+      ]
+    },
+    "r31_verification_receipt_selftest": {
+      "status": "PASS",
+      "selected": "P5-bound-r31_verification_receipt_selftest.command.json",
+      "attempts": [
+        {
+          "receipt": "P5-bound-r31_verification_receipt_selftest.command.json",
+          "id": "P5-bound-r31_verification_receipt_selftest",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh r31_verification_receipt_selftest"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:35:16.638131+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-r31_verification_receipt_selftest.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:35:19.100025+00:00",
+          "logSha256": "ee888f577c6fe947ef7b038832920d026a29d85994417083cb5107987de1703c"
+        }
+      ]
+    },
+    "run_full_chain_fault_host": {
+      "status": "PASS",
+      "selected": "P5-bound-run_full_chain_fault_host-idle-unmodified-fixture.command.json",
+      "attempts": [
+        {
+          "receipt": "P5-bound-run_full_chain_fault_host-idle-unmodified-fixture.command.json",
+          "id": "P5-bound-run_full_chain_fault_host-idle-unmodified-fixture",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_full_chain_fault_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T04:06:37.989173+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-run_full_chain_fault_host-idle-unmodified-fixture.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T04:07:02.199877+00:00",
+          "logSha256": "4b296b4ac5fd100904522b04f4797f5047ad62c230687c4d055364d01df01b8c"
+        },
+        {
+          "receipt": "P5-bound-run_full_chain_fault_host.command.json",
+          "id": "P5-bound-run_full_chain_fault_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_full_chain_fault_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:35:19.103174+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "FAILED_COMMAND",
+          "log": "P5-bound-run_full_chain_fault_host.log",
+          "exitCode": 1,
+          "finishedAt": "2026-11-16T03:36:56.922775+00:00",
+          "logSha256": "4d69e68799fdd587a78678525cc715c6a8fc45c8d51cf3b318ea2c031518662a"
+        }
+      ]
+    },
+    "run_upgrade_matrix_host": {
+      "status": "PASS",
+      "selected": "P5-bound-run_upgrade_matrix_host.command.json",
+      "attempts": [
+        {
+          "receipt": "P5-bound-run_upgrade_matrix_host.command.json",
+          "id": "P5-bound-run_upgrade_matrix_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_upgrade_matrix_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:36:56.938193+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-run_upgrade_matrix_host.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:45:48.548647+00:00",
+          "logSha256": "c85034061be44c4277c554fb41e3493033d44123e6087700226aec773a5baa0b"
+        }
+      ]
+    },
+    "verify_baseline": {
+      "status": "PASS",
+      "selected": "P5-bound-verify_baseline_selftest.command.json",
+      "attempts": [
+        {
+          "receipt": "P5-bound-verify_baseline_selftest.command.json",
+          "id": "P5-bound-verify_baseline_selftest",
+          "argv": [
+            "bash",
+            "-c",
+            "python3 tools/r31/test_verify_baseline.py"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:46:07.288012+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-verify_baseline_selftest.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:47:26.035904+00:00",
+          "logSha256": "d17f33c0bb0fbbd83d852ca8d1d2355bc89c3a35d7ebbc08060b21ad35e61958"
+        },
+        {
+          "receipt": "P5-bound-verify_baseline.command.json",
+          "id": "P5-bound-verify_baseline",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh verify_baseline"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:45:48.619933+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-verify_baseline.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:46:07.255952+00:00",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "verify_baseline_selftest": {
+      "status": "PASS",
+      "selected": "P5-bound-verify_baseline_selftest.command.json",
+      "attempts": [
+        {
+          "receipt": "P5-bound-verify_baseline_selftest.command.json",
+          "id": "P5-bound-verify_baseline_selftest",
+          "argv": [
+            "bash",
+            "-c",
+            "python3 tools/r31/test_verify_baseline.py"
+          ],
+          "cwd": "/workspace/starcore-r3251-attachment-final",
+          "startedAt": "2026-11-16T03:46:07.288012+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+          "status": "PASS_COMMAND",
+          "log": "P5-bound-verify_baseline_selftest.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:47:26.035904+00:00",
+          "logSha256": "d17f33c0bb0fbbd83d852ca8d1d2355bc89c3a35d7ebbc08060b21ad35e61958"
+        }
+      ]
+    }
+  },
+  "boundHostCount": 7,
+  "ownerProductionCorrection": "P2",
+  "dependentOwnerCorrectionCodeReviewed": true,
+  "original312PayloadContractRetained": true,
+  "reviewedPayloadAudit": "ORIGINAL_PAYLOAD_DIFFERENCE_AUDIT.json",
+  "additionalProductionCorrectionPathOutsideOriginal312": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
+  "full222BusinessAcceptance": false,
+  "physical24h": "NOT_RUN",
+  "physical72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "apkBuildSource": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+  "privateSigningMaterialArchived": false
+}

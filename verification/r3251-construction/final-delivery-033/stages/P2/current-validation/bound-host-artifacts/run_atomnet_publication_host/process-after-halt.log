@@ -1,0 +1,36 @@
+{"currentMaterializedBeforeFinal":0,"mode":"halt-after-final","phase":"NEXT_WRITE_REAL_AFTER_COMMIT_HALT_HOOK","pid":265340,"publication":"4f421808e543b0cb8c60dcff2a57404d81440cd0044b3537f9f4baa5aec83b8b","stateHash":"de1b6b74818a8e6d497b12a58e03f48eaa297b2f71ace98b9dc39fb6c6936f12"}
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Nov 16, 2026 3:21:30 AM org.sqlite.util.LoggerFactory$JDKLogger error
+SEVERE: Failed to delete old native lib
+java.nio.file.NoSuchFileException: /tmp/sqlite-3.46.1.3-1cf3e4a6-881c-4fbf-ac45-eb4acd3b0fde-libsqlitejdbc.so
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.implDelete(UnixFileSystemProvider.java:248)
+	at java.base/sun.nio.fs.AbstractFileSystemProvider.delete(AbstractFileSystemProvider.java:105)
+	at java.base/java.nio.file.Files.delete(Files.java:1152)
+	at org.sqlite.SQLiteJDBCLoader.lambda$cleanup$1(SQLiteJDBCLoader.java:102)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:183)
+	at java.base/java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:179)
+	at java.base/java.util.Iterator.forEachRemaining(Iterator.java:133)
+	at java.base/java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1845)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:150)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:173)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:596)
+	at org.sqlite.SQLiteJDBCLoader.cleanup(SQLiteJDBCLoader.java:97)
+	at org.sqlite.SQLiteJDBCLoader.initialize(SQLiteJDBCLoader.java:73)
+	at org.sqlite.core.NativeDB.load(NativeDB.java:69)
+	at org.sqlite.SQLiteConnection.open(SQLiteConnection.java:280)
+	at org.sqlite.SQLiteConnection.<init>(SQLiteConnection.java:67)
+	at org.sqlite.jdbc3.JDBC3Connection.<init>(JDBC3Connection.java:28)
+	at org.sqlite.jdbc4.JDBC4Connection.<init>(JDBC4Connection.java:19)
+	at org.sqlite.JDBC.createConnection(JDBC.java:106)
+	at org.sqlite.JDBC.connect(JDBC.java:79)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:681)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:252)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationNativeHost.setup(AtomPublicationNativeHost.java:11)
+	at com.ethk3.novaonepro.strategyv2.AtomPublicationProcessHost.main(AtomPublicationProcessHost.java:7)
+

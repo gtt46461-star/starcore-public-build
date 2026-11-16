@@ -1,0 +1,105 @@
+--------- beginning of main
+11-16 03:41:41.971 11976 11996 I re.research.r1: Waiting for a blocking GC ProfileSaver
+11-16 03:41:42.802 11976 11999 I SQLiteConnection: /data/user/0/com.starcore.research.r13/no_backup/r30-instrumentation/research-43796780479-1-b8517dfa9e79-analysis-FULL/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db-wal 3370192 bytes: Bigger than 1048576; truncating
+11-16 03:41:43.298 11976 11999 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V (greylist, linking, allowed)
+11-16 03:41:43.305 11976 11999 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:43.306 11976 11999 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:41:43.307 11976 11999 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:43.686 11976 11999 I SQLiteConnection: /data/user/0/com.starcore.research.r13/no_backup/r30-instrumentation/research-43796780479-1-b8517dfa9e79-analysis-FULL/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db-wal 2125952 bytes: Bigger than 1048576; truncating
+11-16 03:41:43.686 11976 11999 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:44.279 11976 11999 I chatty  : uid=10116(com.starcore.research.r13) identical 3 lines
+11-16 03:41:44.392 11976 11999 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:44.398 11976 11999 E SQLiteLog: (13) statement aborts at 55: [UPDATE r30r1_analysis_run SET summary_json=? WHERE run_id=?] database or disk is full
+11-16 03:41:44.398 11976 11999 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:44.415 11976 11999 I chatty  : uid=10116(com.starcore.research.r13) identical 2 lines
+11-16 03:41:44.415 11976 11999 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:44.426 11976 11999 I System.out: R30_REPAIR_FAULT_CELL|analysis|FULL|ACTUAL_ANDROID_SQLITE_ORIGINAL_WRITER|RECOVERED_EXACTLY_ONCE|NO_HALF_CHAIN_NO_REAL_NO_FORMAL_LABELS|SYNTHETIC_ONLY|PASS
+11-16 03:41:44.426 11976 11999 I TestRunner: finished: faultCell(com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest)
+11-16 03:41:44.428 11976 11999 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+--------- beginning of system
+11-16 03:41:44.430  1953  2493 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: finished inst
+11-16 03:41:44.430  1953 11487 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-16 03:41:44.430  1953 11487 W Binder  : java.lang.Throwable
+11-16 03:41:44.430  1953 11487 W Binder  : 	at android.os.BinderProxy.transact(BinderProxy.java:480)
+11-16 03:41:44.430  1953 11487 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationFinished(IInstrumentationWatcher.java:205)
+11-16 03:41:44.430  1953 11487 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:86)
+11-16 03:41:44.430  1953  2493 I ActivityManager: Killing 11976:com.starcore.research.r13/u0a116 (adj 0): stop com.starcore.research.r13
+11-16 03:41:44.430 11963 11963 D AndroidRuntime: Shutting down VM
+11-16 03:41:44.473  1953  8393 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: from pid 12021
+11-16 03:41:44.474  2358  2358 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 03:41:44.479  1707  1707 I Zygote  : Process 11976 exited due to signal 9 (Killed)
+11-16 03:41:44.509  1953  1985 I libprocessgroup: Successfully killed process cgroup uid 10116 pid 11976 in 78ms
+11-16 03:41:44.530 12028 12028 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-16 03:41:44.531 12028 12028 I AndroidRuntime: Using default boot image
+11-16 03:41:44.531 12028 12028 I AndroidRuntime: Leaving lock profiling enabled
+11-16 03:41:44.532 12028 12028 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 03:41:44.560 12028 12028 D ICU     : Time zone APEX file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 03:41:44.562 12028 12028 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:41:44.564 12028 12028 I app_process: The ClassLoaderContext is a special shared library.
+11-16 03:41:44.570 12028 12028 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 03:41:44.572 12028 12028 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-16 03:41:44.573  1953  8393 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: start instr
+11-16 03:41:44.578  1707  1707 D Zygote  : Forked child process 12041
+11-16 03:41:44.580 12041 12041 I re.research.r1: Late-enabling -Xcheck:jni
+11-16 03:41:44.584  1953  1984 I ActivityManager: Start proc 12041:com.starcore.research.r13/u0a116 for added application com.starcore.research.r13
+11-16 03:41:44.586 12041 12041 E re.research.r1: Unknown bits set in runtime_flags: 0x8000
+11-16 03:41:44.586 12041 12041 W re.research.r1: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:41:44.600 12041 12041 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+11-16 03:41:44.601 12041 12041 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:41:44.601 12041 12041 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:41:44.602 12041 12041 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[]{PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}#PCL[/system/framework/android.test.runner.jar*3312018701]{PCL[/system/framework/android.test.base.jar*1299883780]#PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}}} | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991])
+11-16 03:41:44.602 12041 12041 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:41:44.602 12041 12041 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:41:44.602 12041 12041 W re.research.r1: Found duplicated class when checking oat files: 'Ljunit/runner/BaseTestRunner;' in /system/framework/android.test.runner.jar and /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:41:44.602 12041 12041 W re.research.r1: 
+11-16 03:41:44.652 12041 12041 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=7 (PCL[] | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes5.dex*1964700859])
+11-16 03:41:44.660 12041 12041 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:41:44.661 12041 12041 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:41:44.661 12041 12041 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[]{PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}#PCL[/system/framework/android.test.runner.jar*3312018701]{PCL[/system/framework/android.test.base.jar*1299883780]#PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}}} | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991];PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/
+11-16 03:41:44.661 12041 12041 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:41:44.661 12041 12041 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:41:44.661 12041 12041 W re.research.r1: Found duplicated class when checking oat files: 'L_COROUTINE/ArtificialStackFrames;' in /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk and /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:41:44.661 12041 12041 W re.research.r1: 
+11-16 03:41:44.708 12041 12041 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=7 (PCL[] | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes5.dex*1964700859];PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/ba
+11-16 03:41:44.709 12041 12041 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk
+11-16 03:41:44.709 12041 12041 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:41:44.709 12041 12041 W re.research.r1: Found duplicated class when checking oat files: 'Lcom/ethk3/novaonepro/AblationRepairCreationR930$$ExternalSyntheticBackport0;' in /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk!classes3.dex and /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk!classes3.dex
+11-16 03:41:44.709 12041 12041 W re.research.r1: 
+11-16 03:41:44.888 12041 12041 W re.research.r1: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Landroid/app/Activity;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-16 03:41:44.888 12041 12041 W re.research.r1: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Ljava/lang/String;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-16 03:41:44.890 12041 12041 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+11-16 03:41:44.896 12041 12041 I AndroidJUnitRunner: onCreate Bundle[{r30Sandbox=research-43796780479-1-b8517dfa9e79-analysis-CANCEL, class=com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest#faultCell, r30Phase=run, repairFault=CANCEL, repairStage=analysis}]
+11-16 03:41:44.897 12041 12041 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-16 03:41:44.901 12041 12041 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-16 03:41:44.901 12041 12065 D AndroidJUnitRunner: onStart is called.
+11-16 03:41:44.913 12041 12065 W re.research.r1: Accessing hidden field Lsun/misc/Unsafe;->theUnsafe:Lsun/misc/Unsafe; (greylist, reflection, allowed)
+11-16 03:41:44.914 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->objectFieldOffset(Ljava/lang/reflect/Field;)J (greylist,core-platform-api, linking, allowed)
+11-16 03:41:44.914 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->arrayBaseOffset(Ljava/lang/Class;)I (greylist,core-platform-api, linking, allowed)
+11-16 03:41:44.914 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->arrayIndexScale(Ljava/lang/Class;)I (greylist, linking, allowed)
+11-16 03:41:44.916 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapInt(Ljava/lang/Object;JII)Z (greylist, linking, allowed)
+11-16 03:41:44.916 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:44.916 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z (greylist, linking, allowed)
+11-16 03:41:44.916 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapLong(Ljava/lang/Object;JJJ)Z (greylist, linking, allowed)
+11-16 03:41:44.916 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:44.918 12041 12065 I TestRunner: run started: 1 tests
+11-16 03:41:44.918 12041 12065 I TestRunner: started: faultCell(com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest)
+11-16 03:41:49.466 12041 12065 I SQLiteConnection: /data/user/0/com.starcore.research.r13/no_backup/r30-instrumentation/research-43796780479-1-b8517dfa9e79-analysis-CANCEL/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db-wal 3370192 bytes: Bigger than 1048576; truncating
+11-16 03:41:49.909 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V (greylist, linking, allowed)
+11-16 03:41:49.913 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:49.914 12041 12065 I chatty  : uid=10116(com.starcore.research.r13) re.research.r13 identical 1 line
+11-16 03:41:49.915 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:50.224 12041 12065 I SQLiteConnection: /data/user/0/com.starcore.research.r13/no_backup/r30-instrumentation/research-43796780479-1-b8517dfa9e79-analysis-CANCEL/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db-wal 2125952 bytes: Bigger than 1048576; truncating
+11-16 03:41:50.225 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:50.903 12041 12065 I chatty  : uid=10116(com.starcore.research.r13) re.research.r13 identical 4 lines
+11-16 03:41:50.908 12041 12065 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:41:50.909 12041 12065 I System.out: R30_REPAIR_FAULT_CELL|analysis|CANCEL|ACTUAL_ANDROID_SQLITE_ORIGINAL_WRITER|RECOVERED_EXACTLY_ONCE|NO_HALF_CHAIN_NO_REAL_NO_FORMAL_LABELS|SYNTHETIC_ONLY|PASS
+11-16 03:41:50.910 12041 12065 I TestRunner: finished: faultCell(com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest)
+11-16 03:41:50.911 12041 12065 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-16 03:41:50.912  1953  8393 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: finished inst
+11-16 03:41:50.912  1953 11487 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-16 03:41:50.912  1953 11487 W Binder  : java.lang.Throwable
+11-16 03:41:50.912  1953 11487 W Binder  : 	at android.os.BinderProxy.transact(BinderProxy.java:480)
+11-16 03:41:50.912  1953 11487 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationFinished(IInstrumentationWatcher.java:205)
+11-16 03:41:50.912  1953 11487 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:86)
+11-16 03:41:50.912  1953  8393 I ActivityManager: Killing 12041:com.starcore.research.r13/u0a116 (adj 0): stop com.starcore.research.r13
+11-16 03:41:50.912 12028 12028 D AndroidRuntime: Shutting down VM

@@ -1,0 +1,218 @@
+18914:
+2026-11-15 15:52:21
+Full thread dump OpenJDK 64-Bit Server VM (17.0.17+10 mixed mode, sharing):
+
+Threads class SMR info:
+_java_thread_list=0x00007f6e640017f0, length=15, elements={
+0x00007f6eec02a8d0, 0x00007f6eec15a270, 0x00007f6eec15b650, 0x00007f6eec162320,
+0x00007f6eec1636d0, 0x00007f6eec164ae0, 0x00007f6eec166490, 0x00007f6eec1679c0,
+0x00007f6eec170e20, 0x00007f6eec1a5e80, 0x00007f6eec1a7d90, 0x00007f6eec4ddd10,
+0x00007f6eec4f98a0, 0x00007f6eec4fa040, 0x00007f6e64000e10
+}
+
+"Test worker" #1 prio=5 os_prio=0 cpu=242901.87ms elapsed=249.12s tid=0x00007f6eec02a8d0 nid=0x49e5 runnable  [0x00007f6ef413d000]
+   java.lang.Thread.State: RUNNABLE
+	at com.ethk3.novaonepro.strategyv2.FamilyF20KernelR26.selectAt(FamilyF20KernelR26.java:48)
+	at com.ethk3.novaonepro.strategyv2.FamilyF20KernelR26.select(FamilyF20KernelR26.java:44)
+	at com.ethk3.novaonepro.strategyv2.FamilyF20KernelR26.update(FamilyF20KernelR26.java:88)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream.advance(FeatureCacheR27.java:578)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyCopyR31(FeatureCacheR27.java:424)
+	- locked <0x00000000e8e03d38> (a com.ethk3.novaonepro.strategyv2.FeatureCacheR27$FamilyStream)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyIntoR31(FeatureCacheR27.java:415)
+	at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.familyIntoR31(FeatureCacheR27.java:416)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:232)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:236)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:236)
+	at com.ethk3.novaonepro.strategyv2.PolicyAstR27.evalScopedR31(PolicyAstR27.java:224)
+	at com.ethk3.novaonepro.strategyv2.BirthGateR27.check(BirthGateR27.java:78)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepGate(EvolutionLoopR27.java:268)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepSwitchR31(EvolutionLoopR27.java:173)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepInsideEvolution(EvolutionLoopR27.java:165)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:157)
+	at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.runGeneration(EvolutionLoopR27.java:152)
+	at com.ethk3.novaonepro.strategyv2.R27EvolutionTest.noSignalRarelyClaimsImprovement(R27EvolutionTest.java:48)
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(java.base@17.0.17/Native Method)
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(java.base@17.0.17/NativeMethodAccessorImpl.java:77)
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(java.base@17.0.17/DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(java.base@17.0.17/Method.java:569)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:112)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:40)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:54)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:53)
+	at jdk.internal.reflect.GeneratedMethodAccessor5.invoke(Unknown Source)
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(java.base@17.0.17/DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(java.base@17.0.17/Method.java:569)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:92)
+	at jdk.proxy1.$Proxy4.processTestClass(jdk.proxy1/Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:183)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:132)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+
+"Reference Handler" #2 daemon prio=10 os_prio=0 cpu=15.66ms elapsed=249.08s tid=0x00007f6eec15a270 nid=0x49ec waiting on condition  [0x00007f6ed4bf8000]
+   java.lang.Thread.State: RUNNABLE
+	at java.lang.ref.Reference.waitForReferencePendingList(java.base@17.0.17/Native Method)
+	at java.lang.ref.Reference.processPendingReferences(java.base@17.0.17/Reference.java:253)
+	at java.lang.ref.Reference$ReferenceHandler.run(java.base@17.0.17/Reference.java:215)
+
+"Finalizer" #3 daemon prio=8 os_prio=0 cpu=0.49ms elapsed=249.08s tid=0x00007f6eec15b650 nid=0x49ed in Object.wait()  [0x00007f6ed4af8000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(java.base@17.0.17/Native Method)
+	- waiting on <0x00000000e0387f30> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(java.base@17.0.17/ReferenceQueue.java:155)
+	- locked <0x00000000e0387f30> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(java.base@17.0.17/ReferenceQueue.java:176)
+	at java.lang.ref.Finalizer$FinalizerThread.run(java.base@17.0.17/Finalizer.java:172)
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=0 cpu=0.82ms elapsed=249.08s tid=0x00007f6eec162320 nid=0x49ee waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Service Thread" #5 daemon prio=9 os_prio=0 cpu=10.41ms elapsed=249.08s tid=0x00007f6eec1636d0 nid=0x49ef runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Monitor Deflation Thread" #6 daemon prio=9 os_prio=0 cpu=63.20ms elapsed=249.08s tid=0x00007f6eec164ae0 nid=0x49f0 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #7 daemon prio=9 os_prio=0 cpu=19208.30ms elapsed=249.08s tid=0x00007f6eec166490 nid=0x49f1 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"C1 CompilerThread0" #9 daemon prio=9 os_prio=0 cpu=2300.56ms elapsed=249.08s tid=0x00007f6eec1679c0 nid=0x49f2 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"Sweeper thread" #10 daemon prio=9 os_prio=0 cpu=84.79ms elapsed=249.08s tid=0x00007f6eec170e20 nid=0x49f3 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" #11 daemon prio=8 os_prio=0 cpu=2.49ms elapsed=249.06s tid=0x00007f6eec1a5e80 nid=0x49f4 in Object.wait()  [0x00007f6ed43f8000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(java.base@17.0.17/Native Method)
+	- waiting on <0x00000000e0267068> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(java.base@17.0.17/ReferenceQueue.java:155)
+	- locked <0x00000000e0267068> (a java.lang.ref.ReferenceQueue$Lock)
+	at jdk.internal.ref.CleanerImpl.run(java.base@17.0.17/CleanerImpl.java:140)
+	at java.lang.Thread.run(java.base@17.0.17/Thread.java:840)
+	at jdk.internal.misc.InnocuousThread.run(java.base@17.0.17/InnocuousThread.java:162)
+
+"Notification Thread" #12 daemon prio=9 os_prio=0 cpu=0.26ms elapsed=249.06s tid=0x00007f6eec1a7d90 nid=0x49f5 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"/127.0.0.1:46344 to /127.0.0.1:45667 workers" #14 prio=5 os_prio=0 cpu=6.45ms elapsed=248.71s tid=0x00007f6eec4ddd10 nid=0x49fb waiting on condition  [0x00007f6e7affe000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@17.0.17/Native Method)
+	- parking to wait for  <0x00000000e03883c0> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(java.base@17.0.17/LockSupport.java:341)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(java.base@17.0.17/AbstractQueuedSynchronizer.java:506)
+	at java.util.concurrent.ForkJoinPool.unmanagedBlock(java.base@17.0.17/ForkJoinPool.java:3465)
+	at java.util.concurrent.ForkJoinPool.managedBlock(java.base@17.0.17/ForkJoinPool.java:3436)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@17.0.17/AbstractQueuedSynchronizer.java:1630)
+	at java.util.concurrent.ArrayBlockingQueue.put(java.base@17.0.17/ArrayBlockingQueue.java:370)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.submitToRun(TestWorker.java:214)
+	- locked <0x00000000e0387a48> (a org.gradle.api.internal.tasks.testing.worker.TestWorker)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:176)
+	at jdk.internal.reflect.GeneratedMethodAccessor4.invoke(Unknown Source)
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(java.base@17.0.17/DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(java.base@17.0.17/Method.java:569)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:182)
+	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:164)
+	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:414)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@17.0.17/ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@17.0.17/ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(java.base@17.0.17/Thread.java:840)
+
+"/127.0.0.1:46344 to /127.0.0.1:45667 workers Thread 2" #15 prio=5 os_prio=0 cpu=41.23ms elapsed=248.70s tid=0x00007f6eec4f98a0 nid=0x49fc waiting on condition  [0x00007f6e7aefe000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@17.0.17/Native Method)
+	- parking to wait for  <0x00000000e038fb78> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(java.base@17.0.17/LockSupport.java:341)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(java.base@17.0.17/AbstractQueuedSynchronizer.java:506)
+	at java.util.concurrent.ForkJoinPool.unmanagedBlock(java.base@17.0.17/ForkJoinPool.java:3465)
+	at java.util.concurrent.ForkJoinPool.managedBlock(java.base@17.0.17/ForkJoinPool.java:3436)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@17.0.17/AbstractQueuedSynchronizer.java:1630)
+	at org.gradle.internal.remote.internal.hub.queue.EndPointQueue.take(EndPointQueue.java:49)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionDispatch.run(MessageHub.java:322)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@17.0.17/ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@17.0.17/ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(java.base@17.0.17/Thread.java:840)
+
+"/127.0.0.1:46344 to /127.0.0.1:45667 workers Thread 3" #16 prio=5 os_prio=0 cpu=9.90ms elapsed=248.70s tid=0x00007f6eec4fa040 nid=0x49fd runnable  [0x00007f6e7adfe000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPoll.wait(java.base@17.0.17/Native Method)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(java.base@17.0.17/EPollSelectorImpl.java:118)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@17.0.17/SelectorImpl.java:129)
+	- locked <0x00000000e039abb8> (a sun.nio.ch.Util$2)
+	- locked <0x00000000e039ab68> (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@17.0.17/SelectorImpl.java:146)
+	at org.gradle.internal.remote.internal.inet.SocketConnection$SocketInputStream.read(SocketConnection.java:187)
+	at com.esotericsoftware.kryo.io.Input.fill(Input.java:146)
+	at com.esotericsoftware.kryo.io.Input.require(Input.java:178)
+	at com.esotericsoftware.kryo.io.Input.readByte(Input.java:295)
+	at org.gradle.internal.serialize.kryo.KryoBackedDecoder.readByte(KryoBackedDecoder.java:88)
+	at org.gradle.internal.remote.internal.hub.InterHubMessageSerializer$MessageReader.read(InterHubMessageSerializer.java:64)
+	at org.gradle.internal.remote.internal.hub.InterHubMessageSerializer$MessageReader.read(InterHubMessageSerializer.java:52)
+	at org.gradle.internal.remote.internal.inet.SocketConnection.receive(SocketConnection.java:83)
+	at org.gradle.internal.remote.internal.hub.MessageHub$ConnectionReceive.run(MessageHub.java:270)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@17.0.17/ThreadPoolExecutor.java:1136)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@17.0.17/ThreadPoolExecutor.java:635)
+	at java.lang.Thread.run(java.base@17.0.17/Thread.java:840)
+
+"Attach Listener" #22 daemon prio=9 os_prio=0 cpu=1.31ms elapsed=9.92s tid=0x00007f6e64000e10 nid=0x4ce3 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"GC Thread#4" os_prio=0 cpu=553.62ms elapsed=248.68s tid=0x00007f6e74007220 nid=0x4a01 runnable  
+
+"GC Thread#3" os_prio=0 cpu=521.88ms elapsed=248.68s tid=0x00007f6e740063f0 nid=0x4a00 runnable  
+
+"GC Thread#2" os_prio=0 cpu=502.16ms elapsed=248.68s tid=0x00007f6e740059b0 nid=0x49ff runnable  
+
+"GC Thread#1" os_prio=0 cpu=504.99ms elapsed=248.68s tid=0x00007f6e74004f70 nid=0x49fe runnable  
+
+"VM Periodic Task Thread" os_prio=0 cpu=252.66ms elapsed=249.06s tid=0x00007f6eec1a96d0 nid=0x49f6 waiting on condition  
+
+"VM Thread" os_prio=0 cpu=363.42ms elapsed=249.09s tid=0x00007f6eec156170 nid=0x49eb runnable  
+
+"G1 Service" os_prio=0 cpu=53.53ms elapsed=249.11s tid=0x00007f6eec131d30 nid=0x49ea runnable  
+
+"G1 Refine#0" os_prio=0 cpu=1.87ms elapsed=249.11s tid=0x00007f6eec130e30 nid=0x49e9 runnable  
+
+"G1 Conc#0" os_prio=0 cpu=0.06ms elapsed=249.11s tid=0x00007f6eec05f3e0 nid=0x49e8 runnable  
+
+"G1 Main Marker" os_prio=0 cpu=0.13ms elapsed=249.11s tid=0x00007f6eec05e470 nid=0x49e7 runnable  
+
+"GC Thread#0" os_prio=0 cpu=480.81ms elapsed=249.11s tid=0x00007f6eec058e80 nid=0x49e6 runnable  
+
+JNI global refs: 16, weak refs: 0
+

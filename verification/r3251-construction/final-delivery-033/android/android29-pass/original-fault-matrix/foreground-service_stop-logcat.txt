@@ -1,0 +1,486 @@
+--------- beginning of main
+11-16 03:39:32.725  1953  9414 D AlarmManagerService: Setting time of day to sec=1794800312
+11-16 03:38:32.002  2105  2105 D KeyguardClockSwitch: Updating clock: 338
+11-16 03:38:32.004 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:38:32.005 10808 10831 I System.out: R30_FAULT_CLOCK_OBSERVED|wall_ms=1794800312003|mono_ms=1026470
+11-16 03:38:32.009  1707  1707 D Zygote  : Forked child process 10863
+11-16 03:38:32.011 10863 10863 W ndroid.calenda: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:38:32.041  1953  9414 D AlarmManagerService: Setting time of day to sec=1794800373
+--------- beginning of system
+11-16 03:39:33.475  1953  1953 D DevicePolicyManager: updateSystemUpdateFreezePeriodsRecord
+11-16 03:39:33.475  1953  1953 D ConditionProviders.SCP: onReceive android.intent.action.TIME_SET
+11-16 03:39:33.475  1953  1953 D ConditionProviders.SCP: evaluateSubscriptionLocked cal=ScheduleCalendar[mDays={1, 2, 3, 4, 5, 6, 7}, mSchedule=ScheduleInfo{days=[1, 2, 3, 4, 5, 6, 7], startHour=22, startMinute=0, endHour=7, endMinute=0, exitAtAlarm=true, nextAlarm=Thu Jan 01 00:00:00 UTC 1970 (0)}], now=Mon Nov 16 03:39:33 UTC 2026 (1794800373475), nextUserAlarmTime=Thu Jan 01 00:00:00 UTC 1970 (0)
+11-16 03:39:33.475  1953  1953 D ConditionProviders.SCP: notifyCondition condition://android/schedule?days=1.2.3.4.5.6.7&start=22.0&end=7.0&exitAtAlarm=true STATE_TRUE reason=meetsSchedule
+11-16 03:39:33.475  1953  1953 D ConditionProviders.SCP: Scheduling evaluate for Mon Nov 16 07:00:00 UTC 2026 (1794812400000), in +3h20m26s525ms, now=Mon Nov 16 03:39:33 UTC 2026 (1794800373475)
+11-16 03:39:33.475 10863 10863 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.hidl.base-V1.0-java.jar
+11-16 03:39:33.475 10863 10863 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.hidl.manager-V1.0-java.jar
+11-16 03:39:33.475 10863 10863 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.hidl.base-V1.0-java.jar
+11-16 03:39:33.476  2105  2105 D KeyguardClockSwitch: Updating clock: 339
+11-16 03:39:33.476 10863 10863 I ndroid.calenda: The ClassLoaderContext is a special shared library.
+11-16 03:39:33.496  1707  1707 D Zygote  : Forked child process 10898
+11-16 03:39:33.496  1953  1976 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-16 03:39:33.498 10898 10898 W droid.deskcloc: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:39:33.501  1953  1984 I ActivityManager: Start proc 10898:com.android.deskclock/u0a108 for broadcast {com.android.deskclock/com.android.deskclock.AlarmInitReceiver}
+11-16 03:39:33.505  1953  1953 V SettingsProvider: Notifying for 0: content://settings/global/auto_time
+11-16 03:39:33.505  1953  1974 D timedetector.SimpleTimeDetectorStrategy: adjustAndSetDeviceSystemClock: Not setting system clock. New time and system clock are close enough. elapsedRealtimeMillis=1026542 newTime=TimestampedValue{mReferenceTimeMillis=7755, mValue=1794799354000} reason=Automatic time detection enabled. systemClockUpdateThreshold=2000 absTimeDifference=718
+11-16 03:39:33.506 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:33.513 10808 10831 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:39:33.513 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:33.527 10898 10898 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.hidl.base-V1.0-java.jar
+11-16 03:39:33.527 10898 10898 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.hidl.manager-V1.0-java.jar
+11-16 03:39:33.527 10898 10898 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.hidl.base-V1.0-java.jar
+11-16 03:39:33.527 10898 10898 I droid.deskcloc: The ClassLoaderContext is a special shared library.
+11-16 03:39:33.532 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:33.537 10898 10898 I AlarmClock: AlarmInitReceiver android.intent.action.TIME_SET
+11-16 03:39:33.538 10898 10924 I AlarmClock: Fixing alarm instances
+11-16 03:39:33.547 10898 10924 V AlarmClock: AlarmInitReceiver finished
+11-16 03:39:33.548 10898 10898 I DigitalWidgetProvider: onReceive: Intent { act=android.intent.action.TIME_SET flg=0x25200010 cmp=com.android.deskclock/com.android.alarmclock.DigitalAppWidgetProvider }
+11-16 03:39:33.550 10898 10898 I AlarmClock: AlarmInitReceiver android.intent.action.TIME_SET
+11-16 03:39:33.550 10898 10924 I AlarmClock: Fixing alarm instances
+11-16 03:39:33.552 10898 10924 V AlarmClock: AlarmInitReceiver finished
+11-16 03:39:33.553 10898 10898 I DigitalWidgetProvider: onReceive: Intent { act=android.intent.action.TIME_SET flg=0x25200010 cmp=com.android.deskclock/com.android.alarmclock.DigitalAppWidgetProvider }
+11-16 03:39:33.553  1953  9414 W BroadcastQueue: Background execution not allowed: receiving Intent { act=com.android.calendar.APPWIDGET_UPDATE flg=0x10 } to com.android.calendar/.widget.CalendarAppWidgetProvider
+11-16 03:39:33.553  1953  9414 I ActivityManager: Killing 2963:com.android.managedprovisioning/u0a59 (adj 985): empty #17
+11-16 03:39:33.557  1953  1976 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-16 03:39:33.559 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:33.633  1707  1707 I Zygote  : Process 2963 exited due to signal 9 (Killed)
+11-16 03:39:33.673  1953  1985 I libprocessgroup: Successfully killed process cgroup uid 10059 pid 2963 in 119ms
+11-16 03:39:33.943 10808 10831 E SQLiteLog: (1) no such table: r974_prediction_rejection
+11-16 03:39:33.943 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:33.944 10808 10831 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:39:33.958 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.056 10808 10831 E SQLiteLog: (1) no such table: dynamic_freeze_matrix
+11-16 03:39:35.062 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.071 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.113  1870  1870 E netmgr  : Failed to open QEMU pipe 'qemud:network': Invalid argument
+11-16 03:39:35.244 10808 10831 E SQLiteLog: (1) no such table: v57_batch34_schema_meta_r930
+11-16 03:39:35.251 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.278 10808 10831 I chatty  : uid=10116(com.starcore.research.r13) identical 8 lines
+11-16 03:39:35.279 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.285 10808 10831 E SQLiteLog: (1) no such table: v57_batch34_schema_meta_r930
+11-16 03:39:35.286 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.286 10808 10831 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:39:35.287 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.312  1877  1877 E wifi_forwarder: RemoteConnection failed to initialize: RemoteConnection failed to open pipe
+11-16 03:39:35.325 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.331 10808 10831 E SQLiteLog: (1) no such table: v57_research_queue_r815
+11-16 03:39:35.331 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.353 10808 10831 I chatty  : uid=10116(com.starcore.research.r13) identical 2 lines
+11-16 03:39:35.363 10808 10831 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:35.444 10808 10814 I re.research.r1: Compiler allocated 5424KB to compile java.lang.Object com.ethk3.novaonepro.DatabaseCoordinator.runWrite(com.ethk3.novaonepro.DatabaseCoordinator$WriteContext, com.ethk3.novaonepro.DatabaseCoordinator$WriteCallable, java.lang.Object)
+11-16 03:39:35.472 10808 10831 I System.out: R30_FAULT_CELL|clock_rollback|foreground|ACTUAL_ANDROID_MECHANICS|NO_HALF_ROWS|NO_DUPLICATE_SETTLEMENT|NO_FAKE_PUBLISHED_TIME|SYNTHETIC_NOT_NATURAL_OR_PHYSICAL|PASS
+11-16 03:39:35.474  1953 10062 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:35.474  1953 10062 I chatty  : uid=1000(system) Binder:1953_19 identical 8 lines
+11-16 03:39:35.474  1953 10062 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:35.475 10808 10831 I TestRunner: finished: faultCell(com.ethk3.novaonepro.R30FaultMatrixTest)
+11-16 03:39:35.476 10808 10808 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b32e808 in: PAUSED
+11-16 03:39:35.476  1953  3163 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:35.476  1953  3163 I chatty  : uid=1000(system) Binder:1953_D identical 8 lines
+11-16 03:39:35.476  1953  3163 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:35.477 10808 10831 I MonitoringInstr: Unstopped activity count: 1
+11-16 03:39:35.478  1953  1982 I UsageStatsService: Time changed in UsageStats by 61 seconds
+11-16 03:39:35.478  1953  1982 I UsageStatsService: User[0] Flushing usage stats to disk
+11-16 03:39:35.491  1953  1982 I UsageStatsDatabase: Time changed by +1m1s432ms. files deleted: 0 files moved: 4
+11-16 03:39:35.492  1953  1982 I UsageStatsService: User[0] Rollover scheduled @ 2026-11-17 03:22:36(1794885756439)
+11-16 03:39:35.493  1953  1976 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-16 03:39:35.505  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:35.506  1726  1860 I chatty  : uid=1000(system) HwBinder:1726_2 identical 1 line
+11-16 03:39:35.507  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:35.507  2749  2936 D EGL_emulation: eglMakeCurrent: 0x74be7a5df3e0: ver 3 0 (tinfo 0x74bec57bb8e0)
+11-16 03:39:35.511  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:35.511  1953  1978 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-16 03:39:35.511  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:35.512  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:35.527 10808 10831 I MonitoringInstr: Unstopped activity count: 1
+11-16 03:39:35.541  1953  4151 D HostConnection: HostConnection::get() New Host Connection established 0x74be74f81d00, tid 4151
+11-16 03:39:35.541  1953  4151 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 03:39:35.542  1953  4151 D EGL_emulation: eglCreateContext: 0x74be74f81e40: maj 3 min 0 rcv 3
+11-16 03:39:35.543  1953  4151 D EGL_emulation: eglMakeCurrent: 0x74be74f81e40: ver 3 0 (tinfo 0x74be706562a0)
+11-16 03:39:35.549  1740  1740 E Layer   : [Surface(name=AppWindowToken{3d6b69e token=Token{5febcd9 ActivityRecord{8245b20 u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 t25}}})/@0xa025d7c - animation-leash#0] No local sync point found
+11-16 03:39:35.549  1740  1740 E Layer   : [Surface(name=AppWindowToken{a7a63b token=Token{ed764ca ActivityRecord{2f1d835 u0 com.android.launcher3/.Launcher t5}}})/@0x637aff7 - animation-leash#0] No local sync point found
+11-16 03:39:35.558 10808 10840 D EGL_emulation: eglMakeCurrent: 0x74be7aff74a0: ver 3 0 (tinfo 0x74bf55d720c0)
+11-16 03:39:35.577 10808 10831 I MonitoringInstr: Unstopped activity count: 1
+11-16 03:39:35.621 10808 10808 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b32e808 in: STOPPED
+11-16 03:39:35.621 10808 10808 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b32e808 in: DESTROYED
+11-16 03:39:35.627 10808 10831 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-16 03:39:35.629  1953  2339 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: finished inst
+11-16 03:39:35.629  1953  2339 I ActivityManager: Killing 10808:com.starcore.research.r13/u0a116 (adj 0): stop com.starcore.research.r13
+11-16 03:39:35.629  1953 10705 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-16 03:39:35.629  1953 10705 W Binder  : java.lang.Throwable
+11-16 03:39:35.629  1953 10705 W Binder  : 	at android.os.BinderProxy.transact(BinderProxy.java:480)
+11-16 03:39:35.629  1953 10705 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationFinished(IInstrumentationWatcher.java:205)
+11-16 03:39:35.629  1953 10705 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:86)
+11-16 03:39:35.629 10795 10795 D AndroidRuntime: Shutting down VM
+11-16 03:39:35.684  1953  2339 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: from pid 10933
+11-16 03:39:35.687  2358  2358 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 03:39:35.700  1953  2339 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: from pid 10939
+11-16 03:39:35.702  2358  2358 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 03:39:35.705  1707  1707 I Zygote  : Process 10808 exited due to signal 9 (Killed)
+11-16 03:39:35.709  1953  1977 W ActivityManager: setHasOverlayUi called on unknown pid: 10808
+11-16 03:39:35.718  1953  1985 I libprocessgroup: Successfully killed process cgroup uid 10116 pid 10808 in 88ms
+11-16 03:39:35.770 10946 10946 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-16 03:39:35.771 10946 10946 I AndroidRuntime: Using default boot image
+11-16 03:39:35.771 10946 10946 I AndroidRuntime: Leaving lock profiling enabled
+11-16 03:39:35.772 10946 10946 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 03:39:35.801 10946 10946 D ICU     : Time zone APEX file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 03:39:35.803 10946 10946 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:39:35.804 10946 10946 I app_process: The ClassLoaderContext is a special shared library.
+11-16 03:39:35.811 10946 10946 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 03:39:35.812 10946 10946 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-16 03:39:35.813  1953 10062 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: start instr
+11-16 03:39:35.819  1707  1707 D Zygote  : Forked child process 10959
+11-16 03:39:35.821 10959 10959 I re.research.r1: Late-enabling -Xcheck:jni
+11-16 03:39:35.825  1953  1984 I ActivityManager: Start proc 10959:com.starcore.research.r13/u0a116 for added application com.starcore.research.r13
+11-16 03:39:35.827 10959 10959 E re.research.r1: Unknown bits set in runtime_flags: 0x8000
+11-16 03:39:35.827 10959 10959 W re.research.r1: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:39:35.844 10959 10959 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+11-16 03:39:35.846 10959 10959 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:35.846 10959 10959 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:35.847 10959 10959 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[]{PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}#PCL[/system/framework/android.test.runner.jar*3312018701]{PCL[/system/framework/android.test.base.jar*1299883780]#PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}}} | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991])
+11-16 03:39:35.848 10959 10959 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:35.848 10959 10959 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:39:35.848 10959 10959 W re.research.r1: Found duplicated class when checking oat files: 'Ljunit/runner/BaseTestRunner;' in /system/framework/android.test.runner.jar and /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:35.848 10959 10959 W re.research.r1: 
+11-16 03:39:35.896 10959 10959 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=7 (PCL[] | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes5.dex*1964700859])
+11-16 03:39:35.905 10959 10959 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:35.905 10959 10959 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:35.906 10959 10959 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[]{PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}#PCL[/system/framework/android.test.runner.jar*3312018701]{PCL[/system/framework/android.test.base.jar*1299883780]#PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}}} | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991];PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/
+11-16 03:39:35.906 10959 10959 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:35.906 10959 10959 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:39:35.906 10959 10959 W re.research.r1: Found duplicated class when checking oat files: 'L_COROUTINE/ArtificialStackFrames;' in /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk and /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:35.906 10959 10959 W re.research.r1: 
+11-16 03:39:35.960 10959 10959 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=7 (PCL[] | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes5.dex*1964700859];PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/ba
+11-16 03:39:35.960 10959 10959 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk
+11-16 03:39:35.960 10959 10959 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:39:35.960 10959 10959 W re.research.r1: Found duplicated class when checking oat files: 'Lcom/ethk3/novaonepro/AblationRepairCreationR930$$ExternalSyntheticBackport0;' in /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk!classes3.dex and /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk!classes3.dex
+11-16 03:39:35.960 10959 10959 W re.research.r1: 
+11-16 03:39:36.141 10959 10959 W re.research.r1: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Landroid/app/Activity;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-16 03:39:36.141 10959 10959 W re.research.r1: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Ljava/lang/String;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-16 03:39:36.143 10959 10959 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+11-16 03:39:36.150 10959 10959 I AndroidJUnitRunner: onCreate Bundle[{r30Visibility=foreground, r30Sandbox=fault-43796780479-foreground-service_stop, class=com.ethk3.novaonepro.R30FaultMatrixTest#faultCell, r30Fault=service_stop, r30Phase=arm}]
+11-16 03:39:36.151 10959 10959 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-16 03:39:36.155 10959 10959 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-16 03:39:36.155 10959 10982 D AndroidJUnitRunner: onStart is called.
+11-16 03:39:36.166 10959 10982 W re.research.r1: Accessing hidden field Lsun/misc/Unsafe;->theUnsafe:Lsun/misc/Unsafe; (greylist, reflection, allowed)
+11-16 03:39:36.166 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->objectFieldOffset(Ljava/lang/reflect/Field;)J (greylist,core-platform-api, linking, allowed)
+11-16 03:39:36.167 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->arrayBaseOffset(Ljava/lang/Class;)I (greylist,core-platform-api, linking, allowed)
+11-16 03:39:36.167 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->arrayIndexScale(Ljava/lang/Class;)I (greylist, linking, allowed)
+11-16 03:39:36.169 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapInt(Ljava/lang/Object;JII)Z (greylist, linking, allowed)
+11-16 03:39:36.169 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:36.169 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z (greylist, linking, allowed)
+11-16 03:39:36.169 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapLong(Ljava/lang/Object;JJJ)Z (greylist, linking, allowed)
+11-16 03:39:36.169 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:36.172 10959 10982 I TestRunner: run started: 1 tests
+11-16 03:39:36.173 10959 10982 I TestRunner: started: faultCell(com.ethk3.novaonepro.R30FaultMatrixTest)
+11-16 03:39:36.598  1953  2632 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 03:39:38.440  3175  3189 W viders.calenda: Reducing the number of considered missed Gc histogram windows from 102 to 100
+11-16 03:39:38.517 10863 10888 I ndroid.calenda: Waiting for a blocking GC ProfileSaver
+11-16 03:39:41.850 10959 10982 I SQLiteConnection: /data/user/0/com.starcore.research.r13/no_backup/r30-instrumentation/fault-43796780479-foreground-service_stop/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db-wal 3370192 bytes: Bigger than 1048576; truncating
+11-16 03:39:42.325 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V (greylist, linking, allowed)
+11-16 03:39:42.335 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:42.336 10959 10982 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:39:42.336 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:42.341 10959 10982 I System.out: R31_FAULT_PLATFORM_STARTUP|db=/data/user/0/com.starcore.research.r13/no_backup/r30-instrumentation/fault-43796780479-foreground-service_stop/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db|metadata={"ddlExecuted":0,"issues":[],"issuesTruncated":false,"readOnly":true,"ready":true,"reason":"ACTUAL_CONTRACT_VERIFIED","schemaVersionAfter":6539,"schemaVersionBefore":6539,"status":"READY"}
+11-16 03:39:43.340 10959 10982 I SQLiteConnection: /data/user/0/com.starcore.research.r13/no_backup/r30-instrumentation/fault-43796780479-foreground-service_stop/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db-wal 3077672 bytes: Bigger than 1048576; truncating
+11-16 03:39:43.341 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:43.840  1953  9414 I ActivityTaskManager: START u0 {flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} from uid 10116
+11-16 03:39:43.378 10959 10982 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:39:43.404 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:43.846  1953  9414 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:43.847  1953  9414 I chatty  : uid=1000(system) Binder:1953_18 identical 38 lines
+11-16 03:39:43.847  1953  9414 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:43.847 10959 10959 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@ec4effa
+11-16 03:39:43.859  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:43.860  1740  1834 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-16 03:39:43.860  1740  1834 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-16 03:39:43.861 10959 10959 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b32e808 in: PRE_ON_CREATE
+11-16 03:39:43.865  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:43.865  1953  1978 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-16 03:39:43.865  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:43.874 10959 10995 D libEGL  : Emulator has host GPU support, qemu.gles is set to 1.
+11-16 03:39:43.871 10959 10959 W RenderThread: type=1400 audit(0.0:64): avc: denied { write } for name="property_service" dev="tmpfs" ino=7386 scontext=u:r:untrusted_app_27:s0:c116,c256,c512,c768 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0 app=com.starcore.research.r13
+11-16 03:39:43.875 10959 10995 W libc    : Unable to set property "qemu.gles" to "1": connection failed; errno=13 (Permission denied)
+11-16 03:39:43.900  2749  2936 D EGL_emulation: eglMakeCurrent: 0x74be7a5df3e0: ver 3 0 (tinfo 0x74bec57bb8e0)
+11-16 03:39:43.936 10959 10959 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b32e808 in: CREATED
+11-16 03:39:43.938 10959 10959 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b32e808 in: STARTED
+11-16 03:39:43.940 10959 10995 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-16 03:39:43.940 10959 10959 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b32e808 in: RESUMED
+11-16 03:39:43.940 10959 10996 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:43.941 10959 10995 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-16 03:39:43.943 10959 10995 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-16 03:39:43.969 10959 10993 D HostConnection: HostConnection::get() New Host Connection established 0x74be782bacc0, tid 10993
+11-16 03:39:43.971 10959 10993 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 03:39:43.971 10959 10996 W re.research.r1: JNI critical lock held for 20.446ms on Thread[5,tid=10996,Runnable,Thread*=0x74be7a6ca800,peer=0x12f306b8,"pool-2-thread-1"]
+11-16 03:39:43.974 10959 10993 D EGL_emulation: eglCreateContext: 0x74be782baea0: maj 3 min 0 rcv 3
+11-16 03:39:43.974 10959 10993 D EGL_emulation: eglMakeCurrent: 0x74be782baea0: ver 3 0 (tinfo 0x74bec5783de0)
+11-16 03:39:43.980  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:43.983  1608  1608 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
+11-16 03:39:43.984 10959 10993 W Gralloc3: mapper 3.x is not supported
+11-16 03:39:43.985 10959 10993 D HostConnection: createUnique: call
+11-16 03:39:43.985 10959 10993 D HostConnection: HostConnection::get() New Host Connection established 0x74be748935e0, tid 10993
+11-16 03:39:43.987 10959 10993 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 03:39:43.987 10959 10993 D eglCodecCommon: allocate: Ask for block of size 0x1000
+11-16 03:39:43.987 10959 10993 D eglCodecCommon: allocate: ioctl allocate returned offset 0x3fff28000 size 0x2000
+11-16 03:39:43.988  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:43.988  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:43.990 10959 10993 D EGL_emulation: eglMakeCurrent: 0x74be782baea0: ver 3 0 (tinfo 0x74bec5783de0)
+11-16 03:39:43.991 10959 10996 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908
+11-16 03:39:43.991 10959 10996 E SQLiteLog: (1) no such table: v57_algorithm_predraw_r908
+11-16 03:39:43.991 10959 10996 E SQLiteLog: (1) no such table: v57_exploration_r83
+11-16 03:39:43.992 10959 10996 E SQLiteLog: (1) no such table: v57_exploration_r83
+11-16 03:39:43.995 10959 10996 E SQLiteLog: (1) no such table: atomic_tool_context_r943
+11-16 03:39:43.997 10959 10996 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:44.062 10959 10996 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:44.353  1953  1982 I ActivityTaskManager: Displayed com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83: +510ms
+11-16 03:39:44.706 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:44.721 10959 10982 I chatty  : uid=10116(com.starcore.research.r13) identical 3 lines
+11-16 03:39:44.721 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.136 10959 10982 E SQLiteLog: (1) no such table: r974_prediction_rejection
+11-16 03:39:45.137 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.137 10959 10982 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:39:45.151 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.593 10959 10982 E SQLiteLog: (1) no such table: dynamic_freeze_matrix
+11-16 03:39:45.602 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.618 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.868 10959 10982 E SQLiteLog: (1) no such table: v57_batch34_schema_meta_r930
+11-16 03:39:45.874 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.888 10959 10982 I chatty  : uid=10116(com.starcore.research.r13) identical 2 lines
+11-16 03:39:45.893 10959 10982 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.900  1953  1982 E memtrack: Couldn't load memtrack module
+11-16 03:39:45.900  1953  1982 W android.os.Debug: failed to get memory consumption info: -1
+11-16 03:39:45.903 10959 10982 I R30_FAULT_SERVICE_ARMED: 202610310241|durable_frozen=1|manual_reopen_required_after_force_stop
+11-16 03:39:45.903 10959 10982 I System.out: R30_FAULT_ARMED|service_stop|foreground
+11-16 03:39:45.931 10959 11000 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.980  1953  9309 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: from pid 11016
+11-16 03:39:45.980  1953  9309 I ActivityManager: Killing 10959:com.starcore.research.r13/u0a116 (adj 0): stop com.starcore.research.r13
+11-16 03:39:45.981  1953  9309 W ActivityManager: Scheduling restart of crashed service com.starcore.research.r13/com.ethk3.novaonepro.AutoFetchService in 1000ms
+11-16 03:39:45.981  1953  9309 W ActivityTaskManager: Force removing ActivityRecord{d785148 u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 t26 f}: app died, no saved state
+11-16 03:39:45.932 10959 11000 I chatty  : uid=10116(com.starcore.research.r13) identical 1 line
+11-16 03:39:45.939 10959 11000 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:45.983  1953  9309 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:45.986  1953  9309 W ActivityManager: Crash of app com.starcore.research.r13 running instrumentation ComponentInfo{com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner}
+11-16 03:39:45.986  1953  9309 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: finished inst
+11-16 03:39:45.983  1953  9309 I chatty  : uid=1000(system) Binder:1953_17 identical 8 lines
+11-16 03:39:45.983  1953  9309 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:45.986  1953 11019 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-16 03:39:45.986  1953 11019 W Binder  : java.lang.Throwable
+11-16 03:39:45.986  1953 11019 W Binder  : 	at android.os.BinderProxy.transact(BinderProxy.java:480)
+11-16 03:39:45.986  1953 11019 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationFinished(IInstrumentationWatcher.java:205)
+11-16 03:39:45.986  1953 11019 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:86)
+11-16 03:39:45.987 10946 10946 D AndroidRuntime: Shutting down VM
+11-16 03:39:45.987  1953  9309 I ActivityManager:   Force stopping service ServiceRecord{30e07ec u0 com.starcore.research.r13/com.ethk3.novaonepro.AutoFetchService}
+11-16 03:39:45.988  1953  9309 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:45.988  1953  9309 I chatty  : uid=1000(system) Binder:1953_17 identical 8 lines
+11-16 03:39:45.988  1953  9309 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:45.998  2358  2358 D CarrierSvcBindHelper: No carrier app for: 0
+11-16 03:39:46.005  1953  1977 W ActivityManager: setHasOverlayUi called on unknown pid: 10959
+11-16 03:39:46.010  1953  1953 I NotificationService: Cannot find enqueued record for key: 0|com.starcore.research.r13|32011|null|10116
+11-16 03:39:46.019  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:46.021  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:46.021  2749  2936 D EGL_emulation: eglMakeCurrent: 0x74be7a5df3e0: ver 3 0 (tinfo 0x74bec57bb8e0)
+11-16 03:39:46.024  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:46.037  1707  1707 I Zygote  : Process 10959 exited due to signal 9 (Killed)
+11-16 03:39:46.068  1953  1985 I libprocessgroup: Successfully killed process cgroup uid 10116 pid 10959 in 87ms
+11-16 03:39:46.090 11025 11025 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-16 03:39:46.091 11025 11025 I AndroidRuntime: Using default boot image
+11-16 03:39:46.091 11025 11025 I AndroidRuntime: Leaving lock profiling enabled
+11-16 03:39:46.092 11025 11025 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 03:39:46.121 11025 11025 D ICU     : Time zone APEX file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-16 03:39:46.123 11025 11025 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:39:46.124 11025 11025 I app_process: The ClassLoaderContext is a special shared library.
+11-16 03:39:46.130 11025 11025 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-16 03:39:46.132 11025 11025 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-16 03:39:46.133  1953  8393 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: start instr
+11-16 03:39:46.138  1707  1707 D Zygote  : Forked child process 11038
+11-16 03:39:46.139 11038 11038 I re.research.r1: Late-enabling -Xcheck:jni
+11-16 03:39:46.144  1953  1984 I ActivityManager: Start proc 11038:com.starcore.research.r13/u0a116 for added application com.starcore.research.r13
+11-16 03:39:46.146 11038 11038 E re.research.r1: Unknown bits set in runtime_flags: 0x8000
+11-16 03:39:46.146 11038 11038 W re.research.r1: Unexpected CPU variant for X86 using defaults: x86_64
+11-16 03:39:46.161 11038 11038 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+11-16 03:39:46.162 11038 11038 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:46.162 11038 11038 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:46.164 11038 11038 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[]{PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}#PCL[/system/framework/android.test.runner.jar*3312018701]{PCL[/system/framework/android.test.base.jar*1299883780]#PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}}} | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991])
+11-16 03:39:46.164 11038 11038 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:46.164 11038 11038 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:39:46.164 11038 11038 W re.research.r1: Found duplicated class when checking oat files: 'Ljunit/runner/BaseTestRunner;' in /system/framework/android.test.runner.jar and /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:46.164 11038 11038 W re.research.r1: 
+11-16 03:39:46.213 11038 11038 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=7 (PCL[] | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes5.dex*1964700859])
+11-16 03:39:46.221 11038 11038 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:46.222 11038 11038 I re.research.r1: The ClassLoaderContext is a special shared library.
+11-16 03:39:46.223 11038 11038 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[]{PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}#PCL[/system/framework/android.test.runner.jar*3312018701]{PCL[/system/framework/android.test.base.jar*1299883780]#PCL[/system/framework/android.test.mock.jar*3601177991]{PCL[/system/framework/android.test.base.jar*1299883780]}}} | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991];PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/
+11-16 03:39:46.223 11038 11038 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:46.223 11038 11038 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:39:46.223 11038 11038 W re.research.r1: Found duplicated class when checking oat files: 'L_COROUTINE/ArtificialStackFrames;' in /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk and /data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk
+11-16 03:39:46.223 11038 11038 W re.research.r1: 
+11-16 03:39:46.270 11038 11038 W re.research.r1: ClassLoaderContext classpath size mismatch. expected=0, found=7 (PCL[] | PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes3.dex*60912731:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes4.dex*2186058725:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes5.dex*1964700859];PCL[/system/framework/android.test.runner.jar*3312018701:/system/framework/android.test.mock.jar*3601177991:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk*1157052425:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/base.apk!classes2.dex*2667455589:/data/app/com.starcore.research.r13.test-Fudij-rUvvN5XM4MfFWLww==/ba
+11-16 03:39:46.271 11038 11038 W re.research.r1: Found duplicate classes, falling back to extracting from APK : /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk
+11-16 03:39:46.271 11038 11038 W re.research.r1: NOTE: This wastes RAM and hurts startup performance.
+11-16 03:39:46.271 11038 11038 W re.research.r1: Found duplicated class when checking oat files: 'Lcom/ethk3/novaonepro/AblationRepairCreationR930$$ExternalSyntheticBackport0;' in /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk!classes3.dex and /data/app/com.starcore.research.r13-oSbw7XMVl0LDI3-5cDkwnw==/base.apk!classes3.dex
+11-16 03:39:46.271 11038 11038 W re.research.r1: 
+11-16 03:39:46.448 11038 11038 W re.research.r1: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Landroid/app/Activity;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-16 03:39:46.448 11038 11038 W re.research.r1: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Ljava/lang/String;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-16 03:39:46.450 11038 11038 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+11-16 03:39:46.457 11038 11038 I AndroidJUnitRunner: onCreate Bundle[{r30Visibility=foreground, r30Sandbox=fault-43796780479-foreground-service_stop, class=com.ethk3.novaonepro.R30FaultMatrixTest#faultCell, r30Fault=service_stop, r30Phase=recover}]
+11-16 03:39:46.458 11038 11038 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-16 03:39:46.462 11038 11038 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-16 03:39:46.463 11038 11061 D AndroidJUnitRunner: onStart is called.
+11-16 03:39:46.475 11038 11061 W re.research.r1: Accessing hidden field Lsun/misc/Unsafe;->theUnsafe:Lsun/misc/Unsafe; (greylist, reflection, allowed)
+11-16 03:39:46.475 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->objectFieldOffset(Ljava/lang/reflect/Field;)J (greylist,core-platform-api, linking, allowed)
+11-16 03:39:46.475 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->arrayBaseOffset(Ljava/lang/Class;)I (greylist,core-platform-api, linking, allowed)
+11-16 03:39:46.475 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->arrayIndexScale(Ljava/lang/Class;)I (greylist, linking, allowed)
+11-16 03:39:46.477 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapInt(Ljava/lang/Object;JII)Z (greylist, linking, allowed)
+11-16 03:39:46.477 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:46.477 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z (greylist, linking, allowed)
+11-16 03:39:46.477 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapLong(Ljava/lang/Object;JJJ)Z (greylist, linking, allowed)
+11-16 03:39:46.477 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:46.479 11038 11061 I TestRunner: run started: 1 tests
+11-16 03:39:46.480 11038 11061 I TestRunner: started: faultCell(com.ethk3.novaonepro.R30FaultMatrixTest)
+11-16 03:39:46.513 11038 11061 W re.research.r1: JNI critical lock held for 18.089ms on Thread[18,tid=11061,Runnable,Thread*=0x74bec5986400,peer=0x13ad08d8,"Instr: com.ethk3.novaonepro.R30FaultAndroidRunner"]
+11-16 03:39:46.596 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V (greylist, linking, allowed)
+11-16 03:39:46.598 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:46.599  1953  8393 I ActivityTaskManager: START u0 {flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} from uid 10116
+11-16 03:39:46.602  1953  8006 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:46.603  1953  8006 I chatty  : uid=1000(system) Binder:1953_10 identical 38 lines
+11-16 03:39:46.603  1953  8006 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:46.603 11038 11038 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@3b3333e
+11-16 03:39:46.605  1740  1834 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-16 03:39:46.606  1740  1834 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-16 03:39:46.601 11038 11038 W RenderThread: type=1400 audit(0.0:65): avc: denied { write } for name="property_service" dev="tmpfs" ino=7386 scontext=u:r:untrusted_app_27:s0:c116,c256,c512,c768 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0 app=com.starcore.research.r13
+11-16 03:39:46.607 11038 11072 D libEGL  : Emulator has host GPU support, qemu.gles is set to 1.
+11-16 03:39:46.608 11038 11072 W libc    : Unable to set property "qemu.gles" to "1": connection failed; errno=13 (Permission denied)
+11-16 03:39:46.609 11038 11038 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e6b66ec in: PRE_ON_CREATE
+11-16 03:39:46.626  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:46.637  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:46.637  1953  1978 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-16 03:39:46.637  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:46.645 11038 11038 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e6b66ec in: CREATED
+11-16 03:39:46.646 11038 11038 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e6b66ec in: STARTED
+11-16 03:39:46.649 11038 11038 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e6b66ec in: RESUMED
+11-16 03:39:46.652 11038 11072 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-16 03:39:46.653 11038 11073 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:46.654 11038 11072 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-16 03:39:46.658 11038 11072 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-16 03:39:46.665  2749  2936 D EGL_emulation: eglMakeCurrent: 0x74be7a5df3e0: ver 3 0 (tinfo 0x74bec57bb8e0)
+11-16 03:39:46.678 11038 11073 W re.research.r1: JNI critical lock held for 19.309ms on Thread[27,tid=11073,Runnable,Thread*=0x74be7a735c00,peer=0x13f8ebb0,"pool-2-thread-1"]
+11-16 03:39:46.682 11038 11070 D HostConnection: HostConnection::get() New Host Connection established 0x74be75941fe0, tid 11070
+11-16 03:39:46.682 11038 11070 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 03:39:46.688 11038 11070 D EGL_emulation: eglCreateContext: 0x74be759421c0: maj 3 min 0 rcv 3
+11-16 03:39:46.688 11038 11070 D EGL_emulation: eglMakeCurrent: 0x74be759421c0: ver 3 0 (tinfo 0x74be776ea4c0)
+11-16 03:39:46.694  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:46.694  1608  1608 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
+11-16 03:39:46.694 11038 11070 W Gralloc3: mapper 3.x is not supported
+11-16 03:39:46.696 11038 11070 D HostConnection: createUnique: call
+11-16 03:39:46.696 11038 11070 D HostConnection: HostConnection::get() New Host Connection established 0x74be75942300, tid 11070
+11-16 03:39:46.699 11038 11070 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 03:39:46.702 11038 11070 D eglCodecCommon: allocate: Ask for block of size 0x1000
+11-16 03:39:46.702 11038 11070 D eglCodecCommon: allocate: ioctl allocate returned offset 0x3fff28000 size 0x2000
+11-16 03:39:46.704 11038 11073 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908
+11-16 03:39:46.704 11038 11073 E SQLiteLog: (1) no such table: v57_algorithm_predraw_r908
+11-16 03:39:46.705  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:46.707  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:46.709 11038 11070 D EGL_emulation: eglMakeCurrent: 0x74be759421c0: ver 3 0 (tinfo 0x74be776ea4c0)
+11-16 03:39:46.722 11038 11073 E SQLiteLog: (1) no such table: atomic_tool_context_r943
+11-16 03:39:46.725 11038 11073 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:46.727 11038 11073 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.086  1953  1982 I ActivityTaskManager: Displayed com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83: +481ms
+11-16 03:39:47.406 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.407 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.442 11038 11075 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.454 11038 11075 I chatty  : uid=10116(com.starcore.research.r13) re.research.r13 identical 2 lines
+11-16 03:39:47.461 11038 11075 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.498 11038 11087 E SQLiteLog: (1) no such table: r29_database_route
+11-16 03:39:47.586 11038 11087 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.588 11038 11078 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.626 11038 11079 W re.research.r1: JNI critical lock held for 16.779ms on Thread[30,tid=11079,Runnable,Thread*=0x74be7af17800,peer=0x14196910,"starcore_b07_analysis_watchdog"]
+11-16 03:39:47.648 11038 11077 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.669 11038 11087 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.669 11038 11087 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.690 11038 11076 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.700 11038 11076 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.702 11038 11079 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.702 11038 11077 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.705 11038 11080 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.712 11038 11080 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.714 11038 11077 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.716 11038 11077 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.721 11038 11079 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.723 11038 11077 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.730 11038 11079 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.730 11038 11079 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.762 11038 11082 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.771 11038 11076 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.775 11038 11044 I re.research.r1: Compiler allocated 5416KB to compile java.lang.Object com.ethk3.novaonepro.DatabaseCoordinator.runWrite(com.ethk3.novaonepro.DatabaseCoordinator$WriteContext, com.ethk3.novaonepro.DatabaseCoordinator$WriteCallable, java.lang.Object)
+11-16 03:39:47.781 11038 11082 E SQLiteLog: (1) no such table: v57_batch34_schema_meta_r930
+11-16 03:39:47.790 11038 11082 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.791 11038 11077 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.902 11038 11084 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.941 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: initialization dependency wait
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R31_UPGRADE_TRANSFORM_START|category=CANCELLED|phase=WAIT|commitOutcome=ROLLED_BACK
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:846)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:1012)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.lambda$initialize$7(RuntimeCoordinatorR26.java:419)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$Em2GCrNlJKytG2xcDtR4ZhlAo_0(Unknown Source:0)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda21.write(D8$$SyntheticClass:0)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.SchemaDomainCoordinatorR926.runUpgradeR31(SchemaDomainCoordinatorR926.java:1427)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.initialize(RuntimeCoordinatorR26.java:419)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:492)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda15.run(D8$$SyntheticClass:0)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at java.lang.Thread.run(Thread.java:919)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: Caused by: java.lang.InterruptedException: CP3_DB_WAIT_INTERRUPTED
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:913)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:843)
+11-16 03:39:47.942 11038 11087 W STARCORE_R26: 	... 10 more
+11-16 03:39:47.942 11038 11087 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.944 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.948 11038 11061 I chatty  : uid=10116(com.starcore.research.r13) re.research.r13 identical 1 line
+11-16 03:39:47.953 11038 11061 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.965 11038 11082 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.989 11038 11061 I System.out: R30_FAULT_CELL|service_stop|foreground|ACTUAL_ANDROID_MECHANICS|NO_HALF_ROWS|NO_DUPLICATE_SETTLEMENT|NO_FAKE_PUBLISHED_TIME|SYNTHETIC_NOT_NATURAL_OR_PHYSICAL|PASS
+11-16 03:39:47.994 11038 11077 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.998  1953  1953 I NotificationService: Cannot find enqueued record for key: 0|com.starcore.research.r13|32011|null|10116
+11-16 03:39:47.998 11038 11082 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:47.998 11038 11082 E SQLiteLog: (1) no such table: v57_research_queue_r815
+11-16 03:39:47.999 11038 11082 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:48.000 11038 11082 W re.research.r1: Accessing hidden method Lsun/misc/Unsafe;->getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-16 03:39:48.001  1953  9414 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:48.001  1953  9414 I chatty  : uid=1000(system) Binder:1953_18 identical 8 lines
+11-16 03:39:48.001  1953  9414 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:48.002 11038 11061 I TestRunner: finished: faultCell(com.ethk3.novaonepro.R30FaultMatrixTest)
+11-16 03:39:48.002 11038 11038 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e6b66ec in: PAUSED
+11-16 03:39:48.002  1953  9414 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:48.002  1953  9414 I chatty  : uid=1000(system) Binder:1953_18 identical 8 lines
+11-16 03:39:48.002  1953  9414 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:48.003 11038 11061 I MonitoringInstr: Unstopped activity count: 1
+11-16 03:39:48.037  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:48.039  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:48.040  2749  2936 D EGL_emulation: eglMakeCurrent: 0x74be7a5df3e0: ver 3 0 (tinfo 0x74bec57bb8e0)
+11-16 03:39:48.040  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:48.044  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:48.044  1953  1978 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-16 03:39:48.044  1953  1978 W InputReader: Device has associated, but no associated display id.
+11-16 03:39:48.045  1726  1860 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 823296
+11-16 03:39:48.054 11038 11061 I MonitoringInstr: Unstopped activity count: 1
+11-16 03:39:48.075  1953  4151 D HostConnection: HostConnection::get() New Host Connection established 0x74be74f81d00, tid 4151
+11-16 03:39:48.075 11038 11070 D EGL_emulation: eglMakeCurrent: 0x74be759421c0: ver 3 0 (tinfo 0x74be776ea4c0)
+11-16 03:39:48.075  1953  4151 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-16 03:39:48.077  1953  4151 D EGL_emulation: eglCreateContext: 0x74be74f81e40: maj 3 min 0 rcv 3
+11-16 03:39:48.080 11038 11038 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e6b66ec in: STOPPED
+11-16 03:39:48.081  1953  4151 D EGL_emulation: eglMakeCurrent: 0x74be74f81e40: ver 3 0 (tinfo 0x74be706562a0)
+11-16 03:39:48.082  1740  1740 E Layer   : [Surface(name=AppWindowToken{a7a63b token=Token{ed764ca ActivityRecord{2f1d835 u0 com.android.launcher3/.Launcher t5}}})/@0x637aff7 - animation-leash#0] No local sync point found
+11-16 03:39:48.082  1740  1740 E Layer   : [Surface(name=AppWindowToken{dcdc676 token=Token{31b4511 ActivityRecord{5e98138 u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 t27}}})/@0x576e314 - animation-leash#0] No local sync point found
+11-16 03:39:48.092  1953  1976 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-16 03:39:48.094 11038 11038 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e6b66ec in: DESTROYED
+11-16 03:39:48.104 11038 11061 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-16 03:39:48.103  1953  1976 I chatty  : uid=1000(system) android.io identical 2 lines
+11-16 03:39:48.105  1953  1976 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-16 03:39:48.105  1953  2190 I ActivityManager: Force stopping com.starcore.research.r13 appid=10116 user=0: finished inst
+11-16 03:39:48.106  1953 11019 W Binder  : Outgoing transactions from this process must be FLAG_ONEWAY
+11-16 03:39:48.106  1953 11019 W Binder  : java.lang.Throwable
+11-16 03:39:48.106  1953 11019 W Binder  : 	at android.os.BinderProxy.transact(BinderProxy.java:480)
+11-16 03:39:48.106  1953 11019 W Binder  : 	at android.app.IInstrumentationWatcher$Stub$Proxy.instrumentationFinished(IInstrumentationWatcher.java:205)
+11-16 03:39:48.106  1953 11019 W Binder  : 	at com.android.server.am.InstrumentationReporter$MyThread.run(InstrumentationReporter.java:86)
+11-16 03:39:48.106  1953  2190 I ActivityManager: Killing 11038:com.starcore.research.r13/u0a116 (adj 0): stop com.starcore.research.r13
+11-16 03:39:48.106 11025 11025 D AndroidRuntime: Shutting down VM
+11-16 03:39:48.107  1953  1976 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2

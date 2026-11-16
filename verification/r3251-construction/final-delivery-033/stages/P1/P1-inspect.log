@@ -1,0 +1,72 @@
+{
+  "schema": "R32_READ_ONLY_RESUME_STATUS_V1",
+  "status": "BASELINE_READY",
+  "scope": "SOURCE_BYTES_DECLARED_MODES_AND_DURABLE_TRANSACTION_ONLY",
+  "manifest_sha256": "bcacd4b40282ff3e81775e53e081768e90188ba068843d2b726dd60b5c87df70",
+  "plan_revision": "R32.5_FINAL_REPAIR_20261115",
+  "furthest_matching_source_batch": null,
+  "byte_equivalent_stage_matches": [
+    "BASELINE"
+  ],
+  "resume_batch": null,
+  "next_source_batch": "P1",
+  "verify_current_batch_before_advancing": "P1",
+  "current_batch_contract": "batches/P1.md",
+  "pending_source_files_for_identified_batch": 28,
+  "transaction_state": null,
+  "source_receipts": {
+    "P1": "ABSENT",
+    "P2": "ABSENT",
+    "P3": "ABSENT",
+    "P4": "ABSENT",
+    "P5": "ABSENT"
+  },
+  "commands": [
+    {
+      "purpose": "CHECK_IDENTIFIED_BATCH",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/starcore-plan-r3251/construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/R32_5_1_restored/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/apply_batch.py",
+        "--package",
+        "/workspace/starcore-plan-r3251/construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/R32_5_1_restored/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/starcore-r3251-build",
+        "--batch",
+        "P1"
+      ]
+    },
+    {
+      "purpose": "APPLY_OR_RESUME_IDENTIFIED_BATCH",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/starcore-plan-r3251/construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/R32_5_1_restored/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/apply_batch.py",
+        "--package",
+        "/workspace/starcore-plan-r3251/construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/R32_5_1_restored/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/starcore-r3251-build",
+        "--batch",
+        "P1",
+        "--apply"
+      ]
+    },
+    {
+      "purpose": "REGENERATE_AND_VERIFY_CURRENT_STAGE_BEFORE_TESTS",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/starcore-plan-r3251/construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/R32_5_1_restored/STARCORE_R32_5_FINAL_REPAIR_20261115/tools/verify_stage_identity.py",
+        "--package",
+        "/workspace/starcore-plan-r3251/construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/R32_5_1_restored/STARCORE_R32_5_FINAL_REPAIR_20261115",
+        "--repo",
+        "/workspace/starcore-r3251-build",
+        "--batch",
+        "P1",
+        "--generate"
+      ]
+    }
+  ],
+  "next_step": "Run the identified current-stage identity and batch regression contract. Advance only after recording its actual result; old receipts do not sign new business acceptance.",
+  "writes_performed": 0,
+  "business_acceptance": "NOT_EVALUATED",
+  "android_device_status": "NOT_EVALUATED",
+  "natural_quality": "NOT_EVALUATED"
+}

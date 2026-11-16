@@ -1,0 +1,535 @@
+{
+  "sourceCapturedAt": "2026-11-16T03:55:47.038033+00:00",
+  "base": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "465e2b34b1610dde98a84157fd50f8e1538caf8ab5815ff13b5d27d94247a9cd",
+    "app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java": "609b31256f757a9e463973e2d93f9a1492f316187206eb1f33fd56f3db2b53eb",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java": "2b9384e18e245cf133a5b125577e42ae976bfe0257caee38e8d9eb49325e9cef",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java": "b8f8af7d8593be71c5291fa4db8161254551e7298d90f7e210632548bd3075ba",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java": "5e2a21f322dc59c6f44575407044d39c62359c23247e715b2c42df31a430abc2",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java": "31476d4cee77f827ce9c0217f42c95bf1ad419ebbe5c0cb7c8e986221d658f37",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java": "ee697f455edd9c0c5e254226e36aad4f8459e031cce88353a9e93aad92ad79a9"
+  },
+  "supportJar": "/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+  "supportJarSha256": "e624ea5f56becbdfd8c9032ce62c6c33eda804f2ce611b227bfc416b3e9bbae5",
+  "jdbcSha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+  "androidJarSha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+  "scope": "Actual production telemetry/coordinator sources; native JDBC SQLite HOST adapters, engineering fixtures; NOT_ANDROID_NOT_DEVICE_NOT_24H_NOT_72H_NOT_NATURAL_QUALITY",
+  "status": "HOST_NATIVE_TESTS_COMPLETED",
+  "runs": [
+    {
+      "name": "compile-host-platform",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/database/Cursor.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/database/sqlite/SQLiteDatabase.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/database/sqlite/SQLiteDatabaseLockedException.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/database/sqlite/SQLiteException.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/content/Context.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/app/Application.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/os/SystemClock.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/os/Process.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/os/Looper.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/android/util/Log.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/com/ethk3/novaonepro/DbHelper.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/shim-source/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-production",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/production",
+        "/workspace/starcore-r3251-P4-complete-chain/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "/workspace/starcore-r3251-P4-complete-chain/app/src/main/java/com/ethk3/novaonepro/TransactionSchemaCacheR941.java",
+        "/workspace/starcore-r3251-P4-complete-chain/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "/workspace/starcore-r3251-P4-complete-chain/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
+        "/workspace/starcore-r3251-P4-complete-chain/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+        "/workspace/starcore-r3251-P4-complete-chain/app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
+        "/workspace/starcore-r3251-P4-complete-chain/app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-baseline-owners",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes",
+        "-d",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/baseline",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/baseline-source/IssueTimelineWriterR30.java",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/baseline-source/HoldLedgerFlushR30.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile-native-tests",
+      "command": [
+        "javac",
+        "-nowarn",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/tests",
+        "/workspace/starcore-r3251-P4-complete-chain/tools/r31/telemetry_budget_host/R31TelemetryBudgetHost.java",
+        "/workspace/starcore-r3251-P4-complete-chain/tools/r30-repair/qual_host/RepairTimelineR30HostTest.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "baseline-timeline64",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/baseline:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "baseline-timeline64",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "baseline-hold65",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/baseline:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "baseline-hold65",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline64",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline64",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold65",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold65",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-first-sql-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-first-sql-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-middle-sql-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-middle-sql-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-before-commit-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-before-commit-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-after-commit-ack-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-after-commit-ack-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-unknown-then-receipt",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-unknown-then-receipt",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-postcommit-diagnostic",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-postcommit-diagnostic",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-concurrent-source",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-concurrent-source",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-concurrent-new",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-concurrent-new",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-existing-durable",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-existing-durable",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-first-sql-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-first-sql-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-middle-sql-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-middle-sql-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-before-commit-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-before-commit-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-after-commit-ack-failure",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-after-commit-ack-failure",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-unknown-then-receipt",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-unknown-then-receipt",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-postcommit-diagnostic",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-postcommit-diagnostic",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-concurrent-new",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-concurrent-new",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "missing-schema",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "missing-schema",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-byte-budget",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-byte-budget",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "timeline-byte-budget-64m",
+      "command": [
+        "java",
+        "-Xmx64m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "timeline-byte-budget-64m",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "hold-prune",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.R31TelemetryBudgetHost",
+        "hold-prune",
+        "/workspace/starcore-r3251-P4-complete-chain/app/build/r312-host/run_telemetry_budget_host"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "original-timeline-regression",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "/tmp/r31-telemetry-budgets-cnnrpzcr/platform:/tmp/r31-telemetry-budgets-cnnrpzcr/production:/tmp/r31-telemetry-budgets-cnnrpzcr/tests:/workspace/starcore-r3251-P4-complete-chain/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "mode": "FULL_TELEMETRY_BUDGET_PROTOCOL",
+  "supportKind": "CLASS_DIRECTORY",
+  "sourceGitHeadAtRun": "8894692374ad971cd80120f7aeee2e46c16afa86",
+  "baselineOwnerSourceCommit": "3246ccf8eb6f7b2f7b9d0fe77fc18a70ab958056",
+  "javaHome": "/workspace/starcore-environment/tools/jdk-17.0.17+10",
+  "javaExecutable": "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+  "javacExecutable": "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/javac",
+  "compiledProductionClassSha256": {
+    "com/ethk3/novaonepro/DatabaseCoordinator$1.class": "997613480aa21bfa038c57543d8b266429df494979f3307aa721a9199d0bf818",
+    "com/ethk3/novaonepro/DatabaseCoordinator$10.class": "21bb953897c2c8b2d910e9f81bf09a64007adbf8470a0f1da7265f96e8fefd0f",
+    "com/ethk3/novaonepro/DatabaseCoordinator$11.class": "af606319c1fb43a1e1325c20eabe670d7039a5bc66f2557859419e46a8a3d626",
+    "com/ethk3/novaonepro/DatabaseCoordinator$12.class": "dc9ad8d1371f7fc4dea6888a9caad0fa1b86f332a99fa1aea68b6fee3f9077ad",
+    "com/ethk3/novaonepro/DatabaseCoordinator$13.class": "1c6abf8b0354337a43454878e7ddb6f075035985c2f624196967b94b2db12c4b",
+    "com/ethk3/novaonepro/DatabaseCoordinator$14.class": "f68dadd2362b0f232d31d7fe9dfc7631139fb0840acfed0a805114b5bc55b4f1",
+    "com/ethk3/novaonepro/DatabaseCoordinator$15.class": "6ecfbdbf8050c115c82e4567f7b9789dbd1aab56c64ebe5d61e27b68e3b1304a",
+    "com/ethk3/novaonepro/DatabaseCoordinator$16.class": "f993ad715b368e93c9151a2e2b50d90411911816f20c88f58421947d1ce62c69",
+    "com/ethk3/novaonepro/DatabaseCoordinator$17.class": "50462a1b2ad73651c2ce68dc0a5674855ad683041bbc5227951a5f29e2800e64",
+    "com/ethk3/novaonepro/DatabaseCoordinator$18.class": "1b87f3b381f1b08731839922906c24efa8199fb9c259f13acbe35d519db856fc",
+    "com/ethk3/novaonepro/DatabaseCoordinator$19.class": "f0c4ac6bed5e45786d719721d97b3925e93f574a6e301ad95c1caa72037c4c62",
+    "com/ethk3/novaonepro/DatabaseCoordinator$2.class": "30534e5b55b8303f60df037199fedc0464055dc4d8cb5fde8b9eff048445a6c4",
+    "com/ethk3/novaonepro/DatabaseCoordinator$20.class": "8ca498569ba48151fb77a9286028ead00ddccc1659d64c1d14b725907c2c98ec",
+    "com/ethk3/novaonepro/DatabaseCoordinator$21.class": "68e3d25c906c2ac9803e14e34ddac3c198255d5a8c5afffd7bcdbcb446c5f0c3",
+    "com/ethk3/novaonepro/DatabaseCoordinator$22.class": "6d1182eeaa2e26c5a574077d455260d2c66c9cd07f2c71b9e01391f387976520",
+    "com/ethk3/novaonepro/DatabaseCoordinator$3.class": "92d26fc480a49388ef8a5bfc26f80bb8026086056819ddfe90dd81edeae01db9",
+    "com/ethk3/novaonepro/DatabaseCoordinator$4.class": "abd9257a9c46bc1d30cdf0b8e1a3d32a02e3aebfb60c476f98892844ab4714f9",
+    "com/ethk3/novaonepro/DatabaseCoordinator$5.class": "93a75392427329330f889e375ae7c4c02cfacf60faf92c0b1e09ca0443432073",
+    "com/ethk3/novaonepro/DatabaseCoordinator$6.class": "d28868b4eec5ee362ae7c50b7330111f51015647339e9d672756620bf8bdb4c1",
+    "com/ethk3/novaonepro/DatabaseCoordinator$7.class": "04a0b6272e2cedd9dcbd7c354935cce66025343727d21096a1d11df9834f0368",
+    "com/ethk3/novaonepro/DatabaseCoordinator$8.class": "0be026c81102f46e000453d50210ea91664c411cba1189cb3b4fc587ba458cd8",
+    "com/ethk3/novaonepro/DatabaseCoordinator$9.class": "309d349f5f283c276d745bf7132d476a605ef345445d71744a77b316b37828d6",
+    "com/ethk3/novaonepro/DatabaseCoordinator$AttemptR31.class": "969591b33c8c3033c473c2195d236876350f0fc9acb3d5f033f7cac09cec2b6a",
+    "com/ethk3/novaonepro/DatabaseCoordinator$B03CoordinatorSnapshot.class": "b59b41f3079766c9fca2b767e3971e3618a62d3e68f1cf1d36461cfb7a1f4010",
+    "com/ethk3/novaonepro/DatabaseCoordinator$BeforeCommitFaultR30.class": "90f9429692a1c5d191992e368b14aeeff9768fd847274609308b07134baabcd0",
+    "com/ethk3/novaonepro/DatabaseCoordinator$CommitIdentityR31.class": "7a3f9e671be85da766840f2c9d5c1f991979bd23a60d8cbddb02298b011c2670",
+    "com/ethk3/novaonepro/DatabaseCoordinator$CommitOutcome.class": "c2aa3f86700bbc55f4c195b981483304aae3d3850e2a0e8a777df68aece94c33",
+    "com/ethk3/novaonepro/DatabaseCoordinator$CommitResultR31.class": "4fa7d88833e97ce34ca7a47f6850bdf6b7b90861db89d1e3bb1dd6013ffa480a",
+    "com/ethk3/novaonepro/DatabaseCoordinator$DiagnosticFaultR31.class": "7a2a5c65bfb68c312a3d5e755e24a43a6f778843b6a365b6821fa3a1144ebd0c",
+    "com/ethk3/novaonepro/DatabaseCoordinator$DiagnosticR31.class": "d59defbf03aacbc6c6b75aa9f3187acc20fc881ac95a9a34059bcceb75e4e7fd",
+    "com/ethk3/novaonepro/DatabaseCoordinator$OfflineFilesR31.class": "7b44bf8722e074926623cbbe1b39e7bb6a5aeab068c8ecae2dde9931336ca666",
+    "com/ethk3/novaonepro/DatabaseCoordinator$SchemaInitializer.class": "2a94ca0fe4173b2cfc64d65ad5ac524fb0b305a57fcb3956e9c805c2de886e5a",
+    "com/ethk3/novaonepro/DatabaseCoordinator$SchemaPendingR31.class": "d76e95613d1c60bbacb8e457fdf5f8f764676dbc713e8f1b83ded39a77cbf10d",
+    "com/ethk3/novaonepro/DatabaseCoordinator$StorageRule.class": "c3fd89e896722aa027a56217fda86b5cd6f163b82f62656ee9ef5f95784a172e",
+    "com/ethk3/novaonepro/DatabaseCoordinator$TransactionCallable.class": "388a511a039d22589d3dfe96c09fa176ef121caa694d83a5ec10b483adba6b30",
+    "com/ethk3/novaonepro/DatabaseCoordinator$TransactionContext.class": "65f9094efb48bc009f90d0244532cc1b1be8be88af33b844a8cba258b6909bd3",
+    "com/ethk3/novaonepro/DatabaseCoordinator$TransactionResult.class": "3ca1647484ff55cc93eadd8fe0a04f8b04ba9593ec33aa8aaf025ac3dd3e1a7d",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriteCallable.class": "80e210a83311644ccc2f54bd2af9a4401a66328701ea7a2f23ad3c40f6b856e5",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriteClass.class": "2bfd76134cc7c804c94fb28c43506e93af0fb50d4fa50017c0663beee8447c9f",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriteContext.class": "39e8e981e7c9454394745a020477af7a948bc5d4cf7a4d4bb8f86ede76d36e40",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriteFailureFrameF01.class": "6e0e5050b919561fafc4f02af21bc6873722f5d9da8138227bdb38d5a0884361",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriteRejectedR31.class": "2cfc4db3e72723dc0be6e79ef6ee7a4b4c6b1aa17c00a0c2327b5fcbc1d57127",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriteRunnable.class": "dfbf35489a30ef8d54245bec0b37802fa26e6776ace9dea0eede9cbccd08c70a",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriteValueF01.class": "38a96db6d9a0827b08223d8c9852a45bd2864ae5862fcd55c7ff40f8210c2ff0",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriterDeadlineScopeCP3.class": "7ac017d210274a9c986f5877076dff8431f3af5a83e31cbbd1e1032af20a074d",
+    "com/ethk3/novaonepro/DatabaseCoordinator$WriterGuardCP3.class": "33689cf548e49ad00cbc64f3e364a202b7f6dc47827044f66d93b15b460c2ea2",
+    "com/ethk3/novaonepro/DatabaseCoordinator.class": "491cec4db8eca9c918505ff955391a72886d171a66cf7c4b1070b601072aa8a2",
+    "com/ethk3/novaonepro/TransactionSchemaCacheR941$Entry.class": "244a2fa171c8baf26b7f14309d9b8f754d68e4c9c70a29f7014ba8a156684484",
+    "com/ethk3/novaonepro/TransactionSchemaCacheR941$Scope.class": "0874399f663085974913eb5168d64e426d5b5e41a6793aa848a726883c8d6b45",
+    "com/ethk3/novaonepro/TransactionSchemaCacheR941.class": "aa3be78ddbd354fb78d80863f9bf7da0afeca9d3af13fdec20ce2d1e49935aee",
+    "com/ethk3/novaonepro/strategyv2/FailureDispositionR31$ClassifiedFailure.class": "eb78c3ee50d3b32763cdcab027b936d2cadf4dd077648b5aaf90da6115b8d0c7",
+    "com/ethk3/novaonepro/strategyv2/FailureDispositionR31$Decision.class": "7e35e564cc1dae1f0b445d71b1a9124cf140123902ecb5fe98de9481caf64f28",
+    "com/ethk3/novaonepro/strategyv2/FailureDispositionR31$Disposition.class": "bb4aada5bf4adf533334b4ab7742073d0bae40062a91057b5e65b6c8811132f7",
+    "com/ethk3/novaonepro/strategyv2/FailureDispositionR31.class": "26764124ce8ed0b03c7b454d895f404d25620a77c038f01577e11161ed3db4eb",
+    "com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30$ChunkR31.class": "8299100801d6989d94dfbfba6bc2f64640ff0df5ca3be240b479908c9b637936",
+    "com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30$Pending.class": "5956e7d84f7f7337252630b8e8a18c690beae0b6125f2715e2ae02b2329c9c7e",
+    "com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30$PreparedConflictR31.class": "a91256dd3ff47133e11de77000d575362dd697c59afc7d6d0dd0b313a07c1181",
+    "com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30$PreparedRowR31.class": "cd3370c9511883b8f7268eb703dda7b7d0e4a5b0155652fde4a309a275d32bfe",
+    "com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.class": "541fb97d796fd285ede544b9ed3fcf1583aae59a2e6296ae9b66d80c6e78ee10",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineR30$EventKind.class": "ae46a0739c455bf19681a0bbce2317d3f94ba8f182166767f7adb17838b078ac",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineR30$EventRole.class": "f04f767bc588259cf63cb6c1b5300d03875f1c88333adaf97bae231f85066f05",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineR30$Row.class": "a5526704f04c0c90c4b61ffe48b9393d59c82f6d158931e12ab0b00ccbe51bc5",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineR30$Segment.class": "e4775d08b680929d6797062108d952bb35d1adc0a124f91d08930008a626810a",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineR30$Stage.class": "e1b8498edfff7f31691b30fb0df5e27f16f4d5a5cc6bdb91f9f9fb70b131c1b2",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineR30.class": "1f3b5a2888cd669b1f203b299ae2cd8e26da21750408645ac923346dd62803ae",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30$Committed.class": "ad570a20d17a46d0819b19fac10cc1e0e76e4f579c9e6cbd08600584300a9642",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30$PreparedCommittedR31.class": "a2fbe141aa69efaf56fb74743185f33400e894a48baace11e92176d745eb6925",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30$RequestScope.class": "b545aeab43fabf20c3966c8fe14ca1d438858014202759ec998a1a25e1813ca5",
+    "com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.class": "58c41758d910b3537eb4e5e502e7affdd9d636bf0248aaf54f77f2ea3d4b4f62",
+    "com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30$1.class": "7274bb942a831ac5633e4ef02a6fc8cbcac159084dfa739c5c17c979ab570fd5",
+    "com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30$2.class": "07153c7c9bc2989fb9f247a3ba589da02f2536a746ecfef00f6c238dae3f96e5",
+    "com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30$Stat.class": "df4f50ad0521e52a0d8cde3a1e9c28e0c73525b440303808915d162dd6dfd812",
+    "com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.class": "00c20358106b05435d6561637464e4e4a992ca21c2a9fca96d080340a3892e19"
+  },
+  "hostShimSha256": {
+    "android/database/Cursor.java": "6b9a5cbe6f98ad2d040fcda6c72fbc0ad5ff50fdacd66a333d76ae1154e6cb46",
+    "android/database/sqlite/SQLiteDatabase.java": "c4a1df0642e104794f2449b81561830e8c24815c2360614df186dbfcef06c730",
+    "android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9",
+    "android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+    "android/content/Context.java": "1688905a9130957d2160be9c7f23c842b88c3f363cd79bce5b3b133fdef7f7bd",
+    "android/app/Application.java": "dd7d0f608fd087cc7e0c14e48b696f2a84285559b06e2472c6ea7d735a44e3ef",
+    "android/os/SystemClock.java": "81b9f65ca0e255208502d9cc19c819ca43fd2cb3a57060afeb8d4370ce8ca2ee",
+    "android/os/Process.java": "63e7d8b0e8a8f152255442b9074a86ef21145254eb6cd8508ae45c99d8a2b2fc",
+    "android/os/Looper.java": "cb537e9dcf0d839bc5496b141013ce2776bfa85311be9d8edd2ceaa67d2e07ca",
+    "android/util/Log.java": "d4eabd160ac693184db235586d88c7d904cf4e2809099606cf4e5b266d618925",
+    "com/ethk3/novaonepro/DbHelper.java": "ca02f328cffba9b65563eaba26b14d2d2851ac651a26b1ce40e554fcbc192854",
+    "com/ethk3/novaonepro/DbStore.java": "3ab1777b521ce235019e57761822a8a9b89d678f274e21a96b2d01b3d686a69c"
+  },
+  "baselineOwnerSourceSha256": {
+    "IssueTimelineWriterR30.java": "b1ab9fb397b4fdf12e2498ed2b4fcb9b37019658f7e3d0efa9c684d39c8d004f",
+    "HoldLedgerFlushR30.java": "b7998dfcd5db73b70971c20eae1d5d14a52ef16111b2da37302d8d869caa939d"
+  },
+  "compiledHostTestClassSha256": {
+    "com/ethk3/novaonepro/strategyv2/R31TelemetryBudgetHost$1.class": "571e01971faf14e1074d6a7a28a4cc03c000da9ece07e9d0ca968f581e3426ec",
+    "com/ethk3/novaonepro/strategyv2/R31TelemetryBudgetHost.class": "a954800f954544f25838063eeff1b3f49ef19a9f83523fb510e41c6e84017877",
+    "com/ethk3/novaonepro/strategyv2/RepairTimelineR30HostTest$Work.class": "59b17d811da1aaa24eed4ef79f7d3e99db23081685e7ae1683e6a4be2bfa8c60",
+    "com/ethk3/novaonepro/strategyv2/RepairTimelineR30HostTest.class": "d93dfe403f0a305c81124064408f32056e089e4046793c46ff80366ffe21e11b"
+  },
+  "hostTestSourceSha256": {
+    "tools/r31/telemetry_budget_host/R31TelemetryBudgetHost.java": "d834aa5f2763b230e75958b63bc2816cba1c9d84387f5548fa9f50c4702758a9"
+  },
+  "productionSourcesUnchangedDuringRun": true,
+  "supportClassesUnchangedDuringRun": true,
+  "completedAt": "2026-11-16T03:58:47.991366+00:00"
+}

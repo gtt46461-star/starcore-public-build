@@ -1,0 +1,553 @@
+--------- beginning of main
+11-16 03:48:45.078   558   827 D WifiCountryCode: evaluateAllCmmStateAndApplyIfAllReady: {ConcreteClientModeManager{id=1600917 iface=wlan0 role=ROLE_CLIENT_PRIMARY}=true}
+11-16 03:48:45.078   558   831 I WifiScanningService: Created a new impl for wlan0
+11-16 03:48:45.078   558   831 I WifiScanningService: wifi driver loaded with scan capabilities: max buckets=16
+11-16 03:48:45.078   558   827 D WifiCountryCode: updateCountryCode to US
+11-16 03:48:45.078   558   827 D WifiCountryCode: setCountryCodeNative: US, isClientModeOnly: true mDriverCountryCode: null
+11-16 03:48:45.078   558   827 D WifiNative: onSetCountryCodeSucceeded: US
+11-16 03:48:45.078   558   827 I WifiCountryCode: Receive onSetCountryCodeSucceeded US
+11-16 03:48:45.078   558   827 I WifiNl80211Manager: Receive country code change to US
+11-16 03:48:45.078   558   827 D WifiScanRequestProxy: Sending scan available broadcast: true
+11-16 03:48:45.078   558   831 I WifiScanningService: Received a request to enable scanning, UID = 1000
+11-16 03:48:45.078   558   831 I WifiScanningService: scanner impls already exists
+11-16 03:48:45.078   558   831 E WifiScanningService: wifi driver loaded received while already loaded
+11-16 03:48:45.078   558   827 I WifiScanRequestProxy: Scanning is enabled
+11-16 03:48:45.078   558   827 I WifiScanRequestProxy: Scanning for hidden networks is enabled
+11-16 03:48:45.078   558   827 D WakeupController: onWifiEnabled()
+11-16 03:48:45.078   558   827 D WifiClientModeImpl[1601014:wlan0]: entering ConnectableState: ifaceName = wlan0
+11-16 03:48:45.080   368   368 I netd    : tetherGetStats() -> {[]} <0.25ms>
+11-16 03:48:45.081   558   827 I WifiClientModeImpl[1601014:wlan0]: disconnectedstate enter
+11-16 03:48:45.081   368   368 I netd    : interfaceSetEnableIPv6(wlan0, false) <0.04ms>
+11-16 03:48:45.081   558   827 E WifiScoringParams: Invalid frequency(-1), using 5G as default rssi array
+11-16 03:48:45.081   368   368 I netd    : interfaceClearAddrs(wlan0) <0.10ms>
+11-16 03:48:45.081   558   827 D WifiClientModeImpl[1601014:wlan0]: setupClientMode() ifacename = wlan0
+11-16 03:48:45.081   368   368 I netd    : setProcSysNet(6, 1, wlan0, accept_ra, 2) <0.01ms>
+11-16 03:48:45.081   368   368 I netd    : setProcSysNet(6, 1, wlan0, accept_ra_defrtr, 1) <0.01ms>
+11-16 03:48:45.081   368   368 I netd    : setProcSysNet(6, 1, wlan0, accept_ra_min_lft, 0) <0.01ms>
+11-16 03:48:45.082   558   827 I WifiVendorHal: Driver: 1.0 Firmware: 1.0
+11-16 03:48:45.083   368   368 I netd    : idletimerAddInterface(eth0, 10, 102) <0.85ms>
+11-16 03:48:45.083   558   827 D WifiDiags: startLogging() iface list is {wlan0} after adding wlan0
+11-16 03:48:45.083   558   834 D ConnectivityService: Switching to new default network for: uid/pid:1000/558 activeRequest: 1 callbackRequest: 1 [NetworkRequest [ REQUEST id=1, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]] callback flags: 1 order: 2147483647 isUidTracked: false using NetworkAgentInfo{network{102}  handle{441492361229}  ni{MOBILE[HSPA] CONNECTED extra: fast.t-mobile.com} created=2026-11-16T03:48:45.002Z Score(Policies :  ; KeepConnected : 0)  created 1600986  lp{{InterfaceName: eth0 LinkAddresses: [ 10.0.2.15/24 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 1500 TcpBufferSizes: 2097152,6291456,16777216,512000,2097152,8388608 Routes: [ 0.0.0.0/0 -> 10.0.2.2 eth0 mtu 1500,10.0.2.0/24 -> 0.0.0.0 eth0 mtu 0 ]}}  nc{[ Transports: CELLULAR Capabilities: MMS&SUPL&IA&XCAP&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=14Kbps LinkDnBandwidth>=14Kbps Specifier: <TelephonyNetworkSpecifier [mSubId = 1]> SubscriptionIds: {1} UnderlyingNetworks: Null]}  factorySerialNumber=4}
+11-16 03:48:45.083   368   368 I netd    : networkSetDefault(102) <0.05ms>
+11-16 03:48:45.083  1038  9365 D TrafficStats: tagSocket(99) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:45.084  1038  9366 D TrafficStats: tagSocket(100) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:45.084   368   368 I netd    : setTcpRWmemorySize(2097152 6291456 16777216, 512000 2097152 8388608) <0.10ms>
+11-16 03:48:45.084  1038  9365 D TrafficStats: tagSocket(99) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:45.084  1038  9366 D TrafficStats: tagSocket(100) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:45.086   558   827 D WifiConnectivityHelper: Firmware supported feature set: 19d81c8b8000019
+11-16 03:48:45.086   558   827 D WifiConnectivityHelper: Firmware roaming is not supported
+11-16 03:48:45.086   558   827 I WifiService: Receive onDriverCountryCodeChanged to US, update available channel list
+11-16 03:48:45.087   368  9367 I resolv  : ResNSendHandler::run: 0 / {102 983142 102 983142 1073 1}
+11-16 03:48:45.088   368  9368 I resolv  : ResNSendHandler::run: 0 / {102 983142 102 983142 1073 1}
+11-16 03:48:45.089   558   827 E WifiChipAidlImpl: getUsableChannels failed with service-specific exception: android.os.ServiceSpecificException:  (code 4)
+11-16 03:48:45.090   368  9367 I resolv  : res_nsend: used send_dg 160 terrno: 0
+11-16 03:48:45.090  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.090   558   827 D WifiP2pService: Wifi enabled=true, P2P disallowed by admin=false, D2D allowed when infra sta is disabled=false
+11-16 03:48:45.091  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.091  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.091  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.091   368   368 I netd    : interfaceGetCfg(wlan0) -> {InterfaceConfigurationParcel{ifName: wlan0, hwAddr: 02:15:b2:00:00:00, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [up, broadcast, multicast]}} <0.06ms>
+11-16 03:48:45.091  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.092  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.092  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.093  1038  1038 D TrafficStats: tagSocket(99) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.093  1038  9365 D NetworkMonitor/102: PROBE_DNS www.google.com 9ms OK 142.251.152.119,142.251.150.119,142.251.151.119,142.251.154.119,142.251.157.119,142.251.153.119,142.251.156.119,142.251.155.119
+11-16 03:48:45.094   368  9369 I resolv  : GetAddrInfoHandler::run: {102 983142 102 983142 1073 1}
+11-16 03:48:45.094   368  9370 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-16 03:48:45.094   368  9370 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x7e6f2182d010
+11-16 03:48:45.094   368  9370 I resolv  : doQuery: rcode=0, ancount=8, return value=160
+11-16 03:48:45.094  1038  9365 D TrafficStats: tagSocket(99) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:45.106   368  9368 I resolv  : res_nsend: used send_dg 63 terrno: 0
+11-16 03:48:45.106  1038  1038 D TrafficStats: tagSocket(100) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:45.106  1038  9366 D NetworkMonitor/102: PROBE_DNS connectivitycheck.gstatic.com 22ms OK 142.251.150.120
+11-16 03:48:45.107   368  9372 I resolv  : GetAddrInfoHandler::run: {102 983142 102 983142 1073 1}
+11-16 03:48:45.107   368  9373 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-16 03:48:45.107   368  9373 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x7e6fb182e2b0
+11-16 03:48:45.107   368  9373 I resolv  : doQuery: rcode=0, ancount=1, return value=63
+11-16 03:48:45.107  1038  9366 D TrafficStats: tagSocket(100) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:45.108   368   368 I netd    : tetherGetStats() -> {[]} <0.22ms>
+11-16 03:48:45.109   558   864 D NetworkTimeUpdateService: New default network 102; checking time.
+11-16 03:48:45.110   558   834 D ConnectivityService: Sending CONNECTED broadcast for type 0 [102 CELLULAR] isDefaultNetwork=true
+--------- beginning of system
+11-16 03:48:45.110   558   834 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 android.net.connectivity.com.android.server.ConnectivityService.sendStickyBroadcast:3944 android.net.connectivity.com.android.server.ConnectivityService.sendGeneralBroadcast:3914 android.net.connectivity.com.android.server.ConnectivityService.sendConnectedBroadcast:3887 android.net.connectivity.com.android.server.ConnectivityService.sendLegacyNetworkBroadcast:11497 
+11-16 03:48:45.111   558   834 D ConnectivityService: NetReassign [1 : null → 102, 60 : null → 102, 54 : null → 102, 52 : null → 102, 40 : null → 102, 23 : null → 102, 27 : null → 102, 15 : null → 102, 19 : null → 102, 29 : null → 102, 7 : null → 102, 2 : null → 102, 50 : null → 102, 34 : null → 102, 45 : null → 102, 17 : null → 102, 22 : null → 102, 21 : null → 102, 42 : null → 102, 38 : null → 102] [c 0] [a 27] [i 1]
+11-16 03:48:45.113  1038  1111 D UpstreamNetworkMonitor: New default Internet network: 102
+11-16 03:48:45.117  1080  1080 D TelephonyManager: requestModemActivityInfo: Sending result to app: ModemActivityInfo{ mTimestamp=1601056 mSleepTimeMs=0 mIdleTimeMs=1601050 mActivityStatsTechSpecificInfo=[{mRat=UNKNOWN,mFrequencyRange=UNKNOWN,mTxTimeMs[]=[0, 0, 0, 0, 0],mRxTimeMs=0}]}
+11-16 03:48:45.117   558   825 D NetworkStatsObservers: Registering observer for RequestInfo from pid/uid:558/1000(android) for DataUsageRequest [ requestId=8, networkTemplate=NetworkTemplate: matchRule=MOBILE, matchSubscriberIds=[310260...], matchWifiNetworkKeys=[], metered=YES, defaultNetwork=NO, thresholdInBytes=3505941 ] accessLevel:3
+11-16 03:48:45.138   368   368 I netd    : tetherGetStats() -> {[]} <1.47ms>
+11-16 03:48:45.138  1038  9366 D NetworkMonitor/102: PROBE_HTTP http://connectivitycheck.gstatic.com/generate_204 time=32ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 03:48:45 GMT], X-Android-Received-Millis=[1794800925138], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794800925123]}
+11-16 03:48:45.141   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.39ms>
+11-16 03:48:45.142   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.30ms>
+11-16 03:48:45.142   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.41ms>
+11-16 03:48:45.143   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.24ms>
+11-16 03:48:45.143   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.25ms>
+11-16 03:48:45.144   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.22ms>
+11-16 03:48:45.144   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.34ms>
+11-16 03:48:45.158  1038  9365 D NetworkMonitor/102: PROBE_HTTPS https://www.google.com/generate_204 time=65ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Alt-Svc=[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 03:48:45 GMT], X-Android-Received-Millis=[1794800925158], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794800925139]}
+11-16 03:48:45.159  1038  9364 D NetworkMonitor/102: isCaptivePortal: isSuccessful()=true isPortal()=false RedirectUrl=null isPartialConnectivity()=false Time=75ms
+11-16 03:48:45.159   558   834 I ConnectivityService: Update score for net 102 : +EVER_EVALUATED
+11-16 03:48:45.159   558   834 D ConnectivityService: [102 CELLULAR] validation passed
+11-16 03:48:45.159   558   834 I ConnectivityService: Update capabilities for net 102 : +VALIDATED
+11-16 03:48:45.159   558   834 I ConnectivityService: Update score for net 102 : +EVER_VALIDATED+IS_VALIDATED
+11-16 03:48:45.160   558   834 D ConnectivityService: NetReassign [no changes] [c 0] [a 0] [i 0]
+11-16 03:48:45.160  1080  1262 D com.android.ons.ONSProfileActivator: Internet connection available
+11-16 03:48:45.160   558   582 I GnssNetworkConnectivityHandler: updateNetworkState, state=CLOSED, connected=true, network=102, capabilityFlags=2, availableNetworkCount: 1
+11-16 03:48:45.161   558   834 D ConnectivityService: Setting DNS servers for network 102 to [/10.0.2.3]
+11-16 03:48:45.161   558   834 D DnsManager: sendDnsConfigurationForNetwork(102, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3], [0], true, [eth0])
+11-16 03:48:45.161   368   368 I resolv  : setDoh: No suitable DoH server found
+11-16 03:48:45.161   368  9374 W resolv  : Validating DnsTlsServer {10.0.2.3/} with mark 0xf0066
+11-16 03:48:45.161   368  9374 I resolv  : Connecting to {10.0.2.3/} with mark 0xf0066
+11-16 03:48:45.161   368   368 I netd    : setResolverConfiguration(ResolverParamsParcel{netId: 102, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [10.0.2.3], domains: [], tlsName: , tlsServers: [10.0.2.3], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [0], meteredNetwork: true, dohParams: (null), interfaceNames: [eth0]}) <0.26ms>
+11-16 03:48:45.162   558   834 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 android.net.connectivity.com.android.server.ConnectivityService.sendStickyBroadcast:3944 android.net.connectivity.com.android.server.ConnectivityService.sendGeneralBroadcast:3914 android.net.connectivity.com.android.server.ConnectivityService.sendInetConditionBroadcast:3891 android.net.connectivity.com.android.server.ConnectivityService.updateInetCondition:11152 
+11-16 03:48:45.162   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.162   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.162   368  9374 I resolv  :  SSL_connect returned -1 with mark 0xf0066
+11-16 03:48:45.162   368  9374 W resolv  : SSL_connect ssl error =5, mark 0xf0066: Connection refused
+11-16 03:48:45.162   368  9374 W resolv  : TLS Handshake failed
+11-16 03:48:45.162   368  9374 W resolv  : query failed
+11-16 03:48:45.162   368  9374 W resolv  : validateDnsTlsServer returned 0 for {10.0.2.3/}
+11-16 03:48:45.162   368  9374 W resolv  : Validation failed
+11-16 03:48:45.162   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.162   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.163   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.163   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.163   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.163   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.163   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.163   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:45.219  9377  9377 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-16 03:48:45.222  9377  9377 I AndroidRuntime: Using default boot image
+11-16 03:48:45.222  9377  9377 I AndroidRuntime: Leaving lock profiling enabled
+11-16 03:48:45.223  9377  9377 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 03:48:45.224  9377  9377 I app_process: Using CollectorTypeCMC GC.
+11-16 03:48:45.241   558   654 D ActivityManager: freezing 1646 com.android.providers.calendar
+11-16 03:48:45.241   558   654 D ActivityManager: freezing 8366 com.android.calendar
+11-16 03:48:45.242   558   654 D ActivityManager: freezing 2172 com.android.rkpdapp
+11-16 03:48:45.242   558   654 D ActivityManager: freezing 1088 com.android.settings
+11-16 03:48:45.242   558   654 D ActivityManager: freezing 1556 com.android.keychain
+11-16 03:48:45.242   558   654 D ActivityManager: freezing 8387 com.android.statementservice
+11-16 03:48:45.243   558   654 D ActivityManager: freezing 927 com.android.permissioncontroller
+11-16 03:48:45.243   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:48:45.244   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:48:45.244   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={10079} in 1ms
+11-16 03:48:45.244   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:48:45.244   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:48:45.244   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={10110} in 1ms
+11-16 03:48:45.245   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:48:45.245   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:48:45.245   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={10134} in 1ms
+11-16 03:48:45.245   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:48:45.245   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:48:45.245   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={10076} in 0ms
+11-16 03:48:45.246   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:48:45.246   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:48:45.246   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={10143} in 1ms
+11-16 03:48:45.269  9377  9377 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-16 03:48:45.275  9377  9377 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 03:48:45.275  9377  9377 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+11-16 03:48:45.275  9377  9377 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+11-16 03:48:45.276  9377  9377 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 03:48:45.276  9377  9377 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 03:48:45.277  9377  9377 W app_process: Unexpected CPU variant for x86: x86_64.
+11-16 03:48:45.277  9377  9377 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-16 03:48:45.289  9377  9377 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-16 03:48:45.289  9377  9377 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-16 03:48:45.290  9377  9377 D UiAutomationConnection: Created on user UserHandle{0}
+11-16 03:48:45.291   558   629 I ActivityManager: Force stopping com.starcore.research.r13 appid=10148 user=0: start instr
+11-16 03:48:45.291   558   629 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10148, packageName = null, attributionTag = null, token = android.os.Binder@3498bd0, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 03:48:45.296   558   863 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-16 03:48:45.296   558   863 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10148 package com.starcore.research.r13 isStopped false
+11-16 03:48:45.298   369   369 D Zygote  : Forked child process 9387
+11-16 03:48:45.299   558   595 I ActivityManager: Start proc 9387:com.starcore.research.r13/u0a148 for added application com.starcore.research.r13
+11-16 03:48:45.322  9387  9387 I re.research.r13: Late-enabling -Xcheck:jni
+11-16 03:48:45.332  9387  9387 I re.research.r13: Using CollectorTypeCMC GC.
+11-16 03:48:45.332  9387  9387 W re.research.r13: Unexpected CPU variant for x86: x86_64.
+11-16 03:48:45.332  9387  9387 W re.research.r13: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-16 03:48:45.352  5798  5805 I adbd    : jdwp connection from 9387
+11-16 03:48:45.357  9387  9387 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-16 03:48:45.370  9387  9387 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+11-16 03:48:45.371  9387  9387 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 03:48:45.372  9387  9387 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=1 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:48:45.373  9387  9387 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:48:45.374  9387  9387 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:48:45.375  9387  9387 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:48:45.375  9387  9387 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:48:45.410  9387  9387 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:48:45.410  9387  9387 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:48:45.540  9387  9387 D nativeloader: Configuring clns-7 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/lib/x86_64:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk!/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.starcore.research.r13
+11-16 03:48:45.546  9387  9387 V GraphicsEnvironment: Currently set values for:
+11-16 03:48:45.546  9387  9387 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-16 03:48:45.546  9387  9387 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-16 03:48:45.546  9387  9387 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+11-16 03:48:45.546  9387  9387 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-16 03:48:45.548  9387  9387 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 03:48:45.549  9387  9387 D nativeloader: Configuring clns-8 for other apk /system/framework/android.test.mock.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/lib/x86_64, permitted_path=/data:/mnt/expand
+11-16 03:48:45.550  9387  9387 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 03:48:45.551  9387  9387 D nativeloader: Configuring clns-9 for other apk /system/framework/android.test.runner.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/lib/x86_64, permitted_path=/data:/mnt/expand
+11-16 03:48:45.553  9387  9387 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk*788399976:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:48:45.554  9387  9387 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk*788399976:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:48:45.555  9387  9387 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk*788399976:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:48:45.555  9387  9387 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:48:45.555  9387  9387 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:48:45.587  9387  9387 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:48:45.587  9387  9387 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:48:45.702  9387  9387 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+11-16 03:48:45.718  9387  9387 I AndroidJUnitRunner: onCreate Bundle[{r30Sandbox=research-43796780479-1-5e688bd7fd3a-analysis-BUSY, class=com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest#faultCell, r30Phase=run, repairFault=BUSY, repairStage=analysis}]
+11-16 03:48:45.719  9387  9387 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-16 03:48:45.730  9387  9387 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-16 03:48:45.730  9387  9403 D AndroidJUnitRunner: onStart is called.
+11-16 03:48:45.760  9387  9403 I TestRunner: run started: 1 tests
+11-16 03:48:45.760  9387  9403 I TestRunner: started: faultCell(com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest)
+11-16 03:48:45.762   368   368 I netd    : tetherGetStats() -> {[]} <0.55ms>
+11-16 03:48:45.771   558   629 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.LOCKED_BOOT_COMPLETED dispatchLatency:0 completeLatency:408 dispatchRealLatency:0 completeRealLatency:408 receiversSize:1 userId:0 userType:android.os.usertype.full.SYSTEM
+11-16 03:48:45.782   558  8427 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.BOOT_COMPLETED dispatchLatency:409 completeLatency:420 dispatchRealLatency:409 completeRealLatency:420 receiversSize:1 userId:0 userType:android.os.usertype.full.SYSTEM
+11-16 03:48:46.113   558  1787 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 03:48:48.856   558  1026 D WifiNl80211Manager: Scan result ready event
+11-16 03:48:48.856   558  1026 D WifiNative: Scan result ready event
+11-16 03:48:48.859   558   827 I HalDevMgr: bestIfaceCreationProposal is null, requestIface=STA, existingIface=[name=wlan0 type=STA]
+11-16 03:48:48.861   558   827 D WifiScoreReport: setShouldReduceNetworkScore=false mNetworkAgent is null? true
+11-16 03:48:48.861   558   827 D WifiClientModeImpl[1601014:wlan0]: CMD_START_CONNECT  my state DisconnectedState nid=0 roam=false
+11-16 03:48:48.861   558   827 W LastMileLogger: Failed to open free_buffer pseudo-file: /sys/kernel/debug/tracing/instances/wifi/free_buffer: open failed: ENOENT (No such file or directory)
+11-16 03:48:48.861   558   827 W LastMileLogger: Failed to arm fail-safe.
+11-16 03:48:48.861   476   476 W wificond: Scan is not started. Ignore abort request
+11-16 03:48:48.861   558   827 D SupplicantStaIfaceHalAidlImpl: connectToNetwork "AndroidWifi"NONE, actualSsid=null
+11-16 03:48:48.861   558   827 D SupplicantStaIfaceHalAidlImpl: Selecting supplicant SSID "AndroidWifi"
+11-16 03:48:48.862   558   827 I SupplicantStaNetworkHalAidlImpl: Successfully set SSID
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl: The target security params: Security Parameters:
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  Type: 0
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  Enabled: true
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  KeyMgmt: NONE
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  Protocols: WPA RSN
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  AuthAlgorithms:
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  PairwiseCiphers:
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  GroupCiphers:
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  GroupMgmtCiphers:
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  SuiteBCiphers:
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  RequirePmf: false
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  IsAddedByAutoUpgrade: false
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  IsSaeH2eOnlyMode: false
+11-16 03:48:48.862   558   827 D SupplicantStaNetworkHalAidlImpl:  IsSaePkOnlyMode: false
+11-16 03:48:48.863  9351  9351 I wpa_supplicant: wlan0: SME: Trying to authenticate with 02:15:b2:00:00:01 (SSID='AndroidWifi' freq=2437 MHz)
+11-16 03:48:48.863  9351  9351 I wpa_supplicant: assoc key_mgmt 0x4 network key_mgmt 0x4
+11-16 03:48:48.863   558   827 D WifiCountryCode: evaluateAllCmmStateAndApplyIfAllReady: {ConcreteClientModeManager{id=1600917 iface=wlan0 role=ROLE_CLIENT_PRIMARY}=false}
+11-16 03:48:48.863   558   827 D WifiClientModeImpl[1601014:wlan0]: Start Connecting Watchdog 1
+11-16 03:48:48.867   558   827 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 com.android.server.wifi.ClientModeImpl.sendNetworkChangeBroadcast:3121 com.android.server.wifi.ClientModeImpl.lambda$sendNetworkChangeBroadcastWithCurrentState$14:3098 com.android.server.wifi.ClientModeImpl.$r8$lambda$mtuS9ulugUkTxNA_sDDnAioo66w:0 com.android.server.wifi.ClientModeImpl$$ExternalSyntheticLambda13.send:0 
+11-16 03:48:48.867   558   827 I WifiClientModeImpl[1601014:wlan0]: Update current security type to 0
+--------- beginning of kernel
+11-16 03:48:48.979     0     0 I wlan0   : authenticate with 02:15:b2:00:00:01
+11-16 03:48:48.981     0     0 I wlan0   : No basic rates, using min rate instead
+11-16 03:48:48.982     0     0 I wlan0   : send auth to 02:15:b2:00:00:01 (try 1/3)
+11-16 03:48:48.869  9351  9351 I wpa_supplicant: wlan0: Trying to associate with 02:15:b2:00:00:01 (SSID='AndroidWifi' freq=2437 MHz)
+11-16 03:48:48.869  9351  9351 I wpa_supplicant: assoc key_mgmt 0x4 network key_mgmt 0x4
+11-16 03:48:48.870   558   827 I WifiClientModeImpl[1601014:wlan0]: Update current security type to 0
+11-16 03:48:48.985     0     0 I wlan0   : authenticated
+11-16 03:48:48.882  9351  9351 I wpa_supplicant: assoc key_mgmt 0x4 network key_mgmt 0x4
+11-16 03:48:48.993     0     0 I wlan0   : associate with 02:15:b2:00:00:01 (try 1/3)
+11-16 03:48:48.994     0     0 I wlan0   : RX AssocResp from 02:15:b2:00:00:01 (capab=0x1 status=0 aid=1)
+11-16 03:48:48.995     0     0 I wlan0   : No basic rates, using min rate instead
+11-16 03:48:48.996     0     0 I wlan0   : associated
+11-16 03:48:48.883  9351  9351 I wpa_supplicant: wlan0: Associated with 02:15:b2:00:00:01
+11-16 03:48:48.883  9351  9351 I wpa_supplicant: wlan0: CTRL-EVENT-CONNECTED - Connection to 02:15:b2:00:00:01 completed [id=0 id_str=%7B%22configKey%22%3A%22%5C%22AndroidWifi%5C%22NONE%22%2C%22creatorUid%22%3A%2210115%22%7D]
+11-16 03:48:48.883  9351  9351 I wpa_supplicant: assoc key_mgmt 0x4 network key_mgmt 0x4
+11-16 03:48:48.883  9351  9351 I wpa_supplicant: wlan0: CTRL-EVENT-SUBNET-STATUS-UPDATE status=0
+11-16 03:48:48.884   558   827 I WifiClientModeImpl[1601014:wlan0]: Update current security type to 0
+11-16 03:48:48.884   368   368 I netd    : interfaceGetCfg(wlan0) -> {InterfaceConfigurationParcel{ifName: wlan0, hwAddr: 02:15:b2:00:00:00, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [up, broadcast, running, multicast]}} <0.21ms>
+11-16 03:48:48.885   558   827 I WifiClientModeImpl[1601014:wlan0]: Update current security type to 0 from network connection event.
+11-16 03:48:48.885   558   827 I ApplicationQosPolicyRequestHandler: Queueing all policies on iface=wlan0. numPolicies=0
+11-16 03:48:48.885   558   827 I ApplicationQosPolicyRequestHandler: 0 policies contain QosCharacteristics
+11-16 03:48:48.886   558   827 I ConnectivityService: Update score for net 103 : +IS_UNMETERED
+11-16 03:48:48.886   558   827 D ConnectivityService: registerNetworkAgent NetworkAgentInfo{network{103}  handle{445787328525}  ni{WIFI CONNECTING extra: } created=2026-11-16T03:48:48.886Z Score(Policies : IS_UNMETERED ; KeepConnected : 0)   lp{{LinkAddresses: [ ] DnsAddresses: [ ] Domains: null MTU: 0 Routes: [ ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_ROAMING&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=54000Kbps LinkDnBandwidth>=54000Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID="AndroidWifi", BSSID=02:15:b2:00:00:01, band=1, mMatchLocalOnlySpecifiers=false]> TransportInfo: <SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: null, Security type: 0, Supplicant state: ASSOCIATED, Wi-Fi standard: legacy, RSSI: -127, Link speed: -1Mbps, Tx Link speed: -1Mbps, Max Supported Tx Link speed: 54Mbps, Rx Link speed: -1Mbps, Max Supported Rx Link speed: 54Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 0, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>> AllowedUids: <{10115}> OwnerUid: 10115 AdminUids: [10115] SSID: "AndroidWifi" UnderlyingNetworks: Null]}  factorySerialNumber=5}
+11-16 03:48:48.886   368   368 I netd    : getFwmarkForNetwork(103) -> {MarkMaskParcel{mark: 103, mask: 65535}} <0.00ms>
+11-16 03:48:48.886   558   827 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 com.android.server.wifi.ClientModeImpl.sendNetworkChangeBroadcast:3121 com.android.server.wifi.ClientModeImpl.lambda$sendNetworkChangeBroadcastWithCurrentState$14:3098 com.android.server.wifi.ClientModeImpl.$r8$lambda$mtuS9ulugUkTxNA_sDDnAioo66w:0 com.android.server.wifi.ClientModeImpl$$ExternalSyntheticLambda13.send:0 
+11-16 03:48:48.887   558   834 D ConnectivityService: [103 WIFI] EVENT_NETWORK_INFO_CHANGED, going from CONNECTING to CONNECTING
+11-16 03:48:48.887  1038  9411 D NetworkMonitor/103: checkAndRenewResourceConfig: update captive portal https urls to [https://www.google.com/generate_204]
+11-16 03:48:48.888  1038  9411 D NetworkMonitor/103: checkAndRenewResourceConfig: update captive portal http urls to [http://connectivitycheck.gstatic.com/generate_204]
+11-16 03:48:48.888  1038  9411 D NetworkMonitor/103: checkAndRenewResourceConfig: update captive portal fallback urls to[http://www.google.com/gen_204, http://play.googleapis.com/generate_204]
+11-16 03:48:48.888  1038  9411 D NetworkMonitor: Starting on network 103 with capport HTTPS URL [https://www.google.com/generate_204] and HTTP URL [http://connectivitycheck.gstatic.com/generate_204]
+11-16 03:48:48.888   558   827 I WifiClientModeImpl[1601014:wlan0]: Update current security type to 0
+11-16 03:48:48.889   368   368 I netd    : interfaceGetCfg(wlan0) -> {InterfaceConfigurationParcel{ifName: wlan0, hwAddr: 02:15:b2:00:00:00, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [up, broadcast, running, multicast]}} <0.14ms>
+11-16 03:48:48.889   368   368 I netd    : setProcSysNet(6, 1, wlan0, accept_ra_min_lft, 180) <0.04ms>
+11-16 03:48:48.890   368   368 I netd    : getProcSysNet(6, 1, wlan0, accept_ra_min_lft) -> {180} <0.02ms>
+11-16 03:48:48.890   558   834 I ConnectivityService: Update score for net 103 : +TRANSPORT_PRIMARY
+11-16 03:48:48.890   558   834 D ConnectivityService: NetReassign [no changes] [c 0] [a 0] [i 0]
+11-16 03:48:48.891   558   834 D ConnectivityService: NetReassign [no changes] [c 0] [a 0] [i 0]
+11-16 03:48:48.892  1038  9412 D ApfFilter: (wlan0): begin monitoring
+11-16 03:48:48.892   368   368 I netd    : setProcSysNet(6, 1, wlan0, accept_ra, 2) <0.02ms>
+11-16 03:48:48.892   368   368 I netd    : setProcSysNet(6, 1, wlan0, accept_ra_defrtr, 1) <0.03ms>
+11-16 03:48:48.892   368   368 I netd    : interfaceSetIPv6PrivacyExtensions(wlan0, true) <0.03ms>
+11-16 03:48:48.892   368   368 I netd    : setIPv6AddrGenMode(wlan0, 2) <0.06ms>
+11-16 03:48:48.893   368   368 I netd    : interfaceSetEnableIPv6(wlan0, true) <0.27ms>
+11-16 03:48:48.894   368   368 I netd    : setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.06ms>
+11-16 03:48:48.895   368   368 I netd    : setProcSysNet(4, 2, wlan0, ucast_solicit, 5) <0.02ms>
+11-16 03:48:48.895   368   368 I netd    : setProcSysNet(4, 2, wlan0, mcast_resolicit, 3) <0.02ms>
+11-16 03:48:48.895   368   368 I netd    : setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.04ms>
+11-16 03:48:48.895   368   368 I netd    : setProcSysNet(6, 2, wlan0, ucast_solicit, 5) <0.02ms>
+11-16 03:48:48.895   368   368 I netd    : setProcSysNet(6, 2, wlan0, mcast_resolicit, 3) <0.03ms>
+11-16 03:48:48.895   368   368 I netd    : setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.01ms>
+11-16 03:48:48.895   368   368 I netd    : setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.03ms>
+11-16 03:48:48.896   368   368 I netd    : setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+11-16 03:48:48.896   368   368 I netd    : setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.02ms>
+11-16 03:48:48.896  1038  9363 D IpClient/wlan0: routeUpdated: fe80::/64 -> :: wlan0 mtu 0
+11-16 03:48:48.896  1038  9363 D IpClient/wlan0: addressUpdated: fe80::e7d7:9456:cb5b:fbfb/64 on ifindex 16 flags 0x000008C4 scope 253
+11-16 03:48:48.896  1038  9363 D TrafficStats: tagSocket(108) with statsTag=0xfffffe01, statsUid=-1
+11-16 03:48:48.898  1038  9363 D IpClient.wlan0: set max DTIM multiplier to 1
+11-16 03:48:48.898   558   834 D ConnectivityService: Adding iface wlan0 to network 103
+11-16 03:48:48.898   368   368 E Netd    : no such netId 103
+11-16 03:48:48.898   368   368 I netd    : networkAddInterface(103, wlan0) -> ServiceSpecificException(64, "Machine is not on the network") <0.02ms>
+11-16 03:48:48.898   558   834 W ConnectivityService: Exception adding interface: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+11-16 03:48:48.898   558   827 E WifiStaIfaceAidlImpl: setDtimMultiplier failed with service-specific exception: android.os.ServiceSpecificException:  (code 4)
+11-16 03:48:48.898   368   368 E Netd    : no such netId 103
+11-16 03:48:48.898   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: fe80::/64, ifName: wlan0, nextHop: , mtu: 0}) -> ServiceSpecificException(64, "Machine is not on the network") <0.02ms>
+11-16 03:48:48.900  1038  9363 D DhcpClient: l2key: W47ebe9499b3b5d87 lease address: /10.0.2.16 lease expiry: 1794885750940 current time: 1794800928900
+11-16 03:48:48.901  1038  9363 D DhcpClient: Broadcasting DHCPREQUEST ciaddr=0.0.0.0 request=10.0.2.16 serverid=null
+11-16 03:48:48.902  1038  9363 D DhcpClient: Received packet: 02:15:b2:00:00:00 ACK: your new IP /10.0.2.16, netmask /255.255.255.0, gateways [/10.0.2.2] DNS servers: /10.0.2.3 , lease time 86400, domain null
+11-16 03:48:48.902  1038  9363 D DhcpClient: Confirmed lease: com.android.networkstack.android.net.DhcpResults@8587a94b DHCP server /10.0.2.2 Vendor info null lease 86400 seconds Servername 
+11-16 03:48:48.903   558   827 I WifiClientModeImpl[1601014:wlan0]: Update current security type to 0
+11-16 03:48:48.903   558   827 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 com.android.server.wifi.ClientModeImpl.sendNetworkChangeBroadcast:3121 com.android.server.wifi.ClientModeImpl.lambda$sendNetworkChangeBroadcastWithCurrentState$14:3098 com.android.server.wifi.ClientModeImpl.$r8$lambda$mtuS9ulugUkTxNA_sDDnAioo66w:0 com.android.server.wifi.ClientModeImpl$$ExternalSyntheticLambda13.send:0 
+11-16 03:48:48.904   368   368 I netd    : interfaceSetCfg(InterfaceConfigurationParcel{ifName: wlan0, hwAddr: , ipv4Addr: 10.0.2.16, prefixLength: 24, flags: []}) <0.26ms>
+11-16 03:48:48.905  1038  9363 D IpClient/wlan0: addressUpdated: 10.0.2.16/24 on ifindex 16 flags 0x00000080 scope 0
+11-16 03:48:48.906  1038  9363 D DhcpClient: Scheduling renewal in 43199s
+11-16 03:48:48.906  1038  9363 D DhcpClient: Scheduling rebind in 75599s
+11-16 03:48:48.906  1038  9363 D DhcpClient: Scheduling expiry in 86399s
+11-16 03:48:48.913   558   827 W WifiScoreReport: Cannot start external scoring netId=103 currentNetId=103 currentNetCapabilities=[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_ROAMING&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=30000Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID="AndroidWifi", BSSID=02:15:b2:00:00:01, band=1, mMatchLocalOnlySpecifiers=false]> TransportInfo: <SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Rx Link speed: -1Mbps, Max Supported Rx Link speed: 54Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 60, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>> SignalStrength: -50 AllowedUids: <{10115}> OwnerUid: 10115 AdminUids: [10115] SSID: "AndroidWifi" UnderlyingNetworks: Null] sessionId=1035
+11-16 03:48:48.914   558   827 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 com.android.server.wifi.ClientModeImpl.sendNetworkChangeBroadcast:3121 com.android.server.wifi.ClientModeImpl.lambda$sendNetworkChangeBroadcastWithCurrentState$14:3098 com.android.server.wifi.ClientModeImpl.$r8$lambda$mtuS9ulugUkTxNA_sDDnAioo66w:0 com.android.server.wifi.ClientModeImpl$$ExternalSyntheticLambda13.send:0 
+11-16 03:48:48.915   558   827 E WifiStaIfaceAidlImpl: setRoamingMode failed with service-specific exception: android.os.ServiceSpecificException:  (code 4)
+11-16 03:48:48.915   558   827 E WifiRoamingModeManager: Failed to set roaming mode due to unknown error.
+11-16 03:48:48.915   558  1640 W ScanResultUtil: Empty or null ScanResult list
+11-16 03:48:48.915   558  1640 W WifiService: Attempt to retrieve WifiConfiguration with invalid scanResult List
+11-16 03:48:48.916   558  1640 W ScanResultUtil: Empty or null ScanResult list
+11-16 03:48:48.916   558  1640 W WifiService: Attempt to retrieve WifiConfiguration with invalid scanResult List
+11-16 03:48:48.916   558  1640 W ScanResultUtil: Empty or null ScanResult list
+11-16 03:48:48.916   558  1640 E WifiService: Attempt to retrieve passpoint with invalid scanResult List
+11-16 03:48:48.916   558  1640 W ScanResultUtil: Empty or null ScanResult list
+11-16 03:48:48.916   558  1640 W WifiService: Attempt to retrieve OsuProviders with invalid scanResult List
+11-16 03:48:48.916   558   629 D WifiMemoryStoreImpl: Set cluster Gb5238578828e3fa for W47ebe9499b3b5d87: SUCCESS
+11-16 03:48:48.917   368   368 I netd    : tetherGetStats() -> {[]} <0.37ms>
+11-16 03:48:48.918   368   368 E Netd    : no such netId 103
+11-16 03:48:48.918   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: 10.0.2.0/24, ifName: wlan0, nextHop: , mtu: 0}) -> ServiceSpecificException(64, "Machine is not on the network") <0.03ms>
+11-16 03:48:48.918   558   834 E ConnectivityService: Exception in addRoute for non-gateway: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+11-16 03:48:48.918   368   368 E Netd    : no such netId 103
+11-16 03:48:48.918   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: 0.0.0.0/0, ifName: wlan0, nextHop: 10.0.2.2, mtu: 0}) -> ServiceSpecificException(64, "Machine is not on the network") <0.03ms>
+11-16 03:48:48.918   558   834 E ConnectivityService: Exception in addRoute for gateway: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+11-16 03:48:48.919   558   834 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 03:48:48.919   558   834 D ConnectivityService: [103 WIFI] EVENT_NETWORK_INFO_CHANGED, going from CONNECTING to CONNECTED
+11-16 03:48:48.919   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.919   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.919   368   368 I netd    : networkCreate(NativeNetworkConfig{netId: 103, networkType: PHYSICAL, permission: 0, secure: false, vpnType: -1, excludeLocalRoutes: false}) <0.01ms>
+11-16 03:48:48.919   368   368 I netd    : createNetworkCache(103) <0.04ms>
+11-16 03:48:48.919   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.919   558   834 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [], [1], false, [wlan0])
+11-16 03:48:48.920   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.920   368   368 I resolv  : resolv_set_nameservers: netid = 103, addr = 10.0.2.3
+11-16 03:48:48.920   368   368 I netd    : setResolverConfiguration(ResolverParamsParcel{netId: 103, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [10.0.2.3], domains: [], tlsName: , tlsServers: [], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [1], meteredNetwork: false, dohParams: (null), interfaceNames: [wlan0]}) <0.09ms>
+11-16 03:48:48.920   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.920   368   368 I netd    : setNetworkAllowlist([NativeUidRangeConfig{netId: 102, uidRanges: [UidRangeParcel{start: 0, stop: 99999}], subPriority: 0}, NativeUidRangeConfig{netId: 103, uidRanges: [UidRangeParcel{start: 0, stop: 99999}], subPriority: 0}]) <0.00ms>
+11-16 03:48:48.921   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.921   558   834 W DnsManager: updatePrivateDns(103, PrivateDnsConfig{opportunistic:/[], dohName=, dohIps=[], dohPath=, dohPort=-1})
+11-16 03:48:48.921   558   834 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 03:48:48.921   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.921   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.921   558   834 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3], [1], false, [wlan0])
+11-16 03:48:48.921   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.921   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.921   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.922   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.922   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.922   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.922   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.922   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.922   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.922   368   368 I resolv  : setDoh: No suitable DoH server found
+11-16 03:48:48.922   368   368 I netd    : setResolverConfiguration(ResolverParamsParcel{netId: 103, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [10.0.2.3], domains: [], tlsName: , tlsServers: [10.0.2.3], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [1], meteredNetwork: false, dohParams: (null), interfaceNames: [wlan0]}) <0.19ms>
+11-16 03:48:48.922   368  9413 W resolv  : Validating DnsTlsServer {10.0.2.3/} with mark 0xf0067
+11-16 03:48:48.922   368  9413 I resolv  : Connecting to {10.0.2.3/} with mark 0xf0067
+11-16 03:48:48.922   368  9413 W resolv  : Socket failed to connect, errno=101: Network is unreachable
+11-16 03:48:48.922   368  9413 W resolv  : TCP Handshake failed: 101
+11-16 03:48:48.922   368  9413 W resolv  : query failed
+11-16 03:48:48.922   368  9413 W resolv  : validateDnsTlsServer returned 0 for {10.0.2.3/}
+11-16 03:48:48.923   368  9413 W resolv  : Validation failed
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.923   558   834 D ConnectivityService: Adding iface wlan0 to network 103
+11-16 03:48:48.925   368   368 I netd    : networkAddInterface(103, wlan0) <1.91ms>
+11-16 03:48:48.926   368   368 I netd    : wakeupAddInterface(wlan0, 445787328525:wlan0, -2147483648, -2147483648) <0.62ms>
+11-16 03:48:48.926   368   417 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.57ms>
+11-16 03:48:48.926   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: fe80::/64, ifName: wlan0, nextHop: , mtu: 0}) <0.21ms>
+11-16 03:48:48.927   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: 10.0.2.0/24, ifName: wlan0, nextHop: , mtu: 0}) <0.12ms>
+11-16 03:48:48.927   368   417 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.39ms>
+11-16 03:48:48.927   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: 0.0.0.0/0, ifName: wlan0, nextHop: 10.0.2.2, mtu: 0}) <0.04ms>
+11-16 03:48:48.927   558   834 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 03:48:48.927   558   834 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3], [1], false, [wlan0])
+11-16 03:48:48.928   368   368 I resolv  : setDoh: No suitable DoH server found
+11-16 03:48:48.928   368   368 I netd    : setResolverConfiguration(ResolverParamsParcel{netId: 103, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [10.0.2.3], domains: [], tlsName: , tlsServers: [10.0.2.3], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [1], meteredNetwork: false, dohParams: (null), interfaceNames: [wlan0]}) <0.15ms>
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.928   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   368  9414 W resolv  : Validating DnsTlsServer {10.0.2.3/} with mark 0xf0067
+11-16 03:48:48.929   368  9414 I resolv  : Connecting to {10.0.2.3/} with mark 0xf0067
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.929   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:48.930   368  9414 I resolv  :  SSL_connect returned -1 with mark 0xf0067
+11-16 03:48:48.931   558   629 D WifiMemoryStoreImpl: Set cluster Gb5238578828e3fa for Wb5238578828e3fa: SUCCESS
+11-16 03:48:48.948   368   368 I netd    : tetherGetStats() -> {[]} <0.28ms>
+11-16 03:48:48.951   368   399 E NetlinkEvent: NetlinkEvent::FindParam(): Parameter 'INTERFACE' not found
+11-16 03:48:48.951   368   399 E NetlinkEvent: NetlinkEvent::FindParam(): Parameter 'STATE' not found
+11-16 03:48:48.951   368   399 E NetlinkEvent: NetlinkEvent::FindParam(): Parameter 'TIME_NS' not found
+11-16 03:48:48.951   368   399 E NetlinkEvent: NetlinkEvent::FindParam(): Parameter 'UID' not found
+11-16 03:48:48.951   368   368 I netd    : idletimerAddInterface(wlan0, 15, 103) <0.69ms>
+11-16 03:48:48.951  1038  9416 D TrafficStats: tagSocket(121) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:48.951  1038  9417 D TrafficStats: tagSocket(123) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:48.951   558   827 E WifiStaIfaceAidlImpl: stopRssiMonitoring failed with service-specific exception: android.os.ServiceSpecificException:  (code 5)
+11-16 03:48:48.952   558   834 D ConnectivityService: NetReassign [no changes] [c 0] [a 1] [i 0]
+11-16 03:48:48.953  1038  9416 D TrafficStats: tagSocket(121) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:48.953  1038  9417 D TrafficStats: tagSocket(121) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:48.954   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.40ms>
+11-16 03:48:48.955   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.36ms>
+11-16 03:48:48.956   368  9418 I resolv  : ResNSendHandler::run: 0 / {103 983143 103 983143 1073 1}
+11-16 03:48:48.956   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.27ms>
+11-16 03:48:48.956   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.28ms>
+11-16 03:48:48.957   368  9419 I resolv  : ResNSendHandler::run: 0 / {103 983143 103 983143 1073 1}
+11-16 03:48:48.958   368  9418 I resolv  : res_nsend: used send_dg 160 terrno: 0
+11-16 03:48:48.958  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.959   368  9419 I resolv  : res_nsend: used send_dg 63 terrno: 0
+11-16 03:48:48.960  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.960  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.960  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.961  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.961  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.961  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.962  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.962  1038  1038 D TrafficStats: tagSocket(121) with statsTag=0xffffffff, statsUid=-1
+11-16 03:48:48.962  1038  9416 D NetworkMonitor/103: PROBE_DNS www.google.com 11ms OK 142.251.150.119,142.251.153.119,142.251.151.119,142.251.154.119,142.251.157.119,142.251.156.119,142.251.152.119,142.251.155.119
+11-16 03:48:48.963  1038  9417 D NetworkMonitor/103: PROBE_DNS connectivitycheck.gstatic.com 11ms OK 142.251.150.120
+11-16 03:48:48.963   368  9420 I resolv  : GetAddrInfoHandler::run: {103 983143 103 983143 1073 1}
+11-16 03:48:48.963   368  9421 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-16 03:48:48.963   368  9421 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x7e6f218304f0
+11-16 03:48:48.963   368  9421 I resolv  : doQuery: rcode=0, ancount=8, return value=160
+11-16 03:48:48.963  1038  9416 D TrafficStats: tagSocket(121) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:48.964   368  9423 I resolv  : GetAddrInfoHandler::run: {103 983143 103 983143 1073 1}
+11-16 03:48:48.964   368  9424 I resolv  : res_nmkquery: (QUERY, IN, A)
+11-16 03:48:48.964   368  9424 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x7e6fb182fb30
+11-16 03:48:48.964   368  9424 I resolv  : doQuery: rcode=0, ancount=1, return value=63
+11-16 03:48:48.964  1038  9417 D TrafficStats: tagSocket(122) with statsTag=0xffffff81, statsUid=-1
+11-16 03:48:48.966   368   368 I netd    : setProcSysNet(4, 2, wlan0, retrans_time_ms, 750) <0.03ms>
+11-16 03:48:48.966   368   368 I netd    : setProcSysNet(4, 2, wlan0, ucast_solicit, 10) <0.01ms>
+11-16 03:48:48.966   368   368 I netd    : setProcSysNet(6, 2, wlan0, retrans_time_ms, 750) <0.02ms>
+11-16 03:48:48.966   368   368 I netd    : setProcSysNet(6, 2, wlan0, ucast_solicit, 10) <0.02ms>
+11-16 03:48:48.986  1038  9417 D NetworkMonitor/103: PROBE_HTTP http://connectivitycheck.gstatic.com/generate_204 time=22ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 03:48:48 GMT], X-Android-Received-Millis=[1794800928985], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794800928976]}
+11-16 03:48:49.018  1038  9416 D NetworkMonitor/103: PROBE_HTTPS https://www.google.com/generate_204 time=55ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Alt-Svc=[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Mon, 16 Nov 2026 03:48:49 GMT], X-Android-Received-Millis=[1794800929017], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1794800929001]}
+11-16 03:48:49.018  1038  9415 D NetworkMonitor/103: isCaptivePortal: isSuccessful()=true isPortal()=false RedirectUrl=null isPartialConnectivity()=false Time=68ms
+11-16 03:48:49.019   558   834 I ConnectivityService: Update score for net 103 : +EVER_EVALUATED
+11-16 03:48:49.019   558   834 D ConnectivityService: [103 WIFI] validation passed
+11-16 03:48:49.019   558   834 I ConnectivityService: Update capabilities for net 103 : +VALIDATED
+11-16 03:48:49.019   558   834 I ConnectivityService: Update score for net 103 : +EVER_VALIDATED+IS_VALIDATED
+11-16 03:48:49.019   558   834 D ConnectivityService: Switching to new default network for: uid/pid:1000/558 activeRequest: 1 callbackRequest: 1 [NetworkRequest [ REQUEST id=1, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED RequestorUid: 1000 RequestorPkg: android UnderlyingNetworks: Null] ]] callback flags: 1 order: 2147483647 isUidTracked: false using NetworkAgentInfo{network{103}  handle{445787328525}  ni{WIFI CONNECTED extra: } created=2026-11-16T03:48:48.886Z Score(Policies : TRANSPORT_PRIMARY&EVER_EVALUATED&IS_UNMETERED&EVER_VALIDATED&IS_VALIDATED ; KeepConnected : 0)  created 1604859 firstValidated 1604958 lastValidated 1604958  lp{{InterfaceName: wlan0 LinkAddresses: [ fe80::e7d7:9456:cb5b:fbfb/64,10.0.2.16/24 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 0 ServerAddress: /10.0.2.2 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ fe80::/64 -> :: wlan0 mtu 0,10.0.2.0/24 -> 0.0.0.0 wlan0 mtu 0,0.0.0.0/0 -> 10.0.2.2 wlan0 mtu 0 ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&VALIDATED&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED LinkUpBandwidth>=12000Kbps LinkDnBandwidth>=30000Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID="AndroidWifi", BSSID=02:15:b2:00:00:01, band=1, mMatchLocalOnlySpecifiers=false]> TransportInfo: <SSID: "AndroidWifi", BSSID: 02:15:b2:00:00:01, MAC: 02:15:b2:00:00:00, IP: /10.0.2.16, Security type: 0, Supplicant state: COMPLETED, Wi-Fi standard: legacy, RSSI: -50, Link speed: 1Mbps, Tx Link speed: 1Mbps, Max Supported Tx Link speed: 54Mbps, Rx Link speed: -1Mbps, Max Supported Rx Link speed: 54Mbps, Frequency: 2437MHz, Net ID: 0, Metered hint: false, score: 60, isUsable: true, CarrierMerged: false, SubscriptionId: -1, IsPrimary: 1, Trusted: true, Restricted: false, Ephemeral: false, OEM paid: false, OEM private: false, OSU AP: false, FQDN: <none>, Provider friendly name: <none>, Requesting package name: <none>"AndroidWifi"openMLO Information: , Is TID-To-Link negotiation supported by the AP: false, AP MLD Address: <none>, AP MLO Link Id: <none>, AP MLO Affiliated links: <none>, Vendor Data: <none>> SignalStrength: -50 OwnerUid: 10115 AdminUids: [10115] SSID: "AndroidWifi" UnderlyingNetworks: Null]}  factorySerialNumber=5}
+11-16 03:48:49.020   368   368 I netd    : networkSetDefault(103) <0.08ms>
+11-16 03:48:49.020   368   368 I netd    : setTcpRWmemorySize(524288 1048576 2097152, 262144 524288 1048576) <0.03ms>
+11-16 03:48:49.040   368   368 I netd    : tetherGetStats() -> {[]} <0.32ms>
+11-16 03:48:49.042   558   864 D NetworkTimeUpdateService: New default network 103; checking time.
+11-16 03:48:49.044   558   834 D ConnectivityService: Setting inactive [102 CELLULAR] for 30000ms
+11-16 03:48:49.044  1038  1111 D UpstreamNetworkMonitor: New default Internet network: 103
+11-16 03:48:49.044   558   573 W system_server: Missing inline cache for void android.net.LinkProperties.writeToParcel(android.os.Parcel, int)
+11-16 03:48:49.045   558   834 D ConnectivityService: Sending DISCONNECTED broadcast for type 0 [102 CELLULAR] isDefaultNetwork=true
+11-16 03:48:49.045  1080  1262 D com.android.ons.ONSProfileActivator: Internet connection available
+11-16 03:48:49.045   558   834 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 android.net.connectivity.com.android.server.ConnectivityService.sendStickyBroadcast:3944 android.net.connectivity.com.android.server.ConnectivityService.sendLegacyNetworkBroadcast:11525 android.net.connectivity.com.android.server.ConnectivityService$LegacyTypeTracker.remove:1296 android.net.connectivity.com.android.server.ConnectivityService.updateLegacyTypeTrackerAndVpnLockdownForRematch:10988 
+11-16 03:48:49.046   558   582 I GnssNetworkConnectivityHandler: updateNetworkState, state=CLOSED, connected=true, network=103, capabilityFlags=3, availableNetworkCount: 2
+11-16 03:48:49.046   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.75ms>
+11-16 03:48:49.046   558   834 D ConnectivityService: Sending CONNECTED broadcast for type 1 [103 WIFI] isDefaultNetwork=true
+11-16 03:48:49.046   558   834 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.sendStickyBroadcast:1655 android.net.connectivity.com.android.server.ConnectivityService.sendStickyBroadcast:3944 android.net.connectivity.com.android.server.ConnectivityService.sendGeneralBroadcast:3914 android.net.connectivity.com.android.server.ConnectivityService.sendConnectedBroadcast:3887 android.net.connectivity.com.android.server.ConnectivityService.sendLegacyNetworkBroadcast:11497 
+11-16 03:48:49.046   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.41ms>
+11-16 03:48:49.048   558   834 D ConnectivityService: NetReassign [1 : 102 → 103, 60 : 102 → 103, 54 : 102 → 103, 52 : 102 → 103, 40 : 102 → 103, 23 : 102 → 103, 27 : 102 → 103, 15 : 102 → 103, 19 : 102 → 103, 29 : 102 → 103, 7 : 102 → 103, 50 : 102 → 103, 34 : 102 → 103, 45 : 102 → 103, 17 : 102 → 103, 22 : 102 → 103, 21 : 102 → 103, 42 : 102 → 103, 38 : 102 → 103] [c 0] [a 27] [i 1]
+11-16 03:48:49.049   558   834 D ConnectivityService: Setting DNS servers for network 103 to [/10.0.2.3]
+11-16 03:48:49.049   558   834 D DnsManager: sendDnsConfigurationForNetwork(103, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3], [1], false, [wlan0])
+11-16 03:48:49.050   368   368 I resolv  : setDoh: No suitable DoH server found
+11-16 03:48:49.050   368   368 I netd    : setResolverConfiguration(ResolverParamsParcel{netId: 103, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [10.0.2.3], domains: [], tlsName: , tlsServers: [10.0.2.3], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [1], meteredNetwork: false, dohParams: (null), interfaceNames: [wlan0]}) <0.09ms>
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.050   558   594 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 03:48:49.051   558   827 W LastMileLogger: Failed to stop event tracing: /sys/kernel/debug/tracing/instances/wifi/tracing_on: open failed: ENOENT (No such file or directory)
+11-16 03:48:49.059   917  1062 D EGL_emulation: app_time_stats: avg=813.58ms min=16.59ms max=3890.55ms count=6
+11-16 03:48:49.060   558  1026 D WifiMemoryStoreImpl: Set cluster Gb5238578828e3fa for W47ebe9499b3b5d87: SUCCESS
+11-16 03:48:49.063   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.45ms>
+11-16 03:48:49.064   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.55ms>
+11-16 03:48:49.064   368   368 I netd    : bandwidthRemoveInterfaceQuota(eth0) <0.38ms>
+11-16 03:48:49.065   368   368 I netd    : bandwidthSetInterfaceQuota(eth0, 9223372036854775807) <0.32ms>
+11-16 03:48:49.676  1038  9363 D IpClient/wlan0: addressUpdated: fe80::e7d7:9456:cb5b:fbfb/64 on ifindex 16 flags 0x00000880 scope 253
+11-16 03:48:49.678  1038  9363 D IpClient/wlan0: routeUpdated: ::/0 -> fe80::2 wlan0 mtu 0
+11-16 03:48:49.679  1038  9412 D ApfFilter: (wlan0): Adding RA fe80::2 -> ff02::1 1800s fec0::/64 86400s/14400s 
+11-16 03:48:49.680  1038  9363 D IpClient/wlan0: routeUpdated: fec0::/64 -> :: wlan0 mtu 0
+11-16 03:48:49.680  1038  9363 D IpClient/wlan0: addressUpdated: fec0::ddfd:f6e0:e373:556e/64 on ifindex 16 flags 0x00000944 scope 200
+11-16 03:48:49.680  1038  9363 D IpClient/wlan0: addressUpdated: fec0::686f:6e43:bfee:34ce/64 on ifindex 16 flags 0x00000045 scope 200
+11-16 03:48:49.682  1038  9363 D IpClient.wlan0: set max DTIM multiplier to 2
+11-16 03:48:49.683   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: fec0::/64, ifName: wlan0, nextHop: , mtu: 0}) <0.09ms>
+11-16 03:48:49.683   558   827 E WifiStaIfaceAidlImpl: setDtimMultiplier failed with service-specific exception: android.os.ServiceSpecificException:  (code 4)
+11-16 03:48:49.683   368   368 E netd    : Error adding route ::/0 -> fe80::2 wlan0 to table 1016: File exists
+11-16 03:48:49.683   368   368 I netd    : networkAddRouteParcel(103, RouteInfoParcel{destination: ::/0, ifName: wlan0, nextHop: fe80::2, mtu: 0}) <0.05ms>
+11-16 03:48:50.444  1038  9363 D IpClient/wlan0: addressUpdated: fec0::686f:6e43:bfee:34ce/64 on ifindex 16 flags 0x00000001 scope 200
+11-16 03:48:50.444  1038  9363 D IpClient/wlan0: addressUpdated: fec0::ddfd:f6e0:e373:556e/64 on ifindex 16 flags 0x00000900 scope 200
+11-16 03:49:00.042   917  1062 D EGL_emulation: app_time_stats: avg=5491.38ms min=13.94ms max=10968.81ms count=2
+11-16 03:49:01.524  9387  9403 I System.out: R30_REPAIR_FAULT_CELL|analysis|BUSY|ACTUAL_ANDROID_SQLITE_ORIGINAL_WRITER|RECOVERED_EXACTLY_ONCE|NO_HALF_CHAIN_NO_REAL_NO_FORMAL_LABELS|SYNTHETIC_ONLY|PASS
+11-16 03:49:01.524  9387  9403 I TestRunner: finished: faultCell(com.ethk3.novaonepro.strategyv2.RepairResearchFaultAndroidTest)
+11-16 03:49:01.526  9387  9403 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-16 03:49:01.527   558  1026 I ActivityManager: Force stopping com.starcore.research.r13 appid=10148 user=0: finished inst
+11-16 03:49:01.528  9377  9377 I app_process: System.exit called, status: 0
+11-16 03:49:01.528  9377  9377 I AndroidRuntime: VM exiting with result code 0.
+11-16 03:49:01.530   558  1026 E ActivityManager: Unable to freeze binder for 9387: -11
+11-16 03:49:01.531   558   583 D DisplayManagerService: Drop pending events for gone uid 10148
+11-16 03:49:01.532   558  1026 I ActivityManager: Killing 9387:com.starcore.research.r13/u0a148 (adj 0): stop com.starcore.research.r13 due to finished inst
+11-16 03:49:01.644     0     0 I binder  : 558:1026 ioctl 400c620e 764ce447a574 returned -11
+11-16 03:49:01.646     0     0 I binder  : 558:1026 ioctl 400c620e 764ce447a574 returned -11
+11-16 03:49:01.535   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:49:01.535   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:49:01.535   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={10148} in 1ms
+11-16 03:49:01.536   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:49:01.537   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:49:01.537   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={20148} in 1ms
+11-16 03:49:01.662     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-16 03:49:01.663     0     0 I binder  : undelivered transaction 545338, process died.
+11-16 03:49:01.664     0     0 I logd    : logdr: UID=0 GID=0 PID=9430 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns
+11-16 03:49:01.548  5798  5798 I adbd    : Remote process closed the socket (on MSG_PEEK)
+11-16 03:49:01.549   558  1026 V ActivityManager: Got obituary of 9387:com.starcore.research.r13
+11-16 03:49:01.549   369   369 I Zygote  : Process 9387 exited due to signal 9 (Killed)
+11-16 03:49:01.550   368   368 I netd    : tetherGetStats() -> {[]} <0.34ms>

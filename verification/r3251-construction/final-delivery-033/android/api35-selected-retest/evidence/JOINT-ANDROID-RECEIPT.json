@@ -1,0 +1,53 @@
+{
+  "scope": "ACTUAL_ANDROID_EMULATOR_NAMED_PROTOCOLS_NOT_NATURAL_OR_ENDURANCE",
+  "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+  "startedAt": "2026-11-16T04:02:24.260502+00:00",
+  "api": "35",
+  "serial": "emulator-5554",
+  "groups": [
+    {
+      "name": "delivery-and-live-service",
+      "expectedTests": 7,
+      "classes": [
+        "com.ethk3.novaonepro.R31QDeliveryInstrumentedTest"
+      ],
+      "command": [
+        "adb",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "r30Sandbox",
+        "r3251v35-repeat-delivery-and-live-service",
+        "-e",
+        "r31qRealService",
+        "true",
+        "-e",
+        "class",
+        "com.ethk3.novaonepro.R31QDeliveryInstrumentedTest",
+        "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"
+      ],
+      "startedAt": "2026-11-16T04:02:24.270980+00:00",
+      "status": "PASS_NAMED_ENGINEERING_PROTOCOLS",
+      "executionTimeoutSeconds": 2400,
+      "exitCode": 0,
+      "observedTests": 7,
+      "originalOutputSha256BeforeRedaction": "ee942b5c1e3509fb5ffffd2a2468b653c4a0d6770aaf17b98f7f169a90328022",
+      "log": "delivery-and-live-service.txt",
+      "logSha256": "ee942b5c1e3509fb5ffffd2a2468b653c4a0d6770aaf17b98f7f169a90328022",
+      "finishedAt": "2026-11-16T04:06:06.971882+00:00"
+    }
+  ],
+  "physicalDevice": "NOT_RUN",
+  "24h": "NOT_RUN",
+  "72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "uiLifecycle100Scope": "REQUIRED_ACTUAL_API35_RUN",
+  "finishedAt": "2026-11-16T04:06:06.974759+00:00",
+  "passedGroups": 1,
+  "failedGroups": 0,
+  "state": "PASS_NAMED_GROUPS_ONLY",
+  "existingFullFaultMatrices": "MUST_RUN_SEPARATELY_NOT_INFERRED_FROM_THE_ORIGINAL_17_OR_NEW_PROCESS_TESTS"
+}

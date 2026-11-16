@@ -1,0 +1,46 @@
+R31_HOST_DEPENDENCY_PROVENANCE {"androidSdk": {"path": "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar", "sha256": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a"}, "classes": {"classTreeSha256": "e771eb8130047673ad183a004e1cb15222a87b8805fca99c82625fd9576c2198", "path": "/workspace/starcore-r3251-attachment-final/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"}, "generatedResources": {"path": "/workspace/starcore-r3251-attachment-final/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar", "sha256": "ee74e9c8d95f2a1cb9d5477246207aac640b2e790edaaa495142f626318f4956"}, "sqliteJdbc": {"path": "/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar", "sha256": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa"}}
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Note: /workspace/starcore-r3251-attachment-final/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/starcore-r3251-attachment-final/tools/r31/host/R31OwnedRuntimeFixture.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/starcore-r3251-attachment-final/tools/r31/host/R31OwnedRuntimeFixture.java:30: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
+                      ^
+/workspace/starcore-r3251-attachment-final/tools/r31/host/R31OwnedRuntimeFixture.java:31: warning: Unsafe is internal proprietary API and may be removed in a future release
+        coordinator = (DatabaseCoordinator) ((Unsafe) field.get(null)).allocateInstance(DatabaseCoordinator.class);
+                                              ^
+3 warnings
+CHAIN_DONE|checks=77|[F01_LOCK_CONTENTION two owners x24 commits, one writer, F03_STALE_FENCE/F09_LATE_COMMIT refused after production fenced retry: F01_WRITE_FAILED|operation=R31_FULL_CHAIN_LATE_COMMIT|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK, F02_SETTLEMENT_COMMIT_FAILURE F01_WRITE_FAILED|operation=R27_LIVE_PENDING_RESOLVE|category=BUG|phase=END|commitOutcome=ROLLED_BACK, F05_OUT_OF_ORDER/B03 settlement once per prediction after injected commit failure, F04_DISK_FULL/B05+B10 GC display-only; choice, certificate, draws, frozen kept, F10_DUPLICATE_CONSUME/B08+B09 one product per result; late label refused]
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=273260 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=273316 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=273354 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=273422 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=273479 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=273562 task=r27-live
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R27_R31_FULL_CHAIN_OWNER_COMMIT|category=DEPENDENCY|phase=ADMISSION|commitOutcome=ROLLED_BACK
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:878)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runIdempotentAtomicWriteR31(DatabaseCoordinator.java:1083)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$submit$4(ResearchWriteQueueR27.java:162)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submitAttemptR31(ResearchWriteQueueR27.java:178)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:159)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.lambda$submit$1(RuntimeR27.java:188)
+	at com.ethk3.novaonepro.strategyv2.CommitEnvelopeR30R1.attempt(CommitEnvelopeR30R1.java:17)
+	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:187)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.lambda$ownerCommits$2(R31FullChainFaultHost.java:118)
+	at com.ethk3.novaonepro.strategyv2.R31OwnedRuntimeFixture.owned(R31OwnedRuntimeFixture.java:59)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.ownerCommits(R31FullChainFaultHost.java:114)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.lambda$chain$16(R31FullChainFaultHost.java:256)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.lambda$phase$15(R31FullChainFaultHost.java:249)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.asNewOwner(R31FullChainFaultHost.java:106)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.phase(R31FullChainFaultHost.java:249)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.chain(R31FullChainFaultHost.java:256)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.main(R31FullChainFaultHost.java:301)
+Caused by: java.lang.IllegalStateException: R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN
+	... 17 more
+
+R31_FULL_CHAIN_FAULT_HOST_FAIL exit=1

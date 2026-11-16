@@ -1,0 +1,210 @@
+{
+  "state": "PASS_HOST_CURRENT_P1",
+  "scope": "ACTUAL_TARGET_PRODUCTION_METHODS_NATIVE_SQLITE_ANDROID_TRANSPORT_ADAPTER",
+  "capturedAt": "2026-11-15T15:45:54.333657+00:00",
+  "cases": [
+    {
+      "id": "P1-quota",
+      "state": "PASS_HOST_CURRENT_PRODUCTION",
+      "assertions": 119,
+      "log": "quota.log"
+    },
+    {
+      "id": "P1-strict",
+      "state": "PASS_HOST_CURRENT_PRODUCTION",
+      "assertions": 61,
+      "log": "strict.log"
+    },
+    {
+      "id": "P1-completed-drift",
+      "state": "PASS_HOST_CURRENT_PRODUCTION",
+      "assertions": 12,
+      "log": "completed-drift.log"
+    },
+    {
+      "id": "P1-tail",
+      "state": "PASS_HOST_CURRENT_PRODUCTION",
+      "assertions": 9,
+      "log": "tail.log"
+    }
+  ],
+  "targetSources": {
+    "app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java": "468c8f58cacb58a1a4f87bd124156988065b24a5597477c51c74163b87d96772",
+    "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java": "e4ddbbf466948b72833696593242a7252611cf7b64cd442804f4b256ac85f80a",
+    "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java": "3ffe4d47a3ae4a42b1c5e3840e7c64e88a238586b1a6498982cd7321a05c2e5b",
+    "app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java": "769eaf2eb62a68fd32044a5f02f75dc3ecb9f137156d187a995530bf28162fb0",
+    "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java": "d36cd492599209112d5cda850ea0c0d0e2cc52f6bdf67efcc86f2e1bba2e5877",
+    "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java": "9cbe4bdc9463bab5a3928612b5fa80d78199f3809ad626f0ee932a0947795303",
+    "app/src/main/java/com/ethk3/novaonepro/Models.java": "623e77e276f89b4faa552977e24171dac812c24caf2808c65913292d931eda22",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java": "f9623b74d75cc34967595aa5dd3c2893a8d457a6a4338f7f650eb23974cf4253",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java": "35fce88a64f2f5bc1a88f863d0d3cf632179943873b3500b9a54e3fd1101159a",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa"
+  },
+  "adapters": {
+    "tools/r31/ddl_host/android/content/ContentValues.java": "2f09f41eff886c803ff118108d4aca5c74cc380b3f8324ad0c304281fdbde7e4",
+    "tools/r31/ddl_host/android/database/Cursor.java": "035829d00dbe35d6e4543c0f9c329b6ac87d2b24c2cb3bf9b935fb6123f8a4e5",
+    "tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java": "2ce33e0cddc38ae027e3ce12336ce96f3a23f70e0937091563d6575a68dbbea9",
+    "tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java": "1b7cc9d9b63ef6c46a020538ef5c401255052fc43f204b1d033329f801bc3fe6",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java": "e17afce73f98be731b31a7d19f895a6df48c90b4f12362a1b5e5b463566a74c9"
+  },
+  "testSources": {
+    "/workspace/starcore-r3251-build/tools/r32/p1_current/tests/HypothesisQuotaR32Host.java": "e4eaa19add82addef741537151129aced3862fc8e5cfe42e98b6636207239926",
+    "/workspace/starcore-r3251-build/tools/r32/p1_current/tests/TailRecoveryProbe.java": "08c327b648e31be2a8bb33cdc68ef6436929c321df70152d8c75c59a80b9c829",
+    "/workspace/starcore-r3251-build/tools/r32/p1_current/tests/CompletedDriftR32Host.java": "cb1cb495d5d6f1a3ef0976c7d5f10eb609d789bc0c4932b9a4574ee17657c577",
+    "/workspace/starcore-r3251-build/tools/r31/unified_host/StrictMigrationR31Host.java": "cdd28d63cd10a1b02dc1c55c4228a6f4a626538328faa7bb0f7e6a0cd501b9b2"
+  },
+  "runnerSha256": "459746f5e7111e708ed2d9088086ad10d46ddcc036163785fc3478875d1da766",
+  "dependencies": {
+    "androidJar": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+    "sqliteJdbc": "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa",
+    "slf4jApi": "e7c2a48e8515ba1f49fa637d57b4e2f590b3f5bd97407ac699c3aa5efb1204a9"
+  },
+  "compiledSupportDirectory": "/workspace/starcore-r3251-evidence/P1-classes",
+  "compiledSupportCount": 4683,
+  "compiledSupportManifest": "SUPPORT_CLASSES.json",
+  "compiledSupportManifestSha256": "a2e2b458d32662dc343bf7a6c480a4b25860adf95351844756e4ed6ffe05619d",
+  "commands": [
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-evidence/P1-classes",
+        "-d",
+        "/workspace/starcore-r3251-evidence/P1-host/platform",
+        "/workspace/starcore-r3251-build/tools/r31/ddl_host/android/content/ContentValues.java",
+        "/workspace/starcore-r3251-build/tools/r31/ddl_host/android/database/Cursor.java",
+        "/workspace/starcore-r3251-build/tools/r31/ddl_host/android/database/sqlite/SQLiteOpenHelper.java",
+        "/workspace/starcore-r3251-build/tools/r31/ddl_host/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/starcore-r3251-build/tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+        "/workspace/starcore-r3251-build/tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java"
+      ],
+      "exitCode": 0,
+      "log": "platform-compile.log"
+    },
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-evidence/P1-classes:/workspace/starcore-r3251-evidence/P1-host/platform:/workspace/starcore-r3251-evidence/P1-host/production",
+        "-d",
+        "/workspace/starcore-r3251-evidence/P1-host/production",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/LegacyDdlR31.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/Models.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/JsonR27.java",
+        "/workspace/starcore-r3251-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java"
+      ],
+      "exitCode": 0,
+      "log": "production-compile.log"
+    },
+    {
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-encoding",
+        "UTF-8",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-sourcepath",
+        "",
+        "-implicit:none",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P1-host/platform:/workspace/starcore-r3251-evidence/P1-host/production:/workspace/starcore-r3251-evidence/P1-host/tests:/workspace/starcore-r3251-evidence/P1-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "-d",
+        "/workspace/starcore-r3251-evidence/P1-host/tests",
+        "/workspace/starcore-r3251-build/tools/r32/p1_current/tests/HypothesisQuotaR32Host.java",
+        "/workspace/starcore-r3251-build/tools/r32/p1_current/tests/TailRecoveryProbe.java",
+        "/workspace/starcore-r3251-build/tools/r32/p1_current/tests/CompletedDriftR32Host.java",
+        "/workspace/starcore-r3251-build/tools/r31/unified_host/StrictMigrationR31Host.java"
+      ],
+      "exitCode": 0,
+      "log": "tests-compile.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx384m",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P1-host/platform:/workspace/starcore-r3251-evidence/P1-host/production:/workspace/starcore-r3251-evidence/P1-host/tests:/workspace/starcore-r3251-evidence/P1-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "com.ethk3.novaonepro.strategyv2.HypothesisQuotaR32Host",
+        "run",
+        "/workspace/starcore-r3251-evidence/P1-host/quota.db"
+      ],
+      "exitCode": 0,
+      "log": "quota.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx384m",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P1-host/platform:/workspace/starcore-r3251-evidence/P1-host/production:/workspace/starcore-r3251-evidence/P1-host/tests:/workspace/starcore-r3251-evidence/P1-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "com.ethk3.novaonepro.StrictMigrationR31Host",
+        "run",
+        "/workspace/starcore-r3251-evidence/P1-host/strict.db"
+      ],
+      "exitCode": 0,
+      "log": "strict.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx384m",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P1-host/platform:/workspace/starcore-r3251-evidence/P1-host/production:/workspace/starcore-r3251-evidence/P1-host/tests:/workspace/starcore-r3251-evidence/P1-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "com.ethk3.novaonepro.CompletedDriftR32Host",
+        "/workspace/starcore-r3251-evidence/P1-host/drift.db"
+      ],
+      "exitCode": 0,
+      "log": "completed-drift.log"
+    },
+    {
+      "command": [
+        "java",
+        "-Xmx384m",
+        "-cp",
+        "/workspace/starcore-r3251-evidence/P1-host/platform:/workspace/starcore-r3251-evidence/P1-host/production:/workspace/starcore-r3251-evidence/P1-host/tests:/workspace/starcore-r3251-evidence/P1-classes:/workspace/starcore-r3251-toolchain/android.jar:/workspace/starcore-r3251-toolchain/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-r3251-toolchain/slf4j-api-2.0.13.jar",
+        "com.ethk3.novaonepro.TailRecoveryProbe"
+      ],
+      "exitCode": 0,
+      "log": "tail.log"
+    }
+  ],
+  "Android": "NOT_RUN",
+  "device": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "quotaScope": "real recoverQuotaSliceR32 on four-table synthetic old DB; full service/foundry birth is separate",
+  "strictScope": "61 existing strict-migration assertions plus 12 completed-definition-drift assertions",
+  "tailScope": "9 production reducer/resolver assertions; network and service scheduling are not measured"
+}

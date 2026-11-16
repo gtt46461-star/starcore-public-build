@@ -1,0 +1,327 @@
+{
+  "stage": "P3",
+  "at": "2026-11-16T04:12:12.765755+00:00",
+  "state": "PASS_CURRENT_OWN_STAGE_DECLARED_ENGINEERING_GATES",
+  "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+  "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+  "gradle": {
+    "id": "P3-current-complete-chain-gradle",
+    "argv": [
+      "./gradlew",
+      "--no-daemon",
+      "--max-workers=2",
+      "-Dorg.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8",
+      ":app:compileDebugJavaWithJavac",
+      ":app:compileDebugAndroidTestJavaWithJavac",
+      ":app:testDebugUnitTest",
+      ":app:lintDebug"
+    ],
+    "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+    "startedAt": "2026-11-16T03:10:12.128428+00:00",
+    "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+    "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+    "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+    "status": "PASS_COMMAND",
+    "log": "P3-current-complete-chain-gradle.log",
+    "exitCode": 0,
+    "finishedAt": "2026-11-16T03:59:06.479501+00:00",
+    "logSha256": "6e6859f38f40169ec454548a57d97ce685372ae71f117579441501b00c39213c"
+  },
+  "junit": {
+    "PASS": 659
+  },
+  "lintErrors": 0,
+  "lintWarnings": 2,
+  "hostGeneratedEvidencePaths": [
+    "verification/r31/p02/runtime-ddl-hotspots/RECEIPT.json",
+    "verification/r31/p02/runtime-ddl-hotspots/SQL_API_CALLS.tsv",
+    "verification/r31/p02/runtime-ddl-hotspots/business-host-javac.log",
+    "verification/r31/p02/runtime-ddl-hotspots/business-native.log",
+    "verification/r31/p02/runtime-ddl-hotspots/original-revocation-native.log",
+    "verification/r31/p02/runtime-ddl-hotspots/production-javac.log"
+  ],
+  "buildInputsChangedByArchiving": false,
+  "boundHostCommands": {
+    "r30repair_chart_page": {
+      "status": "PASS",
+      "selected": "P3-bound-r30repair_chart_page.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-r30repair_chart_page.command.json",
+          "id": "P3-bound-r30repair_chart_page",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh r30repair_chart_page"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:19:26.220416+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-r30repair_chart_page.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:19:37.662055+00:00",
+          "logSha256": "20bbdaa40e8cede60829c9109c6e4ae24d9fe635997b705b57d35ee7f23589ba"
+        }
+      ]
+    },
+    "r30repair_mainline_authority": {
+      "status": "PASS",
+      "selected": "P3-bound-r30repair_mainline_authority.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-r30repair_mainline_authority.command.json",
+          "id": "P3-bound-r30repair_mainline_authority",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh r30repair_mainline_authority"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:19:37.668097+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-r30repair_mainline_authority.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:19:47.348355+00:00",
+          "logSha256": "9c712f7f06b0598c0a3a75ff6486a20ea24e8399adc3f7ac37bb38c23157f8b4"
+        }
+      ]
+    },
+    "run_certificate_startup_host": {
+      "status": "PASS",
+      "selected": "P3-bound-run_certificate_startup_host.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_certificate_startup_host.command.json",
+          "id": "P3-bound-run_certificate_startup_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_certificate_startup_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:19:47.352122+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_certificate_startup_host.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:21:08.908597+00:00",
+          "logSha256": "16543e1c2b29e9f77a0b6257744320a658d2de30083b9ecb3376370c457dafaa"
+        }
+      ]
+    },
+    "run_factory_transport_host": {
+      "status": "PASS",
+      "selected": "P3-bound-run_factory_transport_host.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_factory_transport_host.command.json",
+          "id": "P3-bound-run_factory_transport_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_factory_transport_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:21:08.921422+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_factory_transport_host.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:21:40.719413+00:00",
+          "logSha256": "37bf03d783df20f1e44a2e61d9e1e365b5827f9fbd017e9d240b91048744080b"
+        }
+      ]
+    },
+    "run_legacy_qualification_contract": {
+      "status": "PASS",
+      "selected": "P3-bound-run_legacy_qualification_contract.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_legacy_qualification_contract.command.json",
+          "id": "P3-bound-run_legacy_qualification_contract",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_legacy_qualification_contract"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:21:40.720747+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_legacy_qualification_contract.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:23:06.497360+00:00",
+          "logSha256": "5cc9dfcd60289a7bf50b2085954122d1071e7e47b86d1890ff065593da51f16d"
+        }
+      ]
+    },
+    "run_runtime_ddl_host": {
+      "status": "PASS",
+      "selected": "P3-bound-run_runtime_ddl_host.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_runtime_ddl_host.command.json",
+          "id": "P3-bound-run_runtime_ddl_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_runtime_ddl_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:23:06.509637+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_runtime_ddl_host.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:23:38.731766+00:00",
+          "logSha256": "757c2991d950b43bbb0e95c7db306de090c88e00b5a440b10ae223934b3997d0"
+        }
+      ]
+    },
+    "run_service_protocol_host": {
+      "status": "PASS",
+      "selected": "P3-bound-run_service_protocol_host-network.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_service_protocol_host-network.command.json",
+          "id": "P3-bound-run_service_protocol_host-network",
+          "argv": [
+            "bash",
+            "tools/r312/host.sh",
+            "run_service_protocol_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:26:14.762228+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_service_protocol_host-network.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:27:04.952351+00:00",
+          "logSha256": "ba8130cc1245e82e22a7d231643de2dc1755af9e79fb4746a84bd0218bc26224"
+        },
+        {
+          "receipt": "P3-bound-run_service_protocol_host.command.json",
+          "id": "P3-bound-run_service_protocol_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_service_protocol_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:23:38.736407+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "FAILED_COMMAND",
+          "log": "P3-bound-run_service_protocol_host.log",
+          "exitCode": 1,
+          "finishedAt": "2026-11-16T03:24:17.960692+00:00",
+          "logSha256": "1b63578676016ed9a8ff9e33f38c36465e5d00ed0055166993ae5291a2bed12e"
+        }
+      ]
+    },
+    "run_storage_report_host": {
+      "status": "PASS",
+      "selected": "P3-bound-run_storage_report_host.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_storage_report_host.command.json",
+          "id": "P3-bound-run_storage_report_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_storage_report_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:24:17.984344+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_storage_report_host.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:28:28.387084+00:00",
+          "logSha256": "aca48b1b700ce38632f4f753663572aeb6037a0730d83bbb73505ea564b16d00"
+        }
+      ]
+    },
+    "run_typed_mainline_host": {
+      "status": "PASS",
+      "selected": "P3-bound-run_typed_mainline_host.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_typed_mainline_host.command.json",
+          "id": "P3-bound-run_typed_mainline_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_typed_mainline_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:28:28.416897+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_typed_mainline_host.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:31:18.117179+00:00",
+          "logSha256": "bbd6482b3ace282aa86c35bc72da7ed1d9ab18cc0f5ecf42c7f8b635dc42334a"
+        }
+      ]
+    },
+    "run_write_protocol_host": {
+      "status": "PASS",
+      "selected": "P3-bound-run_write_protocol_host.command.json",
+      "attempts": [
+        {
+          "receipt": "P3-bound-run_write_protocol_host.command.json",
+          "id": "P3-bound-run_write_protocol_host",
+          "argv": [
+            "bash",
+            "-c",
+            "bash tools/r312/host.sh run_write_protocol_host"
+          ],
+          "cwd": "/workspace/starcore-r3251-P3-complete-chain",
+          "startedAt": "2026-11-16T03:31:18.181137+00:00",
+          "packageManifestSha256": "2928fbfbd18ab8d17ace6ce0b03e6b37ca906097464147c2e35ce99aad16ae4c",
+          "sourceCommit": "20b51dd9401bb11e0f5fc1473f57c1bccd9da518",
+          "sourceTree": "abcc09d9ce87481f24081b6ceddefdfa125256cf",
+          "status": "PASS_COMMAND",
+          "log": "P3-bound-run_write_protocol_host.log",
+          "exitCode": 0,
+          "finishedAt": "2026-11-16T03:31:58.156230+00:00",
+          "logSha256": "8e52d71702f52e395ffc85154fcad3ecb38a606ebf37170e1597b5f3a4ad25fc"
+        }
+      ]
+    }
+  },
+  "boundHostCount": 10,
+  "ownerProductionCorrection": "P2",
+  "dependentOwnerCorrectionCodeReviewed": true,
+  "original312PayloadContractRetained": true,
+  "reviewedPayloadAudit": "ORIGINAL_PAYLOAD_DIFFERENCE_AUDIT.json",
+  "additionalProductionCorrectionPathOutsideOriginal312": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
+  "full222BusinessAcceptance": false,
+  "physical24h": "NOT_RUN",
+  "physical72h": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN",
+  "apkBuildSource": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+  "privateSigningMaterialArchived": false
+}

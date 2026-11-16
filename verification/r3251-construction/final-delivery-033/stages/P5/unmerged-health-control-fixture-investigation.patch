@@ -1,0 +1,48 @@
+diff --git a/tools/r31/host/R31OwnedRuntimeFixture.java b/tools/r31/host/R31OwnedRuntimeFixture.java
+index e08ed4d5..0a759b82 100644
+--- a/tools/r31/host/R31OwnedRuntimeFixture.java
++++ b/tools/r31/host/R31OwnedRuntimeFixture.java
+@@ -50,6 +50,7 @@ public final class R31OwnedRuntimeFixture implements AutoCloseable {
+     }
+ 
+     public <T> T owned(Callable<T> body) throws Exception {
++        drainFixtureHealthIfDeferred();
+         claim = coordinator.runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_HOST_FIXTURE_CLAIM"), tx -> {
+             RuntimeCoordinatorR26.Claim next = RuntimeCoordinatorR26.claimWithinR31(tx, task, owner, "R27", claim);
+             if (next == null) throw new IllegalStateException("HOST_PRODUCTION_CLAIM_NOT_ACQUIRED");
+@@ -60,6 +61,35 @@ public final class R31OwnedRuntimeFixture implements AutoCloseable {
+         finally { RuntimeCoordinatorR26.unbindBackgroundClaimR31(); }
+     }
+ 
++    /** The direct HOST driver has no service control tick. Deliver its pending
++     * hold faults through the production Health path before the next owner write.
++     * Health control commits do not consume an owner-commit process-death hook. */
++    private void drainFixtureHealthIfDeferred() {
++        if(!WriterHoldFaultsR31.deferResearch())return;
++        long before=((Number)WriterHoldFaultsR31.snapshot().get("persistedFaultReceipts")).longValue();
++        Runnable ownerCommitHook=db.beforeSuccessful;
++        RuntimeCoordinatorR26.Claim priorClaim=RuntimeCoordinatorR26.currentClaimR30();
++        db.beforeSuccessful=null;
++        RuntimeCoordinatorR26.unbindBackgroundClaimR31();
++        try {
++            for(int slice=0;slice<WriterHoldFaultsR31.MAX_PENDING&&WriterHoldFaultsR31.deferResearch();slice++)
++                WriterHoldFaultsR31.drainControlSliceR32(store);
++        } finally {
++            if(priorClaim!=null)RuntimeCoordinatorR26.bindBackgroundClaim(priorClaim);
++            db.beforeSuccessful=ownerCommitHook;
++        }
++        java.util.Map<String,Object> after=WriterHoldFaultsR31.snapshot();
++        long persisted=((Number)after.get("persistedFaultReceipts")).longValue();
++        if(WriterHoldFaultsR31.deferResearch()||persisted<=before)
++            throw new AssertionError("HOST_OWNED_HEALTH_DURABLE_DRAIN_NOT_READY:"+after);
++        try(Cursor rows=db.rawQuery("SELECT count(*) FROM r31_runtime_fault WHERE category='WRITER_HOLD'",null)) {
++            if(!rows.moveToFirst()||rows.getLong(0)<persisted-before)
++                throw new AssertionError("HOST_OWNED_HEALTH_DRAIN_MISSING_REAL_ROWS");
++        }
++        System.out.println("OWNED_FIXTURE_ACTUAL_HEALTH_DRAIN persisted="+(persisted-before)
++                +" pending="+after.get("pending")+" healthControlClaimIsolated=true originalGuard200ms=true backpressureAt24=true productionThresholdsChanged=false");
++    }
++
+     /** The parent has observed this precise HOST JVM exit. Use the real fenced retry API, never edit a lease. */
+     public void recoverAfterConfirmedProcessExit(long oldPid) {
+         if(oldPid<=0||ProcessHandle.of(oldPid).map(ProcessHandle::isAlive).orElse(false))

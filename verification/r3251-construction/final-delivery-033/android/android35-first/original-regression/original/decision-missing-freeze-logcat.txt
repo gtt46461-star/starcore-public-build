@@ -1,0 +1,94 @@
+--------- beginning of main
+11-16 03:39:36.407  7406  7406 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-16 03:39:36.410  7406  7406 I AndroidRuntime: Using default boot image
+11-16 03:39:36.410  7406  7406 I AndroidRuntime: Leaving lock profiling enabled
+11-16 03:39:36.411  7406  7406 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 03:39:36.411  7406  7406 I app_process: Using CollectorTypeCMC GC.
+11-16 03:39:36.456  7406  7406 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-16 03:39:36.461  7406  7406 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 03:39:36.461  7406  7406 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+11-16 03:39:36.461  7406  7406 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+11-16 03:39:36.462  7406  7406 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 03:39:36.463  7406  7406 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 03:39:36.464  7406  7406 W app_process: Unexpected CPU variant for x86: x86_64.
+11-16 03:39:36.464  7406  7406 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-16 03:39:36.475  7406  7406 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-16 03:39:36.475  7406  7406 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-16 03:39:36.477  7406  7406 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+11-16 03:39:36.477   558  1644 I ActivityManager: Force stopping com.starcore.research.r13 appid=10148 user=0: start instr
+11-16 03:39:36.478   558  1644 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10148, packageName = null, attributionTag = null, token = android.os.Binder@3498bd0, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 03:39:36.480   558   863 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-16 03:39:36.480   558   863 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10148 package com.starcore.research.r13 isStopped false
+11-16 03:39:36.484   369   369 D Zygote  : Forked child process 7416
+11-16 03:39:36.484   558   595 I ActivityManager: Start proc 7416:com.starcore.research.r13/u0a148 for added application com.starcore.research.r13
+11-16 03:39:36.503  7416  7416 I re.research.r13: Late-enabling -Xcheck:jni
+11-16 03:39:36.514  7416  7416 I re.research.r13: Using CollectorTypeCMC GC.
+11-16 03:39:36.514  7416  7416 W re.research.r13: Unexpected CPU variant for x86: x86_64.
+11-16 03:39:36.514  7416  7416 W re.research.r13: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-16 03:39:36.550  5798  5805 I adbd    : jdwp connection from 7416
+11-16 03:39:36.554  7416  7416 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-16 03:39:36.572  7416  7416 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+11-16 03:39:36.573  7416  7416 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 03:39:36.574  7416  7416 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=1 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:39:36.575  7416  7416 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:39:36.576  7416  7416 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:39:36.577  7416  7416 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:39:36.577  7416  7416 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:39:36.612  7416  7416 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:39:36.612  7416  7416 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:39:36.735  7416  7416 D nativeloader: Configuring clns-7 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/lib/x86_64:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk!/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.starcore.research.r13
+11-16 03:39:36.741  7416  7416 V GraphicsEnvironment: Currently set values for:
+11-16 03:39:36.741  7416  7416 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-16 03:39:36.741  7416  7416 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-16 03:39:36.741  7416  7416 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+11-16 03:39:36.741  7416  7416 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-16 03:39:36.743  7416  7416 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 03:39:36.744  7416  7416 D nativeloader: Configuring clns-8 for other apk /system/framework/android.test.mock.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/lib/x86_64, permitted_path=/data:/mnt/expand
+11-16 03:39:36.745  7416  7416 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 03:39:36.746  7416  7416 D nativeloader: Configuring clns-9 for other apk /system/framework/android.test.runner.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/lib/x86_64:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/lib/x86_64, permitted_path=/data:/mnt/expand
+11-16 03:39:36.747  7416  7416 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk*788399976:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:39:36.748  7416  7416 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk*788399976:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:39:36.749  7416  7416 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.apk*788399976:/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 03:39:36.750  7416  7416 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:39:36.750  7416  7416 W ziparchive: Unable to open '/data/app/~~px97XwCNEKKkjww4hmKwtQ==/com.starcore.research.r13.test-kyX8hyRNr9F2-x2lscNntA==/base.dm': No such file or directory
+11-16 03:39:36.782  7416  7416 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:39:36.782  7416  7416 W ziparchive: Unable to open '/data/app/~~bAUQObEvtvSP6qKHwRzc9Q==/com.starcore.research.r13-L386Ht5aOBLKBhBOEvOn1g==/base.dm': No such file or directory
+11-16 03:39:36.896  7416  7416 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+11-16 03:39:36.913  7416  7416 I AndroidJUnitRunner: onCreate Bundle[{r30Sandbox=reg-43796780479-decision-missing-freeze, r30DecisionMode=missing-freeze, class=com.ethk3.novaonepro.R30DecisionChainAndroidTest#originalOwnerPositiveAndIndependentNegativeAuthorities}]
+11-16 03:39:36.914  7416  7416 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-16 03:39:36.926  7416  7416 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-16 03:39:36.926  7416  7433 D AndroidJUnitRunner: onStart is called.
+11-16 03:39:36.967  7416  7433 I TestRunner: run started: 1 tests
+11-16 03:39:36.967  7416  7433 I TestRunner: started: originalOwnerPositiveAndIndependentNegativeAuthorities(com.ethk3.novaonepro.R30DecisionChainAndroidTest)
+11-16 03:39:36.972   558  1644 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.LOCKED_BOOT_COMPLETED dispatchLatency:0 completeLatency:411 dispatchRealLatency:0 completeRealLatency:411 receiversSize:1 userId:0 userType:android.os.usertype.full.SYSTEM
+11-16 03:39:36.980   558   983 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.BOOT_COMPLETED dispatchLatency:411 completeLatency:418 dispatchRealLatency:411 completeRealLatency:418 receiversSize:1 userId:0 userType:android.os.usertype.full.SYSTEM
+11-16 03:39:52.268  7416  7420 I re.research.r13: Compiler allocated 5791KB to compile java.lang.Object com.ethk3.novaonepro.DatabaseCoordinator.runWrite(com.ethk3.novaonepro.DatabaseCoordinator$WriteContext, com.ethk3.novaonepro.DatabaseCoordinator$WriteCallable, java.lang.Object)
+11-16 03:39:53.260  7416  7433 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908 in "SELECT genome_id,display_name_zh,genome_spec,state_blob,structural_hash,behavior_hash,trained_until_issue,earliest_use_issue,future_block_min,future_regime_min,futu
+11-16 03:39:56.827  7416  7433 E SQLiteLog: (1) no such table: dynamic_freeze_matrix in "SELECT freeze_key,freeze_type,freeze_level,freeze_reason,freeze_until_issue,freeze_until_time,shadow_review_count,recover_need_hits,recover_need_rate,recover_hint FROM 
+11-16 03:39:57.144  7416  7433 E SQLiteLog: (1) no such table: v57_batch34_schema_meta_r930 in "SELECT revision,contract_hash,state FROM v57_batch34_schema_meta_r930 WHERE singleton=1"
+11-16 03:39:57.174  7416  7433 I System.out: R30_ANDROID_ORIGINAL_OWNER_NEGATIVE|missing-freeze|NO_REAL|runtime_success=true|SYNTHETIC
+11-16 03:39:57.174  7416  7433 I System.out: R30_ANDROID_INDEPENDENT_AUTHORITY_REJECT|missing-freeze|SYNTHETIC
+11-16 03:39:57.175  7416  7433 I TestRunner: finished: originalOwnerPositiveAndIndependentNegativeAuthorities(com.ethk3.novaonepro.R30DecisionChainAndroidTest)
+11-16 03:39:57.176  7416  7433 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-16 03:39:57.178   558  1640 I ActivityManager: Force stopping com.starcore.research.r13 appid=10148 user=0: finished inst
+11-16 03:39:57.179  7406  7406 I app_process: System.exit called, status: 0
+11-16 03:39:57.179  7406  7406 I AndroidRuntime: VM exiting with result code 0.
+11-16 03:39:57.181   558  1640 E ActivityManager: Unable to freeze binder for 7416: -11
+11-16 03:39:57.181   558   583 D DisplayManagerService: Drop pending events for gone uid 10148
+11-16 03:39:57.182   558  1640 I ActivityManager: Killing 7416:com.starcore.research.r13/u0a148 (adj 0): stop com.starcore.research.r13 due to finished inst
+--------- beginning of kernel
+11-16 03:39:57.295     0     0 I binder  : 558:1640 ioctl 400c620e 764ce5a22354 returned -11
+11-16 03:39:57.297     0     0 I binder  : 558:1640 ioctl 400c620e 764ce5a22354 returned -11
+11-16 03:39:57.183   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:39:57.183   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:39:57.183   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={10148} in 0ms
+11-16 03:39:57.184   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 03:39:57.184   558   834 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 03:39:57.184   558   834 D InetDiagMessage: Destroyed live tcp sockets for uids={20148} in 1ms
+11-16 03:39:57.194  5798  5798 I adbd    : Remote process closed the socket (on MSG_PEEK)
+11-16 03:39:57.195   558   596 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_10148/pid_7416
+11-16 03:39:57.195   369   369 I Zygote  : Process 7416 exited due to signal 9 (Killed)
+11-16 03:39:57.198   558   983 V ActivityManager: Got obituary of 7416:com.starcore.research.r13
+11-16 03:39:57.312     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-16 03:39:57.313     0     0 I binder  : undelivered transaction 455837, process died.

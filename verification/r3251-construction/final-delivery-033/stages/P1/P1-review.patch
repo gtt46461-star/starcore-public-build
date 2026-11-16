@@ -1,0 +1,986 @@
+diff --git a/.gitignore b/.gitignore
+index aff29c9e..8a7edef1 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -38,3 +38,6 @@ tools/strategy_su1/verification/
+ 
+ # R31 live HOST soak workspace; publish immutable receipts after the run ends.
+ /verification/r31/p01/soak/host-60min/
++
++# R32 durable source application receipts are runtime state, not product input.
++/.starcore-plan-receipts/
+diff --git a/app/build/generated/r967/semantic_manifest.json b/app/build/generated/r967/semantic_manifest.json
+index 94f94333..d99614f8 100644
+--- a/app/build/generated/r967/semantic_manifest.json
++++ b/app/build/generated/r967/semantic_manifest.json
+@@ -1,12 +1,12 @@
+ {
+   "revision": "R967_SEMANTIC_BUILD_V1",
+-  "training_rule_sha256": "cd6e45407502c02426d94b6a23c262a82435cdf755c9374cb0d1b4d4fdfc58a6",
++  "training_rule_sha256": "d563ffc8b03fbafe0d618d202fae03487a855488148a30948e9bc899572bc6e1",
+   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
+   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
+-  "manifest_sha256": "d10258c176df9fe85011a660076913eecc8863110b465fe578ebfbf82ce4dd04",
+-  "controlled_file_count": 1504,
+-  "numeric_dependency_count": 1364,
+-  "source_provenance_sha256": "28ebc550055a55b0f11cadf4c0136a428a4f2b5d48b9f1d187718c8f5c88f468",
++  "manifest_sha256": "db388d70bc39487f5bdd16ed1852b1df22a9e7497e97db208b5d1d3cce8831c0",
++  "controlled_file_count": 1505,
++  "numeric_dependency_count": 1365,
++  "source_provenance_sha256": "6a52961cb15b1baf1d038fb5157958d4f2a64370af92f99d732c17cc181d3441",
+   "dependencies": [
+     [
+       "app/build.gradle",
+@@ -646,7 +646,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+       "NUMERIC",
+-      "6c337f43b6318639dfa87907893b88c9a94ebc4694ebaf8d3a4791bcdf833ab0"
++      "32d121dc6b445223bdfdfddd91e2df0883aba56254700a27647a199de160919d"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/AutonomousResearchEvolutionEngine.java",
+@@ -1091,7 +1091,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+       "NUMERIC",
+-      "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932"
++      "465e2b34b1610dde98a84157fd50f8e1538caf8ab5815ff13b5d27d94247a9cd"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+@@ -1126,7 +1126,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+       "NUMERIC",
+-      "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93"
++      "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/DecisionAuthorizationEngine.java",
+@@ -1691,7 +1691,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+       "NUMERIC",
+-      "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09"
++      "3ffe4d47a3ae4a42b1c5e3840e7c64e88a238586b1a6498982cd7321a05c2e5b"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/LegacySettlementProofR79.java",
+@@ -1716,7 +1716,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+       "NUMERIC",
+-      "42a51f9da2ef5cb4746adafc4b065355a6826cb30ba43e8cc52c4f198c6b29a1"
++      "24894b5dd5adaa33d45b218129ab9b8db8d1ce3d8d7ae8d507ec94ef26153f7e"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/LightweightModelInferenceEngine.java",
+@@ -2098,6 +2098,11 @@
+       "NUMERIC",
+       "60566f4aa485aa332dd7d4b0acb1310487e7331f1d0c30b01f4c842108bc519c"
+     ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java",
++      "NUMERIC",
++      "769eaf2eb62a68fd32044a5f02f75dc3ecb9f137156d187a995530bf28162fb0"
++    ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
+       "NUMERIC",
+@@ -2171,7 +2176,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+       "NUMERIC",
+-      "2e4c2b92ae244e5ed3e358b54e69735a47818cadfb371b6feb459cc03adceba9"
++      "d36cd492599209112d5cda850ea0c0d0e2cc52f6bdf67efcc86f2e1bba2e5877"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/R36AnalysisLeasePolicyR365.java",
+@@ -5441,7 +5446,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+       "NUMERIC",
+-      "90b1880504daf4359d42436f0e6cc201485cdc3832388d663ebfcc624bb28448"
++      "f9623b74d75cc34967595aa5dd3c2893a8d457a6a4338f7f650eb23974cf4253"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+@@ -6701,7 +6706,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+       "NUMERIC",
+-      "49b5950386413ba065d70b2a8c4afcd52fd14c3bcba3cbc7aa30f4a3438a773f"
++      "1826b8748925ec53a5208f8cb812ca4df26ca16bb986065bfb7f94e53b109f8f"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+@@ -6831,6 +6836,6 @@
+   ],
+   "compatible_predecessor_rule_sha256": "",
+   "compatible_predecessor_rules_sha256": [],
+-  "continuation_proof_sha256": "de8ebb88789098f9516d3e77343288d41eaf87fc0a4086c3ecacde7ed73a97e1",
++  "continuation_proof_sha256": "4373698642867be05df3e19d9363ddae7eee025e02309575c4cc3c8e4f8b33fa",
+   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
+ }
+diff --git a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+index e49b0f18..83e2c9a7 100644
+--- a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
++++ b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+@@ -1,13 +1,13 @@
+ package com.ethk3.novaonepro;
+ /** Build-generated. Never edit; no authorization is implied. */
+ public final class ResearchSemanticsGeneratedR967 {
+-    public static final String TRAINING_RULE_SHA256=runtimeValue("cd6e45407502c02426d94b6a23c262a82435cdf755c9374cb0d1b4d4fdfc58a6");
++    public static final String TRAINING_RULE_SHA256=runtimeValue("d563ffc8b03fbafe0d618d202fae03487a855488148a30948e9bc899572bc6e1");
+     public static final String POLICY_HASH=runtimeValue("04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8");
+     public static final String POLICY_JSON=runtimeValue("{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}");
+-    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("d10258c176df9fe85011a660076913eecc8863110b465fe578ebfbf82ce4dd04");
++    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("db388d70bc39487f5bdd16ed1852b1df22a9e7497e97db208b5d1d3cce8831c0");
+     public static final String COMPATIBLE_PREDECESSOR_RULE_SHA256=runtimeValue("");
+     public static final String COMPATIBLE_PREDECESSOR_RULES_SHA256=runtimeValue("");
+-    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("de8ebb88789098f9516d3e77343288d41eaf87fc0a4086c3ecacde7ed73a97e1");
++    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("4373698642867be05df3e19d9363ddae7eee025e02309575c4cc3c8e4f8b33fa");
+     private static String runtimeValue(String value){return value;}
+     private ResearchSemanticsGeneratedR967(){}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+index 1208a91b..43d967b3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+@@ -2429,11 +2429,14 @@ public final class AutoFetchService extends Service {
+     private void reconcileResearchOwner(String reason){
+         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
+         long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
+-        store.requestLegacySchemaMigrationR31();
++        // Recovery derives its merged target from committed draws on every tick.
++        // It must run even when migration/research initialization later fails.
++        reconcilePredrawTailRecoveryR32();
+         // This existing off-main control lane runs while R26/R27 are still
+         // initializing. Fault delivery cannot depend on the research pool whose
+         // writes are waiting for these exact durable receipts.
+-        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainOne(store);
++        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainControlSliceR32(store);
++        store.requestLegacySchemaMigrationR31();
+         ensureContinuousRuntimeR26();
+         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 owner=continuousRuntimeR26;
+         if(owner!=null){
+@@ -2445,6 +2448,24 @@ public final class AutoFetchService extends Service {
+         catch(RuntimeException unknown){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unknown);if(fatal!=null)throw fatal;heartbeatStateV8().setPendingSettlementCount(-1);}
+     }
+ 
++    /** Independent of a successful latest callback. The DB head is the durable
++     * intent, so a restart cannot lose it and a newer issue supersedes an old
++     * target without racing two stored task records. Existing backfill CAS and
++     * cooldown coalesce requests; this controller never performs network IO. */
++    private void reconcilePredrawTailRecoveryR32() {
++        try {
++            Models.Draw head = store.getLatestDraw();
++            PredrawTailRecoveryR32.Intent recovery = PredrawTailRecoveryR32.reconstruct(
++                    head, head == null ? java.util.Collections.<Models.Draw>emptyList()
++                            : store.getRecentDraws(R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY));
++            if (recovery.requestHistory) scheduleQuickHistorySyncR71(recovery.reason);
++        } catch (RuntimeException failure) {
++            Error fatal = com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
++            if (fatal != null) throw fatal;
++            CrashRecorder.recordCaught(getApplicationContext(), failure, "R32_TAIL_RECOVERY_CONTROL");
++        }
++    }
++
+     private void startWorkR3610OffMain() {
+         if (userRequestedStopV5 || !heartbeatStateV8().isUserEnabled()) {
+             stopSelf();
+@@ -3167,6 +3188,11 @@ public final class AutoFetchService extends Service {
+     }
+ 
+     private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57) {
++        saveApiResultDraws(result, durableLatestConsumerR57, false);
++    }
++
++    private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57,
++                                    boolean historyPage) {
+         if (result == null || store == null) {
+             return;
+         }
+@@ -3191,6 +3217,18 @@ public final class AutoFetchService extends Service {
+                 if (durableLatestConsumerR57 != null) durableLatestConsumerR57.run();
+             }
+             if (result.draws != null && !result.draws.isEmpty()) {
++                if (historyPage) {
++                    try {
++                        Models.Draw base = store.getLatestDraw();
++                        if (base != null && base.isValid()) {
++                            String target = AppConfig.nextIssueText(base.issue);
++                            if (store.savePredrawSuffixR32(result.draws, target) > 0)
++                                postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
++                        }
++                    } catch (RuntimeException failure) {
++                        recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);
++                    }
++                }
+                 try {
+                     ArrayList<Models.Draw> changed = new ArrayList<Models.Draw>();
+                     for(Models.Draw draw:result.draws) {
+@@ -10878,7 +10916,7 @@ public final class AutoFetchService extends Service {
+                 final Models.ApiResult pageR71=r;
+                 saveApiResultDraws(r,new Runnable(){@Override public void run(){
+                     handleLatestDrawAfterSave(getAuthoritativeLatest(pageR71.latestDraw),previousR71,false,"R71_HISTORY_LATEST_FIRST");
+-                }});
++                }}, true);
+                 inserted = parseInt(store.getState("draw_save_inserted","0"),0);
+                 persistProviderFreshnessR3611("QUICK_HISTORY");
+                 if (r.apiLine != null && r.apiLine.length() > 0) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+index f9a8e5e6..8e215d30 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+@@ -57,7 +57,7 @@ public final class DatabaseCoordinator {
+     public static final Map<String,WriteClass> OPERATION_REGISTRY_R31;
+     static {
+         LinkedHashMap<String,WriteClass> registry=new LinkedHashMap<>();
+-        registerR31(registry,WriteClass.DRAW_INGEST,"R914_DRAW_SAVE_ATOMIC*","R925_FETCH_BEGIN","R925_FETCH_PAYLOAD","R925_FETCH_COMPLETE");
++        registerR31(registry,WriteClass.DRAW_INGEST,"R32_PREDRAW_SUFFIX","R914_DRAW_SAVE_ATOMIC*","R925_FETCH_BEGIN","R925_FETCH_PAYLOAD","R925_FETCH_COMPLETE");
+         registerR31(registry,WriteClass.LIVE_FREEZE,"R932_DOMAIN_ROUTE","R932_BUNDLE_CAPTURE","R932_FREEZE_ONE_RESEARCH_CONSUMER","R36_CANONICAL*","R36_ANALYSIS*","R366_ANALYSIS*","R26_INCUMBENT_FREEZE","R26_LIVE_FREEZE");
+         registerR31(registry,WriteClass.SETTLEMENT,"R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER","R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM","R919_TERMINALIZE_AUDITED_NO_PREDRAW","R911_SETTLEMENT_REOPEN_CURRENT_FAILED","R914_SETTLEMENT_HANDOFF_CURRENT*","R36_SETTLEMENT*","R811_SETTLEMENT_PROMOTE_CURRENT*","R909_SETTLEMENT_REOPEN_CURRENT*","R905_REOPEN_FALSE_NO_PREDRAW*","R820_SETTLEMENT*","R900_SETTLEMENT*");
+         registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DbStore.java b/app/src/main/java/com/ethk3/novaonepro/DbStore.java
+index bfd2dd27..21d7c059 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DbStore.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DbStore.java
+@@ -2522,7 +2522,36 @@ public final class DbStore {
+     }
+ 
+     public int saveDraws(List<Models.Draw> draws) {
+-        if (draws == null || draws.size() == 0) return 0;
++        return saveHistoryPageR32(draws, null);
++    }
++
++    int savePredrawSuffixR32(List<Models.Draw> page, String target) {
++        Models.Draw latest = getLatestDraw();
++        if (latest == null || !latest.isValid()
++                || !AppConfig.nextIssueText(latest.issue).equals(target)) return 0;
++        final int needed = R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY;
++        if (R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) >= needed)
++            return 0;
++        List<Models.Draw> suffix = R36AnalysisHistoryPolicyR364.bootstrapSuffixR32(page, latest.issue);
++        if (suffix.isEmpty()) return 0;
++        for (Models.Draw candidate : suffix) {
++            Models.Draw current = getDrawByIssue(candidate.issue);
++            if (current != null && current.isValid()
++                    && !java.util.Arrays.equals(current.numbers, candidate.numbers))
++                throw new IllegalStateException("R32_SUFFIX_REQUIRES_SOURCE_RECONCILIATION|" + candidate.issue);
++        }
++        int inserted = saveHistoryPageR32(suffix, latest.issue);
++        if (inserted == 0 || R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) < needed)
++            return 0;
++        return inserted;
++    }
++
++    private int saveHistoryPageR32(List<Models.Draw> draws, final String bootstrapBase) {
++        final boolean bootstrap = bootstrapBase != null;
++        if (draws == null || draws.isEmpty()) return 0;
++        if (bootstrap && draws.size() > R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY)
++            throw new IllegalArgumentException("R32_SUFFIX_BOUND");
++        final String operation = bootstrap ? "R32_PREDRAW_SUFFIX" : "R914_DRAW_HISTORY_BATCH";
+         final ArrayList<Models.Draw> valid = new ArrayList<Models.Draw>();
+         for (int i = 0; i < draws.size(); i++) {
+             Models.Draw draw = draws.get(i);
+@@ -2540,13 +2569,21 @@ public final class DbStore {
+             final Integer saved;
+             try {
+                 saved = coordinator.runWriteOrThrowF01(
+-                    "R914_DRAW_HISTORY_BATCH",
++                    operation,
+                     new DatabaseCoordinator.WriteCallable<Integer>() {
+                         @Override public Integer call(SQLiteDatabase db) {
+                             boolean owns = !db.inTransaction();
+                             if (owns) db.beginTransaction();
+                             int count = 0;
+                             try {
++                                if (bootstrap) {
++                                    try (Cursor head = db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) {
++                                        if (!head.moveToFirst() || !bootstrapBase.equals(head.getString(0))) {
++                                            if (owns) db.setTransactionSuccessful();
++                                            return 0;
++                                        }
++                                    }
++                                }
+                                 for (int i = 0; i < batch.size(); i++) {
+                                     Models.Draw draw = batch.get(i);
+                                     FetchLedgerR925.observeDrawWithinR82(db,draw);
+@@ -2558,7 +2595,7 @@ public final class DbStore {
+                                             db, draw, System.currentTimeMillis(),
+                                             SettlementTaskStoreR36.BACKLOG,
+                                             SettlementTaskStoreR36.PRIORITY_BACKLOG,
+-                                            "R914_DRAW_HISTORY_BATCH");
++                                            operation);
+                                 }
+                                 if (owns) db.setTransactionSuccessful();
+                                 return Integer.valueOf(count);
+@@ -2576,6 +2613,7 @@ public final class DbStore {
+             inserted += saved.intValue();
+             if (RealtimePressureGateR811.hasActiveCriticalWork()) Thread.yield();
+         }
++        if (bootstrap) return inserted; // regular history owner retains rolling maintenance
+         coordinator.runWrite(
+                 "R914_DRAW_HISTORY_TRIM",
+                 new DatabaseCoordinator.WriteRunnable() {
+@@ -18983,6 +19021,10 @@ public final class DbStore {
+                     };
+             for (int i = 0; i < decisionLike.length; i++)
+                 addColumnArray(db, decisionLike[i], linkModificationV2ColumnDefs());
++            // The migration owner can resume from a table containing only snapshot_key.
++            addColumnArray(db, TABLE_V20_LINK_CANDIDATE_SNAPSHOT, new String[] {
++                "target_issue TEXT", "candidate_rank INTEGER DEFAULT 0", "candidate_key TEXT"
++            });
+             execQuiet(
+                     db,
+                     "CREATE INDEX IF NOT EXISTS idx_store_v20_layer_issue ON "
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java b/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java
+index 9d32dc35..afe25bcb 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java
+@@ -51,6 +51,23 @@ public final class LegacySchemaCoordinatorR926 {
+             } catch(LegacyDdlR31.Pending drift) {
+                 SchemaDomainCoordinatorR926.invalidateStepR31(db,c,prefix+unit.getKey(),drift.getMessage());
+                 return false;
++            } catch(RuntimeException drift) {
++                // A same-name index/trigger with the wrong definition throws a
++                // strict failure, not Pending. Its old COMPLETED row must not
++                // survive that failed postcondition and hide the owning unit.
++                // Preserve the actual error; do not acquire DROP authority or
++                // rewrite historical data to make this audit appear healthy.
++                Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(drift);
++                if(fatal!=null)throw fatal;
++                try {
++                    SchemaDomainCoordinatorR926.invalidateStepR31(db,c,prefix+unit.getKey(),
++                            DatabaseCoordinator.describeCauseChain(drift,1800));
++                } catch(RuntimeException receiptFailure) {
++                    Error receiptFatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(receiptFailure);
++                    if(receiptFatal!=null)throw receiptFatal;
++                    drift.addSuppressed(receiptFailure);
++                }
++                throw drift;
+             }
+         }
+         return true;
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java b/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
+index c7215034..53d42daa 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
+@@ -126,8 +126,31 @@ public final class LifecycleSchemaR31 {
+             if(GapReferenceR31.advanceCutoverWithinMigrationR31(db))return new Result(true,true,"KEEP_GAP_REFERENCE_CUTOVER");
+             return new Result(true,false,"COMPLETE");
+         }
++        if (infrastructure(db) && missingHypothesisQuotaR32(db)) {
++            List<Definition> all = definitions(db);
++            requireDeclaredAttachments(db, all);
++            List<Definition> objects = definitions(HypothesisStoreR31.ddlR31());
++            boolean installed = true;
++            for (Definition object : objects) {
++                if (!object.present(db)) installed = false;
++            }
++            if (installed) {
++                if (!HypothesisStoreR31.recoverQuotaSliceR32(db))
++                    return new Result(false, true, "HYPOTHESIS_QUOTA_RECOUNT_PAGE");
++                HypothesisStoreR31.requireSchemaR31(db);
++                return new Result(false, true, "HYPOTHESIS_QUOTA_INITIALIZED");
++            }
++        }
+         return advance(db,definitions(db),tx->{HypothesisStoreR31.seedQuotaWithinMigrationR31(tx);if(startupSourcePresentR31(tx))StartupCheckpointIdentityR31.seedWithinMigrationR31(tx);ImprovementStoreR31.seedWithinMigrationR31(tx);});
+     }
++    private static boolean missingHypothesisQuotaR32(SQLiteDatabase db) {
++        try (Cursor table = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r31_hypothesis_quota'", null)) {
++            if (!table.moveToFirst()) return false;
++        }
++        try (Cursor row = db.rawQuery("SELECT 1 FROM r31_hypothesis_quota WHERE singleton=1", null)) {
++            return !row.moveToFirst();
++        }
++    }
+     interface Initializer {void run(SQLiteDatabase db);}
+     static Result advance(SQLiteDatabase db,List<Definition> all,Initializer initialize)throws Exception{
+         if(!db.inTransaction())throw new IllegalStateException("R31_LIFECYCLE_MIGRATION_WRITER_REQUIRED");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java b/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java
+index 25488afc..64e187e2 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java
++++ b/app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java
+@@ -30,6 +30,20 @@ public final class R36AnalysisHistoryPolicyR364 {
+         return validRows < MIN_LIVE_HISTORY;
+     }
+ 
++    static List<Models.Draw> bootstrapSuffixR32(List<Models.Draw> page, String base) {
++        if (page == null || !TargetIssueResolver.isValid(base)) return java.util.Collections.emptyList();
++        java.util.ArrayList<Models.Draw> window = new java.util.ArrayList<>();
++        for (Models.Draw draw : page) {
++            if (draw == null || !draw.isValid() || !TargetIssueResolver.isValid(draw.issue)) continue;
++            int distance = TargetIssueResolver.distance(draw.issue, base);
++            if (distance >= 0 && distance < MIN_LIVE_HISTORY) window.add(draw);
++        }
++        HistoryIntegrityVerifierR815.Result verified = HistoryIntegrityVerifierR815.verifyAscending(window);
++        if (verified.hasHardConflict() || !base.equals(verified.maxIssue)
++                || verified.contiguousSuffix != MIN_LIVE_HISTORY) return java.util.Collections.emptyList();
++        return verified.contiguousSuffixAscending();
++    }
++
+     public static boolean usable(int validRows) {
+         return validRows >= MIN_LIVE_HISTORY;
+     }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java
+index 5b8c52b6..aba1788d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java
+@@ -28,12 +28,103 @@ public final class HypothesisStoreR31 {
+             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_insert BEFORE INSERT ON "+table+" WHEN EXISTS(SELECT 1 FROM "+table+" WHERE "+match+") BEGIN SELECT CASE WHEN EXISTS(SELECT 1 FROM "+table+" WHERE "+match+" AND "+equal+") THEN RAISE(IGNORE) ELSE RAISE(ABORT,'R31_HYPOTHESIS_ORIGINAL_CONFLICT') END; END");
+             for(String action:new String[]{"UPDATE","DELETE"})sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_"+action.toLowerCase(Locale.ROOT)+" BEFORE "+action+" ON "+table+" BEGIN SELECT RAISE(ABORT,'R31_HYPOTHESIS_ORIGINAL_IMMUTABLE'); END");
+             String key=table.equals(REG)?"hypothesis_id=NEW.hypothesis_id":table.equals(TRACE)?"campaign_id=NEW.campaign_id AND policy_hash=NEW.policy_hash AND sample_index=NEW.sample_index":"campaign_id=NEW.campaign_id AND child_policy=NEW.child_policy";
+-            String cost=table.equals(REG)||table.equals(OUT)?"(1024+length(CAST(NEW.payload AS BLOB)))":"1024";
++            String cost=logicalChargeR32(table,"NEW.");
+             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_admit BEFORE INSERT ON "+table+" WHEN NOT EXISTS(SELECT 1 FROM "+table+" WHERE "+key+") BEGIN SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM "+QUOTA+" WHERE singleton=1 AND logical_bytes+"+cost+"<=268435456) THEN RAISE(ABORT,'R31_HYPOTHESIS_PROTECTED_STORAGE_WAIT') END; END");
+             sql.add("CREATE TRIGGER IF NOT EXISTS "+table+"_account AFTER INSERT ON "+table+" BEGIN UPDATE "+QUOTA+" SET logical_bytes=logical_bytes+"+cost+" WHERE singleton=1; END");
+         }
+         return sql.toArray(new String[0]);
+     }
++    private static final String RECOUNT_KEY = "r32_hypothesis_quota_recount_v1";
++    private static final String[] CHARGE_TABLES = {REG, BIND, TRACE, OUT};
++    private static final String[][] CHARGE_KEYS = {
++            {"rowid"}, {"campaign_id", "child_policy"}, {"campaign_id", "policy_hash", "sample_index"},
++            {"campaign_id", "child_policy"}
++    };
++    private static final int RECOUNT_PAGE = 64;
++
++    private static String logicalChargeR32(String table, String prefix) {
++        return table.equals(REG) || table.equals(OUT)
++                ? "(1024+length(CAST(" + prefix + "payload AS BLOB)))" : "1024";
++    }
++
++    // Scalar comparisons also run on SQLite versions preceding row-value comparisons.
++    static String quotaPageR32(int stage, boolean resume) {
++        String[] keys = CHARGE_KEYS[stage];
++        String keyList = String.join(",", keys);
++        StringJoiner branches = new StringJoiner(" OR ");
++        if (resume) {
++            for (int part = 0; part < keys.length; part++) {
++                StringJoiner term = new StringJoiner(" AND ");
++                for (int i = 0; i < part; i++) term.add(keys[i] + "=?");
++                term.add(keys[part] + ">?");
++                branches.add("(" + term + ")");
++            }
++        }
++        String table = CHARGE_TABLES[stage];
++        return "SELECT " + keyList + "," + logicalChargeR32(table, "") + " FROM " + table
++                + (resume ? " WHERE " + keys[0] + ">=? AND (" + branches + ")" : "")
++                + " ORDER BY " + keyList + " LIMIT " + RECOUNT_PAGE;
++    }
++
++    static String[] quotaPageArgsR32(List<?> last) {
++        if (last.isEmpty()) return null;
++        List<String> args = new ArrayList<>();
++        args.add((String)last.get(0));
++        for (int n = 1; n <= last.size(); n++)
++            for (int i = 0; i < n; i++) args.add((String)last.get(i));
++        return args.toArray(new String[0]);
++    }
++
++    /** Caller has checked every hypothesis table/trigger definition in this migration transaction.
++     * With the singleton missing, the original admission triggers refuse all new keys. Existing rows
++     * are immutable. The cursor and running sum therefore remain valid across committed slices. */
++    public static boolean recoverQuotaSliceR32(SQLiteDatabase db) {
++        writer(db);
++        int stage = 0;
++        long used = 0;
++        List<?> last = Collections.emptyList();
++        try (Cursor row = db.rawQuery("SELECT state_value FROM app_state WHERE state_key=?", new String[]{RECOUNT_KEY})) {
++            if (row.moveToFirst()) {
++                List<?> saved = (List<?>)JsonR27.parse(row.getString(0));
++                if (saved.size() != 4 || !Objects.equals(saved.get(3), StatsR27.sha256(JsonR27.write(saved.subList(0,3)))))
++                    throw new IllegalStateException("R32_QUOTA_RECOUNT_JOURNAL");
++                stage = ((Number)saved.get(0)).intValue();
++                used = ((Number)saved.get(1)).longValue();
++                last = (List<?>)saved.get(2);
++                if (stage < 0 || stage >= CHARGE_TABLES.length || used < 0 || used > 268435456L
++                        || (!last.isEmpty() && last.size() != CHARGE_KEYS[stage].length))
++                    throw new IllegalStateException("R32_QUOTA_RECOUNT_RANGE");
++            }
++        }
++        // Empty tables advance within this same slice. At most one page of actual data is read.
++        while (stage < CHARGE_TABLES.length) {
++            List<String> next = new ArrayList<>();
++            int count = 0;
++            try (Cursor row = db.rawQuery(quotaPageR32(stage, !last.isEmpty()), quotaPageArgsR32(last))) {
++                while (row.moveToNext()) {
++                    next.clear();
++                    for (int i = 0; i < CHARGE_KEYS[stage].length; i++) next.add(row.getString(i));
++                    used = Math.addExact(used, row.getLong(CHARGE_KEYS[stage].length));
++                    count++;
++                }
++            }
++            if (used > 268435456L) throw new IllegalStateException("R32_HYPOTHESIS_PROTECTED_BYTES_OVER_LIMIT:" + used);
++            last = next;
++            if (count < RECOUNT_PAGE) { stage++; last = Collections.emptyList(); }
++            if (stage == CHARGE_TABLES.length) {
++                db.execSQL("INSERT INTO " + QUOTA + "(singleton,logical_bytes) VALUES(1,?)", new Object[]{used});
++                db.delete("app_state","state_key=?",new String[]{RECOUNT_KEY});
++                return true;
++            }
++            if (count > 0) break;
++        }
++        List<Object> state = new ArrayList<>(Arrays.asList(stage, used, last));
++        state.add(StatsR27.sha256(JsonR27.write(state)));
++        db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)",
++                new Object[]{RECOUNT_KEY,JsonR27.write(state),System.currentTimeMillis()});
++        return false;
++    }
++
+     /** Called exclusively by the journalled schema owner, never by business code. */
+     public static void installWithinMigrationR31(SQLiteDatabase db){
+         writer(db);for(String sql:ddlR31())db.execSQL(sql);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
+index eb7810d3..b4abaa8a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
+@@ -131,6 +131,16 @@ public final class WriterHoldFaultsR31 {
+     }
+ 
+     /** One bounded receipt per actual Health dispatch. Failed/ambiguous delivery retains its event and lease. */
++    /** Use the existing controller and per-event fenced writer, never hold the queue across events. */
++    public static void drainControlSliceR32(DbStore store) {
++        long started = android.os.SystemClock.elapsedRealtime();
++        for (int i = 0; i < 4; i++) {
++            if (i > 0 && (!deferResearch() || android.os.SystemClock.elapsedRealtime() - started >= 40
++                    || com.ethk3.novaonepro.RealtimePressureGateR811.hasActiveCriticalWork())) return;
++            if (!drainOne(store)) return;
++        }
++    }
++
+     public static boolean drainOne(DbStore store) {
+         if (!DRAINING.compareAndSet(false, true)) return false;
+         try {
+diff --git a/app/src/test/java/com/ethk3/novaonepro/R31RetirementManifestTest.java b/app/src/test/java/com/ethk3/novaonepro/R31RetirementManifestTest.java
+index c359f25a..7272aec2 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/R31RetirementManifestTest.java
++++ b/app/src/test/java/com/ethk3/novaonepro/R31RetirementManifestTest.java
+@@ -119,14 +119,37 @@ public final class R31RetirementManifestTest {
+         assertEquals(47, ChartRegistryR31.ids().size());
+         // DbStore: mapped, not cut; the coverage map is the current source
+         @SuppressWarnings("unchecked") Map<String, Object> db = (Map<String, Object>) m.get("dbstore");
++        requireCurrentDbStoreCoverageR32(db, Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java")));
++    }
++
++    static void requireCurrentDbStoreCoverageR32(Map<String,Object> db,byte[] source)throws Exception {
+         assertEquals("DEFERRED_TARGET_SELECTION_AFTER_COVERAGE", db.get("status")); assertEquals(Collections.emptyList(), db.get("removed_by_this_card"));
+-        byte[] source = Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java"));
+         StringBuilder hex = new StringBuilder(); for (byte b : MessageDigest.getInstance("SHA-256").digest(source)) hex.append(String.format(Locale.ROOT, "%02x", b & 0xff));
+         assertEquals("DbStore changed after its coverage map was built (regenerate and re-review)", db.get("source_sha256"), hex.toString());
+         Pattern method = Pattern.compile("^    (?:(?:public|private|protected|static|synchronized|final)\\s+)*[\\w<>\\[\\],.?]+(?:<[^>]*>)?\\s+(\\w+)\\s*\\(");
+-        int declarations = 0; for (String line : new String(source, StandardCharsets.UTF_8).split("\n", -1)) { Matcher x = method.matcher(line); if (x.find() && !Arrays.asList("if", "for", "while", "switch", "catch", "return", "new", "else", "synchronized").contains(x.group(1))) declarations++; }
+-        assertEquals("every DbStore method is in the coverage map", ((Number) db.get("method_declarations")).intValue(), declarations);
+-        assertEquals(declarations, list(db, "methods").size());
++        List<String> names=new ArrayList<>();
++        for (String line : new String(source, StandardCharsets.UTF_8).split("\n", -1)) { Matcher x = method.matcher(line); if (x.find() && !Arrays.asList("if", "for", "while", "switch", "catch", "return", "new", "else", "synchronized").contains(x.group(1))) names.add(x.group(1)); }
++        assertEquals("every DbStore method is in the coverage map", ((Number) db.get("method_declarations")).intValue(), names.size());
++        List<String> recorded=new ArrayList<>();for(Map<String,Object> row:list(db,"methods"))recorded.add(String.valueOf(row.get("name")));
++        assertEquals("coverage order and method names match actual declarations",names,recorded);
++    }
++
++    @SuppressWarnings("unchecked")
++    @Test public void changedCoverageBytesAndMissingMethodsAreRejected()throws Exception {
++        Map<String,Object> db=(Map<String,Object>)manifest().get("dbstore");
++        byte[] source=Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java"));
++        requireCurrentDbStoreCoverageR32(db,source);
++        Map<String,Object> stale=new LinkedHashMap<>(db);stale.put("source_sha256","698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93");
++        assertNotEquals(db.get("source_sha256"),stale.get("source_sha256"));
++        assertThrows("Pre-R32 coverage cannot certify R32 bytes",AssertionError.class,()->requireCurrentDbStoreCoverageR32(stale,source));
++        Map<String,Object> missing=new LinkedHashMap<>(db);List<Map<String,Object>> rows=new ArrayList<>(list(db,"methods"));rows.remove(0);missing.put("methods",rows);
++        assertThrows("Missing methods cannot be omitted from the map",AssertionError.class,()->requireCurrentDbStoreCoverageR32(missing,source));
++        Map<String,Object> duplicate=new LinkedHashMap<>(db);List<Map<String,Object>> copied=new ArrayList<>(list(db,"methods"));copied.set(0,copied.get(1));duplicate.put("methods",copied);
++        assertThrows("Equal count cannot conceal a duplicate or renamed method",AssertionError.class,()->requireCurrentDbStoreCoverageR32(duplicate,source));
++        Map<String,Object> removed=new LinkedHashMap<>(db);removed.put("removed_by_this_card",Collections.singletonList("saveDraws"));
++        assertThrows("No removal authority is added",AssertionError.class,()->requireCurrentDbStoreCoverageR32(removed,source));
++        byte[] changed=source.clone();changed[changed.length-1]^=1;
++        assertThrows("Any source-byte drift invalidates the map",AssertionError.class,()->requireCurrentDbStoreCoverageR32(db,changed));
+     }
+ 
+     static boolean registered(String table) { try { RetentionTableRegistryCP12.require(table); return true; } catch (IllegalArgumentException missing) { return false; } }
+diff --git a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java
+index 47af5b72..bb2f6d07 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java
+@@ -178,7 +178,42 @@ public final class R27QualityTest {
+         }catch(java.io.IOException failure){throw new AssertionError("Schema review original missing",failure);}
+     }
+ 
++    /** R32 P1 only: reverse the five exact reviewed history/schema hunks before
++     * the existing R31/R30 normalization. The original 9edd whole-owner anchor
++     * stays unchanged, so no outside mainline byte receives an exemption. */
++    static String restoreR32ReviewedDbStoreForH15(String source) {
++        try {
++            String review=new String(Files.readAllBytes(new File(R27TestSupport.root(),
++                    "verification/r32/p1_dbstore_review.json").toPath()),java.nio.charset.StandardCharsets.UTF_8);
++            return restoreR32ReviewedDbStoreForH15(source,review);
++        }catch(java.io.IOException missing){throw new AssertionError("R32 exact review missing",missing);}
++    }
++    @SuppressWarnings("unchecked")
++    static String restoreR32ReviewedDbStoreForH15(String source,String review) {
++        assertEquals("Only the separately reviewed R32 patch bytes are permitted",
++                "7d578668c125cbf5ce7ca99bfef909e99fdc9f127a6825ea006201587232e980",StatsR27.sha256(review));
++        Map<String,Object> document=(Map<String,Object>)JsonR27.parse(review);
++        assertEquals("R32_P1_DBSTORE_EXACT_REVIEW_V1",document.get("schema"));
++        assertEquals("P1",document.get("owner"));
++        assertEquals("app/src/main/java/com/ethk3/novaonepro/DbStore.java",document.get("path"));
++        assertEquals("698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",document.get("beforeSha256"));
++        assertEquals("3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",document.get("afterSha256"));
++        assertEquals("9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",document.get("originalMainlineAnchorSha256"));
++        List<Object> hunks=(List<Object>)document.get("hunks");assertEquals(5,hunks.size());
++        for(int i=hunks.size()-1;i>=0;i--){
++            Map<String,Object> hunk=(Map<String,Object>)hunks.get(i);
++            String after=(String)hunk.get("after"),before=(String)hunk.get("before");
++            assertEquals(hunk.get("afterSha256"),StatsR27.sha256(after));
++            assertEquals(hunk.get("beforeSha256"),StatsR27.sha256(before));
++            int at=source.indexOf(after);assertTrue("Exact R32 hunk missing/tampered: "+hunk.get("id"),at>=0);
++            assertEquals("R32 hunk must be unique",at,source.lastIndexOf(after));
++            source=source.substring(0,at)+before+source.substring(at+after.length());
++        }
++        return source;
++    }
++
+     static String restoreR31DbSchemaSidecarsForH15(String source,String baseline) {
++        source=restoreR32ReviewedDbStoreForH15(source);
+         source=restoreUnifiedSchemaBlocksR31(source);
+         assertEquals("Original DbStore fixture must itself retain the old owner identity",
+                 "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",
+@@ -231,6 +266,37 @@ public final class R27QualityTest {
+         return source.replaceAll("\"(?:[^\"\\\\]|\\\\.)*+\"", "\"\"");
+     }
+ 
++    @Test public void h15R32ExactReviewRejectsUnregisteredChanges() throws Exception {
++        File root=R27TestSupport.root();
++        String source=new String(Files.readAllBytes(new File(root,"app/src/main/java/com/ethk3/novaonepro/DbStore.java").toPath()),java.nio.charset.StandardCharsets.UTF_8);
++        String baseline=new String(Files.readAllBytes(new File(root,"construction/STARCORE_R31_FINAL_20261104/baseline_source/app/src/main/java/com/ethk3/novaonepro/DbStore.java").toPath()),java.nio.charset.StandardCharsets.UTF_8);
++        assertEquals("Exact R32 reversal preserves the entire pre-R32 current owner",
++                "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",StatsR27.sha256(restoreR32ReviewedDbStoreForH15(source)));
++        assertEquals("The old whole-mainline anchor remains the final authority",
++                "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",StatsR27.sha256(restoreR31DbSchemaSidecarsForH15(source,baseline)));
++        String[][] mutations={
++                {"if (bootstrap && draws.size() > R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY)","if (bootstrap && draws.size() >= R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY)"},
++                {"!bootstrapBase.equals(head.getString(0))","false /* unreviewed stale-head admission */"},
++                {"\"candidate_rank INTEGER DEFAULT 0\", \"candidate_key TEXT\"","\"candidate_rank INTEGER DEFAULT 1\", \"candidate_key TEXT\""}
++        };
++        for(String[] mutation:mutations){
++            String changed=source.replace(mutation[0],mutation[1]);assertNotEquals(source,changed);
++            assertThrows("Reviewed R32 blocks cannot conceal a changed predicate/column",AssertionError.class,
++                    ()->restoreR32ReviewedDbStoreForH15(changed));
++        }
++        String changedPnl=source.replace("dcv.put(\"pnl\", t.pnl);","dcv.put(\"pnl\", t.pnl + 1);");
++        assertNotEquals(source,changedPnl);
++        assertNotEquals("Outside-patch payout changes still fail the original owner hash",
++                "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a",StatsR27.sha256(restoreR31DbSchemaSidecarsForH15(changedPnl,baseline)));
++        String review=new String(Files.readAllBytes(new File(root,"verification/r32/p1_dbstore_review.json").toPath()),java.nio.charset.StandardCharsets.UTF_8);
++        assertThrows("Review metadata cannot be silently resealed",AssertionError.class,
++                ()->restoreR32ReviewedDbStoreForH15(source,review+" "));
++        @SuppressWarnings("unchecked") Map<String,Object> metadata=(Map<String,Object>)JsonR27.parse(review);
++        @SuppressWarnings("unchecked") Map<String,Object> first=(Map<String,Object>)((List<?>)metadata.get("hunks")).get(0);
++        assertThrows("A repeated approved hunk is not another permitted edit",AssertionError.class,
++                ()->restoreR32ReviewedDbStoreForH15(source+first.get("after")));
++    }
++
+     @Test public void h15MainlineRedLines() throws Exception {
+         File root = R27TestSupport.root();
+         // 1. Original bytes match after the registered R30 wrappers and exact R31 research extraction.
+diff --git a/release/r82_training_invalidation.json b/release/r82_training_invalidation.json
+index ed461d96..c4564819 100644
+--- a/release/r82_training_invalidation.json
++++ b/release/r82_training_invalidation.json
+@@ -132,12 +132,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "6c337f43b6318639dfa87907893b88c9a94ebc4694ebaf8d3a4791bcdf833ab0",
++      "after_sha256": "32d121dc6b445223bdfdfddd91e2df0883aba56254700a27647a199de160919d",
+       "before_role": "NUMERIC",
+       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
+       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "rationale": "恢复尾段启动与故障排空的实际服务调用；网络读取和重活保持在writer外，及时冻结只用当时可见输入。锁屏、系统停止及24/72小时结果须另记实机证据。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -321,12 +321,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
++      "after_sha256": "465e2b34b1610dde98a84157fd50f8e1538caf8ab5815ff13b5d27d94247a9cd",
+       "before_role": "NUMERIC",
+       "before_sha256": "25f82b067254b385d620c052ae628df9c11d55c900f7a2cc60377ae11d162f6a",
+       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "rationale": "保留唯一写者和既有事务准入；登记准确owner/phase/根异常并在许可的writer事务排空，不能把ADMISSION和END统一改为可重试。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -357,12 +357,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
++      "after_sha256": "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",
+       "before_role": "NUMERIC",
+       "before_sha256": "cc3fa2bd36023110012d9cb425c692d0a7b6bd12ea8561afcc388e5c1f301ef3",
+       "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "rationale": "在旧link表创建目标索引之前幂等补target_issue、candidate_rank、candidate_key；不删除旧行、不虚构候选主键。重复非空键保持明确拒绝。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -537,12 +537,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "a676b2e411f6c61d3dcebb23fe8383245777d1ed86d4cafc183bc1d54ea65d09",
++      "after_sha256": "3ffe4d47a3ae4a42b1c5e3840e7c64e88a238586b1a6498982cd7321a05c2e5b",
+       "before_role": "NUMERIC",
+       "before_sha256": "d3bd035dccaa9226dd6f5b0399a17929299c1b23e1b29547100df2d93d6ad766",
+       "path": "app/src/main/java/com/ethk3/novaonepro/LegacySchemaCoordinatorR926.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "rationale": "发现COMPLETED单元的已提交对象定义漂移时，重开对应责任单元并保留原异常；不得静默重写目标SQL或通用DROP任意对象。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -564,12 +564,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "42a51f9da2ef5cb4746adafc4b065355a6826cb30ba43e8cc52c4f198c6b29a1",
++      "after_sha256": "24894b5dd5adaa33d45b218129ab9b8db8d1ce3d8d7ae8d507ec94ef26153f7e",
+       "before_role": "",
+       "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "rationale": "由既有迁移owner调用真实quota分页恢复；修复空单例导致旧工厂无法准入，按真实四表字节与状态恢复计数，不用伪造0占用。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -643,6 +643,15 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "after_role": "NUMERIC",
++      "after_sha256": "769eaf2eb62a68fd32044a5f02f75dc3ecb9f137156d187a995530bf28162fb0",
++      "before_role": "",
++      "before_sha256": "",
++      "path": "app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java",
++      "rationale": "新增可重复执行的尾段归约器；按连续期号、封口/目标时钟与可见性约束决定可恢复尾段，不能用补采历史结果回填事前预测。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
++    },
+     {
+       "after_role": "NUMERIC",
+       "after_sha256": "ca9b23b5881347f1936b69062c4c47402ab44ab80bdb9a1fcf3bd510cd00d0f7",
+@@ -661,6 +670,15 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "after_role": "NUMERIC",
++      "after_sha256": "d36cd492599209112d5cda850ea0c0d0e2cc52f6bdf67efcc86f2e1bba2e5877",
++      "before_role": "NUMERIC",
++      "before_sha256": "2e4c2b92ae244e5ed3e358b54e69735a47818cadfb371b6feb459cc03adceba9",
++      "path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
++      "rationale": "调整尾段恢复策略与正常分析历史入口一致；保留窗口和因果边界，既有未来标签隔离规则继续生效。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
++    },
+     {
+       "after_role": "NUMERIC",
+       "after_sha256": "6e66c8fea001e90dd5d9c39ef52bc94a2487186eb741234a821caf7e49f8a06a",
+@@ -2814,12 +2832,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "90b1880504daf4359d42436f0e6cc201485cdc3832388d663ebfcc624bb28448",
++      "after_sha256": "f9623b74d75cc34967595aa5dd3c2893a8d457a6a4338f7f650eb23974cf4253",
+       "before_role": "",
+       "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "rationale": "在短事务内分页扫描四类旧资产，维护持久journal、UTF8计费、64行边界及完成后quota发布；journal畸形拒绝，断电后从已提交水位继续。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -5163,12 +5181,12 @@
+     },
+     {
+       "after_role": "NUMERIC",
+-      "after_sha256": "49b5950386413ba065d70b2a8c4afcd52fd14c3bcba3cbc7aa30f4a3438a773f",
++      "after_sha256": "1826b8748925ec53a5208f8cb812ca4df26ca16bb986065bfb7f94e53b109f8f",
+       "before_role": "",
+       "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "rationale": "给异常保存阶段、owner、根因和可排空队列；故障记录也须遵守唯一写者，不在失败事务里二次嵌套写库。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -5378,7 +5396,7 @@
+       "reviewer": "Codex SU1 source integration"
+     }
+   ],
+-  "current_controlled_roles_sha256": "7179bd067215dcd9c6e037dca8dd971d8c0770c640e5cd206c929db6a9734338",
++  "current_controlled_roles_sha256": "8f0be1b6e3a13aa73b8a28179412c665cc91fc78378d4c08d2060f670a9f437d",
+   "decision": "INVALIDATE_OLD_RULE",
+   "new_role_reviews": [
+     {
+@@ -5515,8 +5533,8 @@
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+-      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+-      "reviewer": "Codex SU1 source integration",
++      "rationale": "由既有迁移owner调用真实quota分页恢复；修复空单例导致旧工厂无法准入，按真实四表字节与状态恢复计数，不用伪造0占用。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+       "role": "NUMERIC"
+     },
+     {
+@@ -5531,6 +5549,12 @@
+       "reviewer": "Codex SU1 source integration",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java",
++      "rationale": "新增可重复执行的尾段归约器；按连续期号、封口/目标时钟与可见性约束决定可恢复尾段，不能用补采历史结果回填事前预测。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
+       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+@@ -6577,8 +6601,8 @@
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+-      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+-      "reviewer": "Codex SU1 source integration",
++      "rationale": "在短事务内分页扫描四类旧资产，维护持久journal、UTF8计费、64行边界及完成后quota发布；journal畸形拒绝，断电后从已提交水位继续。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+       "role": "NUMERIC"
+     },
+     {
+@@ -8167,8 +8191,8 @@
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+-      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+-      "reviewer": "Codex SU1 source integration",
++      "rationale": "给异常保存阶段、owner、根因和可排空队列；故障记录也须遵守唯一写者，不在失败事务里二次嵌套写库。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+       "role": "NUMERIC"
+     },
+     {
+@@ -8282,7 +8306,7 @@
+   ],
+   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
+   "predecessors": [],
+-  "reviewed_input_provenance_sha256": "28ebc550055a55b0f11cadf4c0136a428a4f2b5d48b9f1d187718c8f5c88f468",
++  "reviewed_input_provenance_sha256": "6a52961cb15b1baf1d038fb5157958d4f2a64370af92f99d732c17cc181d3441",
+   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
+   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
+   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
+diff --git a/release/research_dependencies_r967.json b/release/research_dependencies_r967.json
+index 9ba43ae5..02609a0f 100644
+--- a/release/research_dependencies_r967.json
++++ b/release/research_dependencies_r967.json
+@@ -551,7 +551,7 @@
+       "role": "NUMERIC"
+     },
+     {
+-      "dynamic_review_sha256": "6c337f43b6318639dfa87907893b88c9a94ebc4694ebaf8d3a4791bcdf833ab0",
++      "dynamic_review_sha256": "32d121dc6b445223bdfdfddd91e2df0883aba56254700a27647a199de160919d",
+       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+       "role": "NUMERIC"
+     },
+@@ -950,7 +950,7 @@
+       "role": "NUMERIC"
+     },
+     {
+-      "dynamic_review_sha256": "e99d4124109e2f40ec5b437863b9af35a8ccae7c533a78e06e5e16c252ae2932",
++      "dynamic_review_sha256": "465e2b34b1610dde98a84157fd50f8e1538caf8ab5815ff13b5d27d94247a9cd",
+       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+       "role": "NUMERIC"
+     },
+@@ -1803,6 +1803,11 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/PredictionOutputContractR815.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java",
++      "rationale": "新增可重复执行的尾段归约器；按连续期号、封口/目标时钟与可见性约束决定可恢复尾段，不能用补采历史结果回填事前预测。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
+       "role": "NUMERIC"
+diff --git a/tools/r31/retirement_manifest.json b/tools/r31/retirement_manifest.json
+index 35245d0f..c9391f94 100644
+--- a/tools/r31/retirement_manifest.json
++++ b/tools/r31/retirement_manifest.json
+@@ -329,9 +329,9 @@
+   }
+  ],
+  "dbstore": {
+-  "source_sha256": "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",
+-  "method_declarations": 776,
+-  "distinct_names": 735,
++  "source_sha256": "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",
++  "method_declarations": 778,
++  "distinct_names": 737,
+   "no_external_caller": [
+    "DbStore",
+    "addColumnArray",
+@@ -843,6 +843,7 @@
+    "saveFalseStrongFreeze",
+    "saveFullCandidateScan",
+    "saveFullCandidateScans",
++   "saveHistoryPageR32",
+    "saveLearningSnapshot",
+    "saveMainChainCandidateSnapshot",
+    "saveModelWeight",
+@@ -1786,6 +1787,26 @@
+     "writes": false,
+     "dynamic": false
+    },
++   {
++    "name": "savePredrawSuffixR32",
++    "callers": 1,
++    "caller_files": [
++     "com/ethk3/novaonepro/AutoFetchService.java"
++    ],
++    "tables": [],
++    "writes": false,
++    "dynamic": false
++   },
++   {
++    "name": "saveHistoryPageR32",
++    "callers": 0,
++    "caller_files": [],
++    "tables": [
++     "draws"
++    ],
++    "writes": false,
++    "dynamic": false
++   },
+    {
+     "name": "saveDraws",
+     "callers": 2,
