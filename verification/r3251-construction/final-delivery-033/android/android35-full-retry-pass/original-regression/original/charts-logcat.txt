@@ -1,0 +1,835 @@
+--------- beginning of main
+11-16 04:27:03.509  8493  8493 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-16 04:27:03.512  8493  8493 I AndroidRuntime: Using default boot image
+11-16 04:27:03.512  8493  8493 I AndroidRuntime: Leaving lock profiling enabled
+11-16 04:27:03.513  8493  8493 I app_process: Core platform API reporting enabled, enforcing=false
+11-16 04:27:03.514  8493  8493 I app_process: Using CollectorTypeCMC GC.
+11-16 04:27:03.559  8493  8493 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-16 04:27:03.565  8493  8493 D nativeloader: Load libicu_jni.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 04:27:03.565  8493  8493 D app_process: u_setTimeZoneFilesDirectory("/apex/com.android.tzdata/etc/tz/versioned/8/icu") succeeded. 
+11-16 04:27:03.565  8493  8493 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt75l.dat
+11-16 04:27:03.566  8493  8493 D nativeloader: Load libjavacore.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 04:27:03.567  8493  8493 D nativeloader: Load libopenjdk.so using APEX ns com_android_art for caller /apex/com.android.art/javalib/core-oj.jar: ok
+11-16 04:27:03.568  8493  8493 W app_process: Unexpected CPU variant for x86: x86_64.
+11-16 04:27:03.568  8493  8493 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-16 04:27:03.579  8493  8493 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-16 04:27:03.579  8493  8493 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-16 04:27:03.581  8493  8493 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+11-16 04:27:03.582   561  1707 I ActivityManager: Force stopping com.starcore.research.r13 appid=10148 user=0: start instr
+11-16 04:27:03.583   561  1707 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10148, packageName = null, attributionTag = null, token = android.os.Binder@1980cd7, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 04:27:03.584   561   888 I AppWidgetServiceImpl: Received broadcast: android.intent.action.PACKAGE_UNSTOPPED on user 0
+11-16 04:27:03.584   561   888 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10148 package com.starcore.research.r13 isStopped false
+11-16 04:27:03.588   367   367 D Zygote  : Forked child process 8504
+11-16 04:27:03.588   561   611 I ActivityManager: Start proc 8504:com.starcore.research.r13/u0a148 for added application com.starcore.research.r13
+11-16 04:27:03.605  8504  8504 I re.research.r13: Late-enabling -Xcheck:jni
+11-16 04:27:03.616  8504  8504 I re.research.r13: Using CollectorTypeCMC GC.
+11-16 04:27:03.616  8504  8504 W re.research.r13: Unexpected CPU variant for x86: x86_64.
+11-16 04:27:03.616  8504  8504 W re.research.r13: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, default
+11-16 04:27:03.632  3878  3885 I adbd    : jdwp connection from 8504
+11-16 04:27:03.636  8504  8504 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+11-16 04:27:03.650  8504  8504 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+11-16 04:27:03.651  8504  8504 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 04:27:03.652  8504  8504 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=1 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 04:27:03.653  8504  8504 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 04:27:03.654  8504  8504 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 04:27:03.655  8504  8504 W ziparchive: Unable to open '/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.dm': No such file or directory
+11-16 04:27:03.655  8504  8504 W ziparchive: Unable to open '/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.dm': No such file or directory
+11-16 04:27:03.690  8504  8504 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:03.690  8504  8504 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:03.813  8504  8504 D nativeloader: Configuring clns-7 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.apk:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/lib/x86_64:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/lib/x86_64:/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.apk!/lib/x86_64:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.starcore.research.r13
+11-16 04:27:03.818  8504  8504 V GraphicsEnvironment: Currently set values for:
+11-16 04:27:03.819  8504  8504 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-16 04:27:03.819  8504  8504 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-16 04:27:03.819  8504  8504 V GraphicsEnvironment: Global.Settings values are invalid: number of packages: 0, number of values: 0
+11-16 04:27:03.819  8504  8504 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-16 04:27:03.821  8504  8504 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 04:27:03.822  8504  8504 D nativeloader: Configuring clns-8 for other apk /system/framework/android.test.mock.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/lib/x86_64:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/lib/x86_64, permitted_path=/data:/mnt/expand
+11-16 04:27:03.823  8504  8504 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+11-16 04:27:03.824  8504  8504 D nativeloader: Configuring clns-9 for other apk /system/framework/android.test.runner.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/lib/x86_64:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/lib/x86_64, permitted_path=/data:/mnt/expand
+11-16 04:27:03.826  8504  8504 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]} | PCL[]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.apk*788399976:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 04:27:03.827  8504  8504 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.apk*788399976:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 04:27:03.828  8504  8504 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]#PCL[/system/framework/android.test.runner.jar*2496447986]{PCL[/system/framework/android.test.base.jar*724373495]#PCL[/system/framework/android.test.mock.jar*1452759902]}};PCL[/system/framework/android.test.runner.jar*2496447986:/system/framework/android.test.mock.jar*1452759902:/system/framework/android.test.base.jar*724373495:/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.apk*788399976:/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.apk*1018323153]{PCL[/system/framework/android.test.base.jar*724373495]})
+11-16 04:27:03.828  8504  8504 W ziparchive: Unable to open '/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.dm': No such file or directory
+11-16 04:27:03.828  8504  8504 W ziparchive: Unable to open '/data/app/~~11a9k_scQtkbcCas7ENs1Q==/com.starcore.research.r13.test-oOpfy2HfVA_S6hDLlWcnUQ==/base.dm': No such file or directory
+11-16 04:27:03.861  8504  8504 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:03.861  8504  8504 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:03.975  8504  8504 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+11-16 04:27:03.992  8504  8504 I AndroidJUnitRunner: onCreate Bundle[{r30Sandbox=reg-43796780479-charts, class=com.ethk3.novaonepro.R30ChartsAndroidTest}]
+11-16 04:27:03.992  8504  8504 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-16 04:27:04.004  8504  8504 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-16 04:27:04.004  8504  8520 D AndroidJUnitRunner: onStart is called.
+11-16 04:27:04.030  8504  8520 I TestRunner: run started: 1 tests
+11-16 04:27:04.033  8504  8520 I TestRunner: started: allFourteenLegacyAndTwoSnapshotChartsOpenInThreeStatesAndSaveScreenshots(com.ethk3.novaonepro.R30ChartsAndroidTest)
+11-16 04:27:04.044   561  1707 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.LOCKED_BOOT_COMPLETED dispatchLatency:1 completeLatency:403 dispatchRealLatency:1 completeRealLatency:403 receiversSize:1 userId:0 userType:android.os.usertype.full.SYSTEM
+11-16 04:27:04.061   561  1707 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.BOOT_COMPLETED dispatchLatency:403 completeLatency:420 dispatchRealLatency:403 completeRealLatency:420 receiversSize:1 userId:0 userType:android.os.usertype.full.SYSTEM
+11-16 04:27:17.458   561  1084 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+11-16 04:27:17.458   561  1084 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10148, packageName = null, attributionTag = null, token = android.os.Binder@1980cd7, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 04:27:17.459   561  1084 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+11-16 04:27:17.459   561  1084 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+11-16 04:27:17.461   561  1084 V SplashScreenExceptionList: SplashScreen checking exception for package com.starcore.research.r13 (target sdk:28) -> false
+11-16 04:27:17.463   561  1084 I ActivityTaskManager: START u0 {flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} with LAUNCH_MULTIPLE from uid 10148 (BAL_ALLOW_PERMISSION) result code=0
+11-16 04:27:17.462   941   988 V WindowManagerShell: Transition requested (#371): android.os.BinderProxy@6573139 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=114 displayId=0 isRunning=true baseIntent=Intent { flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1078178 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@f35837e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{94d90df com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 371 }
+11-16 04:27:17.463  1386  1386 W SplitSelectStateCtor: Missing session instanceIds
+11-16 04:27:17.463  1386  1386 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+11-16 04:27:17.464   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=110
+11-16 04:27:17.465   941  1041 D SplashScreenView: Build android.window.SplashScreenView{6a45bfb V.E...... ......ID 0,0-0,0}
+11-16 04:27:17.465   941  1041 D SplashScreenView: Icon: view: null drawable: null size: 0
+11-16 04:27:17.465   941  1041 D SplashScreenView: Branding: view: android.view.View{723d418 G.ED..... ......I. 0,0-0,0 #1020503 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-16 04:27:17.466  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=114, baseIntent=Intent { flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 }
+11-16 04:27:17.472   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:17.474   561  1084 D CoreBackPreview: Window{cd7ee5a u0 Splash Screen com.starcore.research.r13}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@cc1b267, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:17.479  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e90d42d in: PRE_ON_CREATE
+11-16 04:27:17.485  8504  8504 D CompatChangeReporter: Compat change id reported: 37756858; UID 10148; state: ENABLED
+11-16 04:27:17.490   366   366 I netd    : tetherGetStats() -> {[]} <1.90ms>
+11-16 04:27:17.502   941   977 V WindowManagerShell: onTransitionReady(transaction=2409476665524)
+11-16 04:27:17.502   941   988 V WindowManagerShell: onTransitionReady (#371) android.os.BinderProxy@6573139: {id=371 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@b626fcf} m=OPEN f=NONE leash=Surface(name=Task=114)/@0xf350e30 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@14dd5c} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xd09daa9 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:17.503   561   598 V WindowManager: Sent Transition (#371) createdAt=11-16 04:27:17.459 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=114 displayId=0 isRunning=true baseIntent=Intent { flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1078178 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{72d0e03 Task{70c9649 #114 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{1c61180 com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 371 }
+11-16 04:27:17.503   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:17.503   561   598 V WindowManager:     info={id=371 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:17.503   561   598 V WindowManager:         {WCT{RemoteToken{72d0e03 Task{70c9649 #114 type=standard A=10148:com.starcore.research.r13}}} m=OPEN f=NONE leash=Surface(name=Task=114)/@0x7ce38bd sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:17.503   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}
+11-16 04:27:17.503   561   598 V WindowManager:     ]}
+11-16 04:27:17.503   941   988 V WindowManagerShell: Playing animation for (#371) android.os.BinderProxy@6573139@0
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:17.503   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:17.503   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=371 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@b626fcf} m=OPEN f=NONE leash=Surface(name=Task=114)/@0xf350e30 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@14dd5c} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xd09daa9 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:17.503   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:17.503   941   988 V WindowManagerShell:  Delegate animation for (#371) to null
+11-16 04:27:17.503   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:17.503   941   988 V WindowManagerShell: start default transition animation, info = {id=371 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@b626fcf} m=OPEN f=NONE leash=Surface(name=Task=114)/@0xf350e30 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@14dd5c} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xd09daa9 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:17.503   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@5cc393a animAttr=0x13 type=OPEN isEntrance=false
+11-16 04:27:17.504   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@cb4af06 animAttr=0x12 type=OPEN isEntrance=true
+11-16 04:27:17.508   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:17.509   561  1084 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:17.511  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e90d42d in: CREATED
+11-16 04:27:17.511  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e90d42d in: STARTED
+11-16 04:27:17.513  1386  1587 D EGL_emulation: app_time_stats: avg=40130.09ms min=23.79ms max=160088.47ms count=4
+11-16 04:27:17.521  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e90d42d in: RESUMED
+11-16 04:27:17.531   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#371) android.os.BinderProxy@6573139@0
+11-16 04:27:17.531  8504  8504 W HWUI    : Unknown dataspace 0
+11-16 04:27:17.532  1386  1587 D EGL_emulation: app_time_stats: avg=160516.91ms min=160516.91ms max=160516.91ms count=1
+11-16 04:27:17.532   561   598 V WindowManager: Finish Transition (#371): created at 11-16 04:27:17.459 collect-started=0.024ms request-sent=3.002ms started=3.545ms ready=6.243ms sent=42.679ms finished=72.659ms
+11-16 04:27:17.533  1386  1386 D VRI[QuickstepLauncher]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:17.533   561  1084 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:17.535   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:17.535   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:17.537   561  1707 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:17.550   561  1084 D CoreBackPreview: Window{5b8a20a u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@5e1e44, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:17.571  8504  8529 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+11-16 04:27:17.571  8504  8529 I EGL_emulation: Opening libGLESv2_emulation.so
+11-16 04:27:17.582  8504  8529 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-16 04:27:17.598  8504  8533 E SQLiteLog: (1) no such table: r27_live_shadow in "SELECT s.policy_hash,s.base_policy,s.spec_json,s.status,COUNT(f.target_ordinal),SUM(CASE WHEN f.hit=1 THEN 1 ELSE 0 END),SUM(CASE WHEN f.act=1 THEN 1 ELSE 0 END),SUM(CASE WHE
+11-16 04:27:17.598  8504  8533 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908 in "SELECT g.genome_id,g.display_name_zh,g.status,COUNT(p.target_issue),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END),g.dev_n,g.dev_hit_rate FROM v57_algorithm_genome_
+11-16 04:27:17.599  8504  8533 E SQLiteLog: (1) no such table: v57_algorithm_predraw_r908 in "SELECT p.genome_id,COALESCE(g.display_name_zh,p.genome_id),COUNT(*),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END) FROM v57_algorithm_predraw_r908 p LEFT JOIN v57_
+11-16 04:27:17.599  8504  8533 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT e.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:17.601   166   166 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-16 04:27:17.601  8504  8529 I Gralloc4: mapper 4.x is not supported
+--------- beginning of kernel
+11-16 04:27:17.727     0     0 I servicemanager: Caller(pid=8504,uid=10148,sid=u:r:untrusted_app_27:s0:c148,c256,c512,c768) Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest. No alternative instances declared in VINTF.
+11-16 04:27:17.612  8504  8533 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT o.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:17.613  8504  8533 E SQLiteLog: (1) no such table: atomic_tool_context_r943 in "SELECT target_issue,network_probability,hit FROM atomic_tool_context_r943 WHERE hit>=0 AND network_probability>=0 AND network_probability<=1 ORDER BY target_issue DE
+11-16 04:27:17.618  8504  8508 I re.research.r13: Compiler allocated 4219KB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+11-16 04:27:17.856  8504  8508 I re.research.r13: Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+11-16 04:27:18.132  8504  8504 I Choreographer: Skipped 34 frames!  The application may be doing too much work on its main thread.
+11-16 04:27:18.134   561   598 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:18.135   561   598 I ActivityTaskManager: Displayed com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 for user 0: +674ms
+11-16 04:27:18.143   941  1040 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@2d2bcd7
+11-16 04:27:18.144   561   642 W InputManager-JNI: Input channel object 'cd7ee5a Splash Screen com.starcore.research.r13 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:18.144   561  1084 D CoreBackPreview: Window{cd7ee5a u0 Splash Screen com.starcore.research.r13 EXITING}: Setting back callback null
+11-16 04:27:18.145  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:18.145  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:18.145  1386  1386 D BaseDepthController: 	mSurface: null
+11-16 04:27:18.145  1386  1386 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+11-16 04:27:18.145  1386  1386 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+11-16 04:27:18.145  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:453)
+11-16 04:27:18.145  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:444)
+11-16 04:27:18.145  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(StatefulActivity.java:119)
+11-16 04:27:18.146  1386  1386 D StatsLog: LAUNCHER_ONSTOP
+11-16 04:27:18.146   561  1084 I AppWidgetServiceImpl: setAppWidgetHidden() 0
+11-16 04:27:18.154  8504  8508 I re.research.r13: Compiler allocated 5417KB to compile void android.view.ViewRootImpl.performTraversals()
+11-16 04:27:18.187   561   695 I ImeTracker: com.starcore.research.r13:9ac806b8: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:18.187   561   695 I ImeTracker: com.starcore.research.r13:9ac806b8: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:18.611  8504  8520 I UiAutomation: Initialized for user 0 on display 0
+11-16 04:27:18.612   561   642 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-16 04:27:18.612   561   642 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation, flags=0x0) when called by user 0
+11-16 04:27:18.613   561   642 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-16 04:27:18.613   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.613   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614  8504  8539 V UiAutomation: Init UiAutomation@c0c64[id=14, displayId=0, flags=0]
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.614   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.615   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:18.615   561   642 D WindowManager: captureDisplay
+11-16 04:27:18.615   561   561 D BatterySaverPolicy: accessibility changed to true, updating policy.
+11-16 04:27:19.027   561  1084 D WindowManager: captureDisplay
+11-16 04:27:19.376  8504  8529 D EGL_emulation: app_time_stats: avg=111.89ms min=3.80ms max=319.12ms count=11
+11-16 04:27:19.377   561  1084 D WindowManager: captureDisplay
+11-16 04:27:19.727   561  1084 D WindowManager: captureDisplay
+11-16 04:27:20.077   561  1084 D WindowManager: captureDisplay
+11-16 04:27:20.426  8504  8529 D EGL_emulation: app_time_stats: avg=174.96ms min=33.05ms max=316.80ms count=6
+11-16 04:27:20.427   561  2873 D WindowManager: captureDisplay
+11-16 04:27:20.777   561  2873 D WindowManager: captureDisplay
+11-16 04:27:20.964   561  1873 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 04:27:21.127   561  2873 D WindowManager: captureDisplay
+11-16 04:27:21.476  8504  8529 D EGL_emulation: app_time_stats: avg=174.94ms min=33.21ms max=316.49ms count=6
+11-16 04:27:21.477   561  2873 D WindowManager: captureDisplay
+11-16 04:27:21.831   561  2873 D WindowManager: captureDisplay
+11-16 04:27:22.177   561  2873 D WindowManager: captureDisplay
+11-16 04:27:22.526  8504  8529 D EGL_emulation: app_time_stats: avg=175.02ms min=30.64ms max=319.49ms count=6
+11-16 04:27:22.527   561  2873 D WindowManager: captureDisplay
+11-16 04:27:22.877   561  2873 D WindowManager: captureDisplay
+11-16 04:27:23.227   561  2873 D WindowManager: captureDisplay
+11-16 04:27:23.576  8504  8529 D EGL_emulation: app_time_stats: avg=175.01ms min=32.89ms max=316.87ms count=6
+11-16 04:27:23.577   561  2873 D WindowManager: captureDisplay
+11-16 04:27:23.927   561  2873 D WindowManager: captureDisplay
+11-16 04:27:24.277   561  2873 D WindowManager: captureDisplay
+11-16 04:27:24.626  8504  8529 D EGL_emulation: app_time_stats: avg=174.91ms min=33.11ms max=316.77ms count=6
+11-16 04:27:24.627   561  2873 D WindowManager: captureDisplay
+11-16 04:27:24.977   561  2873 D WindowManager: captureDisplay
+11-16 04:27:25.327   561  2873 D WindowManager: captureDisplay
+11-16 04:27:25.678  8504  8529 D EGL_emulation: app_time_stats: avg=175.28ms min=33.64ms max=318.00ms count=6
+11-16 04:27:25.679   561  2873 D WindowManager: captureDisplay
+11-16 04:27:26.044   561  2873 D WindowManager: captureDisplay
+11-16 04:27:26.394   561  2873 D WindowManager: captureDisplay
+11-16 04:27:26.743  8504  8529 D EGL_emulation: app_time_stats: avg=177.51ms min=33.58ms max=316.40ms count=6
+11-16 04:27:26.744   561  2873 D WindowManager: captureDisplay
+11-16 04:27:27.094   561  2873 D WindowManager: captureDisplay
+11-16 04:27:27.444   561  2873 D WindowManager: captureDisplay
+11-16 04:27:27.793  8504  8529 D EGL_emulation: app_time_stats: avg=174.97ms min=33.81ms max=316.43ms count=6
+11-16 04:27:27.794   561  2873 D WindowManager: captureDisplay
+11-16 04:27:28.144   561  2873 D WindowManager: captureDisplay
+11-16 04:27:28.494   561  2873 D WindowManager: captureDisplay
+11-16 04:27:28.514   941   988 V WindowManagerShell: Transition requested (#372): android.os.BinderProxy@79544d5 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=114 displayId=0 isRunning=false baseIntent=Intent { flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1078181 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@74564ea} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 372 }
+11-16 04:27:28.516  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=7, baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher }
+11-16 04:27:28.516  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e90d42d in: PAUSED
+11-16 04:27:28.518   561  2873 I AppWidgetServiceImpl: startListening() 0
+11-16 04:27:28.520   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=true, height=110
+11-16 04:27:28.520  1386  1386 D StatsLog: LAUNCHER_ONRESUME
+11-16 04:27:28.522   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:28.526  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:28.526  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:28.526  1386  1386 D BaseDepthController: 	mSurface: Surface(name=com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher)/@0xb6679
+11-16 04:27:28.533   366   366 I netd    : tetherGetStats() -> {[]} <0.83ms>
+11-16 04:27:28.534   941  1891 V WindowManagerShell: onTransitionReady(transaction=2409476665565)
+11-16 04:27:28.534   941   988 V WindowManagerShell: onTransitionReady (#372) android.os.BinderProxy@79544d5: {id=372 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@2bf72b7} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x44773db sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@101ca24} m=CLOSE f=NONE leash=Surface(name=Task=114)/@0xe1b3e78 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x7725951 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:28.534   941   988 V WindowManagerShell: Playing animation for (#372) android.os.BinderProxy@79544d5@0
+11-16 04:27:28.534   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:28.534   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:28.534   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:28.534   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:28.534   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:28.534   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:28.535   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:28.535   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:28.535   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=372 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@2bf72b7} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x44773db sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@101ca24} m=CLOSE f=NONE leash=Surface(name=Task=114)/@0xe1b3e78 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x7725951 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:28.535   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:28.535   941   988 D RemoteTransitionHandler: Found filterPair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:28.535   941   988 V WindowManagerShell:  Delegate animation for (#372) to RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }
+11-16 04:27:28.542   561   598 V WindowManager: Sent Transition (#372) createdAt=11-16 04:27:28.514 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=114 displayId=0 isRunning=false baseIntent=Intent { flg=0x14000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1078181 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{72d0e03 Task{70c9649 #114 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 372 }
+11-16 04:27:28.542   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:28.543   561   598 V WindowManager:     info={id=372 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:28.543   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:28.543   561   598 V WindowManager:         {WCT{RemoteToken{72d0e03 Task{70c9649 #114 type=standard A=10148:com.starcore.research.r13}}} m=CLOSE f=NONE leash=Surface(name=Task=114)/@0x7ce38bd sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:28.543   561   598 V WindowManager:         {null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x41fcf6b sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}
+11-16 04:27:28.543   561   598 V WindowManager:     ]}
+11-16 04:27:28.545   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:28.546   561   642 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:28.546  1386  1587 D EGL_emulation: app_time_stats: avg=11013.82ms min=11013.82ms max=11013.82ms count=1
+11-16 04:27:28.547  1386  1386 D StateManager: createAtomicAnimation - fromState: Background, toState: Normal, partial trace:
+11-16 04:27:28.547  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.prepareToAnimate(WorkspaceRevealAnim.java:130)
+11-16 04:27:28.547  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.<init>(WorkspaceRevealAnim.java:66)
+11-16 04:27:28.547  1386  1386 D StateManager: 	at com.android.launcher3.QuickstepTransitionManager.createWallpaperOpenAnimations(QuickstepTransitionManager.java:1716)
+11-16 04:27:28.560   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#372) android.os.BinderProxy@79544d5@0
+11-16 04:27:28.563   561   598 V WindowManager: Finish Transition (#372): created at 11-16 04:27:28.514 collect-started=0.017ms request-sent=0.046ms started=1.495ms ready=3.387ms sent=19.572ms finished=46.403ms
+11-16 04:27:28.563   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:28.563   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:28.565   561   695 I ImeTracker: com.android.launcher3:706e8a66: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:28.565   561   695 I ImeTracker: com.android.launcher3:706e8a66: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:28.566   561   642 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:28.566   561   642 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:28.577  8504  8504 D VRI[ChartsActivityR83]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:28.592  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e90d42d in: STOPPED
+11-16 04:27:28.593  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@e90d42d in: DESTROYED
+11-16 04:27:28.594  8504  8504 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@b7b079c
+11-16 04:27:28.594   561  2873 D CoreBackPreview: Window{5b8a20a u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback null
+11-16 04:27:28.600   561  2873 W InputManager-JNI: Input channel object '5b8a20a com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:28.603  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=114
+11-16 04:27:28.603  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=114
+11-16 04:27:28.628   561  2724 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+11-16 04:27:28.666   561  2873 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+11-16 04:27:28.666   561  2873 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10148, packageName = null, attributionTag = null, token = android.os.Binder@1980cd7, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 04:27:28.667   561  2873 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+11-16 04:27:28.667   561  2873 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+11-16 04:27:28.668   561  2873 V SplashScreenExceptionList: SplashScreen checking exception for package com.starcore.research.r13 (target sdk:28) -> false
+11-16 04:27:28.669   561  2873 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} with LAUNCH_MULTIPLE from uid 10148 (BAL_ALLOW_PERMISSION) result code=0
+11-16 04:27:28.670   941   988 V WindowManagerShell: Transition requested (#373): android.os.BinderProxy@895e189 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=115 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1089385 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@b7ef58e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{db401af com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 373 }
+11-16 04:27:28.670   941  1041 D SplashScreenView: Build android.window.SplashScreenView{a8239bc V.E...... ......ID 0,0-0,0}
+11-16 04:27:28.670   941  1041 D SplashScreenView: Icon: view: null drawable: null size: 0
+11-16 04:27:28.670   941  1041 D SplashScreenView: Branding: view: android.view.View{a720d45 G.ED..... ......I. 0,0-0,0 #1020503 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-16 04:27:28.670  1386  1386 W SplitSelectStateCtor: Missing session instanceIds
+11-16 04:27:28.670  1386  1386 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+11-16 04:27:28.671   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=110
+11-16 04:27:28.672   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:28.673  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=115, baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 }
+11-16 04:27:28.677  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@d0c3afa in: PRE_ON_CREATE
+11-16 04:27:28.680  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@d0c3afa in: CREATED
+11-16 04:27:28.681  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@d0c3afa in: STARTED
+11-16 04:27:28.681  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@d0c3afa in: RESUMED
+11-16 04:27:28.692   561   642 D CoreBackPreview: Window{2dbd5b3 u0 Splash Screen com.starcore.research.r13}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@322482b, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:28.692  8504  8544 E SQLiteLog: (1) no such table: r27_live_shadow in "SELECT s.policy_hash,s.base_policy,s.spec_json,s.status,COUNT(f.target_ordinal),SUM(CASE WHEN f.hit=1 THEN 1 ELSE 0 END),SUM(CASE WHEN f.act=1 THEN 1 ELSE 0 END),SUM(CASE WHE
+11-16 04:27:28.692  8504  8544 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908 in "SELECT g.genome_id,g.display_name_zh,g.status,COUNT(p.target_issue),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END),g.dev_n,g.dev_hit_rate FROM v57_algorithm_genome_
+11-16 04:27:28.692  8504  8544 E SQLiteLog: (1) no such table: v57_algorithm_predraw_r908 in "SELECT p.genome_id,COALESCE(g.display_name_zh,p.genome_id),COUNT(*),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END) FROM v57_algorithm_predraw_r908 p LEFT JOIN v57_
+11-16 04:27:28.693  8504  8544 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT e.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:28.694  8504  8544 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT o.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:28.694  8504  8544 E SQLiteLog: (1) no such table: atomic_tool_context_r943 in "SELECT target_issue,network_probability,hit FROM atomic_tool_context_r943 WHERE hit>=0 AND network_probability>=0 AND network_probability<=1 ORDER BY target_issue DE
+11-16 04:27:28.694   561  1084 D CoreBackPreview: Window{6b9da9c u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@d2ce134, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:28.699   941   977 V WindowManagerShell: onTransitionReady(transaction=2409476665595)
+11-16 04:27:28.700   941   988 V WindowManagerShell: onTransitionReady (#373) android.os.BinderProxy@895e189: {id=373 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@ceeb49f} m=OPEN f=NONE leash=Surface(name=Task=115)/@0x74ee743 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@ea589ec} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x7e111c0 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:28.700   941   988 V WindowManagerShell: Playing animation for (#373) android.os.BinderProxy@895e189@0
+11-16 04:27:28.700   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:28.700   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:28.700   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:28.700   561   598 V WindowManager: Sent Transition (#373) createdAt=11-16 04:27:28.667 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=115 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1089385 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{38591a3 Task{91a5f17 #115 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{950dca0 com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 373 }
+11-16 04:27:28.700   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:28.700   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:28.700   561   598 V WindowManager:     info={id=373 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:28.700   561   598 V WindowManager:         {WCT{RemoteToken{38591a3 Task{91a5f17 #115 type=standard A=10148:com.starcore.research.r13}}} m=OPEN f=NONE leash=Surface(name=Task=115)/@0xaf1eb5d sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:28.700   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}
+11-16 04:27:28.700   561   598 V WindowManager:     ]}
+11-16 04:27:28.701   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:28.701   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:28.701   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:28.701   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:28.701   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=373 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@ceeb49f} m=OPEN f=NONE leash=Surface(name=Task=115)/@0x74ee743 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@ea589ec} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x7e111c0 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:28.701   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:28.701   941   988 V WindowManagerShell:  Delegate animation for (#373) to null
+11-16 04:27:28.701   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:28.701   941   988 V WindowManagerShell: start default transition animation, info = {id=373 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@ceeb49f} m=OPEN f=NONE leash=Surface(name=Task=115)/@0x74ee743 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@ea589ec} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x7e111c0 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:28.701   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@509d1b5 animAttr=0x13 type=OPEN isEntrance=false
+11-16 04:27:28.701   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@a11a04a animAttr=0x12 type=OPEN isEntrance=true
+11-16 04:27:28.702   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:28.704   561  3536 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:28.830     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-16 04:27:28.714   561   598 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:28.715   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#373) android.os.BinderProxy@895e189@0
+11-16 04:27:28.718   561  1084 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:28.719   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:28.719   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:28.719   561  1084 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:28.719  1386  1386 D VRI[QuickstepLauncher]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:28.719   561   598 I ActivityTaskManager: Displayed com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 for user 0: +47ms
+11-16 04:27:28.720   561   598 V WindowManager: Finish Transition (#373): created at 11-16 04:27:28.667 collect-started=0.013ms request-sent=2.419ms started=3.043ms ready=5.154ms sent=31.93ms finished=49.741ms
+11-16 04:27:28.732   941  1040 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@61735a8
+11-16 04:27:28.733   561  1013 D CoreBackPreview: Window{2dbd5b3 u0 Splash Screen com.starcore.research.r13 EXITING}: Setting back callback null
+11-16 04:27:28.734   561  1013 W InputManager-JNI: Input channel object '2dbd5b3 Splash Screen com.starcore.research.r13 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:28.735  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:28.735  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:28.735  1386  1386 D BaseDepthController: 	mSurface: null
+11-16 04:27:28.735  1386  1386 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+11-16 04:27:28.735  1386  1386 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+11-16 04:27:28.735  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:453)
+11-16 04:27:28.735  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:444)
+11-16 04:27:28.735  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(StatefulActivity.java:119)
+11-16 04:27:28.735  1386  1386 D StatsLog: LAUNCHER_ONSTOP
+11-16 04:27:28.735   561  2873 I AppWidgetServiceImpl: setAppWidgetHidden() 0
+11-16 04:27:28.747   561   695 I ImeTracker: com.starcore.research.r13:c3a2c266: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:28.747   561   695 I ImeTracker: com.starcore.research.r13:c3a2c266: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:29.144   561   642 D WindowManager: captureDisplay
+11-16 04:27:29.494   561   642 D WindowManager: captureDisplay
+11-16 04:27:29.843  8504  8529 D EGL_emulation: app_time_stats: avg=103.31ms min=8.61ms max=316.51ms count=11
+11-16 04:27:29.844   561   642 D WindowManager: captureDisplay
+11-16 04:27:30.194   561   642 D WindowManager: captureDisplay
+11-16 04:27:30.544   561   642 D WindowManager: captureDisplay
+11-16 04:27:30.893  8504  8529 D EGL_emulation: app_time_stats: avg=175.01ms min=33.35ms max=316.72ms count=6
+11-16 04:27:30.894   561   642 D WindowManager: captureDisplay
+11-16 04:27:31.244   561   642 D WindowManager: captureDisplay
+11-16 04:27:31.594   561   642 D WindowManager: captureDisplay
+11-16 04:27:31.944  8504  8529 D EGL_emulation: app_time_stats: avg=175.18ms min=32.80ms max=317.73ms count=6
+11-16 04:27:31.945   561   642 D WindowManager: captureDisplay
+11-16 04:27:32.294   561   642 D WindowManager: captureDisplay
+11-16 04:27:32.604   561  1873 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 04:27:32.650   561   642 D WindowManager: captureDisplay
+11-16 04:27:33.009  8504  8529 D EGL_emulation: app_time_stats: avg=177.56ms min=31.93ms max=320.38ms count=6
+11-16 04:27:33.011   561   642 D WindowManager: captureDisplay
+11-16 04:27:33.361   561   642 D WindowManager: captureDisplay
+11-16 04:27:33.710   561   642 D WindowManager: captureDisplay
+11-16 04:27:34.060  8504  8529 D EGL_emulation: app_time_stats: avg=175.02ms min=32.32ms max=317.63ms count=6
+11-16 04:27:34.060   561   642 D WindowManager: captureDisplay
+11-16 04:27:34.411   561   642 D WindowManager: captureDisplay
+11-16 04:27:34.760   561   642 D WindowManager: captureDisplay
+11-16 04:27:35.110  8504  8529 D EGL_emulation: app_time_stats: avg=175.08ms min=33.13ms max=317.87ms count=6
+11-16 04:27:35.111   561   642 D WindowManager: captureDisplay
+11-16 04:27:35.460   561   642 D WindowManager: captureDisplay
+11-16 04:27:35.814   561   642 D WindowManager: captureDisplay
+11-16 04:27:36.179  8504  8529 D EGL_emulation: app_time_stats: avg=178.08ms min=32.22ms max=320.54ms count=6
+11-16 04:27:36.182   561   642 D WindowManager: captureDisplay
+11-16 04:27:36.544   561   642 D WindowManager: captureDisplay
+11-16 04:27:36.897   561   642 D WindowManager: captureDisplay
+11-16 04:27:37.259  8504  8529 D EGL_emulation: app_time_stats: avg=180.01ms min=33.43ms max=318.21ms count=6
+11-16 04:27:37.260   561   642 D WindowManager: captureDisplay
+11-16 04:27:37.611   561   642 D WindowManager: captureDisplay
+11-16 04:27:37.961   561   642 D WindowManager: captureDisplay
+11-16 04:27:38.309  8504  8529 D EGL_emulation: app_time_stats: avg=174.99ms min=32.08ms max=317.68ms count=6
+11-16 04:27:38.310   561   642 D WindowManager: captureDisplay
+11-16 04:27:38.660   561   642 D WindowManager: captureDisplay
+11-16 04:27:39.011   561   642 D WindowManager: captureDisplay
+11-16 04:27:39.030   941   988 V WindowManagerShell: Transition requested (#374): android.os.BinderProxy@9e5eea2 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=115 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1089388 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@8e82733} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 374 }
+11-16 04:27:39.032  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=7, baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher }
+11-16 04:27:39.032  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@d0c3afa in: PAUSED
+11-16 04:27:39.033   561  2873 I AppWidgetServiceImpl: startListening() 0
+11-16 04:27:39.035   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=true, height=110
+11-16 04:27:39.035  1386  1386 D StatsLog: LAUNCHER_ONRESUME
+11-16 04:27:39.038   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:39.042  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:39.042  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:39.042  1386  1386 D BaseDepthController: 	mSurface: Surface(name=com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher)/@0xb6679
+11-16 04:27:39.049   366   366 I netd    : tetherGetStats() -> {[]} <1.22ms>
+11-16 04:27:39.052   941  1528 V WindowManagerShell: onTransitionReady(transaction=2409476665619)
+11-16 04:27:39.052   941   988 V WindowManagerShell: onTransitionReady (#374) android.os.BinderProxy@9e5eea2: {id=374 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@15461c} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb3c6af0 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@a139225} m=CLOSE f=NONE leash=Surface(name=Task=115)/@0x6eed869 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x3d852ee sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:39.053   941   988 V WindowManagerShell: Playing animation for (#374) android.os.BinderProxy@9e5eea2@0
+11-16 04:27:39.054   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:39.054   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:39.054   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:39.054   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:39.054   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:39.054   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:39.054   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:39.054   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:39.054   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=374 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@15461c} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb3c6af0 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@a139225} m=CLOSE f=NONE leash=Surface(name=Task=115)/@0x6eed869 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x3d852ee sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:39.054   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:39.054   941   988 D RemoteTransitionHandler: Found filterPair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:39.054   941   988 V WindowManagerShell:  Delegate animation for (#374) to RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }
+11-16 04:27:39.057   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:39.060   561   598 V WindowManager: Sent Transition (#374) createdAt=11-16 04:27:39.030 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=115 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1089388 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{38591a3 Task{91a5f17 #115 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 374 }
+11-16 04:27:39.060   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:39.060   561   598 V WindowManager:     info={id=374 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:39.060   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:39.060   561   598 V WindowManager:         {WCT{RemoteToken{38591a3 Task{91a5f17 #115 type=standard A=10148:com.starcore.research.r13}}} m=CLOSE f=NONE leash=Surface(name=Task=115)/@0xaf1eb5d sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:39.060   561   598 V WindowManager:         {null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x41fcf6b sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}
+11-16 04:27:39.060   561   598 V WindowManager:     ]}
+11-16 04:27:39.060   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:39.063  1386  1587 D EGL_emulation: app_time_stats: avg=5258.54ms min=167.86ms max=10349.21ms count=2
+11-16 04:27:39.065  1386  1386 D StateManager: createAtomicAnimation - fromState: Background, toState: Normal, partial trace:
+11-16 04:27:39.065  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.prepareToAnimate(WorkspaceRevealAnim.java:130)
+11-16 04:27:39.065  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.<init>(WorkspaceRevealAnim.java:66)
+11-16 04:27:39.065  1386  1386 D StateManager: 	at com.android.launcher3.QuickstepTransitionManager.createWallpaperOpenAnimations(QuickstepTransitionManager.java:1716)
+11-16 04:27:39.073   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#374) android.os.BinderProxy@9e5eea2@0
+11-16 04:27:39.077   561   598 V WindowManager: Finish Transition (#374): created at 11-16 04:27:39.030 collect-started=0.021ms request-sent=0.06ms started=1.477ms ready=2.697ms sent=21.804ms finished=46.328ms
+11-16 04:27:39.082   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:39.082   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:39.082  8504  8504 D VRI[ChartsActivityR83]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:39.083   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:39.083   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:39.087   561   695 I ImeTracker: com.android.launcher3:9eefa025: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:39.087   561   695 I ImeTracker: com.android.launcher3:9eefa025: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:39.099  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@d0c3afa in: STOPPED
+11-16 04:27:39.099  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@d0c3afa in: DESTROYED
+11-16 04:27:39.099  8504  8504 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@7f18299
+11-16 04:27:39.099   561   642 D CoreBackPreview: Window{6b9da9c u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback null
+11-16 04:27:39.101   561  2873 W InputManager-JNI: Input channel object '6b9da9c com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:39.103  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=115
+11-16 04:27:39.103  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=115
+11-16 04:27:39.153   561   642 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+11-16 04:27:39.154   561   642 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10148, packageName = null, attributionTag = null, token = android.os.Binder@1980cd7, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 04:27:39.154   561   642 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+11-16 04:27:39.154   561   642 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+11-16 04:27:39.158   561   642 V SplashScreenExceptionList: SplashScreen checking exception for package com.starcore.research.r13 (target sdk:28) -> false
+11-16 04:27:39.159   561   642 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} with LAUNCH_MULTIPLE from uid 10148 (BAL_ALLOW_PERMISSION) result code=0
+11-16 04:27:39.159   941  1041 D SplashScreenView: Build android.window.SplashScreenView{5b3d1c6 V.E...... ......ID 0,0-0,0}
+11-16 04:27:39.159   941  1041 D SplashScreenView: Icon: view: null drawable: null size: 0
+11-16 04:27:39.159   941  1041 D SplashScreenView: Branding: view: android.view.View{c9ed587 G.ED..... ......I. 0,0-0,0 #1020503 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-16 04:27:39.160   941   988 V WindowManagerShell: Transition requested (#375): android.os.BinderProxy@21a3cb4 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=116 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1099875 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@ae2e0dd} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{b0b4452 com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 375 }
+11-16 04:27:39.162  1386  1386 W SplitSelectStateCtor: Missing session instanceIds
+11-16 04:27:39.162   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=110
+11-16 04:27:39.162  1386  1386 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+11-16 04:27:39.164  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=116, baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 }
+11-16 04:27:39.164  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b3e654f in: PRE_ON_CREATE
+11-16 04:27:39.167  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b3e654f in: CREATED
+11-16 04:27:39.167  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b3e654f in: STARTED
+11-16 04:27:39.167  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b3e654f in: RESUMED
+11-16 04:27:39.172   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:39.176   561   642 D CoreBackPreview: Window{299835c u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@df197eb, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:39.178   561  1013 D CoreBackPreview: Window{8b7ed73 u0 Splash Screen com.starcore.research.r13}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6c0e1f4, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:39.183   561   598 V WindowManager: Sent Transition (#375) createdAt=11-16 04:27:39.154 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=116 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1099875 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{7771963 Task{d507ad7 #116 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{d042960 com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 375 }
+11-16 04:27:39.183   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:39.183   561   598 V WindowManager:     info={id=375 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:39.183   561   598 V WindowManager:         {WCT{RemoteToken{7771963 Task{d507ad7 #116 type=standard A=10148:com.starcore.research.r13}}} m=OPEN f=NONE leash=Surface(name=Task=116)/@0xbb0bd1d sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:39.183   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}
+11-16 04:27:39.183   561   598 V WindowManager:     ]}
+11-16 04:27:39.184   941  1088 V WindowManagerShell: onTransitionReady(transaction=2409476665648)
+11-16 04:27:39.184   941   988 V WindowManagerShell: onTransitionReady (#375) android.os.BinderProxy@21a3cb4: {id=375 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@e203ae4} m=OPEN f=NONE leash=Surface(name=Task=116)/@0xd4a3f11 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@602bb4d} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xffa3876 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:39.185   941   988 V WindowManagerShell: Playing animation for (#375) android.os.BinderProxy@21a3cb4@0
+11-16 04:27:39.185   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:39.185   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:39.185   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:39.185   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:39.185   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:39.185   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:39.185   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:39.185   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:39.185   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=375 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@e203ae4} m=OPEN f=NONE leash=Surface(name=Task=116)/@0xd4a3f11 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@602bb4d} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xffa3876 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:39.186   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:39.186   941   988 V WindowManagerShell:  Delegate animation for (#375) to null
+11-16 04:27:39.186   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:39.186   941   988 V WindowManagerShell: start default transition animation, info = {id=375 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@e203ae4} m=OPEN f=NONE leash=Surface(name=Task=116)/@0xd4a3f11 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@602bb4d} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xffa3876 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:39.186   561  1013 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:39.187   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@ec96602 animAttr=0x13 type=OPEN isEntrance=false
+11-16 04:27:39.187   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@613b13 animAttr=0x12 type=OPEN isEntrance=true
+11-16 04:27:39.188   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:39.196   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#375) android.os.BinderProxy@21a3cb4@0
+11-16 04:27:39.198   561   598 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:39.199   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:39.199   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:39.200  1386  1386 D VRI[QuickstepLauncher]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:39.200   561   598 I ActivityTaskManager: Displayed com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 for user 0: +45ms
+11-16 04:27:39.200   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:39.200   561   598 V WindowManager: Finish Transition (#375): created at 11-16 04:27:39.154 collect-started=0.014ms request-sent=5.03ms started=6.702ms ready=8.969ms sent=28.334ms finished=44.143ms
+11-16 04:27:39.201   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:39.215   941  1040 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@831add9
+11-16 04:27:39.215   561  1013 W InputManager-JNI: Input channel object '8b7ed73 Splash Screen com.starcore.research.r13 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:39.216   561  2873 D CoreBackPreview: Window{8b7ed73 u0 Splash Screen com.starcore.research.r13 EXITING}: Setting back callback null
+11-16 04:27:39.216  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:39.216  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:39.216  1386  1386 D BaseDepthController: 	mSurface: null
+11-16 04:27:39.217  1386  1386 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+11-16 04:27:39.217  1386  1386 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+11-16 04:27:39.217  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:453)
+11-16 04:27:39.217  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:444)
+11-16 04:27:39.217  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(StatefulActivity.java:119)
+11-16 04:27:39.217  1386  1386 D StatsLog: LAUNCHER_ONSTOP
+11-16 04:27:39.218   561  3536 I AppWidgetServiceImpl: setAppWidgetHidden() 0
+11-16 04:27:39.228   561   695 I ImeTracker: com.starcore.research.r13:353d50e0: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:39.228   561   695 I ImeTracker: com.starcore.research.r13:353d50e0: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:39.233  8504  8551 E SQLiteLog: (1) no such table: r27_live_shadow in "SELECT s.policy_hash,s.base_policy,s.spec_json,s.status,COUNT(f.target_ordinal),SUM(CASE WHEN f.hit=1 THEN 1 ELSE 0 END),SUM(CASE WHEN f.act=1 THEN 1 ELSE 0 END),SUM(CASE WHE
+11-16 04:27:39.233  8504  8551 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908 in "SELECT g.genome_id,g.display_name_zh,g.status,COUNT(p.target_issue),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END),g.dev_n,g.dev_hit_rate FROM v57_algorithm_genome_
+11-16 04:27:39.234  8504  8551 E SQLiteLog: (1) no such table: v57_algorithm_predraw_r908 in "SELECT p.genome_id,COALESCE(g.display_name_zh,p.genome_id),COUNT(*),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END) FROM v57_algorithm_predraw_r908 p LEFT JOIN v57_
+11-16 04:27:39.234  8504  8551 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT e.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:39.234  8504  8551 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT o.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:39.234  8504  8551 E SQLiteLog: (1) no such table: atomic_tool_context_r943 in "SELECT target_issue,network_probability,hit FROM atomic_tool_context_r943 WHERE hit>=0 AND network_probability>=0 AND network_probability<=1 ORDER BY target_issue DE
+11-16 04:27:39.268  1386  1386 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 355491, 9976531, CUJ=J<LAUNCHER_APP_CLOSE_TO_HOME_FALLBACK>
+11-16 04:27:39.677   561  1013 D WindowManager: captureDisplay
+11-16 04:27:40.027   561  1013 D WindowManager: captureDisplay
+11-16 04:27:40.376  8504  8529 D EGL_emulation: app_time_stats: avg=118.43ms min=19.62ms max=317.21ms count=10
+11-16 04:27:40.377   561  1013 D WindowManager: captureDisplay
+11-16 04:27:40.727   561  3536 D WindowManager: captureDisplay
+11-16 04:27:41.076   561  3536 D WindowManager: captureDisplay
+11-16 04:27:41.426  8504  8529 D EGL_emulation: app_time_stats: avg=175.01ms min=32.74ms max=317.11ms count=6
+11-16 04:27:41.427   561  3536 D WindowManager: captureDisplay
+11-16 04:27:41.777   561  3536 D WindowManager: captureDisplay
+11-16 04:27:42.127   561  3536 D WindowManager: captureDisplay
+11-16 04:27:42.476  8504  8529 D EGL_emulation: app_time_stats: avg=174.99ms min=32.64ms max=317.65ms count=6
+11-16 04:27:42.477   561  3536 D WindowManager: captureDisplay
+11-16 04:27:42.827   561  3536 D WindowManager: captureDisplay
+11-16 04:27:43.105   561  1873 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 04:27:43.177   561  3536 D WindowManager: captureDisplay
+11-16 04:27:43.526  8504  8529 D EGL_emulation: app_time_stats: avg=174.95ms min=32.00ms max=317.66ms count=6
+11-16 04:27:43.527   561  3536 D WindowManager: captureDisplay
+11-16 04:27:43.877   561  3536 D WindowManager: captureDisplay
+11-16 04:27:44.227   561  3536 D WindowManager: captureDisplay
+11-16 04:27:44.576  8504  8529 D EGL_emulation: app_time_stats: avg=175.00ms min=33.15ms max=317.06ms count=6
+11-16 04:27:44.577   561  3536 D WindowManager: captureDisplay
+11-16 04:27:44.927   561  3536 D WindowManager: captureDisplay
+11-16 04:27:45.277   561  3536 D WindowManager: captureDisplay
+11-16 04:27:45.626  8504  8529 D EGL_emulation: app_time_stats: avg=174.97ms min=32.69ms max=317.28ms count=6
+11-16 04:27:45.627   561  3536 D WindowManager: captureDisplay
+11-16 04:27:45.977   561  3536 D WindowManager: captureDisplay
+11-16 04:27:46.327   561  3536 D WindowManager: captureDisplay
+11-16 04:27:46.676  8504  8529 D EGL_emulation: app_time_stats: avg=174.97ms min=32.25ms max=317.44ms count=6
+11-16 04:27:46.677   561  3536 D WindowManager: captureDisplay
+11-16 04:27:47.027   561  3536 D WindowManager: captureDisplay
+11-16 04:27:47.377   561  3536 D WindowManager: captureDisplay
+11-16 04:27:47.726  8504  8529 D EGL_emulation: app_time_stats: avg=175.01ms min=32.73ms max=317.17ms count=6
+11-16 04:27:47.727   561  3536 D WindowManager: captureDisplay
+11-16 04:27:48.077   561  3536 D WindowManager: captureDisplay
+11-16 04:27:48.427   561  3536 D WindowManager: captureDisplay
+11-16 04:27:48.776  8504  8529 D EGL_emulation: app_time_stats: avg=175.04ms min=32.99ms max=317.25ms count=6
+11-16 04:27:48.777   561  3536 D WindowManager: captureDisplay
+11-16 04:27:49.127   561  3536 D WindowManager: captureDisplay
+11-16 04:27:49.494   561  3536 D WindowManager: captureDisplay
+11-16 04:27:49.513   941   988 V WindowManagerShell: Transition requested (#376): android.os.BinderProxy@882f98b TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=116 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1099879 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@44eca68} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 376 }
+11-16 04:27:49.514  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b3e654f in: PAUSED
+11-16 04:27:49.514  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=7, baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher }
+11-16 04:27:49.516   561  2873 I AppWidgetServiceImpl: startListening() 0
+11-16 04:27:49.517  1386  1386 D StatsLog: LAUNCHER_ONRESUME
+11-16 04:27:49.517   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=true, height=110
+11-16 04:27:49.522   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:49.526  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:49.526  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:49.526  1386  1386 D BaseDepthController: 	mSurface: Surface(name=com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher)/@0xb6679
+11-16 04:27:49.532   941   952 V WindowManagerShell: onTransitionReady(transaction=2409476665672)
+11-16 04:27:49.532   941   988 V WindowManagerShell: onTransitionReady (#376) android.os.BinderProxy@882f98b: {id=376 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@c611bd} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xba80e81 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@2eb53b2} m=CLOSE f=NONE leash=Surface(name=Task=116)/@0x3bfab26 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x425a367 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:49.532   941   988 V WindowManagerShell: Playing animation for (#376) android.os.BinderProxy@882f98b@0
+11-16 04:27:49.532   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:49.532   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:49.532   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:49.532   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:49.532   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:49.532   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:49.533   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:49.533   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:49.533   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=376 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@c611bd} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xba80e81 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@2eb53b2} m=CLOSE f=NONE leash=Surface(name=Task=116)/@0x3bfab26 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x425a367 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:49.533   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:49.533   941   988 D RemoteTransitionHandler: Found filterPair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:49.533   941   988 V WindowManagerShell:  Delegate animation for (#376) to RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }
+11-16 04:27:49.535  1386  1386 D StateManager: createAtomicAnimation - fromState: Background, toState: Normal, partial trace:
+11-16 04:27:49.535  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.prepareToAnimate(WorkspaceRevealAnim.java:130)
+11-16 04:27:49.535  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.<init>(WorkspaceRevealAnim.java:66)
+11-16 04:27:49.535  1386  1386 D StateManager: 	at com.android.launcher3.QuickstepTransitionManager.createWallpaperOpenAnimations(QuickstepTransitionManager.java:1716)
+11-16 04:27:49.537   366   366 I netd    : tetherGetStats() -> {[]} <0.31ms>
+11-16 04:27:49.537   561   598 V WindowManager: Sent Transition (#376) createdAt=11-16 04:27:49.513 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=116 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1099879 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{7771963 Task{d507ad7 #116 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 376 }
+11-16 04:27:49.537   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:49.537   561   598 V WindowManager:     info={id=376 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:49.537   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:49.537   561   598 V WindowManager:         {WCT{RemoteToken{7771963 Task{d507ad7 #116 type=standard A=10148:com.starcore.research.r13}}} m=CLOSE f=NONE leash=Surface(name=Task=116)/@0xbb0bd1d sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:49.537   561   598 V WindowManager:         {null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x41fcf6b sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}
+11-16 04:27:49.537   561   598 V WindowManager:     ]}
+11-16 04:27:49.538   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:49.538   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:49.544   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#376) android.os.BinderProxy@882f98b@0
+11-16 04:27:49.545  1386  1587 D EGL_emulation: app_time_stats: avg=5241.09ms min=136.47ms max=10345.72ms count=2
+11-16 04:27:49.547   561   598 V WindowManager: Finish Transition (#376): created at 11-16 04:27:49.513 collect-started=0.016ms request-sent=0.053ms started=1.478ms ready=2.793ms sent=18.525ms finished=32.184ms
+11-16 04:27:49.547   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:49.547   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:49.548   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:49.550   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:49.560  8504  8504 D VRI[ChartsActivityR83]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:49.565   561   695 I ImeTracker: com.android.launcher3:a88a3d67: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:49.566   561   695 I ImeTracker: com.android.launcher3:a88a3d67: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:49.570  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b3e654f in: STOPPED
+11-16 04:27:49.571  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@b3e654f in: DESTROYED
+11-16 04:27:49.571  8504  8504 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@c27f879
+11-16 04:27:49.571   561  1013 D CoreBackPreview: Window{299835c u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback null
+11-16 04:27:49.578   561  1013 W InputManager-JNI: Input channel object '299835c com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:49.582  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=116
+11-16 04:27:49.582  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=116
+11-16 04:27:49.621   561  1084 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_ORIENTATION_OVERRIDE
+11-16 04:27:49.621   561  1084 V GrammaticalInflectionUtils: AttributionSource: AttributionSource { uid = 10148, packageName = null, attributionTag = null, token = android.os.Binder@1980cd7, deviceId = 0, next = null } does not have READ_SYSTEM_GRAMMATICAL_GENDER permission.
+11-16 04:27:49.621   561  1084 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES
+11-16 04:27:49.621   561  1084 W OptProp : Cannot read opt property android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE
+11-16 04:27:49.627   561  1084 V SplashScreenExceptionList: SplashScreen checking exception for package com.starcore.research.r13 (target sdk:28) -> false
+11-16 04:27:49.627   561  1084 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} with LAUNCH_MULTIPLE from uid 10148 (BAL_ALLOW_PERMISSION) result code=0
+11-16 04:27:49.628   941  1041 D SplashScreenView: Build android.window.SplashScreenView{839985f V.E...... ......ID 0,0-0,0}
+11-16 04:27:49.628   941  1041 D SplashScreenView: Icon: view: null drawable: null size: 0
+11-16 04:27:49.628   941  1041 D SplashScreenView: Branding: view: android.view.View{56d02ac G.ED..... ......I. 0,0-0,0 #1020503 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-16 04:27:49.628   941   988 V WindowManagerShell: Transition requested (#377): android.os.BinderProxy@342bb75 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=117 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1110343 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@a05a70a} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{9095b7b com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 377 }
+11-16 04:27:49.628  1386  1386 W SplitSelectStateCtor: Missing session instanceIds
+11-16 04:27:49.628  1386  1386 D StatsLog: LAUNCHER_SPLIT_SELECTION_EXIT_INTERRUPTED
+11-16 04:27:49.631  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=117, baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 }
+11-16 04:27:49.631   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=false, height=110
+11-16 04:27:49.633  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@7b6243c in: PRE_ON_CREATE
+11-16 04:27:49.635  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@7b6243c in: CREATED
+11-16 04:27:49.636  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@7b6243c in: STARTED
+11-16 04:27:49.636  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@7b6243c in: RESUMED
+11-16 04:27:49.638   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:49.639   561  1013 D CoreBackPreview: Window{2ddae08 u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@3761387, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:49.640   561  1013 D CoreBackPreview: Window{9d9818f u0 Splash Screen com.starcore.research.r13}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4a3a2b4, mPriority=0, mIsAnimationCallback=false}
+11-16 04:27:49.646  8504  8557 E SQLiteLog: (1) no such table: r27_live_shadow in "SELECT s.policy_hash,s.base_policy,s.spec_json,s.status,COUNT(f.target_ordinal),SUM(CASE WHEN f.hit=1 THEN 1 ELSE 0 END),SUM(CASE WHEN f.act=1 THEN 1 ELSE 0 END),SUM(CASE WHE
+11-16 04:27:49.646  8504  8557 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908 in "SELECT g.genome_id,g.display_name_zh,g.status,COUNT(p.target_issue),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END),g.dev_n,g.dev_hit_rate FROM v57_algorithm_genome_
+11-16 04:27:49.646  8504  8557 E SQLiteLog: (1) no such table: v57_algorithm_predraw_r908 in "SELECT p.genome_id,COALESCE(g.display_name_zh,p.genome_id),COUNT(*),SUM(CASE WHEN p.hit_label=1 THEN 1 ELSE 0 END) FROM v57_algorithm_predraw_r908 p LEFT JOIN v57_
+11-16 04:27:49.647  8504  8557 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT e.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:49.647  8504  8557 E SQLiteLog: (1) no such table: v57_exploration_r83 in "SELECT o.target_issue,o.hit_label FROM v57_exploration_r83 e JOIN v57_shadow_observation_r35 o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND
+11-16 04:27:49.647  8504  8557 E SQLiteLog: (1) no such table: atomic_tool_context_r943 in "SELECT target_issue,network_probability,hit FROM atomic_tool_context_r943 WHERE hit>=0 AND network_probability>=0 AND network_probability<=1 ORDER BY target_issue DE
+11-16 04:27:49.654   561   598 V WindowManager: Sent Transition (#377) createdAt=11-16 04:27:49.621 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=117 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} topActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=1 lastActiveTime=1110343 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{ee3ec7f Task{451c533 #117 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{254944c com.ethk3.novaonepro.ChartsActivityR83} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=320 topActivityLetterboxHeight=640 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 377 }
+11-16 04:27:49.654   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:49.654   561   598 V WindowManager:     info={id=377 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:49.654   561   598 V WindowManager:         {WCT{RemoteToken{ee3ec7f Task{451c533 #117 type=standard A=10148:com.starcore.research.r13}}} m=OPEN f=NONE leash=Surface(name=Task=117)/@0xd9efbd9 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:49.654   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}
+11-16 04:27:49.654   561   598 V WindowManager:     ]}
+11-16 04:27:49.655   561  3536 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:49.657   941  1528 V WindowManagerShell: onTransitionReady(transaction=2409476665702)
+11-16 04:27:49.658   941   988 V WindowManagerShell: onTransitionReady (#377) android.os.BinderProxy@342bb75: {id=377 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@83a6be5} m=OPEN f=NONE leash=Surface(name=Task=117)/@0xb119dae sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@5dde6ba} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x71f574f sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:49.658   941   988 V WindowManagerShell: Playing animation for (#377) android.os.BinderProxy@342bb75@0
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:49.658   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:49.658   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=377 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@83a6be5} m=OPEN f=NONE leash=Surface(name=Task=117)/@0xb119dae sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@5dde6ba} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x71f574f sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:49.658   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:49.658   941   988 V WindowManagerShell:  Delegate animation for (#377) to null
+11-16 04:27:49.658   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:49.658   941   988 V WindowManagerShell: start default transition animation, info = {id=377 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@83a6be5} m=OPEN f=NONE leash=Surface(name=Task=117)/@0xb119dae sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@5dde6ba} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x71f574f sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1}]}
+11-16 04:27:49.659   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@9a4196b animAttr=0x13 type=OPEN isEntrance=false
+11-16 04:27:49.659   941   988 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@e5f9cc8 animAttr=0x12 type=OPEN isEntrance=true
+11-16 04:27:49.659   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@bc9adef
+11-16 04:27:49.662   561   598 W ziparchive: Unable to open '/data/app/~~FHKYWOwjIXrgqOAT6iByfg==/com.starcore.research.r13-qzD1Sw1wlErdYUByGWj-BA==/base.dm': No such file or directory
+11-16 04:27:49.662   561   598 I ActivityTaskManager: Displayed com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 for user 0: +41ms
+11-16 04:27:49.672   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#377) android.os.BinderProxy@342bb75@0
+11-16 04:27:49.676   561   598 V WindowManager: Finish Transition (#377): created at 11-16 04:27:49.621 collect-started=0.019ms request-sent=6.029ms started=9.724ms ready=9.717ms sent=32.37ms finished=54.044ms
+11-16 04:27:49.676   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:49.676   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:49.677   561  2873 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:49.680  1386  1386 D VRI[QuickstepLauncher]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:49.680   561  3536 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:49.683  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:49.683  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:49.683  1386  1386 D BaseDepthController: 	mSurface: null
+11-16 04:27:49.683  1386  1386 D BaseDepthController: mSurface is null and mCurrentBlur is: 0
+11-16 04:27:49.683  1386  1386 D StateManager: goToState - fromState: Normal, toState: Normal, partial trace:
+11-16 04:27:49.683  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:453)
+11-16 04:27:49.683  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StateManager.moveToRestState(StateManager.java:444)
+11-16 04:27:49.683  1386  1386 D StateManager: 	at com.android.launcher3.statemanager.StatefulActivity.onStop(StatefulActivity.java:119)
+11-16 04:27:49.683  1386  1386 D StatsLog: LAUNCHER_ONSTOP
+11-16 04:27:49.684   561  2873 I AppWidgetServiceImpl: setAppWidgetHidden() 0
+11-16 04:27:49.701   941  1040 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@4df29d6
+11-16 04:27:49.702   561  2873 D CoreBackPreview: Window{9d9818f u0 Splash Screen com.starcore.research.r13 EXITING}: Setting back callback null
+11-16 04:27:49.702   561  1013 W InputManager-JNI: Input channel object '9d9818f Splash Screen com.starcore.research.r13 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:49.710   561   695 I ImeTracker: com.starcore.research.r13:3ddf5167: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:49.710   561   695 I ImeTracker: com.starcore.research.r13:3ddf5167: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:49.733  1386  1386 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 356362, 0, CUJ=J<LAUNCHER_APP_CLOSE_TO_HOME_FALLBACK>
+11-16 04:27:49.733  1386  1386 W FrameTracker: Missing HWUI jank callback for vsyncId: 356362, CUJ=J<LAUNCHER_APP_CLOSE_TO_HOME_FALLBACK>
+11-16 04:27:50.077   561  2873 D WindowManager: captureDisplay
+11-16 04:27:50.428   561  2873 D WindowManager: captureDisplay
+11-16 04:27:50.792  8504  8529 D EGL_emulation: app_time_stats: avg=102.59ms min=7.59ms max=317.99ms count=11
+11-16 04:27:50.794   561  2873 D WindowManager: captureDisplay
+11-16 04:27:51.144   561  2873 D WindowManager: captureDisplay
+11-16 04:27:51.493   561  2873 D WindowManager: captureDisplay
+11-16 04:27:51.843  8504  8529 D EGL_emulation: app_time_stats: avg=175.03ms min=32.71ms max=317.63ms count=6
+11-16 04:27:51.844   561  2873 D WindowManager: captureDisplay
+11-16 04:27:52.195   561  2873 D WindowManager: captureDisplay
+11-16 04:27:52.544   561  2873 D WindowManager: captureDisplay
+11-16 04:27:52.893  8504  8529 D EGL_emulation: app_time_stats: avg=175.07ms min=32.10ms max=317.91ms count=6
+11-16 04:27:52.894   561  2873 D WindowManager: captureDisplay
+11-16 04:27:53.244   561  2873 D WindowManager: captureDisplay
+11-16 04:27:53.582   561  1873 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-16 04:27:53.593   561  2873 D WindowManager: captureDisplay
+11-16 04:27:53.942  8504  8529 D EGL_emulation: app_time_stats: avg=174.79ms min=32.57ms max=316.44ms count=6
+11-16 04:27:53.943   561  2873 D WindowManager: captureDisplay
+11-16 04:27:54.294   561  2873 D WindowManager: captureDisplay
+11-16 04:27:54.643   561  2873 D WindowManager: captureDisplay
+11-16 04:27:54.992  8504  8529 D EGL_emulation: app_time_stats: avg=174.99ms min=33.28ms max=316.91ms count=6
+11-16 04:27:54.993   561  2873 D WindowManager: captureDisplay
+11-16 04:27:55.344   561  2873 D WindowManager: captureDisplay
+11-16 04:27:55.694   561  2873 D WindowManager: captureDisplay
+11-16 04:27:56.043  8504  8529 D EGL_emulation: app_time_stats: avg=175.04ms min=32.83ms max=317.36ms count=6
+11-16 04:27:56.044   561  2873 D WindowManager: captureDisplay
+11-16 04:27:56.395   561  2873 D WindowManager: captureDisplay
+11-16 04:27:56.744   561  2873 D WindowManager: captureDisplay
+11-16 04:27:57.093  8504  8529 D EGL_emulation: app_time_stats: avg=174.98ms min=32.81ms max=317.56ms count=6
+11-16 04:27:57.094   561  2873 D WindowManager: captureDisplay
+11-16 04:27:57.445   561  2873 D WindowManager: captureDisplay
+11-16 04:27:57.464   941  1090 D EGL_emulation: app_time_stats: avg=57436.39ms min=57436.39ms max=57436.39ms count=1
+11-16 04:27:57.794   561  2873 D WindowManager: captureDisplay
+11-16 04:27:58.143  8504  8529 D EGL_emulation: app_time_stats: avg=175.05ms min=32.81ms max=318.22ms count=6
+11-16 04:27:58.144   561  2873 D WindowManager: captureDisplay
+11-16 04:27:58.494   561  2873 D WindowManager: captureDisplay
+11-16 04:27:58.844   561  2873 D WindowManager: captureDisplay
+11-16 04:27:59.193  8504  8529 D EGL_emulation: app_time_stats: avg=174.93ms min=33.45ms max=316.81ms count=6
+11-16 04:27:59.194   561  2873 D WindowManager: captureDisplay
+11-16 04:27:59.544   561  2873 D WindowManager: captureDisplay
+11-16 04:27:59.894   561  2873 D WindowManager: captureDisplay
+11-16 04:27:59.912   941   988 V WindowManagerShell: Transition requested (#378): android.os.BinderProxy@1ab3ce0 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=117 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1110346 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@7b55b99} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 378 }
+11-16 04:27:59.914  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@7b6243c in: PAUSED
+11-16 04:27:59.914  1386  1386 I TopTaskTracker: onTaskMovedToFront: (moved taskInfo to front) taskId=7, baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher }
+11-16 04:27:59.915  8504  8520 I System.out: R30_ANDROID_CHARTS|ACTUAL_ACTIVITY|29_REGISTERED_OBJECTS|FOUR_DISPLAY_SCENARIOS|116_SCREENSHOTS|SYNTHETIC_CACHES_RESTORED|NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE|PASS
+11-16 04:27:59.916   561  3536 I AppWidgetServiceImpl: startListening() 0
+11-16 04:27:59.916  1386  1386 D StatsLog: LAUNCHER_ONRESUME
+11-16 04:27:59.916   941   988 D WindowManagerShell: setLauncherKeepClearAreaHeight: visible=true, height=110
+11-16 04:27:59.917  8504  8520 I TestRunner: finished: allFourteenLegacyAndTwoSnapshotChartsOpenInThreeStatesAndSaveScreenshots(com.ethk3.novaonepro.R30ChartsAndroidTest)
+11-16 04:27:59.918  8504  8520 I MonitoringInstr: Unstopped activity count: 1
+11-16 04:27:59.922   430   430 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-16 04:27:59.926  1386  1386 D BaseDepthController: setSurface:
+11-16 04:27:59.926  1386  1386 D BaseDepthController: 	mWaitingOnSurfaceValidity: false
+11-16 04:27:59.926  1386  1386 D BaseDepthController: 	mSurface: Surface(name=com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher)/@0xb6679
+11-16 04:27:59.931   941  1088 V WindowManagerShell: onTransitionReady(transaction=2409476665727)
+11-16 04:27:59.932   941   988 V WindowManagerShell: onTransitionReady (#378) android.os.BinderProxy@1ab3ce0: {id=378 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@3dd726a} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb76ce5e sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@622335b} m=CLOSE f=NONE leash=Surface(name=Task=117)/@0xf2ab23f sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x337470c sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:59.932   941   988 V WindowManagerShell: Playing animation for (#378) android.os.BinderProxy@1ab3ce0@0
+11-16 04:27:59.932   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b0432f6
+11-16 04:27:59.932   941   988 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@894d6f7
+11-16 04:27:59.932   941   988 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@ae8f964
+11-16 04:27:59.932   941   988 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@886d7cd
+11-16 04:27:59.932   941   988 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@cb88882
+11-16 04:27:59.932   941   988 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-16 04:27:59.932   941   988 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@ab5eb93
+11-16 04:27:59.932   941   988 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:59.933   941   988 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=378 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@3dd726a} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xb76ce5e sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{WCT{android.window.IWindowContainerToken$Stub$Proxy@622335b} m=CLOSE f=NONE leash=Surface(name=Task=117)/@0xf2ab23f sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x337470c sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+11-16 04:27:59.933   941   988 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:59.933   941   988 D RemoteTransitionHandler: Found filterPair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.uioverrides.QuickstepLauncher} launchCookie=null},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null launchCookie=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }}
+11-16 04:27:59.933   941   988 V WindowManagerShell:  Delegate animation for (#378) to RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@13623c9, appThread = android.app.IApplicationThread$Stub$Proxy@96aaace, debugName = QuickstepLaunchHome }
+11-16 04:27:59.935   561   598 V WindowManager: Sent Transition (#378) createdAt=11-16 04:27:59.912 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=117 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83} numActivities=0 lastActiveTime=1110346 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{ee3ec7f Task{451c533 #117 type=standard A=10148:com.starcore.research.r13}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= falseisLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false topActivityEligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false cameraCompatTaskInfo=CameraCompatTaskInfo { cameraCompatControlState=hidden freeformCameraCompatMode=inactive}}}, pipTask = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 378 }
+11-16 04:27:59.935   561   598 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-16 04:27:59.935   561   598 V WindowManager:     info={id=378 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[
+11-16 04:27:59.935   561   598 V WindowManager:         {WCT{RemoteToken{e9d345a Task{de9f1a7 #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x95730d6 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:59.935   561   598 V WindowManager:         {WCT{RemoteToken{ee3ec7f Task{451c533 #117 type=standard A=10148:com.starcore.research.r13}}} m=CLOSE f=NONE leash=Surface(name=Task=117)/@0xd9efbd9 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0 taskParent=-1},
+11-16 04:27:59.935   561   598 V WindowManager:         {null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{290d41a token=android.os.Binder@51932c5})/@0x41fcf6b sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}
+11-16 04:27:59.935   561   598 V WindowManager:     ]}
+11-16 04:27:59.936  1386  1386 D StateManager: createAtomicAnimation - fromState: Background, toState: Normal, partial trace:
+11-16 04:27:59.936  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.prepareToAnimate(WorkspaceRevealAnim.java:130)
+11-16 04:27:59.936  1386  1386 D StateManager: 	at com.android.quickstep.util.WorkspaceRevealAnim.<init>(WorkspaceRevealAnim.java:66)
+11-16 04:27:59.936  1386  1386 D StateManager: 	at com.android.launcher3.QuickstepTransitionManager.createWallpaperOpenAnimations(QuickstepTransitionManager.java:1716)
+11-16 04:27:59.937   941   988 V WindowManagerShell:  animated by com.android.wm.shell.transition.RemoteTransitionHandler@3ee47d0
+11-16 04:27:59.937   561  1013 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:59.942   366   366 I netd    : tetherGetStats() -> {[]} <0.40ms>
+11-16 04:27:59.943   941   988 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#378) android.os.BinderProxy@1ab3ce0@0
+11-16 04:27:59.944   561   598 V WindowManager: Finish Transition (#378): created at 11-16 04:27:59.912 collect-started=0.014ms request-sent=0.055ms started=1.368ms ready=2.58ms sent=19.172ms finished=31.402ms
+11-16 04:27:59.944   941   988 V WindowManagerShell: Track 0 became idle
+11-16 04:27:59.944   941   988 V WindowManagerShell: All active transition animations finished
+11-16 04:27:59.944  1386  1587 D EGL_emulation: app_time_stats: avg=5199.67ms min=134.09ms max=10265.25ms count=2
+11-16 04:27:59.945   561  1013 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:59.945   561  1084 W UserManagerService: Requested status bar icon for non-badged user 0
+11-16 04:27:59.957  8504  8504 D VRI[ChartsActivityR83]: visibilityChanged oldVisibility=true newVisibility=false
+11-16 04:27:59.961   561   695 I ImeTracker: com.android.launcher3:e370c99f: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+11-16 04:27:59.962   561   695 I ImeTracker: com.android.launcher3:e370c99f: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-16 04:27:59.964  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@7b6243c in: STOPPED
+11-16 04:27:59.965  8504  8504 D LifecycleMonitor: Lifecycle status change: com.ethk3.novaonepro.ChartsActivityR83@7b6243c in: DESTROYED
+11-16 04:27:59.965  8504  8504 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=false callback=android.view.ViewRootImpl$$ExternalSyntheticLambda11@302fa3d
+11-16 04:27:59.965   561  1084 D CoreBackPreview: Window{2ddae08 u0 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83}: Setting back callback null
+11-16 04:27:59.966   561  1084 W InputManager-JNI: Input channel object '2ddae08 com.starcore.research.r13/com.ethk3.novaonepro.ChartsActivityR83 (client)' was disposed without first being removed with the input manager!
+11-16 04:27:59.968  8504  8520 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-16 04:27:59.971   561  1084 W MagnificationConnectionManager: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-16 04:27:59.971   561  1084 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-16 04:27:59.971   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.971   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.971   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.973  8493  8493 I app_process: System.exit called, status: 0
+11-16 04:27:59.973  8493  8493 I AndroidRuntime: VM exiting with result code 0.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:27:59.975   561   561 D BatterySaverPolicy: accessibility changed to false, updating policy.
+11-16 04:27:59.975   561  1084 I ActivityManager: Force stopping com.starcore.research.r13 appid=10148 user=0: finished inst
+11-16 04:27:59.976  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=117
+11-16 04:27:59.976  1386  1386 I TopTaskTracker: onTaskRemoved: taskId=117
+11-16 04:27:59.977   430   521 W IPCThreadState: Sending oneway calls to frozen process.
+11-16 04:28:00.108     0     0 I binder  : 561:1084 ioctl 400c620e 724cfa7b2354 returned -11
+11-16 04:28:00.109     0     0 I binder  : 561:1084 ioctl 400c620e 724cfa7b2354 returned -11
+11-16 04:27:59.982   561  1084 E ActivityManager: Unable to freeze binder for 8504: -11
+11-16 04:27:59.984   561  1084 I ActivityManager: Killing 8504:com.starcore.research.r13/u0a148 (adj 0): stop com.starcore.research.r13 due to finished inst
+11-16 04:27:59.984   561   599 D DisplayManagerService: Drop pending events for gone uid 10148
+11-16 04:27:59.985   561   858 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 04:27:59.985   561   858 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 04:27:59.985   561   858 D InetDiagMessage: Destroyed live tcp sockets for uids={10148} in 1ms
+11-16 04:27:59.985   561   858 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+11-16 04:27:59.985   561   858 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+11-16 04:27:59.985   561   858 D InetDiagMessage: Destroyed live tcp sockets for uids={20148} in 0ms
+11-16 04:27:59.998  3878  3878 I adbd    : Remote process closed the socket (on MSG_PEEK)
+11-16 04:27:59.998   561   612 I libprocessgroup: Removed cgroup /sys/fs/cgroup/uid_10148/pid_8504
+11-16 04:28:00.129     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-16 04:28:00.130     0     0 I binder  : undelivered transaction 463786, process died.
+11-16 04:28:00.000   561  1084 V ActivityManager: Got obituary of 8504:com.starcore.research.r13
+11-16 04:28:00.000   367   367 I Zygote  : Process 8504 exited due to signal 9 (Killed)
+11-16 04:28:00.001   561   601 W ActivityManager: setHasOverlayUi called on unknown pid: 8504
+11-16 04:28:00.005   430   430 E BpTransactionCompletedListener: Failed to transact (-32)

@@ -657,10 +657,11 @@
     "wholeClauseProved": false,
     "requiredOriginalObservation": "Android全链故障注入矩阵（API29/35）。",
     "currentSpecificRemaining": [
-      "Review the complete original clause against assertion-level Android receipts; a group PASS does not sign this ID."
+      "Exact original Android scenario and same-database combination gaps are individually enumerated in ANDROID_ORIGINAL_F01_F10_PER_CELL_LEDGER.json."
     ],
-    "supportingEvidence": "android/android35-first/research-fault-matrix/research-fault-matrix.json",
-    "assertionScopeReview": "Original fourteen and research twelve actual fault cells pass on API29 and35. Original named delivery failure and exact seven-test retry remain separate; full API35 retry still tracked."
+    "supportingEvidence": "android/android35-full-retry-pass/joint/JOINT-ANDROID-RECEIPT.json",
+    "assertionScopeReview": "Complete original API35 sequence now passed as well as the original selected seven. API29 and35 original fourteen +research twelve actual fault cells passed. The original external protocol additionally requires a per-cell F01-F10 manifest ledger; any unhit combination remains UNSIGNED, never inferred from runner exit zero.",
+    "perCellLedger": "ANDROID_ORIGINAL_F01_F10_PER_CELL_LEDGER.json"
   },
   {
     "id": "R31-B12-C05#A1b",

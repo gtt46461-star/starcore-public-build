@@ -1,0 +1,640 @@
+{
+  "originalManifestPath": "tools/r31/fault_injection_manifest.json",
+  "originalManifestSha256": "e1f120c36e14d2521dd8648fd175edcfe9bcf8eb6400ffd32220c06d0a1477e5",
+  "originalManifestUnmodified": true,
+  "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+  "actualOriginalMatrixRunners": "PASS_API29_AND_API35",
+  "wholeOriginalExternalClause": "NOT_SIGNED",
+  "originalAcceptanceId": "R31-B12-C02#A3b",
+  "scenarios": [
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F01_LOCK_CONTENTION",
+        "fault": "two owners on two connections commit concurrently through the sole writer",
+        "injection": "R31FullChainFaultHost.contention: 2 threads x 24 owned commits; SQLite busy_timeout; DatabaseCoordinator static writer lock",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_write_protocol_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "65f43539362bc0af49db3c10fc3eb07f030f9e09384d745c0c3f1947a137b3e6"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Exact two-owner x24 sole-writer injection and the original four cross-batch combinations on one Android DB are not individually proved by a named group receipt."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F02_PROCESS_DEATH",
+        "fault": "JVM halt (no finally, no commit) immediately before a native COMMIT / at every upgrade cut point",
+        "injection": "R31FullChainFaultHost child JVM halts before commit k in {1,3,6,10,14,18,22}; upgrade_matrix halts at every durable cut point",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT",
+          "NO_DUPLICATE_SETTLEMENT",
+          "NO_PROTECTED_ASSET_DELETION",
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_upgrade_matrix_host",
+          "HOST:run_evolution_publication_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/upgrade/EMU-UPGRADE-RECEIPT.json",
+          "sha256": "67d0858702a2b3871fe3962efe624755eb687f5cbd5ec6a89d19fdbb23463d02"
+        },
+        {
+          "path": "android/android29-pass/original-fault-matrix/foreground-kill_freeze-kill-point.txt",
+          "sha256": "e6183564ff67bbe21ccca2da8061452383e9906721682e84dd14a76fdee7ec97"
+        },
+        {
+          "path": "android/android29-pass/original-fault-matrix/foreground-kill_settlement-kill-point.txt",
+          "sha256": "f25f347eb3921f216654d8dc3c3e747ef0e202ff3047961d6d8cc71ff476513b"
+        },
+        {
+          "path": "android/android29-pass/research-fault-matrix/analysis-KILL-kill-point.txt",
+          "sha256": "0d4432215747787cfc5cf74d96b44398a07240dfcf47ff6413ccfd46e808fcd6"
+        },
+        {
+          "path": "android/android29-pass/research-fault-matrix/consume-KILL-kill-point.txt",
+          "sha256": "bd5739f6079c2a6f06c707c69ce8db761e7c40c703b52216e536541ba5616531"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual Android process deaths are proved, but all original host durable cut points k={1,3,6,10,14,18,22} and uninterrupted full-chain equivalence are not individually mapped on Android."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F03_STALE_FENCE",
+        "fault": "an owner superseded by the production fenced retry keeps running",
+        "injection": "R31FullChainFaultHost.staleLateCommit: ResearchPoolR27.retry then requireFence with the old claim",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_task_runtime_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "65f43539362bc0af49db3c10fc3eb07f030f9e09384d745c0c3f1947a137b3e6"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual owner-fence group passed; exact combined same-DB original F03 invariant ledger is not directly mapped."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F04_DISK_FULL",
+        "fault": "SQLITE_FULL at commit / usable space below the upgrade floor",
+        "injection": "GC commit throws 'database or disk is full' before COMMIT; upgrade DiskProbe returns 1 byte",
+        "invariants": [
+          "NO_PROTECTED_ASSET_DELETION",
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_upgrade_matrix_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/original-fault-matrix/matrix.json",
+          "sha256": "330d37dbe6e89b0531c9624f2fb6f9b1d28a7bb63b683f28a84caaa24180f5b4"
+        },
+        {
+          "path": "android/android29-pass/research-fault-matrix/research-fault-matrix.json",
+          "sha256": "96191903eb1caf49341a84e74317d3cb31e7f204a257e892f6a98839002ad512"
+        },
+        {
+          "path": "android/android29-pass/joint/storage-diagnostic-process.txt",
+          "sha256": "22efde3becbe5e90dd87fbf87e6ba903e510672741b044a2e351fe54f2d6ea0e"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual SQLite FULL cells passed. Exact original upgrade DiskProbe floor and all protected-asset combination equivalence need separate Android per-cell proof."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F05_OUT_OF_ORDER",
+        "fault": "later draws arrive before earlier ones; settlement re-entered",
+        "injection": "R31FullChainFaultHost.settlement: targets 4,3 then 1,2; injected failed settlement commit; two extra passes",
+        "invariants": [
+          "NO_DUPLICATE_SETTLEMENT",
+          "NO_OUT_OF_RANGE_PREDICTION"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "65f43539362bc0af49db3c10fc3eb07f030f9e09384d745c0c3f1947a137b3e6"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Exact original later draws4,3 then1,2 +failed settlement commit +two extra passes are not directly mapped to Android output."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F06_CLOCK_JUMP",
+        "fault": "24h wall/elapsed clock jump while tasks are quarantined",
+        "injection": "R31TaskRuntimeHost.clockJumpReleasesOnePerSecond",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_task_runtime_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/original-fault-matrix/foreground-clock_rollback-os-rollback.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "android/android29-pass/original-fault-matrix/background-clock_rollback-os-rollback.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual Android OS clock rollback cells are retained; they do not prove the original exact24h jump while quarantined scenario."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F07_CHART_TIMEOUT",
+        "fault": "one chart panel times out or fails while the page loads",
+        "injection": "R31ChartRegistryTest: one blocked panel exceeds its budget while the others load in budget; R31ChartPageHost: oversized/broken/wrong-ABI frames and a draw-input read failure stay isolated to their panel",
+        "invariants": [
+          "NO_PROTECTED_ASSET_DELETION"
+        ],
+        "executed_by": [
+          "com.ethk3.novaonepro.R31ChartRegistryTest#oneBlockedOrMalformedPanelLeavesTheOthersInBudget",
+          "HOST:r30repair_chart_page"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/original-regression/repair-chart-acceptance.json",
+          "sha256": "0138d40ae33442c97fc81de0185c956d60427cbffd553f1326bb12debc28f1f5"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual188 chart frames exist; no exact Android blocked-SQL timeout-per-panel budget scenario is inferred from rendering success."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F08_TRAINING_RESUME",
+        "fault": "training/evolution interrupted mid-slice and resumed",
+        "injection": "verify_memory resume mode; verify_continuation slice kill/resume",
+        "invariants": [
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:verify_memory",
+          "HOST:verify_continuation"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/joint/family-continuation.txt",
+          "sha256": "c9feae7baa470832a0ac28c0be406e2a68715155b2413ed11496c55549d8c30c"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Android continuation group passed; exact interrupted numerical training/evolution golden-state equivalence is not inferred from it."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F09_LATE_COMMIT",
+        "fault": "a commit prepared under an old fence arrives after takeover",
+        "injection": "R31FullChainFaultHost.staleLateCommit late INSERT with the superseded claim",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_writer_hold_fault_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "65f43539362bc0af49db3c10fc3eb07f030f9e09384d745c0c3f1947a137b3e6"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Owner-fence protocol passed; exact original stale prepared INSERT in the same cross-batch Android DB is not individually mapped."
+    },
+    {
+      "api": 29,
+      "originalScenario": {
+        "id": "F10_DUPLICATE_CONSUME",
+        "fault": "a research result is consumed again after a restart; a late label arrives",
+        "injection": "R31FullChainFaultHost.productConsumption two rounds plus every kill/resume",
+        "invariants": [
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "com.ethk3.novaonepro.strategyv2.R31ResearchResultContractTest#lateLabelsWrongAbiRevisionParentAndRepeatedConsumptionAreRefused"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android29-pass/research-fault-matrix/research-fault-matrix.json",
+          "sha256": "96191903eb1caf49341a84e74317d3cb31e7f204a257e892f6a98839002ad512"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual consume death/reopen and source-change cells passed; the original combined two-round +every-kill same-DB consumer equivalence needs an exact per-cell mapping."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F01_LOCK_CONTENTION",
+        "fault": "two owners on two connections commit concurrently through the sole writer",
+        "injection": "R31FullChainFaultHost.contention: 2 threads x 24 owned commits; SQLite busy_timeout; DatabaseCoordinator static writer lock",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_write_protocol_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "21eafa2ff2e13c55c4ec3c5c994cbeb40da06298b75d6896248c96656b61a81a"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Exact two-owner x24 sole-writer injection and the original four cross-batch combinations on one Android DB are not individually proved by a named group receipt."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F02_PROCESS_DEATH",
+        "fault": "JVM halt (no finally, no commit) immediately before a native COMMIT / at every upgrade cut point",
+        "injection": "R31FullChainFaultHost child JVM halts before commit k in {1,3,6,10,14,18,22}; upgrade_matrix halts at every durable cut point",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT",
+          "NO_DUPLICATE_SETTLEMENT",
+          "NO_PROTECTED_ASSET_DELETION",
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_upgrade_matrix_host",
+          "HOST:run_evolution_publication_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/upgrade/EMU-UPGRADE-RECEIPT.json",
+          "sha256": "cf9d7b66f1f1bdb580813bfa9c64845f2c58f3436b2d3534a4b7c54c7250efc6"
+        },
+        {
+          "path": "android/android35-full-retry-pass/original-fault-matrix/foreground-kill_freeze-kill-point.txt",
+          "sha256": "060d2170707a68079c0e4911a3ffddc11f88b8f7eba698a6411f47468945c81b"
+        },
+        {
+          "path": "android/android35-full-retry-pass/original-fault-matrix/foreground-kill_settlement-kill-point.txt",
+          "sha256": "eef5b4598812193be516266cd4b6e80e2db0fb3e4a7a3088d46900dac204535a"
+        },
+        {
+          "path": "android/android35-full-retry-pass/research-fault-matrix/analysis-KILL-kill-point.txt",
+          "sha256": "c192c06b9166d6d9233f28376a3a49b52cca8f17c89c5acb61a4fe8fa6fbe517"
+        },
+        {
+          "path": "android/android35-full-retry-pass/research-fault-matrix/consume-KILL-kill-point.txt",
+          "sha256": "85d6508dfa57ed82a762334493a18f912b3949c454f42852680431ad3a376231"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual Android process deaths are proved, but all original host durable cut points k={1,3,6,10,14,18,22} and uninterrupted full-chain equivalence are not individually mapped on Android."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F03_STALE_FENCE",
+        "fault": "an owner superseded by the production fenced retry keeps running",
+        "injection": "R31FullChainFaultHost.staleLateCommit: ResearchPoolR27.retry then requireFence with the old claim",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_task_runtime_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "21eafa2ff2e13c55c4ec3c5c994cbeb40da06298b75d6896248c96656b61a81a"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual owner-fence group passed; exact combined same-DB original F03 invariant ledger is not directly mapped."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F04_DISK_FULL",
+        "fault": "SQLITE_FULL at commit / usable space below the upgrade floor",
+        "injection": "GC commit throws 'database or disk is full' before COMMIT; upgrade DiskProbe returns 1 byte",
+        "invariants": [
+          "NO_PROTECTED_ASSET_DELETION",
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_upgrade_matrix_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/original-fault-matrix/matrix.json",
+          "sha256": "330d37dbe6e89b0531c9624f2fb6f9b1d28a7bb63b683f28a84caaa24180f5b4"
+        },
+        {
+          "path": "android/android35-full-retry-pass/research-fault-matrix/research-fault-matrix.json",
+          "sha256": "dfccf315966f50c76c0d08e7acab0769510a172f83583d34fc8738adb148377d"
+        },
+        {
+          "path": "android/android35-full-retry-pass/joint/storage-diagnostic-process.txt",
+          "sha256": "78d294de86f4efbe504bd4302de4759d6ee874382a80047a0fce9dd22cd4f388"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual SQLite FULL cells passed. Exact original upgrade DiskProbe floor and all protected-asset combination equivalence need separate Android per-cell proof."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F05_OUT_OF_ORDER",
+        "fault": "later draws arrive before earlier ones; settlement re-entered",
+        "injection": "R31FullChainFaultHost.settlement: targets 4,3 then 1,2; injected failed settlement commit; two extra passes",
+        "invariants": [
+          "NO_DUPLICATE_SETTLEMENT",
+          "NO_OUT_OF_RANGE_PREDICTION"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "21eafa2ff2e13c55c4ec3c5c994cbeb40da06298b75d6896248c96656b61a81a"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Exact original later draws4,3 then1,2 +failed settlement commit +two extra passes are not directly mapped to Android output."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F06_CLOCK_JUMP",
+        "fault": "24h wall/elapsed clock jump while tasks are quarantined",
+        "injection": "R31TaskRuntimeHost.clockJumpReleasesOnePerSecond",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_task_runtime_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/original-fault-matrix/foreground-clock_rollback-os-rollback.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "android/android35-full-retry-pass/original-fault-matrix/background-clock_rollback-os-rollback.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual Android OS clock rollback cells are retained; they do not prove the original exact24h jump while quarantined scenario."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F07_CHART_TIMEOUT",
+        "fault": "one chart panel times out or fails while the page loads",
+        "injection": "R31ChartRegistryTest: one blocked panel exceeds its budget while the others load in budget; R31ChartPageHost: oversized/broken/wrong-ABI frames and a draw-input read failure stay isolated to their panel",
+        "invariants": [
+          "NO_PROTECTED_ASSET_DELETION"
+        ],
+        "executed_by": [
+          "com.ethk3.novaonepro.R31ChartRegistryTest#oneBlockedOrMalformedPanelLeavesTheOthersInBudget",
+          "HOST:r30repair_chart_page"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/original-regression/repair-chart-acceptance.json",
+          "sha256": "8b7d8cd33f9e173e4452237d0ec40b11def47145188d3bb42d04d0b42c9b9da8"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual188 chart frames exist; no exact Android blocked-SQL timeout-per-panel budget scenario is inferred from rendering success."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F08_TRAINING_RESUME",
+        "fault": "training/evolution interrupted mid-slice and resumed",
+        "injection": "verify_memory resume mode; verify_continuation slice kill/resume",
+        "invariants": [
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:verify_memory",
+          "HOST:verify_continuation"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "UNREACHED_EXACT_ORIGINAL_ANDROID_SCENARIO",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/joint/family-continuation.txt",
+          "sha256": "b6f697a437597ea538c2f13bc4689fd2077232146916727f604d7d5d610e9cb5"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Android continuation group passed; exact interrupted numerical training/evolution golden-state equivalence is not inferred from it."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F09_LATE_COMMIT",
+        "fault": "a commit prepared under an old fence arrives after takeover",
+        "injection": "R31FullChainFaultHost.staleLateCommit late INSERT with the superseded claim",
+        "invariants": [
+          "NO_DUPLICATE_OWNER_COMMIT"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "HOST:run_writer_hold_fault_host"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/joint/original-runtime-storage-owner.txt",
+          "sha256": "21eafa2ff2e13c55c4ec3c5c994cbeb40da06298b75d6896248c96656b61a81a"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Owner-fence protocol passed; exact original stale prepared INSERT in the same cross-batch Android DB is not individually mapped."
+    },
+    {
+      "api": 35,
+      "originalScenario": {
+        "id": "F10_DUPLICATE_CONSUME",
+        "fault": "a research result is consumed again after a restart; a late label arrives",
+        "injection": "R31FullChainFaultHost.productConsumption two rounds plus every kill/resume",
+        "invariants": [
+          "RESUME_EQUALS_UNINTERRUPTED"
+        ],
+        "executed_by": [
+          "HOST:run_full_chain_fault_host",
+          "com.ethk3.novaonepro.strategyv2.R31ResearchResultContractTest#lateLabelsWrongAbiRevisionParentAndRepeatedConsumptionAreRefused"
+        ],
+        "android": "NOT_RUN"
+      },
+      "currentStatus": "ACTUAL_PARTIAL_ANDROID_MECHANICS_EXACT_COMBINED_SCENARIO_NOT_SIGNED",
+      "supportingActualEvidence": [
+        {
+          "path": "android/android35-full-retry-pass/research-fault-matrix/research-fault-matrix.json",
+          "sha256": "dfccf315966f50c76c0d08e7acab0769510a172f83583d34fc8738adb148377d"
+        }
+      ],
+      "wholeOriginalScenarioAccepted": false,
+      "specificRemaining": "Actual consume death/reopen and source-change cells passed; the original combined two-round +every-kill same-DB consumer equivalence needs an exact per-cell mapping."
+    }
+  ],
+  "crossBatchCombinations": [
+    {
+      "api": 29,
+      "originalCombination": "B01+B02",
+      "originalRequirement": "owner claim/fence + immutable write protocol (F01, F03, F09)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 29,
+      "originalCombination": "B03+feedback",
+      "originalRequirement": "settlement with out-of-order draws and failed commit (F05, F02)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 29,
+      "originalCombination": "B05+B10",
+      "originalRequirement": "DISPLAY-only GC + persistent mainline choice (F04)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 29,
+      "originalCombination": "B08+B09",
+      "originalRequirement": "research product + consumer (F10)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 29,
+      "originalCombination": "shared",
+      "originalRequirement": "all four run on one database file and one source commit in R31FullChainFaultHost; the process-death cases reopen that same file",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 35,
+      "originalCombination": "B01+B02",
+      "originalRequirement": "owner claim/fence + immutable write protocol (F01, F03, F09)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 35,
+      "originalCombination": "B03+feedback",
+      "originalRequirement": "settlement with out-of-order draws and failed commit (F05, F02)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 35,
+      "originalCombination": "B05+B10",
+      "originalRequirement": "DISPLAY-only GC + persistent mainline choice (F04)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 35,
+      "originalCombination": "B08+B09",
+      "originalRequirement": "research product + consumer (F10)",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    },
+    {
+      "api": 35,
+      "originalCombination": "shared",
+      "originalRequirement": "all four run on one database file and one source commit in R31FullChainFaultHost; the process-death cases reopen that same file",
+      "currentStatus": "UNREACHED_EXACT_SAME_DATABASE_COMBINATION_NOT_INFERRED_FROM_SEPARATE_GROUPS"
+    }
+  ],
+  "hostFullChain": "PASS_525_CHECKS_WITH_ORIGINAL_FIXTURE_AND_REAL_JVM_HALTS",
+  "hostIsNotAndroid": true,
+  "physicalOrNaturalAcceptance": false
+}

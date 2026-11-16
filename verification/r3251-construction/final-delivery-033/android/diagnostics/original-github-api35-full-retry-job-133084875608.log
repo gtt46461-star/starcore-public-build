@@ -1,0 +1,724 @@
+﻿2026-11-16T04:08:14.1915125Z Current runner version: '2.338.2'
+2026-11-16T04:08:14.1936339Z ##[group]Runner Image Provisioner
+2026-11-16T04:08:14.1937082Z Hosted Compute Agent
+2026-11-16T04:08:14.1937583Z Version: 20261103.629
+2026-11-16T04:08:14.1938268Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-16T04:08:14.1938919Z Build Date: 2026-11-03T17:26:59Z
+2026-11-16T04:08:14.1939541Z Worker ID: {ff67ed93-ad8f-4dab-9ce8-93c5925eb94b}
+2026-11-16T04:08:14.1940440Z Region: westus2
+2026-11-16T04:08:14.1940913Z Cloud: Azure
+2026-11-16T04:08:14.1941350Z ##[endgroup]
+2026-11-16T04:08:14.1942713Z ##[group]Operating System
+2026-11-16T04:08:14.1943267Z Ubuntu
+2026-11-16T04:08:14.1943678Z 26.04.1
+2026-11-16T04:08:14.1944151Z LTS
+2026-11-16T04:08:14.1944573Z ##[endgroup]
+2026-11-16T04:08:14.1945040Z ##[group]Runner Image
+2026-11-16T04:08:14.1945597Z Image: ubuntu-26.04
+2026-11-16T04:08:14.1946040Z Version: 20261111.196.1
+2026-11-16T04:08:14.1947097Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261111.196/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-16T04:08:14.1948546Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261111.196
+2026-11-16T04:08:14.1949341Z ##[endgroup]
+2026-11-16T04:08:14.1950349Z ##[group]GITHUB_TOKEN Permissions
+2026-11-16T04:08:14.1952130Z Actions: read
+2026-11-16T04:08:14.1952606Z Contents: read
+2026-11-16T04:08:14.1953176Z Metadata: read
+2026-11-16T04:08:14.1953627Z ##[endgroup]
+2026-11-16T04:08:14.1955368Z Secret source: Actions
+2026-11-16T04:08:14.1956147Z Cache mode: write
+2026-11-16T04:08:14.1956730Z Prepare workflow directory
+2026-11-16T04:08:14.2372136Z Prepare all required actions
+2026-11-16T04:08:14.2411493Z Getting action download info
+2026-11-16T04:08:14.5909771Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-16T04:08:14.6940386Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-11-16T04:08:15.0234387Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-16T04:08:15.1088277Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-16T04:08:15.3542905Z Download action repository 'reactivecircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-11-16T04:08:15.5954115Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-16T04:08:15.9015292Z Uses: gtt46461-star/starcore-public-build/.github/workflows/r3251-construction.yml@bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:15.9020485Z ##[group] Inputs
+2026-11-16T04:08:15.9021440Z   source: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:15.9022552Z ##[endgroup]
+2026-11-16T04:08:15.9023474Z Complete job name: exact_source / instrumentation (35)
+2026-11-16T04:08:15.9875611Z ##[group]Run actions/checkout@v4
+2026-11-16T04:08:15.9876700Z with:
+2026-11-16T04:08:15.9877459Z   ref: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:15.9878701Z   persist-credentials: false
+2026-11-16T04:08:15.9879641Z   repository: gtt46461-star/starcore-public-build
+2026-11-16T04:08:15.9887228Z   token: ***
+2026-11-16T04:08:15.9887936Z   ssh-strict: true
+2026-11-16T04:08:15.9888746Z   ssh-user: git
+2026-11-16T04:08:15.9889442Z   clean: true
+2026-11-16T04:08:15.9890169Z   sparse-checkout-cone-mode: true
+2026-11-16T04:08:15.9891005Z   fetch-depth: 1
+2026-11-16T04:08:15.9891705Z   fetch-tags: false
+2026-11-16T04:08:15.9892417Z   show-progress: true
+2026-11-16T04:08:15.9893138Z   lfs: false
+2026-11-16T04:08:15.9893806Z   submodules: false
+2026-11-16T04:08:15.9894519Z   set-safe-directory: true
+2026-11-16T04:08:15.9895333Z   allow-unsafe-pr-checkout: false
+2026-11-16T04:08:15.9896368Z env:
+2026-11-16T04:08:15.9897215Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:15.9898392Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:08:15.9899296Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:08:15.9900316Z ##[endgroup]
+2026-11-16T04:08:16.3373727Z Syncing repository: gtt46461-star/starcore-public-build
+2026-11-16T04:08:16.3376772Z ##[group]Getting Git version info
+2026-11-16T04:08:16.3378829Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-11-16T04:08:16.3381157Z [command]/usr/bin/git version
+2026-11-16T04:08:16.3396062Z git version 2.56.1
+2026-11-16T04:08:16.3413192Z ##[endgroup]
+2026-11-16T04:08:16.3426548Z Temporarily overriding HOME='/home/runner/work/_temp/eed6c361-612b-45d2-b821-ff676e7f780d' before making global git config changes
+2026-11-16T04:08:16.3430133Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-16T04:08:16.3433286Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-16T04:08:16.3489060Z Deleting the contents of '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-11-16T04:08:16.3492303Z ##[group]Initializing the repository
+2026-11-16T04:08:16.3494701Z [command]/usr/bin/git init /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-16T04:08:16.4602275Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-16T04:08:16.4604289Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-16T04:08:16.4606132Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-16T04:08:16.4607730Z hint: call:
+2026-11-16T04:08:16.4608788Z hint:
+2026-11-16T04:08:16.4609872Z hint: 	git config --global init.defaultBranch <name>
+2026-11-16T04:08:16.4611293Z hint:
+2026-11-16T04:08:16.4612455Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-16T04:08:16.4614142Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-16T04:08:16.4615592Z hint:
+2026-11-16T04:08:16.4616503Z hint: 	git branch -m <name>
+2026-11-16T04:08:16.4617510Z hint:
+2026-11-16T04:08:16.4619036Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-16T04:08:16.4643131Z Initialized empty Git repository in /home/runner/work/starcore-public-build/starcore-public-build/.git/
+2026-11-16T04:08:16.4654614Z [command]/usr/bin/git remote add origin https://github.com/gtt46461-star/starcore-public-build
+2026-11-16T04:08:16.6399608Z ##[endgroup]
+2026-11-16T04:08:16.6400975Z ##[group]Disabling automatic garbage collection
+2026-11-16T04:08:16.6402493Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-16T04:08:16.6435376Z ##[endgroup]
+2026-11-16T04:08:16.6436616Z ##[group]Setting up auth
+2026-11-16T04:08:16.6440965Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-16T04:08:16.6471084Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-16T04:08:16.7344926Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-16T04:08:16.7379352Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-16T04:08:16.7613535Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-16T04:08:16.7642899Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-16T04:08:16.7872388Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-16T04:08:16.7935262Z ##[endgroup]
+2026-11-16T04:08:16.7936981Z ##[group]Fetching the repository
+2026-11-16T04:08:16.7942962Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:27.3801478Z From https://github.com/gtt46461-star/starcore-public-build
+2026-11-16T04:08:27.3802672Z  * branch              bb7b49bbcc9266bad548ec37e71403256fc06a4d -> FETCH_HEAD
+2026-11-16T04:08:27.3805838Z ##[endgroup]
+2026-11-16T04:08:27.3806472Z ##[group]Determining the checkout info
+2026-11-16T04:08:27.3809076Z ##[endgroup]
+2026-11-16T04:08:27.3815339Z [command]/usr/bin/git sparse-checkout disable
+2026-11-16T04:08:27.3860859Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-16T04:08:27.3887733Z ##[group]Checking out the ref
+2026-11-16T04:08:27.3890478Z [command]/usr/bin/git checkout --progress --force bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:28.4169154Z Updating files:  13% (3597/26392)
+2026-11-16T04:08:28.4835549Z Updating files:  14% (3695/26392)
+2026-11-16T04:08:28.4962900Z Updating files:  15% (3959/26392)
+2026-11-16T04:08:28.5257747Z Updating files:  16% (4223/26392)
+2026-11-16T04:08:28.5411534Z Updating files:  17% (4487/26392)
+2026-11-16T04:08:28.5570739Z Updating files:  18% (4751/26392)
+2026-11-16T04:08:28.5770964Z Updating files:  19% (5015/26392)
+2026-11-16T04:08:28.5862577Z Updating files:  20% (5279/26392)
+2026-11-16T04:08:28.6392065Z Updating files:  21% (5543/26392)
+2026-11-16T04:08:28.6501654Z Updating files:  22% (5807/26392)
+2026-11-16T04:08:28.6583277Z Updating files:  23% (6071/26392)
+2026-11-16T04:08:28.6668748Z Updating files:  24% (6335/26392)
+2026-11-16T04:08:28.8289392Z Updating files:  25% (6598/26392)
+2026-11-16T04:08:28.8412333Z Updating files:  26% (6862/26392)
+2026-11-16T04:08:28.8580894Z Updating files:  27% (7126/26392)
+2026-11-16T04:08:29.0246600Z Updating files:  28% (7390/26392)
+2026-11-16T04:08:29.0844278Z Updating files:  29% (7654/26392)
+2026-11-16T04:08:29.1167011Z Updating files:  30% (7918/26392)
+2026-11-16T04:08:29.1289313Z Updating files:  31% (8182/26392)
+2026-11-16T04:08:29.1364533Z Updating files:  32% (8446/26392)
+2026-11-16T04:08:29.1445484Z Updating files:  33% (8710/26392)
+2026-11-16T04:08:29.1557955Z Updating files:  34% (8974/26392)
+2026-11-16T04:08:29.1698788Z Updating files:  35% (9238/26392)
+2026-11-16T04:08:29.1853040Z Updating files:  36% (9502/26392)
+2026-11-16T04:08:29.2029746Z Updating files:  37% (9766/26392)
+2026-11-16T04:08:29.2227478Z Updating files:  38% (10029/26392)
+2026-11-16T04:08:29.2440710Z Updating files:  39% (10293/26392)
+2026-11-16T04:08:29.2618393Z Updating files:  40% (10557/26392)
+2026-11-16T04:08:29.2752052Z Updating files:  41% (10821/26392)
+2026-11-16T04:08:29.2886912Z Updating files:  42% (11085/26392)
+2026-11-16T04:08:29.3187666Z Updating files:  43% (11349/26392)
+2026-11-16T04:08:29.3278395Z Updating files:  44% (11613/26392)
+2026-11-16T04:08:29.3462415Z Updating files:  45% (11877/26392)
+2026-11-16T04:08:29.3565594Z Updating files:  46% (12141/26392)
+2026-11-16T04:08:29.3641987Z Updating files:  47% (12405/26392)
+2026-11-16T04:08:29.3782737Z Updating files:  48% (12669/26392)
+2026-11-16T04:08:29.3883310Z Updating files:  49% (12933/26392)
+2026-11-16T04:08:29.4141716Z Updating files:  50% (13196/26392)
+2026-11-16T04:08:29.4398257Z Updating files:  50% (13254/26392)
+2026-11-16T04:08:29.4612927Z Updating files:  51% (13460/26392)
+2026-11-16T04:08:29.4768925Z Updating files:  52% (13724/26392)
+2026-11-16T04:08:29.4875959Z Updating files:  53% (13988/26392)
+2026-11-16T04:08:29.5018590Z Updating files:  54% (14252/26392)
+2026-11-16T04:08:29.5150570Z Updating files:  55% (14516/26392)
+2026-11-16T04:08:29.5783561Z Updating files:  56% (14780/26392)
+2026-11-16T04:08:29.5898299Z Updating files:  57% (15044/26392)
+2026-11-16T04:08:29.6105309Z Updating files:  58% (15308/26392)
+2026-11-16T04:08:29.6200184Z Updating files:  59% (15572/26392)
+2026-11-16T04:08:29.6315767Z Updating files:  60% (15836/26392)
+2026-11-16T04:08:29.6375013Z Updating files:  61% (16100/26392)
+2026-11-16T04:08:29.6435262Z Updating files:  62% (16364/26392)
+2026-11-16T04:08:29.6496631Z Updating files:  63% (16627/26392)
+2026-11-16T04:08:29.6555553Z Updating files:  64% (16891/26392)
+2026-11-16T04:08:29.6615623Z Updating files:  65% (17155/26392)
+2026-11-16T04:08:29.6677165Z Updating files:  66% (17419/26392)
+2026-11-16T04:08:29.6738365Z Updating files:  67% (17683/26392)
+2026-11-16T04:08:29.6880484Z Updating files:  68% (17947/26392)
+2026-11-16T04:08:29.6952176Z Updating files:  69% (18211/26392)
+2026-11-16T04:08:29.7037954Z Updating files:  70% (18475/26392)
+2026-11-16T04:08:29.7098297Z Updating files:  71% (18739/26392)
+2026-11-16T04:08:29.7157570Z Updating files:  72% (19003/26392)
+2026-11-16T04:08:29.7218246Z Updating files:  73% (19267/26392)
+2026-11-16T04:08:29.7276648Z Updating files:  74% (19531/26392)
+2026-11-16T04:08:29.7336782Z Updating files:  75% (19794/26392)
+2026-11-16T04:08:29.7397884Z Updating files:  76% (20058/26392)
+2026-11-16T04:08:29.7475170Z Updating files:  77% (20322/26392)
+2026-11-16T04:08:29.7600870Z Updating files:  78% (20586/26392)
+2026-11-16T04:08:29.7982471Z Updating files:  79% (20850/26392)
+2026-11-16T04:08:29.8061383Z Updating files:  80% (21114/26392)
+2026-11-16T04:08:29.8121099Z Updating files:  81% (21378/26392)
+2026-11-16T04:08:29.8180537Z Updating files:  82% (21642/26392)
+2026-11-16T04:08:29.8241131Z Updating files:  83% (21906/26392)
+2026-11-16T04:08:29.8299697Z Updating files:  84% (22170/26392)
+2026-11-16T04:08:29.8359814Z Updating files:  85% (22434/26392)
+2026-11-16T04:08:29.8420971Z Updating files:  86% (22698/26392)
+2026-11-16T04:08:29.8481062Z Updating files:  87% (22962/26392)
+2026-11-16T04:08:29.8643063Z Updating files:  88% (23225/26392)
+2026-11-16T04:08:29.8714125Z Updating files:  89% (23489/26392)
+2026-11-16T04:08:29.8983198Z Updating files:  90% (23753/26392)
+2026-11-16T04:08:29.9057909Z Updating files:  91% (24017/26392)
+2026-11-16T04:08:29.9150284Z Updating files:  92% (24281/26392)
+2026-11-16T04:08:29.9270108Z Updating files:  93% (24545/26392)
+2026-11-16T04:08:29.9356307Z Updating files:  94% (24809/26392)
+2026-11-16T04:08:29.9456995Z Updating files:  95% (25073/26392)
+2026-11-16T04:08:29.9587583Z Updating files:  96% (25337/26392)
+2026-11-16T04:08:29.9836395Z Updating files:  97% (25601/26392)
+2026-11-16T04:08:30.1342926Z Updating files:  98% (25865/26392)
+2026-11-16T04:08:30.1504106Z Updating files:  99% (26129/26392)
+2026-11-16T04:08:30.1504491Z Updating files: 100% (26392/26392)
+2026-11-16T04:08:30.1504832Z Updating files: 100% (26392/26392), done.
+2026-11-16T04:08:30.1755430Z Note: switching to 'bb7b49bbcc9266bad548ec37e71403256fc06a4d'.
+2026-11-16T04:08:30.1755714Z 
+2026-11-16T04:08:30.1755913Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-16T04:08:30.1756304Z changes and commit them, and you can discard any commits you make in this
+2026-11-16T04:08:30.1756724Z state without impacting any branches by switching back to a branch.
+2026-11-16T04:08:30.1756939Z 
+2026-11-16T04:08:30.1757090Z If you want to create a new branch to retain commits you create, you may
+2026-11-16T04:08:30.1757710Z do so (now or later) by using -c with the switch command. Example:
+2026-11-16T04:08:30.1757917Z 
+2026-11-16T04:08:30.1758012Z   git switch -c <new-branch-name>
+2026-11-16T04:08:30.1758375Z 
+2026-11-16T04:08:30.1758462Z Or undo this operation with:
+2026-11-16T04:08:30.1758594Z 
+2026-11-16T04:08:30.1758666Z   git switch -
+2026-11-16T04:08:30.1758770Z 
+2026-11-16T04:08:30.1758935Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-16T04:08:30.1759173Z 
+2026-11-16T04:08:30.1759486Z HEAD is now at bb7b49bb test(P2): verify original CP4 boundary pairs and inject an actual CP8 cutover receipt failure [skip ci]
+2026-11-16T04:08:30.1889784Z ##[endgroup]
+2026-11-16T04:08:30.1940131Z [command]/usr/bin/git log -1 --format=%H
+2026-11-16T04:08:30.1963309Z bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:30.1972813Z ##[group]Removing auth
+2026-11-16T04:08:30.1975350Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-16T04:08:30.2002677Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-16T04:08:30.2283094Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-16T04:08:30.2305290Z http.https://github.com/.extraheader
+2026-11-16T04:08:30.2311714Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-16T04:08:30.2341935Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-16T04:08:30.2626287Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-16T04:08:30.2679429Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-16T04:08:30.2937718Z ##[endgroup]
+2026-11-16T04:08:30.3167981Z ##[group]Run actions/setup-java@v4
+2026-11-16T04:08:30.3168465Z with:
+2026-11-16T04:08:30.3168653Z   distribution: temurin
+2026-11-16T04:08:30.3168857Z   java-version: 17
+2026-11-16T04:08:30.3169031Z   java-package: jdk
+2026-11-16T04:08:30.3169206Z   check-latest: false
+2026-11-16T04:08:30.3169384Z   server-id: github
+2026-11-16T04:08:30.3169565Z   server-username: GITHUB_ACTOR
+2026-11-16T04:08:30.3169775Z   server-password: GITHUB_TOKEN
+2026-11-16T04:08:30.3169975Z   overwrite-settings: true
+2026-11-16T04:08:30.3170167Z   job-status: success
+2026-11-16T04:08:30.3172377Z   token: ***
+2026-11-16T04:08:30.3172541Z env:
+2026-11-16T04:08:30.3172747Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:30.3173017Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:08:30.3173243Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:08:30.3173446Z ##[endgroup]
+2026-11-16T04:08:30.4627897Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-11-16T04:08:30.4634851Z ##[group]Installed distributions
+2026-11-16T04:08:30.4654106Z Resolved Java 17.0.21+9 from tool-cache
+2026-11-16T04:08:30.4654503Z Setting Java 17.0.21+9 as the default
+2026-11-16T04:08:30.4662173Z (node:2298) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T04:08:30.4662698Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T04:08:30.4665292Z Creating toolchains.xml for JDK version 17 from temurin
+2026-11-16T04:08:30.4720357Z Writing to /home/runner/.m2/toolchains.xml
+2026-11-16T04:08:30.4720701Z 
+2026-11-16T04:08:30.4720946Z Java configuration:
+2026-11-16T04:08:30.4721222Z   Distribution: temurin
+2026-11-16T04:08:30.4721497Z   Version: 17.0.21+9
+2026-11-16T04:08:30.4721875Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:30.4722210Z 
+2026-11-16T04:08:30.4722564Z ##[endgroup]
+2026-11-16T04:08:30.4736030Z Creating settings.xml with server-id: github
+2026-11-16T04:08:30.4765538Z Writing to /home/runner/.m2/settings.xml
+2026-11-16T04:08:30.4965639Z ##[group]Run actions/setup-python@v5
+2026-11-16T04:08:30.4966078Z with:
+2026-11-16T04:08:30.4966388Z   python-version: 3.12
+2026-11-16T04:08:30.4966675Z   check-latest: false
+2026-11-16T04:08:30.4972517Z   token: ***
+2026-11-16T04:08:30.4972800Z   update-environment: true
+2026-11-16T04:08:30.4973080Z   allow-prereleases: false
+2026-11-16T04:08:30.4973277Z   freethreaded: false
+2026-11-16T04:08:30.4973502Z env:
+2026-11-16T04:08:30.4973838Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:30.4974269Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:08:30.4974572Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:08:30.4974948Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:30.4975447Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:30.4975931Z ##[endgroup]
+2026-11-16T04:08:30.6151309Z ##[group]Installed versions
+2026-11-16T04:08:30.6244313Z (node:2310) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T04:08:30.6245487Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T04:08:30.6246241Z Successfully set up CPython (3.12.16)
+2026-11-16T04:08:30.6246928Z ##[endgroup]
+2026-11-16T04:08:30.6382551Z ##[group]Run set -euo pipefail
+2026-11-16T04:08:30.6382868Z [36;1mset -euo pipefail[0m
+2026-11-16T04:08:30.6383172Z [36;1mexport PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"[0m
+2026-11-16T04:08:30.6383520Z [36;1msdkmanager --licenses < <(yes) > /dev/null[0m
+2026-11-16T04:08:30.6383946Z [36;1msdkmanager 'platforms;android-36' 'build-tools;36.0.0' > "$RUNNER_TEMP/r3251-observer-sdk.log" 2>&1[0m
+2026-11-16T04:08:30.6447307Z shell: /usr/bin/bash -e {0}
+2026-11-16T04:08:30.6447564Z env:
+2026-11-16T04:08:30.6447805Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:30.6448340Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:08:30.6448590Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:08:30.6448908Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:30.6449327Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:30.6449776Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:30.6450162Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-16T04:08:30.6450511Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:30.6450820Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:30.6451129Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:30.6451440Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-16T04:08:30.6451716Z ##[endgroup]
+2026-11-16T04:08:35.5442133Z yes: standard output: Broken pipe
+2026-11-16T04:08:37.1364134Z ##[group]Run actions/download-artifact@v4
+2026-11-16T04:08:37.1364381Z with:
+2026-11-16T04:08:37.1364659Z   name: r3251-C1-android-support-bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:37.1364999Z   path: built/android-build
+2026-11-16T04:08:37.1365208Z   merge-multiple: false
+2026-11-16T04:08:37.1365436Z   repository: gtt46461-star/starcore-public-build
+2026-11-16T04:08:37.1365683Z   run-id: 43796780479
+2026-11-16T04:08:37.1365857Z env:
+2026-11-16T04:08:37.1366059Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:37.1366331Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:08:37.1366562Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:08:37.1366847Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:37.1367233Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:37.1367605Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:37.1367978Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-16T04:08:37.1368556Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:37.1368871Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:37.1369166Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:37.1369467Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-16T04:08:37.1369726Z ##[endgroup]
+2026-11-16T04:08:37.2601618Z Downloading single artifact
+2026-11-16T04:08:37.3047673Z (node:2482) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T04:08:37.3048714Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T04:08:37.6461398Z Preparing to download the following artifacts:
+2026-11-16T04:08:37.6462451Z - r3251-C1-android-support-bb7b49bbcc9266bad548ec37e71403256fc06a4d (ID: 14194539597, Size: 23781906, Expected Digest: sha256:23446cd1cee4c5255c327e48278d020357dd8bd89a090612daf4ae80ecde2519)
+2026-11-16T04:08:37.8960198Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/52b32b5a-004e-86c5-9602-8d257d2bebb3/workflow-job-run-fc733961-8518-5e79-830a-69a8ba0ac89d/artifacts/47439a7a25b53fd0787eabd829039e1d5b5fbfe56ef14a7941468fa83986a44c.zip
+2026-11-16T04:08:37.8961598Z Starting download of artifact to: /home/runner/work/starcore-public-build/starcore-public-build/built/android-build
+2026-11-16T04:08:38.3296709Z (node:2482) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-16T04:08:39.8465963Z SHA256 digest of downloaded artifact is 23446cd1cee4c5255c327e48278d020357dd8bd89a090612daf4ae80ecde2519
+2026-11-16T04:08:39.8466509Z Artifact download completed successfully.
+2026-11-16T04:08:39.8466783Z Total of 1 artifact(s) downloaded
+2026-11-16T04:08:39.8470819Z Download artifact has finished successfully
+2026-11-16T04:08:39.8615589Z ##[group]Run echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+2026-11-16T04:08:39.8616264Z [36;1mecho 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules[0m
+2026-11-16T04:08:39.8616700Z [36;1msudo udevadm control --reload-rules[0m
+2026-11-16T04:08:39.8616973Z [36;1msudo udevadm trigger --name-match=kvm[0m
+2026-11-16T04:08:39.8662681Z shell: /usr/bin/bash -e {0}
+2026-11-16T04:08:39.8662900Z env:
+2026-11-16T04:08:39.8663130Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:39.8663420Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:08:39.8663662Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:08:39.8663953Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:39.8664352Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:39.8664748Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.8665085Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-16T04:08:39.8665422Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.8665736Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.8666049Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.8666352Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-16T04:08:39.8666617Z ##[endgroup]
+2026-11-16T04:08:39.8802403Z KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"
+2026-11-16T04:08:39.9320648Z ##[group]Run reactivecircus/android-emulator-runner@v2
+2026-11-16T04:08:39.9320943Z with:
+2026-11-16T04:08:39.9321119Z   api-level: 35
+2026-11-16T04:08:39.9321300Z   arch: x86_64
+2026-11-16T04:08:39.9321471Z   target: default
+2026-11-16T04:08:39.9321661Z   disable-animations: true
+2026-11-16T04:08:39.9321862Z   ram-size: 3072M
+2026-11-16T04:08:39.9322042Z   heap-size: 512M
+2026-11-16T04:08:39.9322412Z   emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+2026-11-16T04:08:39.9323174Z   script: bash tools/r31/emulator_matrix.sh 35 built/android-build/app-debug.apk built/android-build/app-debug-androidTest.apk "/home/runner/work/_temp/r3251-emu-35"
+2026-11-16T04:08:39.9323704Z   cores: 2
+2026-11-16T04:08:39.9323877Z   avd-name: test
+2026-11-16T04:08:39.9324066Z   force-avd-creation: true
+2026-11-16T04:08:39.9324286Z   emulator-boot-timeout: 600
+2026-11-16T04:08:39.9324494Z   emulator-port: 5554
+2026-11-16T04:08:39.9324730Z   disable-spellchecker: false
+2026-11-16T04:08:39.9324954Z   disable-linux-hw-accel: auto
+2026-11-16T04:08:39.9325164Z   enable-hw-keyboard: false
+2026-11-16T04:08:39.9325365Z   channel: stable
+2026-11-16T04:08:39.9325543Z env:
+2026-11-16T04:08:39.9325752Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:08:39.9326026Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:08:39.9326256Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:08:39.9326558Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:39.9327095Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:08:39.9327458Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.9327830Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-16T04:08:39.9328385Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.9328698Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.9329004Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:08:39.9329324Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-16T04:08:39.9329593Z ##[endgroup]
+2026-11-16T04:08:39.9832422Z ##[group]Configure emulator
+2026-11-16T04:08:39.9834413Z API level: 35
+2026-11-16T04:08:39.9834754Z System image API level: 35
+2026-11-16T04:08:39.9835088Z target: default
+2026-11-16T04:08:39.9835408Z CPU architecture: x86_64
+2026-11-16T04:08:39.9835779Z Hardware profile: 
+2026-11-16T04:08:39.9837482Z Cores: 2
+2026-11-16T04:08:39.9837757Z RAM size: 3072M
+2026-11-16T04:08:39.9838298Z Heap size: 512M
+2026-11-16T04:08:39.9838580Z SD card path or size: 
+2026-11-16T04:08:39.9838862Z Disk size: 
+2026-11-16T04:08:39.9839108Z AVD name: test
+2026-11-16T04:08:39.9839378Z force avd creation: true
+2026-11-16T04:08:39.9839681Z Emulator boot timeout: 600
+2026-11-16T04:08:39.9839977Z emulator port: 5554
+2026-11-16T04:08:39.9840541Z emulator options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+2026-11-16T04:08:39.9841020Z disable animations: true
+2026-11-16T04:08:39.9841235Z disable spellchecker: false
+2026-11-16T04:08:39.9841469Z disable Linux hardware acceleration: false
+2026-11-16T04:08:39.9841717Z enable hardware keyboard: false
+2026-11-16T04:08:39.9842016Z Channel: 0 (stable)
+2026-11-16T04:08:39.9842350Z Script:
+2026-11-16T04:08:39.9843257Z bash tools/r31/emulator_matrix.sh 35 built/android-build/app-debug.apk built/android-build/app-debug-androidTest.apk "/home/runner/work/_temp/r3251-emu-35"
+2026-11-16T04:08:39.9844101Z Pre emulator launch script:
+2026-11-16T04:08:39.9844624Z ##[endgroup]
+2026-11-16T04:08:39.9845063Z ##[group]Install Android SDK
+2026-11-16T04:08:39.9874967Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+2026-11-16T04:08:41.3700263Z Installing latest build tools, platform tools, and platform.
+2026-11-16T04:08:41.3711375Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-35'> /dev/null
+2026-11-16T04:08:42.6522388Z Installing latest emulator.
+2026-11-16T04:08:42.6532780Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+2026-11-16T04:08:57.2083558Z Installing system images.
+2026-11-16T04:08:57.2094507Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-35;default;x86_64' --channel=0 > /dev/null
+2026-11-16T04:09:16.2857524Z ##[endgroup]
+2026-11-16T04:09:16.2858635Z ##[group]Create AVD
+2026-11-16T04:09:16.2859563Z Creating AVD.
+2026-11-16T04:09:16.2873803Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-35;default;x86_64'
+2026-11-16T04:09:16.9935493Z Loading local repository...                                                     
+2026-11-16T04:09:17.3249951Z [=========                              ] 25% Loading local repository...       
+2026-11-16T04:09:17.3250624Z Auto-selecting single ABI x86_64
+2026-11-16T04:09:17.3715007Z Do you wish to create a custom hardware profile? [no] [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\nhw.ramSize=3072M\nhw.heapSize=512M\n' >> /home/runner/.android/avd/test.avd/config.ini
+2026-11-16T04:09:17.3734643Z ##[endgroup]
+2026-11-16T04:09:17.3736175Z ##[group]Launch Emulator
+2026-11-16T04:09:17.3750255Z Starting emulator.
+2026-11-16T04:09:17.3751237Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4 &
+2026-11-16T04:09:17.3852462Z INFO         | Android emulator version 37.2.13.0 (build_id 16740729) (CL:N/A)
+2026-11-16T04:09:17.3852999Z INFO         | Graphics backend: gfxstream
+2026-11-16T04:09:17.3853481Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-35/default/x86_64/
+2026-11-16T04:09:17.8814678Z INFO         | Saving last run QEMU version for the AVD to 2
+2026-11-16T04:09:17.8815204Z ##############################################################################
+2026-11-16T04:09:17.8815732Z ##                        WARNING - ACTION REQUIRED                         ##
+2026-11-16T04:09:17.8816200Z ##  Consider using the '-metrics-collection' flag to help improve the       ##
+2026-11-16T04:09:17.8816726Z ##  emulator by sending anonymized usage data. Or use the '-no-metrics'     ##
+2026-11-16T04:09:17.8817259Z ##  flag to bypass this warning and turn off the metrics collection.        ##
+2026-11-16T04:09:17.8817783Z ##  In a future release this warning will turn into a one-time blocking     ##
+2026-11-16T04:09:17.8818462Z ##  prompt to ask for explicit user input regarding metrics collection.     ##
+2026-11-16T04:09:17.8818877Z ##                                                                          ##
+2026-11-16T04:09:17.8819341Z ##  Please see '-help-metrics-collection' for more details. You can use     ##
+2026-11-16T04:09:17.8819954Z ##  '-metrics-to-file' or '-metrics-to-console' flags to see what type of   ##
+2026-11-16T04:09:17.8820451Z ##  data is being collected by emulator as part of usage statistics.        ##
+2026-11-16T04:09:17.8820803Z ##############################################################################
+2026-11-16T04:09:17.8821102Z INFO         | Guest GLES Driver: Auto (ext controls)
+2026-11-16T04:09:17.8821503Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+2026-11-16T04:09:17.8821885Z INFO         | Checking system compatibility:
+2026-11-16T04:09:17.8822152Z INFO         |   Checking: hasSufficientDiskSpace
+2026-11-16T04:09:17.8822464Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+2026-11-16T04:09:17.8822761Z INFO         |   Checking: hasSufficientHwGpu
+2026-11-16T04:09:17.8823077Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+2026-11-16T04:09:17.8823371Z INFO         |   Checking: hasSufficientSystem
+2026-11-16T04:09:17.8823660Z INFO         |      Ok: System requirements to run avd: `test` are met
+2026-11-16T04:09:17.8824519Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+2026-11-16T04:09:17.8825145Z ERROR        | Unable to connect to adb daemon on port: 5037
+2026-11-16T04:09:17.8825604Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.13.db, detection is enabled for process: 2964
+2026-11-16T04:09:17.8826028Z INFO         | Initializing gfxstream backend
+2026-11-16T04:09:17.8828446Z INFO         | startOpenglesRendererImpl: gpu info
+2026-11-16T04:09:17.8828848Z INFO         | 
+2026-11-16T04:09:17.8830731Z INFO         | initIcdPaths: ICD set to 'swiftshader', using Swiftshader ICD
+2026-11-16T04:09:17.8831624Z INFO         | Setting ICD filenames for the loader = /usr/local/lib/android/sdk/emulator/lib64/vulkan/vk_swiftshader_icd.json
+2026-11-16T04:09:17.8832729Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so]
+2026-11-16T04:09:17.8833674Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so.1]
+2026-11-16T04:09:17.8834476Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so]
+2026-11-16T04:09:17.8835218Z INFO         | Added library: /usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so
+2026-11-16T04:09:17.9640116Z INFO         | Selecting Vulkan device: SwiftShader Device (Subzero), Version: 1.3.0
+2026-11-16T04:09:17.9640980Z INFO         | Using Vulkan externalMemoryMode: OpaqueFd for VkEmulation
+2026-11-16T04:09:17.9977837Z INFO         | Format VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16 does not support YCbCr sampler conversion
+2026-11-16T04:09:18.0002903Z INFO         | SharedLibrary::open for [libX11]
+2026-11-16T04:09:18.0004471Z WARNING      | Could not open libX11.so, try libX11.so.6
+2026-11-16T04:09:18.0004933Z INFO         | SharedLibrary::open for [libX11.so.6]
+2026-11-16T04:09:18.0005389Z INFO         | SharedLibrary::open for [libX11-xcb]
+2026-11-16T04:09:18.0006250Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+2026-11-16T04:09:18.0006727Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+2026-11-16T04:09:18.0201397Z INFO         | Initializing VkEmulation features:
+2026-11-16T04:09:18.0201777Z INFO         |     glInteropSupported: false
+2026-11-16T04:09:18.0202100Z INFO         |     useDeferredCommands: true
+2026-11-16T04:09:18.0202526Z INFO         |     createResourceWithRequirements: true
+2026-11-16T04:09:18.0202978Z INFO         |     useVulkanComposition: false
+2026-11-16T04:09:18.0203395Z INFO         |     useVulkanNativeSwapchain: false
+2026-11-16T04:09:18.0203795Z INFO         |     enable guestRenderDoc: false
+2026-11-16T04:09:18.0204240Z INFO         |     ASTC LDR emulation mode: Gpu
+2026-11-16T04:09:18.0204627Z INFO         |     enable ETC2 emulation: true
+2026-11-16T04:09:18.0205031Z INFO         |     enable Ycbcr emulation: false
+2026-11-16T04:09:18.0205433Z INFO         |     guestVulkanOnly: false
+2026-11-16T04:09:18.0205819Z INFO         |     useDedicatedAllocations: false
+2026-11-16T04:09:18.0206234Z INFO         |     guestVulkanMaxApiVersion: 1.3.0
+2026-11-16T04:09:18.0206679Z INFO         |     enableProtectedMemoryEmulation: false
+2026-11-16T04:09:18.0212476Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+2026-11-16T04:09:18.0212914Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+2026-11-16T04:09:18.0213555Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+2026-11-16T04:09:18.0216407Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+2026-11-16T04:09:18.0219212Z INFO         | Graphics Device Extensions N/A
+2026-11-16T04:09:18.0219873Z INFO         | Disabling sparse binding feature support
+2026-11-16T04:09:18.0301780Z INFO         | Sending adb public key [QAAAAN16ENOL0hToJoB7J8o7OL+h5MTTM3XU9/J2h9uTDnK6wqQzOLc29T7aiZGefpZFcwpxqUwge6sLjJaC0Ko8jSbyEVSmDEoN1GelUkD8caZsaEXeoKrMhShXZKlspOjDv9avcWKvRkyOc15kHviXG+CgWF873wSSSZfbBsEFyBG0QnQckSQfsPiynL0/Q4bLJLVp0zLjcPdRE5/dd/tC0mXP3y+FSIVM4s816Bvm9M5PXqPcYXZn11JYLGAFUGk0q6TU79RtBZhI/hs0CZum0iCFMFXlDcDYlUv/4cYcZiE2UALr9t8y6h/7v/JOqmgbR1Sua2J3JLucLztjXnRD0LZd9SvHV2yA3b0VOKBmzdAvskSBh0fNRgrljEi3eEkVRQsd2ZFJmXrbPuJrCEsHF2js6k58aFOrdd2hRIbqwEUOlenk0rgfRjXvYFBQMgadnQ38NidwsI4uuZF6KxSp2LTqRQPu/h7BliUin2Xr+cioEOgphG1yx+uUpyg8iMLfcy8Qxlpvzm/Lkk5qVrCj42j82HqVtA63KVZi/AtczUMVGGdsevunqp6gYBa9Jbx1poRMcfaYBjEc8dzewV5tppUWE66Ap5nehaB5y5IC9vCdJUDCfNqEXs5Vm8QtkVDrx6m3tpC9+QXtSsV+p8dduV4mxCHvEy/a4N4bf10R/9B0jhE7WAEAAQA= runner@unknown]
+2026-11-16T04:09:18.0304642Z INFO         | Userspace boot properties:
+2026-11-16T04:09:18.0305118Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+2026-11-16T04:09:18.0305496Z INFO         |   androidboot.dalvik.vm.heapsize=576m
+2026-11-16T04:09:18.0305790Z INFO         |   androidboot.debug.hwui.renderer=skiagl
+2026-11-16T04:09:18.0306304Z INFO         |   androidboot.debug.sf.nobootanimation=1
+2026-11-16T04:09:18.0306575Z INFO         |   androidboot.hardware=ranchu
+2026-11-16T04:09:18.0306852Z INFO         |   androidboot.hardware.gltransport=pipe
+2026-11-16T04:09:18.0307149Z INFO         |   androidboot.hardware.vulkan=ranchu
+2026-11-16T04:09:18.0307412Z INFO         |   androidboot.logcat=*:V
+2026-11-16T04:09:18.0307669Z INFO         |   androidboot.opengles.version=196608
+2026-11-16T04:09:18.0307925Z INFO         |   androidboot.qemu=1
+2026-11-16T04:09:18.0310838Z INFO         |   androidboot.qemu.adb.pubkey=QAAAAN16ENOL0hToJoB7J8o7OL+h5MTTM3XU9/J2h9uTDnK6wqQzOLc29T7aiZGefpZFcwpxqUwge6sLjJaC0Ko8jSbyEVSmDEoN1GelUkD8caZsaEXeoKrMhShXZKlspOjDv9avcWKvRkyOc15kHviXG+CgWF873wSSSZfbBsEFyBG0QnQckSQfsPiynL0/Q4bLJLVp0zLjcPdRE5/dd/tC0mXP3y+FSIVM4s816Bvm9M5PXqPcYXZn11JYLGAFUGk0q6TU79RtBZhI/hs0CZum0iCFMFXlDcDYlUv/4cYcZiE2UALr9t8y6h/7v/JOqmgbR1Sua2J3JLucLztjXnRD0LZd9SvHV2yA3b0VOKBmzdAvskSBh0fNRgrljEi3eEkVRQsd2ZFJmXrbPuJrCEsHF2js6k58aFOrdd2hRIbqwEUOlenk0rgfRjXvYFBQMgadnQ38NidwsI4uuZF6KxSp2LTqRQPu/h7BliUin2Xr+cioEOgphG1yx+uUpyg8iMLfcy8Qxlpvzm/Lkk5qVrCj42j82HqVtA63KVZi/AtczUMVGGdsevunqp6gYBa9Jbx1poRMcfaYBjEc8dzewV5tppUWE66Ap5nehaB5y5IC9vCdJUDCfNqEXs5Vm8QtkVDrx6m3tpC9+QXtSsV+p8dduV4mxCHvEy/a4N4bf10R/9B0jhE7WAEAAQA= runner@unknown
+2026-11-16T04:09:18.0313550Z INFO         |   androidboot.qemu.avd_name=test
+2026-11-16T04:09:18.0313838Z INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+2026-11-16T04:09:18.0314145Z INFO         |   androidboot.qemu.camera_protocol_ver=1
+2026-11-16T04:09:18.0314444Z INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+2026-11-16T04:09:18.0314782Z INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+2026-11-16T04:09:18.0315107Z INFO         |   androidboot.qemu.gltransport.name=pipe
+2026-11-16T04:09:18.0315403Z INFO         |   androidboot.qemu.hwcodec.avcdec=2
+2026-11-16T04:09:18.0315679Z INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+2026-11-16T04:09:18.0315948Z INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+2026-11-16T04:09:18.0316270Z INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+2026-11-16T04:09:18.0316609Z INFO         |   androidboot.qemu.skin=320x640
+2026-11-16T04:09:18.0316871Z INFO         |   androidboot.qemu.virtiowifi=1
+2026-11-16T04:09:18.0317117Z INFO         |   androidboot.qemu.vsync=60
+2026-11-16T04:09:18.0317380Z INFO         |   androidboot.serialno=EMULATOR37X2X13X0
+2026-11-16T04:09:18.0317933Z INFO         |   androidboot.vbmeta.digest=602b0c809848f3be570a96601071931225108ec3b3739d99a1dc41db38efe83c
+2026-11-16T04:09:18.0318524Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+2026-11-16T04:09:18.0318784Z INFO         |   androidboot.vbmeta.size=6720
+2026-11-16T04:09:18.0319036Z INFO         |   androidboot.veritymode=enforcing
+2026-11-16T04:09:18.4181324Z WARNING: cannnot unmap ptr 0x7a0e9e601000 as it is in the protected range from 0x7a0dde600000 to 0x7a0e9e800000
+2026-11-16T04:09:18.4386452Z INFO         | Monitoring duration of emulator setup.
+2026-11-16T04:09:19.0785339Z INFO         | Successfully initialized netsim WiFi
+2026-11-16T04:09:19.0786048Z INFO         | Activated packet streamer for bluetooth emulation
+2026-11-16T04:09:19.0838533Z INFO         | Setting display: 0 configuration to: 320x640, dpi: 160x160 
+2026-11-16T04:09:19.0838924Z INFO         | setDisplayActiveConfig: id:0, 320x640
+2026-11-16T04:09:19.0839624Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+2026-11-16T04:09:19.0900641Z INFO         | Loading snapshot 'default_boot'...
+2026-11-16T04:09:19.0901472Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-16T04:09:19.1081414Z WARNING      | Device 'cache' does not have the requested snapshot 'default_boot'
+2026-11-16T04:09:19.1081826Z 
+2026-11-16T04:09:19.1081994Z WARNING      | Failed to load snapshot 'default_boot'
+2026-11-16T04:09:19.1082817Z USER_INFO    | The emulator is performing a cold boot without a saved state because there's no snapshot and you have configured it not to save on exit.
+2026-11-16T04:09:19.2088531Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-11-16T04:09:27.3792747Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:27.3824641Z * daemon not running; starting now at tcp:5037
+2026-11-16T04:09:27.4649195Z * daemon started successfully
+2026-11-16T04:09:27.4655775Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-16T04:09:27.4656331Z adb: device offline
+2026-11-16T04:09:29.4719511Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:29.4904997Z adb: device offline
+2026-11-16T04:09:29.4917485Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-11-16T04:09:31.4970222Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:31.5118339Z 
+2026-11-16T04:09:33.5259387Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:33.5614294Z 
+2026-11-16T04:09:35.5725659Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:35.6438811Z 
+2026-11-16T04:09:37.6503542Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:37.6746480Z 
+2026-11-16T04:09:39.6832951Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:39.7173246Z 
+2026-11-16T04:09:41.7217930Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:41.7368453Z 
+2026-11-16T04:09:43.7467296Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:43.7924261Z 
+2026-11-16T04:09:44.1444675Z INFO         | Boot completed in 26734 ms
+2026-11-16T04:09:44.1445370Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+2026-11-16T04:09:45.8029472Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-11-16T04:09:45.8262557Z 1
+2026-11-16T04:09:45.8296487Z Emulator booted.
+2026-11-16T04:09:45.8329871Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+2026-11-16T04:09:47.2762526Z Disabling animations.
+2026-11-16T04:09:47.2769381Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+2026-11-16T04:09:47.3439893Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+2026-11-16T04:09:47.3989694Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+2026-11-16T04:09:47.4431432Z ##[endgroup]
+2026-11-16T04:09:47.4493305Z [command]/usr/bin/sh -c bash tools/r31/emulator_matrix.sh 35 built/android-build/app-debug.apk built/android-build/app-debug-androidTest.apk "/home/runner/work/_temp/r3251-emu-35"
+2026-11-16T04:10:05.6788649Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest", "com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest", "com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-original-runtime-storage-owner", "-e", "class", "com.ethk3.novaonepro.R31RuntimeProtocolInstrumentedTest,com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest,com.ethk3.novaonepro.R31OwnerFenceProtocolInstrumentedTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 240, "exitCode": 0, "expectedTests": 10, "finishedAt": "2026-11-16T04:10:05.677658+00:00", "log": "original-runtime-storage-owner.txt", "logSha256": "21eafa2ff2e13c55c4ec3c5c994cbeb40da06298b75d6896248c96656b61a81a", "name": "original-runtime-storage-owner", "observedTests": 10, "originalOutputSha256BeforeRedaction": "21eafa2ff2e13c55c4ec3c5c994cbeb40da06298b75d6896248c96656b61a81a", "startedAt": "2026-11-16T04:09:49.068125+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:10:17.6157504Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.strategyv2.R31FamilyContinuationInstrumentedTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-family-continuation", "-e", "class", "com.ethk3.novaonepro.strategyv2.R31FamilyContinuationInstrumentedTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 240, "exitCode": 0, "expectedTests": 2, "finishedAt": "2026-11-16T04:10:17.614657+00:00", "log": "family-continuation.txt", "logSha256": "b6f697a437597ea538c2f13bc4689fd2077232146916727f604d7d5d610e9cb5", "name": "family-continuation", "observedTests": 2, "originalOutputSha256BeforeRedaction": "b6f697a437597ea538c2f13bc4689fd2077232146916727f604d7d5d610e9cb5", "startedAt": "2026-11-16T04:10:05.678054+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:10:32.3395522Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.R31HistoryImportInstrumentedTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-history-publication", "-e", "class", "com.ethk3.novaonepro.R31HistoryImportInstrumentedTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 240, "exitCode": 0, "expectedTests": 2, "finishedAt": "2026-11-16T04:10:32.338422+00:00", "log": "history-publication.txt", "logSha256": "3de104d88e2611f9d656f76cc271d122fa86e5c7928190bcbc18032339afe93f", "name": "history-publication", "observedTests": 2, "originalOutputSha256BeforeRedaction": "3de104d88e2611f9d656f76cc271d122fa86e5c7928190bcbc18032339afe93f", "startedAt": "2026-11-16T04:10:17.615134+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:10:46.4625768Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.R31PlatformReadinessInstrumentedTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-platform-startup-readiness", "-e", "class", "com.ethk3.novaonepro.R31PlatformReadinessInstrumentedTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 240, "exitCode": 0, "expectedTests": 3, "finishedAt": "2026-11-16T04:10:46.461074+00:00", "log": "platform-startup-readiness.txt", "logSha256": "7041bf097d97dae80fd4224fdf863f9795b040616a7ca31d2ef8685ce43da09a", "name": "platform-startup-readiness", "observedTests": 3, "originalOutputSha256BeforeRedaction": "7041bf097d97dae80fd4224fdf863f9795b040616a7ca31d2ef8685ce43da09a", "startedAt": "2026-11-16T04:10:32.338914+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:11:00.7234219Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.R31StorageCheckpointAndroidTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-storage-diagnostic-process", "-e", "r31qRealService", "true", "-e", "r31WalDisposable", "true", "-e", "class", "com.ethk3.novaonepro.R31StorageCheckpointAndroidTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 240, "exitCode": 0, "expectedTests": 2, "finishedAt": "2026-11-16T04:11:00.722349+00:00", "log": "storage-diagnostic-process.txt", "logSha256": "78d294de86f4efbe504bd4302de4759d6ee874382a80047a0fce9dd22cd4f388", "name": "storage-diagnostic-process", "observedTests": 2, "originalOutputSha256BeforeRedaction": "78d294de86f4efbe504bd4302de4759d6ee874382a80047a0fce9dd22cd4f388", "startedAt": "2026-11-16T04:10:46.461608+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:12:58.9229776Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.R31RestoreProofInstrumentedTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-restore-proof-process", "-e", "r31qRealService", "true", "-e", "r31RestoreDisposable", "true", "-e", "class", "com.ethk3.novaonepro.R31RestoreProofInstrumentedTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 2400, "exitCode": 0, "expectedTests": 1, "finishedAt": "2026-11-16T04:12:58.921863+00:00", "log": "restore-proof-process.txt", "logSha256": "7a85a18f673c1f2250469ad89e5cdaf3544fcb9dda3c2dea6d0022db04b45182", "name": "restore-proof-process", "observedTests": 1, "originalOutputSha256BeforeRedaction": "7a85a18f673c1f2250469ad89e5cdaf3544fcb9dda3c2dea6d0022db04b45182", "startedAt": "2026-11-16T04:11:00.722869+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:15:14.3659443Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.R31QDeliveryInstrumentedTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-delivery-and-live-service", "-e", "r31qRealService", "true", "-e", "class", "com.ethk3.novaonepro.R31QDeliveryInstrumentedTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 2400, "exitCode": 0, "expectedTests": 7, "finishedAt": "2026-11-16T04:15:14.362752+00:00", "log": "delivery-and-live-service.txt", "logSha256": "4fbd1b3a011c1d3883790d5ac161aff0a6384739bd5e67961deb465cbb798973", "name": "delivery-and-live-service", "observedTests": 7, "originalOutputSha256BeforeRedaction": "4fbd1b3a011c1d3883790d5ac161aff0a6384739bd5e67961deb465cbb798973", "startedAt": "2026-11-16T04:12:58.922431+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:15:28.7954266Z ERROR        | Failed to find ColorBuffer: 1047
+2026-11-16T04:15:28.7979611Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-16T04:15:41.3830427Z ERROR        | Failed to find ColorBuffer: 1875
+2026-11-16T04:15:41.3861147Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-16T04:15:52.9479703Z ERROR        | Failed to find ColorBuffer: 2705
+2026-11-16T04:15:52.9480275Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-16T04:15:57.6592055Z ERROR        | Failed to find ColorBuffer: 3047
+2026-11-16T04:15:57.6593476Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-16T04:16:01.4500954Z ERROR        | Failed to find ColorBuffer: 3300
+2026-11-16T04:16:01.4503458Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-16T04:16:09.7966038Z R31_ANDROID_JOINT_GROUP|{"classes": ["com.ethk3.novaonepro.R31ChartLifecycleInstrumentedTest"], "command": ["adb", "shell", "am", "instrument", "-w", "-r", "-e", "r30Sandbox", "r31v35-ui-lifecycle-100", "-e", "r31qRealService", "true", "-e", "class", "com.ethk3.novaonepro.R31ChartLifecycleInstrumentedTest", "com.starcore.research.r13.test/com.ethk3.novaonepro.R30FaultAndroidRunner"], "executionTimeoutSeconds": 1200, "exitCode": 0, "expectedTests": 1, "finishedAt": "2026-11-16T04:16:09.795153+00:00", "log": "ui-lifecycle-100.txt", "logSha256": "51d5d56200fd5fe93de4e8720515a76f49204aeb726265a1b52daaf68c56fdee", "name": "ui-lifecycle-100", "observedTests": 1, "originalOutputSha256BeforeRedaction": "51d5d56200fd5fe93de4e8720515a76f49204aeb726265a1b52daaf68c56fdee", "startedAt": "2026-11-16T04:15:14.365259+00:00", "status": "PASS_NAMED_ENGINEERING_PROTOCOLS"}
+2026-11-16T04:16:09.8009898Z R31_ANDROID_JOINT_DONE|{"scope": "ACTUAL_ANDROID_EMULATOR_NAMED_PROTOCOLS_NOT_NATURAL_OR_ENDURANCE", "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d", "startedAt": "2026-11-16T04:09:49.042896+00:00", "api": "35", "serial": "emulator-5554", "physicalDevice": "NOT_RUN", "24h": "NOT_RUN", "72h": "NOT_RUN", "naturalQuality": "NOT_PROVEN", "uiLifecycle100Scope": "REQUIRED_ACTUAL_API35_RUN", "finishedAt": "2026-11-16T04:16:09.795746+00:00", "passedGroups": 8, "failedGroups": 0, "state": "PASS_NAMED_GROUPS_ONLY", "existingFullFaultMatrices": "MUST_RUN_SEPARATELY_NOT_INFERRED_FROM_THE_ORIGINAL_17_OR_NEW_PROCESS_TESTS"}
+2026-11-16T04:16:09.8476796Z restarting adbd as root
+2026-11-16T04:16:11.1507722Z R30_EMULATOR_ROOT_COMMAND:attempt=1:status=0
+2026-11-16T04:16:11.2009360Z R30_EMULATOR_ACTUAL_READY:serial=emulator-5554:uid=0:boot=1:qemu=1
+2026-11-16T04:24:37.0206140Z R31_ORIGINAL_SUBSTEP:production-ui-report:exit=0
+2026-11-16T04:24:51.7293885Z R30_ANDROID_REGRESSION:foldback:PASS
+2026-11-16T04:24:53.3389251Z R30_ANDROID_REGRESSION:snapshot:PASS
+2026-11-16T04:24:54.2146464Z R30_ANDROID_REGRESSION:retention:PASS
+2026-11-16T04:25:09.0484503Z R30_ANDROID_REGRESSION:wait:PASS
+2026-11-16T04:25:24.8825673Z R30_ANDROID_REGRESSION:revocation:PASS
+2026-11-16T04:25:45.8263878Z R30_ANDROID_REGRESSION:decision-positive:PASS
+2026-11-16T04:26:06.4400981Z R30_ANDROID_REGRESSION:decision-expired:PASS
+2026-11-16T04:26:27.0430270Z R30_ANDROID_REGRESSION:decision-missing-freeze:PASS
+2026-11-16T04:26:42.6911136Z R30_ANDROID_REGRESSION:decision-existing-real:PASS
+2026-11-16T04:27:03.5013556Z R30_ANDROID_REGRESSION:decision-user-off:PASS
+2026-11-16T04:28:00.1675141Z R30_ANDROID_REGRESSION:charts:PASS
+2026-11-16T04:28:00.3945949Z R30_ANDROID_REGRESSION|17_TESTS_11_INDEPENDENT_PROCESSES|116_ACTUAL_ACTIVITY_SCREENSHOTS|NOT_PHYSICAL_OR_NATURAL|PASS
+2026-11-16T04:28:49.3383367Z R30_REPAIR_ANDROID|47_REGISTERED_OBJECTS_4_DISPLAY_SCENARIOS_188_SCREENSHOTS|ORIGINAL_17_PLUS_REPAIR_1_TESTS|MISSING_EVIDENCE_EXPLICIT|NOT_PHYSICAL_OR_NATURAL|PASS
+2026-11-16T04:29:14.3698491Z R30_FAULT_MATRIX_PROGRESS:foreground-fetch_timeout:PASS
+2026-11-16T04:29:35.6012177Z R30_FAULT_MATRIX_PROGRESS:foreground-draw_conflict:PASS
+2026-11-16T04:29:58.8847686Z R30_FAULT_MATRIX_PROGRESS:foreground-kill_settlement:PASS
+2026-11-16T04:30:51.9338961Z R30_FAULT_MATRIX_PROGRESS:foreground-kill_freeze:PASS
+2026-11-16T04:31:13.1974901Z R30_FAULT_MATRIX_PROGRESS:foreground-sqlite_full:PASS
+2026-11-16T04:31:34.7509011Z R30_FAULT_MATRIX_PROGRESS:foreground-clock_rollback:PASS
+2026-11-16T04:31:59.9899474Z R30_FAULT_MATRIX_PROGRESS:foreground-service_stop:PASS
+2026-11-16T04:32:25.0159640Z R30_FAULT_MATRIX_PROGRESS:background-fetch_timeout:PASS
+2026-11-16T04:32:46.0742123Z R30_FAULT_MATRIX_PROGRESS:background-draw_conflict:PASS
+2026-11-16T04:33:09.4577205Z R30_FAULT_MATRIX_PROGRESS:background-kill_settlement:PASS
+2026-11-16T04:34:02.6105624Z R30_FAULT_MATRIX_PROGRESS:background-kill_freeze:PASS
+2026-11-16T04:34:24.1283373Z R30_FAULT_MATRIX_PROGRESS:background-sqlite_full:PASS
+2026-11-16T04:34:46.2223741Z R30_FAULT_MATRIX_PROGRESS:background-clock_rollback:PASS
+2026-11-16T04:35:11.7914556Z R30_FAULT_MATRIX_PROGRESS:background-service_stop:PASS
+2026-11-16T04:35:11.8445162Z R30_FAULT_MATRIX|14_ACTUAL_EMULATOR_CELLS|NO_PHYSICAL_OR_NATURAL_CLAIM|PASS
+2026-11-16T04:35:28.5255990Z R30_REPAIR_FAULT_PROGRESS:analysis:BUSY:PASS
+2026-11-16T04:35:44.6059615Z R30_REPAIR_FAULT_PROGRESS:analysis:FULL:PASS
+2026-11-16T04:36:00.8946277Z R30_REPAIR_FAULT_PROGRESS:analysis:CANCEL:PASS
+2026-11-16T04:36:19.3100158Z R30_REPAIR_FAULT_PROGRESS:analysis:KILL:PASS
+2026-11-16T04:36:35.3724913Z R30_REPAIR_FAULT_PROGRESS:analysis:CORRUPT:PASS
+2026-11-16T04:36:51.4609065Z R30_REPAIR_FAULT_PROGRESS:analysis:SOURCE_CHANGE:PASS
+2026-11-16T04:37:07.6934911Z R30_REPAIR_FAULT_PROGRESS:consume:BUSY:PASS
+2026-11-16T04:37:23.9093393Z R30_REPAIR_FAULT_PROGRESS:consume:FULL:PASS
+2026-11-16T04:37:40.0470558Z R30_REPAIR_FAULT_PROGRESS:consume:CANCEL:PASS
+2026-11-16T04:37:58.7361164Z R30_REPAIR_FAULT_PROGRESS:consume:KILL:PASS
+2026-11-16T04:38:14.7485263Z R30_REPAIR_FAULT_PROGRESS:consume:CORRUPT:PASS
+2026-11-16T04:38:30.9497684Z R30_REPAIR_FAULT_PROGRESS:consume:SOURCE_CHANGE:PASS
+2026-11-16T04:38:30.9796805Z R30_REPAIR_RESEARCH_FAULTS|12_ACTUAL_ANDROID_CELLS|PASS
+2026-11-16T04:38:46.4737608Z ERROR        | Failed to find ColorBuffer: 4629
+2026-11-16T04:38:46.4738663Z ERROR        | Failed to bind to texture: invalid color buffer.
+2026-11-16T04:39:21.5492795Z R31_EMU_UPGRADE|{"api": "35", "status": "OBSERVED_PASS", "uiResumed": true, "processAlive": true, "crashForPackage": false, "upgradeJournal": "COMPLETED_AFTER_KILLS", "criticalStamp": "READY"}
+2026-11-16T04:39:21.5688222Z R31_EMU_MATRIX api=35 rc=0
+2026-11-16T04:39:21.5694972Z ##[group]Terminate Emulator
+2026-11-16T04:39:21.5706768Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2026-11-16T04:39:21.5738512Z OK: killing emulator, bye bye
+2026-11-16T04:39:21.5738984Z OK
+2026-11-16T04:39:21.5743492Z ##[endgroup]
+2026-11-16T04:39:21.5744226Z INFO         | Wait for emulator (pid 2964) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+2026-11-16T04:39:21.5744857Z 
+2026-11-16T04:39:29.4016262Z INFO         | Saving with gfxstream=1
+2026-11-16T04:39:29.6382975Z INFO         | Saving snapshot 'default_boot' took 8043 ms
+2026-11-16T04:39:29.7779496Z ERROR        | stop: Not implemented
+2026-11-16T04:39:29.7780155Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+2026-11-16T04:39:29.8045754Z INFO         | removeAll
+2026-11-16T04:39:30.0076975Z WARNING      | Netsim Wifi dns:///localhost:42853 is gone due to Stream removed (CANCELLED)
+2026-11-16T04:39:30.9907125Z ##[group]Run actions/upload-artifact@v4
+2026-11-16T04:39:30.9907386Z with:
+2026-11-16T04:39:30.9907636Z   name: r3251-C1-emu-35-bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:39:30.9907954Z   path: /home/runner/work/_temp/r3251-emu-35/
+2026-11-16T04:39:30.9908351Z   if-no-files-found: warn
+2026-11-16T04:39:30.9908580Z   compression-level: 6
+2026-11-16T04:39:30.9908790Z   overwrite: false
+2026-11-16T04:39:30.9908987Z   include-hidden-files: false
+2026-11-16T04:39:30.9909198Z env:
+2026-11-16T04:39:30.9909408Z   R3251_SOURCE: bb7b49bbcc9266bad548ec37e71403256fc06a4d
+2026-11-16T04:39:30.9909692Z   R3251_REPORT_STARTUP_WAIT_SECONDS: 180
+2026-11-16T04:39:30.9909927Z   R3251_REPORT_START_SERVICE: 1
+2026-11-16T04:39:30.9910233Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:39:30.9910624Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-11-16T04:39:30.9911029Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:39:30.9911377Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-16T04:39:30.9911717Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:39:30.9912033Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:39:30.9912347Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-16T04:39:30.9912655Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-16T04:39:30.9912945Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-11-16T04:39:30.9913181Z ##[endgroup]
+2026-11-16T04:39:31.1293918Z (node:7045) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T04:39:31.1294875Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T04:39:31.1718849Z With the provided path, there will be 336 files uploaded
+2026-11-16T04:39:31.1720839Z Artifact name is valid!
+2026-11-16T04:39:31.1721649Z Root directory input is valid!
+2026-11-16T04:39:31.5619590Z Beginning upload of artifact content to blob storage
+2026-11-16T04:39:31.9098711Z (node:7045) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-16T04:39:32.8871689Z Uploaded bytes 8388608
+2026-11-16T04:39:33.1112367Z Uploaded bytes 16777216
+2026-11-16T04:39:33.2390683Z Uploaded bytes 20413910
+2026-11-16T04:39:33.3173919Z Finished uploading artifact content to blob storage!
+2026-11-16T04:39:33.3174686Z SHA256 digest of uploaded artifact zip is 14fc910a73b18a483645f70463366427cf91fccf45018f91794a4629f35bc209
+2026-11-16T04:39:33.3176180Z Finalizing artifact upload
+2026-11-16T04:39:33.7016688Z Artifact r3251-C1-emu-35-bb7b49bbcc9266bad548ec37e71403256fc06a4d.zip successfully finalized. Artifact ID 14197783685
+2026-11-16T04:39:33.7017707Z Artifact r3251-C1-emu-35-bb7b49bbcc9266bad548ec37e71403256fc06a4d has been successfully uploaded! Final size is 20413910 bytes. Artifact ID is 14197783685
+2026-11-16T04:39:33.7021781Z Artifact download URL: https://github.com/gtt46461-star/starcore-public-build/actions/runs/43796780479/artifacts/14197783685
+2026-11-16T04:39:33.7255735Z Post job cleanup.
+2026-11-16T04:39:33.8242737Z (node:7057) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T04:39:33.8243349Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T04:39:33.8407164Z Post job cleanup.
+2026-11-16T04:39:33.9574226Z (node:7065) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-16T04:39:33.9575201Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-16T04:39:33.9795226Z Post job cleanup.
+2026-11-16T04:39:34.0519017Z [command]/usr/bin/git version
+2026-11-16T04:39:34.0558503Z git version 2.56.1
+2026-11-16T04:39:34.0592584Z Temporarily overriding HOME='/home/runner/work/_temp/e220a11e-478f-4fdf-afde-eb362691806f' before making global git config changes
+2026-11-16T04:39:34.0593593Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-16T04:39:34.0597584Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-11-16T04:39:34.0649913Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-16T04:39:34.0673447Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-16T04:39:34.1005886Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-16T04:39:34.1049313Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-16T04:39:34.1378559Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-16T04:39:34.1410321Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-16T04:39:34.1829075Z Cleaning up orphan processes
+2026-11-16T04:39:34.2123830Z Terminate orphan process: pid (3072) (adb)
+2026-11-16T04:39:34.2245841Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/setup-java@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
