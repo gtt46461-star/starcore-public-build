@@ -40,6 +40,29 @@ public final class ResearchMigrationRegistryR952 {
                 && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db);
     }
 
+    /** Original CP8 definitions only; callers receive a new array, never the DDL owner array. */
+    public static String[] criticalSourceAttachmentsR3251() {
+        return criticalTriggerDefinitionsR3251(CP8_DDL);
+    }
+
+    /** Exact final CP4 guards; their original source SQL remains the sole definition. */
+    public static String[] criticalReplacementDefinitionsR3251() {
+        return criticalTriggerDefinitionsR3251(CP4_DDL);
+    }
+
+    private static String[] criticalTriggerDefinitionsR3251(String[] source) {
+        java.util.Set<String> roots=new java.util.HashSet<>(java.util.Arrays.asList(
+                SchemaDomainCoordinatorR926.criticalContract().objects));
+        java.util.ArrayList<String> definitions=new java.util.ArrayList<>();
+        java.util.regex.Pattern trigger=java.util.regex.Pattern.compile(
+                "^CREATE TRIGGER(?: IF NOT EXISTS)? ([A-Za-z0-9_]+)\\s+(?:BEFORE|AFTER)\\s+(?:INSERT|UPDATE|DELETE)\\s+ON\\s+\"?([A-Za-z0-9_]+)\"?(?:\\s|$)");
+        for(String ddl:source){
+            String expected=ddl.trim();java.util.regex.Matcher named=trigger.matcher(expected);
+            if(named.find()&&roots.contains(named.group(2)))definitions.add(expected);
+        }
+        return definitions.toArray(new String[0]);
+    }
+
     /** One durable migration unit per existing research callback, then release the sole writer. */
     public static boolean advanceR64(SQLiteDatabase db) {
         if (db == null) throw new IllegalArgumentException("R952_MIGRATION_DB_NULL");
@@ -165,7 +188,7 @@ public final class ResearchMigrationRegistryR952 {
             for (int offset=0; offset<CP4_DDL.length; offset+=6) {
                 final int first=offset, end=Math.min(offset+6,CP4_DDL.length);
                 if (runPendingR64(db,completed,"R64_CP4_DDL_"+offset, target -> {
-                    for(int i=first;i<end;i++) target.execSQL(CP4_DDL[i]);
+                    installCp4UnitR3251(target,first,end);
                 })) return false;
             }
             if (runPendingR64(db,completed,"R64_CP5_COLUMNS_0", target -> {
@@ -312,6 +335,35 @@ public final class ResearchMigrationRegistryR952 {
             if(!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db))throw new IllegalStateException("R82_CHAMPION_SCHEMA_REPAIR_NOT_INSTALLED");if(own)db.setTransactionSuccessful();
         }finally{if(own)db.endTransaction();}
     }
+    /** Preserve the original six-statement unit IDs. A DROP/CREATE guard pair
+     * crossing a unit boundary is executed together, using its original SQL.
+     * The next unit repeats the complete idempotent pair rather than exposing
+     * a missing Critical guard between durable callbacks. */
+    private static void installCp4UnitR3251(SQLiteDatabase db,int first,int end) {
+        java.util.regex.Pattern drop=java.util.regex.Pattern.compile(
+                "^DROP TRIGGER IF EXISTS \"?([A-Za-z0-9_]+)\"?\\s*;?$");
+        java.util.regex.Pattern create=java.util.regex.Pattern.compile(
+                "^CREATE TRIGGER(?: IF NOT EXISTS)? ([A-Za-z0-9_]+)\\b");
+        for(int i=first;i<end;i++){
+            java.util.regex.Matcher dropping=drop.matcher(CP4_DDL[i].trim());
+            if(dropping.matches()){
+                if(i+1>=CP4_DDL.length)throw new IllegalStateException("R3251_CP4_TRIGGER_PAIR_MISSING");
+                java.util.regex.Matcher replacement=create.matcher(CP4_DDL[i+1].trim());
+                if(!replacement.find()||!dropping.group(1).equals(replacement.group(1)))
+                    throw new IllegalStateException("R3251_CP4_TRIGGER_PAIR_IDENTITY");
+                db.execSQL(CP4_DDL[i]);db.execSQL(CP4_DDL[i+1]);i++;
+            }else{
+                if(i==first&&i>0){
+                    java.util.regex.Matcher previous=drop.matcher(CP4_DDL[i-1].trim());
+                    java.util.regex.Matcher replacement=create.matcher(CP4_DDL[i].trim());
+                    if(previous.matches()&&replacement.find()&&previous.group(1).equals(replacement.group(1)))
+                        db.execSQL(CP4_DDL[i-1]);
+                }
+                db.execSQL(CP4_DDL[i]);
+            }
+        }
+    }
+
     private static boolean runPendingR64(SQLiteDatabase db,java.util.Set<String> completed,String id,SchemaDomainCoordinatorR926.Step step) throws Exception {
         if (completed.contains(id)) return false;
         com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();

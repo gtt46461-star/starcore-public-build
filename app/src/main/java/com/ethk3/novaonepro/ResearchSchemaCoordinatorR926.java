@@ -136,13 +136,8 @@ public final class ResearchSchemaCoordinatorR926 {
                     // predicate succeeds on the next callback.
                     if (!extensionReady(db)) {
                         cursor = "R952_EXTENSION";
-                        db.beginTransaction();
-                        try {
-                            if (com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(db))
-                                SchemaDomainCoordinatorR926.runStep(db, contract, "R952_EXTENSION", x -> {});
-                            SchemaDomainCoordinatorR926.verifyAndStamp(db, contract);
-                            db.setTransactionSuccessful();
-                        } finally { db.endTransaction(); }
+                        if (advanceExtensionOneStep(db, contract, true))
+                            SchemaDomainCoordinatorR926.runStep(db, contract, "R952_EXTENSION", x -> {});
                         return false;
                     }
                     // Preserve the prior READY baseline and its completed journals. Exactly one
@@ -186,7 +181,7 @@ public final class ResearchSchemaCoordinatorR926 {
                 } else if ("R952_EXTENSION".equals(step)) {
                     // Each child DDL unit commits independently. A completed child survives a
                     // later preemption; one callback never holds the writer for the entire overlay.
-                    if (!com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(db))
+                    if (!advanceExtensionOneStep(db, contract, false))
                         return false;
                     SchemaDomainCoordinatorR926.runStep(db, contract, step, x -> {});
                 } else if (isAdditiveStep(step)) {
@@ -211,6 +206,21 @@ public final class ResearchSchemaCoordinatorR926 {
                 return false;
             }
         }
+    }
+
+    private static boolean advanceExtensionOneStep(SQLiteDatabase db,
+            SchemaDomainCoordinatorR926.Contract contract,boolean preserveCoreReady) {
+        final boolean[] complete={false};
+        db.beginTransaction();
+        try {
+            SchemaDomainCoordinatorR926.migrateR3251ResearchAttachments(db,
+                    com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalSourceAttachmentsR3251(),
+                    com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalReplacementDefinitionsR3251(),
+                    target -> complete[0]=com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(target));
+            if(preserveCoreReady)SchemaDomainCoordinatorR926.verifyAndStamp(db,contract);
+            db.setTransactionSuccessful();
+        } finally { db.endTransaction(); }
+        return complete[0];
     }
 
     /** Read durable completion outside a transaction; the R952 transaction cache is
@@ -278,7 +288,13 @@ public final class ResearchSchemaCoordinatorR926 {
                         MultiHorizonProbeR80.schemaR80(x);
                         if (!MultiHorizonProbeR80.readyR80(x)) throw new IllegalStateException("PROBE_SCHEMA_NOT_READY");
                     } else if (com.ethk3.novaonepro.r952.LongScaleSummaryR80.SCHEMA_STEP.equals(step)) {
-                        com.ethk3.novaonepro.r952.LongScaleSummaryR80.schema(x);
+                        // The original long-summary owner adds two R81 source guards
+                        // to Critical draws. Keep their DDL and the refreshed seal
+                        // in this same original additive-owner transaction.
+                        SchemaDomainCoordinatorR926.migrateR3251ResearchAttachments(x,
+                                com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalSourceAttachmentsR3251(),
+                                com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalReplacementDefinitionsR3251(),
+                                com.ethk3.novaonepro.r952.LongScaleSummaryR80::schema);
                         if (!com.ethk3.novaonepro.r952.LongScaleSummaryR80.ready(x)) throw new IllegalStateException("LONG_SCHEMA_NOT_READY");
                     } else if (com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.SCHEMA_STEP.equals(step)) {
                         com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.schema(x);
