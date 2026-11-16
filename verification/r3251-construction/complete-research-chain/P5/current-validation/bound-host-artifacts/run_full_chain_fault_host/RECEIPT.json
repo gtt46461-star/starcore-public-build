@@ -1,0 +1,54 @@
+{
+ "android": "NOT_RUN",
+ "checks": 525,
+ "layer": "HOST_NATIVE_SQLITE_ONE_DB_ONE_COMMIT_NOT_ART_NOT_DEVICE",
+ "naturalQuality": "NOT_PROVEN",
+ "processDeath": [
+  {
+   "haltBeforeCommit": 1,
+   "halted": true
+  },
+  {
+   "haltBeforeCommit": 3,
+   "halted": true
+  },
+  {
+   "haltBeforeCommit": 6,
+   "halted": true
+  },
+  {
+   "haltBeforeCommit": 10,
+   "halted": true
+  },
+  {
+   "haltBeforeCommit": 14,
+   "halted": true
+  },
+  {
+   "haltBeforeCommit": 18,
+   "halted": true
+  },
+  {
+   "haltBeforeCommit": 22,
+   "halted": true
+  }
+ ],
+ "status": "PASS",
+ "uninterrupted": [
+  "F01_LOCK_CONTENTION two owners x24 commits, one writer",
+  "F03_STALE_FENCE/F09_LATE_COMMIT refused after production fenced retry: F01_WRITE_FAILED|operation=R31_FULL_CHAIN_LATE_COMMIT|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK",
+  "F02_SETTLEMENT_COMMIT_FAILURE F01_WRITE_FAILED|operation=R27_LIVE_PENDING_RESOLVE|category=BUG|phase=END|commitOutcome=ROLLED_BACK",
+  "F05_OUT_OF_ORDER/B03 settlement once per prediction after injected commit failure",
+  "F04_DISK_FULL/B05+B10 GC display-only; choice, certificate, draws, frozen kept",
+  "F10_DUPLICATE_CONSUME/B08+B09 one product per result; late label refused"
+ ],
+ "manifestScenariosExecuted": [
+  "F01_LOCK_CONTENTION",
+  "F02_PROCESS_DEATH",
+  "F03_STALE_FENCE",
+  "F04_DISK_FULL",
+  "F05_OUT_OF_ORDER",
+  "F09_LATE_COMMIT",
+  "F10_DUPLICATE_CONSUME"
+ ]
+}

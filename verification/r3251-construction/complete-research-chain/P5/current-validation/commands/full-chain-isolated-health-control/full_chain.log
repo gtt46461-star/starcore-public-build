@@ -1,0 +1,25 @@
+CHAIN_DONE|checks=77|[F01_LOCK_CONTENTION two owners x24 commits, one writer, F03_STALE_FENCE/F09_LATE_COMMIT refused after production fenced retry: F01_WRITE_FAILED|operation=R31_FULL_CHAIN_LATE_COMMIT|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK, F02_SETTLEMENT_COMMIT_FAILURE F01_WRITE_FAILED|operation=R27_LIVE_PENDING_RESOLVE|category=BUG|phase=END|commitOutcome=ROLLED_BACK, F05_OUT_OF_ORDER/B03 settlement once per prediction after injected commit failure, F04_DISK_FULL/B05+B10 GC display-only; choice, certificate, draws, frozen kept, F10_DUPLICATE_CONSUME/B08+B09 one product per result; late label refused]
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=328171 task=r27-live
+HOST_ACTUAL_PROCESS_EXIT_AND_PRODUCTION_FENCED_RETRY pid=328236 task=r27-live
+OWNED_FIXTURE_ACTUAL_HEALTH_DRAIN persisted=1 pending=23 healthControlClaimIsolated=true originalGuard200ms=true backpressureAt24=true productionThresholdsChanged=false
+OWNED_FIXTURE_ACTUAL_HEALTH_DRAIN persisted=2 pending=23 healthControlClaimIsolated=true originalGuard200ms=true backpressureAt24=true productionThresholdsChanged=false
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R31_HOST_FIXTURE_CLAIM|category=STALE_OWNER|phase=END|commitOutcome=ROLLED_BACK
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:846)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:1012)
+	at com.ethk3.novaonepro.strategyv2.R31OwnedRuntimeFixture.owned(R31OwnedRuntimeFixture.java:54)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.ownerCommits(R31FullChainFaultHost.java:114)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.lambda$chain$16(R31FullChainFaultHost.java:256)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.lambda$phase$15(R31FullChainFaultHost.java:249)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.asNewOwner(R31FullChainFaultHost.java:106)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.phase(R31FullChainFaultHost.java:249)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.chain(R31FullChainFaultHost.java:256)
+	at com.ethk3.novaonepro.strategyv2.R31FullChainFaultHost.main(R31FullChainFaultHost.java:301)
+Caused by: java.lang.IllegalStateException: R31_STALE_PREPARED_LEASE
+	at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.claimWithinR31(RuntimeCoordinatorR26.java:353)
+	at com.ethk3.novaonepro.strategyv2.R31OwnedRuntimeFixture.lambda$owned$1(R31OwnedRuntimeFixture.java:55)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$atomicCallableF01$14(DatabaseCoordinator.java:1033)
+	at com.ethk3.novaonepro.DatabaseCoordinator.lambda$runWriteOrThrowF01$2(DatabaseCoordinator.java:843)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:937)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:843)
+	... 9 more
