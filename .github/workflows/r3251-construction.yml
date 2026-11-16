@@ -120,6 +120,8 @@ jobs:
     needs: android_build
     runs-on: ubuntu-latest
     timeout-minutes: 100
+    env:
+      R3251_REPORT_STARTUP_WAIT_SECONDS: '180'
     strategy:
       fail-fast: false
       matrix:

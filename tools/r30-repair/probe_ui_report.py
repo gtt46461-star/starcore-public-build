@@ -208,6 +208,13 @@ def main():
     # rather than treating every newly visible ACK as the new export.
     before_intents = set(full_report_intents())
     adb('shell', 'am', 'start', '-W', '-n', PKG + '/com.ethk3.novaonepro.MainActivity')
+    # Cold initialization runs through the production scheduler. The earlier
+    # immediate-export failures remain evidence; this fixture waits without
+    # injecting tables, changing service controls, or weakening READY assertions.
+    startup_wait = int(os.environ.get('R3251_REPORT_STARTUP_WAIT_SECONDS', '0'))
+    assert 0 <= startup_wait <= 240, 'STARTUP_FIXTURE_WAIT_BOUND'
+    for _ in range(startup_wait):
+        time.sleep(1)
     click_text('导出完整报告（含数据库和训练附件）', scrolls=45)
     capture('export-menu')
     # The production menu removes report cache only. This is the disposable CI
@@ -282,6 +289,7 @@ def main():
     receipt = {'sourceCommit': expected_source, 'result': 'PASS', 'environment': 'DISPOSABLE_ANDROID_EMULATOR',
                'entry': 'MainActivity production export button and menu', 'jobId': job,
                'zipBytes': local.stat().st_size, 'zipSha256': digest, 'entryCount': len(names),
+               'startupWarmupSeconds': startup_wait,
                'requiredNonemptyMembers': originals, 'researchSchemaReady': True, 'schemaStartupSummary': summary,
                'evidenceComplete': True, 'checksComplete': True, 'allChecksPassed': index['allChecksPassed'],
                'physicalDevice': 'NOT_RUN', 'user9656647680ByteDatabase': 'NOT_RUN', 'naturalQuality': 'NOT_PROVEN'}
