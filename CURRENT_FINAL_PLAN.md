@@ -1,5 +1,7 @@
 # STARCORE 当前施工方案
 
+每批提交前还须执行 [P00 实际源码预演补正与 Codex 追加指令](construction/verification/STARCORE_R33_5_20261119/P00/README.md)，同步已跟踪的 R967 输出，并在正式打包前验证 Git 完整历史及原 033 APK。
+
 使用 [R33.5 复核入口](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md) 和 [Codex 施工提示词](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md)。复核目录保存在本仓库，手机上传的原包保存在发布页，第一卷的已核实修订以仓库差量提供。[下载 33.5.zip](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)
 
 1. 下载发布附件，按复核入口核对外包身份，将手机展开的两个目录合并到工程外的方案目录。
