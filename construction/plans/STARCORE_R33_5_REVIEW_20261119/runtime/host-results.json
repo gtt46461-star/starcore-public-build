@@ -1,0 +1,185 @@
+{
+  "scope": "HOST_FIXTURES_ONLY",
+  "sources": {
+    "B01/recovery/prepare_exact_intake.py": {
+      "before": "763ead5fcbcf47be5dffe5e36324e2db4e06093d3f86dc7d5ce001082ac238b0",
+      "after": "4cff9d1ee5bf181cbba329773aaf31abfce9e01ce1d0b013d43847f7f89d6a82"
+    },
+    "verification/mainline/check_trace.py": {
+      "before": "e00d97def482c811a3cdb2de04f6481b079d5732085fdbaa58f0fbe86b6fce6a",
+      "after": "5e1b70f20d9f4f1d0db93578058e981e894fe4baa0dee00809792bc942bece7f"
+    },
+    "B04/tests/run_session_numerics.py": {
+      "before": "ef7f6ed3631d6665144aa7142c134a26c10191e1becb708f9afa3abcc80a287e",
+      "after": "396e8bd4e765d287f80257e05ed79e598b595d29e069498ccdf8902c83178c75"
+    }
+  },
+  "patchSha256": "6c56090aea415a128fecae8494c927a6c49e05fe41d5381c2807aa4ce5becf11",
+  "runs": {
+    "B01 checkpoint original intake": {
+      "script": "B01/recovery/test_intake.py",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "./opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py:1625: UserWarning: Duplicate name: 'r26-checkpoint-2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881.bin'\n  return self._open_to_write(zinfo, force_zip64=force_zip64)\n.......\n----------------------------------------------------------------------\nRan 8 tests in 0.675s\n\nOK"
+    },
+    "B02 trace": {
+      "script": "verification/mainline/test_trace.py",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.075s\n\nOK"
+    },
+    "B02 independent calendar": {
+      "script": "B02/enabled_window_r335/test_enabled_window.py",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "test_100_opportunities_80_frozen_all_80_settled (__main__.EnabledCoverageTests.test_100_opportunities_80_frozen_all_80_settled) ... ok\ntest_clock_jump_not_renormalized (__main__.EnabledCoverageTests.test_clock_jump_not_renormalized) ... ok\ntest_corruption_truncation_duplicate_and_status_rejected (__main__.EnabledCoverageTests.test_corruption_truncation_duplicate_and_status_rejected) ... ok\ntest_cross_boot_keeps_full_unknown_denominator (__main__.EnabledCoverageTests.test_cross_boot_keeps_full_unknown_denominator) ... ok\ntest_late_freeze_never_repaired_by_settled_label (__main__.EnabledCoverageTests.test_late_freeze_never_repaired_by_settled_label) ... ok\ntest_lost_start_witness_is_unknown_not_new_window (__main__.EnabledCoverageTests.test_lost_start_witness_is_unknown_not_new_window) ... ok\ntest_missing_history_cannot_be_inferred_from_last_enable_at (__main__.EnabledCoverageTests.test_missing_history_cannot_be_inferred_from_last_enable_at) ... ok\ntest_partial_stop_does_not_erase_missed_opportunity (__main__.EnabledCoverageTests.test_partial_stop_does_not_erase_missed_opportunity) ... ok\ntest_process_restart_does_not_close_enabled_window (__main__.EnabledCoverageTests.test_process_restart_does_not_close_enabled_window) ... ok\ntest_real_explicit_stop_only_excludes_wholly_disabled_intervals (__main__.EnabledCoverageTests.test_real_explicit_stop_only_excludes_wholly_disabled_intervals) ... ok\ntest_refused_enable_is_unknown_and_never_excluded_as_user_stop (__main__.EnabledCoverageTests.test_refused_enable_is_unknown_and_never_excluded_as_user_stop) ... ok\ntest_rotation_can_continue_at_exact_start_head (__main__.EnabledCoverageTests.test_rotation_can_continue_at_exact_start_head) ... ok\ntest_source_change_does_not_merge_windows (__main__.EnabledCoverageTests.test_source_change_does_not_merge_windows) ... ok\ntest_unsettled_original_does_not_erase_on_time_freeze (__main__.EnabledCoverageTests.test_unsettled_original_does_not_erase_on_time_freeze) ... ok\ntest_wrong_apk_and_changed_witness_rejected (__main__.EnabledCoverageTests.test_wrong_apk_and_changed_witness_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 15 tests in 0.566s\n\nOK"
+    },
+    "B03 search replay PIT and cancel": {
+      "script": "B03/tests/run_replay_parity.py",
+      "exitCode": 0,
+      "stdout": "poll/cancel assertions passed: 1186\n{\"status\": \"PASS\", \"scope\": \"ACTUAL_BASELINE_VS_PATCHED_REPLAY_DATASET_BYTE_PARITY_5000_ROWS;POLL_CANCEL;NOT_ANDROID_LATENCY\", \"digest\": \"ad10c4a75e109ad8bcc050f42d4423642201e51df29302c15d57575085977693|6006490ad6719bd4c5079b7229814b4d037ea78a9097d0dcc150fb8c7cb9b1f8|3a9a5b4bb10f4e471eb595bc27826e53c5d75f491cc9d9ca7989fa1b65719518|5000|2|2\"}",
+      "stderr": ""
+    },
+    "B03 isolated birth fixture": {
+      "script": "B03/tests/test_birth_contract.py",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "test_abandon_and_preserve_are_atomic (__main__.BirthContract.test_abandon_and_preserve_are_atomic) ... ok\ntest_empty_guard_is_not_a_write (__main__.BirthContract.test_empty_guard_is_not_a_write) ... ok\ntest_expired_parents_do_not_imply_quota_full (__main__.BirthContract.test_expired_parents_do_not_imply_quota_full) ... ok\ntest_refused_drain_birth_once (__main__.BirthContract.test_refused_drain_birth_once) ... ok\ntest_rollback_preserves_parent_and_no_false_success (__main__.BirthContract.test_rollback_preserves_parent_and_no_false_success) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.003s\n\nOK"
+    },
+    "B04 effective source numerics": {
+      "script": "B04/tests/run_session_numerics.py",
+      "exitCode": 0,
+      "stdout": "B04_ACTUAL_SESSION_NUMERICS checks=17763 workSlices=166 gradientSlices=60 evalSlices=102 pretrainSamples=3200 epoch=20 onlineUpdates=10 weightsSha256=5b17ecac4f369f0071031aa07e156232b5894be03363202146fa55308242705b\nACTUAL_PRODUCTION_CLASSES=12; BOUNDARY_SEAMS=6 (unused executable methods throw); DATABASE_AND_ANDROID_INTEGRATION=NOT_RUN",
+      "stderr": "warning: [options] system modules path not set in conjunction with -source 17\n1 warning"
+    },
+    "B01/B02 regressions": {
+      "script": "test_review.py",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "test_bet_cutoffs_independently (__main__.Corrections.test_bet_cutoffs_independently) ... ok\ntest_changed_volume_is_bounded (__main__.Corrections.test_changed_volume_is_bounded) ... ok\ntest_full_enabled_window_keeps_missing_and_timing (__main__.Corrections.test_full_enabled_window_keeps_missing_and_timing) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.264s\n\nOK"
+    }
+  },
+  "B04EffectiveNumerics": {
+    "status": "PASS_ACTUAL_PRODUCTION_SESSION_NUMERICS",
+    "observedAt": "2026-11-19T15:22:48.006280+00:00",
+    "baseline": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+    "measurements": {
+      "checks": 17763,
+      "workSlices": 166,
+      "gradientSlices": 60,
+      "evalSlices": 102,
+      "pretrainSampleVisits": 3200,
+      "epochs": 20,
+      "onlinePositionUpdates": 10,
+      "weightsSha256": "5b17ecac4f369f0071031aa07e156232b5894be03363202146fa55308242705b"
+    },
+    "uniqueTrainSamples": 160,
+    "uniqueSelectSamples": 80,
+    "withheldFormalHoldoutCount": 40,
+    "resumeParity": "EXACT_ALL_CODEC_BYTES_EXCLUDING_TWO_MEASURED_TIME_FIELDS",
+    "productionSourceClasses": [
+      "AtomNetSessionR30.java",
+      "AtomNetTrainerR27.java",
+      "AtomNetR27.java",
+      "StatsR27.java",
+      "FtrlR27.java",
+      "ModelArtifactR29.java",
+      "SplitR27.java",
+      "ReplayDatasetR27.java",
+      "NumberRankerAdapterR30.java",
+      "ResearchContractR30R1.java",
+      "LogisticRidgeSU2.java",
+      "PitGuardR30.java"
+    ],
+    "effectiveSources": {
+      "AtomNetSessionR30.java": {
+        "path": "B04/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "sha256": "7bff4f5d67818acd808dfa09b09a0c2d2987c1a28042bb3a2d92fbeb66ef4342"
+      },
+      "AtomNetTrainerR27.java": {
+        "path": "B04/baseline/AtomNetTrainerR27.java",
+        "sha256": "8d6dfdd60bfd960ab6d00bc0103e98a73249f957819fd91098db2901f0e73a67"
+      },
+      "AtomNetR27.java": {
+        "path": "B04/baseline/AtomNetR27.java",
+        "sha256": "50b5fc87e981047f3f0123383a937b0fab62751328bb631535549bf35a63393c"
+      },
+      "StatsR27.java": {
+        "path": "B04/baseline/StatsR27.java",
+        "sha256": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa"
+      },
+      "FtrlR27.java": {
+        "path": "B04/baseline/FtrlR27.java",
+        "sha256": "1c75fb114b50a9065b75f168bc682d67230f17708f51d08a85bf23420881b43f"
+      },
+      "ModelArtifactR29.java": {
+        "path": "B04/baseline/ModelArtifactR29.java",
+        "sha256": "cc145539dbaf4a68225e5668eb32655c6ecdbf70203a440a089f300a7596671c"
+      },
+      "SplitR27.java": {
+        "path": "B04/baseline/SplitR27.java",
+        "sha256": "73ba5a65d0e627e5226fec788bc5d4618c81c0e7ed5d830957a941d41def0aea"
+      },
+      "ReplayDatasetR27.java": {
+        "path": "B03/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "sha256": "73c407048af216fae08c0139990a7ab805f413e9586796ebd3174b6213108cbe"
+      },
+      "NumberRankerAdapterR30.java": {
+        "path": "B04/baseline/NumberRankerAdapterR30.java",
+        "sha256": "8b8496861082ff777b168c0c7e20078dd976479b33c1d0cfcfcf6470a65d34c8"
+      },
+      "ResearchContractR30R1.java": {
+        "path": "B04/baseline/ResearchContractR30R1.java",
+        "sha256": "985f2d30400bf4272865feb27359a4cb8f0103c9c699c028c80613a88c6dbf1c"
+      },
+      "LogisticRidgeSU2.java": {
+        "path": "B04/baseline/LogisticRidgeSU2.java",
+        "sha256": "c741a80538e33612ee07d958361acdb7ba85dbfe7c73b1e6f54caeefacb46998"
+      },
+      "PitGuardR30.java": {
+        "path": "B04/baseline/PitGuardR30.java",
+        "sha256": "43ef3fddf42828ac8d86aa444cbe16538bf90d13f9ca3ef7df21abe8b9cd3cb2"
+      }
+    },
+    "boundarySeams": [
+      {
+        "path": "com/ethk3/novaonepro/strategyv2/ExecutionBudgetR26.java",
+        "sha256": "4c0d7cc8637195e73e82787199b64658d04ed642ad65ed6dc8b2312cfcacfde7",
+        "scope": "TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED"
+      },
+      {
+        "path": "android/database/sqlite/SQLiteDatabase.java",
+        "sha256": "299ce2714e11864561c2bf615dca11d1e2d0a0db509c57bd3aed31264bbe02d0",
+        "scope": "TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED"
+      },
+      {
+        "path": "com/ethk3/novaonepro/TargetIssueResolver.java",
+        "sha256": "0857412eb15ee5509eaae253e00fd7126f1e270422eb1f3b2869b4a18e9989f6",
+        "scope": "TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED"
+      },
+      {
+        "path": "com/ethk3/novaonepro/AtomReplayR27.java",
+        "sha256": "682a6e2aae992302d856c020a02830a74ec201e4562110aa3324f8a2537ff714",
+        "scope": "TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED"
+      },
+      {
+        "path": "com/ethk3/novaonepro/strategyv2/MemoryBudgetR31.java",
+        "sha256": "5d4c2ce8180234ac4c3a21bb6f876c17d4e63da7ea97394816f5d43591ac9bb2",
+        "scope": "TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED"
+      },
+      {
+        "path": "com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+        "sha256": "b2c73483d348a200d7783da0e787373c707af415e0451b23bdf54343748a68e4",
+        "scope": "TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED"
+      }
+    ],
+    "notRun": [
+      "feature_materialization",
+      "actual_writer_CAS_publication",
+      "Android_runtime",
+      "3000_unique_draw_pipeline",
+      "user_device",
+      "natural_future_quality"
+    ]
+  }
+}

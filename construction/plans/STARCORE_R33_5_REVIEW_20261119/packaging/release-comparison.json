@@ -1,0 +1,583 @@
+{
+  "schema": "STARCORE_R335_RELEASE_COMPARISON_V1",
+  "source": {
+    "name": "33.5.zip",
+    "bytes": 626717930,
+    "sha256": "01af8e98ae4d0917b7dd3abe4bff2c44ef8e47cd80136df635cbb0441d6b3a79",
+    "releaseTag": "r33.5-plan",
+    "assetId": 768126547,
+    "fileCount": 6214,
+    "rootPrefixes": [
+      "33.5施工方案1/",
+      "33.5施工方案2/"
+    ],
+    "treeSha256": "61bc9e3c8d330b4a5cc0d19cfa0623f841531b10bc1d5555148a39e366cee27b"
+  },
+  "target": {
+    "description": "Reviewed part1 and authenticated part2 merged at their common root",
+    "archives": [
+      {
+        "name": "STARCORE_R33_5_CONSTRUCTION_20261118_part1.zip",
+        "bytes": 312757715,
+        "sha256": "31d4c07d1a9030cf868509e5491cbac9a2d371987f227e1a6bd51ed32e59cd1b"
+      },
+      {
+        "name": "STARCORE_R33_5_CONSTRUCTION_20261118_part2.zip",
+        "bytes": 309104609,
+        "sha256": "7c50cc1a4a5701b726d805389c40990a2de5b779b466d28d43ff18683bdbf321"
+      }
+    ],
+    "fileCount": 6276,
+    "treeSha256": "fecd3a42f70794171084003686270eea704bae67ed0778d47ea319d5f11a9ca0"
+  },
+  "delta": {
+    "name": "part1-delta.zip",
+    "bytes": 773242,
+    "sha256": "9ee00b01926c649473089d5174625fdb861ba6edc9aa8e6f7eb04d64d29974aa",
+    "added": 62,
+    "replaced": 17,
+    "removed": 0,
+    "unchangedFileCount": 6197
+  },
+  "treeHashAlgorithm": "SHA-256 of UTF-8 of each file digest in lowercase hex, two ASCII spaces, exact relative path and LF, sorted by path (Unicode code point order); files only, directory entries and Unix mode omitted.",
+  "fileMode": {
+    "release": "0660",
+    "certifiedPart1And2": "0644",
+    "changedExecutableBits": 0
+  },
+  "parts": [
+    {
+      "part": 1,
+      "expected_files": 6275,
+      "actual_files": 6213,
+      "missing": 62,
+      "extra": 0,
+      "changed": 17,
+      "permissionDiff": 6213,
+      "modePairs": {
+        "0o644->0o660": 6213
+      },
+      "expectedMemberManifestSha256": "a9893dbf28a76fcb70449e425dbb3f736b34caad84ac2f1b66e7c86610010f3f",
+      "actualMemberManifestSha256": "14437e85f698a3088994f43c289ff51952fa72e5295518cf080e3297245ab6f5",
+      "missingExamples": [
+        "R335_PART1_REVIEW_20261119/DELIVERY_MANIFEST.json",
+        "R335_PART1_REVIEW_20261119/HANDOFF.json",
+        "R335_PART1_REVIEW_20261119/README.md",
+        "R335_PART1_REVIEW_20261119/RECHECK_ISSUES.json",
+        "R335_PART1_REVIEW_20261119/REPAIRS.patch"
+      ],
+      "extraExamples": [],
+      "changedExamples": [
+        "STARCORE_R33_5_20261118/00_START_HERE.html",
+        "STARCORE_R33_5_20261118/04_自检结果与验收边界.md",
+        "STARCORE_R33_5_20261118/B08/README_R335.md",
+        "STARCORE_R33_5_20261118/B08/issues/R335-C07/FILES.json",
+        "STARCORE_R33_5_20261118/B08/issues/R335-C07/README.md",
+        "STARCORE_R33_5_20261118/B08/issues/R335-C07/plan_files/verification/run_stage_prefix_r335.py",
+        "STARCORE_R33_5_20261118/CODEX_EXECUTE.txt",
+        "STARCORE_R33_5_20261118/P00/issues/R335-D09/FILES.json"
+      ],
+      "permissionExamples": [
+        "STARCORE_R33_5_20261118/00_START_HERE.html",
+        "STARCORE_R33_5_20261118/01_主链与开工手册.md",
+        "STARCORE_R33_5_20261118/02_报告缺项与研究质量实现.md"
+      ]
+    },
+    {
+      "part": 2,
+      "expected_files": 1,
+      "actual_files": 1,
+      "missing": 0,
+      "extra": 0,
+      "changed": 0,
+      "permissionDiff": 1,
+      "modePairs": {
+        "0o644->0o660": 1
+      },
+      "expectedMemberManifestSha256": "c222b0b1e77a1d97395b4fa20d3b352b2f3a87c67070b0006032816e7635171f",
+      "actualMemberManifestSha256": "c222b0b1e77a1d97395b4fa20d3b352b2f3a87c67070b0006032816e7635171f",
+      "missingExamples": [],
+      "extraExamples": [],
+      "changedExamples": [],
+      "permissionExamples": [
+        "STARCORE_R33_5_20261118/verification/history_r335/host_877ae460/EXACT_EXECUTION_INPUTS.zip"
+      ]
+    }
+  ],
+  "changes": [
+    {
+      "path": "STARCORE_R33_5_20261118/00_START_HERE.html",
+      "beforeSha256": "f674be9823a8c5214f7ba4322e4b543dc68b033a5df8995b37ad54aa3e5ed406",
+      "afterSha256": "1aaf6f55bdf4fc4cbaf76da4f7e4785019fd51073c50404ad859908dc72ab32c",
+      "bytes": 78417
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/04_自检结果与验收边界.md",
+      "beforeSha256": "ec02d8d7dfca091e78b93b323ad8f4a41ae4a60cbc627469749962fe34133eb9",
+      "afterSha256": "64e16bb87d4b59aaceae6d0ba219f5faa784000988fba5a6d9b5ee7be2431b32",
+      "bytes": 12983
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/B08/README_R335.md",
+      "beforeSha256": "be278f3f7d13b23a59bdce5967bdc5345637a00e2dfea99416ab8c7451aab6f9",
+      "afterSha256": "36cb26f784a844be2a495db70efd992d408248802b8aa32e489f943956032add",
+      "bytes": 2593
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/B08/issues/R335-C07/FILES.json",
+      "beforeSha256": "b8ca676bccf6fadc920660f93b394120263b4136a45af6130cf4c624191fd28a",
+      "afterSha256": "0022b20ba9b968b9ed53c22b6271486af7b90dffded13a88cedca1541518ddb1",
+      "bytes": 4556
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/B08/issues/R335-C07/README.md",
+      "beforeSha256": "1112be21b0502061a12790ded24f3904a9875bed74a0419c8e7ce75e0f637c77",
+      "afterSha256": "90152f214c77a844ab87294ee73ecc5aaab37e2fac2d235339b3b59a78ede360",
+      "bytes": 4810
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/B08/issues/R335-C07/plan_files/verification/run_stage_prefix_r335.py",
+      "beforeSha256": "b0664219d5a111e21c46affa6ba297e80fcc3d0570e6c6a0abc305e348eef823",
+      "afterSha256": "9d4729a5e369c2c2da9aff35902969040b954958c2f9997100880176e891ec84",
+      "bytes": 7175
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/B08/issues/R335-C07/plan_files/verification/test_baseline_source_r335.py",
+      "beforeSha256": null,
+      "afterSha256": "11ae0792e9fb67097b6018e98c6b1c96f69e9feadb58382345a9a081e3636b72",
+      "bytes": 13823
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/B08/issues/R335-C07/plan_files/verification/verify_baseline_source_r335.py",
+      "beforeSha256": null,
+      "afterSha256": "16b0eecb4748415a1aa290283069b8cadd8b6bd476af7ba95fc99e0fae0a00d1",
+      "bytes": 15987
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/CODEX_EXECUTE.txt",
+      "beforeSha256": "1223fd4d75e2fe26fda232b83383f6e18dc95689324451eda9716762a62fedcc",
+      "afterSha256": "03378072f32fe702c691da01f153f5e139e9fecae987c93019bdf5bdfcd9ecd0",
+      "bytes": 5465
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/P00/issues/R335-D09/FILES.json",
+      "beforeSha256": "b0d43ef6e8ba25bbef0192f2a9760f5e08f611a8fe967f3279ddcc2c2b7a8fb4",
+      "afterSha256": "dcced975904b75aaf091a6a4ddb67dc4e951896bc77814c1f3a5681831c50f6d",
+      "bytes": 2239
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/P00/issues/R335-D09/README.md",
+      "beforeSha256": "980028495d64ec3d3a6e34fc7f4a1a24b0d824138e47aad5060b0736a33047ce",
+      "afterSha256": "256eadaec6c36b3a3429d87ca73202163d3b8988a593ebff69dbc983eda6e11d",
+      "bytes": 3178
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/P00/issues/R335-D09/plan_files/verification/README_R335.md",
+      "beforeSha256": "01182c1bb5091f2561deae9336f45cd2fef91496d200b46086ea6b614a1f641e",
+      "afterSha256": "b77351d0999d063beb676cf62a4145c92409b899dd8dc37c7c0a277939a1ae77",
+      "bytes": 7708
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/control/C01_C13_现行闭环_R335.json",
+      "beforeSha256": "88299d51bea132e2241f1dc5010a8d95398237f3e133edd88d62fb88bfe8c2fd",
+      "afterSha256": "28d6a7963c54d0f44305f01f56e14e7b0c9e387798afce924e6f63400d1781c7",
+      "bytes": 268513
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/control/ISSUE_REGISTER_R335.json",
+      "beforeSha256": "689088439002d2fe5dcdc3553d8252d69c49b81b0d823353caaa89baab22f36f",
+      "afterSha256": "722917671eed8369b0c478da962f3a151d709e2ea475c0318486c5cfefb8784c",
+      "bytes": 487868
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/control/逐批问题与文件_R335.csv",
+      "beforeSha256": "f063e9b4d4eabe2524cd3243b0eba730a0ad10d5075d8cf34866e6afc7a80f68",
+      "afterSha256": "3335c052178ec43a8ff952862c6b66bfc4a7ccc93f3d951bc10019d0ac94b11a",
+      "bytes": 159613
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/verification/README_R335.md",
+      "beforeSha256": "01182c1bb5091f2561deae9336f45cd2fef91496d200b46086ea6b614a1f641e",
+      "afterSha256": "b77351d0999d063beb676cf62a4145c92409b899dd8dc37c7c0a277939a1ae77",
+      "bytes": 7708
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/verification/contractor/施工方开工与逐批交接.md",
+      "beforeSha256": "2745979380a267293da10608a87731568a666c0fa86498a3f9d3ff0f66f44a94",
+      "afterSha256": "b36bdc6aad763cb5bbfcf892f50ad51458042da7bc74f3c4732608a4d7e30463",
+      "bytes": 9354
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/verification/run_stage_prefix_r335.py",
+      "beforeSha256": "b0664219d5a111e21c46affa6ba297e80fcc3d0570e6c6a0abc305e348eef823",
+      "afterSha256": "9d4729a5e369c2c2da9aff35902969040b954958c2f9997100880176e891ec84",
+      "bytes": 7175
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/verification/test_baseline_source_r335.py",
+      "beforeSha256": null,
+      "afterSha256": "11ae0792e9fb67097b6018e98c6b1c96f69e9feadb58382345a9a081e3636b72",
+      "bytes": 13823
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/verification/verify_baseline_source_r335.py",
+      "beforeSha256": null,
+      "afterSha256": "16b0eecb4748415a1aa290283069b8cadd8b6bd476af7ba95fc99e0fae0a00d1",
+      "bytes": 15987
+    },
+    {
+      "path": "STARCORE_R33_5_20261118/施工总说明.md",
+      "beforeSha256": "284f89fb0fb7202912adb87d12a3cf8540599670f3509ab02406df8d9cd2e0f0",
+      "afterSha256": "a67bb9f5c2180bf3b99bed737c02bee2d0e06076681d0c1baf435d22e7eed062",
+      "bytes": 14138
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/DELIVERY_MANIFEST.json",
+      "beforeSha256": null,
+      "afterSha256": "65d22f24f86e6913502c48047329b440b875e654394a395ce20c0633cbd9e8bd",
+      "bytes": 1045959
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/HANDOFF.json",
+      "beforeSha256": null,
+      "afterSha256": "b6a3833260c92e3184e98e627accd99423b737f417bef81e17a70f9053669475",
+      "bytes": 1970
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/README.md",
+      "beforeSha256": null,
+      "afterSha256": "e28794f6bb02207192981e761f20e3aa9df04c623c6aa72cfbd0bbf82465652a",
+      "bytes": 5396
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/RECHECK_ISSUES.json",
+      "beforeSha256": null,
+      "afterSha256": "a71e1ec2b1aa8bdb6410e81700a165d2042b1a01ae1713b68b01df626c90aa58",
+      "bytes": 2225
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/REPAIRS.patch",
+      "beforeSha256": null,
+      "afterSha256": "92137a901e0db3f6ee081c1806c86a1c01a183857937d77746190a3a1fab2765",
+      "bytes": 254444
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/delivery_tools/assemble_part1.py",
+      "beforeSha256": null,
+      "afterSha256": "76283a9efb97376d1de548b424b60b88982882a0f73e6de994d319bf33c6dd06",
+      "bytes": 9504
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/delivery_tools/test_assemble_part1.py",
+      "beforeSha256": null,
+      "afterSha256": "42efc2176a5b954391c1dc225e373212e2ad206a3a5eb8de1c5966cf544eb0b1",
+      "bytes": 8266
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/baseline-source-guard.log",
+      "beforeSha256": null,
+      "afterSha256": "3aa679fc7f2cb36031079288cb097384c9eb8479fa164f60f19be53fc60cdcda",
+      "bytes": 2745
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/build-contracts.log",
+      "beforeSha256": null,
+      "afterSha256": "7c758af7411e05fc2e6c4fb89045f7a03d9a5957d5305092903a23a66373d034",
+      "bytes": 107
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/contractor-stage.log",
+      "beforeSha256": null,
+      "afterSha256": "20445a261fc46a7a5ae1e4b50408c5c0e70f3de715828de20f3e835ad9f7e02b",
+      "bytes": 1482
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/current-completion-after.log",
+      "beforeSha256": null,
+      "afterSha256": "f2dcdcd574a9a8de77f47919fe2ca2f885e6a61f9ed17310f6e5576cbd2ca202",
+      "bytes": 796
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/current-delivery-structure-after.log",
+      "beforeSha256": null,
+      "afterSha256": "33011f903f70511f877a309d9139a1c6ab01809b39f846e0f17bca718b763e04",
+      "bytes": 438
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/delivery.log",
+      "beforeSha256": null,
+      "afterSha256": "b0d76ae75a0dde6e185b7067d0dc34fe469f78c9979c5273c57ed09e324ee7a4",
+      "bytes": 864
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/prefix_path_escape_after.json",
+      "beforeSha256": null,
+      "afterSha256": "a6ab86751d63c85ca8acd118dd985eb51e26df534ff0af1052433da986b0b56a",
+      "bytes": 497
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/prefix_unverified_baseline_repro.json",
+      "beforeSha256": null,
+      "afterSha256": "d4c2257bae999a58a56ed5ed877b164ab8ab8502899b26249a195bcd93bdbd47",
+      "bytes": 988
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_repo/version.log",
+      "beforeSha256": null,
+      "afterSha256": "f63abce607ee7f69b883a7ae18470491acdb60556686ba3f15bcb723542a47a8",
+      "bytes": 690
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/RESEARCH_REVIEW.json",
+      "beforeSha256": null,
+      "afterSha256": "5b279faee6097741f817b351e6145f1a814889e9a668dccea89f77ec715175c8",
+      "bytes": 2239
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/b03.log",
+      "beforeSha256": null,
+      "afterSha256": "aa08ad431ad1465c506e93cc9e5d0935d2a3b65684070212b36592647573308b",
+      "bytes": 133
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/b04.log",
+      "beforeSha256": null,
+      "afterSha256": "8560132f3e77aba540b079727db3087851491a88b7b4dfb5a75317830dccae6b",
+      "bytes": 647
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/b05-policy.log",
+      "beforeSha256": null,
+      "afterSha256": "6b1fff70d60d6cb6cfda4b2ce3633ab67fe6f80d4fa46b6f8166d8b8153847e8",
+      "bytes": 246
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/b05-sql.log",
+      "beforeSha256": null,
+      "afterSha256": "057cd6d3d08584793accec0eac1b0bbd672062a5c2de911ef7ca822abd2974a9",
+      "bytes": 137
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/b07-case.log",
+      "beforeSha256": null,
+      "afterSha256": "90f25461cf3d349b065c2baccbd73e8aeff589923028014481d05c47a4b722b2",
+      "bytes": 1147
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/b07-report.log",
+      "beforeSha256": null,
+      "afterSha256": "5de365486b906d5a18c5b7f92a45d9e07b6a634aa48f370fc1b8946ebfea4271",
+      "bytes": 359
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/baseline_guard_after.log",
+      "beforeSha256": null,
+      "afterSha256": "e46fa02b67544068f9a7429eade362c939cefe48d9069631a3e757c5c70e7f3f",
+      "bytes": 2745
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/prefix_boundary_after.json",
+      "beforeSha256": null,
+      "afterSha256": "417c0e1dc0790c40680fe126ce590d4b123c4a9802bf64b38f01bb6546238d32",
+      "bytes": 1620
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/prefix_path_escape_after.json",
+      "beforeSha256": null,
+      "afterSha256": "a6ab86751d63c85ca8acd118dd985eb51e26df534ff0af1052433da986b0b56a",
+      "bytes": 497
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/prefix_path_escape_before.json",
+      "beforeSha256": null,
+      "afterSha256": "ead9c8227c894097d378a4a3841c9e11c1a308ab3c8d714559b61df885a4c381",
+      "bytes": 488
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/probe_prefix_path_escape.py",
+      "beforeSha256": null,
+      "afterSha256": "bac3a239d1ea6b4eb0c02e92f808af788b05a06b5e0b680bbbc8a68c9e6691a6",
+      "bytes": 3590
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_research/test_assemble_part1.log",
+      "beforeSha256": null,
+      "afterSha256": "acf379d677f0d8a3e648d265d1f18b7551880d430890e07f05641b15059f7fd0",
+      "bytes": 2003
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/B01__legacy_retirement_r335__test_custody_package.py.log",
+      "beforeSha256": null,
+      "afterSha256": "f02201eace4cce08745fb09e830a90f601536fbe7a721bc32104f181aa74eb48",
+      "bytes": 1585
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/B01__recovery__test_intake.py.log",
+      "beforeSha256": null,
+      "afterSha256": "7b8fd401bc1e88e48d97ccd71aed980161c883c6e101c215e9ce58d8196822a2",
+      "bytes": 385
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/B01__tests__host_runtime__run.py.log",
+      "beforeSha256": null,
+      "afterSha256": "e89700ad39fb6e9e856764da0d4fd673cd1e547c0172fefb8bb82049ea7a3339",
+      "bytes": 1168
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/B01__tests__host_runtime__run_legacy.py.log",
+      "beforeSha256": null,
+      "afterSha256": "7fea015cf204b7608a50bb0e2cdfb979e198d0d385154a6106e3ab3518115b2b",
+      "bytes": 220
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/B01__tests__host_runtime__run_recovery.py.log",
+      "beforeSha256": null,
+      "afterSha256": "52593fdb761a6d6e5d9c40d83609d5a131a6f340a82cb13427d4048ca6996956",
+      "bytes": 1071
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/B02__tests__essential_host__run.py.log",
+      "beforeSha256": null,
+      "afterSha256": "b29fad0d0c973a31f735e1a1f4724c9c560cfb208d6a6536fde7638332cae863",
+      "bytes": 1031
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/B02__tests__run_r335_runtime.py.log",
+      "beforeSha256": null,
+      "afterSha256": "9b7aaff81d68273f2ecca4560f0a1e247b3d3c44c184518f246d5af812d06228",
+      "bytes": 386
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/runtime_review_receipt.json",
+      "beforeSha256": null,
+      "afterSha256": "096718e640ea13763d1092da1a9fae129d33aff255ba1bc6f836472ee3dac084",
+      "bytes": 4193
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/verify_part1_fixture_receipt.json",
+      "beforeSha256": null,
+      "afterSha256": "d973c0e7330233880fa5a925008314795eb0c1f74c1399323d17e9224822c5f8",
+      "bytes": 658
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/logs/audit_tmp_runtime/verify_part1_fixture_tests.log",
+      "beforeSha256": null,
+      "afterSha256": "14bbe5d5391cfa12c4ab1dad228334167b0054d8bbd1570470c7663f1c2f99fd",
+      "bytes": 3067
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/00_START_HERE.html",
+      "beforeSha256": null,
+      "afterSha256": "f674be9823a8c5214f7ba4322e4b543dc68b033a5df8995b37ad54aa3e5ed406",
+      "bytes": 77439
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/04_自检结果与验收边界.md",
+      "beforeSha256": null,
+      "afterSha256": "ec02d8d7dfca091e78b93b323ad8f4a41ae4a60cbc627469749962fe34133eb9",
+      "bytes": 12422
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/B08/README_R335.md",
+      "beforeSha256": null,
+      "afterSha256": "be278f3f7d13b23a59bdce5967bdc5345637a00e2dfea99416ab8c7451aab6f9",
+      "bytes": 2150
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/B08/issues/R335-C07/FILES.json",
+      "beforeSha256": null,
+      "afterSha256": "b8ca676bccf6fadc920660f93b394120263b4136a45af6130cf4c624191fd28a",
+      "bytes": 3646
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/B08/issues/R335-C07/README.md",
+      "beforeSha256": null,
+      "afterSha256": "1112be21b0502061a12790ded24f3904a9875bed74a0419c8e7ce75e0f637c77",
+      "bytes": 3591
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/B08/issues/R335-C07/plan_files/verification/run_stage_prefix_r335.py",
+      "beforeSha256": null,
+      "afterSha256": "b0664219d5a111e21c46affa6ba297e80fcc3d0570e6c6a0abc305e348eef823",
+      "bytes": 6989
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/CODEX_EXECUTE.txt",
+      "beforeSha256": null,
+      "afterSha256": "1223fd4d75e2fe26fda232b83383f6e18dc95689324451eda9716762a62fedcc",
+      "bytes": 4944
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/P00/issues/R335-D09/FILES.json",
+      "beforeSha256": null,
+      "afterSha256": "b0d43ef6e8ba25bbef0192f2a9760f5e08f611a8fe967f3279ddcc2c2b7a8fb4",
+      "bytes": 2239
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/P00/issues/R335-D09/README.md",
+      "beforeSha256": null,
+      "afterSha256": "980028495d64ec3d3a6e34fc7f4a1a24b0d824138e47aad5060b0736a33047ce",
+      "bytes": 3178
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/P00/issues/R335-D09/plan_files/verification/README_R335.md",
+      "beforeSha256": null,
+      "afterSha256": "01182c1bb5091f2561deae9336f45cd2fef91496d200b46086ea6b614a1f641e",
+      "bytes": 5088
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/control/C01_C13_现行闭环_R335.json",
+      "beforeSha256": null,
+      "afterSha256": "88299d51bea132e2241f1dc5010a8d95398237f3e133edd88d62fb88bfe8c2fd",
+      "bytes": 268513
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/control/ISSUE_REGISTER_R335.json",
+      "beforeSha256": null,
+      "afterSha256": "689088439002d2fe5dcdc3553d8252d69c49b81b0d823353caaa89baab22f36f",
+      "bytes": 485994
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/control/逐批问题与文件_R335.csv",
+      "beforeSha256": null,
+      "afterSha256": "f063e9b4d4eabe2524cd3243b0eba730a0ad10d5075d8cf34866e6afc7a80f68",
+      "bytes": 158935
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/verification/README_R335.md",
+      "beforeSha256": null,
+      "afterSha256": "01182c1bb5091f2561deae9336f45cd2fef91496d200b46086ea6b614a1f641e",
+      "bytes": 5088
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/verification/contractor/施工方开工与逐批交接.md",
+      "beforeSha256": null,
+      "afterSha256": "2745979380a267293da10608a87731568a666c0fa86498a3f9d3ff0f66f44a94",
+      "bytes": 7885
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/verification/run_stage_prefix_r335.py",
+      "beforeSha256": null,
+      "afterSha256": "b0664219d5a111e21c46affa6ba297e80fcc3d0570e6c6a0abc305e348eef823",
+      "bytes": 6989
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/originals/施工总说明.md",
+      "beforeSha256": null,
+      "afterSha256": "284f89fb0fb7202912adb87d12a3cf8540599670f3509ab02406df8d9cd2e0f0",
+      "bytes": 13577
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/test_verify_part1.py",
+      "beforeSha256": null,
+      "afterSha256": "f9e0cc12000b8c56249cd95c8f01572854c9c56587223bd6b67f08d14e2f8797",
+      "bytes": 8693
+    },
+    {
+      "path": "R335_PART1_REVIEW_20261119/verify_part1.py",
+      "beforeSha256": null,
+      "afterSha256": "1e84ddfc898bf3aa8d8651d5d626666985a029c64312bcd9342bd895bffc6735",
+      "bytes": 10300
+    }
+  ]
+}

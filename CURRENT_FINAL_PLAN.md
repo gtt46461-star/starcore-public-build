@@ -1,25 +1,14 @@
-# STARCORE 当前唯一施工方案：R32.5.1
+# STARCORE 当前施工方案
 
-当前入口仍为 **`construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/`**，已更新为**R32.5.1最终复核修订**。旧R31/R32只保全历史需求与证据，不并行指挥施工。生产代码候选仍R32.5/577311033。
+使用 [R33.5 复核入口](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md) 和 [Codex 施工提示词](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md)。复核目录保存在本仓库，手机上传的原包保存在发布页，第一卷的已核实修订以仓库差量提供。[下载 33.5.zip](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)
 
-- [打开当前施工入口](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/REPOSITORY_ENTRY.md)
-- [本次深度复核与直接修订](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/FINAL_REVIEW_R3251.md)
-- [取得完整ZIP和恢复说明](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/README.md)
-- [Codex施工提示词](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/CODEX_PROMPT.txt)
-- [实际验证范围](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/VERIFICATION.json)
-- [交付身份及精确计数](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/DELIVERY.json)
-- [外部条件与未签收范围](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/OPEN_ITEMS.md)
+1. 下载发布附件，按复核入口核对外包身份，将手机展开的两个目录合并到工程外的方案目录。
+2. 按复核入口使用仓库提供的差量补齐第一卷 62 个缺件、更新 17 个旧件，核验全部成员后再应用本次方案修订并执行自检命令。保留历史宿主回执和原始材料，用本次实际运行结果判断当前状态。
+3. 在包含 033 基线 `bb7b49bbcc9266bad548ec37e71403256fc06a4d` 的真实工程检出上，按 P00 → B01 → B02 → B03 → B04 → B05 → B06 → B07 → B08 施工。当前范围为 9 阶段、66 项施工问题、142 次生产文件变更、129 条不同生产路径。
+4. 逐批落实原方案的版本、签名、APK 与设备验收，最终按当前复核入口记录的状态提交证据。
 
-保持5批、18个联合问题、312件受控路径、410份完整文件卡。直接修复声明权限未执行/续施工忽略权限以及报告证据路径错误，新增原报告输入重抽校验，完整重跑36条五批命令；39个应用器与13个续施工回归通过。
+## 历史方案索引
 
-完整ZIP：`STARCORE_R32_5_1_FINAL_REPAIR_20261115.zip`，291,124,244字节，2021个文件成员。C1已补齐两张保全说明卡，当前410张卡覆盖312路径；[逐批问题与全部文件](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/BATCH_FILE_EXPLANATION.md)。源码、原报告及全部施工代码都在总包中；仓库发布页只展开导读和关键审计。
+R32.5.1 的总包、问题清单、复核与验证范围可在[历史交付目录](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/README.md)检索。
 
-```bash
-cd construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115
-python3 restore_package.py --extract R32_5_1_restored
-cd R32_5_1_restored/STARCORE_R32_5_FINAL_REPAIR_20261115
-```
-
-总包SHA-256：`ceb5e3516452524de2519781bff04ba9f844bb95f95052bd4c2778928b856966`。
-
-精确源码基线仍为`7424eeae6354eb6599dd8498e123c059bd410c90`；先在隔离源码工作树检查现状，再执行P1→P5。宿主工程通过不代签正式APK、实际设备24/72小时或新资产自然高胜率；全部原门保持。
+该历史版包含 5 批、18 个联合问题、312 条受控路径和 410 份完整文件卡。可查阅[历史复核](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/FINAL_REVIEW_R3251.md)、[交付清单](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/DELIVERY.json)和[既有验证](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/VERIFICATION.json)。

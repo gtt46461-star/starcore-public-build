@@ -1,0 +1,59 @@
+--- a/B01/recovery/prepare_exact_intake.py
++++ b/B01/recovery/prepare_exact_intake.py
+@@ -50,7 +50,10 @@
+     if self.handle:self.handle.close()
+     self.handle=self.paths[i].open('rb');self.part=i
+    offset=self.pos-self.starts[i];self.handle.seek(offset)
+-   take=min(n,self.paths[i].stat().st_size-offset);b=self.handle.read(take)
++   end=self.starts[i+1] if i+1<len(self.starts) else self.total
++   take=min(n,end-self.pos)
++   if take<=0:raise IOError('PART_CHANGED_WHILE_READING')
++   b=self.handle.read(take)
+    if len(b)!=take:raise IOError('PART_CHANGED_WHILE_READING')
+    out.extend(b);self.pos+=take;n-=take
+   return bytes(out)
+--- a/verification/mainline/check_trace.py
++++ b/verification/mainline/check_trace.py
+@@ -81,14 +81,14 @@
+             all(p[k] == r[k] for k in ('candidate_id','model_hash','certificate_hash','proof_hash','action_hash','authorization_hash'))
+             and all(re.fullmatch('[0-9a-f]{64}',p[k] or '') for k in ('calibration_hash','scope_policy_hash')) and bool(p['selection_hash'])
+             and p['selected_hit_p'] == freeze['selected_hit_p'] and 0 <= p['selected_hit_p'] <= 1 and
+-            0 < p['captured_at'] <= p['committed_at'] < min(draw_row['open_time'], draw_row['first_seen_at']),
++            0 < p['captured_at'] <= p['committed_at'] < min(freeze['deadline_at'], draw_row['open_time'], draw_row['first_seen_at']),
+             'REAL_PROBABILITY_LINEAGE')
+     require(t['base_issue'] == freeze['base_issue'] and t['position'] == freeze['position']
+             and tuple(t[f'n{i}'] for i in (1, 2, 3)) == k3 and t['_id'] == r['trade_id']
+             and r['candidate_id'] and r['action_hash'] == action_hash and t['authorization_id'] == r['authorization_hash'] == freeze['authorization_hash']
+             and all(re.fullmatch('[0-9a-f]{64}', r[k] or '') for k in
+                     ('model_hash','certificate_hash','proof_hash','recipe_hash','action_hash'))
+-            and 0 < r['committed_at'] < min(draw_row['open_time'], draw_row['first_seen_at'])
++            and 0 < r['committed_at'] < min(freeze['deadline_at'], draw_row['open_time'], draw_row['first_seen_at'])
+             and t['settled'] == 1 and t['actual_number'] == actual and t['hit'] == hit
+             and t['result'] == ('WIN' if hit else 'MISS'), 'REAL_IDENTITY_OR_RESULT')
+     return [digest('R36_REAL', t['_id'], draw_row['draw_hash_v2'], actual, hit),
+--- a/B04/tests/run_session_numerics.py
++++ b/B04/tests/run_session_numerics.py
+@@ -22,7 +22,14 @@
+  t=Path(t);src=t/'src';classes=t/'classes';classes.mkdir();files=[]
+  for path,body in seams.items():
+   p=src/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(body);files.append(p)
+- files.extend((root/'payload/app/src/main/java/com/ethk3/novaonepro/strategyv2'/n) if (root/'payload/app/src/main/java/com/ethk3/novaonepro/strategyv2'/n).exists() else root/'baseline'/n for n in production)
++ # Use each owner's effective stage file; baseline already has its Git blob verified above.
++ package=Path('app/src/main/java/com/ethk3/novaonepro/strategyv2')
++ selected={}
++ for name in production:
++  candidates=[root/'after_full'/package/name,root.parent/'B03/after_full'/package/name,root/'baseline'/name]
++  source=next(path for path in candidates if path.is_file())
++  selected[name]={'path':source.relative_to(root.parent).as_posix(),'sha256':hashlib.sha256(source.read_bytes()).hexdigest()}
++  files.append(source)
+  files.extend([root/'after/AtomNetProgressR33.java',root/'tests/AtomNetSessionNumericalProbe.java'])
+  subprocess.run([java,'-m','jdk.compiler/com.sun.tools.javac.Main','-source','17','-target','17','-d',str(classes)]+list(map(str,files)),check=True)
+  result=subprocess.run([java,'-cp',str(classes),'com.ethk3.novaonepro.strategyv2.AtomNetSessionNumericalProbe'],check=True,text=True,capture_output=True)
+@@ -31,6 +38,6 @@
+  assert found, 'numerical receipt not emitted'
+  keys=['checks','workSlices','gradientSlices','evalSlices','pretrainSampleVisits','epochs','onlinePositionUpdates','weightsSha256']
+  measurements={key:(int(v) if key!='weightsSha256' else v) for key,v in zip(keys,found.groups())}
+- receipt={'status':'PASS_ACTUAL_PRODUCTION_SESSION_NUMERICS','observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'baseline':manifest['ref'],'measurements':measurements,'uniqueTrainSamples':160,'uniqueSelectSamples':80,'withheldFormalHoldoutCount':40,'resumeParity':'EXACT_ALL_CODEC_BYTES_EXCLUDING_TWO_MEASURED_TIME_FIELDS','productionSourceClasses':production,'boundarySeams':[{'path':p,'sha256':hashlib.sha256(body.encode()).hexdigest(),'scope':'TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED'} for p,body in seams.items()],'notRun':['feature_materialization','actual_writer_CAS_publication','Android_runtime','3000_unique_draw_pipeline','user_device','natural_future_quality']}
++ receipt={'status':'PASS_ACTUAL_PRODUCTION_SESSION_NUMERICS','observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'baseline':manifest['ref'],'measurements':measurements,'uniqueTrainSamples':160,'uniqueSelectSamples':80,'withheldFormalHoldoutCount':40,'resumeParity':'EXACT_ALL_CODEC_BYTES_EXCLUDING_TWO_MEASURED_TIME_FIELDS','productionSourceClasses':production,'effectiveSources':selected,'boundarySeams':[{'path':p,'sha256':hashlib.sha256(body.encode()).hexdigest(),'scope':'TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED'} for p,body in seams.items()],'notRun':['feature_materialization','actual_writer_CAS_publication','Android_runtime','3000_unique_draw_pipeline','user_device','natural_future_quality']}
+  (root/'SESSION_NUMERICS_RECEIPT.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+ print('ACTUAL_PRODUCTION_CLASSES=12; BOUNDARY_SEAMS=6 (unused executable methods throw); DATABASE_AND_ANDROID_INTEGRATION=NOT_RUN')

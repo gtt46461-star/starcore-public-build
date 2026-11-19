@@ -1,4 +1,4 @@
-> **当前施工使用 [STARCORE R32.1](CURRENT_FINAL_PLAN.md)。** Android 工程分支为 [construction/r31-final-20261104](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r31-final-20261104)。[下载方案 ZIP](https://raw.githubusercontent.com/gtt46461-star/starcore-public-build/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115.zip) · [复制 Codex 提示词](https://github.com/gtt46461-star/starcore-public-build/blob/b703131a228c20c992a9d220b7e4a9e6de8f8130/construction/repairs/STARCORE_R32_REPAIR_20261115/CODEX_PROMPT.txt)。
+> **当前施工方案为 [STARCORE R33.5 复核版](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)。** [Codex 施工提示词](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md) · [GitHub 发布原包](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)。发布包内是手机展开的两个目录。按当前复核入口应用第一卷差量并运行验证命令，按 P00 → B01 → B02 → B03 → B04 → B05 → B06 → B07 → B08 施工。
 
 ## 历史发布记录
 
@@ -12,7 +12,9 @@
 
 > R29 方案及发布说明见[历史提交](https://github.com/gtt46461-star/starcore-public-build/blob/96fb4355748a2f28e31927e1f9cb8cb61fac6547/CURRENT_FINAL_PLAN.md)。
 
-# 星核创研 R13 · 公有独立版
+## 历史工程档案 · 星核创研 R13 公有独立版
+
+下列版本、功能、构建说明和验证结果对应 R13 历史交付。R33.5 操作与证据见页首复核入口。
 
 公有仓库的独立 Android 应用。包名 `com.starcore.research.r13`，显示名称“星核创研 R13”，版本 `R13-5.4.3.03-2026.10.24`，versionCode `577251062`。使用独立固定签名，可与私有原版 `com.ethk3.novaonepro` 及旧公有 SU1 同时安装；数据分别保存在各自应用目录。
 

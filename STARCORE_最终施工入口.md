@@ -1,3 +1,5 @@
-# STARCORE 当前施工入口
+# STARCORE 最终施工入口
 
-当前唯一交付修订为 **R32.5.1**，请读取 [CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。方案代码为R32.5/033，完整总包、当前复核与全部恢复说明从该入口取得。旧版本只保全原需求与历史证据。
+[打开 R33.5 当前施工方案](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md) · [复制给 Codex 的施工提示词](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md)
+
+从当前入口取得发布附件、第一卷差量、复核修订和验证方式，按 P00 到 B08 的顺序实施。施工规模和历史方案入口见 [CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。
