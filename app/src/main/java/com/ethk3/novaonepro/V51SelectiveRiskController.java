@@ -30,7 +30,17 @@ public final class V51SelectiveRiskController {
             realEligible = eligible;
             proofReason = reason;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Result(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.lane = (V51Enums.Lane) decodedR335.value(0);
+            this.rejectCode = (V51Enums.RejectCode) decodedR335.value(1);
+            this.cell = (V51PolicyCell) decodedR335.value(2);
+            this.realEligible = ((Boolean) decodedR335.value(3)).booleanValue();
+            this.proofReason = (String) decodedR335.value(4);
+        }
+}
 
     private final V51PolicySurfaceEngine surface = new V51PolicySurfaceEngine();
     private final V51SelectivePolicyCompiler compiler = new V51SelectivePolicyCompiler();

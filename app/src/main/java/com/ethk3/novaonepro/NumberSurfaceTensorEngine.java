@@ -62,7 +62,22 @@ public final class NumberSurfaceTensorEngine {
             }
             return b.toString();
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        TensorResult(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.tensor = (double[][][][]) decodedR335.value(0);
+            this.exclusive = (double[][]) decodedR335.value(1);
+            this.assignmentMargin = (double[][]) decodedR335.value(2);
+            this.conflict = (double[][]) decodedR335.value(3);
+            this.effectiveExperts = (double[]) decodedR335.value(4);
+            this.positionPredictability = (double[]) decodedR335.value(5);
+            this.expertJaccard = (double[][]) decodedR335.value(6);
+            this.expertMutualInformation = (double[][]) decodedR335.value(7);
+            this.checksum = (String) decodedR335.value(8);
+            this.diagnostics = (String) decodedR335.value(9);
+        }
+}
 
     public TensorResult build(
             V51Models.ExpertEvidence[] experts,

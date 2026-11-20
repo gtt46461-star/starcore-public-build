@@ -145,36 +145,102 @@ public final class RuntimeSchemaR26 {
     public static long reconcileFeedbackR31(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget){
         budget.checkpointOrYield();
         final java.util.List<Models.Draw> missing=new java.util.ArrayList<>();
-        try(Cursor rows=store.readable().rawQuery("SELECT d.issue FROM draws d JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=d.issue LEFT JOIN r26_feedback f ON f.source_hash=d.draw_hash_v2 WHERE d.dirty=0 AND f.event_id IS NULL ORDER BY d.issue LIMIT 8",null)){
-            while(rows.moveToNext()){Models.Draw draw=store.getDrawByIssue(rows.getString(0));if(draw!=null&&draw.isValid())missing.add(draw);}
+        String afterDraw=store.getState("r335_native_draw_after","");if(!afterDraw.matches("[0-9]{12}"))afterDraw="";
+        final String[] scannedDraw={afterDraw};
+        try(Cursor rows=store.readable().rawQuery("SELECT d.issue FROM "+DrawDependencyInputCP12.SOURCE+" d JOIN "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c ON c.target_issue=d.issue AND c.status='CONFIRMED_CANONICAL_DRAW' LEFT JOIN r26_feedback f ON f.source_hash=d.draw_hash_v2 WHERE d.dirty=0 AND f.event_id IS NULL ORDER BY CASE WHEN d.issue>? THEN 0 ELSE 1 END,d.issue LIMIT 8",new String[]{afterDraw})){
+            while(rows.moveToNext()){scannedDraw[0]=rows.getString(0);Models.Draw draw=store.getDrawByIssue(scannedDraw[0]);if(draw!=null&&draw.isValid())missing.add(draw);}
         }
         budget.checkpointOrYield();
         return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
                 DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_DATA,"R31_FEEDBACK_RECONCILE"),db->{
                     RuntimeCoordinatorR26.requireFence(db,claim);long work=0;
                     for(Models.Draw draw:missing){if(!confirmedDrawR31(db,draw))continue;feedbackWithinTransaction(db,draw);work++;}
+                    stateR335(db,"r335_native_draw_after",scannedDraw[0]);
                     work+=typedDrawEventsR31(db,8);work+=typedFrozenEventsR31(db,8);work+=bridgeModelReceiptsR31(db,16);work+=consumeFrozenEffectsR31(db,8);
                     return work;
                 });
     }
     private static long typedDrawEventsR31(SQLiteDatabase db,int limit){
-        java.util.List<String[]> prepared=new java.util.ArrayList<>();
-        try(Cursor rows=db.rawQuery("SELECT f.event_id,f.issue_ordinal,f.source_hash,f.payload,f.ready_at FROM r26_feedback f WHERE NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='DRAW_LABEL_REVEALED' AND e.legacy_event_id=f.event_id) ORDER BY f.issue_ordinal LIMIT ?",new String[]{String.valueOf(limit)})){
+        final String cursorKey="r335_native_draw_event_after";String after="";
+        try(Cursor c=db.rawQuery("SELECT state_value FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key=?",new String[]{cursorKey})){if(c.moveToFirst()&&c.getString(0)!=null&&c.getString(0).matches("[0-9a-f]{64}"))after=c.getString(0);}
+        java.util.List<String[]> prepared=new java.util.ArrayList<>();String last=after;long applied=0;
+        try(Cursor rows=db.rawQuery("SELECT f.event_id,f.issue_ordinal,f.source_hash,f.payload,f.ready_at FROM r26_feedback f WHERE NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='DRAW_LABEL_REVEALED' AND e.legacy_event_id=f.event_id) ORDER BY CASE WHEN f.event_id>? THEN 0 ELSE 1 END,f.event_id LIMIT ?",new String[]{after,String.valueOf(Math.max(1,Math.min(8,limit)))})){
             while(rows.moveToNext())prepared.add(new String[]{rows.getString(0),rows.getString(1),rows.getString(2),rows.getString(3),rows.getString(4)});
         }
-        for(String[] row:prepared){String issue=row[3].split(",",2)[0];appendEventR31(db,"DRAW_LABEL_REVEALED",issue,Long.parseLong(row[1]),row[2],"",row[0],row[3],"CONFIRMED_DRAW_R26_COMPAT_OUTBOX",Long.parseLong(row[4]));}
-        return prepared.size();
+        for(String[] row:prepared){last=row[0];
+            Models.Draw draw=new Models.Draw();long ordinal,at;
+            try{
+                if(row[3]==null||row[3].length()>128)throw new IllegalArgumentException("DRAW_PAYLOAD_BOUND");
+                String[] values=row[3].split(",",-1);if(values.length!=11)throw new IllegalArgumentException("DRAW_PAYLOAD_SHAPE");draw.issue=values[0];
+                for(int i=0;i<10;i++)draw.numbers[i]=Integer.parseInt(values[i+1]);
+                ordinal=Long.parseLong(row[1]);at=Long.parseLong(row[4]);
+                if(!draw.isValid()||!TargetIssueResolver.isValid(draw.issue)||ordinal!=TargetIssueResolver.sequenceOrdinalSU1(draw.issue)
+                    ||!PolicyIdentityR26.sha256("R26_SETTLED|"+draw.issue).equals(row[0])||!DrawHashR36.sha256V2(draw).equals(row[2]))throw new IllegalArgumentException("DRAW_SOURCE_IDENTITY");
+                try(Cursor original=db.rawQuery("SELECT open_time,draw_hash_v2 FROM "+DrawDependencyInputCP12.SOURCE+" WHERE issue=? AND dirty=0",new String[]{draw.issue})){
+                    if(original.moveToFirst()){if(!row[2].equals(original.getString(1)))throw new IllegalArgumentException("DRAW_ORIGINAL_CHANGED");draw.openTime=original.getLong(0);}
+                }
+                if(!confirmedDrawR31(db,draw))throw new IllegalArgumentException("DRAW_NOT_CONFIRMED");
+            }catch(IllegalArgumentException invalid){stateR335(db,"r335_native_draw_last_rejection",last+"|"+invalid.getMessage());continue;}
+            appendEventR31(db,"DRAW_LABEL_REVEALED",draw.issue,ordinal,row[2],"",row[0],row[3],"CONFIRMED_DRAW_R26_COMPAT_OUTBOX",at);applied++;
+        }
+        stateR335(db,cursorKey,last);return applied;
+    }
+    /** The active native producer uses the same exact PIT proof as the receiver; no parallel r33 outbox. */
+    private static final String FROZEN_SELECT_R335=
+        "SELECT o.target_issue,s.game_code,s.base_issue,s.history_max_issue,s.record_hash,s.snapshot_hash,s.action_space_hash,s.history_hash,"
+        +"s.commit_at,s.deadline_at,d.open_time,d.first_seen_at,s.position,s.n1,s.n2,s.n3,o.actual_number,o.hit_label,"
+        +"o.record_hash,o.provenance_hash,o.selected_hit_p,o.settled_at,d.draw_hash_v2,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10,t.completed_at"
+        +" FROM "+DbHelper.TABLE_R35_OOS_LABEL+" o JOIN "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s ON s.target_issue=o.target_issue"
+        +" AND s.game_code=o.game_code AND s.base_issue=o.base_issue JOIN "+DrawDependencyInputCP12.SOURCE+" d ON d.issue=o.target_issue"
+        +" JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=o.target_issue AND t.draw_issue=o.target_issue AND t.status='COMPLETED' AND t.draw_hash=d.draw_hash_v2"
+        +" WHERE o.strict_oos=1 AND o.pre_draw_frozen=1 AND s.pre_draw_frozen=1 AND s.settled=1 AND d.dirty=0"
+        +" AND s.settlement_hash=o.record_hash AND s.position=o.position AND s.n1=o.n1 AND s.n2=o.n2 AND s.n3=o.n3"
+        +" AND s.actual_number=o.actual_number AND s.hit_label=o.hit_label AND o.prediction_created_at=s.commit_at"
+        +" AND o.draw_open_time=d.open_time AND s.base_issue=s.history_max_issue AND s.base_issue<s.target_issue"
+        +" AND s.commit_at>0 AND s.deadline_at>0 AND s.commit_at<s.deadline_at AND s.commit_at<d.open_time AND s.commit_at<d.first_seen_at";
+    private static final class FrozenR335 {
+        final String issue,canonical,source,label;final Double probability;final int hit;final long settled;
+        FrozenR335(Cursor c){
+            if (c.getType(10) != Cursor.FIELD_TYPE_INTEGER || c.getType(11) != Cursor.FIELD_TYPE_INTEGER
+                    || c.getType(21) != Cursor.FIELD_TYPE_INTEGER || c.getType(33) != Cursor.FIELD_TYPE_INTEGER
+                    || !FrozenFeedbackProofR335.observedLabelTime(c.getLong(10), c.getLong(11), c.getLong(21))
+                    || c.getLong(33) < c.getLong(21))
+                throw new IllegalArgumentException("R335_FROZEN_FEEDBACK_SETTLEMENT_TIME");
+            if (!TargetIssueResolver.exact(c.getString(2), c.getString(0)).valid)
+                throw new IllegalArgumentException("R335_FROZEN_FEEDBACK_BASE_ISSUE");
+            int[] picks={c.getInt(13),c.getInt(14),c.getInt(15)},draw=new int[10];for(int i=0;i<10;i++)draw[i]=c.getInt(23+i);
+            FrozenFeedbackProofR335.verify(c.getString(0),c.getString(2),c.getString(3),c.getLong(8),c.getLong(9),c.getLong(10),c.getLong(11),
+                c.getInt(12),picks,draw,c.getInt(16),c.getInt(17),c.getString(4),c.getString(5),c.getString(6),c.getString(7),c.getString(22),c.getString(19),c.getString(18));
+            if(!ReleaseManifestR926.GAME_CODE.equals(c.getString(1)))throw new IllegalArgumentException("R335_FEEDBACK_GAME");
+            issue=c.getString(0);canonical=c.getString(4);source=c.getString(22);label=c.getString(18);hit=c.getInt(17);settled=c.getLong(21);
+            probability=c.isNull(20)||c.getDouble(20)==-1.0?null:c.getDouble(20);
+            if(probability!=null&&(!Double.isFinite(probability)||probability<0||probability>1))throw new IllegalArgumentException("R335_FEEDBACK_PROBABILITY");
+        }
+    }
+    private static String cursorR335(SQLiteDatabase db,String key){
+        try(Cursor c=db.rawQuery("SELECT state_value FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key=?",new String[]{key})){
+            if(c.moveToFirst()){String x=c.getString(0);return x!=null&&x.matches("[0-9]{12}")?x:"";}return "";
+        }
+    }
+    private static void stateR335(SQLiteDatabase db,String key,String value){
+        db.execSQL("INSERT OR REPLACE INTO "+DbHelper.TABLE_APP_STATE+"(state_key,state_value,updated_at) VALUES(?,?,?)",new Object[]{key,value,System.currentTimeMillis()});
     }
     private static long typedFrozenEventsR31(SQLiteDatabase db,int limit){
-        java.util.List<Object[]> prepared=new java.util.ArrayList<>();
-        try(Cursor rows=db.rawQuery("SELECT o.target_issue,d.draw_hash_v2,s.record_hash,o.record_hash,o.selected_hit_p,o.hit_label,o.settled_at FROM "+DbHelper.TABLE_R35_OOS_LABEL+" o JOIN "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s ON s.target_issue=o.target_issue JOIN draws d ON d.issue=o.target_issue WHERE o.strict_oos=1 AND o.pre_draw_frozen=1 AND s.pre_draw_frozen=1 AND s.settled=1 AND s.commit_at>0 AND s.commit_at<d.open_time AND s.commit_at<d.first_seen_at AND d.dirty=0 AND NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='FROZEN_RESULT' AND e.issue=o.target_issue AND e.canonical_hash=s.record_hash) ORDER BY o.target_issue LIMIT ?",new String[]{String.valueOf(limit)})){
+        final String key="r335_native_frozen_producer_after";String after=cursorR335(db,key),last=after;
+        java.util.List<FrozenR335> prepared=new java.util.ArrayList<>();int rejected=0;
+        try(Cursor rows=db.rawQuery(FROZEN_SELECT_R335
+                +" AND NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='FROZEN_RESULT' AND e.issue=o.target_issue AND e.canonical_hash=s.record_hash)"
+                +" ORDER BY CASE WHEN o.target_issue>? THEN 0 ELSE 1 END,o.target_issue LIMIT ?",new String[]{after,String.valueOf(Math.max(1,Math.min(8,limit)))})){
             while(rows.moveToNext()){
-                java.util.Map<String,Object> payload=new java.util.LinkedHashMap<>();payload.put("labelHash",rows.getString(3));payload.put("probability",rows.isNull(4)?null:rows.getDouble(4));payload.put("hit",rows.getInt(5));payload.put("role","FUTURE_FROZEN_RESULT");
-                prepared.add(new Object[]{rows.getString(0),rows.getString(1),rows.getString(2),JsonR27.write(payload),rows.getLong(6)});
+                last=rows.getString(0);try{prepared.add(new FrozenR335(rows));}
+                catch(IllegalArgumentException invalid){rejected++;stateR335(db,"r335_native_frozen_last_rejection",last+"|"+invalid.getMessage());}
             }
         }
-        for(Object[] row:prepared)appendEventR31(db,"FROZEN_RESULT",(String)row[0],TargetIssueResolver.sequenceOrdinalSU1((String)row[0]),(String)row[1],(String)row[2],"",(String)row[3],"STRICT_OOS_ORIGINAL_CANONICAL",(Long)row[4]);
-        return prepared.size();
+        for(FrozenR335 row:prepared){java.util.Map<String,Object> payload=new java.util.LinkedHashMap<>();
+            payload.put("labelHash",row.label);payload.put("probability",row.probability);payload.put("hit",row.hit);
+            payload.put("role","MAINLINE_FROZEN_OBSERVATION");payload.put("evidenceUse","RESIDUAL_DIAGNOSTICS_NOT_QUALIFICATION");
+            appendEventR31(db,"FROZEN_RESULT",row.issue,TargetIssueResolver.sequenceOrdinalSU1(row.issue),row.source,row.canonical,"",JsonR27.write(payload),"STRICT_OOS_ORIGINAL_CANONICAL_R335",row.settled);}
+        stateR335(db,key,last);stateR335(db,"r335_native_frozen_rejected_last_page",String.valueOf(rejected));return prepared.size();
     }
     private static void appendEventR31(SQLiteDatabase db,String kind,String issue,long ordinal,String source,String canonical,String legacy,String payload,String producer,long at){
         String event=PolicyIdentityR26.sha256("R31_FEEDBACK|"+kind+'|'+issue+'|'+source+'|'+canonical),hash=PolicyIdentityR26.sha256(payload);
@@ -189,23 +255,41 @@ public final class RuntimeSchemaR26 {
         return changedR31(db);
     }
     private static long consumeFrozenEffectsR31(SQLiteDatabase db,int limit){
-        final String consumer="R31_FROZEN_RESIDUAL_V1";
-        java.util.List<String[]> events=new java.util.ArrayList<>();
-        try(Cursor rows=db.rawQuery("SELECT e.event_id,e.issue_ordinal,e.source_hash,e.payload FROM r31_feedback_event e WHERE e.kind='FROZEN_RESULT' AND NOT EXISTS(SELECT 1 FROM r31_feedback_receipt r WHERE r.consumer_version=? AND r.event_id=e.event_id) ORDER BY e.issue_ordinal,e.event_id LIMIT ?",new String[]{consumer,String.valueOf(limit)})){
-            while(rows.moveToNext())events.add(new String[]{rows.getString(0),rows.getString(1),rows.getString(2),rows.getString(3)});
+        // New consumer identity leaves any legacy aggregate intact instead of laundering it into current evidence.
+        final String consumer=FrozenFeedbackProofR335.RESIDUAL_CONSUMER,cursorKey="r335_native_frozen_consumer_v3_after";
+        String after=cursorR335(db,cursorKey),last=after,afterEvent="",lastEvent="";
+        try(Cursor cursor=db.rawQuery("SELECT state_value FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key=?",new String[]{cursorKey+"_event"})){if(cursor.moveToFirst()&&cursor.getString(0)!=null&&cursor.getString(0).matches("[0-9a-f]{64}"))afterEvent=cursor.getString(0);}
+        lastEvent=afterEvent;java.util.List<String[]> events=new java.util.ArrayList<>();
+        try(Cursor rows=db.rawQuery("SELECT e.event_id,e.issue_ordinal,e.source_hash,e.payload,e.issue,e.canonical_hash,e.payload_hash FROM r31_feedback_event e"
+                +" WHERE e.kind='FROZEN_RESULT' AND NOT EXISTS(SELECT 1 FROM r31_feedback_receipt r WHERE r.consumer_version=? AND r.event_id=e.event_id)"
+                +" ORDER BY CASE WHEN e.issue>? OR(e.issue=? AND e.event_id>?) THEN 0 ELSE 1 END,e.issue,e.event_id LIMIT ?",new String[]{consumer,after,after,afterEvent,String.valueOf(Math.max(1,Math.min(8,limit)))})){
+            while(rows.moveToNext())events.add(new String[]{rows.getString(0),rows.getString(1),rows.getString(2),rows.getString(3),rows.getString(4),rows.getString(5),rows.getString(6)});
         }
-        long count=0,calibrated=0;double brier=0,residual=0;
-        try(Cursor prior=db.rawQuery("SELECT events,calibrated_events,brier_sum,residual_sum FROM r31_frozen_feedback_effect WHERE consumer_version=?",new String[]{consumer})){if(prior.moveToFirst()){count=prior.getLong(0);calibrated=prior.getLong(1);brier=prior.getDouble(2);residual=prior.getDouble(3);}}
-        for(String[] row:events){
-            Object decoded=JsonR27.parse(row[3]);if(!(decoded instanceof java.util.Map))throw new IllegalStateException("R31_FROZEN_FEEDBACK_PAYLOAD");
-            java.util.Map<?,?> payload=(java.util.Map<?,?>)decoded;Object probability=payload.get("probability"),label=payload.get("hit");
-            if(!(label instanceof Number)||(((Number)label).intValue()!=0&&((Number)label).intValue()!=1))throw new IllegalStateException("R31_FROZEN_FEEDBACK_LABEL");
-            count++;if(probability instanceof Number){double p=((Number)probability).doubleValue();if(Double.isFinite(p)&&p>=0&&p<=1){double delta=((Number)label).doubleValue()-p;calibrated++;brier+=delta*delta;residual+=delta;}}
+        long count=0,calibrated=0,applied=0;double brier=0,residual=0;
+        try(Cursor prior=db.rawQuery("SELECT events,calibrated_events,brier_sum,residual_sum FROM r31_frozen_feedback_effect WHERE consumer_version=?",new String[]{consumer})){
+            if(prior.moveToFirst()){count=prior.getLong(0);calibrated=prior.getLong(1);brier=prior.getDouble(2);residual=prior.getDouble(3);}}
+        for(String[] row:events){last=row[4];lastEvent=row[0];FrozenR335 source;
+            try(Cursor c=db.rawQuery(FROZEN_SELECT_R335+" AND o.target_issue=? AND s.record_hash=? LIMIT 2",new String[]{row[4],row[5]})){
+                if(!c.moveToFirst()){stateR335(db,"r335_native_frozen_last_rejection",last+"|SOURCE_UNAVAILABLE_OR_PIT_REJECTED");continue;}
+                try{source=new FrozenR335(c);}catch(IllegalArgumentException invalid){stateR335(db,"r335_native_frozen_last_rejection",last+"|"+invalid.getMessage());continue;}
+                if(c.moveToNext()){stateR335(db,"r335_native_frozen_last_rejection",last+"|AMBIGUOUS_ORIGINAL_SOURCE");continue;}
+            }
+            Object decoded;try{decoded=JsonR27.parse(row[3]);}catch(RuntimeException malformed){Error fatal=FailureDispositionR31.processFatalCause(malformed);if(fatal!=null)throw fatal;stateR335(db,"r335_native_frozen_last_rejection",last+"|PAYLOAD_FORMAT");continue;}
+            if(!(decoded instanceof java.util.Map)){stateR335(db,"r335_native_frozen_last_rejection",last+"|PAYLOAD_TYPE");continue;}
+            java.util.Map<?,?> payload=(java.util.Map<?,?>)decoded;Object p=payload.get("probability"),hit=payload.get("hit");
+            boolean probabilityMatches=source.probability==null?p==null:p instanceof Number&&Double.doubleToLongBits(source.probability)==Double.doubleToLongBits(((Number)p).doubleValue());
+            long eventOrdinal;try{eventOrdinal=Long.parseLong(row[1]);}catch(NumberFormatException invalid){stateR335(db,"r335_native_frozen_last_rejection",last+"|ORDINAL_FORMAT");continue;}
+            String event=PolicyIdentityR26.sha256("R31_FEEDBACK|FROZEN_RESULT|"+source.issue+'|'+source.source+'|'+source.canonical);
+            if(!event.equals(row[0])||!source.source.equals(row[2])||!PolicyIdentityR26.sha256(row[3]).equals(row[6])
+                    ||!source.label.equals(payload.get("labelHash"))||!(hit instanceof Number)||((Number)hit).doubleValue()!=source.hit||!probabilityMatches
+                    ||eventOrdinal!=TargetIssueResolver.sequenceOrdinalSU1(source.issue)){
+                stateR335(db,"r335_native_frozen_last_rejection",last+"|EVENT_PAYLOAD_SOURCE_MISMATCH");continue;}
+            count++;applied++;if(source.probability!=null){double delta=source.hit-source.probability;calibrated++;brier+=delta*delta;residual+=delta;}
             String state=PolicyIdentityR26.sha256(consumer+'|'+count+'|'+calibrated+'|'+Double.toHexString(brier)+'|'+Double.toHexString(residual)+'|'+row[0]);long now=System.currentTimeMillis();
-            db.execSQL("INSERT OR REPLACE INTO r31_frozen_feedback_effect VALUES(?,?,?,?,?,?,?,?)",new Object[]{consumer,count,calibrated,brier,residual,Long.parseLong(row[1]),state,now});
-            db.execSQL("INSERT INTO r31_feedback_receipt VALUES(?,?,?,?,?,?,?,?)",new Object[]{consumer,row[0],row[2],"",state,"","NUMERIC_RESEARCH_FROZEN_RESIDUAL_NOT_MODEL_TRAINING",now});
+            db.execSQL("INSERT OR REPLACE INTO r31_frozen_feedback_effect VALUES(?,?,?,?,?,?,?,?)",new Object[]{consumer,count,calibrated,brier,residual,eventOrdinal,state,now});
+            db.execSQL("INSERT INTO r31_feedback_receipt VALUES(?,?,?,?,?,?,?,?)",new Object[]{consumer,row[0],row[2],"",state,"","NUMERIC_RESEARCH_RESIDUAL_NOT_MODEL_TRAINING_OR_QUALIFICATION",now});
         }
-        return events.size();
+        stateR335(db,cursorKey,last);stateR335(db,cursorKey+"_event",lastEvent);return applied;
     }
     private static long changedR31(SQLiteDatabase db){try(Cursor row=db.rawQuery("SELECT changes()",null)){return row.moveToFirst()?row.getLong(0):0;}}
     private static boolean confirmedDrawR31(SQLiteDatabase db,Models.Draw draw){

@@ -313,7 +313,41 @@ public final class ControlledCandidateOpportunityAuditR922 {
                     && createdAt > 0L
                     && recordHash.length() == 64;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Opportunity(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.baseIssue = (String) decodedR335.value(0);
+            this.targetIssue = (String) decodedR335.value(1);
+            this.runtimeVersion = (String) decodedR335.value(2);
+            this.gateCode = (String) decodedR335.value(3);
+            this.gateDetail = (String) decodedR335.value(4);
+            this.governanceLane = (String) decodedR335.value(5);
+            this.governanceCandidate = (String) decodedR335.value(6);
+            this.governanceStatus = (String) decodedR335.value(7);
+            this.authorizedAction = (String) decodedR335.value(8);
+            this.authorizedReject = (String) decodedR335.value(9);
+            this.recordHash = (String) decodedR335.value(10);
+            this.gateEligible = ((Boolean) decodedR335.value(11)).booleanValue();
+            this.governanceApplied = ((Boolean) decodedR335.value(12)).booleanValue();
+            this.controlledInfluenceEligible = ((Boolean) decodedR335.value(13)).booleanValue();
+            this.position = ((Integer) decodedR335.value(14)).intValue();
+            this.n1 = ((Integer) decodedR335.value(15)).intValue();
+            this.n2 = ((Integer) decodedR335.value(16)).intValue();
+            this.n3 = ((Integer) decodedR335.value(17)).intValue();
+            this.governanceWeight = ((Double) decodedR335.value(18)).doubleValue();
+            this.rawActionP = ((Double) decodedR335.value(19)).doubleValue();
+            this.thirdMargin = ((Double) decodedR335.value(20)).doubleValue();
+            this.actionStability = ((Double) decodedR335.value(21)).doubleValue();
+            this.entropy = ((Double) decodedR335.value(22)).doubleValue();
+            this.assignmentSupport = ((Double) decodedR335.value(23)).doubleValue();
+            this.falsifier = ((Double) decodedR335.value(24)).doubleValue();
+            this.rankRetention = ((Double) decodedR335.value(25)).doubleValue();
+            this.thirdRobustness = ((Double) decodedR335.value(26)).doubleValue();
+            this.marginRobustness = ((Double) decodedR335.value(27)).doubleValue();
+            this.createdAt = ((Long) decodedR335.value(28)).longValue();
+        }
+}
 
     public static final class Report {
         public final String readStatus, targetState, latestTarget, error;

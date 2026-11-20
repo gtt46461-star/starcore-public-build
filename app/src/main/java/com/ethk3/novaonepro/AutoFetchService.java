@@ -347,6 +347,9 @@ public final class AutoFetchService extends Service {
     /* B07 guard is independent from fetch/SQLite work so a blocked fetch cannot hide liveness. */
     private HandlerThread runtimeGuardThread;
     private Handler runtimeGuardHandler;
+    private HandlerThread writerFaultThreadR334;
+    private Handler writerFaultHandlerR334;
+    private FaultControlLoopR334 writerFaultControlR334;
     private HandlerThread livenessThreadR817;
     private Handler livenessHandlerR817;
     private HandlerThread analysisWatchdogThread;
@@ -1005,6 +1008,8 @@ public final class AutoFetchService extends Service {
         researchCaptureQueueR946.stop();
         clearHandlerCallbacksR363(fetchHandler);
         clearHandlerCallbacksR363(runtimeGuardHandler);
+        if(writerFaultControlR334!=null)writerFaultControlR334.stop();
+        clearHandlerCallbacksR363(writerFaultHandlerR334);
         clearHandlerCallbacksR363(livenessHandlerR817);
         clearHandlerCallbacksR363(analysisWatchdogHandler);
         countdownWorkPostedR964.set(false);
@@ -1015,6 +1020,7 @@ public final class AutoFetchService extends Service {
         clearHandlerCallbacksR363(microHandler);
         quitThread(fetchThread);
         quitThread(runtimeGuardThread);
+        quitThread(writerFaultThreadR334);
         quitThread(livenessThreadR817);
         quitThread(analysisWatchdogThread);
         quitThread(analysisThread);
@@ -1029,6 +1035,9 @@ public final class AutoFetchService extends Service {
         fetchHandler = null;
         runtimeGuardThread = null;
         runtimeGuardHandler = null;
+        writerFaultControlR334 = null;
+        writerFaultHandlerR334 = null;
+        writerFaultThreadR334 = null;
         livenessThreadR817 = null;
         livenessHandlerR817 = null;
         analysisWatchdogThread = null;
@@ -1429,6 +1438,15 @@ public final class AutoFetchService extends Service {
                             "starcore_b07_runtime_guard", Process.THREAD_PRIORITY_DEFAULT);
             runtimeGuardThread.start();
             runtimeGuardHandler = new Handler(runtimeGuardThread.getLooper());
+            writerFaultThreadR334 = new HandlerThread("starcore_r334_writer_fault_control", Process.THREAD_PRIORITY_DEFAULT);
+            writerFaultThreadR334.start();
+            writerFaultHandlerR334 = new Handler(writerFaultThreadR334.getLooper());
+            final Handler faultSchedulerR334=writerFaultHandlerR334;
+            writerFaultControlR334 = new FaultControlLoopR334(1000L,
+                ()->android.os.SystemClock.elapsedRealtime(),new FaultControlLoopR334.Scheduler(){
+                    @Override public boolean postDelayed(Runnable task,long delay){return faultSchedulerR334.postDelayed(task,delay);}
+                    @Override public void remove(Runnable task){faultSchedulerR334.removeCallbacks(task);}
+                },()->drainWriterFaultControlR334());
             livenessThreadR817 =
                     new HandlerThread(
                             "starcore_r817_liveness", Process.THREAD_PRIORITY_BACKGROUND);
@@ -1875,7 +1893,7 @@ public final class AutoFetchService extends Service {
     @Override
     public void onDestroy() {
         if(faultMaintenanceR335!=null)faultMaintenanceR335.close();
-        teardownThreadsR82 = new Thread[] { startupInitThread,fetchThread,runtimeGuardThread,
+        teardownThreadsR82 = new Thread[] { startupInitThread,fetchThread,runtimeGuardThread,writerFaultThreadR334,
                 livenessThreadR817,analysisWatchdogThread,analysisThread,backfillThread,backtestThread,
                 learningThread,settlementRecoveryThreadR908,countdownThreadR973,researchThreadR908,microThread };
         try {
@@ -1906,10 +1924,12 @@ public final class AutoFetchService extends Service {
                 startupHeartbeatHandlerR323.removeCallbacksAndMessages(null);
         } catch (Throwable ignore) {
         }
+        if(writerFaultControlR334!=null)writerFaultControlR334.stop();
         if (runtimeInitialized) stopWork();
         quitThread(startupInitThread);
         quitThread(fetchThread);
         quitThread(runtimeGuardThread);
+        quitThread(writerFaultThreadR334);
         quitThread(livenessThreadR817);
         quitThread(analysisWatchdogThread);
         quitThread(analysisThread);
@@ -2421,6 +2441,28 @@ public final class AutoFetchService extends Service {
         if (store != null && (continuousRuntimeR26 == null || "TERMINATED".equals(continuousRuntimeR26.stopStateR31())))
             continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store);
     }
+    // Dedicated Looper. SQL is still serialized by the original global writer.
+    private void drainWriterFaultControlR334() {
+        final DbStore localStore=store;
+        if(!running||userRequestedStopV5||localStore==null)return;
+        if(faultMaintenanceR335!=null)faultMaintenanceR335.signal(localStore);
+        try {
+            com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainControlSliceR32(localStore);
+            java.util.LinkedHashMap<String,String> projection=new java.util.LinkedHashMap<>();
+            projection.put("r33_main_writer_faults",com.ethk3.novaonepro.strategyv2.JsonR27.write(
+                com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.snapshot()));
+            projection.put("r33_main_writer_faults_process",getApplicationInfo().processName);
+            projection.put("r33_main_writer_faults_pid",String.valueOf(android.os.Process.myPid()));
+            projection.put("r33_main_writer_faults_wall",String.valueOf(System.currentTimeMillis()));
+            if(writerFaultControlR334!=null)projection.put("r334_fault_control_schedule",
+                java.util.Arrays.toString(writerFaultControlR334.snapshot()));
+            localStore.trySetTelemetryStatesR77(projection);
+        } catch(RuntimeException failure) {
+            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;
+            android.util.Log.w("R334WriterFaultControl","bounded drain/projection unavailable",failure);
+        }
+    }
+
     private volatile long lastResearchControlElapsedR31;
     private final Runnable researchControlLoopR31=new Runnable(){@Override public void run(){
         if(!running||userRequestedStopV5)return;
@@ -2428,7 +2470,10 @@ public final class AutoFetchService extends Service {
         catch(RuntimeException failure){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;CrashRecorder.recordCaught(getApplicationContext(),failure,"R31_RESEARCH_CONTROL");}
         finally{if(running&&!userRequestedStopV5&&runtimeGuardHandler!=null)runtimeGuardHandler.postDelayed(this,5000L);}
     }};
-    private void postResearchControlR31(){if(runtimeGuardHandler!=null){runtimeGuardHandler.removeCallbacks(researchControlLoopR31);runtimeGuardHandler.post(researchControlLoopR31);}}
+    private void postResearchControlR31(){
+        if(running&&!userRequestedStopV5&&writerFaultControlR334!=null)writerFaultControlR334.start();
+        if(runtimeGuardHandler!=null){runtimeGuardHandler.removeCallbacks(researchControlLoopR31);runtimeGuardHandler.post(researchControlLoopR31);}
+    }
     private void reconcileResearchOwner(String reason){
         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
         if(faultMaintenanceR335!=null)faultMaintenanceR335.signal(store);
@@ -2439,7 +2484,7 @@ public final class AutoFetchService extends Service {
         // This existing off-main control lane runs while R26/R27 are still
         // initializing. Fault delivery cannot depend on the research pool whose
         // writes are waiting for these exact durable receipts.
-        com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainControlSliceR32(store);
+        // Writer fault delivery is owned by writerFaultThreadR334 even while research initialization is blocked.
         store.requestLegacySchemaMigrationR31();
         ensureContinuousRuntimeR26();
         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 owner=continuousRuntimeR26;
@@ -2475,7 +2520,7 @@ public final class AutoFetchService extends Service {
             stopSelf();
             return;
         }
-        ensureContinuousRuntimeR26();
+        // Research initialization is owned by the posted control task; it cannot gate live startup.
         if (running) {
             postResearchControlR31();
             refreshBuildIdentityAndModuleState("startWork_running");
@@ -2492,6 +2537,7 @@ public final class AutoFetchService extends Service {
         fetchGenerationR31++;
         fetchCadenceR31.beginSession(android.os.SystemClock.elapsedRealtime());offlineStreakR31=0;
         running = true;
+        if(writerFaultControlR334!=null)writerFaultControlR334.start();
         forceRefresh = true;
         startLightweightHeartbeatR817();
         refreshBuildIdentityAndModuleState("startup");
@@ -2616,6 +2662,7 @@ public final class AutoFetchService extends Service {
     }
 
     private void stopWork() {
+        if(writerFaultControlR334!=null)writerFaultControlR334.stop();
         if(runtimeGuardHandler!=null)runtimeGuardHandler.removeCallbacks(researchControlLoopR31);
         researchControlPostedR31.set(false);fetchGenerationR31++;running=false;
         fetchCadenceR31.endSession(android.os.SystemClock.elapsedRealtime());
