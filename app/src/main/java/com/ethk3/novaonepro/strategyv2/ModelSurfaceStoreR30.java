@@ -26,7 +26,7 @@ public final class ModelSurfaceStoreR30 {
     static Prepared archived(SQLiteDatabase ro,ReplayDatasetR27 data){
         Prepared p=new Prepared();if(data.size()==0)return p;
         Map<String,ModelSurfaceProviderR30.FrozenModelRef> verifiedModels=new LinkedHashMap<String,ModelSurfaceProviderR30.FrozenModelRef>(16,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,ModelSurfaceProviderR30.FrozenModelRef> e){return size()>16;}};
-        Map<Long,Integer> indices=new HashMap<>();Map<Integer,String> hashes=new HashMap<>();for(int i=0;i<data.size();i++)indices.put(data.ordinals[i],i);
+        Map<Long,Integer> indices=new HashMap<>();Map<Integer,String> hashes=new HashMap<>();for(int i=0;i<data.size();i++){if((i&63)==0)ExecutionBudgetR26.poll();indices.put(data.ordinals[i],i);}
         try(Cursor c=ro.rawQuery("SELECT s.target_ordinal,s.position,s.model_hash,s.history_hash,s.probabilities,s.probability_hash,s.trained_through_ordinal,s.model_available_at,s.feature_through_ordinal,s.feature_available_at,s.prepared_at,s.frozen_at,s.deadline_at,a.feature_abi,a.weights,a.trained_through_ordinal,a.available_at FROM r30_model_surface s JOIN r30_model_artifact a ON a.model_hash=s.model_hash WHERE s.target_ordinal>=? AND s.target_ordinal<=? ORDER BY s.frozen_at ASC",new String[]{Long.toString(data.ordinals[0]),Long.toString(data.ordinals[data.size()-1])})){
             while(c.moveToNext()){
                 Integer row=indices.get(c.getLong(0));if(row==null)continue;int position=c.getInt(1);long key=ModelSurfaceProviderR30.key(row,position);if(p.rows.containsKey(key))continue;
@@ -39,9 +39,9 @@ public final class ModelSurfaceStoreR30 {
                     ModelSurfaceProviderR30.Surface s=ModelSurfaceProviderR30.archived(c.getString(2),hash,StoreR27.unpack(c.getBlob(4)),c.getLong(0),c.getLong(6),c.getLong(7),c.getLong(8),c.getLong(9),position,c.getLong(10),c.getLong(11),c.getLong(12));
                     if(!s.probabilityHash.equals(c.getString(5)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_PROBABILITY_HASH");
                     p.rows.put(key,s);
-                }catch(RuntimeException invalid){p.blocked.put(key,(FailureDispositionR31.classify(invalid).disposition==FailureDispositionR31.Disposition.DEPENDENCY?"UNAVAILABLE_ARCHIVED_SURFACE:":"INVALID_ARCHIVED_SURFACE:")+invalid.getMessage());}
+                }catch(RuntimeException invalid){if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;p.blocked.put(key,(FailureDispositionR31.classify(invalid).disposition==FailureDispositionR31.Disposition.DEPENDENCY?"UNAVAILABLE_ARCHIVED_SURFACE:":"INVALID_ARCHIVED_SURFACE:")+invalid.getMessage());}
             }
-        }catch(RuntimeException missingSchema){p.blocked.put(-1L,"MODEL_SCHEMA_UNAVAILABLE");}
+        }catch(RuntimeException missingSchema){if(missingSchema instanceof BudgetTokenSU1.Yield||missingSchema instanceof java.util.concurrent.CancellationException)throw missingSchema;p.blocked.put(-1L,"MODEL_SCHEMA_UNAVAILABLE");}
         return p;
     }
     public static void bindHistorical(SQLiteDatabase ro,FeatureCacheR27 cache){archived(ro,cache.data).bind(cache);}
@@ -58,7 +58,7 @@ public final class ModelSurfaceStoreR30 {
                 double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[pos-1],frame.present[pos-1],true),pos);long now=System.currentTimeMillis();
                 ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(cache.data.ordinals[row],row>0?cache.data.ordinals[row-1]:cache.data.ordinals[row],pos,history,x,now,now,now,deadline);
                 ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,ref);p.rows.put(key,surface);p.models.put(ref.modelHash,ref);
-            }catch(RuntimeException invalid){p.blocked.put(key,invalid.getMessage());}
+            }catch(RuntimeException invalid){if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;p.blocked.put(key,invalid.getMessage());}
         }
         p.bind(cache);return p;
     }
