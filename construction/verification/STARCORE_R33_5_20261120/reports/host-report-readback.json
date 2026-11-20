@@ -1,0 +1,1451 @@
+{
+  "assertions": 396,
+  "reportReadbacks": [
+    {
+      "attachedObjects": 120,
+      "needResults": [
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "capabilities:F01",
+            "capabilities:F23"
+          ],
+          "consumerPurpose": "Foundry按预算训练并提交状态",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "TRAINING_FAMILY_EXECUTION",
+          "negativeVerification": "错ABI、缺教师、只有RUNNING无提交不得算训练完成",
+          "nextAction": "沿原candidate和owner/fence查训练输入；缺绑定补接口，数值ABI不匹配保全旧父代并生成独立子代。",
+          "ownerBatch": "B03",
+          "ownerInspectionSha256": "5188279354713a4a1e9bab45e697872af3b79ad5f381737782c33efe80a52cce",
+          "positiveVerification": "读取真实权重变化、cursor提交及重启恢复相等原件",
+          "producerPurpose": "构建已注册家族",
+          "proposalId": null,
+          "registryEntrySha256": "db68dbf4b94e2ac68df4f3b287cdf85002b91de0a6fdbac84be1c42bc477af51",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": true,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:F01",
+              "persistedObjectBlocker": "BLOCKED_WARM_NUMERICAL_ABI_PRESERVED",
+              "produced": null,
+              "status": null
+            },
+            {
+              "callable": false,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": "F23_ORIGINAL_TEACHER_NOT_BOUND",
+              "hasExplicitBlocker": true,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "F23_ORIGINAL_TEACHER_NOT_BOUND",
+              "objectKey": "capabilities:F23",
+              "persistedObjectBlocker": "BLOCKED_WARM_NUMERICAL_ABI_PRESERVED",
+              "produced": null,
+              "status": null
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "PIT输入",
+            "相同策略身份",
+            "原checkpoint与ABI"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.FamilyRegistryR26",
+              "method": "build",
+              "observedNamedSignatures": [
+                "build[java.lang.String]"
+              ],
+              "parameters": [
+                "java.lang.String"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.FoundryCampaignR26",
+              "method": "step",
+              "observedNamedSignatures": [
+                "step[com.ethk3.novaonepro.DbStore, java.util.function.Supplier, com.ethk3.novaonepro.strategyv2.BudgetTokenSU1]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.DbStore",
+                "java.util.function.Supplier",
+                "com.ethk3.novaonepro.strategyv2.BudgetTokenSU1"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B03/README_R335.md",
+          "sourceSnapshot": 1794807656624,
+          "title": "家族构建、训练和状态恢复"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "capabilities:ATOMNET",
+            "researchCharts:R14"
+          ],
+          "consumerPurpose": "冻结时同模型概率面消费",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "TEN_POSITION_TRAINING_SURFACE",
+          "negativeVerification": "材料样本增加但training=0；只文件无消费；错epoch不得通过",
+          "nextAction": "按publicationId采集样本、梯度、optimizer、模型哈希、发布与消费；归档失败独立隔离。",
+          "ownerBatch": "B04",
+          "ownerInspectionSha256": "a845c74c3f0af3ae5b71a1236de2719671351d2ae04616372f9ada6f56fb6fa8",
+          "positiveVerification": "参数重算与重启一致；在线冻结引用同modelHash",
+          "producerPurpose": "梯度训练并发布模型",
+          "proposalId": null,
+          "registryEntrySha256": "d970afc3699da690e1a264230ae2c25b0a5479f340be91cebd18b2ff2fd5cb5b",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:ATOMNET",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R14",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "同epoch十位置",
+            "训练截止",
+            "publicationId/modelHash"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.AtomNetRuntimeR30",
+              "method": "step",
+              "observedNamedSignatures": [
+                "step[com.ethk3.novaonepro.strategyv2.RuntimeR27, com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.RuntimeR27",
+                "com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ModelSurfaceStoreR30",
+              "method": "surface",
+              "observedNamedSignatures": [
+                "surface[com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$Batch, com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Surface, com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$FrozenModelRef]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$Batch",
+                "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Surface",
+                "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$FrozenModelRef"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B04/README_R335.md",
+          "sourceSnapshot": 1794807656624,
+          "title": "十位置实训到模型面消费"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "researchCharts:R05",
+            "researchCharts:R10",
+            "logicalTables:T15"
+          ],
+          "consumerPurpose": "子代或非出生动作写入原事务回执",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "RESEARCH_ACTION_CONSUMPTION",
+          "negativeVerification": "孤立frame、重试重复计产出、来源hash不符时拒绝",
+          "nextAction": "由frame/run查实际consumer，缺消费边先接线；不得以建议或图形代替执行。",
+          "ownerBatch": "B05",
+          "ownerInspectionSha256": "bf667de613492af5e600bf47a67fa67073f77170f8c0e2a744ef1af62db489c4",
+          "positiveVerification": "同来源动作与下一轮预算/子代身份一致",
+          "producerPurpose": "有界研究分析",
+          "proposalId": null,
+          "registryEntrySha256": "eb6b82cd4ec9440248b2a4d2b35b3ec510477ada64d7f20b0ef807c45823f589",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R05",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R10",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T15",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "EMPTY_NO_ROWS"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "frame/run原件",
+            "proposal_id",
+            "child_policy_hash",
+            "receipt_hash"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchObservatoryR30R1",
+              "method": "step",
+              "observedNamedSignatures": [
+                "step[com.ethk3.novaonepro.strategyv2.RuntimeR27, com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.RuntimeR27",
+                "com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchConsumptionStoreR31",
+              "method": "completeWithin",
+              "observedNamedSignatures": [
+                "completeWithin[android.database.sqlite.SQLiteDatabase, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.util.Map, java.lang.String, java.util.Map]"
+              ],
+              "parameters": [
+                "android.database.sqlite.SQLiteDatabase",
+                "java.lang.String",
+                "java.lang.String",
+                "java.lang.String",
+                "int",
+                "java.lang.String",
+                "java.util.Map",
+                "java.lang.String",
+                "java.util.Map"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B05/R01_R18_CONTRACTS.json",
+          "sourceSnapshot": 1794807656624,
+          "title": "研究图原件到真实研究动作"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "researchCharts:R11",
+            "logicalTables:T13"
+          ],
+          "consumerPurpose": "唯一资格owner按连续日历消费",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "INDEPENDENT_QUALIFICATION",
+          "negativeVerification": "重放混自然、偷看未来、漏期、旧证书借用均拒绝",
+          "nextAction": "独立未来为0时沿冻结/开奖/资格缺口原键定位；工程连通不提升自然资格。",
+          "ownerBatch": "B06",
+          "ownerInspectionSha256": "54bdd099b412d4b0d4a434f0f4b49ac7c97e191bfdc4a096fd2e5b1bd8867d2b",
+          "positiveVerification": "同机会原始冻结、开奖、分母、区间、频率及证书可复算",
+          "producerPurpose": "固定确认合同和结果",
+          "proposalId": null,
+          "registryEntrySha256": "0bb87d261a2900cba327289a45da01f1ad43a3f09afd6cead799e432e1bb3a2e",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R11",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T13",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "EMPTY_NO_ROWS"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "冻结确认合同",
+            "独立开奖日历",
+            "合法事前冻结"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30",
+              "method": "evaluate",
+              "observedNamedSignatures": [
+                "evaluate[com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Task, com.ethk3.novaonepro.strategyv2.EvalContextR27, com.ethk3.novaonepro.strategyv2.HoldoutLedgerR27, com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Evidence]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Task",
+                "com.ethk3.novaonepro.strategyv2.EvalContextR27",
+                "com.ethk3.novaonepro.strategyv2.HoldoutLedgerR27",
+                "com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Evidence"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.QualificationInboxR29",
+              "method": "consume",
+              "observedNamedSignatures": [
+                "consume[android.database.sqlite.SQLiteDatabase, com.ethk3.novaonepro.strategyv2.QualificationInboxR29$Commit, java.lang.String, long]"
+              ],
+              "parameters": [
+                "android.database.sqlite.SQLiteDatabase",
+                "com.ethk3.novaonepro.strategyv2.QualificationInboxR29$Commit",
+                "java.lang.String",
+                "long"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B06/B06_自然资格与真实主链.md",
+          "sourceSnapshot": 1794807656624,
+          "title": "独立确认与自然未来资格"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "researchCharts:R18",
+            "logicalTables:T16"
+          ],
+          "consumerPurpose": "SettlementEngine幂等结算",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "DECISION_SETTLEMENT",
+          "negativeVerification": "FROZEN_OBSERVATION_MISSING不能靠开奖后回填消除",
+          "nextAction": "按同decisionId/目标期追冻结、trades和结算；错过赛前保留原因，不补造冻结。",
+          "ownerBatch": "B02",
+          "ownerInspectionSha256": "09ec1d42bddce1e572d2c61c9cbde61abf680455d0acc7015f56312d488cec01",
+          "positiveVerification": "重复乱序开奖只结一次，原决策与结算逐键一致",
+          "producerPurpose": "唯一DecisionGate决策",
+          "proposalId": null,
+          "registryEntrySha256": "a8b66ab1b166fe35d837161668f2bf633788e6820990c5dea1db917578a03267",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R18",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T16",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "READ_OK"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "赛前合法冻结",
+            "目标期",
+            "有效证书",
+            "权威开奖"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.DecisionGateEngine",
+              "method": "decide",
+              "observedNamedSignatures": [
+                "decide[com.ethk3.novaonepro.DbStore, com.ethk3.novaonepro.Models$CandidateBatch, java.util.List, java.util.List, java.util.List]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.DbStore",
+                "com.ethk3.novaonepro.Models$CandidateBatch",
+                "java.util.List",
+                "java.util.List",
+                "java.util.List"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.SettlementEngine",
+              "method": "settleLatest",
+              "observedNamedSignatures": [
+                "settleLatest[com.ethk3.novaonepro.DbStore, com.ethk3.novaonepro.Models$Draw]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.DbStore",
+                "com.ethk3.novaonepro.Models$Draw"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B02/README_R335.md",
+          "sourceSnapshot": 1794807656624,
+          "title": "唯一真实决策到权威结算"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "logicalTables:T01",
+            "logicalTables:T15"
+          ],
+          "consumerPurpose": "逐表语义审计",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "TABLE_SOURCE_AUDIT",
+          "negativeVerification": "缺表、截断、取消、跨水位不得报告正常空集",
+          "nextAction": "空首页分别核真空集、来源缺失、过滤和分页；完整分母不从展示条数推算。",
+          "ownerBatch": "B07",
+          "ownerInspectionSha256": "0fcf409fb3f33866687dae3cf7d7c2ae274f986eb58d1d230e80e9563b12bea1",
+          "positiveVerification": "相同范围UI/SQL可复算并能翻页",
+          "producerPurpose": "只读原表查询",
+          "proposalId": null,
+          "registryEntrySha256": "f1a761f17c3d931659d71079557642b5addfbd40f62a3f2df9ebd4af340fce92",
+          "relatedObjectObservations": [
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T01",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "READ_OK"
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T15",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "EMPTY_NO_ROWS"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "明确角色",
+            "水位",
+            "页码",
+            "总分母"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchTableAdaptersR30R1",
+              "method": "readPageR31",
+              "observedNamedSignatures": [
+                "readPageR31[android.database.sqlite.SQLiteDatabase, java.lang.String, java.util.Map, long, int, android.os.CancellationSignal]"
+              ],
+              "parameters": [
+                "android.database.sqlite.SQLiteDatabase",
+                "java.lang.String",
+                "java.util.Map",
+                "long",
+                "int",
+                "android.os.CancellationSignal"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchTableAuditR32",
+              "method": "audit",
+              "observedNamedSignatures": [
+                "audit[java.lang.String, java.lang.Object]"
+              ],
+              "parameters": [
+                "java.lang.String",
+                "java.lang.Object"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": false,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B05/TABLES_16_CONTRACTS.csv",
+          "sourceSnapshot": 1794807656624,
+          "title": "逻辑表来源与有界页验真"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "capabilities:ATOMNET",
+            "capabilities:F01"
+          ],
+          "consumerPurpose": "对象诊断只读绑定",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "PERSISTED_FAULT_TRACE",
+          "negativeVerification": "错owner/fence、篡改hash、旧样本、共享任务不能称对象根因",
+          "nextAction": "从同水位event_id/owner/fence取得真正输入与独立复演；共享owner只作定位。",
+          "ownerBatch": "B07",
+          "ownerInspectionSha256": "787adc2c5aa4b59c7ea402e68c7daffcbb250686877e73930f538d289aaaee9c",
+          "positiveVerification": "报告对象能回到同一原行和原operation",
+          "producerPurpose": "捕获原始任务/故障行",
+          "proposalId": null,
+          "registryEntrySha256": "26708442e0d5669679ba2d94f5e4ecb9ed51c0e720d579dada2155bfff380117",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:ATOMNET",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": true,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": true,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:F01",
+              "persistedObjectBlocker": "BLOCKED_WARM_NUMERICAL_ABI_PRESERVED",
+              "produced": null,
+              "status": null
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "同一SELECT投影",
+            "原行主键/hash",
+            "owner/fence"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.DiagnosisTraceReaderR33",
+              "method": "captureSingleSelect",
+              "observedNamedSignatures": [
+                "captureSingleSelect[java.util.Map, java.util.Map, android.os.CancellationSignal]"
+              ],
+              "parameters": [
+                "java.util.Map",
+                "java.util.Map",
+                "android.os.CancellationSignal"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.DiagnosisProofR33",
+              "method": "classify",
+              "observedNamedSignatures": [
+                "classify[java.util.Map, java.lang.String, java.lang.String, java.lang.Object, java.lang.Object]"
+              ],
+              "parameters": [
+                "java.util.Map",
+                "java.lang.String",
+                "java.lang.String",
+                "java.lang.Object",
+                "java.lang.Object"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": false,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B07/能力缺口升级与下份报告复核.md",
+          "sourceSnapshot": 1794807656624,
+          "title": "同水位原始任务与故障追踪"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [],
+          "consumerPurpose": "独立候选提案数组，不改固定165索引",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "CAPABILITY_NEED_DISCOVERY",
+          "negativeVerification": "LinkageError、来源缺失、重复对象不得成为NEW_CAPABILITY_PROPOSAL",
+          "nextAction": "所有约定owner均可核且入口全缺才提新增；部分缺失补绑定；读取失败保持未知。",
+          "ownerBatch": "B07",
+          "ownerInspectionSha256": "b83999a2a2891147ff2c0221e3ca6b5e3a3359ca6ce58f979045eb27876878de",
+          "positiveVerification": "缺类/缺方法/完整绑定/调用受阻四类明确分流",
+          "producerPurpose": "核需求与实际生产入口",
+          "proposalId": null,
+          "registryEntrySha256": "d035861c5af9e79cafd90d6dbea3eff91153fca4797b9ebe8ab6a51f9693c8bf",
+          "relatedObjectObservations": [],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "版本化需求",
+            "精确owner方法签名",
+            "注册对象来源"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.CapabilityNeedRegistryR335",
+              "method": "needs",
+              "observedNamedSignatures": [
+                "needs[]"
+              ],
+              "parameters": [],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.CapabilityNeedDiagnosticsR335",
+              "method": "capture",
+              "observedNamedSignatures": [
+                "capture[java.util.Map]"
+              ],
+              "parameters": [
+                "java.util.Map"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": false,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B07/能力缺口升级与下份报告复核.md",
+          "sourceSnapshot": 1794807656624,
+          "title": "有限需求目录与缺能力提案"
+        }
+      ],
+      "observedOwnerRows": 120,
+      "originalRows": 72,
+      "reportPath": "/workspace/scratch/426a17283d8b/final-report-closure/original-reports/report_1.json",
+      "scope": "HOST_RETROSPECTIVE_READBACK_OF_ORIGINAL_033_REPORT; NO_DEVICE_OR_CAUSAL_REPLAY",
+      "sharedOwnerRows": 104,
+      "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+      "sourcePacketSha256": "1a323c1fb5c347fc233fdfdb4fb6d17e17f0406d0997092f41e077c9d19bcec4",
+      "sourceWatermark": 1794807656624
+    },
+    {
+      "attachedObjects": 116,
+      "needResults": [
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "capabilities:F01",
+            "capabilities:F23"
+          ],
+          "consumerPurpose": "Foundry按预算训练并提交状态",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "TRAINING_FAMILY_EXECUTION",
+          "negativeVerification": "错ABI、缺教师、只有RUNNING无提交不得算训练完成",
+          "nextAction": "沿原candidate和owner/fence查训练输入；缺绑定补接口，数值ABI不匹配保全旧父代并生成独立子代。",
+          "ownerBatch": "B03",
+          "ownerInspectionSha256": "5188279354713a4a1e9bab45e697872af3b79ad5f381737782c33efe80a52cce",
+          "positiveVerification": "读取真实权重变化、cursor提交及重启恢复相等原件",
+          "producerPurpose": "构建已注册家族",
+          "proposalId": null,
+          "registryEntrySha256": "db68dbf4b94e2ac68df4f3b287cdf85002b91de0a6fdbac84be1c42bc477af51",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": true,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:F01",
+              "persistedObjectBlocker": "BLOCKED_WARM_NUMERICAL_ABI_PRESERVED",
+              "produced": null,
+              "status": null
+            },
+            {
+              "callable": false,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": "F23_ORIGINAL_TEACHER_NOT_BOUND",
+              "hasExplicitBlocker": true,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "F23_ORIGINAL_TEACHER_NOT_BOUND",
+              "objectKey": "capabilities:F23",
+              "persistedObjectBlocker": "BLOCKED_WARM_NUMERICAL_ABI_PRESERVED",
+              "produced": null,
+              "status": null
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "PIT输入",
+            "相同策略身份",
+            "原checkpoint与ABI"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.FamilyRegistryR26",
+              "method": "build",
+              "observedNamedSignatures": [
+                "build[java.lang.String]"
+              ],
+              "parameters": [
+                "java.lang.String"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.FoundryCampaignR26",
+              "method": "step",
+              "observedNamedSignatures": [
+                "step[com.ethk3.novaonepro.DbStore, java.util.function.Supplier, com.ethk3.novaonepro.strategyv2.BudgetTokenSU1]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.DbStore",
+                "java.util.function.Supplier",
+                "com.ethk3.novaonepro.strategyv2.BudgetTokenSU1"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B03/README_R335.md",
+          "sourceSnapshot": 1794831445684,
+          "title": "家族构建、训练和状态恢复"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "capabilities:ATOMNET",
+            "researchCharts:R14"
+          ],
+          "consumerPurpose": "冻结时同模型概率面消费",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "TEN_POSITION_TRAINING_SURFACE",
+          "negativeVerification": "材料样本增加但training=0；只文件无消费；错epoch不得通过",
+          "nextAction": "按publicationId采集样本、梯度、optimizer、模型哈希、发布与消费；归档失败独立隔离。",
+          "ownerBatch": "B04",
+          "ownerInspectionSha256": "a845c74c3f0af3ae5b71a1236de2719671351d2ae04616372f9ada6f56fb6fa8",
+          "positiveVerification": "参数重算与重启一致；在线冻结引用同modelHash",
+          "producerPurpose": "梯度训练并发布模型",
+          "proposalId": null,
+          "registryEntrySha256": "d970afc3699da690e1a264230ae2c25b0a5479f340be91cebd18b2ff2fd5cb5b",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:ATOMNET",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R14",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "同epoch十位置",
+            "训练截止",
+            "publicationId/modelHash"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.AtomNetRuntimeR30",
+              "method": "step",
+              "observedNamedSignatures": [
+                "step[com.ethk3.novaonepro.strategyv2.RuntimeR27, com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.RuntimeR27",
+                "com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ModelSurfaceStoreR30",
+              "method": "surface",
+              "observedNamedSignatures": [
+                "surface[com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$Batch, com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Surface, com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$FrozenModelRef]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$Batch",
+                "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Surface",
+                "com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$FrozenModelRef"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B04/README_R335.md",
+          "sourceSnapshot": 1794831445684,
+          "title": "十位置实训到模型面消费"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "researchCharts:R05",
+            "researchCharts:R10",
+            "logicalTables:T15"
+          ],
+          "consumerPurpose": "子代或非出生动作写入原事务回执",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "RESEARCH_ACTION_CONSUMPTION",
+          "negativeVerification": "孤立frame、重试重复计产出、来源hash不符时拒绝",
+          "nextAction": "由frame/run查实际consumer，缺消费边先接线；不得以建议或图形代替执行。",
+          "ownerBatch": "B05",
+          "ownerInspectionSha256": "bf667de613492af5e600bf47a67fa67073f77170f8c0e2a744ef1af62db489c4",
+          "positiveVerification": "同来源动作与下一轮预算/子代身份一致",
+          "producerPurpose": "有界研究分析",
+          "proposalId": null,
+          "registryEntrySha256": "eb6b82cd4ec9440248b2a4d2b35b3ec510477ada64d7f20b0ef807c45823f589",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R05",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R10",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T15",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "EMPTY_NO_ROWS"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "frame/run原件",
+            "proposal_id",
+            "child_policy_hash",
+            "receipt_hash"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchObservatoryR30R1",
+              "method": "step",
+              "observedNamedSignatures": [
+                "step[com.ethk3.novaonepro.strategyv2.RuntimeR27, com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.RuntimeR27",
+                "com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchConsumptionStoreR31",
+              "method": "completeWithin",
+              "observedNamedSignatures": [
+                "completeWithin[android.database.sqlite.SQLiteDatabase, java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.util.Map, java.lang.String, java.util.Map]"
+              ],
+              "parameters": [
+                "android.database.sqlite.SQLiteDatabase",
+                "java.lang.String",
+                "java.lang.String",
+                "java.lang.String",
+                "int",
+                "java.lang.String",
+                "java.util.Map",
+                "java.lang.String",
+                "java.util.Map"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B05/R01_R18_CONTRACTS.json",
+          "sourceSnapshot": 1794831445684,
+          "title": "研究图原件到真实研究动作"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "researchCharts:R11",
+            "logicalTables:T13"
+          ],
+          "consumerPurpose": "唯一资格owner按连续日历消费",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "INDEPENDENT_QUALIFICATION",
+          "negativeVerification": "重放混自然、偷看未来、漏期、旧证书借用均拒绝",
+          "nextAction": "独立未来为0时沿冻结/开奖/资格缺口原键定位；工程连通不提升自然资格。",
+          "ownerBatch": "B06",
+          "ownerInspectionSha256": "54bdd099b412d4b0d4a434f0f4b49ac7c97e191bfdc4a096fd2e5b1bd8867d2b",
+          "positiveVerification": "同机会原始冻结、开奖、分母、区间、频率及证书可复算",
+          "producerPurpose": "固定确认合同和结果",
+          "proposalId": null,
+          "registryEntrySha256": "0bb87d261a2900cba327289a45da01f1ad43a3f09afd6cead799e432e1bb3a2e",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R11",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T13",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "EMPTY_NO_ROWS"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "冻结确认合同",
+            "独立开奖日历",
+            "合法事前冻结"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30",
+              "method": "evaluate",
+              "observedNamedSignatures": [
+                "evaluate[com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Task, com.ethk3.novaonepro.strategyv2.EvalContextR27, com.ethk3.novaonepro.strategyv2.HoldoutLedgerR27, com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Evidence]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Task",
+                "com.ethk3.novaonepro.strategyv2.EvalContextR27",
+                "com.ethk3.novaonepro.strategyv2.HoldoutLedgerR27",
+                "com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Evidence"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.QualificationInboxR29",
+              "method": "consume",
+              "observedNamedSignatures": [
+                "consume[android.database.sqlite.SQLiteDatabase, com.ethk3.novaonepro.strategyv2.QualificationInboxR29$Commit, java.lang.String, long]"
+              ],
+              "parameters": [
+                "android.database.sqlite.SQLiteDatabase",
+                "com.ethk3.novaonepro.strategyv2.QualificationInboxR29$Commit",
+                "java.lang.String",
+                "long"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B06/B06_自然资格与真实主链.md",
+          "sourceSnapshot": 1794831445684,
+          "title": "独立确认与自然未来资格"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "researchCharts:R18",
+            "logicalTables:T16"
+          ],
+          "consumerPurpose": "SettlementEngine幂等结算",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "DECISION_SETTLEMENT",
+          "negativeVerification": "FROZEN_OBSERVATION_MISSING不能靠开奖后回填消除",
+          "nextAction": "按同decisionId/目标期追冻结、trades和结算；错过赛前保留原因，不补造冻结。",
+          "ownerBatch": "B02",
+          "ownerInspectionSha256": "09ec1d42bddce1e572d2c61c9cbde61abf680455d0acc7015f56312d488cec01",
+          "positiveVerification": "重复乱序开奖只结一次，原决策与结算逐键一致",
+          "producerPurpose": "唯一DecisionGate决策",
+          "proposalId": null,
+          "registryEntrySha256": "a8b66ab1b166fe35d837161668f2bf633788e6820990c5dea1db917578a03267",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "等待本图算法的真实有界分析产物；登记合同或空面板不算完成",
+              "objectKey": "researchCharts:R18",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T16",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "READ_OK"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "赛前合法冻结",
+            "目标期",
+            "有效证书",
+            "权威开奖"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.DecisionGateEngine",
+              "method": "decide",
+              "observedNamedSignatures": [
+                "decide[com.ethk3.novaonepro.DbStore, com.ethk3.novaonepro.Models$CandidateBatch, java.util.List, java.util.List, java.util.List]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.DbStore",
+                "com.ethk3.novaonepro.Models$CandidateBatch",
+                "java.util.List",
+                "java.util.List",
+                "java.util.List"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.SettlementEngine",
+              "method": "settleLatest",
+              "observedNamedSignatures": [
+                "settleLatest[com.ethk3.novaonepro.DbStore, com.ethk3.novaonepro.Models$Draw]"
+              ],
+              "parameters": [
+                "com.ethk3.novaonepro.DbStore",
+                "com.ethk3.novaonepro.Models$Draw"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": true,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B02/README_R335.md",
+          "sourceSnapshot": 1794831445684,
+          "title": "唯一真实决策到权威结算"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "logicalTables:T01",
+            "logicalTables:T15"
+          ],
+          "consumerPurpose": "逐表语义审计",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "TABLE_SOURCE_AUDIT",
+          "negativeVerification": "缺表、截断、取消、跨水位不得报告正常空集",
+          "nextAction": "空首页分别核真空集、来源缺失、过滤和分页；完整分母不从展示条数推算。",
+          "ownerBatch": "B07",
+          "ownerInspectionSha256": "0fcf409fb3f33866687dae3cf7d7c2ae274f986eb58d1d230e80e9563b12bea1",
+          "positiveVerification": "相同范围UI/SQL可复算并能翻页",
+          "producerPurpose": "只读原表查询",
+          "proposalId": null,
+          "registryEntrySha256": "f1a761f17c3d931659d71079557642b5addfbd40f62a3f2df9ebd4af340fce92",
+          "relatedObjectObservations": [
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T01",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "READ_OK"
+            },
+            {
+              "callable": null,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": null,
+              "inputAvailable": null,
+              "notProducedReason": null,
+              "objectKey": "logicalTables:T15",
+              "persistedObjectBlocker": null,
+              "produced": null,
+              "status": "EMPTY_NO_ROWS"
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "明确角色",
+            "水位",
+            "页码",
+            "总分母"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchTableAdaptersR30R1",
+              "method": "readPageR31",
+              "observedNamedSignatures": [
+                "readPageR31[android.database.sqlite.SQLiteDatabase, java.lang.String, java.util.Map, long, int, android.os.CancellationSignal]"
+              ],
+              "parameters": [
+                "android.database.sqlite.SQLiteDatabase",
+                "java.lang.String",
+                "java.util.Map",
+                "long",
+                "int",
+                "android.os.CancellationSignal"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.ResearchTableAuditR32",
+              "method": "audit",
+              "observedNamedSignatures": [
+                "audit[java.lang.String, java.lang.Object]"
+              ],
+              "parameters": [
+                "java.lang.String",
+                "java.lang.Object"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": false,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B05/TABLES_16_CONTRACTS.csv",
+          "sourceSnapshot": 1794831445684,
+          "title": "逻辑表来源与有界页验真"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [
+            "capabilities:ATOMNET",
+            "capabilities:F01"
+          ],
+          "consumerPurpose": "对象诊断只读绑定",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "PERSISTED_FAULT_TRACE",
+          "negativeVerification": "错owner/fence、篡改hash、旧样本、共享任务不能称对象根因",
+          "nextAction": "从同水位event_id/owner/fence取得真正输入与独立复演；共享owner只作定位。",
+          "ownerBatch": "B07",
+          "ownerInspectionSha256": "787adc2c5aa4b59c7ea402e68c7daffcbb250686877e73930f538d289aaaee9c",
+          "positiveVerification": "报告对象能回到同一原行和原operation",
+          "producerPurpose": "捕获原始任务/故障行",
+          "proposalId": null,
+          "registryEntrySha256": "26708442e0d5669679ba2d94f5e4ecb9ed51c0e720d579dada2155bfff380117",
+          "relatedObjectObservations": [
+            {
+              "callable": true,
+              "consumed": false,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": false,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:ATOMNET",
+              "persistedObjectBlocker": null,
+              "produced": false,
+              "status": null
+            },
+            {
+              "callable": true,
+              "consumed": null,
+              "effective": null,
+              "executionBlockedReason": null,
+              "hasExplicitBlocker": true,
+              "implemented": true,
+              "inputAvailable": null,
+              "notProducedReason": "RUNTIME_INPUT_ARTIFACT_AND_CONSUMPTION_RECEIPT_REQUIRED",
+              "objectKey": "capabilities:F01",
+              "persistedObjectBlocker": "BLOCKED_WARM_NUMERICAL_ABI_PRESERVED",
+              "produced": null,
+              "status": null
+            }
+          ],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "同一SELECT投影",
+            "原行主键/hash",
+            "owner/fence"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.DiagnosisTraceReaderR33",
+              "method": "captureSingleSelect",
+              "observedNamedSignatures": [
+                "captureSingleSelect[java.util.Map, java.util.Map, android.os.CancellationSignal]"
+              ],
+              "parameters": [
+                "java.util.Map",
+                "java.util.Map",
+                "android.os.CancellationSignal"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.DiagnosisProofR33",
+              "method": "classify",
+              "observedNamedSignatures": [
+                "classify[java.util.Map, java.lang.String, java.lang.String, java.lang.Object, java.lang.Object]"
+              ],
+              "parameters": [
+                "java.util.Map",
+                "java.lang.String",
+                "java.lang.String",
+                "java.lang.Object",
+                "java.lang.Object"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": false,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B07/能力缺口升级与下份报告复核.md",
+          "sourceSnapshot": 1794831445684,
+          "title": "同水位原始任务与故障追踪"
+        },
+        {
+          "classification": "EVIDENCE_MISSING",
+          "closestExistingObjects": [],
+          "consumerPurpose": "独立候选提案数组，不改固定165索引",
+          "effectStatus": "NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS",
+          "inspectedSourceCommit": "TYPE_CHECK_ONLY",
+          "inspectionMatchesReport": false,
+          "mayAuthorizeReal": false,
+          "needKey": "CAPABILITY_NEED_DISCOVERY",
+          "negativeVerification": "LinkageError、来源缺失、重复对象不得成为NEW_CAPABILITY_PROPOSAL",
+          "nextAction": "所有约定owner均可核且入口全缺才提新增；部分缺失补绑定；读取失败保持未知。",
+          "ownerBatch": "B07",
+          "ownerInspectionSha256": "b83999a2a2891147ff2c0221e3ca6b5e3a3359ca6ce58f979045eb27876878de",
+          "positiveVerification": "缺类/缺方法/完整绑定/调用受阻四类明确分流",
+          "producerPurpose": "核需求与实际生产入口",
+          "proposalId": null,
+          "registryEntrySha256": "d035861c5af9e79cafd90d6dbea3eff91153fca4797b9ebe8ab6a51f9693c8bf",
+          "relatedObjectObservations": [],
+          "reportSourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "requiredInputs": [
+            "版本化需求",
+            "精确owner方法签名",
+            "注册对象来源"
+          ],
+          "requiredOwnerInspections": [
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.CapabilityNeedRegistryR335",
+              "method": "needs",
+              "observedNamedSignatures": [
+                "needs[]"
+              ],
+              "parameters": [],
+              "status": "PRESENT_DECLARATION_ONLY"
+            },
+            {
+              "class": "com.ethk3.novaonepro.strategyv2.CapabilityNeedDiagnosticsR335",
+              "method": "capture",
+              "observedNamedSignatures": [
+                "capture[java.util.Map]"
+              ],
+              "parameters": [
+                "java.util.Map"
+              ],
+              "status": "PRESENT_DECLARATION_ONLY"
+            }
+          ],
+          "runtimeBlockerApplicable": false,
+          "scope": "ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS",
+          "sourceContract": "B07/能力缺口升级与下份报告复核.md",
+          "sourceSnapshot": 1794831445684,
+          "title": "有限需求目录与缺能力提案"
+        }
+      ],
+      "observedOwnerRows": 116,
+      "originalRows": 72,
+      "reportPath": "/workspace/scratch/426a17283d8b/final-report-closure/original-reports/report_2.json",
+      "scope": "HOST_RETROSPECTIVE_READBACK_OF_ORIGINAL_033_REPORT; NO_DEVICE_OR_CAUSAL_REPLAY",
+      "sharedOwnerRows": 104,
+      "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+      "sourcePacketSha256": "2edb3a559d9aff77a3e126400dd940ed75215906e9c3839a179e8ad72a711240",
+      "sourceWatermark": 1794831445684
+    }
+  ],
+  "scope": "PRODUCTION_JAVA_HOST_EXECUTION; ANDROID_SQL_CAPTURE_AND_DEVICE_NOT_RUN",
+  "status": "PASS"
+}

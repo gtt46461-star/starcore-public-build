@@ -1,0 +1,38 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
+@@ -148,7 +148,25 @@
+         r.put("consumable",consumableR31());
+         r.put("publicationReady",ready());r.put("learningProtocol",LEARNING_PROTOCOL);r.put("replayPolicy",replayPolicy);r.put("replayEvidenceRun",replayEvidenceRun);r.put("replayPolicyChanges",replayPolicyChanges);r.put("replayChangeQuality","REFUTABLE_RESEARCH_ALLOCATION_NOT_A_PROVED_GAIN_NO_MODEL_OR_ALPHA_RESET");r.put("primaryTrainingSamplesCommitted",pretrainSamples+trainer.onlineSteps);
+         r.put("trainingCounterScope","PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES");
+-        r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",pretrainSamples==0?0L:(long)(trainCount/10));return r;
++        r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",independentTrainingCalendarIssuesR335());r.put("independentTrainingCalendarIssuesScope","DISTINCT_HISTORICAL_TRAINING_ISSUES_VISITED_BY_PRETRAIN;NOT_INDEPENDENT_FUTURE_EVIDENCE");return r;
++    }
++    /** A shuffled first batch visits only a subset of historical TRAIN issues.
++     * Repeated positions from one issue count once; later epochs cannot add new issues.
++     * Unknown/inconsistent checkpoint history is not replaced by a full-dataset count.
++     */
++    Long independentTrainingCalendarIssuesR335() {
++        if (pretrainSamples == 0) return 0L;
++        if (pretrainSamples < 0) return null;
++        if (pretrainSamples >= trainCount) return (trainCount + 9L) / 10L;
++        if (!"TRAIN".equals(phase) || epoch != 0 || pretrainSamples != offset
++                || order == null || order.length != trainCount) return null;
++        BitSet issues = new BitSet((trainCount + 9) / 10);
++        for (int index = 0; index < offset; index++) {
++            int sample = order[index];
++            if (sample < 0 || sample >= trainCount) return null;
++            issues.set(sample / 10);
++        }
++        return (long) issues.cardinality();
+     }
+     public long serializedBoundR31(){return 16384L+3L*(datasetHash.length()+observedThrough.length()+completeIssue.length()+partialIssue.length()+replayEvidenceRun.length())+4L*(order==null?0:order.length)+(bestNet==null?0:bestNet.length)+new ModelArtifactR29(trainer,ftrl,datasetHash,completeIssue.isEmpty()?observedThrough:trainedThrough()).serializedBoundR31();}
+     public static AtomNetSessionR30 decode(android.database.sqlite.SQLiteDatabase db,byte[] bytes,String hash){byte[] raw=CheckpointArtifactsR26.resolveSerializedR31(db,bytes);try(MemoryBudgetR31.Lease read=CheckpointArtifactsR26.readReservationR31("session-decode",6L*raw.length+1048576)){return decode(raw,hash);}}
+@@ -202,6 +220,8 @@
+         int limit="TRAIN".equals(phase)||"EVAL_TRAIN".equals(phase)?trainCount:
+                 phase.startsWith("EVAL_")?selectCount:0;
+         if(offset>limit||order!=null&&order.length!=trainCount
++                ||"TRAIN".equals(phase)&&(offset>=trainCount
++                    ||epoch>=AtomNetTrainerR27.MAX_EPOCHS||offset>0&&order==null)
+                 ||nextPosition==1&&!partialIssue.isEmpty()
+                 ||nextPosition>1&&(partialIssue.isEmpty()||!"ONLINE".equals(phase))
+                 ||!partialIssue.isEmpty()&&(completeIssue.isEmpty()||partialIssue.compareTo(completeIssue)<=0)

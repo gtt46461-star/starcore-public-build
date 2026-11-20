@@ -126,6 +126,72 @@ def validate_prefix(tool, repo, history, pair, target):
                 raise ValueError('CURRENT_B05_REVIEW_BYTES_MISSING:' + name)
 
 
+def registered_prefix(tool, plan, repo, history, pair, target, effective=False):
+    """Verify every retained production after-image, not only the version labels.
+
+    Four generated version files are checked with the original renderer by
+    ancestry(). The current HEAD may already contain some active-stage bytes;
+    historical completed stage snapshots may not borrow later-stage code.
+    """
+    cumulative = {}
+    current = history[-1][2] if history else None
+    active = tool.materialize(target, tool.records(target)) if history else {}
+    checked_commits = []
+    for name, _, commit in history:
+        for path, data in tool.materialize(name, tool.records(name)).items():
+            cumulative[path] = tool.sha(data)
+        if not effective and name in ('B05', 'B06', 'B07'):
+            cumulative[pair.REL.as_posix()] = pair.AFTER
+            cumulative[INVALIDATION] = INVALIDATION_AFTER['B05' if name in ('B05', 'B06') else 'B07']
+        # Validate the actual commit that recorded this stage's version as well
+        # as the input HEAD. A partial next-stage port cannot conceal an omitted
+        # predecessor file at the point where that predecessor was versioned.
+        version_commit = tool.git(repo, 'rev-list', '--max-count=1', '--full-history',
+                                  '--topo-order', commit, '--', VERSION_FILES[0]).decode().strip()
+        if not version_commit:
+            raise ValueError('VERSION_SNAPSHOT_COMMIT_MISSING:' + name)
+        snapshot_manifest, _ = tool.committed_file(repo, version_commit, VERSION_FILES[0])
+        input_manifest, _ = tool.committed_file(repo, commit, VERSION_FILES[0])
+        if snapshot_manifest != input_manifest:
+            raise ValueError('VERSION_SNAPSHOT_IDENTITY_DIFFER:' + name)
+        count = 0
+        for path, digest in cumulative.items():
+            if path in VERSION_FILES:
+                continue
+            versioned, _ = tool.committed_file(repo, version_commit, path)
+            if versioned is None or tool.sha(versioned) != digest:
+                raise ValueError('VERSIONED_PREDECESSOR_BYTES_MISSING:' + name + ':' + path)
+            allowed = {digest}
+            # Preserve the installer's documented committed partial-port retry.
+            # Only the active input HEAD may contain the current target image.
+            if commit == current and path in active:
+                allowed.add(tool.sha(active[path]))
+                if not effective and target in ('B05', 'B07') and path == INVALIDATION:
+                    allowed.add(INVALIDATION_AFTER[target])
+                if not effective and target == 'B05' and path == pair.REL.as_posix():
+                    allowed.add(pair.AFTER)
+            actual, _ = tool.committed_file(repo, commit, path)
+            if actual is None or tool.sha(actual) not in allowed:
+                raise ValueError('REGISTERED_PREDECESSOR_BYTES_MISSING:' + name + ':' + path)
+            count += 1
+        checked_commits.append({'stage': name, 'commit': commit, 'versionCommit': version_commit,
+                                'registeredProductionFiles': count})
+    if current is not None:
+        # A new isolated checkout must not silently omit local edits to inherited
+        # controlled files. Inspect the actual bytes even with Git trust flags.
+        for name in set(cumulative) | set(VERSION_FILES):
+            expected, mode = tool.committed_file(repo, current, name)
+            path = repo / name
+            if (expected is None or path.is_symlink() or not path.is_file()
+                    or any(p.is_symlink() for p in path.parents if p != repo and p.is_relative_to(repo))
+                    or path.read_bytes() != expected):
+                raise ValueError('LOCAL_PREDECESSOR_BYTES_DIFFER:' + name)
+            index = tool.git(repo, 'ls-files', '-s', '--', name).split(b' ', 2)
+            if len(index) != 3 or index[0].decode() != mode or tool.git(repo, 'show', ':' + name) != expected:
+                raise ValueError('INDEX_PREDECESSOR_BYTES_DIFFER:' + name)
+    return checked_commits
+
+
 def copy_stage_overlay(tool, stage, repo, head, plan, pair, work):
     # Rebuild only the active stage's images and ledger in an external directory.
     # The original installer still verifies the action, before/after and Git bytes.
@@ -181,7 +247,7 @@ def copy_stage_overlay(tool, stage, repo, head, plan, pair, work):
     return overlay_tool
 
 
-def run_stage(tool, gen, pair, plan, repo, target, baseline, review_sha, emit=None, dest=None):
+def run_stage(tool, gen, pair, plan, repo, target, baseline, review_sha, emit=None, dest=None, review_root=None):
     if tool.complete_records(target) is None:
         raise ValueError('COMPLETE_R335_APPLY_MANIFEST_REQUIRED')
     head, history = ancestry(tool, gen, repo, target, baseline)
@@ -189,18 +255,35 @@ def run_stage(tool, gen, pair, plan, repo, target, baseline, review_sha, emit=No
         raise ValueError('PATCH_DESTINATION_MUST_BE_OUTSIDE_CHECKOUT')
     with tempfile.TemporaryDirectory(dir=emit.absolute().parent if emit else None) as temporary:
         work = Path(temporary)
-        validate_prefix(tool, repo, history, pair, target)
+        review = Path(review_root) if review_root is not None else Path(__file__).resolve().parents[1]
+        production_receipt = None
         active = tool
-        if target in ('B05', 'B07'):
-            overlay = work / 'overlay'
+        effective = review / 'production/OVERLAY.json'
+        if effective.exists():
+            builder = load_module(Path(__file__).with_name('production_overlay.py'), 'r335_production_overlay')
+            overlay = work / 'effective-plan'
             overlay.mkdir()
-            active = copy_stage_overlay(tool, target, repo, head, plan, pair, overlay)
+            production_receipt = builder.prepare(tool, plan, pair, review, overlay)
+            active = load_module(plan / 'verification/contractor/stage.py', 'r335_effective_stage')
+            active.PACKAGE = overlay
+            active.LEDGER = overlay / 'control' / tool.LEDGER.name
+            registered = registered_prefix(active, plan, repo, history, pair, target, effective=True)
+        else:
+            validate_prefix(tool, repo, history, pair, target)
+            registered = registered_prefix(tool, plan, repo, history, pair, target)
+            if target in ('B05', 'B07'):
+                overlay = work / 'overlay'
+                overlay.mkdir()
+                active = copy_stage_overlay(tool, target, repo, head, plan, pair, overlay)
         draft = work / 'stage.patch'
         receipt = active.prepare(repo, target, emit=draft, baseline=baseline)
         if receipt['sourceHead'] != head:
             raise ValueError('SOURCE_HEAD_MOVED_RETRY')
         receipt['reviewManifestSha256'] = review_sha
         receipt['originalLedgerSha256'] = tool.sha(tool.LEDGER.read_bytes())
+        receipt['registeredPredecessorChecks'] = registered
+        if production_receipt is not None:
+            receipt['productionReview'] = production_receipt
         receipt['orderedCommittedVersions'] = [
             {'stage': name, 'versionCode': version, 'commit': commit} for name, version, commit in history]
         if emit:

@@ -1,0 +1,301 @@
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java
+@@ -0,0 +1,83 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.lang.reflect.Method;
++import java.util.*;
++
++/** Finite requirement-to-owner diagnosis. The registered scope is explicit;
++ * missing observations cannot establish an absent capability or a benefit. */
++public final class CapabilityNeedDiagnosticsR335 {
++    private CapabilityNeedDiagnosticsR335() {}
++    private static Map<?,?> map(Object x){return x instanceof Map?(Map<?,?>)x:Collections.emptyMap();}
++    private static List<?> list(Object x){return x instanceof List?(List<?>)x:Collections.emptyList();}
++    private static String text(Object x){return x instanceof String?(String)x:"";}
++    private static final int MAX_NEEDS=64,MAX_OWNERS=8;
++
++    static Map<String,Object> inspect(Map<?,?> endpoint,ClassLoader loader){
++        Map<String,Object> result=new LinkedHashMap<>();String owner=text(endpoint.get("class")),name=text(endpoint.get("method"));
++        List<?> expected=list(endpoint.get("parameters"));result.put("class",owner);result.put("method",name);result.put("parameters",expected);
++        if(!owner.matches("com\\.ethk3\\.novaonepro\\.[A-Za-z0-9_.$]+")||!name.matches("[A-Za-z_][A-Za-z0-9_]*")||expected.size()>12){result.put("status","UNKNOWN_INVALID_OWNER_CONTRACT");return result;}
++        try{
++            Class<?> type=Class.forName(owner,false,loader);List<String> observed=new ArrayList<>();boolean match=false;
++            for(Method method:type.getDeclaredMethods())if(method.getName().equals(name)){
++                List<String> parameters=new ArrayList<>();for(Class<?> parameter:method.getParameterTypes())parameters.add(parameter.getName());
++                observed.add(method.getName()+parameters.toString());if(parameters.equals(expected))match=true;
++            }
++            Collections.sort(observed);result.put("observedNamedSignatures",observed);
++            result.put("status",match?"PRESENT_DECLARATION_ONLY":"ABSENT_EXACT_DECLARATION_IN_REQUIRED_OWNER");
++        }catch(ClassNotFoundException absent){result.put("status","ABSENT_REQUIRED_OWNER_CLASS");}
++        catch(LinkageError|SecurityException unreadable){result.put("status","UNKNOWN_OWNER_INSPECTION_FAILURE");result.put("exceptionType",unreadable.getClass().getName());}
++        return result;
++    }
++    private static boolean identity(Map<?,?> index){Object at=index.get("sourceSnapshot");return text(index.get("sourceCommit")).matches("[0-9a-f]{40}")&&(at instanceof Long||at instanceof Integer)&&((Number)at).longValue()>0;}
++    static String classification(boolean identity,boolean coverage,int present,int absent,int unknown,boolean blocked){
++        if(!identity||!coverage||unknown>0)return "EVIDENCE_MISSING";
++        if(present==0&&absent>0)return "NEW_CAPABILITY_PROPOSAL";
++        if(absent>0)return "EXISTING_CAPABILITY_BINDING_GAP";
++        return blocked?"EXISTING_CAPABILITY_BLOCKED":"EXISTING_CAPABILITY_DECLARED_RUNTIME_UNVERIFIED";
++    }
++    static Map<String,Object> assess(Map<?,?> index,List<?> needs,ClassLoader loader,String inspectionCommit){
++        if(needs.size()>MAX_NEEDS)throw new IllegalArgumentException("R335_CAPABILITY_NEED_BOUND");
++        Map<String,Map<?,?>> objects=new LinkedHashMap<>();Set<String> duplicates=new HashSet<>();
++        for(String group:new String[]{"capabilities","matrices","researchCharts","legacyCharts","logicalTables"})
++            for(Object value:list(map(index.get(group)).get("objects"))){Map<?,?> row=map(value);String id=text(row.get("objectId"));if(id.isEmpty())id=text(row.get("id"));String key=group+":"+id;if(objects.put(key,row)!=null)duplicates.add(key);}
++        List<Object> results=new ArrayList<>(),candidates=new ArrayList<>(),ownerManifest=new ArrayList<>();Set<String> seen=new HashSet<>();
++        for(Object value:needs){Map<?,?> need=map(value);String key=text(need.get("needKey"));
++            if(key.isEmpty()||!seen.add(key))throw new IllegalArgumentException("R335_CAPABILITY_NEED_IDENTITY");
++            List<?> endpoints=list(need.get("requiredOwners"));if(endpoints.isEmpty()||endpoints.size()>MAX_OWNERS)throw new IllegalArgumentException("R335_CAPABILITY_OWNER_BOUND");
++            int present=0,absent=0,unknown=0;List<Object> owners=new ArrayList<>(),runtime=new ArrayList<>();boolean blocked=false,coverage=true;
++            for(Object raw:endpoints){Map<String,Object> inspected=inspect(map(raw),loader);String status=text(inspected.get("status"));
++                if(status.startsWith("PRESENT"))present++;else if(status.startsWith("ABSENT"))absent++;else unknown++;owners.add(inspected);}
++            for(Object ref:list(need.get("relatedObjects"))){String refKey=text(ref);Map<?,?> row=objects.get(refKey);
++                if(row==null||duplicates.contains(refKey)){coverage=false;continue;}
++                Map<String,Object> observation=new LinkedHashMap<>();observation.put("objectKey",refKey);
++                for(String field:new String[]{"implemented","callable","inputAvailable","produced","consumed","effective","notProducedReason","executionBlockedReason","status"})observation.put(field,row.get(field));
++                Map<?,?> evidence=map(row.get("runtimeEvidenceR33"));String blocker=text(evidence.get("firstBlockedStatus"));
++                observation.put("persistedObjectBlocker",blocker.isEmpty()?null:blocker);
++                // Static report-process bindings and a normal wait are not runtime failure proof.
++                boolean objectBlocked=!blocker.isEmpty()||Boolean.FALSE.equals(row.get("callable"))&&text(row.get("executionBlockedReason")).length()>0;
++                observation.put("hasExplicitBlocker",objectBlocked);
++                if(!Boolean.FALSE.equals(need.get("runtimeBlockerApplicable")))blocked|=objectBlocked;
++                runtime.add(observation);
++            }
++            String state=classification(identity(index)&&Objects.equals(index.get("sourceCommit"),inspectionCommit),coverage,present,absent,unknown,blocked);
++            Map<String,Object> item=new LinkedHashMap<>();for(String field:new String[]{"needKey","title","ownerBatch","sourceContract","requiredInputs","producerPurpose","consumerPurpose","nextAction","positiveVerification","negativeVerification","closestExistingObjects"})item.put(field,need.get(field));
++            item.put("classification",state);item.put("requiredOwnerInspections",owners);item.put("relatedObjectObservations",runtime);
++            item.put("scope","ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS");
++            item.put("reportSourceCommit",index.get("sourceCommit"));item.put("inspectedSourceCommit",inspectionCommit);item.put("sourceSnapshot",index.get("sourceSnapshot"));
++            item.put("inspectionMatchesReport",Objects.equals(index.get("sourceCommit"),inspectionCommit));
++            item.put("runtimeBlockerApplicable",!Boolean.FALSE.equals(need.get("runtimeBlockerApplicable")));
++            item.put("registryEntrySha256",StatsR27.sha256(JsonR27.write(need)));item.put("ownerInspectionSha256",StatsR27.sha256(JsonR27.write(owners)));
++            item.put("effectStatus","NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS");item.put("mayAuthorizeReal",false);
++            item.put("proposalId",state.equals("NEW_CAPABILITY_PROPOSAL")?StatsR27.sha256("R335_NEED|"+key+"|"+index.get("sourceCommit")+"|"+item.get("registryEntrySha256")):null);
++            results.add(item);ownerManifest.add(Collections.singletonMap(key,owners));
++            if(state.equals("NEW_CAPABILITY_PROPOSAL"))candidates.add(item);
++        }
++        Map<String,Object> out=new LinkedHashMap<>();out.put("schema","R335_CAPABILITY_NEED_DIAGNOSIS_1");out.put("sourceCommit",index.get("sourceCommit"));out.put("inspectedSourceCommit",inspectionCommit);out.put("sourceSnapshot",index.get("sourceSnapshot"));
++        out.put("registryHash",StatsR27.sha256(JsonR27.write(needs)));out.put("ownerManifestHash",StatsR27.sha256(JsonR27.write(ownerManifest)));
++        out.put("needCount",needs.size());out.put("needResults",results);out.put("candidateCapabilityProposalsR33",candidates);
++        out.put("coverageBoundary","VERSIONED_FINITE_NEED_CATALOG; NO_CLAIM_TO_ENUMERATE_UNKNOWN_FUTURE_CAPABILITIES");out.put("mayAuthorizeReal",false);return out;
++    }
++    public static Map<String,Object> capture(Map<String,Object> index){
++        return assess(index,CapabilityNeedRegistryR335.needs(),CapabilityNeedDiagnosticsR335.class.getClassLoader(),com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java
+@@ -0,0 +1,9 @@
++package com.ethk3.novaonepro.strategyv2;
++import java.util.*;
++/** Generated from the reviewed finite CAPABILITY_NEEDS_R335.json, not a universal capability inventory. */
++public final class CapabilityNeedRegistryR335 {
++ private CapabilityNeedRegistryR335(){}
++ private static final String JSON="[{\"closestExistingObjects\":[\"capabilities:F01\",\"capabilities:F23\"],\"consumerPurpose\":\"Foundry按预算训练并提交状态\",\"needKey\":\"TRAINING_FAMILY_EXECUTION\",\"negativeVerification\":\"错ABI、缺教师、只有RUNNING无提交不得算训练完成\",\"nextAction\":\"沿原candidate和owner/fence查训练输入；缺绑定补接口，数值ABI不匹配保全旧父代并生成独立子代。\",\"ownerBatch\":\"B03\",\"positiveVerification\":\"读取真实权重变化、cursor提交及重启恢复相等原件\",\"producerPurpose\":\"构建已注册家族\",\"relatedObjects\":[\"capabilities:F01\",\"capabilities:F23\"],\"requiredInputs\":[\"PIT输入\",\"相同策略身份\",\"原checkpoint与ABI\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.FamilyRegistryR26\",\"method\":\"build\",\"parameters\":[\"java.lang.String\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.FoundryCampaignR26\",\"method\":\"step\",\"parameters\":[\"com.ethk3.novaonepro.DbStore\",\"java.util.function.Supplier\",\"com.ethk3.novaonepro.strategyv2.BudgetTokenSU1\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B03/README_R335.md\",\"title\":\"家族构建、训练和状态恢复\"},{\"closestExistingObjects\":[\"capabilities:ATOMNET\",\"researchCharts:R14\"],\"consumerPurpose\":\"冻结时同模型概率面消费\",\"needKey\":\"TEN_POSITION_TRAINING_SURFACE\",\"negativeVerification\":\"材料样本增加但training=0；只文件无消费；错epoch不得通过\",\"nextAction\":\"按publicationId采集样本、梯度、optimizer、模型哈希、发布与消费；归档失败独立隔离。\",\"ownerBatch\":\"B04\",\"positiveVerification\":\"参数重算与重启一致；在线冻结引用同modelHash\",\"producerPurpose\":\"梯度训练并发布模型\",\"relatedObjects\":[\"capabilities:ATOMNET\",\"researchCharts:R14\"],\"requiredInputs\":[\"同epoch十位置\",\"训练截止\",\"publicationId/modelHash\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.AtomNetRuntimeR30\",\"method\":\"step\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.RuntimeR27\",\"com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.ModelSurfaceStoreR30\",\"method\":\"surface\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$Batch\",\"com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Surface\",\"com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$FrozenModelRef\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B04/README_R335.md\",\"title\":\"十位置实训到模型面消费\"},{\"closestExistingObjects\":[\"researchCharts:R05\",\"researchCharts:R10\",\"logicalTables:T15\"],\"consumerPurpose\":\"子代或非出生动作写入原事务回执\",\"needKey\":\"RESEARCH_ACTION_CONSUMPTION\",\"negativeVerification\":\"孤立frame、重试重复计产出、来源hash不符时拒绝\",\"nextAction\":\"由frame/run查实际consumer，缺消费边先接线；不得以建议或图形代替执行。\",\"ownerBatch\":\"B05\",\"positiveVerification\":\"同来源动作与下一轮预算/子代身份一致\",\"producerPurpose\":\"有界研究分析\",\"relatedObjects\":[\"researchCharts:R05\",\"researchCharts:R10\",\"logicalTables:T15\"],\"requiredInputs\":[\"frame/run原件\",\"proposal_id\",\"child_policy_hash\",\"receipt_hash\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchObservatoryR30R1\",\"method\":\"step\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.RuntimeR27\",\"com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchConsumptionStoreR31\",\"method\":\"completeWithin\",\"parameters\":[\"android.database.sqlite.SQLiteDatabase\",\"java.lang.String\",\"java.lang.String\",\"java.lang.String\",\"int\",\"java.lang.String\",\"java.util.Map\",\"java.lang.String\",\"java.util.Map\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B05/R01_R18_CONTRACTS.json\",\"title\":\"研究图原件到真实研究动作\"},{\"closestExistingObjects\":[\"researchCharts:R11\",\"logicalTables:T13\"],\"consumerPurpose\":\"唯一资格owner按连续日历消费\",\"needKey\":\"INDEPENDENT_QUALIFICATION\",\"negativeVerification\":\"重放混自然、偷看未来、漏期、旧证书借用均拒绝\",\"nextAction\":\"独立未来为0时沿冻结/开奖/资格缺口原键定位；工程连通不提升自然资格。\",\"ownerBatch\":\"B06\",\"positiveVerification\":\"同机会原始冻结、开奖、分母、区间、频率及证书可复算\",\"producerPurpose\":\"固定确认合同和结果\",\"relatedObjects\":[\"researchCharts:R11\",\"logicalTables:T13\"],\"requiredInputs\":[\"冻结确认合同\",\"独立开奖日历\",\"合法事前冻结\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30\",\"method\":\"evaluate\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Task\",\"com.ethk3.novaonepro.strategyv2.EvalContextR27\",\"com.ethk3.novaonepro.strategyv2.HoldoutLedgerR27\",\"com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Evidence\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.QualificationInboxR29\",\"method\":\"consume\",\"parameters\":[\"android.database.sqlite.SQLiteDatabase\",\"com.ethk3.novaonepro.strategyv2.QualificationInboxR29$Commit\",\"java.lang.String\",\"long\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B06/B06_自然资格与真实主链.md\",\"title\":\"独立确认与自然未来资格\"},{\"closestExistingObjects\":[\"researchCharts:R18\",\"logicalTables:T16\"],\"consumerPurpose\":\"SettlementEngine幂等结算\",\"needKey\":\"DECISION_SETTLEMENT\",\"negativeVerification\":\"FROZEN_OBSERVATION_MISSING不能靠开奖后回填消除\",\"nextAction\":\"按同decisionId/目标期追冻结、trades和结算；错过赛前保留原因，不补造冻结。\",\"ownerBatch\":\"B02\",\"positiveVerification\":\"重复乱序开奖只结一次，原决策与结算逐键一致\",\"producerPurpose\":\"唯一DecisionGate决策\",\"relatedObjects\":[\"researchCharts:R18\",\"logicalTables:T16\"],\"requiredInputs\":[\"赛前合法冻结\",\"目标期\",\"有效证书\",\"权威开奖\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.DecisionGateEngine\",\"method\":\"decide\",\"parameters\":[\"com.ethk3.novaonepro.DbStore\",\"com.ethk3.novaonepro.Models$CandidateBatch\",\"java.util.List\",\"java.util.List\",\"java.util.List\"]},{\"class\":\"com.ethk3.novaonepro.SettlementEngine\",\"method\":\"settleLatest\",\"parameters\":[\"com.ethk3.novaonepro.DbStore\",\"com.ethk3.novaonepro.Models$Draw\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B02/README_R335.md\",\"title\":\"唯一真实决策到权威结算\"},{\"closestExistingObjects\":[\"logicalTables:T01\",\"logicalTables:T15\"],\"consumerPurpose\":\"逐表语义审计\",\"needKey\":\"TABLE_SOURCE_AUDIT\",\"negativeVerification\":\"缺表、截断、取消、跨水位不得报告正常空集\",\"nextAction\":\"空首页分别核真空集、来源缺失、过滤和分页；完整分母不从展示条数推算。\",\"ownerBatch\":\"B07\",\"positiveVerification\":\"相同范围UI/SQL可复算并能翻页\",\"producerPurpose\":\"只读原表查询\",\"relatedObjects\":[\"logicalTables:T01\",\"logicalTables:T15\"],\"requiredInputs\":[\"明确角色\",\"水位\",\"页码\",\"总分母\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchTableAdaptersR30R1\",\"method\":\"readPageR31\",\"parameters\":[\"android.database.sqlite.SQLiteDatabase\",\"java.lang.String\",\"java.util.Map\",\"long\",\"int\",\"android.os.CancellationSignal\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchTableAuditR32\",\"method\":\"audit\",\"parameters\":[\"java.lang.String\",\"java.lang.Object\"]}],\"runtimeBlockerApplicable\":false,\"sourceContract\":\"B05/TABLES_16_CONTRACTS.csv\",\"title\":\"逻辑表来源与有界页验真\"},{\"closestExistingObjects\":[\"capabilities:ATOMNET\",\"capabilities:F01\"],\"consumerPurpose\":\"对象诊断只读绑定\",\"needKey\":\"PERSISTED_FAULT_TRACE\",\"negativeVerification\":\"错owner/fence、篡改hash、旧样本、共享任务不能称对象根因\",\"nextAction\":\"从同水位event_id/owner/fence取得真正输入与独立复演；共享owner只作定位。\",\"ownerBatch\":\"B07\",\"positiveVerification\":\"报告对象能回到同一原行和原operation\",\"producerPurpose\":\"捕获原始任务/故障行\",\"relatedObjects\":[\"capabilities:ATOMNET\",\"capabilities:F01\"],\"requiredInputs\":[\"同一SELECT投影\",\"原行主键/hash\",\"owner/fence\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.DiagnosisTraceReaderR33\",\"method\":\"captureSingleSelect\",\"parameters\":[\"java.util.Map\",\"java.util.Map\",\"android.os.CancellationSignal\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.DiagnosisProofR33\",\"method\":\"classify\",\"parameters\":[\"java.util.Map\",\"java.lang.String\",\"java.lang.String\",\"java.lang.Object\",\"java.lang.Object\"]}],\"runtimeBlockerApplicable\":false,\"sourceContract\":\"B07/能力缺口升级与下份报告复核.md\",\"title\":\"同水位原始任务与故障追踪\"},{\"closestExistingObjects\":[],\"consumerPurpose\":\"独立候选提案数组，不改固定165索引\",\"needKey\":\"CAPABILITY_NEED_DISCOVERY\",\"negativeVerification\":\"LinkageError、来源缺失、重复对象不得成为NEW_CAPABILITY_PROPOSAL\",\"nextAction\":\"所有约定owner均可核且入口全缺才提新增；部分缺失补绑定；读取失败保持未知。\",\"ownerBatch\":\"B07\",\"positiveVerification\":\"缺类/缺方法/完整绑定/调用受阻四类明确分流\",\"producerPurpose\":\"核需求与实际生产入口\",\"relatedObjects\":[],\"requiredInputs\":[\"版本化需求\",\"精确owner方法签名\",\"注册对象来源\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.CapabilityNeedRegistryR335\",\"method\":\"needs\",\"parameters\":[]},{\"class\":\"com.ethk3.novaonepro.strategyv2.CapabilityNeedDiagnosticsR335\",\"method\":\"capture\",\"parameters\":[\"java.util.Map\"]}],\"runtimeBlockerApplicable\":false,\"sourceContract\":\"B07/能力缺口升级与下份报告复核.md\",\"title\":\"有限需求目录与缺能力提案\"}]";
++ public static final String SHA256="0fec1eef0d5ff16a21dc23a51b4e0c160d218457fdbed0e19c5ba0d66b171d4a";
++ public static List<?> needs(){if(!SHA256.equals(StatsR27.sha256(JSON)))throw new IllegalStateException("R335_NEED_REGISTRY_IDENTITY");return Collections.unmodifiableList((List<?>)JsonR27.parse(JSON));}
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java
+@@ -21,6 +21,12 @@
+                 || !Objects.equals(snapshot,t.get("readWatermark"))
+                 || !group.equals(t.get("group")) || !id.equals(t.get("objectId")))
+             return "TRACE_IDENTITY_MISMATCH";
++        if ("PERSISTED_OWNER_OBSERVATION".equals(t.get("traceKind"))) {
++            if (!DiagnosisTraceReaderR33.validTrace(t)) return "UNCONFIRMED_ORIGINAL_ENVELOPE_INVALID";
++            return "EXACT_EXPERT_TASK_ID".equals(t.get("attribution"))
++                ? "OBSERVED_EXPERT_OWNER_REASON_REPLAY_UNCONFIRMED"
++                : "OBSERVED_SHARED_OWNER_REASON_NOT_OBJECT_ROOT_CAUSE";
++        }
+         if (!Boolean.TRUE.equals(t.get("originalReadVerified")) || !text(t.get("recordLocator"))
+                 || !hash(t.get("expectedInputSha256"))
+                 || !t.get("expectedInputSha256").equals(t.get("actualInputSha256"))
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java
+@@ -0,0 +1,131 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import android.os.CancellationSignal;
++import java.nio.charset.StandardCharsets;
++import java.util.*;
++
++/** Reads the detached projections of ReportSnapshotR30's one SELECT. No requery,
++ * database mutation, replay, or causal verdict occurs here. */
++public final class DiagnosisTraceReaderR33 {
++    private DiagnosisTraceReaderR33() {}
++    static final int MAX_BYTES=196608, MAX_TASKS=100, MAX_FAULTS=20;
++    static Map<?,?> map(Object v){return v instanceof Map?(Map<?,?>)v:Collections.emptyMap();}
++    static List<?> list(Object v){return v instanceof List?(List<?>)v:Collections.emptyList();}
++    static String text(Object v){return v instanceof String?(String)v:"";}
++    static boolean hash(Object v){return v instanceof String&&((String)v).matches("[0-9a-f]{64}");}
++    static void check(CancellationSignal c){if(c!=null)c.throwIfCanceled();}
++    static boolean integer(Object v){return v instanceof Long||v instanceof Integer;}
++
++    /** Only called by the SELECT owner after schema/watermark validation and before
++     * any hot/cold or process-local observations replace its source rows. */
++    static Map<String,Object> captureSingleSelect(Map<String,Object> watermark,Map<String,Object> data,CancellationSignal cancel){
++        check(cancel);Map<String,Object> out=new LinkedHashMap<>();
++        out.put("schema","R335_CAPTURED_FAULT_SOURCES_1");out.put("sourceCommit",watermark.get("sourceCommit"));
++        out.put("readWatermark",watermark.get("factsReadAt"));
++        out.put("scope","SAME_SINGLE_SELECT_BOUNDED_ROW_PROJECTIONS; NOT_FULL_INPUT_ARTIFACTS_OR_CAUSAL_PROOF");
++        List<Object> originals=new ArrayList<>();Map<String,Object> coverage=new LinkedHashMap<>();int used=0;
++        for(String key:new String[]{"tasks","r31RuntimeFaults"}){
++            check(cancel);String table=key.equals("tasks")?"r26_task":"r31_runtime_fault",pk=key.equals("tasks")?"task_id":"event_id";
++            int limit=key.equals("tasks")?MAX_TASKS:MAX_FAULTS,accepted=0,omitted=0;Set<String> seen=new HashSet<>();
++            Object source=data.get(key);List<?> rows=list(source);
++            for(int i=0;i<Math.min(rows.size(),limit);i++){
++                check(cancel);Map<?,?> row=map(rows.get(i));String identity=text(row.get(pk));
++                if(!table.equals(row.get("sourceTable"))||identity.isEmpty()||identity.length()>256||!seen.add(identity)){omitted++;continue;}
++                String raw=JsonR27.write(row);int bytes=raw.getBytes(StandardCharsets.UTF_8).length;
++                if(bytes>32768||bytes>MAX_BYTES-used){omitted++;continue;}used+=bytes;
++                Map<String,Object> original=new LinkedHashMap<>();original.put("rowKey",table+":"+identity);
++                original.put("sourceTable",table);original.put("primaryKey",Collections.singletonMap(pk,identity));
++                original.put("sha256",StatsR27.sha256(raw));original.put("projectedRow",JsonR27.parse(raw));
++                originals.add(original);accepted++;
++            }
++            Map<String,Object> state=new LinkedHashMap<>();state.put("sourceAvailable",source instanceof List);
++            state.put("sampleRows",rows.size());state.put("retainedRows",accepted);state.put("rejectedOrOverBudget",omitted+Math.max(0,rows.size()-limit));
++            for(Object index:list(data.get("rowsetIndexes")))if(key.equals(map(index).get("key"))){state.put("rowsetIndex",index);break;}
++            state.put("absenceMeaning","NOT_OBSERVED_IN_BOUNDED_SAMPLE; NEVER_NO_FAULT_OR_NO_CAPABILITY");coverage.put(key,state);
++        }
++        out.put("originals",originals);out.put("coverage",coverage);out.put("projectedBytes",used);
++        out.put("sourcePacketSha256",StatsR27.sha256(JsonR27.write(out)));return out;
++    }
++
++    static boolean validPacket(Map<?,?> packet,Object commit,Object at){
++        if(!text(commit).matches("[0-9a-f]{40}")||!integer(at)||((Number)at).longValue()<=0)return false;
++        if(!"R335_CAPTURED_FAULT_SOURCES_1".equals(packet.get("schema"))||!Objects.equals(commit,packet.get("sourceCommit"))||!Objects.equals(at,packet.get("readWatermark")))return false;
++        Map<String,Object> body=new LinkedHashMap<>();for(Map.Entry<?,?> e:packet.entrySet())if(e.getKey() instanceof String&&!"sourcePacketSha256".equals(e.getKey()))body.put((String)e.getKey(),e.getValue());
++        if(!Objects.equals(packet.get("sourcePacketSha256"),StatsR27.sha256(JsonR27.write(body))))return false;
++        List<?> rows=list(packet.get("originals"));if(rows.size()>MAX_TASKS+MAX_FAULTS)return false;
++        for(Object item:rows){Map<?,?> row=map(item);if(!hash(row.get("sha256"))||!row.get("sha256").equals(StatsR27.sha256(JsonR27.write(row.get("projectedRow")))))return false;}
++        return true;
++    }
++
++    static String[] owners(String group,String id){
++        if(group.equals("capabilities")){
++            if(id.matches("F(?:0[1-9]|1[0-9]|2[0-4])"))return new String[]{"foundry-su2"};
++            if(id.matches("E(?:0[1-9]|1[0-6])"))return new String[]{"expert-"+id};
++            if(id.matches("I(?:0[0-9]|1[0-9]|20)"))return new String[]{"r27-evolution"};
++            if(id.equals("ATOMNET"))return new String[]{"r27-atomnet","r27-atomnet-archive"};
++            if(id.startsWith("MATRIX:"))return new String[]{"r27-matrices-r1"};
++        }
++        if(group.equals("researchCharts"))return new String[]{"r27-observatory-r1"};
++        if(group.equals("matrices"))return new String[]{"r27-matrices-r1"};
++        return new String[0];
++    }
++    static boolean sameFence(Map<?,?> task,Map<?,?> fault){
++        return !text(task.get("owner")).isEmpty()&&task.get("owner").equals(fault.get("owner_epoch"))
++            &&integer(task.get("fence"))&&integer(fault.get("fence"))&&((Number)task.get("fence")).longValue()==((Number)fault.get("fence")).longValue();
++    }
++    /** A shared scheduler task is labelled as a shared owner, never a family root cause. */
++    static Map<String,Object> forObject(Map<?,?> packet,String group,String id,Object commit,Object at){
++        if(!validPacket(packet,commit,at))return Collections.emptyMap();
++        return forVerifiedObject(packet,group,id,commit,at);
++    }
++    private static Map<String,Object> forVerifiedObject(Map<?,?> packet,String group,String id,Object commit,Object at){
++        Set<String> wanted=new LinkedHashSet<>(Arrays.asList(owners(group,id)));if(wanted.isEmpty())return Collections.emptyMap();
++        Map<String,Map<?,?>> tasks=new LinkedHashMap<>();Map<String,Map<?,?>> refs=new LinkedHashMap<>();
++        for(Object item:list(packet.get("originals"))){Map<?,?> ref=map(item),row=map(ref.get("projectedRow"));
++            if("r26_task".equals(ref.get("sourceTable"))&&wanted.contains(text(row.get("task_id")))){tasks.put(text(row.get("task_id")),row);refs.put(text(row.get("task_id")),ref);}}
++        List<Object> matches=new ArrayList<>();
++        for(String owner:wanted){Map<?,?> task=tasks.get(owner);if(task==null)continue;
++            List<Object> faultRefs=new ArrayList<>();
++            for(Object item:list(packet.get("originals"))){Map<?,?> ref=map(item),fault=map(ref.get("projectedRow"));
++                if(!"r31_runtime_fault".equals(ref.get("sourceTable"))||!owner.equals(fault.get("task_id")))continue;
++                Map<String,Object> f=new LinkedHashMap<>();for(String k:new String[]{"event_id","operation","phase","category","commit_outcome","root_fingerprint","owner_epoch","fence"})f.put(k,fault.get(k));
++                f.put("sourceRowKey",ref.get("rowKey"));f.put("sourceRowSha256",ref.get("sha256"));f.put("currentOwnerAndFenceMatch",sameFence(task,fault));faultRefs.add(f);
++            }
++            Object reason=task.get("blocked_reason");boolean blocked=reason instanceof String&&!((String)reason).isEmpty();
++            if(!blocked&&faultRefs.isEmpty())continue;
++            Map<String,Object> m=new LinkedHashMap<>();m.put("taskId",owner);m.put("rawTaskStatus",task.get("status"));m.put("reportedBlocker",reason);
++            m.put("blockerMeaning","PERSISTED_SCHEDULER_REASON; MAY_BE_NORMAL_WAIT_OR_STALE; NOT_AUTOMATIC_FAULT");
++            m.put("sourceRowKey",refs.get(owner).get("rowKey"));m.put("sourceRowSha256",refs.get(owner).get("sha256"));m.put("faultReferences",faultRefs);matches.add(m);
++        }
++        if(matches.isEmpty())return Collections.emptyMap();
++        Map<String,Object> out=new LinkedHashMap<>();out.put("schema","R335_OWNER_TRACE_1");out.put("traceKind","PERSISTED_OWNER_OBSERVATION");
++        out.put("group",group);out.put("objectId",id);out.put("sourceCommit",commit);out.put("readWatermark",at);
++        out.put("sourcePacketSha256",packet.get("sourcePacketSha256"));out.put("sourcePacketPath","R30_REPORT.json#/objectIndex/faultTraceSourcesR335");
++        out.put("ownerObservations",matches);out.put("sourceVerification","SINGLE_SELECT_PROJECTION_READ");
++        out.put("attribution",id.matches("E(?:0[1-9]|1[0-6])")?"EXACT_EXPERT_TASK_ID":"SHARED_OWNER_TASK_NOT_OBJECT_ROOT_CAUSE");
++        out.put("inputArtifactBytesVerified",false);out.put("numericReplayExecuted",false);out.put("mayAuthorizeReal",false);
++        out.put("nextAction","Use the original row key, owner/fence and operation to acquire that invocation's original input; reproduce independently before any root-cause or repair-success claim.");
++        out.put("traceEnvelopeSha256",StatsR27.sha256(JsonR27.write(out)));return out;
++    }
++    /** Verifies the shared source packet once; no O(objects * source-bytes) rehash. */
++    static void attach(Map<String,Object> index,Object packetValue){
++        Map<?,?> packet=map(packetValue);Object commit=index.get("sourceCommit"),at=index.get("sourceSnapshot");
++        if(!validPacket(packet,commit,at)){index.put("faultTraceCaptureStatusR335","EVIDENCE_MISSING_OR_ENVELOPE_MISMATCH");return;}
++        int attached=0;
++        for(String group:new String[]{"capabilities","matrices","researchCharts","legacyCharts","logicalTables"})
++            for(Object item:list(map(index.get(group)).get("objects"))){
++                if(!(item instanceof Map))continue;
++                @SuppressWarnings("unchecked") Map<String,Object> row=(Map<String,Object>)item;
++                String id=text(row.get("objectId"));if(id.isEmpty())id=text(row.get("id"));
++                Map<String,Object> trace=forVerifiedObject(packet,group,id,commit,at);
++                if(!trace.isEmpty()){row.put("verifiedFaultTraceR33",trace);attached++;}
++            }
++        index.put("faultTraceSourcesR335",packet);index.put("faultTraceAttachedObjectsR335",attached);
++        index.put("faultTraceCaptureStatusR335","CAPTURED_BOUNDED_OWNER_OBSERVATIONS_NOT_CAUSAL_PROOF");
++    }
++    static boolean validTrace(Map<?,?> trace){
++        if(!"R335_OWNER_TRACE_1".equals(trace.get("schema"))||!hash(trace.get("sourcePacketSha256"))||list(trace.get("ownerObservations")).isEmpty())return false;
++        Map<String,Object> body=new LinkedHashMap<>();for(Map.Entry<?,?> e:trace.entrySet())if(e.getKey() instanceof String&&!"traceEnvelopeSha256".equals(e.getKey()))body.put((String)e.getKey(),e.getValue());
++        return Objects.equals(trace.get("traceEnvelopeSha256"),StatsR27.sha256(JsonR27.write(body)));
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
+@@ -326,6 +326,8 @@
+         out.put("version","R32_CAPABILITY_DIAGNOSIS_V4"); out.put("sourceCommit",source.get("sourceCommit"));
+         out.put("sourceSnapshot",source.get("sourceSnapshot")); out.put("rows",rows); out.put("coverageGaps",gaps);
+         out.put("improvementCasesR335",ReportRepairCaseIndexR335.capture(rows,source.get("sourceCommit"),source.get("sourceSnapshot")));
++        Map<?,?> needs=map(source.get("capabilityNeedDiagnosticsR335"));
++        out.put("capabilityNeedDiagnosticsR335",needs);out.put("candidateCapabilityProposalsR33",needs.get("candidateCapabilityProposalsR33"));
+         return out;
+     }
+     private static Map<?,?> chapter(List<? extends Map<?,?>> chapters, String id) {
+@@ -482,6 +484,19 @@
+         for (Map<?,?> finding : explanations)
+             md.append("\n- ").append(finding.get("code")).append("  ").append(finding.get("nextAction"))
+               .append("  ").append(finding.get("verify"));
++        Map<?,?> needDiagnosis=map(detail.get("capabilityNeedDiagnosticsR335"));
++        md.append("\n\n### 有限需求目录与能力缺口\n")
++          .append("已登记需求数：").append(needDiagnosis.get("needCount"))
++          .append("；目录hash：").append(needDiagnosis.get("registryHash"))
++          .append("；检查范围：").append(needDiagnosis.get("coverageBoundary")).append('\n');
++        Object needRows=needDiagnosis.get("needResults");
++        if(needRows instanceof List)for(Object rawNeed:(List<?>)needRows){
++            Map<?,?> need=map(rawNeed);
++            md.append("\n- ").append(need.get("needKey")).append(" · ").append(need.get("classification"))
++              .append(" · 责任批次=").append(need.get("ownerBatch")).append(" · ").append(need.get("nextAction"))
++              .append(" · 正例=").append(need.get("positiveVerification")).append(" · 反例=").append(need.get("negativeVerification"));
++        }
++        md.append("\n能力声明、任务阻因和提案均不证明效果；新提案只适用于列出的owner与精确签名。\n");
+         md.append("\n对象清单缺项：").append(detail.get("coverageGaps")).append('\n');
+         md.append("快照 ").append(detail.get("sourceSnapshot")).append("，源码 ").append(detail.get("sourceCommit")).append('\n');
+         for (Object entry : (List<?>)detail.get("rows")) {
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java
+@@ -62,7 +62,9 @@
+         List<Object> tableRows=new ArrayList<>();for(Object raw:list(data.get("researchTablesR31"))) {
+             Map<String,Object> row=map(raw);Map<String,Object> entry=new LinkedHashMap<>(row);entry.put("objectKind","LOGICAL_TABLE");entry.put("defined",true);entry.put("consumer","ResearchTablesActivityR31 / ReportR29.document");tableRows.add(entry);
+         }
+-        out.put("logicalTables",category(16,tableRows));out.put("lifecycleEntriesR31",entries);out.put("schemaVersion","R31_PRODUCTION_OBJECT_INDEX_1");out.put("diagnosisScope",DIAGNOSIS_SCOPE_R31);return out;
++        out.put("logicalTables",category(16,tableRows));out.put("lifecycleEntriesR31",entries);out.put("schemaVersion","R31_PRODUCTION_OBJECT_INDEX_1");out.put("diagnosisScope",DIAGNOSIS_SCOPE_R31);
++        DiagnosisTraceReaderR33.attach(out,data.get("capturedFaultSourcesR335"));
++        out.put("capabilityNeedDiagnosticsR335",CapabilityNeedDiagnosticsR335.capture(out));return out;
+     }
+     public static final String SCHEMA="R30_REPAIR_OBJECT_INDEX_1";
+     /** R31-B09-C01: the chart ids this report indexes (29 legacy + 18 research); must equal ChartRegistryR31.ids(). */
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
+@@ -77,6 +77,7 @@
+             if(source!=null){Map<String,Object> original=new LinkedHashMap<>(source);data.put("previousSuccessfulReport",original.remove("previousSuccessfulReport"));watermark.put("reportJobId",original.remove("reportJobId"));watermark.put("sourceManifest",original);}
+             List<CapabilityRegistryR30.Definition> definitions=CapabilityRegistryR30.all();facts.put("registeredCapabilities",(long)definitions.size());List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition def:definitions){Map<String,Object> row=new LinkedHashMap<>(def.json());row.put("effective",null);row.put("availabilityScope","CURRENT_REPORT_PROCESS_CODE_BINDINGS; NOT_PERSISTED_RUNTIME_OWNER_BINDINGS");row.put("evidenceState","SEPARATE_PERSISTED_SOURCE_REQUIRED");capabilities.add(row);}data.put("capabilities",capabilities);
+             data.put("capabilityRuntimeEvidenceR33",CapabilityRuntimeEvidenceR33.captured(values,watermark));
++            data.put("capturedFaultSourcesR335",DiagnosisTraceReaderR33.captureSingleSelect(watermark,data,cancellation));
+             Object hotCold=source==null?null:source.get("runtimeFaultHotColdR335");
+             if(hotCold instanceof Map&&((Map<?,?>)hotCold).get("rows") instanceof List){data.put("r31RuntimeFaults",((Map<?,?>)hotCold).get("rows"));data.put("runtimeFaultOriginalCoverageR335",hotCold);}
+             else {Map<String,Object> gap=new LinkedHashMap<>();gap.put("scope","HOT_SAMPLE_ONLY; COLD_ORIGINAL_SAMPLE_NOT_SUPPLIED");gap.put("coldOriginalIndex","r335FaultOriginals");data.put("runtimeFaultOriginalCoverageR335",gap);}

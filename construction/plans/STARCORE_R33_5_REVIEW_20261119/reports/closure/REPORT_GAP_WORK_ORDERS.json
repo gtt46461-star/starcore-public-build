@@ -1,0 +1,86 @@
+{
+  "schema": "R335_REPORT_REVIEW_WORK_ORDERS_1",
+  "rootStage": "B07",
+  "sourceEvidenceScope": "EXACT_033_REPORTS_PLUS_EXISTING_R335_B07_ASSEMBLED_SOURCE",
+  "issues": [
+    {
+      "id": "R335-REV-R01",
+      "title": "报告故障链只有消费者而无同水位生产者",
+      "ownerBatch": "B07",
+      "originalContracts": [
+        "B07/施工.md",
+        "B07/能力缺口升级与下份报告复核.md"
+      ],
+      "originalGap": "DiagnosisTraceReaderR33 class absent; verifiedFaultTraceR33 only consumed in RepairDiagnosisR32; no ReportSnapshot or ReportObjectIndex producer binding.",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "implementation": "Capture bounded task/fault rows from the existing validated SELECT before later source replacements; verify packet once; attach exact task ID, original row hash and owner/fence matches; classify shared-owner observations without causal claims.",
+      "positiveVerification": "Actual two report readbacks keep165 rows and consume original72 captured task/fault projections; same owner/fence joins explicit.",
+      "negativeVerification": [
+        "wrong source/watermark",
+        "unknown source identity",
+        "hash mutation",
+        "stale owner/fence",
+        "oversized row",
+        "over100 tasks",
+        "shared owner cannot be object root cause"
+      ],
+      "knownBoundaries": [
+        "hot rows from same SELECT only; cold archived-only evidence remains separate",
+        "no model input original or numeric causal execution is inferred",
+        "Android read snapshot execution and device run not done"
+      ],
+      "recordType": "REVIEW_CORRECTION_WITHIN_EXISTING_WORK_ORDER",
+      "parentWorkOrders": [
+        "R335-D10",
+        "R335-RT09"
+      ]
+    },
+    {
+      "id": "R335-REV-R02",
+      "title": "需求目录到能力缺口提案仅有宿主夹具",
+      "ownerBatch": "B07",
+      "originalContracts": [
+        "B07/能力缺口升级与下份报告复核.md",
+        "control/报告原建议怎样进入施工与质量验收.md"
+      ],
+      "originalGap": "candidateCapabilityProposalsR33 and NEW_CAPABILITY_PROPOSAL absent from production; present only in plan Python contract fixtures.",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java"
+      ],
+      "implementation": "Eight audited requirement contracts with generator path checks and directory hash; exact declared owner signatures inspected without initialization/invocation; inspection commit must match report source; separate proposal array and same JSON/Markdown diagnosis.",
+      "positiveVerification": "Missing all specified owners produces scoped proposal; partial missing binding is distinct; exact production method signatures checked.",
+      "negativeVerification": [
+        "ClassLoader/LinkageError unknown is not absence",
+        "wrong report/inspection source",
+        "missing related object",
+        "duplicate need",
+        "unreviewed signature",
+        "foundation diagnostic cannot borrow F01 blocker as own fault"
+      ],
+      "dynamicReviewPaths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java"
+      ],
+      "knownBoundaries": [
+        "finite reviewed need catalog only",
+        "method declaration is not execution or effectiveness",
+        "proposals do not modify fixed165 or grant REAL"
+      ],
+      "recordType": "REVIEW_CORRECTION_WITHIN_EXISTING_WORK_ORDER",
+      "parentWorkOrders": [
+        "R335-D11",
+        "R335-RT09"
+      ]
+    }
+  ],
+  "reviewCorrectionCount": 2,
+  "businessWorkOrderCountUnchanged": 66,
+  "stageCountUnchanged": 9
+}

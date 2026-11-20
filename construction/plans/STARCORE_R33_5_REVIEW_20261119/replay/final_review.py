@@ -8,7 +8,8 @@ import subprocess
 import sys
 import tempfile
 
-from stage_checked import INVALIDATION, INVALIDATION_AFTER, load_module
+from stage_checked import load_module
+from verify_completed_source import verify as verify_completed_source
 
 REVIEW = Path(__file__).resolve().parents[1]
 
@@ -61,10 +62,7 @@ def run(args, out, temp):
     manifest = json.loads(subprocess.check_output(git + ['show', commit + ':release/release_manifest.json']))
     require(manifest['versionName'].startswith('R33.5-B08-') and manifest['versionCode'] == exe['versionCode']
             and manifest['versionName'] == exe['versionName'], 'FINAL_B08_VERSION')
-    pair = load_module(REVIEW / 'research/b05_pair_source.py', 'reviewed_pair')
-    for name, digest in ((pair.REL.as_posix(), pair.AFTER), (INVALIDATION, INVALIDATION_AFTER['B07'])):
-        require(hashlib.sha256(subprocess.check_output(git + ['show', commit + ':' + name])).hexdigest() == digest,
-                'FINAL_CONTROLLED_FILE:' + name)
+    out['completedSource'] = verify_completed_source(plan, args.repo, REVIEW, stage)
 
     def invoke(label, script, *argv):
         process = subprocess.run([sys.executable, '-B', str(script), *map(str, argv)],

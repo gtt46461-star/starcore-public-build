@@ -1,0 +1,103 @@
+{
+  "schema": "R335_CUSTODY_CROSS_HOST_V1",
+  "status": "PASS_ACTUAL_HOST_CUSTODY_OWNERS_NOT_ANDROID_SAF_OR_DEVICE",
+  "startedAt": "2026-11-20T01:49:43.061843+00:00",
+  "productionSourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/LegacyRetirementAuthorizationR335.java": "e2606d0d98d1ce196db89e691d865d3b2d225e8098be9153479d63a3a30e7dbe",
+    "app/src/main/java/com/ethk3/novaonepro/LegacyRecoveryPointLeaseR335.java": "cff6594ea93e94eaddaba4f9fb1d2bc3661d6c6c2a2f5c33c58c935345a3af8c",
+    "app/src/main/java/com/ethk3/novaonepro/LegacyRetirementFileR335.java": "0a3e16d2356c8ecd8a1d3913f8a233cd37094949f831d80fa783a9790a7145bd",
+    "app/src/main/java/com/ethk3/novaonepro/LegacyCustodyArchiveR335.java": "23027317c781a9320dec857515d2b00ae812fd18bbf5cdb8fdea741104e06342",
+    "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java": "fdd1c603518bcfae84e7fc357d42f3da5e1e6a2f978ebc95b25c39361cd5830a",
+    "app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java": "8d0347370f896120f22c1fe85de5975e10896c38268e1d1b249eedb736e283db",
+    "app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java": "a605d993fbff933f6360f97e660de40da55a981d47eb8e41cfa128b86939b7ee"
+  },
+  "fixtureSha256": {
+    "CustodyCrossHostR335.java": "4a881fbe4566864a83ca43683a7edd56ee9422ed8fb979347ffbf1876e4997bc",
+    "ArchiveCrossHostR335.java": "208b1abc768c9c779da539170b121ea250f17f2048325b77927326c1c873cffa",
+    "fixture/com/ethk3/novaonepro/DatabaseCoordinator.java": "5b838d4b06ba2f8921279321126f988748b06c91915a2cd63043edb121a09062",
+    "run.py": "0350419cdc4af3d1dd6269996c3e3f76913eda542e275a0cd2db8015810a8dfd"
+  },
+  "compiledSupportSha256": "22de2f66de7ac7cf888eaecd2517afdfbe21980a2d072165afb9312dbb942d5e",
+  "dependenciesSha256": {
+    "/workspace/scratch/de46e8ca6b75/deps/android.jar": "d9eb9da824d9e247a352f570f01e1169e725b2954bca9e283a71786c59b59f9a",
+    "/workspace/scratch/de46e8ca6b75/deps/annotation.jar": "97dc45afefe3a1e421da42b8b6e9f90491477c45fc6178203e3a5e8a05ee8553"
+  },
+  "scope": "Seven actual owners compiled; actual authorization CAS, cross-process Java OS locks, original maintenance journal and exact unlink; closed-offline-owner capability is an explicit fixture boolean; directory fsync uses actual host FileChannel.force. No SAF, Android UI, Binder, package reinstall, real user authorization, or actual maintenance actor execution is claimed.",
+  "stages": [
+    {
+      "name": "compile_actual_owners",
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-cp",
+        "/workspace/scratch/426a17283d8b/final-prefix/prefix_final/B08/classes:/workspace/scratch/de46e8ca6b75/deps/android.jar:/workspace/scratch/de46e8ca6b75/deps/annotation.jar",
+        "-d",
+        "/workspace/scratch/426a17283d8b/final-custody/classes",
+        "/workspace/scratch/426a17283d8b/final-custody/source_snapshot/app/src/main/java/com/ethk3/novaonepro/LegacyRetirementAuthorizationR335.java",
+        "/workspace/scratch/426a17283d8b/final-custody/source_snapshot/app/src/main/java/com/ethk3/novaonepro/LegacyRecoveryPointLeaseR335.java",
+        "/workspace/scratch/426a17283d8b/final-custody/source_snapshot/app/src/main/java/com/ethk3/novaonepro/LegacyRetirementFileR335.java",
+        "/workspace/scratch/426a17283d8b/final-custody/source_snapshot/app/src/main/java/com/ethk3/novaonepro/LegacyCustodyArchiveR335.java",
+        "/workspace/scratch/426a17283d8b/final-custody/source_snapshot/app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+        "/workspace/scratch/426a17283d8b/final-custody/source_snapshot/app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java",
+        "/workspace/scratch/426a17283d8b/final-custody/source_snapshot/app/src/main/java/com/ethk3/novaonepro/DirectoryCursorR31.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "compile_explicit_host_fixture",
+      "command": [
+        "java",
+        "-m",
+        "jdk.compiler/com.sun.tools.javac.Main",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-cp",
+        "/workspace/scratch/426a17283d8b/final-custody/classes:/workspace/scratch/426a17283d8b/final-prefix/prefix_final/B08/classes:/workspace/scratch/de46e8ca6b75/deps/android.jar:/workspace/scratch/de46e8ca6b75/deps/annotation.jar",
+        "-d",
+        "/workspace/scratch/426a17283d8b/final-custody/classes",
+        "/workspace/scratch/48d9ace86fb7/review-work/accepted/STARCORE_R33_5_20261118/B01/tests/host_runtime/custody_cross/CustodyCrossHostR335.java",
+        "/workspace/scratch/48d9ace86fb7/review-work/accepted/STARCORE_R33_5_20261118/B01/tests/host_runtime/custody_cross/ArchiveCrossHostR335.java",
+        "/workspace/scratch/48d9ace86fb7/review-work/accepted/STARCORE_R33_5_20261118/B01/tests/host_runtime/custody_cross/fixture/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "execute_actual_owners",
+      "command": [
+        "java",
+        "-Xmx128m",
+        "-cp",
+        "/workspace/scratch/426a17283d8b/final-custody/classes:/workspace/scratch/426a17283d8b/final-prefix/prefix_final/B08/classes:/workspace/scratch/de46e8ca6b75/deps/android.jar:/workspace/scratch/de46e8ca6b75/deps/annotation.jar",
+        "com.ethk3.novaonepro.CustodyCrossHostR335",
+        "/workspace/scratch/426a17283d8b/final-custody/cases"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "execute_actual_archive",
+      "command": [
+        "java",
+        "-Xmx64m",
+        "-cp",
+        "/workspace/scratch/426a17283d8b/final-custody/classes:/workspace/scratch/426a17283d8b/final-prefix/prefix_final/B08/classes:/workspace/scratch/de46e8ca6b75/deps/android.jar:/workspace/scratch/de46e8ca6b75/deps/annotation.jar",
+        "com.ethk3.novaonepro.ArchiveCrossHostR335",
+        "/workspace/scratch/426a17283d8b/final-custody/archive_cases"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "deviceAccepted": false,
+  "deletionOfUserData": false,
+  "authorizationLeaseRetirementChecks": 76,
+  "casRaceRepetitions": 100,
+  "archiveChecks": 39,
+  "checks": 115,
+  "completedAt": "2026-11-20T01:49:47.618561+00:00"
+}

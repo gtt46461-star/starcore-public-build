@@ -1,57 +1,91 @@
-# R33.5 批次移植和终审取件勘误
+# R33.5 当前批次安装、源码继承与终审取件
 
-本目录随仓库修订发布。解压的方案目录记作 `PLAN`，本 README 所在目录记作 `REPLAY`。以下命令使用两个变量的实际绝对路径。
+本页以2026-11-20的完整生产修订为准。范围为 **9阶段、66项施工问题、161次文件操作、135条不同生产路径**，逐项数量见[最终范围](../FINAL_SCOPE.json)，问题归属见[本轮复核记录](../REVIEW_20261120.md)。原封包142次/129路径及2026-11-19的双文件继承检查属于历史输入，不能单独作为当前完成证明。
 
-## 九个版本依次交接
+`PLAN` 指恢复并核验后的原 `STARCORE_R33_5_20261118`；`REVIEW` 指同级的当前 `current-review`，或仓库中本轮复核目录。两者均放在应用工作树外。以下路径变量须取本次作业的实际绝对路径。
 
-原 `verification/contractor/stage.py::prepare` 查当前批的前后 SHA 与 033 祖先。B06、B08 的生产文件数都是零，从原033直接请求这两批也能生成空差异。原测试 `test_b06_empty_key_diff_is_not_gate_acceptance` 体现了它的定位。把工具退出码用作下一批开工凭证，会跳过已有批次。
+## 九阶段使用同一个完整后态入口
 
-每批统一调用本目录的移植入口。P00 使用实际033或包含该根且受控字节相符的工程。后续每批从上一批完成原四文件版本事务、审阅并提交后的工作树继续，下一批自行分配全新输出目录。
+安装顺序固定为 P00 → B01 → B02 → B03 → B04 → B05 → B06 → B07 → B08。从正式033提交 `bb7b49bbcc9266bad548ec37e71403256fc06a4d` 的真实Git工程开始；后续批以紧前批已完成版本事务、审阅并提交的工程为输入。每批输出到新的外部目录，输入工程保持原样。
 
 ```bash
-python3 -B "$REPLAY/stage_checked.py" P00 --plan "$PLAN" --repo "$SOURCE_033" --apply-to "$P00_OUT"
-python3 -B "$REPLAY/stage_checked.py" B01 --plan "$PLAN" --repo "$P00_COMMITTED" --apply-to "$B01_OUT"
+python3 -B "$REVIEW/verify_review.py" "$REVIEW"
+python3 -B "$REVIEW/replay/stage_checked.py" P00 \
+  --plan "$PLAN" --repo "$SOURCE_033" --apply-to "$P00_OUT" > "$P00_STAGE_RECEIPT"
+python3 -B "$REVIEW/replay/stage_checked.py" B01 \
+  --plan "$PLAN" --repo "$P00_COMMITTED" --apply-to "$B01_OUT" > "$B01_STAGE_RECEIPT"
 ```
 
-`stage_checked.py::ancestry` 对 HEAD 确认原033祖先，核验紧前版本，再沿真实 Git 图回查 P00 至紧前批每个阶段的有序祖先及严格递增的 versionCode。每个阶段都从已提交的 release_manifest.json 取原始字节摘要，用已固定的原 R926 生成器逐字比对 properties、ReleaseManifestR926.java 和 BuildConfig.java。B06 完成独立构建和验证后同样运行 `tools/r33/advance_release_version.py` 并提交四文件，B07 才能据此前进。原 `prepare` 继续负责当前批的文件、摘要、冲突和独立工作树。若当前工程使用人工三方移植，保留用户的改动与原提交，按施工卡复核移植结果；另须保留真实的逐批版本提交和回执。只提供源码 ZIP 时可执行离线结构检查；生产祖先检查须使用带对应对象的 Git 工程。
+两个示例分别在该批实际开工时执行。P00的版本、提交及当批签收完成后再运行B01，依此类推。B06/B08的业务安装差异为零，但各自的版本、测试、签名、设备和原方案验收职责仍然存在。前一批按自己的合同签收，不借用尚未施工的后一批代码。
 
-B05 的 `DiagnosisEvidenceR335.java` 安装本次完整后态（640bd8c8…）。同一批再装原 R967 生成器复核的 `release/r82_training_invalidation.json`（4cd79138…）。B07 以前述新 R82 为前态，安装本批的 b58acd80…。原 NUMERIC 角色只登记一次。B06 至 B08 核输入 HEAD 和版本祖先中的有效 Java 与对应 R82；旧包已提交到多个阶段时，从保留的 B04 工程提交开新的工作树重放，或逐批完成带新版本、当前证据的移植，保留原分支。普通 B05 的 `--emit`、`--apply-to` 和部分已移植重试均走同一组新摘要。若多个接收方同时施工，各自由新输出目录接收。
+入口自动调用 `production_overlay.py`，先组成原批次完整后态与上次B05配对修订，再应用[当前生产补正清单](../production/OVERLAY.json)及所引用的完整前后源码。临时有效清单覆盖全部九批，原 `validate_install_manifest` 检查每个文件摘要、全部成员、操作数和共享路径前后关系。当前各批操作数为18、37、37、9、8、37、0、15、0，总计161次；跨批重复路径重复计操作。
 
-移植回执增加 `orderedCommittedVersions`、`originalLedgerSha256`、`reviewManifestSha256`。正式入口校验仓库复核目录全部登记文件，并将清单字节摘要绑定到回执。对 B05 和 B07，`ledgerSha256` 识别实际生效的前后态账本，原包账本身份另存。检查覆盖源码版本链。业务门仍以当批测试、同提交构建、原签 APK、相应运行与设备原件签收。对同一阶段的重复检查应使用当时的已提交输入和相同输出目录。
+清单中的 `originalAfterSha256` 标识被修订的旧批次有效后态；`beforeSha256/beforeFile` 标识本次实际前序工程字节，二者不可混用。本批原未登记的路径，其 `originalAfterSha256` 为null；目标在前序工程已存在时仍须使用REPLACE和实际前态，真正新增才使用ADD/NEW。不得绕过清单只手抄Java片段或沿用历史R82摘要。
+
+B04训练计数/恢复修订、B07诊断和能力提案全文，以及每个相关阶段的R82/R967完整身份，都在同一有效清单中。两个已跟踪的R967生成文件从P00起随受影响批次安装和提交。B05旧配对Java修正继续保留；2026-11-19记录的 `4cd79138…`、`b58acd80…` 等R82摘要仅用于历史原件辨识，当前身份以本轮完整源码生成的清单和原R967校验为准。
+
+## 每批核版本落点、HEAD、工作树和索引
+
+`ancestry` 先核033祖先、紧前阶段、全部有序版本祖先及严格递增的versionCode，用固定的原R926生成器逐字核对版本四文件。`registered_prefix` 随后累加有效批次的所有生产路径，并分别检查：
+
+- 实际引入该阶段版本的Git提交中的累计生产后态；后批覆盖代码不能掩盖前批版本提交时漏交。
+- 当前入参HEAD中的累计生产后态；仅允许当前待施工批的精确后态作为已部分移植的重试。
+- 工作树与索引真实字节；`assume-unchanged`、隐藏本地改动或已暂存差异不能绕过继承检查。
+
+四个动态版本文件由原R926生成器检查，其余已登记生产路径按本轮有效后态逐项检查。发现未知字节、漏交、回退或用户改动时拒绝并保留原件。若某批历史版本确实漏交，先补齐该批、重新执行同批版本事务并提交可核实后态，再进入后续批；不得只复制阶段标签。已经施工过旧修订的分支保留原样，从可证正式基线建立独立检出按本版重放，或按工单完成保留原代码的三方移植和完整复验。
+
+回执保存 `orderedCommittedVersions`、`registeredPredecessorChecks`、`originalLedgerSha256`、`reviewManifestSha256` 和 `productionReview`。后者记录当前overlay、有效完整清单的SHA及实际文件数量。重复检查须使用当次原输入提交和对应输出目录，不能将旧收据改写成新候选。
+
+每批安装之后，按该批施工卡完成原方案绑定、实际安装版观察和版本四文件事务；将全部已审阅后态与动态版本文件提交。提交前执行原 `scripts/r967_semantic_identity.py --check`，提交后进入[可移植交付预检](../source/README.md)。测试、同源构建、原签APK和现场原件各按该批合同签收，安装器成功只证明其声明的源码范围。
+
+## 最终B08必须再验全部九批
+
+B08完成实际版本事务与提交后，运行：
+
+```bash
+python3 -B "$REVIEW/replay/verify_completed_source.py" \
+  --plan "$PLAN" --repo "$FINAL_SOURCE" --review "$REVIEW" > "$COMPLETED_SOURCE_RECEIPT"
+```
+
+该入口重新组成当前161次操作/135路径的有效清单，核P00至B08九个真实版本落点、最终HEAD、工作树与索引全部累计后态。它不再只核B05 Java/R82两件。最终 `final_review.py` 同样调用此入口，并要求重新生成的 `productionReview` 与本次B08移植收据一致。
+
+本轮已在真实033 Git对象上完成九阶段隔离源码回放，随后独立完成源核验；在另一克隆中删除本轮B07新增的 `CapabilityNeedRegistryR335.java` 并提交后，终验以 `REGISTERED_PREDECESSOR_BYTES_MISSING:B08` 拒绝，原正例工程保持clean。最终隔离提交为 `91a37801ab538d09eddf991378151078e0f292d5`，回放版本为036至044；这些版本值标识本次预演，正式安装仍依据现场真实安装版递增。
+
+本次回放使用浅克隆，033根及九阶段提交均可见。因此它证明已列源码、版本与身份继承，不证明完整历史bundle、正式APK、原签覆盖安装、设备长测或自然策略资格。证据范围见[验证说明](../verification/README.md)。正式交付仍须用完整历史并在空仓库恢复bundle。
+
+## 可重复的源码检查
+
+```bash
+python3 -B "$REVIEW/replay/test_registered_prefix.py" --plan "$PLAN"
+python3 -B "$REVIEW/replay/test_production_overlay.py" --plan "$PLAN"
+python3 -B "$REVIEW/replay/verify_effective_stages.py" \
+  --plan "$PLAN" --review "$REVIEW" --source "$SOURCE_033" --out "$NEW_SOURCE_REHEARSAL"
+```
+
+前两项分别覆盖7项累计继承回归及3项有效清单回归。第三项从真实033对象建立一个新的隔离检出，逐批应用本轮有效后态、执行版本事务、提交并核原R967及clean状态，输出实际九阶段收据。输入源码不被修改。它仍是源码预演，输出版本观察不替代目标手机的真实安装观察。
+
+`test_stage_checked.py` 显式使用无生产overlay的legacy夹具，保留旧封包/pair的九阶段兼容回归。`tests-run/` 中原安装器12用例、原终审器14用例和旧报告取件记录均是历史宿主证据，不能代替上面本轮完整overlay正向回放。原方案的Android、设备与自然效果验收继续执行。
 
 ## 三次报告的终审输入
 
-`B08/终审计分与证据协议.md` 描述 nested `zip` 引用。现行 `verification/score_final.py::validate` 实际把 `repeatExports` 每条直接传给 `one`，因此规范字段取平铺的 `path,sha256,jobId,profile`。另外，`B01/scripts/verify_export_artifacts_r334.py::validate_export` 读取 ZIP 根层的 ARCHIVE_MANIFEST、source-manifest、R31_SEMANTIC_RECEIPT 等；手机分享的外层 ZIP 内只有 index.json 和 STARCORE_FULL_REPORT.zip。直接投递外层文件会拒绝。
-
-对手机一个作业的单卷 `SCREPORT_SINGLE_ZIP_R992` 外包，先保留原包，然后运行以下命令。参数取本次发布候选和作业实际身份。
+原 `B08/终审计分与证据协议.md` 使用嵌套zip示例，但现行原 `score_final.py` 对 `repeatExports` 每条读取平铺的 `path,sha256,jobId,profile`。原导出核验器读取内ZIP根层的ARCHIVE_MANIFEST、source-manifest和语义收据；手机单卷外包内的index.json与STARCORE_FULL_REPORT.zip需先核实并取件。
 
 ```bash
-python3 -B "$REPLAY/prepare_export.py" --plan "$PLAN" --evidence-root "$EVIDENCE" \
+python3 -B "$REVIEW/replay/prepare_export.py" --plan "$PLAN" --evidence-root "$EVIDENCE" \
   --outer "$PHONE_ZIP" --job "$JOB_ID" --commit "$CURRENT_COMMIT" \
   --apk-sha "$CURRENT_APK_SHA256" --profile DIAGNOSTIC
 ```
 
-工具先核外层 index 的作业、卷数、内 ZIP 字节数和 SHA，再核 index 中的 manifestSha256 与内层 ARCHIVE_MANIFEST.jsonl。随后调用原核验器，逐项核当前 sourceCommit、APK、jobId、实际 profile、必需成员和原始摘要。通过后才在证据根内原子保留内 ZIP 并打印可直接放入 `repeatExports` 的 JSON 行。FULL_RAW 取实际 profile。原始外层和 index 随交付保留，`allChecksPassed` 原值另列在业务报告上。报告字节结构通过与研究性能达标分别记录。
+工具先核单卷外层index的作业、卷数、内ZIP字节数、SHA及manifest身份，再调用原核验器核当前sourceCommit、APK、jobId、实际profile和必需成员。成功后原子保存内ZIP并输出可直接登记的JSON行。FULL_RAW按实际profile填写；外层原包和index随交付保留。直接导出的内ZIP按相同身份走原核验器。多卷先按实际卷清单和每卷SHA完整还原，不拼接缺卷或截短数据。
 
-如已拿到应用直接导出的内 ZIP，用原 `verify_export_artifacts_r334.py` 按同样身份核验，登记该文件的实际相对路径和 SHA 即可。多卷格式先按实际导出的卷清单/各卷 SHA 完整还原，经原收件逻辑形成完整报告后再验。三个不同作业各保存一行，POS/TRACE 按原终审器和固定合同提交；新候选和033历史分别登记。
+三个不同作业各保存一行；历史033报告与新候选分别登记。报告字节结构、研究功能和策略质量各用对应证据评价。
 
-## 可重复的核查
+## 同源工程终审
 
-```bash
-python3 -B "$PLAN/verification/contractor/test_stage.py"
-python3 -B "$PLAN/verification/test_final_envelopes.py"
-python3 -B "$REPLAY/test_stage_checked.py" --plan "$PLAN"
-python3 -B "$REPLAY/test_export.py" --plan "$PLAN"
-```
-
-`tests-run/` 保留本次四条命令的实际输出。原安装器 12 个用例、原终审器 14 个用例通过。新增版本链测试在原包的实际前后态和版本生成器上构造隔离 Git 历史，遍历九阶段并调用实际修订入口。测试覆盖无差异跳批、四文件身份漂移、缺历史阶段、B05 已装旧源升级、B05 补丁回放、B05–B08 同源重试、B06 已有输出上文件漂移，以及 B06/B07/B08 各自拒绝旧 Java 或旧 R82 的六组回退。新增报告取件测试重开两份033原始外 ZIP，拒绝错误 jobId，实际核对内件 SHA，按历史模式复现两份的已知 schema 缺陷，按新候选模式均拒绝。实际033生产 Git 的逐批签名构建、三份新候选手机报告及 V2353A 运行仍需对应原件。
-
-## B08 修订终审入口
-
-最终同源工程验收运行下列命令。用本次 B08 的移植命令将 stdout 保存为 `STAGE_RECEIPT`，并随交付保留其输入提交。EXECUTION 是原32组终审输入，EVIDENCE 为其原件目录。B07.4.TRACE 在实际证据封套的 rawArtifacts 中登记每份要签的后续对照链 JSON（firstCase、work、nextCase）。对应的 nextCase.commit 填最终实际候选；若只取得中间批复报，保留其阶段证据，并继续获取最终候选复报。
+本次B08移植命令的stdout保存为 `STAGE_RECEIPT`，保留其输入提交。`EXECUTION` 是原32组终审输入，`EVIDENCE` 为原件目录。B07.4.TRACE的rawArtifacts登记全部真实后续对照链JSON；nextCase.commit绑定最终候选。仅有中间批复报时保留阶段证据，继续取得最终候选复报。
 
 ```bash
-python3 -B "$REPLAY/final_review.py" --plan "$PLAN" --repo "$FINAL_SOURCE" \
+python3 -B "$REVIEW/replay/final_review.py" --plan "$PLAN" --repo "$FINAL_SOURCE" \
   --stage-receipt "$STAGE_RECEIPT" --candidate "$CANDIDATE" --dumpsys "$DEVICE_BEFORE_UPGRADE" \
   --baseline-apk "$BASELINE_APK" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" \
   --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --execution "$EXECUTION" \
@@ -59,4 +93,6 @@ python3 -B "$REPLAY/final_review.py" --plan "$PLAN" --repo "$FINAL_SOURCE" \
   --window-bundle "$ENABLED_WINDOW_MANIFEST" --followup "$FOLLOWUP_CHAIN" > "$FINAL_JSON"
 ```
 
-有多份研究回访时重复传入 `--followup`；程序比对本次 B07.4.TRACE 中登记的全部后续对照链。B08.2 的原始短链从 POS 和 TRACE 原件取回。百期时窗若共用同一 manifest 可省略 `--window-bundle`。运行器核仓库修订清单 SHA、原方案 seal、已提交 B08 源码及其 B05 Java/R82 后态，再次实际调用动态签名/构建核验、原 score_final、受控百期时窗和研究 trace/followup。当前候选 REAL 授权和自然质量各依原协议另验。输出 `VERIFIED_32_ENGINEERING_GROUPS_AND_REVIEW_CHECKS` 只计算工程及上述复核项，并列出 222、1832 实际通过数与各次回访结论。半套原件输出 INCOMPLETE 和缺项或首个失败原因，退出码非零。只提交以前的 score 会明确列出缺失的现场输入。本次已在 `test_final_review.py` 实测上述拒绝路径。完整签名 APK 与真机原件齐备后才可实跑该正向验收。
+有多份研究回访时重复传入 `--followup`；所交集合须与本次B07.4.TRACE登记集合一致。B08.2原始短链取POS/TRACE原件。百期时窗共用同一manifest时可省略 `--window-bundle`。运行器核当前review与原封包身份、完整九批已提交源码，再实际调用动态版本/签名/构建验收、原score、百期合法标签时窗和研究trace/followup。每次原件不足输出INCOMPLETE和原因，退出码非零。
+
+`VERIFIED_32_ENGINEERING_GROUPS_AND_REVIEW_CHECKS` 只计算工程及本页复核范围；222条款、1832需求和各次回访分别报告实际分母。当前候选REAL授权、独立自然资格、真机24/72小时依原协议分别签收。当前源码预演不提供尚未取得的APK与设备原件。

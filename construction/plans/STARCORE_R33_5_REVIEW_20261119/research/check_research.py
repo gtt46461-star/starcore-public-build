@@ -94,15 +94,15 @@ def followup(plan, chain_path):
     return result
 
 
-def trace(plan, bundle, root, commit, apk):
-    checker = load_module('r335_main_trace', plan/'verification/mainline/check_trace.py')
-    result = checker.verify(bundle, root, 'INTEGRATED', commit, apk)
-    require(result['outcome'] == 'PASS', 'BASE_TRACE_INCOMPLETE')
-    root = root.resolve()
-    manifest = checker.get_json(bundle)
-    db_path = checker.member(root, manifest['database'])
+def settlement_times(checker, db_path, outcomes, expected_sha256):
+    """Validate the SAME frozen DB used by each caller, including its separate long window.
+
+    A task completed after opening does not prove its OOS label was written after
+    opening. This is shared by the short integrated trace and the 100-period gate.
+    """
+    require(checker.sha_file(db_path) == expected_sha256, 'SNAPSHOT_CHANGED')
     with open_frozen(db_path) as db:
-        for row in result['outcomes']:
+        for row in outcomes:
             target = row['target']
             times = db.execute(
                 'SELECT l.settled_at,d.open_time,d.first_seen_at FROM v57_oos_label_r35 l '
@@ -112,7 +112,18 @@ def trace(plan, bundle, root, commit, apk):
             settled, opened, first_seen = times[0]
             require(all(type(v) is int and v > 0 for v in times[0])
                     and settled >= max(opened, first_seen), 'LABEL_BEFORE_OPEN_OR_OBSERVATION')
-    require(checker.sha_file(db_path) == manifest['database']['sha256'], 'SNAPSHOT_CHANGED')
+    require(checker.sha_file(db_path) == expected_sha256, 'SNAPSHOT_CHANGED')
+    return len(outcomes)
+
+
+def trace(plan, bundle, root, commit, apk):
+    checker = load_module('r335_main_trace', plan/'verification/mainline/check_trace.py')
+    result = checker.verify(bundle, root, 'INTEGRATED', commit, apk)
+    require(result['outcome'] == 'PASS', 'BASE_TRACE_INCOMPLETE')
+    root = root.resolve()
+    manifest = checker.get_json(bundle)
+    db_path = checker.member(root, manifest['database'])
+    settlement_times(checker, db_path, result['outcomes'], manifest['database']['sha256'])
     return dict(scope='INTEGRATED_OOS_SETTLEMENT_TIME', checked=result['joined'],
                 naturalQualification='NOT_EVALUATED')
 

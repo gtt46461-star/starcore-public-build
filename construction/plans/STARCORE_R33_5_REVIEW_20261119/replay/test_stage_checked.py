@@ -1,4 +1,4 @@
-"""Run against the real package installer and version generator in an isolated Git fixture."""
+"""Legacy package/pair regression; current production overlays are verified separately."""
 import argparse
 import sys
 import unittest
@@ -25,7 +25,7 @@ def configure(plan):
             fixture_seal = '0' * 64  # Synthetic input identity for this isolated history test only.
             def run(source, target, **kwargs):
                 return checked.run_stage(stage, generator, pair, plan, source, target, fixture.base,
-                                         fixture_seal, **kwargs)
+                                         fixture_seal, review_root=fixture.home / "legacy-no-overlay", **kwargs)
             advance = checked.load_module(plan / 'P00/payload/tools/r33/advance_release_version.py', 'r335version')
             for empty in ('B06', 'B08'):
                 self.assertEqual(stage.prepare(current, empty, baseline=fixture.base)['states'], {})

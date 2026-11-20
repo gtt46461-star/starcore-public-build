@@ -8,4 +8,8 @@
 
 历史 Git 分片路线已提交 7/75 片，共 58,720,256 字节。历史恢复工具需要全部 75 片。两卷原方案各自的长度、哈希和分片顺序保存在原清单中。[分片进度](construction/plans/STARCORE_R33_5_CONSTRUCTION_20261118/UPLOAD_PROGRESS.json) · [两卷 SHA-256](construction/plans/STARCORE_R33_5_CONSTRUCTION_20261118/SHA256SUMS)
 
-本次从 GitHub 下载的附件已在全新目录完成[组装核验](construction/verification/STARCORE_R33_5_20261119/assembly.log)，再从组装出的副本在 JDK17 环境执行[完整复核入口的 11 条命令](construction/verification/STARCORE_R33_5_20261119/check-plan.log)。两步退出码均为 0。回执对应的复核清单 SHA-256 为 `bf5a19fc221bc1db3d682f6f249257e29d305d7eb19c39f51e7b98beea117949`。
+2026-11-19历史复核从 GitHub 下载的附件在全新目录完成[组装核验](construction/verification/STARCORE_R33_5_20261119/assembly.log)，再从组装出的副本在 JDK17 环境执行[完整复核入口的 11 条命令](construction/verification/STARCORE_R33_5_20261119/check-plan.log)。两步退出码均为 0。回执对应的复核清单 SHA-256 为 `bf5a19fc221bc1db3d682f6f249257e29d305d7eb19c39f51e7b98beea117949`。
+
+## 2026-11-20当前复核
+
+本轮重新下载同一626717930字节的发布原件，SHA256与上文一致。在原认证还原路线之上，加入8份Java修订、累计文件继承检查、完整R967输出和严格标签窗口等补正；当前为161次操作、135条路径。当前16条check_plan命令、十个全源码前缀、九批真实Git回放、报告链与原件检查的收据，统一见[2026-11-20验证目录](construction/verification/STARCORE_R33_5_20261120/README.md)。原发布资产无需更换，当前仓库prepare.py会带出完整修订。上面的11条命令及其seal仅对应历史版。
