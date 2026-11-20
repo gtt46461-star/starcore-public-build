@@ -16,15 +16,27 @@ final class StorageRestoreBusinessProbeR31 {
     private static String pendingIdentity(SQLiteDatabase db){return rowsHash(db,"SELECT target_issue,draw_issue,draw_hash,settlement_hash,attempts,completed_at,terminal_code FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" ORDER BY target_issue");}
     static Properties inventory(SQLiteDatabase db,String nativeFull,String assetsHash)throws Exception {
         if(nativeFull==null||!nativeFull.matches("OK rows=[0-9]+ tables=[0-9]+ auto_vacuum=2 user_version=[0-9]+ application_id=[0-9]+"))throw new IOException("RESTORE_NATIVE_FULL_COMPARE_REQUIRED");
+        return inventoryR335(db,nativeFull,assetsHash,false);
+    }
+    static Properties inventoryR335(SQLiteDatabase db,String nativeFull,String assetsHash,boolean legacy)throws Exception {
+        if(nativeFull==null||!nativeFull.matches("OK rows=[0-9]+ tables=[0-9]+ auto_vacuum=2 user_version=[0-9]+ application_id=[0-9]+"))throw new IOException("RESTORE_NATIVE_FULL_COMPARE_REQUIRED");
         Properties out=new Properties();String schema=rowsHash(db,"SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_autoindex_%' ORDER BY type,name");out.setProperty("restore_schema_sha256",schema);
         StringBuilder counts=new StringBuilder();int tables=0;try(Cursor c=db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name",null)){while(c.moveToNext()){if(++tables>4096)throw new IOException("WAIT_RESTORE_TABLE_BOUND");String name=c.getString(0);counts.append(name.length()).append(':').append(name).append(':').append(count(db,"SELECT count(*) FROM "+q(name))).append('\n');}}
         out.setProperty("restore_business_row_counts","PASS:FULL_NATIVE_TYPED_SOURCE_COMPARE:tables="+tables+":counts_sha256="+StatsR27.sha256(counts.toString()));
         out.setProperty("restore_rowid_dependencies","PASS:FULL_NATIVE_INTRINSIC_ROWID_AND_TYPED_VALUES:"+StatsR27.sha256(nativeFull));
         out.setProperty("restore_native_full_compare_sha256",StatsR27.sha256(nativeFull));out.setProperty("restore_asset_manifest_sha256",assetsHash);
-        out.setProperty("restore_pending_before_sha256",pendingIdentity(db));out.setProperty("restore_pending_before_count",Long.toString(count(db,"SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE status IN ('PENDING','RUNNING','RETRY_WAIT')")));out.setProperty("restore_running_before_count",Long.toString(count(db,"SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE status='RUNNING'")));return out;
+        if(legacy&&!table(db,DbHelper.TABLE_R36_SETTLEMENT_TASK)){
+            out.setProperty("restore_pending_before_schema","LEGACY_TABLE_ABSENT");out.setProperty("restore_pending_before_count","0");out.setProperty("restore_running_before_count","0");return out;
+        }
+        out.setProperty("restore_pending_before_schema","PRESENT");out.setProperty("restore_pending_before_sha256",pendingIdentity(db));out.setProperty("restore_pending_before_count",Long.toString(count(db,"SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE status IN ('PENDING','RUNNING','RETRY_WAIT')")));out.setProperty("restore_running_before_count",Long.toString(count(db,"SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE status='RUNNING'")));return out;
     }
     static void verify(DbStore store,Properties out)throws Exception {
-        SQLiteDatabase db=store.readable();String pendingBefore=pendingIdentity(db);if(!pendingBefore.equals(out.getProperty("restore_pending_before_sha256")))throw new IOException("RESTORE_STARTUP_CHANGED_SETTLEMENT_IDENTITY");
+        SQLiteDatabase db=store.readable();String pendingBefore=pendingIdentity(db);
+        if("LEGACY_TABLE_ABSENT".equals(out.getProperty("restore_pending_before_schema"))){
+            if(count(db,"SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK)!=0)throw new IOException("R335_LEGACY_STARTUP_INVENTED_SETTLEMENT");
+            out.setProperty("restore_pending_before_sha256",pendingBefore);
+        }
+        if(!pendingBefore.equals(out.getProperty("restore_pending_before_sha256")))throw new IOException("RESTORE_STARTUP_CHANGED_SETTLEMENT_IDENTITY");
         int recovered=SettlementTaskStoreR36.recoverOrphanedRunningLeasesOnProcessStart(store);
         if(recovered!=Long.parseLong(out.getProperty("restore_running_before_count"))||count(db,"SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE status='RUNNING'")!=0||!pendingBefore.equals(pendingIdentity(db))||count(db,"SELECT count(*) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE status IN ('PENDING','RUNNING','RETRY_WAIT')")!=Long.parseLong(out.getProperty("restore_pending_before_count")))throw new IOException("RESTORE_ACTUAL_PENDING_RECOVERY_POSTCONDITION");
         out.setProperty("restore_pending_settlement_evidence","PASS:ORIGINAL_PROCESS_START_RECOVERY:recovered="+recovered+":immutable_sha256="+pendingBefore);

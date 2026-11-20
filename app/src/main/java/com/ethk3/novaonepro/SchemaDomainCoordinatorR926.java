@@ -85,11 +85,30 @@ public final class SchemaDomainCoordinatorR926 {
             runStep(db, contract, "R31_WRITE_TASK_PROTOCOL_V1",
                     com.ethk3.novaonepro.strategyv2.SchemaR27::ensureR31WriteProtocol);
             verifyAndStamp(db, contract);
+            migrateR335FaultOriginal(db);
+            migrateR335CheckpointRecovery(db);
         } catch (RuntimeException failure) {
             throw failure;
         } catch (Exception failure) {
             throw new IllegalStateException("R31_WRITE_PROTOCOL_MIGRATION_FAILED", failure);
         }
+    }
+
+    /** Additive separate domain, always revisited even when the old write protocol is already stamped. */
+    public static void migrateR335FaultOriginal(SQLiteDatabase db) throws Exception {
+        if(!db.inTransaction())throw new IllegalStateException("R335_FAULT_SCHEMA_OWNER_REQUIRED");
+        Contract contract=new Contract(RuntimeFaultOriginalStoreR335.DOMAIN,1,RuntimeFaultOriginalStoreR335.OBJECTS);
+        prepareRepairIfDrift(db,contract);
+        runStep(db,contract,"R335_FAULT_ORIGINAL_V1",RuntimeFaultOriginalStoreR335::ensureSchema);
+        verifyAndStamp(db,contract);
+    }
+
+    public static void migrateR335CheckpointRecovery(SQLiteDatabase db) throws Exception {
+        if(!db.inTransaction())throw new IllegalStateException("R335_CHECKPOINT_SCHEMA_OWNER_REQUIRED");
+        Contract contract=new Contract(com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335.DOMAIN,1,com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335.OBJECTS);
+        prepareRepairIfDrift(db,contract);
+        runStep(db,contract,"R335_CHECKPOINT_RECOVERY_V1",com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335::ensureSchema);
+        verifyAndStamp(db,contract);
     }
 
     /** Complete atom/molecule sets are published independently of the legacy table layout. */

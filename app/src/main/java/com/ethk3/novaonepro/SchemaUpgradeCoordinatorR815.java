@@ -59,6 +59,12 @@ public final class SchemaUpgradeCoordinatorR815 {
     // cache eviction, which must not be triggered by a database recovery attempt.
     @android.annotation.SuppressLint("UsableSpace")
     public static Result prepareAndVerify(Context context, DbHelper helper) {
+        if(context==null||helper==null)return new Result(false,"SAFE_DB_RECOVERY",null,"",false,false,false,"ARGUMENT_NULL","","");
+        try(LegacyRecoveryPointLeaseR335 pin=LegacyRecoveryPointLeaseR335.shared(context.getDatabasePath(AppConfig.DB_NAME))){
+            return prepareAndVerifyOwnedR335(context,helper);
+        }catch(IOException busy){return new Result(false,"SAFE_DB_RECOVERY",null,"",false,false,false,busy.getMessage(),"","");}
+    }
+    private static Result prepareAndVerifyOwnedR335(Context context, DbHelper helper) {
         if (context == null || helper == null)
             return new Result(false,"SAFE_DB_RECOVERY",null,"",false,false,false,"ARGUMENT_NULL","","");
         synchronized (LOCK) {
@@ -141,6 +147,12 @@ public final class SchemaUpgradeCoordinatorR815 {
     }
 
     public static boolean restoreVerifiedBackup(Context context, DbHelper helper, File backup, String expectedSha256) {
+        if(context==null){lastRestoreError="RESTORE_CONTEXT_MISSING";return false;}
+        try(LegacyRecoveryPointLeaseR335 pin=LegacyRecoveryPointLeaseR335.shared(context.getDatabasePath(AppConfig.DB_NAME))){
+            return restoreVerifiedBackupOwnedR335(context,helper,backup,expectedSha256);
+        }catch(IOException busy){lastRestoreError=busy.getMessage();return false;}
+    }
+    private static boolean restoreVerifiedBackupOwnedR335(Context context, DbHelper helper, File backup, String expectedSha256) {
         lastRestoreError = "";
         if (context==null || helper==null || backup==null || !backup.isFile() || safe(expectedSha256).length()!=64) {
             lastRestoreError = "RESTORE_ARGUMENT_OR_BACKUP_INVALID";

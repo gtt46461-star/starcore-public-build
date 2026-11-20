@@ -83,6 +83,7 @@ public final class CheckpointReferencesR26 {
         if(table(db,"r31_atomnet_publication")) for(String name:new String[]{"state_ref","weights_ref","dataset_ref"}) artifact(db,queries,"r31_atomnet_publication",name,true);
         if(table(db,"r324_atomnet_sample_archive")) artifact(db,queries,"r324_atomnet_sample_archive","archive_ref",true);
         if(table(db,"r31_gc_pin")) direct(db,queries,"r31_gc_pin","artifact_hash");
+        if(table(db,"r335_checkpoint_recovery")) direct(db,queries,"r335_checkpoint_recovery","expected_hash");
         return queries;
     }
     static void visitKeepR324(SQLiteDatabase db,Consumer<String> sink) {

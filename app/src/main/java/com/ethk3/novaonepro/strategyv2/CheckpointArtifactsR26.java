@@ -55,6 +55,13 @@ public final class CheckpointArtifactsR26 {
                 com.ethk3.novaonepro.DatabaseCoordinator.WriteContext.of(com.ethk3.novaonepro.DatabaseCoordinator.WriteClass.RESEARCH_DATA,operation),mutation::run);
         registerDatabaseRootR31(store.readable(),files.root);return files;
     }
+    /** Same CAS/GC protocol, with an explicitly named exact-byte maintenance writer. No model or quality writes. */
+    public static CheckpointArtifactsR26 forRecoveryR335(DbStore store)throws IOException {
+        CheckpointArtifactsR26 files=forStore(store);
+        files.metadataWriterR31=(operation,mutation)->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+            com.ethk3.novaonepro.DatabaseCoordinator.WriteContext.of(com.ethk3.novaonepro.DatabaseCoordinator.WriteClass.TELEMETRY,"R335_CHECKPOINT_REGISTER_EXACT").withDeadlineMonoMs(com.ethk3.novaonepro.TimeSourceR811.monoNowMs()+20L),mutation::run);
+        return files;
+    }
     /** Snapshot/report owners explicitly register their own matching, verified checkpoint directory. */
     public static void registerDatabaseRootR31(SQLiteDatabase db,File directory)throws IOException {
         File root=directory.getCanonicalFile();if(!root.isDirectory())throw new IOException("R31_ARTIFACT_SOURCE_DIRECTORY_MISSING");String path=new File(db.getPath()).getCanonicalPath();
@@ -82,7 +89,7 @@ public final class CheckpointArtifactsR26 {
         try{CheckpointArtifactsR26 files=forDatabaseR31(db);long rootLength=ColdCheckpointR324.rawSize(files.root,referenceHash(value));try(MemoryBudgetR31.Lease rootRead=readReservationR31("root-read",2*rootLength+65536)){byte[] root=files.resolve(value);if(!ChunkedCheckpointR26.isManifest(root))return root;
             long raw;try(DataInputStream header=new DataInputStream(new ByteArrayInputStream(root))){header.readInt();raw=header.readLong();}if(raw<1||raw>64L<<20)throw new IOException("R31_ARTIFACT_SERIALIZED_BOUND");
             try(MemoryBudgetR31.Lease read=readReservationR31("serialized-read",3*raw+3L*262144+65536);InputStream input=ChunkedCheckpointR26.open(root,files.readStore());ByteArrayOutputStream bytes=new ByteArrayOutputStream((int)raw)){byte[] buffer=new byte[32768];int n;while((n=input.read(buffer))!=-1){if((long)bytes.size()+n>raw)throw new IOException("R31_ARTIFACT_SERIALIZED_BOUND");bytes.write(buffer,0,n);}return bytes.toByteArray();}}
-        }catch(IOException failure){String m=String.valueOf(failure.getMessage());throw new ArtifactReadR31(failure instanceof FileNotFoundException||m.contains("MISSING")||m.contains("NOT_REGISTERED")?"DEPENDENCY":"INTEGRITY",failure);}
+        }catch(IOException failure){if(failure instanceof FileNotFoundException&&!db.isReadOnly())CheckpointRecoveryR335.request(referenceHash(value),CheckpointRecoveryR335.currentOwner());String m=String.valueOf(failure.getMessage());throw new ArtifactReadR31(failure instanceof FileNotFoundException||m.contains("MISSING")||m.contains("NOT_REGISTERED")?"DEPENDENCY":"INTEGRITY",failure);}
     }
     static void syncDirectory(File directory)throws IOException {
         java.io.FileDescriptor fd=null;
@@ -145,7 +152,10 @@ public final class CheckpointArtifactsR26 {
         try(InputStream in=new FileInputStream(file)){byte[] buffer=new byte[32768];int n;while((n=in.read(buffer))!=-1){if(bytes.size()+n>MAX_BYTES)throw new IOException("R26_ARTIFACT_SIZE");ExecutionBudgetR26.poll();bytes.write(buffer,0,n);}}
         if(bytes.size()!=length)throw new IOException("R26_ARTIFACT_CHANGED_DURING_READ");return bytes.toByteArray();
     }
-    public byte[] readHash(String hash)throws IOException {return ColdCheckpointR324.read(root,hash);}
+    public byte[] readHash(String hash)throws IOException {
+        try{return ColdCheckpointR324.read(root,hash);}
+        catch(FileNotFoundException missing){if(metadataReadR31!=null&&!metadataReadR31.isReadOnly())CheckpointRecoveryR335.request(hash,CheckpointRecoveryR335.currentOwner());throw missing;}
+    }
     /** Old inline SQLite checkpoints remain readable during additive migration. */
     public byte[] resolve(byte[] value)throws IOException {if(!reference(value))return value;return readHash(new String(value,PREFIX.length(),64,StandardCharsets.US_ASCII));}
     public static byte[] resolve(DbStore store,byte[] value)throws IOException {return reference(value)?forStore(store).resolve(value):value;}

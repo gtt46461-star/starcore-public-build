@@ -466,6 +466,7 @@ public final class AutoFetchService extends Service {
     private AdaptiveLearningJudgeEngine adaptiveLearningJudgeEngine;
 
     private volatile boolean running;
+    private RuntimeFaultMaintenanceR335 faultMaintenanceR335;
     private volatile boolean forceRefresh;
 
     private volatile boolean fetchBusy;
@@ -1238,6 +1239,7 @@ public final class AutoFetchService extends Service {
         try {
             heartbeatStateV8().markInitStage("DB_CRITICAL_OPEN", "R35_R36_V51_B03");
             store = new DbStore(getApplicationContext());
+            faultMaintenanceR335 = new RuntimeFaultMaintenanceR335();
             if (finishCancelledRuntimeInitializationR94()) return;
             heartbeatStateV8()
                     .markInitStage("DB_CRITICAL_READY", store.startupSchemaSummaryR363());
@@ -1872,6 +1874,7 @@ public final class AutoFetchService extends Service {
 
     @Override
     public void onDestroy() {
+        if(faultMaintenanceR335!=null)faultMaintenanceR335.close();
         teardownThreadsR82 = new Thread[] { startupInitThread,fetchThread,runtimeGuardThread,
                 livenessThreadR817,analysisWatchdogThread,analysisThread,backfillThread,backtestThread,
                 learningThread,settlementRecoveryThreadR908,countdownThreadR973,researchThreadR908,microThread };
@@ -2428,6 +2431,7 @@ public final class AutoFetchService extends Service {
     private void postResearchControlR31(){if(runtimeGuardHandler!=null){runtimeGuardHandler.removeCallbacks(researchControlLoopR31);runtimeGuardHandler.post(researchControlLoopR31);}}
     private void reconcileResearchOwner(String reason){
         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
+        if(faultMaintenanceR335!=null)faultMaintenanceR335.signal(store);
         long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
         // Recovery derives its merged target from committed draws on every tick.
         // It must run even when migration/research initialization later fails.
