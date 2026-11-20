@@ -5,13 +5,13 @@
   "controlled_baseline_sha256": "a01f962a253d97879d7498d6e2c881719ac777bff64557a94310b84bdf7a0024",
   "controlled_changes": [
     {
-      "after_role": "BUILD_CONTRACT",
-      "after_sha256": "ec2e7ef785dd39f61deb45a5f8967a659f8b0feb48d0fef91d4d583c52b2da17",
-      "before_role": "BUILD_CONTRACT",
-      "before_sha256": "944d1d5d69f441246328258271546dfce78fa6f2ad91c2ba71717b95db886cc2",
       "path": "app/build.gradle",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "944d1d5d69f441246328258271546dfce78fa6f2ad91c2ba71717b95db886cc2",
+      "after_sha256": "7728e948458ea67cb767ef0adb011e19d5d03d0d0550557a6f0503699130b49b",
+      "before_role": "BUILD_CONTRACT",
+      "after_role": "BUILD_CONTRACT",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "P00 保留R31原祖先、原签、R312开发模式、r967 policy及终审检查；绑定当前方案seal；将033冻结调用索引从preBuild移除，使用当前variant项目classes生成asset。此改动影响构建顺序和实际交付身份，保留BUILD_CONTRACT，按原R82使旧数值资格失效。"
     },
     {
       "after_role": "PRESENTATION",
@@ -5432,6 +5432,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "scripts/r815_generate_provenance.py",
+      "before_sha256": "7c3488045682b4df49c42140a5befe9eb83e386122e6f4232b685a272b94a169",
+      "after_sha256": "fd642a0a98742da8033e1354b7e9b1c11ef5f53fa3255c2b16842d0dc988b334",
+      "before_role": "BUILD_CONTRACT",
+      "after_role": "BUILD_CONTRACT",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "P00 逐行差分仅在BUILD_CONTRACTS增加scripts/r975_source_call_index.py和gradle/r335_source_calls.gradle，保留原sourceTree/buildInputs/toolchain计算、原始输入和generated精确check。当前编译索引后生成并反向绑定r815，避免自产物哈希环；保留BUILD_CONTRACT，不授予旧训练/统计资格。"
+    },
+    {
       "after_role": "BUILD_CONTRACT",
       "after_sha256": "5de2507c327c55ef381b0c7e254de11f1fdd7dffc1109c1b971a7b59a7a58607",
       "before_role": "BUILD_CONTRACT",
@@ -5448,6 +5457,15 @@
       "path": "scripts/r967_semantic_identity.py",
       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
       "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "path": "scripts/r982_source_call_asset.py",
+      "before_sha256": "d775059118760e751d053c1da1202e805f89bbd6a2233b34e9a6cdd395488150",
+      "after_sha256": "af50163d95bacaf5f9a582ca801267f0b89343fb4afec4b9dc2ca02d29593c1e",
+      "before_role": "BUILD_CONTRACT",
+      "after_role": "BUILD_CONTRACT",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "P00 保留旧archive严格校验；新增从实际project classes目录/JAR生成当前静态索引，核r815原始输入、完整main Java文件集合、类身份、界限和并发变动，记录当前class及index摘要。反射/虚派发/native与自然质量均不由静态索引证明；保留BUILD_CONTRACT，原R82失效边界不变。"
     },
     {
       "after_role": "BUILD_CONTRACT",
@@ -8486,7 +8504,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "3a2457204dcc0b3e04143e93019845136eb5f857c2ec1bbf46a62137ec91a5a4",
+  "reviewed_input_provenance_sha256": "da99ea5b35d93776b9934f9a05b59b06f51f1308bb0cd29e5a5181ef7622798d",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
