@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/b33f402d4b7a/repo/construction/plans/STARCORE_R33_5_REVIEW_20261119/replay/verify_completed_source.py", line 42, in <module>
+    result = verify(args.plan, args.repo, args.review)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/b33f402d4b7a/repo/construction/plans/STARCORE_R33_5_REVIEW_20261119/replay/verify_completed_source.py", line 30, in verify
+    rows = checked.registered_prefix(active, plan, repo, history, pair, 'B08', effective=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/b33f402d4b7a/repo/construction/plans/STARCORE_R33_5_REVIEW_20261119/replay/stage_checked.py", line 175, in registered_prefix
+    raise ValueError('REGISTERED_PREDECESSOR_BYTES_MISSING:' + name + ':' + path)
+ValueError: REGISTERED_PREDECESSOR_BYTES_MISSING:B08:app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java

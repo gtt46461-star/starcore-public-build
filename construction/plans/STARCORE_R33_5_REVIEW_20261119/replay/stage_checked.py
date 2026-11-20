@@ -247,6 +247,51 @@ def copy_stage_overlay(tool, stage, repo, head, plan, pair, work):
     return overlay_tool
 
 
+def create_verified_checkout(tool, repo, head, dest, patch, after, receipt):
+    """Keep the source's shallow boundaries when its checkout is a linked worktree."""
+    dest = dest.absolute()
+    if dest.is_relative_to(repo) or dest.resolve().is_relative_to(repo):
+        raise ValueError('Choose output outside the source checkout')
+    common = Path(tool.git(repo, 'rev-parse', '--path-format=absolute', '--git-common-dir').decode().strip())
+    ancestry = tool.git(repo, 'rev-list', '--count', head)
+    shallow = tool.git(repo, 'rev-parse', '--is-shallow-repository')
+
+    def check_history(path):
+        if (tool.git(path, 'rev-parse', '--is-shallow-repository') != shallow
+                or tool.git(path, 'rev-list', '--count', head) != ancestry):
+            raise ValueError('OUTPUT_VISIBLE_HISTORY_DIFFERS')
+
+    marker = Path('.git/r33-key-stage.json')
+    if dest.is_symlink():
+        raise ValueError('Output symlink refused')
+    if dest.exists():
+        stamp = dest / marker
+        if (not stamp.is_file() or json.loads(stamp.read_bytes()) != receipt
+                or tool.git(dest, 'rev-parse', 'HEAD').decode().strip() != head):
+            raise ValueError('Existing output retained. Choose a fresh directory or inspect previous work.')
+        tool.verify_result(dest, after)
+        check_history(dest)
+        return 'REUSED_VERIFIED_OUTPUT'
+    with tempfile.TemporaryDirectory(dir=dest.parent, prefix='.r335-history-') as temp:
+        candidate = Path(temp) / 'candidate'
+        candidate.mkdir()
+        tool.git(candidate, 'init', '--quiet')
+        # Request only this commit. Unrelated refs in the same partial clone
+        # can legitimately have missing blobs. Git transfers visible shallow roots.
+        tool.git(candidate, 'fetch', '--quiet', '--no-tags', '--update-shallow',
+                 common.as_uri(), head)
+        tool.git(candidate, 'checkout', '--quiet', '--detach', head)
+        check_history(candidate)
+        if patch:
+            tool.git(candidate, 'apply', '--check', '--index', '-', data=patch)
+            tool.git(candidate, 'apply', '--index', '-', data=patch)
+        tool.verify_result(candidate, after)
+        (candidate / marker).write_text(json.dumps(receipt, ensure_ascii=False, indent=2), encoding='utf-8')
+        tool.publish_no_replace(candidate, dest)
+    return 'CREATED_STAGED_REVIEW_CHECKOUT'
+
+
+
 def run_stage(tool, gen, pair, plan, repo, target, baseline, review_sha, emit=None, dest=None, review_root=None):
     if tool.complete_records(target) is None:
         raise ValueError('COMPLETE_R335_APPLY_MANIFEST_REQUIRED')
@@ -296,7 +341,7 @@ def run_stage(tool, gen, pair, plan, repo, target, baseline, review_sha, emit=No
                 for retained in (pair.REL.as_posix(), INVALIDATION):
                     if retained not in after:
                         after[retained] = tool.committed_file(repo, head, retained)
-            receipt['outputStatus'] = tool.create_checkout(repo, head, dest, draft.read_bytes(), after, receipt.copy())
+            receipt['outputStatus'] = create_verified_checkout(tool, repo, head, dest, draft.read_bytes(), after, receipt.copy())
         return receipt
 
 

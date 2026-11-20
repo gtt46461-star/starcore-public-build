@@ -77,7 +77,8 @@ def run(args, out, temp):
     release = temp / 'release.json'
     invoke('signedRelease', REVIEW / 'source/verify_delivery.py', '--plan', plan, '--repo', args.repo,
            '--candidate', args.candidate, '--dumpsys', args.dumpsys, '--baseline-apk', args.baseline_apk,
-           '--aapt', args.aapt, '--apksigner', args.apksigner, '--out', release)
+           '--aapt', args.aapt, '--apksigner', args.apksigner, '--out', release, '--source-out', temp / 'source.json')
+    out['receivedSources'] = read(temp / 'source.json')
     actual = read(release)
     require(actual['sourceCommit'] == commit and actual['apk']['sha256'] == apk and
             actual == read(referenced(root, exe['finalBuild']['releaseReceipt'])), 'MIXED_FINAL_RELEASE_OR_BUILD')
@@ -101,7 +102,7 @@ def run(args, out, temp):
     invoke('enabledWindow', REVIEW / 'runtime/check_window.py', '--tools', tools, '--bundle', window,
            '--evidence', root, '--start', args.start, '--end', args.end, '--commit', commit, '--apk', apk)
     research = REVIEW / 'research/check_research.py'
-    invoke('strictTrace', research, 'trace', plan, bundle, root, commit, apk)
+    invoke('strictTrace', research, 'trace', plan, bundle, root, commit, apk, '--tools', tools)
     refs = {referenced(root, raw) for env in proof_paths(exe, root, 'B07.4.TRACE')
             for raw in env['rawArtifacts']}
     chains = {p.resolve(strict=True) for p in args.followup}

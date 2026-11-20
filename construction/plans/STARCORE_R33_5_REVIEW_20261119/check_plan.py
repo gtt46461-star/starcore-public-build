@@ -32,6 +32,11 @@ with tempfile.TemporaryDirectory(prefix='r335-reviewed-host-') as temporary:
         [review/'replay/test_production_overlay.py', '--plan', plan],
         [review/'replay/test_export.py', '--plan', plan],
         [review/'replay/test_final_review.py'],
+        [review/'runtime/test_capture_route.py', runtime],
+        [review/'runtime/test_trace_routes.py', plan, runtime],
+        [review/'replay/test_checkout_history.py', plan],
+        [review/'source/test_check_source_delivery.py', plan],
+        [review/'verification/check_work_orders.py', plan],
     ]
     for command in commands:
         print('RUN', Path(command[0]).name, flush=True)

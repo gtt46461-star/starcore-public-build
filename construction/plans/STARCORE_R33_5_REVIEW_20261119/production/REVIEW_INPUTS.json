@@ -80,6 +80,86 @@
       "reviewer": "R33.5 2026-11-20 report source review",
       "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications.",
       "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+      "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+      "inputSha256": "0532dceca15413ec60499710d63c956e37a01412f8ae64b3e56f632c8e6bb246",
+      "sha256": "01ed302e8ffa74b5b46160d9940c663ec7993e089acd6cb291ea4c231689de7f",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05: use the actual opening and first durable source observation for numeric feedback, with an independent residual consumer identity.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "inputSha256": "67f3d07d9b7d54e74fc0acda28869cdb08da888156fb5da1177a2138627b5931",
+      "sha256": "3247adfd6d2bae263bb5883e0538bd42eb03cd38f04aa69797a523ba4f9c6b76",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01, RT05: bind source identity and clocks before any settlement; re-read immutable first-write time on idempotent replay. Preserve invalid legacy labels for diagnosis.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "inputSha256": "2157e3e239429a5f94cc83640bbe1f7afaec09a6932f86f9da7b359b2065aa9b",
+      "sha256": "6b438d6640611a1d413b8b7a1b6faaac2321c1887ef9bee313350ae817ecd7c9",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01: roll back the sole settlement transaction if the terminal clock precedes the immutable label; existing coordinator retries.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+      "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+      "inputSha256": "025f530f0a9bbafa586d0d486b087b02e3c7a2a55c698a90ccbba35dd478e7b6",
+      "sha256": "49016804fbb87c302cc5b6350bb99f18cca3b4caf203e686d93b3aac651d6062",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05,RT06: validate source clocks and exact previous issue at both typed-producer and residual-consumer readback. Replay bounded V3 from originals independently of preserved V2 state.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+      "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+      "inputSha256": "a4d308070c5517fc9cd4cbea2659951a4fb8d53d923cab57f298a20d1eb11df7",
+      "sha256": "b6cfd371d323fd6fa9c693af664ee31bc58718d2b4b5a47e51a48d25bb2278ee",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT08: pin original draw dependencies until the same reviewed residual consumer has a receipt; historical aggregates do not release the new consumer pin.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/AndroidManifest.xml",
+      "payload": "production/sources/B02/app/src/main/AndroidManifest.xml",
+      "inputSha256": "25520bf6eacdbc19710a7000f6c52022639b4956f70f8713ef82883149f50381",
+      "sha256": "668652f91450c45bbe7c7b62c3eb97b53799d7b806002d8477a885bd8c99daba",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+      "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+      "inputSha256": "NEW",
+      "sha256": "fb7d6b29680f9cb00c3ca26c15ca836fb84b3c3784142e6b3964b19f388eeea4",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+      "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+      "inputSha256": "39b2b897d31e8777f042621d1934eb087e27a96ec8d4659fe97ee2b66951e617",
+      "sha256": "c5852b85c4e3dd7075ce0ec39ac61e353196b58cd4d472ea9216cb66b93bb808",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01: record when the already durable prepared result is actually observed, including commit-unknown readback and resumed commit. Use the exact request and canonical hash. A later readback provides only an upper time bound.",
+      "dynamicReview": false
     }
   ]
 }

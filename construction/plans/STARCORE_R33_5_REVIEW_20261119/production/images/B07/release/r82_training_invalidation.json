@@ -14,13 +14,13 @@
       "rationale": "P00 保留R31原祖先、原签、R312开发模式、r967 policy及终审检查；绑定当前方案seal；将033冻结调用索引从preBuild移除，使用当前variant项目classes生成asset。此改动影响构建顺序和实际交付身份，保留BUILD_CONTRACT，按原R82使旧数值资格失效。"
     },
     {
-      "after_role": "PRESENTATION",
-      "after_sha256": "25520bf6eacdbc19710a7000f6c52022639b4956f70f8713ef82883149f50381",
-      "before_role": "PRESENTATION",
-      "before_sha256": "8e95947c5bae693960cd0730336d144b7967a5551bb2a3d4d7281f458a7368e8",
       "path": "app/src/main/AndroidManifest.xml",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "8e95947c5bae693960cd0730336d144b7967a5551bb2a3d4d7281f458a7368e8",
+      "after_sha256": "668652f91450c45bbe7c7b62c3eb97b53799d7b806002d8477a885bd8c99daba",
+      "before_role": "PRESENTATION",
+      "after_role": "PRESENTATION",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification."
     },
     {
       "after_role": "NUMERIC",
@@ -448,11 +448,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
       "before_sha256": "9e2364ddafaecc196302584ebc84c03768004adb34f913665a1581290795e943",
-      "after_sha256": "a4d308070c5517fc9cd4cbea2659951a4fb8d53d923cab57f298a20d1eb11df7",
+      "after_sha256": "b6cfd371d323fd6fa9c693af664ee31bc58718d2b4b5a47e51a48d25bb2278ee",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B02 精确源码复核：DrawDependencyInputCP12.java。加入pending r26 feedback、未typed draw event、未V2 frozen消费及未产出冻结事件的引用保护；partial native schema显式拒绝；继续唯一draw_dependency_input CP12冷热输入图，不复制第二历史账。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT08: pin original draw dependencies until the same reviewed residual consumer has a receipt; historical aggregates do not release the new consumer pin."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DurableReturnTimingR334.java",
@@ -462,6 +462,15 @@
       "after_role": "NUMERIC",
       "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
       "rationale": "R335 B02 精确源码复核：DurableReturnTimingR334.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+      "before_sha256": "",
+      "after_sha256": "fb7d6b29680f9cb00c3ca26c15ca836fb84b3c3784142e6b3964b19f388eeea4",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
@@ -556,11 +565,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
       "before_sha256": "",
-      "after_sha256": "0532dceca15413ec60499710d63c956e37a01412f8ae64b3e56f632c8e6bb246",
+      "after_sha256": "01ed302e8ffa74b5b46160d9940c663ec7993e089acd6cb291ea4c231689de7f",
       "before_role": "",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B02 精确源码复核：FrozenFeedbackProofR335.java。在实际r31 producer/consumer源查询重验game/base/history/位置K3/开奖置换/COMPLETED结算/hash/firstSeen/fixedDeadline，并重算 draw V2、provenance、label hash；NULL与-1 probability区分缺值，非法概率拒绝。；废止另建r33平行交接，沿既有r26 outbox→r31 typed events→原模型checkpoint receipts/新版本残差receipt。confirmed draw恢复不再依赖settlement_task；typed draw重验原csv/hash/ordinal/canonical，公平event键；frozen consumer公平(issue,event_id)复合游标，坏原件不ACK；原immutable旧消费者账保留。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05: use the actual opening and first durable source observation for numeric feedback, with an independent residual consumer identity."
     },
     {
       "after_role": "NUMERIC",
@@ -768,6 +777,15 @@
       "after_role": "NUMERIC",
       "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
       "rationale": "R335 B02 精确源码复核：NumberSurfaceTensorEngine.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "before_sha256": "67f3d07d9b7d54e74fc0acda28869cdb08da888156fb5da1177a2138627b5931",
+      "after_sha256": "3247adfd6d2bae263bb5883e0538bd42eb03cd38f04aa69797a523ba4f9c6b76",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01, RT05: bind source identity and clocks before any settlement; re-read immutable first-write time on idempotent replay. Preserve invalid legacy labels for diagnosis."
     },
     {
       "after_role": "NUMERIC",
@@ -1411,11 +1429,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
       "before_sha256": "f571e7503c40ecfe38dcdfefe4f97725c46f4394b188d640462a35bd6881015d",
-      "after_sha256": "2157e3e239429a5f94cc83640bbe1f7afaec09a6932f86f9da7b359b2065aa9b",
+      "after_sha256": "6b438d6640611a1d413b8b7a1b6faaac2321c1887ef9bee313350ae817ecd7c9",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B02 精确源码复核：SettlementEngine.java。逐方法保留已存在生产实现；C11_033源码逐项保全审查_R335.md区分源码已有/host已验/真实SQLite和设备未验。未降低任一正式数值门，未启用GateV2。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01: roll back the sole settlement transaction if the terminal clock precedes the immutable label; existing coordinator retries."
     },
     {
       "after_role": "NUMERIC",
@@ -1708,11 +1726,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
       "before_sha256": "105bc06fdda0f5a7c203fe4a51604ae83fb342976f8f0ad92496965fd445ae79",
-      "after_sha256": "39b2b897d31e8777f042621d1934eb087e27a96ec8d4659fe97ee2b66951e617",
+      "after_sha256": "c5852b85c4e3dd7075ce0ec39ac61e353196b58cd4d472ea9216cb66b93bb808",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B02 精确源码复核：V51RuntimeOrchestrator.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01: record when the already durable prepared result is actually observed, including commit-unknown readback and resumed commit. Use the exact request and canonical hash. A later readback provides only an upper time bound."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
@@ -5173,11 +5191,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
       "before_sha256": "",
-      "after_sha256": "025f530f0a9bbafa586d0d486b087b02e3c7a2a55c698a90ccbba35dd478e7b6",
+      "after_sha256": "49016804fbb87c302cc5b6350bb99f18cca3b4caf203e686d93b3aac651d6062",
       "before_role": "",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B02 精确源码复核：RuntimeSchemaR26.java。在实际r31 producer/consumer源查询重验game/base/history/位置K3/开奖置换/COMPLETED结算/hash/firstSeen/fixedDeadline，并重算 draw V2、provenance、label hash；NULL与-1 probability区分缺值，非法概率拒绝。；废止另建r33平行交接，沿既有r26 outbox→r31 typed events→原模型checkpoint receipts/新版本残差receipt。confirmed draw恢复不再依赖settlement_task；typed draw重验原csv/hash/ordinal/canonical，公平event键；frozen consumer公平(issue,event_id)复合游标，坏原件不ACK；原immutable旧消费者账保留。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05,RT06: validate source clocks and exact previous issue at both typed-producer and residual-consumer readback. Replay bounded V3 from originals independently of preserved V2 state."
     },
     {
       "after_role": "NUMERIC",
@@ -5999,7 +6017,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "16420c7816402ccbb3733f93e3e70c88fb8516351eb6564f6f5fde5c253ca77a",
+  "current_controlled_roles_sha256": "9d8ed7bce43e8c02be31e34055b812aee384e66ba6f741e7a59603e29e659172",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -6099,6 +6117,12 @@
       "rationale": "R335 B02 精确源码复核：DurableReturnTimingR334.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+      "role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification."
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
       "role": "NUMERIC",
       "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
@@ -6137,8 +6161,8 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
       "role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B02 精确源码复核：FrozenFeedbackProofR335.java。在实际r31 producer/consumer源查询重验game/base/history/位置K3/开奖置换/COMPLETED结算/hash/firstSeen/fixedDeadline，并重算 draw V2、provenance、label hash；NULL与-1 probability区分缺值，非法概率拒绝。；废止另建r33平行交接，沿既有r26 outbox→r31 typed events→原模型checkpoint receipts/新版本残差receipt。confirmed draw恢复不再依赖settlement_task；typed draw重验原csv/hash/ordinal/canonical，公平event键；frozen consumer公平(issue,event_id)复合游标，坏原件不ACK；原immutable旧消费者账保留。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05: use the actual opening and first durable source observation for numeric feedback, with an independent residual consumer identity."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenInputStabilityR82.java",
@@ -9197,7 +9221,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "296d91d86888d07644e03ad0ca4d95c75922328c109dbceab426870a03798b8b",
+  "reviewed_input_provenance_sha256": "496238b1b7eea36ade3ae57156301ed01053c1e0d664fda2cfa6b8d09c45a1ee",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

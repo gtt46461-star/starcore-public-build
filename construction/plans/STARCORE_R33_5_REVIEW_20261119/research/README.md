@@ -6,7 +6,7 @@
 
 生产施工统一经 [replay/stage_checked.py](../replay/stage_checked.py) 按 P00→B08 顺序接收已提交的前序工程，安装原后态与 [production/OVERLAY.json](../production/OVERLAY.json) 中的完整修订。B04 的计数和恢复修复、B05 的父子配对修复、B07 的报告生产代码必须共同保留到 B08；随后执行本页对应验收与原批次要求。准备宿主工具、运行离线检查或生成单个 B05 文件，均不能代替这条安装链。
 
-**当前阶段身份以 [production/SEMANTIC_RESULTS.json](../production/SEMANTIC_RESULTS.json) 为准。** [rebuild_overlay.py](../production/rebuild_overlay.py) 在每批累计完整源码上调用原 `build_semantic_inputs_r335.py::identity()` 和 033 的 R967 `build/write_outputs/verify_outputs`，同步生成 R82、依赖清单及两项已跟踪的 R967 输出。当前 B07/B08 的 `trainingRuleSha256` 为 `32875e6348372f9720fc9eec15091eee54c9c7b609e44085ac32e1bf49d8130c`；对应完整 `release/r82_training_invalidation.json` 的 SHA-256 为 `5462b3d8a1f8e996eb4c82c57f546496c64b86d281e12406ed22e1ab1734c418`。B04、B05/B06 的各自身份从同一结果文件的对应阶段读取，不能提前套用最终阶段值。`policyHash` 保持原值，旧资格兼容前身列表为空；实际候选提交前仍运行原 R967 `--check`，按新身份重新采集资格证据。
+**当前阶段身份以 [production/SEMANTIC_RESULTS.json](../production/SEMANTIC_RESULTS.json) 为准。** [rebuild_overlay.py](../production/rebuild_overlay.py) 在每批累计完整源码上调用原 `build_semantic_inputs_r335.py::identity()` 和 033 的 R967 `build/write_outputs/verify_outputs`，同步生成 R82、依赖清单及两项已跟踪的 R967 输出。当前 B07/B08 的 `trainingRuleSha256` 为 `619fbc6ba89b6448e8eb663fd303c951b5fe7628ce0f91bfa6f18015ee629bac`；对应完整 `release/r82_training_invalidation.json` 的 SHA-256 为 `7f3a62b2176b1e7c03809db3ed5ff6d6389c3bb6e1929f102bf86c6116b6126c`。B04、B05/B06 的各自身份从同一结果文件的对应阶段读取，不能提前套用最终阶段值。`policyHash` 保持原值，旧资格兼容前身列表为空；实际候选提交前仍运行原 R967 `--check`，按新身份重新采集资格证据。
 
 ## 施工和签收
 

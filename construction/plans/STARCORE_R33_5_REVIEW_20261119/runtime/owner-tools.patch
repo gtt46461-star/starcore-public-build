@@ -57,3 +57,47 @@
 + receipt={'status':'PASS_ACTUAL_PRODUCTION_SESSION_NUMERICS','observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'baseline':manifest['ref'],'measurements':measurements,'uniqueTrainSamples':160,'uniqueSelectSamples':80,'withheldFormalHoldoutCount':40,'resumeParity':'EXACT_ALL_CODEC_BYTES_EXCLUDING_TWO_MEASURED_TIME_FIELDS','productionSourceClasses':production,'effectiveSources':selected,'boundarySeams':[{'path':p,'sha256':hashlib.sha256(body.encode()).hexdigest(),'scope':'TYPE_OR_MIN_ROWS_CONSTANT;EXECUTABLE_METHODS_THROW_IF_CALLED'} for p,body in seams.items()],'notRun':['feature_materialization','actual_writer_CAS_publication','Android_runtime','3000_unique_draw_pipeline','user_device','natural_future_quality']}
   (root/'SESSION_NUMERICS_RECEIPT.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
  print('ACTUAL_PRODUCTION_CLASSES=12; BOUNDARY_SEAMS=6 (unused executable methods throw); DATABASE_AND_ANDROID_INTEGRATION=NOT_RUN')
+--- a/B02/enabled_window_r335/collect_enabled_window.py
++++ b/B02/enabled_window_r335/collect_enabled_window.py
+@@ -120,8 +120,12 @@
+     installed_sha = adb(args.serial, 'shell', 'sha256sum', installed_path).decode().split()[0]
+     require(installed_sha == local_apk, 'INSTALLED_APK_BYTES_MISMATCH')
+     before = clock(args.serial)
+-    first = adb(args.serial, 'exec-out', 'run-as', PACKAGE, 'cat', PREF)
+-    second = adb(args.serial, 'exec-out', 'run-as', PACKAGE, 'cat', PREF)
++    if args.capture_source == 'APP_OWNED':
++        command = ('exec-out', 'content', 'read', '--uri', 'content://' + PACKAGE + '.r335.enabled/assignment')
++    else:
++        command = ('exec-out', 'run-as', PACKAGE, 'cat', PREF)
++    first = adb(args.serial, *command)
++    second = adb(args.serial, *command)
+     after = clock(args.serial)
+     require(first == second, 'PREFERENCES_CHANGED_DURING_COPY_RETRY_WITH_NEW_OUTPUT')
+     journal = parse_prefs(first)
+@@ -135,7 +139,7 @@
+     out = Path(args.out).resolve()
+     prefs = out.with_suffix('.preferences.xml')
+     receipt = dict(format='R335_ENABLED_CAPTURE_V1', scope='DEVICE_ENGINEERING_ORIGINALS_NOT_NATURAL_QUALITY',
+-                   phase=args.phase, serial=adb(args.serial, 'get-serialno').decode().strip(), before=before, after=after,
++                   phase=args.phase, captureSource=args.capture_source, serial=adb(args.serial, 'get-serialno').decode().strip(), before=before, after=after,
+                    sourceCommit=args.source_commit, apkSha256=local_apk, calendarSha256=trace.sha_file(cal_path),
+                    preferences=dict(path=prefs.name, sha256=sha(first)), assignmentHead=journal['events'][-1])
+     # An operator retains this START file independently before the window. No supplied/backdated
+@@ -213,6 +217,9 @@
+     closure = trace.verify(Path(bundle_path), root, scope, commit, apk)
+     require(all(e['eligible'] for e in cal['entries']), 'UNFILTERED_CALENDAR_REQUIRED')
+     start, first = read_capture(start_path, cal_path, 'START'); end, last = read_capture(end_path, cal_path, 'END')
++    if scope == 'INTEGRATED':
++        require(start.get('captureSource') in ('APP_OWNED', 'ADB_PRIVATE')
++                and end.get('captureSource') == start['captureSource'], 'CAPTURE_SOURCE_MISSING_OR_MIXED')
+     require(start['serial'] == end['serial'] and all(r['sourceCommit'] == commit and r['apkSha256'] == apk for r in (start,end)), 'DEVICE_OR_BUILD_MIXED')
+     require(start['after']['wallMs'] <= cal['windowStartMs'] and end['before']['wallMs'] >= cal['windowEndMs'], 'WINDOW_NOT_BRACKETED')
+     clock_ok = start['after']['bootId'] == end['before']['bootId']
+@@ -270,6 +277,7 @@
+     p = argparse.ArgumentParser(description=__doc__); sub=p.add_subparsers(dest='command',required=True)
+     c=sub.add_parser('capture')
+     for name in ('out','calendar','source-commit','apk'): c.add_argument('--'+name,required=True)
++    c.add_argument('--capture-source', choices=('APP_OWNED', 'ADB_PRIVATE'), default='APP_OWNED')
+     c.add_argument('--serial');c.add_argument('--phase',choices=('START','END'),required=True)
+     r=sub.add_parser('reconcile')
+     for name in ('bundle','evidence-root','start','end','expected-commit','expected-apk','out'):r.add_argument('--'+name,required=True)

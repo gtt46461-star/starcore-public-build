@@ -25,8 +25,8 @@ def run(plan, review, source, out):
     tool.git(source, 'cat-file', '-e', tool.BASE + '^{commit}')
     out.mkdir(parents=True, exist_ok=False)
     repo = out / 'candidate'
-    tool.git(out, 'clone', '--quiet', '--local', '--no-checkout', '--no-tags', str(source), str(repo))
-    tool.git(repo, 'checkout', '--quiet', '--detach', tool.BASE)
+    checked.create_verified_checkout(tool, source, tool.BASE, repo, b'', {},
+                                    {'scope': 'ISOLATED_BASELINE_SOURCE', 'sourceCommit': tool.BASE})
     effective = out / 'effective-plan'
     effective.mkdir()
     summary = production_overlay.prepare(tool, plan, pair, review, effective)

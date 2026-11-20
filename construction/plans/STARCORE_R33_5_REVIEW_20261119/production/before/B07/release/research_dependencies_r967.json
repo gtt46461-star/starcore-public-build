@@ -1157,6 +1157,11 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+      "role": "NUMERIC",
+      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification."
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
       "role": "NUMERIC",
       "rationale": "R335 B02 精确源码复核：EnabledWindowJournalR335.java。真实权限写入的同次SharedPreferences提交附带有界哈希审计链；START/END采集实际APK/prefs/设备时钟；保留独立100期日历，逐期核原canonical和结算，显式停用单列，丢原件/时钟变动UNKNOWN，未新增结算链或更改r29资格。 启用被维护拒绝记录独立R状态，不能作为用户显式停用排除分母。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
@@ -1281,7 +1286,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
       "role": "NUMERIC",
-      "rationale": "R335 B02 精确源码复核：FrozenFeedbackProofR335.java。在实际r31 producer/consumer源查询重验game/base/history/位置K3/开奖置换/COMPLETED结算/hash/firstSeen/fixedDeadline，并重算 draw V2、provenance、label hash；NULL与-1 probability区分缺值，非法概率拒绝。；废止另建r33平行交接，沿既有r26 outbox→r31 typed events→原模型checkpoint receipts/新版本残差receipt。confirmed draw恢复不再依赖settlement_task；typed draw重验原csv/hash/ordinal/canonical，公平event键；frozen consumer公平(issue,event_id)复合游标，坏原件不ACK；原immutable旧消费者账保留。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "rationale": "B02/RT05: use the actual opening and first durable source observation for numeric feedback, with an independent residual consumer identity."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenHistoryWireCP11.java",

@@ -1,6 +1,6 @@
 # R33.5 源码身份、构建预检与各批APK验收
 
-本页使用2026-11-20当前修订：**9阶段、66项施工问题、161次文件操作、135条不同生产路径**。完整后态与跨批前态以[生产补正清单](../production/OVERLAY.json)和[最终范围](../FINAL_SCOPE.json)为准；批次安装统一使用[当前执行入口](../replay/README.md)。
+本页使用2026-11-20当前修订：**9阶段、66项施工问题、164次文件操作、138条不同生产路径**。完整后态与跨批前态以[生产补正清单](../production/OVERLAY.json)和[最终范围](../FINAL_SCOPE.json)为准；批次安装统一使用[当前执行入口](../replay/README.md)。
 
 ## 正式源码与两份报告的身份
 
@@ -23,7 +23,7 @@
 python3 -B "$REVIEW/source/check_source_chain.py" "$PLAN"
 ```
 
-该命令不包含本轮新增路径。当前完整范围通过 `replay/production_overlay.py` 组成有效清单，再由原 `validate_install_manifest` 核全部前后态，安装和完成源入口共同消费该清单。B04/B07修订、R82身份及两个已跟踪R967生成文件均在当前范围内；旧双文件继承结果及旧R82常数不得作为本轮权威后态。
+该命令不包含本轮新增路径。当前完整范围通过 `replay/production_overlay.py` 组成有效清单，再由原 `validate_install_manifest` 核全部前后态，安装和完成源入口共同消费该清单。B02/B04/B07修订、R82身份及两个已跟踪R967生成文件均在当前范围内；旧双文件继承结果及旧R82常数不得作为本轮权威后态。
 
 每批源身份须同时保留原方案seal、当前review seal、有效overlay/清单摘要、实际源提交与版本。最终B08执行 `replay/verify_completed_source.py`，核每批实际引入版本的提交、最终HEAD、工作树和索引的累计生产后态。详见[源码继承与终审](../replay/README.md)。
 
@@ -81,6 +81,8 @@ python3 -B "$REVIEW/source/verify_delivery.py" \
 
 ## 本轮真实源码预演的证据边界
 
-本轮最终有效后态已从真实033 Git对象依次回放九阶段，实际通过161次操作/135路径的版本继承、原R967校验与逐批clean检查；独立终验再次覆盖九阶段。最终隔离提交 `91a37801ab538d09eddf991378151078e0f292d5`，训练规则SHA为 `32875e6348372f9720fc9eec15091eee54c9c7b609e44085ac32e1bf49d8130c`。删除B07新增生产类的隔离负例被终验拒绝。
+本轮最终有效后态已从真实033 Git对象依次回放九阶段，实际通过164次操作/138路径的版本继承、原R967校验与逐批clean检查；独立终验再次覆盖九阶段。最终隔离提交 `6bba61d08cf3494817082010b2410050144509d0`，训练规则SHA为 `619fbc6ba89b6448e8eb663fd303c951b5fe7628ce0f91bfa6f18015ee629bac`。删除B07新增生产类的隔离负例被终验拒绝。
 
 该预演检出是浅克隆，报告明确记录这一事实。它不能充作完整bundle、正式APK、原签覆盖安装、设备长测或自然策略质量证据。正式发布继续执行上面的完整历史预检、实际构建签名、空仓bundle恢复和现场验收；本轮源码回放版本只标识预演，不据此推定目标手机当前版本。
+
+本轮接收方的 `verify_delivery.py` 同时检查收到的源码 ZIP、完整 Git bundle 和 APK。需要单列源码回执时加 `--source-out "$RAW/received-sources.json"`。检查在新建空 bare 仓独立恢复 bundle，重读 ZIP 全部成员和模式，核对源码树、提交以及正式 033 祖先。B08 终审自动把结果写入 `receivedSources`。[接收端校验与拒绝用例](test_check_source_delivery.py)

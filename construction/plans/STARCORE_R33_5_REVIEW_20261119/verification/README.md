@@ -1,15 +1,15 @@
 # 当前修订的复演与签收证据
 
-本页对应2026-11-20的最终组合：9阶段、66项原业务问题、161次完整文件操作、135条生产路径、8份本轮Java后态。当前原始回执集中在仓库 [`construction/verification/STARCORE_R33_5_20261120/`](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/verification/STARCORE_R33_5_20261120/README.md)，状态汇总在上级 [HANDOFF.json](../HANDOFF.json)。旧53套宿主和2026-11-19回执保留原始范围，不能替代本轮组合源码的检查。
+本页对应2026-11-20的最终组合：9阶段、66项原业务问题、164次完整文件操作、138条生产路径、累计15份Java后态及1份Android清单。当前原始回执集中在仓库 [`construction/verification/STARCORE_R33_5_20261120/second-review/`](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/verification/STARCORE_R33_5_20261120/second-review/README.md)，状态汇总在上级 [HANDOFF.json](../HANDOFF.json)。旧53套宿主和2026-11-19回执保留原始范围，不能替代本轮组合源码的检查。
 
-## 1. 原件和16项复核命令
+## 1. 原件和21项复核命令
 
 ```bash
 python3 -B "$REVIEW/verify_review.py"
 python3 -B "$REVIEW/check_plan.py" "$PLAN"
 ```
 
-PLAN为prepare.py还原的认证原卷，REVIEW为同级current-review。check_plan运行16条实际命令，覆盖封包、两份033原报告、版本/累计文件、B04数值、严格结算窗口、交付预检、导出及终审拒签。它不产生APK或自然资格。B04数值回归的17763项是数值检查点计数；报告链另有下面的396项断言。
+PLAN为prepare.py还原的认证原卷，REVIEW为同级current-review。check_plan运行21条实际命令，覆盖封包、两份033原报告、版本/累计文件、B04数值、严格结算窗口、交付预检、导出及终审拒签。它不产生APK或自然资格。B04数值回归的17763项是数值检查点计数；报告链另有下面的396项断言。
 
 ## 2. 与安装器相同清单的十个全源码前缀
 
@@ -20,7 +20,7 @@ python3 -B "$REVIEW/verification/verify_reviewed_prefix.py" \
   --jdk-mode jdk17 --java "$JAVA_HOME/bin/java"
 ```
 
-SOURCE_033是正式提交`bb7b49bbcc9266bad548ec37e71403256fc06a4d`的完整源码，PREFIX_WORK是工程外新目录。工具验证基线全部源码，组合原完整清单、原B05配对修订和当前`production/OVERLAY.json`，调用原安装清单验证器。它从BASELINE033到P00、B01—B08逐次执行7个原工程生成器和全Java类型编译，不调整原生成器校验。最终源应包含1359个Java文件；另有2个明确的资源/BuildConfig类型夹具。
+SOURCE_033是正式提交`bb7b49bbcc9266bad548ec37e71403256fc06a4d`的完整源码，PREFIX_WORK是工程外新目录。工具验证基线全部源码，组合原完整清单、原B05配对修订和当前`production/OVERLAY.json`，调用原安装清单验证器。它从BASELINE033到P00、B01—B08逐次执行7个原工程生成器和全Java类型编译，不调整原生成器校验。最终源应包含1360个Java文件；另有2个明确的资源/BuildConfig类型夹具。
 
 `prefix_final/EFFECTIVE_APPLY_MANIFEST.json`记录实际完整有效清单，`REVIEW_BINDING.json`记录开始时修订身份及productionReview；`PREFIX_INPUT_MANIFEST_R335.json`保留原认证清单，供原宿主核原卷字节。最终规则SHA由原R967从实际源码验证，见`production/SEMANTIC_RESULTS.json`。Java编译结果不等同于Gradle、DEX、native、签名或Android设备执行。
 
@@ -34,7 +34,7 @@ python3 -B "$REVIEW/verification/check_reviewed_custody.py" \
   --plan "$PLAN" --out "$NEW_CUSTODY_OUTPUT"
 ```
 
-当前包装器保留原115项Java检查、全部原卷载荷、十份编译回执、依赖、生成器日志和每个已编译Java输入的校验。最终候选侧核同一有效清单的全部135路径，包含本轮新增类；同时核已保存的有效清单和productionReview。回执同时保留前缀开跑时的seal和实际检查时的seal，文档后续编辑不能掩盖生产字节或overlay不符。
+当前包装器保留原115项Java检查、全部原卷载荷、十份编译回执、依赖、生成器日志和每个已编译Java输入的校验。最终候选侧核同一有效清单的全部138路径，包含本轮新增类；同时核已保存的有效清单和productionReview。回执同时保留前缀开跑时的seal和实际检查时的seal，文档后续编辑不能掩盖生产字节或overlay不符。
 
 ## 4. 报告闭环396断言与两份真实原报告
 

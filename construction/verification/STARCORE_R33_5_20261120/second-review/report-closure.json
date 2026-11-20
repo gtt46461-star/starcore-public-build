@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "assertions": 396,
+  "sourceJavaCount": 1360,
+  "javaTypeInputSha256": "5a6c82c4a61f8af6527470e27ecbaeab8419e48741f7d4d4a98ce742917b1f72",
+  "sourceBytesVerified": 7,
+  "originalReports": [
+    {
+      "path": "/workspace/scratch/b33f402d4b7a/report-check/original-reports/report_1.json",
+      "sha256": "93a5d77b44665ff425f72e53009ede7772f93c2cf41d3333e27be911ad67c4be"
+    },
+    {
+      "path": "/workspace/scratch/b33f402d4b7a/report-check/original-reports/report_2.json",
+      "sha256": "776eae9469b2a77e548ca12fdcbca4fc599b1343074b5fa64dc0bddb78e4b594"
+    }
+  ],
+  "commands": [
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/b33f402d4b7a/review-build-input/reports/closure/apply_report_payload.py",
+      "--source",
+      "/workspace/scratch/b33f402d4b7a/verification-prefix/prefix_candidate",
+      "--check"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/b33f402d4b7a/review-build-input/reports/closure/generate_need_registry.py",
+      "--plan",
+      "/workspace/scratch/b33f402d4b7a/prepared/STARCORE_R33_5_20261118",
+      "--output",
+      "/workspace/scratch/b33f402d4b7a/verification-prefix/prefix_candidate/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+      "--check"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/b33f402d4b7a/prepared/STARCORE_R33_5_20261118/verification/typecheck_full_source_r335.py",
+      "--repo",
+      "/workspace/scratch/b33f402d4b7a/verification-prefix/prefix_candidate",
+      "--android-jar",
+      "/workspace/scratch/b33f402d4b7a/deps/android.jar",
+      "--annotation-jar",
+      "/workspace/scratch/b33f402d4b7a/deps/annotation.jar",
+      "--java",
+      "/workspace/scratch/b33f402d4b7a/deps/jdk17/bin/java",
+      "--jdk-mode",
+      "jdk17",
+      "--out",
+      "/workspace/scratch/b33f402d4b7a/report-check/java"
+    ],
+    [
+      "/workspace/scratch/b33f402d4b7a/deps/jdk17/bin/java",
+      "-m",
+      "jdk.compiler/com.sun.tools.javac.Main",
+      "--release",
+      "17",
+      "-encoding",
+      "UTF-8",
+      "-d",
+      "/workspace/scratch/b33f402d4b7a/report-check/test-classes",
+      "-cp",
+      "/workspace/scratch/b33f402d4b7a/report-check/java/classes:/workspace/scratch/b33f402d4b7a/deps/android.jar:/workspace/scratch/b33f402d4b7a/deps/annotation.jar",
+      "/workspace/scratch/b33f402d4b7a/review-build-input/reports/closure/tests/ReportClosureTest.java"
+    ],
+    [
+      "/workspace/scratch/b33f402d4b7a/deps/jdk17/bin/java",
+      "-Xmx512m",
+      "-cp",
+      "/workspace/scratch/b33f402d4b7a/report-check/test-classes:/workspace/scratch/b33f402d4b7a/report-check/java/classes:/workspace/scratch/b33f402d4b7a/deps/android.jar:/workspace/scratch/b33f402d4b7a/deps/annotation.jar",
+      "com.ethk3.novaonepro.strategyv2.ReportClosureTest",
+      "/workspace/scratch/b33f402d4b7a/report-check/original-reports/report_1.json",
+      "/workspace/scratch/b33f402d4b7a/report-check/original-reports/report_2.json"
+    ]
+  ],
+  "scope": "ALL_JAVA_TYPES_AND_PRODUCTION_REPORT_HOST_READBACK; ANDROID_SQL_DEVICE_AND_NATURAL_QUALITY_NOT_RUN"
+}

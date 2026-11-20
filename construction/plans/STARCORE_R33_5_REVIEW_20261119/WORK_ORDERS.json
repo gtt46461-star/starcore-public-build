@@ -1,0 +1,2646 @@
+{
+  "schema": "R335_CURRENT_WORK_ORDERS_1",
+  "sourceBaseline": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+  "productionReview": {
+    "overlaySha256": "0f3ebc923eb66f966cee2a59ae41818b2a297cb689c590bb158f5df1428eec67",
+    "effectiveManifestSha256": "2bbed2112087abedc7eee4426fa29a6a7ce27c8777312036957777bb908f83f8",
+    "manifestValidation": {
+      "stages": 9,
+      "fileChanges": 164,
+      "distinctPaths": 138
+    },
+    "stageOperations": 164,
+    "distinctProductionPaths": 138
+  },
+  "cardRoot": "PLAN",
+  "imageRoot": "EFFECTIVE",
+  "scope": "Current install images. Each original issue card also specifies its contract, tools and field acceptance.",
+  "issues": [
+    {
+      "id": "R335-D01",
+      "stage": "P00",
+      "title": "自动施工只涵盖关键差异，完整新增/替换文件未统一交接",
+      "card": "P00/issues/R335-D01/README.md",
+      "originalCardSha256": "d7f62f938157f68d172513fc82331ac7eec3b02c4a25c80678c141d1c763a831"
+    },
+    {
+      "id": "R335-D02",
+      "stage": "P00",
+      "title": "签名预检所需公钥证书环境项漏配",
+      "card": "P00/issues/R335-D02/README.md",
+      "originalCardSha256": "3c462e1f95d8ebe8a974adcaedce3d973bee13e18623fb9e932c51c76b257c2b"
+    },
+    {
+      "id": "R335-D03",
+      "stage": "P00",
+      "title": "新方案身份仍硬编码R33.4，跨文件修订易漂移",
+      "card": "P00/issues/R335-D03/README.md",
+      "originalCardSha256": "fced7d39954a2e7c49872a866565d46e3a29a18292a90880c5d461f33c2e1984"
+    },
+    {
+      "id": "R335-D04",
+      "stage": "P00",
+      "title": "发布身份只有修改指令，没有完整一致后态",
+      "card": "P00/issues/R335-D04/README.md",
+      "originalCardSha256": "f472441c6af19e708debc7e109ac351442670acb979d8e1d05a2d9682d8930ae"
+    },
+    {
+      "id": "R335-D08",
+      "stage": "P00",
+      "title": "历史宿主收据不能代表本次代码且完整构建环境缺项未逐项列出",
+      "card": "P00/issues/R335-D08/README.md",
+      "originalCardSha256": "373f65fe7000764cfd5fd120a9472731bbbd141687e90ff40e98fa8fe72fc237"
+    },
+    {
+      "id": "R335-D09",
+      "stage": "P00",
+      "title": "并行宿主测试共享可写工作树可互相覆盖或回退新代码",
+      "card": "P00/issues/R335-D09/README.md",
+      "originalCardSha256": "256eadaec6c36b3a3429d87ca73202163d3b8988a593ebff69dbc983eda6e11d"
+    },
+    {
+      "id": "R335-D13",
+      "stage": "P00",
+      "title": "新增源代码未接原r967封闭依赖和r82失效证明，预构建会拒绝或错误复用旧语义身份",
+      "card": "P00/issues/R335-D13/README.md",
+      "originalCardSha256": "122dbea0c11594faef6902df74245f537141bf1cc156dad392d3ddc0086775ec"
+    },
+    {
+      "id": "R335-D14",
+      "stage": "P00",
+      "title": "preBuild读取033冻结调用索引导致新源码必报过期，freeze又依赖编译且修改构建输入",
+      "card": "P00/issues/R335-D14/README.md",
+      "originalCardSha256": "9f2a5114a23953e56f9a1bf9717bb2f31c0a5761088f005629fb6585ddc0f223"
+    },
+    {
+      "id": "R335-ID-P00",
+      "stage": "P00",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "P00/issues/R335-ID-P00/README.md",
+      "originalCardSha256": "5f3bc9414d24f81d0220ca2c5623007187c1fbc065b847d5b0cb81f7bbe6608c"
+    },
+    {
+      "id": "R335-C06",
+      "stage": "B01",
+      "title": "承接真实报告ZIP验收、可取消quick_check与有界取消锁",
+      "card": "B01/issues/R335-C06/README.md",
+      "originalCardSha256": "5b1cf7392a35d745908a9c280a9b05d4037dd8869cd6d6f07e19e6a2f575c078"
+    },
+    {
+      "id": "R335-ID-B01",
+      "stage": "B01",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B01/issues/R335-ID-B01/README.md",
+      "originalCardSha256": "2250a50bf1ebc229f5787899048a9996d979c908b679944ca12660746191d098"
+    },
+    {
+      "id": "R335-RT01",
+      "stage": "B01",
+      "title": "资源等待被计作功能失败，30次后终止原导出作业",
+      "card": "B01/issues/R335-RT01/README.md",
+      "originalCardSha256": "446228897efdfb2f68a3f2663cf2796d717e1ccbc2cb300f3775e4c44ad681d2"
+    },
+    {
+      "id": "R335-RT02",
+      "stage": "B01",
+      "title": "同一次资源准入拒绝原票据无耐久可读观察",
+      "card": "B01/issues/R335-RT02/README.md",
+      "originalCardSha256": "2e9e287548515e73bee2bd004ad49e9c00e8811bd6848c853ba323023dece6c5"
+    },
+    {
+      "id": "R335-RT03",
+      "stage": "B01",
+      "title": "故障归档仅有 Worker 接口，保护债无物理退役通路",
+      "card": "B01/issues/R335-RT03/README.md",
+      "originalCardSha256": "dd18a8253d726d03c929091d99b42abe95950be5b1eff0a6c9c89a16b06374dd"
+    },
+    {
+      "id": "R335-RT04",
+      "stage": "B01",
+      "title": "缺失checkpoint仅有合同，无原身份恢复调度/耐久状态",
+      "card": "B01/issues/R335-RT04/README.md",
+      "originalCardSha256": "fc28c3b68f63f0792f4da5dc65abf76b469786cdda8a8d9956ab61a23b85159c"
+    },
+    {
+      "id": "R335-RT10",
+      "stage": "B01",
+      "title": "r926逐份原件的完整外部保全、fresh隔离恢复、可撤销单件退役与灾难导入闭环",
+      "card": "B01/issues/R335-RT10/README.md",
+      "originalCardSha256": "ae713c775c6df06c76157d1781dc9dd0a7e80066a7415e7cd7b9de705736da6f"
+    },
+    {
+      "id": "R335-C01",
+      "stage": "B02",
+      "title": "承接原服务独立排债、启动分离和真实耐久时点修复",
+      "card": "B02/issues/R335-C01/README.md",
+      "originalCardSha256": "0e1f278cdc1a963be6abae9705dd701d5b90671816cb200a17565c55143755c8"
+    },
+    {
+      "id": "R335-ID-B02",
+      "stage": "B02",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B02/issues/R335-ID-B02/README.md",
+      "originalCardSha256": "9e6aa95c29464ff9e544aef628ce54f91c5e2b51f377cde9d4fa9b7e84e55e15"
+    },
+    {
+      "id": "R335-P01",
+      "stage": "B02",
+      "title": "完整结果codec缺失，快照不能恢复原canonical bundle",
+      "card": "B02/issues/R335-P01/README.md",
+      "originalCardSha256": "d1fa724e0ea7d3f21682c8930ddb8de29aa8c97afd5df75ac0d336433b550450"
+    },
+    {
+      "id": "R335-P02",
+      "stage": "B02",
+      "title": "提交失败后的原结果没有同身份耐久缓存及精确恢复",
+      "card": "B02/issues/R335-P02/README.md",
+      "originalCardSha256": "73fcadce0beba3596f80d6e82fa4c93d55d37bd5e99192d9a2bb764f29b50d0d"
+    },
+    {
+      "id": "R335-P03",
+      "stage": "B02",
+      "title": "canonical事务异常包装丢失原始可重试原因",
+      "card": "B02/issues/R335-P03/README.md",
+      "originalCardSha256": "ad6a00469dc712b5c2e55cd4820b3b2d6b58fb516e6a774f0853e4703f23b75b"
+    },
+    {
+      "id": "R335-RE21",
+      "stage": "B02",
+      "title": "全主链真实启用窗口缺少独立原件，成功冻结不能充当机会分母",
+      "card": "B02/issues/R335-RE21/README.md",
+      "originalCardSha256": "eeff0ce12fb18face053fead8f77872bfe541c1ca7199945d432e8bad526be61"
+    },
+    {
+      "id": "R335-RT05",
+      "stage": "B02",
+      "title": "补丁修复了未安装SQL，实际原生冻结反馈漏检固定deadline",
+      "card": "B02/issues/R335-RT05/README.md",
+      "originalCardSha256": "7c97a112093a86142a88fdb11c8c5b5f74972d1a49e7028055c9491b8e8ec994"
+    },
+    {
+      "id": "R335-RT06",
+      "stage": "B02",
+      "title": "无预测开奖被结算任务JOIN挡住；补扫/消费者首批毒记录饥饿",
+      "card": "B02/issues/R335-RT06/README.md",
+      "originalCardSha256": "ddff291623bc240059d001f5925f8aebd982b82eee571d0ed818bf16936f457f"
+    },
+    {
+      "id": "R335-RT07",
+      "stage": "B02",
+      "title": "最小结算反馈rows=0被当成功；newest-first让旧issue长期不重试",
+      "card": "B02/issues/R335-RT07/README.md",
+      "originalCardSha256": "d626541b9755fc53d123d63c95431c0af522fca64d5dd859e3dac513d4be76f1"
+    },
+    {
+      "id": "R335-RT08",
+      "stage": "B02",
+      "title": "热开奖淘汰未保护原生反馈未完成输入",
+      "card": "B02/issues/R335-RT08/README.md",
+      "originalCardSha256": "d4fc002881682e65c3ca56932326a640ce00711b4760ac2091da93e802ddbefb"
+    },
+    {
+      "id": "R335-C02",
+      "stage": "B03",
+      "title": "承接可取消历史回放、输入pin、ABI隔离与独立出生",
+      "card": "B03/issues/R335-C02/README.md",
+      "originalCardSha256": "581205030de21170e3a114b9f2e20a754d653f5f0bd487243d7756c5e6bbc647"
+    },
+    {
+      "id": "R335-ID-B03",
+      "stage": "B03",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B03/issues/R335-ID-B03/README.md",
+      "originalCardSha256": "8437dacf7f6ae2009e44d97b2fa233336e9dc0497327ad777447c121fc7238f2"
+    },
+    {
+      "id": "R335-C03",
+      "stage": "B04",
+      "title": "承接训练计数、完整十位置模型发布与消费者契约",
+      "card": "B04/issues/R335-C03/README.md",
+      "originalCardSha256": "bd89be36242b95f97d4f0af3c5c25559c98510a23d2eca794bffbf5bc6b60925"
+    },
+    {
+      "id": "R335-ID-B04",
+      "stage": "B04",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B04/issues/R335-ID-B04/README.md",
+      "originalCardSha256": "c260d37290cde640be16aa6ce124b6d799abeb86fe0bfb587354b87b70194371"
+    },
+    {
+      "id": "R335-RE16",
+      "stage": "B04",
+      "title": "正确hash的损坏模型游标可恢复，consumed与真实增量不一致",
+      "card": "B04/issues/R335-RE16/README.md",
+      "originalCardSha256": "67d4b61855639f6e5bc193e395e8e6867326bbf75fd5e4b500d67714abb78b42"
+    },
+    {
+      "id": "R335-C04",
+      "stage": "B05",
+      "title": "承接正式研究schema、纯策略边界与配置回执",
+      "card": "B05/issues/R335-C04/README.md",
+      "originalCardSha256": "da341f728c1954fbeb3539b688dab78eb417aa95a7058f33a63d9a12e12b5120"
+    },
+    {
+      "id": "R335-C05",
+      "stage": "B05",
+      "title": "承接原S4检查点结构与S5框架，逐缺口补齐原始证据",
+      "card": "B05/issues/R335-C05/README.md",
+      "originalCardSha256": "99ecc4f0ec56cb85fa9fc05489bb59d0dd6a47e7011ef0cc037e666224fc6aa0"
+    },
+    {
+      "id": "R335-ID-B05",
+      "stage": "B05",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B05/issues/R335-ID-B05/README.md",
+      "originalCardSha256": "97191016d86b47dd4c7d0dfcefffe20d7e6293da672c95f542dec8eb22efc1dc"
+    },
+    {
+      "id": "R335-RE01",
+      "stage": "B05",
+      "title": "固定前8策略造成后续学生饥饿及坏学生阻断源独立研究",
+      "card": "B05/issues/R335-RE01/README.md",
+      "originalCardSha256": "8c71ab583e77805053a69cb94e7a1d6793c96c2ac971f7f47d7025deb95f6cb2"
+    },
+    {
+      "id": "R335-RE02",
+      "stage": "B05",
+      "title": "研究视图/矩阵固定首项循环与无输入变化反复写源",
+      "card": "B05/issues/R335-RE02/README.md",
+      "originalCardSha256": "0bc5a0af980daec734bd7c7ea2706a8789c3ecd9193ae62549b06b697a33f467"
+    },
+    {
+      "id": "R335-RE03",
+      "stage": "B05",
+      "title": "时间先后矩阵ONLINE原件被标成SELECT",
+      "card": "B05/issues/R335-RE03/README.md",
+      "originalCardSha256": "d0eb052d92e1ce81ec5b305ef2aada923f6246049e007dbd05922b8d11611365"
+    },
+    {
+      "id": "R335-RE04",
+      "stage": "B05",
+      "title": "R01/R04有原件而结构和交集生成器没有实际消费",
+      "card": "B05/issues/R335-RE04/README.md",
+      "originalCardSha256": "1441f5d2e8e2821357f194e8bcbaf0824d4554c80d2c01ec34a28c6c92742913"
+    },
+    {
+      "id": "R335-RE05",
+      "stage": "B05",
+      "title": "R05失败处方仅有描述无法定位可替换叶",
+      "card": "B05/issues/R335-RE05/README.md",
+      "originalCardSha256": "8c06777e479d9065250337769516cfff3ba1a15f4e558ae2efc5901269740774"
+    },
+    {
+      "id": "R335-RE06",
+      "stage": "B05",
+      "title": "R07无加法父策略和R12互补图没有实际融合fallback",
+      "card": "B05/issues/R335-RE06/README.md",
+      "originalCardSha256": "e0094078ba41f336b9602c43e561bacae607f1621ce54c8d362510ed1ff29508"
+    },
+    {
+      "id": "R335-RE07",
+      "stage": "B05",
+      "title": "R08机制多样性和R09专家记数未改变实际份额",
+      "card": "B05/issues/R335-RE07/README.md",
+      "originalCardSha256": "0f854e02af707b2d78e6f7430e8a06e42197c32cd7f4c635ca74eca9599cf34c"
+    },
+    {
+      "id": "R335-RE08",
+      "stage": "B05",
+      "title": "R10理论权重未接原进化owner且回执可能没有真实读回",
+      "card": "B05/issues/R335-RE08/README.md",
+      "originalCardSha256": "6a2789cc2bafb8bf4f07652d417e3850912c4c54d1b53a45091fa980d61dd56f"
+    },
+    {
+      "id": "R335-RE09",
+      "stage": "B05",
+      "title": "R13分箱缺原父身份与原ACT事件绑定",
+      "card": "B05/issues/R335-RE09/README.md",
+      "originalCardSha256": "80ac0b133d1c63e782a5f520d8aa116b2afa589abe1af24ee15cec0cfb049688"
+    },
+    {
+      "id": "R335-RE10",
+      "stage": "B05",
+      "title": "R15输入漂移报警无法进入真实预登记在线比较",
+      "card": "B05/issues/R335-RE10/README.md",
+      "originalCardSha256": "2369e53f3783b4a4ec5cf0876be9a8e19309595b1bab8757058204631b8b0758"
+    },
+    {
+      "id": "R335-RE11",
+      "stage": "B05",
+      "title": "R16未接资源owner、CPU重复溢出与回执误报请求量子",
+      "card": "B05/issues/R335-RE11/README.md",
+      "originalCardSha256": "af9c416335b79856eaf7012fec49acf30c32e62611b91d06a272a620f1404907"
+    },
+    {
+      "id": "R335-RE12",
+      "stage": "B05",
+      "title": "R17负贡献方向若错用会跳过较好的移除臂",
+      "card": "B05/issues/R335-RE12/README.md",
+      "originalCardSha256": "71f42f4f3c199617eb5032aeec39e26ee4c5407dec25c75cbb565b4d593d048c"
+    },
+    {
+      "id": "R335-RE13",
+      "stage": "B05",
+      "title": "同帧重算新时间和旧不可变原件混用",
+      "card": "B05/issues/R335-RE13/README.md",
+      "originalCardSha256": "4c42110f820bc73be5c78c4810af049c25605300980bdbdf571a30415164d98a"
+    },
+    {
+      "id": "R335-RE14",
+      "stage": "B05",
+      "title": "18图真实入口未核原机器帧，旧缓存可冒充当前",
+      "card": "B05/issues/R335-RE14/README.md",
+      "originalCardSha256": "0ce7a44a646abe8e02becfc03ddfa7dc1a6f38d328d6c7de5f5a6ceb2a43c985"
+    },
+    {
+      "id": "R335-RE15",
+      "stage": "B05",
+      "title": "16逻辑表满页误判hasMore、过滤串页和后台取消不恢复",
+      "card": "B05/issues/R335-RE15/README.md",
+      "originalCardSha256": "d7357043189948e0fa5bfefda4cb79200c313d3b7a0875c3f3705e1f296b8ff4"
+    },
+    {
+      "id": "R335-RE17",
+      "stage": "B05",
+      "title": "有效原子评分集变空后内存仍保留旧权重",
+      "card": "B05/issues/R335-RE17/README.md",
+      "originalCardSha256": "3c413d03aaa8fa861c1667ecd007d8fbab38ab1f6a088599f37beb3082c25b74"
+    },
+    {
+      "id": "R335-RE18",
+      "stage": "B05",
+      "title": "出生消费与非出生配置回执未分列显示",
+      "card": "B05/issues/R335-RE18/README.md",
+      "originalCardSha256": "59374c5079d48f55badfd66bb409d66bb84027b7378e99566b0f0eabf0e2f0c9"
+    },
+    {
+      "id": "R335-RE20",
+      "stage": "B05",
+      "title": "原13项仅METHOD_DESIGN_ONLY与报告索引覆盖失真",
+      "card": "B05/issues/R335-RE20/README.md",
+      "originalCardSha256": "f23a27d9802551981aae99558a0872f408f54099245198e149c7dbaa1f4f5bfc"
+    },
+    {
+      "id": "R335-RE22",
+      "stage": "B05",
+      "title": "实际CONTMAT成功refit原件与持久计数缺失，旧期数估算被误当执行证据",
+      "card": "B05/issues/R335-RE22/README.md",
+      "originalCardSha256": "53e8201bb1f0005bc4cd50f2dc5e997afd33b0edaea56178d98cedf30a355ade"
+    },
+    {
+      "id": "R335-RE23",
+      "stage": "B05",
+      "title": "S5缺父/满槽后漏续收、无真实独立ACK与同案耐久恢复链",
+      "card": "B05/issues/R335-RE23/README.md",
+      "originalCardSha256": "7fa2008bffd1ca2ad22afc302b718a9e20d96b70b09143e923377de7bc597e29"
+    },
+    {
+      "id": "R335-RE24",
+      "stage": "B05",
+      "title": "诊断未采实际配对、算子尝试、原子教师、拒因与存储水位，快照截断还丢S5",
+      "card": "B05/issues/R335-RE24/README.md",
+      "originalCardSha256": "d75b77d9f6ec01e3912294a46dff1689bd424308c6a6fcdcd36bd35348cabb72"
+    },
+    {
+      "id": "R335-RE25",
+      "stage": "B05",
+      "title": "CONTMAT旧/新ABI接受非法环、计数与verified状态，恢复后真实崩溃",
+      "card": "B05/issues/R335-RE25/README.md",
+      "originalCardSha256": "6982da80d2edad4053f1c43caf5a4d36d1855636cff0372222df1602ef81a005"
+    },
+    {
+      "id": "R335-RE19",
+      "stage": "B06",
+      "title": "C11逐文件已有安全边界与待验项被混为待重写",
+      "card": "B06/issues/R335-RE19/README.md",
+      "originalCardSha256": "0a9e6996c0cb20055e94dcd7aa5a64a088315151267c1f8ae2efef240cfb6181"
+    },
+    {
+      "id": "R335-D10",
+      "stage": "B07",
+      "title": "诊断把调用者布尔值和相等字符串当作已执行隔离复演",
+      "card": "B07/issues/R335-D10/README.md",
+      "originalCardSha256": "9ff6dc9c7d2848917d0c74941bd76343da1de2e1160a952cc42be999cff9368d"
+    },
+    {
+      "id": "R335-D11",
+      "stage": "B07",
+      "title": "报告案例→真实施工差异→下份报告缺可执行索引和证据闭包",
+      "card": "B07/issues/R335-D11/README.md",
+      "originalCardSha256": "6ea0831ea5e1884b9194f0baae5138c603528644977e900a3dace9afaeb75b09"
+    },
+    {
+      "id": "R335-D12",
+      "stage": "B07",
+      "title": "旧模块数值复演与主链K3诊断归一化漂移且缺独立可执行入口",
+      "card": "B07/issues/R335-D12/README.md",
+      "originalCardSha256": "7d37db9713b04ebd7d2f4298eca47d2a5566248ba3d50cdad41e369164fe161e"
+    },
+    {
+      "id": "R335-ID-B07",
+      "stage": "B07",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B07/issues/R335-ID-B07/README.md",
+      "originalCardSha256": "b3958c6587ca3bded3b7583b82a3e387baab70107ba651cfa3138d06a1e93e9c"
+    },
+    {
+      "id": "R335-RT09",
+      "stage": "B07",
+      "title": "真实冷热原件和恢复状态在后续报告必须可见；不能把构造trace当根因复现",
+      "card": "B07/issues/R335-RT09/README.md",
+      "originalCardSha256": "0cce2d383991d5d38eb63fc39725d012a5788465e2303b9743dfe64ed6acbe43"
+    },
+    {
+      "id": "R335-C07",
+      "stage": "B08",
+      "title": "固定32组96断言288场景的同构建终审与反作弊",
+      "card": "B08/issues/R335-C07/README.md",
+      "originalCardSha256": "90152f214c77a844ab87294ee73ecc5aaab37e2fac2d235339b3b59a78ede360"
+    },
+    {
+      "id": "R335-D05",
+      "stage": "B08",
+      "title": "源码ZIP不含Git历史，不能独立复原已有构建基线门",
+      "card": "B08/issues/R335-D05/README.md",
+      "originalCardSha256": "30edfb7fc039b4ee39cd23cde5dbb34901effa2120d588dcda89d132aafa6a33"
+    },
+    {
+      "id": "R335-D06",
+      "stage": "B08",
+      "title": "独立主链验收漏核机会日历与冻结截止一致",
+      "card": "B08/issues/R335-D06/README.md",
+      "originalCardSha256": "f3ed3f735fb92e76bfff8061c539f38a70d33c389eccdb1f06547a233fd61b1b"
+    },
+    {
+      "id": "R335-D07",
+      "stage": "B08",
+      "title": "独立APK验证器“更高版本”比较未覆盖033基线",
+      "card": "B08/issues/R335-D07/README.md",
+      "originalCardSha256": "eee91e4261dba6f45eb44c3e8d88d0044f7f11ce34e431ba1a822eed30dd8bfd"
+    }
+  ],
+  "batches": [
+    {
+      "stage": "P00",
+      "workOrders": [
+        "R335-D01",
+        "R335-D02",
+        "R335-D03",
+        "R335-D04",
+        "R335-D08",
+        "R335-D09",
+        "R335-D13",
+        "R335-D14",
+        "R335-ID-P00"
+      ],
+      "operations": [
+        {
+          "path": "app/build.gradle",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/app/build.gradle",
+          "beforeSha256": "ec2e7ef785dd39f61deb45a5f8967a659f8b0feb48d0fef91d4d583c52b2da17",
+          "payload": "P00/after_full/app/build.gradle",
+          "afterSha256": "7728e948458ea67cb767ef0adb011e19d5d03d0d0550557a6f0503699130b49b",
+          "workOrders": [
+            "R335-D03",
+            "R335-D14"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+          "beforeSha256": "0688b22a1533babb7cd30dfcac5b4522a04559821bd7f56006cfd4c609840f06",
+          "payload": "P00/after_full/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+          "afterSha256": "6eab790a0b15f0d7ea9239ffc1cff2f6f341f9bd0a8cf32e764d664312a96fc7",
+          "workOrders": [
+            "R335-D04"
+          ]
+        },
+        {
+          "path": "gradle/r335_source_calls.gradle",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "P00/after_full/gradle/r335_source_calls.gradle",
+          "afterSha256": "c7d8e53a27e72444399d660f24d79b0b7fcf5ae406be843d342f0707424feead",
+          "workOrders": [
+            "R335-D14"
+          ]
+        },
+        {
+          "path": "release/r82_training_invalidation.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/release/r82_training_invalidation.json",
+          "beforeSha256": "1a0f4c39aad2ba5cd5e97ecd4f9559a39a79f1ad6150fc575a783ff0e2d59773",
+          "payload": "P00/after_full/release/r82_training_invalidation.json",
+          "afterSha256": "a81c586e2750516975d319769f1f403c03faf16832111030b44af3535fae1257",
+          "workOrders": [
+            "R335-ID-P00"
+          ]
+        },
+        {
+          "path": "release/release_identity.properties",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/release/release_identity.properties",
+          "beforeSha256": "cb6a15824505ad8d6f67fec77063d772411c32313090cc06d72afbca12281679",
+          "payload": "P00/after_full/release/release_identity.properties",
+          "afterSha256": "359f3da68688a40a66c4fcc63021f8870a5890780454c37f44f1ddc968415c80",
+          "workOrders": [
+            "R335-D04"
+          ]
+        },
+        {
+          "path": "release/release_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/release/release_manifest.json",
+          "beforeSha256": "2c7d5e050399fe20084f8e049109f60aff78bd84780b0588d7d5934a3251d2f5",
+          "payload": "P00/after_full/release/release_manifest.json",
+          "afterSha256": "0a45f66baacc430ae279777ac924a0bc249ab689f3eff4beec359a6c2dd5e90e",
+          "workOrders": [
+            "R335-D04"
+          ]
+        },
+        {
+          "path": "scripts/r815_generate_provenance.py",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/scripts/r815_generate_provenance.py",
+          "beforeSha256": "7c3488045682b4df49c42140a5befe9eb83e386122e6f4232b685a272b94a169",
+          "payload": "P00/after_full/scripts/r815_generate_provenance.py",
+          "afterSha256": "fd642a0a98742da8033e1354b7e9b1c11ef5f53fa3255c2b16842d0dc988b334",
+          "workOrders": [
+            "R335-D14"
+          ]
+        },
+        {
+          "path": "scripts/r975_source_call_index.py",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/scripts/r975_source_call_index.py",
+          "beforeSha256": "bd0c8618ff2f27594852c40b79bab87be0fd88cb315ddf21960acedb286ef610",
+          "payload": "P00/after_full/scripts/r975_source_call_index.py",
+          "afterSha256": "0d621303cd303a4dad768841d4e3fb13d784e627c46c8eba3a87781a0bafedb7",
+          "workOrders": [
+            "R335-D14"
+          ]
+        },
+        {
+          "path": "scripts/r982_source_call_asset.py",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/scripts/r982_source_call_asset.py",
+          "beforeSha256": "d775059118760e751d053c1da1202e805f89bbd6a2233b34e9a6cdd395488150",
+          "payload": "P00/after_full/scripts/r982_source_call_asset.py",
+          "afterSha256": "af50163d95bacaf5f9a582ca801267f0b89343fb4afec4b9dc2ca02d29593c1e",
+          "workOrders": [
+            "R335-D14"
+          ]
+        },
+        {
+          "path": "tools/r31/package_release.py",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/tools/r31/package_release.py",
+          "beforeSha256": "eab0c491669a79d7f8cb1dceae5061f761eb271c0690c2a8fcb598690b0adeb4",
+          "payload": "P00/after_full/tools/r31/package_release.py",
+          "afterSha256": "4e4612415c945fe28d3a83c2d7b45413e58aa254a2c7dbb38dcde9a34c5e6a0b",
+          "workOrders": [
+            "R335-D01"
+          ]
+        },
+        {
+          "path": "tools/r33/advance_release_version.py",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "P00/after_full/tools/r33/advance_release_version.py",
+          "afterSha256": "f8490f17a94b974f469974855a9c57fa5e972cb5498a69939790c26ae127e9a5",
+          "workOrders": [
+            "R335-D04"
+          ]
+        },
+        {
+          "path": "tools/r33/package_ci_candidate.py",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "P00/after_full/tools/r33/package_ci_candidate.py",
+          "afterSha256": "9b2f8d646c5e7aa71a56110dd94ea9f81a9db74954b6b2c6a680e9f48cea79e3",
+          "workOrders": [
+            "R335-D01"
+          ]
+        },
+        {
+          "path": "tools/r33/preflight_build.py",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "P00/after_full/tools/r33/preflight_build.py",
+          "afterSha256": "abb96a72c0e6aa44baac049273ae606eeeb4ddbf88166a987adf124e6c55227a",
+          "workOrders": [
+            "R335-D08"
+          ]
+        },
+        {
+          "path": "tools/r33/run_release_build.py",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "P00/after_full/tools/r33/run_release_build.py",
+          "afterSha256": "8981e4fc5d7aa7c8f6037f2629d1256e2b1fcf2378cdeb0eb156ee06581650fd",
+          "workOrders": [
+            "R335-D02"
+          ]
+        },
+        {
+          "path": "tools/r33/verify_plan_binding.py",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "P00/after_full/tools/r33/verify_plan_binding.py",
+          "afterSha256": "a6199ad0a78bdd3fd27f5dbb79a54b8bd359a9b64387f56ca5d6788650a2b4d3",
+          "workOrders": [
+            "R335-D03"
+          ]
+        },
+        {
+          "path": "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
+          "beforeSha256": "933da3887978494d390fd6760202000d5709fea76afc3f552c10333531e5e41e",
+          "payload": "P00/after_full/verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
+          "afterSha256": "559eedd89f7f3e2c0e5436652e56bca81052e8806942cfa6de8e05efc3117148",
+          "workOrders": [
+            "R335-D04"
+          ]
+        },
+        {
+          "path": "app/build/generated/r967/semantic_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/app/build/generated/r967/semantic_manifest.json",
+          "beforeSha256": "95faec3f97ae794c777f11f5ebc5bd61b453e64ee5d0a68d63ccaecd2fc2e6cc",
+          "payload": "P00/after_full/app/build/generated/r967/semantic_manifest.json",
+          "afterSha256": "4021c15caa47084e6e821ec8f304b9923b2b17bac72fe3aaabe737fb6c8a5845",
+          "workOrders": [
+            "R335-ID-P00"
+          ]
+        },
+        {
+          "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "P00/before_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "beforeSha256": "660a3fb8d52d04f59f422e93f88a4fc865b1037f2c79c439b221ef084e2a8b10",
+          "payload": "P00/after_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "afterSha256": "05ed81f45155c86cf507df628b9ad3c57ec25d41ade5afa3c851e76a08cda333",
+          "workOrders": [
+            "R335-ID-P00"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "B01",
+      "workOrders": [
+        "R335-C06",
+        "R335-ID-B01",
+        "R335-RT01",
+        "R335-RT02",
+        "R335-RT03",
+        "R335-RT04",
+        "R335-RT10"
+      ],
+      "operations": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "beforeSha256": "32d121dc6b445223bdfdfddd91e2df0883aba56254700a27647a199de160919d",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "afterSha256": "535b12b83439a56f455d7124385edf851efb5cf05f8b0860e862851ec7714f5a",
+          "workOrders": [
+            "R335-RT03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "beforeSha256": "94aa4984d5e0ee9fcd94a5dd3f729b127bc6e6b84a536bdabfd88088a7362a2a",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+          "afterSha256": "82d50c7d1cae8aba8ea10f35b11c6f4cad4db267091530d66e20717e4c7b5634",
+          "workOrders": [
+            "R335-RT03",
+            "R335-RT04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseBackupManifestR926.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/DatabaseBackupManifestR926.java",
+          "beforeSha256": "7978b2ebbd167297316a242e5c3ec096b40567313125549d35e42db2db52219b",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/DatabaseBackupManifestR926.java",
+          "afterSha256": "c9b057a92ff8f430740b2e979814cabdf9ea6c6764184e03135110a83d2abbc9",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "beforeSha256": "81da4cd1bb4c18cb7359ee50813095d6146a5e81bd820ecefbf09e8d20558e7e",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "afterSha256": "932953a73161cfa38ab18a17cc78ab6f88f9d1047d9e647f079ca37ea3866d0f",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java",
+          "afterSha256": "fa0cde61084598843739b5b96811ccefc55e5588fb089429d8decdbf841f9b0b",
+          "workOrders": [
+            "R335-RT03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LegacyBackupCustodyR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/LegacyBackupCustodyR335.java",
+          "afterSha256": "9c0b4833098da848b9c9d5badc896fd3fcc2bab9cb11b353d2d2616d98731401",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LegacyBackupRecoveryR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/LegacyBackupRecoveryR335.java",
+          "afterSha256": "176c479a8764783b37f72d7ac64fa7077236f9673f7054c06ebe3c168a6d98f3",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LegacyCustodyArchiveR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/LegacyCustodyArchiveR335.java",
+          "afterSha256": "23027317c781a9320dec857515d2b00ae812fd18bbf5cdb8fdea741104e06342",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LegacyRecoveryPointLeaseR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/LegacyRecoveryPointLeaseR335.java",
+          "afterSha256": "cff6594ea93e94eaddaba4f9fb1d2bc3661d6c6c2a2f5c33c58c935345a3af8c",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LegacyRetirementAuthorizationR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/LegacyRetirementAuthorizationR335.java",
+          "afterSha256": "e2606d0d98d1ce196db89e691d865d3b2d225e8098be9153479d63a3a30e7dbe",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LegacyRetirementFileR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/LegacyRetirementFileR335.java",
+          "afterSha256": "0a3e16d2356c8ecd8a1d3913f8a233cd37094949f831d80fa783a9790a7145bd",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "beforeSha256": "6d6cc20b1bffc06bfc8eceaceefe813fd0f040d242724e0b3caaf01457e9afa4",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "afterSha256": "6962cfe80325ab313dad2c908fe211990c5259d864eeaa504921a699b90cd6e0",
+          "workOrders": [
+            "R335-RT03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportControlBudgetR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/ReportControlBudgetR31.java",
+          "beforeSha256": "3613954bcb45d8c9054c13d74373203abe33fb62523e7c35d78274ffaccaddd5",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/ReportControlBudgetR31.java",
+          "afterSha256": "9eb19eab54461fcd8a208a4ae04eb2c64b53d3b7f0c258137b01c286c16918b7",
+          "workOrders": [
+            "R335-RT02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "beforeSha256": "f536264660713bb8706ca6f668bc9b8297edf0fe1881755aa9c2918bffe17c0a",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "afterSha256": "8193c85c71ef99bb83d86d8c8898bb73b692d9d9fd4acd787e0b8ca4d8052b9a",
+          "workOrders": [
+            "R335-C06",
+            "R335-RT01",
+            "R335-RT02",
+            "R335-RT03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "beforeSha256": "f3cd15391be7224dcac724601c7703b4b0df44ee9b6b34a9e00666a4a55dc8f4",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "afterSha256": "ec55b8769507e6d169fd5f0d1ed6c70d2ccf22e069ba6a2c63f550ab666a6e6c",
+          "workOrders": [
+            "R335-C06",
+            "R335-RT01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportResourceObservationB01.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/ReportResourceObservationB01.java",
+          "afterSha256": "b6c3869c14009f887a4cd7d48e8949c52622a059ff828b3117ba59b4451f6ed9",
+          "workOrders": [
+            "R335-RT02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportResourceWaitR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/ReportResourceWaitR335.java",
+          "afterSha256": "a34d3153b260259890256f74012796c8819f41017bee292e211a9917e79cf4bb",
+          "workOrders": [
+            "R335-RT01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultArchiveB01.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/RuntimeFaultArchiveB01.java",
+          "afterSha256": "87a45a62640ba7dc1da9f02936efca65577d44cc68b8ec17ef447accf1809447",
+          "workOrders": [
+            "R335-RT03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultMaintenanceR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/RuntimeFaultMaintenanceR335.java",
+          "afterSha256": "fe50ba28f0518e8ee57b7d88b6f8fbe285873cabd774539852419d2dd9872606",
+          "workOrders": [
+            "R335-RT03",
+            "R335-RT04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java",
+          "afterSha256": "75506954eba520f7202e7bd4a74311f8176730ee6bcb7bf21aaf230a06c33bf7",
+          "workOrders": [
+            "R335-RT03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "beforeSha256": "c801c3413747365e3b102d55a5051aef52dae2d30e9f620029cbf795cd31721e",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+          "afterSha256": "701bf54696941ef581bdf5075a821fda2ecb99492b47c297f9209be1d930f0b4",
+          "workOrders": [
+            "R335-RT03",
+            "R335-RT04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
+          "beforeSha256": "45edb0984f285bcc3a40f56b514490d94cb10e91fa5e04b70bde652d64ef1651",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
+          "afterSha256": "93799a575d2edbce6160772961dcc1d83876ab9063e13fb36eda9ee3905e63a6",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "beforeSha256": "41b38dc595678079a99ca9f306f70dad8f859b3409fee30caf32fd396c6dba60",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "afterSha256": "66cde4b66012d7fb8388e1e718a23ad5453d00431fb8a5ab1a1926da715d2061",
+          "workOrders": [
+            "R335-RT02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+          "beforeSha256": "7da44617eabc2b768bc18677cfadc36c7f0ae2bd6711ff45f17ac6a4fb32c3a2",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+          "afterSha256": "fdd1c603518bcfae84e7fc357d42f3da5e1e6a2f978ebc95b25c39361cd5830a",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+          "beforeSha256": "a4d2853479a417b6b63360e21cc8a5165dc068ba77994723b24649ee275247a2",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+          "afterSha256": "5ed6ed613fe28ab3cb9f7dec5c66a662247e5768e9526b9a4d770bb5efc87499",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreBusinessProbeR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/StorageRestoreBusinessProbeR31.java",
+          "beforeSha256": "786a4bc349233e91dcd9549da79dc09caca857d6a07a3adc4b190ecd7df34860",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/StorageRestoreBusinessProbeR31.java",
+          "afterSha256": "6e174776a0c6b34fa9624d514441f9447c7624c029a72557c814f4aea883ae76",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProbeServiceR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/StorageRestoreProbeServiceR31.java",
+          "beforeSha256": "72c7a0bd76df7bff52274ff6830224dfbf69f26f5a7cede2ca327fd3a280618c",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/StorageRestoreProbeServiceR31.java",
+          "afterSha256": "4b019586b3d7357a9f59310fa1a3ad9c6685dfa3c777b14b76907a564b43eacc",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProofR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/StorageRestoreProofR31.java",
+          "beforeSha256": "1ee94fce780abbc8cd5e8866582c9e86452da4b7ebe946ddb9c12736592b3d6c",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/StorageRestoreProofR31.java",
+          "afterSha256": "b7283f67d809f70286d1ea07ac2dcf07704c61da4e8c22fa18a92420a6c57762",
+          "workOrders": [
+            "R335-RT10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+          "beforeSha256": "0d08846d2698fe1cf86c4e5e645ac9db796a96666e0e06a7ec1a74609759faa7",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+          "afterSha256": "00f42fd9f122deff4a4c656b0c4caa9360581d35c183dd9bb03b12241b8e7a0c",
+          "workOrders": [
+            "R335-RT04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+          "afterSha256": "62db74e56c69ea77d27276daeab0cb1242f20ac7147e6f9f696017ddcabde97d",
+          "workOrders": [
+            "R335-RT04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+          "beforeSha256": "bdd83459debaa147fd0cb31877b494b66b09499187d0e552962700bfd029e174",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+          "afterSha256": "117057a0842f76713c1d8296595fd9806985755a1c9351ac14994afdaf94a560",
+          "workOrders": [
+            "R335-RT04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "beforeSha256": "cfa0db79747a2b7ac5cbd9ca8a21b76c86fc6a18b015952bec0642320e357a8f",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "afterSha256": "fdbe7daefbfab0308cb1c4784fa08ab21133042fb006bce7fb6ea04c64bc4f86",
+          "workOrders": [
+            "R335-RT03",
+            "R335-RT04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+          "beforeSha256": "1826b8748925ec53a5208f8cb812ca4df26ca16bb986065bfb7f94e53b109f8f",
+          "payload": "B01/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+          "afterSha256": "f75af49d4f1192f31e2c1ec98e2bd4ddf0b94fb90132ffd34da18794ae182180",
+          "workOrders": [
+            "R335-RT03"
+          ]
+        },
+        {
+          "path": "release/r82_training_invalidation.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/release/r82_training_invalidation.json",
+          "beforeSha256": "a81c586e2750516975d319769f1f403c03faf16832111030b44af3535fae1257",
+          "payload": "B01/after_full/release/r82_training_invalidation.json",
+          "afterSha256": "d0f879c87872d548ac274c52031e44836d2a36f7df31a07b33ef38584d0e20f5",
+          "workOrders": [
+            "R335-ID-B01"
+          ]
+        },
+        {
+          "path": "release/research_dependencies_r967.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/release/research_dependencies_r967.json",
+          "beforeSha256": "834b9f6642b59568539fec01a09eb56a8124488417d7f977235266504da06da1",
+          "payload": "B01/after_full/release/research_dependencies_r967.json",
+          "afterSha256": "3032241332e6a115be87d126431d9c0e87f4d2f18e7d12aeda69aa6c7b10cb9a",
+          "workOrders": [
+            "R335-ID-B01"
+          ]
+        },
+        {
+          "path": "app/build/generated/r967/semantic_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/build/generated/r967/semantic_manifest.json",
+          "beforeSha256": "4021c15caa47084e6e821ec8f304b9923b2b17bac72fe3aaabe737fb6c8a5845",
+          "payload": "B01/after_full/app/build/generated/r967/semantic_manifest.json",
+          "afterSha256": "9ac00fb91df8b0bc06ffa01a1dfdbad42ef6ebb6561caa4c258584c793b5080d",
+          "workOrders": [
+            "R335-ID-B01"
+          ]
+        },
+        {
+          "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B01/before_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "beforeSha256": "05ed81f45155c86cf507df628b9ad3c57ec25d41ade5afa3c851e76a08cda333",
+          "payload": "B01/after_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "afterSha256": "74cdc110d5d28e4e7f787e5f2e5def6c82e84c9c2eff490493ead880714869d4",
+          "workOrders": [
+            "R335-ID-B01"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "B02",
+      "workOrders": [
+        "R335-C01",
+        "R335-ID-B02",
+        "R335-P01",
+        "R335-P02",
+        "R335-P03",
+        "R335-RE21",
+        "R335-RT05",
+        "R335-RT06",
+        "R335-RT07",
+        "R335-RT08"
+      ],
+      "operations": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "beforeSha256": "535b12b83439a56f455d7124385edf851efb5cf05f8b0860e862851ec7714f5a",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "afterSha256": "e496fe4badbf361f1c611905c528c351dc0ed4feadb31f6613706982755bb14e",
+          "workOrders": [
+            "R335-C01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+          "beforeSha256": "5fa2632ba02b4008420fab98d2ea539ffa7cffbf2b2bd330f261c96b05555c2b",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+          "afterSha256": "43dea778ae0f4e956deb334beb5b4bcf7a0bad9491d0c5fb89d81bca6eb21fc5",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+          "beforeSha256": "260e19fdcc657747ec58e74894af222440bcd7b4c0050018ad9afc22e7748f8a",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+          "afterSha256": "152e0e6a5edfcf07e4c4b5fd1874e762443c73d0b356762178808b82988a5d91",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "beforeSha256": "465e2b34b1610dde98a84157fd50f8e1538caf8ab5815ff13b5d27d94247a9cd",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "afterSha256": "563d85ef3a55754ce131555351b477fd87b9092439af699c4e2b7c49701dba23",
+          "workOrders": [
+            "R335-C01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+          "beforeSha256": "9ed9f2a340b4d8fbe08c95ace2192a424584d7e5abeaeb3930691c6972afd789",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+          "afterSha256": "b6cfd371d323fd6fa9c693af664ee31bc58718d2b4b5a47e51a48d25bb2278ee",
+          "workOrders": [
+            "R335-RT08"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DurableReturnTimingR334.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/DurableReturnTimingR334.java",
+          "afterSha256": "3e95e34229ab0a1394fe1b1984b260fbc1828b8b2582686b50ac5317d2d85176",
+          "workOrders": [
+            "R335-C01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+          "afterSha256": "08043d40c926b087542977fc669fdac6039ef6764821d68045df16931b332cec",
+          "workOrders": [
+            "R335-RE21"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+          "beforeSha256": "fc4d174c5d0b70bcec3d9aee81dae08d7efaab948b6ef3e7bfd638541bdcb931",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+          "afterSha256": "f39d43fa3b451156263b70632702ea8c941adcdb54d94dd29454c455268ddcc2",
+          "workOrders": [
+            "R335-RT07"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java",
+          "afterSha256": "52efd8f66a996147081715e8da3a3eaa7b22e727510bccecf2e0b94827da2c52",
+          "workOrders": [
+            "R335-C01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+          "afterSha256": "01ed302e8ffa74b5b46160d9940c663ec7993e089acd6cb291ea4c231689de7f",
+          "workOrders": [
+            "R335-RT05",
+            "R335-RT06"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+          "beforeSha256": "1e15ed3afa38727b8277e4caa4da6f18e21e0e82e48c8a56965067490a1ca83a",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+          "afterSha256": "66abd3875fac17684a5931cc4b62b56544720a629fa3bc3fbd89d10f3a5e0c43",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/NumberSurfaceTensorEngine.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/NumberSurfaceTensorEngine.java",
+          "beforeSha256": "e339879f762bdae5074c772996b9dbf0bd7c3679bafce1ee2b14602212e65ddb",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/NumberSurfaceTensorEngine.java",
+          "afterSha256": "dab1f4f34b4762b45963feefc4e49c603e3952d3f56effacc2c95e59505b7689",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/PostCanonicalObservationR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/PostCanonicalObservationR33.java",
+          "afterSha256": "de4b0487ca2d7da0bdf133a697129038b349ea25f42a9ccd48392bf94be6d3d6",
+          "workOrders": [
+            "R335-C01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+          "afterSha256": "246cc8dcb4ead898ba1f144354eac6219e74b81ab2199a28e92cb570b4e1316d",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+          "afterSha256": "ad31eae11faa9fda93f7db520b769f3a2291079203ddce54390da209fb8235dd",
+          "workOrders": [
+            "R335-P02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
+          "afterSha256": "0f8965b71c1162578e64f9e307f940ec88d5f79f852f33b6aeb1185a2e95a058",
+          "workOrders": [
+            "R335-C01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+          "beforeSha256": "3f6fe316df2b5dd7b314de5cceaeb52b77ef0a743141b96449c2cf8106341584",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+          "afterSha256": "3d6a017fe60e109f216641a6cd033f11ab326c7b6c00822f482e0e312852a027",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "beforeSha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "afterSha256": "60c3ed6c01828d574fdcafb13befc8dae9877d3eda494174cbdcd3d0068d5568",
+          "workOrders": [
+            "R335-RE21"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+          "beforeSha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+          "afterSha256": "6b438d6640611a1d413b8b7a1b6faaac2321c1887ef9bee313350ae817ecd7c9",
+          "workOrders": [
+            "R335-C01",
+            "R335-RE21",
+            "R335-RT05"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51CompiledActionContract.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51CompiledActionContract.java",
+          "beforeSha256": "537fdd1ab00187c8241453efb94141557a4f5d5e1b571bbeb5a576c7430a665a",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51CompiledActionContract.java",
+          "afterSha256": "98ce82691fba5c65df95372c49dc1855e66410501837f1e591f0f8c75629995a",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+          "beforeSha256": "7498a64929f618d3a242d73532711e4aa66bf724352e34cc84d6c1062d14a9b5",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+          "afterSha256": "10fffc7e4ae30cfa66a56b4ab577fe8d614c9a08cd355597eff635da6f1d2ccc",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+          "beforeSha256": "f4ce0c2aed75331c4b816ed560b62064e9ead777150903bc00a27f22784b9e17",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+          "afterSha256": "8d84cd93eb11189bd5dab0958dc156fc2d8d72ef6405d16a826d33aa13a14d15",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51ExpertHealthRegistry.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51ExpertHealthRegistry.java",
+          "beforeSha256": "1f7973f0cb4b24084b0de3f82c7c2ccf90d9e677eea9fc5db60bceb7b6b6cdc1",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51ExpertHealthRegistry.java",
+          "afterSha256": "a53012cc621ca04f525493be419fa7286c98645279098ba8cd5ecb29f120831d",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+          "beforeSha256": "698b306d98331a8a911b7376787a0024002eb236003c81e02add232c89bcbdb5",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+          "afterSha256": "4dab3ae9f9988655f2d6dd2e3a35caaea396f6b94f0c1979803f35db2b940c5b",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+          "beforeSha256": "50d8e26bd1e4375be7e5dba60d49e89c860374478d1c7b551c01014b362f274c",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+          "afterSha256": "9d992bb8a0c7d4dc59993ec7e5adf54067116d909f24acabc87185244c47ce1e",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51PolicyCell.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51PolicyCell.java",
+          "beforeSha256": "8332f0a72eab21564b727112dc3482511ebb54b814e05e9f048ea195ff887d07",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51PolicyCell.java",
+          "afterSha256": "04f154e57bdb70bbbde9e890e8f9594651266ca788cee77d65d768548b322fd5",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51RankStabilityEngine.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51RankStabilityEngine.java",
+          "beforeSha256": "85971a62dbfd85e8f8611f123f629557ffe3c8e4a66fc3a5791ab03c4aa0d5a8",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51RankStabilityEngine.java",
+          "afterSha256": "32ad4e5a093b8272650a6417e24c83cc48baf8235d451ef5777855aeb8144b53",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+          "beforeSha256": "d53e3052ccb74c42ce6a41e6926771aee511331e09186a569fc730f26398f768",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+          "afterSha256": "4cc27e7de22aa4050089ad5dd208a870a8f009638af6aa45ff66eba6e47edacc",
+          "workOrders": [
+            "R335-P03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+          "beforeSha256": "5bbbe9f9587de37b48a9579a20b3976c3fc379b30f7536ef9330ae3cc60bc898",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+          "afterSha256": "c5852b85c4e3dd7075ce0ec39ac61e353196b58cd4d472ea9216cb66b93bb808",
+          "workOrders": [
+            "R335-C01",
+            "R335-P02",
+            "R335-P03",
+            "R335-RE21"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
+          "beforeSha256": "bdfa705de3d00d3106d8e1dd88c0a6b605cd1dbec47e4586c12434a98ae841c3",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
+          "afterSha256": "3d9908bf0ee3ac845daf842fc74facfaf919218be2ff544f974dff9d0d980502",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51SelectiveRiskController.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51SelectiveRiskController.java",
+          "beforeSha256": "89697ce97dbcbcaa707f805fd62e60f0460e6810e8c12f3316cd6fa50d0067fc",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51SelectiveRiskController.java",
+          "afterSha256": "fd57ccbee76908412922430a262e3858e0085448c751857fa3aca0a8ce34ed39",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+          "beforeSha256": "58c3810a7a1365a0e8054ed85bbf3ff529ecdb18f8d11169724c924427f604d2",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+          "afterSha256": "18912127aec1a4f9aa833f6aa09ae4563cb971be37359da9087b6751fe7b374c",
+          "workOrders": [
+            "R335-P01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "beforeSha256": "e321c2b23acb18d0d59ddf3372db6a9b0ea4dbb71f24dc77bd26f843bcce788e",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+          "afterSha256": "49016804fbb87c302cc5b6350bb99f18cca3b4caf203e686d93b3aac651d6062",
+          "workOrders": [
+            "R335-RT05",
+            "R335-RT06"
+          ]
+        },
+        {
+          "path": "release/r82_training_invalidation.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/release/r82_training_invalidation.json",
+          "beforeSha256": "d0f879c87872d548ac274c52031e44836d2a36f7df31a07b33ef38584d0e20f5",
+          "payload": "B02/after_full/release/r82_training_invalidation.json",
+          "afterSha256": "20e3ffa9a86b75916227f132cef9f54ccc0ead4a7ba6e88d994d8f60487c3e3e",
+          "workOrders": [
+            "R335-ID-B02"
+          ]
+        },
+        {
+          "path": "release/research_dependencies_r967.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/release/research_dependencies_r967.json",
+          "beforeSha256": "3032241332e6a115be87d126431d9c0e87f4d2f18e7d12aeda69aa6c7b10cb9a",
+          "payload": "B02/after_full/release/research_dependencies_r967.json",
+          "afterSha256": "a433dc737f6ab689179c6632df98b320bed23256a5d27b3979b99fef35fcc046",
+          "workOrders": [
+            "R335-ID-B02"
+          ]
+        },
+        {
+          "path": "app/build/generated/r967/semantic_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/build/generated/r967/semantic_manifest.json",
+          "beforeSha256": "9ac00fb91df8b0bc06ffa01a1dfdbad42ef6ebb6561caa4c258584c793b5080d",
+          "payload": "B02/after_full/app/build/generated/r967/semantic_manifest.json",
+          "afterSha256": "66f262ec3465b31f06cf6b4ab841fe0949b6bb522408ac6ca23c7ba96d5cc931",
+          "workOrders": [
+            "R335-ID-B02"
+          ]
+        },
+        {
+          "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "beforeSha256": "74cdc110d5d28e4e7f787e5f2e5def6c82e84c9c2eff490493ead880714869d4",
+          "payload": "B02/after_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "afterSha256": "0247e08fa1bbcbefada7de0c5797754a19be44c8a730daa44acd29f5890ffd9d",
+          "workOrders": [
+            "R335-ID-B02"
+          ]
+        },
+        {
+          "path": "app/src/main/AndroidManifest.xml",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/AndroidManifest.xml",
+          "beforeSha256": "25520bf6eacdbc19710a7000f6c52022639b4956f70f8713ef82883149f50381",
+          "payload": "B02/after_full/app/src/main/AndroidManifest.xml",
+          "afterSha256": "668652f91450c45bbe7c7b62c3eb97b53799d7b806002d8477a885bd8c99daba",
+          "workOrders": [
+            "R335-RE21"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+          "afterSha256": "fb7d6b29680f9cb00c3ca26c15ca836fb84b3c3784142e6b3964b19f388eeea4",
+          "workOrders": [
+            "R335-RE21"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B02/before_full/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+          "beforeSha256": "67f3d07d9b7d54e74fc0acda28869cdb08da888156fb5da1177a2138627b5931",
+          "payload": "B02/after_full/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+          "afterSha256": "3247adfd6d2bae263bb5883e0538bd42eb03cd38f04aa69797a523ba4f9c6b76",
+          "workOrders": [
+            "R335-C01",
+            "R335-RT05",
+            "R335-RT06"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "B03",
+      "workOrders": [
+        "R335-C02",
+        "R335-ID-B03"
+      ],
+      "operations": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+          "beforeSha256": "783d74cc3b325912c9749d8fd05ec0c68164d6633559d3f0412e998baf3d79fb",
+          "payload": "B03/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+          "afterSha256": "585c745149ac21e4b86a9d3d6743b0a192c04de9a0a745e672bb099110436a84",
+          "workOrders": [
+            "R335-C02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+          "beforeSha256": "6bd7d7215d0b5f06c2408ae40390c157614274d5d7f6b8fb778ede19b1112a48",
+          "payload": "B03/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+          "afterSha256": "96c259699a201e0c6a39da322be285e690338d4572184dbe581f963bdecdb106",
+          "workOrders": [
+            "R335-C02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+          "beforeSha256": "12acb72f1989c736b1e78be4e1a00fa63f4c25a70e05791e7f112ccebae7842e",
+          "payload": "B03/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+          "afterSha256": "73c407048af216fae08c0139990a7ab805f413e9586796ebd3174b6213108cbe",
+          "workOrders": [
+            "R335-C02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+          "beforeSha256": "c68e5505bc59998087d3b6b13c6882fa286354880a9ec53b09a68aa4108fd929",
+          "payload": "B03/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+          "afterSha256": "aa386be7c1dee818b7d9aa54e352268d61f116df838d9dbd1afd8a0edf544dd7",
+          "workOrders": [
+            "R335-C02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "beforeSha256": "a3a25f4483f282584a5292fcdd0f703d219a117fc35fcc7743227b768172461f",
+          "payload": "B03/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "afterSha256": "d323c203722b892d0b797d27438d502a4b41e25e96d63b7113f09910493cdd6e",
+          "workOrders": [
+            "R335-C02"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+          "beforeSha256": "f4b39e7cba6c09c2dca18a0a80bc17e91f91a34bed6f309b2c9d78896efe3c63",
+          "payload": "B03/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+          "afterSha256": "a6065875b7f54cb58f8ef504ca38217448dc774632a69d1e90b264801d2e32a1",
+          "workOrders": [
+            "R335-C02"
+          ]
+        },
+        {
+          "path": "release/r82_training_invalidation.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/release/r82_training_invalidation.json",
+          "beforeSha256": "20e3ffa9a86b75916227f132cef9f54ccc0ead4a7ba6e88d994d8f60487c3e3e",
+          "payload": "B03/after_full/release/r82_training_invalidation.json",
+          "afterSha256": "39b02b160f08a22ee3d8146f3b8d21d13de075a568fa8f504298542aae77844d",
+          "workOrders": [
+            "R335-C02",
+            "R335-ID-B03"
+          ]
+        },
+        {
+          "path": "app/build/generated/r967/semantic_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/build/generated/r967/semantic_manifest.json",
+          "beforeSha256": "66f262ec3465b31f06cf6b4ab841fe0949b6bb522408ac6ca23c7ba96d5cc931",
+          "payload": "B03/after_full/app/build/generated/r967/semantic_manifest.json",
+          "afterSha256": "1f4a010bda4e4d52a3bca13fb2d40ae1334fc437675e74eee25659fa5cc6da35",
+          "workOrders": [
+            "R335-ID-B03"
+          ]
+        },
+        {
+          "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B03/before_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "beforeSha256": "0247e08fa1bbcbefada7de0c5797754a19be44c8a730daa44acd29f5890ffd9d",
+          "payload": "B03/after_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "afterSha256": "c4156c20db691f4471b17c8ccbd7a2d817257dc8fb69436c28436f8584d6b051",
+          "workOrders": [
+            "R335-ID-B03"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "B04",
+      "workOrders": [
+        "R335-C03",
+        "R335-ID-B04",
+        "R335-RE16"
+      ],
+      "operations": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B04/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+          "afterSha256": "53bc07fea54450e27f30f0fd277ff1e8f1140a9dd99b2c33ffac21f8cd487b8a",
+          "workOrders": [
+            "R335-C03",
+            "R335-RE16"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B04/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+          "beforeSha256": "9148d2c78b36ca799c345f9ea02ee66227cc6b415e6abcd043a4b65739d1e8eb",
+          "payload": "B04/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+          "afterSha256": "f0881ac6161e382264cdea230f6f1b38ae9ed368fbc99875844c8154a00cab91",
+          "workOrders": [
+            "R335-C03",
+            "R335-RE16"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B04/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+          "beforeSha256": "f4dc401d3a41c9ef97bfa314e9924b157f81b1b9a4c6cabef5045cdf9d0fdbf4",
+          "payload": "B04/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+          "afterSha256": "e9df91aa5eb516de6dc60ced69d5891080b52e259b7b3bb5e415d232ab15f18a",
+          "workOrders": [
+            "R335-C03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B04/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+          "beforeSha256": "93ebb360eb9056f063e8fa760efdcdec9bd58dda0b336385fa075c048fb56c8d",
+          "payload": "B04/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+          "afterSha256": "f61d69c3e879a8aff104b39a0efeaea47b0ae8852170d59db2be12d0fecc18d6",
+          "workOrders": [
+            "R335-C03",
+            "R335-RE16"
+          ]
+        },
+        {
+          "path": "release/r82_training_invalidation.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B04/before_full/release/r82_training_invalidation.json",
+          "beforeSha256": "39b02b160f08a22ee3d8146f3b8d21d13de075a568fa8f504298542aae77844d",
+          "payload": "B04/after_full/release/r82_training_invalidation.json",
+          "afterSha256": "e47926646d2dd75aa99f13b6b829aa101316f8525f6f0126c3a5591950d1950e",
+          "workOrders": [
+            "R335-C03",
+            "R335-ID-B04"
+          ]
+        },
+        {
+          "path": "release/research_dependencies_r967.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B04/before_full/release/research_dependencies_r967.json",
+          "beforeSha256": "a433dc737f6ab689179c6632df98b320bed23256a5d27b3979b99fef35fcc046",
+          "payload": "B04/after_full/release/research_dependencies_r967.json",
+          "afterSha256": "5f70a65390b3030d2b7e880c95d3726db9f5d051211e8cbfb5f79b22f6188d7d",
+          "workOrders": [
+            "R335-C03",
+            "R335-ID-B04"
+          ]
+        },
+        {
+          "path": "app/build/generated/r967/semantic_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B04/before_full/app/build/generated/r967/semantic_manifest.json",
+          "beforeSha256": "1f4a010bda4e4d52a3bca13fb2d40ae1334fc437675e74eee25659fa5cc6da35",
+          "payload": "B04/after_full/app/build/generated/r967/semantic_manifest.json",
+          "afterSha256": "caba2a53673369d1408e96ebcae5fe7ff2e386e64fb5849a04ea76124fc734be",
+          "workOrders": [
+            "R335-ID-B04"
+          ]
+        },
+        {
+          "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B04/before_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "beforeSha256": "c4156c20db691f4471b17c8ccbd7a2d817257dc8fb69436c28436f8584d6b051",
+          "payload": "B04/after_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "afterSha256": "1d9e683fe2c9000843e99860b7a898204c7b3d54e6601156902fa7d8573c917e",
+          "workOrders": [
+            "R335-ID-B04"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "B05",
+      "workOrders": [
+        "R335-C04",
+        "R335-C05",
+        "R335-ID-B05",
+        "R335-RE01",
+        "R335-RE02",
+        "R335-RE03",
+        "R335-RE04",
+        "R335-RE05",
+        "R335-RE06",
+        "R335-RE07",
+        "R335-RE08",
+        "R335-RE09",
+        "R335-RE10",
+        "R335-RE11",
+        "R335-RE12",
+        "R335-RE13",
+        "R335-RE14",
+        "R335-RE15",
+        "R335-RE17",
+        "R335-RE18",
+        "R335-RE20",
+        "R335-RE22",
+        "R335-RE23",
+        "R335-RE24",
+        "R335-RE25"
+      ],
+      "operations": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+          "beforeSha256": "28e727962f4fc56a5768de57aee128d8e98eefd7984fab25feb2992d442dba03",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+          "afterSha256": "772d2413607dea8ae26b279c2e4483f23da369177ff4a86b9922b20e27c55b5a",
+          "workOrders": [
+            "R335-RE14"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "beforeSha256": "13d33c4c6cdbf80c49de7563c831c9bbe932d5a31ddc4cc2a8dd58b52cd0f0fb",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "afterSha256": "c8cb80bd073efa09722dab848aab65af0ec28443f2d8a67582ec98000a2eaf30",
+          "workOrders": [
+            "R335-RE14"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+          "beforeSha256": "24894b5dd5adaa33d45b218129ab9b8db8d1ce3d8d7ae8d507ec94ef26153f7e",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+          "afterSha256": "7c3508d423a94dc5260a1567b177bd7543bd7b47e42f13b017f94aa38e563484",
+          "workOrders": [
+            "R335-C04",
+            "R335-RE23"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+          "beforeSha256": "ef4ebeadf03d1a4d46407b4325490d082f05c1c34ef2866f8811aa984d3c5fd5",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+          "afterSha256": "5d2eea2e54eccb9035036acedda82f87d4fdadeb6f37507dc14342d2f3a029ee",
+          "workOrders": [
+            "R335-RE15"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "beforeSha256": "a6fb41d285c37e5f5b565c08ae9f963b658ecc3c7b4ef9e49fc79a45024be060",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "afterSha256": "005bbbc612c5401e9c187bbb224f490e1fdbe30c10d941f83715c89497989ed0",
+          "workOrders": [
+            "R335-RE14"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+          "beforeSha256": "e9df91aa5eb516de6dc60ced69d5891080b52e259b7b3bb5e415d232ab15f18a",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+          "afterSha256": "50fb42d4f8615c091373207276d7be5c4c09728a6c5a3669f08b64729d44c936",
+          "workOrders": [
+            "R335-RE10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+          "beforeSha256": "714bebf005bba4eecfee5f6f9634b7c9bae1eed8ae6278111995127bd4dbbc58",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+          "afterSha256": "98044489b94cd3b214dc14e54b06e1863712e922d53d45024f36b352023fdf5c",
+          "workOrders": [
+            "R335-RE17"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+          "beforeSha256": "d53af34db3c2e1ab178389def89ece5459b14f2d9f3ef47b4fe6e4791cce3df9",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+          "afterSha256": "0fb16a29fd8e9d104be27b106b002f472746f89bd7bf0e9fa5e7cecb6cf67a1c",
+          "workOrders": [
+            "R335-C05",
+            "R335-RE22",
+            "R335-RE25"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisEvidenceR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisEvidenceR335.java",
+          "afterSha256": "640bd8c8c0d45d8ff4a2b9f6ed1dcb0117c7bec619470dc025c4e43a8f293249",
+          "workOrders": [
+            "R335-RE24"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+          "afterSha256": "96dddc26952f37f8045e5d07f9783c194fdcf37547de8cbc5c613183c5a3edca",
+          "workOrders": [
+            "R335-RE24"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisSchemaR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisSchemaR335.java",
+          "afterSha256": "f3a0a4c5d8c32764046ef956df3c7544772dd0d2ae2d76b81029d7b3491f1e5e",
+          "workOrders": [
+            "R335-RE23"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+          "afterSha256": "9584a59bc272d81e9fbbe1b5da6c39f115989898819caff06e11953009d0e86b",
+          "workOrders": [
+            "R335-RE23"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "beforeSha256": "90624e78b67571c73784281a80b8330f74761da0bc5d30522d74ec6e9f529150",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "afterSha256": "4baf4e9ce7ab3d22804744d266432a3b3b803db619b1244f05d5069288e144ae",
+          "workOrders": [
+            "R335-C05",
+            "R335-RE22",
+            "R335-RE23",
+            "R335-RE24"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "beforeSha256": "fc9bc3a73e8370201bbbbedef694c6b29a4e52d254cebc1d229558db14097e36",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "afterSha256": "8dd5b8f2f4e324686a612dde1ace1044ad762c5ecd544050af4780d1310debb5",
+          "workOrders": [
+            "R335-RE07",
+            "R335-RE08"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+          "beforeSha256": "040ae2a4aa4aae7a34e1635c124264575e688df5c6dfbe60cdc1746c09d915b1",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+          "afterSha256": "b7937b98fb9d9ff4bce44ca72bfc7643c1d5988ecaf6d5e1c79729abe1168dea",
+          "workOrders": [
+            "R335-RE05"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2.java",
+          "beforeSha256": "ec27154e2f42e424d1c7d5960130bb55b2a7c1d77fe8f80199cc192cfc6e04b6",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2.java",
+          "afterSha256": "c36484967de8c9c04ff7e8656c077733299aeb3d36c083cdd9e531000efbc35a",
+          "workOrders": [
+            "R335-RE22"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "beforeSha256": "04365b49d1a79225fa006cddfac080de5150e9865a98f7e476a0e789f4bc965e",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "afterSha256": "557d4861d1cf14a5efb4fb739537d8a29237e748a228d17e3da71744c667fead",
+          "workOrders": [
+            "R335-RE01",
+            "R335-RE02",
+            "R335-RE03"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+          "beforeSha256": "83a9ab0da576f9864c4b5f1aa53207c36dcee8814e0158afd51e967aee642695",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+          "afterSha256": "6980d1267e17b7b537f2617509ec4246ce3ea52bf07c02001d11fe3060ca3294",
+          "workOrders": [
+            "R335-RE10"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "beforeSha256": "fdbe7daefbfab0308cb1c4784fa08ab21133042fb006bce7fb6ea04c64bc4f86",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "afterSha256": "d1b93c80418c8990ef2d301324aca79fe9239a207ae1420f2432b757a6e2f7b5",
+          "workOrders": [
+            "R335-RE24"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+          "afterSha256": "f9703b24e1ed665d7ed7717803f42fe5db6eb8e7465d8f24d658a8d5ab9f8ed3",
+          "workOrders": [
+            "R335-C04",
+            "R335-RE08"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
+          "afterSha256": "feea759404e3a5e871a9584db467b973f5eb956148f16d3648aa358cc8dea32e",
+          "workOrders": [
+            "R335-C04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
+          "afterSha256": "150553e90941929fd27dd262cb856ce4b1518a94eba8c19227eef27ceac7b38c",
+          "workOrders": [
+            "R335-C04",
+            "R335-RE08",
+            "R335-RE18"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+          "beforeSha256": "5d7c1b02b8d97307f8b46f27d0f163f850e61ce56b99be664dea5c355fac3e2b",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+          "afterSha256": "414f766b370cccc41984cdd89ea8b71e76edf80da99e683889ae82513aad3ccc",
+          "workOrders": [
+            "R335-RE18"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "beforeSha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "afterSha256": "f497bbcf0cc20611700ad00c8096472dd87daad024977e02b039d1ce13eea7a7",
+          "workOrders": [
+            "R335-RE04",
+            "R335-RE05",
+            "R335-RE06",
+            "R335-RE07",
+            "R335-RE08",
+            "R335-RE09",
+            "R335-RE12",
+            "R335-RE20"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+          "beforeSha256": "7be0a7aa789ceb70323c006c2e481066176e4a2a0919c0db13a530c955cf3d87",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+          "afterSha256": "f9bd370079e2db2257e92f06eaeb218d31a642747b412ff99a64c9946ab6e828",
+          "workOrders": [
+            "R335-RE05",
+            "R335-RE09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+          "afterSha256": "3e8193b57babb0975ab7e2c224a817f7d76d04989d8446f16ba9ff95da459f9d",
+          "workOrders": [
+            "R335-C04",
+            "R335-RE01"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "beforeSha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "afterSha256": "edb3e75f560c484f4c21282deb5a17613bc4781ad4b9ed4cd9dc8634f77ef77c",
+          "workOrders": [
+            "R335-RE01",
+            "R335-RE02",
+            "R335-RE05",
+            "R335-RE06",
+            "R335-RE07",
+            "R335-RE09",
+            "R335-RE10",
+            "R335-RE12",
+            "R335-RE13"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "beforeSha256": "76787ed0332dd352fa99b8d4b1ffa42207174375626071580aaab0b36ee3caaa",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "afterSha256": "991196619d1b11f662c2a0b0be0b8a5a30f57b50ec7fbbcb5084fabdc5a2d726",
+          "workOrders": [
+            "R335-RE11"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "beforeSha256": "69f634bf1c2c669ea1474027aba51a2326dd70bcddf48fcf53c1a7bd4b441f8b",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "afterSha256": "6372eeabe2a9586df4cac1c07f0eea839f584a42cd09355cf3e2b6408c74c8ce",
+          "workOrders": [
+            "R335-RE14"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+          "beforeSha256": "4080dddebab29e7b23a062295693d4491feae0e7cb8de909a5330e5ce45aa835",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+          "afterSha256": "5a48f728c16aef7722ea485fe303791ab8914ac5d46a528091baaa88f57c36fb",
+          "workOrders": [
+            "R335-RE15"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+          "beforeSha256": "22123d4d15e6ebdcdc5f57f376e065a6ace9416b7345ee57aee73d44dfa6878d",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+          "afterSha256": "07fff0058670dde229c8f91e621bbb88d7b02c3595d90bf469bca88e462de2a2",
+          "workOrders": [
+            "R335-RE04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java",
+          "beforeSha256": "e1123a073957908d320a474912bdf86c89aad0fdf1c4d6fe610738fb53b38d6a",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java",
+          "afterSha256": "d9c5c2d1715e383f1ac41898e7c6f9ec6de6b7a3a0d1c86c448533464fa851a0",
+          "workOrders": [
+            "R335-RE04"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+          "beforeSha256": "01c4318737f6ad305a843be0b7f664d60db6273e7e6cf9438565038768347e56",
+          "payload": "B05/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+          "afterSha256": "123f4ee852a81d3bee17b4d63d1d251534d5fa6bca76b90b1884a033930510cd",
+          "workOrders": [
+            "R335-C05",
+            "R335-RE22",
+            "R335-RE23",
+            "R335-RE24"
+          ]
+        },
+        {
+          "path": "release/r82_training_invalidation.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/release/r82_training_invalidation.json",
+          "beforeSha256": "e47926646d2dd75aa99f13b6b829aa101316f8525f6f0126c3a5591950d1950e",
+          "payload": "B05/after_full/release/r82_training_invalidation.json",
+          "afterSha256": "7668c5df5e99fbf604895b26b392f9b5caf1efb7766a18942c13864f2b563ff1",
+          "workOrders": [
+            "R335-ID-B05"
+          ]
+        },
+        {
+          "path": "release/research_dependencies_r967.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/release/research_dependencies_r967.json",
+          "beforeSha256": "5f70a65390b3030d2b7e880c95d3726db9f5d051211e8cbfb5f79b22f6188d7d",
+          "payload": "B05/after_full/release/research_dependencies_r967.json",
+          "afterSha256": "24705310375666eab3813406d25f887c69c39b39db957362ac6178370fffeb67",
+          "workOrders": [
+            "R335-ID-B05"
+          ]
+        },
+        {
+          "path": "app/build/generated/r967/semantic_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/build/generated/r967/semantic_manifest.json",
+          "beforeSha256": "caba2a53673369d1408e96ebcae5fe7ff2e386e64fb5849a04ea76124fc734be",
+          "payload": "B05/after_full/app/build/generated/r967/semantic_manifest.json",
+          "afterSha256": "65a2281151058e370d31aad137a57165fbfb02370aa1f8cabf040659e13612ae",
+          "workOrders": [
+            "R335-ID-B05"
+          ]
+        },
+        {
+          "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B05/before_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "beforeSha256": "1d9e683fe2c9000843e99860b7a898204c7b3d54e6601156902fa7d8573c917e",
+          "payload": "B05/after_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "afterSha256": "cb6ae6d68fd1183f1461a728c3ef03a421dfb3fa5ea350088da85e2c92eb3e3f",
+          "workOrders": [
+            "R335-ID-B05"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "B06",
+      "workOrders": [
+        "R335-RE19"
+      ],
+      "operations": []
+    },
+    {
+      "stage": "B07",
+      "workOrders": [
+        "R335-D10",
+        "R335-D11",
+        "R335-D12",
+        "R335-ID-B07",
+        "R335-RT09"
+      ],
+      "operations": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java",
+          "beforeSha256": "0672841c8b8a55ffa00147af2ecb460af309aa0e02b992f095d61f98f626e917",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java",
+          "afterSha256": "67b6f9a668cb2f66a91836adef0c6de71d36e9aef300936e31e5b7a81484f99a",
+          "workOrders": [
+            "R335-D12",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "beforeSha256": "b8eb557338817bb91c92e853627496c5c034ba7c08f255754dcbee6ece5fba59",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "afterSha256": "dae8c633a8a7a3a5fd57eba374bb8979d9034a21ba25be899e9e3dc16bc3ee61",
+          "workOrders": [
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
+          "afterSha256": "52828fb6ee9c3f0701d858e549b3a4509fce13928b59e18c34d3ec44e0021626",
+          "workOrders": [
+            "R335-D10",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+          "beforeSha256": "f7c8a705a7caab17023a1f7f874ea043ec0c4b737a65b4f51cd56cbcfeda0a50",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+          "afterSha256": "ee4facc5800f62027cc5a39adaca28cd5e760452228d1fa52596190a1cbee1ec",
+          "workOrders": [
+            "R335-D10",
+            "R335-D11",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+          "afterSha256": "f19d00bb128706ed046b9fe10d5757590c0e4fc4fcb178d040d9ab0fc0bcf990",
+          "workOrders": [
+            "R335-D11",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
+          "afterSha256": "141d672d0d61d3bf91a592e4d9942eecd7aae95326c0a3152f14e321b94469b6",
+          "workOrders": [
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "release/r82_training_invalidation.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/release/r82_training_invalidation.json",
+          "beforeSha256": "7668c5df5e99fbf604895b26b392f9b5caf1efb7766a18942c13864f2b563ff1",
+          "payload": "B07/after_full/release/r82_training_invalidation.json",
+          "afterSha256": "7f3a62b2176b1e7c03809db3ed5ff6d6389c3bb6e1929f102bf86c6116b6126c",
+          "workOrders": [
+            "R335-ID-B07",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "release/research_dependencies_r967.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/release/research_dependencies_r967.json",
+          "beforeSha256": "24705310375666eab3813406d25f887c69c39b39db957362ac6178370fffeb67",
+          "payload": "B07/after_full/release/research_dependencies_r967.json",
+          "afterSha256": "7881503720afa48b9256f6c6fd1b327231c7c05307ebc544b5c2d75b33c17cee",
+          "workOrders": [
+            "R335-ID-B07",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/build/generated/r967/semantic_manifest.json",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/app/build/generated/r967/semantic_manifest.json",
+          "beforeSha256": "65a2281151058e370d31aad137a57165fbfb02370aa1f8cabf040659e13612ae",
+          "payload": "B07/after_full/app/build/generated/r967/semantic_manifest.json",
+          "afterSha256": "9978aaed592a592aa99f954864857f4135c5425d9fbc06945d861ad42bbe604c",
+          "workOrders": [
+            "R335-ID-B07"
+          ]
+        },
+        {
+          "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "beforeSha256": "cb6ae6d68fd1183f1461a728c3ef03a421dfb3fa5ea350088da85e2c92eb3e3f",
+          "payload": "B07/after_full/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+          "afterSha256": "e695098147aa23664a5fc24e1afcd5ae74a376c1385e17f3700b5a27d631179d",
+          "workOrders": [
+            "R335-ID-B07"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+          "afterSha256": "d524a5b88139d7de73dd5480ce88b7276445cc75c4b49bdf889044d23ed08614",
+          "workOrders": [
+            "R335-D10",
+            "R335-D11"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+          "afterSha256": "21bc0e4fc1430e04b2048ef27f7dee497a9d2e1a31221d1639917edc978731c7",
+          "workOrders": [
+            "R335-D11"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+          "action": "ADD",
+          "mode": "100644",
+          "beforeFile": null,
+          "beforeSha256": "NEW",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+          "afterSha256": "80d85bf6589b8a098db434cedec96f27610c87c8fbf4d0ccc0ff06c05380788d",
+          "workOrders": [
+            "R335-D10",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "beforeSha256": "db1e206be830780c4ee31d5f62c39371142d31d52e3c22477fef12ad4abd64aa",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "afterSha256": "b0b4049c6e67e77f7a996583dd6658d602e99a6bd69b4722038d7952de0b04e1",
+          "workOrders": [
+            "R335-D11",
+            "R335-RT09"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "action": "REPLACE",
+          "mode": "100644",
+          "beforeFile": "B07/before_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "beforeSha256": "d1b93c80418c8990ef2d301324aca79fe9239a207ae1420f2432b757a6e2f7b5",
+          "payload": "B07/after_full/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "afterSha256": "67126c708f99dfcf8b4dcdf7457a05237d93bf9f4759f756c14733daea67f198",
+          "workOrders": [
+            "R335-D10",
+            "R335-RT09"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "B08",
+      "workOrders": [
+        "R335-C07",
+        "R335-D05",
+        "R335-D06",
+        "R335-D07"
+      ],
+      "operations": []
+    }
+  ]
+}

@@ -1,10 +1,12 @@
 """Additional read-only R33.5 checks. The released plan is an input, not an output."""
 import argparse
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import sqlite3
 import sys
+import tempfile
 
 
 def require(ok, reason):
@@ -116,8 +118,18 @@ def settlement_times(checker, db_path, outcomes, expected_sha256):
     return len(outcomes)
 
 
-def trace(plan, bundle, root, commit, apk):
-    checker = load_module('r335_main_trace', plan/'verification/mainline/check_trace.py')
+def trace(plan, bundle, root, commit, apk, tools=None):
+    reviewed = load_module('r335_runtime_tools', Path(__file__).resolve().parents[1] / 'runtime/prepare_tools.py')
+    if tools is None:
+        with tempfile.TemporaryDirectory(prefix='r335-strict-trace-') as temp:
+            tools = Path(temp) / 'tools'
+            reviewed.prepare(plan, tools)
+            return trace(plan, bundle, root, commit, apk, tools)
+    relative = 'verification/mainline/check_trace.py'
+    checker_path = tools / relative
+    require(hashlib.sha256(checker_path.read_bytes()).hexdigest() == reviewed.AFTER[relative],
+            'REVIEWED_FIXED_DEADLINE_CHECKER_REQUIRED')
+    checker = load_module('r335_main_trace', checker_path)
     result = checker.verify(bundle, root, 'INTEGRATED', commit, apk)
     require(result['outcome'] == 'PASS', 'BASE_TRACE_INCOMPLETE')
     root = root.resolve()
@@ -145,6 +157,7 @@ def main():
     a.add_argument('evidence_root', type=Path)
     a.add_argument('commit')
     a.add_argument('apk')
+    a.add_argument('--tools', type=Path)
     args = p.parse_args()
     if args.command == 'paired':
         with open_frozen(args.snapshot) as db:
@@ -152,7 +165,7 @@ def main():
     elif args.command == 'followup':
         result = followup(args.plan, args.chain)
     else:
-        result = trace(args.plan, args.bundle, args.evidence_root, args.commit, args.apk)
+        result = trace(args.plan, args.bundle, args.evidence_root, args.commit, args.apk, args.tools)
     print(json.dumps(result, ensure_ascii=False))
 
 

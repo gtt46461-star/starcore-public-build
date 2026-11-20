@@ -8,11 +8,13 @@ import tempfile
 from pathlib import Path
 
 PINS = {
+    "B02/enabled_window_r335/collect_enabled_window.py": "92fbac1ecc0b20f09cc71aec167c6a7652bdf80fd5711499a195eadbe0f15dd9",
     "B01/recovery/prepare_exact_intake.py": "763ead5fcbcf47be5dffe5e36324e2db4e06093d3f86dc7d5ce001082ac238b0",
     "verification/mainline/check_trace.py": "e00d97def482c811a3cdb2de04f6481b079d5732085fdbaa58f0fbe86b6fce6a",
     "B04/tests/run_session_numerics.py": "ef7f6ed3631d6665144aa7142c134a26c10191e1becb708f9afa3abcc80a287e",
 }
 AFTER = {
+    "B02/enabled_window_r335/collect_enabled_window.py": "7cf9bf7a01637403abcc79cd9407464bd791e4cd9e9ffbf4a40da45e62feb60c",
     "B01/recovery/prepare_exact_intake.py": "4cff9d1ee5bf181cbba329773aaf31abfce9e01ce1d0b013d43847f7f89d6a82",
     "verification/mainline/check_trace.py": "5e1b70f20d9f4f1d0db93578058e981e894fe4baa0dee00809792bc942bece7f",
     "B04/tests/run_session_numerics.py": "396e8bd4e765d287f80257e05ed79e598b595d29e069498ccdf8902c83178c75"

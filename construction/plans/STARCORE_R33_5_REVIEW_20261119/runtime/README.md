@@ -2,7 +2,7 @@
 
 前提是已还原的原方案逐文件 seal 与当前仓库修订清单均已通过复核。`PLAN` 指已核验的 `STARCORE_R33_5_20261118`，`REVIEW` 指本页上一级的当前修订根目录，即准备结果中的 `current-review`。`TOOLS` 是方案外的新工具目录，`RAW` 是本次候选 APK 的取证目录。保持当前修订目录完整，长窗检查还会调用相邻 `research/check_research.py` 的共同时间校验。
 
-生产施工按 [replay/stage_checked.py](../replay/stage_checked.py) 统一入口逐批安装原后态和 [production/OVERLAY.json](../production/OVERLAY.json)，包括当前 B04 owner、B05 配对与 B07 报告修改。当前逐阶段数值身份来自 [production/SEMANTIC_RESULTS.json](../production/SEMANTIC_RESULTS.json) 的原 R967 完整源码重算；B07/B08 最终训练规则为 `32875e6348372f9720fc9eec15091eee54c9c7b609e44085ac32e1bf49d8130c`，旧资格兼容列表为空。`prepare_tools.py` 只生成原验收工具的校正副本；它不安装生产代码，也不能代替当前累计 R82/R967 身份及正式构建核验。三个原工具的前、后 SHA-256 在 [prepare_tools.py](prepare_tools.py) 与 [host-results.json](host-results.json) 中逐一列出。
+生产施工按 [replay/stage_checked.py](../replay/stage_checked.py) 统一入口逐批安装原后态和 [production/OVERLAY.json](../production/OVERLAY.json)，包括本轮B02的写入、反馈、持久化返回和日记采集，以及 B04 owner、B05 配对与 B07 报告修改。当前逐阶段数值身份来自 [production/SEMANTIC_RESULTS.json](../production/SEMANTIC_RESULTS.json) 的原 R967 完整源码重算；B07/B08 最终训练规则为 `619fbc6ba89b6448e8eb663fd303c951b5fe7628ce0f91bfa6f18015ee629bac`，旧资格兼容列表为空。`prepare_tools.py` 只生成原验收工具的校正副本；它不安装生产代码，也不能代替当前累计 R82/R967 身份及正式构建核验。四个工具的当前前、后SHA-256统一列在[prepare_tools.py](prepare_tools.py)。
 
 ```bash
 python3 -B "$REVIEW/verify_review.py"
@@ -58,7 +58,7 @@ START、END 和 trace 使用原 `B02/enabled_window_r335/README.md` 指定的真
 
 ## 当前正反回归与历史记录
 
-[SETTLEMENT_WINDOW_RESULT.json](SETTLEMENT_WINDOW_RESULT.json) 记录当前共享时间检查与 window checker 的 SHA，以及 5 个新增用例、8 个研究用例和 3 个既有运行用例的实际退出码与输出。上方工具准备命令可复跑这些检查。
+[SETTLEMENT_WINDOW_RESULT.json](SETTLEMENT_WINDOW_RESULT.json) 记录前次复核的共享时间检查与 window checker 的 SHA，以及 5 个新增用例、8 个研究用例和 3 个既有运行用例的实际退出码与输出。上方工具准备命令可复跑这些检查。
 
 | 新增窗口用例 | 已验证结果 |
 |---|---|
@@ -68,4 +68,10 @@ START、END 和 trace 使用原 `B02/enabled_window_r335/README.md` 指定的真
 | 120 日历期中 100 启用闭环＋20 明确停用缺链 | PASS；保留 20 条停用缺链和完整原失败集，启用失败为空。 |
 | 下一机会开始后 1 秒才停用且没有冻结 | 仍计 101 个应启用机会，保留缺链并输出 INCOMPLETE。 |
 
-[host-results.json](host-results.json) 留存先前七组工具修正测试、脚本身份与当时 B04 输入；当前生产 owner 的依据是上述 `research/b04/fixed-result.json`，当前标签与停用分母的依据是 `SETTLEMENT_WINDOW_RESULT.json`。分别保留其输入与适用范围，不能以历史宿主回执替代当前生产后态或现场原件。本页记录的是宿主与离线复测，未产生实体机安装包、在线作业或自然样本。
+[host-results.json](host-results.json) 留存先前七组工具修正测试、脚本身份与当时 B04 输入；当前生产 owner 的依据是上述 `research/b04/fixed-result.json`，本次窗口与短链回执见[当前验证目录](../../../verification/STARCORE_R33_5_20261120/second-review/README.md)。分别保留其输入与适用范围，不能以历史宿主回执替代当前生产后态或现场原件。本页记录的是宿主与离线复测，未产生实体机安装包、在线作业或自然样本。
+
+## 原签设备和提交返回的本轮验收
+
+用当前 `prepare_tools.py` 准备工具。调用其中 `B02/enabled_window_r335/collect_enabled_window.py` 的 `capture` 子命令，在原设备、原签 APK 上各取得一次 START 和 END。默认采集来源为 `APP_OWNED`，从应用已落盘的日记中读取三个字段。原采集命令的设备序号、APK SHA、部署区间与日历原件须齐全；双读失配、来源改变或缺件应重采原件。支持 run-as 的安装可明确选择 `--capture-source ADB_PRIVATE` 并在两端使用同一路径。
+
+百期签收同时读取 `previousOpenToDurableFreezeObservation` 与 `targetOpenToDurableSettlementReturn`。逐期追到相同输入请求、canonical hash 和结算 hash，保留两个原事务内时延供排障。时限分别为 5,000ms 和 1,000ms，等于上限合格，任何应启用期缺链或超限须回传原因。B08 短链必须通过当前固定截止检查。取证源码、工单、测试及具体反例见[第二次复核](../REVIEW_SECOND_20261120.md)。

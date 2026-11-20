@@ -3,6 +3,7 @@ import argparse
 import importlib.util
 import json
 import math
+import re
 import sqlite3
 from pathlib import Path
 
@@ -12,6 +13,65 @@ def summarize(rows, limit):
             'p95Ms':values[math.ceil(len(values)*0.95)-1] if values else None,
             'maxMs':max(values, default=None),
             'violations':[row for row in rows if row['ms'] < 0 or row['ms'] > limit]}
+
+HEALTH = 'v57_runtime_health_r35'
+FREEZE_RETURN = 'R335_CANONICAL_RETURN_BOUND'
+SETTLE_RETURN = 'SETTLEMENT_TERMINAL'
+
+
+def observed_return(db, trace, issue, event, attempt, expected_status, detail, earliest):
+    """Read only this owner's exact identity. Async insert time is evidence availability."""
+    rows = db.execute(
+        'SELECT * FROM ' + HEALTH + ' WHERE target_issue=? AND event_type=? AND attempt_id=?',
+        (issue, event, attempt))
+    times = []
+    for row in rows:
+        # The original application also emits older settlement records of other types/meanings.
+        if event == SETTLE_RETURN and not str(row['detail']).startswith('R334_DURABLE_RETURN_OBSERVATION|'):
+            continue
+        at = row['commit_at']
+        if (row['stage'] != event or row['status'] != expected_status or row['terminal'] != 1
+                or not all(type(row[k]) is int for k in ('request_at', 'commit_at', 'event_at', 'elapsed_ms'))
+                or not (0 < row['request_at'] <= at <= row['event_at']) or row['elapsed_ms'] < 0
+                or at < earliest
+                or row['detail'] != detail + str(at)
+                or row['record_hash'] != trace.digest('R36_HEALTH', event, attempt, issue, expected_status,
+                                                       row['event_at'], row['elapsed_ms'], row['detail'])):
+            raise ValueError('DURABLE_RETURN_IDENTITY_OR_TIME:' + event)
+        times.append((at, row['request_at']))
+    if not times:
+        raise ValueError('MISSING_DURABLE_RETURN:' + event)
+    return times
+
+
+def durable_freeze_time(db, trace, issue, row, drawn):
+    request = trace.single(db, trace.REQUEST, 'target_issue', issue)
+    if (not re.fullmatch('[0-9a-f]{64}', request['request_hash'] or '')
+            or type(request['generation']) is not int or request['generation'] <= 0):
+        raise ValueError('DURABLE_REQUEST_IDENTITY')
+    attempt = request['request_hash'][:24] + '-' + str(request['generation'])
+    freeze = observed_return(db, trace, issue, FREEZE_RETURN, attempt, 'OBSERVED',
+                             'R335_CANONICAL_OBSERVED|canonicalHash=' + request['canonical_hash'] + '|observedAt=',
+                             row['frozenAt'])
+    if any(request_at != request['request_at'] for _, request_at in freeze):
+        raise ValueError('DURABLE_REQUEST_TIME')
+    # Multiple exact re-reads can follow an earlier commit. Only the first observation
+    # is an upper bound on availability; a later re-read does not erase that observation.
+    first = min(at for at, _ in freeze)
+    if first >= min(row['scheduledDeadline'], drawn['open_time'], drawn['first_seen_at']):
+        raise ValueError('DURABLE_FREEZE_ONLY_OBSERVED_AFTER_CUTOFF')
+    return first
+
+
+def durable_settlement_time(db, trace, issue, task):
+    detail = ('R334_DURABLE_RETURN_OBSERVATION|NOT_SQL_COMMIT_INSTANT|MODEL_CALLS=0|settlementHash='
+              + task['settlement_hash'] + '|returnedAt=')
+    settlement = observed_return(db, trace, issue, SETTLE_RETURN, 'SET-' + task['draw_hash'][:16],
+                                 'COMPLETED', detail, task['completed_at'])
+    if len(settlement) != 1 or settlement[0][1] > task['completed_at']:
+        raise ValueError('AMBIGUOUS_SETTLEMENT_RETURN')
+    return settlement[0][0]
+
 
 def evaluate(tools, bundle, evidence, start, end, commit, apk, scope):
     path = tools / 'B02/enabled_window_r335/collect_enabled_window.py'
@@ -34,6 +94,7 @@ def evaluate(tools, bundle, evidence, start, end, commit, apk, scope):
     disabled_failures = [row for row in closed['missingOrInvalid'] if row['target'] in disabled_targets]
     enabled_failures = [row for row in closed['missingOrInvalid'] if row['target'] not in disabled_targets]
     freeze, terminal = [], []
+    durable_freeze, durable_settlement, unmeasured = [], [], []
     missing = []
     with sqlite3.connect(dbpath.as_uri()+'?mode=ro&immutable=1', uri=True) as db:
         db.row_factory = sqlite3.Row
@@ -50,14 +111,26 @@ def evaluate(tools, bundle, evidence, start, end, commit, apk, scope):
             task = window.trace.single(db, window.trace.TASK, 'target_issue', issue)
             freeze.append({'target':issue,'ms':row['frozenAt']-base['open_time']})
             terminal.append({'target':issue,'ms':task['completed_at']-drawn['open_time']})
+            try:
+                durable_at = durable_freeze_time(db, window.trace, issue, row, drawn)
+                durable_freeze.append({'target': issue, 'ms': durable_at - base['open_time']})
+            except (ValueError, KeyError, IndexError, sqlite3.Error) as exc:
+                unmeasured.append({'target': issue, 'boundary': 'freeze', 'reason': str(exc)})
+            try:
+                returned_at = durable_settlement_time(db, window.trace, issue, task)
+                durable_settlement.append({'target': issue, 'ms': returned_at - drawn['open_time']})
+            except (ValueError, KeyError, IndexError, sqlite3.Error) as exc:
+                unmeasured.append({'target': issue, 'boundary': 'settlement', 'reason': str(exc)})
     research.require(window.trace.sha_file(dbpath) == manifest['database']['sha256'], 'SNAPSHOT_CHANGED')
     timing = {'previousOpenToFreeze':summarize(freeze, 5000), 'targetOpenToSettlement':summarize(terminal, 1000)}
+    timing['previousOpenToDurableFreezeObservation'] = summarize(durable_freeze, 5000)
+    timing['targetOpenToDurableSettlementReturn'] = summarize(durable_settlement, 1000)
     counts = coverage['counts']
     ok = (counts['calendarPeriods'] >= 100 and counts['expectedEnabledDue'] >= 100 and
-          coverage['outcome'] == 'PASS' and not enabled_failures and not missing and
+          coverage['outcome'] == 'PASS' and not enabled_failures and not missing and not unmeasured and
           all(not metric['violations'] and metric['observed'] == counts['expectedEnabledDue'] for metric in timing.values()))
     return {'scope':scope,'outcome':'PASS' if ok else 'INCOMPLETE','counts':counts,
-            'timing':timing, 'missingOrInvalid':missing,'originalTraceFailures':closed['missingOrInvalid'],
+            'timing':timing, 'unmeasuredDurableReturns':unmeasured, 'missingOrInvalid':missing,'originalTraceFailures':closed['missingOrInvalid'],
             'enabledTraceFailures':enabled_failures,'explicitlyDisabledTraceFailures':disabled_failures,
             'settlementTimesValidated':validated,
             'settlementTimeRule':'settled_at >= max(open_time, first_seen_at), on this same snapshot',

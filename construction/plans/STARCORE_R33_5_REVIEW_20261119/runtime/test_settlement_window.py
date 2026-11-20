@@ -46,7 +46,77 @@ class SettlementWindow(unittest.TestCase):
                 fixture.insert(db,trace.TASK,[issue,issue,'COMPLETED',draw,terminal,tm+450])
                 fixture.insert(db,'v51_selected_action',[issue,trace.GAME,1,1,2,3,'SHADOW','SHADOW',0.4,'bundle',contract,signature,decision])
                 fixture.insert(db,'v51_decision_authorization',[issue,trace.GAME,contract,'bundle',signature,decision])
+            db.execute('ALTER TABLE ' + trace.REQUEST + ' ADD COLUMN request_hash TEXT')
+            db.execute('ALTER TABLE ' + trace.REQUEST + ' ADD COLUMN generation INTEGER')
+            db.execute('CREATE TABLE ' + check_window.HEALTH + ' (target_issue,event_type,stage,attempt_id,status,'
+                       'terminal,request_at,commit_at,event_at,elapsed_ms,detail,record_hash)')
+            for target, req_at, canonical in db.execute('SELECT target_issue,request_at,canonical_hash FROM ' + trace.REQUEST).fetchall():
+                req_hash = trace.digest('request', target)
+                db.execute('UPDATE ' + trace.REQUEST + ' SET request_hash=?,generation=1 WHERE target_issue=?', (req_hash,target))
+                drawn = db.execute('SELECT open_time FROM '+trace.DRAW+' WHERE issue=?', (target,)).fetchone()[0]
+                dh, end_hash = db.execute('SELECT draw_hash,settlement_hash FROM '+trace.TASK+' WHERE target_issue=?', (target,)).fetchone()
+                self.insert_health(db, target, check_window.FREEZE_RETURN, req_hash[:24]+'-1', 'OBSERVED',
+                    req_at, drawn-55900, 'R335_CANONICAL_OBSERVED|canonicalHash='+canonical+'|observedAt=')
+                self.insert_health(db, target, check_window.SETTLE_RETURN, 'SET-'+dh[:16], 'COMPLETED',
+                    drawn+301, drawn+500, 'R334_DURABLE_RETURN_OBSERVATION|NOT_SQL_COMMIT_INSTANT|MODEL_CALLS=0|settlementHash='+end_hash+'|returnedAt=')
         f.refresh_bundle()
+
+    def insert_health(self, db, target, event, attempt, status, request, observed, detail):
+        logged = observed + 10
+        elapsed = 0 if event == check_window.FREEZE_RETURN else observed-request
+        detail += str(observed)
+        digest = windows.m.trace.digest('R36_HEALTH', event, attempt, target, status, logged, elapsed, detail)
+        db.execute('INSERT INTO '+check_window.HEALTH+' VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
+                   (target,event,event,attempt,status,1,request,observed,logged,elapsed,detail,digest))
+
+    def change_observation(self, event, shift=None, wrong_hash=False):
+        f=self.f
+        with sqlite3.connect(f.database) as db:
+            target=f.cal['entries'][0]['targetIssue']
+            row=db.execute('SELECT attempt_id,status,request_at,commit_at,detail FROM '+check_window.HEALTH+
+                           ' WHERE target_issue=? AND event_type=?',(target,event)).fetchone()
+            db.execute('DELETE FROM '+check_window.HEALTH+' WHERE target_issue=? AND event_type=?',(target,event))
+            if shift is not None:
+                detail=row[4].rsplit('=',1)[0]+'='
+                if wrong_hash:detail=detail.replace('Hash=', 'Hash=wrong-')
+                self.insert_health(db,target,event,*row[:3],row[3]+shift,detail)
+        f.refresh_bundle()
+
+    def test_slow_durable_settlement_even_with_fast_sql_row(self):
+        self.change_observation(check_window.SETTLE_RETURN,501)
+        if OLD:
+            spec=importlib.util.spec_from_file_location('preceding_window',OLD)
+            previous=importlib.util.module_from_spec(spec);spec.loader.exec_module(previous)
+            self.assertEqual(self.evaluate(previous)['outcome'],'PASS')
+        result=self.evaluate()
+        self.assertEqual(result['timing']['targetOpenToSettlement']['maxMs'],450)
+        self.assertEqual(result['timing']['targetOpenToDurableSettlementReturn']['maxMs'],1001)
+        self.assertEqual(result['outcome'],'INCOMPLETE')
+
+    def test_slow_durable_freeze_even_with_fast_sql_row(self):
+        self.change_observation(check_window.FREEZE_RETURN,901)
+        result=self.evaluate()
+        self.assertEqual(result['timing']['previousOpenToDurableFreezeObservation']['maxMs'],5001)
+        self.assertEqual(result['outcome'],'INCOMPLETE')
+
+    def test_inclusive_limits(self):
+        self.change_observation(check_window.FREEZE_RETURN,900)
+        self.change_observation(check_window.SETTLE_RETURN,500)
+        self.assertEqual(self.evaluate()['outcome'],'PASS')
+
+    def test_missing_return_keeps_denominator(self):
+        self.change_observation(check_window.SETTLE_RETURN)
+        result=self.evaluate()
+        self.assertEqual(result['timing']['previousOpenToDurableFreezeObservation']['observed'],100)
+        self.assertEqual(result['timing']['targetOpenToDurableSettlementReturn']['observed'],99)
+        self.assertEqual((result['outcome'],result['counts']['expectedEnabledDue'],len(result['unmeasuredDurableReturns'])),
+                         ('INCOMPLETE',100,1))
+
+    def test_rehashed_wrong_canonical_identity_fails(self):
+        self.change_observation(check_window.FREEZE_RETURN,0,wrong_hash=True)
+        result=self.evaluate()
+        self.assertEqual(result['outcome'],'INCOMPLETE')
+        self.assertIn('IDENTITY',result['unmeasuredDurableReturns'][0]['reason'])
 
     def evaluate(self, module=check_window):
         f=self.f
@@ -119,10 +189,6 @@ class SettlementWindow(unittest.TestCase):
         baseline=windows.m.trace.verify(f.bundle,f.root,'FIXTURE',windows.C,windows.A)
         self.assertEqual(baseline['outcome'],'PASS')
         self.assertEqual(baseline['joined'],100)
-        if OLD:
-            spec=importlib.util.spec_from_file_location('old_r335_window',OLD)
-            old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)
-            self.assertEqual(self.evaluate(old)['outcome'],'PASS')
         with self.assertRaisesRegex(ValueError,'LABEL_BEFORE_OPEN_OR_OBSERVATION'):
             self.evaluate()
 

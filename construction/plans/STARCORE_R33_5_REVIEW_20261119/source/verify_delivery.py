@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import check_source_delivery
+
 PACKAGE = 'com.starcore.research.r13'
 
 
@@ -59,13 +61,23 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['plan', 'repo', 'candidate', 'dumpsys', 'baseline-apk', 'aapt', 'apksigner', 'out']:
         parser.add_argument('--' + name, required=True, type=Path)
+    parser.add_argument('--source-out', type=Path, help='Optional receipt for the received ZIP and bundle')
     args = parser.parse_args()
+    if args.source_out and (args.source_out.exists() or args.source_out.resolve() == args.out.resolve()):
+        parser.error('Use a separate fresh source receipt path')
     if args.out.exists():
         parser.error('Use a new output path for this build and device observation')
     derived = inputs(args.candidate, args.repo, args.dumpsys)
+    packager = check_source_delivery.packager(args.plan)
+    sources = check_source_delivery.verify(packager, args.repo, args.candidate, packager.binding.BASE)
     verify = args.plan / 'B08/code/verify_release_artifacts.py'
     subprocess.run([sys.executable, '-B', str(verify), *derived, '--baseline-apk', str(args.baseline_apk),
                     '--aapt', str(args.aapt), '--apksigner', str(args.apksigner), '--out', str(args.out)], check=True)
+    if args.source_out:
+        with args.source_out.open('x', encoding='utf-8') as stream:
+            json.dump(sources, stream, indent=2)
+            stream.write('\n')
+    print(json.dumps({'receivedSources': sources}))
 
 
 if __name__ == '__main__':
