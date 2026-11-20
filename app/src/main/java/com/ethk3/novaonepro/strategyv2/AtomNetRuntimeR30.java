@@ -149,7 +149,7 @@ public final class AtomNetRuntimeR30 {
             long preparedAt=System.currentTimeMillis();
             ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,ModelSurfaceProviderR30.historyHash(slot,slot.size()-1),x,preparedAt,preparedAt,preparedAt,deadline);
             ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,modelRef);
-            ModelReplayStudyR30R1.append(batch,researchWindow,pit,surface,previous);
+            ModelReplayStudyR30R1.appendRequestedR335(w.ro,batch,researchWindow,pit,surface,previous);
             ModelSurfaceStoreR30.surface(batch,surface,i==0?modelRef:null);
             List<Object> p=new ArrayList<>();for(double value:surface.probabilities())p.add(value);
             batch.add("INSERT OR IGNORE INTO r30_atomnet_forecast VALUES(?,?,?,?,?,?,?,?)",target,i+1,modelHash,modelRef.trainedThroughOrdinal,JsonR27.write(p),prediction.pHit,at,deadline);

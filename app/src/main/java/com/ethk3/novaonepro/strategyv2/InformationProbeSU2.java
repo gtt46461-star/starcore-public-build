@@ -168,6 +168,17 @@ public final class InformationProbeSU2 {
         return "";
     }
 
+    /** Actual successful numeric executions only; old checkpoint lifetime counts stay unknown. */
+    public ContMatSU2 contmatR335() {
+        for(Probe p:probes)if(p.model instanceof ContMatSU2)return (ContMatSU2)p.model;
+        return null;
+    }
+    public String contmatLineR335(int maxVerified) {
+        ContMatSU2 model=contmatR335();if(model==null)return "";
+        Long count=model.successfulRefitsR335();int display=count==null?-1:(int)Math.min(Integer.MAX_VALUE,count);
+        return contmatLine(display,maxVerified);
+    }
+
     public void write(DataOutput o) throws IOException {
         o.writeLong(t);
         for (Probe p : probes) {

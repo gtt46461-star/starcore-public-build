@@ -41,39 +41,88 @@ public final class DiagnosisStoreSU2 {
             final long first = TargetIssueResolver.sequenceOrdinalSU1(String.valueOf(frame.issue(0)));
             final long seq = first + h.length;                                   // next target; everything below is settled
             // 1. information probes: continue from the checkpoint, at most PROBE_SLICE_NANOS per call
-            long[] through = new long[1]; byte[] blob = ModelStoreSU2.liveBlob(r, PROBE_OWNER, through);
+            final ProbeCheckpointR335 expectedProbe=readProbeR335(r);
+            long[] through = new long[]{expectedProbe.through}; byte[] blob = expectedProbe.bytes;
             InformationProbeSU2 bank = new InformationProbeSU2(); long done = first - 1;
             if (blob != null && through[0] >= first - 1 && through[0] < seq) {
                 try { bank.read(new DataInputStream(new ByteArrayInputStream(ModelStoreSU2.gunzip(blob)))); done = through[0]; }
-                catch (IOException | RuntimeException unusable) { bank = new InformationProbeSU2(); done = first - 1; }
-            }
+                catch (IOException | RuntimeException unusable) { return "SU2_DIAG_PROBE_CHECKPOINT_UNREADABLE:"+unusable.getClass().getSimpleName(); }
+            } else if(blob!=null) return "SU2_DIAG_PROBE_SOURCE_GAP_OR_FUTURE_CHECKPOINT";
             long started = System.nanoTime();
             while (done < seq - 1 && System.nanoTime() - started < PROBE_SLICE_NANOS) { done++; bank.step(h[(int) (done - first)]); }
             final InformationProbeSU2 fb = bank; final long fdone = done; final long now = System.currentTimeMillis();
             ByteArrayOutputStream bo = new ByteArrayOutputStream(); DataOutputStream o = new DataOutputStream(bo); fb.write(o); o.flush();
             final byte[] probeBlob = ModelStoreSU2.gzip(bo.toByteArray());
             final ModelEvolutionSU2.State evo = ModelStoreSU2.loadEvolution(r);
-            return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_DIAGNOSIS", db -> {
-                ModelStoreSU2.saveLive(db, PROBE_OWNER, fdone, probeBlob, now);
+            final DiagnosisShadowReceiptR335.Source measured = fb.contmatR335()==null?null:new DiagnosisShadowReceiptR335.Source(frame,probeBlob,fdone,fb.contmatR335());
+            try(DiagnosisShadowReceiptR335.Admission admission=DiagnosisShadowReceiptR335.admit(store,measured)){
+            if(!admission.admitted())return "SU2_DIAG_WAIT_ORIGINAL_STORAGE:"+admission.reason;
+            String committed=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_DIAGNOSIS", db -> {
+                if(EventFrameBuilderSU1.generation(db)!=frame.sourceGeneration)throw new IllegalStateException("R335_DIAG_SOURCE_CHANGED_BEFORE_COMMIT");
+                assertProbeUnchangedR335(db,expectedProbe);
+                if(expectedProbe.updatedAt==Long.MAX_VALUE)throw new IllegalStateException("R335_PROBE_REVISION_EXHAUSTED");
+                ModelStoreSU2.saveLive(db, PROBE_OWNER, fdone, probeBlob,Math.max(now,expectedProbe.updatedAt+1));
                 foldTrackBlocks(db, seq);
                 settleShadows(db);
                 retention(db, seq, now);
                 if (fdone < seq - 1) return "SU2_DIAG_PROBES_CATCHING_UP:" + fdone;
                 long last = diagnosedSequence(db);
-                if (last >= 0 && seq / BLOCK == last / BLOCK) return "SU2_DIAG_UP_TO_DATE";
-                String snap = snapshot(db, seq, fb, evo);
-                UpgradeDiagnosisSU2.Snapshot S = UpgradeDiagnosisSU2.parse(snap);
-                UpgradeDiagnosisSU2.Diagnosis D = UpgradeDiagnosisSU2.diagnose(S);
                 UpgradeDiagnosisSU2.Ledger L = loadLedger(db);
-                L.update(D.findings, seq);
-                openShadows(db, D, L, seq);
-                saveLedger(db, L, seq, now);
-                saveSnapshot(db, seq, snap, now);
-                return "SU2_DIAG_DONE:" + D.verdict + ":" + D.findings.size();
+                String lastRefit="";
+                if(!L.probeSourceR335.isEmpty()){Object prior=JsonR27.parse(L.probeSourceR335);if(prior instanceof Map)lastRefit=String.valueOf(((Map<?,?>)prior).get("refitOriginalHash"));}
+                boolean fresh=last<0||seq/BLOCK!=last/BLOCK||measured!=null&&measured.measured()&&!measured.refitHash.equals(lastRefit);
+                String snap = fresh?snapshot(db, seq, fb, evo):null;
+                // Same-block retry only needs the current continuation result. Do not
+                // repeat generations/xiShare/track scans under the writer every period.
+                String current=fresh?snap:"SU2DIAG\t1\ndataset\tLIVE\nseq\t"+seq+"\n"+fb.contmatLineR335(0);
+                UpgradeDiagnosisSU2.Snapshot S = UpgradeDiagnosisSU2.parse(current);
+                UpgradeDiagnosisSU2.Diagnosis D = UpgradeDiagnosisSU2.diagnose(S);
+                if(fresh){L.update(D.findings, seq);openShadows(db,D,L,seq,measured);}
+                else DiagnosisShadowReceiptR335.attempt(db,D,L,seq,measured);
+                if(measured!=null){Map<String,Object> provenance=measured.values();provenance.put("checkpointOwner",PROBE_OWNER);provenance.put("previousCheckpointHash",blob==null?null:HashingSU1.bytes(blob));provenance.put("sourceScope","ACTUAL_CURRENT_INPUT_AND_CHECKPOINT; OLD_PREDECESSOR_HISTORY_NOT_RECONSTRUCTED");L.probeSourceR335=JsonR27.write(provenance);}
+                saveLedger(db, L, fresh?seq:last, now);
+                if(fresh)saveSnapshot(db, seq, snap, now);
+                return fresh?"SU2_DIAG_DONE:" + D.verdict + ":" + D.findings.size():"SU2_DIAG_UP_TO_DATE_PENDING_RECHECKED";
             });
+            try { Map<String,Object> readback=DiagnosisShadowReceiptR335.readback(store.readable());return committed+":S5_"+readback.get("state"); }
+            catch(RuntimeException unknown){return committed+":S5_READBACK_UNKNOWN:"+unknown.getClass().getSimpleName();}
+            }
         } catch (IOException | RuntimeException failure) {
-            return "SU2_DIAG_FAILED:" + failure.getClass().getSimpleName() + ":" + failure.getMessage();
+            // A thrown commit return does not prove rollback. Preserve the same ledger
+            // and receipt identity; the next maintenance retries and independently reads it.
+            String observed="UNKNOWN";
+            try{observed=String.valueOf(DiagnosisShadowReceiptR335.readback(store.readable()).get("state"));}catch(RuntimeException unavailable){observed="READBACK_UNKNOWN";}
+            return "SU2_DIAG_WRITE_OR_PREPARE_FAILED:" + failure.getClass().getSimpleName() + ":" + failure.getMessage()+";S5_ORIGINAL="+observed;
         }
+    }
+
+    /** One owner uses updated_at as a strictly monotonic persisted revision in
+     * addition to the original wall-clock meaning. Chunk reads avoid a large
+     * CursorWindow and a before/after token check rejects a concurrent snapshot. */
+    static final class ProbeCheckpointR335 {
+        final boolean present;final long through,size,updatedAt;final byte[] bytes;
+        ProbeCheckpointR335(boolean present,long through,long size,long updatedAt,byte[] bytes){this.present=present;this.through=through;this.size=size;this.updatedAt=updatedAt;this.bytes=bytes;}
+    }
+    static ProbeCheckpointR335 probeMetadataR335(SQLiteDatabase db){
+        try(Cursor c=db.rawQuery("SELECT through_sequence,byte_count,updated_at,length(state_blob) FROM su2_live_state WHERE owner=?",new String[]{PROBE_OWNER})){
+            if(!c.moveToFirst())return new ProbeCheckpointR335(false,-1,0,-1,null);
+            long size=c.getLong(1);if(size<1||size>(16L<<20)||size!=c.getLong(3)||c.getLong(2)<0)throw new IllegalStateException("R335_PROBE_METADATA");
+            return new ProbeCheckpointR335(true,c.getLong(0),size,c.getLong(2),null);
+        }
+    }
+    static void assertProbeUnchangedR335(SQLiteDatabase db,ProbeCheckpointR335 expected){
+        ProbeCheckpointR335 current=probeMetadataR335(db);
+        if(current.present!=expected.present||current.through!=expected.through||current.size!=expected.size||current.updatedAt!=expected.updatedAt)throw new IllegalStateException("R335_PROBE_PREPARED_STALE");
+    }
+    static ProbeCheckpointR335 readProbeR335(SQLiteDatabase db){
+        ProbeCheckpointR335 metadata=probeMetadataR335(db);if(!metadata.present)return metadata;
+        ByteArrayOutputStream out=new ByteArrayOutputStream((int)metadata.size);
+        for(int offset=0;offset<metadata.size;offset+=65536){int length=(int)Math.min(65536,metadata.size-offset);
+            try(Cursor c=db.rawQuery("SELECT substr(state_blob,?,?) FROM su2_live_state WHERE owner=?",new String[]{String.valueOf(offset+1),String.valueOf(length),PROBE_OWNER})){
+                if(!c.moveToFirst())throw new IllegalStateException("R335_PROBE_DISAPPEARED");byte[] part=c.getBlob(0);if(part==null||part.length!=length)throw new IllegalStateException("R335_PROBE_CHUNK");out.write(part,0,part.length);
+            }
+        }
+        assertProbeUnchangedR335(db,metadata);return new ProbeCheckpointR335(true,metadata.through,metadata.size,metadata.updatedAt,out.toByteArray());
     }
 
     /** The report export (read-only snapshot connection): {UPGRADE_DIAGNOSIS.md, UPGRADE_DIAGNOSIS.json}. */
@@ -88,8 +137,9 @@ public final class DiagnosisStoreSU2 {
             UpgradeDiagnosisSU2.Snapshot parsed=UpgradeDiagnosisSU2.parse(snap);
             stage="DIAGNOSE";reportStageR30R1(stage);UpgradeDiagnosisSU2.Diagnosis diagnosis=UpgradeDiagnosisSU2.diagnose(parsed);
             stage="READ_LEDGER";reportStageR30R1(stage);UpgradeDiagnosisSU2.Ledger ledger=loadLedger(db);
-            stage="RENDER_MARKDOWN";reportStageR30R1(stage);String md=UpgradeDiagnosisSU2.renderR30(diagnosis,ledger);
-            stage="RENDER_JSON";reportStageR30R1(stage);return new String[]{md,UpgradeDiagnosisSU2.toJsonR30(diagnosis,ledger)};
+            stage="READ_ORIGINAL_EVIDENCE_R335";reportStageR30R1(stage);Map<String,Object> originalEvidence=DiagnosisEvidenceR335.capture(db,parsed.seq,ledger);
+            stage="RENDER_MARKDOWN";reportStageR30R1(stage);String md=UpgradeDiagnosisSU2.renderR335(diagnosis,ledger,originalEvidence);
+            stage="RENDER_JSON";reportStageR30R1(stage);return new String[]{md,UpgradeDiagnosisSU2.toJsonR335(diagnosis,ledger,originalEvidence)};
         } catch(RuntimeException failure) {
             String fingerprint=failure.getClass().getName();
             List<Object> chain=new ArrayList<>(),causes=new ArrayList<>();
@@ -156,6 +206,9 @@ public final class DiagnosisStoreSU2 {
     // ------------------------------------------------------------------------------------------------ snapshot from the database
     static String snapshot(SQLiteDatabase db, long seq, InformationProbeSU2 probes, ModelEvolutionSU2.State evo) {
         StringBuilder o = new StringBuilder("SU2DIAG\t1\ndataset\tLIVE\nseq\t").append(seq).append('\n');
+        // Mandatory S4/S5 control is ahead of optional large probe text. An
+        // ordinary nine-probe, forty-block snapshot exceeds the 16 KiB legacy cap.
+        if(probes!=null)o.append(probes.contmatLineR335(previousContmatMax(db)));
         track(db, o, "MAINLINE", "MAINLINE");
         track(db, o, "XI", IncumbentLoopSU2.KEY);
         Map<String, String> champs = new LinkedHashMap<>();
@@ -169,8 +222,6 @@ public final class DiagnosisStoreSU2 {
         xiShare(db, o, seq);
         if (probes != null) {
             o.append(probes.snapshotLines());
-            int refits = (int) Math.max(0, seq / BLOCK - (InformationProbeSU2.START + BLOCK) / BLOCK + 1);
-            o.append(probes.contmatLine(refits, previousContmatMax(db)));
         }
         generations(db, o, seq);
         if (evo != null) {
@@ -187,10 +238,16 @@ public final class DiagnosisStoreSU2 {
         try (Cursor c = db.rawQuery("SELECT category,measured_bytes,cap_bytes FROM su2_storage_budget WHERE measured_at>0 ORDER BY category", null)) {
             while (c.moveToNext()) o.append("storage\t").append(c.getString(0)).append('\t').append(c.getLong(1)).append('\t').append(c.getLong(2)).append('\n');
         }
-        String s = o.toString();
-        byte[] b = s.getBytes(StandardCharsets.UTF_8);
-        if (b.length > UpgradeDiagnosisSU2.SNAP_MAX_BYTES) { int nl = UpgradeDiagnosisSU2.lastNewline(b, UpgradeDiagnosisSU2.SNAP_MAX_BYTES); s = new String(b, 0, nl + 1, StandardCharsets.UTF_8); }
-        return s;
+        return boundSnapshotR335(o.toString());
+    }
+
+    static String boundSnapshotR335(String raw){
+        int reserve=1024,used=0;StringBuilder kept=new StringBuilder();Map<String,Integer> omitted=new TreeMap<>();
+        for(String line:raw.split("\n")){String whole=line+"\n";int bytes=whole.getBytes(StandardCharsets.UTF_8).length;
+            if(used+bytes<=UpgradeDiagnosisSU2.SNAP_MAX_BYTES-reserve){kept.append(whole);used+=bytes;}
+            else {String[] fields=line.split("\t",3);String key=fields[0]+(fields.length>1?":"+fields[1]:"");omitted.put(key,omitted.getOrDefault(key,0)+1);}}
+        for(Map.Entry<String,Integer> entry:omitted.entrySet())kept.append("omitted_r335\t").append(entry.getKey()).append('\t').append(entry.getValue()).append('\n');
+        if(kept.toString().getBytes(StandardCharsets.UTF_8).length>UpgradeDiagnosisSU2.SNAP_MAX_BYTES)throw new IllegalStateException("R335_DIAG_OMISSION_BUDGET");return kept.toString();
     }
 
     static String clean(String s, int n) { s = s.replace('\t', ' ').replace('\n', ' '); return s.length() > n ? s.substring(0, n) : s; }
@@ -283,13 +340,17 @@ public final class DiagnosisStoreSU2 {
     }
 
     /** New genome-level prescriptions become shadow challengers (frozen, settled live like any league member). */
-    static void openShadows(SQLiteDatabase db, UpgradeDiagnosisSU2.Diagnosis D, UpgradeDiagnosisSU2.Ledger L, long seq) {
+    static void openShadows(SQLiteDatabase db, UpgradeDiagnosisSU2.Diagnosis D, UpgradeDiagnosisSU2.Ledger L, long seq) {openShadows(db,D,L,seq,null);}
+    static void openShadows(SQLiteDatabase db, UpgradeDiagnosisSU2.Diagnosis D, UpgradeDiagnosisSU2.Ledger L, long seq,DiagnosisShadowReceiptR335.Source measured) {
+        DiagnosisShadowReceiptR335.attempt(db,D,L,seq,measured);
         int active;
         try (Cursor c = db.rawQuery("SELECT count(*) FROM su2_diag_shadow WHERE state='ACTIVE'", null)) { active = c.moveToFirst() ? c.getInt(0) : 0; }
         for (UpgradeDiagnosisSU2.Finding f : D.findings) {
+            if("S5".equals(f.code)&&"".equals(f.scope))continue; // sole S5 owner above
             if (active >= MAX_SHADOWS) break;
             UpgradeDiagnosisSU2.Entry e = L.entries.get(f.code + "|" + f.scope);
-            if (e == null || e.since != seq || !"PENDING".equals(e.outcome)) continue;
+            if (e == null || !"PENDING".equals(e.outcome)) continue;
+            if (e.since != seq) continue;
             String tier = f.presc.startsWith("TIER_COVERAGE") ? f.presc.split(" ")[1] : "F15";
             String baseKey = null, baseText = null;
             try (Cursor c = db.rawQuery("SELECT g.genome_key,g.canonical_text FROM su2_model_genome g JOIN su2_league l ON l.genome_key=g.genome_key WHERE g.state='LEAGUE' AND g.tier=? "

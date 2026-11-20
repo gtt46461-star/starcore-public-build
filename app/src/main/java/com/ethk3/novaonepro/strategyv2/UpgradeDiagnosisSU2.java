@@ -118,6 +118,7 @@ public final class UpgradeDiagnosisSU2 {
         final List<Object[]> teacher = new ArrayList<>();
         final LinkedHashMap<String, String> formulas = new LinkedHashMap<>();
         final List<Object[]> storage = new ArrayList<>();
+        final Map<String,Integer> omittedSourceLinesR335 = new LinkedHashMap<>();
     }
 
     static Double f(String s) { return s.equals("-") ? null : Double.parseDouble(s); }
@@ -167,6 +168,7 @@ public final class UpgradeDiagnosisSU2 {
                 case "repair": S.repair = new int[]{Integer.parseInt(f[1]), Integer.parseInt(f[2])}; break;
                 case "teacher": S.teacher.add(new Object[]{f[1], f[2], f(f[3]), f(f[4])}); break;
                 case "formula": S.formulas.put(f[1], f[2]); break;
+                case "omitted_r335": S.omittedSourceLinesR335.put(f[1],Integer.parseInt(f[2])); break;
                 case "storage": S.storage.add(new Object[]{f[1], Long.parseLong(f[2]), Long.parseLong(f[3])}); break;
                 default: throw new IllegalArgumentException("SU2_DIAG_LINE:" + k);
             }
@@ -442,12 +444,14 @@ public final class UpgradeDiagnosisSU2 {
     public static final class Entry {
         public String code, scope, sev, status, presc = "", outcome = ""; public long first, last, since = -1; public int seen; public Double value, best;
         public long sacts, shits, bacts, bhits;
+        public String s5StateR335 = "";
         String key() { return code + "|" + scope; }
     }
 
     /** Issue ledger (<= 256 entries), last 8 snapshots, generation curve (<= 512 points). Bounded by construction. */
     public static final class Ledger {
         public final LinkedHashMap<String, Entry> entries = new LinkedHashMap<>();
+        public String probeSourceR335 = "";
         public final List<Object[]> snaps = new ArrayList<>();          // {seq, text}
         public final List<double[]> curve = new ArrayList<>();          // {seq, weight, sum_r0, sum_r1}
 
@@ -532,6 +536,14 @@ public final class UpgradeDiagnosisSU2 {
                  .append('\t').append(e.sev).append('\t').append(e.status).append('\t').append(e.value == null ? "-" : fx(e.value, 9)).append('\t')
                  .append(e.best == null ? "-" : fx(e.best, 9)).append('\t').append(e.presc).append('\t').append(e.since).append('\t').append(e.sacts).append('\t')
                  .append(e.shits).append('\t').append(e.bacts).append('\t').append(e.bhits).append('\t').append(e.outcome);
+            for (Entry e : entries.values()) if(e.s5StateR335!=null&&!e.s5StateR335.isEmpty()) {
+                if(!"S5".equals(e.code)||!"".equals(e.scope)||e.s5StateR335.indexOf('\n')>=0||e.s5StateR335.indexOf('\t')>=0)throw new IllegalStateException("R335_S5_LEDGER_EXTENSION");
+                o.append("\nX5\t").append(e.code).append('\t').append(e.scope).append('\t').append(e.s5StateR335);
+            }
+            if(probeSourceR335!=null&&!probeSourceR335.isEmpty()){
+                if(probeSourceR335.indexOf('\n')>=0||probeSourceR335.indexOf('\t')>=0||probeSourceR335.length()>8192)throw new IllegalStateException("R335_PROBE_SOURCE_BOUND");
+                o.append("\nP5\t").append(probeSourceR335);
+            }
             for (Object[] s : snaps) o.append("\nN\t").append((long) (Long) s[0]).append('\t').append(((String) s[1]).getBytes(StandardCharsets.UTF_8).length);
             for (double[] p : curve) o.append("\nC\t").append((long) p[0]).append('\t').append((long) p[1]).append('\t').append(fx(p[2], 9)).append('\t').append(fx(p[3], 9));
             return o.append('\n').toString();
@@ -546,6 +558,11 @@ public final class UpgradeDiagnosisSU2 {
                     e.sev = f[6]; e.status = f[7]; e.value = f(f[8]); e.best = f(f[9]); e.presc = f[10]; e.since = Long.parseLong(f[11]);
                     e.sacts = Long.parseLong(f[12]); e.shits = Long.parseLong(f[13]); e.bacts = Long.parseLong(f[14]); e.bhits = Long.parseLong(f[15]); e.outcome = f[16];
                     L.entries.put(e.key(), e);
+                } else if (f[0].equals("X5")) {
+                    if(f.length!=4||!"S5".equals(f[1])||!"".equals(f[2]))throw new IllegalArgumentException("R335_S5_LEDGER_EXTENSION");
+                    Entry e=L.entries.get(f[1]+"|"+f[2]);if(e==null||!e.s5StateR335.isEmpty()||f[3].length()>131072)throw new IllegalArgumentException("R335_S5_LEDGER_EXTENSION_ORDER");e.s5StateR335=f[3];
+                } else if(f[0].equals("P5")){
+                    if(f.length!=2||!L.probeSourceR335.isEmpty()||f[1].length()>8192)throw new IllegalArgumentException("R335_PROBE_SOURCE_LINE");L.probeSourceR335=f[1];
                 } else if (f[0].equals("C")) L.curve.add(new double[]{Long.parseLong(f[1]), Long.parseLong(f[2]), Double.parseDouble(f[3]), Double.parseDouble(f[4])});
             }
             if (snaps != null) L.snaps.addAll(snaps);
@@ -699,7 +716,7 @@ public final class UpgradeDiagnosisSU2 {
             o.add(fill("S3.row", "fam", e.getKey(), "n", String.valueOf(p.n), "gain", snum(p.gain, 3), "lo", snum(p.lo, 3), "hi", snum(p.hi, 3), "pos", pct(p.pos),
                 "hits", String.valueOf(p.h15), "acts", String.valueOf(p.a15), "cov", pct(p.cov15), "pred", pct(p.pred15), "proj", p.a15 > 0 ? projText(p.h15, p.a15) : NA, "worst", pct(p.worst15))); }
         o.add("");
-        if (S.contmat != null) o.add(fill("S3.cm", "refits", String.valueOf(S.contmat[0]), "last", String.valueOf(S.contmat[1]), "max", String.valueOf(S.contmat[2]), "patterns", S.contmatPatterns));
+        if (S.contmat != null) o.add(fill("S3.cm", "refits", S.contmat[0]<0?"UNKNOWN（旧检查点无实测计数）":String.valueOf(S.contmat[0]), "last", String.valueOf(S.contmat[1]), "max", String.valueOf(S.contmat[2]), "patterns", S.contmatPatterns));
         for (Stage st : S.stages) o.add(fill("S3.stage", "cov", st.cov, "k", String.valueOf(st.k), "vl", pct(st.vl), "vc", pct(st.vc), "use", st.use != 0 ? T.get("S3.stage.on") : T.get("S3.stage.off"),
             "fl", pct(st.fl), "nl", String.valueOf(st.nl), "fc", pct(st.fc), "nc", String.valueOf(st.nc)));
         ProbeSum reg = PR.get("REGMEM");
@@ -773,7 +790,7 @@ public final class UpgradeDiagnosisSU2 {
         } else row(rows, "C.probe", "na", NA, NA, NA, NA);
         if (S.contmat != null) {
             boolean ok = S.contmat[1] > 0;
-            row(rows, "C.contmat", ok ? "ok" : "watch", fill("C.contmat.ev", "n", String.valueOf(S.contmat[1]), "refits", String.valueOf(S.contmat[0])),
+            row(rows, "C.contmat", ok ? "ok" : "watch", fill("C.contmat.ev", "n", String.valueOf(S.contmat[1]), "refits", S.contmat[0]<0?"UNKNOWN（旧检查点无实测计数）":String.valueOf(S.contmat[0])),
                 ok ? T.get("C.contmat.next.ok") : T.get("C.contmat.next.watch"), ok ? pproj.apply("CONTMAT") : T.get("C.proj.same"), T.get("C.verify.shadow"));
         } else row(rows, "C.contmat", "na", NA, NA, NA, NA);
         if (!S.stages.isEmpty()) {
@@ -902,6 +919,29 @@ public final class UpgradeDiagnosisSU2 {
         return new String[]{"# 升级诊断书\n\n"+status+"："+safe+"\n\n采集："+action+"\n", "{\"version\":"+jstr(VERSION)+",\"status\":"+jstr(status)+",\"reason\":"+jstr(safe)+",\"records\":"+(status.equals("INSUFFICIENT")?"0":"null")+",\"verdict\":null,\"collectionAction\":"+jstr(action)+"}\n"};
     }
 
+    /** R335 adds exact same-report-database originals; the old snapshot values
+     * remain explicitly labelled so later source observations cannot rewrite history. */
+    public static String toJsonR335(Diagnosis D,Ledger L,Map<String,Object> original) {
+        @SuppressWarnings("unchecked") Map<String,Object> out=new LinkedHashMap<>((Map<String,Object>)JsonR27.parse(toJsonR30(D,L)));
+        out.put("sourceEvidenceR335",original);out.put("legacySnapshotSequence",D.S.seq);out.put("legacySnapshotOmittedSourcesR335",new LinkedHashMap<>(D.S.omittedSourceLinesR335));
+        out.put("legacySnapshotScope","ORIGINAL_STORED_DIAGNOSIS; current source projections retain their independent source bounds");
+        String json=JsonR27.write(out)+"\n";
+        if(json.getBytes(StandardCharsets.UTF_8).length>JSON_MAX_BYTES) {
+            // Preserve references and explicit omissions, never silently drop a source.
+            Map<String,Object> summary=new LinkedHashMap<>();summary.put("schema",original.get("schema"));summary.put("status","PARTIAL_REPORT_BYTE_BUDGET");summary.put("completeEvidence","same snapshot.db original source rows and protected checkpoint bodies");
+            for(Map.Entry<String,Object> e:original.entrySet())if(e.getValue() instanceof Map){Map<?,?> value=(Map<?,?>)e.getValue();Map<String,Object> row=new LinkedHashMap<>();row.put("status",value.get("status"));row.put("records",value.get("records"));row.put("source",value.get("source"));row.put("sourceProjectionSha256",HashingSU1.text(JsonR27.write(value)));row.put("bodyOmittedByByteBudget",true);summary.put(e.getKey(),row);}
+            out.put("sourceEvidenceR335",summary);json=JsonR27.write(out)+"\n";
+            if(json.getBytes(StandardCharsets.UTF_8).length>JSON_MAX_BYTES)throw new IllegalStateException("R335_DIAG_JSON_BOUND");
+        }
+        return json;
+    }
+    public static String renderR335(Diagnosis D,Ledger L,Map<String,Object> original) {
+        StringBuilder out=new StringBuilder("# 同快照原件补充（R33.5）\n\n旧诊断快照序列：").append(D.S.seq).append("。下表读取同一报告数据库；每项保留自己的检查点、水位、遗漏和缺件，不代表自然质量通过。\n\n| 来源 | 实际状态 | 已见数量 |\n|---|---|---|\n");
+        for(Map.Entry<String,Object> e:original.entrySet())if(e.getValue() instanceof Map){Map<?,?> r=(Map<?,?>)e.getValue();out.append('|').append(e.getKey()).append('|').append(String.valueOf(r.get("status"))).append('|').append(r.get("records")==null?"UNKNOWN":r.get("records")).append("|\n");}
+        out.append("\nGENERATION 使用相同已结算机会的原父子逐期配对；其描述性区间不替代预登记自然资格。OPERATORS 分列原先验和真实DEV尝试。REPAIR 未保存的拒绝原因保持 UNKNOWN。ATOMS/TEACHERS 按实际矩阵检查点与来源hash展示；STORAGE 未测字段不填0。完整字段见 JSON 的 sourceEvidenceR335。\n\n");
+        out.append(renderR30(D,L));return bound(out.toString());
+    }
+
     /** Preserves raw same-view rows, including hashes/references, without treating row presence as quality. */
     public static Map<String,Object> evidenceR30(String source,Object rawCount,Object rawRows,String emptyReason,String action) {
         Long count=null;if(rawCount instanceof Number){double n=((Number)rawCount).doubleValue();if(Double.isFinite(n)&&n>=0&&n==Math.rint(n)&&n<Long.MAX_VALUE)count=((Number)rawCount).longValue();}
@@ -913,12 +953,36 @@ public final class UpgradeDiagnosisSU2 {
         return out;
     }
 
+    /** Retry only an unreceived, still-current S5 prescription. Existing ledger persistence
+     * is the pending queue; an existing shadow row in any state prevents replacement/reopening. */
+    public static boolean retryPendingContmatR33(Finding finding, Entry entry, long seq, boolean alreadyOpened) {
+        return !alreadyOpened && finding != null && entry != null && seq >= 0
+            && "S5".equals(finding.code) && "".equals(finding.scope)
+            && "ADD_MEMBER CONTMAT{}".equals(finding.presc)
+            && finding.presc.equals(entry.presc) && "PENDING".equals(entry.outcome)
+            && "S5".equals(entry.code) && "".equals(entry.scope)
+            && entry.since >= 0 && entry.since <= seq && entry.last == seq
+            && !"RESOLVED".equals(entry.status);
+    }
+
     // ------------------------------------------------------------------------------------------------ shadows
     /**
      * The shadow challenger text for a genome-level prescription, or null when the prescription is a parameter or is
      * executed automatically: ADD_MEMBER fam{params} adds a calibrated one-member program to the tier committee
      * (replacing the last of five); TIER_COVERAGE F15 0.30 runs the same committee at 30% frequency.
      */
+    /** The current S5 child adds a legal permutation readout to the new member
+     * only. Parent programs and their existing birth bindings remain byte-exact. */
+    public static String shadowTextR335(String presc,String championText){
+        if(!"ADD_MEMBER CONTMAT{}".equals(presc)||!CommitteeSU2.isCommittee(championText))return null;
+        CommitteeSU2 parent=CommitteeSU2.parse(championText);if(!parent.legalReadoutR26())return null;
+        for(ModelGenomeSU2 old:parent.subs)for(ModelGenomeSU2.Member member:old.members)if("CONTMAT".equals(member.kind))return null;
+        Map<String,String> parameters=new TreeMap<>();parameters.put("_legal_head","PERMUTATION_V1");
+        ModelGenomeSU2 sub=new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("CONTMAT",parameters,1.0)),"STATIC",false,"MASS",parent.coverage,.2,true);
+        List<ModelGenomeSU2> children=new ArrayList<>(parent.subs);if(children.size()>=CommitteeSU2.MAX_MEMBERS)children.set(children.size()-1,sub);else children.add(sub);
+        return new CommitteeSU2(children,parent.coverage).text();
+    }
+
     public static String shadowText(String presc, String championText) {
         if (championText == null || !CommitteeSU2.isCommittee(championText)) return null;
         CommitteeSU2 c = CommitteeSU2.parse(championText);
