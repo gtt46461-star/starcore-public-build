@@ -1,15 +1,17 @@
 # 当前修订的复演与签收证据
 
-本页对应2026-11-20的最终组合：9阶段、66项原业务问题、164次完整文件操作、138条生产路径、累计15份Java后态及1份Android清单。当前原始回执集中在仓库 [`construction/verification/STARCORE_R33_5_20261120/second-review/`](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/verification/STARCORE_R33_5_20261120/second-review/README.md)，状态汇总在上级 [HANDOFF.json](../HANDOFF.json)。旧53套宿主和2026-11-19回执保留原始范围，不能替代本轮组合源码的检查。
+当前全批入口见[第三次复核](../REVIEW_THIRD_20261120.md)与[一条完整施工指令](../CODEX_EXECUTE.md)。实际签署与现场原件按本次修订验收。
 
-## 1. 原件和21项复核命令
+本页对应2026-11-20的最终组合：9阶段、66项原业务问题、164次完整文件操作、138条生产路径、累计15份Java后态及1份Android清单。当前原始回执集中在仓库 [`construction/verification/STARCORE_R33_5_20261120/third-review/`](https://github.com/gtt46461-star/starcore-public-build/blob/main/construction/verification/STARCORE_R33_5_20261120/third-review/README.md)，状态汇总在上级 [HANDOFF.json](../HANDOFF.json)。旧53套宿主和2026-11-19回执保留原始范围，不能替代本轮组合源码的检查。
+
+## 1. 原件和23项复核命令
 
 ```bash
 python3 -B "$REVIEW/verify_review.py"
 python3 -B "$REVIEW/check_plan.py" "$PLAN"
 ```
 
-PLAN为prepare.py还原的认证原卷，REVIEW为同级current-review。check_plan运行21条实际命令，覆盖封包、两份033原报告、版本/累计文件、B04数值、严格结算窗口、交付预检、导出及终审拒签。它不产生APK或自然资格。B04数值回归的17763项是数值检查点计数；报告链另有下面的396项断言。
+PLAN为prepare.py还原的认证原卷，REVIEW为同级current-review。check_plan运行23条实际命令，覆盖封包、两份033原报告、版本/累计文件、B04数值、严格结算窗口、交付预检、导出及终审拒签。它不产生APK或自然资格。B04数值回归的17763项是数值检查点计数；报告链另有下面的396项断言。
 
 ## 2. 与安装器相同清单的十个全源码前缀
 

@@ -1,6 +1,6 @@
 # STARCORE R33.5 当前施工方案 · 2026-11-20 再次复核
 
-从[本轮自检与施工补正](REVIEW_SECOND_20261120.md)和[完整Codex任务书](CODEX_EXECUTE.md)开始。原业务范围为 **9阶段、66项问题**；当前有效安装范围为 **164次文件操作、138条不同生产路径**。V19—V25补正归入既有工单。累计审阅15份Java全文和1份Android清单，逐项归属与可提取的完整文件见[66项工单与当前代码](WORK_ORDERS.json)。逐项数量与哈希见[FINAL_SCOPE.json](FINAL_SCOPE.json)及[生产补正清单](production/OVERLAY.json)。
+从[本轮自检与施工补正](REVIEW_THIRD_20261120.md)和[完整Codex任务书](CODEX_EXECUTE.md)开始。原业务范围为 **9阶段、66项问题**；当前有效安装范围为 **164次文件操作、138条不同生产路径**。本轮 V26—V32 归入既有工单，工单索引逐份覆盖 365 项附件。累计审阅15份Java全文和1份Android清单，逐项归属与可提取的完整文件见[66项工单与当前代码](WORK_ORDERS.json)。逐项数量与哈希见[FINAL_SCOPE.json](FINAL_SCOPE.json)及[生产补正清单](production/OVERLAY.json)。
 
 ## 一次准备完整施工材料
 
@@ -32,7 +32,7 @@ python3 -B "$REVIEW/prepare.py" "$WORK/33.5.zip" "$WORK/prepared"
 | B07 | 5 | 15 | 同SELECT故障原行→对象→诊断、8条有限需求与独立能力提案、表页/图表语义、真实修改→复报。 |
 | B08 | 4 | 0 | 全九批累计源码、实际版本/原签APK/可恢复bundle、三次真实导出、同构建32组终审与目标机长测。 |
 
-操作数按每批一次新增或替换计，跨批重复路径重复计操作。B06/B08业务安装差异为零，版本事务、测试、签名与现场签收各自完成。原142次/129路径为原封包口径；当前增加22次操作、9条不同路径，详见FINAL_SCOPE。原66问题全文仍在PLAN的 `control/ISSUE_REGISTER_R335.json`、`control/逐批问题与文件_R335.csv` 和各 `Bxx/issues/`；本轮补正对应关系见[自检记录](REVIEW_SECOND_20261120.md)和[报告补正工单](reports/closure/REPORT_GAP_WORK_ORDERS.json)。
+操作数按每批一次新增或替换计，跨批重复路径重复计操作。B06/B08业务安装差异为零，版本事务、测试、签名与现场签收各自完成。原142次/129路径为原封包口径；当前增加22次操作、9条不同路径，详见FINAL_SCOPE。原66问题全文仍在PLAN的 `control/ISSUE_REGISTER_R335.json`、`control/逐批问题与文件_R335.csv` 和各 `Bxx/issues/`；本轮补正对应关系见[自检记录](REVIEW_THIRD_20261120.md)和[报告补正工单](reports/closure/REPORT_GAP_WORK_ORDERS.json)。
 
 ## 唯一批次安装入口
 

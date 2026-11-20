@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -44,6 +45,70 @@ def proof_paths(execution, root, assertion_id):
     return [read(p) for p in paths]
 
 
+def verify_b08_handoff(repo, stage, completed):
+    """Match the transfer to B07's actual release and the first B08 version commit."""
+    versions = completed['completedVersions']
+    snapshots = completed['registeredPredecessorChecks']
+    handoff = stage.get('sourceHead', '')
+    require(isinstance(handoff, str) and re.fullmatch(r'[0-9a-f]{40}', handoff), 'B08_SOURCE_COMMIT_REQUIRED')
+    require(versions[-2]['stage'] == 'B07' and versions[-1]['stage'] == 'B08', 'B08_COMPLETED_HISTORY')
+    git = ['git', '--no-replace-objects', '-C', str(repo)]
+    release_file = 'release/release_manifest.json'
+    # Additional clean commits between release stages are legal. Verify the B07
+    # version introducing commit and the actual transferred head independently.
+    source_version_commit = subprocess.check_output(
+        git + ['rev-list', '--max-count=1', '--full-history', '--topo-order', handoff, '--', release_file],
+        text=True).strip()
+    require(source_version_commit == snapshots[-2]['versionCommit'], 'B08_HANDOFF_WRONG_B07_VERSION')
+    subprocess.run(git + ['merge-base', '--is-ancestor', handoff, snapshots[-1]['versionCommit']], check=True)
+    expected_versions = [*versions[:-2], dict(versions[-2], commit=handoff)]
+    expected_checks = [*snapshots[:-2], dict(snapshots[-2], commit=handoff)]
+    require(stage.get('orderedCommittedVersions') == expected_versions
+            and stage.get('registeredPredecessorChecks') == expected_checks,
+            'B08_HANDOFF_DIFFERS_FROM_NINE_STAGE_HISTORY')
+
+
+def match_final_delivery(all_stages, sources, commit, apk, candidate):
+    last = all_stages['stages'][-1]
+    require(last['sourceCommit'] == sources['sourceCommit'] == commit and last['apkSha256'] == apk
+            and last['candidateReceiptSha256'] == sha(candidate / 'DELIVERY.json')
+            and last['deliveryZipSha256'] == sources['receivedBuild']['downloadSha256']
+            and all(last[key] == sources[key] for key in ('sourceTree', 'sourceArchiveSha256', 'gitBundleSha256')),
+            'B08_DELIVERY_DIFFERS_FROM_NINE_STAGE_DELIVERIES')
+
+
+def original_closure(execution, root, score):
+    """Name the remaining obligations on the two independently scored ledgers."""
+    envelopes = [envelope for suffix in ('POS', 'TRACE')
+                 for envelope in proof_paths(execution, root, 'B08.3.' + suffix)]
+    result = {}
+    for field, section, total in [('current222Ledger', 'currentOriginalClauses', 222),
+                                  ('current1832Ledger', 'currentOriginalRequirements', 1832)]:
+        paths = {referenced(root, env[field]) for env in envelopes}
+        require(len(paths) == 1, 'MIXED_CLOSURE_LEDGERS:' + field)
+        path = paths.pop()
+        rows = read(path)['rows']
+        observed = sum(r['status'] == 'PASS' for r in rows)
+        require(len(rows) == len({r['id'] for r in rows}) == score[section]['denominator'] == total
+                and observed == score[section]['verified'], 'CLOSURE_COUNT_DRIFT:' + field)
+        result[field] = {
+            'ledgerSha256': sha(path), 'denominator': total, 'verified': observed,
+            'pending': [{'id': r['id'], 'status': r['status'], 'reason': r['dispositionReason']}
+                        for r in rows if r['status'] != 'PASS']}
+    return result
+
+
+def record_completion(out, require_full):
+    out['engineeringStatus'] = 'VERIFIED_32_ENGINEERING_GROUPS_AND_REVIEW_CHECKS'
+    all_originals = all(not row['pending'] for row in out['originalClosure'].values())
+    out['wholePlanStatus'] = ('ALL_ORIGINAL_LEDGERS_REVIEWED_PASS' if all_originals
+                              else 'PENDING_ORIGINAL_OBLIGATIONS')
+    out['status'] = out['engineeringStatus']
+    if require_full:
+        out['status'] = ('VERIFIED_ENGINEERING_AND_ALL_ORIGINAL_LEDGERS' if all_originals
+                         else 'INCOMPLETE_FULL_CLOSURE')
+
+
 def run(args, out, temp):
     base = load_module(REVIEW / 'prepare.py', 'restore')
     seal = load_module(REVIEW / 'verify_review.py', 'review_seal').verify(REVIEW)
@@ -58,11 +123,11 @@ def run(args, out, temp):
     require(stage.get('stage') == 'B08' and stage.get('reviewManifestSha256') == seal, 'WRONG_B08_HANDOFF')
     git = ['git', '-C', str(args.repo)]
     require(subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip() == commit, 'FINAL_SOURCE_HEAD')
-    subprocess.run(git + ['merge-base', '--is-ancestor', stage['sourceHead'], commit], check=True)
     manifest = json.loads(subprocess.check_output(git + ['show', commit + ':release/release_manifest.json']))
     require(manifest['versionName'].startswith('R33.5-B08-') and manifest['versionCode'] == exe['versionCode']
             and manifest['versionName'] == exe['versionName'], 'FINAL_B08_VERSION')
     out['completedSource'] = verify_completed_source(plan, args.repo, REVIEW, stage)
+    verify_b08_handoff(args.repo, stage, out['completedSource'])
 
     def invoke(label, script, *argv):
         process = subprocess.run([sys.executable, '-B', str(script), *map(str, argv)],
@@ -75,10 +140,17 @@ def run(args, out, temp):
 
     invoke('baseSeal', plan / 'verification/verify_package.py')
     release = temp / 'release.json'
+    extra = ['--delivery-zip', args.delivery_zip] if args.delivery_zip else []
     invoke('signedRelease', REVIEW / 'source/verify_delivery.py', '--plan', plan, '--repo', args.repo,
            '--candidate', args.candidate, '--dumpsys', args.dumpsys, '--baseline-apk', args.baseline_apk,
-           '--aapt', args.aapt, '--apksigner', args.apksigner, '--out', release, '--source-out', temp / 'source.json')
+           '--aapt', args.aapt, '--apksigner', args.apksigner, '--out', release, '--source-out', temp / 'source.json', *extra)
     out['receivedSources'] = read(temp / 'source.json')
+    deliveries_out = temp / 'deliveries.json'
+    invoke('allStageIntake', REVIEW / 'replay/verify_all_deliveries.py', '--plan', plan, '--repo', args.repo,
+           '--deliveries', args.deliveries, '--baseline-apk', args.baseline_apk, '--aapt', args.aapt,
+           '--apksigner', args.apksigner, '--out', deliveries_out)
+    out['allStageDeliveries'] = read(deliveries_out)
+    match_final_delivery(out['allStageDeliveries'], out['receivedSources'], commit, apk, args.candidate)
     actual = read(release)
     require(actual['sourceCommit'] == commit and actual['apk']['sha256'] == apk and
             actual == read(referenced(root, exe['finalBuild']['releaseReceipt'])), 'MIXED_FINAL_RELEASE_OR_BUILD')
@@ -91,6 +163,7 @@ def run(args, out, temp):
     out['currentOriginalRequirements'] = scored['currentOriginalRequirements']
     require(out['engineeringGroups']['verified'] == out['engineeringGroups']['denominator'] == 32,
             'PENDING_ENGINEERING_GROUPS')
+    out['originalClosure'] = original_closure(exe, root, scored)
     trace_paths = {referenced(root, e['rawTraceManifest']) for suffix in ('POS', 'TRACE')
                    for e in proof_paths(exe, root, 'B08.2.' + suffix)}
     require(len(trace_paths) == 1, 'MIXED_TRACE_MANIFESTS')
@@ -99,10 +172,10 @@ def run(args, out, temp):
     invoke('runtimeTools', REVIEW / 'runtime/prepare_tools.py', plan, tools)
     # The short B08.2 join and the 100-period timing window may have distinct calendars.
     window = args.window_bundle or bundle
-    invoke('enabledWindow', REVIEW / 'runtime/check_window.py', '--tools', tools, '--bundle', window,
-           '--evidence', root, '--start', args.start, '--end', args.end, '--commit', commit, '--apk', apk)
+    out['enabledWindow'] = json.loads(invoke('enabledWindow', REVIEW / 'runtime/check_window.py', '--tools', tools, '--bundle', window,
+           '--evidence', root, '--start', args.start, '--end', args.end, '--commit', commit, '--apk', apk))
     research = REVIEW / 'research/check_research.py'
-    invoke('strictTrace', research, 'trace', plan, bundle, root, commit, apk, '--tools', tools)
+    out['strictTrace'] = json.loads(invoke('strictTrace', research, 'trace', plan, bundle, root, commit, apk, '--tools', tools))
     refs = {referenced(root, raw) for env in proof_paths(exe, root, 'B07.4.TRACE')
             for raw in env['rawArtifacts']}
     chains = {p.resolve(strict=True) for p in args.followup}
@@ -117,27 +190,30 @@ def run(args, out, temp):
     for n, chain in enumerate(sorted(chains), 1):
         next_case = read(referenced(chain.parent, read(chain)['nextCase']))
         require(next_case['commit'] == commit, 'FOLLOWUP_FROM_OTHER_COMMIT')
-        outcome = json.loads(invoke('researchFollowup' + str(n), research, 'followup', plan, chain))
-        out['researchFindings'].append({'caseKey':outcome['caseKey'], 'chainSha256':sha(chain),
-                                       'effect':outcome['effect']})
+        outcome = json.loads(invoke('researchFollowup' + str(n), research, 'followup', plan, chain, '--repo', args.repo))
+        out['researchFindings'].append(dict(outcome, chainSha256=sha(chain)))
         require(outcome['effect'] not in ('EVIDENCE_MISSING', 'EFFECT_UNPROVEN'), 'PENDING_FOLLOWUP_EVIDENCE')
-    out['status'] = 'VERIFIED_32_ENGINEERING_GROUPS_AND_REVIEW_CHECKS'
+    record_completion(out, args.require_full_closure)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     fields = ('plan', 'repo', 'candidate', 'dumpsys', 'baseline-apk', 'aapt', 'apksigner', 'execution',
-              'evidence', 'stage-receipt', 'start', 'end')
-    for field in (*fields, 'window-bundle'):
+              'evidence', 'stage-receipt', 'start', 'end', 'deliveries')
+    for field in (*fields, 'window-bundle', 'delivery-zip'):
         parser.add_argument('--' + field, type=Path)
     parser.add_argument('--followup', action='append', type=Path, default=[])
+    parser.add_argument('--require-full-closure', action='store_true',
+                        help='Require all 222 clauses and all 1832 requirements after the engineering gates pass')
     args = parser.parse_args(argv)
     absent = [key for key in fields if not (p := getattr(args, key.replace('-', '_'))) or not p.exists()]
     if not args.followup or any(not p.is_file() for p in args.followup):
         absent.append('followup')
-    if args.window_bundle and not args.window_bundle.is_file():
-        absent.append('window-bundle')
-    result = {'status':'INCOMPLETE', 'checks':{}, 'missingInputs':absent, 'naturalQuality':'SEPARATE_REVIEW'}
+    for label in ('window-bundle', 'delivery-zip'):
+        optional = getattr(args, label.replace('-', '_'))
+        if optional and not optional.is_file():
+            absent.append(label)
+    result = {'status':'INCOMPLETE', 'checks':{}, 'missingInputs':absent, 'wholePlanStatus':'INCOMPLETE', 'naturalQuality':'SEPARATE_REVIEW'}
     if not absent:
         try:
             with tempfile.TemporaryDirectory() as temporary:

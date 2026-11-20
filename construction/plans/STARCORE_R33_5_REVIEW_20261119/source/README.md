@@ -1,5 +1,7 @@
 # R33.5 源码身份、构建预检与各批APK验收
 
+当前全批入口见[第三次复核](../REVIEW_THIRD_20261120.md)与[一条完整施工指令](../CODEX_EXECUTE.md)。实际签署与现场原件按本次修订验收。
+
 本页使用2026-11-20当前修订：**9阶段、66项施工问题、164次文件操作、138条不同生产路径**。完整后态与跨批前态以[生产补正清单](../production/OVERLAY.json)和[最终范围](../FINAL_SCOPE.json)为准；批次安装统一使用[当前执行入口](../replay/README.md)。
 
 ## 正式源码与两份报告的身份
@@ -86,3 +88,17 @@ python3 -B "$REVIEW/source/verify_delivery.py" \
 该预演检出是浅克隆，报告明确记录这一事实。它不能充作完整bundle、正式APK、原签覆盖安装、设备长测或自然策略质量证据。正式发布继续执行上面的完整历史预检、实际构建签名、空仓bundle恢复和现场验收；本轮源码回放版本只标识预演，不据此推定目标手机当前版本。
 
 本轮接收方的 `verify_delivery.py` 同时检查收到的源码 ZIP、完整 Git bundle 和 APK。需要单列源码回执时加 `--source-out "$RAW/received-sources.json"`。检查在新建空 bare 仓独立恢复 bundle，重读 ZIP 全部成员和模式，核对源码树、提交以及正式 033 祖先。B08 终审自动把结果写入 `receivedSources`。[接收端校验与拒绝用例](test_check_source_delivery.py)
+
+
+## P00 方案绑定与接收端复核
+
+P00 应把 `release/r33_plan_binding.json` 随首次版本事务提交。该文件在施工检出中由封存计划生成。已有绑定须核对六项值及 HEAD 字节；首次生成使用下面的原工具。
+
+```bash
+python3 -B "$SOURCE/tools/r33/verify_plan_binding.py" --repo "$SOURCE" --plan "$PLAN" --init-binding
+git -C "$SOURCE" add -- release/r33_plan_binding.json
+```
+
+在版本事务完成并提交后运行本页的 `preflight_delivery.py`。收据的 `planBinding` 为 `VERIFIED_AND_COMMITTED` 才可尝试正式交付，若为缺件、未提交或内容不匹配，先在对应施工检出处理并重新预检。
+
+各批 `verify_delivery.py` 接收同一作业的原始候选目录。它从已提交源码及认证计划重新生成构建身份，核对 APK 内 R31、R33.4 两份身份和随附 JSON，检查原始 Gradle 日志、完整 CI 收据及其源码/方案/成品摘要。收到的总 ZIP 按成员名、数量、索引与完整字节逐个核实。默认在候选目录及其父目录查找原名 `*-APK-SOURCE-EVIDENCE.zip`，单批验证可用 `--delivery-zip` 指向另存的实收原件。B08 终审将总 ZIP 置于上述默认位置。保留 `receivedSources.receivedBuild` 的 `downloadSha256`、日志、APK 和构建收据 SHA，供发布后从实际下载件比对。实际签名检查继续使用原 033、aapt、apksigner 及原 B08 签名核验程序。直接下载的文件、实际覆盖安装和运行结果按各自原件签收。

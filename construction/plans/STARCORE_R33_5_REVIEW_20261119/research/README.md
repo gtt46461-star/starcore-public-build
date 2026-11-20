@@ -1,5 +1,7 @@
 # B04 至 B08 研究证据、训练恢复与主链核查
 
+当前全批入口见[第三次复核](../REVIEW_THIRD_20261120.md)与[一条完整施工指令](../CODEX_EXECUTE.md)。实际签署与现场原件按本次修订验收。
+
 本页随当前仓库修订一起使用。命令中的 `PLAN` 是已还原并核验的 `STARCORE_R33_5_20261118` 目录，`REVIEW` 是本页上一级的当前修订根目录，即准备结果中的 `current-review`，`OUT` 是本次独立输出目录。先执行原包 `verification/verify_package.py` 和当前 `verify_review.py`。本页脚本从同一原包读取原校验逻辑，直接读取一致性 SQLite 快照或哈希绑定的原始 JSON。结果归入对应批次的 POS、NEG、TRACE 原件，沿用原工单与资格协议。
 
 ## 执行链与当前源码身份
@@ -29,11 +31,25 @@ python3 -B "$PLAN/B06/host/run_host.py" --out "$OUT/b06-qualification-host"
 
 ```bash
 python3 -B "$REVIEW/research/check_research.py" paired "$SNAPSHOT_DB" "$CHILD_KEY" "$PARENT_KEY" "$THROUGH_EXCLUSIVE"
-python3 -B "$REVIEW/research/check_research.py" followup "$PLAN" "$CHAIN_JSON"
+python3 -B "$REVIEW/research/check_research.py" followup "$PLAN" "$CHAIN_JSON" --repo "$CANDIDATE_REPO"
 python3 -B "$REVIEW/research/check_research.py" trace "$PLAN" "$TRACE_JSON" "$EVIDENCE_ROOT" "$SOURCE_COMMIT" "$APK_SHA256"
 ```
 
 CHAIN_JSON 使用原 B07/verify/check_improvement.py::compare_followup 的 firstCase、work、nextCase 引用合同。若施工后还没有新的预登记实验，维持缺证结论。两个原报告只作施工前现场指标，不能用作本轮施工后的复报。SQLite 的窗口测量仅针对原候选本地序号，由独立日历与冻结记录负责业务机会分母；行数为零时均值为空。报告来源缺少该一致性库时，填写待采集原件，不补造数据。
+
+## 将复报结论绑定到原报告和实际源码
+
+本轮 B07 / D11、B08 / C07 复核发现，原效果链中的 firstCase、work、nextCase 可以完全自洽，同时没有提交两次原始报告，也没有提供对应的 Git 对象。原八期全胜夹具在这种情况下能输出“本次实验测得改善”。当前正式 followup 入口要求同时提供下面三个按相对路径和 SHA-256 引用的原件，并在本次候选工程里重验。
+
+| chain.productionEvidence 字段 | 应取的原件 |
+|---|---|
+| firstReport | 施工前实际报告的 JSON，含 capabilityRepairR32 原章节及完整 165 个对象。 |
+| nextReport | 改动后的候选报告 JSON，同一对象按 group 和 id 关联；水位取报告原值。 |
+| repairWork | 原卷 B07/replay_r335/case_loop_r335.py 的 starcore.r335.repair-work.v1 工单，保留真实前后提交、已改路径、完整字节 SHA 和 POS、NEG、TRACE 原日志。 |
+
+三个引用均为带 path 和 sha256 的对象，路径相对 CHAIN_JSON 所在目录。repairWork 的 verificationReferences 继续相对该工单所在目录。每条旧式 gateRefs 的 rawRef 指向相同角色的 verificationReferences 收据正文，其摘要应相同；收据内再按原合同指向实际执行日志。firstCase 的 caseKey、needKey、sourceFile、method、commit、observedAt 从施工前报告案例读取；work 的 ownerGate 使用已登记的施工组，其阶段前缀与 repairWork.ownerStage 一致。work.appliedAt 取 repairWork.appliedAtUnixMs，nextCase.commit 和 observedAt 取复报的源码提交与十进制 readWatermark。各字段示例可直接复跑 [test_research.py](test_research.py) 的 test_joined_originals_and_git。
+
+校验器用两次原始报告重新提取 165 个对象，再按同一案例重跑 Git 祖先、前后文件、三类现场回执及原日志的独立检查。原检查器通过后，效果评价才可进入本次复报结论。输出单列 reportWork 的前后提交、实际变更清单、两份报告及工单 SHA、同缺口或已变动的观察结果。工程修改可完成而实测效果仍无优势，效果比较始终保留 realAuthorized=false。部署前两份 033 旧报告的源码身份相同，正式复报需要新候选原件。
 
 ## B04 实际训练计数与恢复回归
 

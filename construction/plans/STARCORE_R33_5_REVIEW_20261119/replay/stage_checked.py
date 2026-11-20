@@ -75,6 +75,12 @@ def ancestry(tool, generator, repo, target, baseline):
     if current is None or current[0] != expected:
         raise ValueError('EXPECTED_PREVIOUS_STAGE_AT_HEAD:' + expected)
     verify_four(tool, generator, repo, head, current)
+    # A later commit can repair a companion file without changing the manifest.
+    # The release transaction itself must have contained the same four identities.
+    version_commit = tool.git(repo, 'rev-list', '--max-count=1', '--full-history',
+                              '--topo-order', head, '--', VERSION_FILES[0]).decode().strip()
+    if version_commit != head:
+        verify_four(tool, generator, repo, version_commit, current)
     chain = [(current[0], current[1], head)]
     upper = head
     for previous in reversed(tool.STAGES[:index - 1]):
@@ -134,10 +140,12 @@ def registered_prefix(tool, plan, repo, history, pair, target, effective=False):
     historical completed stage snapshots may not borrow later-stage code.
     """
     cumulative = {}
+    modes = {}
     current = history[-1][2] if history else None
     active = tool.materialize(target, tool.records(target)) if history else {}
     checked_commits = []
     for name, _, commit in history:
+        modes.update({row['path']: row['mode'] for row in tool.complete_records(name)})
         for path, data in tool.materialize(name, tool.records(name)).items():
             cumulative[path] = tool.sha(data)
         if not effective and name in ('B05', 'B06', 'B07'):
@@ -158,9 +166,11 @@ def registered_prefix(tool, plan, repo, history, pair, target, effective=False):
         for path, digest in cumulative.items():
             if path in VERSION_FILES:
                 continue
-            versioned, _ = tool.committed_file(repo, version_commit, path)
+            versioned, version_mode = tool.committed_file(repo, version_commit, path)
             if versioned is None or tool.sha(versioned) != digest:
                 raise ValueError('VERSIONED_PREDECESSOR_BYTES_MISSING:' + name + ':' + path)
+            if version_mode != modes[path]:
+                raise ValueError('VERSIONED_PREDECESSOR_MODE_DIFFERS:' + name + ':' + path)
             allowed = {digest}
             # Preserve the installer's documented committed partial-port retry.
             # Only the active input HEAD may contain the current target image.
@@ -170,13 +180,17 @@ def registered_prefix(tool, plan, repo, history, pair, target, effective=False):
                     allowed.add(INVALIDATION_AFTER[target])
                 if not effective and target == 'B05' and path == pair.REL.as_posix():
                     allowed.add(pair.AFTER)
-            actual, _ = tool.committed_file(repo, commit, path)
+            actual, current_mode = tool.committed_file(repo, commit, path)
             if actual is None or tool.sha(actual) not in allowed:
                 raise ValueError('REGISTERED_PREDECESSOR_BYTES_MISSING:' + name + ':' + path)
+            if current_mode != modes[path]:
+                raise ValueError('PREDECESSOR_MODE_DIFFERS:' + name + ':' + path)
             count += 1
         checked_commits.append({'stage': name, 'commit': commit, 'versionCommit': version_commit,
                                 'registeredProductionFiles': count})
     if current is not None:
+        track_mode = tool.git(repo, 'config', '--type=bool', '--default=true', '--get',
+                              'core.filemode').strip() == b'true'
         # A new isolated checkout must not silently omit local edits to inherited
         # controlled files. Inspect the actual bytes even with Git trust flags.
         for name in set(cumulative) | set(VERSION_FILES):
@@ -186,6 +200,8 @@ def registered_prefix(tool, plan, repo, history, pair, target, effective=False):
                     or any(p.is_symlink() for p in path.parents if p != repo and p.is_relative_to(repo))
                     or path.read_bytes() != expected):
                 raise ValueError('LOCAL_PREDECESSOR_BYTES_DIFFER:' + name)
+            if track_mode and bool(path.stat().st_mode & 0o100) != (mode == '100755'):
+                raise ValueError('LOCAL_PREDECESSOR_MODE_DIFFERS:' + name)
             index = tool.git(repo, 'ls-files', '-s', '--', name).split(b' ', 2)
             if len(index) != 3 or index[0].decode() != mode or tool.git(repo, 'show', ':' + name) != expected:
                 raise ValueError('INDEX_PREDECESSOR_BYTES_DIFFER:' + name)
@@ -247,18 +263,45 @@ def copy_stage_overlay(tool, stage, repo, head, plan, pair, work):
     return overlay_tool
 
 
+def verify_reused_changes(tool, dest, head, after):
+    """Reject other pending work while leaving the developer's index and files intact."""
+    staged = tool.git(dest, 'diff', '--cached', '--no-renames', '--name-only', '-z', head, '--')
+    if set(os.fsdecode(staged).split('\0')) - set(after) - {''}:
+        raise ValueError('OUTPUT_INDEX_OUTSIDE_STAGE')
+    if tool.git(dest, 'ls-files', '--others', '--exclude-standard', '-z'):
+        raise ValueError('OUTPUT_UNTRACKED_FILES')
+    if tool.git(dest, '-c', 'core.fsmonitor=false', 'diff-files', '--name-only', '-z', '--'):
+        raise ValueError('OUTPUT_WORKTREE_DIFFERS')
+    # An ordinary diff intentionally skips entries marked assume-unchanged or
+    # skip-worktree. Inspect those checkouts with a temporary, unflagged index.
+    flags = tool.git(dest, 'ls-files', '-v', '-z').split(b'\0')
+    if any(row and (row[:1].islower() or row[:1] == b'S') for row in flags):
+        tree = tool.git(dest, 'write-tree').decode().strip()
+        with tempfile.TemporaryDirectory(prefix='r335-reuse-index-') as tmp:
+            env = dict(os.environ, GIT_INDEX_FILE=str(Path(tmp) / 'index'))
+            args = ['git', '-C', str(dest), '-c', 'core.fsmonitor=false',
+                    '-c', 'core.sparseCheckout=false', '-c', 'core.splitIndex=false']
+            subprocess.run([*args, 'read-tree', tree], env=env, check=True)
+            refresh = subprocess.run([*args, 'update-index', '-q', '--refresh'], env=env)
+            if refresh.returncode or subprocess.run([*args, 'diff-files', '--quiet', '--'], env=env).returncode:
+                raise ValueError('OUTPUT_WORKTREE_DIFFERS')
+
+
 def create_verified_checkout(tool, repo, head, dest, patch, after, receipt):
     """Keep the source's shallow boundaries when its checkout is a linked worktree."""
     dest = dest.absolute()
     if dest.is_relative_to(repo) or dest.resolve().is_relative_to(repo):
         raise ValueError('Choose output outside the source checkout')
     common = Path(tool.git(repo, 'rev-parse', '--path-format=absolute', '--git-common-dir').decode().strip())
-    ancestry = tool.git(repo, 'rev-list', '--count', head)
-    shallow = tool.git(repo, 'rev-parse', '--is-shallow-repository')
+    def visible_history(path):
+        # A shared object store can contain a shallow boundary on an unrelated
+        # branch. Compare the actual reachable commits and visible parent edges.
+        return sorted(tool.git(path, 'rev-list', '--parents', head).splitlines())
+
+    ancestry = visible_history(repo)
 
     def check_history(path):
-        if (tool.git(path, 'rev-parse', '--is-shallow-repository') != shallow
-                or tool.git(path, 'rev-list', '--count', head) != ancestry):
+        if visible_history(path) != ancestry:
             raise ValueError('OUTPUT_VISIBLE_HISTORY_DIFFERS')
 
     marker = Path('.git/r33-key-stage.json')
@@ -270,6 +313,7 @@ def create_verified_checkout(tool, repo, head, dest, patch, after, receipt):
                 or tool.git(dest, 'rev-parse', 'HEAD').decode().strip() != head):
             raise ValueError('Existing output retained. Choose a fresh directory or inspect previous work.')
         tool.verify_result(dest, after)
+        verify_reused_changes(tool, dest, head, after)
         check_history(dest)
         return 'REUSED_VERIFIED_OUTPUT'
     with tempfile.TemporaryDirectory(dir=dest.parent, prefix='.r335-history-') as temp:
@@ -320,6 +364,14 @@ def run_stage(tool, gen, pair, plan, repo, target, baseline, review_sha, emit=No
                 overlay = work / 'overlay'
                 overlay.mkdir()
                 active = copy_stage_overlay(tool, target, repo, head, plan, pair, overlay)
+        records = active.complete_records(target)
+        declared = {row['path']: row['mode'] for row in records}
+        if declared:
+            entries = tool.git(repo, 'ls-tree', '-z', head, '--', *declared)
+            for entry in entries.rstrip(b'\0').split(b'\0') if entries else ():
+                meta, path = entry.split(b'\t', 1)
+                if meta.split()[0].decode() != declared[os.fsdecode(path)]:
+                    raise ValueError('ACTIVE_SOURCE_MODE_DIFFERS:' + os.fsdecode(path))
         draft = work / 'stage.patch'
         receipt = active.prepare(repo, target, emit=draft, baseline=baseline)
         if receipt['sourceHead'] != head:

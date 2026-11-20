@@ -1,5 +1,7 @@
 # R33.5 当前批次安装、源码继承与终审取件
 
+当前全批入口见[第三次复核](../REVIEW_THIRD_20261120.md)与[一条完整施工指令](../CODEX_EXECUTE.md)。实际签署与现场原件按本次修订验收。
+
 本页以2026-11-20的完整生产修订为准。范围为 **9阶段、66项施工问题、164次文件操作、138条不同生产路径**，逐项数量见[最终范围](../FINAL_SCOPE.json)，问题归属见[本轮复核记录](../REVIEW_SECOND_20261120.md)。原封包142次/129路径及2026-11-19的双文件继承检查属于历史输入，不能单独作为当前完成证明。
 
 `PLAN` 指恢复并核验后的原 `STARCORE_R33_5_20261118`；`REVIEW` 指同级的当前 `current-review`，或仓库中本轮复核目录。两者均放在应用工作树外。以下路径变量须取本次作业的实际绝对路径。
@@ -85,7 +87,7 @@ python3 -B "$REVIEW/replay/prepare_export.py" --plan "$PLAN" --evidence-root "$E
 本次B08移植命令的stdout保存为 `STAGE_RECEIPT`，保留其输入提交。`EXECUTION` 是原32组终审输入，`EVIDENCE` 为原件目录。B07.4.TRACE的rawArtifacts登记全部真实后续对照链JSON；nextCase.commit绑定最终候选。仅有中间批复报时保留阶段证据，继续取得最终候选复报。
 
 ```bash
-python3 -B "$REVIEW/replay/final_review.py" --plan "$PLAN" --repo "$FINAL_SOURCE" \
+python3 -B "$REVIEW/replay/final_review.py" --require-full-closure --deliveries "$DELIVERIES" --plan "$PLAN" --repo "$FINAL_SOURCE" \
   --stage-receipt "$STAGE_RECEIPT" --candidate "$CANDIDATE" --dumpsys "$DEVICE_BEFORE_UPGRADE" \
   --baseline-apk "$BASELINE_APK" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" \
   --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --execution "$EXECUTION" \

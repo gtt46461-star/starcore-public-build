@@ -1,4 +1,4 @@
-> **当前施工方案为 [STARCORE R33.5 · 2026-11-20复核](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)。** [完整Codex任务书](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md) · [本轮查缺补漏](construction/plans/STARCORE_R33_5_REVIEW_20261119/REVIEW_SECOND_20261120.md) · [实际验证回执](construction/verification/STARCORE_R33_5_20261120/second-review/README.md) · [发布原包](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)。当前范围为9阶段、66项原问题、164次文件操作、138条不同路径。用当前prepare.py取得完整材料，用stage_checked.py依P00至B08施工；每批APK、现场与自然效果分别签收。
+> **当前施工方案为 [STARCORE R33.5 · 2026-11-20复核](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)。** [完整Codex任务书](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md) · [本轮查缺补漏](construction/plans/STARCORE_R33_5_REVIEW_20261119/REVIEW_THIRD_20261120.md) · [实际验证回执](construction/verification/STARCORE_R33_5_20261120/third-review/README.md) · [发布原包](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)。当前范围为9阶段、66项原问题、164次文件操作、138条不同路径。用当前prepare.py取得完整材料，用stage_checked.py依P00至B08施工；每批APK、现场与自然效果分别签收。
 
 ## 历史发布记录
 

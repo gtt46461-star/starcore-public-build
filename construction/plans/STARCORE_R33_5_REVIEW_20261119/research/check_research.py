@@ -75,10 +75,59 @@ def paired(db, child, parent, through):
                 naturalQualification='NOT_EVALUATED')
 
 
-def followup(plan, chain_path):
-    oracle = load_module('r335_paired_oracle', plan/'B07/verify/check_improvement.py')
-    root = chain_path.parent
-    chain = json.loads(chain_path.read_bytes())
+def pinned_module(plan, relative, name, digest):
+    path = plan / relative
+    require(hashlib.sha256(path.read_bytes()).hexdigest() == digest, 'RESEARCH_TOOL_DIGEST:' + relative)
+    return load_module(name, path)
+
+
+def verify_report_work(plan, root, chain, oracle, repo):
+    evidence = chain.get('productionEvidence')
+    require(isinstance(evidence, dict) and set(evidence) == {'firstReport', 'nextReport', 'repairWork'},
+            'ORIGINAL_REPORTS_AND_REPAIR_WORK_REQUIRED')
+    case_tool = pinned_module(plan, 'B07/replay_r335/case_loop_r335.py', 'r335_case_loop',
+                              '458a7a5ab19d4ccb40df74b7cb547f7bc6b9c1d01435c1214b2e0d1aba1d4f10')
+    require(hashlib.sha256((plan / 'B07/contracts/165_objects.csv').read_bytes()).hexdigest() ==
+            '97f800d0c0b604237678dba8a80e445d666261bdab876eb2a824ff17a106f0da', 'CASE_REGISTER_DIGEST')
+    files = {}
+    for key, ref in evidence.items():
+        name = Path(ref['path'])
+        location = (root / name).resolve(strict=True)
+        require(not name.is_absolute() and location.is_relative_to(root.resolve()), 'EVIDENCE_REFERENCE_ESCAPE')
+        files[key] = location
+    previous = oracle.read_ref(root, chain['firstCase'])
+    work = oracle.read_ref(root, chain['work'])
+    next_case = oracle.read_ref(root, chain['nextCase'])
+    with tempfile.TemporaryDirectory(prefix='r335-original-work-') as temp:
+        temp = Path(temp)
+        for key in ('firstReport', 'nextReport'):
+            case_tool.extract(files[key], evidence[key]['sha256'], temp / key)
+        original_work, _ = case_tool.read_json(files['repairWork'], evidence['repairWork']['sha256'], 1024 * 1024)
+        linked = case_tool.followup(temp / 'firstReport', temp / 'nextReport', files['repairWork'],
+                                    evidence['repairWork']['sha256'], repo, temp / 'replayed')
+        first, _ = case_tool.case_from_index(temp / 'firstReport', previous['caseKey'])
+        last, _ = case_tool.case_from_index(temp / 'nextReport', next_case['caseKey'])
+        require(linked['caseKey'] == previous['caseKey'] == next_case['caseKey']
+                and previous['needKey'] == first['needKey'] == last['needKey']
+                and previous['commit'] == linked['beforeSourceCommit']
+                and next_case['commit'] == linked['afterSourceCommit']
+                and previous['sourceFile'] == first['sourceFile'] and previous['method'] == first['sourceMethod']
+                and work['ownerGate'].split('.')[0] == original_work['ownerStage'], 'REPAIR_CASE_OR_OWNER_MISMATCH')
+        clocks = (previous['observedAt'], work['appliedAt'], next_case['observedAt'])
+        require(all(type(value) is int and value > 0 for value in clocks) and clocks ==
+                (int(first['readWatermark']), original_work['appliedAtUnixMs'], int(last['readWatermark'])),
+                'REPAIR_CLOCK_MISMATCH')
+        for original in linked['verificationOriginals']:
+            role = original['role']
+            gate = oracle.read_ref(root, work['gateRefs'][role])
+            require(gate['rawRef']['sha256'] == original['receiptSha256'], 'REPAIR_PROOF_MISMATCH:' + role)
+        return dict(caseKey=linked['caseKey'], beforeSourceCommit=linked['beforeSourceCommit'],
+                    afterSourceCommit=linked['afterSourceCommit'], actualChangedPaths=[x['path'] for x in original_work['changes']],
+                    firstReportSha256=evidence['firstReport']['sha256'], nextReportSha256=evidence['nextReport']['sha256'],
+                    workSha256=evidence['repairWork']['sha256'], followupStatus=linked['followupStatus'])
+
+
+def assess_followup(oracle, root, chain):
     result = oracle.compare_followup(root, chain)
     work = oracle.read_ref(root, chain['work'])
     next_case = oracle.read_ref(root, chain['nextCase'])
@@ -93,6 +142,16 @@ def followup(plan, chain_path):
             require(all(type(v) is int for v in (base, challenger, draw)), 'INVALID_CLOCK')
             require(max(registered, applied) < min(base, challenger)
                     and max(base, challenger) < draw <= observed, 'FOLLOWUP_WINDOW')
+    return result
+
+
+def followup(plan, chain_path, repo):
+    oracle = pinned_module(plan, 'B07/verify/check_improvement.py', 'r335_paired_oracle',
+                           '505154fe95f28398de43dcb201747b66171bfd0b9e544f877bf29125bc3f61fd')
+    root = chain_path.parent
+    chain = json.loads(chain_path.read_bytes())
+    result = assess_followup(oracle, root, chain)
+    result['reportWork'] = verify_report_work(plan, root, chain, oracle, repo)
     return result
 
 
@@ -125,10 +184,7 @@ def trace(plan, bundle, root, commit, apk, tools=None):
             tools = Path(temp) / 'tools'
             reviewed.prepare(plan, tools)
             return trace(plan, bundle, root, commit, apk, tools)
-    relative = 'verification/mainline/check_trace.py'
-    checker_path = tools / relative
-    require(hashlib.sha256(checker_path.read_bytes()).hexdigest() == reviewed.AFTER[relative],
-            'REVIEWED_FIXED_DEADLINE_CHECKER_REQUIRED')
+    checker_path = reviewed.verified_trace_path(tools)
     checker = load_module('r335_main_trace', checker_path)
     result = checker.verify(bundle, root, 'INTEGRATED', commit, apk)
     require(result['outcome'] == 'PASS', 'BASE_TRACE_INCOMPLETE')
@@ -151,6 +207,7 @@ def main():
     a = sub.add_parser('followup')
     a.add_argument('plan', type=Path)
     a.add_argument('chain', type=Path)
+    a.add_argument('--repo', required=True, type=Path)
     a = sub.add_parser('trace')
     a.add_argument('plan', type=Path)
     a.add_argument('bundle', type=Path)
@@ -163,7 +220,7 @@ def main():
         with open_frozen(args.snapshot) as db:
             result = paired(db, args.child, args.parent, args.through)
     elif args.command == 'followup':
-        result = followup(args.plan, args.chain)
+        result = followup(args.plan, args.chain, args.repo)
     else:
         result = trace(args.plan, args.bundle, args.evidence_root, args.commit, args.apk, args.tools)
     print(json.dumps(result, ensure_ascii=False))

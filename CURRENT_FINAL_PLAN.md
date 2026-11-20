@@ -1,8 +1,8 @@
-# STARCORE 当前施工方案 · R33.5 2026-11-20第二次复核
+# STARCORE 当前施工方案 · R33.5 2026-11-20第三次复核
 
-当前完整入口为 [R33.5施工方案](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)，直接执行的任务书为 [CODEX_EXECUTE.md](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md)。[本轮逐项审计](construction/plans/STARCORE_R33_5_REVIEW_20261119/REVIEW_SECOND_20261120.md) · [当前证据与验收状态](construction/verification/STARCORE_R33_5_20261120/second-review/README.md) · [机器可读范围](construction/plans/STARCORE_R33_5_REVIEW_20261119/FINAL_SCOPE.json)。
+当前完整入口为 [R33.5施工方案](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)，直接执行的任务书为 [CODEX_EXECUTE.md](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md)。[本轮逐项审计](construction/plans/STARCORE_R33_5_REVIEW_20261119/REVIEW_THIRD_20261120.md) · [当前证据与验收状态](construction/verification/STARCORE_R33_5_20261120/third-review/README.md) · [机器可读范围](construction/plans/STARCORE_R33_5_REVIEW_20261119/FINAL_SCOPE.json)。
 
-本轮在已上传方案上补正，**9阶段、66项原业务问题，最终164次文件操作、138条不同生产路径**。本次新增V19—V25，累计25条复核记录均归入既有业务工单。15份Java完整后态和1份Android清单进入批次安装。查看[逐批问题与文件索引](construction/plans/STARCORE_R33_5_REVIEW_20261119/WORK_ORDERS.json)。目录沿用20261119名称以保持入口稳定，内容版本为2026-11-20。
+本轮在已上传方案上补正，**9阶段、66项原业务问题，最终164次文件操作、138条不同生产路径**。本次新增 V26—V32，累计 32 条复核记录。全批工单索引核 365 项附件，B08 逐批打开并复验九份交付，另设全案验收。15份Java完整后态和1份Android清单进入批次安装。查看[逐批问题与文件索引](construction/plans/STARCORE_R33_5_REVIEW_20261119/WORK_ORDERS.json)。目录沿用20261119名称以保持入口稳定，内容版本为2026-11-20。
 
 1. [下载33.5.zip](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)，运行当前复核目录的prepare.py。工具还原第一卷62个缺件、17个旧件，验证6276件认证原件并带出本轮全部修订。无需继续历史75分片上传路线。
 2. 在工程外保存方案，从正式033源码`bb7b49bbcc9266bad548ec37e71403256fc06a4d`的独立Git检出开始，或从已核对的本方案合法前序阶段继续。

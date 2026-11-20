@@ -1,5 +1,7 @@
 # R33.5 原包发布与传输记录
 
+本次施工沿用认证发布附件，须配套[第三次复核与全批任务书](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md)。
+
 已发布于标签 [r33.5-plan](https://github.com/gtt46461-star/starcore-public-build/releases/tag/r33.5-plan)。该发布附件 `33.5.zip` 为 626,717,930 字节，下载后实测 SHA-256 与 GitHub 记录一致，为 `01af8e98ae4d0917b7dd3abe4bff2c44ef8e47cd80136df635cbb0441d6b3a79`。[下载原始附件](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)
 
 附件内为两个已展开的目录，共 6,214 个文件。逐个比对两卷原件后，第一卷需补 62 个缺件、替换 17 个旧件，第二卷唯一文件字节相同。合并并应用第一卷差量后，共 6,276 个文件与认证两卷内容一致。

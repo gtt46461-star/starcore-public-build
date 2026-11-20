@@ -33,6 +33,9 @@ def run(plan, review, source, out):
     manifest = json.loads((effective / 'control/APPLY_MANIFEST_R335.json').read_text())
     records = {b['id']: b['files'] for b in manifest['batches']}
     original = json.loads((repo / checked.VERSION_FILES[0]).read_text())['versionCode']
+    binding_path = 'release/r33_plan_binding.json'
+    binding_script = [sys.executable, '-B', str(repo / 'tools/r33/verify_plan_binding.py'),
+                      '--repo', str(repo), '--plan', str(plan)]
     receipts = []
     retained = {}
     for batch in tool.STAGES:
@@ -53,7 +56,12 @@ def run(plan, review, source, out):
         tx = out / ('version-' + batch)
         advance.prepare(repo, tx, original, batch, '2026-11-20')
         advance.apply(repo, tx)
-        tool.git(repo, 'add', '--', *checked.VERSION_FILES)
+        version_files = list(checked.VERSION_FILES)
+        if batch == 'P00':
+            created = subprocess.check_output([*binding_script, '--init-binding'], text=True)
+            (out / 'P00-plan-binding.json').write_text(created, encoding='utf-8')
+            version_files.append(binding_path)
+        tool.git(repo, 'add', '--', *version_files)
         tool.git(repo, '-c', 'user.name=R33.5 source rehearsal', '-c', 'user.email=rehearsal@localhost',
                  '-c', 'commit.gpgsign=false', 'commit', '--quiet', '-m', 'Isolated reviewed source stage ' + batch)
         commit = tool.git(repo, 'rev-parse', 'HEAD').decode().strip()
@@ -79,10 +87,15 @@ def run(plan, review, source, out):
         (out / (batch + '-receipt.json')).write_text(json.dumps(item, ensure_ascii=False, indent=2) + '\n')
         receipts.append(item)
         print(json.dumps({k: v for k, v in item.items() if k != 'stageReceipt'}), flush=True)
+    readback = json.loads(subprocess.check_output([*binding_script, '--require-clean'], text=True))
+    if (tool.git(repo, 'show', receipts[0]['commit'] + ':' + binding_path) != (repo / binding_path).read_bytes()
+            or readback['source_commit'] != receipts[-1]['commit']):
+        raise ValueError('REHEARSAL_PLAN_BINDING_HANDOFF_DIFFERS')
+    (out / 'B08-plan-binding.json').write_text(json.dumps(readback, indent=2) + '\n', encoding='utf-8')
     result = {'schema': 'STARCORE_R335_EFFECTIVE_SOURCE_REHEARSAL_20261120',
               'scope': 'ISOLATED_REAL_033_GIT_SOURCE_REHEARSAL_NO_APK_DEVICE_OR_QUALITY_CLAIM',
               'sourceBaseline': tool.BASE, 'reviewManifestSha256': seal,
-              'productionReview': summary, 'stages': receipts, 'status': 'PASS',
+              'productionReview': summary, 'stages': receipts, 'planBinding': readback, 'status': 'PASS',
               'candidateDirectory': str(repo)}
     (out / 'RESULT.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
     return result

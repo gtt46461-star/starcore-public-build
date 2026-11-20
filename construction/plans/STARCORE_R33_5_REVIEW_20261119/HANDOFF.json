@@ -1,8 +1,8 @@
 {
-  "revision": "R33.5-REVIEW-20261120-R2",
+  "revision": "R33.5-REVIEW-20261120-R3",
   "status": "PLAN_REVIEWED_AND_CURRENT_SOURCE_REPRODUCED",
   "repository": "gtt46461-star/starcore-public-build",
-  "reviewedFromRepositoryCommit": "325fe67c7999ee8ea5fec5b9c25a24f4af57bbe1",
+  "reviewedFromRepositoryCommit": "041ba168a0da48e4b0479db34cbaa2e420a7d31d",
   "sourceBaseline": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
   "formal033ApkSha256": "8f0cb6e6eadbce5787cffde310a6cbf204d43962e636fd9ebedf6e66556fb763",
   "release": {
@@ -18,19 +18,19 @@
     "redownloadedAndMatched": true
   },
   "scope": {
-    "revision": "R33.5-REVIEW-20261120-R2",
+    "revision": "R33.5-REVIEW-20261120-R3",
     "sourceBaseline": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
     "stageCount": 9,
     "constructionIssueCount": 66,
-    "reviewFindingCount": 25,
+    "reviewFindingCount": 32,
     "newReviewRecords": [
-      "V19",
-      "V20",
-      "V21",
-      "V22",
-      "V23",
-      "V24",
-      "V25"
+      "V26",
+      "V27",
+      "V28",
+      "V29",
+      "V30",
+      "V31",
+      "V32"
     ],
     "originalFileOperations": 142,
     "effectiveFileOperations": 164,
@@ -96,7 +96,8 @@
     ],
     "countMeaning": "Operations count stage-specific source image application; repeated paths across stages count more than once. Dynamic release four-file transactions and physical acceptance remain required.",
     "reviewedManifests": 1,
-    "currentWorkOrderIndex": "WORK_ORDERS.json"
+    "currentWorkOrderIndex": "WORK_ORDERS.json",
+    "registeredIssueArtifacts": 365
   },
   "historicalReportReconciliation": {
     "jobs": 2,
@@ -114,8 +115,8 @@
     "receipt": "verification/host-receipts.zip"
   },
   "verified": {
-    "checkPlanCommandsPassed": 21,
-    "checkPlanCommandsTotal": 21,
+    "checkPlanCommandsPassed": 23,
+    "checkPlanCommandsTotal": 23,
     "allJavaPrefixesPassed": 10,
     "allJavaPrefixesTotal": 10,
     "originalGeneratorCommandsPerPrefix": 7,
@@ -132,20 +133,26 @@
     "B04TotalSlices": 166,
     "B04Epochs": 20,
     "actualGitRehearsalStages": 9,
-    "actualGitRehearsalHead": "6bba61d08cf3494817082010b2410050144509d0",
     "allStageR967Checks": "PASS",
     "finalCompletedSourceCheck": "PASS",
     "missingNewB07FileNegative": "REJECTED_AS_REQUIRED",
-    "registeredPrefixCasesPassed": 7,
+    "registeredPrefixCasesPassed": 9,
     "overlayCasesPassed": 3,
     "releaseAssemblyBaseSeal": "eefe7128ed2a13065c95c31c2f424a42d3c5c3bc780fbc18ab0db1fcd6e0a43c",
-    "settlementWindowCasesPassed": 10,
+    "settlementWindowCasesPassed": 13,
     "nativeOwnerHostAssertions": 24,
     "releaseCaptureHostCases": 3,
     "shortTraceRouteCases": 1,
-    "isolatedSourceDeliveryCases": 5,
-    "linkedCheckoutCases": 2,
-    "workOrdersWithCurrentIndex": 66
+    "isolatedSourceDeliveryCases": 11,
+    "linkedCheckoutCases": 7,
+    "workOrdersWithCurrentIndex": 66,
+    "registeredIssueArtifactChecks": 365,
+    "issueArtifactRegressions": 5,
+    "shortResearchSuite": 12,
+    "b08FinalGateCases": 11,
+    "nineDeliveryFocusedCases": 2,
+    "secondReviewSourceHead": "6bba61d08cf3494817082010b2410050144509d0",
+    "finalJavaEvidenceSource": "UNCHANGED_PRODUCTION_INPUTS: see second-review and third-review verification"
   },
   "productionReview": {
     "overlaySha256": "0f3ebc923eb66f966cee2a59ae41818b2a297cb689c590bb158f5df1428eec67",
@@ -160,21 +167,22 @@
   },
   "trainingRuleSha256": "619fbc6ba89b6448e8eb663fd303c951b5fe7628ce0f91bfa6f18015ee629bac",
   "evidence": {
-    "repositoryDirectory": "construction/verification/STARCORE_R33_5_20261120/second-review",
-    "url": "https://github.com/gtt46461-star/starcore-public-build/tree/main/construction/verification/STARCORE_R33_5_20261120/second-review",
+    "repositoryDirectory": "construction/verification/STARCORE_R33_5_20261120/third-review",
+    "url": "https://github.com/gtt46461-star/starcore-public-build/tree/main/construction/verification/STARCORE_R33_5_20261120/third-review",
     "identityRule": "Each raw receipt retains its actual start seal. Final published inventory and packaged rerun are bound in external VERIFICATION.json; unchanged production inputs are checked separately."
   },
   "releaseAcceptance": {
     "newSignedApk": "NOT_BUILT_IN_PLAN_REVIEW",
-    "formalB08PositiveAcceptance": "REQUIRES_SIGNED_CANDIDATE_AND_FIELD_ORIGINALS",
+    "formalB08PositiveAcceptance": "REQUIRES_NINE_RECEIVED_RELEASES_AND_FIELD_ORIGINALS",
     "sourceRehearsalGitHistory": "SHALLOW_WITH_BASELINE_AND_ALL_NINE_STAGE_OBJECTS_VISIBLE",
     "fullGitBundle": "RECEIVER_TESTED_WITH_FIXTURES; FORMAL_CANDIDATE_NOT_SUPPLIED",
     "V2353A_24h_72h": "NOT_RUN",
     "independentFuture": "NOT_OBSERVED_FOR_REVIEWED_CANDIDATE",
     "realEligibility": "NO_NEW_CERTIFICATE_EVIDENCE",
-    "releaseCaptureProviderOnDevice": "REQUIRES_SIGNED_APK_AND_ATTACHED_AUTHORIZED_ADB"
+    "releaseCaptureProviderOnDevice": "REQUIRES_SIGNED_APK_AND_ATTACHED_AUTHORIZED_ADB",
+    "naturalOutcome": "INDEPENDENT_NATURAL_PROTOCOL_QUALIFICATION_NOT_OBSERVED"
   },
   "finalSourceCommand": "replay/verify_completed_source.py",
   "finalAcceptanceCommand": "replay/final_review.py",
-  "firstStep": "Read README.md, REVIEW_SECOND_20261120.md, WORK_ORDERS.json and CODEX_EXECUTE.md. Assemble a fresh PLAN plus current-review from the released ZIP and run check_plan.py."
+  "firstStep": "Read CODEX_EXECUTE.md and REVIEW_THIRD_20261120.md. Use the current plan/review pair, complete nine stages and run B08 with --deliveries and --require-full-closure."
 }

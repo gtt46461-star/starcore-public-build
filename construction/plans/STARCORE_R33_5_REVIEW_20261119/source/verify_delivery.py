@@ -5,9 +5,11 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import check_source_delivery
+import received_build
 
 PACKAGE = 'com.starcore.research.r13'
 
@@ -61,6 +63,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['plan', 'repo', 'candidate', 'dumpsys', 'baseline-apk', 'aapt', 'apksigner', 'out']:
         parser.add_argument('--' + name, required=True, type=Path)
+    parser.add_argument('--delivery-zip', type=Path, help='Exact downloadable APK/SOURCE/EVIDENCE ZIP if stored separately')
     parser.add_argument('--source-out', type=Path, help='Optional receipt for the received ZIP and bundle')
     args = parser.parse_args()
     if args.source_out and (args.source_out.exists() or args.source_out.resolve() == args.out.resolve()):
@@ -71,8 +74,19 @@ def main():
     packager = check_source_delivery.packager(args.plan)
     sources = check_source_delivery.verify(packager, args.repo, args.candidate, packager.binding.BASE)
     verify = args.plan / 'B08/code/verify_release_artifacts.py'
-    subprocess.run([sys.executable, '-B', str(verify), *derived, '--baseline-apk', str(args.baseline_apk),
-                    '--aapt', str(args.aapt), '--apksigner', str(args.apksigner), '--out', str(args.out)], check=True)
+    if digest(verify) != received_build.ORIGINAL_SIGNED_CHECKER:
+        raise ValueError('UNREVIEWED_SIGNED_APK_VERIFIER')
+    sources['receivedBuild'] = received_build.verify(
+        packager, args.plan, args.repo, args.candidate, sources, args.delivery_zip)
+    with tempfile.TemporaryDirectory(prefix='r335-signed-intake-') as tmp:
+        verified = Path(tmp) / 'release.json'
+        subprocess.run([sys.executable, '-B', str(verify), *derived, '--baseline-apk', str(args.baseline_apk),
+                        '--aapt', str(args.aapt), '--apksigner', str(args.apksigner), '--out', str(verified)], check=True)
+        received_build.match_signature(read_json(verified), read_json(args.candidate / 'DELIVERY.json'),
+                                       sources['receivedBuild'])
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        with args.out.open('xb') as stream:
+            stream.write(verified.read_bytes())
     if args.source_out:
         with args.source_out.open('x', encoding='utf-8') as stream:
             json.dump(sources, stream, indent=2)

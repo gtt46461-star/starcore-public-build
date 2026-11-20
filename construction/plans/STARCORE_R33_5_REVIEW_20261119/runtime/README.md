@@ -1,5 +1,7 @@
 # B01–B04 工具校正与 B02/B08 运行窗口签收
 
+当前全批入口见[第三次复核](../REVIEW_THIRD_20261120.md)与[一条完整施工指令](../CODEX_EXECUTE.md)。实际签署与现场原件按本次修订验收。
+
 前提是已还原的原方案逐文件 seal 与当前仓库修订清单均已通过复核。`PLAN` 指已核验的 `STARCORE_R33_5_20261118`，`REVIEW` 指本页上一级的当前修订根目录，即准备结果中的 `current-review`。`TOOLS` 是方案外的新工具目录，`RAW` 是本次候选 APK 的取证目录。保持当前修订目录完整，长窗检查还会调用相邻 `research/check_research.py` 的共同时间校验。
 
 生产施工按 [replay/stage_checked.py](../replay/stage_checked.py) 统一入口逐批安装原后态和 [production/OVERLAY.json](../production/OVERLAY.json)，包括本轮B02的写入、反馈、持久化返回和日记采集，以及 B04 owner、B05 配对与 B07 报告修改。当前逐阶段数值身份来自 [production/SEMANTIC_RESULTS.json](../production/SEMANTIC_RESULTS.json) 的原 R967 完整源码重算；B07/B08 最终训练规则为 `619fbc6ba89b6448e8eb663fd303c951b5fe7628ce0f91bfa6f18015ee629bac`，旧资格兼容列表为空。`prepare_tools.py` 只生成原验收工具的校正副本；它不安装生产代码，也不能代替当前累计 R82/R967 身份及正式构建核验。四个工具的当前前、后SHA-256统一列在[prepare_tools.py](prepare_tools.py)。

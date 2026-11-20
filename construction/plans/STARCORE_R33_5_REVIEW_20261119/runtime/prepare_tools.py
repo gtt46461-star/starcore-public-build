@@ -24,6 +24,31 @@ DIRECTORIES = (
     "B03/payload", "B03/after_full", "B04", "verification/mainline", "reference/tools/r31",
 )
 
+CALENDAR = 'reference/tools/r31/collect_device_receipts.py'
+CALENDAR_SHA256 = 'c83a9e29c6893d083f20a231ff02b0e48c1231f721dfdeb8b7b81658adbdc1e7'
+TRACE = 'verification/mainline/check_trace.py'
+COLLECTOR = 'B02/enabled_window_r335/collect_enabled_window.py'
+
+
+def verified_tool(tools, relative, expected, message):
+    path = Path(tools).resolve(strict=True) / relative
+    if path.resolve(strict=True) != path or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+        raise ValueError(message)
+    return path
+
+
+def verified_trace_path(tools):
+    checker = verified_tool(tools, TRACE, AFTER[TRACE], 'REVIEWED_FIXED_DEADLINE_CHECKER_REQUIRED')
+    verified_tool(tools, CALENDAR, CALENDAR_SHA256, 'REVIEWED_CALENDAR_REQUIRED')
+    return checker
+
+
+def verified_window_path(tools):
+    collector = verified_tool(tools, COLLECTOR, AFTER[COLLECTOR], 'REVIEWED_WINDOW_COLLECTOR_REQUIRED')
+    verified_trace_path(tools)
+    return collector
+
+
 def prepare(plan, destination):
     plan = plan.resolve(strict=True)
     destination = destination.resolve()
@@ -44,6 +69,7 @@ def prepare(plan, destination):
         for name, expected in AFTER.items():
             if hashlib.sha256((working / name).read_bytes()).hexdigest() != expected:
                 raise ValueError('Patch did not reach ' + name)
+        verified_window_path(working)
         working.rename(destination)
 
 if __name__ == '__main__':

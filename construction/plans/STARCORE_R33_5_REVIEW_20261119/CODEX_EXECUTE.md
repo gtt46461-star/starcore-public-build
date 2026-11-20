@@ -1,31 +1,60 @@
-# 给 Codex 的 R33.5 完整施工指令（2026-11-20 第二次复核）
+# 给 Codex 的单次全批施工指令
 
-在 `gtt46461-star/starcore-public-build` 仓库执行。当前方案已在仓库，入口是根目录 `CURRENT_FINAL_PLAN.md`；本轮完整修订在 `construction/plans/STARCORE_R33_5_REVIEW_20261119/`，先读 `README.md`、`REVIEW_SECOND_20261120.md`、`WORK_ORDERS.json`、`FINAL_SCOPE.json`、`HANDOFF.json`、`ISSUES.md`。记录实际方案Git提交、`REVIEW_SHA256.json`摘要和`production/OVERLAY.json`摘要。原有66项业务工单、P00与B01—B08九阶段继续执行，累计V01—V25均按所属工单执行，不另开互相冲突的施工路线。
+将下面整段作为一个任务执行。验收原件的参数和目录示例见文末。
 
-## 取得可以执行的完整方案
+```text
+在 GitHub 仓库 gtt46461-star/starcore-public-build 执行 STARCORE R33.5 第三次复核版的全部 Android 施工。授权范围是 P00、B01、B02、B03、B04、B05、B06、B07、B08 九批的源码实施、复测、逐批构建、按现有授权签名、同步仓库与交付。一个任务从开工负责到最终交接。每批保存检查点后自动推进，无须等我逐批发“继续”。
 
-从仓库当前复核目录运行 `prepare.py`，使用Release标签 `r33.5-plan` 的 `33.5.zip`，按照README核对发布附件的SHA256。工具自动还原手机包缺失/旧版成员，并带出本轮全部生产后态、安装工具、补正卡和验证脚本。打开输出目录的 `START_HERE.md`。原封存方案为 `STARCORE_R33_5_20261118`（PLAN），同级 `current-review` 为当前修订（REVIEW）。不要只执行发布原包里的旧stage入口，也不要使用未上传完的历史75分片路线。
+1. 从仓库根目录 CURRENT_FINAL_PLAN.md 取得方案，以 construction/plans/STARCORE_R33_5_REVIEW_20261119/ 为当前修订目录。先记录实际方案提交，核 FINAL_SCOPE.json 为 R33.5-REVIEW-20261120-R3，阅读 REVIEW_THIRD_20261120.md、ISSUES.md、WORK_ORDERS.json 和 HANDOFF.json。下载 Release 标签 r33.5-plan 的 33.5.zip，用当前 prepare.py 在工程外的新目录还原。在还原出的 current-review 下运行 check_plan.py，核对同级原卷 6,276 件。以 WORK_ORDERS.json 的当前来源、附件与完整前后态施工，逐件解决 66 个工单。基线为正式 033 提交 bb7b49bbcc9266bad548ec37e71403256fc06a4d，正式发包取完整 Git 历史。
 
-取得正式033提交 `bb7b49bbcc9266bad548ec37e71403256fc06a4d` 的真实Git对象和完整源码。对实际输入创建独立checkout/worktree，保护原分支和已有改动。用 `$PLAN/verification/verify_baseline_source_r335.py` 所属原核验逻辑核实际来源；从033起步，或从已保存的本方案合法前序阶段继续。发布阶段必须有完整Git历史，不能用只有文件的ZIP或浅克隆代替可恢复bundle。方案目录放在工程外，避免把施工材料当应用文件编入。
+2. 从该基线或已核验的同版前序检查点开始，每批走 current-review/replay/stage_checked.py 的 --apply-to 入口，从上一批真实提交移植到全新隔离目录。按工单从真实调用处贯穿生产、数据库、后台、消费、报告和 UI。P00 用 tools/r33/verify_plan_binding.py --init-binding 生成 release/r33_plan_binding.json，并与版本四文件一起提交；已有绑定则核原件。每批保存升级前本机 dumpsys 原件，以实际已安装版本递增，用 advance_release_version.py 执行版本事务，再运行原 R967 --check。核工作树、暂存区、文件模式、Git 提交和前序继承。已有用户改动或旧候选另行保全，修复失败项后在对应工单复测。
 
-## 逐批实施
+3. P00 完成构建、版本和签名基座。B01 打通存储限额、原作业恢复、原件保全和导出，验证热历史不超过 5,000 期。B02 打通每秒抓取、后台、每个启用期赛前影子冻结、唯一结算、反馈和重启恢复；原签设备实采启用日记 START/END，逐期核源头时钟、固定截止、提交返回及单调时钟。用至少 100 个应启用机会核前期开奖至正式冻结可观测 ≤5 秒、本期开奖至结算返回 ≤1 秒，列出缺期和全部超限。B03 验证真实家族、出生、回放、断点和消费。B04 验证真实梯度更新、检查点、十位置发布及线上读回。B05 接通原子、矩阵、策略族生成、反馈学习、进化、变异、融合和淘汰，保存父子配对、实际动作和消费证据。B06 严格分开 R27 与 SU2 自然协议，核独立未来、证书、撤销与唯一 DecisionGate。保持单位置固定 K=3 和 PIT；合格者依现有授权进入主链，证据未足继续影子采样。B07 逐项验证图表及逻辑表的数据来源、真实空集、缺源、分页、能力缺口和处方，用两份真实报告、对应 Git 改动与原始日志验证修复效果。B08 在同一最终候选上复验全部。
 
-1. 先核原66项问题清单、该批问题卡、完整前后源码和本轮补正；`production/OVERLAY.json`是新增生产字节的统一入口。依P00→B01→B02→B03→B04→B05→B06→B07→B08顺序，用 `python3 -B "$REVIEW/replay/stage_checked.py" Bxx --plan "$PLAN" --repo "$PREVIOUS_COMMITTED_SOURCE" --apply-to "$NEW_OUTPUT"` 施工。P00填写P00。输出目录须全新、位于工程外。
-2. 对照本批真实差异审阅。执行入口核前序每个版本实际提交和累计生产文件、当前工作树/索引，不可只抄版本号。B02装入七份Java生产后态和Android清单，B04采用本轮AtomNet完整owner；B05保留配对修订；B07采用7份报告生产全文。B06/B08独立签收。若已有较老R33.5阶段，先保全原分支，从最后相符阶段重新移植；不强行略过哈希不符。
-3. 按 `tools/r33/advance_release_version.py` 完成版本四文件事务，版本严格高于当前源码、设备实际安装版和033。`production`已将R967两项已跟踪生成文件纳入逐批安装；提交前执行原 `scripts/r967_semantic_identity.py --check`，将本批所有生效源码及生成文件一并审阅提交。工作树、索引和已提交字节必须一致。使用原语义/来源生成器，不削弱validator、不降数值角色，不借用旧资格。
-4. 逐批运行原验收与本轮POS/NEG/TRACE：B01原件/存储/导出；B02完整启用机会和严格冻结/结算；B03真实家族训练与恢复；B04真实梯度/检查点/十位置发布消费；B05分析、动作、进化/变异/融合/淘汰及配对；B06原独立自然资格、撤销与DecisionGate；B07真实报告读取、需求分类、后续复报；B08全链同构建终审。失败原因写入对应问题、批次和文件，修好再验。
-5. 构建前执行 `source/preflight_delivery.py`，使用完整SDK、原033 APK、真实Git历史。按原 `run_release_build.py` 与 `package_ci_candidate.py` 的受权签名流程构建，核包名、实际版本、原证书、源码提交和构建回执。每批输出可直接下载的APK、完整源码及可恢复Git bundle，记录SHA256和真实链接。设备实际安装、重启与后台持续运行需要现场回执。
+4. 每批独立执行原工单的正例、反例、重启或恢复用例。跑 source/preflight_delivery.py，再用受权流程 run_release_build.py、package_ci_candidate.py 构建。每批交付已有真实链接的原签 APK、源码 ZIP、可从空库恢复的 Git bundle、APK-SOURCE-EVIDENCE 总 ZIP、Git 提交和 SHA-256。上传后从交付地址重新取得原件，在接收端核包名、实际版本、原证书、APK 内嵌源码身份、原始 Gradle 日志、打包件和源码树。签名私钥只留在原授权环境。B06/B08 的业务文件操作数为零，各自的版本、构建、现场和交付仍须完成。
 
-## 主链目标和验收
+5. 在工程外保留九批可续跑台账，逐批记工单 ID、输入/输出提交、修改路径、原件、命令与退出码、下载链接、剩余现场窗口。构建或上传中断就诊断、重试、回读，并从最后验证过的检查点恢复；有可执行的独立工单就继续。用 replay/verify_completed_source.py 核九批源码，用 replay/verify_all_deliveries.py 从收到的九份材料逐一验收。最终用 replay/final_review.py --deliveries ... --require-full-closure 对同一 B08 的短链、百期、三次报告导出、真实复报、升级和 vivo V2353A 的 24/72 小时原件终审。对 32 组、96 断言、288 场景、222 条款和 1,832 项需求分别列出通过数、分母及剩余 ID。重新构建改变 APK 或源码身份后，按合同重新采集受影响的同候选证据。
 
-将来源→预登记→冻结→结算→反馈→训练→研究动作→影子/独立未来→资格→主链授权→后续反馈接通。严格保持单位置K=3、原固定截止、PIT与原资格/撤销协议。按原授权把达标证书路由进唯一DecisionGate；没有合格证据时记录原因并维持正常影子与后续采样。生成策略方法不设终身数量上限，同时对当前驻留、队列、模型和原件实施预算与淘汰。高胜率目标用独立未来与同机会对照检验，历史高值仅作为研究输入。
+6. 最后交一张九批总表、66 项工单的真实状态、仓库提交、可直接下载的最终 APK 与完整总 ZIP，以及全部回执的路径和 SHA。另列工程签收、设备实测和独立自然表现，给出出手/机会分母、命中、区间、稳定性与证书。真实设备、原签授权或自然时长确实不足时，写明具体缺件、已完成部分和可直接恢复的步骤；在环境允许时持续采集。签收严格依据可重算原件，任何待验项都保留，禁止填造数据、事后补冻、降门槛或将历史胜率写成本次结果。
+```
 
-B08先用 `replay/verify_completed_source.py` 核完整九批源码，再以真实候选与现场原件运行 `replay/final_review.py`。百期窗口自身核合法标签时间和明确停用分母；三次导出走 `replay/prepare_export.py`；真实复报链绑定最终候选与实际实验时段。原32组、96断言、288场景、1832需求和222条款分别给出真实分母。源码预演、JDK类型检查、APK、真机24/72小时、自然策略质量分别报告结果。
+## 开工命令
 
-## 必须回传的交付
+```bash
+REVIEW="$(git rev-parse --show-toplevel)/construction/plans/STARCORE_R33_5_REVIEW_20261119"
+WORK="$(mktemp -d)"
+curl --fail --location --retry 3 -o "$WORK/33.5.zip" \
+  https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip
+python3 -B "$REVIEW/prepare.py" "$WORK/33.5.zip" "$WORK/prepared"
+PLAN="$WORK/prepared/STARCORE_R33_5_20261118"
+REVIEW="$WORK/prepared/current-review"
+python3 -B "$REVIEW/check_plan.py" "$PLAN"
+python3 -B "$REVIEW/verification/check_work_orders.py" "$PLAN" --emit-to "$WORK/effective"
+```
 
-给出本批/总进度、解决的问题ID、修改文件与前后身份、原件与测试结果、Git提交、APK和源码下载链接、签名和SHA256、设备与自然样本状态。发现任何缺件/失败，继续可完成的已授权工作，并把未验证项与获取办法写入账本。不要将历史收据、新版号或宿主测试当作本次真实应用已全部完成，也不要在没有实际下载链接时声称已交付APK。
+在已核实的正式 033 完整 Git 来源上执行批次安装。首次将 STAGE 设为 P00；SOURCE 是实际输入检出，OUT 是尚不存在的输出目录。先创建其父目录。
 
-## 第二次复核的逐项执行
+```bash
+python3 -B "$REVIEW/replay/stage_checked.py" "$STAGE" \
+  --plan "$PLAN" --repo "$SOURCE" --apply-to "$OUT" > "$EVIDENCE/stage-receipt.json"
+```
 
-在准备好的 `current-review` 执行 `check_plan.py "$PLAN"`。查 `WORK_ORDERS.json` 按工单 ID 取得当前批次和文件版本。需要审阅完整代码时执行 `verification/check_work_orders.py "$PLAN" --emit-to "$NEW_EFFECTIVE"`，其输出与安装器的字节相同。B02 按 V19—V22 落实施工并保留正反例，特别核验早标签、同哈希重试、事务内时间与提交返回时间相差、延迟开奖固定截止，以及原签非调试机 START/END 两次独立日记读回。B08 的短链、百期和正式交付共同使用本轮入口。向接收方交付后，在空 Git 库恢复收到的 bundle，并交回匹配该 APK 提交的源码 ZIP 核验记录。V24—V25 的版本历史和工单字节由安装器与索引复核。接收标准、按问题的文件和复现命令见[第二次复核](REVIEW_SECOND_20261120.md)。
+## 九批实物与全量验收
+
+复制 [deliveries-template.json](replay/deliveries-template.json)，按 P00 到 B08 填实。每行的 `candidate` 是收到的总包解开后的候选目录，`dumpsys` 是该批升级前的原始包观察。路径相对于索引文件所在目录，也可用绝对路径。`deliveryZip` 可指定另存的收到的总 ZIP；默认按打包器原名寻找。设备命令用 `adb -s "$DEVICE_SERIAL" shell dumpsys package com.starcore.research.r13`。总包 ZIP 须保有原件。
+
+```bash
+python3 -B "$REVIEW/replay/verify_completed_source.py" \
+  --plan "$PLAN" --repo "$B08_SOURCE" --review "$REVIEW"
+python3 -B "$REVIEW/replay/verify_all_deliveries.py" \
+  --plan "$PLAN" --repo "$B08_SOURCE" --deliveries "$DELIVERIES" \
+  --baseline-apk "$APK033" --aapt "$AAPT" --apksigner "$APKSIGNER" --out "$NINE_RECEIPT"
+python3 -B "$REVIEW/replay/final_review.py" --require-full-closure \
+  --plan "$PLAN" --repo "$B08_SOURCE" --candidate "$B08_CANDIDATE" \
+  --deliveries "$DELIVERIES" --dumpsys "$B08_DUMP_BEFORE" --baseline-apk "$APK033" \
+  --aapt "$AAPT" --apksigner "$APKSIGNER" --execution "$EXECUTION_JSON" \
+  --evidence "$RAW" --stage-receipt "$B08_STAGE_RECEIPT" --start "$START" --end "$END" \
+  --window-bundle "$WINDOW" --followup "$FOLLOWUP" > "$FINAL_RECEIPT"
+```
+
+B08 的总 ZIP 另存时也给终审传 `--delivery-zip "$B08_DELIVERY_ZIP"`。每条已登记复报链各传一次 `--followup`。三次导出使用 `replay/prepare_export.py`；研究原件格式见[复报合同](research/README.md)。全量交付额外检查九份真实签名物料。工程全项、长测与自然效果各按受检身份输出；累计自然样本以实际采集进度为准。

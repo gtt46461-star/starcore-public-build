@@ -4,7 +4,9 @@ Usage: python -B test_settlement_window.py PREPARED_TOOLS [OLD_CHECK_WINDOW]
 """
 import importlib.util
 import json
+import shutil
 import sqlite3
+import tempfile
 import sys
 import unittest
 from pathlib import Path
@@ -61,9 +63,10 @@ class SettlementWindow(unittest.TestCase):
                     drawn+301, drawn+500, 'R334_DURABLE_RETURN_OBSERVATION|NOT_SQL_COMMIT_INSTANT|MODEL_CALLS=0|settlementHash='+end_hash+'|returnedAt=')
         f.refresh_bundle()
 
-    def insert_health(self, db, target, event, attempt, status, request, observed, detail):
+    def insert_health(self, db, target, event, attempt, status, request, observed, detail, elapsed=None):
         logged = observed + 10
-        elapsed = 0 if event == check_window.FREEZE_RETURN else observed-request
+        if elapsed is None:
+            elapsed = 0 if event == check_window.FREEZE_RETURN else observed-request
         detail += str(observed)
         digest = windows.m.trace.digest('R36_HEALTH', event, attempt, target, status, logged, elapsed, detail)
         db.execute('INSERT INTO '+check_window.HEALTH+' VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',
@@ -92,6 +95,65 @@ class SettlementWindow(unittest.TestCase):
         self.assertEqual(result['timing']['targetOpenToSettlement']['maxMs'],450)
         self.assertEqual(result['timing']['targetOpenToDurableSettlementReturn']['maxMs'],1001)
         self.assertEqual(result['outcome'],'INCOMPLETE')
+
+    def test_monotonic_duration_detects_underreported_settlement(self):
+        f = self.f
+        event = check_window.SETTLE_RETURN
+        issue = f.cal['entries'][0]['targetIssue']
+        with sqlite3.connect(f.database) as db:
+            row = db.execute('SELECT attempt_id,status,request_at,commit_at,detail FROM ' + check_window.HEALTH +
+                             ' WHERE target_issue=? AND event_type=?', (issue, event)).fetchone()
+            db.execute('DELETE FROM ' + check_window.HEALTH + ' WHERE target_issue=? AND event_type=?', (issue, event))
+            self.insert_health(db, issue, event, *row[:4], row[4].rsplit('=', 1)[0] + '=', elapsed=1500)
+        f.refresh_bundle()
+        if OLD:
+            spec = importlib.util.spec_from_file_location('previous_window_settlement_clock', OLD)
+            previous = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(previous)
+            self.assertEqual(self.evaluate(previous)['outcome'], 'PASS')
+        result = self.evaluate()
+        self.assertEqual(result['timing']['targetOpenToDurableSettlementReturn']['maxMs'], 500)
+        self.assertEqual(result['timing']['targetOpenToSettlementReturnViaElapsedRealtime']['maxMs'], 1801)
+        self.assertEqual(result['outcome'], 'INCOMPLETE')
+
+    def test_stale_window_modules_are_refused_before_import(self):
+        from prepare_tools import CALENDAR, TRACE, COLLECTOR
+        f = self.f
+        with tempfile.TemporaryDirectory() as tmp:
+            tools = Path(tmp)
+            for name in (CALENDAR, TRACE, COLLECTOR):
+                path = tools / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(TOOLS / name, path)
+            for name, reason in ((CALENDAR, 'REVIEWED_CALENDAR_REQUIRED'),
+                                 (TRACE, 'REVIEWED_FIXED_DEADLINE_CHECKER_REQUIRED'),
+                                 (COLLECTOR, 'REVIEWED_WINDOW_COLLECTOR_REQUIRED')):
+                with self.subTest(name=name):
+                    path = tools / name
+                    original = path.read_bytes()
+                    path.write_bytes(original + b'\n# stale copy\n')
+                    with self.assertRaisesRegex(ValueError, reason):
+                        check_window.evaluate(tools, f.bundle, f.root, f.start, f.end, windows.C, windows.A, 'FIXTURE')
+                    path.write_bytes(original)
+
+    def test_same_filename_start_end_produce_two_receipt_hashes(self):
+        f = self.f
+        for role in ('start', 'end'):
+            old = getattr(f, role)
+            event = json.loads(old.read_bytes())
+            dest = f.root / role
+            dest.mkdir()
+            shutil.copyfile(f.root / event['preferences']['path'], dest / event['preferences']['path'])
+            new = dest / 'capture.json'
+            shutil.copyfile(old, new)
+            setattr(f, role, new)
+        result = self.evaluate()
+        self.assertEqual(result['outcome'], 'PASS')
+        self.assertEqual(result['captureHashesByRole'], {
+            'traceBundle': windows.m.trace.sha_file(f.bundle),
+            'startCapture': windows.m.trace.sha_file(f.start),
+            'endCapture': windows.m.trace.sha_file(f.end)})
+        self.assertNotEqual(result['captureHashesByRole']['startCapture'], result['captureHashesByRole']['endCapture'])
 
     def test_slow_durable_freeze_even_with_fast_sql_row(self):
         self.change_observation(check_window.FREEZE_RETURN,901)

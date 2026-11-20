@@ -1,4 +1,5 @@
 """Use a released plan's own fixtures to reproduce accepted counterexamples."""
+import hashlib
 import json
 from pathlib import Path
 import sqlite3
@@ -10,7 +11,10 @@ import check_research as gate
 PLAN = Path(sys.argv.pop(1)).resolve()
 sys.path.insert(0, str(PLAN/'B07/verify'))
 sys.path.insert(0, str(PLAN/'verification/mainline'))
+import check_improvement as oracle
 import test_improvement as improvement
+sys.path.insert(0, str(PLAN/'B07/replay_r335'))
+import test_case_loop_r335 as real_cases
 import test_trace as traces
 
 
@@ -68,14 +72,14 @@ class AdditionalChecks(unittest.TestCase):
                          'MEASURED_IMPROVEMENT_IN_THIS_TEST')
         f.put('chain', chain)
         with self.assertRaisesRegex(ValueError, 'FOLLOWUP_WINDOW'):
-            gate.followup(PLAN, f.p/'chain.json')
+            gate.assess_followup(oracle, f.p, chain)
 
     def test_followup_accepts_observed_postwork_rows(self):
         f, chain, after = self.experiment()
         after['observedAt'] = 190
         chain['nextCase'] = f.put('next', after)
         f.put('chain', chain)
-        self.assertEqual(gate.followup(PLAN, f.p/'chain.json')['effect'],
+        self.assertEqual(gate.assess_followup(oracle, f.p, chain)['effect'],
                          'MEASURED_IMPROVEMENT_IN_THIS_TEST')
 
     def test_followup_rejects_recycled_prework_rows(self):
@@ -88,7 +92,84 @@ class AdditionalChecks(unittest.TestCase):
         chain['nextCase'] = f.put('next', after)
         f.put('chain', chain)
         with self.assertRaisesRegex(ValueError, 'FOLLOWUP_WINDOW'):
-            gate.followup(PLAN, f.p/'chain.json')
+            gate.assess_followup(oracle, f.p, chain)
+
+    def test_no_report_or_git_originals(self):
+        f, chain, after = self.experiment()
+        after['observedAt'] = 190
+        chain['nextCase'] = f.put('next', after)
+        f.put('chain', chain)
+        self.assertEqual(gate.assess_followup(oracle, f.p, chain)['effect'], 'MEASURED_IMPROVEMENT_IN_THIS_TEST')
+        with self.assertRaisesRegex(ValueError, 'ORIGINAL_REPORTS_AND_REPAIR_WORK_REQUIRED'):
+            gate.followup(PLAN, f.p/'chain.json', f.p)
+
+    def real_link(self):
+        c = real_cases.CaseLoopTest()
+        c.setUp()
+        self.addCleanup(c.tearDown)
+        first, _ = real_cases.M.case_from_index(c.root/'case1', c.ck)
+        f = improvement.ReportPrescription()
+        f.setUp()
+        self.addCleanup(f.doCleanups)
+        f.p = c.root
+        f.key.update(needKey=first['needKey'], commit=c.after)
+        f.spec.update(f.key, registeredAt=2100)
+        f.b['contract'] = f.put('spec', f.spec)
+        f.catalog([True, True])
+        f.run_receipt()
+        f.experiment([1] * 8)
+        for row in f.raw['rows']:
+            for clock in ('baseAt', 'challengerAt', 'drawAt'):
+                row[clock] += 2000
+        f.b['experiment'] = f.put('exp', f.raw)
+        chain, after = f.followup()
+        actual = dict(firstCase=f.put('original-first', dict(
+                caseKey=c.ck, needKey=first['needKey'], commit=c.before, observedAt=1000,
+                ownerGate='B07.4', sourceFile='owner.java', method='run')))
+        work = json.loads((f.p/'work.json').read_bytes())
+        work.update(caseKey=c.ck, beforeCommit=c.before, afterCommit=c.after, appliedAt=2000,
+                    parentCaseSha=actual['firstCase']['sha256'], ownerGate='B07.4', sourceFile='owner.java', method='run')
+        for receipt in c.work['verificationReferences']:
+            role = receipt['role']
+            work['gateRefs'][role] = f.put('checked-'+role, dict(gate='B07.4', subKind=role,
+                                                                 commit=c.after, rawRef=receipt))
+        actual['work'] = f.put('post-work', work)
+        after.update(caseKey=c.ck, commit=c.after, workSha=actual['work']['sha256'],
+                     parentCaseSha=actual['firstCase']['sha256'], observedAt=3000)
+        actual['nextCase'] = f.put('post-case', after)
+        actual['productionEvidence'] = {'repairWork': f.put('repair-work', c.work)}
+        for idx, role in ((1, 'firstReport'), (2, 'nextReport')):
+            name = 'report'+str(idx)+'.json'
+            actual['productionEvidence'][role] = dict(path=name, sha256=hashlib.sha256((f.p/name).read_bytes()).hexdigest())
+        f.put('chain', actual)
+        return c, f, actual
+
+    def test_joined_originals_and_git(self):
+        c, f, _ = self.real_link()
+        result = gate.followup(PLAN, f.p/'chain.json', c.repo)
+        self.assertEqual(result['effect'], 'MEASURED_IMPROVEMENT_IN_THIS_TEST')
+        self.assertEqual(result['reportWork']['actualChangedPaths'], ['owner.java'])
+        self.assertEqual(result['reportWork']['afterSourceCommit'], c.after)
+        self.assertFalse(result['realAuthorized'])
+
+    def test_wrong_actual_git_file_even_after_rehash(self):
+        c, f, chain = self.real_link()
+        c.work['changes'][0]['afterSha256'] = '0'*64
+        chain['productionEvidence']['repairWork'] = f.put('repair-work', c.work)
+        f.put('chain', chain)
+        with self.assertRaisesRegex(ValueError, 'WORK_SOURCE_BYTES_MISMATCH'):
+            gate.followup(PLAN, f.p/'chain.json', c.repo)
+
+    def test_different_raw_work_receipts(self):
+        c, f, chain = self.real_link()
+        receipt = c.work['verificationReferences'][0]
+        payload = json.loads((f.p/receipt['path']).read_bytes())
+        payload['note'] = 'different valid observation'
+        c.work['verificationReferences'][0] = dict(role=receipt['role'], **f.put('different-observation', payload))
+        chain['productionEvidence']['repairWork'] = f.put('repair-work', c.work)
+        f.put('chain', chain)
+        with self.assertRaisesRegex(ValueError, 'REPAIR_PROOF_MISMATCH'):
+            gate.followup(PLAN, f.p/'chain.json', c.repo)
 
     def test_oos_open_time(self):
         f = traces.TraceTests()

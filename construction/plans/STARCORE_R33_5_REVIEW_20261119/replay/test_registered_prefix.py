@@ -57,6 +57,31 @@ def configure(plan):
             with self.assertRaisesRegex(ValueError, 'REGISTERED_PREDECESSOR_BYTES_MISSING:B01:'):
                 self.run_next(source)
 
+        def test_completed_file_with_identical_bytes_and_wrong_git_mode(self):
+            source = self.copy('wrong-published-mode')
+            path = source / self.path
+            path.chmod(0o755)
+            stage.git(source, 'add', '--', self.path)
+            self.fixture.commit(source)
+            with self.assertRaisesRegex(ValueError, 'PREDECESSOR_MODE_DIFFERS:B01'):
+                self.run_next(source)
+
+        def test_version_snapshot_cannot_borrow_a_later_version_file_repair(self):
+            source = self.copy('incomplete-version-identity')
+            name = checked.VERSION_FILES[1]
+            tx = self.fixture.home / 'incomplete-identity-tx'
+            self.advance.prepare(source, tx, 577311033, 'B01', '2026-11-20')
+            self.advance.apply(source, tx)
+            correct = (source / name).read_bytes()
+            (source / name).write_text('inconsistent-at-release')
+            stage.git(source, 'add', '--', *checked.VERSION_FILES)
+            self.fixture.commit(source)
+            (source / name).write_bytes(correct)
+            stage.git(source, 'add', '--', name)
+            self.fixture.commit(source)
+            with self.assertRaisesRegex(ValueError, 'FOUR_FILE_VERSION_DRIFT'):
+                self.run_next(source)
+
         def test_changed_completed_stage_file_rejected(self):
             source = self.copy('reverted-completed-source')
             (source / self.path).write_text('// stale file from another candidate\n')

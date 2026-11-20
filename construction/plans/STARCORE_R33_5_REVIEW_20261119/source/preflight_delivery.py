@@ -19,6 +19,35 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
+# The original P00 --init-binding command generates this dynamic checkout file.
+# Values are the R33.5 release descriptor, sealed inventory and original registries.
+EXPECTED_PIN = {
+    'schema': 'STARCORE_R33_4_PLAN_BINDING_1', 'planRevision': 'R33.5',
+    'sourceBaseline': 'bb7b49bbcc9266bad548ec37e71403256fc06a4d',
+    'planManifestSha256': 'eefe7128ed2a13065c95c31c2f424a42d3c5c3bc780fbc18ab0db1fcd6e0a43c',
+    'gateRegistrySha256': '37cd13d1e8e80bed606b6a6d40e28269e8983a9b99a218442ccba2ce6dad29da',
+    'scenarioRegistrySha256': '018e2cb8541de672f7c1e99e97a39dab8db699ce4bf0577d637b4c8b10c35535',
+}
+
+
+def plan_pin(repo):
+    name = 'release/r33_plan_binding.json'
+    path = repo / name
+    if not path.is_file() or path.is_symlink():
+        return 'PLAN_BINDING_ABSENT_OR_NOT_REGULAR'
+    body = path.read_bytes()
+    head = subprocess.run(['git', '-C', str(repo), 'show', 'HEAD:' + name], capture_output=True)
+    if head.returncode or head.stdout != body:
+        return 'PLAN_BINDING_NOT_COMMITTED'
+    try:
+        fields = json.loads(body)
+    except (ValueError, UnicodeError):
+        return 'PLAN_BINDING_INVALID'
+    if not isinstance(fields, dict) or any(fields.get(k) != v for k, v in EXPECTED_PIN.items()):
+        return 'PLAN_BINDING_MISMATCH'
+    return 'VERIFIED_AND_COMMITTED'
+
+
 def history(repo):
     result = subprocess.run(['git', '-C', str(repo), 'rev-parse', '--is-shallow-repository'],
                             text=True, capture_output=True, check=True)
@@ -61,9 +90,12 @@ def run(repo, sdk, apk):
     blocked = [r['id'] for r in checks['checks'] if r['status'] != 'PASS']
     git_history, original_apk = history(repo), baseline(apk)
     semantic = generated(repo)
+    pin = plan_pin(repo)
+    if pin != 'VERIFIED_AND_COMMITTED':
+        blocked.append('R335_COMMITTED_PLAN_BINDING')
     delivery_inputs_ready = semantic == 'VERIFIED_AND_COMMITTED' and not blocked and git_history == 'FULL_HISTORY_REPORTED' and original_apk == 'MATCH'
     return {'buildPrerequisites':checks['status'], 'blockedBuildInputs':blocked,
-            'trackedR967Outputs':semantic, 'sourceBundleHistory':git_history, 'baseline033Apk':original_apk,
+            'trackedR967Outputs':semantic, 'planBinding':pin, 'sourceBundleHistory':git_history, 'baseline033Apk':original_apk,
             'result':'READY_TO_ATTEMPT_DELIVERY' if delivery_inputs_ready else 'DELIVERY_INPUTS_INCOMPLETE',
             'signingAndDevice':'VERIFY_IN_AUTHORIZED_BUILD_AND_DEVICE_STEPS'}
 
