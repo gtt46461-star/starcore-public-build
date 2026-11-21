@@ -148,7 +148,25 @@ public final class AtomNetSessionR30 {
         r.put("consumable",consumableR31());
         r.put("publicationReady",ready());r.put("learningProtocol",LEARNING_PROTOCOL);r.put("replayPolicy",replayPolicy);r.put("replayEvidenceRun",replayEvidenceRun);r.put("replayPolicyChanges",replayPolicyChanges);r.put("replayChangeQuality","REFUTABLE_RESEARCH_ALLOCATION_NOT_A_PROVED_GAIN_NO_MODEL_OR_ALPHA_RESET");r.put("primaryTrainingSamplesCommitted",pretrainSamples+trainer.onlineSteps);
         r.put("trainingCounterScope","PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES");
-        r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",pretrainSamples==0?0L:(long)(trainCount/10));return r;
+        r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",independentTrainingCalendarIssuesR335());r.put("independentTrainingCalendarIssuesScope","DISTINCT_HISTORICAL_TRAINING_ISSUES_VISITED_BY_PRETRAIN;NOT_INDEPENDENT_FUTURE_EVIDENCE");return r;
+    }
+    /** A shuffled first batch visits only a subset of historical TRAIN issues.
+     * Repeated positions from one issue count once; later epochs cannot add new issues.
+     * Unknown/inconsistent checkpoint history is not replaced by a full-dataset count.
+     */
+    Long independentTrainingCalendarIssuesR335() {
+        if (pretrainSamples == 0) return 0L;
+        if (pretrainSamples < 0) return null;
+        if (pretrainSamples >= trainCount) return (trainCount + 9L) / 10L;
+        if (!"TRAIN".equals(phase) || epoch != 0 || pretrainSamples != offset
+                || order == null || order.length != trainCount) return null;
+        BitSet issues = new BitSet((trainCount + 9) / 10);
+        for (int index = 0; index < offset; index++) {
+            int sample = order[index];
+            if (sample < 0 || sample >= trainCount) return null;
+            issues.set(sample / 10);
+        }
+        return (long) issues.cardinality();
     }
     public long serializedBoundR31(){return 16384L+3L*(datasetHash.length()+observedThrough.length()+completeIssue.length()+partialIssue.length()+replayEvidenceRun.length())+4L*(order==null?0:order.length)+(bestNet==null?0:bestNet.length)+new ModelArtifactR29(trainer,ftrl,datasetHash,completeIssue.isEmpty()?observedThrough:trainedThrough()).serializedBoundR31();}
     public static AtomNetSessionR30 decode(android.database.sqlite.SQLiteDatabase db,byte[] bytes,String hash){byte[] raw=CheckpointArtifactsR26.resolveSerializedR31(db,bytes);try(MemoryBudgetR31.Lease read=CheckpointArtifactsR26.readReservationR31("session-decode",6L*raw.length+1048576)){return decode(raw,hash);}}
@@ -182,7 +200,33 @@ public final class AtomNetSessionR30 {
             if(format==0x30A70002||format==0x30A70003){s.legacyValidationOriginUnknown=d.readBoolean();s.needsValidationRoleMigration=d.readBoolean();}else{s.legacyValidationOriginUnknown=true;s.needsValidationRoleMigration=true;}
             if(format==0x30A70003){if(!LEARNING_PROTOCOL.equals(d.readUTF()))throw new IOException("learning protocol");s.replayPolicy=d.readUTF();s.replayEvidenceRun=d.readUTF();s.replayPolicyChanges=d.readLong();if(!Arrays.asList("UNIFORM_63","OLD48_RECENT15").contains(s.replayPolicy)||s.replayPolicyChanges<0||(!s.replayEvidenceRun.isEmpty()&&!s.replayEvidenceRun.matches("[0-9a-f]{64}"))||!s.replayPolicy.equals("UNIFORM_63")&&s.replayEvidenceRun.isEmpty())throw new IOException("replay policy");}
             if(d.available()!=0||s.trainer.net.in!=s.input||s.nextPosition<1||s.nextPosition>10||s.offset<0||s.epoch<0||s.epoch>20||!Arrays.asList("TRAIN","EVAL_TRAIN","EVAL_SELECT","EVAL_HOLD","EVAL_ONLINE_HOLD","EVAL_DEVELOPMENT_VALIDATION","EVAL_ONLINE_DEVELOPMENT_VALIDATION","FILL","ONLINE").contains(s.phase))throw new IOException("cursor");
+            s.validateCheckpointR335();
             return s;
         }catch(IOException|RuntimeException e){throw new IllegalArgumentException("R30_MODEL_DECODE",e);}
+    }
+    /** Shape/checksum alone cannot prove a recoverable cursor. No learned value is changed here. */
+    void validateCheckpointR335() {
+        long all=(long)trainCount+selectCount+holdoutCount;
+        int first=com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS;
+        if(cachePeriod<first||cachePeriod>first+(all+9)/10
+                ||pretrainSamples<0||materializedSamples<0||materializedSamples>all
+                ||materializeMs<0||trainingMs<0||units<0||step<0||bad<0||fillOffset<0
+                ||fillOffset>Math.min(AtomNetTrainerR27.REPLAY,(long)trainCount+selectCount)
+                ||trainer.onlineSteps<0||onlineObservedOrdinal<0||loss.n<0
+                ||!Double.isFinite(lastLr)||lastLr<=0||Double.isNaN(best)||best==Double.NEGATIVE_INFINITY
+                ||!Double.isFinite(loss.mean)||!Double.isFinite(loss.m2)||loss.m2<0
+                ||!Double.isFinite(brier)||brier<0)
+            throw new IllegalArgumentException("R335_ATOMNET_CHECKPOINT_RANGE");
+        int limit="TRAIN".equals(phase)||"EVAL_TRAIN".equals(phase)?trainCount:
+                phase.startsWith("EVAL_")?selectCount:0;
+        if(offset>limit||order!=null&&order.length!=trainCount
+                ||"TRAIN".equals(phase)&&(offset>=trainCount
+                    ||epoch>=AtomNetTrainerR27.MAX_EPOCHS||offset>0&&order==null)
+                ||nextPosition==1&&!partialIssue.isEmpty()
+                ||nextPosition>1&&(partialIssue.isEmpty()||!"ONLINE".equals(phase))
+                ||!partialIssue.isEmpty()&&(completeIssue.isEmpty()||partialIssue.compareTo(completeIssue)<=0)
+                ||("ONLINE".equals(phase)||"EVAL_ONLINE_DEVELOPMENT_VALIDATION".equals(phase))&&completeIssue.isEmpty()
+                ||onlineObservedOrdinal>0&&onlineObservedOrdinal<observedThroughOrdinal)
+            throw new IllegalArgumentException("R335_ATOMNET_CHECKPOINT_CURSOR");
     }
 }

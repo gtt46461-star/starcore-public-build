@@ -50,6 +50,7 @@ public final class AtomNetRuntimeR30 {
         if(d==null){d=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.atomDataR30=d;}
         try(MemoryBudgetR31.Lease work=AtomNetPublicationR31.workReservationR31(saved)){
         final String expectedCheckpointR31=AtomNetPublicationR31.currentStateHash(w.ro);
+        final AtomNetProgressR33.Frame progressBeforeR33=progressFrameR33(saved);
         // Copy before computing: no failed/cancelled write can mutate the committed/published learner.
         byte[] previous=saved.encode();AtomNetSessionR30 next=AtomNetSessionR30.decode(previous,StatsR27.sha256(previous));
         ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();int n=0;ModelReplayStudyR30R1.ReplayDecision replayDecision=null;
@@ -88,6 +89,7 @@ public final class AtomNetRuntimeR30 {
             replayDecision=ModelReplayStudyR30R1.allocateReplay(w.ro,next,b);
             next.online(new AtomNetTrainerR27.Sample(x,frame.hit[p],frame.actual[p]-1,AtomNetSessionR30.eventKey(recent.issues[t],p+1)),recent.issues[t],recent.ordinals[t],p+1);n=1;
         }
+        AtomNetProgressR33.validate(progressBeforeR33,progressFrameR33(next),n);
         try(AtomNetPublicationR31.Prepared publication=AtomNetPublicationR31.prepare(w.store(),w.ro,b,next,System.currentTimeMillis(),expectedCheckpointR31)){
             stage(w,publication);publication.verifyPrepared(w.ro);ModelReplayStudyR30R1.recordReplayDecision(b,next,replayDecision,publication.stateHash);
             try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",publication.publicationBatch(b,next),false,publication.id);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
@@ -96,6 +98,9 @@ public final class AtomNetRuntimeR30 {
         if(forecastModelR32(rt,next)!=null)forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
         }
+    }
+    private static AtomNetProgressR33.Frame progressFrameR33(AtomNetSessionR30 s){
+        return new AtomNetProgressR33.Frame(s.datasetHash,s.phase,s.materializedSamples,s.pretrainSamples,s.trainer.onlineSteps,s.epoch,s.offset,s.fillOffset,s.nextPosition,s.completeIssue,s.partialIssue);
     }
     private static void stage(ResearchPoolR27.Worker w,AtomNetPublicationR31.Prepared publication)throws InterruptedException{
         int chunk=0;for(ResearchWriteQueueR27.Batch staging:publication.stagingBatches())RuntimeR27.submit(w,"ATOMNET_R31_STAGE_"+chunk,staging,false,publication.id+"|STAGE|"+(chunk++));
