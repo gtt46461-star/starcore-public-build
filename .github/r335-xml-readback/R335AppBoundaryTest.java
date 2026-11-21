@@ -83,6 +83,12 @@ public final class R335AppBoundaryTest {
         int n=0;for(int i=0;i<s.length();i++)if(s.charAt(i)==chr)n++;return n;
     }
     private static void compare(String kind,String original,String value){
+        boolean formatter = value.equals(original + "    ") && original.endsWith("\n");
+        record(kind+"ExactIndent",formatter?"YES":"NO");
+        String parsed=value.endsWith("\n    ")?value.substring(0,value.length()-4):value;
+        boolean equalAndValid=false;
+        try{equalAndValid=original.equals(parsed) && EnabledWindowJournalR335.parse(parsed).encode().equals(original);}catch(IllegalArgumentException invalid){}
+        record(kind+"AllHashesValid",equalAndValid?"YES":"NO");
         record(kind+"Length",Integer.toString(value.length()));
         record(kind+"Lines",Integer.toString(count(value,'\n')));
         record(kind+"Carriage",Integer.toString(count(value,'\r')));
