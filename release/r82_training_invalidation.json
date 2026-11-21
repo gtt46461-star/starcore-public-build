@@ -416,7 +416,7 @@
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "after_role": "NUMERIC",
@@ -902,7 +902,7 @@
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
@@ -920,7 +920,7 @@
       "before_role": "",
       "after_role": "PRESENTATION",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
@@ -970,11 +970,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
       "before_sha256": "db380466ffa8b042269e4b543218c914692867445658fac824824de0a6893859",
-      "after_sha256": "ef043a8ab06a934b4132c9872556aa8d5d21cbff0402124f477746d6e739bf19",
+      "after_sha256": "349d4ffcef97f43e1d0187c97de9e3f941ee89a5829872e2dcd10f65fb822275",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "after_role": "NUMERIC",
@@ -997,11 +997,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
       "before_sha256": "7eeeb9f1901a6160363f919ceeffe03efc940c0c30492ef530848338fb58df82",
-      "after_sha256": "ec55b8769507e6d169fd5f0d1ed6c70d2ccf22e069ba6a2c63f550ab666a6e6c",
+      "after_sha256": "0c82f178e994e897f11461cbc26acc82c23cfe7828a0a27ea040786e808ca4e1",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B01 精确源码复核：ReportJobJournalCP12.java。新增耐久 boot/elapsed/指纹/等待起点/attempt；资源等待与 failureAttempts 分离；恢复先检查同boot退避并处理取消，再准入、备份；终态清等待，AlarmManager拒绝不丢原作业。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "Codex R33.5 vivo field repair",
+      "rationale": "Observe the actual cancellation file lease before timing out. Preserve queued cancellation and cross-process exclusion."
     },
     {
       "after_role": "PRESENTATION",
@@ -1055,7 +1055,7 @@
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "after_role": "NUMERIC",
@@ -1505,7 +1505,7 @@
       "before_role": "",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "after_role": "PRESENTATION",
@@ -4286,7 +4286,7 @@
       "before_role": "",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "after_role": "NUMERIC",
@@ -5051,7 +5051,7 @@
       "before_role": "",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Account for real reservations and available disk at publication, preserve protected originals and verify all compressed volumes."
+      "rationale": "Use actual disk reservations, preserve protected originals and verify all volumes. After a durable resource wait, schedule the same foreground report only after the journal lease closes, with OS-alarm fallback across process death."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
@@ -9254,7 +9254,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "cf38759b013734bc3c3ea448e001e3c83b4218ef9bcfcd57e843e09d089c9191",
+  "reviewed_input_provenance_sha256": "e4965dc3ce4983bdd584fba6b0cfbab673c6410a41fd352a6a365aedc8c0a1a9",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

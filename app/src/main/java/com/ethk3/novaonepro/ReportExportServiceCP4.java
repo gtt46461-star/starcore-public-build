@@ -245,7 +245,8 @@ public final class ReportExportServiceCP4 extends Service {
     private void drain(){
         final int ownerStartId=lastStartId;
         String currentRequest="";
-        long observationDelayR31=0;
+        long observationDelayR31=0, resourceRetryDelay=0;
+        ReportJobJournalCP12.Job resourceRetryJob=null;
         boolean retryAlarmScheduledB01=false; // Do not let the queue fallback replace a failure backoff alarm.
         try(ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(getFilesDir())) {
             if(journal==null)return;
@@ -277,7 +278,7 @@ public final class ReportExportServiceCP4 extends Service {
                 if(resourceDelayR335>0L){
                     active.checkpoint(); // Durable user cancellation takes precedence over a wait deadline.
                     journal.acknowledge(job.requestId,job);
-                    scheduleResourceResumeR335(job,resourceDelayR335);retryAlarmScheduledB01=true;return;
+                    resourceRetryJob=job;resourceRetryDelay=resourceDelayR335;retryAlarmScheduledB01=true;return;
                 }
                 if(!job.releaseHash.equals(ReleaseManifestR926.MANIFEST_SHA256))throw new IOException("REPORT_VERSION_CHANGED");
                 long budget=Math.min(8*MiB,Runtime.getRuntime().maxMemory()/8);if(budget<8*MiB)throw new IOException("REPORT_MEMORY_BUDGET");
@@ -478,7 +479,7 @@ public final class ReportExportServiceCP4 extends Service {
                     job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";
                     // The job owns the deadline before any fallible AlarmManager call.
                     journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());
-                    scheduleResourceResumeR335(job,ReportResourceWaitR335.retryDelay(job.resourceWaitR335.attempt));
+                    resourceRetryJob=job;resourceRetryDelay=ReportResourceWaitR335.retryDelay(job.resourceWaitR335.attempt);
                     retryAlarmScheduledB01=true;
                 }
                 else if(isRetryable(reason)&&++job.failureAttempts<30){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId,Math.min(60000L,1000L<<Math.min(6,job.failureAttempts)));retryAlarmScheduledB01=true;}
@@ -502,7 +503,8 @@ public final class ReportExportServiceCP4 extends Service {
         }android.util.Log.e("ReportExportCP12","report owner failed",error);}
         finally{
             drainQueued.set(false);
-            boolean localObservationRetry=false;
+            // Scheduling after lease release lets the next worker reclaim the same journal.
+            boolean keepForegroundOwner=resourceRetryJob!=null&&scheduleResourceResumeR335(resourceRetryJob,resourceRetryDelay);
             if(!destroyed.get()&&observationDelayR31>0){
                 // The journal lease has closed. Keep the already-foreground
                 // owner alive for the original bounded observer window. OS
@@ -510,9 +512,9 @@ public final class ReportExportServiceCP4 extends Service {
                 // they remain the process-death fallback, never the sole
                 // wakeup for a live five-second preparation interval.
                 try{scheduleResume("",observationDelayR31);}catch(RuntimeException alarm){android.util.Log.w("ReportExportCP12","Observation retry alarm unavailable; live owner retained",alarm);}
-                localObservationRetry=scheduleObservationRetryR31(observationDelayR31);
+                keepForegroundOwner=scheduleObservationRetryR31(observationDelayR31);
             }
-            if(!localObservationRetry){
+            if(!keepForegroundOwner){
                 main.post(()->{if(lastStartId==ownerStartId){stopForeground(false);stopSelfResult(ownerStartId);}});
                 if(!destroyed.get()&&!retryAlarmScheduledB01){try{File root=requestRoot(this);long cleanupDelay=ReportCleanupR31.nextDelayMs(root);if(ReportRequestQueueCP12.head(root)!=null||ReportTaskControlR69.hasPending(root))scheduleResume("");else if(cleanupDelay>=0)scheduleResume("",cleanupDelay);}catch(Exception ignored){}}
             }
@@ -631,7 +633,10 @@ public final class ReportExportServiceCP4 extends Service {
         return id==null?null:loadRequest(root,id);
     }
     /** At most one live preparation timer; no journal, SQLite or input lease is held. */
-    synchronized boolean scheduleObservationRetryR31(long delayMs){
+    boolean scheduleObservationRetryR31(long delayMs){
+        return scheduleOwnerRetryR335(Math.max(1L,Math.min(5000L,delayMs)));
+    }
+    private synchronized boolean scheduleOwnerRetryR335(long delayMs){
         if(destroyed.get())return false;
         if(observationRetryR31!=null&&!observationRetryR31.isDone())return true;
         try{
@@ -640,7 +645,7 @@ public final class ReportExportServiceCP4 extends Service {
                 if(destroyed.get()||!drainQueued.compareAndSet(false,true))return;
                 try{workerFuture=worker.submit(this::drain);}
                 catch(RejectedExecutionException closed){drainQueued.set(false);android.util.Log.w("ReportExportCP12","Observation retry worker unavailable; durable alarm retained",closed);}
-            },Math.max(1L,Math.min(5000L,delayMs)),TimeUnit.MILLISECONDS);
+            },delayMs,TimeUnit.MILLISECONDS);
             return true;
         }catch(RejectedExecutionException closed){android.util.Log.w("ReportExportCP12","Observation retry timer unavailable; durable alarm retained",closed);return false;}
     }
@@ -655,13 +660,15 @@ public final class ReportExportServiceCP4 extends Service {
         // A reservation fence or sampled byte count is intentionally not a dependency identity.
         return RetentionArchiveProtocolCP12.sha(identity.getBytes(StandardCharsets.UTF_8));
     }
-    private void scheduleResourceResumeR335(ReportJobJournalCP12.Job job,long delay){
+    private boolean scheduleResourceResumeR335(ReportJobJournalCP12.Job job,long delay){
         try{scheduleResume(job.jobId,delay);}
         catch(RuntimeException unavailable){
             // PAUSED and its deadline already survive process death. An alarm failure must not turn
             // a resource wait into FAILED; an explicit resume/start reopens the same durable job.
-            android.util.Log.w("ReportExportCP12","Durable resource wait retained; automatic wake unavailable",unavailable);
+            android.util.Log.w("ReportExportCP12","Resource retry alarm unavailable; durable journal retained",unavailable);
         }
+        // An active, user-requested report can resume at its stored deadline even when Android batches alarms.
+        return "FULL_REPORT".equals(job.mode)&&scheduleOwnerRetryR335(Math.max(1L,delay));
     }
     private void scheduleResume(String id){
         scheduleResume(id,1000);

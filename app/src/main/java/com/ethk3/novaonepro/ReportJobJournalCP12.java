@@ -78,10 +78,11 @@ public final class ReportJobJournalCP12 implements Closeable {
                 FileLock lease=null;
                 while(lease==null) {
                     if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("REPORT_CANCEL_COMMAND_LOCK_INTERRUPTED");
+                    try {lease=io.getChannel().tryLock();}catch(OverlappingFileLockException busy){/* The other channel still owns the file. */}
+                    if(lease!=null)break;
                     long remaining=budget-(System.nanoTime()-started);
                     if(remaining<=0)throw new CancellationLockBusyR334(readOnly,"FILE",System.nanoTime()-started);
-                    try {lease=io.getChannel().tryLock();}catch(OverlappingFileLockException busy){/* Another same-JVM channel still owns the file. */}
-                    if(lease==null)java.util.concurrent.locks.LockSupport.parkNanos(Math.min(remaining,java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(2L)));
+                    java.util.concurrent.locks.LockSupport.parkNanos(Math.min(remaining,java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(2L)));
                 }
                 // try-with-resources preserves the original callback failure if release also fails.
                 try(FileLock ownedLease=lease){return work.run();}
