@@ -5,6 +5,16 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+// Make the public AGP API available to applied Gradle scripts as well as the app plugin.
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle-api:8.12.2'
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
