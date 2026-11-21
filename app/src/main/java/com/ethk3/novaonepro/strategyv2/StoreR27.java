@@ -5,6 +5,10 @@ import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 
@@ -63,20 +67,45 @@ public final class StoreR27 {
     public static byte[] pack(double[] v) { ByteBuffer b = ByteBuffer.allocate(v.length * 8); for (double x : v) b.putDouble(x); return b.array(); }
     public static double[] unpack(byte[] b) { ByteBuffer x = ByteBuffer.wrap(b); double[] v = new double[b.length / 8]; for (int i = 0; i < v.length; i++) v[i] = x.getDouble(); return v; }
 
+    /** Only the proposed identities are queried, regardless of the number of previous generations. */
+    static Set<String> recordedPolicies(SQLiteDatabase db, Collection<String> candidates) {
+        List<String> hashes = new ArrayList<>(candidates);
+        Set<String> recorded = new HashSet<>();
+        for (int start = 0; start < hashes.size(); start += 128) {
+            List<String> page = hashes.subList(start, Math.min(start + 128, hashes.size()));
+            String parameters = String.join(",", Collections.nCopies(page.size(), "?"));
+            String sql = "SELECT policy_hash FROM r27_policy WHERE policy_hash IN (" + parameters + ")";
+            try (Cursor rows = db.rawQuery(sql, page.toArray(new String[0]))) {
+                while (rows.moveToNext()) recorded.add(rows.getString(0));
+            }
+        }
+        return recorded;
+    }
+
     /** Sink buffering one step into a batch. */
     public static final class EvolutionSink implements EvolutionLoopR27.Sink {
         public final ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch(); private final String loop, birthIssue;
+        private final Set<String> births = new HashSet<>();
         public final List<Object[]> promotions = new ArrayList<>(); public final List<String[]> demotions = new ArrayList<>();
         public EvolutionSink(String loop, String birthIssue) { this.loop = loop; this.birthIssue = birthIssue == null ? "" : birthIssue; }
         /** Freeze the complete owner batch, including its original admission guards and cursor. */
         public EvolutionPublicationStoreR31.Prepared preparePublicationR31(SQLiteDatabase read, RuntimeCoordinatorR26.Claim claim, String sourceCommit, EvolutionPublicationStoreR31.CursorState expectedCursor) {
+            if (!births.isEmpty()) {
+                batch.guardBefore(writer -> {
+                    if (!recordedPolicies(writer, births).isEmpty()) throw new ResearchStoreR30R1.StaleResearch();
+                    return 0;
+                });
+            }
             return EvolutionPublicationStoreR31.prepare(read,loop,claim,sourceCommit,expectedCursor,batch,promotions.size());
         }
         public void policy(PolicySpecR27 spec, String state, String reason, int generation, String datasetHash) {
             long now = System.currentTimeMillis(); String idea = spec.meta == null ? "" : spec.meta.idea;
             batch.add("INSERT OR IGNORE INTO r27_policy(policy_hash,spec_json,idea_family,birth_generation,birth_issue,dataset_hash,state,state_reason,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
                     spec.policyHash(), spec.fullJson(), idea, generation, birthIssue, datasetHash, state, trim(reason), now, now);
-            batch.add("UPDATE r27_policy SET state=?,state_reason=?,updated_at=? WHERE policy_hash=? AND state NOT IN ('LIVE')", state, trim(reason), now, spec.policyHash());
+            if ("BORN".equals(state)) births.add(spec.policyHash());
+            if (!"BORN".equals(state) && !"REJECTED".equals(state)) {
+                batch.add("UPDATE r27_policy SET state=?,state_reason=?,updated_at=? WHERE policy_hash=? AND state NOT IN ('LIVE')", state, trim(reason), now, spec.policyHash());
+            }
             // R27-031: the R26 seven-counter ledger (r26_evolution) is fed by the R27 loop, one keyed row per attempt.
             String attempt = "R27:" + loop + ":" + spec.policyHash();
             if (state.equals("BORN") || state.equals("REJECTED")) {

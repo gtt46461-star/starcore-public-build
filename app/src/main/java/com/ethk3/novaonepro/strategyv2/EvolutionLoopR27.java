@@ -84,7 +84,14 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     private List<Pending> pending = new ArrayList<>();
     ResearchContextR30R1 researchContext;
     List<ResearchStoreR30R1.Ready> directedResearch=Collections.emptyList();
-    void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||ResearchInputPinR30R1.invalid(db,ctx.data.datasetHash)||ResearchInputPinR30R1.revision(db,ctx.data.datasetHash)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
+    private Set<String> recordedBirthCandidates = Collections.emptySet();
+    void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){
+        Set<String> candidates = new HashSet<>();
+        for (Pending candidate : pending) {
+            if (BirthGateR27.candidateContract(candidate.spec).ok) candidates.add(candidate.spec.policyHash());
+        }
+        recordedBirthCandidates = StoreR27.recordedPolicies(db, candidates);
+        for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||ResearchInputPinR30R1.invalid(db,ctx.data.datasetHash)||ResearchInputPinR30R1.revision(db,ctx.data.datasetHash)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
     void stageResearchHypotheses(ResearchWriteQueueR27.Batch b,long now){if(researchContext==null)return;researchContext.appendBudgetReceipt(b,generation,ctx.data.ordinals[ctx.split.selectFrom],ctx.data.ordinals[ctx.split.selectTo-1]);for(Pending p:pending)if(p.researchProposal==null)p.researchProposal=researchContext.stageBoundR31(b,p.spec,ctx,creation.sliceCostUnits,now);}
     void commitResearchAdmissions(ResearchWriteQueueR27.Batch batch,long now){for(Pending p:pending)if(p.researchProposal!=null){
         if("BORN".equals(p.state))ResearchStoreR30R1.consume(batch,p.researchProposal,p.spec.policyHash(),generation,"ORIGINAL_BIRTH_GATE_R30_REPAIR1",now);
@@ -267,6 +274,13 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             }
             String familyR31 = familyR31(p.spec); creation.record(familyR31, "contractValid", 1);
             String h = p.spec.policyHash();
+            if (recordedBirthCandidates.contains(h)) {
+                p.state = "DUPLICATE_BEHAVIOR";
+                p.reason = "POLICY_HASH_ALREADY_RECORDED";
+                dup++;
+                creation.record(familyR31, "duplicate", 1);
+                continue;
+            }
             if (existing.contains(h) || !seenThisGen.add(h)) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "SAME_POLICY_HASH"; dup++; creation.record(familyR31, "duplicate", 1); continue; }
             BirthGateR27.Verdict v = gate.check(p.spec);
             if (!v.ok) { p.state = "REJECTED"; p.reason = v.reason + ":" + v.detail; rejected++; reasons.merge(v.reason.name(), 1, Integer::sum); sink.policy(p.spec, "REJECTED", "BIRTH_REJECTED(" + v.reason + "):" + v.detail, generation, ctx.data.datasetHash); continue; }

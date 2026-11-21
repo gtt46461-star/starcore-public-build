@@ -10,7 +10,7 @@ MAIN=ROOT/'app/src/main/java/com/ethk3/novaonepro/strategyv2'
 HOST=ROOT/'tools/r31/evolution_publication_host'
 BASELINE='de9a30834025c18ce291c241a722abe437717539'
 NAMES=['StoreR27','EvolutionLoopR27','EvolutionPublicationSqlR31','EvolutionPublicationStoreR31']
-CASES={'baseline':'EvolutionPublicationR31Host','protocol':'EvolutionPublicationProtocolR31Host','phases':'EvolutionPublicationPhasesR31Host','fault':'EvolutionPublicationFaultR31Host','capacity':'EvolutionPublicationCapacityR31Host'}
+CASES={'baseline':'EvolutionPublicationR31Host','protocol':'EvolutionPublicationProtocolR31Host','phases':'EvolutionPublicationPhasesR31Host','fault':'EvolutionPublicationFaultR31Host','capacity':'EvolutionPublicationCapacityR31Host','recorded-birth':'RecordedPolicyBirthR335Host'}
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
  parser=argparse.ArgumentParser();parser.add_argument('--case',choices=['all',*CASES],default='all');parser.add_argument('--output');args=parser.parse_args()
