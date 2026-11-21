@@ -308,8 +308,9 @@ public final class ReportCatalogCP4 {
         try(Cursor c=query(db,"PRAGMA "+operation+"("+ident(name)+")",null)) {
             long n=0;while(c.moveToNext()) {
                 progress.checkpoint("SCHEMA_PRAGMA",n++);
-                StringBuilder b=new StringBuilder(1024);b.append('{');field(b,"kind","pragma_row");b.append(',');field(b,"operation",operation);b.append(',');field(b,"name",name);
-                for(int j=0;j<c.getColumnCount();j++) {b.append(',');quote(b,c.getColumnName(j));b.append(':');
+                StringBuilder b=new StringBuilder(1024);b.append('{');field(b,"kind","pragma_row");b.append(',');field(b,"operation",operation);b.append(',');field(b,"object_name",name);b.append(',');field(b,"pragma_schema",2);
+                Set<String> fieldNames=new HashSet<String>();Collections.addAll(fieldNames,"kind","operation","object_name","pragma_schema");
+                for(int j=0;j<c.getColumnCount();j++) {String columnName=c.getColumnName(j);if(columnName==null||!fieldNames.add(columnName))throw new IOException("CATALOG_DUPLICATE_PRAGMA_FIELD");b.append(',');quote(b,columnName);b.append(':');
                     if(c.isNull(j))b.append("null");else if(c.getType(j)==Cursor.FIELD_TYPE_INTEGER)b.append(c.getLong(j));
                     else if(c.getType(j)==Cursor.FIELD_TYPE_FLOAT)b.append(Double.toString(c.getDouble(j)));
                     else if(c.getType(j)==Cursor.FIELD_TYPE_BLOB)throw new IllegalStateException("SCHEMA_BLOB_FORBIDDEN");
@@ -333,7 +334,8 @@ public final class ReportCatalogCP4 {
     private static String bounded(String s) {if(s!=null && s.length()>16384)throw new IllegalArgumentException("CATALOG_METADATA_TOO_LARGE");return s;}
     private static String obj(Object... kv) {
         if((kv.length&1)!=0)throw new IllegalArgumentException("JSON_FIELDS");StringBuilder b=new StringBuilder(1024);b.append('{');
-        for(int i=0;i<kv.length;i+=2){if(i>0)b.append(',');field(b,(String)kv[i],kv[i+1]);}return b.append('}').toString();
+        Set<String> fieldNames=new HashSet<String>();
+        for(int i=0;i<kv.length;i+=2){if(!(kv[i] instanceof String)||!fieldNames.add((String)kv[i]))throw new IllegalArgumentException("CATALOG_DUPLICATE_JSON_FIELD");if(i>0)b.append(',');field(b,(String)kv[i],kv[i+1]);}return b.append('}').toString();
     }
     private static void field(StringBuilder b,String key,Object value) {
         quote(b,key);b.append(':');if(value==null)b.append("null");else if(value instanceof Boolean || value instanceof Number)b.append(value.toString());else quote(b,bounded(value.toString()));

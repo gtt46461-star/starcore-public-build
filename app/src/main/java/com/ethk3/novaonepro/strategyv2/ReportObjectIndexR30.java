@@ -62,7 +62,9 @@ public final class ReportObjectIndexR30 {
         List<Object> tableRows=new ArrayList<>();for(Object raw:list(data.get("researchTablesR31"))) {
             Map<String,Object> row=map(raw);Map<String,Object> entry=new LinkedHashMap<>(row);entry.put("objectKind","LOGICAL_TABLE");entry.put("defined",true);entry.put("consumer","ResearchTablesActivityR31 / ReportR29.document");tableRows.add(entry);
         }
-        out.put("logicalTables",category(16,tableRows));out.put("lifecycleEntriesR31",entries);out.put("schemaVersion","R31_PRODUCTION_OBJECT_INDEX_1");out.put("diagnosisScope",DIAGNOSIS_SCOPE_R31);return out;
+        out.put("logicalTables",category(16,tableRows));out.put("lifecycleEntriesR31",entries);out.put("schemaVersion","R31_PRODUCTION_OBJECT_INDEX_1");out.put("diagnosisScope",DIAGNOSIS_SCOPE_R31);
+        DiagnosisTraceReaderR33.attach(out,data.get("capturedFaultSourcesR335"));
+        out.put("capabilityNeedDiagnosticsR335",CapabilityNeedDiagnosticsR335.capture(out));return out;
     }
     public static final String SCHEMA="R30_REPAIR_OBJECT_INDEX_1";
     /** R31-B09-C01: the chart ids this report indexes (29 legacy + 18 research); must equal ChartRegistryR31.ids(). */
