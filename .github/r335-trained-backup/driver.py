@@ -42,7 +42,11 @@ def catalog_observation(reader, archive):
                     result['observedChecks']+=1
                     if row.get('completes_contract') is not True:
                         state=row.get('execution_state')
-                        result['incompleteCheckIds'].append({'id':check,'executionState':state if state in states else 'OTHER'})
+                        item={'id':check,'executionState':state if state in states else 'OTHER'}
+                        explanation=' '.join(str(row.get(k,'')) for k in ('reason','error_detail','evidence'))
+                        item['reasonSha256']=hashlib.sha256(explanation.encode()).hexdigest()
+                        item['reasonTypes']=[key for key in ('no such table','no such column','database is locked','database or disk is full','IllegalStateException','NullPointerException','SQLiteException','SQLiteDatabaseLockedException','REPORT_QUERY','REPORT_CONTEXT','REPORT_ASSET','FileNotFoundException') if key.lower() in explanation.lower()]
+                        result['incompleteCheckIds'].append(item)
     return result
 def main():
     spec=importlib.util.spec_from_file_location('native_reader',workspace/'.github/r335-raw-closure/driver.py')
@@ -52,8 +56,29 @@ def main():
     verify(not f.adb('shell','pm','list','packages',pkg).strip(),'FRESH_GUEST')
     candidate=temp/'protocol-candidate';apk=next(candidate.glob('*-release.apk'));test=candidate/'original-su1-androidTest.apk'
     verify(f.fingerprint(apk)==doc['apkSha256'],'APK_SHA')
-    f.adb('install',str(apk));f.adb('install',str(test))
+    previous=n.observe.get_apk(*n.observe.B07)
+    f.adb('shell','cmd','connectivity','airplane-mode','enable')
+    f.adb('shell','svc','wifi','disable');f.adb('shell','svc','data','disable')
+    verify(f.adb('shell','settings','get','global','airplane_mode_on').strip()==b'1','GUEST_NETWORK_ISOLATION')
+    f.adb('install',str(previous))
+    f.adb('shell','am','start','-W','-n',f.ACTIVITY)
+    time.sleep(70)
+    old_uid,old_sha=f.installed(f.EVID/'before-training-upgrade.txt',n.observe.B07[1])
+    verify(old_sha==f.fingerprint(previous),'PREVIOUS_APK')
+    f.adb('install','-r',str(apk));f.adb('install',str(test))
     identity=f.installed(f.EVID/'trained-backup-package.txt',577311065);verify(identity[1]==doc['apkSha256'],'INSTALLED_APK')
+    verify(identity[0]==old_uid,'UPGRADE_UID')
+    f.adb('shell','am','start','-W','-n',f.ACTIVITY)
+    time.sleep(90)
+    f.adb('shell','am','force-stop',pkg)
+    directory=temp/'registered-pretraining-state'
+    n.observe.dbprobe.snapshot(directory)
+    with sqlite3.connect((directory/n.observe.DB).as_uri()+'?mode=ro',uri=True) as c:
+        draws=c.execute('SELECT count(*) FROM draws').fetchone()[0]
+        tables=c.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+        verified=c.execute('PRAGMA quick_check').fetchone()[0]=='ok'
+    doc['priorInstallation']={'priorApkSha256':old_sha,'packageUidRetained':True,'freshDraws':draws,'tableCount':tables,'sqliteQuickCheck':verified,'guestNetworkIsolated':True}
+    verify(draws==0 and tables>0 and verified,'FRESH_UPGRADED_DATABASE')
     doc['phase']='REAL_TRAINING'
     component=pkg+'.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'
     cmd=['adb','shell','am','instrument','-w','-r','-e','class','com.ethk3.novaonepro.strategyv2.R335TrainedBackupTest#'+doc['registeredMethod'],component]
@@ -95,7 +120,7 @@ def main():
 with (temp/'trained-backup-private.log').open('w') as private,redirect_stderr(private),redirect_stdout(private):
     try:main()
     except Exception as error:
-        allowed={'GUEST','FRESH_GUEST','APK_SHA','INSTALLED_APK','NATIVE_TRAINING_TEST','CHECKPOINT_KEY','NONEMPTY_RAW_GRAPH_AND_SAF','REOPENED_SNAPSHOT','TRAINING_CURSOR_CHECKPOINT_BINDING','FINAL_TARGET','ARCHIVE_SHA','ORIGINAL_ARCHIVE_VERIFIER_REFUSED'}
+        allowed={'GUEST','FRESH_GUEST','APK_SHA','INSTALLED_APK','NATIVE_TRAINING_TEST','CHECKPOINT_KEY','NONEMPTY_RAW_GRAPH_AND_SAF','REOPENED_SNAPSHOT','TRAINING_CURSOR_CHECKPOINT_BINDING','FINAL_TARGET','ARCHIVE_SHA','ORIGINAL_ARCHIVE_VERIFIER_REFUSED','GUEST_NETWORK_ISOLATION','PREVIOUS_APK','UPGRADE_UID','FRESH_UPGRADED_DATABASE'}
         doc['failureCode']=str(error) if str(error) in allowed else type(error).__name__
         doc['failureLineNumbers']=[f.lineno for f in traceback.extract_tb(error.__traceback__) if Path(f.filename).name=='driver.py']
 (temp/('R335-trained-backup-'+str(run)+'.json')).write_text(json.dumps(doc,indent=2)+'\n')
