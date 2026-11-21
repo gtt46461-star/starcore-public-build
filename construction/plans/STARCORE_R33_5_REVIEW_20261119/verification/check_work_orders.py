@@ -31,6 +31,7 @@ SUPPLEMENTAL = {
     },
     'B05': {'R31ResearchTableBudgetHost.java': ['RE15']},
     'B07': {
+        'MatrixReportReferenceR335Test.java': ['D11', 'RT09'],
         'CapabilityNeedDiagnosticsR335.java': ['D10', 'D11'],
         'CapabilityNeedRegistryR335.java': ['D11'],
         'DiagnosisTraceReaderR33.java': ['D10', 'RT09'],

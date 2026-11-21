@@ -66,9 +66,9 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
       "payload": "production/sources/B07/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
       "inputSha256": "db1e206be830780c4ee31d5f62c39371142d31d52e3c22477fef12ad4abd64aa",
-      "sha256": "b0b4049c6e67e77f7a996583dd6658d602e99a6bd69b4722038d7952de0b04e1",
-      "reviewer": "R33.5 2026-11-20 report source review",
-      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications.",
+      "sha256": "4f6a6d44af1f1fb2063b958eb7a7ed0e34cc97d81f0cc0dbfdaacf1186d46eee",
+      "reviewer": "R33.5 field export construction regression 2026-11-21",
+      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications. Attach the trace before freezing the exact matrix reference consumed by the export verifier. Reject any subsequent matrix mutation.",
       "dynamicReview": false
     },
     {
@@ -229,6 +229,16 @@
       "sha256": "76c128b2fc417596a0ce87b56ab84abd2e4f2fbba2ac8e9d7cdcf927395194fd",
       "reviewer": "R33.5 construction regression 2026-11-21",
       "rationale": "RE15: preserve all existing JDBC assertions and add the UI-consumed cursor, an oversized last row, cell/row budget distinction and the next readable SQLite row.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B07",
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/MatrixReportReferenceR335Test.java",
+      "payload": "production/sources/B07/app/src/test/java/com/ethk3/novaonepro/strategyv2/MatrixReportReferenceR335Test.java",
+      "inputSha256": "NEW",
+      "sha256": "84ab23300304982dcb533df724a35e8a7ca7a69a388a67db6637c6fccdb0970d",
+      "reviewer": "R33.5 field export construction regression 2026-11-21",
+      "rationale": "D11/RT09: verify that the complete indexed object, including readback of a persisted scheduler trace, survives export/reopen. A later object mutation must still be refused.",
       "dynamicReview": false
     }
   ]
