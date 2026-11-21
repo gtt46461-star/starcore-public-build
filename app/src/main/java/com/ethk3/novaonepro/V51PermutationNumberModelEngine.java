@@ -111,7 +111,21 @@ public final class V51PermutationNumberModelEngine {
             System.arraycopy(source, 0, out, 0, source.length);
             return out;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        GateTelemetryR811(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.expertIds = (String[]) decodedR335.value(0);
+            this.healthState = (String[]) decodedR335.value(1);
+            this.gateWeight = (double[][]) decodedR335.value(2);
+            this.effectiveExperts = (double[]) decodedR335.value(3);
+            this.sumBeforeFallback = (double[]) decodedR335.value(4);
+            this.fallbackUsed = (boolean[]) decodedR335.value(5);
+            this.fallbackExpertIndex = (int[]) decodedR335.value(6);
+            this.gateStatus = (String) decodedR335.value(7);
+            this.diagnosticHash = (String) decodedR335.value(8);
+        }
+}
 
     public static final class Result {
         public final V51Models.ExpertEvidence[] experts;
@@ -167,7 +181,23 @@ public final class V51PermutationNumberModelEngine {
                     + '|'
                     + (tensor == null ? "" : tensor.checksum);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Result(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.experts = (V51Models.ExpertEvidence[]) decodedR335.value(0);
+            this.gateWeight = (double[][]) decodedR335.value(1);
+            this.rawScore = (double[][]) decodedR335.value(2);
+            this.matrix = (V51Models.NumberProbabilityMatrix) decodedR335.value(3);
+            this.gate = (V51ExpertGateEngine.Result) decodedR335.value(4);
+            this.projection = (V51SinkhornEngine.ProjectionResult) decodedR335.value(5);
+            this.tensor = (NumberSurfaceTensorEngine.TensorResult) decodedR335.value(6);
+            this.status = (ModelStatus) decodedR335.value(7);
+            this.artifactProven = ((Boolean) decodedR335.value(8)).booleanValue();
+            this.telemetry = (GateTelemetryR811) decodedR335.value(9);
+            this.checksum = (String) decodedR335.value(10);
+        }
+}
 
     private final V51NumberExpert[] experts =
             new V51NumberExpert[] {

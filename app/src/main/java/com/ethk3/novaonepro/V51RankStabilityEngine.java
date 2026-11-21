@@ -14,7 +14,16 @@ public final class V51RankStabilityEngine {
             rankMarginRobustness = m;
             stable = r >= 0.75d && t >= 0.60d && m >= 0.50d;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Result(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.retention = ((Double) decodedR335.value(0)).doubleValue();
+            this.thirdRobustness = ((Double) decodedR335.value(1)).doubleValue();
+            this.rankMarginRobustness = ((Double) decodedR335.value(2)).doubleValue();
+            this.stable = ((Boolean) decodedR335.value(3)).booleanValue();
+        }
+}
 
     public Result evaluate(V51Models.PositionAction rankOne, V51Models.PositionAction[] all) {
         if (rankOne == null || all == null || all.length != K3ActionSpaceEngine.TOTAL_ACTIONS)

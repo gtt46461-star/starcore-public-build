@@ -14,13 +14,13 @@
       "rationale": "P00 保留R31原祖先、原签、R312开发模式、r967 policy及终审检查；绑定当前方案seal；将033冻结调用索引从preBuild移除，使用当前variant项目classes生成asset。此改动影响构建顺序和实际交付身份，保留BUILD_CONTRACT，按原R82使旧数值资格失效。"
     },
     {
-      "after_role": "PRESENTATION",
-      "after_sha256": "25520bf6eacdbc19710a7000f6c52022639b4956f70f8713ef82883149f50381",
-      "before_role": "PRESENTATION",
-      "before_sha256": "8e95947c5bae693960cd0730336d144b7967a5551bb2a3d4d7281f458a7368e8",
       "path": "app/src/main/AndroidManifest.xml",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "8e95947c5bae693960cd0730336d144b7967a5551bb2a3d4d7281f458a7368e8",
+      "after_sha256": "668652f91450c45bbe7c7b62c3eb97b53799d7b806002d8477a885bd8c99daba",
+      "before_role": "PRESENTATION",
+      "after_role": "PRESENTATION",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification."
     },
     {
       "after_role": "NUMERIC",
@@ -133,11 +133,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
-      "after_sha256": "535b12b83439a56f455d7124385edf851efb5cf05f8b0860e862851ec7714f5a",
+      "after_sha256": "e496fe4badbf361f1c611905c528c351dc0ed4feadb31f6613706982755bb14e",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B01 精确源码复核：AutoFetchService.java。真实限一行原件worker：23列SQLite类型/长度/原值编码，与原参考wire一致；增量预算后fsync/rename/目录fsync，pending与report pin，既有维护ACTIVE，短deadline typed telemetry transaction内最终比较全原件、插定位和删热行；独立连接收据和CAS读回。独立schema域、冷热读取、FULL_RAW附件和compact可用性索引全部接线。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。 动态Class.forName私有工厂及所有固定类名调用点相对033保持；绑定当前整个服务源码dynamic_review_sha256，不授予任意新动态依赖。"
+      "rationale": "R335 B02 精确源码复核：AutoFetchService.java。真实限一行原件worker：23列SQLite类型/长度/原值编码，与原参考wire一致；增量预算后fsync/rename/目录fsync，pending与report pin，既有维护ACTIVE，短deadline typed telemetry transaction内最终比较全原件、插定位和删热行；独立连接收据和CAS读回。独立schema域、冷热读取、FULL_RAW附件和compact可用性索引全部接线。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。 动态Class.forName私有工厂及所有固定类名调用点相对033保持；绑定当前整个服务源码dynamic_review_sha256，不授予任意新动态依赖。"
     },
     {
       "after_role": "NUMERIC",
@@ -221,13 +221,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "5fa2632ba02b4008420fab98d2ea539ffa7cffbf2b2bd330f261c96b05555c2b",
-      "before_role": "NUMERIC",
-      "before_sha256": "4d14161e66a85add7880b706b5a51321b92e0efe103fad07d1108316b64c0313",
       "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "4d14161e66a85add7880b706b5a51321b92e0efe103fad07d1108316b64c0313",
+      "after_sha256": "43dea778ae0f4e956deb334beb5b4bcf7a0bad9491d0c5fb89d81bca6eb21fc5",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：CertifiedPredictionR974.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "after_role": "NUMERIC",
@@ -293,6 +293,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+      "before_sha256": "260e19fdcc657747ec58e74894af222440bcd7b4c0050018ad9afc22e7748f8a",
+      "after_sha256": "152e0e6a5edfcf07e4c4b5fd1874e762443c73d0b356762178808b82988a5d91",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：ControlledCandidateOpportunityAuditR922.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
       "before_sha256": "b535ee57f6c9db464a0eaa0c115eb69f50a90ffd291e3fe6fb01c01a1995d4a6",
       "after_sha256": "82d50c7d1cae8aba8ea10f35b11c6f4cad4db267091530d66e20717e4c7b5634",
@@ -320,13 +329,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "465e2b34b1610dde98a84157fd50f8e1538caf8ab5815ff13b5d27d94247a9cd",
-      "before_role": "NUMERIC",
-      "before_sha256": "25f82b067254b385d620c052ae628df9c11d55c900f7a2cc60377ae11d162f6a",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "保留唯一写者和既有事务准入；登记准确owner/phase/根异常并在许可的writer事务排空，不能把ADMISSION和END统一改为可重试。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+      "before_sha256": "25f82b067254b385d620c052ae628df9c11d55c900f7a2cc60377ae11d162f6a",
+      "after_sha256": "563d85ef3a55754ce131555351b477fd87b9092439af699c4e2b7c49701dba23",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：DatabaseCoordinator.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。 反射入口仍为033固定Android DatabaseErrorHandler/CursorFactory类型和openDatabase签名；动态入口文本不变，更新整文件已审字节pin。"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
@@ -437,13 +446,49 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "9ed9f2a340b4d8fbe08c95ace2192a424584d7e5abeaeb3930691c6972afd789",
-      "before_role": "NUMERIC",
-      "before_sha256": "9e2364ddafaecc196302584ebc84c03768004adb34f913665a1581290795e943",
       "path": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "9e2364ddafaecc196302584ebc84c03768004adb34f913665a1581290795e943",
+      "after_sha256": "b6cfd371d323fd6fa9c693af664ee31bc58718d2b4b5a47e51a48d25bb2278ee",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT08: pin original draw dependencies until the same reviewed residual consumer has a receipt; historical aggregates do not release the new consumer pin."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DurableReturnTimingR334.java",
+      "before_sha256": "",
+      "after_sha256": "3e95e34229ab0a1394fe1b1984b260fbc1828b8b2582686b50ac5317d2d85176",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：DurableReturnTimingR334.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+      "before_sha256": "",
+      "after_sha256": "3513b488c737a1f1199c616d78fb3704ae1a85e4bedaf71e755edab2f5446b6e",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 on-device and SQL readback 2026-11-21",
+      "rationale": "R335-RE21: Read the durable XML field through the exact Android indentation decoder before original hash-chain verification and shell-only projection. Current status and mode/UID checks are preserved."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+      "before_sha256": "",
+      "after_sha256": "e7ea6b90eeaac4e1940e8cda2eeb90281f80ab5bede4f9d370994485c11066f0",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 on-device and SQL readback 2026-11-21",
+      "rationale": "R335-RE21: Decode only Android platform closing-tag indentation at the XML storage boundary. The strict hash-chain parser still rejects truncation, unknown whitespace, altered digests and discontinuous clocks."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+      "before_sha256": "fc4d174c5d0b70bcec3d9aee81dae08d7efaab948b6ef3e7bfd638541bdcb931",
+      "after_sha256": "f39d43fa3b451156263b70632702ea8c941adcdb54d94dd29454c455268ddcc2",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：EssentialSettlementFeedbackR923.java。rows0只在精确原post解释已存在并通过原recordhash/predraw/canonical/draw/deadline等读回时ALREADY_VERIFIED；无predraw/无解释不能成功。单飞CAS、单调预算、公平issue游标持久读回、低优先telemetry投影，fatal传播。；另重新计算predraw九段canonical hash、验证原K3/实际hit/draw_hash_v2及shadow commit同时早于deadline/open/firstSeen。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "after_role": "NUMERIC",
@@ -453,6 +498,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/ExplorationLaneR83.java",
       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
       "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java",
+      "before_sha256": "",
+      "after_sha256": "52efd8f66a996147081715e8da3a3eaa7b22e727510bccecf2e0b94827da2c52",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：FaultControlLoopR334.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java",
@@ -509,6 +563,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+      "before_sha256": "",
+      "after_sha256": "01ed302e8ffa74b5b46160d9940c663ec7993e089acd6cb291ea4c231689de7f",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05: use the actual opening and first durable source observation for numeric feedback, with an independent residual consumer identity."
+    },
+    {
       "after_role": "NUMERIC",
       "after_sha256": "becc51b1fcc3f88133d1e079a6c1a504003928e68629591525945a7ebb673dca",
       "before_role": "",
@@ -525,6 +588,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/FtrlWriteTraceR30.java",
       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
       "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+      "before_sha256": "1e15ed3afa38727b8277e4caa4da6f18e21e0e82e48c8a56965067490a1ca83a",
+      "after_sha256": "66abd3875fac17684a5931cc4b62b56544720a629fa3bc3fbd89d10f3a5e0c43",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：K3FunnelOrchestrator.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyBackupCustodyR335.java",
@@ -689,6 +761,24 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/NumberSurfaceTensorEngine.java",
+      "before_sha256": "e339879f762bdae5074c772996b9dbf0bd7c3679bafce1ee2b14602212e65ddb",
+      "after_sha256": "dab1f4f34b4762b45963feefc4e49c603e3952d3f56effacc2c95e59505b7689",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：NumberSurfaceTensorEngine.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "before_sha256": "67f3d07d9b7d54e74fc0acda28869cdb08da888156fb5da1177a2138627b5931",
+      "after_sha256": "3247adfd6d2bae263bb5883e0538bd42eb03cd38f04aa69797a523ba4f9c6b76",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01, RT05: bind source identity and clocks before any settlement; re-read immutable first-write time on idempotent replay. Preserve invalid legacy labels for diagnosis."
+    },
+    {
       "after_role": "NUMERIC",
       "after_sha256": "b21b5164a6ab1fe2aa428efcd7eb2a4df4eb9dad87ea8e0811e9b76923228407",
       "before_role": "NUMERIC",
@@ -707,6 +797,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/PostCanonicalObservationR33.java",
+      "before_sha256": "",
+      "after_sha256": "de4b0487ca2d7da0bdf133a697129038b349ea25f42a9ccd48392bf94be6d3d6",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：PostCanonicalObservationR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "after_role": "NUMERIC",
       "after_sha256": "769eaf2eb62a68fd32044a5f02f75dc3ecb9f137156d187a995530bf28162fb0",
       "before_role": "",
@@ -723,6 +822,24 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
       "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+      "before_sha256": "",
+      "after_sha256": "246cc8dcb4ead898ba1f144354eac6219e74b81ab2199a28e92cb570b4e1316d",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：PreparedCanonicalCodecR335.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+      "before_sha256": "",
+      "after_sha256": "ad31eae11faa9fda93f7db520b769f3a2291079203ddce54390da209fb8235dd",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：PreparedCanonicalStoreR335.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "after_role": "NUMERIC",
@@ -750,6 +867,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisLeasePolicyR365.java",
       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
       "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
+      "before_sha256": "",
+      "after_sha256": "0f8965b71c1162578e64f9e307f940ec88d5f79f852f33b6aeb1185a2e95a058",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：RealtimeContractR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "after_role": "NUMERIC",
@@ -1040,6 +1166,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+      "before_sha256": "3f6fe316df2b5dd7b314de5cceaeb52b77ef0a743141b96449c2cf8106341584",
+      "after_sha256": "3d6a017fe60e109f216641a6cd033f11ab326c7b6c00822f482e0e312852a027",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：ResearchMainlineContributionAuditR922.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "after_role": "NUMERIC",
       "after_sha256": "579e63dae282883fb8edf2f33ad7539fc0a645bfa26b2d2f7fe3fc4ae4a33256",
       "before_role": "NUMERIC",
@@ -1265,13 +1400,13 @@
       "rationale": "RT10: measure immediately available blocks on the actual database volume through the API 18 StatFs public interface. The exact backup margin and fail-closed handling are unchanged; reclaimable cache is never treated as already free."
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6",
-      "before_role": "NUMERIC",
-      "before_sha256": "5df02033dc65ea99cca42e45a59cbdc3840dc3326bc9246fbda309b46778655f",
       "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "5df02033dc65ea99cca42e45a59cbdc3840dc3326bc9246fbda309b46778655f",
+      "after_sha256": "83aaf5dbaecd6cfde54cdcb43080c0cb58829ad3d9610ec23d644cae71eb8f11",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 on-device and SQL readback 2026-11-21",
+      "rationale": "R335-RE21: Use the same disk-field decoder when extending the stored journal following process restart; continue the previous immutable digest and sequence."
     },
     {
       "after_role": "NUMERIC",
@@ -1283,13 +1418,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8",
-      "before_role": "NUMERIC",
-      "before_sha256": "f571e7503c40ecfe38dcdfefe4f97725c46f4394b188d640462a35bd6881015d",
       "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "f571e7503c40ecfe38dcdfefe4f97725c46f4394b188d640462a35bd6881015d",
+      "after_sha256": "6b438d6640611a1d413b8b7a1b6faaac2321c1887ef9bee313350ae817ecd7c9",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01: roll back the sole settlement transaction if the terminal clock precedes the immutable label; existing coordinator retries."
     },
     {
       "after_role": "NUMERIC",
@@ -1490,6 +1625,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51CompiledActionContract.java",
+      "before_sha256": "537fdd1ab00187c8241453efb94141557a4f5d5e1b571bbeb5a576c7430a665a",
+      "after_sha256": "98ce82691fba5c65df95372c49dc1855e66410501837f1e591f0f8c75629995a",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51CompiledActionContract.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "after_role": "NUMERIC",
       "after_sha256": "f09b2bc7a2c3c93ea73e85fc0a5a9315dc4f529a13738d93e8b99260bb39b4a2",
       "before_role": "NUMERIC",
@@ -1499,22 +1643,112 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "d53e3052ccb74c42ce6a41e6926771aee511331e09186a569fc730f26398f768",
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+      "before_sha256": "7498a64929f618d3a242d73532711e4aa66bf724352e34cc84d6c1062d14a9b5",
+      "after_sha256": "10fffc7e4ae30cfa66a56b4ab577fe8d614c9a08cd355597eff635da6f1d2ccc",
       "before_role": "NUMERIC",
-      "before_sha256": "a18823975447bf4615c8e2b73330c7d7a912eac278be4ccb23494e0127d35951",
-      "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51EffectiveConsensusEngine.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "5bbbe9f9587de37b48a9579a20b3976c3fc379b30f7536ef9330ae3cc60bc898",
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+      "before_sha256": "f4ce0c2aed75331c4b816ed560b62064e9ead777150903bc00a27f22784b9e17",
+      "after_sha256": "8d84cd93eb11189bd5dab0958dc156fc2d8d72ef6405d16a826d33aa13a14d15",
       "before_role": "NUMERIC",
-      "before_sha256": "105bc06fdda0f5a7c203fe4a51604ae83fb342976f8f0ad92496965fd445ae79",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51ExpertGateEngine.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51ExpertHealthRegistry.java",
+      "before_sha256": "1f7973f0cb4b24084b0de3f82c7c2ccf90d9e677eea9fc5db60bceb7b6b6cdc1",
+      "after_sha256": "a53012cc621ca04f525493be419fa7286c98645279098ba8cd5ecb29f120831d",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51ExpertHealthRegistry.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+      "before_sha256": "698b306d98331a8a911b7376787a0024002eb236003c81e02add232c89bcbdb5",
+      "after_sha256": "4dab3ae9f9988655f2d6dd2e3a35caaea396f6b94f0c1979803f35db2b940c5b",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51Models.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+      "before_sha256": "50d8e26bd1e4375be7e5dba60d49e89c860374478d1c7b551c01014b362f274c",
+      "after_sha256": "9d992bb8a0c7d4dc59993ec7e5adf54067116d909f24acabc87185244c47ce1e",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51PermutationNumberModelEngine.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51PolicyCell.java",
+      "before_sha256": "8332f0a72eab21564b727112dc3482511ebb54b814e05e9f048ea195ff887d07",
+      "after_sha256": "04f154e57bdb70bbbde9e890e8f9594651266ca788cee77d65d768548b322fd5",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51PolicyCell.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51RankStabilityEngine.java",
+      "before_sha256": "85971a62dbfd85e8f8611f123f629557ffe3c8e4a66fc3a5791ab03c4aa0d5a8",
+      "after_sha256": "32ad4e5a093b8272650a6417e24c83cc48baf8235d451ef5777855aeb8144b53",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51RankStabilityEngine.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+      "before_sha256": "a18823975447bf4615c8e2b73330c7d7a912eac278be4ccb23494e0127d35951",
+      "after_sha256": "4cc27e7de22aa4050089ad5dd208a870a8f009638af6aa45ff66eba6e47edacc",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51Repository.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "105bc06fdda0f5a7c203fe4a51604ae83fb342976f8f0ad92496965fd445ae79",
+      "after_sha256": "c5852b85c4e3dd7075ce0ec39ac61e353196b58cd4d472ea9216cb66b93bb808",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/C01: record when the already durable prepared result is actually observed, including commit-unknown readback and resumed commit. Use the exact request and canonical hash. A later readback provides only an upper time bound."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
+      "before_sha256": "bdfa705de3d00d3106d8e1dd88c0a6b605cd1dbec47e4586c12434a98ae841c3",
+      "after_sha256": "3d9908bf0ee3ac845daf842fc74facfaf919218be2ff544f974dff9d0d980502",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51RuntimeResult.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51SelectiveRiskController.java",
+      "before_sha256": "89697ce97dbcbcaa707f805fd62e60f0460e6810e8c12f3316cd6fa50d0067fc",
+      "after_sha256": "fd57ccbee76908412922430a262e3858e0085448c751857fa3aca0a8ce34ed39",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51SelectiveRiskController.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+      "before_sha256": "58c3810a7a1365a0e8054ed85bbf3ff529ecdb18f8d11169724c924427f604d2",
+      "after_sha256": "18912127aec1a4f9aa833f6aa09ae4563cb971be37359da9087b6751fe7b374c",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：V51SinkhornEngine.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "after_role": "NUMERIC",
@@ -4811,13 +5045,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "e321c2b23acb18d0d59ddf3372db6a9b0ea4dbb71f24dc77bd26f843bcce788e",
-      "before_role": "",
-      "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "",
+      "after_sha256": "49016804fbb87c302cc5b6350bb99f18cca3b4caf203e686d93b3aac651d6062",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05,RT06: validate source clocks and exact previous issue at both typed-producer and residual-consumer readback. Replay bounded V3 from originals independently of preserved V2 state."
     },
     {
       "after_role": "NUMERIC",
@@ -5639,7 +5873,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "d9473c186e4368b73c924e1aacc0ad8ee20bc20d0996646ef1ab862ca37b6dbe",
+  "current_controlled_roles_sha256": "3866992a4b0f78185b7c0fd112e2a81c204568a921017fa87785c324bd2dcf28",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -5733,6 +5967,24 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DurableReturnTimingR334.java",
+      "role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：DurableReturnTimingR334.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+      "role": "NUMERIC",
+      "reviewer": "R33.5 on-device and SQL readback 2026-11-21",
+      "rationale": "R335-RE21: Read the durable XML field through the exact Android indentation decoder before original hash-chain verification and shell-only projection. Current status and mode/UID checks are preserved."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+      "role": "NUMERIC",
+      "reviewer": "R33.5 on-device and SQL readback 2026-11-21",
+      "rationale": "R335-RE21: Decode only Android platform closing-tag indentation at the XML storage boundary. The strict hash-chain parser still rejects truncation, unknown whitespace, altered digests and discontinuous clocks."
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/EvidenceReachabilityR31.java",
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
@@ -5745,6 +5997,12 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java",
+      "role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：FaultControlLoopR334.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java",
       "role": "NUMERIC",
       "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
@@ -5755,6 +6013,12 @@
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+      "role": "NUMERIC",
+      "reviewer": "R33.5 second source review 2026-11-20",
+      "rationale": "B02/RT05: use the actual opening and first durable source observation for numeric feedback, with an independent residual consumer identity."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenInputStabilityR82.java",
@@ -5835,6 +6099,12 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/PostCanonicalObservationR33.java",
+      "role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：PostCanonicalObservationR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/PredrawTailRecoveryR32.java",
       "rationale": "新增可重复执行的尾段归约器；按连续期号、封口/目标时钟与可见性约束决定可恢复尾段，不能用补采历史结果回填事前预测。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
       "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
@@ -5845,6 +6115,24 @@
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+      "role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：PreparedCanonicalCodecR335.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+      "role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：PreparedCanonicalStoreR335.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
+      "role": "NUMERIC",
+      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+      "rationale": "R335 B02 精确源码复核：RealtimeContractR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
@@ -8699,7 +8987,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "44d57a3a50661345345b6bfd312a5e3040423339083eac4ea1a21a36dd428cc8",
+  "reviewed_input_provenance_sha256": "63edada200caf7e91bc5ee6725a5fc160564a52eed9d57d90aa739c5be706c71",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

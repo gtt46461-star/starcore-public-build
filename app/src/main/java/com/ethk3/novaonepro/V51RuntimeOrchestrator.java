@@ -40,8 +40,19 @@ public final class V51RuntimeOrchestrator {
         final long runtimeEnteredMonoR927 = TimeSourceR811.monoNowMs();
         final long runtimeEnteredR925 = System.currentTimeMillis();
         AnalysisRequestStoreR36 requests = new AnalysisRequestStoreR36(store);
-        try (RecipeBudgetScopeCP12 recipeScope=RecipeBudgetScopeCP12.open();ModelBundleRuntimeR932.Scope modelScope = openBundleTracedCP3(store, request, trace)) {
+        try (RecipeBudgetScopeCP12 recipeScope=RecipeBudgetScopeCP12.open()) {
+            // An exact already-committed fact is resolved before any new bundle/lease/deadline check.
+            PreparedCanonicalStoreR335.Prepared preparedR335=PreparedCanonicalStoreR335.load(store,request);
+            if(preparedR335!=null) {
+                DeferredEvidenceSnapshotR36.Header oldHeader=DeferredEvidenceSnapshotR36.decode(preparedR335.snapshot).header();
+                V51Repository.CanonicalCommitResult confirmed=readCommittedR335(store,request,preparedR335.result,oldHeader,preparedR335.snapshotHash);
+                if(confirmed!=null)return finishPreparedR335(store,request,lease,predrawWakeR81,preparedR335.result,confirmed,trace,root);
+                preparedR335.requireReusable(request);
+            }
+            try(ModelBundleRuntimeR932.Scope modelScope=openBundleTracedCP3(store,request,trace)) {
             checkpoint(requests, lease, "RUNTIME_ENTER");
+            if(preparedR335!=null) return resumePreparedR335(store,input,request,lease,predrawWakeR81,preparedR335,trace,root);
+
             V51Models.DrawFrame[] history = input.frozenFramesR36();
             if (history.length < 12) throw new IllegalStateException("V51_HISTORY_LT_12");
             if (!request.baseIssue.equals(history[history.length - 1].issue))
@@ -378,7 +389,7 @@ public final class V51RuntimeOrchestrator {
             PredictionOutputContractR815.requireCanonicalReady(
                     PredictionOutputContractR815.validate(
                             request.targetIssue, result, input.history));
-            trace.end(root, true, "");
+            endComputeR335(trace,root, true, "");
             RuntimeTraceR36.Mark snapshotMark = trace.begin("SNAPSHOT_STREAM");
             DeferredEvidenceSnapshotR36.EncodedSnapshot snapshot =
                     DeferredEvidenceSnapshotR36.encodeRuntimeResult(
@@ -391,15 +402,36 @@ public final class V51RuntimeOrchestrator {
             // before the canonical transaction; its body (V51Repository.commitCanonicalBundleVerifiedR368) only
             // re-checks the target issue and writes the prepared rows plus timeline NEXT_PREPARED/NEXT_FROZEN.
             // Do not call model/feature code inside it (construction/r30/B02_04_TX_AUDIT.md).
+            lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.COMMIT,1000L);
+            checkpoint(requests,lease,"BEFORE_CANONICAL_COMMIT");
             RuntimeTraceR36.Mark commitMark = trace.begin("DB_CANONICAL_WAIT");
-            V51Repository.CanonicalCommitResult commit =
-                    V51Repository.commitCanonicalBundleR36(
-                            store,
-                            request,
-                            lease.ownerId,
-                            result,
-                            snapshot,
-                            trace);
+            V51Repository.CanonicalCommitResult commit;
+            try {
+                commit=V51Repository.commitCanonicalBundleR36(store,request,lease.ownerId,result,snapshot,trace);
+            } catch(RuntimeException commitFailure) {
+                // The normal success path adds no file encoding or global storage census.
+                // First resolve an unknown return from the original transaction.
+                V51Repository.CanonicalCommitResult confirmed=null;
+                try{confirmed=readCommittedR335(store,request,result,snapshot.header,snapshot.sha256);}
+                catch(RuntimeException readbackFailure) {
+                    commitFailure.addSuppressed(readbackFailure);
+                    com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Decision readbackDisposition=
+                            com.ethk3.novaonepro.strategyv2.FailureDispositionR31.classify(readbackFailure);
+                    if(readbackDisposition.disposition!=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Disposition.RETRY_LATER
+                            &&readbackDisposition.disposition!=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Disposition.DEPENDENCY)throw commitFailure;
+                    // This is UNKNOWN, not confirmed absence. Persist only a retry cache;
+                    // the next attempt must still query the sole canonical fact first.
+                }
+                if(confirmed!=null){trace.end(commitMark,true,"R335_CANONICAL_READBACK");return finishPreparedR335(store,request,lease,predrawWakeR81,result,confirmed,trace,root);}
+                com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Decision disposition=
+                        com.ethk3.novaonepro.strategyv2.FailureDispositionR31.classify(commitFailure);
+                if(disposition.disposition==com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Disposition.RETRY_LATER
+                        ||disposition.disposition==com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Disposition.DEPENDENCY) {
+                    try{PreparedCanonicalStoreR335.save(store,request,result,snapshot);}
+                    catch(java.io.IOException|RuntimeException saveFailure){commitFailure.addSuppressed(saveFailure);}
+                }
+                throw commitFailure;
+            }
             if (commit != null && commit.success) {
                 lease.token.markCanonicalCommitted();
                 if (predrawWakeR81 != null) predrawWakeR81.canonicalCommitted();
@@ -429,26 +461,32 @@ public final class V51RuntimeOrchestrator {
                 telemetry.put("r903_mainline_governor_applied", actionStage.governanceApplied ? "1" : "0");
                 telemetry.put("r923_request_to_durable_return_ms",
                         String.valueOf(requestElapsedR927));
-                store.coordinatorR36().runWrite("R923_POST_COMMIT_TELEMETRY",
+                final String observedTargetR33=request.targetIssue,observedAttemptR33=request.attemptId();
+                final long observedRequestWallR33=request.requestAt;
+                final int observedActiveR33=AnalysisSingleFlightR36.shared().activeCount(),observedMaximumR33=AnalysisSingleFlightR36.shared().maximumObserved();
+                PostCanonicalObservationR33.offer(()->store.coordinatorR36().runWrite("R923_POST_COMMIT_TELEMETRY",
                         new DatabaseCoordinator.WriteRunnable() {
                             @Override public void run(android.database.sqlite.SQLiteDatabase db) {
+                                RuntimeHealthLedgerR36.recordWithinTransaction(db, "R335_CANONICAL_RETURN_BOUND",
+                                        observedAttemptR33, observedTargetR33, "OBSERVED", observedRequestWallR33,
+                                        durableReturnedAt, 0L, 0, 1, true,
+                                        canonicalReturnDetailR335(commit.canonicalHash, durableReturnedAt));
                                 DbStore.putStatesR36(db, telemetry);
-                                RuntimeObservabilityR925.timing(db, request.targetIssue, request.requestAt, runtimeEnteredR925, durableReturnedAt, computeMs, commitCostR925, request.attemptId(), requestedMonoR927, runtimeEnteredMonoR927, durableReturnedMonoR927);
+                                RuntimeObservabilityR925.timing(db, observedTargetR33, observedRequestWallR33, runtimeEnteredR925, durableReturnedAt, computeMs, commitCostR925, observedAttemptR33, requestedMonoR927, runtimeEnteredMonoR927, durableReturnedMonoR927);
                                 RuntimeHealthLedgerR36.recordWithinTransaction(db,
                                         RuntimeHealthLedgerR36.DURABLE_RETURN_EVENT_R923,
-                                        request.attemptId(),request.targetIssue,"SUCCESS",
-                                        request.requestAt,durableReturnedAt,
+                                        observedAttemptR33,observedTargetR33,"SUCCESS",
+                                        observedRequestWallR33,durableReturnedAt,
                                         requestElapsedR927,
-                                        AnalysisSingleFlightR36.shared().activeCount(),
-                                        AnalysisSingleFlightR36.shared().maximumObserved(),true,
+                                        observedActiveR33,observedMaximumR33,true,
                                         requestedMonoR927 < 0L ? "REHYDRATED_ORIGIN_UNAVAILABLE" : "MONOTONIC_REQUEST_TO_TRANSACTION_RETURN|TELEMETRY_IO_EXCLUDED");
                             }
-                        });
+                        }));
             } catch (Throwable ignoredGovernanceTelemetry) {
                 // The canonical commit is already durable; telemetry cannot invalidate it.
             }
             try {
-                V51ArtifactRollbackEngine.reconcileTransientRollbackR915(store);
+                PostCanonicalObservationR33.offer(()->V51ArtifactRollbackEngine.reconcileTransientRollbackR915(store));
             } catch (Throwable ignoredRollbackCleanup) {
                 // The read-only hot-path decision already preserved the same fail-closed contract.
                 // Cleanup is diagnostic state only after canonical durability.
@@ -456,18 +494,73 @@ public final class V51RuntimeOrchestrator {
             // R907 P0 latency rule: after canonical commit, return immediately to the service so
             // Decision broadcast is not held behind Research/diagnostic work. Research capture is
             // scheduled on the dedicated background-serial HandlerThread by AutoFetchService.
+            PreparedCanonicalStoreR335.clearAfterCommit(store,request);
             return new OutcomeR36(result.publishedViewCP12(), commit, snapshot.sha256, trace);
+            }
         } catch (OutOfMemoryError oom) {
-            trace.end(root, false, "OOM");
+            endComputeR335(trace,root, false, "OOM");
             RuntimeMemoryGuardR811.recoverAfterFailure();
             throw oom;
         } catch (RuntimeException e) {
-            trace.end(root, false, e.getClass().getSimpleName());
+            endComputeR335(trace,root, false, e.getClass().getSimpleName());
             throw e;
         } catch (Throwable e) {
-            trace.end(root, false, e.getClass().getSimpleName());
+            endComputeR335(trace,root, false, e.getClass().getSimpleName());
             throw new IllegalStateException("R36_RUNTIME_FAILED", e);
         }
+    }
+
+    private static void endComputeR335(RuntimeTraceR36 trace,RuntimeTraceR36.Mark mark,boolean success,String detail) {
+        for(RuntimeTraceR36.Span span:trace.spans())if(span.stage.equals(mark.stage)&&span.startedAt==mark.wallStartedAt)return;
+        trace.end(mark,success,detail);
+    }
+
+    /** Pure readback of a previously published fact; this never reauthorizes or writes a trade. */
+    private static V51Repository.CanonicalCommitResult readCommittedR335(DbStore store,
+            AnalysisSingleFlightR36.Request request,V51RuntimeResult result,
+            DeferredEvidenceSnapshotR36.Header header,String snapshotHash) {
+        CanonicalObservationWriterR36.CanonicalView existing=CanonicalObservationWriterR36.readView(store,request.targetIssue);
+        if(existing==null)return null;
+        String expected=V51ChecksumEngine.sha256("R36_CANONICAL|"+request.targetIssue+'|'+request.baseIssue+'|'
+                +header.historyHash+'|'+header.actionSpaceHash+'|'+snapshotHash+'|'+result.selected.action.checksum+'|'+result.authorized.authorizationHash);
+        if(!snapshotHash.equals(existing.snapshotHash)||!header.actionSpaceHash.equals(existing.actionSpaceHash)
+                ||!expected.equals(existing.recordHash)||!request.targetIssue.equals(existing.targetIssue)||!request.baseIssue.equals(existing.baseIssue))
+            throw new IllegalStateException("R335_PREPARED_CANONICAL_CONFLICT");
+        return new V51Repository.CanonicalCommitResult(true,true,request.targetIssue,existing.recordHash,
+                existing.snapshotHash,header.bundleHash,existing.createdAt,Math.max(0,existing.createdAt-request.requestAt),"R335_PREPARED_READBACK");
+    }
+    private static String canonicalReturnDetailR335(String canonicalHash, long observedAt) {
+        return "R335_CANONICAL_OBSERVED|canonicalHash=" + canonicalHash + "|observedAt=" + observedAt;
+    }
+    private static OutcomeR36 finishPreparedR335(DbStore store,AnalysisSingleFlightR36.Request request,
+            AnalysisSingleFlightR36.Lease lease,PredrawWakeLeaseR81 wake,V51RuntimeResult result,
+            V51Repository.CanonicalCommitResult commit,RuntimeTraceR36 trace,RuntimeTraceR36.Mark root) {
+        // This is an upper bound observed after the exact commit or its verified readback.
+        final long observedAt = System.currentTimeMillis();
+        final String detail = canonicalReturnDetailR335(commit.canonicalHash, observedAt);
+        PostCanonicalObservationR33.offer(() -> RuntimeHealthLedgerR36.record(store,
+                "R335_CANONICAL_RETURN_BOUND", request.attemptId(), request.targetIssue, "OBSERVED",
+                request.requestAt, observedAt, 0L, 0, 1, true, detail));
+
+        lease.token.markCanonicalCommitted();if(wake!=null)wake.canonicalCommitted();
+        endComputeR335(trace,root,true,"R335_EXACT_CANONICAL_CONFIRMED");
+        PreparedCanonicalStoreR335.clearAfterCommit(store,request);
+        return new OutcomeR36(result.publishedViewCP12(),commit,commit.snapshotHash,trace);
+    }
+    private static OutcomeR36 resumePreparedR335(DbStore store,V51RuntimeInputR36 input,
+            AnalysisSingleFlightR36.Request request,AnalysisSingleFlightR36.Lease lease,
+            PredrawWakeLeaseR81 wake,PreparedCanonicalStoreR335.Prepared prepared,
+            RuntimeTraceR36 trace,RuntimeTraceR36.Mark root)throws java.io.IOException {
+        V51RuntimeResult result=prepared.result;prepared.requireReusable(request);
+        if(!result.context.artifactBundleHash.equals(ModelBundleRuntimeR932.current().hash))throw new IllegalStateException("R335_PREPARED_BUNDLE_CHANGED");
+        PredictionOutputContractR815.requireCanonicalReady(PredictionOutputContractR815.validate(request.targetIssue,result,input.history));
+        lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.COMMIT,1000L);
+        checkpoint(new AnalysisRequestStoreR36(store),lease,"BEFORE_CANONICAL_COMMIT");
+        prepared.requireReusable(request);
+        // Original owner rechecks certificate/revocation, lease generation, fixed deadline and draw absence.
+        V51Repository.CanonicalCommitResult commit=V51Repository.commitCanonicalBundleR36(store,request,lease.ownerId,result,prepared.snapshot,prepared.snapshotHash,trace);
+        if(commit==null||!commit.success)throw new IllegalStateException("R335_PREPARED_COMMIT_NOT_CONFIRMED");
+        return finishPreparedR335(store,request,lease,wake,result,commit,trace,root);
     }
 
     private static void checkpoint(

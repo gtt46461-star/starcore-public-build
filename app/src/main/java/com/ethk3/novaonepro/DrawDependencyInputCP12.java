@@ -107,13 +107,29 @@ public final class DrawDependencyInputCP12 {
         Set<String> installed = new HashSet<>();
         try (Cursor schema = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name IN("
                 + "'v57_research_input_pin_r967','v57_research_task_r967','r952_candidate_predraw',"
-                + "'r958_frozen_predraw','r952_research_outbox','atomic_tool_context_r943',"
+                + "'r958_frozen_predraw','r952_research_outbox','atomic_tool_context_r943','r26_feedback','r31_feedback_event','r31_feedback_receipt',"
                 + "'v57_algorithm_predraw_r908','v57_research_predraw_r817','research_new_asset_freeze_v41',"
                 + "'research_fixed_pair_r932','research_candidate_cal_observation_r932','research_candidate_cal_study_r932',"
                 + "'research_challenge_prediction_r932','research_legacy_asset_head_audit_r80','research_bound_source_r80','research_bound_cohort_r80','research_bound_input_r80','r80_probe_forecast','r80_probe_label','su1_live_target','su1_pending_settlement','su1_opportunity','su1_opportunity_outcome')",null)) {
             while(schema.moveToNext())installed.add(schema.getString(0));
         }
         List<String> clauses = new ArrayList<>();
+        // Native delivery still needs the original draw after the hot 5000-row window rotates.
+        // These are original-owner pins, not another history or training stream.
+        if(installed.contains("r26_feedback"))clauses.add("EXISTS(SELECT 1 FROM "+SOURCE+" d WHERE d.issue="+issue
+                +" AND d.dirty=0 AND NOT EXISTS(SELECT 1 FROM r26_feedback f WHERE f.source_hash=d.draw_hash_v2))");
+        if(installed.contains("r26_feedback")&&installed.contains("r31_feedback_event"))clauses.add("EXISTS(SELECT 1 FROM r26_feedback f JOIN "+SOURCE+" d ON d.draw_hash_v2=f.source_hash WHERE d.issue="+issue+" AND NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='DRAW_LABEL_REVEALED' AND e.legacy_event_id=f.event_id))");
+        if(installed.contains("r31_feedback_event")!=installed.contains("r31_feedback_receipt"))
+            throw new IllegalStateException("R335_DRAW_DEPENDENCY_PARTIAL_FEEDBACK_SCHEMA");
+        if(installed.contains("r31_feedback_event")){
+            clauses.add("EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.issue="+issue
+                +" AND e.kind='FROZEN_RESULT' AND NOT EXISTS(SELECT 1 FROM r31_feedback_receipt r WHERE r.event_id=e.event_id AND r.consumer_version='"+FrozenFeedbackProofR335.RESIDUAL_CONSUMER+"'))");
+            clauses.add("EXISTS(SELECT 1 FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s JOIN "+DbHelper.TABLE_R35_OOS_LABEL+" o"
+                +" ON o.target_issue=s.target_issue AND o.game_code=s.game_code AND o.base_issue=s.base_issue"
+                +" WHERE s.target_issue="+issue+" AND s.settled=1 AND s.pre_draw_frozen=1 AND o.strict_oos=1 AND o.pre_draw_frozen=1"
+                +" AND s.commit_at>0 AND s.deadline_at>0 AND s.commit_at<s.deadline_at"
+                +" AND NOT EXISTS(SELECT 1 FROM r31_feedback_event e WHERE e.kind='FROZEN_RESULT' AND e.issue=s.target_issue AND e.canonical_hash=s.record_hash))");
+        }
         if(installed.contains("su1_live_target"))clauses.add("EXISTS(SELECT 1 FROM su1_live_target s WHERE s.target_issue="+issue+" AND s.completed_at IS NULL)");
         if(installed.contains("su1_pending_settlement"))clauses.add("EXISTS(SELECT 1 FROM su1_pending_settlement s WHERE CAST(s.target_issue AS TEXT)="+issue+")");
         if(installed.contains("su1_opportunity")&&installed.contains("su1_opportunity_outcome"))clauses.add("EXISTS(SELECT 1 FROM su1_opportunity s WHERE CAST(s.target_issue AS TEXT)="+issue+" AND NOT EXISTS(SELECT 1 FROM su1_opportunity_outcome o WHERE o.opportunity_id=s.opportunity_id))");

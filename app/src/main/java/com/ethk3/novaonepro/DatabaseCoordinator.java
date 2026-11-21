@@ -150,6 +150,7 @@ public final class DatabaseCoordinator {
     private static final ThreadLocal<AttemptR31> ATTEMPT_R31=new ThreadLocal<>();
     private static final AtomicLong UNKNOWN_PRIORITY_R31=new AtomicLong(),DIAGNOSTIC_FAILURES_R31=new AtomicLong(),UNKNOWN_COMMITS_R31=new AtomicLong();
     private static final AtomicLong LAST_RESEARCH_SERVICE_R31=new AtomicLong();
+    private static final AtomicLong LAST_FAULT_SERVICE_R33=new AtomicLong();
     private static final AtomicBoolean RESEARCH_SERVICE_SLOT_R31=new AtomicBoolean();
     private static final AtomicInteger FREEZE_WAITERS_R31=new AtomicInteger();
     private static volatile String lastDiagnosticR31="",lastUnknownPriorityR31="";
@@ -176,6 +177,7 @@ public final class DatabaseCoordinator {
         snapshot.put("lastDiagnosticFailure",lastDiagnosticR31);snapshot.put("unknownCommitCount",UNKNOWN_COMMITS_R31.get());
         snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
         snapshot.put("writerHoldFaultReceipts",com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.snapshot());
+        snapshot.put("postCanonicalObservationR33",PostCanonicalObservationR33.snapshot());
         return Collections.unmodifiableMap(snapshot);
     }
     private static final ThreadLocal<String> LAST_OWNED_COMMIT_R30=new ThreadLocal<>();
@@ -886,6 +888,7 @@ public final class DatabaseCoordinator {
         final boolean critical=context.critical(),background=!critical;
         final boolean reentrant=writeLock.isHeldByCurrentThread();
         final boolean research=context.writeClass==WriteClass.RESEARCH_CONTROL||context.writeClass==WriteClass.RESEARCH_DATA;
+        final boolean faultDrainR33=context.writeClass==WriteClass.TELEMETRY&&"R31_WRITER_HOLD_FAULT".equals(context.operation);
         long now=TimeSourceR811.monoNowMs();
         Long scoped=WRITE_DEADLINE_CP3.get();
         long deadline=now+(critical?2000L:250L);
@@ -901,7 +904,8 @@ public final class DatabaseCoordinator {
         try {
             // One aged, prepared research slice may enter the existing fair queue every five seconds.
             // An expiring freeze always retains precedence. This is admission, never a second writer.
-            if(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L)
+            if((research||faultDrainR33)&&!reentrant&&FREEZE_WAITERS_R31.get()==0
+                    &&now-(faultDrainR33?LAST_FAULT_SERVICE_R33.get():LAST_RESEARCH_SERVICE_R31.get())>=(faultDrainR33?1000L:5000L))
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
             for(int retry=0;retry<=AppConfig.DB_LOCK_RETRY_COUNT;retry++) {
                 long acquireStarted=TimeSourceR811.monoNowMs(),heldSince=-1,localWait=-1;
@@ -939,6 +943,7 @@ public final class DatabaseCoordinator {
                         if(!attemptState.ownsTransaction&&!attemptState.externalTransaction)attemptState.outcome=failed?CommitOutcome.ROLLED_BACK:
                                 attemptState.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED;
                         if(research&&!failed)LAST_RESEARCH_SERVICE_R31.set(TimeSourceR811.monoNowMs());
+                        if(faultDrainR33&&!failed)LAST_FAULT_SERVICE_R33.set(TimeSourceR811.monoNowMs());
                         diagnosticR31(attemptState,"RECORD_SUCCESS",()->recordSuccess(operation,started));
                         return result;
                     } finally {

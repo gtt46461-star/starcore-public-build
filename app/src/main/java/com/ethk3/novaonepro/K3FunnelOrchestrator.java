@@ -79,7 +79,22 @@ public final class K3FunnelOrchestrator {
                     + "@margin="
                     + boundaryMargin;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        StageEvidence(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.position = ((Integer) decodedR335.value(0)).intValue();
+            this.stageIndex = ((Integer) decodedR335.value(1)).intValue();
+            this.retainedCount = ((Integer) decodedR335.value(2)).intValue();
+            this.retained = (int[]) decodedR335.value(3);
+            this.removedNumber = ((Integer) decodedR335.value(4)).intValue();
+            this.weakestRetainedP = ((Double) decodedR335.value(5)).doubleValue();
+            this.strongestRemovedP = ((Double) decodedR335.value(6)).doubleValue();
+            this.boundaryMargin = ((Double) decodedR335.value(7)).doubleValue();
+            this.reason = (String) decodedR335.value(8);
+            this.checksum = (String) decodedR335.value(9);
+        }
+}
 
     public static final class PositionPath {
         public final int position;
@@ -124,7 +139,19 @@ public final class K3FunnelOrchestrator {
         public String finalThreeCsv() {
             return csv(finalThree);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        PositionPath(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.position = ((Integer) decodedR335.value(0)).intValue();
+            this.sourceOrder = (int[]) decodedR335.value(1);
+            this.stages = (StageEvidence[]) decodedR335.value(2);
+            this.finalThree = (int[]) decodedR335.value(3);
+            this.nested = ((Boolean) decodedR335.value(4)).booleanValue();
+            this.trace = (String) decodedR335.value(5);
+            this.checksum = (String) decodedR335.value(6);
+        }
+}
 
     /**
      * Immutable all-position evidence artifact. Existing retained field is preserved for callers.
@@ -194,7 +221,19 @@ public final class K3FunnelOrchestrator {
                     + "|hash="
                     + checksum;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Audit(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.retained = (int[][][]) decodedR335.value(0);
+            this.paths = (PositionPath[]) decodedR335.value(1);
+            this.formalActionCount = ((Integer) decodedR335.value(2)).intValue();
+            this.neverDeleteFormalAction = ((Boolean) decodedR335.value(3)).booleanValue();
+            this.allPathsNested = ((Boolean) decodedR335.value(4)).booleanValue();
+            this.matrixChecksum = (String) decodedR335.value(5);
+            this.checksum = (String) decodedR335.value(6);
+        }
+}
 
     public Audit evaluate(
             V51Models.NumberProbabilityMatrix matrix, V51Models.PositionAction[] formalActions) {

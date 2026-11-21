@@ -52,6 +52,13 @@
             android:stopWithTask="false" />
 
         <provider
+            android:name=".EnabledWindowCaptureProviderR335"
+            android:authorities="${applicationId}.r335.enabled"
+            android:permission="android.permission.DUMP"
+            android:grantUriPermissions="false"
+            android:exported="true" />
+
+        <provider
             android:name=".DiagnosticReportProviderR923"
             android:authorities="${applicationId}.diagnostic.reports"
             android:exported="false"

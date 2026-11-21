@@ -53,7 +53,21 @@ public final class V51ExpertGateEngine {
             }
             return b.toString();
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Result(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.weight = (double[][]) decodedR335.value(0);
+            this.health = (V51ExpertHealthRegistry.Snapshot[]) decodedR335.value(1);
+            this.status = (GateStatus) decodedR335.value(2);
+            this.artifactProven = ((Boolean) decodedR335.value(3)).booleanValue();
+            this.effectiveExperts = (double[]) decodedR335.value(4);
+            this.fallbackUsed = (boolean[]) decodedR335.value(5);
+            this.fallbackExpertIndex = (int[]) decodedR335.value(6);
+            this.sumBeforeFallback = (double[]) decodedR335.value(7);
+            this.checksum = (String) decodedR335.value(8);
+        }
+}
 
     private final V51ExpertHealthRegistry healthRegistry = new V51ExpertHealthRegistry();
 

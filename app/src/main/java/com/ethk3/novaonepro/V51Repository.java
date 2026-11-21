@@ -560,7 +560,7 @@ public final class V51Repository {
                         Math.max(0L, view.createdAt - request.requestAt),
                         "AUDIT_REPLAY");
         }
-        throw new IllegalStateException("R36_CANONICAL_COMMIT_FAILED:" + outcome.code);
+        throw new IllegalStateException("R36_CANONICAL_COMMIT_FAILED:" + outcome.code, outcome.failureCause);
     }
 
     private static void validateCanonicalInputR36(

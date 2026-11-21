@@ -63,7 +63,20 @@ public final class V51SinkhornEngine {
                     && matrix != null
                     && matrix.validForDecision();
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        ProjectionResult(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.matrix = (V51Models.NumberProbabilityMatrix) decodedR335.value(0);
+            this.fallbackReason = (FallbackReason) decodedR335.value(1);
+            this.maxLogKernel = ((Double) decodedR335.value(2)).doubleValue();
+            this.minLogKernel = ((Double) decodedR335.value(3)).doubleValue();
+            this.iterations = ((Integer) decodedR335.value(4)).intValue();
+            this.rowError = ((Double) decodedR335.value(5)).doubleValue();
+            this.columnError = ((Double) decodedR335.value(6)).doubleValue();
+            this.diagnostics = (String) decodedR335.value(7);
+        }
+}
 
     public V51Models.NumberProbabilityMatrix project(double[][] score, double temperature) {
         return projectDetailed(score, temperature, DEFAULT_MAX_ITERATIONS, DEFAULT_TOLERANCE)

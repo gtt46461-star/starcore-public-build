@@ -107,6 +107,7 @@ public final class SettlementEngine {
      */
     SettlementReport executeFromCoordinatorR815(final DbStore store, final Models.Draw draw) {
         final long started = System.currentTimeMillis();
+        final long startedMonoR334 = TimeSourceR811.monoNowMs();
         SettlementReport invalid = new SettlementReport();
         invalid.issue = draw == null ? "" : safe(draw.issue);
         invalid.createdAt = started;
@@ -166,6 +167,8 @@ public final class SettlementEngine {
                                             RealSettlementR36 real =
                                                     settleRealWithinTransactionR36(db, token, draw);
                                             long now = System.currentTimeMillis();
+                                            if (oos.success && now < oos.labelSettledAt)
+                                                throw new IllegalStateException("R335_TERMINAL_CLOCK_RETRY");
                                             String terminalStatus =
                                                     oos.success
                                                             ? SettlementTaskStoreR36.COMPLETED
@@ -207,6 +210,8 @@ public final class SettlementEngine {
                                             report.ok = oos.success ? 1 : 0;
                                             report.issue = draw.issue;
                                             report.createdAt = now;
+                                            report.terminalStatusR334 = terminalStatus;
+                                            report.settlementHashR334 = settlementHash;
                                             report.shadowSettledCount =
                                                     oos.success && !oos.replay ? 1 : 0;
                                             report.shadowHitCount =
@@ -251,7 +256,12 @@ public final class SettlementEngine {
                                     },
                                     null);
             if (out.success && out.value != null) {
-                recordPostCommitTelemetryR911(store, draw, out.value, started);
+                final DurableReturnTimingR334 timingR334=new DurableReturnTimingR334(
+                    started,startedMonoR334,System.currentTimeMillis(),TimeSourceR811.monoNowMs());
+                final String observedIssueR334=draw.issue,observedDrawR334=DrawHashR36.sha256V2(draw);
+                final String observedStatusR334=out.value.terminalStatusR334,observedHashR334=out.value.settlementHashR334;
+                PostCanonicalObservationR33.offer(()->recordPostCommitTelemetryR911(
+                    store,observedIssueR334,observedDrawR334,observedStatusR334,observedHashR334,timingR334));
                 return out.value;
             }
             if (out.success && out.replay) {
@@ -299,38 +309,31 @@ public final class SettlementEngine {
     }
 
     private static void recordPostCommitTelemetryR911(
-            DbStore store, Models.Draw draw, SettlementReport report, long started) {
-        if (store == null || draw == null || report == null) return;
-        long now = System.currentTimeMillis();
+            DbStore store,String issue,String drawHash,String status,String settlementHash,DurableReturnTimingR334 timing) {
+        if(store==null||issue==null||drawHash==null||status==null||settlementHash==null||timing==null)return;
         try {
-            SettlementTaskStoreR36.Terminal terminal =
-                    SettlementTaskStoreR36.terminal(store, draw.issue);
-            String status = terminal == null ? "CORE_COMMITTED" : terminal.status;
-            RuntimeHealthLedgerR36.record(
-                    store,
-                    "SETTLEMENT_TERMINAL",
-                    "SET-" + DrawHashR36.sha256V2(draw).substring(0, 16),
-                    draw.issue,
-                    status,
-                    started,
-                    now,
-                    Math.max(0L, now - started),
-                    0,
-                    1,
-                    true,
-                    "R911_CORE_V2|MODEL_CALLS=0");
-            java.util.HashMap<String,String> states = new java.util.HashMap<String,String>();
-            states.put("r36_settlement_status", status);
-            states.put("r36_settlement_target", draw.issue);
-            states.put("r36_settlement_model_calls", "0");
-            states.put("r911_settlement_core_commit_at", String.valueOf(now));
+            RuntimeHealthLedgerR36.record(store,"SETTLEMENT_TERMINAL",
+                    "SET-"+drawHash.substring(0,16),issue,status,timing.startedWallMs,
+                    timing.returnedWallMs,timing.elapsedMs,0,1,true,
+                    "R334_DURABLE_RETURN_OBSERVATION|NOT_SQL_COMMIT_INSTANT|MODEL_CALLS=0|settlementHash="
+                            + settlementHash + "|returnedAt=" + timing.returnedWallMs);
+            java.util.HashMap<String,String> states=new java.util.HashMap<String,String>();
+            states.put("r36_settlement_status",status);
+            states.put("r36_settlement_target",issue);
+            states.put("r36_settlement_model_calls","0");
+            // Compatibility key, with explicit measured boundary for all new consumers.
+            states.put("r911_settlement_core_commit_at",String.valueOf(timing.returnedWallMs));
+            states.put("r334_settlement_durable_return_at",String.valueOf(timing.returnedWallMs));
+            states.put("r334_settlement_elapsed_ms",String.valueOf(timing.elapsedMs));
+            states.put("r334_settlement_clock_scope","SAME_CALL_MONOTONIC_DURABLE_RETURN_NOT_SQL_COMMIT_INSTANT");
             store.setStates(states);
-        } catch (Throwable telemetryFailure) {
-            try {
-                store.setState(
-                        "r911_settlement_postcommit_telemetry_error",
-                        telemetryFailure.getClass().getSimpleName() + ':' + safe(telemetryFailure.getMessage()));
-            } catch (Throwable ignore) {}
+        } catch(Throwable telemetryFailure) {
+            Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(telemetryFailure);if(fatal!=null)throw fatal;
+            try {store.setState("r911_settlement_postcommit_telemetry_error",
+                    telemetryFailure.getClass().getSimpleName()+':'+safe(telemetryFailure.getMessage()));}
+            catch(RuntimeException ignored) {
+                Error nestedFatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(ignored);if(nestedFatal!=null)throw nestedFatal;
+            }
         }
     }
 
@@ -452,6 +455,8 @@ public final class SettlementEngine {
         r.ok = SettlementTaskStoreR36.COMPLETED.equals(terminal.status) ? 1 : 0;
         r.issue = draw == null ? terminal.targetIssue : draw.issue;
         r.createdAt = terminal.completedAt;
+        r.terminalStatusR334 = terminal.status;
+        r.settlementHashR334 = terminal.settlementHash;
         r.detail =
                 "R36_SETTLEMENT_REPLAY|task="
                         + terminal.status
@@ -2752,6 +2757,7 @@ public final class SettlementEngine {
     }
 
     public static final class SettlementReport {
+        public String terminalStatusR334="",settlementHashR334="";
         public int ok;
         public String issue;
         public long createdAt;
