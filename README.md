@@ -1,6 +1,6 @@
 # STARCORE R33.5 施工进度
 
-更新时间 2026-11-21T05:07:45+00:00。签名和下载核对使用每批自己的源码和 APK。
+更新时间 2026-11-21T05:13:48+00:00。签名和下载核对使用每批自己的源码和 APK。
 
 | 批次 | 版本 | 源码提交 | Gradle | 已核验下载 | 状态 |
 |---|---:|---|---|---|---|
@@ -9,7 +9,7 @@
 | B02 | 577311059 | [915cce9690d5](https://github.com/gtt46461-star/starcore-public-build/commit/915cce9690d52cc736fd0802e31e87c8ff2cb417) | 662 项，失败 0 | [APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B02-915cce9690d5/STARCORE-R33-577311059-915cce9690d5-release.apk) · [总 ZIP](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B02-915cce9690d5/STARCORE-R33-577311059-915cce9690d5-APK-SOURCE-EVIDENCE.zip) | 原签安装包与总包已下载核验 |
 | B03 | 577311060 | [49c4356c2f31](https://github.com/gtt46461-star/starcore-public-build/commit/49c4356c2f311759b9ce348b005cfbac703e5992) | 662 项，失败 0 | [APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B03-49c4356c2f31/STARCORE-R33-577311060-49c4356c2f31-release.apk) · [总 ZIP](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B03-49c4356c2f31/STARCORE-R33-577311060-49c4356c2f31-APK-SOURCE-EVIDENCE.zip) | 原签安装包与总包已下载核验 |
 | B04 | 577311061 | [d2b2b8800cc8](https://github.com/gtt46461-star/starcore-public-build/commit/d2b2b8800cc81d83a8162e34df9eaa5027618a21) | 662 项，失败 0 | [APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B04-d2b2b8800cc8/STARCORE-R33-577311061-d2b2b8800cc8-release.apk) · [总 ZIP](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B04-d2b2b8800cc8/STARCORE-R33-577311061-d2b2b8800cc8-APK-SOURCE-EVIDENCE.zip) | 原签安装包与总包已下载核验 |
-| B05 | 577311062 | [48217d388b8e](https://github.com/gtt46461-star/starcore-public-build/commit/48217d388b8ea67f964cf43ff7a7149ff854982c) | 663 项，失败 0 | 待核验 | 编译与本批测试通过，签名交付待回收 |
+| B05 | 577311062 | [48217d388b8e](https://github.com/gtt46461-star/starcore-public-build/commit/48217d388b8ea67f964cf43ff7a7149ff854982c) | 663 项，失败 0 | [APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B05-48217d388b8e/STARCORE-R33-577311062-48217d388b8e-release.apk) · [总 ZIP](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B05-48217d388b8e/STARCORE-R33-577311062-48217d388b8e-APK-SOURCE-EVIDENCE.zip) | 原签安装包与总包已下载核验 |
 | B06 | 577311063 | [82e5559fbb7a](https://github.com/gtt46461-star/starcore-public-build/commit/82e5559fbb7a36d3f45defc7ec4f2b6eee8e31ca) | 663 项，失败 0 | 待核验 | 编译与本批测试通过，签名交付待回收 |
 | B07 | 577311064 | c99962e827e3 | 待结果 | 待核验 | 已写入并提交，正在验证 |
 | B08 |  | 待施工 | 待结果 | 待核验 | 等待上一批 |
