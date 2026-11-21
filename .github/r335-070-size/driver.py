@@ -34,7 +34,6 @@ def main():
     f.adb('shell','am','force-stop',f.PKG)
     location='/data/user/0/'+f.PKG+'/databases/'+n.observe.DB
     save('CREATE_CONTROLLED_SIZE')
-    import hashlib
     holder='r335_disposable_size_fixture'
     # Keep the size-only rows until the external ZIP is verified. SQLite may reclaim pages
     # at close, and a file of reclaimed pages is not a stable test input across devices.
@@ -51,24 +50,36 @@ def main():
             save('CREATE_CONTROLLED_SIZE')
             raise RuntimeError(reason)
         return p.stdout.strip()
-    def schema():
-        return hashlib.sha256(sql("SELECT type,name,coalesce(sql,'') FROM sqlite_master WHERE name!='"+holder+"' ORDER BY type,name").encode()).hexdigest()
     draws=int(sql('SELECT count(*) FROM draws'));page=int(sql('PRAGMA page_size'));prior=int(sql('PRAGMA page_count'))*page
-    vacuum=int(sql('PRAGMA auto_vacuum'));original_schema=schema()
+    vacuum=int(sql('PRAGMA auto_vacuum'))
     assert not sql("SELECT 1 FROM sqlite_master WHERE name='"+holder+"'") and prior<1373483008
-    sql("CREATE TABLE "+holder+"(sample BLOB)")
-    while int(sql('PRAGMA page_count'))*page<1373483008:
-        sql("BEGIN; WITH RECURSIVE a(i) AS (VALUES(0) UNION ALL SELECT i+1 FROM a WHERE i<3) INSERT INTO "+holder+" SELECT zeroblob(4194304) FROM a; COMMIT")
-        sql('PRAGMA wal_checkpoint(TRUNCATE)')
+    # Take and compare the exact catalogue under one SQLite writer reservation. Separate
+    # sqlite3 processes return multi-line catalogue text across different snapshots.
+    definitions="SELECT type,name,tbl_name,sql FROM main.sqlite_master WHERE name<>'"+holder+"'"
+    chunks=(1373483008-prior+4194303)//4194304
+    before='SELECT type,name,tbl_name,sql FROM baseline'
+    result=sql(f"""BEGIN IMMEDIATE;
+        CREATE TEMP TABLE baseline AS {definitions};
+        CREATE TEMP TABLE draw_check AS SELECT count(*) AS n FROM main.draws;
+        CREATE TABLE {holder}(sample BLOB);
+        WITH RECURSIVE block(n) AS (VALUES(1) UNION ALL SELECT n+1 FROM block WHERE n<{chunks})
+            INSERT INTO {holder} SELECT zeroblob(4194304) FROM block;
+        SELECT count(*) FROM ({before} EXCEPT {definitions});
+        SELECT count(*) FROM ({definitions} EXCEPT {before});
+        SELECT (SELECT count(*) FROM main.draws)=(SELECT n FROM draw_check);
+        COMMIT""").splitlines()
+    assert len(result)==3, 'SIZE_FIXTURE_CATALOGUE_READBACK'
+    added_or_changed=int(result[1]);removed_or_changed=int(result[0])
     sql('PRAGMA wal_checkpoint(TRUNCATE)')
     size=int(sql('PRAGMA page_count'))*page
     record.update(priorDbBytes=prior,controlledDbBytes=size,autoVacuum=vacuum,
                   sizeOnlyTablePresent=True,freePages=int(sql('PRAGMA freelist_count')),pageSize=page,
-                  targetReached=size>=1373483008,drawCountPreserved=int(sql('SELECT count(*) FROM draws'))==draws,
-                  schemaPreserved=schema()==original_schema,vacuumModePreserved=int(sql('PRAGMA auto_vacuum'))==vacuum)
+                  targetReached=size>=1373483008,drawCountPreserved=int(result[2])==1 and int(sql('SELECT count(*) FROM draws'))==draws,
+                  addedOrChangedProductionDefinitions=added_or_changed,removedOrChangedProductionDefinitions=removed_or_changed,
+                  schemaPreserved=not (added_or_changed or removed_or_changed),vacuumModePreserved=int(sql('PRAGMA auto_vacuum'))==vacuum)
     save('VERIFY_CONTROLLED_SIZE')
     assert all(record[key] for key in ('targetReached','drawCountPreserved','schemaPreserved','vacuumModePreserved'))
-    record.update(unchangedDrawCount=draws,unchangedProductionSchemaSha256=original_schema)
+    record.update(unchangedDrawCount=draws)
     kept='/data/user/0/'+f.PKG+'/files/r335-qa-retained-original'
     assert subprocess.run(['adb','shell','test','-e',kept]).returncode!=0
     f.adb('shell','truncate','-s','1073741824',kept)
