@@ -14196,7 +14196,256 @@
       "release/research_dependencies_r967.json"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetProgressR33",
+        "method": "validate",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame;Lcom/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame;I)Ljava/lang/String;",
+        "lines": [
+          20,
+          35
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 92,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame",
+        "method": "<init>",
+        "descriptor": "(Ljava/lang/String;Ljava/lang/String;JJJIIIILjava/lang/String;Ljava/lang/String;)V",
+        "lines": [
+          12,
+          17
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "progressFrameR33",
+            "line": 103,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31",
+        "method": "schemaObjectsR31",
+        "descriptor": "()[[Ljava/lang/String;",
+        "lines": [
+          44,
+          44
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SchemaDomainCoordinatorR926",
+            "method": "r31AtomNetPublicationContract",
+            "line": 414,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 44,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.schemaObjects()[[Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31$Prepared",
+        "method": "publicationBatch",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;)Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;",
+        "lines": [
+          153,
+          165
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 44,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 95,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 153,
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch.guardBefore(Lcom/ethk3/novaonepro/DatabaseCoordinator$WriteCallable;)Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;"
+          },
+          {
+            "line": 156,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.checkpointReferenceR31(Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;Ljava/lang/String;[BJ)Ljava/lang/String;"
+          },
+          {
+            "line": 159,
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch.add(Ljava/lang/String;[Ljava/lang/Object;)Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+        "method": "progressFrameR33",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;)Lcom/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame;",
+        "lines": [
+          103,
+          103
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 53,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 92,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 103,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame.<init>(Ljava/lang/String;Ljava/lang/String;JJJIIIILjava/lang/String;Ljava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+        "method": "step",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/RuntimeR27;Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;)Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Outcome;",
+        "lines": [
+          12,
+          100
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomWorldR27",
+            "method": "atomNetStep",
+            "line": 176,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 12,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.requireReady(Landroid/database/sqlite/SQLiteDatabase;)V"
+          },
+          {
+            "line": 15,
+            "callee": "com/ethk3/novaonepro/strategyv2/OnlineResearchWindowR30R1.register(Lcom/ethk3/novaonepro/strategyv2/ResearchPoolR27$Worker;Ljava/lang/String;)V"
+          },
+          {
+            "line": 18,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.forecastModelR32(Lcom/ethk3/novaonepro/strategyv2/RuntimeR27;Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;)Lcom/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30$FrozenModelRef;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+        "method": "decode",
+        "descriptor": "([BLjava/lang/String;)Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;",
+        "lines": [
+          188,
+          205
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 55,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+            "method": "decode",
+            "line": 172,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 188,
+            "callee": "com/ethk3/novaonepro/strategyv2/StatsR27.sha256([B)Ljava/lang/String;"
+          },
+          {
+            "line": 193,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.<init>(Ljava/lang/String;Ljava/lang/String;JIIII)V"
+          },
+          {
+            "line": 199,
+            "callee": "com/ethk3/novaonepro/strategyv2/ModelArtifactR29.blob(Ljava/io/DataInputStream;)[B"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+        "method": "report",
+        "descriptor": "()Ljava/util/Map;",
+        "lines": [
+          125,
+          151
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetStoreR30",
+            "method": "checkpointReferenceR31",
+            "line": 139,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 132,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.trainedThrough()Ljava/lang/String;"
+          },
+          {
+            "line": 132,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.trainedThroughOrdinal()J"
+          },
+          {
+            "line": 140,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.ready()Z"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B04/compiled-callers.json.gz",
     "implementedBehavior": "保留原训练数值内核；区分materialize/primary/replay/consumed和独立期；checkpoint相位边界与整期发布、原模型面/consumer依赖一起封存。",
     "reviewedChanges": null,
@@ -14207,6 +14456,21 @@
       "存在publication行不证明现场权重可用；实际模型正文及预测冻结消费需原件。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B04/android-full.json"
+      },
       {
         "suite": "B04-optimizer-and-recovery",
         "command": [
@@ -14237,7 +14501,7 @@
         "file": "research/b04/run_review.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需实机保存及重开模型检查点、十个位置的发布身份和线上消费者回读。"
   },
   {
@@ -14342,6 +14606,21 @@
     ],
     "batchEvidenceAndExitCodes": [
       {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B04/android-full.json"
+      },
+      {
         "suite": "B04-optimizer-and-recovery",
         "command": [
           "python3",
@@ -14371,7 +14650,7 @@
         "file": "research/b04/run_review.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需实机保存及重开模型检查点、十个位置的发布身份和线上消费者回读。"
   },
   {
@@ -14471,7 +14750,190 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetProgressR33",
+        "method": "validate",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame;Lcom/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame;I)Ljava/lang/String;",
+        "lines": [
+          20,
+          35
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 92,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetProgressR33$Frame",
+        "method": "<init>",
+        "descriptor": "(Ljava/lang/String;Ljava/lang/String;JJJIIIILjava/lang/String;Ljava/lang/String;)V",
+        "lines": [
+          12,
+          17
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "progressFrameR33",
+            "line": 103,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31",
+        "method": "schemaObjectsR31",
+        "descriptor": "()[[Ljava/lang/String;",
+        "lines": [
+          44,
+          44
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SchemaDomainCoordinatorR926",
+            "method": "r31AtomNetPublicationContract",
+            "line": 414,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 44,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.schemaObjects()[[Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31$Prepared",
+        "method": "publicationBatch",
+        "descriptor": "(Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;)Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;",
+        "lines": [
+          153,
+          165
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 44,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 95,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 153,
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch.guardBefore(Lcom/ethk3/novaonepro/DatabaseCoordinator$WriteCallable;)Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;"
+          },
+          {
+            "line": 156,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.checkpointReferenceR31(Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;Ljava/lang/String;[BJ)Ljava/lang/String;"
+          },
+          {
+            "line": 159,
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch.add(Ljava/lang/String;[Ljava/lang/Object;)Lcom/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27$Batch;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+        "method": "decode",
+        "descriptor": "([BLjava/lang/String;)Lcom/ethk3/novaonepro/strategyv2/AtomNetSessionR30;",
+        "lines": [
+          188,
+          205
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "method": "step",
+            "line": 55,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+            "method": "decode",
+            "line": 172,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 188,
+            "callee": "com/ethk3/novaonepro/strategyv2/StatsR27.sha256([B)Ljava/lang/String;"
+          },
+          {
+            "line": 193,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.<init>(Ljava/lang/String;Ljava/lang/String;JIIII)V"
+          },
+          {
+            "line": 199,
+            "callee": "com/ethk3/novaonepro/strategyv2/ModelArtifactR29.blob(Ljava/io/DataInputStream;)[B"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "class": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+        "method": "report",
+        "descriptor": "()Ljava/util/Map;",
+        "lines": [
+          125,
+          151
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/AtomNetStoreR30",
+            "method": "checkpointReferenceR31",
+            "line": 139,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 132,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.trainedThrough()Ljava/lang/String;"
+          },
+          {
+            "line": 132,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.trainedThroughOrdinal()J"
+          },
+          {
+            "line": 140,
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.ready()Z"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B04/compiled-callers.json.gz",
     "implementedBehavior": "decode新增phase/cursor/partial/finite优化器语义约束；进度验证要求consumed等于物化或梯度增量；修缺失ResearchSemanticsGeneratedR967导入，数值算法和编码格式不改。",
     "reviewedChanges": null,
@@ -14484,6 +14946,21 @@
       "候选消费或配置已应用不证明自然胜率、稳定性或可获得有效证书。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B04/android-full.json"
+      },
       {
         "suite": "B04-optimizer-and-recovery",
         "command": [
@@ -14514,7 +14991,7 @@
         "file": "research/b04/run_review.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需实机保存及重开模型检查点、十个位置的发布身份和线上消费者回读。"
   },
   {
