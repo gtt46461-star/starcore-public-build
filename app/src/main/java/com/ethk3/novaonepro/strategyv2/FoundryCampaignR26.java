@@ -27,10 +27,17 @@ public final class FoundryCampaignR26 {
     }
     /** No model training is executed inside the writer. Returns a count of committed samples. */
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
+        // Wait before snapshot/codec work. This is the same main-process writer
+        // backpressure; it never upgrades a data write into CONTROL or TELEMETRY.
+        if(WriterHoldFaultsR31.deferResearch())
+            throw new ModelPublicationR31.PublicationDependencyR31("R33_WAIT_WRITER_HOLD_FAULT_BACKLOG");
         ModelPublicationR31.requireSchemaR31(store.readable());HypothesisStoreR31.requireSchemaR31(store.readable());pruneFinishedR31(store,claims.get());final String numericalAbi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         try(WarmCandidateR26.PreparedAbiR31 abi=WarmCandidateR26.prepareAbiR31(store.readable(),numericalAbi);
             WarmCandidateR26.PreparedPreservationR31 warm=WarmCandidateR26.preparePreservationR31(store.readable(),abi.campaigns())){
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());WarmCandidateR26.applyPreparedAbiR31(db,abi);WarmCandidateR26.applyPreparedPreservationR31(db,warm);RuntimeCoordinatorR26.requireFence(db,claims.get());return 0;});
+            // Empty preservation is not a business mutation. Do not create an
+            // otherwise redundant write/hold observation on every training slice.
+            if(!abi.campaigns().isEmpty()||warm.rows()>0)
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());WarmCandidateR26.applyPreparedAbiR31(db,abi);WarmCandidateR26.applyPreparedPreservationR31(db,warm);RuntimeCoordinatorR26.requireFence(db,claims.get());return 0;});
         }
         SQLiteDatabase r=store.readable();String campaign=null;byte[] snapshotBytes=null;long through=0;
         try(Cursor c=r.rawQuery("SELECT f.campaign_id,f.snapshot,f.source_through FROM r26_foundry f WHERE f.status='RUNNING' ORDER BY CASE WHEN EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id AND c.status='READY') THEN 1 ELSE 0 END,(SELECT coalesce(sum(CASE WHEN c.status='READY' THEN c.service_cpu_ms ELSE 0 END),0)*1.0/max(1,sum(CASE WHEN c.status='READY' THEN 1 ELSE 0 END)) FROM r26_candidate c WHERE c.campaign_id=f.campaign_id),f.created_at,f.campaign_id LIMIT 1",null)){if(c.moveToFirst()){campaign=c.getString(0);snapshotBytes=c.getBlob(1);through=c.getLong(2);}}
