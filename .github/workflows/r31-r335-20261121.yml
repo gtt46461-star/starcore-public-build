@@ -14,12 +14,33 @@ jobs:
       contents: write
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         include:
-          - stage: P00
-            source: 3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db
-            version: '577311036'
+          - stage: B01
+            source: 66149e066d089ce9be008d3b836134e0c88186e8
+            version: '577311037'
+          - stage: B02
+            source: 0bb45fe209dd625f720486c5a0b8c0a80703f63b
+            version: '577311038'
+          - stage: B03
+            source: ac75b096b5b45420480ac2357d3e15f42dd1f94d
+            version: '577311039'
+          - stage: B04
+            source: ae75874ae69f87fc821b70b8ec7a5a4f254e6ad4
+            version: '577311040'
+          - stage: B05
+            source: c0d7d1a498956f1a6ddc88af8eca0680d9a55a5e
+            version: '577311041'
+          - stage: B06
+            source: 38153a3883fe8099afb67c40f2eec3b60339591c
+            version: '577311042'
+          - stage: B07
+            source: 81dc26f276bd394ee08bb5a1d78140837bfad4a5
+            version: '577311043'
+          - stage: B08
+            source: ee9fbd37f4bbed4cf4d8ec1ab1fcbd296ae04322
+            version: '577311044'
     env:
       SOURCE: ${{ matrix.source }}
       STAGE: ${{ matrix.stage }}
