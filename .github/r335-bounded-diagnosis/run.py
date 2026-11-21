@@ -6,7 +6,10 @@ def check(*argv):s=cmd(*argv);s.check_returncode();return s.stdout
 assert check('shell','getprop','ro.kernel.qemu').strip()==b'1'
 target=next(cand.glob('*-release.apk'));apk=hashlib.sha256(target.read_bytes()).hexdigest();assert apk=="a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
 check('install',target);check('install','-t',cand/'instrument-androidTest.apk')
-res=cmd('shell','am','instrument','-w','-r','-e','class','com.ethk3.novaonepro.R335AppBoundaryTest','com.starcore.research.r13.test/androidx.test.runner.AndroidJUnitRunner')
+installed=check('shell','pm','list','instrumentation').decode()
+target=re.search(r'instrumentation:(com[.]starcore[.]research[.]r13[.]test/com[.]ethk3[.]novaonepro[.]R30FaultAndroidRunner) [(]target=com[.]starcore[.]research[.]r13[)]',installed)
+assert target
+res=cmd('shell','am','instrument','-w','-r','-e','class','com.ethk3.novaonepro.R335AppBoundaryTest',target[1])
 text=res.stdout.decode(errors='replace');log=check('logcat','-d','-s','System.out:I').decode(errors='replace')
 keys={'recorded','enabled','memoryJournal','frameworkFormat','projection','chart1','chart2','chart3'}|{f'R0{x}{k}Bytes' for x in (1,2,3) for k in ('Original','Page')}
 enums={'YES','NO','ABSENT','OTHER','VALID','EMPTY','INVALID','ANDROID_BINARY_XML','TEXT_OR_OTHER','PASS','XML_PARSE','PREF_ROOT','JOURNAL_TYPE_OR_DUPLICATE','STATUS_TYPE_OR_DUPLICATE','ASSIGNMENT_TYPE_OR_DUPLICATE','ASSIGNMENT_VALUE','ASSIGNMENT_INCOMPLETE','ASSIGNMENT_HISTORY_MISMATCH','JOURNAL_TRUNCATED','JOURNAL_HASH','JOURNAL_HEADER','JOURNAL_IDENTITY','JOURNAL_ELAPSED_REVERSED','JOURNAL_CLOCK_DISCONTINUITY','UNCLASSIFIED_STATUS','CHART','FRAME_BYTE_BUDGET','CURRENT_ORIGINAL_RESEARCH_SOURCE_REQUIRED','FRAME_HASH_MISMATCH','RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL','RESEARCH_FRAME_REQUIRES_PAGINATION','WAITING_ANALYSIS','R27_JSON','CursorWindow','RESEARCH_SERIES_LIMIT','NullPointerException','IllegalArgumentException'}
