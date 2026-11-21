@@ -43,11 +43,32 @@ public final class ResearchTableAdaptersR30R1 {
   Page query=page(id,filters,offset,size);query.args[query.args.length-2]=Integer.toString(size+1);Map<String,Object> out=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();
   out.put("id",id);out.put("offset",offset);out.put("pageSize",size);out.put("filters",filters);out.put("readStartedAt",System.currentTimeMillis());out.put("readOnly",true);
   long bytes=0;boolean more=false;boolean blockedAtStart=false;String capacityReason=null;Long before=sourceVersionR335(db,cancellation);
-  try(android.database.Cursor cursor=db.rawQuery(query.sql,query.args,cancellation)) {
+  // The denominator and the bounded rows belong to one SQLite read statement.
+  // The totals row survives even when OFFSET is beyond the end of the view.
+  int pageLimit=query.sql.lastIndexOf(" LIMIT ? OFFSET ?");
+  String base=SQL.get(id);
+  String countSource=base.substring(0,base.lastIndexOf(" ORDER BY "));
+  String countSql=query.sql.substring(0,pageLimit).replace("("+base+")","("+countSource+")");
+  String rowSql="SELECT 1 AS page_present,"+query.sql.substring("SELECT ".length());
+  String together="SELECT n.total,p.* FROM (SELECT count(*) AS total FROM ("+countSql+")) n LEFT JOIN ("+rowSql+") p ON 1";
+  int filterCount=query.args.length-2;
+  String[] bindings=Arrays.copyOf(query.args,filterCount+query.args.length);
+  System.arraycopy(query.args,0,bindings,filterCount,query.args.length);
+  try(android.database.Cursor cursor=db.rawQuery(together,bindings,cancellation)) {
    while(cursor.moveToNext()) {
-    if(cancellation!=null)cancellation.throwIfCanceled();if(rows.size()==size){more=true;break;}Map<String,Object> row=new LinkedHashMap<>();
+    if(cancellation!=null)cancellation.throwIfCanceled();
+    if(rows.isEmpty()){
+     out.put("totalMatchingRows",cursor.getLong(0));
+     out.put("totalCountObservedAt",System.currentTimeMillis());
+     out.put("readSourceVersion",before);
+     out.put("sourceVersionStatus","SQL_STATEMENT_SNAPSHOT");
+     out.put("totalMatchingRowsScope","SAME_SQL_STATEMENT_AS_PAGE");
+    }
+    if(cursor.isNull(1))break;
+    if(rows.size()==size){more=true;break;}
+    Map<String,Object> row=new LinkedHashMap<>();
     String oversizedColumn=null;
-    for(int column=0;column<cursor.getColumnCount();column++) {
+    for(int column=2;column<cursor.getColumnCount();column++) {
      String name=cursor.getColumnName(column);Object value=null;
      if(!cursor.isNull(column))switch(cursor.getType(column)) {
       case android.database.Cursor.FIELD_TYPE_INTEGER:value=cursor.getLong(column);break;
@@ -93,7 +114,6 @@ public final class ResearchTableAdaptersR30R1 {
    }
   }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
    catch(RuntimeException error){out.put("status","READ_ERROR");out.put("reason",error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage()));}
-  if(blockedAtStart||!"READ_ERROR".equals(out.get("status"))){String countSql="SELECT count(*) FROM ("+query.sql.substring(0,query.sql.lastIndexOf(" LIMIT ? OFFSET ?"))+")";String[] countArgs=Arrays.copyOf(query.args,query.args.length-2);try(android.database.Cursor count=db.rawQuery(countSql,countArgs,cancellation)){if(count.moveToFirst())out.put("totalMatchingRows",count.getLong(0));}Long after=sourceVersionR335(db,cancellation);out.put("readSourceVersion",before);out.put("sourceVersionStatus",versionStatusR335(before,after));out.put("totalCountObservedAt",System.currentTimeMillis());if(before==null||after==null)out.put("totalMatchingRowsScope","SEPARATE_LIVE_COUNT_NOT_ATOMIC_WITH_PAGE");if(versionChangedR335(before,after)){rows.clear();bytes=0;more=false;blockedAtStart=false;out.remove("blockedOffset");out.remove("truncatedReason");out.remove("totalMatchingRows");out.put("status","READ_RETRY_REQUIRED");out.put("reason","ORIGINAL_CHANGED_DURING_PAGE_AND_COUNT");}}
   // A capacity error keeps its exact source offset. The next UI action moves
   // past that one unreadable original only when the cursor saw a following row.
   long nextOffset=Math.addExact(offset,blockedAtStart?1L:rows.size());

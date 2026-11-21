@@ -102,21 +102,59 @@ final class ChartsRepositoryR27 {
             return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "读取失败：" + schemaPending.getClass().getSimpleName() + "；不按0处理。", "READ_ERROR", null, null);
         }
     }
+    private static final class HistoricalSnapshot extends java.util.LinkedHashMap<String,Object> {
+        HistoricalSnapshot(Map<String,Object> verified) { super(verified); }
+    }
+
+    private static Map<String,Object> snapshotError(String cause) {
+        return java.util.Collections.<String,Object>singletonMap("readError", cause);
+    }
+
     @SuppressWarnings("unchecked") static Map<String,Object> snapshotR30(SQLiteDatabase db,CancellationSignal cancel){
         try(Cursor c=db.rawQuery("SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id='r30-charts' AND key='snapshot'",null,cancel)){
-            if(!c.moveToFirst())return null;String raw=c.getString(0);if(raw==null||raw.length()>2*1024*1024||raw.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>2*1024*1024)throw new IllegalStateException("R31_CHART_PACKET_BYTE_BOUND");Object parsed=JsonR27.parse(raw);if(!(parsed instanceof Map))throw new IllegalStateException("R30_CHART_PACKET_FORMAT");
-            Map<String,Object> packet=(Map<String,Object>)parsed;String latest=null;try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null,cancel)){if(issue.moveToFirst())latest=issue.getString(0);}String invalid=com.ethk3.novaonepro.strategyv2.ChartCacheR27.validateR31(packet,latest,c.getLong(1),System.currentTimeMillis());if(invalid!=null)throw new IllegalStateException(invalid);if(!"R30_CHART_SNAPSHOT_1".equals(packet.get("version")))throw new IllegalStateException("R30_CHART_PACKET_VERSION");return packet;
-        }catch(android.os.OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){Map<String,Object> failed=new java.util.LinkedHashMap<>();failed.put("readError",malformed.getClass().getSimpleName());return failed;}
+            if (!c.moveToFirst()) return null;
+            String raw=c.getString(0);
+            if (raw==null || raw.length()>2*1024*1024 || raw.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>2*1024*1024)
+                return snapshotError("R31_CHART_PACKET_BYTE_BOUND");
+            Object parsed=JsonR27.parse(raw);
+            if (!(parsed instanceof Map)) return snapshotError("R30_CHART_PACKET_FORMAT");
+            Map<String,Object> packet=(Map<String,Object>)parsed;
+            String latest=null;
+            try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null,cancel)){
+                if (issue.moveToFirst()) latest=issue.getString(0);
+            }
+            String invalid=ChartCacheR27.validateR31(packet,latest,c.getLong(1),System.currentTimeMillis());
+            if (invalid!=null && !"STALE_SOURCE_WATERMARK".equals(invalid)) return snapshotError(invalid);
+            if (!"R30_CHART_SNAPSHOT_1".equals(packet.get("version"))) return snapshotError("R30_CHART_PACKET_VERSION");
+            if (invalid==null) return packet;
+            String sourceIssue=String.valueOf(packet.get("sourceIssue"));
+            if (TargetIssueResolver.isValid(sourceIssue) && (latest==null || sourceIssue.compareTo(latest)<=0))
+                return new HistoricalSnapshot(packet);
+            return snapshotError(invalid);
+        }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
+        catch(RuntimeException malformed){return snapshotError("READ_ERROR");}
     }
+
     static Panel headlineSnapshotR30(Map<String,Object> frame){
-        Object raw=frame.get("commonMetrics"),mark=frame.get("snapshotWatermark");Object q=raw instanceof Map?((Map<?,?>)raw).get("qualifiedExperiments"):null;
-        String text="当前合格策略："+(q instanceof Number?q:"UNKNOWN")+"；来源为本图报告快照；有记录不代表自然质量达标。";
-        if(mark instanceof Map)text+=" 期号 "+((Map<?,?>)mark).get("latestIssue");
-        return new Panel(PAGE,"研究状态（同报告快照）","STATUS","r30-charts/snapshot","",text,q instanceof Number?"RECORDED_UNVALIDATED":"UNKNOWN",null,null);
+        if (frame.containsKey("readError")) return unreadableSnapshot("研究状态（同报告快照）",frame);
+        Object raw=frame.get("commonMetrics"),mark=frame.get("snapshotWatermark");
+        Object q=raw instanceof Map?((Map<?,?>)raw).get("qualifiedExperiments"):null;
+        boolean historical=frame instanceof HistoricalSnapshot;
+        String text=historical?"截至 "+frame.get("sourceIssue")+" 期登记的合格策略数："+(q instanceof Number?q:"未知")+"。当前资格待刷新。"
+                :"当前合格策略："+(q instanceof Number?q:"UNKNOWN")+"；来源为本图报告快照；有记录不代表自然质量达标。";
+        if(!historical && mark instanceof Map)text+=" 期号 "+((Map<?,?>)mark).get("latestIssue");
+        String status=historical?"HISTORICAL_FRAME":q instanceof Number?"RECORDED_UNVALIDATED":"UNKNOWN";
+        return new Panel(PAGE,"研究状态（同报告快照）","STATUS","r30-charts/snapshot","",text,status,null,null);
+    }
+
+    private static Panel unreadableSnapshot(String title,Map<String,Object> frame){
+        String cause=String.valueOf(frame.get("readError"));
+        return new Panel(PAGE,title,"STATUS","r30-charts/snapshot","","快照读取失败："+cause,cause,null,null);
     }
     @SuppressWarnings("unchecked") static Panel snapshotPanelR30(Map<String,Object> frame,int index){
         String id=com.ethk3.novaonepro.strategyv2.ReportChartsR30.IDS[index];
         if(frame==null)return new Panel(PAGE,id,"STATUS","r30-charts/snapshot","","等待原图表任务生成与报告同源的快照；缺数据不补零。","INSUFFICIENT",null,null);
+        if(frame.containsKey("readError"))return unreadableSnapshot(id,frame);
         try{
             Object raw=frame.get("panels");if(!(raw instanceof List)||((List<?>)raw).size()!=2)throw new IllegalStateException("R30_CHART_PANEL_COUNT");
             Map<String,Object> panel=(Map<String,Object>)((List<?>)raw).get(index);if(!id.equals(panel.get("id"))||!Objects.equals(frame.get("snapshotWatermark"),panel.get("snapshotWatermark"))||!Objects.equals(frame.get("commonMetrics"),panel.get("commonMetrics")))throw new IllegalStateException("R30_CHART_SNAPSHOT_MISMATCH");
@@ -126,7 +164,13 @@ final class ChartsRepositoryR27 {
             List<Double> refs=new ArrayList<>();if(panel.get("refs") instanceof List)for(Object v:(List<?>)panel.get("refs"))refs.add(d(v));List<String> series=new ArrayList<>();if(panel.get("series") instanceof List)for(Object v:(List<?>)panel.get("series"))series.add(String.valueOf(v));
             String window=String.valueOf(panel.get("window"));Object mark=frame.get("snapshotWatermark");if(mark instanceof Map)window+="｜快照 "+((Map<?,?>)mark).get("factsSha256");
             String note=panel.get("note")+"\n"+panel.get("collectionAction");
-            return new Panel(PAGE,String.valueOf(panel.get("title")),String.valueOf(panel.get("kind")),String.valueOf(panel.get("source")),window,note,String.valueOf(panel.get("status")),points,null,refs,series);
+            String status=String.valueOf(panel.get("status"));
+            if(frame instanceof HistoricalSnapshot){
+                window+="｜截至 "+frame.get("sourceIssue")+" 期";
+                note+="\n历史实测。该期采集状态："+status+"。";
+                status="HISTORICAL_FRAME";
+            }
+            return new Panel(PAGE,String.valueOf(panel.get("title")),String.valueOf(panel.get("kind")),String.valueOf(panel.get("source")),window,note,status,points,null,refs,series);
         }catch(android.os.OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){return new Panel(PAGE,id,"STATUS","r30-charts/snapshot","","快照图读取失败："+malformed.getClass().getSimpleName()+"；不按0处理。","READ_ERROR",null,null);}
     }
     /** R30-B02-05: one panel page holds at most this many points (the most recent ones); older points stay in the cache. */
