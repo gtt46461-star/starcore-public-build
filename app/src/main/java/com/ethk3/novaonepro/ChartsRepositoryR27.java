@@ -48,15 +48,15 @@ final class ChartsRepositoryR27 {
     static List<String> panelIdsR31() { return ChartRegistryR31.visibleLegacyIds(); }
 
     static Panel headline(SQLiteDatabase db, CancellationSignal cancel) {
-        String text = "当前合格策略：UNKNOWN；尚未取得资格计数，请等待真实快照。";
+        String status="INSUFFICIENT";String text = "当前合格策略：UNKNOWN；尚未取得资格计数，请等待真实快照。";
         try (Cursor c = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'", null, cancel)) {
             if (c.moveToFirst()) {
                 Map<?, ?> m = (Map<?, ?>) JsonR27.parse(c.getString(0));
-                long q = ((Number) m.get("qualified")).longValue();
+                long q = ((Number) m.get("qualified")).longValue();status="READY";
                 text = "当前合格策略：" + q + "个；主链：" + m.get("choice") + (q == 0 ? "；最接近合格：" + m.get("nearest") : "");
             }
-        } catch (android.os.OperationCanceledException cancelled) { throw cancelled; } catch (RuntimeException schemaPending) { text = "R27 数据尚未生成（升级后首次运行会自动建立）。"; }
-        return new Panel(PAGE, "研究状态", "STATUS", "r27_chart_cache", "", text, "READY", null, null);
+        } catch (android.os.OperationCanceledException cancelled) { throw cancelled; } catch (RuntimeException schemaPending) { status="READ_ERROR";text = "资格原件读取失败："+schemaPending.getClass().getSimpleName()+"；不能按0或健康处理。"; }
+        return new Panel(PAGE, "研究状态", "STATUS", "r27_chart_cache", "", text, status, null, null);
     }
 
     @SuppressWarnings("unchecked")

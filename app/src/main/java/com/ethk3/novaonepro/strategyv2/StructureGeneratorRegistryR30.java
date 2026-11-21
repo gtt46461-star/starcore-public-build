@@ -79,7 +79,7 @@ public final class StructureGeneratorRegistryR30 {
             }
             return best;
         }
-        @Override public PolicySpecR27 generate(StatsR27.SplitMix r,Context ctx){int tp=position(r,ctx),shortIndex=r.nextInt(W.length-1),longIndex=shortIndex+1+r.nextInt(W.length-shortIndex-1);return SetIntersectionPolicyR30.conditional(tp,W[shortIndex],W[longIndex],IdeaFamilyR27.meta(id(),"GENERATE",ctx==null?0:ctx.generation,r.state,"Predeclared long-source-window repeat condition and exact short/neighbor K3 intersection; explicit abstention without fill"));}
+        @Override public PolicySpecR27 generate(StatsR27.SplitMix r,Context ctx){int tp=position(r,ctx),shortIndex=r.nextInt(W.length-1),longIndex=shortIndex+1+r.nextInt(W.length-shortIndex-1);int[] hint=ctx==null||ctx.research==null?null:ctx.research.intersectionHintR335(r,tp);return SetIntersectionPolicyR30.conditional(tp,hint==null?W[shortIndex]:hint[0],hint==null?W[longIndex]:hint[1],IdeaFamilyR27.meta(id(),"GENERATE",ctx==null?0:ctx.generation,r.state,"Predeclared long-source-window repeat condition and exact short/neighbor K3 intersection; explicit abstention without fill"));}
         @Override public PolicySpecR27 mutate(PolicySpecR27 parent,StatsR27.SplitMix r,Context ctx){PolicySpecR27 fresh=generate(r,ctx);return fresh.withMeta(new PolicySpecR27.Meta(id(),"SET_CONDITION_SOURCE",java.util.Collections.singletonList(parent.policyHash()),ctx==null?0:ctx.generation,r.state,"New conditional set identity, independent confirmation required"));}
         protected PolicyAstR27.Node program(int tp, StatsR27.SplitMix r) {
             PolicyAstR27.Node intersect = PolicyAstR27.op("min", z(PolicyAstR27.leaf("freq", tp, 32)), z(PolicyAstR27.leaf("freqnb", tp, 128)));

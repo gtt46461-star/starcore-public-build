@@ -95,6 +95,7 @@ final class ChartsRepositoryR83 {
         try (Cursor c = db.rawQuery("SELECT position FROM " + DbHelper.TABLE_R35_SHADOW_OBSERVATION
                 + " WHERE position BETWEEN 1 AND 10 ORDER BY target_issue DESC LIMIT 1", null, cancel)) {
             return c.moveToFirst() ? c.getInt(0) : 1;
+        } catch (android.os.OperationCanceledException cancelled) { throw cancelled;
         } catch (RuntimeException missing) {
             return 1;
         }

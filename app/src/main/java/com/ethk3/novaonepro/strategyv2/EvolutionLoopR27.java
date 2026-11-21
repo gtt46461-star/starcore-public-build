@@ -204,10 +204,12 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         // Every registered main family gets the minimum; a bonus (≤4× minimum) follows recent survivors.
         int familyCount = FAMILIES.length - 1;
         int minTotal = cfg.minPerFamily * familyCount, bonusPool = Math.max(0, Math.min(total / 4, total - minTotal));
-        int survivors = 0; Map<String,Integer> researchCredit=new HashMap<>();for(IdeaFamilyR27 family:FAMILIES){int credit=researchContext==null?0:researchContext.familyCredit(family.id());researchCredit.put(family.id(),credit);survivors+=credit;}
+        int survivors = 0; Map<String,Integer> researchCredit=new HashMap<>();for(IdeaFamilyR27 family:FAMILIES){int credit=researchContext==null?0:researchContext.familyCredit(family.id())+researchContext.mechanismCreditR335(family.id());researchCredit.put(family.id(),credit);survivors+=credit;}
         List<PolicySpecR27> births = new ArrayList<>();
         List<String> familyIds = new ArrayList<>(); for (int f = 1; f < FAMILIES.length; f++) familyIds.add(FAMILIES[f].id());
+        Map<String,Integer> beforeAllocationR335=new java.util.TreeMap<>(creation.lastAllocation());Map<String,Integer> unguidedCreditR335=new HashMap<>();for(IdeaFamilyR27 family:FAMILIES)unguidedCreditR335.put(family.id(),researchContext==null?0:researchContext.familyCredit(family.id()));
         Map<String, Integer> allocation = creation.allocate(generation, familyIds, null, researchCredit, minTotal + bonusPool, cfg.minPerFamily, cfg.creationPressure, false);
+        if(researchContext!=null){Map<String,Integer> unguidedAllocationR335=new CreationBudgetR31(creation.seed,creation.generationCostUnits,creation.sliceCostUnits).allocate(generation,familyIds,null,unguidedCreditR335,minTotal+bonusPool,cfg.minPerFamily,cfg.creationPressure,false);if(!allocation.equals(unguidedAllocationR335))researchContext.familyBudgetR335(beforeAllocationR335,allocation);}
         for (int f = 1; f < FAMILIES.length; f++) {
             int n = allocation.get(FAMILIES[f].id());
             for (int i = 0; i < n; i++) births.add(researchContext==null?FAMILIES[f].propose(rng,ic):researchContext.proposeFamilyR31(FAMILIES[f],rng,ic));
@@ -235,9 +237,10 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         }
         for (int i = 0; i < fu; i++) { PolicySpecR27 c = FusionOpsR27.fuse(archive.members(), ctx, rng, generation,researchContext); if (c != null) births.add(c); }
         for (int i = 0; i < ex; i++) {
-            String e = ExpertProposalsR27.EXPERTS[rng.nextInt(16)][0];
+            String e = researchContext==null?ExpertProposalsR27.EXPERTS[rng.nextInt(16)][0]:researchContext.expertR335(rng);
             for (ExpertProposalsR27.Proposal p : ExpertProposalsR27.propose(e, ic, rng)) { sink.expert(p, generation); if (p.spec != null) births.add(p.spec); }
         }
+        if(researchContext!=null&&!researchContext.expertWeightsR335().isEmpty())genStats.put("expertWeightsR335",new LinkedHashMap<>(researchContext.expertWeightsR335()));
         for(ResearchStoreR30R1.Ready r:directedResearch)births.add(r.child);
         // Fill any rounding/operator shortfall from generators so every generation has the configured size.
         for (PolicySpecR27 s : births.subList(familyBirths, births.size())) creation.record(familyR31(s), "attempts", 1); // operator/expert/research births
@@ -254,7 +257,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         List<Pending> bornThisGeneration=new ArrayList<>();List<Object> localBehaviorDuplicates=new ArrayList<>();int localBehaviorDuplicatesTotal=0;
         int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>(); researchInfluencedR31 = 0;
         for (Pending p : pending) {
-            if("RESEARCH_STALE".equals(p.state)){rejected++;continue;}
+            if("RESEARCH_STALE".equals(p.state)||"SKIPPED_REFUTED".equals(p.state)){rejected++;continue;}
             BirthGateR27.Verdict contract = BirthGateR27.candidateContract(p.spec);
             if (!contract.ok) {
                 p.state = "REJECTED"; p.reason = contract.detail; rejected++;
