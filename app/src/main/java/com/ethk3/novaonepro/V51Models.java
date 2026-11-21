@@ -46,7 +46,20 @@ public final class V51Models {
             this.createdAt = Math.max(0L, createdAt);
             this.historyRows = Math.max(0, historyRows);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        PredictionContext(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.baseIssue = (String) decodedR335.value(0);
+            this.targetIssue = (String) decodedR335.value(1);
+            this.historyMaxIssue = (String) decodedR335.value(2);
+            this.historyHash = (String) decodedR335.value(3);
+            this.cohortId = (String) decodedR335.value(4);
+            this.artifactBundleHash = (String) decodedR335.value(5);
+            this.createdAt = ((Long) decodedR335.value(6)).longValue();
+            this.historyRows = ((Integer) decodedR335.value(7)).intValue();
+        }
+}
 
     public static final class PermutationFeatureSnapshot {
         public final PredictionContext context;
@@ -71,7 +84,16 @@ public final class V51Models {
                     && numberFeatures[0].length == 10
                     && checksum.length() > 0;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        PermutationFeatureSnapshot(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.context = (PredictionContext) decodedR335.value(0);
+            this.globalFeatures = (double[]) decodedR335.value(1);
+            this.numberFeatures = (double[][][]) decodedR335.value(2);
+            this.checksum = (String) decodedR335.value(3);
+        }
+}
 
     public static final class StateTrajectorySnapshot {
         public final String targetIssue, prototypeId, domainId, checksum;
@@ -103,7 +125,23 @@ public final class V51Models {
             this.confidence = V51Math.clamp(confidence, 0, 1);
             this.checksum = s(checksum);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        StateTrajectorySnapshot(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.targetIssue = (String) decodedR335.value(0);
+            this.prototypeId = (String) decodedR335.value(1);
+            this.domainId = (String) decodedR335.value(2);
+            this.checksum = (String) decodedR335.value(3);
+            this.position = ((Integer) decodedR335.value(4)).intValue();
+            this.runLength = ((Integer) decodedR335.value(5)).intValue();
+            this.lifecycle = (V51Enums.Lifecycle) decodedR335.value(6);
+            this.posterior = ((Double) decodedR335.value(7)).doubleValue();
+            this.remainingLife = ((Double) decodedR335.value(8)).doubleValue();
+            this.changePointRisk = ((Double) decodedR335.value(9)).doubleValue();
+            this.confidence = ((Double) decodedR335.value(10)).doubleValue();
+        }
+}
 
     public static final class ExpertEvidence {
         public final String expertId, artifactId, checksum;
@@ -131,7 +169,21 @@ public final class V51Models {
             this.counterEvidence = copy(counterEvidence);
             this.checksum = s(checksum);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        ExpertEvidence(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.expertId = (String) decodedR335.value(0);
+            this.artifactId = (String) decodedR335.value(1);
+            this.checksum = (String) decodedR335.value(2);
+            this.rawScore = (double[][]) decodedR335.value(3);
+            this.trust = (double[]) decodedR335.value(4);
+            this.uncertainty = (double[]) decodedR335.value(5);
+            this.signalStrength = (double[]) decodedR335.value(6);
+            this.evidence = (String[]) decodedR335.value(7);
+            this.counterEvidence = (String[]) decodedR335.value(8);
+        }
+}
 
     public static final class NumberProbabilityMatrix {
         public final double[][] probability;
@@ -166,7 +218,20 @@ public final class V51Models {
                     && probability.length == 10
                     && mapPermutation.length == 10;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        NumberProbabilityMatrix(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.probability = (double[][]) decodedR335.value(0);
+            this.maxRowError = ((Double) decodedR335.value(1)).doubleValue();
+            this.maxColumnError = ((Double) decodedR335.value(2)).doubleValue();
+            this.iterations = ((Integer) decodedR335.value(3)).intValue();
+            this.converged = ((Boolean) decodedR335.value(4)).booleanValue();
+            this.usedFallback = ((Boolean) decodedR335.value(5)).booleanValue();
+            this.mapPermutation = (int[]) decodedR335.value(6);
+            this.checksum = (String) decodedR335.value(7);
+        }
+}
 
     public static final class PositionAction {
         public final int position, n1, n2, n3, n4, rank;
@@ -210,7 +275,27 @@ public final class V51Models {
         public int[] top3() {
             return new int[] {n1, n2, n3};
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        PositionAction(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.position = ((Integer) decodedR335.value(0)).intValue();
+            this.n1 = ((Integer) decodedR335.value(1)).intValue();
+            this.n2 = ((Integer) decodedR335.value(2)).intValue();
+            this.n3 = ((Integer) decodedR335.value(3)).intValue();
+            this.n4 = ((Integer) decodedR335.value(4)).intValue();
+            this.rank = ((Integer) decodedR335.value(5)).intValue();
+            this.rawActionP = ((Double) decodedR335.value(6)).doubleValue();
+            this.rankScore = ((Double) decodedR335.value(7)).doubleValue();
+            this.rankMargin = ((Double) decodedR335.value(8)).doubleValue();
+            this.thirdMargin = ((Double) decodedR335.value(9)).doubleValue();
+            this.entropy = ((Double) decodedR335.value(10)).doubleValue();
+            this.stability = ((Double) decodedR335.value(11)).doubleValue();
+            this.metaFeatures = (double[]) decodedR335.value(12);
+            this.fingerprint = (String) decodedR335.value(13);
+            this.checksum = (String) decodedR335.value(14);
+        }
+}
 
     public static final class PredictabilityEvidence {
         public final double probability, stability, changePointRisk, falsifierRisk;
@@ -236,7 +321,20 @@ public final class V51Models {
             this.qualified = qualified;
             this.checksum = s(checksum);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        PredictabilityEvidence(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.probability = ((Double) decodedR335.value(0)).doubleValue();
+            this.stability = ((Double) decodedR335.value(1)).doubleValue();
+            this.changePointRisk = ((Double) decodedR335.value(2)).doubleValue();
+            this.falsifierRisk = ((Double) decodedR335.value(3)).doubleValue();
+            this.qualified = ((Boolean) decodedR335.value(4)).booleanValue();
+            this.checksum = (String) decodedR335.value(5);
+            this.missingReason = (String) decodedR335.value(6);
+            this.inputFeatures = (double[]) decodedR335.value(7);
+        }
+}
 
     public static final class DomainCertificate {
         public final String domainId, checksum;
@@ -264,7 +362,21 @@ public final class V51Models {
             this.driftRisk = V51Math.clamp(driftRisk, 0, 1);
             this.checksum = s(checksum);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        DomainCertificate(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.domainId = (String) decodedR335.value(0);
+            this.checksum = (String) decodedR335.value(1);
+            this.status = (V51Enums.DomainStatus) decodedR335.value(2);
+            this.sample = ((Integer) decodedR335.value(3)).intValue();
+            this.hitRate = ((Double) decodedR335.value(4)).doubleValue();
+            this.credibleLow = ((Double) decodedR335.value(5)).doubleValue();
+            this.ece = ((Double) decodedR335.value(6)).doubleValue();
+            this.blockMinimum = ((Double) decodedR335.value(7)).doubleValue();
+            this.driftRisk = ((Double) decodedR335.value(8)).doubleValue();
+        }
+}
 
     public static final class SelectedActionEnvelope {
         public final PredictionContext context;
@@ -304,7 +416,22 @@ public final class V51Models {
             this.falsifierScore = V51Math.clamp(falsifierScore, 0, 1);
             this.contractHash = s(contractHash);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        SelectedActionEnvelope(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.context = (PredictionContext) decodedR335.value(0);
+            this.action = (PositionAction) decodedR335.value(1);
+            this.selectedHitP = ((Double) decodedR335.value(2)).doubleValue();
+            this.predictability = (PredictabilityEvidence) decodedR335.value(3);
+            this.domain = (DomainCertificate) decodedR335.value(4);
+            this.lane = (V51Enums.Lane) decodedR335.value(5);
+            this.uncertainty = ((Double) decodedR335.value(6)).doubleValue();
+            this.falsifierScore = ((Double) decodedR335.value(7)).doubleValue();
+            this.contractHash = (String) decodedR335.value(8);
+            this.selectionPolicyHash = (String) decodedR335.value(9);
+        }
+}
 
     public static final class AuthorizedDecision {
         public final V51Enums.DecisionAction action;
@@ -327,7 +454,18 @@ public final class V51Models {
             this.authorizationHash = s(authorizationHash);
             this.artifactBundleHash = s(artifactBundleHash);
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        AuthorizedDecision(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.action = (V51Enums.DecisionAction) decodedR335.value(0);
+            this.rejectCode = (V51Enums.RejectCode) decodedR335.value(1);
+            this.selected = (SelectedActionEnvelope) decodedR335.value(2);
+            this.decisionId = (String) decodedR335.value(3);
+            this.authorizationHash = (String) decodedR335.value(4);
+            this.artifactBundleHash = (String) decodedR335.value(5);
+        }
+}
 
     private static String s(String x) {
         return x == null ? "" : x;

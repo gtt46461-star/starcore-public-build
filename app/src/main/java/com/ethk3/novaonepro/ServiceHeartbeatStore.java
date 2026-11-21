@@ -21,6 +21,8 @@ public final class ServiceHeartbeatStore {
 
     private static final String PREF = "v20_service_runtime_light";
     private static final Object LOCK = new Object();
+    private static final String ENABLE_ASSIGNMENT_PROCESS_R335 = java.util.UUID.randomUUID().toString().replace("-", "");
+    private static volatile String ENABLE_ASSIGNMENT_FAILURE_R335 = "";
     // Constructor rejects Activity/null fallback; only process-lifetime Application context is retained.
     @android.annotation.SuppressLint("StaticFieldLeak")
     private static volatile Context LAST_APP_CONTEXT;
@@ -40,6 +42,7 @@ public final class ServiceHeartbeatStore {
             boolean refused=enabled&&DatabaseCoordinator.isExplicitMaintenanceActiveR82();
             long now=System.currentTimeMillis();RuntimePatch p=new RuntimePatch();
             p.putBoolean("user_enabled",enabled&&!refused);
+            p.putString("r335_enabled_assignment_intent",refused?"ENABLE_REFUSED":enabled?"ENABLE":"DISABLE");
             p.putLong(enabled&&!refused?"last_enable_at":"last_disable_at",now);
             p.putString("runtime_version",AppConfig.FINAL_INTEGRATION_FIX_VERSION);
             if(refused)p.putString("last_reason","MAINTENANCE_ACTIVE_START_REFUSED");
@@ -64,7 +67,7 @@ public final class ServiceHeartbeatStore {
     public void markUiStartRequested(String reason) {
         synchronized(DatabaseCoordinator.RUNTIME_TRANSITION_R82) {
             RuntimePatch p=new RuntimePatch();boolean refused=DatabaseCoordinator.isExplicitMaintenanceActiveR82();
-            p.putBoolean("user_enabled",!refused);p.putLong("ui_start_requested_at",System.currentTimeMillis());
+            p.putBoolean("user_enabled",!refused);p.putString("r335_enabled_assignment_intent",refused?"ENABLE_REFUSED":"ENABLE");p.putLong("ui_start_requested_at",System.currentTimeMillis());
             p.putString("ui_start_requested_reason",safe(reason));
             p.putString("last_reason",refused?"MAINTENANCE_ACTIVE_START_REFUSED":"UI_START_REQUEST:"+safe(reason));
             commitPatch(p);
@@ -1348,16 +1351,56 @@ public final class ServiceHeartbeatStore {
 
     private void commitPatchLocked(RuntimePatch patch) {
         if (app == null || patch == null) return;
+        // Permission and its observational assignment receipt share each existing atomic preference
+        // commit. Ordinary heartbeats do not grow the journal and no main SQLite writer is added.
+        appendEnabledAssignmentR335(patch);
+        boolean credentialWritten=false;
         try {
-            applyPatch(prefs(app).edit(), patch).commit();
+            credentialWritten=applyPatch(prefs(app).edit(), patch).commit();
+            if(!credentialWritten) ENABLE_ASSIGNMENT_FAILURE_R335="PREFERENCE_COMMIT_FAILED";
         } catch (Throwable ignore) {
+            ENABLE_ASSIGNMENT_FAILURE_R335="PREFERENCE_COMMIT_EXCEPTION";
         }
         Context dc = deviceContext();
         if (dc != null) {
             try {
-                applyPatch(prefs(dc).edit(), patch).commit();
+                if(!applyPatch(prefs(dc).edit(), patch).commit())
+                    ENABLE_ASSIGNMENT_FAILURE_R335="DEVICE_PREFERENCE_COMMIT_FAILED";
             } catch (Throwable ignore) {
+                ENABLE_ASSIGNMENT_FAILURE_R335="DEVICE_PREFERENCE_COMMIT_EXCEPTION";
             }
+        }
+        // A later successful existing commit persists the failure; it cannot silently restore
+        // an apparently complete enable history. Permission semantics themselves stay unchanged.
+    }
+
+    private void appendEnabledAssignmentR335(RuntimePatch patch) {
+        Boolean enabled=null;String intent="";
+        for(int i=0;i<patch.size;i++) {
+            if("user_enabled".equals(patch.keys[i])&&patch.values[i] instanceof Boolean)
+                enabled=(Boolean)patch.values[i];
+            if("r335_enabled_assignment_intent".equals(patch.keys[i])&&patch.values[i] instanceof String)
+                intent=(String)patch.values[i];
+        }
+        if(enabled==null&&ENABLE_ASSIGNMENT_FAILURE_R335.isEmpty())return;
+        String previousStatus=getString(EnabledWindowJournalR335.STATUS_KEY,"");
+        if(!ENABLE_ASSIGNMENT_FAILURE_R335.isEmpty()||(!previousStatus.isEmpty()&&!"RECORDED".equals(previousStatus))) {
+            patch.putString(EnabledWindowJournalR335.STATUS_KEY,
+                    !ENABLE_ASSIGNMENT_FAILURE_R335.isEmpty()?ENABLE_ASSIGNMENT_FAILURE_R335:previousStatus);
+            return;
+        }
+        if(enabled==null)return;
+        try {
+            String original=getString(EnabledWindowJournalR335.PREF_KEY,"");
+            String assignment=enabled.booleanValue()?"1":"DISABLE".equals(intent)?"0":"R";
+            String journal=EnabledWindowJournalR335.appendState(original,assignment,
+                    System.currentTimeMillis(),android.os.SystemClock.elapsedRealtime(),
+                    ENABLE_ASSIGNMENT_PROCESS_R335,BuildConfig.SOURCE_COMMIT_R26);
+            patch.putString(EnabledWindowJournalR335.PREF_KEY,journal);
+            patch.putString(EnabledWindowJournalR335.STATUS_KEY,"RECORDED");
+        } catch(RuntimeException failure) {
+            ENABLE_ASSIGNMENT_FAILURE_R335="ASSIGNMENT_AUDIT_INVALID:"+failure.getClass().getSimpleName();
+            patch.putString(EnabledWindowJournalR335.STATUS_KEY,ENABLE_ASSIGNMENT_FAILURE_R335);
         }
     }
 

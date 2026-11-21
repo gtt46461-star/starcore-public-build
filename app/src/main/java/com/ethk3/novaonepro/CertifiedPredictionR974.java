@@ -65,7 +65,31 @@ public final class CertifiedPredictionR974 {
                 && scopePolicyHash.equals(exactScopePolicyHash(candidate,structure,modelHash,selectionHash))
                 && calibrationHash.matches("[0-9a-f]{64}")&&capturedAt>0&&!expired();
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Proof(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.candidate = (String) decodedR335.value(0);
+            this.structure = (String) decodedR335.value(1);
+            this.certificate = (String) decodedR335.value(2);
+            this.evidence = (String) decodedR335.value(3);
+            this.modelHash = (String) decodedR335.value(4);
+            this.base = (String) decodedR335.value(5);
+            this.target = (String) decodedR335.value(6);
+            this.bundle = (String) decodedR335.value(7);
+            this.history = (String) decodedR335.value(8);
+            this.recipe = (String) decodedR335.value(9);
+            this.actionHash = (String) decodedR335.value(10);
+            this.hash = (String) decodedR335.value(11);
+            this.capturedAt = ((Long) decodedR335.value(12)).longValue();
+            this.deadlineAt = ((Long) decodedR335.value(13)).longValue();
+            this.deadlineMono = ((Long) decodedR335.value(14)).longValue();
+            this.calibrationHash = (String) decodedR335.value(15);
+            this.selectionHash = (String) decodedR335.value(16);
+            this.scopePolicyHash = (String) decodedR335.value(17);
+            this.selectedHitP = ((Double) decodedR335.value(18)).doubleValue();
+        }
+}
     /** Candidate-only calibration is valid here because this lane consumes the exact immutable
      * candidate rank-one action at weight 1.0; it must not calibrate a mixed/overlaid action. */
     static boolean validSelectedProbability(double p){return Double.isFinite(p)&&p>0.0d&&p<1.0d;}
