@@ -20,11 +20,11 @@ jobs:
         with:
           ref: a724adbfb31dd96f1459aa2e5cbd94582dd6e82d
           path: app-source
-          sparse-checkout: |
-            app/src
-            tools/r31
-            tools/r3251
           persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
       - name: Restore sealed observation tools and await final candidate
         run: |
           set -euo pipefail
