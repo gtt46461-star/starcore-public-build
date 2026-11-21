@@ -23,10 +23,10 @@
     },
     {
       "id": "B01.4",
-      "status": "BLOCKED",
+      "status": "PASS",
       "localEvidence": "assessment/ledgers/groups32.json#B01.4",
       "publicPlanRequirement": "完整包和诊断包真实边界",
-      "reason": "以下固定断言仍待签收：B01.4.POS"
+      "reason": "最终候选的同版证据已通过对应核验。"
     },
     {
       "id": "B02.1",
@@ -303,10 +303,10 @@
     },
     {
       "id": "B01.4.POS",
-      "status": "BLOCKED",
+      "status": "PASS",
       "localEvidence": "assessment/ledgers/assertions96.json#B01.4.POS",
       "publicPlanRequirement": "连续两次完成后第三次成功或有可解释的暂停与恢复；逐件验证原DB和训练附件是否实含",
-      "reason": "待取得同版原件的场景包括 B01.4.POS.C03。"
+      "reason": "最终候选的同版证据已通过对应核验。"
     },
     {
       "id": "B01.4.NEG",
@@ -1122,27 +1122,27 @@
     },
     {
       "id": "B01.4.POS.C01",
-      "status": "BLOCKED",
+      "status": "PASS",
       "localEvidence": "assessment/ledgers/scenarios288.json#B01.4.POS.C01",
       "publicPlanRequirement": "连续三次导出逐作业完成或有可恢复暂停",
       "individualStatus": "PASS",
-      "reason": "所属完整断言仍待签收。"
+      "reason": "最终候选的同版证据已通过对应核验。"
     },
     {
       "id": "B01.4.POS.C02",
-      "status": "BLOCKED",
+      "status": "PASS",
       "localEvidence": "assessment/ledgers/scenarios288.json#B01.4.POS.C02",
       "publicPlanRequirement": "诊断ZIP按真实ARCHIVE_MANIFEST格式重开验成员",
       "individualStatus": "PASS",
-      "reason": "所属完整断言仍待签收。"
+      "reason": "最终候选的同版证据已通过对应核验。"
     },
     {
       "id": "B01.4.POS.C03",
-      "status": "BLOCKED",
+      "status": "PASS",
       "localEvidence": "assessment/ledgers/scenarios288.json#B01.4.POS.C03",
       "publicPlanRequirement": "完整恢复包验证真实DB及训练附件",
-      "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求完整恢复包验证真实DB及训练附件。"
+      "individualStatus": "PASS",
+      "reason": "最终候选的同版证据已通过对应核验。"
     },
     {
       "id": "B01.4.NEG.C01",
@@ -3342,7 +3342,7 @@
       "publicPlanRequirement": "持实时锁3秒，所有R27任务不新增FAULT、不进入QUARANTINED；锁释放后依公平预算有进展，P0不被R27排队阻塞。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 2 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 2 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C01#A2",
@@ -3369,7 +3369,7 @@
       "publicPlanRequirement": "注入旧owner失败回执晚于新owner领取：新owner保持RUNNING，旧回执只进入拒收日志。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C02#A2",
@@ -3378,7 +3378,7 @@
       "publicPlanRequirement": "在claim后/提交前/提交后receipt前杀进程：恢复只重复计算未提交部分，artifact及cursor恰好一次发布。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host、HOST:run_write_protocol_host。"
+      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host、HOST:run_write_protocol_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C02#A3",
@@ -3387,7 +3387,7 @@
       "publicPlanRequirement": "时钟前后跳24小时、重启后同PID复用均不授予旧fence写权。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C02#A4",
@@ -3396,7 +3396,7 @@
       "publicPlanRequirement": "busy重试不丢pending batch；owner变更无R30_PREPARED_OWNER_CHANGED无限重试。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 1 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 1 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C03#A1",
@@ -3405,16 +3405,16 @@
       "publicPlanRequirement": "虚拟时钟测试每个隔离等级、半开唯一性、成功复位与NEEDS_FIX；时间跳变不导致全部同时放行。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C03#A2",
-      "status": "BLOCKED",
-      "localEvidence": "assessment/ledgers/clauses222.json#R31-B01-C03#A2",
+      "status": "PASS",
+      "localEvidence": "assessment/ledgers/clauses222.json#R31-B01-C03#A2；raw/B08/verified-task-runtime/original-output.log",
       "publicPlanRequirement": "将13个任务以混合故障隔离：可恢复错误按依赖恢复，真实缺陷保持NEEDS_FIX并报告；不能把“零隔离”作为唯一验收。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "最终候选的同版证据已通过对应核验。 对应的原测试方法与源码逐字核对，保留全部断言。完整 16 个宿主场景共执行 49,358 次断言。原历史入口的失败收据已归档。"
     },
     {
       "id": "R31-B01-C03#A3a",
@@ -3423,7 +3423,7 @@
       "publicPlanRequirement": "虚拟时钟连续推进24h调度：pending>0且依赖满足的任务均有提交进展或精确阻塞证据，无永久无声停摆。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C03#A3b",
@@ -3441,7 +3441,7 @@
       "publicPlanRequirement": "永不poll任务：无第二个同任务实例；P0继续；stop请求在10秒(虚拟时钟)内返回STOP_INCOMPLETE而非已停止。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 2 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 2 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B01-C04#A1b",
@@ -3486,7 +3486,7 @@
       "publicPlanRequirement": "同任务owner/target切换一万次无ABA、双重提交、已关闭connection访问。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 1 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 1 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B02-C01#A1",
@@ -3504,7 +3504,7 @@
       "publicPlanRequirement": "虚拟时钟压缩60分钟竞争：1Hz轮询+历史回补+研究+报告+保留，关键写无饿死，研究pending有界。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B02-C01#A2b",
@@ -3765,7 +3765,7 @@
       "publicPlanRequirement": "协调器层：用户stop后不再提交新抓取/研究且不自行复活；普通前后台切换保持会话状态。",
       "requiredGate": "B02.4",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 1 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "本版取得 1 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B04-C02#A2b",
@@ -3904,12 +3904,12 @@
     },
     {
       "id": "R31-B05-C11#A3a",
-      "status": "BLOCKED",
-      "localEvidence": "assessment/ledgers/clauses222.json#R31-B05-C11#A3a",
+      "status": "PASS",
+      "localEvidence": "assessment/ledgers/clauses222.json#R31-B05-C11#A3a；raw/B08/verified-task-runtime/original-output.log",
       "publicPlanRequirement": "100轮会话打开/取消后，旧session/epoch对象经弱引用+GC断言可回收（JVM）。",
       "requiredGate": "B08.2",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "最终候选的同版证据已通过对应核验。 对应的原测试方法与源码逐字核对，保留全部断言。完整 16 个宿主场景共执行 49,358 次断言。原历史入口的失败收据已归档。"
     },
     {
       "id": "R31-B05-C11#A3b",
@@ -3931,12 +3931,12 @@
     },
     {
       "id": "R31-B05-C11#A5a",
-      "status": "BLOCKED",
-      "localEvidence": "assessment/ledgers/clauses222.json#R31-B05-C11#A5a",
+      "status": "PASS",
+      "localEvidence": "assessment/ledgers/clauses222.json#R31-B05-C11#A5a；raw/B08/verified-task-runtime/original-output.log",
       "publicPlanRequirement": "DB reader/游标/文件句柄在正常与取消路径后计数回到基线（HOST计数）。",
       "requiredGate": "B03.2",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 0 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "最终候选的同版证据已通过对应核验。 对应的原测试方法与源码逐字核对，保留全部断言。完整 16 个宿主场景共执行 49,358 次断言。原历史入口的失败收据已归档。"
     },
     {
       "id": "R31-B05-C11#A5b",
@@ -3972,7 +3972,7 @@
       "publicPlanRequirement": "注入缺期、补期、跨日期号和源修订，结果分别为等待/续进/新身份失效，未冻结的旧预测不能补写。",
       "requiredGate": "B03.2",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 4 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_service_protocol_host、HOST:run_task_runtime_host。"
+      "reason": "本版取得 4 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_service_protocol_host、HOST:run_task_runtime_host。 宿主补测已在生产表结构上运行全部 16 个原场景。原注册入口的失败回执单独保留。"
     },
     {
       "id": "R31-B06-C01#A3",
@@ -4003,12 +4003,12 @@
     },
     {
       "id": "R31-B06-C02#A2",
-      "status": "BLOCKED",
-      "localEvidence": "assessment/ledgers/clauses222.json#R31-B06-C02#A2",
+      "status": "PASS",
+      "localEvidence": "assessment/ledgers/clauses222.json#R31-B06-C02#A2；raw/B08/verified-task-runtime/original-output.log",
       "publicPlanRequirement": "在 artifact 写完但事务未提交、提交后未 publish、重复投递三处注入故障，游标与模型步数不分离。",
       "requiredGate": "B03.3",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 4 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "最终候选的同版证据已通过对应核验。 对应的原测试方法与源码逐字核对，保留全部断言。完整 16 个宿主场景共执行 49,358 次断言。原历史入口的失败收据已归档。"
     },
     {
       "id": "R31-B06-C02#A3a",
@@ -4102,12 +4102,12 @@
     },
     {
       "id": "R31-B07-C01#A3",
-      "status": "BLOCKED",
-      "localEvidence": "assessment/ledgers/clauses222.json#R31-B07-C01#A3",
+      "status": "PASS",
+      "localEvidence": "assessment/ledgers/clauses222.json#R31-B07-C01#A3；raw/B08/verified-task-runtime/original-output.log",
       "publicPlanRequirement": "对同一 model owner 注入双入口，唯一 fence 拒绝第二写者；兼容入口不启动第二数值线程。",
       "requiredGate": "B02.1",
       "requiredEvidenceRole": "LOCAL",
-      "reason": "本版取得 1 份具名测试。当前构建与具名测试尚未证明完整原条款。 仍需 HOST:run_task_runtime_host。"
+      "reason": "最终候选的同版证据已通过对应核验。 对应的原测试方法与源码逐字核对，保留全部断言。完整 16 个宿主场景共执行 49,358 次断言。原历史入口的失败收据已归档。"
     },
     {
       "id": "R31-B07-C01#A4",

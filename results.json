@@ -35,10 +35,16 @@
     "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-trained-backup-44882296591.json",
     "sha256": "7b80f6292c025da49efc662b92ad87840460ddc5f57434650af8f56c70a0b94c"
   },
-  "controlledTrainedCheckpointAndFullBackup": {
+  "controlledCheckpointReopenedWithCatalogReadErrors": {
     "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-trained-backup-44883366814.json",
     "sha256": "75cdb64d6a0e09747a77236110829aa9afac45a61f841336834074200e5a681d",
-    "verified": false
+    "catalogReadErrors": 39,
+    "expectedChecks": 96
+  },
+  "controlledTrainedCheckpointAndFullBackup": {
+    "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-trained-backup-44884575765.json",
+    "sha256": "c11b807b6e2152efa6222ca550b2dbdc75775732d23798c84e4f0fd3d66e5794",
+    "verified": true
   },
   "localAndroidControls": {
     "controlledObservationOfQualification": {
@@ -90,12 +96,79 @@
     },
     "supplementalTaskFixtureWithProductionSchema": {
       "registered": 16,
-      "completed": 14,
-      "allReturned": false,
-      "exit": 1,
-      "rawOutputSha256": "8e04c35f12873d4301247f922c6b889dc37a2b783f128c7e658fcebdd0c14fa6",
+      "completed": 16,
+      "allReturned": true,
+      "exit": 0,
+      "rawOutputSha256": "4965041b30387e539728d3b84d269924188d64d02733e2ada882acb072897fea",
       "previousFailureSha256": "9f2c1595d524f72f7d0cfb162f2abc0055cf14b95ef775c814edf524c22d7f9f"
     },
+    "separateSequentialReportQueueTiming": [
+      {
+        "reportSha256": "338709fb75d20fed7ebe5d6ba170e9d07fc2482c0a9c4c94685ccb898efa790a",
+        "warmSamples": 0,
+        "warmDurationsMs": {}
+      },
+      {
+        "reportSha256": "dedc7ca1aeae38b040e9bfe9f2e3ebbda1e03f576b4d6bc12f47c250c502129a",
+        "warmSamples": 2,
+        "warmDurationsMs": {
+          "queue": {
+            "p50Ms": 11936,
+            "p95Ms": 33476,
+            "p99Ms": 33476,
+            "maxMs": 33476
+          },
+          "compute": {
+            "p50Ms": 2450,
+            "p95Ms": 2837,
+            "p99Ms": 2837,
+            "maxMs": 2837
+          },
+          "commit": {
+            "p50Ms": 68,
+            "p95Ms": 139,
+            "p99Ms": 139,
+            "maxMs": 139
+          },
+          "requestToDurable": {
+            "p50Ms": 14979,
+            "p95Ms": 36680,
+            "p99Ms": 36680,
+            "maxMs": 36680
+          }
+        }
+      },
+      {
+        "reportSha256": "aacb088227301bc5f3a77cca5708287e0218617eab3e1421c0fc9bb3b72a3e51",
+        "warmSamples": 2,
+        "warmDurationsMs": {
+          "queue": {
+            "p50Ms": 11936,
+            "p95Ms": 33476,
+            "p99Ms": 33476,
+            "maxMs": 33476
+          },
+          "compute": {
+            "p50Ms": 2450,
+            "p95Ms": 2837,
+            "p99Ms": 2837,
+            "maxMs": 2837
+          },
+          "commit": {
+            "p50Ms": 68,
+            "p95Ms": 139,
+            "p99Ms": 139,
+            "maxMs": 139
+          },
+          "requestToDurable": {
+            "p50Ms": 14979,
+            "p95Ms": 36680,
+            "p99Ms": 36680,
+            "maxMs": 36680
+          }
+        }
+      }
+    ],
     "independentWindowTimingTotals": {
       "metrics": {
         "registered": 100,
@@ -276,20 +349,20 @@
   "formalFullClosure": "INCOMPLETE",
   "counts": {
     "groups32": {
-      "verified": 2,
+      "verified": 3,
       "denominator": 32
     },
     "assertions96": {
-      "verified": 16,
+      "verified": 17,
       "denominator": 96
     },
     "scenarios288": {
-      "verified": 49,
+      "verified": 52,
       "denominator": 288,
-      "individuallyVerified": 76
+      "individuallyVerified": 77
     },
     "clauses222": {
-      "verified": 92,
+      "verified": 97,
       "denominator": 222
     },
     "requirements1832": {
