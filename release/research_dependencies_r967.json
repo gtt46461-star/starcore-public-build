@@ -551,10 +551,10 @@
       "role": "NUMERIC"
     },
     {
-      "dynamic_review_sha256": "3c78b4e32185049da20c869fa846b6099044cdf334693081cd211668ee6dbef6",
+      "dynamic_review_sha256": "bc7203c1b69dbe310469cb5c87f4a67d0bf55d86640a38d92bdaf1268aa15bd7",
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "role": "NUMERIC",
-      "rationale": "Read back durable settlement and research progress, fairly reconcile pending classes, avoid redundant polling history work, preserve per-issue evaluation and original feedback identity. Rank only claimable tasks using the authoritative boot, owner, fence and monotonic lease. Give pending research schema a fair slot and commit separately fenced lifecycle units within its existing bounded migration slice."
+      "rationale": "Read back durable settlement and research progress, fairly reconcile pending classes, avoid redundant polling history work, preserve per-issue evaluation and original feedback identity. Recover all deficient dates in the rolling 5000 calendar, including partial startup and the fifth provider date. Rank only claimable tasks using the authoritative boot, owner, fence and monotonic lease. Give pending research schema a fair slot and commit separately fenced lifecycle units within its existing bounded migration slice."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/AutonomousResearchEvolutionEngine.java",
@@ -1401,6 +1401,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/HomeTruthRepositoryR906.java",
       "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/HotHistoryWindowR335.java",
+      "role": "NUMERIC",
+      "rationale": "Recover the exact most recent 5000 calendar positions, including the leading partial provider date. Query each deficient date on the background worker, keep read-only coverage, exclude future and obsolete rows, classify missing history to preserve retries, and leave pre-draw forecasting immutable."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java",

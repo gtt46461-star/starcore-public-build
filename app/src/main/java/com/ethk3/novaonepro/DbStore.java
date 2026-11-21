@@ -2913,6 +2913,11 @@ public final class DbStore {
         return countTable(DbHelper.TABLE_DRAWS, where, args);
     }
 
+    HotHistoryWindowR335 hotHistoryWindowR335() {
+        Models.Draw head = getLatestDraw();
+        return head == null || !head.isValid() ? null : HotHistoryWindowR335.read(readable(), head.issue);
+    }
+
     public int getDrawRemainTo240() {
         int count = getValidDrawCount();
         int need = AppConfig.WINDOW_240 - count;

@@ -44,8 +44,10 @@ final class ChartsRepositoryR83 {
         int position = ctx.position;
         switch (id) {
             case "r83_algorithm_all": return safe("全部算法逐期实盘榜", () -> r27AlgorithmBoard(db, cancel));
-            case "r83_algorithm_rank": return safe("算法实盘排行榜", () -> algorithmBoard(db, cancel));
-            case "r83_best_curve": return safe("最佳算法累计命中率", () -> bestAlgorithmCurve(db, cancel));
+            case "r83_algorithm_rank": return archivedPanel(db,cancel,"旧R908冻结观察事后榜",() -> algorithmBoard(db,cancel),
+                    DbHelper.TABLE_R908_ALGORITHM_PREDRAW,DbHelper.TABLE_R908_ALGORITHM_GENOME);
+            case "r83_best_curve": return archivedPanel(db,cancel,"事后最佳累计命中率",() -> bestAlgorithmCurve(db,cancel),
+                    DbHelper.TABLE_R908_ALGORITHM_PREDRAW,DbHelper.TABLE_R908_ALGORITHM_GENOME);
             case "r83_action_candles": return safe("出手资金K线", () -> actionCandles(db, cancel));
             case "r83_all_hit": return safe("全部预测命中率走势", () -> hitTrend(db, cancel, false));
             case "r83_act_hit": return safe("出手命中率走势", () -> hitTrend(db, cancel, true));
@@ -54,7 +56,8 @@ final class ChartsRepositoryR83 {
             case "r83_omission_heat": return safe("号码遗漏热力图", () -> omissionHeat(ctx.draws));
             case "r83_hot_cold": return safe("第" + position + "位置冷热号", () -> hotCold(ctx.draws, position));
             case "r83_calibration": return safe("预测概率校准", () -> calibration(db, cancel));
-            case "r83_brier20": return safe("深度学习训练误差", () -> networkBrier(db, cancel));
+            case "r83_brier20": return archivedPanel(db,cancel,"短期波动（滚动20期Brier）",() -> networkBrier(db,cancel),
+                    AtomicToolWorldR943.CONTEXT);
             default: throw new IllegalArgumentException("R31_R83_PANEL_NOT_MOUNTED:" + id);
         }
     }
@@ -79,6 +82,22 @@ final class ChartsRepositoryR83 {
     }
 
     interface Builder { Panel build(); }
+
+    private static Panel archivedPanel(SQLiteDatabase db, CancellationSignal cancel, String title,
+                                       Builder reader, String... sources) {
+        return safe(title, () -> {
+            List<String> missing = new ArrayList<>();
+            for (String table : sources) {
+                try (Cursor c = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type IN ('table','view') AND name=?",
+                        new String[]{table},cancel)) {
+                    if (!c.moveToFirst()) missing.add(table);
+                }
+            }
+            if (missing.isEmpty()) return reader.build();
+            String absent = missing.toString();
+            return new Panel(PAGE,title,"STATUS",absent,"","等待历史原表 " + absent,"SOURCE_NOT_PRESENT",null,null);
+        });
+    }
 
     private static Panel safe(String title, Builder builder) {
         try {

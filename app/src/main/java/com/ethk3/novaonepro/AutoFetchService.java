@@ -11643,6 +11643,14 @@ public final class AutoFetchService extends Service {
             }
 
             if (!need) {
+                HotHistoryWindowR335 hot = store.hotHistoryWindowR335();
+                if (hot != null && hot.missingPeriods > 0) {
+                    need = true;
+                    reason = "最近5000期尚缺" + hot.missingPeriods + "期";
+                }
+            }
+
+            if (!need) {
                 store.updateBackfillStatus("SKIP", 0, "本轮无需回补");
                 return;
             }
@@ -11665,10 +11673,9 @@ public final class AutoFetchService extends Service {
 
         int totalInserted = 0;
         int latest100Count = 0;
-        int todayCount = 0;
-        int yesterdayCount = 0;
-        int dayMinus2Count = 0;
-        int dayMinus3Count = 0;
+        int datedRows = 0;
+        int datesRequested = 0;
+        int failedDates = 0;
         boolean b07ForcedBackfill =
                 forceFullDateBackfill
                         || (reason != null && reason.indexOf("B07启动强制回补") >= 0);
@@ -11711,66 +11718,31 @@ public final class AutoFetchService extends Service {
                 }
             }
 
-            if (b07ForcedBackfill || !shouldDeferHeavyBackgroundNow()) {
+            HotHistoryWindowR335 window = store.hotHistoryWindowR335();
+            if (window == null && (b07ForcedBackfill || !shouldDeferHeavyBackgroundNow())) {
                 Models.ApiResult today = apiClient.fetchTodayBackfill();
-
-                if (today != null && today.ok && today.draws != null && today.draws.size() > 0) {
-                    todayCount = today.draws.size();
+                datesRequested++;
+                if (today != null && today.ok && today.draws != null && !today.draws.isEmpty()) {
+                    datedRows += today.draws.size();
                     totalInserted += store.saveDraws(today.draws);
-
-                    if (today.apiLine != null && today.apiLine.length() > 0) {
-                        store.setState("api_line", today.apiLine);
-                    }
+                    window = store.hotHistoryWindowR335();
+                } else {
+                    failedDates++;
                 }
             }
-
-            if ((b07ForcedBackfill || !shouldDeferHeavyBackgroundNow())
-                    && (b07ForcedBackfill || store.getDrawRemainTo240() > 0 || store.getRecentIssueGapCount(300) > 0)) {
-                Models.ApiResult yesterday = apiClient.fetchYesterdayBackfill();
-
-                if (yesterday != null
-                        && yesterday.ok
-                        && yesterday.draws != null
-                        && yesterday.draws.size() > 0) {
-                    yesterdayCount = yesterday.draws.size();
-                    totalInserted += store.saveDraws(yesterday.draws);
-
-                    if (yesterday.apiLine != null && yesterday.apiLine.length() > 0) {
-                        store.setState("api_line", yesterday.apiLine);
+            if (window != null) {
+                for (String date : window.dates) {
+                    if (!running || (!b07ForcedBackfill && shouldDeferHeavyBackgroundNow())) break;
+                    Models.ApiResult result = apiClient.fetchBackfillDate(date);
+                    datesRequested++;
+                    if (result == null || !result.ok || result.draws == null || result.draws.isEmpty()) {
+                        failedDates++;
+                        continue;
                     }
-                }
-            }
-
-            if ((b07ForcedBackfill || !shouldDeferHeavyBackgroundNow())
-                    && (b07ForcedBackfill || store.getDrawRemainTo240() > 0 || store.getRecentIssueGapCount(300) > 0)) {
-                // fetchTwoDayBackfill() only concatenates today and yesterday.  It never fetched
-                // the calendar day at -2, so a rolling three-day outage could look contiguous in
-                // the newest 300 rows while most of the requested recovery window stayed absent.
-                Models.ApiResult dayMinus2 =
-                        apiClient.fetchBackfillDate(apiClient.offsetDateText(-2));
-                if (dayMinus2 != null && dayMinus2.ok && dayMinus2.draws != null
-                        && dayMinus2.draws.size() > 0) {
-                    dayMinus2Count = dayMinus2.draws.size();
-                    totalInserted += store.saveDraws(dayMinus2.draws);
-                    if (dayMinus2.apiLine != null && dayMinus2.apiLine.length() > 0) {
-                        store.setState("api_line", dayMinus2.apiLine);
-                    }
-                }
-            }
-
-            // One additional UTC date protects the leading edge of a 72-hour rolling window.
-            // Forced startup repair always attempts it; normal maintenance does so only for a gap.
-            if ((b07ForcedBackfill || !shouldDeferHeavyBackgroundNow())
-                    && (b07ForcedBackfill || store.getRecentIssueGapCount(300) > 0)) {
-                Models.ApiResult dayMinus3 =
-                        apiClient.fetchBackfillDate(apiClient.offsetDateText(-3));
-                if (dayMinus3 != null && dayMinus3.ok && dayMinus3.draws != null
-                        && dayMinus3.draws.size() > 0) {
-                    dayMinus3Count = dayMinus3.draws.size();
-                    totalInserted += store.saveDraws(dayMinus3.draws);
-                    if (dayMinus3.apiLine != null && dayMinus3.apiLine.length() > 0) {
-                        store.setState("api_line", dayMinus3.apiLine);
-                    }
+                    List<Models.Draw> history = window.inRange(result.draws);
+                    datedRows += history.size();
+                    totalInserted += store.saveDraws(history);
+                    if (result.apiLine != null && !result.apiLine.isEmpty()) store.setState("api_line", result.apiLine);
                 }
             }
 
@@ -11794,34 +11766,15 @@ public final class AutoFetchService extends Service {
             lastBackfillAt = now;
             startupBackfillDone = true;
 
-            String msg =
-                    "最新100返回"
-                            + latest100Count
-                            + "条，今日返回"
-                            + todayCount
-                            + "条，昨日返回"
-                            + yesterdayCount
-                            + "条，前第2日返回"
-                            + dayMinus2Count
-                            + "条，前第3日返回"
-                            + dayMinus3Count
-                            + "条；新增"
-                            + totalInserted
-                            + "期；当前共"
-                            + afterTotal
-                            + "期，距240还差"
-                            + afterRemain
-                            + "期";
-
-            if (afterGap > 0) {
-                msg += "；近300期仍缺" + afterGap + "期";
-            } else {
-                msg += "；近300期缺口已补齐";
-            }
-
-            if (afterGap > 0 && totalInserted <= 0) {
-                lastBackfillFailedAt = now;
-                store.updateBackfillStatus("ERROR", totalInserted, "回补接口未补入新数据，" + msg);
+            HotHistoryWindowR335 remaining = store.hotHistoryWindowR335();
+            String coverage = remaining == null ? "等待首期有效开奖" : "最近5000期尚缺" + remaining.missingPeriods + "期";
+            String msg = "最新100返回" + latest100Count + "条，按日期请求" + datesRequested
+                    + "次，窗口内返回" + datedRows + "条，空响应或失败" + failedDates + "次；新增"
+                    + totalInserted + "期；本库" + afterTotal + "期，距240还差" + afterRemain
+                    + "期，近300期缺口" + afterGap + "，" + coverage;
+            if (remaining == null || remaining.missingPeriods > 0 || afterGap > 0) {
+                lastBackfillFailedAt = totalInserted <= 0 ? now : 0L;
+                store.updateBackfillStatus(totalInserted == 0 && failedDates > 0 ? "ERROR" : "PARTIAL", totalInserted, msg);
             } else {
                 lastBackfillFailedAt = 0L;
                 store.updateBackfillStatus("OK", totalInserted, msg);
