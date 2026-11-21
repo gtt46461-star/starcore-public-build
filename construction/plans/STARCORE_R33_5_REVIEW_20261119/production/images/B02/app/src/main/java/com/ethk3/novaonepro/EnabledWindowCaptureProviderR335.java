@@ -70,7 +70,7 @@ public final class EnabledWindowCaptureProviderR335 extends ContentProvider {
             String tag = parser.getName();
             if (EnabledWindowJournalR335.PREF_KEY.equals(name)) {
                 if (journal != null || !"string".equals(tag)) throw new IOException("JOURNAL_TYPE_OR_DUPLICATE");
-                journal = parser.nextText();
+                journal = EnabledWindowJournalR335.preferenceText(parser.nextText());
             } else if (EnabledWindowJournalR335.STATUS_KEY.equals(name)) {
                 if (status != null || !"string".equals(tag)) throw new IOException("STATUS_TYPE_OR_DUPLICATE");
                 status = parser.nextText();

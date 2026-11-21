@@ -1,0 +1,25 @@
+--- previous/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java
++++ corrected/app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java
+@@ -22,12 +22,21 @@
+                     @SuppressWarnings("unchecked") Map<String,Object> frame=(Map<String,Object>)JsonR27.parse(payload);
+                     String original=c.getString(7);if(original==null||original.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144||!ResearchStoreR30R1.currentSource(BuildConfig.SOURCE_COMMIT_R26,original))throw new IllegalStateException("CURRENT_ORIGINAL_RESEARCH_SOURCE_REQUIRED");Map<?,?> source=(Map<?,?>)JsonR27.parse(original);
+                     if("R06".equals(spec.id)){for(String key:java.util.Arrays.asList("sourceContract","mean","lower95","upper95","componentPath","counterfactualHash","status","evaluatedIssues"))if(!JsonR27.write(source.get(key)).equals(JsonR27.write(frame.get(key))))throw new IllegalStateException("R06_ORIGINAL_PROJECTION_CHANGED:"+key);}
+-                    else if(!(source.get("frame") instanceof Map)||!c.getString(8).equals(StatsR27.sha256(JsonR27.write(source.get("frame"))))||!spec.id.equals(source.get("viewId"))||!c.getString(8).equals(frame.get("originalMachineFrameSha256")))throw new IllegalStateException("RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL");
++                    else if(!(source.get("frame") instanceof Map)||!c.getString(8).equals(StatsR27.sha256(JsonR27.write(source.get("frame"))))||!spec.id.equals(source.get("viewId"))||!matchesOriginalFrame(c.getString(8),frame))throw new IllegalStateException("RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL");
+                     found.put(spec.id,panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6)));
+                 }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
+             }
+         }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException missing){error=missing.getClass().getSimpleName();}
+         List<Panel> out=new ArrayList<>();for(ResearchGraphSpecsR30R1.Spec spec:specs)out.add(found.containsKey(spec.id)?found.get(spec.id):missing(spec,error==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",error==null?"尚无已提交分析产物；不能以统计行数代替分析":error));return out;
++    }
++    static boolean matchesOriginalFrame(String originalHash, Map<?, ?> cache) {
++        if (originalHash == null || !originalHash.matches("[0-9a-f]{64}")) return false;
++        // The bounded chart includes the digest of the complete, separately stored machine frame.
++        Object displayHash = cache.get("fullMachineFrameSha256");
++        Object historicalHash = cache.get("originalMachineFrameSha256");
++        if (cache.containsKey("fullMachineFrameSha256") && !originalHash.equals(displayHash)) return false;
++        if (cache.containsKey("originalMachineFrameSha256") && !originalHash.equals(historicalHash)) return false;
++        return originalHash.equals(displayHash) || originalHash.equals(historicalHash);
+     }
+     static Panel missing(ResearchGraphSpecsR30R1.Spec s,String status,String reason){return new Panel("research-workbench",s.id+" "+s.title,"STATUS","r30r1_chart_cache/"+s.measure,"",reason+"\n消费者："+s.consumer+"\n验收："+s.verification,status,null,null);}
+     static double number(Object x){return x instanceof Number&&Double.isFinite(((Number)x).doubleValue())?((Number)x).doubleValue():Double.NaN;}

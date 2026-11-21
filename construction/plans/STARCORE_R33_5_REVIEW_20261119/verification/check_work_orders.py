@@ -22,6 +22,7 @@ SUPPLEMENTAL = {
         'settlement-h15-reviewed-hunks.json': ['RT05', 'RE21'],
         'AndroidManifest.xml': ['RE21'],
         'EnabledWindowCaptureProviderR335.java': ['RE21'],
+        'EnabledWindowPreferenceR335Test.java': ['RE21'],
         'OosAfterDrawWriterR36.java': ['RT05', 'RT06', 'C01'],
         'SettlementEngine.java': ['RT05', 'RE21'],
         'V51RuntimeOrchestrator.java': ['C01', 'RE21'],
@@ -29,7 +30,7 @@ SUPPLEMENTAL = {
         'RuntimeSchemaR26.java': ['RT05'],
         'DrawDependencyInputCP12.java': ['RT08'],
     },
-    'B05': {'R31ResearchTableBudgetHost.java': ['RE15']},
+    'B05': {'R31ResearchTableBudgetHost.java': ['RE15'], 'ResearchWorkbenchProjectionR335Test.java': ['RE14']},
     'B07': {
         'MatrixReportReferenceR335Test.java': ['D11', 'RT09'],
         'CapabilityNeedDiagnosticsR335.java': ['D10', 'D11'],

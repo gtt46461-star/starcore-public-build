@@ -1,0 +1,18 @@
+--- previous/app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java
++++ corrected/app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java
+@@ -44,6 +44,15 @@
+             return b.toString();
+         }
+     }
++    /**
++     * Android's indented shared-preference XML can indent the closing string tag after the
++     * journal's own final LF. Remove precisely the four serializer spaces following that LF.
++     * A missing LF, modified event, or other suffix remains subject to the strict journal parser.
++     */
++    static String preferenceText(String value) {
++        return value != null && value.endsWith("\n    ") ? value.substring(0, value.length() - 4) : value;
++    }
++
+     public static Journal parse(String value) {
+         if(value==null||value.isEmpty())return new Journal(0,ZERO,new ArrayList<Event>());
+         require(value.length()<=200000,"JOURNAL_BYTE_BUDGET");

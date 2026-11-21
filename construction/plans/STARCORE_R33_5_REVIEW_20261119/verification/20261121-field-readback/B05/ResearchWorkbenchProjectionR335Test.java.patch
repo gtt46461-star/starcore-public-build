@@ -1,0 +1,40 @@
+--- previous/app/src/test/java/com/ethk3/novaonepro/ResearchWorkbenchProjectionR335Test.java
++++ corrected/app/src/test/java/com/ethk3/novaonepro/ResearchWorkbenchProjectionR335Test.java
+@@ -0,0 +1,37 @@
++package com.ethk3.novaonepro;
++
++import com.ethk3.novaonepro.strategyv2.JsonR27;
++import com.ethk3.novaonepro.strategyv2.ResearchFrameBoundR30R1;
++import com.ethk3.novaonepro.strategyv2.StatsR27;
++import java.util.Collections;
++import java.util.LinkedHashMap;
++import java.util.Map;
++import org.junit.Test;
++import static org.junit.Assert.*;
++
++public final class ResearchWorkbenchProjectionR335Test {
++    @Test public void actualBoundedProjectionReferencesTheOriginalAndRejectsConflictingIdentities() {
++        Map<String, Object> original = new LinkedHashMap<>();
++        original.put("viewId", "R01");
++        original.put("status", "MEASURED_RESEARCH_ONLY");
++        original.put("points", Collections.emptyList());
++        String digest = StatsR27.sha256(JsonR27.write(original));
++        String other = StatsR27.sha256("other original");
++        original.put("originalMachineFrameSha256", digest);
++        Map<String, Object> page = ResearchFrameBoundR30R1.project(original);
++        assertEquals(digest, page.get("fullMachineFrameSha256"));
++        assertTrue(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(digest, page));
++        assertFalse(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(other, page));
++        page.put("originalMachineFrameSha256", other);
++        assertFalse(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(digest, page));
++        page.put("originalMachineFrameSha256", digest);
++        assertTrue(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(digest, page));
++        page.put("fullMachineFrameSha256", null);
++        assertFalse(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(digest, page));
++        page.remove("fullMachineFrameSha256");
++        assertTrue(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(digest, page));
++        page.remove("originalMachineFrameSha256");
++        assertFalse(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(digest, page));
++        assertFalse(ResearchWorkbenchRepositoryR30R1.matchesOriginalFrame(null, page));
++    }
++}

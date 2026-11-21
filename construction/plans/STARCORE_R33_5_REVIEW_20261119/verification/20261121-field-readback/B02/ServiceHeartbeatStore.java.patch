@@ -1,0 +1,11 @@
+--- previous/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java
++++ corrected/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java
+@@ -1391,7 +1391,7 @@
+         }
+         if(enabled==null)return;
+         try {
+-            String original=getString(EnabledWindowJournalR335.PREF_KEY,"");
++            String original=EnabledWindowJournalR335.preferenceText(getString(EnabledWindowJournalR335.PREF_KEY,""));
+             String assignment=enabled.booleanValue()?"1":"DISABLE".equals(intent)?"0":"R";
+             String journal=EnabledWindowJournalR335.appendState(original,assignment,
+                     System.currentTimeMillis(),android.os.SystemClock.elapsedRealtime(),
