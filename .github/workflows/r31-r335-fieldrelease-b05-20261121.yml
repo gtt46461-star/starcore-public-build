@@ -1,0 +1,111 @@
+name: STARCORE R33.5 B05 signed field regression delivery
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-fieldrelease-b05-20261121.yml']
+permissions: {}
+jobs:
+  release:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    permissions:
+      actions: read
+      contents: write
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - stage: B05
+            source: 48217d388b8ea67f964cf43ff7a7149ff854982c
+            version: '577311062'
+    env:
+      SOURCE: ${{ matrix.source }}
+      STAGE: ${{ matrix.stage }}
+      VERSION: ${{ matrix.version }}
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore the audited plan and exact stage commit
+        run: |
+          set -euo pipefail
+          url="https://github.com/${GITHUB_REPOSITORY}.git"
+          git init -q app-source
+          git -C app-source fetch -q --no-tags "$url" "$SOURCE"
+          git -C app-source checkout -q --detach "$SOURCE"
+          test "$(git -C app-source rev-parse HEAD)" = "$SOURCE"
+          git -C app-source merge-base --is-ancestor bb7b49bbcc9266bad548ec37e71403256fc06a4d "$SOURCE"
+          git init -q plan-source
+          git -C plan-source sparse-checkout init --cone
+          git -C plan-source sparse-checkout set construction/plans/STARCORE_R33_5_REVIEW_20261119
+          git -C plan-source remote add origin "$url"
+          git -C plan-source config remote.origin.promisor true
+          git -C plan-source config remote.origin.partialclonefilter blob:none
+          git -C plan-source fetch -q --depth=1 --filter=blob:none origin 3f8495dd9405544597631349014b040a21640cb3
+          git -C plan-source checkout -q --detach FETCH_HEAD
+          test "$(git -C plan-source rev-parse HEAD)" = "3f8495dd9405544597631349014b040a21640cb3"
+          curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r33.5-plan/33.5.zip" -o "$RUNNER_TEMP/33.5.zip"
+          python3 -B plan-source/construction/plans/STARCORE_R33_5_REVIEW_20261119/prepare.py "$RUNNER_TEMP/33.5.zip" "$RUNNER_TEMP/material"
+          curl -fsSL --retry 3 "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/0fcf8b9e6286e24dc185328af0d02a0458aaee03/STARCORE-R32.5.1-C1-033-release.apk" -o "$RUNNER_TEMP/formal-033.apk"
+          cd app-source
+          python3 -c 'import json,os; m=json.load(open("release/release_manifest.json")); assert m["versionCode"]==int(os.environ["VERSION"]) and m["versionName"].startswith("R33.5-"+os.environ["STAGE"]+"-")'
+      - name: Install pinned build dependencies
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          python3 -m pip install numpy==2.3.5 'cryptography>=41,<51'
+          python3 -B "$RUNNER_TEMP/material/current-review/source/preflight_delivery.py" --repo app-source --android-sdk "$ANDROID_HOME" --baseline-apk "$RUNNER_TEMP/formal-033.apk" > "$RUNNER_TEMP/preflight.json"
+      - name: Restore the original installed signer in its authorized branch
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Load original baseline input for the existing signing helper
+        uses: actions/download-artifact@v4
+        with:
+          name: r31-report-032-signed-build
+          run-id: 43556844131
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/original032
+      - name: Verify the original signer and initialize existing build bindings
+        working-directory: app-source
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          git diff --quiet bb7b49bbcc9266bad548ec37e71403256fc06a4d HEAD -- tools/r3251/prepare_existing_signer.py
+          python3 tools/r3251/prepare_existing_signer.py
+      - name: Build from the clean committed source and package its evidence
+        working-directory: app-source
+        run: |
+          set -euo pipefail
+          plan="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
+          python3 -B tools/r33/run_release_build.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/build"
+          python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json"
+      - name: Publish stage artifacts for independent download
+        working-directory: ${{ runner.temp }}/candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha256sum -c SHA256SUMS.txt
+          tag="r335-${STAGE}-${SOURCE:0:12}"
+          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$SOURCE" --title "STARCORE R33.5 $STAGE · $VERSION" --notes "Source $SOURCE. Signed package and exact sources. Field observation and independent qualification are recorded separately." --latest=false --draft
+          gh release upload "$tag" --repo "$GITHUB_REPOSITORY" ./*-release.apk ./*-source.zip ./*-source.bundle ./*-APK-SOURCE-EVIDENCE.zip SHA256SUMS.txt DELIVERY.json CI_BUILD_RECEIPT.json ZIP_MEMBERS_SHA256.json gradle-build.log
+          gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest=false
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R335-${{ matrix.stage }}-${{ matrix.source }}-diagnostics
+          path: |
+            ${{ runner.temp }}/preflight.json
+            ${{ runner.temp }}/build/CI_BUILD_RECEIPT.json
+            ${{ runner.temp }}/build/gradle-build.log
+            ${{ runner.temp }}/candidate/SHA256SUMS.txt
+          if-no-files-found: warn
