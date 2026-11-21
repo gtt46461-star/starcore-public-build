@@ -82,11 +82,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ./gradlew --no-daemon --max-workers=2 :app:compileDebugJavaWithJavac
-          (cd "$GITHUB_WORKSPACE" && python3 -B .github/r335-workbench-render/produce.py)
           cp "$GITHUB_WORKSPACE/.github/r335-workbench-render/R335WorkbenchRenderTest.java" app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R335WorkbenchRenderTest.java
           export STARCORE_R33_PLAN_ROOT="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
           mkdir -p "$RUNNER_TEMP/protocol-candidate" "$RUNNER_TEMP/upgrade-evidence" "$RUNNER_TEMP/report-originals"
+          ./gradlew --no-daemon --max-workers=2 :app:compileDebugJavaWithJavac
+          (cd "$GITHUB_WORKSPACE" && python3 -B .github/r335-workbench-render/produce.py)
           if ! ./gradlew --no-daemon --max-workers=2 -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$RUNNER_TEMP/report-originals/instrument-build.log" 2>&1; then
             python3 -c 'import pathlib,os; p=pathlib.Path(os.environ["RUNNER_TEMP"]); (p/"upgrade-evidence"/"instrument-build-status.txt").write_text("Gradle test APK build failed. Original Gradle log is in the encrypted archive.\n")'
             exit 1
