@@ -275,11 +275,32 @@ public final class RuntimeR27 implements AutoCloseable {
         }
     }
 
-    private static void publishRecoveredReplayKnowledgeR31(ResearchPoolR27.Worker worker,ResearchInputPinR30R1.Pin pin,String mode)throws InterruptedException{
+    private static void publishRecoveredReplayKnowledgeR31(ResearchPoolR27.Worker worker,
+            ResearchInputPinR30R1.Pin pin,String mode)throws InterruptedException {
+        RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
+        if(claim==null)throw new IllegalStateException("R31_DEPENDENCY_TASK_CLAIM_REQUIRED");
         ResearchWriteQueueR27.Batch metadata=new ResearchWriteQueueR27.Batch();
-        metadata.guardBefore(db->{ResearchInputPinR30R1.require(db,pin.data.datasetHash,pin.revision);return 0;});
-        ReplayKnowledgeStoreR31.appendR31(metadata,pin.data,pin.revision,mode,System.currentTimeMillis());
-        submit(worker,"REPLAY_KNOWLEDGE_RECOVERY",metadata,false,pin.data.datasetHash+"|pinSourceRevision="+pin.revision);
+        metadata.guardBefore(db->{
+            RuntimeCoordinatorR26.requireFence(db,claim);
+            ResearchInputPinR30R1.require(db,pin.data.datasetHash,pin.revision);
+            return 0;
+        });
+        String payload=ReplayKnowledgeStoreR31.appendProjectionR31(metadata,pin.data,pin.revision,mode,pin.recordedAt);
+        String input=pin.data.datasetHash+"|pinSourceRevision="+pin.revision+"|pinRecordedAt="+pin.recordedAt+"|mode="+mode;
+        if(!ReplayKnowledgeStoreR31.isPublishedR31(worker.ro,payload,pin.recordedAt)) {
+            // A valid old receipt can outlive this replaceable projection. Bind an actual
+            // transition after the last durable commit when regenerating a displaced row.
+            try(Cursor receipt=worker.ro.rawQuery("SELECT commit_key FROM r31_commit_receipt ORDER BY rowid DESC LIMIT 1",null)) {
+                input+="|materializeAfter="+(receipt.moveToFirst()?receipt.getString(0):"EMPTY");
+            }
+        }
+        submit(worker,"REPLAY_KNOWLEDGE_RECOVERY",metadata,false,input);
+        // A matching receipt skips its original SQL and guards. Admit in-memory
+        // consumers only while this owner, original pin and stored projection still agree.
+        RuntimeCoordinatorR26.requireFence(worker.ro,claim);
+        ResearchInputPinR30R1.require(worker.ro,pin.data.datasetHash,pin.revision);
+        if(!ReplayKnowledgeStoreR31.isPublishedR31(worker.ro,payload,pin.recordedAt))
+            throw new ResearchStoreR30R1.StaleResearch();
     }
 
     private static final class DatasetPublicationIntegrityR31 extends IllegalStateException implements FailureDispositionR31.ClassifiedFailure{

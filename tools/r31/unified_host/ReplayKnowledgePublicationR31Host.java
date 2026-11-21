@@ -54,6 +54,8 @@ public final class ReplayKnowledgePublicationR31Host {
             long pins=count(db,"r30r1_analysis_run"),headers=count(db,"r27_replay_dataset"),source=SchemaR27.liveSourceRevision(db);int hot=db.hotLoads;
             reset(fixture.runtime);cursor(db,data.datasetHash);
             fixture.owned(()->fixture.runtime.new DatasetTask().step(fixture.worker));verify(report(db),"RECOVERED_COMMITTED_PIN",data.datasetHash);
+            // Preserve a real, committed cursor and its lease for the next JVM.
+            db.execSQL("VACUUM INTO ?",new Object[]{file.resolveSibling("restart.db").toString()});
             need(db.hotLoads==hot,"CURSOR_RECOVERY_DOES_NOT_RELOAD_5000_DRAWS");
             need(count(db,"r30r1_analysis_run")==pins&&count(db,"r27_replay_dataset")==headers&&SchemaR27.liveSourceRevision(db)==source,"RECOVERY_REUSES_ORIGINAL_PIN_AND_WATERMARK");
             reset(fixture.runtime);db.execSQL("DELETE FROM r27_evolution_cursor");hot=db.hotLoads;
@@ -82,9 +84,34 @@ public final class ReplayKnowledgePublicationR31Host {
         db.jdbc.close();System.out.println("REPLAY_KNOWLEDGE_PUBLICATION_WRITE_PASS checks="+checks+" actualDatasetTask=true syntheticRows=5000");System.out.flush();Runtime.getRuntime().halt(0);
     }
     static void read(Path file)throws Exception{ObservedDb db=new ObservedDb(DriverManager.getConnection("jdbc:sqlite:"+file));Map<String,Object> value=report(db);need("LEGACY_KNOWLEDGE_TIME_UNKNOWN".equals(value.get("status")),"FRESH_PROCESS_READS_DURABLE_UNKNOWN_METADATA");need(db.hotLoads==0,"FRESH_REPORT_PROCESS_NEVER_LOADS_REPLAY_DATA");need(count(db,"r27_replay_dataset")==1&&count(db,"r30r1_analysis_run")==2,"ORIGINAL_NEW_AND_LEGACY_ASSETS_RETAINED");db.jdbc.close();System.out.println("REPLAY_KNOWLEDGE_PUBLICATION_READ_PASS checks="+checks+" actualFreshProcess=true");}
+    static void restart(Path file,String library,long priorPid) throws Exception {
+        HistoryPosixStatR31Host.install(library);
+        ObservedDb db = new ObservedDb(DriverManager.getConnection("jdbc:sqlite:"+file));
+        try (R31OwnedRuntimeFixture fixture = new R31OwnedRuntimeFixture(db,"r27-replay-dataset")) {
+            Map<String,Object> before = report(db);
+            fixture.recoverAfterConfirmedProcessExit(priorPid);
+            ResearchPoolR27.Outcome recovered = fixture.owned(() -> fixture.runtime.new DatasetTask().step(fixture.worker));
+            need(recovered.units == 1 && fixture.runtime.evoData.size() == 5000,"COLD_RESTART_REPUBLISHES_ORIGINAL_DATASET");
+            Map<String,Object> after = report(db);
+            verify(after,"RECOVERED_COMMITTED_PIN",fixture.runtime.evoData.datasetHash);
+            need(before.get("metadataHash").equals(after.get("metadataHash")),"RESTART_KEEPS_SAME_AUTHENTICATED_PAYLOAD");
+            need(before.get("publishedAt").equals(after.get("publishedAt")),"RESTART_PRESERVES_DURABLE_PUBLICATION_TIME");
+            need(count(db,"r27_replay_dataset")==1 && count(db,"r30r1_analysis_run")==1,"REPEATED_RESTART_NO_DUPLICATE_PINS");
+            System.out.println("REPEATED_OWNED_DATASET_RESTART_PASS pid="+ProcessHandle.current().pid());
+        } finally { db.jdbc.close(); }
+    }
     public static void main(String[] args)throws Exception{
+        if("restart".equals(args[0])){restart(Paths.get(args[1]),args[2],Long.parseLong(args[3]));return;}
         if("write".equals(args[0])){write(Paths.get(args[1]),args[2]);return;}if("read".equals(args[0])){read(Paths.get(args[1]));return;}
         File root=new File(args[0]);File database=new File(root,"databases/main.db");String java=new File(System.getProperty("java.home"),"bin/java").getPath(),cp=System.getProperty("java.class.path");
-        Process writer=new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),"write",database.getPath(),args[1]).inheritIO().start();need(writer.waitFor()==0,"WRITE_PROCESS_EXIT");Process reader=new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),"read",database.getPath()).inheritIO().start();need(reader.waitFor()==0,"FRESH_READ_PROCESS_EXIT");System.out.println("REPLAY_KNOWLEDGE_PUBLICATION_NATIVE_PASS actualRuntimeDatasetBranches=3 processReopen=true physicalDevice=NOT_RUN naturalQuality=NOT_PROVEN");
+        Process writer=new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),"write",database.getPath(),args[1]).inheritIO().start();need(writer.waitFor()==0,"WRITE_PROCESS_EXIT");
+        long exitedPid = writer.pid();
+        for (int i=0;i<3;i++) {
+            Process restart=new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),"restart",
+                    new File(database.getParentFile(),"restart.db").getPath(),args[1],Long.toString(exitedPid)).inheritIO().start();
+            need(restart.waitFor()==0,"INDEPENDENT_RECOVERY_OWNER_"+i);
+            exitedPid=restart.pid();
+        }
+        Process reader=new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),"read",database.getPath()).inheritIO().start();need(reader.waitFor()==0,"FRESH_READ_PROCESS_EXIT");System.out.println("REPLAY_KNOWLEDGE_PUBLICATION_NATIVE_PASS actualRuntimeDatasetBranches=3 processReopen=true physicalDevice=NOT_RUN naturalQuality=NOT_PROVEN");
     }
 }

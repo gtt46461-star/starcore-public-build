@@ -15,13 +15,24 @@ public final class ReplayKnowledgeStoreR31 {
     /** Same batch as new pin publication, or the guarded recovery-only metadata
      * batch before the recovered cache becomes visible to the evolution owner. */
     public static void appendR31(ResearchWriteQueueR27.Batch batch,ReplayDatasetR27 data,long revision,String mode,long at){
+        appendProjectionR31(batch,data,revision,mode,at);
+    }
+    static String appendProjectionR31(ResearchWriteQueueR27.Batch batch,ReplayDatasetR27 data,long revision,String mode,long at) {
         if(batch==null||data==null||data.size()<1||revision<0||!MODES.contains(mode))throw new IllegalArgumentException("R31_REPLAY_KNOWLEDGE_PUBLICATION_INPUT");
         if(ChartCacheR27.classR31(PANEL)==ChartCacheR27.CacheClassR31.DISPLAY)throw new IllegalStateException("R31_REPLAY_KNOWLEDGE_NOT_DISPLAY_CACHE");
         Map<String,Object> metadata=new LinkedHashMap<>();metadata.put("format",VERSION);metadata.put("producer","RuntimeR27.DatasetTask");metadata.put("datasetHash",data.datasetHash);metadata.put("sourceRevision",revision);metadata.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);metadata.put("sourceWorktreeHash",BuildConfig.SOURCE_WORKTREE_SHA256_R31);metadata.put("firstIssue",data.issues[0]);metadata.put("lastIssue",data.issues[data.size()-1]);metadata.put("firstOrdinal",data.ordinals[0]);metadata.put("throughOrdinal",data.ordinals[data.size()-1]);metadata.put("publicationMode",mode);metadata.put("publishedAt",at);metadata.put("provenance",data.provenanceR31());metadata.put("status",data.legacyIdentityR31?"LEGACY_KNOWLEDGE_TIME_UNKNOWN":"RECORDED_INPUT_METADATA_ONLY");metadata.put("rowSource",data.legacyIdentityR31?"ORIGINAL_LEGACY_PIN_TIME_UNRECORDED":"ORIGINAL_RECORDED_INPUT_ROWS");metadata.put("consumedByCurrentGeneration","NOT_INFERRED_GENERATION_BOUNDARY_UNCHANGED");metadata.put("retroactiveForecastsFabricated",false);metadata.put("authorizesCertificateOrReal",false);metadata.put("naturalQuality","NOT_PROVEN");
+        metadata.put("publicationTimeBasis","NEW_INPUT_PINNED".equals(mode)?"CURRENT_PUBLICATION":"ORIGINAL_PIN_RECORDED_AT");
         metadata.put("inputValidity","NOT_RECHECKED_DERIVED_METADATA_ONLY");
         metadata.put("metadataHash",StatsR27.sha256(JsonR27.write(metadata)));String payload=JsonR27.write(metadata);
         if(payload.getBytes(StandardCharsets.UTF_8).length>MAX_BYTES)throw new IllegalArgumentException("R31_REPLAY_KNOWLEDGE_PUBLICATION_BOUND");
         batch.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES(?,?,?,?)",PANEL,KEY,payload,at);
+        return payload;
+    }
+    static boolean isPublishedR31(SQLiteDatabase db,String payload,long recordedAt) {
+        try(Cursor c=db.rawQuery("SELECT 1 FROM r27_chart_cache WHERE panel_id=? AND key=? AND updated_at=? AND payload_json=?",
+                new String[]{PANEL,KEY,Long.toString(recordedAt),payload})) {
+            return c.moveToFirst();
+        }
     }
     /** Exactly one bounded read, no DDL, writes, dataset load or recapture. */
     @SuppressWarnings("unchecked") public static Map<String,Object> report(SQLiteDatabase db){
