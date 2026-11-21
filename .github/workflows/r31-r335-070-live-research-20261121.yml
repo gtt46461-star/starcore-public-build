@@ -1,0 +1,61 @@
+name: STARCORE released application normal research production and consumption counts
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-070-live-research-20261121.yml', '.github/r335-070-live-research/**']
+permissions: {}
+jobs:
+  upgrades:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ff555a802da6c135d395cce51451b0b1ade93b69
+          path: app-source
+          sparse-checkout: |
+            app/src
+            tools/r31
+            tools/r3251
+          persist-credentials: false
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -B .github/r335-070-live-research/observe.py > "$RUNNER_TEMP/guest-private.log" 2>&1
+      - name: Encrypt the disposable guest's numeric receipt to the workspace recipient
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/encrypted-qa"
+          for kind in live-research; do
+            receipt="$RUNNER_TEMP/R335-070-$kind-$GITHUB_RUN_ID.json"
+            test -s "$receipt"
+            test "$(stat -c %s "$receipt")" -lt 500000
+            openssl cms -encrypt -binary -aes-256-gcm -outform DER -in "$receipt" -out "$RUNNER_TEMP/encrypted-qa/$kind.cms" .github/r335-070-verification/recipient.pem
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r335-070-live-research-workspace-receipt
+          path: ${{ runner.temp }}/encrypted-qa/*.cms
+          if-no-files-found: error
+          retention-days: 1
