@@ -5020,11 +5020,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
       "before_sha256": "",
-      "after_sha256": "5a48f728c16aef7722ea485fe303791ab8914ac5d46a528091baaa88f57c36fb",
+      "after_sha256": "dcb174bd5dc448a52241cfac48f1ab5c1406893e4f94d8d7e4c7ca6c7fb764b6",
       "before_role": "",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B05 精确源码复核：ResearchTableAdaptersR30R1.java。查size+1确定真实hasMore；独立COUNT匹配过滤；读取期间data_version变更返回RETRY；byte截断使用实际shown前进；UI保存view/role/offset并在onStart恢复，epoch/超时清理防旧响应覆盖。 旧SQLite空PRAGMA按能力不可用明示，维持实时读页，不假0不抛缺版本阻断全部表。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RE15: preserve a bounded read error and original offset, use an actual cursor lookahead and a forward continuation for a first oversized source row. Distinguish the final blocked row from a following readable row and invalidate stale continuation on concurrent writes."
     },
     {
       "after_role": "NUMERIC",
@@ -9122,7 +9122,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "5c44c94911911fc47e5d13ef5ef42ab59dae9e72ef962aa7165534de9bd803de",
+  "reviewed_input_provenance_sha256": "f39b6257cba102df3f9391c9b9b656fce679f6ee22b1a60a767e4b7e51807262",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

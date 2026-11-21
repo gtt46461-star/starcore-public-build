@@ -1,0 +1,29 @@
+--- previous/tools/r30-repair/qual_host/R31ResearchTableBudgetHost.java
++++ corrected/tools/r30-repair/qual_host/R31ResearchTableBudgetHost.java
+@@ -56,7 +56,8 @@
+             check(Boolean.TRUE.equals(tooLarge.get("readOnly")),"READ_ONLY_RECEIPT");
+             check(((String)tooLarge.get("receiptSha256")).matches("[0-9a-f]{64}"),"FAILURE_RECEIPT_HASHED");
+             check(before.equals(originals(db)),"OVERSIZED_ORIGINAL_UNCHANGED");
+-            Map<String,Object> next=read(db,1);
++            check(number(tooLarge,"blockedOffset")==0 && number(tooLarge,"nextOffset")==1,"BLOCKED_ROW_CONTINUATION_ADVANCES_ITS_SOURCE_OFFSET");
++            Map<String,Object> next=read(db,number(tooLarge,"nextOffset"));
+             check("READ_OK".equals(next.get("status"))&&number(next,"shown")==1,"EXPLICIT_NEXT_OFFSET_REMAINS_READABLE");
+             check(number(next,"bytes")>0&&number(next,"bytes")<=524288,"FOLLOWING_PAGE_WITHIN_BOUND");
+             Map<String,Object> empty=read(db,2);
+@@ -65,6 +66,16 @@
+             check(number(empty,"shown")==0&&number(empty,"bytes")==0&&!Boolean.TRUE.equals(empty.get("hasMore")),"REAL_EMPTY_END_OF_SOURCE");
+             check(before.equals(originals(db)),"ALL_READS_PRESERVE_NATIVE_SQLITE_ORIGINALS");
+ 
++            db.execSQL("DELETE FROM r30_frozen_confirm");
++            insert(db,"oversized-cell",text(262145),"",9);
++            Map<String,Object> lastBlocked=read(db,0);
++            check("READ_ERROR".equals(lastBlocked.get("status")) && "TABLE_CELL_BYTE_BUDGET:packet_json".equals(lastBlocked.get("reason")),"CELL_LIMIT_REPORTS_COLUMN");
++            check(number(lastBlocked,"shown")==0 && !Boolean.TRUE.equals(lastBlocked.get("hasMore")),"LAST_BLOCKED_ROW_HAS_NO_NEXT_PAGE");
++            insert(db,"after-cell","ok","ok",1);
++            Map<String,Object> blockedCell=read(db,0);
++            check(Boolean.TRUE.equals(blockedCell.get("hasMore")) && number(blockedCell,"nextOffset")==1,"FOLLOWING_ROW_AFTER_OVERSIZED_CELL_REMAINS_REACHABLE");
++            Map<String,Object> afterCell=read(db,number(blockedCell,"nextOffset"));
++            check("READ_OK".equals(afterCell.get("status")) && number(afterCell,"shown")==1,"ACTUAL_CONTINUATION_READS_FOLLOWING_ROW");
+             db.execSQL("DELETE FROM r30_frozen_confirm");
+             for(int i=0;i<3;i++)insert(db,"partial-"+i,text(100000),text(100000),30-i);
+             before=originals(db);Map<String,Object> partial=read(db,0);

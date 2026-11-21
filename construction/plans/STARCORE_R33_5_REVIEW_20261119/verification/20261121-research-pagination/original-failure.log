@@ -1,0 +1,17 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" java.lang.AssertionError: BLOCKED_ROW_NOT_MISTAKEN_FOR_END_OF_SOURCE
+	at com.ethk3.novaonepro.strategyv2.R31ResearchTableBudgetHost.check(R31ResearchTableBudgetHost.java:14)
+	at com.ethk3.novaonepro.strategyv2.R31ResearchTableBudgetHost.main(R31ResearchTableBudgetHost.java:55)
+Traceback (most recent call last):
+  File "/workspace/r335r/checkouts/B08/tools/r30-repair/run_research_contract_host.py", line 18, in <module>
+    for name in ["R31ResearchTableBudgetHost","R31ResearchContractHost","R31ResearchConsumptionHost"]:run(['java','-Xmx768m','-cp',cp,'com.ethk3.novaonepro.strategyv2.'+name])
+                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/r335r/checkouts/B08/tools/r30-repair/run_research_contract_host.py", line 5, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx768m', '-cp', '/tmp/r31-research-contract-host-joeod17x/shim:/tmp/r31-research-contract-host-joeod17x/test:/tmp/r31-research-contract-host-joeod17x/production:/workspace/r335r/checkouts/B08/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/r335r/deps/legacy-host/sqlite-jdbc-3.46.1.3.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.R31ResearchTableBudgetHost']' returned non-zero exit status 1.

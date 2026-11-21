@@ -29,6 +29,7 @@ SUPPLEMENTAL = {
         'RuntimeSchemaR26.java': ['RT05'],
         'DrawDependencyInputCP12.java': ['RT08'],
     },
+    'B05': {'R31ResearchTableBudgetHost.java': ['RE15']},
     'B07': {
         'CapabilityNeedDiagnosticsR335.java': ['D10', 'D11'],
         'CapabilityNeedRegistryR335.java': ['D11'],

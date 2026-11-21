@@ -210,6 +210,26 @@
       "reviewer": "R33.5 construction regression 2026-11-21",
       "rationale": "RT05/RE21: preserve every historical main-chain owner digest, payout and fixed-K mutation tests. Require the exact reviewed timing/scheduling hunks, reject three new deliberate mutations, and check fault and research slot restrictions together with the critical freeze writer lock.",
       "dynamicReview": false
+    },
+    {
+      "stage": "B05",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+      "payload": "production/sources/B05/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+      "inputSha256": "5a48f728c16aef7722ea485fe303791ab8914ac5d46a528091baaa88f57c36fb",
+      "sha256": "dcb174bd5dc448a52241cfac48f1ab5c1406893e4f94d8d7e4c7ca6c7fb764b6",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RE15: preserve a bounded read error and original offset, use an actual cursor lookahead and a forward continuation for a first oversized source row. Distinguish the final blocked row from a following readable row and invalidate stale continuation on concurrent writes.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B05",
+      "path": "tools/r30-repair/qual_host/R31ResearchTableBudgetHost.java",
+      "payload": "production/sources/B05/tools/r30-repair/qual_host/R31ResearchTableBudgetHost.java",
+      "inputSha256": "3deae722ea5357078040e5c773179a3f8d02e1835630cc4900cef02580323db5",
+      "sha256": "76c128b2fc417596a0ce87b56ab84abd2e4f2fbba2ac8e9d7cdcf927395194fd",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RE15: preserve all existing JDBC assertions and add the UI-consumed cursor, an oversized last row, cell/row budget distinction and the next readable SQLite row.",
+      "dynamicReview": false
     }
   ]
 }
