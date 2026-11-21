@@ -52,6 +52,32 @@ def sample(elapsed):
             if len(values)!=5 or values[0] not in task_names:continue
             task,status,steps,cursor,reason=values
             row['taskEvidence'][task]={'status':status if status in groups['taskStates'][2] else 'OTHER','steps':int(steps),'cursor':int(cursor),'causes':[code for code in cause_names if code in reason]}
+    # Only counts for known production failure categories and call sites leave the guest.
+    # Keep the raw fault text and SQLite database on the disposable runner.
+    categories = (
+        'RESOURCE_WAIT:MEMORY_DECLARED_CAPACITY','RESOURCE_WAIT:MEMORY_HEAP_PRESSURE',
+        'RESOURCE_WAIT:MEMORY_EMERGENCY_PRESSURE','RESOURCE_WAIT:MEMORY_UNKNOWN_CAPACITY',
+        'RESOURCE_WAIT:MEMORY_NATIVE_DECLARED_CAPACITY','RESOURCE_WAIT:MEMORY_OWNER_LIMIT',
+        'R31_COMPUTE_CAPACITY_WAIT','R26_UNSLICED_COMPUTATION_CAPACITY','BIND_CAPACITY',
+        'BLOCKED_PROTECTED_MANIFEST_DEBT','WAITING_PRIVATE_SCRATCH_CLEANUP','BLOCKED_PROTECTED_BYTES',
+        'OWNER_LOGICAL_ENVELOPE','STAGING_SLICE_TOO_LARGE','PUBLICATION_BATCH_ENVELOPE',
+        'PREPARED_MEMORY_ENVELOPE','R31_INTEGRITY_CONFLICT_COMMIT_PAYLOAD','R31_EVOLUTION_STALE',
+        'R31_STALE_PREPARED_LEASE','CP3_DB_BUSY_DEADLINE','ACTIVE_SCHEMA_SESSION_TASK_LEASE_OR_RECOVERY',
+        'r27-evolution','stepGate','EvolutionPublicationStoreR31','BirthGateR27','FeatureCacheR27',
+        'MemoryBudgetR31','CooperativeContinuationR26','EvolutionPublicationSqlR31','RuntimeR27',
+        'WRITER_HOLD_FAULT_BACKLOG','CANCELLED','CORRECTED_REPLAY_DATASET','R31_DEPENDENCY')
+    if 'r31_runtime_fault' in known:
+        row['knownEvolutionFaultCounts']={}
+        for task_id in ('r27-evolution','r27-replay-dataset'):
+            columns=','.join("coalesce(sum(case when instr(coalesce(last_cause_chain_json,'')||coalesce(last_stack,''),'"+name+"')>0 then occurrences else 0 end),0)" for name in categories)
+            try:
+                nums=[int(v) for v in query("select "+columns+" from r31_runtime_fault where task_id='"+task_id+"'").split('|')]
+                if len(nums)!=len(categories):raise ValueError('INCOMPLETE_COUNT')
+                row['knownEvolutionFaultCounts'][task_id]={name:n for name,n in zip(categories,nums) if n}
+            except (ValueError,subprocess.TimeoutExpired):row['knownEvolutionFaultCounts'][task_id]={'readUnavailable':1}
+    if 'r27_evolution_cursor' in known:
+        try:row['lastPersistedEvolutionStep']=int(query("select coalesce(max(step),0) from r27_evolution_cursor"))
+        except (ValueError,subprocess.TimeoutExpired):pass
     if 'r27_replay_dataset' in known:row['maximumReplayRows']=int(query("SELECT coalesce(max(rows),0) FROM r27_replay_dataset"))
     if 'r26_candidate' in known:
         row['candidateCursorMax']=int(query('SELECT coalesce(max(cursor),0) FROM r26_candidate'))
@@ -100,10 +126,11 @@ def main():
         read_panels()
     record['scope']='PUBLIC_HISTORICAL_REPLAY_ONLY_WITH_NORMAL_SERVICE_NO_NATURAL_QUALIFICATION';save()
     start=time.monotonic()
-    for at in (30,180,600,1200,2400,3600):
+    record['supplementalObservationSeconds']=1200;save()
+    for at in (30,180,600,1200):
         time.sleep(max(0,start+at-time.monotonic()))
         sample(int(time.monotonic()-start))
-        if at in (600,2400,3600):read_panels()
+        if at in (600,1200):read_panels()
         if at==180:
             f.adb('shell','input','keyevent','KEYCODE_HOME');record['backgroundAfterSeconds']=180;save()
     assert f.installed(f.EVID/'end.txt',577311077)==(olduid,digest)
