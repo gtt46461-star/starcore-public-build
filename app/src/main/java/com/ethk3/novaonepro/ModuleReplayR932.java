@@ -29,7 +29,7 @@ public final class ModuleReplayR932 {
         V51EffectiveConsensusEngine.Consensus[] consensus=new V51EffectiveConsensusEngine().evaluateFrozen(experts,input.states,input.reliability,disabled);
         V51Models.PositionAction[] actions=new V51PositionActionBuilder().build(number.matrix,input.states,consensus);
         double[][] meta=new V51ActionMetaFeatureEngine().build(actions,input.features,input.states,experts,gate.weight,consensus);
-        V51ActionRankerEngine.RankResult ranked=new V51ActionRankerEngine().rankDetailed(actions,meta);
+        V51ActionRankerEngine.RankResult ranked=V51RuntimeOrchestrator.rankK3DiagnosticActionsF06(actions,meta);
         V51Models.PositionAction[] finalActions=ranked.ranked;
         if(input.consumerApplied&&module!=Module.INVENTED)finalActions=FrozenConsumerRecipeR932.execute(input.consumer,finalActions).actions;
         finalActions=finalActions.clone();Arrays.sort(finalActions,new Comparator<V51Models.PositionAction>(){public int compare(V51Models.PositionAction a,V51Models.PositionAction b){return Integer.compare(a.rank,b.rank);}});

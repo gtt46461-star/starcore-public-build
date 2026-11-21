@@ -195,7 +195,7 @@ public final class RepairDiagnosisR32 {
         if (group.equals("logicalTables")) return tableAction(id);
         if ("ATOMNET".equals(id)) return "核对十位置同一epoch、optimizer、非零更新及权重哈希。完成一轮后回读发布的模型，再追踪在线预测的模型引用。";
         if (group.equals("matrices") || id.startsWith("MATRIX:")) return "写入带role、目标期、可见时间、版本、shape及artifact hash的矩阵；沿本行消费者重演并移除矩阵比较输出。";
-        if (group.equals("researchCharts")) return "按本行measure生产同源frame，经所列算法消费者记录inputHash与输出差；显示同目标配对数及不确定性。";
+        if (group.equals("researchCharts")) return ResearchChartActionsR33.action(id);
         if (group.equals("legacyCharts")) return "对照本行source的只读查询，记录分页、空集、取消、快照版本与新鲜度；展示用途和数据范围。";
         if (id.startsWith("I")) return "回读思路族生成的typed AST、父代和变异算子；在固定DEV探针重放行为，再以SELECT同机会比较。";
         if (id.startsWith("E")) return "记录专家输入残差、可执行提案、实际生成的子代和下游接受或拒绝原因；冻结消融对照。";
@@ -276,7 +276,14 @@ public final class RepairDiagnosisR32 {
                 evidence.put("sourceReference", "chapters[11].objectIndex."+group+".objects[id="+id+"]");
                 evidence.put("sourceSnapshot",source.get("sourceSnapshot"));
                 evidence.put("sourceCommit",source.get("sourceCommit"));
-                evidence.put("rootCauseStatus","UNCONFIRMED_REPLAY_REQUIRED");
+                Map<?,?> trace = map(x.get("verifiedFaultTraceR33"));
+                String resolution = DiagnosisProofR33.classify(trace, group, id,
+                        source.get("sourceCommit"), source.get("sourceSnapshot"));
+                evidence.put("rootCauseStatus", resolution);
+                if (!trace.isEmpty()) evidence.put("faultTraceR33", trace);
+                evidence.put("nextOwner", group.equals("logicalTables") || group.equals("researchCharts")
+                        || group.equals("matrices") || group.equals("legacyCharts") ? "B05" : "SEE_OBJECT_OWNER_INDEX");
+                evidence.put("observationScopeOfProof", "CAPTURED_OBJECT_AND_TRACE_ENVELOPE_ONLY; EXECUTOR_REPLAY_NOT_VERIFIED");
                 evidence.put("observationScope",group.equals("logicalTables")?"EXPORTED_BOUNDED_PAGE":"SAME_REPORT_SNAPSHOT_OBJECT");
                 evidence.put("firstObservedGap",stage);
                 List<String> missing = new ArrayList<>();
@@ -318,6 +325,9 @@ public final class RepairDiagnosisR32 {
         Map<String,Object> out = new LinkedHashMap<>();
         out.put("version","R32_CAPABILITY_DIAGNOSIS_V4"); out.put("sourceCommit",source.get("sourceCommit"));
         out.put("sourceSnapshot",source.get("sourceSnapshot")); out.put("rows",rows); out.put("coverageGaps",gaps);
+        out.put("improvementCasesR335",ReportRepairCaseIndexR335.capture(rows,source.get("sourceCommit"),source.get("sourceSnapshot")));
+        Map<?,?> needs=map(source.get("capabilityNeedDiagnosticsR335"));
+        out.put("capabilityNeedDiagnosticsR335",needs);out.put("candidateCapabilityProposalsR33",needs.get("candidateCapabilityProposalsR33"));
         return out;
     }
     private static Map<?,?> chapter(List<? extends Map<?,?>> chapters, String id) {
@@ -434,6 +444,29 @@ public final class RepairDiagnosisR32 {
         StringBuilder md = new StringBuilder().append("\n\n## 能力逐项诊断与下一步核验\n");
         List<Map<String,Object>> explanations = explainLegacyFindings(json);
         json.put("legacyFindingExplanationsR32", explanations);
+        Object findings = json.get("findings");
+        if (findings instanceof List) {
+            List<Map<String,Object>> normalized = new ArrayList<>();
+            int position = 0;
+            for (Object raw : (List<?>) findings) {
+                if (!(raw instanceof Map)) throw new IllegalArgumentException("R33_FINDING_SHAPE");
+                Map<String,Object> finding = new LinkedHashMap<>();
+                for (Map.Entry<?,?> e : ((Map<?,?>) raw).entrySet()) {
+                    finding.put(String.valueOf(e.getKey()), e.getValue());
+                }
+                Map<String,Object> explanation = explanations.get(position++);
+                if (small(finding.get("prescription")).isEmpty()) {
+                    finding.put("originalPrescription", finding.get("prescription"));
+                    finding.put("prescription", explanation.get("nextAction"));
+                }
+                if (small(finding.get("scope")).isEmpty()) {
+                    finding.put("originalScope", finding.get("scope"));
+                    finding.put("scope", "LEGACY_DIAGNOSIS_AT_RECORDED_SEQUENCE");
+                }
+                normalized.add(finding);
+            }
+            json.put("findings", normalized);
+        }
         if (detail.get("operatingSummary") instanceof Map) {
             Map<?,?> summary = map(detail.get("operatingSummary"));
             Map<?,?> q = map(summary.get("independentFuture")), n = map(summary.get("atomNet"));
@@ -451,6 +484,19 @@ public final class RepairDiagnosisR32 {
         for (Map<?,?> finding : explanations)
             md.append("\n- ").append(finding.get("code")).append("  ").append(finding.get("nextAction"))
               .append("  ").append(finding.get("verify"));
+        Map<?,?> needDiagnosis=map(detail.get("capabilityNeedDiagnosticsR335"));
+        md.append("\n\n### 有限需求目录与能力缺口\n")
+          .append("已登记需求数：").append(needDiagnosis.get("needCount"))
+          .append("；目录hash：").append(needDiagnosis.get("registryHash"))
+          .append("；检查范围：").append(needDiagnosis.get("coverageBoundary")).append('\n');
+        Object needRows=needDiagnosis.get("needResults");
+        if(needRows instanceof List)for(Object rawNeed:(List<?>)needRows){
+            Map<?,?> need=map(rawNeed);
+            md.append("\n- ").append(need.get("needKey")).append(" · ").append(need.get("classification"))
+              .append(" · 责任批次=").append(need.get("ownerBatch")).append(" · ").append(need.get("nextAction"))
+              .append(" · 正例=").append(need.get("positiveVerification")).append(" · 反例=").append(need.get("negativeVerification"));
+        }
+        md.append("\n能力声明、任务阻因和提案均不证明效果；新提案只适用于列出的owner与精确签名。\n");
         md.append("\n对象清单缺项：").append(detail.get("coverageGaps")).append('\n');
         md.append("快照 ").append(detail.get("sourceSnapshot")).append("，源码 ").append(detail.get("sourceCommit")).append('\n');
         for (Object entry : (List<?>)detail.get("rows")) {
