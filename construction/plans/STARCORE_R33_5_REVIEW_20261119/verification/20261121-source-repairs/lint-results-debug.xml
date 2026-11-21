@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.12.2">
+
+    <issue
+        id="LintBaseline"
+        severity="Hint"
+        message="52 errors were filtered out because they are listed in the baseline file, lint-baseline.xml"
+        category="Lint"
+        priority="10"
+        summary="Baseline Applied"
+        explanation="Lint can be configured with a &quot;baseline&quot;; a set of current issues found in a codebase, which future runs of lint will silently ignore. Only new issues not found in the baseline are reported.&#xA;&#xA;Note that while opening files in the IDE, baseline issues are not filtered out; the purpose of baselines is to allow you to get started using lint and break the build on all newly introduced errors, without having to go back and fix the entire codebase up front. However, when you open up existing files you still want to be aware of and fix issues as you come across them.&#xA;&#xA;This issue type is used to emit an informational-only warning if any issues were filtered out due to baseline matching. That way, you don&apos;t have a false sense of security if you forgot that you&apos;ve checked in a baseline file.">
+        <location
+            file="/workspace/r335/checkouts/B08/app/lint-baseline.xml"/>
+    </issue>
+
+    <issue
+        id="LintBaselineFixed"
+        severity="Hint"
+        message="6 errors/warnings were listed in the baseline file (lint-baseline.xml) but not found in the project; perhaps they have been fixed? Another possible explanation is that lint recently stopped analyzing (and including results from) dependent projects by default. You can turn this back on with `android.lintOptions.checkDependencies=true`. Unmatched issue types: SetTextI18n (6)"
+        category="Lint"
+        priority="10"
+        summary="Baselined Issues Fixed"
+        explanation="If a lint baseline describes a problem which is no longer reported, then the problem has either been fixed, or perhaps the issue type has been disabled. In any case, the entry can be removed from the baseline (such that if the issue is reintroduced at some point, lint will complain rather than just silently starting to match the old baseline entry again.)">
+        <location
+            file="/workspace/r335/checkouts/B08/app/lint-baseline.xml"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        severity="Error"
+        message="Field requires API level 29 (current min is 21): `android.os.Process#SHELL_UID`"
+        category="Correctness"
+        priority="6"
+        summary="Using inlined constants on older versions"
+        explanation="This check scans through all the Android API field references in the application and flags certain constants, such as static final integers and Strings, which were introduced in later versions. These will actually be copied into the class files rather than being referenced, which means that the value is available even when running on older devices. In some cases that&apos;s fine, and in other cases it can result in a runtime crash or incorrect behavior. It depends on the context, so consider the code carefully and decide whether it&apos;s safe and can be suppressed or whether the code needs to be guarded.&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level."
+        errorLine1="        return caller == Process.SHELL_UID &amp;&amp; &quot;r&quot;.equals(mode) &amp;&amp; PATH.equals(path) &amp;&amp; canonicalUri;"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java"
+            line="26"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UsableSpace"
+        severity="Error"
+        message="Consider also using `StorageManager#getAllocatableBytes` and `allocateBytes` which will consider clearable cached data"
+        category="Performance"
+        priority="3"
+        summary="Using getUsableSpace()"
+        explanation="When you need to allocate disk space for large files, consider using the new `allocateBytes(FileDescriptor, long)` API, which will automatically clear cached files belonging to other apps (as needed) to meet your request.&#xA;&#xA;When deciding if the device has enough disk space to hold your new data, call `getAllocatableBytes(UUID)` instead of using `getUsableSpace()`, since the former will consider any cached data that the system is willing to clear on your behalf.&#xA;&#xA;Note that these methods require API level 26. If your app is running on older devices, you will probably need to use both APIs, conditionally switching on `Build.VERSION.SDK_INT`. Lint only looks in the same compilation unit to see if you are already using both APIs, so if it warns even though you are already using the new API, consider moving the calls to the same file or suppressing the warning."
+        errorLine1="                requireBackupSpace(database.length(), database.getParentFile().getUsableSpace());"
+        errorLine2="                                                                               ~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java"
+            line="89"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        severity="Error"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        category="Internationalization"
+        priority="6"
+        summary="TextView Internationalization"
+        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
+        url="https://developer.android.com/guide/topics/resources/localization.html"
+        urls="https://developer.android.com/guide/topics/resources/localization.html"
+        errorLine1="        long token=generation.incrementAndGet();future=reader.submit(()->{try{String[] names=LegacyBackupRecoveryR335.listBackupNames(getApplicationContext());main.post(()->{if(generation.get()!=token)return;if(names.length==0){text.setText(&quot;没有可迁出的原r926备份。&quot;);return;}new AlertDialog.Builder(this).setTitle(&quot;选择唯一原备份&quot;).setItems(names,(dialog,index)->{custodyBackupR335=names[index];Intent pick=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);startActivityForResult(pick,CUSTODY_TREE_R335);}).show();});}catch(Exception e){showCustodyErrorR335(token,e);}});"
+        errorLine2="                                                                                                                                                                                                                                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java"
+            line="34"
+            column="242"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        severity="Error"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        category="Internationalization"
+        priority="6"
+        summary="TextView Internationalization"
+        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
+        url="https://developer.android.com/guide/topics/resources/localization.html"
+        urls="https://developer.android.com/guide/topics/resources/localization.html"
+        errorLine1="        long token=generation.incrementAndGet();future=reader.submit(()->{try{String[] ids=LegacyBackupCustodyR335.listCases(getApplicationContext());String[] labels=new String[ids.length];for(int i=0;i&lt;ids.length;i++)labels[i]=LegacyBackupCustodyR335.describe(getApplicationContext(),ids[i]);main.post(()->{if(generation.get()!=token)return;if(ids.length==0){text.setText(&quot;没有已发布的保全case；半成品或异常case保留在维护摘要中。&quot;);return;}new AlertDialog.Builder(this).setTitle(&quot;选择精确保全case&quot;).setItems(labels,(dialog,index)->{String id=ids[index];new AlertDialog.Builder(this).setTitle(&quot;该case的独立操作&quot;).setItems(new String[]{&quot;从外部再次完整回读并隔离恢复&quot;,&quot;审阅并明确退役这一份本地备份&quot;,&quot;撤销尚未提交的该case授权&quot;,&quot;单独释放已取回的私有隔离副本&quot;,&quot;只读核对中断的退役结果（不删除文件）&quot;},(choice,which)->{try{if(which==0){StorageMaintenanceServiceR82.requestCustodyVerifyR335(this,id);refresh();}else if(which==1)reviewCustodyR335(id);else if(which==4){StorageMaintenanceServiceR82.requestCustodyReconcileR335(this,id);refresh();}else if(which==3){new AlertDialog.Builder(this).setTitle(&quot;只释放该case的已验证私有恢复副本&quot;).setMessage(&quot;会先完整回读外部保全包。仅移除明确登记的私有恢复树，不改当前生产库、原r926备份、manifest或外部归档；外部不可回读或进程仍活跃则保留副本。&quot;).setNegativeButton(&quot;保留&quot;,null).setPositiveButton(&quot;确认停止并释放私有副本&quot;,(x,y)->{try{StorageMaintenanceServiceR82.requestCustodyReleaseR335(this,id);refresh();}catch(RuntimeException e){text.setText(DatabaseCoordinator.describeCauseChain(e,1600));}}).show();}else{LegacyBackupCustodyR335.revoke(id);reader.submit(()->{try{LegacyBackupCustodyR335.recordRevocation(getApplicationContext(),id);}catch(Exception logging){main.post(()->text.append(&quot;\n撤销已在内存生效，但耐久记录失败：&quot;+DatabaseCoordinator.describeCauseChain(logging,800)));}});text.setText(&quot;已撤销尚未提交的该case授权；已进入最终提交的单文件操作以耐久结果为准。&quot;);}}catch(RuntimeException failure){text.setText(DatabaseCoordinator.describeCauseChain(failure,1600));}}).show();}).show();});}catch(Exception failure){showCustodyErrorR335(token,failure);}});"
+        errorLine2="                                                                                                                                                                                                                                                                                                                                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java"
+            line="37"
+            column="374"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        severity="Error"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        category="Internationalization"
+        priority="6"
+        summary="TextView Internationalization"
+        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
+        url="https://developer.android.com/guide/topics/resources/localization.html"
+        urls="https://developer.android.com/guide/topics/resources/localization.html"
+        errorLine1="        long token=generation.incrementAndGet();future=reader.submit(()->{try{String[] ids=LegacyBackupCustodyR335.listCases(getApplicationContext());String[] labels=new String[ids.length];for(int i=0;i&lt;ids.length;i++)labels[i]=LegacyBackupCustodyR335.describe(getApplicationContext(),ids[i]);main.post(()->{if(generation.get()!=token)return;if(ids.length==0){text.setText(&quot;没有已发布的保全case；半成品或异常case保留在维护摘要中。&quot;);return;}new AlertDialog.Builder(this).setTitle(&quot;选择精确保全case&quot;).setItems(labels,(dialog,index)->{String id=ids[index];new AlertDialog.Builder(this).setTitle(&quot;该case的独立操作&quot;).setItems(new String[]{&quot;从外部再次完整回读并隔离恢复&quot;,&quot;审阅并明确退役这一份本地备份&quot;,&quot;撤销尚未提交的该case授权&quot;,&quot;单独释放已取回的私有隔离副本&quot;,&quot;只读核对中断的退役结果（不删除文件）&quot;},(choice,which)->{try{if(which==0){StorageMaintenanceServiceR82.requestCustodyVerifyR335(this,id);refresh();}else if(which==1)reviewCustodyR335(id);else if(which==4){StorageMaintenanceServiceR82.requestCustodyReconcileR335(this,id);refresh();}else if(which==3){new AlertDialog.Builder(this).setTitle(&quot;只释放该case的已验证私有恢复副本&quot;).setMessage(&quot;会先完整回读外部保全包。仅移除明确登记的私有恢复树，不改当前生产库、原r926备份、manifest或外部归档；外部不可回读或进程仍活跃则保留副本。&quot;).setNegativeButton(&quot;保留&quot;,null).setPositiveButton(&quot;确认停止并释放私有副本&quot;,(x,y)->{try{StorageMaintenanceServiceR82.requestCustodyReleaseR335(this,id);refresh();}catch(RuntimeException e){text.setText(DatabaseCoordinator.describeCauseChain(e,1600));}}).show();}else{LegacyBackupCustodyR335.revoke(id);reader.submit(()->{try{LegacyBackupCustodyR335.recordRevocation(getApplicationContext(),id);}catch(Exception logging){main.post(()->text.append(&quot;\n撤销已在内存生效，但耐久记录失败：&quot;+DatabaseCoordinator.describeCauseChain(logging,800)));}});text.setText(&quot;已撤销尚未提交的该case授权；已进入最终提交的单文件操作以耐久结果为准。&quot;);}}catch(RuntimeException failure){text.setText(DatabaseCoordinator.describeCauseChain(failure,1600));}}).show();}).show();});}catch(Exception failure){showCustodyErrorR335(token,failure);}});"
+        errorLine2="                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java"
+            line="37"
+            column="1624"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        severity="Error"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        category="Internationalization"
+        priority="6"
+        summary="TextView Internationalization"
+        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
+        url="https://developer.android.com/guide/topics/resources/localization.html"
+        urls="https://developer.android.com/guide/topics/resources/localization.html"
+        errorLine1="    private void showCustodyErrorR335(long token,Exception failure){main.post(()->{if(generation.get()==token)text.setText(&quot;保全操作未完成，未授予新的删除权：&quot;+DatabaseCoordinator.describeCauseChain(failure,1600));});}"
+        errorLine2="                                                                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java"
+            line="40"
+            column="124"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        severity="Error"
+        message="String literal in `setText` can not be translated. Use Android resources instead."
+        category="Internationalization"
+        priority="6"
+        summary="TextView Internationalization"
+        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
+        url="https://developer.android.com/guide/topics/resources/localization.html"
+        urls="https://developer.android.com/guide/topics/resources/localization.html"
+        errorLine1="            main.post(()->{if(generation.get()!=token)return;if(names.length==0){text.setText(&quot;未找到符合原命名规则的 r926 迁移备份；未删除或生成任何备份。&quot;);return;}"
+        errorLine2="                                                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java"
+            line="52"
+            column="95"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        severity="Error"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        category="Internationalization"
+        priority="6"
+        summary="TextView Internationalization"
+        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
+        url="https://developer.android.com/guide/topics/resources/localization.html"
+        urls="https://developer.android.com/guide/topics/resources/localization.html"
+        errorLine1="        }catch(Exception failure){main.post(()->{if(generation.get()==token)text.setText(&quot;历史备份目录读取未完成：&quot;+DatabaseCoordinator.describeCauseChain(failure,1200));});}});"
+        errorLine2="                                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="/workspace/r335/checkouts/B08/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java"
+            line="56"
+            column="90"/>
+    </issue>
+
+</issues>

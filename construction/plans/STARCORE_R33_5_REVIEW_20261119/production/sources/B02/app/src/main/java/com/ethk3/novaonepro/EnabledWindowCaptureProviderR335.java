@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
-import android.os.Process;
 import android.util.Xml;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,12 +17,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /** Read the three persisted assignment fields for a live, attached adb capture. */
 public final class EnabledWindowCaptureProviderR335 extends ContentProvider {
+    // Android reserves the shell Linux UID (AID_SHELL) on every supported API level.
+    private static final int SHELL_UID = 2000;
     private static final String PATH = "/assignment";
 
     @Override public boolean onCreate() { return true; }
 
     static boolean allowedRead(int caller, String mode, String path, boolean canonicalUri) {
-        return caller == Process.SHELL_UID && "r".equals(mode) && PATH.equals(path) && canonicalUri;
+        return caller == SHELL_UID && "r".equals(mode) && PATH.equals(path) && canonicalUri;
     }
 
     @Override public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {

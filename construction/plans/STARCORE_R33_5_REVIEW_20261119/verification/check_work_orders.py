@@ -16,7 +16,10 @@ import stage_checked
 
 # Supplemental owners cover paths introduced or expanded by a review.
 SUPPLEMENTAL = {
+    'B01': {'strings.xml': ['RT10']},
     'B02': {
+        'R27QualityTest.java': ['RT05', 'RE21'],
+        'settlement-h15-reviewed-hunks.json': ['RT05', 'RE21'],
         'AndroidManifest.xml': ['RE21'],
         'EnabledWindowCaptureProviderR335.java': ['RE21'],
         'OosAfterDrawWriterR36.java': ['RT05', 'RT06', 'C01'],

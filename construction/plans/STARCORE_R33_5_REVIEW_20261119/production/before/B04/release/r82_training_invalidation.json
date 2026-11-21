@@ -340,11 +340,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
       "before_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
-      "after_sha256": "932953a73161cfa38ab18a17cc78ab6f88f9d1047d9e647f079ca37ea3866d0f",
+      "after_sha256": "1901dcd6f11b489be4740ceffefac0efd6cc2fd19cc79b07cd8fda333304d73f",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "实际UI提供显式停用后的SAF tree归档、外部单文件导入、重新独立恢复、精确单备份身份审阅、确认和撤销入口；确认拿到的本进程token不能从外部JSON或旧receipt生成。UI动作决定恢复与物理退役可达性，保留原NUMERIC角色，不归类为纯展示。 原R81受控基线/原r967 validator/资格policy不改；本次按原R82规则使旧数值资格失效，不继承旧证书或自然胜率。"
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT10: preserve the custody UI actions and original reason, use Android string resources and formatted parameters for all affected text fields."
     },
     {
       "after_role": "NUMERIC",
@@ -466,11 +466,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
       "before_sha256": "",
-      "after_sha256": "fb7d6b29680f9cb00c3ca26c15ca836fb84b3c3784142e6b3964b19f388eeea4",
+      "after_sha256": "d2950c96ec83f5b913a82e4e3bfd411d5be238f32c93d691673a398668298923",
       "before_role": "",
       "after_role": "NUMERIC",
-      "reviewer": "R33.5 second source review 2026-11-20",
-      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification."
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RE21: require Android AID_SHELL 2000 on API 21 and later, with the identical canonical URI, access-mode and caller restrictions. Remove the API 29 SDK field reference. Exercise permitted shell UID and rejected root, app UID, mode, path and alternate URI."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
@@ -1393,11 +1393,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
       "before_sha256": "9317f1674a64076fc10883560b498f5ba428a5c7c638a995c29de68809837c47",
-      "after_sha256": "93799a575d2edbce6160772961dcc1d83876ab9063e13fb36eda9ee3905e63a6",
+      "after_sha256": "c120848d80bad381b274dceaad4ec6eaf6a9ecb50e3090f538ac247f0ff69d8c",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "在033原prepareAndVerify和restoreVerifiedBackup两个入口外加try-with-resources恢复点shared lease；创建备份、原迁移/失败恢复全过程保持原件引用，并支持同进程嵌套引用。最终退役exclusive无法和迁移/恢复并行；原critical步骤、历史行不变与原恢复边界不改，已有NUMERIC角色不降级。 原R81受控基线/原r967 validator/资格policy不改；本次按原R82规则使旧数值资格失效，不继承旧证书或自然胜率。"
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT10: measure immediately available blocks on the actual database volume through the API 18 StatFs public interface. The exact backup margin and fail-closed handling are unchanged; reclaimable cache is never treated as already free."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
@@ -5720,13 +5720,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "PRESENTATION",
-      "after_sha256": "c29e0f315c336be265aad2d45932c54f24edd618f82551d205b40ff70759d09d",
-      "before_role": "PRESENTATION",
-      "before_sha256": "3707fe4690b79e94177fc127720ffe7be8302ecef6058e80d37e92fedd85c22e",
       "path": "app/src/main/res/values/strings.xml",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "3707fe4690b79e94177fc127720ffe7be8302ecef6058e80d37e92fedd85c22e",
+      "after_sha256": "d1784480d64118d85770aa51eb2505165a482808b712e2c8bfd17637749a85b6",
+      "before_role": "PRESENTATION",
+      "after_role": "PRESENTATION",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT10: provide the actual package resources consumed by database custody and restoration diagnostics; preserve displayed wording."
     },
     {
       "after_role": "BUILD_CONTRACT",
@@ -5975,8 +5975,8 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
       "role": "NUMERIC",
-      "reviewer": "R33.5 second source review 2026-11-20",
-      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification."
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RE21: require Android AID_SHELL 2000 on API 21 and later, with the identical canonical URI, access-mode and caller restrictions. Remove the API 29 SDK field reference. Exercise permitted shell UID and rejected root, app UID, mode, path and alternate URI."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
@@ -8987,7 +8987,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "d07bc08976169b340d59113cd145d3013670eead2bd8edfe4b733de37f23460d",
+  "reviewed_input_provenance_sha256": "b73477d5e58bbca0b89f45871e125ffbbd05e7915c75eee8e145062bc2d56c19",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

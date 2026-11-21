@@ -146,9 +146,9 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
       "payload": "production/sources/B02/app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
       "inputSha256": "NEW",
-      "sha256": "fb7d6b29680f9cb00c3ca26c15ca836fb84b3c3784142e6b3964b19f388eeea4",
-      "reviewer": "R33.5 second source review 2026-11-20",
-      "rationale": "B02/RE21: fixed, read-only three-field projection of persisted assignment evidence for the adb shell on the signed release; no data writer, no private database access, no new qualification.",
+      "sha256": "d2950c96ec83f5b913a82e4e3bfd411d5be238f32c93d691673a398668298923",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RE21: require Android AID_SHELL 2000 on API 21 and later, with the identical canonical URI, access-mode and caller restrictions. Remove the API 29 SDK field reference. Exercise permitted shell UID and rejected root, app UID, mode, path and alternate URI.",
       "dynamicReview": false
     },
     {
@@ -159,6 +159,56 @@
       "sha256": "c5852b85c4e3dd7075ce0ec39ac61e353196b58cd4d472ea9216cb66b93bb808",
       "reviewer": "R33.5 second source review 2026-11-20",
       "rationale": "B02/C01: record when the already durable prepared result is actually observed, including commit-unknown readback and resumed commit. Use the exact request and canonical hash. A later readback provides only an upper time bound.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B01",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+      "payload": "production/sources/B01/app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+      "inputSha256": "932953a73161cfa38ab18a17cc78ab6f88f9d1047d9e647f079ca37ea3866d0f",
+      "sha256": "1901dcd6f11b489be4740ceffefac0efd6cc2fd19cc79b07cd8fda333304d73f",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT10: preserve the custody UI actions and original reason, use Android string resources and formatted parameters for all affected text fields.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B01",
+      "path": "app/src/main/res/values/strings.xml",
+      "payload": "production/sources/B01/app/src/main/res/values/strings.xml",
+      "inputSha256": "c29e0f315c336be265aad2d45932c54f24edd618f82551d205b40ff70759d09d",
+      "sha256": "d1784480d64118d85770aa51eb2505165a482808b712e2c8bfd17637749a85b6",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT10: provide the actual package resources consumed by database custody and restoration diagnostics; preserve displayed wording.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B01",
+      "path": "app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
+      "payload": "production/sources/B01/app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
+      "inputSha256": "93799a575d2edbce6160772961dcc1d83876ab9063e13fb36eda9ee3905e63a6",
+      "sha256": "c120848d80bad381b274dceaad4ec6eaf6a9ecb50e3090f538ac247f0ff69d8c",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT10: measure immediately available blocks on the actual database volume through the API 18 StatFs public interface. The exact backup margin and fail-closed handling are unchanged; reclaimable cache is never treated as already free.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "verification/r335-construction/settlement-h15-reviewed-hunks.json",
+      "payload": "production/sources/B02/verification/r335-construction/settlement-h15-reviewed-hunks.json",
+      "inputSha256": "NEW",
+      "sha256": "0a5af056062b2a4f9f636c9d08608a41400954ca1b065564dfe6d24a43e21620",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT05/RE21: retain the exact independent 033 and reviewed settlement hunks, including the commit-return telemetry and terminal clock guard, to recover the historical H15 comparison surface.",
+      "dynamicReview": false
+    },
+    {
+      "stage": "B02",
+      "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
+      "payload": "production/sources/B02/app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
+      "inputSha256": "dbbe050707baf92ac710a2e89c30cc075ad1f43e8ae3d4a69c8bae9d6970b935",
+      "sha256": "4f5802c9901b3d59c7912ab833a0c544ebde4c42f539f9b4123e3246fce215e0",
+      "reviewer": "R33.5 construction regression 2026-11-21",
+      "rationale": "RT05/RE21: preserve every historical main-chain owner digest, payout and fixed-K mutation tests. Require the exact reviewed timing/scheduling hunks, reject three new deliberate mutations, and check fault and research slot restrictions together with the critical freeze writer lock.",
       "dynamicReview": false
     }
   ]
