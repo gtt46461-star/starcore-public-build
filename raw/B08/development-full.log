@@ -89,3 +89,33 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=c29e09f6d217127f217b2a941a779278692641f84
 
 > Task :app:testDebugUnitTest
 Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+
+> Task :app:compileDebugAndroidTestJavaWithJavac FROM-CACHE
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:extractProguardFiles
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugUnitTestLintModel
+
+> Task :app:lintAnalyzeDebugAndroidTest
+Warning: Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (Read-only file system)
+
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebug
+
+> Task :app:lintReportDebug
+Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
+
+7 errors/warnings were listed in the baseline file (/workspace/r335s/checkouts/B08/app/lint-baseline.xml) but not found in the project; perhaps they have been fixed?
+
+> Task :app:lintDebug
+
+[Incubating] Problems report is available at: file:///workspace/r335s/checkouts/B08/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 11m 20s
+55 actionable tasks: 36 executed, 19 from cache
