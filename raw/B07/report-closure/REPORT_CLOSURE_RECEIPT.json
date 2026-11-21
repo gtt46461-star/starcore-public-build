@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "assertions": 396,
+  "sourceJavaCount": 1359,
+  "javaTypeInputSha256": "95b9db167094f3af225777147b3426a45269f61f3fce14c15bbef9ab8db9a0f4",
+  "sourceBytesVerified": 7,
+  "originalReports": [
+    {
+      "path": "/workspace/r335r/evidence/B07/report-closure/original-reports/report_1.json",
+      "sha256": "93a5d77b44665ff425f72e53009ede7772f93c2cf41d3333e27be911ad67c4be"
+    },
+    {
+      "path": "/workspace/r335r/evidence/B07/report-closure/original-reports/report_2.json",
+      "sha256": "776eae9469b2a77e548ca12fdcbca4fc599b1343074b5fa64dc0bddb78e4b594"
+    }
+  ],
+  "commands": [
+    [
+      "/workspace/starcore-environment/venv/bin/python3",
+      "/workspace/r335r/prepared/current-review/reports/closure/apply_report_payload.py",
+      "--source",
+      "/workspace/r335r/checkouts/B07",
+      "--check"
+    ],
+    [
+      "/workspace/starcore-environment/venv/bin/python3",
+      "/workspace/r335r/prepared/current-review/reports/closure/generate_need_registry.py",
+      "--plan",
+      "/workspace/r335/prepared/STARCORE_R33_5_20261118",
+      "--output",
+      "/workspace/r335r/checkouts/B07/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+      "--check"
+    ],
+    [
+      "/workspace/starcore-environment/venv/bin/python3",
+      "/workspace/r335/prepared/STARCORE_R33_5_20261118/verification/typecheck_full_source_r335.py",
+      "--repo",
+      "/workspace/r335r/checkouts/B07",
+      "--android-jar",
+      "/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar",
+      "--annotation-jar",
+      "/workspace/r335/materials/annotation-1.3.0.jar",
+      "--java",
+      "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+      "--jdk-mode",
+      "jdk17",
+      "--out",
+      "/workspace/r335r/evidence/B07/report-closure/java"
+    ],
+    [
+      "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+      "-m",
+      "jdk.compiler/com.sun.tools.javac.Main",
+      "--release",
+      "17",
+      "-encoding",
+      "UTF-8",
+      "-d",
+      "/workspace/r335r/evidence/B07/report-closure/test-classes",
+      "-cp",
+      "/workspace/r335r/evidence/B07/report-closure/java/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r335/materials/annotation-1.3.0.jar",
+      "/workspace/r335r/prepared/current-review/reports/closure/tests/ReportClosureTest.java"
+    ],
+    [
+      "/workspace/starcore-environment/tools/jdk-17.0.17+10/bin/java",
+      "-Xmx512m",
+      "-cp",
+      "/workspace/r335r/evidence/B07/report-closure/test-classes:/workspace/r335r/evidence/B07/report-closure/java/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar:/workspace/r335/materials/annotation-1.3.0.jar",
+      "com.ethk3.novaonepro.strategyv2.ReportClosureTest",
+      "/workspace/r335r/evidence/B07/report-closure/original-reports/report_1.json",
+      "/workspace/r335r/evidence/B07/report-closure/original-reports/report_2.json"
+    ]
+  ],
+  "scope": "ALL_JAVA_TYPES_AND_PRODUCTION_REPORT_HOST_READBACK; ANDROID_SQL_DEVICE_AND_NATURAL_QUALITY_NOT_RUN"
+}

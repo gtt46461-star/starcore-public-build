@@ -1,0 +1,445 @@
+diff --git a/app/build/generated/r967/semantic_manifest.json b/app/build/generated/r967/semantic_manifest.json
+index 6bae46103690b727c132c1f33e1522a9739e10a6..1b5f77707227db0137d5e4e3c1305e76852ea711 100644
+--- a/app/build/generated/r967/semantic_manifest.json
++++ b/app/build/generated/r967/semantic_manifest.json
+@@ -1,12 +1,12 @@
+ {
+   "revision": "R967_SEMANTIC_BUILD_V1",
+-  "training_rule_sha256": "650a5851a3b3dcc079c55235d83f792205964b947cd60265a86daf60059bd9d3",
++  "training_rule_sha256": "4373fc4bd92526b05254aafa7cc4f8ed0fcefa6c4f3f71b4bcdafcf5935079db",
+   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
+   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
+   "manifest_sha256": "e50cdd227f618fd4ea091bed5cdbec3ebb6c6f29aa9f92987f6329c56b30e479",
+   "controlled_file_count": 1539,
+   "numeric_dependency_count": 1399,
+-  "source_provenance_sha256": "541f9beafbbf4b96922733d45f8857acd44b3117037f48b38adcbb6093533589",
++  "source_provenance_sha256": "b73477d5e58bbca0b89f45871e125ffbbd05e7915c75eee8e145062bc2d56c19",
+   "dependencies": [
+     [
+       "app/build.gradle",
+@@ -5501,7 +5501,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+       "NUMERIC",
+-      "783d74cc3b325912c9749d8fd05ec0c68164d6633559d3f0412e998baf3d79fb"
++      "585c745149ac21e4b86a9d3d6743b0a192c04de9a0a745e672bb099110436a84"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+@@ -6006,7 +6006,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+       "NUMERIC",
+-      "6bd7d7215d0b5f06c2408ae40390c157614274d5d7f6b8fb778ede19b1112a48"
++      "96c259699a201e0c6a39da322be285e690338d4572184dbe581f963bdecdb106"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+@@ -6311,7 +6311,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+       "NUMERIC",
+-      "12acb72f1989c736b1e78be4e1a00fa63f4c25a70e05791e7f112ccebae7842e"
++      "73c407048af216fae08c0139990a7ab805f413e9586796ebd3174b6213108cbe"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+@@ -6436,7 +6436,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+       "NUMERIC",
+-      "c68e5505bc59998087d3b6b13c6882fa286354880a9ec53b09a68aa4108fd929"
++      "aa386be7c1dee818b7d9aa54e352268d61f116df838d9dbd1afd8a0edf544dd7"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+@@ -6541,7 +6541,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+       "NUMERIC",
+-      "a3a25f4483f282584a5292fcdd0f703d219a117fc35fcc7743227b768172461f"
++      "d323c203722b892d0b797d27438d502a4b41e25e96d63b7113f09910493cdd6e"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
+@@ -6696,7 +6696,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+       "NUMERIC",
+-      "f4b39e7cba6c09c2dca18a0a80bc17e91f91a34bed6f309b2c9d78896efe3c63"
++      "a6065875b7f54cb58f8ef504ca38217448dc774632a69d1e90b264801d2e32a1"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyAssessmentR26.java",
+@@ -7006,6 +7006,6 @@
+   ],
+   "compatible_predecessor_rule_sha256": "",
+   "compatible_predecessor_rules_sha256": [],
+-  "continuation_proof_sha256": "53b2ac11fdcf49ddd72d69ee311d43b6f597d102fbd679ed2a2774bf0f7b8e59",
++  "continuation_proof_sha256": "96b42cc678d336a09770ee8f4a0a8d34a5d48caf8b8830e87a1d9e2a67fae2e7",
+   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
+ }
+diff --git a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+index adf0de88fb21fe4359b0d5f6a7b9f57634bcbb2f..fe5d3ba2a3b5225c77c51517aa1901f43be92de9 100644
+--- a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
++++ b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+@@ -1,13 +1,13 @@
+ package com.ethk3.novaonepro;
+ /** Build-generated. Never edit; no authorization is implied. */
+ public final class ResearchSemanticsGeneratedR967 {
+-    public static final String TRAINING_RULE_SHA256=runtimeValue("650a5851a3b3dcc079c55235d83f792205964b947cd60265a86daf60059bd9d3");
++    public static final String TRAINING_RULE_SHA256=runtimeValue("4373fc4bd92526b05254aafa7cc4f8ed0fcefa6c4f3f71b4bcdafcf5935079db");
+     public static final String POLICY_HASH=runtimeValue("04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8");
+     public static final String POLICY_JSON=runtimeValue("{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}");
+     public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("e50cdd227f618fd4ea091bed5cdbec3ebb6c6f29aa9f92987f6329c56b30e479");
+     public static final String COMPATIBLE_PREDECESSOR_RULE_SHA256=runtimeValue("");
+     public static final String COMPATIBLE_PREDECESSOR_RULES_SHA256=runtimeValue("");
+-    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("53b2ac11fdcf49ddd72d69ee311d43b6f597d102fbd679ed2a2774bf0f7b8e59");
++    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("96b42cc678d336a09770ee8f4a0a8d34a5d48caf8b8830e87a1d9e2a67fae2e7");
+     private static String runtimeValue(String value){return value;}
+     private ResearchSemanticsGeneratedR967(){}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
+index 5a3f12714c2a369415e2708aa763cf5225bc5a4c..e4949ea65f5f5cc497cda399124accf2f001af60 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
+@@ -27,10 +27,17 @@ public final class FoundryCampaignR26 {
+     }
+     /** No model training is executed inside the writer. Returns a count of committed samples. */
+     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
++        // Wait before snapshot/codec work. This is the same main-process writer
++        // backpressure; it never upgrades a data write into CONTROL or TELEMETRY.
++        if(WriterHoldFaultsR31.deferResearch())
++            throw new ModelPublicationR31.PublicationDependencyR31("R33_WAIT_WRITER_HOLD_FAULT_BACKLOG");
+         ModelPublicationR31.requireSchemaR31(store.readable());HypothesisStoreR31.requireSchemaR31(store.readable());pruneFinishedR31(store,claims.get());final String numericalAbi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
+         try(WarmCandidateR26.PreparedAbiR31 abi=WarmCandidateR26.prepareAbiR31(store.readable(),numericalAbi);
+             WarmCandidateR26.PreparedPreservationR31 warm=WarmCandidateR26.preparePreservationR31(store.readable(),abi.campaigns())){
+-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());WarmCandidateR26.applyPreparedAbiR31(db,abi);WarmCandidateR26.applyPreparedPreservationR31(db,warm);RuntimeCoordinatorR26.requireFence(db,claims.get());return 0;});
++            // Empty preservation is not a business mutation. Do not create an
++            // otherwise redundant write/hold observation on every training slice.
++            if(!abi.campaigns().isEmpty()||warm.rows()>0)
++                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());WarmCandidateR26.applyPreparedAbiR31(db,abi);WarmCandidateR26.applyPreparedPreservationR31(db,warm);RuntimeCoordinatorR26.requireFence(db,claims.get());return 0;});
+         }
+         SQLiteDatabase r=store.readable();String campaign=null;byte[] snapshotBytes=null;long through=0;
+         try(Cursor c=r.rawQuery("SELECT f.campaign_id,f.snapshot,f.source_through FROM r26_foundry f WHERE f.status='RUNNING' ORDER BY CASE WHEN EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id AND c.status='READY') THEN 1 ELSE 0 END,(SELECT coalesce(sum(CASE WHEN c.status='READY' THEN c.service_cpu_ms ELSE 0 END),0)*1.0/max(1,sum(CASE WHEN c.status='READY' THEN 1 ELSE 0 END)) FROM r26_candidate c WHERE c.campaign_id=f.campaign_id),f.created_at,f.campaign_id LIMIT 1",null)){if(c.moveToFirst()){campaign=c.getString(0);snapshotBytes=c.getBlob(1);through=c.getLong(2);}}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java
+index 681f5717da5a40d5d3d67f1fe445b5b06cbc79c4..5104cef3af99925a508c5ee437eb0a1b40bcb8a5 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java
+@@ -26,7 +26,7 @@ public final class ModelSurfaceStoreR30 {
+     static Prepared archived(SQLiteDatabase ro,ReplayDatasetR27 data){
+         Prepared p=new Prepared();if(data.size()==0)return p;
+         Map<String,ModelSurfaceProviderR30.FrozenModelRef> verifiedModels=new LinkedHashMap<String,ModelSurfaceProviderR30.FrozenModelRef>(16,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,ModelSurfaceProviderR30.FrozenModelRef> e){return size()>16;}};
+-        Map<Long,Integer> indices=new HashMap<>();Map<Integer,String> hashes=new HashMap<>();for(int i=0;i<data.size();i++)indices.put(data.ordinals[i],i);
++        Map<Long,Integer> indices=new HashMap<>();Map<Integer,String> hashes=new HashMap<>();for(int i=0;i<data.size();i++){if((i&63)==0)ExecutionBudgetR26.poll();indices.put(data.ordinals[i],i);}
+         try(Cursor c=ro.rawQuery("SELECT s.target_ordinal,s.position,s.model_hash,s.history_hash,s.probabilities,s.probability_hash,s.trained_through_ordinal,s.model_available_at,s.feature_through_ordinal,s.feature_available_at,s.prepared_at,s.frozen_at,s.deadline_at,a.feature_abi,a.weights,a.trained_through_ordinal,a.available_at FROM r30_model_surface s JOIN r30_model_artifact a ON a.model_hash=s.model_hash WHERE s.target_ordinal>=? AND s.target_ordinal<=? ORDER BY s.frozen_at ASC",new String[]{Long.toString(data.ordinals[0]),Long.toString(data.ordinals[data.size()-1])})){
+             while(c.moveToNext()){
+                 Integer row=indices.get(c.getLong(0));if(row==null)continue;int position=c.getInt(1);long key=ModelSurfaceProviderR30.key(row,position);if(p.rows.containsKey(key))continue;
+@@ -39,9 +39,9 @@ public final class ModelSurfaceStoreR30 {
+                     ModelSurfaceProviderR30.Surface s=ModelSurfaceProviderR30.archived(c.getString(2),hash,StoreR27.unpack(c.getBlob(4)),c.getLong(0),c.getLong(6),c.getLong(7),c.getLong(8),c.getLong(9),position,c.getLong(10),c.getLong(11),c.getLong(12));
+                     if(!s.probabilityHash.equals(c.getString(5)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_PROBABILITY_HASH");
+                     p.rows.put(key,s);
+-                }catch(RuntimeException invalid){p.blocked.put(key,(FailureDispositionR31.classify(invalid).disposition==FailureDispositionR31.Disposition.DEPENDENCY?"UNAVAILABLE_ARCHIVED_SURFACE:":"INVALID_ARCHIVED_SURFACE:")+invalid.getMessage());}
++                }catch(RuntimeException invalid){if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;p.blocked.put(key,(FailureDispositionR31.classify(invalid).disposition==FailureDispositionR31.Disposition.DEPENDENCY?"UNAVAILABLE_ARCHIVED_SURFACE:":"INVALID_ARCHIVED_SURFACE:")+invalid.getMessage());}
+             }
+-        }catch(RuntimeException missingSchema){p.blocked.put(-1L,"MODEL_SCHEMA_UNAVAILABLE");}
++        }catch(RuntimeException missingSchema){if(missingSchema instanceof BudgetTokenSU1.Yield||missingSchema instanceof java.util.concurrent.CancellationException)throw missingSchema;p.blocked.put(-1L,"MODEL_SCHEMA_UNAVAILABLE");}
+         return p;
+     }
+     public static void bindHistorical(SQLiteDatabase ro,FeatureCacheR27 cache){archived(ro,cache.data).bind(cache);}
+@@ -58,7 +58,7 @@ public final class ModelSurfaceStoreR30 {
+                 double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[pos-1],frame.present[pos-1],true),pos);long now=System.currentTimeMillis();
+                 ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(cache.data.ordinals[row],row>0?cache.data.ordinals[row-1]:cache.data.ordinals[row],pos,history,x,now,now,now,deadline);
+                 ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,ref);p.rows.put(key,surface);p.models.put(ref.modelHash,ref);
+-            }catch(RuntimeException invalid){p.blocked.put(key,invalid.getMessage());}
++            }catch(RuntimeException invalid){if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;p.blocked.put(key,invalid.getMessage());}
+         }
+         p.bind(cache);return p;
+     }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java
+index 8adf9bc52a61634066c4bf4b1c6e617880f89e29..82edb25d1250965d527b8538c3c6fdbdd407ce43 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java
+@@ -48,13 +48,14 @@ public final class ReplayDatasetR27 {
+         int t = draws.length; segment = new int[t];
+         List<Integer> starts = new ArrayList<>();
+         for (int i = 0; i < t; i++) {
++            if((i&63)==0)ExecutionBudgetR26.poll();
+             if (i == 0 || ordinals[i] != ordinals[i - 1] + 1) starts.add(i);
+             segment[i] = starts.size() - 1;
+         }
+         segmentStart = new int[starts.size()];
+         for (int i = 0; i < segmentStart.length; i++) segmentStart[i] = starts.get(i);
+         boolean legacy=true;StringBuilder identity=new StringBuilder("R31_REPLAY_KNOWLEDGE_1|").append(CALENDAR_ABI_R31);
+-        for(int i=0;i<t;i++){legacy&=!recorded[i];identity.append('|').append(issues[i]).append(':').append(ordinals[i]).append(':').append(opened[i]).append(':').append(known[i]).append(':').append(reader[i]).append(':').append(scope[i]).append(':').append(recorded[i]);}
++        for(int i=0;i<t;i++){if((i&63)==0)ExecutionBudgetR26.poll();legacy&=!recorded[i];identity.append('|').append(issues[i]).append(':').append(ordinals[i]).append(':').append(opened[i]).append(':').append(known[i]).append(':').append(reader[i]).append(':').append(scope[i]).append(':').append(recorded[i]);}
+         legacyIdentityR31=legacy;provenanceHashR31=StatsR27.sha256(identity.toString());
+         String original=hash(issues,draws,segment);datasetHash=legacy?original:StatsR27.sha256("R31_REPLAY_DATASET_V3|"+original+"|"+provenanceHashR31);
+     }
+@@ -79,13 +80,15 @@ public final class ReplayDatasetR27 {
+         Row[] sorted = rows.toArray(new Row[0]);
+         Arrays.sort(sorted, (a, b) -> Long.compare(a.ordinal, b.ordinal));
+         List<Row> kept = new ArrayList<>(sorted.length); int rejected = 0;
++        int polledRowsR33=0;
+         for (Row r : sorted) {
++            if((polledRowsR33++&63)==0)ExecutionBudgetR26.poll();
+             if (!legal(r.numbers) || (!kept.isEmpty() && kept.get(kept.size() - 1).ordinal == r.ordinal)) { rejected++; continue; }
+             kept.add(r);
+         }
+         int[][] d = new int[kept.size()][]; String[] is = new String[kept.size()]; long[] o = new long[kept.size()];
+         long[] opened=new long[d.length],known=new long[d.length];String[] reader=new String[d.length],scope=new String[d.length];boolean[] recorded=new boolean[d.length];
+-        for (int i = 0; i < d.length; i++) {Row row=kept.get(i);d[i]=row.numbers.clone();is[i]=row.issue;o[i]=row.ordinal;opened[i]=row.openTime;known[i]=row.knownAt;reader[i]=row.readerAbi;scope[i]=row.knowledgeScope;recorded[i]=row.provenanceRecorded;}
++        for (int i = 0; i < d.length; i++) {if((i&63)==0)ExecutionBudgetR26.poll();Row row=kept.get(i);d[i]=row.numbers.clone();is[i]=row.issue;o[i]=row.ordinal;opened[i]=row.openTime;known[i]=row.knownAt;reader[i]=row.readerAbi;scope[i]=row.knowledgeScope;recorded[i]=row.provenanceRecorded;}
+         return new ReplayDatasetR27(d,is,o,rejected,opened,known,reader,scope,recorded);
+     }
+ 
+@@ -124,7 +127,7 @@ public final class ReplayDatasetR27 {
+     public boolean knownBeforeR31(int index,long decisionTime){return provenanceRecordedR31[index]&&knownAtR31[index]>0&&knownAtR31[index]<decisionTime&&(!"DRAW_FIRST_SEEN".equals(knowledgeScopeR31[index])||(openTimeR31[index]>0&&knownAtR31[index]>=openTimeR31[index]));}
+     public java.util.Map<String,Object> provenanceR31(){
+         java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();int known=0,invalidChronology=0;java.util.Set<String> readers=new java.util.TreeSet<>(),scopes=new java.util.TreeSet<>();
+-        for(int i=0;i<size();i++){if(provenanceRecordedR31[i]&&knownAtR31[i]>0){known++;if("DRAW_FIRST_SEEN".equals(knowledgeScopeR31[i])&&(openTimeR31[i]<=0||knownAtR31[i]<openTimeR31[i]))invalidChronology++;}readers.add(readerAbiR31[i]);scopes.add(knowledgeScopeR31[i]);}
++        for(int i=0;i<size();i++){if((i&63)==0)ExecutionBudgetR26.poll();if(provenanceRecordedR31[i]&&knownAtR31[i]>0){known++;if("DRAW_FIRST_SEEN".equals(knowledgeScopeR31[i])&&(openTimeR31[i]<=0||knownAtR31[i]<openTimeR31[i]))invalidChronology++;}readers.add(readerAbiR31[i]);scopes.add(knowledgeScopeR31[i]);}
+         out.put("identityVersion",legacyIdentityR31?"LEGACY_V2_KNOWN_AT_UNKNOWN":"R31_DATASET_V3");out.put("calendarAbi",legacyIdentityR31?"LEGACY_ORDINAL_ORIGIN_UNKNOWN":CALENDAR_ABI_R31);out.put("provenanceHash",provenanceHashR31);out.put("readerAbis",new ArrayList<>(readers));out.put("knowledgeScopes",new ArrayList<>(scopes));out.put("rows",size());out.put("recordedKnownAtRows",known);out.put("invalidKnownAtChronologyRows",invalidChronology);out.put("unknownKnownAtRows",size()-known);out.put("naturalPastVisibilityProven",false);return out;
+     }
+     /** Compact dictionaries keep 10k real original rows within the unchanged
+@@ -132,11 +135,11 @@ public final class ReplayDatasetR27 {
+     public byte[] originalBytesR31(){
+         if(size()>10000)throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_ROW_BOUND");
+         try{java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();java.io.DataOutputStream out=new java.io.DataOutputStream(bytes);
+-            java.util.List<String> readers=new ArrayList<>(),scopes=new ArrayList<>();for(int i=0;i<size();i++){if(!readers.contains(readerAbiR31[i]))readers.add(readerAbiR31[i]);if(!scopes.contains(knowledgeScopeR31[i]))scopes.add(knowledgeScopeR31[i]);}
++            java.util.List<String> readers=new ArrayList<>(),scopes=new ArrayList<>();for(int i=0;i<size();i++){if((i&63)==0)ExecutionBudgetR26.poll();if(!readers.contains(readerAbiR31[i]))readers.add(readerAbiR31[i]);if(!scopes.contains(knowledgeScopeR31[i]))scopes.add(knowledgeScopeR31[i]);}
+             if(readers.size()>128||scopes.size()>128)throw new IllegalArgumentException("R31_REPLAY_READER_DICTIONARY_BOUND");
+             out.writeInt(ORIGINAL_MAGIC_R31);out.writeInt(1);out.writeInt(size());out.writeUTF(datasetHash);out.writeUTF(provenanceHashR31);
+             for(java.util.List<String> dictionary:Arrays.asList(readers,scopes)){out.writeInt(dictionary.size());for(String value:dictionary)out.writeUTF(value);}
+-            for(int i=0;i<size();i++){out.writeUTF(issues[i]);out.writeLong(ordinals[i]);for(int n:draws[i])out.writeByte(n);out.writeLong(openTimeR31[i]);out.writeLong(knownAtR31[i]);out.writeByte(readers.indexOf(readerAbiR31[i]));out.writeByte(scopes.indexOf(knowledgeScopeR31[i]));out.writeBoolean(provenanceRecordedR31[i]);if(bytes.size()>MAX_ORIGINAL_BYTES_R31)throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_BYTE_BOUND");}
++            for(int i=0;i<size();i++){if((i&63)==0)ExecutionBudgetR26.poll();out.writeUTF(issues[i]);out.writeLong(ordinals[i]);for(int n:draws[i])out.writeByte(n);out.writeLong(openTimeR31[i]);out.writeLong(knownAtR31[i]);out.writeByte(readers.indexOf(readerAbiR31[i]));out.writeByte(scopes.indexOf(knowledgeScopeR31[i]));out.writeBoolean(provenanceRecordedR31[i]);if(bytes.size()>MAX_ORIGINAL_BYTES_R31)throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_BYTE_BOUND");}
+             out.close();return bytes.toByteArray();
+         }catch(java.io.IOException impossible){throw new IllegalStateException("R31_REPLAY_ORIGINAL_ENCODE",impossible);}
+     }
+@@ -144,7 +147,7 @@ public final class ReplayDatasetR27 {
+         if(bytes==null||bytes.length>MAX_ORIGINAL_BYTES_R31)throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_BYTE_BOUND");
+         try{java.io.DataInputStream in=new java.io.DataInputStream(new java.io.ByteArrayInputStream(bytes));if(in.readInt()!=ORIGINAL_MAGIC_R31||in.readInt()!=1)throw new java.io.IOException("READER_VERSION");int n=in.readInt();if(n<0||n>10000)throw new java.io.IOException("ROW_BOUND");String dataset=in.readUTF(),provenance=in.readUTF();
+             java.util.List<java.util.List<String>> dictionaries=new ArrayList<>();for(int d=0;d<2;d++){int count=in.readInt();if(count<0||count>128)throw new java.io.IOException("DICTIONARY_BOUND");java.util.List<String> dictionary=new ArrayList<>();for(int j=0;j<count;j++){String value=in.readUTF();if(!value.matches("[A-Za-z0-9_.-]{1,128}"))throw new java.io.IOException("READER_IDENTITY");dictionary.add(value);}dictionaries.add(dictionary);}
+-            java.util.List<Row> rows=new ArrayList<>();for(int i=0;i<n;i++){String issue=in.readUTF();long ordinal=in.readLong();int[] numbers=new int[10];for(int p=0;p<10;p++)numbers[p]=in.readUnsignedByte();long opened=in.readLong(),known=in.readLong();int reader=in.readUnsignedByte(),scope=in.readUnsignedByte();boolean recorded=in.readBoolean();if(reader>=dictionaries.get(0).size()||scope>=dictionaries.get(1).size())throw new java.io.IOException("READER_DICTIONARY_INDEX");rows.add(new Row(issue,ordinal,numbers,opened,known,dictionaries.get(0).get(reader),dictionaries.get(1).get(scope),recorded));}
++            java.util.List<Row> rows=new ArrayList<>();for(int i=0;i<n;i++){if((i&63)==0)ExecutionBudgetR26.poll();String issue=in.readUTF();long ordinal=in.readLong();int[] numbers=new int[10];for(int p=0;p<10;p++)numbers[p]=in.readUnsignedByte();long opened=in.readLong(),known=in.readLong();int reader=in.readUnsignedByte(),scope=in.readUnsignedByte();boolean recorded=in.readBoolean();if(reader>=dictionaries.get(0).size()||scope>=dictionaries.get(1).size())throw new java.io.IOException("READER_DICTIONARY_INDEX");rows.add(new Row(issue,ordinal,numbers,opened,known,dictionaries.get(0).get(reader),dictionaries.get(1).get(scope),recorded));}
+             ReplayDatasetR27 result=of(rows);if(in.read()!=-1||result.rejectedRows!=0||result.size()!=n||!dataset.equals(result.datasetHash)||!provenance.equals(result.provenanceHashR31))throw new java.io.IOException("ORIGINAL_IDENTITY");return result;
+         }catch(java.io.IOException invalid){throw new IllegalArgumentException("R31_REPLAY_ORIGINAL_DECODE",invalid);}
+     }
+@@ -155,6 +158,7 @@ public final class ReplayDatasetR27 {
+         StringBuilder b = new StringBuilder("R30_REPLAY_DATASET_V2|").append(issues.length == 0 ? "" : issues[0]).append('|')
+                 .append(issues.length == 0 ? "" : issues[issues.length - 1]).append('|').append(draws.length);
+         for (int i = 0; i < draws.length; i++) {
++            if((i&63)==0)ExecutionBudgetR26.poll();
+             b.append('|').append(issues[i]).append(':');
+             for (int v : draws[i]) b.append((char) ('0' + v - 1));
+             b.append(':').append(segment[i]);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java
+index be1934e298cfbeddb8317b6beefe2fb88baf148b..b724d73c8444748bb27e9faedf39a5317ca73eff 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java
+@@ -31,7 +31,7 @@ public final class ResearchInputPinR30R1 {
+         // Verify that evidence outside a write transaction; the hot writer only checks its immutable proof.
+         return !originalRecoveryValid(db,run,contract);
+     }
+-    private static boolean originalRecoveryValid(SQLiteDatabase db,String run,String contract){if(PinSnapshotProofR31.known(db,run,contract))return true;if(db.inTransaction())throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31("RESEARCH_INPUT_PIN","PIN_ORIGINAL_RECOVERY_VERIFY");try(Cursor q=db.rawQuery("SELECT dataset_hash,source_revision,summary_json,contract_hash FROM r30r1_analysis_run WHERE run_id=? AND status=?",new String[]{run,STATUS})){if(!q.moveToFirst()||!contract.equals(q.getString(3)))return false;decode(q.getString(0),q.getLong(1),q.getString(2),contract);PinSnapshotProofR31.verified(db,run,contract);return true;}catch(RuntimeException broken){Error fatal=FailureDispositionR31.processFatalCause(broken);if(fatal!=null)throw fatal;return false;}}
++    private static boolean originalRecoveryValid(SQLiteDatabase db,String run,String contract){if(PinSnapshotProofR31.known(db,run,contract))return true;if(db.inTransaction())throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31("RESEARCH_INPUT_PIN","PIN_ORIGINAL_RECOVERY_VERIFY");try(Cursor q=db.rawQuery("SELECT dataset_hash,source_revision,summary_json,contract_hash FROM r30r1_analysis_run WHERE run_id=? AND status=?",new String[]{run,STATUS})){if(!q.moveToFirst()||!contract.equals(q.getString(3)))return false;decode(q.getString(0),q.getLong(1),q.getString(2),contract);PinSnapshotProofR31.verified(db,run,contract);return true;}catch(RuntimeException broken){if(broken instanceof BudgetTokenSU1.Yield||broken instanceof java.util.concurrent.CancellationException)throw broken;Error fatal=FailureDispositionR31.processFatalCause(broken);if(fatal!=null)throw fatal;return false;}}
+     public static Pin loadCurrent(SQLiteDatabase db,String hash){Pin pin=load(db,hash);if(pin==null||invalid(db,hash))return null;try{require(db,hash,pin.revision);}catch(ResearchStoreR30R1.StaleResearch changed){return null;}return pin;}
+     /** Legacy evidence without a pin retains its original conservative global-revision guard. New runtime always pins. */
+     public static long revision(SQLiteDatabase db,String dataset){try(Cursor c=db.rawQuery("SELECT source_revision FROM r30r1_analysis_run WHERE dataset_hash=? AND status=? ORDER BY source_revision DESC LIMIT 1",new String[]{dataset,STATUS})){if(c.moveToFirst()){if(invalid(db,dataset)||!triggersValid(db))throw new ResearchStoreR30R1.StaleResearch();return c.getLong(0);}}return SchemaR27.liveSourceRevision(db);}
+@@ -67,11 +67,11 @@ public final class ResearchInputPinR30R1 {
+     @SuppressWarnings("unchecked") private static Pin decode(String hash,long revision,String json,String contract){
+         if(json==null||json.length()>1048576||!StatsR27.sha256(json).equals(contract))throw new IllegalStateException("PIN_PAYLOAD_HASH_OR_BOUNDS");Object parsed=JsonR27.parse(json);if(!(parsed instanceof Map))throw new IllegalStateException("PIN_PAYLOAD_TYPE");Map<String,Object> p=(Map<String,Object>)parsed;
+         if(!(VERSION.equals(p.get("schema"))||VERSION_R31.equals(p.get("schema")))||!hash.equals(p.get("datasetHash"))||!"ORIGINAL_CONFIRM_AND_OPEN_RETAINED_FOR_RECOVERY_ONLY_NOT_SHARED_OPTIMIZATION".equals(p.get("formalRowsRole")))throw new IllegalStateException("PIN_ORIGINAL_ROLE_OR_SCHEMA");
+-        Object encodedValue=p.get("compressedOriginalRows");if(!(encodedValue instanceof String)||((String)encodedValue).length()>1048576)throw new IllegalStateException("PIN_BOUNDS");ByteArrayOutputStream raw=new ByteArrayOutputStream();try(InputStream zip=new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode((String)encodedValue)))){byte[] buffer=new byte[8192];int n;while((n=zip.read(buffer))!=-1){if(n>1048576-raw.size())throw new IllegalStateException("PIN_RAW_BOUNDS");raw.write(buffer,0,n);}}catch(IOException e){throw new IllegalStateException("PIN_GZIP",e);}
++        Object encodedValue=p.get("compressedOriginalRows");if(!(encodedValue instanceof String)||((String)encodedValue).length()>1048576)throw new IllegalStateException("PIN_BOUNDS");ByteArrayOutputStream raw=new ByteArrayOutputStream();try(InputStream zip=new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode((String)encodedValue)))){byte[] buffer=new byte[8192];int n;while((n=zip.read(buffer))!=-1){ExecutionBudgetR26.poll();if(n>1048576-raw.size())throw new IllegalStateException("PIN_RAW_BOUNDS");raw.write(buffer,0,n);}}catch(IOException e){throw new IllegalStateException("PIN_GZIP",e);}
+         byte[] original=raw.toByteArray();if(!StatsR27.sha256(original).equals(p.get("rawHash")))throw new IllegalStateException("PIN_RAW_HASH");ReplayDatasetR27 d;
+         if(VERSION_R31.equals(p.get("schema"))){d=ReplayDatasetR27.originalBytesR31(original);if(!JsonR27.write(d.provenanceR31()).equals(JsonR27.write(p.get("provenance"))))throw new IllegalStateException("PIN_READER_PROVENANCE");}
+-        else{String text=new String(original,StandardCharsets.UTF_8);List<ReplayDatasetR27.Row> rows=new ArrayList<>();for(String line:text.split("\n")){if(rows.size()>=10000||line.length()!=23||line.charAt(12)!=':')throw new IllegalStateException("PIN_ROW");int[] values=new int[10];for(int i=0;i<10;i++)values[i]=line.charAt(13+i)-'a'+1;String issue=line.substring(0,12);rows.add(new ReplayDatasetR27.Row(issue,TargetIssueResolver.sequenceOrdinalSU1(issue),values));}d=ReplayDatasetR27.of(rows);}
+-        for(int row=0;row<d.size();row++)if(!TargetIssueResolver.isValid(d.issues[row])||TargetIssueResolver.sequenceOrdinalSU1(d.issues[row])!=d.ordinals[row])throw new IllegalStateException("PIN_CANONICAL_ISSUE");SplitR27 split=SplitR27.of(d,null);if(d.size()==0||d.rejectedRows!=0||!hash.equals(d.datasetHash)||!(p.get("rows") instanceof Number)||d.size()!=((Number)p.get("rows")).intValue()||!split.describe().equals(p.get("split"))||!boundary(p,"trainTo",split.trainTo)||!boundary(p,"selectTo",split.selectTo)||!boundary(p,"holdoutTo",split.holdoutTo)||!d.issues[0].equals(p.get("firstIssue"))||!d.issues[d.size()-1].equals(p.get("lastIssue")))throw new IllegalStateException("PIN_DATASET_OR_ROLE_HASH");return new Pin(d,revision);
++        else{String text=new String(original,StandardCharsets.UTF_8);List<ReplayDatasetR27.Row> rows=new ArrayList<>();for(String line:text.split("\n")){if((rows.size()&63)==0)ExecutionBudgetR26.poll();if(rows.size()>=10000||line.length()!=23||line.charAt(12)!=':')throw new IllegalStateException("PIN_ROW");int[] values=new int[10];for(int i=0;i<10;i++)values[i]=line.charAt(13+i)-'a'+1;String issue=line.substring(0,12);rows.add(new ReplayDatasetR27.Row(issue,TargetIssueResolver.sequenceOrdinalSU1(issue),values));}d=ReplayDatasetR27.of(rows);}
++        for(int row=0;row<d.size();row++){if((row&63)==0)ExecutionBudgetR26.poll();if(!TargetIssueResolver.isValid(d.issues[row])||TargetIssueResolver.sequenceOrdinalSU1(d.issues[row])!=d.ordinals[row])throw new IllegalStateException("PIN_CANONICAL_ISSUE");}SplitR27 split=SplitR27.of(d,null);if(d.size()==0||d.rejectedRows!=0||!hash.equals(d.datasetHash)||!(p.get("rows") instanceof Number)||d.size()!=((Number)p.get("rows")).intValue()||!split.describe().equals(p.get("split"))||!boundary(p,"trainTo",split.trainTo)||!boundary(p,"selectTo",split.selectTo)||!boundary(p,"holdoutTo",split.holdoutTo)||!d.issues[0].equals(p.get("firstIssue"))||!d.issues[d.size()-1].equals(p.get("lastIssue")))throw new IllegalStateException("PIN_DATASET_OR_ROLE_HASH");return new Pin(d,revision);
+     }
+     private static boolean boundary(Map<String,Object> p,String key,int value){return p.get(key) instanceof Number&&((Number)p.get(key)).longValue()==value;}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
+index 3a5f6da1847ce8f6a5584959c1a5305204078c92..6292f4910943adcf5f8b6c196bcda4fc95729e4c 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java
+@@ -196,6 +196,11 @@ public final class RuntimeR27 implements AutoCloseable {
+     final class DatasetTask implements ResearchPoolR27.Task {
+         public String id() { return "r27-replay-dataset"; }
+         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
++            // Same process gate as the writer. Avoid re-decoding a 1MiB pinned
++            // original while its metadata commit is known to be inadmissible.
++            // The actual writer still rechecks, so a race remains fail-closed.
++            if(WriterHoldFaultsR31.deferResearch())
++                return ResearchPoolR27.Outcome.idle("DEPENDENCY(WRITER_HOLD_FAULT_BACKLOG)",0,-1);
+             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
+             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
+             ReplayDatasetR27 cur = pendingData != null ? pendingData : evoData;
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java
+index c2bd6f4b3fce9e48775baa56a221fed9a649f205..05da121b3265d26eb14591ee7bb3b932415f4c32 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java
+@@ -26,15 +26,26 @@ public final class StoreR27 {
+     public static final int HOT_DRAWS_LIMIT_R30 = com.ethk3.novaonepro.AppConfig.MAX_LOCAL_HISTORY_SAVE;
+     public static ReplayDatasetR27 loadDataset(SQLiteDatabase ro, int limit) {
+         List<ReplayDatasetR27.Row> rows = new ArrayList<>(limit);
++        final class RawDrawR33 { final String issue; final int[] numbers; final long opened,known;
++            RawDrawR33(String issue,int[] numbers,long opened,long known){this.issue=issue;this.numbers=numbers;this.opened=opened;this.known=known;} }
++        // Bounded hot tail only. Close its SQLite cursor before any parkable
++        // calendar/identity validation, so yielding does not pin a WAL reader.
++        List<RawDrawR33> rawR33=new ArrayList<>(Math.min(limit,HOT_DRAWS_LIMIT_R30));
+         java.util.Set<String> sourceColumns=new java.util.HashSet<>();try(Cursor schema=ro.rawQuery("PRAGMA table_info(draws)",null)){while(schema.moveToNext())sourceColumns.add(schema.getString(1));}
+         String opened=sourceColumns.contains("open_time")?"open_time":"NULL",known=sourceColumns.contains("first_seen_at")?"first_seen_at":"NULL";
+         try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,"+opened+","+known+" FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT " + Math.min(limit, HOT_DRAWS_LIMIT_R30), null)) {
+             while (c.moveToNext()) {
+-                String issue = c.getString(0); if (!TargetIssueResolver.isValid(issue)) continue;
++                String issue = c.getString(0);
+                 int[] p = new int[10]; for (int i = 0; i < 10; i++) p[i] = c.getInt(i + 1);
+-                rows.add(new ReplayDatasetR27.Row(issue,TargetIssueResolver.sequenceOrdinalSU1(issue),p,c.isNull(11)?-1:c.getLong(11),c.isNull(12)?-1:c.getLong(12),ReplayDatasetR27.READER_ABI_R31,"DRAW_FIRST_SEEN"));
++                rawR33.add(new RawDrawR33(issue,p,c.isNull(11)?-1:c.getLong(11),c.isNull(12)?-1:c.getLong(12)));
+             }
+         }
++        for(int i=0;i<rawR33.size();i++){
++            if((i&63)==0)ExecutionBudgetR26.poll();RawDrawR33 raw=rawR33.get(i);
++            if(!TargetIssueResolver.isValid(raw.issue))continue;
++            rows.add(new ReplayDatasetR27.Row(raw.issue,TargetIssueResolver.sequenceOrdinalSU1(raw.issue),raw.numbers,raw.opened,raw.known,ReplayDatasetR27.READER_ABI_R31,"DRAW_FIRST_SEEN"));
++        }
++        rawR33.clear();
+         // R27-018: verified-imported CSV history older than the database (replay only), up to 10,000 rows in total.
+         if (!rows.isEmpty() && rows.size() < 10_000) HistoryImportR27.appendOlder(ro, rows, rows.get(rows.size() - 1).issue, 10_000 - rows.size());
+         return ReplayDatasetR27.of(rows);
+diff --git a/release/r82_training_invalidation.json b/release/r82_training_invalidation.json
+index 56b1614ceecc1cd47888f4f9b142004e3b5dc2de..9570bb1560e962451a01254bc602710c4968995b 100644
+--- a/release/r82_training_invalidation.json
++++ b/release/r82_training_invalidation.json
+@@ -3083,13 +3083,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "783d74cc3b325912c9749d8fd05ec0c68164d6633559d3f0412e998baf3d79fb",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+-      "rationale": "保留原campaign、数值ABI和不可变出生身份；补足可执行策略结构与实际工厂入口。旧50个ABI隔离候选不得翻成READY或继承权重/证书。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
++      "before_sha256": "",
++      "after_sha256": "585c745149ac21e4b86a9d3d6743b0a192c04de9a0a745e672bb099110436a84",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 实际源码审查：在原训练切片读解码前遵从既有写锁积压背压；无ABI隔离/温模型保全净变更时不提交空事务。保留原训练、fence和publication数值/身份路径。 新规则按原R82机制生成；旧DEV/模型/标签保留，但无任何旧规则资格、证书或自然成绩继承。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -4010,13 +4010,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "6bd7d7215d0b5f06c2408ae40390c157614274d5d7f6b8fb778ede19b1112a48",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "before_sha256": "",
++      "after_sha256": "96c259699a201e0c6a39da322be285e690338d4572184dbe581f963bdecdb106",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 实际源码审查：历史模型面加载增加合作式预算轮询，并把Yield/取消原样传播，避免被宽RuntimeException捕获标成坏模型或schema缺失。原历史模型面与当前PIT边界不被替换。 新规则按原R82机制生成；旧DEV/模型/标签保留，但无任何旧规则资格、证书或自然成绩继承。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -4559,13 +4559,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "12acb72f1989c736b1e78be4e1a00fa63f4c25a70e05791e7f112ccebae7842e",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "before_sha256": "",
++      "after_sha256": "73c407048af216fae08c0139990a7ab805f413e9586796ebd3174b6213108cbe",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 实际源码审查：原始开奖读取、校验、身份摘要、完整序列化/反序列化按64行合作式轮询；保留原时间、可知时点、reader ABI与原dataset hash字段，不把多次访问计作独立数据。 新规则按原R82机制生成；旧DEV/模型/标签保留，但无任何旧规则资格、证书或自然成绩继承。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -4811,13 +4811,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "c68e5505bc59998087d3b6b13c6882fa286354880a9ec53b09a68aa4108fd929",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "before_sha256": "",
++      "after_sha256": "aa386be7c1dee818b7d9aa54e352268d61f116df838d9dbd1afd8a0edf544dd7",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 实际源码审查：原压缩输入恢复增加有限块轮询，预算Yield与取消不伪装为损坏pin；仍核原run/contract/dataset/revision/角色分割，不用当前热数据重建旧输入身份。 新规则按原R82机制生成；旧DEV/模型/标签保留，但无任何旧规则资格、证书或自然成绩继承。"
+     },
+     {
+       "after_role": "PRESENTATION",
+@@ -5027,13 +5027,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "a3a25f4483f282584a5292fcdd0f703d219a117fc35fcc7743227b768172461f",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+-      "rationale": "归档与学习共用任务故障预算、owner及取消草稿路径；注册独立归档task，并使其取消不影响学习草稿；归档继续使用原调度/fence/单写队列；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+-      "reviewer": "R32.5 independent source review and root integration"
++      "before_sha256": "",
++      "after_sha256": "d323c203722b892d0b797d27438d502a4b41e25e96d63b7113f09910493cdd6e",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 实际源码审查：原回放任务在已知写锁积压时返回DEPENDENCY后等待；避免反复解码同一大输入却不能提交。原writer仍二次核背压，不升级为控制类写入。 新规则按原R82机制生成；旧DEV/模型/标签保留，但无任何旧规则资格、证书或自然成绩继承。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -5306,13 +5306,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "f4b39e7cba6c09c2dca18a0a80bc17e91f91a34bed6f309b2c9d78896efe3c63",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "before_sha256": "",
++      "after_sha256": "a6065875b7f54cb58f8ef504ca38217448dc774632a69d1e90b264801d2e32a1",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 实际源码审查：先按既有hot-tail上限读出原SQLite行并关闭Cursor，再作可挂起的日历/身份校验；保留availability和来源字段，避免合作式yield长期占WAL读快照。 新规则按原R82机制生成；旧DEV/模型/标签保留，但无任何旧规则资格、证书或自然成绩继承。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -8987,7 +8987,7 @@
+   ],
+   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
+   "predecessors": [],
+-  "reviewed_input_provenance_sha256": "541f9beafbbf4b96922733d45f8857acd44b3117037f48b38adcbb6093533589",
++  "reviewed_input_provenance_sha256": "b73477d5e58bbca0b89f45871e125ffbbd05e7915c75eee8e145062bc2d56c19",
+   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
+   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
+   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

@@ -1,0 +1,395 @@
+diff --git a/app/build/generated/r967/semantic_manifest.json b/app/build/generated/r967/semantic_manifest.json
+index 1b5f77707227db0137d5e4e3c1305e76852ea711..3c70f634bc9743eee6c4a96e64d6575c2a73f476 100644
+--- a/app/build/generated/r967/semantic_manifest.json
++++ b/app/build/generated/r967/semantic_manifest.json
+@@ -1,12 +1,12 @@
+ {
+   "revision": "R967_SEMANTIC_BUILD_V1",
+-  "training_rule_sha256": "4373fc4bd92526b05254aafa7cc4f8ed0fcefa6c4f3f71b4bcdafcf5935079db",
++  "training_rule_sha256": "8e93c4ddadaed153c93bcdb9b289664250da7b995616ae0f8bcf5d44a6191196",
+   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
+   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
+-  "manifest_sha256": "e50cdd227f618fd4ea091bed5cdbec3ebb6c6f29aa9f92987f6329c56b30e479",
+-  "controlled_file_count": 1539,
+-  "numeric_dependency_count": 1399,
+-  "source_provenance_sha256": "b73477d5e58bbca0b89f45871e125ffbbd05e7915c75eee8e145062bc2d56c19",
++  "manifest_sha256": "05fcd05eabb4bcf4460d497eba3a96d308540426a8c57e6fb984d1d671ec9e6a",
++  "controlled_file_count": 1540,
++  "numeric_dependency_count": 1400,
++  "source_provenance_sha256": "32583fe088b1aa60e19177cc241921f4ec0e1524760c2730a99f338b35b2e394",
+   "dependencies": [
+     [
+       "app/build.gradle",
+@@ -4913,10 +4913,15 @@
+       "NUMERIC",
+       "d24e494b4674079fe0bbdb672385c870180e4c654f64810846a9495d4a612e4f"
+     ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
++      "NUMERIC",
++      "53bc07fea54450e27f30f0fd277ff1e8f1140a9dd99b2c33ffac21f8cd487b8a"
++    ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+       "NUMERIC",
+-      "9148d2c78b36ca799c345f9ea02ee66227cc6b415e6abcd043a4b65739d1e8eb"
++      "f0881ac6161e382264cdea230f6f1b38ae9ed368fbc99875844c8154a00cab91"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+@@ -4926,7 +4931,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+       "NUMERIC",
+-      "f4dc401d3a41c9ef97bfa314e9924b157f81b1b9a4c6cabef5045cdf9d0fdbf4"
++      "e9df91aa5eb516de6dc60ced69d5891080b52e259b7b3bb5e415d232ab15f18a"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSU2.java",
+@@ -4941,7 +4946,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+       "NUMERIC",
+-      "93ebb360eb9056f063e8fa760efdcdec9bd58dda0b336385fa075c048fb56c8d"
++      "f61d69c3e879a8aff104b39a0efeaea47b0ae8852170d59db2be12d0fecc18d6"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+@@ -7006,6 +7011,6 @@
+   ],
+   "compatible_predecessor_rule_sha256": "",
+   "compatible_predecessor_rules_sha256": [],
+-  "continuation_proof_sha256": "96b42cc678d336a09770ee8f4a0a8d34a5d48caf8b8830e87a1d9e2a67fae2e7",
++  "continuation_proof_sha256": "58170a8b54768021878854045ab3bec873bb9afef89c985fee15c887c6663e96",
+   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
+ }
+diff --git a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+index fe5d3ba2a3b5225c77c51517aa1901f43be92de9..98cb0c6751050caeefab37378451911bcf94c062 100644
+--- a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
++++ b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+@@ -1,13 +1,13 @@
+ package com.ethk3.novaonepro;
+ /** Build-generated. Never edit; no authorization is implied. */
+ public final class ResearchSemanticsGeneratedR967 {
+-    public static final String TRAINING_RULE_SHA256=runtimeValue("4373fc4bd92526b05254aafa7cc4f8ed0fcefa6c4f3f71b4bcdafcf5935079db");
++    public static final String TRAINING_RULE_SHA256=runtimeValue("8e93c4ddadaed153c93bcdb9b289664250da7b995616ae0f8bcf5d44a6191196");
+     public static final String POLICY_HASH=runtimeValue("04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8");
+     public static final String POLICY_JSON=runtimeValue("{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}");
+-    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("e50cdd227f618fd4ea091bed5cdbec3ebb6c6f29aa9f92987f6329c56b30e479");
++    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("05fcd05eabb4bcf4460d497eba3a96d308540426a8c57e6fb984d1d671ec9e6a");
+     public static final String COMPATIBLE_PREDECESSOR_RULE_SHA256=runtimeValue("");
+     public static final String COMPATIBLE_PREDECESSOR_RULES_SHA256=runtimeValue("");
+-    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("96b42cc678d336a09770ee8f4a0a8d34a5d48caf8b8830e87a1d9e2a67fae2e7");
++    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("58170a8b54768021878854045ab3bec873bb9afef89c985fee15c887c6663e96");
+     private static String runtimeValue(String value){return value;}
+     private ResearchSemanticsGeneratedR967(){}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a8208839c395bb61ba13589482767135c8ea9a57
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java
+@@ -0,0 +1,37 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.Objects;
++
++/** Validates committed numerical/phase advancement, never wall time or scheduler pulses. */
++public final class AtomNetProgressR33 {
++    private AtomNetProgressR33() {}
++    public static final class Frame {
++        final String dataset,phase,complete,partial;
++        final long materialized,trained,online;
++        final int epoch,offset,fill,nextPosition;
++        public Frame(String dataset,String phase,long materialized,long trained,long online,int epoch,int offset,int fill,int nextPosition,String complete,String partial) {
++            this.dataset=Objects.requireNonNull(dataset);this.phase=Objects.requireNonNull(phase);
++            this.materialized=materialized;this.trained=trained;this.online=online;
++            this.epoch=epoch;this.offset=offset;this.fill=fill;this.nextPosition=nextPosition;
++            this.complete=Objects.requireNonNull(complete);this.partial=Objects.requireNonNull(partial);
++        }
++    }
++    public static String validate(Frame before,Frame after,int consumed) {
++        if(!before.dataset.equals(after.dataset))throw new IllegalStateException("R33_ATOMNET_DATASET_CHANGED_IN_SLICE");
++        long m=after.materialized-before.materialized,t=after.trained-before.trained,o=after.online-before.online;
++        if(consumed<0||consumed>120||m<0||m>120||t<0||t>64||o<0||o>1
++                ||(m>0&&(t>0||o>0))||(t>0&&o>0))
++            throw new IllegalStateException("R33_ATOMNET_SLICE_COUNTER_CONTRACT");
++        if((m>0&&consumed!=m)||(t>0&&consumed!=t)||(o>0&&consumed!=o))
++            throw new IllegalStateException("R335_ATOMNET_CONSUMED_COUNTER_MISMATCH");
++        boolean structural=before.epoch!=after.epoch||before.offset!=after.offset||before.fill!=after.fill
++                ||before.nextPosition!=after.nextPosition||!before.phase.equals(after.phase)
++                ||!before.complete.equals(after.complete)||!before.partial.equals(after.partial);
++        if(m==0&&t==0&&o==0&&!structural)
++            throw new IllegalStateException("R33_ATOMNET_NO_NUMERICAL_OR_PHASE_PROGRESS");
++        if(m>0)return "MATERIALIZE";
++        if(t>0)return "PRETRAIN_GRADIENT";
++        if(o>0)return "ONLINE_GRADIENT";
++        return "EVALUATION_OR_PHASE_TRANSITION";
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java
+index f2874558b9bdc459cf573fe0735a607541dfc026..b908b88c02b48c5b26b2f9e448fe76b889ba3e1a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java
+@@ -1,4 +1,5 @@
+ package com.ethk3.novaonepro.strategyv2;
++import com.ethk3.novaonepro.ResearchSemanticsGeneratedR967;
+ 
+ import android.database.Cursor;
+ import android.database.sqlite.SQLiteDatabase;
+@@ -11,9 +12,10 @@ import java.util.*;
+ public final class AtomNetPublicationR31 {
+     private AtomNetPublicationR31() {}
+     public static final String VERSION="R32_ATOMNET_COMPLETE_PUBLICATION_2";
+-    public static final int REVISION=4,MAX_SAMPLES=120,MAX_STAGE_ROWS=32;
++    public static final int REVISION=5,MAX_SAMPLES=120,MAX_STAGE_ROWS=32;
+     public static final long MAX_STAGE_BINDS=65536,MAX_RESERVED_SAMPLE_BYTES=128L<<20;
+     private static final String[] BASE_DDL={
++        "CREATE TABLE IF NOT EXISTS r33_atomnet_progress_head(owner TEXT PRIMARY KEY,publication_id TEXT NOT NULL,dataset_hash TEXT NOT NULL,state_hash TEXT NOT NULL,numerical_abi TEXT NOT NULL,effective_phase TEXT NOT NULL,materialized_samples INTEGER NOT NULL,materialization_required_samples INTEGER NOT NULL,pretrain_samples INTEGER NOT NULL,online_position_updates INTEGER NOT NULL,epoch INTEGER NOT NULL,phase_offset INTEGER NOT NULL,complete_issue TEXT NOT NULL,partial_issue TEXT NOT NULL,next_position INTEGER NOT NULL,model_hash TEXT,published_at INTEGER NOT NULL)",
+         "CREATE TABLE IF NOT EXISTS r31_atomnet_publication(publication_id TEXT PRIMARY KEY,operator_version TEXT NOT NULL,owner TEXT NOT NULL,dataset_hash TEXT NOT NULL,previous_state_hash TEXT NOT NULL,state_hash TEXT NOT NULL,state_ref BLOB NOT NULL,model_hash TEXT,weights_hash TEXT,weights_ref BLOB,model_available_at INTEGER,through_ordinal INTEGER NOT NULL,materialized_samples INTEGER NOT NULL,first_sample INTEGER NOT NULL,sample_count INTEGER NOT NULL,sample_bytes INTEGER NOT NULL,sample_digest TEXT NOT NULL,dataset_ref BLOB,dataset_payload_hash TEXT,status TEXT NOT NULL CHECK(status IN ('PREPARED','PUBLISHED')),created_at INTEGER NOT NULL,published_at INTEGER)",
+         "CREATE TABLE IF NOT EXISTS r31_atomnet_sample_stage(publication_id TEXT NOT NULL,sample_index INTEGER NOT NULL,issue TEXT NOT NULL,position INTEGER NOT NULL,features BLOB NOT NULL,hit INTEGER NOT NULL,number_class INTEGER NOT NULL,payload_hash TEXT NOT NULL,PRIMARY KEY(publication_id,sample_index))",
+         "CREATE INDEX IF NOT EXISTS r31_atomnet_publication_samples ON r31_atomnet_publication(dataset_hash,status,first_sample)",
+@@ -26,6 +28,7 @@ public final class AtomNetPublicationR31 {
+     public static final String[] DDL;
+     static {List<String> all=new ArrayList<>(Arrays.asList(BASE_DDL));Collections.addAll(all,AtomNetSampleArchiveR324.DDL);DDL=all.toArray(new String[0]);}
+     private static final String[][] TABLES={
++        {"r33_atomnet_progress_head","owner,publication_id,dataset_hash,state_hash,numerical_abi,effective_phase,materialized_samples,materialization_required_samples,pretrain_samples,online_position_updates,epoch,phase_offset,complete_issue,partial_issue,next_position,model_hash,published_at"},
+         {"r31_atomnet_publication","publication_id,operator_version,owner,dataset_hash,previous_state_hash,state_hash,state_ref,model_hash,weights_hash,weights_ref,model_available_at,through_ordinal,materialized_samples,first_sample,sample_count,sample_bytes,sample_digest,dataset_ref,dataset_payload_hash,status,created_at,published_at"},
+         {"r31_atomnet_sample_stage","publication_id,sample_index,issue,position,features,hit,number_class,payload_hash"}
+     };
+@@ -38,7 +41,7 @@ public final class AtomNetPublicationR31 {
+         if(replace)db.execSQL("DROP TRIGGER r31_atomnet_stage_published_no_delete");
+         for(String ddl:DDL)db.execSQL(ddl);requireReady(db);
+     }
+-    public static String[][] schemaObjectsR31(){List<String[]> objects=new ArrayList<>(Arrays.asList(new String[][]{{"table","r31_atomnet_publication"},{"table","r31_atomnet_sample_stage"},{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}}));Collections.addAll(objects,AtomNetSampleArchiveR324.schemaObjects());return objects.toArray(new String[0][]);}
++    public static String[][] schemaObjectsR31(){List<String[]> objects=new ArrayList<>(Arrays.asList(new String[][]{{"table","r33_atomnet_progress_head"},{"table","r31_atomnet_publication"},{"table","r31_atomnet_sample_stage"},{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}}));Collections.addAll(objects,AtomNetSampleArchiveR324.schemaObjects());return objects.toArray(new String[0][]);}
+     public static void requireReady(SQLiteDatabase db){DatabaseCoordinator.requireSchemaObjectsR31(db,"R31_ATOMNET_PUBLICATION",TABLES,new String[][]{{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}});AtomNetSampleArchiveR324.requireReady(db);}
+     /** This is a storage observation, not permission to drop protected originals.
+      * Capacity is a resource bound; it must not be reported as an algorithm quota
+@@ -151,6 +154,12 @@ public final class AtomNetPublicationR31 {
+                 try(Cursor manifest=db.rawQuery("SELECT state_hash,sample_digest,sample_count,state_ref,model_hash,weights_ref,model_available_at,through_ordinal,materialized_samples,previous_state_hash,dataset_hash,dataset_ref,dataset_payload_hash FROM r31_atomnet_publication WHERE publication_id=?",new String[]{id})){if(!manifest.moveToFirst()||!stateHash.equals(manifest.getString(0))||!sampleDigest.equals(manifest.getString(1))||samples.size()!=manifest.getInt(2)||!Arrays.equals(stateRef,manifest.getBlob(3))||!Objects.equals(model==null?null:model.modelHash,manifest.getString(4))||!Arrays.equals(modelRef,manifest.getBlob(5))||model!=null&&model.availableAt!=manifest.getLong(6)||through!=manifest.getLong(7)||materialized!=manifest.getLong(8)||!previousStateHash.equals(manifest.getString(9))||!datasetHash.equals(manifest.getString(10))||!Arrays.equals(datasetRef,manifest.getBlob(11))||!Objects.equals(datasetPayloadHash,manifest.getString(12)))return -1;}
+                 try(Cursor count=db.rawQuery("SELECT count(*) FROM r31_atomnet_sample_stage WHERE publication_id=?",new String[]{id})){if(!count.moveToFirst()||count.getInt(0)!=samples.size())return -1;}return 0;});
+             AtomNetStoreR30.checkpointReferenceR31(control,state,stateHash,stateRef,now);
++            // Same fenced CAS and SQLite commit as the checkpoint; rollback cannot advance this head.
++            String effectivePhase=state.cachePeriod<com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS+(state.trainCount+state.selectCount)/10?"MATERIALIZE":state.phase;
++            control.add("INSERT OR REPLACE INTO r33_atomnet_progress_head VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER))",
++                    AtomNetSessionR30.OWNER,id,datasetHash,stateHash,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,effectivePhase,
++                    state.materializedSamples,(long)state.trainCount+state.selectCount,state.pretrainSamples,state.trainer.onlineSteps,
++                    state.epoch,state.offset,state.completeIssue,state.partialIssue,state.nextPosition,model==null?null:model.modelHash);
+             if(datasetRef!=null)control.add("INSERT OR IGNORE INTO r30_atomnet_dataset VALUES(?,?,?,?)",datasetHash,datasetRef,datasetPayloadHash,now);
+             if(model!=null)control.add("INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)",model.modelHash,AtomNetSessionR30.ABI,modelRef,through,now);
+             control.add("UPDATE r31_atomnet_publication SET status='PUBLISHED',published_at=coalesce(published_at,CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)) WHERE publication_id=?",id);return control;
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java
+index b55c54cedafe78d184b1600f9d66f564bcf3447c..98b9ca13866a86da4f71bc9d6c151ffb7144d15d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java
+@@ -50,6 +50,7 @@ public final class AtomNetRuntimeR30 {
+         if(d==null){d=AtomNetStoreR30.dataset(w.ro,saved.datasetHash);rt.atomDataR30=d;}
+         try(MemoryBudgetR31.Lease work=AtomNetPublicationR31.workReservationR31(saved)){
+         final String expectedCheckpointR31=AtomNetPublicationR31.currentStateHash(w.ro);
++        final AtomNetProgressR33.Frame progressBeforeR33=progressFrameR33(saved);
+         // Copy before computing: no failed/cancelled write can mutate the committed/published learner.
+         byte[] previous=saved.encode();AtomNetSessionR30 next=AtomNetSessionR30.decode(previous,StatsR27.sha256(previous));
+         ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();int n=0;ModelReplayStudyR30R1.ReplayDecision replayDecision=null;
+@@ -88,6 +89,7 @@ public final class AtomNetRuntimeR30 {
+             replayDecision=ModelReplayStudyR30R1.allocateReplay(w.ro,next,b);
+             next.online(new AtomNetTrainerR27.Sample(x,frame.hit[p],frame.actual[p]-1,AtomNetSessionR30.eventKey(recent.issues[t],p+1)),recent.issues[t],recent.ordinals[t],p+1);n=1;
+         }
++        AtomNetProgressR33.validate(progressBeforeR33,progressFrameR33(next),n);
+         try(AtomNetPublicationR31.Prepared publication=AtomNetPublicationR31.prepare(w.store(),w.ro,b,next,System.currentTimeMillis(),expectedCheckpointR31)){
+             stage(w,publication);publication.verifyPrepared(w.ro);ModelReplayStudyR30R1.recordReplayDecision(b,next,replayDecision,publication.stateHash);
+             try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",publication.publicationBatch(b,next),false,publication.id);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
+@@ -97,6 +99,9 @@ public final class AtomNetRuntimeR30 {
+         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
+         }
+     }
++    private static AtomNetProgressR33.Frame progressFrameR33(AtomNetSessionR30 s){
++        return new AtomNetProgressR33.Frame(s.datasetHash,s.phase,s.materializedSamples,s.pretrainSamples,s.trainer.onlineSteps,s.epoch,s.offset,s.fillOffset,s.nextPosition,s.completeIssue,s.partialIssue);
++    }
+     private static void stage(ResearchPoolR27.Worker w,AtomNetPublicationR31.Prepared publication)throws InterruptedException{
+         int chunk=0;for(ResearchWriteQueueR27.Batch staging:publication.stagingBatches())RuntimeR27.submit(w,"ATOMNET_R31_STAGE_"+chunk,staging,false,publication.id+"|STAGE|"+(chunk++));
+     }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
+index e31b051a6ed5a291e8b88cee679be5048157dae0..a8d1fd729c3a37b0d6e2e076724029773d5d7be7 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java
+@@ -148,7 +148,25 @@ public final class AtomNetSessionR30 {
+         r.put("consumable",consumableR31());
+         r.put("publicationReady",ready());r.put("learningProtocol",LEARNING_PROTOCOL);r.put("replayPolicy",replayPolicy);r.put("replayEvidenceRun",replayEvidenceRun);r.put("replayPolicyChanges",replayPolicyChanges);r.put("replayChangeQuality","REFUTABLE_RESEARCH_ALLOCATION_NOT_A_PROVED_GAIN_NO_MODEL_OR_ALPHA_RESET");r.put("primaryTrainingSamplesCommitted",pretrainSamples+trainer.onlineSteps);
+         r.put("trainingCounterScope","PRETRAIN_VISITS_PLUS_NEW_ONLINE_POSITIONS;EXCLUDES_REPLAY_VISITS;NOT_INDEPENDENT_ISSUES");
+-        r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",pretrainSamples==0?0L:(long)(trainCount/10));return r;
++        r.put("status",materializedSamples>0?"MEASURED":"INSUFFICIENT");r.put("quality","NO_NATURAL_QUALITY_CLAIM");r.put("validationRole","DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY");r.put("currentValidationInputPolicy","ORIGINAL_SELECT_ONLY; FORMAL_CONFIRM_AND_FUTURE_TABLES_ARE_NOT_OPTIMIZER_INPUT");r.put("legacyValidationOriginUnknown",legacyValidationOriginUnknown);r.put("needsValidationRoleMigration",needsValidationRoleMigration);r.put("independentTrainingCalendarIssues",independentTrainingCalendarIssuesR335());r.put("independentTrainingCalendarIssuesScope","DISTINCT_HISTORICAL_TRAINING_ISSUES_VISITED_BY_PRETRAIN;NOT_INDEPENDENT_FUTURE_EVIDENCE");return r;
++    }
++    /** A shuffled first batch visits only a subset of historical TRAIN issues.
++     * Repeated positions from one issue count once; later epochs cannot add new issues.
++     * Unknown/inconsistent checkpoint history is not replaced by a full-dataset count.
++     */
++    Long independentTrainingCalendarIssuesR335() {
++        if (pretrainSamples == 0) return 0L;
++        if (pretrainSamples < 0) return null;
++        if (pretrainSamples >= trainCount) return (trainCount + 9L) / 10L;
++        if (!"TRAIN".equals(phase) || epoch != 0 || pretrainSamples != offset
++                || order == null || order.length != trainCount) return null;
++        BitSet issues = new BitSet((trainCount + 9) / 10);
++        for (int index = 0; index < offset; index++) {
++            int sample = order[index];
++            if (sample < 0 || sample >= trainCount) return null;
++            issues.set(sample / 10);
++        }
++        return (long) issues.cardinality();
+     }
+     public long serializedBoundR31(){return 16384L+3L*(datasetHash.length()+observedThrough.length()+completeIssue.length()+partialIssue.length()+replayEvidenceRun.length())+4L*(order==null?0:order.length)+(bestNet==null?0:bestNet.length)+new ModelArtifactR29(trainer,ftrl,datasetHash,completeIssue.isEmpty()?observedThrough:trainedThrough()).serializedBoundR31();}
+     public static AtomNetSessionR30 decode(android.database.sqlite.SQLiteDatabase db,byte[] bytes,String hash){byte[] raw=CheckpointArtifactsR26.resolveSerializedR31(db,bytes);try(MemoryBudgetR31.Lease read=CheckpointArtifactsR26.readReservationR31("session-decode",6L*raw.length+1048576)){return decode(raw,hash);}}
+@@ -182,7 +200,33 @@ public final class AtomNetSessionR30 {
+             if(format==0x30A70002||format==0x30A70003){s.legacyValidationOriginUnknown=d.readBoolean();s.needsValidationRoleMigration=d.readBoolean();}else{s.legacyValidationOriginUnknown=true;s.needsValidationRoleMigration=true;}
+             if(format==0x30A70003){if(!LEARNING_PROTOCOL.equals(d.readUTF()))throw new IOException("learning protocol");s.replayPolicy=d.readUTF();s.replayEvidenceRun=d.readUTF();s.replayPolicyChanges=d.readLong();if(!Arrays.asList("UNIFORM_63","OLD48_RECENT15").contains(s.replayPolicy)||s.replayPolicyChanges<0||(!s.replayEvidenceRun.isEmpty()&&!s.replayEvidenceRun.matches("[0-9a-f]{64}"))||!s.replayPolicy.equals("UNIFORM_63")&&s.replayEvidenceRun.isEmpty())throw new IOException("replay policy");}
+             if(d.available()!=0||s.trainer.net.in!=s.input||s.nextPosition<1||s.nextPosition>10||s.offset<0||s.epoch<0||s.epoch>20||!Arrays.asList("TRAIN","EVAL_TRAIN","EVAL_SELECT","EVAL_HOLD","EVAL_ONLINE_HOLD","EVAL_DEVELOPMENT_VALIDATION","EVAL_ONLINE_DEVELOPMENT_VALIDATION","FILL","ONLINE").contains(s.phase))throw new IOException("cursor");
++            s.validateCheckpointR335();
+             return s;
+         }catch(IOException|RuntimeException e){throw new IllegalArgumentException("R30_MODEL_DECODE",e);}
+     }
++    /** Shape/checksum alone cannot prove a recoverable cursor. No learned value is changed here. */
++    void validateCheckpointR335() {
++        long all=(long)trainCount+selectCount+holdoutCount;
++        int first=com.ethk3.novaonepro.AtomReplayR27.MIN_ROWS;
++        if(cachePeriod<first||cachePeriod>first+(all+9)/10
++                ||pretrainSamples<0||materializedSamples<0||materializedSamples>all
++                ||materializeMs<0||trainingMs<0||units<0||step<0||bad<0||fillOffset<0
++                ||fillOffset>Math.min(AtomNetTrainerR27.REPLAY,(long)trainCount+selectCount)
++                ||trainer.onlineSteps<0||onlineObservedOrdinal<0||loss.n<0
++                ||!Double.isFinite(lastLr)||lastLr<=0||Double.isNaN(best)||best==Double.NEGATIVE_INFINITY
++                ||!Double.isFinite(loss.mean)||!Double.isFinite(loss.m2)||loss.m2<0
++                ||!Double.isFinite(brier)||brier<0)
++            throw new IllegalArgumentException("R335_ATOMNET_CHECKPOINT_RANGE");
++        int limit="TRAIN".equals(phase)||"EVAL_TRAIN".equals(phase)?trainCount:
++                phase.startsWith("EVAL_")?selectCount:0;
++        if(offset>limit||order!=null&&order.length!=trainCount
++                ||"TRAIN".equals(phase)&&(offset>=trainCount
++                    ||epoch>=AtomNetTrainerR27.MAX_EPOCHS||offset>0&&order==null)
++                ||nextPosition==1&&!partialIssue.isEmpty()
++                ||nextPosition>1&&(partialIssue.isEmpty()||!"ONLINE".equals(phase))
++                ||!partialIssue.isEmpty()&&(completeIssue.isEmpty()||partialIssue.compareTo(completeIssue)<=0)
++                ||("ONLINE".equals(phase)||"EVAL_ONLINE_DEVELOPMENT_VALIDATION".equals(phase))&&completeIssue.isEmpty()
++                ||onlineObservedOrdinal>0&&onlineObservedOrdinal<observedThroughOrdinal)
++            throw new IllegalArgumentException("R335_ATOMNET_CHECKPOINT_CURSOR");
++    }
+ }
+diff --git a/release/r82_training_invalidation.json b/release/r82_training_invalidation.json
+index 9570bb1560e962451a01254bc602710c4968995b..6a5e5fa73af29e4fe4edae2de27856dd54df97cb 100644
+--- a/release/r82_training_invalidation.json
++++ b/release/r82_training_invalidation.json
+@@ -2012,13 +2012,22 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "9148d2c78b36ca799c345f9ea02ee66227cc6b415e6abcd043a4b65739d1e8eb",
+-      "before_role": "",
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+       "before_sha256": "",
++      "after_sha256": "53bc07fea54450e27f30f0fd277ff1e8f1140a9dd99b2c33ffac21f8cd487b8a",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B04 精确源码复核：AtomNetProgressR33.java。decode新增phase/cursor/partial/finite优化器语义约束；进度验证要求consumed等于物化或梯度增量；修缺失ResearchSemanticsGeneratedR967导入，数值算法和编码格式不改。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
++    {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+-      "rationale": "新增表索引需要原迁移域落地，归档对象失败必须进入现有报告数据；schema修订升4；原迁移owner完整安装尝试表/索引；storageHealth输出归档状态和对象级故障；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+-      "reviewer": "R32.5 independent source review and root integration"
++      "before_sha256": "",
++      "after_sha256": "f0881ac6161e382264cdea230f6f1b38ae9ed368fbc99875844c8154a00cab91",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B04 精确源码复核：AtomNetPublicationR31.java。decode新增phase/cursor/partial/finite优化器语义约束；进度验证要求consumed等于物化或梯度增量；修缺失ResearchSemanticsGeneratedR967导入，数值算法和编码格式不改。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -2030,13 +2039,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "f4dc401d3a41c9ef97bfa314e9924b157f81b1b9a4c6cabef5045cdf9d0fdbf4",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+-      "rationale": "旧发布归档异常位于冷启动恢复和训练之前，反复同错使整条学习任务停滞；移除归档前置；当前学习step直接执行合法恢复与训练；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+-      "reviewer": "R32.5 independent source review and root integration"
++      "before_sha256": "",
++      "after_sha256": "e9df91aa5eb516de6dc60ced69d5891080b52e259b7b3bb5e415d232ab15f18a",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B04 精确源码复核：AtomNetRuntimeR30.java。SELECT报警在原窗口已预登记且新目标可绑定时创建原SELECT_REPLAY_REQUEST与同事务读回回执；实际pre-draw原模型配对消费请求，冻结载明sourceRun/key并验证request afterHash；仍按逐期当前已提交模型与因果旧模型比较，原ONLINE损失门才可调整63回放内部比例。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -2057,13 +2066,13 @@
+       "reviewer": "R32.5 independent source review and root integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "93ebb360eb9056f063e8fa760efdcdec9bd58dda0b336385fa075c048fb56c8d",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+-      "rationale": "统一pending、phase与物化所需样本；训练中的完整已发布模型仍可读取，部分期参数不能冒充完整十位置推理面。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
++      "before_sha256": "",
++      "after_sha256": "f61d69c3e879a8aff104b39a0efeaea47b0ae8852170d59db2be12d0fecc18d6",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 source review",
++      "rationale": "B04 C03/RE16 exact distinct visited training calendar issues and semantic checkpoint shuffle/cursor validation; preserve existing NUMERIC role and invalidate old qualification."
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -5873,7 +5882,7 @@
+       "reviewer": "Codex SU1 source integration"
+     }
+   ],
+-  "current_controlled_roles_sha256": "3866992a4b0f78185b7c0fd112e2a81c204568a921017fa87785c324bd2dcf28",
++  "current_controlled_roles_sha256": "0d5401af157319ba5e47aadcfd8ae42775b2d1ff1b28664d2b666b1ec75a14fc",
+   "decision": "INVALIDATE_OLD_RULE",
+   "new_role_reviews": [
+     {
+@@ -6428,6 +6437,12 @@
+       "reviewer": "Codex SU1 source integration",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
++      "role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B04 精确源码复核：AtomNetProgressR33.java。decode新增phase/cursor/partial/finite优化器语义约束；进度验证要求consumed等于物化或梯度增量；修缺失ResearchSemanticsGeneratedR967导入，数值算法和编码格式不改。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+       "rationale": "新增表索引需要原迁移域落地，归档对象失败必须进入现有报告数据；schema修订升4；原迁移owner完整安装尝试表/索引；storageHealth输出归档状态和对象级故障；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+@@ -8987,7 +9002,7 @@
+   ],
+   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
+   "predecessors": [],
+-  "reviewed_input_provenance_sha256": "b73477d5e58bbca0b89f45871e125ffbbd05e7915c75eee8e145062bc2d56c19",
++  "reviewed_input_provenance_sha256": "32583fe088b1aa60e19177cc241921f4ec0e1524760c2730a99f338b35b2e394",
+   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
+   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
+   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
+diff --git a/release/research_dependencies_r967.json b/release/research_dependencies_r967.json
+index e648b0374187b9e5838c8507404ce9d0695d03c4..f6a1d6540eec08635c52e9a5faa88a656e957652 100644
+--- a/release/research_dependencies_r967.json
++++ b/release/research_dependencies_r967.json
+@@ -4267,6 +4267,11 @@
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
++      "role": "NUMERIC",
++      "rationale": "R335 B04 精确源码复核：AtomNetProgressR33.java。decode新增phase/cursor/partial/finite优化器语义约束；进度验证要求consumed等于物化或梯度增量；修缺失ResearchSemanticsGeneratedR967导入，数值算法和编码格式不改。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",

@@ -1,0 +1,1567 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index efa2aa0c9e406ed516ac6b254554c9cef7003bdd..356b9734fee0a89031f0f4277b141da679ba928f 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -164,6 +164,7 @@ gradle.taskGraph.whenReady { graph ->
+                     'generateR982SourceCallAsset', 'assembleDebug', 'assembleDebugAndroidTest',
+                     'assembleRelease', 'assembleReleaseAndroidTest', 'bundleDebug', 'bundleRelease',
+                     'packageDebug', 'packageDebugAndroidTest', 'packageRelease', 'packageReleaseAndroidTest'] ||
++                    task.name ==~ /generate.*R335SourceCallAssets/ ||
+                     task.name.startsWith('validateSigning') || task.name.startsWith('sign'))
+         }
+         if (!forbidden.isEmpty()) throw new GradleException('R312_DEVELOPMENT_FORBIDS_RELEASE_SIGNING_APK|' + forbidden*.path.join(','))
+@@ -300,17 +301,10 @@ tasks.configureEach { task ->
+         task.finalizedBy verifyFinalR815Provenance, verifyFinalR967Semantics
+     }
+ }
+-// Lossless source-call evidence is materialized from a pinned archive, then checked against
+-// every actual product source hash. It is included in the same APK assets as the report reads.
+-def generateR982SourceCallAsset = tasks.register('generateR982SourceCallAsset', Exec) {
+-    workingDir rootProject.projectDir
+-    commandLine 'python3', rootProject.file('scripts/r982_source_call_asset.py').absolutePath
+-    outputs.upToDateWhen { false }
+-}
+-if (!r312Development) {
+-    android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r982'))
+-    tasks.named('preBuild').configure { dependsOn generateR982SourceCallAsset }
+-}
++// R335 source-call assets consume this variant's actual compiled project classes.
++// The original frozen R982 archive remains historical; current assets are generated after classes.
++// This edge is not attached to preBuild, preventing preBuild -> classes -> preBuild recursion.
++apply from: rootProject.file('gradle/r335_source_calls.gradle')
+ def generateR997ConstructionAssets = tasks.register('generateR997ConstructionAssets', Exec) {
+     workingDir rootProject.projectDir
+     commandLine 'python3', rootProject.file('scripts/r997_construction_assets.py').absolutePath
+@@ -381,3 +375,45 @@ tasks.configureEach { task ->
+ tasks.register('verifyCanonicalPlanBuildCP3') {
+     dependsOn testR967Semantics, 'testDebugUnitTest', 'lintRelease'
+ }
++
++// R33.4 adds the current plan identity while keeping the original R31 preservation gate.
++def r334PlanRoot = providers.environmentVariable('STARCORE_R33_PLAN_ROOT').orNull
++def r334BindingFile = rootProject.file('release/r33_plan_binding.json')
++if (!r334PlanRoot || !r334BindingFile.isFile()) {
++    throw new GradleException('R334_SEALED_PLAN_AND_REVIEWED_BINDING_REQUIRED')
++}
++def r334Binding = new groovy.json.JsonSlurper().parse(r334BindingFile)
++def r335DescriptorFile = new File(r334PlanRoot, 'control/PLAN_IDENTITY.json')
++if (!r335DescriptorFile.isFile()) throw new GradleException('R335_PLAN_DESCRIPTOR_REQUIRED')
++def r335Descriptor = new groovy.json.JsonSlurper().parse(r335DescriptorFile)
++if (r335Descriptor.schema != 'STARCORE_PLAN_DESCRIPTOR_1' ||
++        r335Descriptor.planRevision != 'R33.5' ||
++        r334Binding.schema != 'STARCORE_R33_4_PLAN_BINDING_1' ||
++        r334Binding.planRevision != r335Descriptor.planRevision) {
++    throw new GradleException('R334_PLAN_BINDING_SCHEMA')
++}
++def r334IdentityArgs = ['python3', rootProject.file('tools/r33/verify_plan_binding.py').absolutePath,
++                       '--repo', rootProject.projectDir.absolutePath, '--plan', r334PlanRoot]
++if (requestedRelease) r334IdentityArgs += ['--require-clean']
++def generateR334PlanIdentity = tasks.register('generateR334PlanIdentity', Exec) {
++    workingDir rootProject.projectDir
++    commandLine r334IdentityArgs + ['--out', layout.buildDirectory.file('generated/assets/r334/diagnostics/build-identity-r334.json').get().asFile.absolutePath]
++    outputs.upToDateWhen { false }
++}
++def verifyFinalR334PlanIdentity = tasks.register('verifyFinalR334PlanIdentity') {
++    doLast {
++        def actual = new groovy.json.JsonSlurper().parseText(providers.exec {
++            workingDir rootProject.projectDir
++            commandLine r334IdentityArgs
++        }.standardOutput.asText.get())
++        def embedded = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('generated/assets/r334/diagnostics/build-identity-r334.json').get().asFile)
++        if (actual != embedded) throw new GradleException('R334_BUILD_INPUT_CHANGED')
++    }
++}
++android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r334'))
++tasks.named('preBuild').configure { dependsOn generateR334PlanIdentity }
++tasks.configureEach { task ->
++    if (!r312Development && (task.name.startsWith('assemble') || task.name.startsWith('bundle') || task.name.startsWith('package'))) {
++        task.finalizedBy verifyFinalR334PlanIdentity
++    }
++}
+diff --git a/app/build/generated/r967/semantic_manifest.json b/app/build/generated/r967/semantic_manifest.json
+index 16b8931ad73313de51b77d70d66532a2a2f4968a..4705d4db49d3e239c6a727e7f0a60ad5a6522ad8 100644
+--- a/app/build/generated/r967/semantic_manifest.json
++++ b/app/build/generated/r967/semantic_manifest.json
+@@ -1,17 +1,17 @@
+ {
+   "revision": "R967_SEMANTIC_BUILD_V1",
+-  "training_rule_sha256": "72c5ce1b7a1a3f47b62997f9f26516c7f5d7157a99f0938e4b12f4e91da4ff34",
++  "training_rule_sha256": "c4fba7e8441bfea4dd6eb5d012399b283a0a90acbbcd6d27091f591d592246bb",
+   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
+   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
+   "manifest_sha256": "2125f5976c4d42ef906c0c622332ce10d683892815c21de0b3f912ced761eed0",
+   "controlled_file_count": 1517,
+   "numeric_dependency_count": 1377,
+-  "source_provenance_sha256": "3a2457204dcc0b3e04143e93019845136eb5f857c2ec1bbf46a62137ec91a5a4",
++  "source_provenance_sha256": "da99ea5b35d93776b9934f9a05b59b06f51f1308bb0cd29e5a5181ef7622798d",
+   "dependencies": [
+     [
+       "app/build.gradle",
+       "BUILD_CONTRACT",
+-      "ec2e7ef785dd39f61deb45a5f8967a659f8b0feb48d0fef91d4d583c52b2da17"
++      "7728e948458ea67cb767ef0adb011e19d5d03d0d0550557a6f0503699130b49b"
+     ],
+     [
+       "app/src/main/assets/cp4_atom_registry.jsonl",
+@@ -6826,7 +6826,7 @@
+     [
+       "scripts/r815_generate_provenance.py",
+       "BUILD_CONTRACT",
+-      "7c3488045682b4df49c42140a5befe9eb83e386122e6f4232b685a272b94a169"
++      "fd642a0a98742da8033e1354b7e9b1c11ef5f53fa3255c2b16842d0dc988b334"
+     ],
+     [
+       "scripts/r815_generate_provenance.sh",
+@@ -6851,7 +6851,7 @@
+     [
+       "scripts/r982_source_call_asset.py",
+       "BUILD_CONTRACT",
+-      "d775059118760e751d053c1da1202e805f89bbd6a2233b34e9a6cdd395488150"
++      "af50163d95bacaf5f9a582ca801267f0b89343fb4afec4b9dc2ca02d29593c1e"
+     ],
+     [
+       "scripts/r997_construction_assets.py",
+@@ -6896,6 +6896,6 @@
+   ],
+   "compatible_predecessor_rule_sha256": "",
+   "compatible_predecessor_rules_sha256": [],
+-  "continuation_proof_sha256": "1a0f4c39aad2ba5cd5e97ecd4f9559a39a79f1ad6150fc575a783ff0e2d59773",
++  "continuation_proof_sha256": "a81c586e2750516975d319769f1f403c03faf16832111030b44af3535fae1257",
+   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
+ }
+diff --git a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+index c48dd2b3865292bd3d5d62fe5b6dbe9628361c9b..43b89675ac89a4c41bbb650ee4ca3cb0f009f6d7 100644
+--- a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
++++ b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+@@ -1,13 +1,13 @@
+ package com.ethk3.novaonepro;
+ /** Build-generated. Never edit; no authorization is implied. */
+ public final class ResearchSemanticsGeneratedR967 {
+-    public static final String TRAINING_RULE_SHA256=runtimeValue("72c5ce1b7a1a3f47b62997f9f26516c7f5d7157a99f0938e4b12f4e91da4ff34");
++    public static final String TRAINING_RULE_SHA256=runtimeValue("c4fba7e8441bfea4dd6eb5d012399b283a0a90acbbcd6d27091f591d592246bb");
+     public static final String POLICY_HASH=runtimeValue("04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8");
+     public static final String POLICY_JSON=runtimeValue("{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}");
+     public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("2125f5976c4d42ef906c0c622332ce10d683892815c21de0b3f912ced761eed0");
+     public static final String COMPATIBLE_PREDECESSOR_RULE_SHA256=runtimeValue("");
+     public static final String COMPATIBLE_PREDECESSOR_RULES_SHA256=runtimeValue("");
+-    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("1a0f4c39aad2ba5cd5e97ecd4f9559a39a79f1ad6150fc575a783ff0e2d59773");
++    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("a81c586e2750516975d319769f1f403c03faf16832111030b44af3535fae1257");
+     private static String runtimeValue(String value){return value;}
+     private ResearchSemanticsGeneratedR967(){}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java b/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java
+index 7be93df060f1e1852f7c63a8b8e3358d89eec9e7..c6bf39a03e93ec9e84b3581457a4dfd0cbc28b8a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java
+@@ -2,10 +2,10 @@ package com.ethk3.novaonepro;
+ 
+ /** GENERATED from release/release_manifest.json by scripts/r926_release_manifest.py. */
+ public final class ReleaseManifestR926 {
+-    public static final String MANIFEST_SHA256 = "2c7d5e050399fe20084f8e049109f60aff78bd84780b0588d7d5934a3251d2f5";
++    public static final String MANIFEST_SHA256 = "0a45f66baacc430ae279777ac924a0bc249ab689f3eff4beec359a6c2dd5e90e";
+     public static final String APPLICATION_ID = "com.starcore.research.r13";
+-    public static final String VERSION_NAME = "R32.5-REPAIR-2026.11.15-033";
+-    public static final int VERSION_CODE = 577311033;
++    public static final String VERSION_NAME = "R33.5-REPAIR-2026.11.18-035";
++    public static final int VERSION_CODE = 577311035;
+     public static final int COMPILE_SDK = 36;
+     public static final int MIN_SDK = 21;
+     public static final int TARGET_SDK = 28;
+diff --git a/gradle/r335_source_calls.gradle b/gradle/r335_source_calls.gradle
+new file mode 100644
+index 0000000000000000000000000000000000000000..afe4f9c7aa0963f8c4379ed92ea07fce72b7d90b
+--- /dev/null
++++ b/gradle/r335_source_calls.gradle
+@@ -0,0 +1,85 @@
++// R335: public AGP8.12 scoped-artifact + generated-source APIs.
++// Direct dependencies: compiled project classes -> generated assets. No preBuild edge.
++// API references: android/gradle-recipes agp-8.12 getScopedArtifacts and addGeneratedSourceFolder.
++import com.android.build.api.artifact.ScopedArtifact
++import com.android.build.api.variant.ApplicationAndroidComponentsExtension
++import com.android.build.api.variant.ApplicationVariant
++import com.android.build.api.variant.ScopedArtifacts
++import groovy.transform.CompileStatic
++import kotlin.jvm.functions.Function1
++import org.gradle.api.Action
++import org.gradle.api.DefaultTask
++import org.gradle.api.Project
++import org.gradle.api.file.Directory
++import org.gradle.api.file.DirectoryProperty
++import org.gradle.api.file.RegularFile
++import org.gradle.api.file.RegularFileProperty
++import org.gradle.api.provider.ListProperty
++import org.gradle.api.tasks.*
++import org.gradle.process.ExecOperations
++import javax.inject.Inject
++
++@CompileStatic
++abstract class R335SourceCallAssets extends DefaultTask {
++    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
++    abstract ListProperty<RegularFile> getProjectJars()
++    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
++    abstract ListProperty<Directory> getProjectDirectories()
++    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
++    abstract DirectoryProperty getProductJava()
++    @InputFile @PathSensitive(PathSensitivity.RELATIVE)
++    abstract RegularFileProperty getGeneratorScript()
++    @InputFile @PathSensitive(PathSensitivity.RELATIVE)
++    abstract RegularFileProperty getParserScript()
++    @InputFile @PathSensitive(PathSensitivity.RELATIVE)
++    abstract RegularFileProperty getSourceProvenance()
++    @OutputDirectory abstract DirectoryProperty getOutputDirectory()
++    @Internal abstract DirectoryProperty getCheckoutRoot()
++    @Inject abstract ExecOperations getExecOperations()
++
++    @TaskAction void generate() {
++        File output = new File(outputDirectory.get().asFile, 'research/r975_source_calls.tsv')
++        List<String> command = ['python3', generatorScript.get().asFile.absolutePath,
++                                '--from-classes', '--output', output.absolutePath]
++        for (Directory directory : projectDirectories.get()) {
++            command.add('--class-directory'); command.add(directory.asFile.absolutePath)
++        }
++        for (RegularFile archive : projectJars.get()) {
++            command.add('--class-jar'); command.add(archive.asFile.absolutePath)
++        }
++        File checkout = checkoutRoot.get().asFile
++        execOperations.exec { spec ->
++            spec.workingDir(checkout)
++            spec.commandLine(command)
++        }.assertNormalExitValue()
++    }
++}
++
++@CompileStatic
++class R335SourceCallWiring {
++    static void register(Project project, ApplicationVariant variant) {
++        String taskName = 'generate' + variant.name.capitalize() + 'R335SourceCallAssets'
++        TaskProvider<R335SourceCallAssets> generator = project.tasks.register(taskName, R335SourceCallAssets,
++            { R335SourceCallAssets task ->
++                task.checkoutRoot.set(project.rootProject.layout.projectDirectory)
++                task.productJava.set(project.rootProject.layout.projectDirectory.dir('app/src/main/java'))
++                task.generatorScript.set(project.rootProject.layout.projectDirectory.file('scripts/r982_source_call_asset.py'))
++                task.parserScript.set(project.rootProject.layout.projectDirectory.file('scripts/r975_source_call_index.py'))
++                task.sourceProvenance.set(project.layout.buildDirectory.file('generated/r815/source-manifest.json'))
++                // The original r815 task validates declared tool/source bytes before classes exist.
++                task.dependsOn(project.tasks.named('verifyR815Provenance'))
++            } as Action<R335SourceCallAssets>)
++        variant.artifacts.forScope(ScopedArtifacts.Scope.PROJECT).use(generator).toGet(
++            ScopedArtifact.CLASSES.INSTANCE,
++            { R335SourceCallAssets task -> task.projectJars } as Function1<R335SourceCallAssets,ListProperty<RegularFile>>,
++            { R335SourceCallAssets task -> task.projectDirectories } as Function1<R335SourceCallAssets,ListProperty<Directory>>)
++        variant.sources.assets.addGeneratedSourceDirectory(generator,
++            { R335SourceCallAssets task -> task.outputDirectory } as Function1<R335SourceCallAssets,DirectoryProperty>)
++    }
++    static void wire(Project project, ApplicationAndroidComponentsExtension components) {
++        components.onVariants(components.selector().all(),
++            { ApplicationVariant variant -> register(project, variant) } as Action<ApplicationVariant>)
++    }
++}
++
++R335SourceCallWiring.wire(project, extensions.getByType(ApplicationAndroidComponentsExtension))
+diff --git a/release/r82_training_invalidation.json b/release/r82_training_invalidation.json
+index c0b068385a3f539bc1ded4d0727d5c30325286cb..4ab9253566b2512c695e12feacae6e4d9c3df7d9 100644
+--- a/release/r82_training_invalidation.json
++++ b/release/r82_training_invalidation.json
+@@ -5,13 +5,13 @@
+   "controlled_baseline_sha256": "a01f962a253d97879d7498d6e2c881719ac777bff64557a94310b84bdf7a0024",
+   "controlled_changes": [
+     {
+-      "after_role": "BUILD_CONTRACT",
+-      "after_sha256": "ec2e7ef785dd39f61deb45a5f8967a659f8b0feb48d0fef91d4d583c52b2da17",
+-      "before_role": "BUILD_CONTRACT",
+-      "before_sha256": "944d1d5d69f441246328258271546dfce78fa6f2ad91c2ba71717b95db886cc2",
+       "path": "app/build.gradle",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "before_sha256": "944d1d5d69f441246328258271546dfce78fa6f2ad91c2ba71717b95db886cc2",
++      "after_sha256": "7728e948458ea67cb767ef0adb011e19d5d03d0d0550557a6f0503699130b49b",
++      "before_role": "BUILD_CONTRACT",
++      "after_role": "BUILD_CONTRACT",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "P00 保留R31原祖先、原签、R312开发模式、r967 policy及终审检查；绑定当前方案seal；将033冻结调用索引从preBuild移除，使用当前variant项目classes生成asset。此改动影响构建顺序和实际交付身份，保留BUILD_CONTRACT，按原R82使旧数值资格失效。"
+     },
+     {
+       "after_role": "PRESENTATION",
+@@ -5431,6 +5431,15 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "path": "scripts/r815_generate_provenance.py",
++      "before_sha256": "7c3488045682b4df49c42140a5befe9eb83e386122e6f4232b685a272b94a169",
++      "after_sha256": "fd642a0a98742da8033e1354b7e9b1c11ef5f53fa3255c2b16842d0dc988b334",
++      "before_role": "BUILD_CONTRACT",
++      "after_role": "BUILD_CONTRACT",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "P00 逐行差分仅在BUILD_CONTRACTS增加scripts/r975_source_call_index.py和gradle/r335_source_calls.gradle，保留原sourceTree/buildInputs/toolchain计算、原始输入和generated精确check。当前编译索引后生成并反向绑定r815，避免自产物哈希环；保留BUILD_CONTRACT，不授予旧训练/统计资格。"
++    },
+     {
+       "after_role": "BUILD_CONTRACT",
+       "after_sha256": "5de2507c327c55ef381b0c7e254de11f1fdd7dffc1109c1b971a7b59a7a58607",
+@@ -5449,6 +5458,15 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "path": "scripts/r982_source_call_asset.py",
++      "before_sha256": "d775059118760e751d053c1da1202e805f89bbd6a2233b34e9a6cdd395488150",
++      "after_sha256": "af50163d95bacaf5f9a582ca801267f0b89343fb4afec4b9dc2ca02d29593c1e",
++      "before_role": "BUILD_CONTRACT",
++      "after_role": "BUILD_CONTRACT",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "P00 保留旧archive严格校验；新增从实际project classes目录/JAR生成当前静态索引，核r815原始输入、完整main Java文件集合、类身份、界限和并发变动，记录当前class及index摘要。反射/虚派发/native与自然质量均不由静态索引证明；保留BUILD_CONTRACT，原R82失效边界不变。"
++    },
+     {
+       "after_role": "BUILD_CONTRACT",
+       "after_sha256": "2923d07e4f178746eff5d966247b0531e56a0f6280cec4bf7c32b0792ce8d7aa",
+@@ -8486,7 +8504,7 @@
+   ],
+   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
+   "predecessors": [],
+-  "reviewed_input_provenance_sha256": "3a2457204dcc0b3e04143e93019845136eb5f857c2ec1bbf46a62137ec91a5a4",
++  "reviewed_input_provenance_sha256": "da99ea5b35d93776b9934f9a05b59b06f51f1308bb0cd29e5a5181ef7622798d",
+   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
+   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
+   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
+diff --git a/release/release_identity.properties b/release/release_identity.properties
+index 9149552d56fe3f731c69d13c2ab1bdb797ab3851..da3a6ea7032168babc25a5a067a2389ff05ecb8c 100644
+--- a/release/release_identity.properties
++++ b/release/release_identity.properties
+@@ -1,6 +1,6 @@
+ applicationId=com.starcore.research.r13
+-versionName=R32.5-REPAIR-2026.11.15-033
+-versionCode=577311033
++versionName=R33.5-REPAIR-2026.11.18-035
++versionCode=577311035
+ compileSdk=36
+ minSdk=21
+ targetSdk=28
+@@ -17,4 +17,4 @@ eventLedgerRevision=1
+ databaseName=binance_k3_nova_one_pro_v57.db
+ gameCode=Binance1-PK10
+ releaseMode=CONTROLLED_CANDIDATE_MODEL_NOT_PROVEN
+-releaseManifestSha256=2c7d5e050399fe20084f8e049109f60aff78bd84780b0588d7d5934a3251d2f5
++releaseManifestSha256=0a45f66baacc430ae279777ac924a0bc249ab689f3eff4beec359a6c2dd5e90e
+diff --git a/release/release_manifest.json b/release/release_manifest.json
+index 8a3476baff768a467bcb95e9ae6d9e4983b27d3d..3f3e6ba78e381deaa4d87fcd0f7de9cc2fd92c59 100644
+--- a/release/release_manifest.json
++++ b/release/release_manifest.json
+@@ -8,8 +8,8 @@
+   "product": "STARCORE_R13_RESEARCH",
+   "proofBoundary": {
+     "deviceRuntime": "NOT_VERIFIED_ON_USER_DEVICE",
+-    "engineering": "MISSING_CHECKPOINT_DIAGNOSTIC_AND_DURABLE_FAILURE_REPAIR; ORIGINAL_CHECKPOINTS_NOT_RECONSTRUCTED; TARGETED_ANDROID_VERIFICATION_PENDING",
+-    "engineeringBuild": "R31_CUMULATIVE_K01_K11_FINAL_ENGINEERING_CANDIDATE",
++    "engineering": "R33_5_CODE_CANDIDATE_REQUIRES_CURRENT_ANDROID_AND_DEVICE_EVIDENCE",
++    "engineeringBuild": "R33_5_REPAIR_CANDIDATE",
+     "futureOos": "NOT_RUN_ON_USER_DEVICE",
+     "modelProof": "NOT_PROVEN",
+     "physicalDeviceRuntime": "NOT_VERIFIED"
+@@ -41,6 +41,6 @@
+     "userVersion": 36
+   },
+   "targetSdk": 28,
+-  "versionCode": 577311033,
+-  "versionName": "R32.5-REPAIR-2026.11.15-033"
++  "versionCode": 577311035,
++  "versionName": "R33.5-REPAIR-2026.11.18-035"
+ }
+diff --git a/scripts/r815_generate_provenance.py b/scripts/r815_generate_provenance.py
+index 5a82511ab8dff5457a8e306df59fa166384bd951..22db952115ea9bb604c857e3aed1b4725f305de0 100644
+--- a/scripts/r815_generate_provenance.py
++++ b/scripts/r815_generate_provenance.py
+@@ -26,7 +26,8 @@ BUILD_CONTRACTS = (FACADE, 'app/build.gradle', 'build.gradle', 'settings.gradle'
+                    'scripts/r817_generate_provenance.sh', 'scripts/r967_semantic_identity.py',
+                    'scripts/r926_release_manifest.py', 'scripts/cp4_compile_catalog.py',
+                    'scripts/cp4_compile_molecule_seeds.py', 'scripts/verify_catalog_assets_cp12.py',
+-                   'scripts/r982_source_call_asset.py', 'scripts/r997_construction_assets.py',
++                   'scripts/r982_source_call_asset.py', 'scripts/r975_source_call_index.py',
++                   'gradle/r335_source_calls.gradle', 'scripts/r997_construction_assets.py',
+                    'scripts/opt299_stage_build.py',
+                    'release/research_dependencies_r967.json', 'release/research_gate_plan_r967.json')
+ 
+diff --git a/scripts/r975_source_call_index.py b/scripts/r975_source_call_index.py
+index a9ff8f3d306f0ba3c59ba02e45301b0690f46f59..bce8feb166fb033b5c57f95baadb01fc016b0ed7 100644
+--- a/scripts/r975_source_call_index.py
++++ b/scripts/r975_source_call_index.py
+@@ -9,16 +9,29 @@ ROOT=Path(__file__).resolve().parents[1]
+ OUT=ROOT/'app/src/main/assets/research/r975_source_calls.tsv'
+ class Reader:
+  def __init__(self,b):self.b=b;self.p=0
+- def n(self,k):v=self.b[self.p:self.p+k];self.p+=k;return v
++ def n(self,k):
++  if k<0 or self.p+k>len(self.b):raise ValueError("TRUNCATED_CLASSFILE")
++  v=self.b[self.p:self.p+k];self.p+=k;return v
+  def u1(self):return self.n(1)[0]
+  def u2(self):return int.from_bytes(self.n(2),'big')
+  def u4(self):return int.from_bytes(self.n(4),'big')
++def modified_utf8(raw):
++ # CONSTANT_Utf8 uses Java modified UTF-8: NUL is C0 80 and supplementary
++ # codepoints are encoded as a surrogate pair. Preserve lone surrogates in
++ # unused string constants; never silently replace a method/source identifier.
++ if b'\x00' in raw or any(x>=0xf0 for x in raw):raise ValueError('INVALID_MODIFIED_UTF8')
++ text=raw.replace(b'\xc0\x80',b'\x00').decode('utf-8','surrogatepass')
++ return text.encode('utf-16-be','surrogatepass').decode('utf-16-be','surrogatepass')
+ def attrs(r,cp):return [(cp[r.u2()],r.n(r.u4())) for _ in range(r.u2())]
+ def methods(path):
+- r=Reader(path.read_bytes());assert r.u4()==0xcafebabe;r.n(4);n=r.u2();cp=[None]*n;i=1
++ r=Reader(path.read_bytes())
++ if r.u4()!=0xcafebabe:raise ValueError('INVALID_CLASSFILE_MAGIC')
++ minor=r.u2();major=r.u2();
++ if not 45<=major<=61 or minor==65535:raise ValueError('UNSUPPORTED_OR_PREVIEW_CLASS_VERSION:'+str(major))
++ n=r.u2();cp=[None]*n;i=1
+  while i<n:
+   t=r.u1()
+-  if t==1:cp[i]=r.n(r.u2()).decode('utf-8',errors='replace')
++  if t==1:cp[i]=modified_utf8(r.n(r.u2()))
+   elif t in (3,4):cp[i]=(t,r.n(4))
+   elif t in (5,6):cp[i]=(t,r.n(8));i+=1
+   elif t in (7,8,16,19,20):cp[i]=(t,r.u2())
+@@ -52,16 +65,20 @@ def methods(path):
+     elif op in (0xaa,0xab):
+      q=(p+4)&~3
+      if op==0xaa:
+-      low,high=struct.unpack('>ii',code[q+4:q+12]);size=q-p+12+4*(high-low+1)
++      low,high=struct.unpack('>ii',code[q+4:q+12]);
++      if high<low:raise ValueError('INVALID_TABLESWITCH_RANGE')
++      size=q-p+12+4*(high-low+1)
+      else:
+-      pairs=struct.unpack('>i',code[q+4:q+8])[0];size=q-p+8+8*pairs
++      pairs=struct.unpack('>i',code[q+4:q+8])[0];
++      if pairs<0:raise ValueError('INVALID_LOOKUPSWITCH_COUNT')
++      size=q-p+8+8*pairs
+     if p+size>len(code):raise ValueError(('bad bytecode length',name,nm,p,size))
+     p+=size
+   ms.append((nm,desc,flags,min([l for _,l in lines],default=0),max([l for _,l in lines],default=0),calls))
+  source=None
+  for an,bb in attrs(r,cp):
+   if an=='SourceFile':source=cp[int.from_bytes(bb,'big')]
+- assert r.p==len(r.b)
++ if r.p!=len(r.b):raise ValueError('TRAILING_CLASSFILE_BYTES')
+  return name,source,ms
+ 
+ def main():
+diff --git a/scripts/r982_source_call_asset.py b/scripts/r982_source_call_asset.py
+index 8ab1307a23ccaa54c0dc8b56d9feba3f3f5a629b..a8d4ef4751319f83217367954e2abac5b4984f0e 100644
+--- a/scripts/r982_source_call_asset.py
++++ b/scripts/r982_source_call_asset.py
+@@ -2,9 +2,10 @@
+ """Materialize the lossless compiled call index and reject stale source bindings.
+ 
+ --freeze --classes DIR refreshes the archive from freshly compiled product classes.
+-Normal builds stream the frozen index into generated assets; no source file is overwritten.
++Current builds use --from-classes after project compilation. The historical default
++mode still verifies its exact frozen archive; no current build rewrites that archive.
+ """
+-import argparse, gzip, hashlib, json, os, subprocess, sys, tempfile
++import argparse, gzip, hashlib, json, os, subprocess, sys, tempfile, importlib.util, zipfile
+ from pathlib import Path
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+@@ -13,7 +14,7 @@ PIN = ROOT / 'release/r982_source_calls.manifest.json'
+ OUTPUT = ROOT / 'app/build/generated/assets/r982/research/r975_source_calls.tsv'
+ 
+ def source_binding(path):
+-    wanted = {str(f.relative_to(ROOT)) for f in (ROOT/'app/src/main/java').rglob('*.java')}
++    wanted = {f.relative_to(ROOT).as_posix() for f in (ROOT/'app/src/main/java').rglob('*.java')}
+     seen = set()
+     with path.open(encoding='utf-8') as lines:
+         for line in lines:
+@@ -24,8 +25,110 @@ def source_binding(path):
+             if hashlib.sha256((ROOT/name).read_bytes()).hexdigest()!=expected: raise SystemExit('SOURCE_CALL_INDEX_STALE:'+name)
+     if seen!=wanted: raise SystemExit('SOURCE_CALL_INDEX_MISSING_FILES:'+str(sorted(wanted-seen)))
+ 
++def sha_file(path):
++    h=hashlib.sha256()
++    with Path(path).open('rb') as f:
++        while block:=f.read(1<<20):h.update(block)
++    return h.hexdigest()
++
++def need(ok,reason):
++    if not ok:raise ValueError(reason)
++
++def class_state(directories,jars):
++    state={}
++    for i,directory in enumerate(directories):
++        need(directory.is_dir() and not directory.is_symlink(),'CLASS_DIRECTORY_REQUIRED')
++        for f in sorted(directory.rglob('*.class')):
++            need(f.is_file() and not f.is_symlink(),'REGULAR_CLASS_REQUIRED')
++            state['directory:'+str(i)+':'+f.relative_to(directory).as_posix()]=sha_file(f)
++    for i,archive in enumerate(jars):
++        need(archive.is_file() and not archive.is_symlink(),'CLASS_JAR_REQUIRED')
++        state['jar:'+str(i)]=sha_file(archive)
++    return state
++
++def from_classes(args):
++    output=Path(args.output).absolute()
++    need(output.resolve().is_relative_to((ROOT/'app/build').resolve()),'GENERATED_OUTPUT_MUST_BE_INSIDE_APP_BUILD')
++    directories=[Path(p).absolute() for p in args.class_directory];jars=[Path(p).absolute() for p in args.class_jar]
++    need(directories or jars,'ACTUAL_PROJECT_CLASSES_REQUIRED')
++    need(len(directories)+len(jars)<=128,'CLASS_INPUT_COUNT_BOUND')
++    need(len({str(p.resolve()) for p in directories+jars})==len(directories+jars),'DUPLICATE_CLASS_INPUT_LOCATION')
++    # The existing report contract inventories main Java sources. A future Kotlin
++    # production source set needs an explicit consumer/schema revision, not silent exclusion.
++    need(not any((ROOT/'app/src/main').rglob('*.kt')),'KOTLIN_SOURCE_INDEX_CONTRACT_NOT_REGISTERED')
++    sources={f.relative_to(ROOT).as_posix():sha_file(f) for f in sorted((ROOT/'app/src/main/java').rglob('*.java'))}
++    need(sources,'EMPTY_PRODUCT_SOURCE_SET')
++    manifest_path=ROOT/'app/build/generated/r815/source-manifest.json'
++    manifest_bytes=manifest_path.read_bytes();manifest=json.loads(manifest_bytes)
++    expected={r['path']:r['sha256'] for r in manifest['inputs']['java']}
++    facade='app/src/main/java/com/ethk3/novaonepro/SourceManifestR815.java'
++    for row in manifest['inputs']['buildContracts']:
++        need(sha_file(ROOT/row['path'])==row['sha256'],'R815_BUILD_CONTRACT_STALE:'+row['path'])
++        if row['path']==facade:expected[facade]=row['sha256']
++    need(expected==sources,'R815_SOURCE_PROVENANCE_STALE')
++    tree=hashlib.sha256()
++    for name,h in sorted(sources.items()):
++        if name!=facade:tree.update(('PATH='+name+'\nSHA256='+h+'\n').encode())
++    need(manifest.get('format')=='CP12_BUILD_SOURCE_PROVENANCE_V1'
++         and tree.hexdigest()==manifest.get('sourceTreeSha256')
++         and hashlib.sha256(json.dumps(manifest['inputs'],ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()==manifest.get('buildInputsSha256'),
++         'R815_IDENTITY_DIGEST_MISMATCH')
++    for row in manifest['inputs']['generatedJava']:
++        need(sha_file(ROOT/row['path'])==row['sha256'],'R815_GENERATED_SEMANTICS_STALE')
++    state=class_state(directories,jars)
++    parser_path=ROOT/'scripts/r975_source_call_index.py'
++    spec=importlib.util.spec_from_file_location('r335_class_parser',parser_path);parser=importlib.util.module_from_spec(spec);spec.loader.exec_module(parser)
++    records={key:[] for key in sources};seen=set();covered=set();classes=0;method_count=0;calls=0;ignored=0;total=0
++    class Bytes:
++        def __init__(self,body):self.body=body
++        def read_bytes(self):return self.body
++    def consume(body):
++        nonlocal classes,method_count,calls,ignored,total
++        total+=len(body);need(len(body)<=16*1024*1024 and total<=512*1024*1024,'COMPILED_CLASS_BYTES_BOUND')
++        name,source,methods=parser.methods(Bytes(body));need(name not in seen,'DUPLICATE_COMPILED_CLASS:'+name);seen.add(name)
++        key='app/src/main/java/'+name.rsplit('/',1)[0]+'/'+str(source)
++        if source is None or key not in records:ignored+=1;return
++        classes+=1;covered.add(key)
++        for nm,desc,flags,lo,hi,edges in methods:
++            method_count+=1;calls+=len(edges)
++            records[key].append((name,nm,desc,str(lo),str(hi),'SYNTHETIC' if flags&0x1000 else 'DECLARED',';'.join(edges)))
++    for directory in directories:
++        for f in sorted(directory.rglob('*.class')):consume(f.read_bytes())
++    for archive in jars:
++        with zipfile.ZipFile(archive) as z:
++            names=[x.filename for x in z.infolist()];need(len(names)==len(set(names)),'DUPLICATE_JAR_MEMBER')
++            for entry in sorted(z.infolist(),key=lambda x:x.filename):
++                if not entry.filename.endswith('.class'):continue
++                name=Path(entry.filename);need(not name.is_absolute() and '..' not in name.parts and not entry.filename.startswith('META-INF/versions/'),'UNSUPPORTED_CLASS_JAR_MEMBER')
++                need(entry.file_size<=16*1024*1024,'CLASS_JAR_MEMBER_BOUND');consume(z.read(entry))
++    missing=sorted(set(records)-covered)
++    need(not missing,'SOURCE_WITHOUT_COMPILED_CLASSES:'+str(missing))
++    need(state==class_state(directories,jars),'CLASS_BYTES_CHANGED_DURING_INDEX')
++    need(sources=={f.relative_to(ROOT).as_posix():sha_file(f) for f in sorted((ROOT/'app/src/main/java').rglob('*.java'))},'SOURCE_BYTES_CHANGED_DURING_INDEX')
++    need(manifest_path.read_bytes()==manifest_bytes,'R815_MANIFEST_CHANGED_DURING_INDEX')
++    output.parent.mkdir(parents=True,exist_ok=True);handle,temp=tempfile.mkstemp(dir=output.parent,prefix='source-calls-',suffix='.partial')
++    scope='HOST_TYPE_FIXTURE_STATIC_CALLS_NOT_ANDROID_APK' if args.host_fixture else 'CURRENT_COMPILED_PROJECT_CLASSES_STATIC_CALLS_NOT_RUNTIME_COVERAGE'
++    try:
++        with os.fdopen(handle,'w',encoding='utf-8',newline='\n') as stream:
++            stream.write('# STATIC_COMPILED_METHOD_CALLS_V1|NOT_RUNTIME_COVERAGE|virtual/reflection/native-dispatch=UNRESOLVED\n')
++            stream.write('# R335_SCOPE='+scope+'\n')
++            stream.write('record\tfile\tsource_sha256\tclass\tmethod\tdescriptor\tfirst_executable_line\tlast_executable_line\tmethod_kind\tdirect_calls\truntime_status\n')
++            for key,rows in records.items():
++                h=sources[key];stream.write('\t'.join(['FILE',key,h,'','','','','','','','RUNTIME_NOT_INSTRUMENTED_UNLESS_STAGE_RECEIPT_PRESENT'])+'\n')
++                for row in sorted(rows):stream.write('\t'.join(['METHOD',key,h,*row,'RUNTIME_NOT_INSTRUMENTED_UNLESS_STAGE_RECEIPT_PRESENT'])+'\n')
++            stream.flush();os.fsync(stream.fileno())
++        source_binding(Path(temp));os.replace(temp,output)
++    finally:
++        if os.path.exists(temp):os.unlink(temp)
++    receipt={'schema':'STARCORE_R335_COMPILED_SOURCE_CALL_PROVENANCE_1','scope':scope,'sourceTreeSha256':manifest['sourceTreeSha256'],'sourceBuildInputsSha256':manifest['buildInputsSha256'],'r815ManifestSha256':hashlib.sha256(manifest_bytes).hexdigest(),'sourceFiles':len(sources),'projectClassesForMainJava':classes,'generatedOrUnregisteredClassCount':ignored,'methods':method_count,'directInvocations':calls,'indexSha256':sha_file(output),'indexBytes':output.stat().st_size,'parserSha256':sha_file(parser_path),'classInputSha256':hashlib.sha256(json.dumps(state,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'sourceSetScope':'EXACT_MAIN_JAVA_SOURCE_FILES; GENERATED_CLASSES_SEPARATELY_COUNTED','runtimeCoverage':'NOT_CLAIMED','qualification':'NOT_GRANTED'}
++    output.with_suffix('.provenance.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
++    print(json.dumps(receipt,ensure_ascii=False))
++
+ def main():
+-    p=argparse.ArgumentParser();p.add_argument('--freeze',action='store_true');p.add_argument('--classes',type=Path);a=p.parse_args()
++    p=argparse.ArgumentParser();p.add_argument('--freeze',action='store_true');p.add_argument('--classes',type=Path);p.add_argument('--from-classes',action='store_true');p.add_argument('--class-directory',action='append',default=[]);p.add_argument('--class-jar',action='append',default=[]);p.add_argument('--output');p.add_argument('--host-fixture',action='store_true');a=p.parse_args()
++    if a.from_classes:
++        need(a.output is not None and not a.freeze and a.classes is None,'CURRENT_CLASS_MODE_ARGUMENTS');from_classes(a);return
++    need(not a.class_directory and not a.class_jar and a.output is None and not a.host_fixture,'LEGACY_FROZEN_MODE_ARGUMENTS')
+     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
+     if a.freeze:
+         if not a.classes: p.error('--freeze requires --classes')
+diff --git a/tools/r31/package_release.py b/tools/r31/package_release.py
+index 575412fac7d1378e6d14eb36e0d82ac1fc2894fb..36cbc9a8017a757d1029b8faa0edead54e91131a 100644
+--- a/tools/r31/package_release.py
++++ b/tools/r31/package_release.py
+@@ -91,7 +91,20 @@ def _layers(verification):
+     }
+ 
+ 
+-def create_delivery(built, verification_path, out, ident=None, acceptance_dir=None):
++def current_installed_receipt_r33(path):
++    need(path is not None and Path(path).is_file(), 'R33_CURRENT_INSTALLED_RECEIPT_REQUIRED')
++    value = json.loads(Path(path).read_text())
++    need(value.get('format') == 'R33_INSTALLED_APK_IDENTITY_1', 'R33_INSTALLED_RECEIPT_FORMAT')
++    need(value.get('package') == 'com.starcore.research.r13', 'R33_INSTALLED_PACKAGE_MISMATCH')
++    need(type(value.get('versionCode')) is int and value['versionCode'] >= 577311033, 'R33_INSTALLED_VERSION_UNKNOWN')
++    need(re.fullmatch(r'[0-9a-f]{64}', str(value.get('apkSha256', ''))) is not None, 'R33_INSTALLED_APK_HASH_UNKNOWN')
++    need(value.get('signerCertSha256') == INSTALLED['signerCertSha256'], 'R33_INSTALLED_SIGNER_CHANGED')
++    need(type(value.get('observedAtMs')) is int and value['observedAtMs'] > 0, 'R33_INSTALLED_OBSERVATION_TIME_REQUIRED')
++    need(value.get('observationEvidenceSha256') and re.fullmatch(r'[0-9a-f]{64}', value['observationEvidenceSha256']), 'R33_INSTALLED_OBSERVATION_HASH_REQUIRED')
++    return value
++
++
++def create_delivery(built, verification_path, out, ident=None, acceptance_dir=None, installed_receipt=None):
+     ident = ident or identity()
+     built, out = Path(built), Path(out); out.mkdir(parents=True, exist_ok=True)
+     try:
+@@ -109,7 +122,7 @@ def create_delivery(built, verification_path, out, ident=None, acceptance_dir=No
+         apk = apks[0]; stem = apk.stem
+         facts = verify_apk(apk, r31v / ('badging-%s.txt' % stem), r31v / ('signature-%s.txt' % stem), r31v / 'SHA256SUMS.txt', ident)
+         label = 'OFFICIAL' if official else ('OVERLAY-INSTALL-R27-IDENTITY' if device else 'DEBUG-NOT-OFFICIAL')
+-        installed = FIELD_032 if facts['versionCode'] > FIELD_032['versionCode'] else INSTALLED
++        installed = current_installed_receipt_r33(installed_receipt) if facts['versionCode'] >= 577311034 else (FIELD_032 if facts['versionCode'] > FIELD_032['versionCode'] else INSTALLED)
+         overlay = {'installed': installed, 'sameSigner': facts['signerCertSha256'] == installed['signerCertSha256'],
+                    'samePackage': facts['package'] == installed['package'], 'versionCodeHigher': facts['versionCode'] > installed['versionCode']}
+         overlay['scope'] = 'STATIC_PACKAGE_SIGNER_VERSION_COMPATIBILITY'
+@@ -178,11 +191,11 @@ def verify_zip(path, ident=None):
+ 
+ def main():
+     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest='cmd', required=True)
+-    c = sub.add_parser('create'); c.add_argument('--built', required=True); c.add_argument('--verification', required=True); c.add_argument('--out', required=True);c.add_argument('--acceptance',default=None)
++    c = sub.add_parser('create'); c.add_argument('--built', required=True); c.add_argument('--verification', required=True); c.add_argument('--out', required=True);c.add_argument('--acceptance',default=None);c.add_argument('--installed-receipt',default=None)
+     v = sub.add_parser('verify'); v.add_argument('zip')
+     a = ap.parse_args()
+     try:
+-        if a.cmd == 'create': create_delivery(a.built, a.verification, a.out,acceptance_dir=a.acceptance)
++        if a.cmd == 'create': create_delivery(a.built, a.verification, a.out,acceptance_dir=a.acceptance,installed_receipt=a.installed_receipt)
+         else: print(json.dumps(verify_zip(a.zip), ensure_ascii=False)[:2000])
+     except Refused:
+         sys.exit(1)
+diff --git a/tools/r33/advance_release_version.py b/tools/r33/advance_release_version.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..cda9fda9ffb02b0b063a05309d0eeb8a00f4d6c1
+--- /dev/null
++++ b/tools/r33/advance_release_version.py
+@@ -0,0 +1,170 @@
++#!/usr/bin/env python3
++"""Prepare/apply a recoverable four-file version update using the original generator.
++
++A new external journal preserves exact before/after hashes. Resume accepts only
++those bytes, so an interrupted update can finish without discarding other edits.
++No commit, signing, install, authorization switch or APK claim is performed.
++"""
++from pathlib import Path
++import argparse
++import contextlib
++import datetime
++import hashlib
++import io
++import importlib.util
++import json
++import os
++import tempfile
++import subprocess
++from zoneinfo import ZoneInfo
++
++FILES=('release/release_manifest.json','release/release_identity.properties',
++       'app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java',
++       'verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java')
++STAGES=('P00',*(f'B{i:02d}' for i in range(1,9)))
++
++
++def require(ok,message):
++    if not ok:raise ValueError(message)
++
++
++def sha(data):return hashlib.sha256(data).hexdigest()
++
++
++def generator(repo):
++    path=repo/'scripts/r926_release_manifest.py'
++    require(path.is_file() and not path.is_symlink(),'ORIGINAL_MANIFEST_GENERATOR_REQUIRED')
++    spec=importlib.util.spec_from_file_location('r335_original_release_generator',path)
++    result=importlib.util.module_from_spec(spec);spec.loader.exec_module(result)
++    return result
++
++
++def regular(repo,relative):
++    path=repo/relative
++    require(path.is_file() and not path.is_symlink()
++            and not any(p.is_symlink() for p in path.parents if p!=repo and p.is_relative_to(repo)),
++            'REGULAR_CONTROLLED_IDENTITY_REQUIRED:'+relative)
++    return path
++
++
++def atomic(path,data):
++    mode=path.stat().st_mode & 0o777 if path.exists() else 0o644
++    handle,name=tempfile.mkstemp(dir=path.parent,prefix='.r335-version-')
++    temp=Path(name)
++    try:
++        with os.fdopen(handle,'wb') as stream:
++            stream.write(data);stream.flush();os.fsync(stream.fileno())
++        os.chmod(temp,mode)
++        os.replace(temp,path)
++        if os.name!='nt':
++            descriptor=os.open(path.parent,os.O_RDONLY)
++            try:os.fsync(descriptor)
++            finally:os.close(descriptor)
++    finally:temp.unlink(missing_ok=True)
++
++
++def prepare(repo,journal,installed_version,stage,day):
++    repo=Path(repo).resolve();journal=Path(journal).absolute()
++    require(type(installed_version) is int and installed_version>0,'POSITIVE_INSTALLED_VERSION_REQUIRED')
++    require(stage in STAGES,'KNOWN_STAGE_REQUIRED')
++    datetime.date.fromisoformat(day)
++    require(not journal.exists() and not journal.is_symlink() and not journal.resolve().is_relative_to(repo),
++            'FRESH_EXTERNAL_VERSION_JOURNAL_REQUIRED')
++    gen=generator(repo);current=gen.load()
++    require(type(current['versionCode']) is int,'INTEGER_CURRENT_VERSION_REQUIRED')
++    version=max(current['versionCode'],installed_version,577311033)+1
++    require(version<=2100000000,'ANDROID_VERSION_CODE_LIMIT')
++    new=json.loads(json.dumps(current));new['versionCode']=version
++    new['versionName']=f'R33.5-{stage}-{day}-{version}'
++    manifest=(json.dumps(new,ensure_ascii=False,sort_keys=True,indent=2)+'\n').encode()
++    digest=sha(manifest)
++    after=(manifest,gen.prop_text(new,digest).encode(),gen.java_text(new,digest).encode(),
++           gen.host_build_config_text(new,digest).encode())
++    before={name:regular(repo,name).read_bytes() for name in FILES}
++    journal.mkdir(parents=True,exist_ok=False)
++    rows=[]
++    for name,data in zip(FILES,after):
++        leaf=journal/'after'/name;leaf.parent.mkdir(parents=True,exist_ok=True);leaf.write_bytes(data)
++        old=journal/'before'/name;old.parent.mkdir(parents=True,exist_ok=True);old.write_bytes(before[name])
++        rows.append({'path':name,'beforeSha256':sha(before[name]),'afterSha256':sha(data)})
++    receipt={'schema':'STARCORE_R335_VERSION_JOURNAL_1','repo':str(repo),'stage':stage,
++             'installedVersionObserved':installed_version,'previousVersionCode':current['versionCode'],
++             'versionCode':version,'versionName':new['versionName'],'files':rows,
++             'scope':'VERSION_IDENTITY_ONLY_NOT_BUILD_OR_ACCEPTANCE'}
++    atomic(journal/'JOURNAL.json',(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n').encode())
++    return receipt
++
++
++@contextlib.contextmanager
++def repo_version_lock(repo):
++    # The lock is in the existing Git administration directory, never a
++    # production input or untracked release file that would dirty the build.
++    import fcntl
++    result=subprocess.run(['git','-C',str(repo),'rev-parse','--git-path','r335-version.lock'],
++                          capture_output=True,text=True,timeout=20)
++    require(result.returncode==0,'VERSION_UPDATE_REQUIRES_ACTUAL_GIT_CHECKOUT')
++    lock=Path(result.stdout.strip())
++    if not lock.is_absolute():lock=repo/lock
++    with lock.open('ab') as handle:
++        try:fcntl.flock(handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
++        except BlockingIOError:raise ValueError('VERSION_TRANSACTION_BUSY_RETRY_SAME_JOURNAL')
++        try:yield
++        finally:fcntl.flock(handle.fileno(),fcntl.LOCK_UN)
++
++
++def apply(repo,journal):
++    repo=Path(repo).resolve()
++    with repo_version_lock(repo):
++        return apply_locked(repo,journal)
++
++
++def apply_locked(repo,journal):
++    repo=Path(repo).resolve();journal=Path(journal).resolve()
++    require(not journal.is_relative_to(repo),'EXTERNAL_JOURNAL_REQUIRED')
++    receipt=json.loads((journal/'JOURNAL.json').read_text())
++    require(receipt.get('schema')=='STARCORE_R335_VERSION_JOURNAL_1' and receipt.get('repo')==str(repo),
++            'VERSION_JOURNAL_IDENTITY')
++    rows=receipt.get('files',[])
++    require(len(rows)==4 and tuple(r['path'] for r in rows)==FILES,'EXACT_FOUR_VERSION_FILES_REQUIRED')
++    updates=[]
++    # Inspect the entire transaction before changing any file.
++    for row in rows:
++        name=row['path'];target=regular(repo,name)
++        data=(journal/'after'/name).read_bytes()
++        before=(journal/'before'/name).read_bytes()
++        require(sha(data)==row['afterSha256'] and sha(before)==row['beforeSha256'],'JOURNAL_BYTES_MISMATCH')
++        actual=sha(target.read_bytes())
++        require(actual in (row['beforeSha256'],row['afterSha256']),'IDENTITY_DIVERGED_RETAIN_USER_EDIT:'+name)
++        updates.append((target,data))
++    for target,data in updates:atomic(target,data)
++    gen=generator(repo)
++    with contextlib.redirect_stdout(io.StringIO()):gen.check()
++    result={'schema':'STARCORE_R335_VERSION_APPLIED_1','journalSha256':sha((journal/'JOURNAL.json').read_bytes()),
++            'versionCode':receipt['versionCode'],'versionName':receipt['versionName'],
++            'stage':receipt['stage'],'status':'EXACT_FOUR_IDENTITIES_APPLIED',
++            'scope':'VERSION_IDENTITY_ONLY_NOT_BUILD_OR_ACCEPTANCE'}
++    atomic(journal/'APPLIED.json',(json.dumps(result,ensure_ascii=False,indent=2)+'\n').encode())
++    return result
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
++    parser.add_argument('--journal',type=Path,required=True)
++    parser.add_argument('--stage',choices=STAGES)
++    parser.add_argument('--installed-version',type=int)
++    parser.add_argument('--date',default=datetime.datetime.now(ZoneInfo('Asia/Shanghai')).date().isoformat())
++    parser.add_argument('--apply',action='store_true')
++    parser.add_argument('--resume',action='store_true')
++    args=parser.parse_args()
++    if args.resume:
++        require(args.apply,'RESUME_REQUIRES_EXPLICIT_APPLY')
++        result=apply(args.repo,args.journal)
++    else:
++        require(args.stage is not None and args.installed_version is not None,'STAGE_AND_INSTALLED_VERSION_REQUIRED')
++        result=prepare(args.repo,args.journal,args.installed_version,args.stage,args.date)
++        if args.apply:result=apply(args.repo,args.journal)
++    print(json.dumps(result,ensure_ascii=False,indent=2))
++
++
++if __name__=='__main__':main()
+diff --git a/tools/r33/package_ci_candidate.py b/tools/r33/package_ci_candidate.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..e26e24fcb9a5b4d0588c01698dbe9a38f7db31db
+--- /dev/null
++++ b/tools/r33/package_ci_candidate.py
+@@ -0,0 +1,292 @@
++#!/usr/bin/env python3
++"""Package a signed, source-bound candidate. Device and natural outcomes stay unproved."""
++from pathlib import Path, PurePosixPath
++import argparse
++import hashlib
++import json
++import os
++import re
++import shutil
++import subprocess
++import tempfile
++import zipfile
++import verify_plan_binding as binding
++
++CERT='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
++BASE_APK='8f0cb6e6eadbce5787cffde310a6cbf204d43962e636fd9ebedf6e66556fb763'
++PACKAGE='com.starcore.research.r13'
++require=binding.require
++sha=binding.sha
++
++
++def source_tree_entries(repo, commit):
++    entries = {}
++    for row in binding.git(repo, 'ls-tree', '-r', '-z', '--full-tree', commit).split(b'\0'):
++        if not row:
++            continue
++        metadata, raw_name = row.split(b'\t', 1)
++        mode, kind, oid = metadata.decode('ascii').split()
++        name = raw_name.decode('utf-8')
++        path = PurePosixPath(name)
++        require(name and not path.is_absolute() and path.as_posix() == name
++                and '\\' not in name and not any(x in ('.', '..', '.git') for x in path.parts),
++                'UNSAFE_SOURCE_ZIP_MEMBER')
++        require(name not in entries and kind == 'blob' and mode in ('100644', '100755', '120000')
++                and re.fullmatch('[0-9a-f]{40}', oid), 'UNSUPPORTED_SOURCE_ZIP_ENTRY')
++        entries[name] = (mode, oid)
++    require(entries, 'EMPTY_SOURCE_ARCHIVE')
++    return entries
++
++
++def source_zip_mode(mode):
++    return int(mode, 8) | (0o777 if mode == '120000' else 0)
++
++
++def verify_source_archive(path, entries):
++    """Exact Git leaf set, Unix file type/mode, unfiltered original blob bytes."""
++    with zipfile.ZipFile(path) as archive:
++        names = archive.namelist()
++        require(len(names) == len(set(names)) and set(names) == set(entries),
++                'SOURCE_ZIP_MEMBER_SET_MISMATCH')
++        for name, (mode, oid) in entries.items():
++            info = archive.getinfo(name)
++            require(info.create_system == 3 and info.external_attr >> 16 == source_zip_mode(mode),
++                    'SOURCE_ZIP_MODE_MISMATCH:' + name)
++            digest = hashlib.sha1(b'blob ' + str(info.file_size).encode('ascii') + b'\0')
++            total = 0
++            with archive.open(info) as stream:
++                for block in iter(lambda: stream.read(1 << 20), b''):
++                    total += len(block)
++                    digest.update(block)
++            require(total == info.file_size and digest.hexdigest() == oid,
++                    'SOURCE_ZIP_BLOB_MISMATCH:' + name)
++    return len(entries)
++
++
++def write_source_archive(repo, commit, target):
++    """Write raw Git blobs, unaffected by export-ignore/export-subst or replace refs.
++
++    Checkout verification also validates committed symlink bytes and constrained
++    repository-internal tracked targets. No extraction or link traversal is used
++    to read archive contents. One cat-file process serves all blobs.
++    """
++    repo, target = Path(repo).resolve(), Path(target)
++    require(not target.exists() and not target.is_symlink(), 'FRESH_SOURCE_ARCHIVE_REQUIRED')
++    binding.verify_checkout_bytes(repo, commit)
++    entries = source_tree_entries(repo, commit)
++    # Same isolation policy as binding.git; the streaming process cannot inherit
++    # a different worktree/object store, use replace refs, or lazy-fetch objects.
++    env = dict(os.environ, GIT_NO_REPLACE_OBJECTS='1', GIT_OPTIONAL_LOCKS='0',
++               GIT_TERMINAL_PROMPT='0', GIT_NO_LAZY_FETCH='1')
++    for key in ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_INDEX_FILE',
++                'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_PREFIX'):
++        env.pop(key, None)
++    handle, temp_name = tempfile.mkstemp(dir=target.parent, prefix='.r334-source-', suffix='.part')
++    os.close(handle)
++    temporary = Path(temp_name)
++    process = None
++    try:
++        process = subprocess.Popen(['git', '-c', 'core.hooksPath=/dev/null', '-C', str(repo),
++                                    'cat-file', '--batch'], stdin=subprocess.PIPE,
++                                   stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=env)
++        with zipfile.ZipFile(temporary, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
++            for name, (mode, oid) in sorted(entries.items()):
++                process.stdin.write(oid.encode('ascii') + b'\n')
++                process.stdin.flush()
++                header = process.stdout.readline(256).strip().split()
++                require(len(header) == 3 and header[0] == oid.encode('ascii') and header[1] == b'blob'
++                        and header[2].isdigit(), 'SOURCE_BLOB_BATCH_HEADER')
++                size = int(header[2])
++                info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
++                info.create_system = 3
++                info.external_attr = source_zip_mode(mode) << 16
++                info.compress_type = zipfile.ZIP_DEFLATED
++                info.file_size = size
++                digest = hashlib.sha1(b'blob ' + str(size).encode('ascii') + b'\0')
++                remaining = size
++                with archive.open(info, 'w', force_zip64=size >= zipfile.ZIP64_LIMIT) as output:
++                    while remaining:
++                        data = process.stdout.read(min(1 << 20, remaining))
++                        require(data, 'SOURCE_BLOB_TRUNCATED')
++                        remaining -= len(data)
++                        digest.update(data)
++                        output.write(data)
++                require(process.stdout.read(1) == b'\n' and digest.hexdigest() == oid,
++                        'SOURCE_BLOB_IDENTITY_MISMATCH')
++        process.stdin.close()
++        require(process.wait(timeout=30) == 0, 'SOURCE_BLOB_BATCH_FAILED')
++        verify_source_archive(temporary, entries)
++        with temporary.open('rb') as stream:
++            os.fsync(stream.fileno())
++        os.link(temporary, target)  # Atomic no-replace publication.
++        return {'format': 'R334_EXACT_GIT_BLOB_SOURCE_ZIP_1', 'members': len(entries),
++                'gitTree': binding.git(repo, 'rev-parse', commit + '^{tree}').decode().strip()}
++    finally:
++        if process is not None:
++            if process.poll() is None:
++                process.kill()
++                process.wait()
++            if process.stdin is not None and not process.stdin.closed:
++                process.stdin.close()
++            if process.stdout is not None:
++                process.stdout.close()
++        temporary.unlink(missing_ok=True)
++
++
++def write_source_bundle(repo, commit, target):
++    """Publish a standalone Git history bundle, including only ancestors of HEAD.
++
++    A tracked-files ZIP cannot satisfy the existing R31/R33 commit ancestry
++    gates. Verify the bundle in an EMPTY repository so missing prerequisites
++    cannot be concealed by objects already installed in the builder checkout.
++    """
++    repo, target = Path(repo).resolve(), Path(target)
++    require(not target.exists() and not target.is_symlink(), 'FRESH_SOURCE_BUNDLE_REQUIRED')
++    require(binding.git(repo, 'rev-parse', 'HEAD').decode().strip() == commit,
++            'SOURCE_BUNDLE_HEAD_MISMATCH')
++    require(binding.git(repo, 'rev-parse', '--is-shallow-repository').decode().strip() == 'false',
++            'SOURCE_BUNDLE_SHALLOW_HISTORY')
++    handle, name = tempfile.mkstemp(dir=target.parent, prefix='.r335-bundle-', suffix='.part')
++    os.close(handle)
++    temporary = Path(name)
++    temporary.unlink()
++    try:
++        binding.git(repo, 'bundle', 'create', str(temporary), 'HEAD')
++        with tempfile.TemporaryDirectory(prefix='r335-verify-bundle-') as root:
++            empty = Path(root)
++            binding.git(empty, 'init', '--quiet')
++            binding.git(empty, 'bundle', 'verify', str(temporary.resolve()))
++            binding.git(empty, 'fetch', '--quiet', '--no-tags', str(temporary.resolve()), 'HEAD')
++            got = binding.git(empty, 'rev-parse', 'FETCH_HEAD').decode().strip()
++            tree = binding.git(empty, 'rev-parse', 'FETCH_HEAD^{tree}').decode().strip()
++            require(got == commit and tree == binding.git(repo, 'rev-parse', commit + '^{tree}').decode().strip(),
++                    'SOURCE_BUNDLE_RESTORED_IDENTITY_MISMATCH')
++            binding.git(empty, 'merge-base', '--is-ancestor', binding.BASE, got)
++        with temporary.open('rb') as stream: os.fsync(stream.fileno())
++        os.link(temporary, target)
++        return {'format': 'R335_STANDALONE_GIT_BUNDLE_1', 'sourceCommit': commit,
++                'sourceTree': tree, 'emptyRepositoryVerified': True,
++                'historyScope': 'HEAD_REACHABLE_ANCESTORS_ONLY'}
++    finally:
++        temporary.unlink(missing_ok=True)
++
++
++def command(args):
++    result=subprocess.run([str(x) for x in args],capture_output=True,text=True,timeout=180)
++    require(result.returncode==0,'PUBLIC_BUILD_TOOL_FAILED:'+Path(args[0]).name)
++    return result.stdout+'\n'+result.stderr
++
++
++def inspect(apk,aapt,apksigner):
++    apk=Path(apk);require(apk.is_file() and not apk.is_symlink(),'ACTUAL_APK_REQUIRED')
++    signature=command([apksigner,'verify','--verbose','--print-certs',apk])
++    certs={v.lower().replace(':','') for v in re.findall(
++        r'^(?:V[0-9]+(?:\.[0-9]+)? )?Signer(?: #[0-9]+)?(?: \([^\r\n]*\))?:? certificate SHA-256 digest:\s*([a-fA-F0-9:]+)\s*$',signature,re.M)}
++    require(re.search(r'^Verifies\s*$',signature,re.M) and certs=={CERT},'ORIGINAL_SIGNER_REQUIRED')
++    badging=command([aapt,'dump','badging',apk]);m=re.search(
++        r"^package: name='([^']+)' versionCode='([0-9]+)' versionName='([^']*)'",badging,re.M)
++    require(m is not None,'ACTUAL_APK_BADGING_REQUIRED')
++    with zipfile.ZipFile(apk) as z:
++        names=z.namelist();require(len(names)==len(set(names)) and z.testzip() is None,'APK_DUPLICATE_MEMBER_OR_CRC')
++        require('classes.dex' in names and 'AndroidManifest.xml' in names,'APK_NOT_EXECUTABLE')
++        require(not any(re.search(r'\.(p12|jks|keystore|pfx|key)$',n,re.I) for n in names),'PRIVATE_SIGNING_FILE_IN_APK')
++    return dict(package=m[1],versionCode=int(m[2]),versionName=m[3],certificateSha256=CERT,
++                signatureVerified=True,sha256=sha(apk),bytes=apk.stat().st_size),signature,badging
++
++
++def validate_pair(manifest,old,new):
++    require(type(manifest.get('versionCode')) is int,'RELEASE_VERSION_INTEGER_REQUIRED')
++    require(manifest.get('applicationId')==old['package']==new['package']==PACKAGE,'RELEASE_PACKAGE_MISMATCH')
++    require(old['sha256']==BASE_APK and old['versionCode']==577311033,'EXACT_033_BASELINE_REQUIRED')
++    require(new['versionCode']==manifest['versionCode']>=577311034 and old['versionCode']<new['versionCode'],'RELEASE_VERSION_NOT_HIGHER')
++    require(new['versionName']==manifest.get('versionName') and new['versionName']!=old['versionName'],'RELEASE_NAME_MISMATCH')
++    require(new['certificateSha256']==old['certificateSha256']==CERT,'SIGNER_CHANGED')
++
++
++def embedded(apk,identity):
++    with zipfile.ZipFile(apk) as z:
++        old=json.loads(z.read('assets/diagnostics/build-identity-r31.json'))
++        current=json.loads(z.read('assets/diagnostics/build-identity-r334.json'))
++    require(old.get('source_commit')==identity['source_commit'] and old.get('source_tree')==identity['source_tree']
++            and old.get('source_dirty') is False,'EMBEDDED_R31_SOURCE_IDENTITY_MISMATCH')
++    require(current==identity,'EMBEDDED_R334_PLAN_OR_SOURCE_MISMATCH')
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
++    parser.add_argument('--out',type=Path,required=True)
++    parser.add_argument('--plan',type=Path,default=os.environ.get('STARCORE_R33_PLAN_ROOT'))
++    parser.add_argument('--baseline-apk',type=Path,required=True)
++    parser.add_argument('--apk',type=Path)
++    parser.add_argument('--aapt',type=Path,required=True);parser.add_argument('--apksigner',type=Path,required=True)
++    parser.add_argument('--build-log',type=Path,required=True)
++    parser.add_argument('--build-receipt',type=Path,required=True)
++    args=parser.parse_args();repo=args.repo.resolve();out=args.out.resolve()
++    require(args.plan is not None,'STARCORE_R33_PLAN_ROOT_REQUIRED')
++    require(not out.is_relative_to(repo),'OUTPUT_MUST_BE_OUTSIDE_SOURCE_CHECKOUT')
++    require(not out.exists(),'FRESH_OUTPUT_DIRECTORY_REQUIRED')
++    require(args.build_log.is_file() and args.build_log.stat().st_size>0,'ORIGINAL_GRADLE_LOG_REQUIRED')
++    identity=binding.identity(repo,args.plan,repo/'release/r33_plan_binding.json',True)
++    manifest=binding.read(repo/'release/release_manifest.json')
++    choices=sorted((repo/'app/build/outputs/apk/release').glob('*.apk')) if args.apk is None else [args.apk]
++    require(len(choices)==1,'EXACTLY_ONE_RELEASE_APK_REQUIRED');apk=choices[0]
++    new,signature,badging=inspect(apk,args.aapt,args.apksigner)
++    old,old_signature,old_badging=inspect(args.baseline_apk,args.aapt,args.apksigner)
++    validate_pair(manifest,old,new);embedded(apk,identity)
++    build=binding.read(args.build_receipt)
++    require(build.get('schema')=='STARCORE_R33_4_RELEASE_BUILD_1' and build.get('gradleRelease')=='PASS'
++            and type(build.get('exitCode')) is int and build['exitCode']==0
++            and build.get('sourceClean') is True and build.get('sourceUnchangedDuringBuild') is True
++            and build.get('sourceCommit')==identity['source_commit'] and build.get('sourceTree')==identity['source_tree']
++            and build.get('apkSha256')==new['sha256'] and build.get('planManifestSha256')==identity['plan_manifest_sha256']
++            and build.get('gradleLogSha256')==sha(args.build_log)
++            and ':app:assembleRelease' in build.get('command',[]),'ACTUAL_BUILD_RECEIPT_MISMATCH')
++    out.mkdir(parents=True,exist_ok=False)
++    stem=f"STARCORE-R33-{new['versionCode']}-{identity['source_commit'][:12]}"
++    copied=out/(stem+'-release.apk');shutil.copy2(apk,copied)
++    require(sha(copied)==new['sha256'],'COPIED_APK_MISMATCH')
++    (out/'public-certificate.txt').write_text(signature);(out/'badging.txt').write_text(badging)
++    (out/'baseline033-certificate.txt').write_text(old_signature);(out/'baseline033-badging.txt').write_text(old_badging)
++    shutil.copy2(args.build_log,out/'gradle-build.log')
++    shutil.copy2(args.build_receipt,out/'CI_BUILD_RECEIPT.json')
++    binding.write_json(out/'build-identity-r334.json',identity)
++    source=out/(stem+'-source.zip')
++    source_verified=write_source_archive(repo,identity['source_commit'],source)
++    require(source_verified['gitTree']==identity['source_tree'],'SOURCE_ARCHIVE_TREE_MISMATCH')
++    git_bundle=out/(stem+'-source.bundle')
++    bundle_verified=write_source_bundle(repo,identity['source_commit'],git_bundle)
++    require(sha(out/'gradle-build.log')==build['gradleLogSha256']
++            and binding.read(out/'CI_BUILD_RECEIPT.json')==build,'COPIED_BUILD_ORIGINALS_MISMATCH')
++    with zipfile.ZipFile(source) as z:
++        require(z.testzip() is None,'SOURCE_ARCHIVE_CRC')
++        require(not any(re.search(r'\.(p12|jks|keystore|pfx|key)$',n,re.I) for n in z.namelist()),'PRIVATE_SIGNING_FILE_IN_SOURCE')
++        for n in z.namelist():
++            if not n.endswith('/') and z.getinfo(n).file_size<2*1024*1024:
++                require(not re.search(rb'-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----',z.read(n)),
++                        'PRIVATE_KEY_MATERIAL_IN_SOURCE')
++    # No archive hash is embedded inside that archive: the outer checksum is computed last.
++    receipt={'schema':'STARCORE_R33_4_CANDIDATE_DELIVERY_1','sourceCommit':identity['source_commit'],
++             'sourceTree':identity['source_tree'],'apk':dict(new,file=copied.name),'baseline033':old,
++             'planManifestSha256':identity['plan_manifest_sha256'],'sourceArchive':dict(source_verified,file=source.name,sha256=sha(source)),
++             'gitBundle':dict(bundle_verified,file=git_bundle.name,sha256=sha(git_bundle)),
++             'gradleLogSha256':sha(out/'gradle-build.log'),'samePackageSameSignerHigherVersion':True,
++             'engineeringAcceptance':'SEPARATE_32_GROUP_LEDGER_REQUIRED','physical24h':'NOT_RUN_BY_PACKAGER',
++             'physical72h':'NOT_RUN_BY_PACKAGER','naturalQuality':'NOT_PROVEN_BY_PACKAGING',
++             'realSwitchChangedByPackager':False,'ciRun':os.environ.get('GITHUB_RUN_ID')}
++    binding.write_json(out/'DELIVERY.json',receipt)
++    members=sorted(p for p in out.iterdir() if p.is_file())
++    inner={p.name:sha(p) for p in members}
++    binding.write_json(out/'ZIP_MEMBERS_SHA256.json',inner);members.append(out/'ZIP_MEMBERS_SHA256.json')
++    bundle=out/(stem+'-APK-SOURCE-EVIDENCE.zip')
++    with zipfile.ZipFile(bundle,'x',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
++        for p in members:z.write(p,p.name)
++    with zipfile.ZipFile(bundle) as z:
++        require(z.testzip() is None,'DELIVERY_ZIP_CRC')
++        for n,digest in inner.items():require(__import__('hashlib').sha256(z.read(n)).hexdigest()==digest,'DELIVERY_MEMBER_HASH')
++    (out/'SHA256SUMS.txt').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in (copied,source,git_bundle,bundle,out/'DELIVERY.json')))
++    print(json.dumps({'apk':str(copied),'zip':str(bundle),'apkSha256':sha(copied),'zipSha256':sha(bundle),
++                      'scope':'SIGNED_CANDIDATE_DEVICE_AND_NATURAL_ACCEPTANCE_SEPARATE'},ensure_ascii=False))
++
++
++if __name__=='__main__':main()
+diff --git a/tools/r33/preflight_build.py b/tools/r33/preflight_build.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..86a84dd867dbfd6276e7d534d85071f034308af5
+--- /dev/null
++++ b/tools/r33/preflight_build.py
+@@ -0,0 +1,84 @@
++#!/usr/bin/env python3
++"""Read-only build prerequisites. No dependency download, secret read, signing or Git mutation."""
++from pathlib import Path
++import argparse
++import json
++import os
++import platform
++import re
++import shutil
++import subprocess
++import sys
++
++
++def collect(repo, sdk):
++    repo=Path(repo).resolve()
++    checks=[]
++    def record(name,okay,observed):
++        checks.append({'id':name,'status':'PASS' if okay else 'BLOCKED','observed':observed})
++    for name in ('settings.gradle','build.gradle','app/build.gradle','gradlew',
++                 'gradle/wrapper/gradle-wrapper.jar','gradle/wrapper/gradle-wrapper.properties',
++                 'app/src/main/AndroidManifest.xml','release/release_manifest.json',
++                 'release/release_identity.properties','tools/r31/verify_baseline.py',
++                 'scripts/r967_semantic_identity.py','scripts/r815_generate_provenance.py',
++                 'scripts/r982_source_call_asset.py','scripts/r975_source_call_index.py',
++                 'gradle/r335_source_calls.gradle'):
++        record('SOURCE:'+name,(repo/name).is_file(),'present' if (repo/name).is_file() else 'missing')
++    java_home=os.environ.get('JAVA_HOME')
++    command=str(Path(java_home)/'bin/java') if java_home else shutil.which('java')
++    if command and not Path(command).is_file():command=None
++    version='MISSING'
++    if command:
++        result=subprocess.run([command,'-version'],capture_output=True,text=True,timeout=20)
++        match=re.search(r'(?:openjdk|java) version "([0-9]+)',result.stderr+'\n'+result.stdout)
++        version=match[1] if result.returncode==0 and match else 'UNKNOWN'
++    record('JDK17',version=='17',version)
++    compiler=False
++    if command:
++        modules=subprocess.run([command,'--list-modules'],capture_output=True,text=True,timeout=20)
++        compiler=modules.returncode==0 and any(line.split('@',1)[0]=='jdk.compiler' for line in modules.stdout.splitlines())
++    record('JDK_COMPILER_MODULE',compiler,'present' if compiler else 'missing')
++    git=shutil.which('git')
++    if git:
++        result=subprocess.run([git,'-C',str(repo),'rev-parse','--is-inside-work-tree'],capture_output=True,text=True,timeout=20)
++        history=result.returncode==0 and result.stdout.strip()=='true'
++        if history:
++            top=subprocess.run([git,'-C',str(repo),'rev-parse','--show-toplevel'],capture_output=True,text=True,timeout=20)
++            history=top.returncode==0 and Path(top.stdout.strip()).resolve()==repo
++        if history:
++            fixed=subprocess.run([git,'-C',str(repo),'merge-base','--is-ancestor',
++                                  'bb7b49bbcc9266bad548ec37e71403256fc06a4d','HEAD'],capture_output=True,timeout=20)
++            history=fixed.returncode==0
++        record('EXACT_GIT_HISTORY',history,'REQUIRED_033_ANCESTOR_PRESENT' if history else 'ARCHIVE_OR_REQUIRED_HISTORY_MISSING')
++    else:record('EXACT_GIT_HISTORY',False,'GIT_MISSING')
++    record('PYTHON_3_12',sys.version_info>=(3,12),'.'.join(map(str,sys.version_info[:3])))
++    record('POSIX_BUILD_HOST',os.name=='posix',platform.system())
++    tag='darwin-x86_64' if platform.system()=='Darwin' else 'linux-x86_64'
++    for relative in ('platforms/android-36/android.jar','build-tools/36.0.0/aapt',
++                     'build-tools/36.0.0/aapt2','build-tools/36.0.0/lib/d8.jar',
++                     'build-tools/36.0.0/apksigner','ndk/28.2.13676358/source.properties',
++                     'ndk/28.2.13676358/toolchains/llvm/prebuilt/'+tag+'/bin/clang',
++                     'cmake/3.22.1/bin/cmake'):
++        present=sdk is not None and (Path(sdk)/relative).is_file()
++        record('SDK:'+relative,present,'present' if present else 'missing')
++    return {'schema':'STARCORE_R335_BUILD_PREFLIGHT_1','checks':checks,
++            'status':'READY_TO_ATTEMPT_BUILD' if all(x['status']=='PASS' for x in checks) else 'BLOCKED_DEPENDENCIES',
++            'scope':'PREREQUISITES_ONLY_NOT_COMPILATION_OR_RUNTIME',
++            'secrets':'NOT_READ','dependencies':'NOT_DOWNLOADED'}
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
++    parser.add_argument('--android-sdk',type=Path,default=os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT'))
++    parser.add_argument('--out',type=Path)
++    args=parser.parse_args();result=collect(args.repo,args.android_sdk)
++    text=json.dumps(result,ensure_ascii=False,indent=2)+'\n'
++    if args.out:
++        args.out.parent.mkdir(parents=True,exist_ok=True)
++        with args.out.open('x',encoding='utf-8') as out:out.write(text)
++    print(text,end='')
++    raise SystemExit(0 if result['status']=='READY_TO_ATTEMPT_BUILD' else 2)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/r33/run_release_build.py b/tools/r33/run_release_build.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..224d9aa55eff3c9e4428fcc3221911b63d40c198
+--- /dev/null
++++ b/tools/r33/run_release_build.py
+@@ -0,0 +1,86 @@
++#!/usr/bin/env python3
++"""Run the real release tasks and bind exit status, log and actual APK bytes to a clean source."""
++from pathlib import Path
++import argparse
++import json
++import os
++import re
++import subprocess
++import time
++import verify_plan_binding as binding
++
++
++EXPECTED_CERT = 'd8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
++
++
++def build_environment(plan, inherited=None):
++    """Inject the public identity required by CP12 without reading or printing private inputs."""
++    env = dict(os.environ if inherited is None else inherited)
++    supplied = env.get('R13_EXPECTED_CERT_SHA256', EXPECTED_CERT).lower()
++    binding.require(supplied == EXPECTED_CERT, 'R13_PUBLIC_CERTIFICATE_PIN_CONFLICT')
++    env['R13_EXPECTED_CERT_SHA256'] = EXPECTED_CERT
++    env['STARCORE_R33_PLAN_ROOT'] = str(Path(plan).resolve())
++    return env
++
++
++def public_error(error, phase):
++    """Publish a bounded machine code, never exception text or environment values."""
++    code = str(error).split(':', 1)[0]
++    if not re.fullmatch('[A-Z][A-Z0-9_]{0,95}', code):
++        code = 'IDENTITY_VERIFICATION_ERROR' if phase == 'POST_BUILD_IDENTITY' else 'BUILD_LAUNCH_ERROR'
++    return {'phase': phase, 'code': code, 'exceptionType': type(error).__name__}
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
++    p.add_argument('--plan',type=Path,default=os.environ.get('STARCORE_R33_PLAN_ROOT'))
++    p.add_argument('--out',type=Path,required=True)
++    a=p.parse_args();repo=a.repo.resolve();out=a.out.resolve()
++    binding.require(a.plan is not None,'STARCORE_R33_PLAN_ROOT_REQUIRED')
++    binding.require(not out.is_relative_to(repo) and not out.exists(),'FRESH_EXTERNAL_BUILD_OUTPUT_REQUIRED')
++    before=binding.identity(repo,a.plan,repo/'release/r33_plan_binding.json',True)
++    out.mkdir(parents=True,exist_ok=False);log=out/'gradle-build.log'
++    command=[str(repo/'gradlew'),'--no-daemon','--max-workers=4','-Pr30Instrumentation=true',
++             ':app:assembleRelease',':app:assembleDebug',':app:assembleDebugAndroidTest']
++    start=time.monotonic_ns()
++    env=build_environment(a.plan)
++    launch_error=None
++    with log.open('xb') as f:
++        try:
++            result=subprocess.run(command,cwd=repo,env=env,stdout=f,stderr=subprocess.STDOUT)
++            exit_code=result.returncode
++        except (OSError, subprocess.SubprocessError) as error:
++            exit_code=127
++            launch_error=public_error(error,'BUILD_LAUNCH')
++            f.write(b'R334_BUILD_LAUNCH_FAILED; consult structured receipt.\n')
++    after=None
++    identity_error=None
++    try:
++        after=binding.identity(repo,a.plan,repo/'release/r33_plan_binding.json',True)
++    except Exception as error:
++        # This boundary must preserve the original build result and a FAIL
++        # receipt for every ordinary identity failure, including path errors.
++        # KeyboardInterrupt/SystemExit remain interrupts, not forged outcomes.
++        identity_error=public_error(error,'POST_BUILD_IDENTITY')
++    unchanged=after is not None and before==after
++    passed=exit_code==0 and unchanged and identity_error is None and launch_error is None
++    apks=sorted((repo/'app/build/outputs/apk/release').glob('*.apk'))
++    passed=passed and len(apks)==1
++    receipt={'schema':'STARCORE_R33_4_RELEASE_BUILD_1','sourceCommit':before['source_commit'],
++             'sourceTree':before['source_tree'],'sourceClean':after is not None and after.get('source_dirty') is False,
++             'sourceCleanBeforeBuild':True,'command':command,
++             'exitCode':exit_code,'wrapperExitCode':0 if passed else 1,'gradleRelease':'PASS' if passed else 'FAIL',
++             'gradleLogSha256':binding.sha(log),'durationNs':time.monotonic_ns()-start,
++             'planManifestSha256':before['plan_manifest_sha256'],
++             'apkSha256':binding.sha(apks[0]) if passed else None,
++             'sourceUnchangedDuringBuild':unchanged,'identityError':identity_error,'buildLaunchError':launch_error,
++             'ciRun':os.environ.get('GITHUB_RUN_ID'),
++             'deviceAcceptance':'NOT_INFERRED','naturalQuality':'NOT_INFERRED'}
++    binding.write_json(out/'CI_BUILD_RECEIPT.json',receipt)
++    print(json.dumps({'gradleRelease':receipt['gradleRelease'],'receipt':str(out/'CI_BUILD_RECEIPT.json'),
++                      'log':str(log)},ensure_ascii=False))
++    raise SystemExit(0 if passed else 1)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/r33/verify_plan_binding.py b/tools/r33/verify_plan_binding.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..e8dd07cd0e893e6a5bf861a819cd1caf7e1ec066
+--- /dev/null
++++ b/tools/r33/verify_plan_binding.py
+@@ -0,0 +1,256 @@
++#!/usr/bin/env python3
++"""Bind a sealed versioned plan to a real checkout without rewriting historical R31 pins."""
++from pathlib import Path, PurePosixPath
++import argparse
++import hashlib
++import json
++import os
++import re
++import stat
++import subprocess
++import tempfile
++
++BASE = 'bb7b49bbcc9266bad548ec37e71403256fc06a4d'
++PLAN_SCHEMA = 'STARCORE_R33_4_PLAN_BINDING_1'
++PRODUCT_INPUT_ROOTS = ('app/src', 'app/libs', 'scripts', 'tools', 'release',
++                       'gradle', 'buildSrc', 'src', 'libs', 'config', 'cmake', 'native')
++
++
++def require(ok, reason):
++    if not ok:
++        raise ValueError(reason)
++
++
++def sha(path):
++    h=hashlib.sha256()
++    with Path(path).open('rb') as stream:
++        for block in iter(lambda:stream.read(1<<20),b''):h.update(block)
++    return h.hexdigest()
++
++
++def read(path):
++    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
++
++
++def safe(root, relative):
++    posix=PurePosixPath(relative)
++    require(relative and not posix.is_absolute() and posix.as_posix()==relative
++            and not any(x in ('.','..') for x in posix.parts), 'UNSAFE_PLAN_MEMBER')
++    path=Path(root).joinpath(*posix.parts)
++    require(path.resolve().is_relative_to(Path(root).resolve()) and not path.is_symlink()
++            and not any(p.is_symlink() for p in path.parents if p.is_relative_to(root)), 'PLAN_SYMLINK_OR_ESCAPE')
++    return path
++
++
++def git(repo, *args):
++    env=dict(os.environ,GIT_NO_REPLACE_OBJECTS='1',GIT_OPTIONAL_LOCKS='0',GIT_TERMINAL_PROMPT='0')
++    for key in ('GIT_DIR','GIT_WORK_TREE','GIT_COMMON_DIR','GIT_INDEX_FILE','GIT_OBJECT_DIRECTORY',
++                'GIT_ALTERNATE_OBJECT_DIRECTORIES','GIT_PREFIX'):env.pop(key,None)
++    completed=subprocess.run(['git','-c','core.hooksPath=/dev/null','-C',str(repo),*args],
++                             capture_output=True,env=env,check=False)
++    require(completed.returncode==0,'GIT_FAILED:'+args[0])
++    return completed.stdout
++
++
++def verify_checkout_bytes(repo, head):
++    """Compare actual files with HEAD, independently of index trust flags.
++
++    Read-only: never clear assume-unchanged/skip-worktree, refresh an index or
++    overwrite a developer's files. A release may not consume ignored source
++    bytes that its Git source archive would omit. Symlinks are verified as link
++    bytes, never by accidentally hashing an external target's contents.
++    """
++    repo = Path(repo).resolve()
++    entries = {}
++    for record in git(repo, 'ls-tree', '-r', '-z', '--full-tree', head).split(b'\0'):
++        if not record:
++            continue
++        metadata, encoded_name = record.split(b'\t', 1)
++        mode, kind, oid = metadata.decode('ascii').split()
++        name = os.fsdecode(encoded_name)
++        relative = PurePosixPath(name)
++        require(name and not relative.is_absolute() and relative.as_posix() == name
++                and not any(p in ('.', '..', '.git') for p in relative.parts), 'UNSAFE_TRACKED_PATH')
++        require(name not in entries, 'DUPLICATE_TRACKED_PATH')
++        require(kind == 'blob' and mode in ('100644', '100755', '120000'),
++                'UNSUPPORTED_SOURCE_TREE_ENTRY:' + name)
++        require(re.fullmatch('[0-9a-f]{40}', oid), 'UNSUPPORTED_GIT_OBJECT_FORMAT')
++        entries[name] = (mode, oid)
++    require(entries, 'EMPTY_SOURCE_TREE')
++
++    tracked_directories = set()
++    for name in entries:
++        tracked_directories.update(p.as_posix() for p in PurePosixPath(name).parents if str(p) != '.')
++    links = 0
++    source_bytes = 0
++    linked_directories = set()
++    for name, (mode, expected) in entries.items():
++        path = repo.joinpath(*PurePosixPath(name).parts)
++        require(not any(p.is_symlink() for p in path.parents if p != repo and p.is_relative_to(repo)),
++                'TRACKED_PATH_HAS_SYMLINK_PARENT:' + name)
++        try:
++            observed = path.lstat()
++        except FileNotFoundError:
++            raise ValueError('TRACKED_FILE_MISSING:' + name)
++        if mode == '120000':
++            require(stat.S_ISLNK(observed.st_mode), 'TRACKED_SYMLINK_CHANGED_TYPE:' + name)
++            value = os.readlink(os.fsencode(path))
++            actual = hashlib.sha1(b'blob ' + str(len(value)).encode('ascii') + b'\0' + value).hexdigest()
++            require(actual == expected, 'HEAD_LINK_BYTES_MISMATCH:' + name)
++            require(not Path(os.fsdecode(value)).is_absolute(), 'ABSOLUTE_SOURCE_SYMLINK:' + name)
++            try:
++                target = path.resolve()
++            except (OSError, RuntimeError):
++                raise ValueError('UNRESOLVABLE_SOURCE_SYMLINK:' + name)
++            require(target.is_relative_to(repo), 'SOURCE_SYMLINK_ESCAPES_REPOSITORY:' + name)
++            target_name = target.relative_to(repo).as_posix()
++            require(target_name in entries or target_name in tracked_directories,
++                    'SOURCE_SYMLINK_TARGET_NOT_TRACKED:' + name)
++            if target_name in tracked_directories:
++                linked_directories.add(target_name)
++            source_bytes += len(value)
++            links += 1
++            continue
++        require(stat.S_ISREG(observed.st_mode), 'TRACKED_REGULAR_FILE_CHANGED_TYPE:' + name)
++        if os.name != 'nt':
++            require(bool(observed.st_mode & stat.S_IXUSR) == (mode == '100755'),
++                    'HEAD_EXECUTABLE_MODE_MISMATCH:' + name)
++        flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0)
++        with os.fdopen(os.open(path, flags), 'rb') as stream:
++            descriptor = os.fstat(stream.fileno())
++            require(stat.S_ISREG(descriptor.st_mode), 'SOURCE_FILE_NOT_REGULAR:' + name)
++            total = 0
++            digest = hashlib.sha1(b'blob ' + str(descriptor.st_size).encode('ascii') + b'\0')
++            for block in iter(lambda: stream.read(1 << 20), b''):
++                total += len(block)
++                digest.update(block)
++            require(total == descriptor.st_size and digest.hexdigest() == expected,
++                    'HEAD_FILE_BYTES_MISMATCH:' + name)
++        source_bytes += total
++
++    inspected = set()
++    for relative in (*PRODUCT_INPUT_ROOTS, *sorted(linked_directories)):
++        top = repo / relative
++        if not top.exists() and not top.is_symlink():
++            continue
++        if top.is_symlink():
++            require(relative in entries and entries[relative][0] == '120000',
++                    'UNTRACKED_PRODUCT_SYMLINK:' + relative)
++            top = top.resolve()
++        if top.is_file():
++            require(top.relative_to(repo).as_posix() in entries, 'UNTRACKED_PRODUCT_INPUT:' + relative)
++            continue
++        for directory, names, files in os.walk(top, followlinks=False):
++            base = Path(directory)
++            names[:] = [n for n in names if n != '__pycache__']
++            for dirname in list(names):
++                candidate = base / dirname
++                if candidate.is_symlink():
++                    logical = candidate.relative_to(repo).as_posix()
++                    require(logical in entries and entries[logical][0] == '120000',
++                            'UNTRACKED_PRODUCT_SYMLINK:' + logical)
++                    names.remove(dirname)
++            for filename in files:
++                candidate = base / filename
++                if candidate.suffix in ('.pyc', '.pyo'):
++                    continue
++                logical = candidate.relative_to(repo).as_posix()
++                if logical in inspected:
++                    continue
++                inspected.add(logical)
++                require(logical in entries, 'UNTRACKED_PRODUCT_INPUT:' + logical)
++    return {'trackedFiles': len(entries), 'trackedSymlinks': links, 'trackedBytes': source_bytes,
++            'headBytesVerified': True, 'untrackedProductInputs': 0}
++
++
++def plan_descriptor(plan):
++    """R33.4 fixtures remain readable; every R33.5 delivery carries the sealed descriptor."""
++    path = safe(Path(plan).resolve(), 'control/PLAN_IDENTITY.json')
++    if not path.exists():
++        return {'planRevision': 'R33.4', 'sourceBaseline': BASE,
++                'scenarioRegistry': 'control/required_scenarios_R334.json',
++                'gateRegistry': 'control/32_gate_contracts.json'}
++    value = read(path)
++    require(value.get('schema') == 'STARCORE_PLAN_DESCRIPTOR_1'
++            and value.get('sourceBaseline') == BASE
++            and re.fullmatch(r'R33\.[0-9]+', str(value.get('planRevision'))), 'PLAN_DESCRIPTOR_INVALID')
++    require(value.get('scenarioRegistry') == 'control/required_scenarios_R334.json'
++            and value.get('gateRegistry') == 'control/32_gate_contracts.json', 'PLAN_REGISTRY_PATH_DRIFT')
++    return value
++
++
++def verify_plan(plan, binding):
++    plan=Path(plan).resolve()
++    descriptor=plan_descriptor(plan)
++    require(binding.get('schema')==PLAN_SCHEMA and binding.get('planRevision')==descriptor['planRevision'],'R334_BINDING_SCHEMA')
++    require(binding.get('sourceBaseline')==BASE,'R334_SOURCE_BASELINE')
++    manifest=safe(plan,'verification/SHA256.json')
++    require(manifest.is_file() and sha(manifest)==binding.get('planManifestSha256'),'R334_PLAN_MANIFEST_MISMATCH')
++    members=read(manifest)
++    require(isinstance(members,dict) and members,'R334_EMPTY_MANIFEST')
++    for relative,digest in members.items():
++        path=safe(plan,relative)
++        require(path.is_file() and re.fullmatch('[0-9a-f]{64}',str(digest)) and sha(path)==digest,
++                'R334_PLAN_MEMBER_MISMATCH:'+relative)
++    actual={p.relative_to(plan).as_posix() for p in plan.rglob('*') if p.is_file()
++            and '__pycache__' not in p.parts and p.suffix not in ('.pyc','.pyo')}
++    require(actual==set(members)|{'verification/SHA256.json'},'R334_UNSEALED_OR_MISSING_MEMBERS')
++    for field,relative in [('gateRegistrySha256','control/32_gate_contracts.json'),
++                           ('scenarioRegistrySha256','control/required_scenarios_R334.json')]:
++        require(sha(plan/relative)==binding.get(field),'R334_'+field+'_MISMATCH')
++    return {'planRevision':descriptor['planRevision'],'plan_manifest_sha256':sha(manifest),
++            'gate_registry_sha256':binding['gateRegistrySha256'],
++            'scenario_registry_sha256':binding['scenarioRegistrySha256'],'plan_member_count':len(members)}
++
++
++def identity(repo, plan, binding_file, require_clean=False):
++    repo=Path(repo).resolve();binding=read(binding_file)
++    result=verify_plan(plan,binding)
++    require(Path(git(repo,'rev-parse','--show-toplevel').decode().strip()).resolve()==repo,'ACTUAL_REPOSITORY_ROOT_REQUIRED')
++    head=git(repo,'rev-parse','HEAD').decode().strip()
++    require(re.fullmatch('[0-9a-f]{40}',head),'SOURCE_COMMIT_INVALID')
++    git(repo,'merge-base','--is-ancestor',BASE,head)
++    dirty=bool(git(repo,'status','--porcelain=v1','-z','--untracked-files=all'))
++    require(not require_clean or not dirty,'R334_DIRTY_SOURCE_NOT_PUBLISHABLE')
++    checkout = verify_checkout_bytes(repo, head) if require_clean else {'headBytesVerified': False, 'scope': 'DEVELOPMENT_NOT_PUBLISHABLE'}
++    result.update(schema='STARCORE_R33_4_BUILD_IDENTITY_1',source_commit=head,
++                  source_tree=git(repo,'rev-parse','HEAD^{tree}').decode().strip(),source_dirty=dirty,
++                  source_baseline=BASE,plan_binding_sha256=sha(binding_file),
++                  checkoutBytes=checkout,
++                  engineeringAcceptance='NOT_INFERRED',deviceAcceptance='NOT_INFERRED',naturalQuality='NOT_INFERRED')
++    return result
++
++
++def write_json(path, value):
++    path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
++    with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=path.parent,prefix='.r334-',delete=False) as f:
++        name=Path(f.name);json.dump(value,f,ensure_ascii=False,sort_keys=True,indent=2);f.write('\n');f.flush();os.fsync(f.fileno())
++    try:os.replace(name,path)
++    finally:name.unlink(missing_ok=True)
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
++    parser.add_argument('--plan',type=Path,default=os.environ.get('STARCORE_R33_PLAN_ROOT'))
++    parser.add_argument('--binding',type=Path)
++    parser.add_argument('--init-binding',action='store_true',help='Write a new, reviewable pin from an already validated sealed plan; never overwrite.')
++    parser.add_argument('--require-clean',action='store_true')
++    parser.add_argument('--out',type=Path)
++    args=parser.parse_args();require(args.plan is not None,'STARCORE_R33_PLAN_ROOT_REQUIRED')
++    binding=args.binding or args.repo/'release/r33_plan_binding.json'
++    if args.init_binding:
++        value={'schema':PLAN_SCHEMA,'planRevision':plan_descriptor(args.plan)['planRevision'],'sourceBaseline':BASE,
++               'planManifestSha256':sha(args.plan/'verification/SHA256.json'),
++               'gateRegistrySha256':sha(args.plan/'control/32_gate_contracts.json'),
++               'scenarioRegistrySha256':sha(args.plan/'control/required_scenarios_R334.json')}
++        verify_plan(args.plan,value)
++        binding.parent.mkdir(parents=True,exist_ok=True)
++        with binding.open('x',encoding='utf-8') as f:json.dump(value,f,indent=2,sort_keys=True);f.write('\n')
++        print(json.dumps({'status':'NEW_REVIEWABLE_PIN_CREATED','file':str(binding),'sha256':sha(binding)}));return
++    result=identity(args.repo,args.plan,binding,args.require_clean)
++    if args.out:write_json(args.out,result)
++    else:print(json.dumps(result,ensure_ascii=False,indent=2))
++
++
++if __name__=='__main__':main()
+diff --git a/verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java b/verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java
+index ad1634f09f03ab78b0f8c8b9ae7eda961fa12cb0..9f176dcffe46cb57898746eeb10c8c32f2472e69 100644
+--- a/verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java
++++ b/verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java
+@@ -3,11 +3,11 @@ public final class BuildConfig {
+     public static final boolean DEBUG = false;
+     public static final String APPLICATION_ID = "com.starcore.research.r13";
+     public static final String BUILD_TYPE = "release";
+-    public static final int VERSION_CODE = 577311033;
+-    public static final String VERSION_NAME = "R32.5-REPAIR-2026.11.15-033";
++    public static final int VERSION_CODE = 577311035;
++    public static final String VERSION_NAME = "R33.5-REPAIR-2026.11.18-035";
+     public static final String DUOQU_API_KEY_A = "";
+     public static final String DUOQU_API_KEY_B = "";
+-    public static final String RELEASE_MANIFEST_SHA256 = "2c7d5e050399fe20084f8e049109f60aff78bd84780b0588d7d5934a3251d2f5";
++    public static final String RELEASE_MANIFEST_SHA256 = "0a45f66baacc430ae279777ac924a0bc249ab689f3eff4beec359a6c2dd5e90e";
+     public static final int DB_USER_VERSION = 36;
+     public static final int LEGACY_R906_SCHEMA_REVISION = 4;
+     public static final String R925_SCHEMA_REVISION = "R925_SCHEMA_7";

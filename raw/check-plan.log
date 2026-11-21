@@ -1,0 +1,342 @@
+RUN verify_package.py
+PASS R33.1 exact legacy 222 + 1832 (1321 file, 511 other); 16 preserved rule prescriptions + upgrade/owner/negative comparisons. Routing only, no completion inferred.
+PASS four named-path vs old binding discrepancies traced to pinned 033 source; runtime verification remains separate.
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.004s
+
+OK
+PASS 142 complete registered file changes; 129 distinct paths; exact before/after bytes and shared-path sequence verified; no runtime inference.
+{
+  "scope": "CURRENT_PACKAGE_AND_CODE_BINDINGS_ONLY",
+  "constructionStages": 9,
+  "fileChanges": 142,
+  "distinctPaths": 129,
+  "fileChangesByStage": {
+    "P00": 16,
+    "B01": 35,
+    "B02": 35,
+    "B03": 7,
+    "B04": 6,
+    "B05": 35,
+    "B06": 0,
+    "B07": 8,
+    "B08": 0
+  },
+  "issues": 66,
+  "issuesByStage": {
+    "P00": 9,
+    "B01": 7,
+    "B02": 10,
+    "B03": 2,
+    "B04": 3,
+    "B05": 25,
+    "B06": 1,
+    "B07": 5,
+    "B08": 4
+  },
+  "originalEngineeringGroups": 32,
+  "originalAssertions": 96,
+  "originalScenarios": 288,
+  "androidRuntime": "NOT_INFERRED",
+  "apkBuild": "NOT_INFERRED",
+  "naturalQuality": "NOT_INFERRED"
+}
+PASS 8 batches / fixed 32 groups
+PASS 96 fixed positive, negative and trace assertions
+PASS original 222 unique IDs, raw contract SHA and 9 complete clauses
+PASS 1832 original unique IDs and pinned git blob
+PASS 165 exact separate object identities and responsible batch
+PASS 96 legacy evaluator IDs mapped separately
+PASS 44 metrics and 16 diagnostic rules mapped to 32 groups
+PASS research/table/matrix/statistical registries complete
+PASS two original source packages
+PASS 033 source, APK and exact registry match STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c.zip
+PASS 033 source, APK and exact registry match STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a.zip
+PASS 141 audited Java paths against pinned repository Git blobs
+PASS delivered 53 host suites success, scope HOST_ONLY
+PASS current executed input bytes and per-suite isolation match delivery
+PASS sealed package exact member list
+Scope: plan and its archived inputs; Android delivery, device and future quality are separate.
+RUN check_source_chain.py
+{
+  "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+  "sourceTree": "91481826c9db1fb1d39439b799770c7336c83fea",
+  "scope": "registered source blob bindings and before/after contents across every stage",
+  "sourceBlobBindingsVerified": 140,
+  "distinctInstallationPaths": 129,
+  "stageOperations": 142,
+  "actions": {
+    "REPLACE": 103,
+    "ADD": 39
+  },
+  "stages": [
+    {
+      "stage": "P00",
+      "edits": 16
+    },
+    {
+      "stage": "B01",
+      "edits": 35
+    },
+    {
+      "stage": "B02",
+      "edits": 35
+    },
+    {
+      "stage": "B03",
+      "edits": 7
+    },
+    {
+      "stage": "B04",
+      "edits": 6
+    },
+    {
+      "stage": "B05",
+      "edits": 35
+    },
+    {
+      "stage": "B06",
+      "edits": 0
+    },
+    {
+      "stage": "B07",
+      "edits": 8
+    },
+    {
+      "stage": "B08",
+      "edits": 0
+    }
+  ],
+  "status": "PASS"
+}
+RUN verify_dual_reports.py
+{"status": "PASS", "reports": 2, "comparisonRows": 203, "recordDigests": 406, "fieldPointers": 2474, "scope": "ORIGINAL_REPORT_INDEX_TRACEABILITY"}
+RUN prepare_tools.py
+RUN test_review.py
+test_bet_cutoffs_independently (__main__.Corrections.test_bet_cutoffs_independently) ... ok
+test_changed_volume_is_bounded (__main__.Corrections.test_changed_volume_is_bounded) ... ok
+test_full_enabled_window_keeps_missing_and_timing (__main__.Corrections.test_full_enabled_window_keeps_missing_and_timing) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.141s
+
+OK
+RUN test_settlement_window.py
+test_100_enabled_plus_20_disabled_periods_pass (__main__.SettlementWindow.test_100_enabled_plus_20_disabled_periods_pass) ... ok
+test_all_100_valid_settlements_pass (__main__.SettlementWindow.test_all_100_valid_settlements_pass) ... ok
+test_early_label_does_not_pass_via_late_task_completion (__main__.SettlementWindow.test_early_label_does_not_pass_via_late_task_completion) ... ok
+test_inclusive_limits (__main__.SettlementWindow.test_inclusive_limits) ... ok
+test_missing_return_keeps_denominator (__main__.SettlementWindow.test_missing_return_keeps_denominator) ... ok
+test_monotonic_duration_detects_underreported_settlement (__main__.SettlementWindow.test_monotonic_duration_detects_underreported_settlement) ... ok
+test_partial_stop_keeps_unfrozen_enabled_period_failure (__main__.SettlementWindow.test_partial_stop_keeps_unfrozen_enabled_period_failure) ... ok
+test_rehashed_wrong_canonical_identity_fails (__main__.SettlementWindow.test_rehashed_wrong_canonical_identity_fails) ... ok
+test_same_filename_start_end_produce_two_receipt_hashes (__main__.SettlementWindow.test_same_filename_start_end_produce_two_receipt_hashes) ... ok
+test_slow_durable_freeze_even_with_fast_sql_row (__main__.SettlementWindow.test_slow_durable_freeze_even_with_fast_sql_row) ... ok
+test_slow_durable_settlement_even_with_fast_sql_row (__main__.SettlementWindow.test_slow_durable_settlement_even_with_fast_sql_row) ... ok
+test_snapshot_sidecar_refused (__main__.SettlementWindow.test_snapshot_sidecar_refused) ... ok
+test_stale_window_modules_are_refused_before_import (__main__.SettlementWindow.test_stale_window_modules_are_refused_before_import) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.872s
+
+OK
+RUN test_research.py
+............
+----------------------------------------------------------------------
+Ran 12 tests in 0.412s
+
+OK
+RUN test_b05_java.py
+PASS: B05 complete owner compiled; original paired() executed using JDBC-backed SQLite
+RUN test_verify_delivery.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.013s
+
+OK
+RUN test_preflight_delivery.py
+test_baseline_must_match_bytes (__main__.DeliveryInputs.test_baseline_must_match_bytes) ... ok
+test_full_and_shallow_history_are_distinct (__main__.DeliveryInputs.test_full_and_shallow_history_are_distinct) ... ok
+test_pin_required_in_committed_checkout (__main__.DeliveryInputs.test_pin_required_in_committed_checkout) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.041s
+
+OK
+RUN run_review.py
+{
+  "mode": "fixed",
+  "ownerSha256": "f61d69c3e879a8aff104b39a0efeaea47b0ae8852170d59db2be12d0fecc18d6",
+  "java": "openjdk version \"17.0.17\" 2025-10-21\nOpenJDK Runtime Environment Temurin-17.0.17+10 (build 17.0.17+10)\nOpenJDK 64-Bit Server VM Temurin-17.0.17+10 (build 17.0.17+10, mixed mode, sharing)",
+  "tests": {
+    "AtomNetSessionResumeReviewTest": "{\"mode\":\"fixed\",\"actualDistinctIssues\":55,\"reportedIssues\":55,\"pretrainVisits\":64,\"missingShuffleAccepted\":false,\"restoredWeightsDiverged\":false,\"result\":\"PASS_EXPECTED_REVISION_BEHAVIOR\"}",
+    "AtomNetSessionNumericalProbe": "B04_ACTUAL_SESSION_NUMERICS checks=17763 workSlices=166 gradientSlices=60 evalSlices=102 pretrainSamples=3200 epoch=20 onlineUpdates=10 weightsSha256=5b17ecac4f369f0071031aa07e156232b5894be03363202146fa55308242705b"
+  },
+  "productionOwners": [
+    "AtomNetSessionR30.java",
+    "AtomNetTrainerR27.java",
+    "AtomNetR27.java",
+    "StatsR27.java",
+    "FtrlR27.java",
+    "ModelArtifactR29.java",
+    "SplitR27.java",
+    "ReplayDatasetR27.java",
+    "NumberRankerAdapterR30.java",
+    "ResearchContractR30R1.java",
+    "LogisticRidgeSU2.java",
+    "PitGuardR30.java"
+  ],
+  "inputSourceSha256": {
+    "ExecutionBudgetR26.java": "4c0d7cc8637195e73e82787199b64658d04ed642ad65ed6dc8b2312cfcacfde7",
+    "SQLiteDatabase.java": "299ce2714e11864561c2bf615dca11d1e2d0a0db509c57bd3aed31264bbe02d0",
+    "TargetIssueResolver.java": "0857412eb15ee5509eaae253e00fd7126f1e270422eb1f3b2869b4a18e9989f6",
+    "AtomReplayR27.java": "682a6e2aae992302d856c020a02830a74ec201e4562110aa3324f8a2537ff714",
+    "MemoryBudgetR31.java": "5d4c2ce8180234ac4c3a21bb6f876c17d4e63da7ea97394816f5d43591ac9bb2",
+    "CheckpointArtifactsR26.java": "b2c73483d348a200d7783da0e787373c707af415e0451b23bdf54343748a68e4",
+    "AtomNetSessionR30.java": "f61d69c3e879a8aff104b39a0efeaea47b0ae8852170d59db2be12d0fecc18d6",
+    "AtomNetTrainerR27.java": "8d6dfdd60bfd960ab6d00bc0103e98a73249f957819fd91098db2901f0e73a67",
+    "AtomNetR27.java": "50b5fc87e981047f3f0123383a937b0fab62751328bb631535549bf35a63393c",
+    "StatsR27.java": "a7b4645a2247af79c2db75389f7c1c044bf31d20cb0b100fe4b2fa09bdfd9daa",
+    "FtrlR27.java": "1c75fb114b50a9065b75f168bc682d67230f17708f51d08a85bf23420881b43f",
+    "ModelArtifactR29.java": "cc145539dbaf4a68225e5668eb32655c6ecdbf70203a440a089f300a7596671c",
+    "SplitR27.java": "73ba5a65d0e627e5226fec788bc5d4618c81c0e7ed5d830957a941d41def0aea",
+    "ReplayDatasetR27.java": "12acb72f1989c736b1e78be4e1a00fa63f4c25a70e05791e7f112ccebae7842e",
+    "NumberRankerAdapterR30.java": "8b8496861082ff777b168c0c7e20078dd976479b33c1d0cfcfcf6470a65d34c8",
+    "ResearchContractR30R1.java": "985f2d30400bf4272865feb27359a4cb8f0103c9c699c028c80613a88c6dbf1c",
+    "LogisticRidgeSU2.java": "c741a80538e33612ee07d958361acdb7ba85dbfe7c73b1e6f54caeefacb46998",
+    "PitGuardR30.java": "43ef3fddf42828ac8d86aa444cbe16538bf90d13f9ca3ef7df21abe8b9cd3cb2",
+    "AtomNetProgressR33.java": "53bc07fea54450e27f30f0fd277ff1e8f1140a9dd99b2c33ffac21f8cd487b8a",
+    "AtomNetSessionNumericalProbe.java": "379f4182efe558e299f863500500688e71f0aa517f10a24e4c554fd25ccd08b6",
+    "AtomNetSessionResumeReviewTest.java": "e0ad5fe3b112ecec68aef26dbb2843b61f6daf2bafdf3e25f15c28549d0367bb"
+  },
+  "scope": "ACTUAL_NUMERICAL_OWNERS_WITH_PUBLISHED_THROWING_DB_AND_CALENDAR_BOUNDARIES",
+  "notRun": [
+    "Android",
+    "database_publication",
+    "natural_future_quality"
+  ]
+}
+RUN test_stage_checked.py
+test_stage_versions_and_empty_deltas (__main__.configure.<locals>.VersionHistory.test_stage_versions_and_empty_deltas) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 153.578s
+
+OK
+RUN test_registered_prefix.py
+test_changed_completed_stage_file_rejected (__main__.configure.<locals>.RegisteredPrefix.test_changed_completed_stage_file_rejected) ... ok
+test_committed_partial_active_stage_allowed (__main__.configure.<locals>.RegisteredPrefix.test_committed_partial_active_stage_allowed) ... ok
+test_completed_file_with_identical_bytes_and_wrong_git_mode (__main__.configure.<locals>.RegisteredPrefix.test_completed_file_with_identical_bytes_and_wrong_git_mode) ... ok
+test_deleted_completed_stage_file_rejected (__main__.configure.<locals>.RegisteredPrefix.test_deleted_completed_stage_file_rejected) ... ok
+test_partial_next_stage_cannot_hide_incomplete_versioned_stage (__main__.configure.<locals>.RegisteredPrefix.test_partial_next_stage_cannot_hide_incomplete_versioned_stage) ... ok
+test_positive_complete_prefix (__main__.configure.<locals>.RegisteredPrefix.test_positive_complete_prefix) ... ok
+test_staged_inherited_file_preserved_and_rejected (__main__.configure.<locals>.RegisteredPrefix.test_staged_inherited_file_preserved_and_rejected) ... ok
+test_uncommitted_inherited_file_preserved_and_rejected (__main__.configure.<locals>.RegisteredPrefix.test_uncommitted_inherited_file_preserved_and_rejected) ... ok
+test_version_snapshot_cannot_borrow_a_later_version_file_repair (__main__.configure.<locals>.RegisteredPrefix.test_version_snapshot_cannot_borrow_a_later_version_file_repair) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 30.849s
+
+OK
+RUN test_production_overlay.py
+test_corrupt_image_rejected (__main__.configure.<locals>.ProductionOverlay.test_corrupt_image_rejected) ... ok
+test_mismatched_base_after_rejected (__main__.configure.<locals>.ProductionOverlay.test_mismatched_base_after_rejected) ... ok
+test_sequential_overlay_and_retention (__main__.configure.<locals>.ProductionOverlay.test_sequential_overlay_and_retention) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 31.250s
+
+OK
+RUN test_export.py
+test_real_wrappers (__main__.suite.<locals>.OriginalExports.test_real_wrappers) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.445s
+
+OK
+RUN test_final_review.py
+test_full_cli_propagates_real_intake_arguments_and_partial_status (__main__.FinalCommand.test_full_cli_propagates_real_intake_arguments_and_partial_status) ... ok
+test_any_ancestor_cannot_stand_in_for_the_transferred_head (__main__.HandoffHistory.test_any_ancestor_cannot_stand_in_for_the_transferred_head) ... ok
+test_b07_receipt_for_other_stage_lineage (__main__.HandoffHistory.test_b07_receipt_for_other_stage_lineage) ... ok
+test_handoff_with_intermediate_commits (__main__.HandoffHistory.test_handoff_with_intermediate_commits) ... ok
+test_registered_snapshot_counts_bound (__main__.HandoffHistory.test_registered_snapshot_counts_bound) ... ok
+test_old_score_alone_does_not_grant_review (__main__.Intake.test_old_score_alone_does_not_grant_review) ... ok
+test_unrun_or_absent_trace_cannot_bind (__main__.Intake.test_unrun_or_absent_trace_cannot_bind) ... ok
+test_engineering_scope_and_incomplete_full_mode (__main__.OriginalClosure.test_engineering_scope_and_incomplete_full_mode) ... ok
+test_final_download_must_be_the_ninth_package (__main__.OriginalClosure.test_final_download_must_be_the_ninth_package) ... ok
+test_full_mode_accepts_all_observed_rows (__main__.OriginalClosure.test_full_mode_accepts_all_observed_rows) ... ok
+test_summary_must_match_ledger (__main__.OriginalClosure.test_summary_must_match_ledger) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.307s
+
+OK
+RUN test_capture_route.py
+test_change_between_reads_refused (__main__.ReleaseCapture.test_change_between_reads_refused) ... ok
+test_private_route_still_reads_original (__main__.ReleaseCapture.test_private_route_still_reads_original) ... ok
+test_release_reads_only_provider (__main__.ReleaseCapture.test_release_reads_only_provider) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.099s
+
+OK
+RUN test_trace_routes.py
+test_delayed_result_never_reopens_short_trace_deadline (__main__.ShortTrace.test_delayed_result_never_reopens_short_trace_deadline) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.135s
+
+OK
+RUN test_checkout_history.py
+test_assume_unchanged_hides_worktree_modification (__main__.CheckoutHistory.test_assume_unchanged_hides_worktree_modification) ... ok
+test_linked_full (__main__.CheckoutHistory.test_linked_full) ... ok
+test_linked_shallow (__main__.CheckoutHistory.test_linked_shallow) ... ok
+test_shallow_boundary_on_another_history (__main__.CheckoutHistory.test_shallow_boundary_on_another_history) ... ok
+test_staged_user_file_is_preserved_and_rejected_on_reuse (__main__.CheckoutHistory.test_staged_user_file_is_preserved_and_rejected_on_reuse) ... ok
+test_unstaged_user_changes_in_other_tracked_file (__main__.CheckoutHistory.test_unstaged_user_changes_in_other_tracked_file) ... ok
+test_untracked_java_is_preserved_and_rejected_on_reuse (__main__.CheckoutHistory.test_untracked_java_is_preserved_and_rejected_on_reuse) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 2.392s
+
+OK
+RUN test_check_source_delivery.py
+test_complete_delivery_and_adjacent_download (__main__.ReceivedBuild.test_complete_delivery_and_adjacent_download) ... ok
+test_download_disagrees_with_local_candidate (__main__.ReceivedBuild.test_download_disagrees_with_local_candidate) ... ok
+test_gradle_log_missing_or_replaced (__main__.ReceivedBuild.test_gradle_log_missing_or_replaced) ... ok
+test_missing_download_refuses_acceptance (__main__.ReceivedBuild.test_missing_download_refuses_acceptance) ... ok
+test_rehashed_apk_with_other_embedded_commit (__main__.ReceivedBuild.test_rehashed_apk_with_other_embedded_commit) ... ok
+test_source_changed_during_build (__main__.ReceivedBuild.test_source_changed_during_build) ... ok
+test_actual_zip_and_empty_restore (__main__.SourceDelivery.test_actual_zip_and_empty_restore) ... ok
+test_lost_source_after_packaging (__main__.SourceDelivery.test_lost_source_after_packaging) ... ok
+test_prerequisite_bundle_refused_by_empty_restore (__main__.SourceDelivery.test_prerequisite_bundle_refused_by_empty_restore) ... ok
+test_receipt_for_other_tree (__main__.SourceDelivery.test_receipt_for_other_tree) ... ok
+test_wrong_source_even_after_rehash (__main__.SourceDelivery.test_wrong_source_even_after_rehash) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 3.163s
+
+OK
+RUN check_work_orders.py
+{"status": "PASS", "issues": 66, "originalArtifactLinksVerified": 365, "stages": 9, "fileChanges": 167, "distinctPaths": 141}
+RUN test_work_order_materials.py
+test_complete_index (__main__.MaterialTests.test_complete_index) ... ok
+test_failed_export_does_not_publish (__main__.MaterialTests.test_failed_export_does_not_publish) ... ok
+test_missing_or_changed_issue_copy_refused (__main__.MaterialTests.test_missing_or_changed_issue_copy_refused) ... ok
+test_prepared_checkers (__main__.MaterialTests.test_prepared_checkers) ... ok
+test_refs_at_consumer_stage (__main__.MaterialTests.test_refs_at_consumer_stage) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 8.360s
+
+OK
+RUN test_verify_all_deliveries.py
+test_index (__main__.StageDeliveryTest.test_index) ... ok
+test_real_version_commits (__main__.StageDeliveryTest.test_real_version_commits) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.121s
+
+OK
+{"status": "PASS", "scope": "assembled package and host corrections", "commands": 23, "reviewManifestSha256": "6743d05caf20079d7881b923046e9b385b0d9f5eaa6750db9bf0d2f704d0e9bb"}

@@ -1,0 +1,1019 @@
+diff --git a/app/build/generated/r967/semantic_manifest.json b/app/build/generated/r967/semantic_manifest.json
+index 2bf7bd13602cef259c3c4550046e2a4855a760d5..0b8612a32cbf16206767c25425b85568620fc2ee 100644
+--- a/app/build/generated/r967/semantic_manifest.json
++++ b/app/build/generated/r967/semantic_manifest.json
+@@ -1,12 +1,12 @@
+ {
+   "revision": "R967_SEMANTIC_BUILD_V1",
+-  "training_rule_sha256": "4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0",
++  "training_rule_sha256": "fc83b6f1cb805a4061ae4c19d4c3761ea47c7b9865573f8e19e4e7ccaba35036",
+   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
+   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
+-  "manifest_sha256": "b845f5a108020ba9b073c7a5f2a49d494d627a071e252308abf8f64c4fbfd1ed",
+-  "controlled_file_count": 1548,
+-  "numeric_dependency_count": 1408,
+-  "source_provenance_sha256": "5c44c94911911fc47e5d13ef5ef42ab59dae9e72ef962aa7165534de9bd803de",
++  "manifest_sha256": "7122ac5f954491f834ee47b62cf003c87d5bb4d87e733d2bac1fd6c46cdaa76e",
++  "controlled_file_count": 1554,
++  "numeric_dependency_count": 1414,
++  "source_provenance_sha256": "0e73397500b0a06cdb48e1a7d5e152c813d55e502e2c899f0afe446b674538b1",
+   "dependencies": [
+     [
+       "app/build.gradle",
+@@ -1911,7 +1911,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java",
+       "NUMERIC",
+-      "0672841c8b8a55ffa00147af2ecb460af309aa0e02b992f095d61f98f626e917"
++      "67b6f9a668cb2f66a91836adef0c6de71d36e9aef300936e31e5b7a81484f99a"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/MolecularToolWorldR947.java",
+@@ -2391,7 +2391,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+       "NUMERIC",
+-      "b8eb557338817bb91c92e853627496c5c034ba7c08f255754dcbee6ece5fba59"
++      "dae8c633a8a7a3a5fd57eba374bb8979d9034a21ba25be899e9e3dc16bc3ee61"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+@@ -5068,6 +5068,16 @@
+       "NUMERIC",
+       "141a6dc0140e87186ab789ec826be3bb11fd009ee2cbc63629a3228035dff922"
+     ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
++      "NUMERIC",
++      "d524a5b88139d7de73dd5480ce88b7276445cc75c4b49bdf889044d23ed08614"
++    ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
++      "NUMERIC",
++      "21bc0e4fc1430e04b2048ef27f7dee497a9d2e1a31221d1639917edc978731c7"
++    ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR30.java",
+       "NUMERIC",
+@@ -5263,6 +5273,11 @@
+       "NUMERIC",
+       "640bd8c8c0d45d8ff4a2b9f6ed1dcb0117c7bec619470dc025c4e43a8f293249"
+     ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
++      "NUMERIC",
++      "52828fb6ee9c3f0701d858e549b3a4509fce13928b59e18c34d3ec44e0021626"
++    ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+       "NUMERIC",
+@@ -5293,6 +5308,11 @@
+       "NUMERIC",
+       "fea94a6d7ef268ba103a8b987c596b4a8885b21007277aaefb554f1c35d1c8f8"
+     ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
++      "NUMERIC",
++      "80d85bf6589b8a098db434cedec96f27610c87c8fbf4d0ccc0ff06c05380788d"
++    ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosticsSU1.java",
+       "NUMERIC",
+@@ -6316,7 +6336,7 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+       "NUMERIC",
+-      "f7c8a705a7caab17023a1f7f874ea043ec0c4b737a65b4f51cd56cbcfeda0a50"
++      "ee4facc5800f62027cc5a39adaca28cd5e760452228d1fa52596190a1cbee1ec"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java",
+@@ -6381,17 +6401,22 @@
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+       "NUMERIC",
+-      "db1e206be830780c4ee31d5f62c39371142d31d52e3c22477fef12ad4abd64aa"
++      "b0b4049c6e67e77f7a996583dd6658d602e99a6bd69b4722038d7952de0b04e1"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+       "NUMERIC",
+       "83357ad8449f129a43830fa5254e818b0752ee516d71c0cce9fd6b52d9b2d3c4"
+     ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
++      "NUMERIC",
++      "f19d00bb128706ed046b9fe10d5757590c0e4fc4fcb178d040d9ab0fc0bcf990"
++    ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+       "NUMERIC",
+-      "d1b93c80418c8990ef2d301324aca79fe9239a207ae1420f2432b757a6e2f7b5"
++      "67126c708f99dfcf8b4dcdf7457a05237d93bf9f4759f756c14733daea67f198"
+     ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+@@ -6418,6 +6443,11 @@
+       "NUMERIC",
+       "2506cc411dffbae30041e0f2a40e6f4054b0d83c4d075c3bd8d64f9f932c2f02"
+     ],
++    [
++      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
++      "NUMERIC",
++      "141d672d0d61d3bf91a592e4d9942eecd7aae95326c0a3152f14e321b94469b6"
++    ],
+     [
+       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+       "NUMERIC",
+@@ -7051,6 +7081,6 @@
+   ],
+   "compatible_predecessor_rule_sha256": "",
+   "compatible_predecessor_rules_sha256": [],
+-  "continuation_proof_sha256": "5b75ac9056b9ea04eb9620077817cb4dee22a604cb49e682e1e3aa858da45433",
++  "continuation_proof_sha256": "8e7d24ef432568183b50748d33187e244da5ec7141614af7dc3d7187d99fcfc4",
+   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
+ }
+diff --git a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+index c71a4810afbe3b4ce9acb9e1fc33383ba54b8ad2..528321414058d2d4d5954cf82be0aea45a3ba4ce 100644
+--- a/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
++++ b/app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+@@ -1,13 +1,13 @@
+ package com.ethk3.novaonepro;
+ /** Build-generated. Never edit; no authorization is implied. */
+ public final class ResearchSemanticsGeneratedR967 {
+-    public static final String TRAINING_RULE_SHA256=runtimeValue("4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0");
++    public static final String TRAINING_RULE_SHA256=runtimeValue("fc83b6f1cb805a4061ae4c19d4c3761ea47c7b9865573f8e19e4e7ccaba35036");
+     public static final String POLICY_HASH=runtimeValue("04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8");
+     public static final String POLICY_JSON=runtimeValue("{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}");
+-    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("b845f5a108020ba9b073c7a5f2a49d494d627a071e252308abf8f64c4fbfd1ed");
++    public static final String DEPENDENCY_MANIFEST_SHA256=runtimeValue("7122ac5f954491f834ee47b62cf003c87d5bb4d87e733d2bac1fd6c46cdaa76e");
+     public static final String COMPATIBLE_PREDECESSOR_RULE_SHA256=runtimeValue("");
+     public static final String COMPATIBLE_PREDECESSOR_RULES_SHA256=runtimeValue("");
+-    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("5b75ac9056b9ea04eb9620077817cb4dee22a604cb49e682e1e3aa858da45433");
++    public static final String CONTINUATION_PROOF_SHA256=runtimeValue("8e7d24ef432568183b50748d33187e244da5ec7141614af7dc3d7187d99fcfc4");
+     private static String runtimeValue(String value){return value;}
+     private ResearchSemanticsGeneratedR967(){}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java b/app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java
+index fdd23f06e368519825126a4f7eff238065253121..3ab1533cb4e1795e4e3a70f06d7f1f3d691932a9 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java
+@@ -29,7 +29,7 @@ public final class ModuleReplayR932 {
+         V51EffectiveConsensusEngine.Consensus[] consensus=new V51EffectiveConsensusEngine().evaluateFrozen(experts,input.states,input.reliability,disabled);
+         V51Models.PositionAction[] actions=new V51PositionActionBuilder().build(number.matrix,input.states,consensus);
+         double[][] meta=new V51ActionMetaFeatureEngine().build(actions,input.features,input.states,experts,gate.weight,consensus);
+-        V51ActionRankerEngine.RankResult ranked=new V51ActionRankerEngine().rankDetailed(actions,meta);
++        V51ActionRankerEngine.RankResult ranked=V51RuntimeOrchestrator.rankK3DiagnosticActionsF06(actions,meta);
+         V51Models.PositionAction[] finalActions=ranked.ranked;
+         if(input.consumerApplied&&module!=Module.INVENTED)finalActions=FrozenConsumerRecipeR932.execute(input.consumer,finalActions).actions;
+         finalActions=finalActions.clone();Arrays.sort(finalActions,new Comparator<V51Models.PositionAction>(){public int compare(V51Models.PositionAction a,V51Models.PositionAction b){return Integer.compare(a.rank,b.rank);}});
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+index dc331297f2451f09e9c2748702a4a3fa936f2b51..08f45cb865e6655b20df6528569a6d9ed8488408 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+@@ -308,8 +308,9 @@ public final class ReportCatalogCP4 {
+         try(Cursor c=query(db,"PRAGMA "+operation+"("+ident(name)+")",null)) {
+             long n=0;while(c.moveToNext()) {
+                 progress.checkpoint("SCHEMA_PRAGMA",n++);
+-                StringBuilder b=new StringBuilder(1024);b.append('{');field(b,"kind","pragma_row");b.append(',');field(b,"operation",operation);b.append(',');field(b,"name",name);
+-                for(int j=0;j<c.getColumnCount();j++) {b.append(',');quote(b,c.getColumnName(j));b.append(':');
++                StringBuilder b=new StringBuilder(1024);b.append('{');field(b,"kind","pragma_row");b.append(',');field(b,"operation",operation);b.append(',');field(b,"object_name",name);b.append(',');field(b,"pragma_schema",2);
++                Set<String> fieldNames=new HashSet<String>();Collections.addAll(fieldNames,"kind","operation","object_name","pragma_schema");
++                for(int j=0;j<c.getColumnCount();j++) {String columnName=c.getColumnName(j);if(columnName==null||!fieldNames.add(columnName))throw new IOException("CATALOG_DUPLICATE_PRAGMA_FIELD");b.append(',');quote(b,columnName);b.append(':');
+                     if(c.isNull(j))b.append("null");else if(c.getType(j)==Cursor.FIELD_TYPE_INTEGER)b.append(c.getLong(j));
+                     else if(c.getType(j)==Cursor.FIELD_TYPE_FLOAT)b.append(Double.toString(c.getDouble(j)));
+                     else if(c.getType(j)==Cursor.FIELD_TYPE_BLOB)throw new IllegalStateException("SCHEMA_BLOB_FORBIDDEN");
+@@ -333,7 +334,8 @@ public final class ReportCatalogCP4 {
+     private static String bounded(String s) {if(s!=null && s.length()>16384)throw new IllegalArgumentException("CATALOG_METADATA_TOO_LARGE");return s;}
+     private static String obj(Object... kv) {
+         if((kv.length&1)!=0)throw new IllegalArgumentException("JSON_FIELDS");StringBuilder b=new StringBuilder(1024);b.append('{');
+-        for(int i=0;i<kv.length;i+=2){if(i>0)b.append(',');field(b,(String)kv[i],kv[i+1]);}return b.append('}').toString();
++        Set<String> fieldNames=new HashSet<String>();
++        for(int i=0;i<kv.length;i+=2){if(!(kv[i] instanceof String)||!fieldNames.add((String)kv[i]))throw new IllegalArgumentException("CATALOG_DUPLICATE_JSON_FIELD");if(i>0)b.append(',');field(b,(String)kv[i],kv[i+1]);}return b.append('}').toString();
+     }
+     private static void field(StringBuilder b,String key,Object value) {
+         quote(b,key);b.append(':');if(value==null)b.append("null");else if(value instanceof Boolean || value instanceof Number)b.append(value.toString());else quote(b,bounded(value.toString()));
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..31dafe3a43cd5d2a52fe95b7e260a63b97e7f793
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java
+@@ -0,0 +1,83 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.lang.reflect.Method;
++import java.util.*;
++
++/** Finite requirement-to-owner diagnosis. The registered scope is explicit;
++ * missing observations cannot establish an absent capability or a benefit. */
++public final class CapabilityNeedDiagnosticsR335 {
++    private CapabilityNeedDiagnosticsR335() {}
++    private static Map<?,?> map(Object x){return x instanceof Map?(Map<?,?>)x:Collections.emptyMap();}
++    private static List<?> list(Object x){return x instanceof List?(List<?>)x:Collections.emptyList();}
++    private static String text(Object x){return x instanceof String?(String)x:"";}
++    private static final int MAX_NEEDS=64,MAX_OWNERS=8;
++
++    static Map<String,Object> inspect(Map<?,?> endpoint,ClassLoader loader){
++        Map<String,Object> result=new LinkedHashMap<>();String owner=text(endpoint.get("class")),name=text(endpoint.get("method"));
++        List<?> expected=list(endpoint.get("parameters"));result.put("class",owner);result.put("method",name);result.put("parameters",expected);
++        if(!owner.matches("com\\.ethk3\\.novaonepro\\.[A-Za-z0-9_.$]+")||!name.matches("[A-Za-z_][A-Za-z0-9_]*")||expected.size()>12){result.put("status","UNKNOWN_INVALID_OWNER_CONTRACT");return result;}
++        try{
++            Class<?> type=Class.forName(owner,false,loader);List<String> observed=new ArrayList<>();boolean match=false;
++            for(Method method:type.getDeclaredMethods())if(method.getName().equals(name)){
++                List<String> parameters=new ArrayList<>();for(Class<?> parameter:method.getParameterTypes())parameters.add(parameter.getName());
++                observed.add(method.getName()+parameters.toString());if(parameters.equals(expected))match=true;
++            }
++            Collections.sort(observed);result.put("observedNamedSignatures",observed);
++            result.put("status",match?"PRESENT_DECLARATION_ONLY":"ABSENT_EXACT_DECLARATION_IN_REQUIRED_OWNER");
++        }catch(ClassNotFoundException absent){result.put("status","ABSENT_REQUIRED_OWNER_CLASS");}
++        catch(LinkageError|SecurityException unreadable){result.put("status","UNKNOWN_OWNER_INSPECTION_FAILURE");result.put("exceptionType",unreadable.getClass().getName());}
++        return result;
++    }
++    private static boolean identity(Map<?,?> index){Object at=index.get("sourceSnapshot");return text(index.get("sourceCommit")).matches("[0-9a-f]{40}")&&(at instanceof Long||at instanceof Integer)&&((Number)at).longValue()>0;}
++    static String classification(boolean identity,boolean coverage,int present,int absent,int unknown,boolean blocked){
++        if(!identity||!coverage||unknown>0)return "EVIDENCE_MISSING";
++        if(present==0&&absent>0)return "NEW_CAPABILITY_PROPOSAL";
++        if(absent>0)return "EXISTING_CAPABILITY_BINDING_GAP";
++        return blocked?"EXISTING_CAPABILITY_BLOCKED":"EXISTING_CAPABILITY_DECLARED_RUNTIME_UNVERIFIED";
++    }
++    static Map<String,Object> assess(Map<?,?> index,List<?> needs,ClassLoader loader,String inspectionCommit){
++        if(needs.size()>MAX_NEEDS)throw new IllegalArgumentException("R335_CAPABILITY_NEED_BOUND");
++        Map<String,Map<?,?>> objects=new LinkedHashMap<>();Set<String> duplicates=new HashSet<>();
++        for(String group:new String[]{"capabilities","matrices","researchCharts","legacyCharts","logicalTables"})
++            for(Object value:list(map(index.get(group)).get("objects"))){Map<?,?> row=map(value);String id=text(row.get("objectId"));if(id.isEmpty())id=text(row.get("id"));String key=group+":"+id;if(objects.put(key,row)!=null)duplicates.add(key);}
++        List<Object> results=new ArrayList<>(),candidates=new ArrayList<>(),ownerManifest=new ArrayList<>();Set<String> seen=new HashSet<>();
++        for(Object value:needs){Map<?,?> need=map(value);String key=text(need.get("needKey"));
++            if(key.isEmpty()||!seen.add(key))throw new IllegalArgumentException("R335_CAPABILITY_NEED_IDENTITY");
++            List<?> endpoints=list(need.get("requiredOwners"));if(endpoints.isEmpty()||endpoints.size()>MAX_OWNERS)throw new IllegalArgumentException("R335_CAPABILITY_OWNER_BOUND");
++            int present=0,absent=0,unknown=0;List<Object> owners=new ArrayList<>(),runtime=new ArrayList<>();boolean blocked=false,coverage=true;
++            for(Object raw:endpoints){Map<String,Object> inspected=inspect(map(raw),loader);String status=text(inspected.get("status"));
++                if(status.startsWith("PRESENT"))present++;else if(status.startsWith("ABSENT"))absent++;else unknown++;owners.add(inspected);}
++            for(Object ref:list(need.get("relatedObjects"))){String refKey=text(ref);Map<?,?> row=objects.get(refKey);
++                if(row==null||duplicates.contains(refKey)){coverage=false;continue;}
++                Map<String,Object> observation=new LinkedHashMap<>();observation.put("objectKey",refKey);
++                for(String field:new String[]{"implemented","callable","inputAvailable","produced","consumed","effective","notProducedReason","executionBlockedReason","status"})observation.put(field,row.get(field));
++                Map<?,?> evidence=map(row.get("runtimeEvidenceR33"));String blocker=text(evidence.get("firstBlockedStatus"));
++                observation.put("persistedObjectBlocker",blocker.isEmpty()?null:blocker);
++                // Static report-process bindings and a normal wait are not runtime failure proof.
++                boolean objectBlocked=!blocker.isEmpty()||Boolean.FALSE.equals(row.get("callable"))&&text(row.get("executionBlockedReason")).length()>0;
++                observation.put("hasExplicitBlocker",objectBlocked);
++                if(!Boolean.FALSE.equals(need.get("runtimeBlockerApplicable")))blocked|=objectBlocked;
++                runtime.add(observation);
++            }
++            String state=classification(identity(index)&&Objects.equals(index.get("sourceCommit"),inspectionCommit),coverage,present,absent,unknown,blocked);
++            Map<String,Object> item=new LinkedHashMap<>();for(String field:new String[]{"needKey","title","ownerBatch","sourceContract","requiredInputs","producerPurpose","consumerPurpose","nextAction","positiveVerification","negativeVerification","closestExistingObjects"})item.put(field,need.get(field));
++            item.put("classification",state);item.put("requiredOwnerInspections",owners);item.put("relatedObjectObservations",runtime);
++            item.put("scope","ONLY_ENUMERATED_REQUIRED_OWNER_CLASSES_AND_EXACT_DECLARED_SIGNATURES; NOT_ALL_POSSIBLE_IMPLEMENTATIONS");
++            item.put("reportSourceCommit",index.get("sourceCommit"));item.put("inspectedSourceCommit",inspectionCommit);item.put("sourceSnapshot",index.get("sourceSnapshot"));
++            item.put("inspectionMatchesReport",Objects.equals(index.get("sourceCommit"),inspectionCommit));
++            item.put("runtimeBlockerApplicable",!Boolean.FALSE.equals(need.get("runtimeBlockerApplicable")));
++            item.put("registryEntrySha256",StatsR27.sha256(JsonR27.write(need)));item.put("ownerInspectionSha256",StatsR27.sha256(JsonR27.write(owners)));
++            item.put("effectStatus","NO_EFFECT_INFERRED_FROM_DECLARATIONS_OR_BLOCKER_COUNTS");item.put("mayAuthorizeReal",false);
++            item.put("proposalId",state.equals("NEW_CAPABILITY_PROPOSAL")?StatsR27.sha256("R335_NEED|"+key+"|"+index.get("sourceCommit")+"|"+item.get("registryEntrySha256")):null);
++            results.add(item);ownerManifest.add(Collections.singletonMap(key,owners));
++            if(state.equals("NEW_CAPABILITY_PROPOSAL"))candidates.add(item);
++        }
++        Map<String,Object> out=new LinkedHashMap<>();out.put("schema","R335_CAPABILITY_NEED_DIAGNOSIS_1");out.put("sourceCommit",index.get("sourceCommit"));out.put("inspectedSourceCommit",inspectionCommit);out.put("sourceSnapshot",index.get("sourceSnapshot"));
++        out.put("registryHash",StatsR27.sha256(JsonR27.write(needs)));out.put("ownerManifestHash",StatsR27.sha256(JsonR27.write(ownerManifest)));
++        out.put("needCount",needs.size());out.put("needResults",results);out.put("candidateCapabilityProposalsR33",candidates);
++        out.put("coverageBoundary","VERSIONED_FINITE_NEED_CATALOG; NO_CLAIM_TO_ENUMERATE_UNKNOWN_FUTURE_CAPABILITIES");out.put("mayAuthorizeReal",false);return out;
++    }
++    public static Map<String,Object> capture(Map<String,Object> index){
++        return assess(index,CapabilityNeedRegistryR335.needs(),CapabilityNeedDiagnosticsR335.class.getClassLoader(),com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..855b12c0c3c3e6b3471d282dcb6b54ddf454a89d
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java
+@@ -0,0 +1,9 @@
++package com.ethk3.novaonepro.strategyv2;
++import java.util.*;
++/** Generated from the reviewed finite CAPABILITY_NEEDS_R335.json, not a universal capability inventory. */
++public final class CapabilityNeedRegistryR335 {
++ private CapabilityNeedRegistryR335(){}
++ private static final String JSON="[{\"closestExistingObjects\":[\"capabilities:F01\",\"capabilities:F23\"],\"consumerPurpose\":\"Foundry按预算训练并提交状态\",\"needKey\":\"TRAINING_FAMILY_EXECUTION\",\"negativeVerification\":\"错ABI、缺教师、只有RUNNING无提交不得算训练完成\",\"nextAction\":\"沿原candidate和owner/fence查训练输入；缺绑定补接口，数值ABI不匹配保全旧父代并生成独立子代。\",\"ownerBatch\":\"B03\",\"positiveVerification\":\"读取真实权重变化、cursor提交及重启恢复相等原件\",\"producerPurpose\":\"构建已注册家族\",\"relatedObjects\":[\"capabilities:F01\",\"capabilities:F23\"],\"requiredInputs\":[\"PIT输入\",\"相同策略身份\",\"原checkpoint与ABI\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.FamilyRegistryR26\",\"method\":\"build\",\"parameters\":[\"java.lang.String\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.FoundryCampaignR26\",\"method\":\"step\",\"parameters\":[\"com.ethk3.novaonepro.DbStore\",\"java.util.function.Supplier\",\"com.ethk3.novaonepro.strategyv2.BudgetTokenSU1\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B03/README_R335.md\",\"title\":\"家族构建、训练和状态恢复\"},{\"closestExistingObjects\":[\"capabilities:ATOMNET\",\"researchCharts:R14\"],\"consumerPurpose\":\"冻结时同模型概率面消费\",\"needKey\":\"TEN_POSITION_TRAINING_SURFACE\",\"negativeVerification\":\"材料样本增加但training=0；只文件无消费；错epoch不得通过\",\"nextAction\":\"按publicationId采集样本、梯度、optimizer、模型哈希、发布与消费；归档失败独立隔离。\",\"ownerBatch\":\"B04\",\"positiveVerification\":\"参数重算与重启一致；在线冻结引用同modelHash\",\"producerPurpose\":\"梯度训练并发布模型\",\"relatedObjects\":[\"capabilities:ATOMNET\",\"researchCharts:R14\"],\"requiredInputs\":[\"同epoch十位置\",\"训练截止\",\"publicationId/modelHash\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.AtomNetRuntimeR30\",\"method\":\"step\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.RuntimeR27\",\"com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.ModelSurfaceStoreR30\",\"method\":\"surface\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$Batch\",\"com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$Surface\",\"com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30$FrozenModelRef\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B04/README_R335.md\",\"title\":\"十位置实训到模型面消费\"},{\"closestExistingObjects\":[\"researchCharts:R05\",\"researchCharts:R10\",\"logicalTables:T15\"],\"consumerPurpose\":\"子代或非出生动作写入原事务回执\",\"needKey\":\"RESEARCH_ACTION_CONSUMPTION\",\"negativeVerification\":\"孤立frame、重试重复计产出、来源hash不符时拒绝\",\"nextAction\":\"由frame/run查实际consumer，缺消费边先接线；不得以建议或图形代替执行。\",\"ownerBatch\":\"B05\",\"positiveVerification\":\"同来源动作与下一轮预算/子代身份一致\",\"producerPurpose\":\"有界研究分析\",\"relatedObjects\":[\"researchCharts:R05\",\"researchCharts:R10\",\"logicalTables:T15\"],\"requiredInputs\":[\"frame/run原件\",\"proposal_id\",\"child_policy_hash\",\"receipt_hash\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchObservatoryR30R1\",\"method\":\"step\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.RuntimeR27\",\"com.ethk3.novaonepro.strategyv2.ResearchPoolR27$Worker\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchConsumptionStoreR31\",\"method\":\"completeWithin\",\"parameters\":[\"android.database.sqlite.SQLiteDatabase\",\"java.lang.String\",\"java.lang.String\",\"java.lang.String\",\"int\",\"java.lang.String\",\"java.util.Map\",\"java.lang.String\",\"java.util.Map\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B05/R01_R18_CONTRACTS.json\",\"title\":\"研究图原件到真实研究动作\"},{\"closestExistingObjects\":[\"researchCharts:R11\",\"logicalTables:T13\"],\"consumerPurpose\":\"唯一资格owner按连续日历消费\",\"needKey\":\"INDEPENDENT_QUALIFICATION\",\"negativeVerification\":\"重放混自然、偷看未来、漏期、旧证书借用均拒绝\",\"nextAction\":\"独立未来为0时沿冻结/开奖/资格缺口原键定位；工程连通不提升自然资格。\",\"ownerBatch\":\"B06\",\"positiveVerification\":\"同机会原始冻结、开奖、分母、区间、频率及证书可复算\",\"producerPurpose\":\"固定确认合同和结果\",\"relatedObjects\":[\"researchCharts:R11\",\"logicalTables:T13\"],\"requiredInputs\":[\"冻结确认合同\",\"独立开奖日历\",\"合法事前冻结\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30\",\"method\":\"evaluate\",\"parameters\":[\"com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Task\",\"com.ethk3.novaonepro.strategyv2.EvalContextR27\",\"com.ethk3.novaonepro.strategyv2.HoldoutLedgerR27\",\"com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30$Evidence\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.QualificationInboxR29\",\"method\":\"consume\",\"parameters\":[\"android.database.sqlite.SQLiteDatabase\",\"com.ethk3.novaonepro.strategyv2.QualificationInboxR29$Commit\",\"java.lang.String\",\"long\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B06/B06_自然资格与真实主链.md\",\"title\":\"独立确认与自然未来资格\"},{\"closestExistingObjects\":[\"researchCharts:R18\",\"logicalTables:T16\"],\"consumerPurpose\":\"SettlementEngine幂等结算\",\"needKey\":\"DECISION_SETTLEMENT\",\"negativeVerification\":\"FROZEN_OBSERVATION_MISSING不能靠开奖后回填消除\",\"nextAction\":\"按同decisionId/目标期追冻结、trades和结算；错过赛前保留原因，不补造冻结。\",\"ownerBatch\":\"B02\",\"positiveVerification\":\"重复乱序开奖只结一次，原决策与结算逐键一致\",\"producerPurpose\":\"唯一DecisionGate决策\",\"relatedObjects\":[\"researchCharts:R18\",\"logicalTables:T16\"],\"requiredInputs\":[\"赛前合法冻结\",\"目标期\",\"有效证书\",\"权威开奖\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.DecisionGateEngine\",\"method\":\"decide\",\"parameters\":[\"com.ethk3.novaonepro.DbStore\",\"com.ethk3.novaonepro.Models$CandidateBatch\",\"java.util.List\",\"java.util.List\",\"java.util.List\"]},{\"class\":\"com.ethk3.novaonepro.SettlementEngine\",\"method\":\"settleLatest\",\"parameters\":[\"com.ethk3.novaonepro.DbStore\",\"com.ethk3.novaonepro.Models$Draw\"]}],\"runtimeBlockerApplicable\":true,\"sourceContract\":\"B02/README_R335.md\",\"title\":\"唯一真实决策到权威结算\"},{\"closestExistingObjects\":[\"logicalTables:T01\",\"logicalTables:T15\"],\"consumerPurpose\":\"逐表语义审计\",\"needKey\":\"TABLE_SOURCE_AUDIT\",\"negativeVerification\":\"缺表、截断、取消、跨水位不得报告正常空集\",\"nextAction\":\"空首页分别核真空集、来源缺失、过滤和分页；完整分母不从展示条数推算。\",\"ownerBatch\":\"B07\",\"positiveVerification\":\"相同范围UI/SQL可复算并能翻页\",\"producerPurpose\":\"只读原表查询\",\"relatedObjects\":[\"logicalTables:T01\",\"logicalTables:T15\"],\"requiredInputs\":[\"明确角色\",\"水位\",\"页码\",\"总分母\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchTableAdaptersR30R1\",\"method\":\"readPageR31\",\"parameters\":[\"android.database.sqlite.SQLiteDatabase\",\"java.lang.String\",\"java.util.Map\",\"long\",\"int\",\"android.os.CancellationSignal\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.ResearchTableAuditR32\",\"method\":\"audit\",\"parameters\":[\"java.lang.String\",\"java.lang.Object\"]}],\"runtimeBlockerApplicable\":false,\"sourceContract\":\"B05/TABLES_16_CONTRACTS.csv\",\"title\":\"逻辑表来源与有界页验真\"},{\"closestExistingObjects\":[\"capabilities:ATOMNET\",\"capabilities:F01\"],\"consumerPurpose\":\"对象诊断只读绑定\",\"needKey\":\"PERSISTED_FAULT_TRACE\",\"negativeVerification\":\"错owner/fence、篡改hash、旧样本、共享任务不能称对象根因\",\"nextAction\":\"从同水位event_id/owner/fence取得真正输入与独立复演；共享owner只作定位。\",\"ownerBatch\":\"B07\",\"positiveVerification\":\"报告对象能回到同一原行和原operation\",\"producerPurpose\":\"捕获原始任务/故障行\",\"relatedObjects\":[\"capabilities:ATOMNET\",\"capabilities:F01\"],\"requiredInputs\":[\"同一SELECT投影\",\"原行主键/hash\",\"owner/fence\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.DiagnosisTraceReaderR33\",\"method\":\"captureSingleSelect\",\"parameters\":[\"java.util.Map\",\"java.util.Map\",\"android.os.CancellationSignal\"]},{\"class\":\"com.ethk3.novaonepro.strategyv2.DiagnosisProofR33\",\"method\":\"classify\",\"parameters\":[\"java.util.Map\",\"java.lang.String\",\"java.lang.String\",\"java.lang.Object\",\"java.lang.Object\"]}],\"runtimeBlockerApplicable\":false,\"sourceContract\":\"B07/能力缺口升级与下份报告复核.md\",\"title\":\"同水位原始任务与故障追踪\"},{\"closestExistingObjects\":[],\"consumerPurpose\":\"独立候选提案数组，不改固定165索引\",\"needKey\":\"CAPABILITY_NEED_DISCOVERY\",\"negativeVerification\":\"LinkageError、来源缺失、重复对象不得成为NEW_CAPABILITY_PROPOSAL\",\"nextAction\":\"所有约定owner均可核且入口全缺才提新增；部分缺失补绑定；读取失败保持未知。\",\"ownerBatch\":\"B07\",\"positiveVerification\":\"缺类/缺方法/完整绑定/调用受阻四类明确分流\",\"producerPurpose\":\"核需求与实际生产入口\",\"relatedObjects\":[],\"requiredInputs\":[\"版本化需求\",\"精确owner方法签名\",\"注册对象来源\"],\"requiredOwners\":[{\"class\":\"com.ethk3.novaonepro.strategyv2.CapabilityNeedRegistryR335\",\"method\":\"needs\",\"parameters\":[]},{\"class\":\"com.ethk3.novaonepro.strategyv2.CapabilityNeedDiagnosticsR335\",\"method\":\"capture\",\"parameters\":[\"java.util.Map\"]}],\"runtimeBlockerApplicable\":false,\"sourceContract\":\"B07/能力缺口升级与下份报告复核.md\",\"title\":\"有限需求目录与缺能力提案\"}]";
++ public static final String SHA256="0fec1eef0d5ff16a21dc23a51b4e0c160d218457fdbed0e19c5ba0d66b171d4a";
++ public static List<?> needs(){if(!SHA256.equals(StatsR27.sha256(JSON)))throw new IllegalStateException("R335_NEED_REGISTRY_IDENTITY");return Collections.unmodifiableList((List<?>)JsonR27.parse(JSON));}
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9f4ed31265cf4490b10556d02356e346a5110ba7
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java
+@@ -0,0 +1,41 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.Map;
++import java.util.Objects;
++import java.util.regex.Pattern;
++
++/** Consumes only a trace assembled by the pinned-original reader. Never grants qualifications. */
++final class DiagnosisProofR33 {
++    private static final Pattern HASH = Pattern.compile("[0-9a-f]{64}");
++    private DiagnosisProofR33() {}
++
++    private static boolean hash(Object value) {
++        return value instanceof String && HASH.matcher((String) value).matches();
++    }
++    private static boolean text(Object value) {
++        return value instanceof String && !((String) value).trim().isEmpty();
++    }
++    static String classify(Map<?,?> t, String group, String id, Object commit, Object snapshot) {
++        if (t.isEmpty()) return "UNCONFIRMED_REPLAY_REQUIRED";
++        if (!text(commit) || snapshot == null || !Objects.equals(commit,t.get("sourceCommit"))
++                || !Objects.equals(snapshot,t.get("readWatermark"))
++                || !group.equals(t.get("group")) || !id.equals(t.get("objectId")))
++            return "TRACE_IDENTITY_MISMATCH";
++        if ("PERSISTED_OWNER_OBSERVATION".equals(t.get("traceKind"))) {
++            if (!DiagnosisTraceReaderR33.validTrace(t)) return "UNCONFIRMED_ORIGINAL_ENVELOPE_INVALID";
++            return "EXACT_EXPERT_TASK_ID".equals(t.get("attribution"))
++                ? "OBSERVED_EXPERT_OWNER_REASON_REPLAY_UNCONFIRMED"
++                : "OBSERVED_SHARED_OWNER_REASON_NOT_OBJECT_ROOT_CAUSE";
++        }
++        if (!Boolean.TRUE.equals(t.get("originalReadVerified")) || !text(t.get("recordLocator"))
++                || !hash(t.get("expectedInputSha256"))
++                || !t.get("expectedInputSha256").equals(t.get("actualInputSha256"))
++                || !text(t.get("firstFailingCall")) || !text(t.get("reasonCode")))
++            return "UNCONFIRMED_ORIGINAL_OR_INPUT_MISSING";
++        // A report-object map is not an execution authority. In particular, caller supplied
++        // booleans and equal caller supplied hashes cannot prove an isolated numeric rerun.
++        // The separate R335 replay executor emits a byte-bound receipt; until its original
++        // receipt is verified by a dedicated reader, the app must keep this unconfirmed.
++        return "OBSERVED_BLOCKER_REPLAY_UNCONFIRMED";
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..0e2c6f2643aba5743d99c2adc1ae31cc364f2940
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java
+@@ -0,0 +1,131 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import android.os.CancellationSignal;
++import java.nio.charset.StandardCharsets;
++import java.util.*;
++
++/** Reads the detached projections of ReportSnapshotR30's one SELECT. No requery,
++ * database mutation, replay, or causal verdict occurs here. */
++public final class DiagnosisTraceReaderR33 {
++    private DiagnosisTraceReaderR33() {}
++    static final int MAX_BYTES=196608, MAX_TASKS=100, MAX_FAULTS=20;
++    static Map<?,?> map(Object v){return v instanceof Map?(Map<?,?>)v:Collections.emptyMap();}
++    static List<?> list(Object v){return v instanceof List?(List<?>)v:Collections.emptyList();}
++    static String text(Object v){return v instanceof String?(String)v:"";}
++    static boolean hash(Object v){return v instanceof String&&((String)v).matches("[0-9a-f]{64}");}
++    static void check(CancellationSignal c){if(c!=null)c.throwIfCanceled();}
++    static boolean integer(Object v){return v instanceof Long||v instanceof Integer;}
++
++    /** Only called by the SELECT owner after schema/watermark validation and before
++     * any hot/cold or process-local observations replace its source rows. */
++    static Map<String,Object> captureSingleSelect(Map<String,Object> watermark,Map<String,Object> data,CancellationSignal cancel){
++        check(cancel);Map<String,Object> out=new LinkedHashMap<>();
++        out.put("schema","R335_CAPTURED_FAULT_SOURCES_1");out.put("sourceCommit",watermark.get("sourceCommit"));
++        out.put("readWatermark",watermark.get("factsReadAt"));
++        out.put("scope","SAME_SINGLE_SELECT_BOUNDED_ROW_PROJECTIONS; NOT_FULL_INPUT_ARTIFACTS_OR_CAUSAL_PROOF");
++        List<Object> originals=new ArrayList<>();Map<String,Object> coverage=new LinkedHashMap<>();int used=0;
++        for(String key:new String[]{"tasks","r31RuntimeFaults"}){
++            check(cancel);String table=key.equals("tasks")?"r26_task":"r31_runtime_fault",pk=key.equals("tasks")?"task_id":"event_id";
++            int limit=key.equals("tasks")?MAX_TASKS:MAX_FAULTS,accepted=0,omitted=0;Set<String> seen=new HashSet<>();
++            Object source=data.get(key);List<?> rows=list(source);
++            for(int i=0;i<Math.min(rows.size(),limit);i++){
++                check(cancel);Map<?,?> row=map(rows.get(i));String identity=text(row.get(pk));
++                if(!table.equals(row.get("sourceTable"))||identity.isEmpty()||identity.length()>256||!seen.add(identity)){omitted++;continue;}
++                String raw=JsonR27.write(row);int bytes=raw.getBytes(StandardCharsets.UTF_8).length;
++                if(bytes>32768||bytes>MAX_BYTES-used){omitted++;continue;}used+=bytes;
++                Map<String,Object> original=new LinkedHashMap<>();original.put("rowKey",table+":"+identity);
++                original.put("sourceTable",table);original.put("primaryKey",Collections.singletonMap(pk,identity));
++                original.put("sha256",StatsR27.sha256(raw));original.put("projectedRow",JsonR27.parse(raw));
++                originals.add(original);accepted++;
++            }
++            Map<String,Object> state=new LinkedHashMap<>();state.put("sourceAvailable",source instanceof List);
++            state.put("sampleRows",rows.size());state.put("retainedRows",accepted);state.put("rejectedOrOverBudget",omitted+Math.max(0,rows.size()-limit));
++            for(Object index:list(data.get("rowsetIndexes")))if(key.equals(map(index).get("key"))){state.put("rowsetIndex",index);break;}
++            state.put("absenceMeaning","NOT_OBSERVED_IN_BOUNDED_SAMPLE; NEVER_NO_FAULT_OR_NO_CAPABILITY");coverage.put(key,state);
++        }
++        out.put("originals",originals);out.put("coverage",coverage);out.put("projectedBytes",used);
++        out.put("sourcePacketSha256",StatsR27.sha256(JsonR27.write(out)));return out;
++    }
++
++    static boolean validPacket(Map<?,?> packet,Object commit,Object at){
++        if(!text(commit).matches("[0-9a-f]{40}")||!integer(at)||((Number)at).longValue()<=0)return false;
++        if(!"R335_CAPTURED_FAULT_SOURCES_1".equals(packet.get("schema"))||!Objects.equals(commit,packet.get("sourceCommit"))||!Objects.equals(at,packet.get("readWatermark")))return false;
++        Map<String,Object> body=new LinkedHashMap<>();for(Map.Entry<?,?> e:packet.entrySet())if(e.getKey() instanceof String&&!"sourcePacketSha256".equals(e.getKey()))body.put((String)e.getKey(),e.getValue());
++        if(!Objects.equals(packet.get("sourcePacketSha256"),StatsR27.sha256(JsonR27.write(body))))return false;
++        List<?> rows=list(packet.get("originals"));if(rows.size()>MAX_TASKS+MAX_FAULTS)return false;
++        for(Object item:rows){Map<?,?> row=map(item);if(!hash(row.get("sha256"))||!row.get("sha256").equals(StatsR27.sha256(JsonR27.write(row.get("projectedRow")))))return false;}
++        return true;
++    }
++
++    static String[] owners(String group,String id){
++        if(group.equals("capabilities")){
++            if(id.matches("F(?:0[1-9]|1[0-9]|2[0-4])"))return new String[]{"foundry-su2"};
++            if(id.matches("E(?:0[1-9]|1[0-6])"))return new String[]{"expert-"+id};
++            if(id.matches("I(?:0[0-9]|1[0-9]|20)"))return new String[]{"r27-evolution"};
++            if(id.equals("ATOMNET"))return new String[]{"r27-atomnet","r27-atomnet-archive"};
++            if(id.startsWith("MATRIX:"))return new String[]{"r27-matrices-r1"};
++        }
++        if(group.equals("researchCharts"))return new String[]{"r27-observatory-r1"};
++        if(group.equals("matrices"))return new String[]{"r27-matrices-r1"};
++        return new String[0];
++    }
++    static boolean sameFence(Map<?,?> task,Map<?,?> fault){
++        return !text(task.get("owner")).isEmpty()&&task.get("owner").equals(fault.get("owner_epoch"))
++            &&integer(task.get("fence"))&&integer(fault.get("fence"))&&((Number)task.get("fence")).longValue()==((Number)fault.get("fence")).longValue();
++    }
++    /** A shared scheduler task is labelled as a shared owner, never a family root cause. */
++    static Map<String,Object> forObject(Map<?,?> packet,String group,String id,Object commit,Object at){
++        if(!validPacket(packet,commit,at))return Collections.emptyMap();
++        return forVerifiedObject(packet,group,id,commit,at);
++    }
++    private static Map<String,Object> forVerifiedObject(Map<?,?> packet,String group,String id,Object commit,Object at){
++        Set<String> wanted=new LinkedHashSet<>(Arrays.asList(owners(group,id)));if(wanted.isEmpty())return Collections.emptyMap();
++        Map<String,Map<?,?>> tasks=new LinkedHashMap<>();Map<String,Map<?,?>> refs=new LinkedHashMap<>();
++        for(Object item:list(packet.get("originals"))){Map<?,?> ref=map(item),row=map(ref.get("projectedRow"));
++            if("r26_task".equals(ref.get("sourceTable"))&&wanted.contains(text(row.get("task_id")))){tasks.put(text(row.get("task_id")),row);refs.put(text(row.get("task_id")),ref);}}
++        List<Object> matches=new ArrayList<>();
++        for(String owner:wanted){Map<?,?> task=tasks.get(owner);if(task==null)continue;
++            List<Object> faultRefs=new ArrayList<>();
++            for(Object item:list(packet.get("originals"))){Map<?,?> ref=map(item),fault=map(ref.get("projectedRow"));
++                if(!"r31_runtime_fault".equals(ref.get("sourceTable"))||!owner.equals(fault.get("task_id")))continue;
++                Map<String,Object> f=new LinkedHashMap<>();for(String k:new String[]{"event_id","operation","phase","category","commit_outcome","root_fingerprint","owner_epoch","fence"})f.put(k,fault.get(k));
++                f.put("sourceRowKey",ref.get("rowKey"));f.put("sourceRowSha256",ref.get("sha256"));f.put("currentOwnerAndFenceMatch",sameFence(task,fault));faultRefs.add(f);
++            }
++            Object reason=task.get("blocked_reason");boolean blocked=reason instanceof String&&!((String)reason).isEmpty();
++            if(!blocked&&faultRefs.isEmpty())continue;
++            Map<String,Object> m=new LinkedHashMap<>();m.put("taskId",owner);m.put("rawTaskStatus",task.get("status"));m.put("reportedBlocker",reason);
++            m.put("blockerMeaning","PERSISTED_SCHEDULER_REASON; MAY_BE_NORMAL_WAIT_OR_STALE; NOT_AUTOMATIC_FAULT");
++            m.put("sourceRowKey",refs.get(owner).get("rowKey"));m.put("sourceRowSha256",refs.get(owner).get("sha256"));m.put("faultReferences",faultRefs);matches.add(m);
++        }
++        if(matches.isEmpty())return Collections.emptyMap();
++        Map<String,Object> out=new LinkedHashMap<>();out.put("schema","R335_OWNER_TRACE_1");out.put("traceKind","PERSISTED_OWNER_OBSERVATION");
++        out.put("group",group);out.put("objectId",id);out.put("sourceCommit",commit);out.put("readWatermark",at);
++        out.put("sourcePacketSha256",packet.get("sourcePacketSha256"));out.put("sourcePacketPath","R30_REPORT.json#/objectIndex/faultTraceSourcesR335");
++        out.put("ownerObservations",matches);out.put("sourceVerification","SINGLE_SELECT_PROJECTION_READ");
++        out.put("attribution",id.matches("E(?:0[1-9]|1[0-6])")?"EXACT_EXPERT_TASK_ID":"SHARED_OWNER_TASK_NOT_OBJECT_ROOT_CAUSE");
++        out.put("inputArtifactBytesVerified",false);out.put("numericReplayExecuted",false);out.put("mayAuthorizeReal",false);
++        out.put("nextAction","Use the original row key, owner/fence and operation to acquire that invocation's original input; reproduce independently before any root-cause or repair-success claim.");
++        out.put("traceEnvelopeSha256",StatsR27.sha256(JsonR27.write(out)));return out;
++    }
++    /** Verifies the shared source packet once; no O(objects * source-bytes) rehash. */
++    static void attach(Map<String,Object> index,Object packetValue){
++        Map<?,?> packet=map(packetValue);Object commit=index.get("sourceCommit"),at=index.get("sourceSnapshot");
++        if(!validPacket(packet,commit,at)){index.put("faultTraceCaptureStatusR335","EVIDENCE_MISSING_OR_ENVELOPE_MISMATCH");return;}
++        int attached=0;
++        for(String group:new String[]{"capabilities","matrices","researchCharts","legacyCharts","logicalTables"})
++            for(Object item:list(map(index.get(group)).get("objects"))){
++                if(!(item instanceof Map))continue;
++                @SuppressWarnings("unchecked") Map<String,Object> row=(Map<String,Object>)item;
++                String id=text(row.get("objectId"));if(id.isEmpty())id=text(row.get("id"));
++                Map<String,Object> trace=forVerifiedObject(packet,group,id,commit,at);
++                if(!trace.isEmpty()){row.put("verifiedFaultTraceR33",trace);attached++;}
++            }
++        index.put("faultTraceSourcesR335",packet);index.put("faultTraceAttachedObjectsR335",attached);
++        index.put("faultTraceCaptureStatusR335","CAPTURED_BOUNDED_OWNER_OBSERVATIONS_NOT_CAUSAL_PROOF");
++    }
++    static boolean validTrace(Map<?,?> trace){
++        if(!"R335_OWNER_TRACE_1".equals(trace.get("schema"))||!hash(trace.get("sourcePacketSha256"))||list(trace.get("ownerObservations")).isEmpty())return false;
++        Map<String,Object> body=new LinkedHashMap<>();for(Map.Entry<?,?> e:trace.entrySet())if(e.getKey() instanceof String&&!"traceEnvelopeSha256".equals(e.getKey()))body.put((String)e.getKey(),e.getValue());
++        return Objects.equals(trace.get("traceEnvelopeSha256"),StatsR27.sha256(JsonR27.write(body)));
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
+index 5a718d49beed3c8c74c6ebc3429284ee5dcb8e03..e5e19624027913cc0b5363a2fa0588c164b3fcf6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java
+@@ -195,7 +195,7 @@ public final class RepairDiagnosisR32 {
+         if (group.equals("logicalTables")) return tableAction(id);
+         if ("ATOMNET".equals(id)) return "核对十位置同一epoch、optimizer、非零更新及权重哈希。完成一轮后回读发布的模型，再追踪在线预测的模型引用。";
+         if (group.equals("matrices") || id.startsWith("MATRIX:")) return "写入带role、目标期、可见时间、版本、shape及artifact hash的矩阵；沿本行消费者重演并移除矩阵比较输出。";
+-        if (group.equals("researchCharts")) return "按本行measure生产同源frame，经所列算法消费者记录inputHash与输出差；显示同目标配对数及不确定性。";
++        if (group.equals("researchCharts")) return ResearchChartActionsR33.action(id);
+         if (group.equals("legacyCharts")) return "对照本行source的只读查询，记录分页、空集、取消、快照版本与新鲜度；展示用途和数据范围。";
+         if (id.startsWith("I")) return "回读思路族生成的typed AST、父代和变异算子；在固定DEV探针重放行为，再以SELECT同机会比较。";
+         if (id.startsWith("E")) return "记录专家输入残差、可执行提案、实际生成的子代和下游接受或拒绝原因；冻结消融对照。";
+@@ -276,7 +276,14 @@ public final class RepairDiagnosisR32 {
+                 evidence.put("sourceReference", "chapters[11].objectIndex."+group+".objects[id="+id+"]");
+                 evidence.put("sourceSnapshot",source.get("sourceSnapshot"));
+                 evidence.put("sourceCommit",source.get("sourceCommit"));
+-                evidence.put("rootCauseStatus","UNCONFIRMED_REPLAY_REQUIRED");
++                Map<?,?> trace = map(x.get("verifiedFaultTraceR33"));
++                String resolution = DiagnosisProofR33.classify(trace, group, id,
++                        source.get("sourceCommit"), source.get("sourceSnapshot"));
++                evidence.put("rootCauseStatus", resolution);
++                if (!trace.isEmpty()) evidence.put("faultTraceR33", trace);
++                evidence.put("nextOwner", group.equals("logicalTables") || group.equals("researchCharts")
++                        || group.equals("matrices") || group.equals("legacyCharts") ? "B05" : "SEE_OBJECT_OWNER_INDEX");
++                evidence.put("observationScopeOfProof", "CAPTURED_OBJECT_AND_TRACE_ENVELOPE_ONLY; EXECUTOR_REPLAY_NOT_VERIFIED");
+                 evidence.put("observationScope",group.equals("logicalTables")?"EXPORTED_BOUNDED_PAGE":"SAME_REPORT_SNAPSHOT_OBJECT");
+                 evidence.put("firstObservedGap",stage);
+                 List<String> missing = new ArrayList<>();
+@@ -318,6 +325,9 @@ public final class RepairDiagnosisR32 {
+         Map<String,Object> out = new LinkedHashMap<>();
+         out.put("version","R32_CAPABILITY_DIAGNOSIS_V4"); out.put("sourceCommit",source.get("sourceCommit"));
+         out.put("sourceSnapshot",source.get("sourceSnapshot")); out.put("rows",rows); out.put("coverageGaps",gaps);
++        out.put("improvementCasesR335",ReportRepairCaseIndexR335.capture(rows,source.get("sourceCommit"),source.get("sourceSnapshot")));
++        Map<?,?> needs=map(source.get("capabilityNeedDiagnosticsR335"));
++        out.put("capabilityNeedDiagnosticsR335",needs);out.put("candidateCapabilityProposalsR33",needs.get("candidateCapabilityProposalsR33"));
+         return out;
+     }
+     private static Map<?,?> chapter(List<? extends Map<?,?>> chapters, String id) {
+@@ -434,6 +444,29 @@ public final class RepairDiagnosisR32 {
+         StringBuilder md = new StringBuilder().append("\n\n## 能力逐项诊断与下一步核验\n");
+         List<Map<String,Object>> explanations = explainLegacyFindings(json);
+         json.put("legacyFindingExplanationsR32", explanations);
++        Object findings = json.get("findings");
++        if (findings instanceof List) {
++            List<Map<String,Object>> normalized = new ArrayList<>();
++            int position = 0;
++            for (Object raw : (List<?>) findings) {
++                if (!(raw instanceof Map)) throw new IllegalArgumentException("R33_FINDING_SHAPE");
++                Map<String,Object> finding = new LinkedHashMap<>();
++                for (Map.Entry<?,?> e : ((Map<?,?>) raw).entrySet()) {
++                    finding.put(String.valueOf(e.getKey()), e.getValue());
++                }
++                Map<String,Object> explanation = explanations.get(position++);
++                if (small(finding.get("prescription")).isEmpty()) {
++                    finding.put("originalPrescription", finding.get("prescription"));
++                    finding.put("prescription", explanation.get("nextAction"));
++                }
++                if (small(finding.get("scope")).isEmpty()) {
++                    finding.put("originalScope", finding.get("scope"));
++                    finding.put("scope", "LEGACY_DIAGNOSIS_AT_RECORDED_SEQUENCE");
++                }
++                normalized.add(finding);
++            }
++            json.put("findings", normalized);
++        }
+         if (detail.get("operatingSummary") instanceof Map) {
+             Map<?,?> summary = map(detail.get("operatingSummary"));
+             Map<?,?> q = map(summary.get("independentFuture")), n = map(summary.get("atomNet"));
+@@ -451,6 +484,19 @@ public final class RepairDiagnosisR32 {
+         for (Map<?,?> finding : explanations)
+             md.append("\n- ").append(finding.get("code")).append("  ").append(finding.get("nextAction"))
+               .append("  ").append(finding.get("verify"));
++        Map<?,?> needDiagnosis=map(detail.get("capabilityNeedDiagnosticsR335"));
++        md.append("\n\n### 有限需求目录与能力缺口\n")
++          .append("已登记需求数：").append(needDiagnosis.get("needCount"))
++          .append("；目录hash：").append(needDiagnosis.get("registryHash"))
++          .append("；检查范围：").append(needDiagnosis.get("coverageBoundary")).append('\n');
++        Object needRows=needDiagnosis.get("needResults");
++        if(needRows instanceof List)for(Object rawNeed:(List<?>)needRows){
++            Map<?,?> need=map(rawNeed);
++            md.append("\n- ").append(need.get("needKey")).append(" · ").append(need.get("classification"))
++              .append(" · 责任批次=").append(need.get("ownerBatch")).append(" · ").append(need.get("nextAction"))
++              .append(" · 正例=").append(need.get("positiveVerification")).append(" · 反例=").append(need.get("negativeVerification"));
++        }
++        md.append("\n能力声明、任务阻因和提案均不证明效果；新提案只适用于列出的owner与精确签名。\n");
+         md.append("\n对象清单缺项：").append(detail.get("coverageGaps")).append('\n');
+         md.append("快照 ").append(detail.get("sourceSnapshot")).append("，源码 ").append(detail.get("sourceCommit")).append('\n');
+         for (Object entry : (List<?>)detail.get("rows")) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java
+index c47611b7bc2433a26c4081776dc9774abc98948b..58c417e887ca1f6932095df18a32166641a31f1c 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java
+@@ -62,7 +62,9 @@ public final class ReportObjectIndexR30 {
+         List<Object> tableRows=new ArrayList<>();for(Object raw:list(data.get("researchTablesR31"))) {
+             Map<String,Object> row=map(raw);Map<String,Object> entry=new LinkedHashMap<>(row);entry.put("objectKind","LOGICAL_TABLE");entry.put("defined",true);entry.put("consumer","ResearchTablesActivityR31 / ReportR29.document");tableRows.add(entry);
+         }
+-        out.put("logicalTables",category(16,tableRows));out.put("lifecycleEntriesR31",entries);out.put("schemaVersion","R31_PRODUCTION_OBJECT_INDEX_1");out.put("diagnosisScope",DIAGNOSIS_SCOPE_R31);return out;
++        out.put("logicalTables",category(16,tableRows));out.put("lifecycleEntriesR31",entries);out.put("schemaVersion","R31_PRODUCTION_OBJECT_INDEX_1");out.put("diagnosisScope",DIAGNOSIS_SCOPE_R31);
++        DiagnosisTraceReaderR33.attach(out,data.get("capturedFaultSourcesR335"));
++        out.put("capabilityNeedDiagnosticsR335",CapabilityNeedDiagnosticsR335.capture(out));return out;
+     }
+     public static final String SCHEMA="R30_REPAIR_OBJECT_INDEX_1";
+     /** R31-B09-C01: the chart ids this report indexes (29 legacy + 18 research); must equal ChartRegistryR31.ids(). */
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..007a126b33ee3817cc9501b19e5f418e3b07e817
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java
+@@ -0,0 +1,40 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.nio.charset.StandardCharsets;
++import java.security.MessageDigest;
++import java.util.*;
++
++/** Read-only case identities from the actual report object rows. No work or effect is invented. */
++public final class ReportRepairCaseIndexR335 {
++    private ReportRepairCaseIndexR335(){}
++    static String text(Object x){return x instanceof String?(String)x:x==null?"":String.valueOf(x);}
++    static String key(String... fields){
++        try{MessageDigest d=MessageDigest.getInstance("SHA-256");
++            for(String field:fields){byte[] value=field.getBytes(StandardCharsets.UTF_8);d.update((value.length+":").getBytes(StandardCharsets.US_ASCII));d.update(value);}
++            StringBuilder out=new StringBuilder();for(byte b:d.digest())out.append(String.format(Locale.ROOT,"%02x",b&255));return out.toString();
++        }catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
++    }
++    public static Map<String,Object> capture(List<? extends Map<?,?>> rows,Object commit,Object watermark){
++        if(rows==null||rows.size()>165)throw new IllegalArgumentException("R335_CASE_INDEX_BOUND");
++        String source=text(commit),snapshot=text(watermark);List<Map<String,Object>> cases=new ArrayList<>();Set<String> seen=new HashSet<>();
++        for(Map<?,?> row:rows){String group=text(row.get("group")),id=text(row.get("id"));
++            if(group.isEmpty()||id.isEmpty()||!seen.add(group+"\0"+id))throw new IllegalArgumentException("R335_CASE_OBJECT_IDENTITY");
++            Map<?,?> evidence=row.get("evidenceContract") instanceof Map?(Map<?,?>)row.get("evidenceContract"):Collections.emptyMap();
++            String original=text(evidence.get("sourceObjectSha256"));
++            String gap=text(row.get("firstKnownGap"));String caseKey=key("R335_CASE_V1",group,id);
++            Map<String,Object> item=new LinkedHashMap<>();item.put("schema","starcore.r335.repair-case.v1");
++            item.put("caseKey",caseKey);item.put("needKey",group+":"+id);item.put("group",group);item.put("objectId",id);
++            item.put("sourceCommit",source);item.put("readWatermark",snapshot);item.put("sourceObjectSha256",original.isEmpty()?null:original);
++            item.put("occurrenceId",key("R335_OCCURRENCE_V1",caseKey,source,snapshot,original,gap));
++            item.put("firstObservedGap",gap);item.put("sourceFile",row.get("sourceFile"));item.put("sourceMethod",row.get("sourceMethod"));
++            item.put("owner",evidence.get("nextOwner"));item.put("nextAction",row.get("nextAction"));item.put("verificationEntry",row.get("verificationEntry"));
++            item.put("rootCauseStatus",evidence.get("rootCauseStatus"));
++            item.put("caseState",!source.matches("[0-9a-f]{40}")||snapshot.isEmpty()||!original.matches("[0-9a-f]{64}")?"EVIDENCE_MISSING":"OBSERVED_CASE_AWAITING_WORK_AND_REPLAY");
++            item.put("engineeringStatus","NO_ENGINEERING_RECEIPT_ATTACHED");item.put("effectStatus","NO_NEW_INDEPENDENT_EFFECT_EVIDENCE");
++            item.put("mayAuthorizeReal",false);cases.add(Collections.unmodifiableMap(item));
++        }
++        Map<String,Object> out=new LinkedHashMap<>();out.put("schema","starcore.r335.repair-case-index.v1");out.put("sourceCommit",source);out.put("readWatermark",snapshot);
++        out.put("cases",Collections.unmodifiableList(cases));out.put("count",cases.size());out.put("scope","ACTUAL_CAPTURE_CASE_IDENTITIES_ONLY; NO_AUTOMATIC_WORK_OR_CAUSAL_VERDICT");
++        return Collections.unmodifiableMap(out);
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
+index c9e8d7816d92f50257ec8e3f72ecf70062537880..63ebef7bd3b97a43f96ea9509b4d744ee52510a9 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
+@@ -77,6 +77,7 @@ public final class ReportSnapshotR30 {
+             if(source!=null){Map<String,Object> original=new LinkedHashMap<>(source);data.put("previousSuccessfulReport",original.remove("previousSuccessfulReport"));watermark.put("reportJobId",original.remove("reportJobId"));watermark.put("sourceManifest",original);}
+             List<CapabilityRegistryR30.Definition> definitions=CapabilityRegistryR30.all();facts.put("registeredCapabilities",(long)definitions.size());List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition def:definitions){Map<String,Object> row=new LinkedHashMap<>(def.json());row.put("effective",null);row.put("availabilityScope","CURRENT_REPORT_PROCESS_CODE_BINDINGS; NOT_PERSISTED_RUNTIME_OWNER_BINDINGS");row.put("evidenceState","SEPARATE_PERSISTED_SOURCE_REQUIRED");capabilities.add(row);}data.put("capabilities",capabilities);
+             data.put("capabilityRuntimeEvidenceR33",CapabilityRuntimeEvidenceR33.captured(values,watermark));
++            data.put("capturedFaultSourcesR335",DiagnosisTraceReaderR33.captureSingleSelect(watermark,data,cancellation));
+             Object hotCold=source==null?null:source.get("runtimeFaultHotColdR335");
+             if(hotCold instanceof Map&&((Map<?,?>)hotCold).get("rows") instanceof List){data.put("r31RuntimeFaults",((Map<?,?>)hotCold).get("rows"));data.put("runtimeFaultOriginalCoverageR335",hotCold);}
+             else {Map<String,Object> gap=new LinkedHashMap<>();gap.put("scope","HOT_SAMPLE_ONLY; COLD_ORIGINAL_SAMPLE_NOT_SUPPLIED");gap.put("coldOriginalIndex","r335FaultOriginals");data.put("runtimeFaultOriginalCoverageR335",gap);}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4e2273b629fccb8a6e036f5c7a24a0307b466ceb
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java
+@@ -0,0 +1,30 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** Research actions shown by the diagnostic report. Kept separate from qualification authority. */
++final class ResearchChartActionsR33 {
++    private ResearchChartActionsR33() {}
++
++    static String action(String view) {
++        switch (view) {
++            case "R01": return "按冻结窗口读结构状态与下一期目标，比较固定窗口与移除状态输入的子代，保留所选窗口和配对差。";
++            case "R02": return "追回该期赛前结构概率，按相同目标绑定开奖误差，将失败簇交给FailureProfile，缺冻结时列未观察期。";
++            case "R03": return "查九个同伴位置的事前输入和掩码，生成跨位对照与消融，登记同一目标的子代变化。";
++            case "R04": return "回读各位置候选集合、交集及支持数，保持单位置K3。交集不足记弃权，用相同期的单集合为对照。";
++            case "R05": return "沿失败簇、专家处方、AST、子代逐键追踪，记录首个缺失键，确认出生提案被真实执行。";
++            case "R06": return "按相同行为窗口对照保留和移除该原子的候选，读取实际PRUNE_COMPONENT操作及其子代。";
++            case "R07": return "检查两个合法组件与同角色父代，缺任一即列组件ID，齐备后比A、B、A+B并计成本。";
++            case "R08": return "在事前冻结的探针集比较行为哈希和误差相关，复核BirthGate的去重或保留回执。";
++            case "R09": return "将专家处方绑定到实际出生的AST和子代并复核后续支持，只有文本时定位首个未执行环节。";
++            case "R10": return "比较同计算预算的变异算子、时间成本与同机会子代收益，回读下一轮实际分配。";
++            case "R11": return "只读核对父子同一目标冻结和确认原件，显示负差与区间，标明缺配对原因。";
++            case "R12": return "核实两个父代同目标与共同失败域，读新融合子代独立身份，用最佳单体与固定组合交叉比较。";
++            case "R13": return "按冻结前固定校准器复核支持域、加权误差和BSS，列出域外弃权及受影响的研究候选。";
++            case "R14": return "只读串联已提交权重、十位置概率面、调用模型哈希和冻结引用，列出第一条不匹配。";
++            case "R15": return "按同机会比较无回放、固定回放和候选回放模型的遗忘与代价，记录后续回放选择。";
++            case "R16": return "复核每类计算预算、CPU和唯一有效子代数，比较下一轮真实发放额度，重试去重。";
++            case "R17": return "用失败机制身份匹配重复消耗，验证预算调整及活跃模型保护，保留负例。";
++            case "R18": return "只读串联处方、子代、证书、唯一决策和结算；有拒绝时给出拒绝者和对应源行。";
++            default: throw new IllegalArgumentException("R33_UNKNOWN_RESEARCH_VIEW:" + view);
++        }
++    }
++}
+diff --git a/release/r82_training_invalidation.json b/release/r82_training_invalidation.json
+index 19c2efd1e698cff057178b05094a418cf82328de..d3f2d88cece085fbf1b490a62679d764579aa49b 100644
+--- a/release/r82_training_invalidation.json
++++ b/release/r82_training_invalidation.json
+@@ -751,6 +751,15 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java",
++      "before_sha256": "0672841c8b8a55ffa00147af2ecb460af309aa0e02b992f095d61f98f626e917",
++      "after_sha256": "67b6f9a668cb2f66a91836adef0c6de71d36e9aef300936e31e5b7a81484f99a",
++      "before_role": "NUMERIC",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B07 精确源码复核：ModuleReplayR932.java。ModuleReplay调用既有正常主链rankK3DiagnosticActionsF06保持K=3 guard并恢复n4诊断。新增固定同源码模块消融离线CLI：实际源码编译、原r815源树身份、冻结快照/实际开奖/模型文件SHA、原模型签名/时间边界、private JVM/256MiB/timeout、同输入baseline parity先验。实际采样复演要求干净且完整跟踪源码Git；源压缩包仅允许明确HOST_ONLY自检。；B01已接实际hot/cold原件读取、报告pin及FULL_RAW闭包；B07由delivery agent接ReportRepairCaseIndex/RepairDiagnosis/DiagnosisProof及B07/replay_r335真实同源码数值复演。遵循原rankK3DiagnosticActionsF06归一化入口，不放宽ranker guard。跨报告case/work/nextCase与数值反证产物由B07实际owner生成。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "after_role": "NUMERIC",
+       "after_sha256": "0ec9c65e1a018a4a4bd61841a97d24279197cee711352a12ff78e501f5485f5c",
+@@ -914,13 +923,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "b8eb557338817bb91c92e853627496c5c034ba7c08f255754dcbee6ece5fba59",
+-      "before_role": "NUMERIC",
+-      "before_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
+       "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+-      "reviewer": "Codex SU1 source integration"
++      "before_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
++      "after_sha256": "dae8c633a8a7a3a5fd57eba374bb8979d9034a21ba25be899e9e3dc16bc3ee61",
++      "before_role": "NUMERIC",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B07 精确源码复核：ReportCatalogCP4.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -2290,6 +2299,24 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
++      "before_sha256": "",
++      "after_sha256": "d524a5b88139d7de73dd5480ce88b7276445cc75c4b49bdf889044d23ed08614",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications. Explicit dynamic dependency review: Class.forName(name,false,loader) is restricted to the versioned finite com.ethk3.novaonepro owner whitelist; getDeclaredMethods compares exact signatures without initialization or invocation. Pin these complete source bytes under the original R967 validator."
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
++      "before_sha256": "",
++      "after_sha256": "21bc0e4fc1430e04b2048ef27f7dee497a9d2e1a31221d1639917edc978731c7",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "after_role": "NUMERIC",
+       "after_sha256": "70ef6e0bc66edd62cc3c9e43132951c851ed5e53ad329e467a4652371ed9dd67",
+@@ -2650,6 +2677,15 @@
+       "reviewer": "R33.5 2026-11-19 source review",
+       "rationale": "B05 RE24 exact paired-window timing, missing and pending ordinal accounting; preserve NUMERIC role and invalidate old qualification."
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
++      "before_sha256": "",
++      "after_sha256": "52828fb6ee9c3f0701d858e549b3a4509fce13928b59e18c34d3ec44e0021626",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+       "before_sha256": "",
+@@ -2704,6 +2740,15 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
++      "before_sha256": "",
++      "after_sha256": "80d85bf6589b8a098db434cedec96f27610c87c8fbf4d0ccc0ff06c05380788d",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "after_role": "NUMERIC",
+       "after_sha256": "a311e12793640f5774d867848aae8c8b065afe1fcac54b1c1a867d54e0cdedd5",
+@@ -4568,13 +4613,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "f7c8a705a7caab17023a1f7f874ea043ec0c4b737a65b4f51cd56cbcfeda0a50",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+-      "rationale": "P2 新增对象级归档隔离后，旧摘要仅展示原 capacity 对象，缺少明确的维护退化处方与独立任务对照，容易把归档失败误读成全部训练失败。；实际独立UPGRADE出口中29个legacyCharts对象sourceFile/sourceMethod为空，原源定位不完整。；展示 r27-atomnet 与 r27-atomnet-archive 两个任务；从 archiveMaintenance 原字段映射 DEGRADED_ARCHIVE_ONLY 与对象计数，CLAIMED不冒报故障；保留最多16条原失败例与 attempts/nextAttemptAt，并给出按 publicationId 修复和重试核验步骤。；由真实ChartRegistryR31的四类legacy group固定定位已有生产者与消费者文件方法，保留原状态并明确位置不等于运行；JSON/Markdown两出口均展示source及consumer。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+-      "reviewer": "R32.5 independent source review and root integration"
++      "before_sha256": "",
++      "after_sha256": "ee4facc5800f62027cc5a39adaca28cd5e760452228d1fa52596190a1cbee1ec",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
+     },
+     {
+       "after_role": "NUMERIC",
+@@ -4694,13 +4739,13 @@
+       "reviewer": "Codex SU1 source integration"
+     },
+     {
+-      "after_role": "NUMERIC",
+-      "after_sha256": "db1e206be830780c4ee31d5f62c39371142d31d52e3c22477fef12ad4abd64aa",
+-      "before_role": "",
+-      "before_sha256": "",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+-      "rationale": "建立唯一权威完整对象索引，保留82能力、20矩阵和表/图身份；把运行证据与静态登记分列，消费和效果缺证据时保持未观察。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
++      "before_sha256": "",
++      "after_sha256": "b0b4049c6e67e77f7a996583dd6658d602e99a6bd69b4722038d7952de0b04e1",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
+     },
+     {
+       "after_role": "PRESENTATION",
+@@ -4721,13 +4766,22 @@
+       "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+     },
+     {
+-      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+       "before_sha256": "",
+-      "after_sha256": "d1b93c80418c8990ef2d301324aca79fe9239a207ae1420f2432b757a6e2f7b5",
++      "after_sha256": "f19d00bb128706ed046b9fe10d5757590c0e4fc4fcb178d040d9ab0fc0bcf990",
+       "before_role": "",
+       "after_role": "NUMERIC",
+       "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
+-      "rationale": "R335 C10 actual reviewed source: 在B01完整故障原件/恢复投影后态只加三处S5 refit原件registry：TABLES名称、最多2行元数据rowset及lifecycle只读元数据reader；反向删除三处必须逐字节恢复B01，保留fault冷热原件/恢复钩子与固定读水位；保留既有角色，不降级。 新规则按原R82失效机制；旧DEV/标签原件保留，无任何旧规则资格、证书或自然成绩继承。"
++      "rationale": "R335 B07 精确源码复核：ReportRepairCaseIndexR335.java。从真实报告165行生成稳定caseKey与版本/水位/原件绑定occurrenceId；离线工具从实际报告精确提取案例，验证真实Git前后源码、工作时间顺序和POS/NEG/TRACE原始日志，保留两报告/案例/源码/原始日志完整副本并链接下份报告。各类工程与效果结论分列，未再执行的日志只作已附原件。；B01已接实际hot/cold原件读取、报告pin及FULL_RAW闭包；B07由delivery agent接ReportRepairCaseIndex/RepairDiagnosis/DiagnosisProof及B07/replay_r335真实同源码数值复演。遵循原rankK3DiagnosticActionsF06归一化入口，不放宽ranker guard。跨报告case/work/nextCase与数值反证产物由B07实际owner生成。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
++      "before_sha256": "",
++      "after_sha256": "67126c708f99dfcf8b4dcdf7457a05237d93bf9f4759f756c14733daea67f198",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+@@ -4774,6 +4828,15 @@
+       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+       "reviewer": "Codex SU1 source integration"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
++      "before_sha256": "",
++      "after_sha256": "141d672d0d61d3bf91a592e4d9942eecd7aae95326c0a3152f14e321b94469b6",
++      "before_role": "",
++      "after_role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B07 精确源码复核：ResearchChartActionsR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+       "before_sha256": "",
+@@ -5954,7 +6017,7 @@
+       "reviewer": "Codex SU1 source integration"
+     }
+   ],
+-  "current_controlled_roles_sha256": "b3b8f747c866f83f10d297d7a758fb60e52d944e652f43dd40dd171d03202086",
++  "current_controlled_roles_sha256": "9d8ed7bce43e8c02be31e34055b812aee384e66ba6f741e7a59603e29e659172",
+   "decision": "INVALIDATE_OLD_RULE",
+   "new_role_reviews": [
+     {
+@@ -6695,6 +6758,18 @@
+       "reviewer": "Codex SU1 source integration",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
++      "role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications. Explicit dynamic dependency review: Class.forName(name,false,loader) is restricted to the versioned finite com.ethk3.novaonepro owner whitelist; getDeclaredMethods compares exact signatures without initialization or invocation. Pin these complete source bytes under the original R967 validator."
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
++      "role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR30.java",
+       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+@@ -6935,6 +7010,12 @@
+       "reviewer": "R33.5 2026-11-19 source review",
+       "rationale": "B05 RE24 exact paired-window timing, missing and pending ordinal accounting; preserve NUMERIC role and invalidate old qualification."
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
++      "role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+       "role": "NUMERIC",
+@@ -6971,6 +7052,12 @@
+       "reviewer": "Codex SU1 source integration",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
++      "role": "NUMERIC",
++      "reviewer": "R33.5 2026-11-20 report source review",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosticsSU1.java",
+       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+@@ -8327,6 +8414,12 @@
+       "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
++      "role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B07 精确源码复核：ReportRepairCaseIndexR335.java。从真实报告165行生成稳定caseKey与版本/水位/原件绑定occurrenceId；离线工具从实际报告精确提取案例，验证真实Git前后源码、工作时间顺序和POS/NEG/TRACE原始日志，保留两报告/案例/源码/原始日志完整副本并链接下份报告。各类工程与效果结论分列，未再执行的日志只作已附原件。；B01已接实际hot/cold原件读取、报告pin及FULL_RAW闭包；B07由delivery agent接ReportRepairCaseIndex/RepairDiagnosis/DiagnosisProof及B07/replay_r335真实同源码数值复演。遵循原rankK3DiagnosticActionsF06归一化入口，不放宽ranker guard。跨报告case/work/nextCase与数值反证产物由B07实际owner生成。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+       "rationale": "通用 runtimeCaches 仅最近 64 行且单格 16 KiB，完整 Q08 原结果会被挤出或成为引用；只修 evaluator 无法打通真实上游。；在原 lifecycleEvidenceR31 采集后同 P4 接入 Q08EvidenceReaderR325.capture，使用同一只读连接和取消信号；按固定主键与原注册 binding 采集原件。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
+@@ -8363,6 +8456,12 @@
+       "reviewer": "Codex SU1 source integration",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
++      "role": "NUMERIC",
++      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
++      "rationale": "R335 B07 精确源码复核：ResearchChartActionsR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+@@ -9122,7 +9221,7 @@
+   ],
+   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
+   "predecessors": [],
+-  "reviewed_input_provenance_sha256": "5c44c94911911fc47e5d13ef5ef42ab59dae9e72ef962aa7165534de9bd803de",
++  "reviewed_input_provenance_sha256": "0e73397500b0a06cdb48e1a7d5e152c813d55e502e2c899f0afe446b674538b1",
+   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
+   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
+   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
+diff --git a/release/research_dependencies_r967.json b/release/research_dependencies_r967.json
+index 2c44185cdcc8e22370754665a9aaf3d83ecdf033..1ad781a9b937f82acbcbe7848eeec5ec7de42995 100644
+--- a/release/research_dependencies_r967.json
++++ b/release/research_dependencies_r967.json
+@@ -4422,6 +4422,17 @@
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
++      "role": "NUMERIC",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications. Explicit dynamic dependency review: Class.forName(name,false,loader) is restricted to the versioned finite com.ethk3.novaonepro owner whitelist; getDeclaredMethods compares exact signatures without initialization or invocation. Pin these complete source bytes under the original R967 validator.",
++      "dynamic_review_sha256": "d524a5b88139d7de73dd5480ce88b7276445cc75c4b49bdf889044d23ed08614"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
++      "role": "NUMERIC",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "dynamic_review_sha256": "70ef6e0bc66edd62cc3c9e43132951c851ed5e53ad329e467a4652371ed9dd67",
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR30.java",
+@@ -4623,6 +4634,11 @@
+       "role": "NUMERIC",
+       "rationale": "B05 RE24 exact paired-window timing, missing and pending ordinal accounting; preserve NUMERIC role and invalidate old qualification."
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
++      "role": "NUMERIC",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+       "role": "NUMERIC",
+@@ -4653,6 +4669,11 @@
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
++      "role": "NUMERIC",
++      "rationale": "B07 D10/D11/RT09: bounded same-SELECT task/fault source projections and source-bound capability-need classification. Owner declarations and shared-owner observations never prove execution, effect, causal repair or REAL qualification; retain old roles and invalidate old qualifications."
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosticsSU1.java",
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+@@ -5785,6 +5806,11 @@
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
++      "role": "NUMERIC",
++      "rationale": "R335 B07 精确源码复核：ReportRepairCaseIndexR335.java。从真实报告165行生成稳定caseKey与版本/水位/原件绑定occurrenceId；离线工具从实际报告精确提取案例，验证真实Git前后源码、工作时间顺序和POS/NEG/TRACE原始日志，保留两报告/案例/源码/原始日志完整副本并链接下份报告。各类工程与效果结论分列，未再执行的日志只作已附原件。；B01已接实际hot/cold原件读取、报告pin及FULL_RAW闭包；B07由delivery agent接ReportRepairCaseIndex/RepairDiagnosis/DiagnosisProof及B07/replay_r335真实同源码数值复演。遵循原rankK3DiagnosticActionsF06归一化入口，不放宽ranker guard。跨报告case/work/nextCase与数值反证产物由B07实际owner生成。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+@@ -5815,6 +5841,11 @@
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
++      "role": "NUMERIC",
++      "rationale": "R335 B07 精确源码复核：ResearchChartActionsR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",

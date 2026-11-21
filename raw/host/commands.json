@@ -1,0 +1,905 @@
+{
+  "legacy-routes": {
+    "command": [
+      "python3",
+      "verification/verify_old_routes.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/legacy-routes/stdout.txt",
+      "sha256": "2eb86977ccdb960b23e1be77846466da53c5b43e3f29e239331da1ea60a10bf2"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/legacy-routes/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B07-report-improvement": {
+    "command": [
+      "python3",
+      "B07/verify/test_improvement.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B07-report-improvement/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B07-report-improvement/stderr.txt",
+      "sha256": "fb0735cf7dddb9e7800936cc45ab33831d17061b1cf31396b97555ecd730d237"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "scoring-envelope-tests": {
+    "command": [
+      "python3",
+      "verification/test_final_envelopes.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/scoring-envelope-tests/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/scoring-envelope-tests/stderr.txt",
+      "sha256": "a9da6c7470dbd49c85c5c8f36446383c7a4794cd5f47d6eba557ef8c8be049e0"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "all-patches-in-order": {
+    "command": [
+      "python3",
+      "verification/rehearse_patches.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/all-patches-in-order/stdout.txt",
+      "sha256": "c083b59f52946fe7b46dc845e60db9a6d4cc376f150fb0676ed0a052457c9ffc"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/all-patches-in-order/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B01-budget": {
+    "command": [
+      "python3",
+      "B01/scripts/check_patches_and_budget.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B01-budget/stdout.txt",
+      "sha256": "60d119a3cbc0d43b0e4350b4e7113de32f65c7425f909da2e80bc0e9c26f06ea"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B01-budget/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B02-clock-and-dispatch": {
+    "command": [
+      "bash",
+      "B02/tests/run_host.sh"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B02-clock-and-dispatch/stdout.txt",
+      "sha256": "78f036632444c84af38fe2028252015541c98fc77f4703bc72efc97e3323c688"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B02-clock-and-dispatch/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B03-replay-and-birth": {
+    "command": [
+      "python3",
+      "B03/verify_b03.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B03-replay-and-birth/stdout.txt",
+      "sha256": "aa08ad431ad1465c506e93cc9e5d0935d2a3b65684070212b36592647573308b"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B03-replay-and-birth/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B04-optimizer-and-recovery": {
+    "command": [
+      "python3",
+      "B04/tests/run_b04.py",
+      "--require-java"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B04-optimizer-and-recovery/stdout.txt",
+      "sha256": "9cc048909a3d80c11c0464e1e8f93f22b46373e4c05c2777a7b32b998ffc2aae"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B04-optimizer-and-recovery/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B05-actions": {
+    "command": [
+      "bash",
+      "B05/tests/run_host.sh"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B05-actions/stdout.txt",
+      "sha256": "dc798f1790dd41c4989718d5ff8d19383d26d64d96de1afbf5bcd66eb486dfea"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B05-actions/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B05-sql": {
+    "command": [
+      "python3",
+      "B05/tests/test_sql_contract.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B05-sql/stdout.txt",
+      "sha256": "057cd6d3d08584793accec0eac1b0bbd672062a5c2de911ef7ca822abd2974a9"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B05-sql/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B05-precise-patches": {
+    "command": [
+      "python3",
+      "B05/tests/test_patches.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B05-precise-patches/stdout.txt",
+      "sha256": "12a4fa3f345f67948fc87fac7ab74ddb41127e937f1f1c9b636d09616469a58c"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B05-precise-patches/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B06-natural-gates": {
+    "command": [
+      "python3",
+      "B06/host/run_host.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B06-natural-gates/stdout.txt",
+      "sha256": "59ae1c5373039960fe4575e471ce3ee39e3cf7e1c288f023b9f460c633a919c2"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B06-natural-gates/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B07-two-reports": {
+    "command": [
+      "python3",
+      "B07/verify/run.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B07-two-reports/stdout.txt",
+      "sha256": "ca750d1e38e7a8e76ca7a12e29c6ba8ca2e761f97b0d43fec40b8efacdd04acf"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B07-two-reports/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B08-scoring": {
+    "command": [
+      "python3",
+      "B08/code/test_delivery_guards.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B08-scoring/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B08-scoring/stderr.txt",
+      "sha256": "a181af104f08bd418b1f2acac0061a9f82ebfe193fcbd1273ad31bc3448d318f"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "mainline-flow": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/mainline/verify_plan.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/mainline-flow/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/mainline-flow/stderr.txt",
+      "sha256": "d03ce458f2a6cd2b4f27522f3aacad03ce1872c028853507c3ad02ca621bdcad"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "mainline-raw-sqlite": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/mainline/test_trace.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/mainline-raw-sqlite/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/mainline-raw-sqlite/stderr.txt",
+      "sha256": "8137c580c0848ac31121cb65f5b70856b511279b6e8b8f1fcbace534c625b287"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "contractor-stage": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/contractor/test_stage.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/contractor-stage/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/contractor-stage/stderr.txt",
+      "sha256": "b8d8022bc49f078ab6676dd873b5a77329c6df5da35b2f90c4ef51dbd00be5f4"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B01-fault-archive": {
+    "command": [
+      "python3",
+      "-B",
+      "B01/scripts/test_fault_archive_b01.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B01-fault-archive/stdout.txt",
+      "sha256": "c16efec481191e06b0b66a31fbf65d28b56407cf483ff47dec62b975a64dea36"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B01-fault-archive/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B02-033-edges": {
+    "command": [
+      "python3",
+      "-B",
+      "B02/tests/verify_runtime_edges.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B02-033-edges/stdout.txt",
+      "sha256": "45dab8e7af8cb27ea6254fc3bc22f939fe845eef21f5187a37eadf652c36c3c6"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B02-033-edges/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "HISTORICAL_SQL_OR_PROTOCOL_FIXTURE_NOT_APP_SCHEMA_INSTALLATION"
+  },
+  "B02-handoff-sql": {
+    "command": [
+      "python3",
+      "-B",
+      "B02/tests/test_handoff_sql.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B02-handoff-sql/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B02-handoff-sql/stderr.txt",
+      "sha256": "9c5c93ea62cc14666d1e669d92c567ed309533ace55ee6af18f2dc4840c9fc9a"
+    },
+    "scope": "HISTORICAL_SQL_OR_PROTOCOL_FIXTURE_NOT_APP_SCHEMA_INSTALLATION"
+  },
+  "report-dual-directions": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/verify_report_directions.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/report-dual-directions/stdout.txt",
+      "sha256": "420e88b62aac6e320890e7305cd45cdbbe395d58035fadd018c2284cef03d23f"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/report-dual-directions/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "report-field-index": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/verify_report_fields.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/report-field-index/stdout.txt",
+      "sha256": "bf62c77b434f34e90928ba61a975e1a74f229e63a8627abf9e69be55619a8600"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/report-field-index/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B05-s4-matrix": {
+    "command": [
+      "python3",
+      "-B",
+      "B05/tests/check_s4_rule.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B05-s4-matrix/stdout.txt",
+      "sha256": "8a3f8abe93864e2be80c037e09e0c93cb12806527cf3a736d909979bad41fe24"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B05-s4-matrix/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "B03-research-owners": {
+    "command": [
+      "python3",
+      "-B",
+      "B03/tests/check_owner_edges.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/B03-research-owners/stdout.txt",
+      "sha256": "f11df0f87498b96455ef0aa515ef693c21342b41dcfd5e2b2b62f787ee8000f8"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/B03-research-owners/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R334-scenario-coverage": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/test_scenario_coverage.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-scenario-coverage/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-scenario-coverage/stderr.txt",
+      "sha256": "64687c347beaf01c2465e40d77de0c8df26f410e2630f8bc9300ce4244039804"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R334-build-contracts": {
+    "command": [
+      "python3",
+      "-B",
+      "B08/code/test_r334_build_contracts.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-build-contracts/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-build-contracts/stderr.txt",
+      "sha256": "7c758af7411e05fc2e6c4fb89045f7a03d9a5957d5305092903a23a66373d034"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R334-checkout-bytes": {
+    "command": [
+      "python3",
+      "-B",
+      "B08/code/test_checkout_bytes_r334.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-checkout-bytes/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-checkout-bytes/stderr.txt",
+      "sha256": "b634e4437b4d06477791d91456f61ff269084b2f65903d0f950f61051d6e8982"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R334-source-archive": {
+    "command": [
+      "python3",
+      "-B",
+      "B08/code/test_source_archive_r334.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-source-archive/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-source-archive/stderr.txt",
+      "sha256": "fd7c841fffc22cb2a22d9bbff9a366fa53de7dfa23abc01b86ed570481a7d5d0"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R334-export-artifacts": {
+    "command": [
+      "python3",
+      "-B",
+      "revision/audits/export/tests/run_export_regressions.py",
+      "--plan",
+      "revision/R33_3_test_baseline",
+      "--report-a",
+      "evidence/original/STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c.zip",
+      "--report-b",
+      "evidence/original/STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a.zip",
+      "--output",
+      "verification/local/export-regressions.json"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-export-artifacts/stdout.txt",
+      "sha256": "f36d7e0a56b596b97b749b4db889daa9666d421e8b6b916e83e75edeb4bcad64"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-export-artifacts/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "HISTORICAL_FIXTURE_BOUNDARY_ONLY"
+  },
+  "R334-cancel-locks": {
+    "command": [
+      "python3",
+      "-B",
+      "revision/audits/export/tests/run_cancel_lock_regressions.py",
+      "--plan",
+      ".",
+      "--output",
+      "verification/local/cancel-locks.json"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-cancel-locks/stdout.txt",
+      "sha256": "3861c70e7d073f8d9bb56b7966b55f4c3ba401a0ebdbc1e4ef3c3925d259ad71"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-cancel-locks/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "HISTORICAL_FIXTURE_BOUNDARY_ONLY"
+  },
+  "R334-research-policy": {
+    "command": [
+      "python3",
+      "-B",
+      "revision/audits/research/run_hardening.py",
+      "--baseline-plan",
+      "revision/R33_3_test_baseline"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-research-policy/stdout.txt",
+      "sha256": "6387c7c590dcd1fcc047b5270fff26e823dba9a74bff0a1fbce6fe745852768d"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-research-policy/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "HISTORICAL_FIXTURE_BOUNDARY_ONLY"
+  },
+  "R334-research-schema": {
+    "command": [
+      "python3",
+      "-B",
+      "revision/audits/research/verify_schema_patch.py",
+      "--baseline-plan",
+      "revision/R33_3_test_baseline"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-research-schema/stdout.txt",
+      "sha256": "73bde3d0793a203bcd15505ffd8232b75071533ca5498a0de8afd2358fb746eb"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-research-schema/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "HISTORICAL_FIXTURE_BOUNDARY_ONLY"
+  },
+  "R334-s4-checkpoint-and-s5": {
+    "command": [
+      "python3",
+      "-B",
+      "B05/verify_s4_repairs.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-s4-checkpoint-and-s5/stdout.txt",
+      "sha256": "d950258fea21fdbc1828c3aa7c4cf3db427a91f17d60765afe07381cfa24c9ce"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-s4-checkpoint-and-s5/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R334-payload-regenerator": {
+    "command": [
+      "python3",
+      "-B",
+      "B05/tests/test_rebuild_r334.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R334-payload-regenerator/stdout.txt",
+      "sha256": "1535786f310dcdd3ee05f1fca60081f581c73fdbd81129f5553a79e99ec95475"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R334-payload-regenerator/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "HISTORICAL_REGENERATION_FIXTURE_ONLY"
+  },
+  "R335-delivery-regressions": {
+    "command": [
+      "python3",
+      "-B",
+      "B08/code/test_r335_delivery.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-delivery-regressions/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-delivery-regressions/stderr.txt",
+      "sha256": "572b197c5490002abde40d74970e513cfa246eb7b4451ed212794a181fc174f2"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R335-version-transactions": {
+    "command": [
+      "python3",
+      "-B",
+      "B08/code/test_r335_version.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-version-transactions/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-version-transactions/stderr.txt",
+      "sha256": "fd91b0f01c3dad831e6a7008dfd7187d712d59aba7bc57da55714b41e42f010f"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R335-complete-apply-manifest": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/test_apply_manifest_r335.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-complete-apply-manifest/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-complete-apply-manifest/stderr.txt",
+      "sha256": "b6e2d76492468aeabe088f761f20e08a4fc774ffaa23492ec32495a39c10dd75"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R335-completion-contract": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/check_r335_completion.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-completion-contract/stdout.txt",
+      "sha256": "f2dcdcd574a9a8de77f47919fe2ca2f885e6a61f9ed17310f6e5576cbd2ca202"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-completion-contract/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R335-host-isolation": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/test_host_isolation_r335.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-host-isolation/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-host-isolation/stderr.txt",
+      "sha256": "9cc55f90c614719a325860e9a036dd6848f79b13ebebd0044cccce29b664b784"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R335-report-case-chain": {
+    "command": [
+      "python3",
+      "B07/replay_r335/test_case_loop_r335.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-report-case-chain/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-report-case-chain/stderr.txt",
+      "sha256": "d4a9a8e8fe83941ca21c9ff4c04810b586863fb2014f6d411168fa2c2ce1d1a0"
+    },
+    "scope": "CURRENT_ACTUAL_CASE_LINKER_WITH_SYNTHETIC_GIT_AND_REPORT_FIXTURES"
+  },
+  "R335-delivery-structure": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/check_delivery_structure_r335.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-delivery-structure/stdout.txt",
+      "sha256": "33011f903f70511f877a309d9139a1c6ab01809b39f846e0f17bca718b763e04"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-delivery-structure/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "CURRENT_ALL_ISSUE_FULL_CODE_COPIES_SOURCE_PREFIX_GENERATOR_RECEIPTS_AND_REPORT_DENOMINATORS"
+  },
+  "R335-runtime-actual-owners": {
+    "command": [
+      "python3",
+      "-B",
+      "B01/tests/host_runtime/run_all.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-runtime-actual-owners/stdout.txt",
+      "sha256": "36433659ffe60a4168b41b9423fe6aa1b8168e2f89f9f39652d5c9d8a4d109ea"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-runtime-actual-owners/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "ACTUAL_FAULT_RECOVERY_LEGACY_NATIVE_FEEDBACK_ESSENTIAL_SQLITE_OWNERS_WITH_EXPLICIT_HOST_ADAPTERS"
+  },
+  "R335-enabled-opportunity-calendar": {
+    "command": [
+      "python3",
+      "-B",
+      "B02/enabled_window_r335/test_enabled_window.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-enabled-opportunity-calendar/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-enabled-opportunity-calendar/stderr.txt",
+      "sha256": "9eb145b480fcb208a00abed1fec31917a99bc1410488c2ddcd351f953fcf4a43"
+    },
+    "scope": "ACTUAL_COLLECTOR_RECONCILER_WITH_SYNTHETIC_ORIGINAL_SQLITE_TABLES_NO_DEVICE"
+  },
+  "R335-legacy-controlled-capture": {
+    "command": [
+      "python3",
+      "-B",
+      "B01/legacy_retirement_r335/test_legacy_retirement_r335.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-legacy-controlled-capture/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-legacy-controlled-capture/stderr.txt",
+      "sha256": "c22645d6f8b562dbd080331b3e720a19e2a0f6900925ae09fec678694e37c36a"
+    },
+    "scope": "READ_ONLY_CAPTURE_RECEIPT_AND_TAR_VALIDATOR_WITH_SYNTHETIC_HOST_FIXTURES_NO_ADB_DEVICE_NO_RETIREMENT"
+  },
+  "R335-actual-source-call-parser": {
+    "command": [
+      "python3",
+      "-B",
+      "B08/code/test_r335_source_calls.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-actual-source-call-parser/stdout.txt",
+      "sha256": "b61343de7352786ddb30e70af4cda3428762c75ad9561e7e8fa9f326bd9e50f3"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-actual-source-call-parser/stderr.txt",
+      "sha256": "42398e2b13d09a7973072fcbbe307ab2e9ed2d32fd1fcf050bd8d8186f124cc9"
+    },
+    "scope": "CURRENT_PACKAGED_HOST_FIXTURE"
+  },
+  "R335-C10-cross-review": {
+    "command": [
+      "python3",
+      "-B",
+      "B05/verification_r335/c10_cross_review/run.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-C10-cross-review/stdout.txt",
+      "sha256": "c1c4f312da8407f1e8b1517f84dc8aa6ca2e64134c8f9e83b2ce58fddbf0e679"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-C10-cross-review/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "ACTUAL_NUMERIC_REFIT_AND_CHECKPOINT_CODEC_BEFORE_AFTER_SYNTHETIC_COUNTS_NO_DEVICE"
+  },
+  "R335-C10-checkpoint-temporal-codec": {
+    "command": [
+      "python3",
+      "-B",
+      "B05/verification_r335/c10_cross_review/run_cursor.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-C10-checkpoint-temporal-codec/stdout.txt",
+      "sha256": "3850be772b567aad4b28c5c3ea4e06d19d2d679913131dfa7088b2fbf52d2d2f"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-C10-checkpoint-temporal-codec/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "ACTUAL_CONTMAT_100_STEP_VALID_PERMUTATION_PREFIX_36_ABI_MUTATIONS_AND_CONTINUED_UPDATE_NO_DEVICE"
+  },
+  "R335-C10-report-original-metadata": {
+    "command": [
+      "python3",
+      "-B",
+      "B05/verification_r335/c10_cross_review/run_report_metadata.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-C10-report-original-metadata/stdout.txt",
+      "sha256": "e05776442a894309b4170af1bb5cb7281186972ca6ed2d39470516b6ad1e3832"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-C10-report-original-metadata/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "ACTUAL_READ_ONLY_METADATA_READER_CURRENT_DDL_SQLITE_WITH_EXPLICIT_QUERY_CELL_BOUND_ADAPTER_NO_CONTENT_OR_DEVICE_PROOF"
+  },
+  "R335-RT10-independent-lifetime": {
+    "command": [
+      "python3",
+      "-B",
+      "verification/rt10_cross_review/check_lifetime.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-RT10-independent-lifetime/stdout.txt",
+      "sha256": "43e31eddec58b4607a1fec14a3eca744cb1e64aba85a2372bd6c34dde7eb3739"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-RT10-independent-lifetime/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "UNCHANGED_LEASE_REAL_LINUX_CROSS_JVM_LOCKS_AND_EXACT_RESOURCES_BODY_WITH_EXPLICIT_BUDGET_FAULT_STUB_NO_ANDROID_SAF_OR_FULL_FLOW"
+  },
+  "R335-RT10-native-archive-tool": {
+    "command": [
+      "python3",
+      "-B",
+      "B01/legacy_retirement_r335/test_custody_package.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-RT10-native-archive-tool/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-RT10-native-archive-tool/stderr.txt",
+      "sha256": "b022686431530d56cde2afe400a3d3eb340749e0af38adaf971e5631f591f6b0"
+    },
+    "scope": "ACTUAL_OFFLINE_NATIVE_ZIP_INDEX_PARSE_AND_EXTRACTION_15_CHECKS_NO_DEVICE_OR_RETIREMENT"
+  },
+  "R335-RT10-actual-custody-owners": {
+    "command": [
+      "python3",
+      "-B",
+      "B01/tests/host_runtime/custody_cross/run_registered.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-RT10-actual-custody-owners/stdout.txt",
+      "sha256": "1c29b1d5673ce279ce8ff31e1034af124c08ecb3e7415ce6e0fe2cbaced1c55f"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-RT10-actual-custody-owners/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "ACTUAL_115_CUSTODY_AUTH_OS_LEASE_FILE_RECONCILE_ARCHIVE_WITH_EXPLICIT_HOST_ADAPTERS_BOUND_TO_COMPLETE_FINAL_PREFIX_NO_DEVICE"
+  },
+  "R335-C10-log-restore-compatibility": {
+    "command": [
+      "python3",
+      "-B",
+      "B05/verification_r335/c10_cross_review/run_log_compatibility.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-C10-log-restore-compatibility/stdout.txt",
+      "sha256": "487dd54db79462a7067ef72afa529393e0b65285bf8a3f9714fd29536c6afafc"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-C10-log-restore-compatibility/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "ACTUAL_CONTMAT_ABI1_2_3_BOUNDED_LOG_RESTORE_WITH_ORIGINAL_VALUE_BITS_AND_NUMERIC_CHECKPOINT_PARITY_NO_ART_OR_DEVICE"
+  },
+  "R335-RT10-saf-entry-api-guard": {
+    "command": [
+      "python3",
+      "-B",
+      "B01/tests/host_runtime/custody_cross/api_guard/run.py"
+    ],
+    "exitCode": 0,
+    "stdoutOriginal": {
+      "path": "host_logs_R335/R335-RT10-saf-entry-api-guard/stdout.txt",
+      "sha256": "f30c553e348175f537841498cae294fdcdf61dbcc77380d77417e76d3afb3fd2"
+    },
+    "stderrOriginal": {
+      "path": "host_logs_R335/R335-RT10-saf-entry-api-guard/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "ACTUAL_COMPLETE_BEFORE_AFTER_CUSTODY_CLASSES_WITH_EXPLICIT_ANDROID_API_FIXTURES_AND_EXACT_API28_ENTRY_GUARD_NO_ART_OR_DEVICE"
+  }
+}
