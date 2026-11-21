@@ -1,0 +1,46 @@
+{
+  "id": "R31-B01-C01#A2",
+  "approvedOriginalText": "磁盘满/constraint/损坏异常不被当busy无限重试；用户stop后无继续提交。",
+  "contractSha256": "d107f6ef6f5a55bbbab79d0b69141edb7a33944ba578a80146faf355a95f0531",
+  "role": "LOCAL",
+  "namedTests": [
+    {
+      "test": "com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest#fullConstraintAndCorruptAreNeverTransientRetry",
+      "log": "final-unit-originals/TEST-com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest.xml",
+      "sha256": "322169eb42ef33fb726cf26e53d57931cebacf7a5d4039ab4fc0cf33a4e597e4",
+      "methodSource": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FailureEntryConsistencyTest.java",
+      "methodSourceSha256": "f0431d98c873dd439fab4836b523b1bbbbe7e07cf15ecb3a2e71827b2fbe1673",
+      "seconds": "0.001",
+      "result": "PASS",
+      "original": {
+        "path": "receipts/original-clauses/final-unit-originals/TEST-com.ethk3.novaonepro.strategyv2.R31FailureEntryConsistencyTest.xml",
+        "sha256": "322169eb42ef33fb726cf26e53d57931cebacf7a5d4039ab4fc0cf33a4e597e4",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      }
+    },
+    {
+      "test": "com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest#cancellationUnknownCommitAndRealFaultNeverMasqueradeAsBusy",
+      "log": "final-unit-originals/TEST-com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest.xml",
+      "sha256": "097b1f2221b7ae8d6c53ecf6c9ffbfda1548531cb954dd5a204631cf245e8517",
+      "methodSource": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31PreparedWriteContractTest.java",
+      "methodSourceSha256": "6ce9979be40bd0d43448dd386db587d43a4943d71fe271ad1d68a018c934f50d",
+      "seconds": "0.0",
+      "result": "PASS",
+      "original": {
+        "path": "receipts/original-clauses/final-unit-originals/TEST-com.ethk3.novaonepro.strategyv2.R31PreparedWriteContractTest.xml",
+        "sha256": "097b1f2221b7ae8d6c53ecf6c9ffbfda1548531cb954dd5a204631cf245e8517",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      }
+    }
+  ],
+  "missingBindings": [
+    "HOST:run_write_protocol_host"
+  ],
+  "semanticReviewSelected": false,
+  "fullyCoveredByCurrentTests": false,
+  "bindingFile": "construction/r31/batches/K02/BINDINGS.json",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+}

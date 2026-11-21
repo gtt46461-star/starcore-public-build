@@ -1,0 +1,90 @@
+{
+  "schema": "STARCORE_R33_ASSERTION_EVIDENCE_V2",
+  "groupId": "B08.3",
+  "assertionId": "B08.3.NEG",
+  "contractSha256": "865a40f0088db0a8047e818049274bd7c2e1560ea65b5c14e1344ba78c466160",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "outcome": "PASS",
+  "testName": "Recompute registered current 222/1832 evidence disposition",
+  "expected": "原ID漏项、重复/错配、借用033成绩、只签工程入口或语义部分完成均不得计入新全条文通过数。未成熟的自然项保留缺证理由。",
+  "observed": "复算全部原身份、角色、证据和缺口；各类缺失、重复和历史代签负例均按详细原件返回。",
+  "environment": "Downloaded B08 candidate, sealed R3 original controls and independent local receiver",
+  "executor": "Version-pinned original score_acceptance, score_final and GitHub Actions build 69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "reviewer": "Codex 接收端，依据固定原卷及独立下载的签名候选逐 ID 审阅",
+  "howRecomputed": "重新运行原始 original_index/current_identity/original_reviews，然后检查每个固定子场景的原件定位。",
+  "evidenceKind": "RECORD_REVIEW",
+  "dataRole": "RECORD",
+  "rawArtifacts": [
+    {
+      "path": "records/ledger-negative-results.json",
+      "sha256": "0feead16406c7707b3347584f6fb55e93cf13f644f411386dc4f5a3d1e96150e",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    }
+  ],
+  "current222Ledger": {
+    "path": "ledgers/clauses222.json",
+    "sha256": "602d4d93d584ba92c05e5ab7b83cca4892cf57069ca74d57748eaa8241ce9af7",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "current1832Ledger": {
+    "path": "ledgers/requirements1832.json",
+    "sha256": "b07a5784d5581e63b764f753a8ca25c54f4647b9e1e823af4d7a06800b97af69",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "caseResults": [
+    {
+      "caseId": "B08.3.NEG.C01",
+      "requirementSha256": "4605e40dcdb6476c68f239b8e1470c76c71251111d03d9bfd460cacb90803c9e",
+      "outcome": "PASS",
+      "scenario": "漏ID拒绝",
+      "expected": "漏ID拒绝",
+      "observed": "原始执行记录已复算，定位见 cases[0]",
+      "rawIndex": 0,
+      "locator": "cases[0]"
+    },
+    {
+      "caseId": "B08.3.NEG.C02",
+      "requirementSha256": "94b67763419328c924ba43f73d1974cd2ca16e7b8803ce1dd9711031690d4d66",
+      "outcome": "PASS",
+      "scenario": "重复或错配拒绝",
+      "expected": "重复或错配拒绝",
+      "observed": "原始执行记录已复算，定位见 cases[1..2]",
+      "rawIndex": 0,
+      "locator": "cases[1..2]"
+    },
+    {
+      "caseId": "B08.3.NEG.C03",
+      "requirementSha256": "12387e4da806d1f0ea8093131b4c64445912d11f44ee069417adf1cca47b4e2c",
+      "outcome": "PASS",
+      "scenario": "旧033成绩拒绝代填",
+      "expected": "旧033成绩拒绝代填",
+      "observed": "原始执行记录已复算，定位见 cases[3]",
+      "rawIndex": 0,
+      "locator": "cases[3]"
+    },
+    {
+      "caseId": "B08.3.NEG.C04",
+      "requirementSha256": "f14732bf3a3e6235ab00dae0cfb89ba4c789ce0e06214b9bbe5908605c6c662e",
+      "outcome": "PASS",
+      "scenario": "部分语义与工程入口不计全通过",
+      "expected": "部分语义与工程入口不计全通过",
+      "observed": "原始执行记录已复算，定位见 cases[4]",
+      "rawIndex": 0,
+      "locator": "cases[4]"
+    },
+    {
+      "caseId": "B08.3.NEG.C05",
+      "requirementSha256": "b1d0dbcc7eb2677e2d22f6b36cd6a95489d2fa6515934280f520b6c59c5e23d6",
+      "outcome": "PASS",
+      "scenario": "自然未成熟保留NOT_RUN_BLOCKED",
+      "expected": "自然未成熟保留NOT_RUN_BLOCKED",
+      "observed": "原始执行记录已复算，定位见 cases[5]",
+      "rawIndex": 0,
+      "locator": "cases[5]"
+    }
+  ]
+}

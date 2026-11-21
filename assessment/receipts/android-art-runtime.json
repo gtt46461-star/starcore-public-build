@@ -1,0 +1,198 @@
+{
+  "diagnosticsDatasets": {
+    "finalSourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "compileClasspath": "Final B08 Java classes and Android 36. D8 min API 21 matches the released Android ABI for interface default and static methods.",
+    "source8target8": true,
+    "inputs": {
+      "AtomNetSessionNumericalProbe.java": {
+        "sealedInput": "current-review/research/b04/AtomNetSessionNumericalProbe.java",
+        "sha256": "379f4182efe558e299f863500500688e71f0aa517f10a24e4c554fd25ccd08b6"
+      },
+      "AtomNetSessionResumeReviewTest.java": {
+        "sealedInput": "current-review/research/b04/AtomNetSessionResumeReviewTest.java",
+        "sha256": "e0ad5fe3b112ecec68aef26dbb2843b61f6daf2bafdf3e25f15c28549d0367bb"
+      },
+      "ResearchConsumerR335Host.java": {
+        "sealedInput": "STARCORE_R33_5_20261118/B05/tests/ResearchConsumerR335Host.java",
+        "sha256": "47b509d6d5893c65b905589a571ceb12d6553d1e106e2e153dfd71f6214620b6"
+      },
+      "R33NaturalQualificationHost.java": {
+        "sealedInput": "STARCORE_R33_5_20261118/B06/host/R33NaturalQualificationHost.java",
+        "sha256": "7ec5edec72c4c52fa4d630a44c5bb257e6de92d2aff16c08469fcfb46c4f2a16"
+      },
+      "R335AndroidGradientTrace.java": {
+        "derivedFrom": "AtomNetSessionNumericalProbe.java",
+        "originalSha256": "379f4182efe558e299f863500500688e71f0aa517f10a24e4c554fd25ccd08b6",
+        "change": "Renamed the separate diagnostic copy. Added only weight/checkpoint and per-epoch loss output after every original assertion. The original probe also executes independently.",
+        "sha256": "e5d26317470d0085be7065442498d107526ada5bda7cce92ae534cbb1641719c"
+      }
+    },
+    "dexContainsOnlyNamedTestClasses": [
+      "AtomNetSessionNumericalProbe",
+      "AtomNetSessionResumeReviewTest",
+      "R335AndroidGradientTrace",
+      "R33NaturalQualificationHost",
+      "ResearchConsumerR335Host"
+    ],
+    "dexSha256": "9c4d96b01ef3c6f7e4e8aafff7f34fa57bbdcbb0b98b7842427cfc3f5e732985",
+    "compileSourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "epochObservation": "actual per-step session.receipts before the subsequent work() drains the previous batch",
+    "diagnosticFiles": {
+      "AtomNetSessionNumericalProbe.java": "379f4182efe558e299f863500500688e71f0aa517f10a24e4c554fd25ccd08b6",
+      "AtomNetSessionResumeReviewTest.java": "e0ad5fe3b112ecec68aef26dbb2843b61f6daf2bafdf3e25f15c28549d0367bb",
+      "R335EpochReceiptProbe.java": "d7a08811b838359439cce02fe61b831615a33f42d23034695392a160d14b3522",
+      "R335ProbeLauncher.java": "93457c3b7ee85bcdf3885af97419ca2076945954816f902afd147df4e23609ac",
+      "R33NaturalQualificationHost.java": "7ec5edec72c4c52fa4d630a44c5bb257e6de92d2aff16c08469fcfb46c4f2a16",
+      "ResearchConsumerR335Host.java": "47b509d6d5893c65b905589a571ceb12d6553d1e106e2e153dfd71f6214620b6"
+    }
+  },
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "installedPath": "/data/app/~~gU-PI2LQdMtj6mC-YrRUyg==/com.starcore.research.r13-o5Wd6zNheE-oIgP2zo6RiA==/base.apk",
+  "testDexSha256": "9c4d96b01ef3c6f7e4e8aafff7f34fa57bbdcbb0b98b7842427cfc3f5e732985",
+  "device": "Android/sdk_phone64_x86_64/emu64x:14/UE1A.230829.036.A1/11228894:userdebug/test-keys",
+  "scope": "Actual release classes loaded on Android ART in a separate shell process on a disposable emulator. Controlled inputs; no Android database, application lifecycle or future evidence asserted.",
+  "cases": [
+    {
+      "class": "AtomNetSessionNumericalProbe",
+      "startUtc": 1795231113.0125384,
+      "endUtc": 1795231116.5140207,
+      "exitCode": 0,
+      "pass": true,
+      "rawLog": "AtomNetSessionNumericalProbe.log",
+      "rawSha256": "f1b0714fa6a3198b9bb5fda92dba6cc255c70c7a871cb534972775cbb227f620",
+      "command": [
+        "adb",
+        "shell",
+        "env",
+        "CLASSPATH=/data/app/~~gU-PI2LQdMtj6mC-YrRUyg==/com.starcore.research.r13-o5Wd6zNheE-oIgP2zo6RiA==/base.apk:/data/local/tmp/starcore-r335-final-probes.jar",
+        "app_process",
+        "-Xms32m",
+        "-Xmx512m",
+        "/system/bin",
+        "com.ethk3.novaonepro.strategyv2.R335ProbeLauncher",
+        "AtomNetSessionNumericalProbe"
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "exitCode": 0,
+          "rawSha256": "f1b0714fa6a3198b9bb5fda92dba6cc255c70c7a871cb534972775cbb227f620"
+        }
+      ]
+    },
+    {
+      "class": "AtomNetSessionResumeReviewTest",
+      "startUtc": 1795231118.5142963,
+      "endUtc": 1795231119.6749008,
+      "exitCode": 0,
+      "pass": true,
+      "rawLog": "AtomNetSessionResumeReviewTest.log",
+      "rawSha256": "36e3754ab34923b3f4d8cf77fa3f8b37b2c28c4235c669970053583001d713d9",
+      "command": [
+        "adb",
+        "shell",
+        "env",
+        "CLASSPATH=/data/app/~~gU-PI2LQdMtj6mC-YrRUyg==/com.starcore.research.r13-o5Wd6zNheE-oIgP2zo6RiA==/base.apk:/data/local/tmp/starcore-r335-final-probes.jar",
+        "app_process",
+        "-Xms32m",
+        "-Xmx512m",
+        "/system/bin",
+        "com.ethk3.novaonepro.strategyv2.R335ProbeLauncher",
+        "AtomNetSessionResumeReviewTest",
+        "fixed"
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "exitCode": 0,
+          "rawSha256": "36e3754ab34923b3f4d8cf77fa3f8b37b2c28c4235c669970053583001d713d9"
+        }
+      ]
+    },
+    {
+      "class": "R335AndroidGradientTrace",
+      "startUtc": 1795231121.675326,
+      "endUtc": 1795231125.1830657,
+      "exitCode": 0,
+      "pass": true,
+      "rawLog": "R335AndroidGradientTrace.log",
+      "rawSha256": "2ac187e7fc6d339055553b898ba7aa4dfcaa16a25a849354b2ebab329f173b87",
+      "command": [
+        "adb",
+        "shell",
+        "env",
+        "CLASSPATH=/data/app/~~gU-PI2LQdMtj6mC-YrRUyg==/com.starcore.research.r13-o5Wd6zNheE-oIgP2zo6RiA==/base.apk:/data/local/tmp/starcore-r335-final-probes.jar",
+        "app_process",
+        "-Xms32m",
+        "-Xmx512m",
+        "/system/bin",
+        "com.ethk3.novaonepro.strategyv2.R335ProbeLauncher",
+        "R335EpochReceiptProbe"
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "exitCode": 0,
+          "rawSha256": "2ac187e7fc6d339055553b898ba7aa4dfcaa16a25a849354b2ebab329f173b87"
+        }
+      ]
+    },
+    {
+      "class": "ResearchConsumerR335Host",
+      "startUtc": 1795231127.18346,
+      "endUtc": 1795231128.2475176,
+      "exitCode": 0,
+      "pass": true,
+      "rawLog": "ResearchConsumerR335Host.log",
+      "rawSha256": "155065c4458f9a56b513b84a729d0094e780470de1e9e9a9d8c5728a1c573119",
+      "command": [
+        "adb",
+        "shell",
+        "env",
+        "CLASSPATH=/data/app/~~gU-PI2LQdMtj6mC-YrRUyg==/com.starcore.research.r13-o5Wd6zNheE-oIgP2zo6RiA==/base.apk:/data/local/tmp/starcore-r335-final-probes.jar",
+        "app_process",
+        "-Xms32m",
+        "-Xmx512m",
+        "/system/bin",
+        "com.ethk3.novaonepro.strategyv2.R335ProbeLauncher",
+        "ResearchConsumerR335Host"
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "exitCode": 0,
+          "rawSha256": "155065c4458f9a56b513b84a729d0094e780470de1e9e9a9d8c5728a1c573119"
+        }
+      ]
+    },
+    {
+      "class": "R33NaturalQualificationHost",
+      "startUtc": 1795231130.2479677,
+      "endUtc": 1795231131.405005,
+      "exitCode": 0,
+      "pass": true,
+      "rawLog": "R33NaturalQualificationHost.log",
+      "rawSha256": "0a9f926da7e10c2e4a2203bd4ea1e84d8ca541204b34f292f4d0d0b2945179ed",
+      "command": [
+        "adb",
+        "shell",
+        "env",
+        "CLASSPATH=/data/app/~~gU-PI2LQdMtj6mC-YrRUyg==/com.starcore.research.r13-o5Wd6zNheE-oIgP2zo6RiA==/base.apk:/data/local/tmp/starcore-r335-final-probes.jar",
+        "app_process",
+        "-Xms32m",
+        "-Xmx512m",
+        "/system/bin",
+        "com.ethk3.novaonepro.strategyv2.R335ProbeLauncher",
+        "R33NaturalQualificationHost"
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "exitCode": 0,
+          "rawSha256": "0a9f926da7e10c2e4a2203bd4ea1e84d8ca541204b34f292f4d0d0b2945179ed"
+        }
+      ]
+    }
+  ]
+}

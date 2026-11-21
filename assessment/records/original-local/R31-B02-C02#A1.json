@@ -1,0 +1,55 @@
+{
+  "id": "R31-B02-C02#A1",
+  "approvedOriginalText": "运行期DDL tracing=0（真实迁移窗口除外）；schema缺失时DEPENDENCY(SCHEMA_PENDING)，不现场CREATE。",
+  "contractSha256": "60fe54d1e2dab502cb4639dcf64dc0cb59b9679758705efcc5eb4eae9b0e8694",
+  "role": "LOCAL",
+  "namedTests": [
+    {
+      "test": "HOST:run_runtime_ddl_host",
+      "log": "current-original-gate-bound/logs/host_run_runtime_ddl_host.log",
+      "sha256": "fb76a386f0eac2d58c0df5fee26c9b8556fc60622f968792099ae2b57432bb1b",
+      "gateSummary": "current-original-gate-bound/BUILD_SUMMARY.json",
+      "exit": 0,
+      "original": {
+        "path": "receipts/original-clauses/current-original-gate-bound/logs/host_run_runtime_ddl_host.log",
+        "sha256": "fb76a386f0eac2d58c0df5fee26c9b8556fc60622f968792099ae2b57432bb1b",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      },
+      "summary": {
+        "path": "receipts/original-clauses/current-original-gate-bound/BUILD_SUMMARY.json",
+        "sha256": "9dd4f17ba4a2a86f5bc41bf00c8192553df50712c9a492578d6083d7a02ec924",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      }
+    },
+    {
+      "test": "HOST:run_lifecycle_stores_host",
+      "log": "current-original-gate-bound/logs/host_run_lifecycle_stores_host.log",
+      "sha256": "ee3670f95d9312db6662418688329c4df929b8d808f3d1a1dbb93ad86422a527",
+      "gateSummary": "current-original-gate-bound/BUILD_SUMMARY.json",
+      "exit": 0,
+      "original": {
+        "path": "receipts/original-clauses/current-original-gate-bound/logs/host_run_lifecycle_stores_host.log",
+        "sha256": "ee3670f95d9312db6662418688329c4df929b8d808f3d1a1dbb93ad86422a527",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      },
+      "summary": {
+        "path": "receipts/original-clauses/current-original-gate-bound/BUILD_SUMMARY.json",
+        "sha256": "9dd4f17ba4a2a86f5bc41bf00c8192553df50712c9a492578d6083d7a02ec924",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      }
+    }
+  ],
+  "missingBindings": [
+    "HOST:run_runtime_ddl_writer_regression",
+    "HOST:run_lifecycle_schema_host"
+  ],
+  "semanticReviewSelected": false,
+  "fullyCoveredByCurrentTests": false,
+  "bindingFile": "construction/r31/batches/K03/BINDINGS.json",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+}

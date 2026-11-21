@@ -1,0 +1,60 @@
+{
+  "schema": "STARCORE_R33_ASSERTION_EVIDENCE_V2",
+  "groupId": "B04.2",
+  "assertionId": "B04.2.POS",
+  "contractSha256": "d21486e940ac3702a0ceaa629829ad7e695d7791c3f20f9ac70e98360db9453d",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "outcome": "PASS",
+  "testName": "Actual signed AtomNet session on Android ART",
+  "expected": "数据足够时真实梯度步、样本和epoch增长；恢复同序等价",
+  "observed": "在已安装的 B08 APK 内执行真实 Adam、渐进训练及完整优化器断点恢复；每个切片比较原顺序和恢复后的实际状态。损失样本在回执中逐项列出。",
+  "environment": "API34 Android ART process with the installed release first on the class path",
+  "executor": "Android runtime running the sealed numerical checker and its additional reader",
+  "reviewer": "Codex 接收端，依据固定原卷及独立下载的签名候选逐 ID 审阅",
+  "howRecomputed": "逐切片正反验证；重新核对实际权重与完整状态 SHA-256、样本数和 Android 原始输出。",
+  "evidenceKind": "ANDROID_EMULATOR",
+  "dataRole": "CONTROLLED",
+  "rawArtifacts": [
+    {
+      "path": "records/android-model-training.json",
+      "sha256": "05b6704e0ef4deb8611d8181de588fa02a93cdf458a46190688cf4165f8e13ce",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    }
+  ],
+  "current222Ledger": {
+    "path": "ledgers/clauses222.json",
+    "sha256": "602d4d93d584ba92c05e5ab7b83cca4892cf57069ca74d57748eaa8241ce9af7",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "current1832Ledger": {
+    "path": "ledgers/requirements1832.json",
+    "sha256": "b07a5784d5581e63b764f753a8ca25c54f4647b9e1e823af4d7a06800b97af69",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "caseResults": [
+    {
+      "caseId": "B04.2.POS.C01",
+      "requirementSha256": "8ac424eaa047b9980078fea6c4b119a5a172b01fcf91a756f1ad83bbf922c2ee",
+      "outcome": "PASS",
+      "scenario": "真实梯度步样本epoch有原生变化",
+      "expected": "真实梯度步样本epoch有原生变化",
+      "observed": "原始执行记录已复算，定位见 initial/final weights, actual work/gradient/evaluation slices, training samples and completed epochs",
+      "rawIndex": 0,
+      "locator": "initial/final weights, actual work/gradient/evaluation slices, training samples and completed epochs"
+    },
+    {
+      "caseId": "B04.2.POS.C02",
+      "requirementSha256": "f24de53dd58f65548a43a5ba1174aa948dd4b138ada18446b14cb980840b082e",
+      "outcome": "PASS",
+      "scenario": "完整优化器断点恢复与同序训练等价",
+      "expected": "完整优化器断点恢复与同序训练等价",
+      "observed": "原始执行记录已复算，定位见 actual AtomNetSessionNumericalProbe recovered each slice in the original order: uninterrupted and restored Adam/dropout/RNG/FTRL/shuffle/model equality",
+      "rawIndex": 0,
+      "locator": "actual AtomNetSessionNumericalProbe recovered each slice in the original order: uninterrupted and restored Adam/dropout/RNG/FTRL/shuffle/model equality"
+    }
+  ]
+}

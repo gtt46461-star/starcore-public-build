@@ -1,0 +1,50 @@
+{
+  "schema": "STARCORE_R33_ASSERTION_EVIDENCE_V2",
+  "groupId": "B04.2",
+  "assertionId": "B04.2.TRACE",
+  "contractSha256": "e6502f43feb5703a66febe9aab0fe7b906bbc4b745680ea717f3fcdf16f3d7a6",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "outcome": "PASS",
+  "testName": "Actual signed AtomNet session on Android ART",
+  "expected": "权重前后hash、损失、训练样本和恢复对照",
+  "observed": "在已安装的 B08 APK 内执行真实 Adam、渐进训练及完整优化器断点恢复；每个切片比较原顺序和恢复后的实际状态。损失样本在回执中逐项列出。",
+  "environment": "API34 Android ART process with the installed release first on the class path",
+  "executor": "Android runtime running the sealed numerical checker and its additional reader",
+  "reviewer": "Codex 接收端，依据固定原卷及独立下载的签名候选逐 ID 审阅",
+  "howRecomputed": "逐切片正反验证；重新核对实际权重与完整状态 SHA-256、样本数和 Android 原始输出。",
+  "evidenceKind": "ANDROID_EMULATOR",
+  "dataRole": "CONTROLLED",
+  "rawArtifacts": [
+    {
+      "path": "records/android-model-training.json",
+      "sha256": "05b6704e0ef4deb8611d8181de588fa02a93cdf458a46190688cf4165f8e13ce",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    }
+  ],
+  "current222Ledger": {
+    "path": "ledgers/clauses222.json",
+    "sha256": "602d4d93d584ba92c05e5ab7b83cca4892cf57069ca74d57748eaa8241ce9af7",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "current1832Ledger": {
+    "path": "ledgers/requirements1832.json",
+    "sha256": "b07a5784d5581e63b764f753a8ca25c54f4647b9e1e823af4d7a06800b97af69",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "caseResults": [
+    {
+      "caseId": "B04.2.TRACE.C01",
+      "requirementSha256": "b664c595e21906ab80bc704ce38641e5208fdc09887361034e98c19ebbdf1659",
+      "outcome": "PASS",
+      "scenario": "训练前后权重hash损失真实样本与恢复对照",
+      "expected": "训练前后权重hash损失真实样本与恢复对照",
+      "observed": "原始执行记录已复算，定位见 actual per-step epoch logloss and Brier, training sample count, initial and final weights and restored checkpoint hashes",
+      "rawIndex": 0,
+      "locator": "actual per-step epoch logloss and Brier, training sample count, initial and final weights and restored checkpoint hashes"
+    }
+  ]
+}

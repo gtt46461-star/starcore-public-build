@@ -1,0 +1,30 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Note: /workspace/r335s/qa-host-work/app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r335s/qa-host-work/tools/r31/host/R31OwnedRuntimeFixture.java:14: warning: Unsafe is internal proprietary API and may be removed in a future release
+import sun.misc.Unsafe;
+               ^
+/workspace/r335s/qa-host-work/tools/r31/host/R31OwnedRuntimeFixture.java:30: warning: Unsafe is internal proprietary API and may be removed in a future release
+        Field field = Unsafe.class.getDeclaredField("theUnsafe"); field.setAccessible(true);
+                      ^
+/workspace/r335s/qa-host-work/tools/r31/host/R31OwnedRuntimeFixture.java:31: warning: Unsafe is internal proprietary API and may be removed in a future release
+        coordinator = (DatabaseCoordinator) ((Unsafe) field.get(null)).allocateInstance(DatabaseCoordinator.class);
+                                              ^
+/workspace/r335s/qa-host-work/tools/r30/qual_host/TenPositionR30HostTest.java:79: error: cannot find symbol
+                try(Cursor rows=db.rawQuery("SELECT f.position,f.model_hash,f.trained_through_ordinal,f.frozen_at,f.deadline_at,EXISTS(SELECT 1 FROM r31_atomnet_publication p WHERE p.model_hash=f.model_hash AND p.status='PUBLISHED') FROM r30_atomnet_forecast f WHERE target_issue=? ORDER BY position",new String[]{target})){
+                    ^
+  symbol:   class Cursor
+  location: class TenPositionR30HostTest
+1 error
+3 warnings
+Traceback (most recent call last):
+  File "/workspace/r335s/qa-host-work/tools/r30-repair/run_neural_host.py", line 12, in <module>
+    run(['javac','-nowarn','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[shim,classes,sdk])),'-d',test,*sources])
+  File "/workspace/r335s/qa-host-work/tools/r30-repair/run_neural_host.py", line 7, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['javac', '-nowarn', '-encoding', 'UTF-8', '-cp', '/tmp/repair-neural-host-lf_oakwr/owned-platform/platform:/workspace/r335s/qa-host-work/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', '-d', '/tmp/repair-neural-host-lf_oakwr/test', '/workspace/r335s/qa-host-work/tools/r31/host/R31OwnedRuntimeFixture.java', '/workspace/r335s/qa-host-work/tools/r30-repair/qual_host/RepairNeuralR30HostTest.java', '/workspace/r335s/qa-host-work/tools/r30/qual_host/ModelSurfaceR30HostTest.java', '/workspace/r335s/qa-host-work/tools/r30/qual_host/TenPositionR30HostTest.java']' returned non-zero exit status 1.

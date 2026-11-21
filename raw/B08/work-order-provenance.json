@@ -1,0 +1,3422 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "registeredWorkOrders": [
+    {
+      "id": "R335-D01",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "自动施工只涵盖关键差异，完整新增/替换文件未统一交接",
+      "card": "P00/issues/R335-D01/README.md",
+      "cardSha256": "d7f62f938157f68d172513fc82331ac7eec3b02c4a25c80678c141d1c763a831",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "原stage仅42关键路径，B06空变更；总合同C01–C13仍要求手工正式接线，差异应用成功不等于全部需求已实现。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "materialize/prepare",
+      "rawOrders": [
+        "verification/build_apply_manifest_r335.py",
+        "verification/contractor/stage.py",
+        "verification/rehearse_patches.py",
+        "verification/contractor/test_stage.py",
+        "verification/contractor/fixture_repair_r335/RECEIPT.json",
+        "tools/r31/package_release.py",
+        "tools/r33/package_ci_candidate.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    },
+    {
+      "id": "R335-D02",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "签名预检所需公钥证书环境项漏配",
+      "card": "P00/issues/R335-D02/README.md",
+      "cardSha256": "3c462e1f95d8ebe8a974adcaedce3d973bee13e18623fb9e932c51c76b257c2b",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "Gradle要求R13_EXPECTED_CERT_SHA256，旧构建wrapper和操作书没有提供；合法P12/密码输入仍可能被拒。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "requireOriginalReleaseSigning",
+      "rawOrders": [
+        "tools/r33/run_release_build.py",
+        "B08/code/test_r335_delivery.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    },
+    {
+      "id": "R335-D03",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "新方案身份仍硬编码R33.4，跨文件修订易漂移",
+      "card": "P00/issues/R335-D03/README.md",
+      "cardSha256": "fced7d39954a2e7c49872a866565d46e3a29a18292a90880c5d461f33c2e1984",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "工具、Gradle、终审分别写死版本；只换压缩包名不能证明新方案构建身份。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "verify_plan/identity",
+      "rawOrders": [
+        "control/PLAN_IDENTITY.json",
+        "tools/r33/verify_plan_binding.py",
+        "app/build.gradle",
+        "verification/score_final.py",
+        "verification/test_final_envelopes.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    },
+    {
+      "id": "R335-D04",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "发布身份只有修改指令，没有完整一致后态",
+      "card": "P00/issues/R335-D04/README.md",
+      "cardSha256": "f472441c6af19e708debc7e109ac351442670acb979d8e1d05a2d9682d8930ae",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "旧说明要求施工方自行修改release_manifest，再生成properties/Java/host BuildConfig，遗漏任何一个会身份漂移。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "§4",
+      "rawOrders": [
+        "release/release_manifest.json",
+        "release/release_identity.properties",
+        "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+        "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
+        "P00/P00_开工构建基座.md",
+        "tools/r33/advance_release_version.py",
+        "B08/code/test_r335_version.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 5,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    },
+    {
+      "id": "R335-D08",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "历史宿主收据不能代表本次代码且完整构建环境缺项未逐项列出",
+      "card": "P00/issues/R335-D08/README.md",
+      "cardSha256": "373f65fe7000764cfd5fd120a9472731bbbd141687e90ff40e98fa8fe72fc237",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "旧包35项成功属于旧封存输入，不证明新文件；完整033源码压缩包有代码无Git历史，本环境生产JDK/Android构建工具尚不齐。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "run_host/main",
+      "rawOrders": [
+        "tools/r33/preflight_build.py",
+        "verification/host_tasks_R334.json",
+        "verification/run_host.py",
+        "verification/check_r335_completion.py",
+        "verification/verify_package.py",
+        "verification/minsdk_r335/AddedApiInventory.java",
+        "verification/minsdk_r335/scan_api_differences.py",
+        "verification/minsdk_r335/verify_d8_backports.py",
+        "verification/minsdk_r335/verify_core_desugar.py",
+        "verification/minsdk_r335/README.md",
+        "verification/minsdk_r335/d8_backports/RESULT.json",
+        "verification/minsdk_r335/d8_backports/CHECKER_BINDING.json",
+        "verification/minsdk_r335/core_desugar/RESULT.json",
+        "verification/minsdk_r335/core_desugar/CHECKER_BINDING.json",
+        "verification/MINSDK21_REVIEW_R335.json",
+        "verification/minsdk_r335/current/API_REVIEW_CANDIDATES.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": "IMPLEMENTED_CURRENT_SOURCE_API_AND_FIXED_D8_L8_REVIEW_VERIFIED"
+    },
+    {
+      "id": "R335-D09",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "并行宿主测试共享可写工作树可互相覆盖或回退新代码",
+      "card": "P00/issues/R335-D09/README.md",
+      "cardSha256": "256eadaec6c36b3a3429d87ca73202163d3b8988a593ebff69dbc983eda6e11d",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "旧实现只复制一次work，却用3线程执行会重生成payload的测试与读取payload的测试；存在顺序竞争，无法证明每套真实输入是同一新代码。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "run_host/run_suites",
+      "rawOrders": [
+        "verification/run_host.py",
+        "verification/test_host_isolation_r335.py",
+        "verification/seal_package_r335.py",
+        "verification/verify_package.py",
+        "verification/README_R335.md"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 0,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    },
+    {
+      "id": "R335-D13",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "新增源代码未接原r967封闭依赖和r82失效证明，预构建会拒绝或错误复用旧语义身份",
+      "card": "P00/issues/R335-D13/README.md",
+      "cardSha256": "122dbea0c11594faef6902df74245f537141bf1cc156dad392d3ddc0086775ec",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "generate/identity",
+      "rawOrders": [
+        "verification/build_semantic_inputs_r335.py",
+        "verification/build_apply_manifest_r335.py",
+        "control/SEMANTIC_SOURCE_REVIEWS_R335.json",
+        "control/SEMANTIC_INPUTS_R335.json",
+        "verification/check_version_semantics_r335.py",
+        "P00/R335_数值身份与当前编译索引.md",
+        "verification/version_semantics_r335/RESULT.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 0,
+      "declaredStatus": "IMPLEMENTED_ACTUAL_GENERATORS_AND_VERSION_COMBINATION_VERIFIED"
+    },
+    {
+      "id": "R335-D14",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "preBuild读取033冻结调用索引导致新源码必报过期，freeze又依赖编译且修改构建输入",
+      "card": "P00/issues/R335-D14/README.md",
+      "cardSha256": "9f2a5114a23953e56f9a1bf9717bb2f31c0a5761088f005629fb6585ddc0f223",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "R335SourceCallWiring.register; r982.from_classes",
+      "rawOrders": [
+        "app/build.gradle",
+        "gradle/r335_source_calls.gradle",
+        "scripts/r982_source_call_asset.py",
+        "scripts/r975_source_call_index.py",
+        "scripts/r815_generate_provenance.py",
+        "B08/code/test_r335_source_calls.py",
+        "B08/code/verify_r335_gradle_api.py",
+        "P00/R335_数值身份与当前编译索引.md",
+        "verification/r335_build_preflight/gradle_task/RESULT.json",
+        "verification/r335_build_preflight/AGP_DEPENDENCY_SOURCE_REVIEW.json",
+        "verification/r335_build_preflight/current_source_call_index/RESULT.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 5,
+      "declaredStatus": "IMPLEMENTED_HOST_TASK_AND_API_VERIFIED"
+    },
+    {
+      "id": "R335-ID-P00",
+      "stage": "P00",
+      "sourceCommit": "3b3e63e1dc1d7985ab3860c6dd900ffeb427c5db",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "P00/issues/R335-ID-P00/README.md",
+      "cardSha256": "5f3bc9414d24f81d0220ca2c5623007187c1fbc065b847d5b0cb81f7bbe6608c",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-identity",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "release/r82_training_invalidation.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-C06",
+      "stage": "B01",
+      "sourceCommit": "0d112d12eef812035b9ae201163c9e619ffb3a44",
+      "title": "承接真实报告ZIP验收、可取消quick_check与有界取消锁",
+      "card": "B01/issues/R335-C06/README.md",
+      "cardSha256": "5b1cf7392a35d745908a9c280a9b05d4037dd8869cd6d6f07e19e6a2f575c078",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-carryover",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-ID-B01",
+      "stage": "B01",
+      "sourceCommit": "0d112d12eef812035b9ae201163c9e619ffb3a44",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B01/issues/R335-ID-B01/README.md",
+      "cardSha256": "2250a50bf1ebc229f5787899048a9996d979c908b679944ca12660746191d098",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-identity",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "release/r82_training_invalidation.json",
+        "release/research_dependencies_r967.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT01",
+      "stage": "B01",
+      "sourceCommit": "0d112d12eef812035b9ae201163c9e619ffb3a44",
+      "title": "资源等待被计作功能失败，30次后终止原导出作业",
+      "card": "B01/issues/R335-RT01/README.md",
+      "cardSha256": "446228897efdfb2f68a3f2663cf2796d717e1ccbc2cb300f3775e4c44ad681d2",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        "033 ReportExportServiceCP4 catch REPORT_RESOURCE_WAIT + failureAttempts>=30",
+        "B01/01_B01施工卡.md: B01-04"
+      ],
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportResourceWaitR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT02",
+      "stage": "B01",
+      "sourceCommit": "0d112d12eef812035b9ae201163c9e619ffb3a44",
+      "title": "同一次资源准入拒绝原票据无耐久可读观察",
+      "card": "B01/issues/R335-RT02/README.md",
+      "cardSha256": "2e9e287548515e73bee2bd004ad49e9c00e8811bd6848c853ba323023dece6c5",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "两报告 storage maintenance NEVER_REQUESTED；旧报告为历史成功水位，不能复用作当前准入票据",
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportResourceObservationB01.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportControlBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT03",
+      "stage": "B01",
+      "sourceCommit": "0d112d12eef812035b9ae201163c9e619ffb3a44",
+      "title": "故障归档仅有 Worker 接口，保护债无物理退役通路",
+      "card": "B01/issues/R335-RT03/README.md",
+      "cardSha256": "dd18a8253d726d03c929091d99b42abe95950be5b1eff0a6c9c89a16b06374dd",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        "RuntimeFaultArchiveB01.Worker 在33.4无实际生产实现",
+        "033 RetentionTableRegistryCP12无r31_runtime_fault注册，KeepMigrationStoreR31只收r30_keep_保护表"
+      ],
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultMaintenanceR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultArchiveB01.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 11,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT04",
+      "stage": "B01",
+      "sourceCommit": "0d112d12eef812035b9ae201163c9e619ffb3a44",
+      "title": "缺失checkpoint仅有合同，无原身份恢复调度/耐久状态",
+      "card": "B01/issues/R335-RT04/README.md",
+      "cardSha256": "fc28c3b68f63f0792f4da5dc65abf76b469786cdda8a8d9956ab61a23b85159c",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "两报告 r32-checkpoint-observations.jsonl missingObjects=556；未知子图568→574；033 CheckpointArtifactsR26读者无恢复owner",
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultMaintenanceR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "B01/recovery/prepare_exact_intake.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 7,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT10",
+      "stage": "B01",
+      "sourceCommit": "0d112d12eef812035b9ae201163c9e619ffb3a44",
+      "title": "r926逐份原件的完整外部保全、fresh隔离恢复、可撤销单件退役与灾难导入闭环",
+      "card": "B01/issues/R335-RT10/README.md",
+      "cardSha256": "ae713c775c6df06c76157d1781dc9dd0a7e80066a7415e7cd7b9de705736da6f",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        "033 StorageRestoreProofR31.prepare/recordCollected; StorageRestoreProbeServiceR31.onStartCommand; StorageRestoreBusinessProbeR31.inventory/verify",
+        "033 StorageMaintenanceFileR82.prepareRestoreCopyR31/deleteVerifiedBackup originally r82-only",
+        "033 SchemaUpgradeCoordinatorR815 creates DB.r926.version.UUID.bak + DatabaseBackupManifestR926.writeNextTo",
+        "033 ReportSafCopyCP12.copy/verifyReadback; ReportExportServiceCP4.runSafTreeRequest; ReportPublicationCP12.requireRawCoverageR31",
+        "Report A FILE_STATE.jsonl lines786/792/795; Report B lines1628/1634/1637; both STORAGE_CENSUS.txt line1; exact evidence hashes B01/R335_REPORT_EVIDENCE.json",
+        "R335 native consumer inventory: original SchemaUpgradeCoordinatorR815 prepareAndVerify/restoreVerifiedBackup are the r926 create/synchronous rollback entries; both now hold shared LegacyRecoveryPointLeaseR335, retirement holds exclusive under original closed-offline maintenance owner.",
+        "New custody evidence and state live under files/r335-legacy-custody/<caseId>; summary projects through original StorageMaintenance/DatabaseHealth; no parallel business DB ledger."
+      ],
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/LegacyBackupRecoveryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseBackupManifestR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageRestoreBusinessProbeR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageRestoreProbeServiceR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+        "B01/legacy_retirement_r335/legacy_retirement_r335.py",
+        "B01/legacy_retirement_r335/受控迁出与人工退役施工.md",
+        "B01/legacy_retirement_r335/test_legacy_retirement_r335.py",
+        "B01/legacy_retirement_r335/VERIFICATION.json",
+        "app/src/main/java/com/ethk3/novaonepro/LegacyRecoveryPointLeaseR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacyRetirementAuthorizationR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacyCustodyArchiveR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacyRetirementFileR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacyBackupCustodyR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
+        "B01/legacy_retirement_r335/custody_package.py",
+        "B01/legacy_retirement_r335/test_custody_package.py",
+        "B01/legacy_retirement_r335/TYPECHECK_CURRENT.json",
+        "B01/tests/host_runtime/custody_cross/run.py",
+        "B01/tests/host_runtime/custody_cross/CustodyCrossHostR335.java",
+        "B01/tests/host_runtime/custody_cross/ArchiveCrossHostR335.java",
+        "verification/rt10_cross_review/check_lifetime.py",
+        "B01/legacy_retirement_r335/fixtures/NativeArchiveInteropR335.java",
+        "B01/legacy_retirement_r335/fixtures/actual-native.zip",
+        "B01/legacy_retirement_r335/fixtures/ACTUAL_WRITER_RECEIPT.json",
+        "B01/tests/host_runtime/custody_cross/run_registered.py",
+        "B01/tests/host_runtime/custody_cross/独立交叉审查与复演.md",
+        "verification/rt10_cross_review/lease_checks.py",
+        "verification/rt10_cross_review/README.md",
+        "verification/rt10_cross_review/current/RESULT.json",
+        "verification/rt10_cross_review/current/EVIDENCE_BINDING.json",
+        "B01/tests/host_runtime/custody_cross/final_run/RECEIPT.json",
+        "B01/tests/host_runtime/custody_cross/final_run/FINAL_PREFIX_BINDING.json",
+        "B01/tests/host_runtime/custody_cross/final_run/EVIDENCE_BINDING.json",
+        "B01/tests/host_runtime/custody_cross/final_run/SUPPORT_TYPECHECK_RECEIPT.json",
+        "B01/tests/host_runtime/custody_cross/final_run/PREFIX_INPUT_MANIFEST_R335.json",
+        "B01/tests/host_runtime/VERIFICATION_R335.json",
+        "B01/tests/host_runtime/custody_cross/fixture/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/run.py",
+        "B01/tests/host_runtime/custody_cross/api_guard/README.md",
+        "B01/tests/host_runtime/custody_cross/api_guard/before/LegacyBackupCustodyR335.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/fixture/com/ethk3/novaonepro/CustodyApiGuardHostR335.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/fixture/android/provider/DocumentsContract.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/fixture/android/os/Build.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/fixture/android/net/Uri.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/fixture/android/content/Context.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/fixture/android/content/ContentResolver.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/fixture/android/content/UriPermission.java",
+        "B01/tests/host_runtime/custody_cross/api_guard/CHANGE.json",
+        "B01/tests/host_runtime/custody_cross/api_guard/API_REFERENCE.json",
+        "B01/tests/host_runtime/custody_cross/api_guard/pre_prefix_run/RECEIPT.json",
+        "B01/tests/host_runtime/custody_cross/api_guard/final_run/RECEIPT.json",
+        "B01/tests/host_runtime/custody_cross/api_guard/final_run/EVIDENCE_BINDING.json",
+        "B01/tests/host_runtime/custody_cross/final_run/SYNTHETIC_SYMLINKS_FOR_REPLAY.json",
+        "B01/tests/host_runtime/custody_cross/final_run/EVIDENCE_BINDING_AT_EXECUTION.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 15,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-C01",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "承接原服务独立排债、启动分离和真实耐久时点修复",
+      "card": "B02/issues/R335-C01/README.md",
+      "cardSha256": "0e1f278cdc1a963be6abae9705dd701d5b90671816cb200a17565c55143755c8",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-carryover",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DurableReturnTimingR334.java",
+        "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java",
+        "app/src/main/java/com/ethk3/novaonepro/PostCanonicalObservationR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 9,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-ID-B02",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B02/issues/R335-ID-B02/README.md",
+      "cardSha256": "9e6aa95c29464ff9e544aef628ce54f91c5e2b51f377cde9d4fa9b7e84e55e15",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-identity",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "release/r82_training_invalidation.json",
+        "release/research_dependencies_r967.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-P01",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "完整结果codec缺失，快照不能恢复原canonical bundle",
+      "card": "B02/issues/R335-P01/README.md",
+      "cardSha256": "d1fa724e0ea7d3f21682c8930ddb8de29aa8c97afd5df75ac0d336433b550450",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+        "app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/NumberSurfaceTensorEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51CompiledActionContract.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ExpertHealthRegistry.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51PolicyCell.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RankStabilityEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectiveRiskController.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+        "B02/r335_prepared/run_host.py",
+        "B02/r335_prepared/tests/PreparedCodecHostR335.java",
+        "B02/r335_prepared/verification_final/RECEIPT.json",
+        "B02/r335_prepared/verification_final/SOURCE_BINDING.json",
+        "B02/r335_prepared/README.md"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 17,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-P02",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "提交失败后的原结果没有同身份耐久缓存及精确恢复",
+      "card": "B02/issues/R335-P02/README.md",
+      "cardSha256": "73fcadce0beba3596f80d6e82fa4c93d55d37bd5e99192d9a2bb764f29b50d0d",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "B02/r335_prepared/run_host.py",
+        "B02/r335_prepared/tests/PreparedCodecHostR335.java",
+        "B02/r335_prepared/verification_final/RECEIPT.json",
+        "B02/r335_prepared/verification_final/SOURCE_BINDING.json",
+        "B02/r335_prepared/README.md"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-P03",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "canonical事务异常包装丢失原始可重试原因",
+      "card": "B02/issues/R335-P03/README.md",
+      "cardSha256": "ad6a00469dc712b5c2e55cd4820b3b2d6b58fb516e6a774f0853e4703f23b75b",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "B02/r335_prepared/run_host.py",
+        "B02/r335_prepared/tests/PreparedCodecHostR335.java",
+        "B02/r335_prepared/verification_final/RECEIPT.json",
+        "B02/r335_prepared/verification_final/SOURCE_BINDING.json",
+        "B02/r335_prepared/README.md"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE21",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "全主链真实启用窗口缺少独立原件，成功冻结不能充当机会分母",
+      "card": "B02/issues/R335-RE21/README.md",
+      "cardSha256": "eeff0ce12fb18face053fead8f77872bfe541c1ca7199945d432e8bad526be61",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "sha256": "d1869d2d27f434586b1e1696f0d98158be4b8aa62bde5edebd66b7defc8e9be6",
+          "method": "setUserEnabled:39-48; markUiStartRequested:64-71; commitPatchLocked:1349-1365",
+          "finding": "Only last_enable_at/last_disable_at and current Boolean; cannot reconstruct all enabled opportunities"
+        },
+        {
+          "path": "verification/mainline/check_trace.py",
+          "method": "verify/trace",
+          "finding": "Independent preregistered calendar and original receipt joins exist; user-enabled assignment history absent"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 8,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT05",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "补丁修复了未安装SQL，实际原生冻结反馈漏检固定deadline",
+      "card": "B02/issues/R335-RT05/README.md",
+      "cardSha256": "7c97a112093a86142a88fdb11c8c5b5f74972d1a49e7028055c9491b8e8ec994",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "033 RuntimeSchemaR26.typedFrozenEventsR31漏s.deadline_at，而33.4仅HANDOFF_STATEMENTS.sql有新边界",
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 6,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT06",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "无预测开奖被结算任务JOIN挡住；补扫/消费者首批毒记录饥饿",
+      "card": "B02/issues/R335-RT06/README.md",
+      "cardSha256": "ddff291623bc240059d001f5925f8aebd982b82eee571d0ed818bf16936f457f",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "B02/R334_主链修订与剩余实施.md RT-04/RT-06；原r31 events已是实际耐久传输owner",
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT07",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "最小结算反馈rows=0被当成功；newest-first让旧issue长期不重试",
+      "card": "B02/issues/R335-RT07/README.md",
+      "cardSha256": "d626541b9755fc53d123d63c95431c0af522fca64d5dd859e3dac513d4be76f1",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "033 EssentialSettlementFeedbackR923 settleNow rows<=0字符串ALREADY_OR_NO_PREDRAW与success=true；drain newest-first",
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT08",
+      "stage": "B02",
+      "sourceCommit": "bff40bd46fd609b247b4efe209300ee9c454c391",
+      "title": "热开奖淘汰未保护原生反馈未完成输入",
+      "card": "B02/issues/R335-RT08/README.md",
+      "cardSha256": "d4fc002881682e65c3ca56932326a640ce00711b4760ac2091da93e802ddbefb",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "033 DrawDependencyInputCP12.optionalRefs不含r26/r31反馈；B02旧RT-04要求专用留存边界",
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-C02",
+      "stage": "B03",
+      "sourceCommit": "4335ff8186234239b9548bcdeaddd25fe4855cd8",
+      "title": "承接可取消历史回放、输入pin、ABI隔离与独立出生",
+      "card": "B03/issues/R335-C02/README.md",
+      "cardSha256": "581205030de21170e3a114b9f2e20a754d653f5f0bd487243d7756c5e6bbc647",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-carryover",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "release/r82_training_invalidation.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 7,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-ID-B03",
+      "stage": "B03",
+      "sourceCommit": "4335ff8186234239b9548bcdeaddd25fe4855cd8",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B03/issues/R335-ID-B03/README.md",
+      "cardSha256": "8437dacf7f6ae2009e44d97b2fa233336e9dc0497327ad777447c121fc7238f2",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-identity",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "release/r82_training_invalidation.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-C03",
+      "stage": "B04",
+      "sourceCommit": "e5af2705d019b208241c68fa8df5a1d65fe72101",
+      "title": "承接训练计数、完整十位置模型发布与消费者契约",
+      "card": "B04/issues/R335-C03/README.md",
+      "cardSha256": "bd89be36242b95f97d4f0af3c5c25559c98510a23d2eca794bffbf5bc6b60925",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-carryover",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "release/r82_training_invalidation.json",
+        "release/research_dependencies_r967.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0
+      ],
+      "registeredFiles": 6,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-ID-B04",
+      "stage": "B04",
+      "sourceCommit": "e5af2705d019b208241c68fa8df5a1d65fe72101",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B04/issues/R335-ID-B04/README.md",
+      "cardSha256": "c260d37290cde640be16aa6ce124b6d799abeb86fe0bfb587354b87b70194371",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-identity",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "release/r82_training_invalidation.json",
+        "release/research_dependencies_r967.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE16",
+      "stage": "B04",
+      "sourceCommit": "e5af2705d019b208241c68fa8df5a1d65fe72101",
+      "title": "正确hash的损坏模型游标可恢复，consumed与真实增量不一致",
+      "card": "B04/issues/R335-RE16/README.md",
+      "cardSha256": "67d4b61855639f6e5bc193e395e8e6867326bbf75fd5e4b500d67714abb78b42",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+          "sha256": "93ebb360eb9056f063e8fa760efdcdec9bd58dda0b336385fa075c048fb56c8d"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+          "sha256": "9148d2c78b36ca799c345f9ea02ee66227cc6b415e6abcd043a4b65739d1e8eb"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[61]",
+          "id": "ATOMNET",
+          "group": "capabilities",
+          "sourceObjectSha256": "1c361fb06eefd6551ffb6cf804102b971f03c222775aa3a7bdd656b875806892"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[61]",
+          "id": "ATOMNET",
+          "group": "capabilities",
+          "sourceObjectSha256": "68d099e20e638ece8381f3be51e26e6201648abbb6b62f31ec50d74da7582188"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetProgressR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-C04",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "承接正式研究schema、纯策略边界与配置回执",
+      "card": "B05/issues/R335-C04/README.md",
+      "cardSha256": "da341f728c1954fbeb3539b688dab78eb417aa95a7058f33a63d9a12e12b5120",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-carryover",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 5,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-C05",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "承接原S4检查点结构与S5框架，逐缺口补齐原始证据",
+      "card": "B05/issues/R335-C05/README.md",
+      "cardSha256": "99ecc4f0ec56cb85fa9fc05489bb59d0dd6a47e7011ef0cc037e666224fc6aa0",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-carryover",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-ID-B05",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B05/issues/R335-ID-B05/README.md",
+      "cardSha256": "97191016d86b47dd4c7d0dfcefffe20d7e6293da672c95f542dec8eb22efc1dc",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-identity",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "release/r82_training_invalidation.json",
+        "release/research_dependencies_r967.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE01",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "固定前8策略造成后续学生饥饿及坏学生阻断源独立研究",
+      "card": "B05/issues/R335-RE01/README.md",
+      "cardSha256": "8c71ab583e77805053a69cb94e7a1d6793c96c2ac971f7f47d7025deb95f6cb2",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "sha256": "04365b49d1a79225fa006cddfac080de5150e9865a98f7e476a0e789f4bc965e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "e9ce0fe75bc0881a4b8faf37f26adc5253987f94c321f417fdca76a454ab6a8e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[106]",
+          "id": "R05",
+          "group": "researchCharts",
+          "sourceObjectSha256": "3cb110e56116d0c2c2cd0c75390640082adc8b113564eec4439381e71cb2a8c4"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[108]",
+          "id": "R07",
+          "group": "researchCharts",
+          "sourceObjectSha256": "94a5259ef57b11831c4685853561dad88420192d9274708eb04268027f2c0600"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[113]",
+          "id": "R12",
+          "group": "researchCharts",
+          "sourceObjectSha256": "4d9d5b56af4de1c2abe63ded07b4052d7d75adc163a9d67b90aca680dc45bd21"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "ac5b9fd7ea5ac8a021391d39b3db085fdf7a191c42661ef07bed5ee9bcba31f0"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[106]",
+          "id": "R05",
+          "group": "researchCharts",
+          "sourceObjectSha256": "265fb86be5774c473fdf70ccd4a0b79c957dd2d54da5f503f2a429ee50813d6e"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[108]",
+          "id": "R07",
+          "group": "researchCharts",
+          "sourceObjectSha256": "e0863d698c06eb571529bcec829eb4e0c33e0893b4636b02cffe7a15c1cd3c2d"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[113]",
+          "id": "R12",
+          "group": "researchCharts",
+          "sourceObjectSha256": "9529778a86102fbfbd9c880fd3be7265337b2fd8ab5d3289d790cf13e9d366ed"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "B05/R01_R18_CONTRACTS.json",
+        "B05/R01_R18_CONTRACTS.csv",
+        "B05/build_contracts.py",
+        "control/两份报告原处方与施工索引.csv",
+        "verification/report_directions_sync_r335/RECEIPT.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE02",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "研究视图/矩阵固定首项循环与无输入变化反复写源",
+      "card": "B05/issues/R335-RE02/README.md",
+      "cardSha256": "0bc5a0af980daec734bd7c7ea2706a8789c3ecd9193ae62549b06b697a33f467",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "sha256": "04365b49d1a79225fa006cddfac080de5150e9865a98f7e476a0e789f4bc965e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "e9ce0fe75bc0881a4b8faf37f26adc5253987f94c321f417fdca76a454ab6a8e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "71aaa49826f49b8b3c2ca573ec5d4940d901f396757a9827f4f85e05d3fd4900"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "ac5b9fd7ea5ac8a021391d39b3db085fdf7a191c42661ef07bed5ee9bcba31f0"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "820413c0a5715bc98cdeadbfc519017b51d438a3f2596a0aed381f0bb56fb8ce"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE03",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "时间先后矩阵ONLINE原件被标成SELECT",
+      "card": "B05/issues/R335-RE03/README.md",
+      "cardSha256": "d0eb052d92e1ce81ec5b305ef2aada923f6246049e007dbd05922b8d11611365",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "sha256": "04365b49d1a79225fa006cddfac080de5150e9865a98f7e476a0e789f4bc965e"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE04",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R01/R04有原件而结构和交集生成器没有实际消费",
+      "card": "B05/issues/R335-RE04/README.md",
+      "cardSha256": "1441f5d2e8e2821357f194e8bcbaf0824d4554c80d2c01ec34a28c6c92742913",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java",
+          "sha256": "e1123a073957908d320a474912bdf86c89aad0fdf1c4d6fe610738fb53b38d6a"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+          "sha256": "22123d4d15e6ebdcdc5f57f376e065a6ace9416b7345ee57aee73d44dfa6878d"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "e9ce0fe75bc0881a4b8faf37f26adc5253987f94c321f417fdca76a454ab6a8e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[103]",
+          "id": "R02",
+          "group": "researchCharts",
+          "sourceObjectSha256": "f53550f29b0162dee16351d1ebedfe114a72e46569b39ad3a4ae65588231524b"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[105]",
+          "id": "R04",
+          "group": "researchCharts",
+          "sourceObjectSha256": "215d3ca951703bc55fb624fdd8e2a0ec6a9aab33a93a4362a9fa23ca544d3c1a"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "ac5b9fd7ea5ac8a021391d39b3db085fdf7a191c42661ef07bed5ee9bcba31f0"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[103]",
+          "id": "R02",
+          "group": "researchCharts",
+          "sourceObjectSha256": "7a6cce9380d293d1962c37754641f42fa946ba960f921df19d70bacc5b6b7389"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[105]",
+          "id": "R04",
+          "group": "researchCharts",
+          "sourceObjectSha256": "653b46ee771c14deb8ac580069680f30d80940515818f023a26fe9f30a20d6b6"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE05",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R05失败处方仅有描述无法定位可替换叶",
+      "card": "B05/issues/R335-RE05/README.md",
+      "cardSha256": "8c06777e479d9065250337769516cfff3ba1a15f4e558ae2efc5901269740774",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+          "sha256": "040ae2a4aa4aae7a34e1635c124264575e688df5c6dfbe60cdc1746c09d915b1"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[106]",
+          "id": "R05",
+          "group": "researchCharts",
+          "sourceObjectSha256": "3cb110e56116d0c2c2cd0c75390640082adc8b113564eec4439381e71cb2a8c4"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[152]",
+          "id": "T04",
+          "group": "logicalTables",
+          "sourceObjectSha256": "5006446205421239510f67696ce6bd620d17223f4fa3593123523e1a0b11176f"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[106]",
+          "id": "R05",
+          "group": "researchCharts",
+          "sourceObjectSha256": "265fb86be5774c473fdf70ccd4a0b79c957dd2d54da5f503f2a429ee50813d6e"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[152]",
+          "id": "T04",
+          "group": "logicalTables",
+          "sourceObjectSha256": "ccd92cad12f432b593a41c43e60110c82ad572cac2e300f289c93a485e3df998"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE06",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R07无加法父策略和R12互补图没有实际融合fallback",
+      "card": "B05/issues/R335-RE06/README.md",
+      "cardSha256": "e0094078ba41f336b9602c43e561bacae607f1621ce54c8d362510ed1ff29508",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[108]",
+          "id": "R07",
+          "group": "researchCharts",
+          "sourceObjectSha256": "94a5259ef57b11831c4685853561dad88420192d9274708eb04268027f2c0600"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[113]",
+          "id": "R12",
+          "group": "researchCharts",
+          "sourceObjectSha256": "4d9d5b56af4de1c2abe63ded07b4052d7d75adc163a9d67b90aca680dc45bd21"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[154]",
+          "id": "T06",
+          "group": "logicalTables",
+          "sourceObjectSha256": "5d61bee96225f8236855476eb243df45ad79f71782b7658d1811b11671d32b1a"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[158]",
+          "id": "T10",
+          "group": "logicalTables",
+          "sourceObjectSha256": "ff11a8dd9a438323745a7d31ba010678c9ea9daa8d6f6a545dd3ff2e730e6df4"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[108]",
+          "id": "R07",
+          "group": "researchCharts",
+          "sourceObjectSha256": "e0863d698c06eb571529bcec829eb4e0c33e0893b4636b02cffe7a15c1cd3c2d"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[113]",
+          "id": "R12",
+          "group": "researchCharts",
+          "sourceObjectSha256": "9529778a86102fbfbd9c880fd3be7265337b2fd8ab5d3289d790cf13e9d366ed"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[154]",
+          "id": "T06",
+          "group": "logicalTables",
+          "sourceObjectSha256": "333553c0d35aed093220cb161c29b6e54fb71685a2237233c0176d9b30abd173"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[158]",
+          "id": "T10",
+          "group": "logicalTables",
+          "sourceObjectSha256": "2f8426ed019ad328576a1594517a1b55ecc4c2f275affa7acb624f702d9e6c01"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE07",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R08机制多样性和R09专家记数未改变实际份额",
+      "card": "B05/issues/R335-RE07/README.md",
+      "cardSha256": "0f854e02af707b2d78e6f7430e8a06e42197c32cd7f4c635ca74eca9599cf34c",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "sha256": "fc9bc3a73e8370201bbbbedef694c6b29a4e52d254cebc1d229558db14097e36"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[109]",
+          "id": "R08",
+          "group": "researchCharts",
+          "sourceObjectSha256": "75a9abb6f03da2508c3a8733e3373845f11364661fb35a577e7a245e8e121102"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[110]",
+          "id": "R09",
+          "group": "researchCharts",
+          "sourceObjectSha256": "fbab3b49e203c0fd95bac43b8f8ae335de6bff282143e98eed08366807bef453"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[109]",
+          "id": "R08",
+          "group": "researchCharts",
+          "sourceObjectSha256": "ced09f2a9043e70da9bd4f467cec8855c56e0c3371ac885e1b881640f0e2798e"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[110]",
+          "id": "R09",
+          "group": "researchCharts",
+          "sourceObjectSha256": "1d2d1b443eb8a29ed1286e13e05e9f516fb94c6143f1a58e2bda80c1a92b2871"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE08",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R10理论权重未接原进化owner且回执可能没有真实读回",
+      "card": "B05/issues/R335-RE08/README.md",
+      "cardSha256": "6a2789cc2bafb8bf4f07652d417e3850912c4c54d1b53a45091fa980d61dd56f",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "sha256": "fc9bc3a73e8370201bbbbedef694c6b29a4e52d254cebc1d229558db14097e36"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[111]",
+          "id": "R10",
+          "group": "researchCharts",
+          "sourceObjectSha256": "6bac01a9c01b29d48f85a5fcabaaca1ea77f7f1b21b745e7231d22f61fd4f104"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[157]",
+          "id": "T09",
+          "group": "logicalTables",
+          "sourceObjectSha256": "eda73e526ad1204429722eddc4fb0f0cfa9eebab7ca503dbaca5099055c11796"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[111]",
+          "id": "R10",
+          "group": "researchCharts",
+          "sourceObjectSha256": "edd9f67d40ea75abf7c0818b55fdd2381ad0a2a120d16dae9725bbc09144e1c2"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[157]",
+          "id": "T09",
+          "group": "logicalTables",
+          "sourceObjectSha256": "2ce5d1a8e5d434e57c580db319b3c8d5798613fc0c92cf3974118b8dd214fd9f"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE09",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R13分箱缺原父身份与原ACT事件绑定",
+      "card": "B05/issues/R335-RE09/README.md",
+      "cardSha256": "80ac0b133d1c63e782a5f520d8aa116b2afa589abe1af24ee15cec0cfb049688",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[114]",
+          "id": "R13",
+          "group": "researchCharts",
+          "sourceObjectSha256": "feff72acad16e71dbea26314df1db20f9f9fa15f8edb1a27abdacb6e5913f7c9"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[160]",
+          "id": "T12",
+          "group": "logicalTables",
+          "sourceObjectSha256": "731a64e6cf37b75dec433d9d99ade0351f8d07c594b5d558a76607343f095710"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[114]",
+          "id": "R13",
+          "group": "researchCharts",
+          "sourceObjectSha256": "abf61698b57024a44415a2cd4d89b88c2fd7760ab8adcf3d94b3da724280995c"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[160]",
+          "id": "T12",
+          "group": "logicalTables",
+          "sourceObjectSha256": "9c1550256c9cfaceadea84aa3425343cbf0cf6ede9fb6e99c591cc94476bc396"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE10",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R15输入漂移报警无法进入真实预登记在线比较",
+      "card": "B05/issues/R335-RE10/README.md",
+      "cardSha256": "2369e53f3783b4a4ec5cf0876be9a8e19309595b1bab8757058204631b8b0758",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+          "sha256": "83a9ab0da576f9864c4b5f1aa53207c36dcee8814e0158afd51e967aee642695"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+          "sha256": "f4dc401d3a41c9ef97bfa314e9924b157f81b1b9a4c6cabef5045cdf9d0fdbf4"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[115]",
+          "id": "R14",
+          "group": "researchCharts",
+          "sourceObjectSha256": "d70d7a1873d67902782e1b359025b1b56a6cb0b6918154b018055ce52190f8a7"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[116]",
+          "id": "R15",
+          "group": "researchCharts",
+          "sourceObjectSha256": "a67316f54ebeed6146615128c0dd2478dabaea620c3490a3d5b37a9ebaf6c0bc"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[115]",
+          "id": "R14",
+          "group": "researchCharts",
+          "sourceObjectSha256": "261231d0af3bd371c79730b64976cba3792b2620fa54f8a85f5d5ba6e680f6d8"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[116]",
+          "id": "R15",
+          "group": "researchCharts",
+          "sourceObjectSha256": "fa4eb2da2c5849f85e6db859a9129a3b81408e23f6acf78e46c7d756b391a6d4"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE11",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R16未接资源owner、CPU重复溢出与回执误报请求量子",
+      "card": "B05/issues/R335-RE11/README.md",
+      "cardSha256": "af9c416335b79856eaf7012fec49acf30c32e62611b91d06a272a620f1404907",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "sha256": "76787ed0332dd352fa99b8d4b1ffa42207174375626071580aaab0b36ee3caaa"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[117]",
+          "id": "R16",
+          "group": "researchCharts",
+          "sourceObjectSha256": "9e44f84ee466ec4a54365fff46bda2c362a17abbb3f9f0d00049b0daa94da3ca"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[162]",
+          "id": "T14",
+          "group": "logicalTables",
+          "sourceObjectSha256": "de250c7a157bab84d998d984f4c58a5b459bc71b2adcb7e1de667eb174c7ee88"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[117]",
+          "id": "R16",
+          "group": "researchCharts",
+          "sourceObjectSha256": "d330236b5ed94dcb7f963febc6233e05f1935c54a39549f93ab7e865011219dc"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[162]",
+          "id": "T14",
+          "group": "logicalTables",
+          "sourceObjectSha256": "1abc8cff31d0fa4495d786d0140651d04d53080a147406229e879650b9761185"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE12",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "R17负贡献方向若错用会跳过较好的移除臂",
+      "card": "B05/issues/R335-RE12/README.md",
+      "cardSha256": "71f42f4f3c199617eb5032aeec39e26ee4c5407dec25c75cbb565b4d593d048c",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[118]",
+          "id": "R17",
+          "group": "researchCharts",
+          "sourceObjectSha256": "816804efd2bbe782802430b4af7ce9333f5a71cd3eaa2341cb2ed96f3a7bf456"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[118]",
+          "id": "R17",
+          "group": "researchCharts",
+          "sourceObjectSha256": "d8e5010bdcbce85f2f0d31abef6f1eda6a0224e257d2f38071098b3d7e0802ba"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE13",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "同帧重算新时间和旧不可变原件混用",
+      "card": "B05/issues/R335-RE13/README.md",
+      "cardSha256": "4c42110f820bc73be5c78c4810af049c25605300980bdbdf571a30415164d98a",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "sha256": "aad89f2c94c63e88354bffc2226aa16000296708e1a0c203b9292fbd645230da"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "e9ce0fe75bc0881a4b8faf37f26adc5253987f94c321f417fdca76a454ab6a8e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "71aaa49826f49b8b3c2ca573ec5d4940d901f396757a9827f4f85e05d3fd4900"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "ac5b9fd7ea5ac8a021391d39b3db085fdf7a191c42661ef07bed5ee9bcba31f0"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "820413c0a5715bc98cdeadbfc519017b51d438a3f2596a0aed381f0bb56fb8ce"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE14",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "18图真实入口未核原机器帧，旧缓存可冒充当前",
+      "card": "B05/issues/R335-RE14/README.md",
+      "cardSha256": "0ce7a44a646abe8e02becfc03ddfa7dc1a6f38d328d6c7de5f5a6ceb2a43c985",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "sha256": "a6fb41d285c37e5f5b565c08ae9f963b658ecc3c7b4ef9e49fc79a45024be060"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+          "sha256": "28e727962f4fc56a5768de57aee128d8e98eefd7984fab25feb2992d442dba03"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "sha256": "13d33c4c6cdbf80c49de7563c831c9bbe932d5a31ddc4cc2a8dd58b52cd0f0fb"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "sha256": "69f634bf1c2c669ea1474027aba51a2326dd70bcddf48fcf53c1a7bd4b441f8b"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "e9ce0fe75bc0881a4b8faf37f26adc5253987f94c321f417fdca76a454ab6a8e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[107]",
+          "id": "R06",
+          "group": "researchCharts",
+          "sourceObjectSha256": "b165341cbe928c3e60684ccd781d32eb88549c0dd5e5ba4cf42981f117992f6e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "71aaa49826f49b8b3c2ca573ec5d4940d901f396757a9827f4f85e05d3fd4900"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[102]",
+          "id": "R01",
+          "group": "researchCharts",
+          "sourceObjectSha256": "ac5b9fd7ea5ac8a021391d39b3db085fdf7a191c42661ef07bed5ee9bcba31f0"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[107]",
+          "id": "R06",
+          "group": "researchCharts",
+          "sourceObjectSha256": "0ef85baac853cff6feac77d57c9bc3d5ebea490232fbf403bb741deeb9186fbd"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "820413c0a5715bc98cdeadbfc519017b51d438a3f2596a0aed381f0bb56fb8ce"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE15",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "16逻辑表满页误判hasMore、过滤串页和后台取消不恢复",
+      "card": "B05/issues/R335-RE15/README.md",
+      "cardSha256": "d7357043189948e0fa5bfefda4cb79200c313d3b7a0875c3f3705e1f296b8ff4",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+          "sha256": "4080dddebab29e7b23a062295693d4491feae0e7cb8de909a5330e5ce45aa835"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+          "sha256": "ef4ebeadf03d1a4d46407b4325490d082f05c1c34ef2866f8811aa984d3c5fd5"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[149]",
+          "id": "T01",
+          "group": "logicalTables",
+          "sourceObjectSha256": "ec805f01d0d8dfa6290da67614d8aaa26f1efadff69d9f0f6d5ee11a32d5a207"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[157]",
+          "id": "T09",
+          "group": "logicalTables",
+          "sourceObjectSha256": "eda73e526ad1204429722eddc4fb0f0cfa9eebab7ca503dbaca5099055c11796"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[164]",
+          "id": "T16",
+          "group": "logicalTables",
+          "sourceObjectSha256": "05ad54c61f9f7f3c399d16db130ad66a1540a051ee2a3b9964d924995b8a31f1"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[149]",
+          "id": "T01",
+          "group": "logicalTables",
+          "sourceObjectSha256": "ea14e6b8552c4f8a18951cbfcc6514803c7263575298c6f10cdb81a8fca816c3"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[157]",
+          "id": "T09",
+          "group": "logicalTables",
+          "sourceObjectSha256": "2ce5d1a8e5d434e57c580db319b3c8d5798613fc0c92cf3974118b8dd214fd9f"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[164]",
+          "id": "T16",
+          "group": "logicalTables",
+          "sourceObjectSha256": "537f90793700b4d703b0058f0a6b0bfe0d00b77c18417011dbd649f7f4d77a71"
+        },
+        {
+          "url": "https://sqlite.org/releaselog/3_8_8.html",
+          "fact": "PRAGMA data_version added in SQLite 3.8.8 (2015-01-16)",
+          "checked": "Primary official release notes opened in this audit"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 3,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE17",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "有效原子评分集变空后内存仍保留旧权重",
+      "card": "B05/issues/R335-RE17/README.md",
+      "cardSha256": "3c413d03aaa8fa861c1667ecd007d8fbab38ab1f6a088599f37beb3082c25b74",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+          "sha256": "714bebf005bba4eecfee5f6f9634b7c9bae1eed8ae6278111995127bd4dbbc58"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[150]",
+          "id": "T02",
+          "group": "logicalTables",
+          "sourceObjectSha256": "c950ed5be481a60cb70c241ff796f5688ff017a2df178d459cebc809a5b8442a"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[150]",
+          "id": "T02",
+          "group": "logicalTables",
+          "sourceObjectSha256": "76584c521fc11d013c6e564f9667e57384c152b62a44c46ba9794a9a4e9ccea6"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE18",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "出生消费与非出生配置回执未分列显示",
+      "card": "B05/issues/R335-RE18/README.md",
+      "cardSha256": "59374c5079d48f55badfd66bb409d66bb84027b7378e99566b0f0eabf0e2f0c9",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+          "sha256": "5d7c1b02b8d97307f8b46f27d0f163f850e61ce56b99be664dea5c355fac3e2b"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "71aaa49826f49b8b3c2ca573ec5d4940d901f396757a9827f4f85e05d3fd4900"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[163]",
+          "id": "T15",
+          "group": "logicalTables",
+          "sourceObjectSha256": "d1be8fae0cdc5bd9b184c94ed1b64e928070cfe09a303862d41214acc03716a0"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "820413c0a5715bc98cdeadbfc519017b51d438a3f2596a0aed381f0bb56fb8ce"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[163]",
+          "id": "T15",
+          "group": "logicalTables",
+          "sourceObjectSha256": "0adf5560a30c57a6131692f5a5dbed5abcb3460f318c6487339afc5e6c08ea16"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 2,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE20",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "原13项仅METHOD_DESIGN_ONLY与报告索引覆盖失真",
+      "card": "B05/issues/R335-RE20/README.md",
+      "cardSha256": "f23a27d9802551981aae99558a0872f408f54099245198e149c7dbaa1f4f5bfc",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "sha256": "0d011ae1e2a9d49031a565d1d11cb63d5bbccbefed472268e430168339040564"
+        },
+        {
+          "scope": "FINAL_53_HOST_HISTORICAL_PACKAGING_FAILURE",
+          "path": "B05/tests/test_rebuild_r334.py",
+          "line": 69,
+          "testBeforeSha256": "9662e491ca8e698bbdec0afd7a33495d42d474464d72029f89b7e037caced3fa",
+          "originalFailureEvidence": "history_r335/host_5014a008/EXACT_EXECUTION_INPUTS.zip",
+          "cause": "Old Java generator directly copied current B05/code/ResearchInputContextR33.java (3e8193b5...) while original 11-file manifest correctly required historical 4725f949...; other original generator inputs/expected bytes remained fixed."
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "B05/tests/test_rebuild_r334.py",
+        "B05/tests/fixtures/r334_generator/INPUT_MANIFEST.json",
+        "B05/tests/fixtures/r334_generator/README.md",
+        "B05/tests/fixtures/r334_generator/code/ResearchActionPolicyR33.java",
+        "B05/tests/fixtures/r334_generator/code/ResearchActionSchemaR33.java",
+        "B05/tests/fixtures/r334_generator/code/ResearchActionStoreR33.java",
+        "B05/tests/fixtures/r334_generator/code/ResearchInputContextR33.java",
+        "B05/VERIFICATION_R335.json",
+        "B05/R335_实际施工与验收边界.md",
+        "verification/r334_historical_fixture_fix/RECEIPT.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE22",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "实际CONTMAT成功refit原件与持久计数缺失，旧期数估算被误当执行证据",
+      "card": "B05/issues/R335-RE22/README.md",
+      "cardSha256": "53e8201bb1f0005bc4cd50f2dc5e997afd33b0edaea56178d98cedf30a355ade",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+          "sha256": "d53af34db3c2e1ab178389def89ece5459b14f2d9f3ef47b4fe6e4791cce3df9",
+          "methods": [
+            "refit",
+            "read",
+            "write"
+          ],
+          "lines": [
+            120,
+            124,
+            149,
+            152,
+            153,
+            162,
+            163
+          ],
+          "kind": "ORIGINAL_OWNER"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "sha256": "90624e78b67571c73784281a80b8330f74761da0bc5d30522d74ec6e9f529150",
+          "methods": [
+            "snapshot",
+            "maintain"
+          ],
+          "lines": [
+            35,
+            64,
+            157
+          ],
+          "kind": "ORIGINAL_OWNER"
+        },
+        {
+          "report": "early",
+          "originalKey": "旧finding/S4",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/findings/0 + STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/legacyFindingExplanationsR32/0",
+          "canonicalSha256": "2f2d3be3e137c1e6ef7269a5077aeb2cf7310d232b9fda1c8c86c329c8a921d5"
+        },
+        {
+          "report": "late",
+          "originalKey": "旧finding/S4",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/findings/0 + STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/legacyFindingExplanationsR32/0",
+          "canonicalSha256": "2f2d3be3e137c1e6ef7269a5077aeb2cf7310d232b9fda1c8c86c329c8a921d5"
+        },
+        {
+          "report": "early",
+          "originalKey": "概览/延续/转向矩阵（P49）",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/capabilities/1",
+          "canonicalSha256": "deef7f43e50b28776cf269fd130998d61343f55d1806349ec9f364a23efe48b8"
+        },
+        {
+          "report": "late",
+          "originalKey": "概览/延续/转向矩阵（P49）",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/capabilities/1",
+          "canonicalSha256": "deef7f43e50b28776cf269fd130998d61343f55d1806349ec9f364a23efe48b8"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE23",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "S5缺父/满槽后漏续收、无真实独立ACK与同案耐久恢复链",
+      "card": "B05/issues/R335-RE23/README.md",
+      "cardSha256": "7fa2008bffd1ca2ad22afc302b718a9e20d96b70b09143e923377de7bc597e29",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "sha256": "90624e78b67571c73784281a80b8330f74761da0bc5d30522d74ec6e9f529150",
+          "methods": [
+            "maintain",
+            "openShadows",
+            "saveLedger"
+          ],
+          "lines": [
+            35,
+            69,
+            70,
+            277,
+            286,
+            324
+          ],
+          "kind": "ORIGINAL_OWNER"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+          "sha256": "01c4318737f6ad305a843be0b7f664d60db6273e7e6cf9438565038768347e56",
+          "methods": [
+            "shadowText",
+            "Ledger"
+          ],
+          "lines": [
+            541,
+            922
+          ],
+          "kind": "ORIGINAL_OWNER"
+        },
+        {
+          "report": "early",
+          "originalKey": "旧finding/S4",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/findings/0 + STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/legacyFindingExplanationsR32/0",
+          "canonicalSha256": "2f2d3be3e137c1e6ef7269a5077aeb2cf7310d232b9fda1c8c86c329c8a921d5"
+        },
+        {
+          "report": "late",
+          "originalKey": "旧finding/S4",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/findings/0 + STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/legacyFindingExplanationsR32/0",
+          "canonicalSha256": "2f2d3be3e137c1e6ef7269a5077aeb2cf7310d232b9fda1c8c86c329c8a921d5"
+        },
+        {
+          "report": "early",
+          "originalKey": "章节/LEDGER",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/6",
+          "canonicalSha256": "2a6c9102d516f0b3f765426daedcf5b69f78ee05484bcda6487cdbe4856a16f1"
+        },
+        {
+          "report": "late",
+          "originalKey": "章节/LEDGER",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/6",
+          "canonicalSha256": "2a6c9102d516f0b3f765426daedcf5b69f78ee05484bcda6487cdbe4856a16f1"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisSchemaR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 5,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE24",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "诊断未采实际配对、算子尝试、原子教师、拒因与存储水位，快照截断还丢S5",
+      "card": "B05/issues/R335-RE24/README.md",
+      "cardSha256": "d75b77d9f6ec01e3912294a46dff1689bd424308c6a6fcdcd36bd35348cabb72",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "sha256": "90624e78b67571c73784281a80b8330f74761da0bc5d30522d74ec6e9f529150",
+          "methods": [
+            "snapshot",
+            "generations",
+            "report"
+          ],
+          "lines": [
+            14,
+            64,
+            80,
+            157,
+            175,
+            236
+          ],
+          "kind": "ORIGINAL_OWNER"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+          "sha256": "01c4318737f6ad305a843be0b7f664d60db6273e7e6cf9438565038768347e56",
+          "methods": [
+            "toJsonR30",
+            "sectionsR30"
+          ],
+          "lines": [
+            862,
+            888,
+            891,
+            894
+          ],
+          "kind": "ORIGINAL_OWNER"
+        },
+        {
+          "report": "early",
+          "originalKey": "章节/GENERATION",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/0",
+          "canonicalSha256": "72d29ee752f54ba3939f84fd95fbbaf8cdf2c0b96a2a89d34b261a643609ee68"
+        },
+        {
+          "report": "late",
+          "originalKey": "章节/GENERATION",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/0",
+          "canonicalSha256": "72d29ee752f54ba3939f84fd95fbbaf8cdf2c0b96a2a89d34b261a643609ee68"
+        },
+        {
+          "report": "early",
+          "originalKey": "章节/OPERATORS",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/1",
+          "canonicalSha256": "5532366b48fa4e70a48ccd7f882ad1f19516d6ef34574ef40bec4a1125b74c42"
+        },
+        {
+          "report": "late",
+          "originalKey": "章节/OPERATORS",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/1",
+          "canonicalSha256": "5532366b48fa4e70a48ccd7f882ad1f19516d6ef34574ef40bec4a1125b74c42"
+        },
+        {
+          "report": "early",
+          "originalKey": "章节/ATOMS",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/3",
+          "canonicalSha256": "a049b27784506a14501d2f17373929d117d2ed8e360ce56a2e53599ad814179e"
+        },
+        {
+          "report": "late",
+          "originalKey": "章节/ATOMS",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/3",
+          "canonicalSha256": "a049b27784506a14501d2f17373929d117d2ed8e360ce56a2e53599ad814179e"
+        },
+        {
+          "report": "early",
+          "originalKey": "章节/REPAIR",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/4",
+          "canonicalSha256": "78c9ca4839aed3b15a1962b00988f112c724c6b4f0af979e04cf8f6a696aa4e8"
+        },
+        {
+          "report": "late",
+          "originalKey": "章节/REPAIR",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/4",
+          "canonicalSha256": "78c9ca4839aed3b15a1962b00988f112c724c6b4f0af979e04cf8f6a696aa4e8"
+        },
+        {
+          "report": "early",
+          "originalKey": "章节/STORAGE",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/7",
+          "canonicalSha256": "8ab880c7d54131cd8749cf11041c777dcbca1a4acfd141a824356acf133c17e2"
+        },
+        {
+          "report": "late",
+          "originalKey": "章节/STORAGE",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/r30Sections/7",
+          "canonicalSha256": "8ab880c7d54131cd8749cf11041c777dcbca1a4acfd141a824356acf133c17e2"
+        },
+        {
+          "report": "early",
+          "originalKey": "规则/SU2_MATRIX",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/R30_REPORT.json#/diagnosis/findings/11",
+          "canonicalSha256": "ab6375250ef6a154a790b07329da60127733c3e4cfe24019eb0c8e0f81bc3515"
+        },
+        {
+          "report": "late",
+          "originalKey": "规则/SU2_MATRIX",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/R30_REPORT.json#/diagnosis/findings/11",
+          "canonicalSha256": "99ae10bb43dcc894704e8b05a328ee7c89e307e9d652e23308c9bfc360b0a50f"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisEvidenceR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 5,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE25",
+      "stage": "B05",
+      "sourceCommit": "ca1508c58aceb1a0cdf406d41c4768d875fb2f44",
+      "title": "CONTMAT旧/新ABI接受非法环、计数与verified状态，恢复后真实崩溃",
+      "card": "B05/issues/R335-RE25/README.md",
+      "cardSha256": "6982da80d2edad4053f1c43caf5a4d36d1855636cff0372222df1602ef81a005",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+          "sha256": "d53af34db3c2e1ab178389def89ece5459b14f2d9f3ef47b4fe6e4791cce3df9",
+          "methods": [
+            "read",
+            "update",
+            "resetTemporalContext"
+          ],
+          "lines": [
+            93,
+            117,
+            148,
+            149,
+            162,
+            163
+          ],
+          "kind": "ORIGINAL_OWNER"
+        },
+        {
+          "report": "early",
+          "originalKey": "旧finding/S4",
+          "originalPointer": "STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/findings/0 + STARCORE-e476ca6126c21e0368a62fe93c6a8db9e4a82b4eb4a645a5753d8eb263489fa4/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/legacyFindingExplanationsR32/0",
+          "canonicalSha256": "2f2d3be3e137c1e6ef7269a5077aeb2cf7310d232b9fda1c8c86c329c8a921d5"
+        },
+        {
+          "report": "late",
+          "originalKey": "旧finding/S4",
+          "originalPointer": "STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/findings/0 + STARCORE-d8ca0632b9fc9ac425b04aa32600750bf16bb513e4c8e48be3836150a76dd731/STARCORE_FULL_REPORT.zip!/UPGRADE_DIAGNOSIS.json#/legacyFindingExplanationsR32/0",
+          "canonicalSha256": "2f2d3be3e137c1e6ef7269a5077aeb2cf7310d232b9fda1c8c86c329c8a921d5"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RE19",
+      "stage": "B06",
+      "sourceCommit": "82db6e5745b8d73911f8c221efc32f94c9854e13",
+      "title": "C11逐文件已有安全边界与待验项被混为待重写",
+      "card": "B06/issues/R335-RE19/README.md",
+      "cardSha256": "0a9e6996c0cb20055e94dcd7aa5a64a088315151267c1f8ae2efef240cfb6181",
+      "hasOriginalEvidence": true,
+      "originalEvidence": [
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+          "sha256": "674f9463026b5cfb5870cb487415e53081ef2200b827fcf9fd2728fee1574a2f"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+          "sha256": "b5fdf7a667257b910aca30dc4b9e23dae82167410ebcfe75e95d35e84cfb9831"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+          "sha256": "f042cc6733f8d2838444de26911aaa92fe1eb770da20f863788157910175b4b5"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+          "sha256": "3581e95b502da707502d4b8ceb0f6135e6bfa6062d82eaa0ba94ba14df87e245"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+          "sha256": "ddafd81f83347ba76d79e7b5fad407a0f414650a394d1e9e0754e0462f8217e5"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+          "sha256": "915704b12522440b7696886affb69e3a2fefce5b7cd13608a5e94a00e2c76032"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+          "sha256": "d8df77be1b214d8f6d3af9d5615bd82a6a44f228a8f3cd3806a1619eeb7da75d"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+          "sha256": "41ed776b4b81654361fd300ad3173677a92905f73783b64d579c67a7ed936136"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+          "sha256": "94cd2c48dd8acd66fec5cd70a63b2316d1efc15bdaa24c4ff0d1e4cdc4328e53"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+          "sha256": "680637f7f9de0079fe0c29b6f3c6452b0bc99c731a2281bf724d9616ad1f4bd6"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+          "sha256": "160d2203723ad2bb12c0165b98524bf400b2566861a0e86a978810fb6e4837d0"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+          "sha256": "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8"
+        },
+        {
+          "sourceCommit": "bb7b49bbcc9266bad548ec37e71403256fc06a4d",
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "sha256": "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[112]",
+          "id": "R11",
+          "group": "researchCharts",
+          "sourceObjectSha256": "5fa4d0c61594444c305747e84e1d3e8b4994b5f6c058133e8f08167f11a1f15c"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[115]",
+          "id": "R14",
+          "group": "researchCharts",
+          "sourceObjectSha256": "d70d7a1873d67902782e1b359025b1b56a6cb0b6918154b018055ce52190f8a7"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "71aaa49826f49b8b3c2ca573ec5d4940d901f396757a9827f4f85e05d3fd4900"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[151]",
+          "id": "T03",
+          "group": "logicalTables",
+          "sourceObjectSha256": "1cfa455ac3b46989a1f6b23e613b72849009870b5d59b6f8ba8a69b4bbe0f30e"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[159]",
+          "id": "T11",
+          "group": "logicalTables",
+          "sourceObjectSha256": "2b08507260d758bbcfd44cc8bab5e651a9207e61252f921636d5dd53fbd804a4"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[161]",
+          "id": "T13",
+          "group": "logicalTables",
+          "sourceObjectSha256": "679fd3d22c8891c244afd202b378efdf5ca32eae6018a15001ca33aef74e20b9"
+        },
+        {
+          "report": "report_a",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[164]",
+          "id": "T16",
+          "group": "logicalTables",
+          "sourceObjectSha256": "05ad54c61f9f7f3c399d16db130ad66a1540a051ee2a3b9964d924995b8a31f1"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[112]",
+          "id": "R11",
+          "group": "researchCharts",
+          "sourceObjectSha256": "5ccc609b01c68675e184e35d32f70f2ac014c5e568fc65c3c0345fece2dd1c3a"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[115]",
+          "id": "R14",
+          "group": "researchCharts",
+          "sourceObjectSha256": "261231d0af3bd371c79730b64976cba3792b2620fa54f8a85f5d5ba6e680f6d8"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[119]",
+          "id": "R18",
+          "group": "researchCharts",
+          "sourceObjectSha256": "820413c0a5715bc98cdeadbfc519017b51d438a3f2596a0aed381f0bb56fb8ce"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[151]",
+          "id": "T03",
+          "group": "logicalTables",
+          "sourceObjectSha256": "d93f1da91558aefa8a7e39e48c07de6ce24258756f689ec0f93dafd017fba271"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[159]",
+          "id": "T11",
+          "group": "logicalTables",
+          "sourceObjectSha256": "1dffcb1e1fe3b2ac50e629d97b118246923a1b1f0fd26e9dda5c8a49ddb17283"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[161]",
+          "id": "T13",
+          "group": "logicalTables",
+          "sourceObjectSha256": "6ab8436fe06f1a5954d8582bcca88160785d4b053f2cdeb371290cc87324e0fb"
+        },
+        {
+          "report": "report_b",
+          "file": "UPGRADE_DIAGNOSIS.json",
+          "jsonPath": "$.capabilityRepairR32.rows[164]",
+          "id": "T16",
+          "group": "logicalTables",
+          "sourceObjectSha256": "537f90793700b4d703b0058f0a6b0bfe0d00b77c18417011dbd649f7f4d77a71"
+        }
+      ],
+      "originalSourceAuditOrigin": "research",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 0,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-D10",
+      "stage": "B07",
+      "sourceCommit": "ddf7e4f3f9b70a41a13f7b020d050f183ee8e779",
+      "title": "诊断把调用者布尔值和相等字符串当作已执行隔离复演",
+      "card": "B07/issues/R335-D10/README.md",
+      "cardSha256": "9ff6dc9c7d2848917d0c74941bd76343da1de2e1160a952cc42be999cff9368d",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "旧proof仅检查originalReadVerified/isolatedReplay及hash字段即可返回ROOT_CAUSE_REPRODUCED；没有生产执行器填充verifiedFaultTraceR33。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "classify",
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+        "B07/verify/DiagnosisProofTest.java"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 5,
+      "declaredStatus": "IMPLEMENTED_HOST_VERIFIED"
+    },
+    {
+      "id": "R335-D11",
+      "stage": "B07",
+      "sourceCommit": "ddf7e4f3f9b70a41a13f7b020d050f183ee8e779",
+      "title": "报告案例→真实施工差异→下份报告缺可执行索引和证据闭包",
+      "card": "B07/issues/R335-D11/README.md",
+      "cardSha256": "6ea0831ea5e1884b9194f0baae5138c603528644977e900a3dace9afaeb75b09",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "旧B07能力补漏卡只拟增DiagnosisTraceReader/ReportRepairCaseIndex；check_improvement只校合同小样本。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "capture; case_loop_r335.extract/followup",
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+        "B07/replay_r335/case_loop_r335.py",
+        "B07/replay_r335/test_case_loop_r335.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 6,
+      "declaredStatus": "IMPLEMENTED_HOST_VERIFIED"
+    },
+    {
+      "id": "R335-D12",
+      "stage": "B07",
+      "sourceCommit": "ddf7e4f3f9b70a41a13f7b020d050f183ee8e779",
+      "title": "旧模块数值复演与主链K3诊断归一化漂移且缺独立可执行入口",
+      "card": "B07/issues/R335-D12/README.md",
+      "cardSha256": "7d37db9713b04ebd7d2f4298eca47d2a5566248ba3d50cdad41e369164fe161e",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "真实Number/Gate/Consensus/1200action执行发现ModuleReplay直调严格ranker被诊断n4拒绝；正常主链已走rankK3DiagnosticActionsF06，所以缺陷限定旧replay漂移，不扩大成正常主链必挂。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "rerun; fixed module replay CLI",
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java",
+        "B07/code/B07_MODULE_REPLAY_R335.patch",
+        "B07/replay_r335/IsolatedModuleReplayMainR335.java",
+        "B07/replay_r335/isolated_module_replay_r335.py",
+        "B07/replay_r335/host/android/os/SystemClock.java",
+        "B07/replay_r335/export_module_case_r335.py",
+        "B07/replay_r335/test_export_and_replay_r335.py",
+        "B07/replay_r335/README_R335.md",
+        "B07/replay_r335/evidence/CURRENT_EVIDENCE.json",
+        "B07/replay_r335/evidence/SOURCE_BINDING.json",
+        "control/installed_source_blobs.json",
+        "B07/baseline/ModuleReplayR932.java",
+        "verification/source_pin_completion_r335/RECEIPT.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 1,
+      "declaredStatus": "IMPLEMENTED_HOST_NUMERICAL_VERIFIED"
+    },
+    {
+      "id": "R335-ID-B07",
+      "stage": "B07",
+      "sourceCommit": "ddf7e4f3f9b70a41a13f7b020d050f183ee8e779",
+      "title": "本阶段数值依赖身份与旧训练状态精确失效",
+      "card": "B07/issues/R335-ID-B07/README.md",
+      "cardSha256": "b3958c6587ca3bded3b7583b82a3e387baab70107ba651cfa3138d06a1e93e9c",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-identity",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "release/r82_training_invalidation.json",
+        "release/research_dependencies_r967.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 4,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-RT09",
+      "stage": "B07",
+      "sourceCommit": "ddf7e4f3f9b70a41a13f7b020d050f183ee8e779",
+      "title": "真实冷热原件和恢复状态在后续报告必须可见；不能把构造trace当根因复现",
+      "card": "B07/issues/R335-RT09/README.md",
+      "cardSha256": "0cce2d383991d5d38eb63fc39725d012a5788465e2303b9743dfe64ed6acbe43",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "B07/能力缺口升级与下份报告复核.md拟增DiagnosisTraceReaderR33和ReportRepairCaseIndexR33仍无Android入口",
+      "originalSourceAuditOrigin": "runtime",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisProofR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
+        "release/r82_training_invalidation.json",
+        "release/research_dependencies_r967.json"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 12,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-C07",
+      "stage": "B08",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "title": "固定32组96断言288场景的同构建终审与反作弊",
+      "card": "B08/issues/R335-C07/README.md",
+      "cardSha256": "90152f214c77a844ab87294ee73ecc5aaab37e2fac2d235339b3b59a78ede360",
+      "hasOriginalEvidence": false,
+      "originalEvidence": null,
+      "originalSourceAuditOrigin": "root-carryover",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": null,
+      "rawOrders": [
+        "verification/score_final.py",
+        "verification/scenario_coverage.py",
+        "verification/test_final_envelopes.py",
+        "verification/test_scenario_coverage.py",
+        "verification/check_delivery_structure_r335.py",
+        "verification/run_stage_prefix_r335.py",
+        "verification/typecheck_full_source_r335.py",
+        "control/required_scenarios_R334.json",
+        "verification/verify_baseline_source_r335.py",
+        "verification/test_baseline_source_r335.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 0,
+      "declaredStatus": null
+    },
+    {
+      "id": "R335-D05",
+      "stage": "B08",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "title": "源码ZIP不含Git历史，不能独立复原已有构建基线门",
+      "card": "B08/issues/R335-D05/README.md",
+      "cardSha256": "30edfb7fc039b4ee39cd23cde5dbb34901effa2120d588dcda89d132aafa6a33",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "ZIP只有tracked当前文件；构建明确要求R31/033精确Git对象和祖先，旧文档仅建议另交bundle。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "write_source_archive/main",
+      "rawOrders": [
+        "tools/r33/package_ci_candidate.py",
+        "B08/code/test_r335_delivery.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 0,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    },
+    {
+      "id": "R335-D06",
+      "stage": "B08",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "title": "独立主链验收漏核机会日历与冻结截止一致",
+      "card": "B08/issues/R335-D06/README.md",
+      "cardSha256": "f3ed3f735fb92e76bfff8061c539f38a70d33c389eccdb1f06547a233fd61b1b",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "旧代码读取deadlineAt却仅打印，使用prev.open_time+60000核冻结；合法结构但偏移6秒的日历仍可被旧验证器接受。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "trace",
+      "rawOrders": [
+        "verification/mainline/check_trace.py",
+        "verification/mainline/test_trace.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 0,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    },
+    {
+      "id": "R335-D07",
+      "stage": "B08",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "title": "独立APK验证器“更高版本”比较未覆盖033基线",
+      "card": "B08/issues/R335-D07/README.md",
+      "cardSha256": "eee91e4261dba6f45eb44c3e8d88d0044f7f11ce34e431ba1a822eed30dd8bfd",
+      "hasOriginalEvidence": true,
+      "originalEvidence": "原校验只比较手填installed-version<version-code；极低或非法installed-version可让不高于033的候选被标记higher。",
+      "originalSourceAuditOrigin": "delivery",
+      "hasRegisteredWork": true,
+      "hasTestOrAcceptance": true,
+      "originalMethods": "main",
+      "rawOrders": [
+        "B08/code/verify_release_artifacts.py",
+        "B08/code/test_r335_delivery.py"
+      ],
+      "buildAndTestExit": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "registeredFiles": 0,
+      "declaredStatus": "IMPLEMENTED_CANDIDATE"
+    }
+  ],
+  "numberWithProof": 47,
+  "numberWithTests": 66,
+  "numberWithChange": 66,
+  "archivedBuildManual": {
+    "file": "current-review/CODEX_EXECUTE.md",
+    "sha256": "e7abc0bfa5f037b82ec21fbe59bf4b0079f643eec52a57087cfeb3ea0b91a87a"
+  },
+  "runtimeFlow": {
+    "file": "control/runtime_flow.svg",
+    "sha256": "c97465d1c53c7623e1a95fde352ce93ba923c8c132fa82b59219796c64d80a89",
+    "nodeKeys": [
+      "service",
+      "draw",
+      "request",
+      "choice",
+      "gate",
+      "freeze",
+      "task",
+      "core",
+      "handoff",
+      "model",
+      "study",
+      "birth",
+      "evidence",
+      "cert",
+      "diagnose",
+      "export"
+    ],
+    "edgeSourceSha256": "06d9d1768dec82a29883662269b05894e969e8724b265fc1d00e1b711fad30dc"
+  },
+  "fieldVerification": "raw/B08/device-reports-upgrades.json",
+  "changedPathsAndEdits": "raw/B08/committed-hunks.json",
+  "versionedTests": "assessment/records/nine-source-specific-tests.json"
+}

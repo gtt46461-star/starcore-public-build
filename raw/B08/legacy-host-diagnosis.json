@@ -1,0 +1,654 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "sourceTree": "1f6452db1d192c98e7463d52a07887e60c5fc64d",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "originalSummarySha256": "9dd4f17ba4a2a86f5bc41bf00c8192553df50712c9a492578d6083d7a02ec924",
+  "invocationId": "0bd26df0-9558-45c2-942c-aee505d66f56",
+  "unit": {
+    "tests": 661,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "finishedAt": "2026-11-21T03:17:18.761878+00:00",
+  "originalExit": 1,
+  "counts": {
+    "PASS": 62,
+    "FAIL": 10,
+    "RETIRED": 2
+  },
+  "rows": [
+    {
+      "id": "run_atom_publication_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_atom_publication_host.log",
+      "sha256": "a74c3cdfe3aba019b9c30f727b946976b00d28548fd1c39c61ffb501a3e28f61"
+    },
+    {
+      "id": "run_atomnet_publication_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_atomnet_publication_host.log",
+      "sha256": "301f9d146dec90f1bdae90fe6c21f1cc907ca85e79ec4bbe7a9ce08a8f9ec5c5"
+    },
+    {
+      "id": "run_certificate_startup_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_certificate_startup_host.log",
+      "sha256": "40b28540f47d3bd2c23d10e30f92934662f4733c6624fb55c838c9ea48e9e826"
+    },
+    {
+      "id": "run_checkpoint_startup_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_checkpoint_startup_host.log",
+      "sha256": "a7cbeb4cb8e959d2d823ec0dcfc503e830fa9ea97b8bff8447ab49b3bc3bd94a"
+    },
+    {
+      "id": "run_evolution_publication_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_evolution_publication_host.log",
+      "sha256": "26ce91b338fa85f7eaf760f4d27e8ee10a56aa7aecd13b7bbba9108cdae98ac9"
+    },
+    {
+      "id": "run_legacy_qualification_contract",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_legacy_qualification_contract.log",
+      "sha256": "89a2fc9232f6636b68fdbe4b220914585375c12f20529575bb71d0321e1fb8f5"
+    },
+    {
+      "id": "run_report_cas_scope_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_report_cas_scope_host.log",
+      "sha256": "d55b4ff663f8b7297ed20556804767cb668fbb4141a026968f4e955fbcd73b84"
+    },
+    {
+      "id": "run_report_history_reader_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_report_history_reader_host.log",
+      "sha256": "e7ea18a230e212ebd3848f9b95e436ab74db7fe63a226c946372972bb4079297"
+    },
+    {
+      "id": "run_research_schema_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_research_schema_host.log",
+      "sha256": "b03c5d2b8c7fba1cf60760423da3384c07e14dde987665302ce6972d3d1aca00"
+    },
+    {
+      "id": "run_runtime_ddl_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_runtime_ddl_host.log",
+      "sha256": "fb76a386f0eac2d58c0df5fee26c9b8556fc60622f968792099ae2b57432bb1b"
+    },
+    {
+      "id": "run_runtime_ddl_writer_regression",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_runtime_ddl_writer_regression.log",
+      "sha256": "dc2d3e8fed8fd3d7cfdf536c16984a700538233bc4441307af427309c7da5f11",
+      "reason": "The historical JDBC test invokes android.os.Process.myPid() from the Android SDK stub.",
+      "originalLines": [
+        [
+          29,
+          "Exception in thread \"main\" java.lang.RuntimeException: Stub!"
+        ]
+      ]
+    },
+    {
+      "id": "run_service_protocol_host",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_service_protocol_host.log",
+      "sha256": "c26b96e8038f0500843034444a32859a5c3af42a12685f096f91039a03097393",
+      "reason": "The minimal draws table defined by the host test omits draw_hash_version required by the current settlement read.",
+      "originalLines": [
+        [
+          47,
+          "Exception in thread \"main\" com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R31_HOST_MISSING_FREEZE|category=DEPENDENCY|phase=END|commitOutcome=ROLLED_BACK"
+        ],
+        [
+          52,
+          "Caused by: android.database.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such column: draw_hash_version)"
+        ]
+      ]
+    },
+    {
+      "id": "run_task_runtime_host",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_task_runtime_host.log",
+      "sha256": "7708f869b3599ecd6f5398b9fddfe4e3b321d92c62a9ecfefd4b03f15cb49ee2",
+      "reason": "The reflection call to ResearchPoolR27.record supplies an obsolete argument count; the current method has an added measured work-quantum argument.",
+      "originalLines": [
+        [
+          19,
+          "Exception in thread \"main\" java.lang.IllegalArgumentException: wrong number of arguments"
+        ]
+      ]
+    },
+    {
+      "id": "run_telemetry_budget_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_telemetry_budget_host.log",
+      "sha256": "84533fb64c439a829af5e510457e5f7fca9a37efb6ff0c7aaddfd4e4fe0c3934"
+    },
+    {
+      "id": "run_write_protocol_host",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_write_protocol_host.log",
+      "sha256": "e51878600dd3dc36235d1378f0964d6cb35cf510da225f23ee436e6d0d573375",
+      "reason": "The historical JDBC test invokes android.os.Process.myPid() from the Android SDK stub.",
+      "originalLines": [
+        [
+          27,
+          "Exception in thread \"main\" java.lang.RuntimeException: Stub!"
+        ]
+      ]
+    },
+    {
+      "id": "run_writer_hold_fault_host",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_writer_hold_fault_host.log",
+      "sha256": "973c236f6f1f5ee27e541bc6a3e81f513391c5df3b6362258319d9961cd91c17",
+      "reason": "The original controlled writer helper stopped at the basic case.",
+      "originalLines": [
+        [
+          16,
+          "RuntimeError: basic failed; original log retained"
+        ]
+      ]
+    },
+    {
+      "id": "verify_ast_family_scope",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_ast_family_scope.log",
+      "sha256": "a5fb3df65f1086d7d768e7cff674bec5d0ba6b8eb89b26ea137060d12f80aeed"
+    },
+    {
+      "id": "verify_baseline",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_baseline.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "verify_continuation",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_continuation.log",
+      "sha256": "39ab0dd41f7cf793acefbf98c22a4f543ca8f9f122325662396a4fa1f3e78f83"
+    },
+    {
+      "id": "verify_family_admission",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_family_admission.log",
+      "sha256": "4ceb30df486f9b8cbc36c6b8663e4ec1b4ecb9fd64d94a0456468dbc59fa69a3"
+    },
+    {
+      "id": "verify_input_pin_joint",
+      "status": "RETIRED",
+      "replacement": "HOST:r30repair_input_pin"
+    },
+    {
+      "id": "verify_memory",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_memory.log",
+      "sha256": "b196a6186e90e723ebef3651a7b0d9e9d081f75a622a12a135f4ca62efbc93a1"
+    },
+    {
+      "id": "verify_pin_capacity",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_pin_capacity.log",
+      "sha256": "1a998021d6bb1ffcd91ae4d1ec4fe80f8ff4c345abe731fc6ebe62a452ceec4a"
+    },
+    {
+      "id": "verify_pitguard_allocation",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_pitguard_allocation.log",
+      "sha256": "3a916c7c4eb7996ac7834106a861ad7572efc3d66c33551bb19cd78d9f6e57c7"
+    },
+    {
+      "id": "verify_platform_readiness",
+      "status": "RETIRED",
+      "replacement": "HOST:run_certificate_startup_host"
+    },
+    {
+      "id": "verify_resource_recovery",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_resource_recovery.log",
+      "sha256": "803900a67c92e176c3365acd95816e3c89b824415f4078d9988ce6326ad99e83"
+    },
+    {
+      "id": "verify_runtime_memory_control",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_runtime_memory_control.log",
+      "sha256": "9243dc390a336677b62d8e7225c05125ee4bee0adb5a0c83262250fabfdba221"
+    },
+    {
+      "id": "verify_runtime_observation",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_runtime_observation.log",
+      "sha256": "c24789529fe1ec7af3335ae1d65e63b0c046318a6192a42214a1872a8fa022b7"
+    },
+    {
+      "id": "verify_task_status",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_task_status.log",
+      "sha256": "8c70b890918b8ff3fb899575b9c477fc5df452ef9d312f5240c5a1defcbc5027"
+    },
+    {
+      "id": "r30repair_commit_failure",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_commit_failure.log",
+      "sha256": "71b409e0ed708908e50a42bb471e386babcd118abfd964800662f22e62cb8720"
+    },
+    {
+      "id": "r30repair_diagnosis",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_diagnosis.log",
+      "sha256": "6150e7af727554b9b3eeded6f383204a27b6698f6c20d1d21fa4529b4a5c7b53",
+      "reason": "The historical isolated javac source set omits production dependencies of UpgradeDiagnosisSU2.",
+      "originalLines": [
+        [
+          2,
+          "/workspace/r335s/legacy-test-B08/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:925: error: cannot find symbol"
+        ],
+        [
+          7,
+          "/workspace/r335s/legacy-test-B08/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:928: error: cannot find symbol"
+        ],
+        [
+          12,
+          "/workspace/r335s/legacy-test-B08/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:932: error: cannot find symbol"
+        ],
+        [
+          17,
+          "/workspace/r335s/legacy-test-B08/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:932: error: cannot find symbol"
+        ],
+        [
+          22,
+          "/workspace/r335s/legacy-test-B08/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:933: error: cannot find symbol"
+        ],
+        [
+          27,
+          "/workspace/r335s/legacy-test-B08/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:978: error: cannot find symbol"
+        ]
+      ]
+    },
+    {
+      "id": "r30repair_input_pin",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_input_pin.log",
+      "sha256": "40097ce121ed04498c628c0e16ee147d6a04eaf8e08b910bcb08e7138b286d77"
+    },
+    {
+      "id": "r30repair_matrix",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_matrix.log",
+      "sha256": "e2d72dc708ab85a9aa8b522f2f954f0e60059568139a14124c0a39ae51c8f4ba"
+    },
+    {
+      "id": "r30repair_neural",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_neural.log",
+      "sha256": "883f36a16d794ce278d06d6370ecc2476a13778780fcb27b4990239f2d846722",
+      "reason": "The original host prohibits any forecast for period 83 during partial training. The signed code can consume the previously published complete model while the new learner is partial; each forecast still needs a current immutable published identity, pending the linked store probe.",
+      "originalLines": [
+        [
+          29,
+          "Exception in thread \"main\" java.lang.AssertionError: PARTIAL_MODEL_CONSUMED"
+        ],
+        [
+          32,
+          "Exception in thread \"main\" java.lang.AssertionError: TEN_CHILD_FAILED:write-and-kill:1"
+        ]
+      ]
+    },
+    {
+      "id": "r30repair_observatory",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_observatory.log",
+      "sha256": "25e6843d53db9826d0ea55eab77d84ad0661930f3a92d9d9b48a10be00e9bc0a"
+    },
+    {
+      "id": "r30repair_progress",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_progress.log",
+      "sha256": "cd682fc3ae5105ea9c4a63f5cc8579b4125a6bc46ba5274e9c3f04246401ce87"
+    },
+    {
+      "id": "r30repair_qualification",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_qualification.log",
+      "sha256": "cf179703065205bf75dff227edd5d71657eae401ed9dfed218317ea527d316bc"
+    },
+    {
+      "id": "r30repair_research",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_research.log",
+      "sha256": "ae8e4b16cff23f557c6df242f76a89b826add47b8f385ee62c9473780fb4f226"
+    },
+    {
+      "id": "r30repair_retention",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_retention.log",
+      "sha256": "352bcc4be7d47a4e09670f9581e3bd0d2788ce7c9e79ed399140210b2b640f08"
+    },
+    {
+      "id": "r30repair_snapshot",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_snapshot.log",
+      "sha256": "17cda1ff7a929d4e9476d18cd57c8b5a23cfadd07df3d806821d8ee3bddf4cd8"
+    },
+    {
+      "id": "r30repair_timeline",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_timeline.log",
+      "sha256": "3dbc956791fd6286d0439cf6e27d937e7656df26c5d115b07b9187f0c76ba48e"
+    },
+    {
+      "id": "r30repair_writer",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_writer.log",
+      "sha256": "b79e57900c0ff4aaef7248be20edbd555159e94fa5eb3f88c7cf4a8ab3e24a42"
+    },
+    {
+      "id": "verify_baseline_selftest",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_verify_baseline_selftest.log",
+      "sha256": "df15e3576d4036372565a1ade04b8887837aff4219322d2607145feca19885fa"
+    },
+    {
+      "id": "reproduce_report",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_reproduce_report.log",
+      "sha256": "9960c8d2b4923b5543ae65f0801ebfa657f331f92f45bc726296e5d4434d4b75"
+    },
+    {
+      "id": "run_runtime_health_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_runtime_health_host.log",
+      "sha256": "7207423764b3003f8293004325fc6a6a95559d8f4943eb7a017ae2a56b9a327e"
+    },
+    {
+      "id": "run_resource_recovery_consumer_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_resource_recovery_consumer_host.log",
+      "sha256": "72e70bf9fbf7979c03be805d321c81c06de5f3fe3e0dc4f90ddaa0faa10efcb4"
+    },
+    {
+      "id": "run_storage_report_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_storage_report_host.log",
+      "sha256": "aca48b1b700ce38632f4f753663572aeb6037a0730d83bbb73505ea564b16d00"
+    },
+    {
+      "id": "r30repair_research_contract",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_research_contract.log",
+      "sha256": "e9825b209636086fb584a798cfb762c3b28ce1b5bf66fb91e24e8dc5ecb5ee91"
+    },
+    {
+      "id": "r30repair_mainline_authority",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_mainline_authority.log",
+      "sha256": "9c712f7f06b0598c0a3a75ff6486a20ea24e8399adc3f7ac37bb38c23157f8b4"
+    },
+    {
+      "id": "r30repair_chart_page",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r30repair_chart_page.log",
+      "sha256": "7a00e6690c3c801196320ef49fccf3884876f3d3473bf092b93cc471c1a8288f"
+    },
+    {
+      "id": "run_upgrade_matrix_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_upgrade_matrix_host.log",
+      "sha256": "d699a5f0d1421be714d641fe3f296f3ed6966c4f040e92e7f5df4d80271d1e54"
+    },
+    {
+      "id": "run_full_chain_fault_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_full_chain_fault_host.log",
+      "sha256": "72a2dd1ec5820e74658880b92d5c254d7e3be83cda8d7a91983cb3463dca5071"
+    },
+    {
+      "id": "r31_verification_receipt_selftest",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r31_verification_receipt_selftest.log",
+      "sha256": "06502ad0ea25dc92a32095ef1bc32a36518f9c1a0e05a948dbee9f239c0c0b9e"
+    },
+    {
+      "id": "r31_package_release_selftest",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r31_package_release_selftest.log",
+      "sha256": "f87298125e12e62db40f43e541916d5989314d47cbaf9cc82078483781c33c92",
+      "reason": "The historical fixture has no current installed-version receipt required by the current production release packager.",
+      "originalLines": [
+        [
+          21,
+          "    need(path is not None and Path(path).is_file(), 'R33_CURRENT_INSTALLED_RECEIPT_REQUIRED')"
+        ],
+        [
+          24,
+          "package_release.Refused: R33_CURRENT_INSTALLED_RECEIPT_REQUIRED"
+        ],
+        [
+          37,
+          "    need(path is not None and Path(path).is_file(), 'R33_CURRENT_INSTALLED_RECEIPT_REQUIRED')"
+        ],
+        [
+          40,
+          "package_release.Refused: R33_CURRENT_INSTALLED_RECEIPT_REQUIRED"
+        ],
+        [
+          53,
+          "    need(path is not None and Path(path).is_file(), 'R33_CURRENT_INSTALLED_RECEIPT_REQUIRED')"
+        ],
+        [
+          56,
+          "package_release.Refused: R33_CURRENT_INSTALLED_RECEIPT_REQUIRED"
+        ]
+      ]
+    },
+    {
+      "id": "r31_retirement_manifest_check",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r31_retirement_manifest_check.log",
+      "sha256": "f25150af573f4d74a8426ad00c9f5782f008712bebaa4d83757145a6c70c0dfe",
+      "reason": "The original inventory check reports a stale R3251 retirement inventory and zero approved drops. No original was dropped.",
+      "originalLines": [
+        [
+          1,
+          "R3251_CURRENT_RETIREMENT_INVENTORY_STALE|approved_data_drops=0|P1_snapshot_unchanged=true|original_generator_unchanged=true"
+        ]
+      ]
+    },
+    {
+      "id": "r31_device_receipts_selftest",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_r31_device_receipts_selftest.log",
+      "sha256": "ec25db1be6d209df7a47562b87c835ec9ff5876386b3815526db28a8ff80c4e0"
+    },
+    {
+      "id": "run_unified_migration_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_unified_migration_host.log",
+      "sha256": "99bd8dbae9e933188b14e43a5ed944a51070fa07632571b206528dce490f1e62"
+    },
+    {
+      "id": "run_r31q_lock_regression",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_r31q_lock_regression.log",
+      "sha256": "4ea0799c03c001a451166652c6f9371d38986ea323a1d4d259bf69ff50808f10"
+    },
+    {
+      "id": "test_current_acceptance",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_test_current_acceptance.log",
+      "sha256": "5b8a3ccb28c32f172271a641e8142fdb66c37cd396f681ca016266abfdb51bb3"
+    },
+    {
+      "id": "run_factory_transport_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_factory_transport_host.log",
+      "sha256": "37bf03d783df20f1e44a2e61d9e1e365b5827f9fbd017e9d240b91048744080b"
+    },
+    {
+      "id": "run_keep_store_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_keep_store_host.log",
+      "sha256": "b15469c7a2fc338f8bfdff24b1bf5f4783ef532b0f72a043fa705c21630226c8"
+    },
+    {
+      "id": "run_gc_store_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_gc_store_host.log",
+      "sha256": "2e8684ee3c20a060d190508d680a834c6fe1ab7695653f9ce43d4ac219ebc935"
+    },
+    {
+      "id": "run_hypothesis_store_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_hypothesis_store_host.log",
+      "sha256": "695c816e758337c79854aaa5404097a2b126db4dcc552fbe3007049c91630a61"
+    },
+    {
+      "id": "run_lifecycle_schema_host",
+      "status": "FAIL",
+      "exit": 1,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_lifecycle_schema_host.log",
+      "sha256": "a7e53ad967729bf075cf3390f4f4027cd2e284afa7ac2956c0e39d519b7a9fbc",
+      "reason": "The synthetic object migration finished but the current full readiness verifier did not report READY.",
+      "originalLines": [
+        [
+          16,
+          "Exception in thread \"main\" java.lang.AssertionError: real SQL+journal+stamp reach READY"
+        ]
+      ]
+    },
+    {
+      "id": "run_lifecycle_stores_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_lifecycle_stores_host.log",
+      "sha256": "ee3670f95d9312db6662418688329c4df929b8d808f3d1a1dbb93ad86422a527"
+    },
+    {
+      "id": "run_report_keep_closure_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_report_keep_closure_host.log",
+      "sha256": "9cc8e2fbea5e88e6dd3c3c3c5e8d1f2f70221457c1df2ab86af90418bae80442"
+    },
+    {
+      "id": "run_storage_checkpoint_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_storage_checkpoint_host.log",
+      "sha256": "198cab8944ce8dd284c44a41b957f61767138583c940089cf30e2f587888d9ed"
+    },
+    {
+      "id": "run_replay_knowledge_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_replay_knowledge_host.log",
+      "sha256": "6c4c13da1ec5fb2b5536c64aa98522de120ff1d9afa335ca116290e23bc03c89"
+    },
+    {
+      "id": "run_restore_proof_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_restore_proof_host.log",
+      "sha256": "a444b6ce130e7fcce7fbb8a8f0cc2f1019c945aa2f3cda9cfa3b5bde4bf6d17a"
+    },
+    {
+      "id": "run_replay_knowledge_publication_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_replay_knowledge_publication_host.log",
+      "sha256": "4b9cdd2671e89b873738aae8d0e8f7588c5103d094bc152f51cfb17e4dcea963"
+    },
+    {
+      "id": "run_typed_mainline_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_typed_mainline_host.log",
+      "sha256": "d34df14c92abb7a3e3b00b2adafc1f14e4aa27a40e35993e90f69a17ee8f88e2"
+    },
+    {
+      "id": "run_gap_runtime_entry_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_gap_runtime_entry_host.log",
+      "sha256": "e1476b0acb5c9f2e316ffb2a0c84f44579655fe2c108e89ee0146c76abb6c612"
+    },
+    {
+      "id": "run_startup_checkpoint_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_startup_checkpoint_host.log",
+      "sha256": "0ac21adc62a2a45fddf2fcebb3e493326b35bdc8952b5bd1cb9dc04b70bfda65"
+    },
+    {
+      "id": "run_legacy_replay_checkpoint_host",
+      "status": "PASS",
+      "exit": 0,
+      "path": "raw/B08/current-original-gate-bound/logs/host_run_legacy_replay_checkpoint_host.log",
+      "sha256": "1359f216b405d7a11725691d24ec3227638fc509bcb23a8376fda70a710781cf"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "originalGateSummary": "9dd4f17ba4a2a86f5bc41bf00c8192553df50712c9a492578d6083d7a02ec924",
+  "testHarnessOnly": true,
+  "transportDiffSha256": "a7d32bd7d06fda6c87ad8359e65f4663b674684293abd2e3e5afd1b1e91b29f1",
+  "cases": [
+    {
+      "id": "r30repair_diagnosis",
+      "exit": 1,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "r30repair_diagnosis"
+      ],
+      "path": "r30repair_diagnosis.log",
+      "seconds": 1.94,
+      "sha256": "d903698c2d76e69ccff74fabcb6b4d8949e9b4771d1c62cac1e43c418a5a8be9"
+    },
+    {
+      "id": "run_lifecycle_schema_host",
+      "exit": 0,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_lifecycle_schema_host"
+      ],
+      "path": "run_lifecycle_schema_host.log",
+      "seconds": 5.34,
+      "sha256": "2268cef897b93e0a941e4a6127929278967a1941ece01c54e43e2e31c04d218c"
+    },
+    {
+      "id": "run_runtime_ddl_writer_regression",
+      "exit": 0,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_runtime_ddl_writer_regression"
+      ],
+      "path": "run_runtime_ddl_writer_regression.log",
+      "seconds": 9.51,
+      "sha256": "fc2f2940a44f726f07ff1233e1a62da30dece4e59875bbacd1f16288b36f2b30"
+    },
+    {
+      "id": "r30repair_neural",
+      "exit": 1,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "r30repair_neural"
+      ],
+      "path": "r30repair_neural.log",
+      "seconds": 19.06,
+      "sha256": "3d751f074351faae99cd9d44286746a668b11707db34bc9d09c72a7bf31185c7"
+    },
+    {
+      "id": "run_service_protocol_host",
+      "exit": 1,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_service_protocol_host"
+      ],
+      "path": "run_service_protocol_host.log",
+      "seconds": 6.46,
+      "sha256": "d23315940deda06dcb215a663e556800d76b9a7b8cc2b7a629980ffe425508ac"
+    }
+  ]
+}

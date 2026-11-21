@@ -1,0 +1,60 @@
+{
+  "schema": "STARCORE_R33_ASSERTION_EVIDENCE_V2",
+  "groupId": "B07.1",
+  "assertionId": "B07.1.POS",
+  "contractSha256": "f9a2b3e8be17ebe50986650d97b68096fdf2fda492edee4a859d27151e57ab76",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "outcome": "PASS",
+  "testName": "B07.1.POS production original verification",
+  "expected": "165精确键对齐，大类与单个能力均能给证据→停点→升级→反证",
+  "observed": "逐个对照注册表、处方与反例原件，并复核三次系统文件选择器读回的 165 个对象与各自读数水位。",
+  "environment": "Current final signed production APK installed on a disposable Android emulator",
+  "executor": "Android application production runtime and registered original checks, with independent receiver",
+  "reviewer": "Codex 接收端，依据固定原卷及独立下载的签名候选逐 ID 审阅",
+  "howRecomputed": "逐个对照注册表、处方与反例原件，并复核三次系统文件选择器读回的 165 个对象与各自读数水位。",
+  "evidenceKind": "ANDROID_EMULATOR",
+  "dataRole": "CONTROLLED",
+  "rawArtifacts": [
+    {
+      "path": "receipts/three-native-object-indices.json",
+      "sha256": "4bc886e349a45093111fa3055a11ec293570c1207be922e8e274e7ad11843054",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    }
+  ],
+  "current222Ledger": {
+    "path": "ledgers/clauses222.json",
+    "sha256": "602d4d93d584ba92c05e5ab7b83cca4892cf57069ca74d57748eaa8241ce9af7",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "current1832Ledger": {
+    "path": "ledgers/requirements1832.json",
+    "sha256": "b07a5784d5581e63b764f753a8ca25c54f4647b9e1e823af4d7a06800b97af69",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "caseResults": [
+    {
+      "caseId": "B07.1.POS.C01",
+      "requirementSha256": "fc3a9442d3131a36b78b4f60d69be9567ba193e75a373932a9fd1706fb617dfe",
+      "outcome": "PASS",
+      "scenario": "165精确对象键齐全且证据停点处方反例关联",
+      "expected": "165精确对象键齐全且证据停点处方反例关联",
+      "observed": "原始执行记录已复算，定位见 three distinct real UI reports; native 165 object IDs, first observed gaps, counterexample, action and source keys",
+      "rawIndex": 0,
+      "locator": "three distinct real UI reports; native 165 object IDs, first observed gaps, counterexample, action and source keys"
+    },
+    {
+      "caseId": "B07.1.POS.C02",
+      "requirementSha256": "823cb388f6817f7d44a6f4367e1c5d0156c999e5ddcac1d31e06e0b8b61aa0e0",
+      "outcome": "PASS",
+      "scenario": "能力大类与单个对象状态各有水位",
+      "expected": "能力大类与单个对象状态各有水位",
+      "observed": "原始执行记录已复算，定位见 registeredNeeds sourceSnapshot and individual object readWatermark within each same job",
+      "rawIndex": 0,
+      "locator": "registeredNeeds sourceSnapshot and individual object readWatermark within each same job"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "STARCORE_R33_ASSERTION_EVIDENCE_V2",
+  "groupId": "B08.3",
+  "assertionId": "B08.3.TRACE",
+  "contractSha256": "7bd003b1a8c578a66cc7a562e765f30e1095f11423daba99bd4d14448dbad065",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "outcome": "PASS",
+  "testName": "Recompute registered current 222/1832 evidence disposition",
+  "expected": "当前构建绑定的两份完整逐项账、222原文比对、1832原文比对、各自的原件/缺件、审阅责任与通过数。",
+  "observed": "复算全部原身份、角色、证据和缺口；各类缺失、重复和历史代签负例均按详细原件返回。",
+  "environment": "Downloaded B08 candidate, sealed R3 original controls and independent local receiver",
+  "executor": "Version-pinned original score_acceptance, score_final and GitHub Actions build 69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "reviewer": "Codex 接收端，依据固定原卷及独立下载的签名候选逐 ID 审阅",
+  "howRecomputed": "重新运行原始 original_index/current_identity/original_reviews，然后检查每个固定子场景的原件定位。",
+  "evidenceKind": "RECORD_REVIEW",
+  "dataRole": "RECORD",
+  "rawArtifacts": [
+    {
+      "path": "records/ledger-recomputed.json",
+      "sha256": "d462f6262064bfb7cde3eb1d6dfe03f97761d0403e918dafd17978f02ee0011d",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    }
+  ],
+  "current222Ledger": {
+    "path": "ledgers/clauses222.json",
+    "sha256": "602d4d93d584ba92c05e5ab7b83cca4892cf57069ca74d57748eaa8241ce9af7",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "current1832Ledger": {
+    "path": "ledgers/requirements1832.json",
+    "sha256": "b07a5784d5581e63b764f753a8ca25c54f4647b9e1e823af4d7a06800b97af69",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "caseResults": [
+    {
+      "caseId": "B08.3.TRACE.C01",
+      "requirementSha256": "4f8d38f6f1a3fb000a5f3677c5eb8257b40e8bd427b89101d8ac9ad74e5b0ac0",
+      "outcome": "PASS",
+      "scenario": "同构建222及1832原文hash原件缺件审阅责任完整",
+      "expected": "同构建222及1832原文hash原件缺件审阅责任完整",
+      "observed": "原始执行记录已复算，定位见 current222Ledger and current1832Ledger, paths, text hashes, missing items and named reviewer",
+      "rawIndex": 0,
+      "locator": "current222Ledger and current1832Ledger, paths, text hashes, missing items and named reviewer"
+    }
+  ]
+}

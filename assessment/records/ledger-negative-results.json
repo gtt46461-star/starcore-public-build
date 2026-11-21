@@ -1,0 +1,40 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "runWith": "B08/code/score_acceptance.py and current ledger raw bytes",
+  "cases": [
+    {
+      "case": "missing original ID",
+      "result": "REJECTED",
+      "observed": "ORIGINAL_222_REQUIRED"
+    },
+    {
+      "case": "duplicate original ID",
+      "result": "REJECTED",
+      "observed": "DUPLICATE_ORIGINAL_ID"
+    },
+    {
+      "case": "altered original text hash",
+      "result": "REJECTED",
+      "observed": "ORIGINAL_TEXT_SHA_MISMATCH"
+    },
+    {
+      "case": "historical 033 cannot score final build",
+      "result": "REJECTED",
+      "observed": "HISTORICAL_033_CANNOT_SIGN_CURRENT_R33"
+    },
+    {
+      "case": "partial evidence cannot count as complete",
+      "result": "OBSERVED",
+      "nonComplete222": 130,
+      "nonComplete1832": 1791
+    },
+    {
+      "case": "natural unmet preserves missing state",
+      "result": "OBSERVED",
+      "unqualifiedNaturalIds": [
+        "R31-B07-C06#A5"
+      ]
+    }
+  ]
+}

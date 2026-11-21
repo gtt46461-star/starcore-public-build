@@ -1,0 +1,1999 @@
+{
+  "source": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "compilerProvenance": {
+    "schema": "STARCORE_R335_COMPILED_SOURCE_CALL_PROVENANCE_1",
+    "scope": "CURRENT_COMPILED_PROJECT_CLASSES_STATIC_CALLS_NOT_RUNTIME_COVERAGE",
+    "sourceTreeSha256": "c29e09f6d217127f217b2a941a779278692641f84742356caed9f637336c27eb",
+    "sourceBuildInputsSha256": "49e0f6b6a1b6628317f6a2c14817a9611d3ba258305aa382f281965b7458ec55",
+    "r815ManifestSha256": "8ed2b05a5eea92d9a07e2e0a6d06aef2ba35ac5a76fc2dc014b377ba7379eb93",
+    "sourceFiles": 1358,
+    "projectClassesForMainJava": 4825,
+    "generatedOrUnregisteredClassCount": 14,
+    "methods": 32557,
+    "directInvocations": 400203,
+    "indexSha256": "431f0ef97af9f74837cf4c0209f00f867c27419e61465523b76b2e99ce9ba14a",
+    "indexBytes": 42645567,
+    "parserSha256": "0d621303cd303a4dad768841d4e3fb13d784e627c46c8eba3a87781a0bafedb7",
+    "classInputSha256": "e9bc500e625187a7c5b1f16c3686878ced6e4db75b11aaa08454a5fe2ee3ca07",
+    "sourceSetScope": "EXACT_MAIN_JAVA_SOURCE_FILES; GENERATED_CLASSES_SEPARATELY_COUNTED",
+    "runtimeCoverage": "NOT_CLAIMED",
+    "qualification": "NOT_GRANTED"
+  },
+  "scope": "Direct compiled class-to-class references including lambda body holders. Callbacks, SQLite execution, runtime thread dispatch and causal measurement require separate evidence.",
+  "stages": {
+    "B01": [
+      {
+        "target": "StorageBudgetR31",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/StorageBudgetR31",
+            "examples": [
+              [
+                "classify",
+                686,
+                "failureCategory"
+              ],
+              [
+                "reserveDisk",
+                534,
+                "forFiles"
+              ],
+              [
+                "reserveDisk",
+                534,
+                "reserve"
+              ],
+              [
+                "beforeBackupChunk",
+                760,
+                "beforeChunk"
+              ],
+              [
+                "beforeOutputBytesR31",
+                763,
+                "beforeChunk"
+              ],
+              [
+                "protectOutput",
+                768,
+                "wrap"
+              ],
+              [
+                "releaseResourcesForPublicationR31",
+                782,
+                "close"
+              ],
+              [
+                "releaseResourcesR31",
+                784,
+                "close"
+              ],
+              [
+                "reserveFutureBytesR31",
+                764,
+                "ensureAdditional"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 19,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "ReportResourceWaitR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/ReportResourceWaitR335",
+            "examples": [
+              [
+                "drain",
+                274,
+                "remaining"
+              ],
+              [
+                "drain",
+                469,
+                "empty"
+              ],
+              [
+                "drain",
+                474,
+                "isResourceWait"
+              ],
+              [
+                "drain",
+                476,
+                "rejected"
+              ],
+              [
+                "drain",
+                481,
+                "retryDelay"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "LegacyBackupCustodyR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/DatabaseHealthActivity",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/DatabaseHealthActivity",
+            "callee": "com/ethk3/novaonepro/LegacyBackupCustodyR335",
+            "examples": [
+              [
+                "lambda$chooseCustodyCaseR335$17",
+                37,
+                "recordRevocation"
+              ],
+              [
+                "lambda$chooseCustodyCaseR335$18",
+                37,
+                "revoke"
+              ],
+              [
+                "lambda$chooseCustodyCaseR335$21",
+                37,
+                "listCases"
+              ],
+              [
+                "lambda$chooseCustodyCaseR335$21",
+                37,
+                "describe"
+              ],
+              [
+                "lambda$onCreate$10",
+                29,
+                "revoke"
+              ],
+              [
+                "lambda$onCreate$9",
+                29,
+                "listCases"
+              ],
+              [
+                "lambda$onCreate$9",
+                29,
+                "recordRevocation"
+              ],
+              [
+                "lambda$reviewCustodyR335$22",
+                39,
+                "revoke"
+              ],
+              [
+                "lambda$reviewCustodyR335$23",
+                39,
+                "confirm"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 4,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "CheckpointRecoveryR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/DataRetentionGovernorR900",
+            "examples": [
+              [
+                "run",
+                5369,
+                "trim"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/DataRetentionGovernorR900",
+            "callee": "com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335",
+            "examples": [
+              [
+                "runCheckpointRecoveryR335",
+                31,
+                "step"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 4,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "RuntimeFaultMaintenanceR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/RuntimeFaultMaintenanceR335",
+            "examples": [
+              [
+                "drainWriterFaultControlR334",
+                2448,
+                "signal"
+              ],
+              [
+                "initializeRuntimeAfterForegroundR32",
+                1251,
+                "<init>"
+              ],
+              [
+                "onDestroy",
+                1895,
+                "close"
+              ],
+              [
+                "reconcileResearchOwner",
+                2479,
+                "signal"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "DataRetentionGovernorR900",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/DataRetentionGovernorR900",
+            "examples": [
+              [
+                "run",
+                5369,
+                "trim"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 5,
+        "declaredOwnerPresent": true
+      }
+    ],
+    "B02": [
+      {
+        "target": "EnabledWindowJournalR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+            "callee": "com/ethk3/novaonepro/EnabledWindowJournalR335",
+            "examples": [
+              [
+                "appendEnabledAssignmentR335",
+                1396,
+                "appendState"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "PreparedCanonicalStoreR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/ResearchLearningContinuityR912",
+            "examples": [
+              [
+                "run",
+                5445,
+                "needsContinuation"
+              ],
+              [
+                "run",
+                5447,
+                "nextContinuationDelayMs"
+              ],
+              [
+                "run",
+                5417,
+                "pulse"
+              ],
+              [
+                "run",
+                5422,
+                "needsContinuation"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/ResearchLearningContinuityR912",
+            "callee": "com/ethk3/novaonepro/FixedResearchWindowR932",
+            "examples": [
+              [
+                "ensureDesired",
+                40,
+                "hasRunnableWork"
+              ],
+              [
+                "needsContinuation",
+                214,
+                "hasRunnableWork"
+              ],
+              [
+                "runLane",
+                322,
+                "maintainReviewed"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/FixedResearchWindowR932",
+            "callee": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "examples": [
+              [
+                "freezeChampion",
+                45,
+                "rankK3DiagnosticActionsF06"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalStoreR335",
+            "examples": [
+              [
+                "finishPreparedR335",
+                547,
+                "clearAfterCommit"
+              ],
+              [
+                "resumePreparedR335",
+                554,
+                "requireReusable"
+              ],
+              [
+                "resumePreparedR335",
+                559,
+                "requireReusable"
+              ],
+              [
+                "runR36",
+                45,
+                "load"
+              ],
+              [
+                "runR36",
+                50,
+                "requireReusable"
+              ],
+              [
+                "runR36",
+                430,
+                "save"
+              ],
+              [
+                "runR36",
+                497,
+                "clearAfterCommit"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "OosAfterDrawWriterR36",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/SettlementEngine",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/SettlementEngine",
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "examples": [
+              [
+                "call",
+                165,
+                "settleFrozenWithinTransaction"
+              ],
+              [
+                "call",
+                205,
+                "summary"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "DurableReturnTimingR334",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/SettlementEngine",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/SettlementEngine",
+            "callee": "com/ethk3/novaonepro/DurableReturnTimingR334",
+            "examples": [
+              [
+                "executeFromCoordinatorR815",
+                260,
+                "<init>"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "FrozenFeedbackProofR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/SettlementEngine",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/SettlementEngine",
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "examples": [
+              [
+                "call",
+                165,
+                "settleFrozenWithinTransaction"
+              ],
+              [
+                "call",
+                205,
+                "summary"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "callee": "com/ethk3/novaonepro/FrozenFeedbackProofR335",
+            "examples": [
+              [
+                "settleFrozenWithinTransaction",
+                23,
+                "observedLabelTime"
+              ],
+              [
+                "settleFrozenWithinTransaction",
+                136,
+                "observedLabelTime"
+              ],
+              [
+                "settleFrozenWithinTransaction",
+                191,
+                "observedLabelTime"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "EssentialSettlementFeedbackR923",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/EssentialSettlementFeedbackR923",
+            "examples": [
+              [
+                "run",
+                4380,
+                "drain"
+              ],
+              [
+                "run",
+                4382,
+                "canonical"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 3,
+        "declaredOwnerPresent": true
+      }
+    ],
+    "B03": [
+      {
+        "target": "ReplayDatasetR27",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1",
+            "examples": [
+              [
+                "recordResourceUse",
+                449,
+                "validRunSql"
+              ],
+              [
+                "refreshResourceBudget",
+                438,
+                "validRunSql"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReplayDatasetR27",
+            "examples": [
+              [
+                "append",
+                40,
+                "size"
+              ],
+              [
+                "append",
+                42,
+                "size"
+              ],
+              [
+                "append",
+                53,
+                "size"
+              ],
+              [
+                "append",
+                53,
+                "legal"
+              ],
+              [
+                "append",
+                54,
+                "originalBytesR31"
+              ],
+              [
+                "append",
+                56,
+                "provenanceR31"
+              ],
+              [
+                "append",
+                56,
+                "size"
+              ],
+              [
+                "append",
+                58,
+                "size"
+              ],
+              [
+                "appendAdmitted",
+                46,
+                "size"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 30,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "ResearchPoolR27",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [],
+        "directExternalOwnerCount": 14,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "RuntimeSchemaR26",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+        "edges": [],
+        "directExternalOwnerCount": 10,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "EvolutionLoopR27",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "examples": [
+              [
+                "invalidateDraftR31",
+                336,
+                "active"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "pool"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "invalidateTaskDraftR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+            "examples": [
+              [
+                "confirmFrozen",
+                382,
+                "context"
+              ],
+              [
+                "confirmFrozen",
+                383,
+                "ledger"
+              ],
+              [
+                "explorationR30",
+                434,
+                "hash"
+              ],
+              [
+                "explorationR30",
+                435,
+                "hash"
+              ],
+              [
+                "releaseTerminatedCachesR31",
+                101,
+                "close"
+              ],
+              [
+                "releaseTerminatedCachesR31",
+                101,
+                "resourcesClosedR31"
+              ],
+              [
+                "restoreOrCreate",
+                465,
+                "<init>"
+              ],
+              [
+                "restoreOrCreate",
+                469,
+                "restore"
+              ],
+              [
+                "restoreOrCreate",
+                479,
+                "<init>"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 12,
+        "declaredOwnerPresent": true
+      }
+    ],
+    "B04": [
+      {
+        "target": "AtomNetSessionR30",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1",
+            "examples": [
+              [
+                "lambda$claimPrepared$4",
+                230,
+                "ready"
+              ],
+              [
+                "refreshResourceBudget",
+                439,
+                "currentSource"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1",
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+            "examples": [
+              [
+                "afterOwnedArtifact",
+                55,
+                "ready"
+              ],
+              [
+                "afterOwnedArtifact",
+                55,
+                "trainedThroughOrdinal"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 10,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "AtomNetProgressR33",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "examples": [
+              [
+                "invalidateDraftR31",
+                336,
+                "active"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "pool"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "invalidateTaskDraftR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomWorldR27",
+            "examples": [
+              [
+                "step",
+                703,
+                "atomNetStep"
+              ],
+              [
+                "step",
+                695,
+                "atomsStep"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/AtomWorldR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "examples": [
+              [
+                "atomNetStep",
+                176,
+                "step"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30",
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetProgressR33",
+            "examples": [
+              [
+                "progressFrameR33",
+                103,
+                "<init>"
+              ],
+              [
+                "step",
+                92,
+                "validate"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "ModelArtifactR29",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1",
+            "examples": [
+              [
+                "lambda$claimPrepared$4",
+                230,
+                "ready"
+              ],
+              [
+                "refreshResourceBudget",
+                439,
+                "currentSource"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1",
+            "callee": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+            "examples": [
+              [
+                "afterOwnedArtifact",
+                55,
+                "ready"
+              ],
+              [
+                "afterOwnedArtifact",
+                55,
+                "trainedThroughOrdinal"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/AtomNetSessionR30",
+            "callee": "com/ethk3/novaonepro/strategyv2/ModelArtifactR29",
+            "examples": [
+              [
+                "decode",
+                199,
+                "blob"
+              ],
+              [
+                "decode",
+                199,
+                "decode"
+              ],
+              [
+                "encode",
+                182,
+                "blob"
+              ],
+              [
+                "encode",
+                182,
+                "<init>"
+              ],
+              [
+                "encode",
+                182,
+                "encode"
+              ],
+              [
+                "serializedBoundR31",
+                171,
+                "<init>"
+              ],
+              [
+                "serializedBoundR31",
+                171,
+                "serializedBoundR31"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 4,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "NumberRankerAdapterR30",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "examples": [
+              [
+                "invalidateDraftR31",
+                336,
+                "active"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "pool"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "invalidateTaskDraftR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30",
+            "examples": [
+              [
+                "publishAtomStateR30",
+                42,
+                "<init>"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30",
+            "callee": "com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR30",
+            "examples": [
+              [
+                "goldenHash",
+                90,
+                "probabilities"
+              ],
+              [
+                "predict",
+                56,
+                "probabilities"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      }
+    ],
+    "B05": [
+      {
+        "target": "ResearchActionStoreR33",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1",
+            "callee": "com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1",
+            "examples": [
+              [
+                "step",
+                137,
+                "settle"
+              ],
+              [
+                "step",
+                138,
+                "bindSelectRequestR335"
+              ],
+              [
+                "step",
+                152,
+                "summary"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1",
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33",
+            "examples": [
+              [
+                "bindSelectRequestR335",
+                21,
+                "<init>"
+              ],
+              [
+                "bindSelectRequestR335",
+                24,
+                "append"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "StructureGeneratorRegistryR30",
+        "reachableFromListedClass": false,
+        "startsAt": null,
+        "edges": [],
+        "directExternalOwnerCount": 0,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "ResearchInputContextR33",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1",
+            "callee": "com/ethk3/novaonepro/strategyv2/ResearchInputContextR33",
+            "examples": [
+              [
+                "step",
+                144,
+                "acquire"
+              ],
+              [
+                "step",
+                150,
+                "appendScan"
+              ],
+              [
+                "step",
+                158,
+                "close"
+              ],
+              [
+                "step",
+                153,
+                "appendScan"
+              ],
+              [
+                "step",
+                144,
+                "close"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "EvolutionLoopR27",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "examples": [
+              [
+                "invalidateDraftR31",
+                336,
+                "active"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "pool"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "invalidateTaskDraftR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/EvolutionLoopR27",
+            "examples": [
+              [
+                "confirmFrozen",
+                382,
+                "context"
+              ],
+              [
+                "confirmFrozen",
+                383,
+                "ledger"
+              ],
+              [
+                "explorationR30",
+                434,
+                "hash"
+              ],
+              [
+                "explorationR30",
+                435,
+                "hash"
+              ],
+              [
+                "releaseTerminatedCachesR31",
+                101,
+                "close"
+              ],
+              [
+                "releaseTerminatedCachesR31",
+                101,
+                "resourcesClosedR31"
+              ],
+              [
+                "restoreOrCreate",
+                465,
+                "<init>"
+              ],
+              [
+                "restoreOrCreate",
+                469,
+                "restore"
+              ],
+              [
+                "restoreOrCreate",
+                479,
+                "<init>"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 12,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "SetIntersectionPolicyR30",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1",
+            "callee": "com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30",
+            "examples": [
+              [
+                "compute",
+                33,
+                "spec"
+              ],
+              [
+                "compute",
+                33,
+                "support"
+              ],
+              [
+                "compute",
+                61,
+                "exact"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 14,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "DiagnosisStoreSU2",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "examples": [
+              [
+                "ensureContinuousRuntimeR26",
+                2441,
+                "stopStateR31"
+              ],
+              [
+                "ensureContinuousRuntimeR26",
+                2442,
+                "<init>"
+              ],
+              [
+                "onDestroy",
+                1944,
+                "closeAndReleaseStore"
+              ],
+              [
+                "reconcileResearchOwner",
+                2492,
+                "healthSnapshotR31"
+              ],
+              [
+                "reconcileResearchOwner",
+                2494,
+                "reconcileResearchHealthR31"
+              ],
+              [
+                "releasePartialObjectGraphR3610",
+                1065,
+                "closeAndReleaseStore"
+              ],
+              [
+                "researchOwnedByCoordinatorR30",
+                4242,
+                "stopStateR31"
+              ],
+              [
+                "stopWork",
+                2670,
+                "close"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "callee": "com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2",
+            "examples": [
+              [
+                "execute",
+                647,
+                "maintain"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 3,
+        "declaredOwnerPresent": true
+      }
+    ],
+    "B06": [
+      {
+        "target": "LiveShadowsR27",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "examples": [
+              [
+                "invalidateDraftR31",
+                336,
+                "active"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "pool"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "invalidateTaskDraftR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/LiveShadowsR27",
+            "examples": [
+              [
+                "step",
+                567,
+                "semanticCheck"
+              ],
+              [
+                "step",
+                709,
+                "calibrate"
+              ],
+              [
+                "step",
+                495,
+                "settle"
+              ],
+              [
+                "step",
+                496,
+                "qualify"
+              ],
+              [
+                "step",
+                502,
+                "certify"
+              ],
+              [
+                "step",
+                503,
+                "freeze"
+              ],
+              [
+                "step",
+                504,
+                "freeze"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 3,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "SequentialQualificationR27",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+            "callee": "com/ethk3/novaonepro/SchemaDomainCoordinatorR926",
+            "examples": [
+              [
+                "ensure",
+                99,
+                "migrateR31RuntimeBase"
+              ],
+              [
+                "ensure",
+                100,
+                "migrateR31Feedback"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/SchemaDomainCoordinatorR926",
+            "callee": "com/ethk3/novaonepro/strategyv2/QualificationInboxR29",
+            "examples": [
+              [
+                "lambda$migrateR31QualificationReceipts$0",
+                305,
+                "ensureLegacyReceiptGuardsR31"
+              ],
+              [
+                "lambda$migrateR31QualificationReceipts$0",
+                306,
+                "requireLegacyReceiptGuardsR31"
+              ],
+              [
+                "migrateR31QualificationReceipts",
+                308,
+                "requireLegacyReceiptGuardsR31"
+              ],
+              [
+                "r31QualificationReceiptContract",
+                288,
+                "legacyReceiptGuardObjectsR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/QualificationInboxR29",
+            "callee": "com/ethk3/novaonepro/strategyv2/SequentialQualificationR27",
+            "examples": [
+              [
+                "legacyProofR31",
+                438,
+                "<init>"
+              ],
+              [
+                "legacyProofR31",
+                448,
+                "observe"
+              ],
+              [
+                "plan",
+                153,
+                "observe"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 7,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "CertificateGateR27",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ResearchPoolR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "examples": [
+              [
+                "invalidateDraftR31",
+                336,
+                "active"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "pool"
+              ],
+              [
+                "invalidateDraftR31",
+                336,
+                "invalidateTaskDraftR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/LiveShadowsR27",
+            "examples": [
+              [
+                "step",
+                567,
+                "semanticCheck"
+              ],
+              [
+                "step",
+                709,
+                "calibrate"
+              ],
+              [
+                "step",
+                495,
+                "settle"
+              ],
+              [
+                "step",
+                496,
+                "qualify"
+              ],
+              [
+                "step",
+                502,
+                "certify"
+              ],
+              [
+                "step",
+                503,
+                "freeze"
+              ],
+              [
+                "step",
+                504,
+                "freeze"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/LiveShadowsR27",
+            "callee": "com/ethk3/novaonepro/strategyv2/CertificateGateR27",
+            "examples": [
+              [
+                "certify",
+                269,
+                "<init>"
+              ],
+              [
+                "certify",
+                270,
+                "calibrationQuality"
+              ],
+              [
+                "certify",
+                273,
+                "evaluate"
+              ],
+              [
+                "certify",
+                289,
+                "contract"
+              ],
+              [
+                "certify",
+                305,
+                "choose"
+              ],
+              [
+                "lambda$certify$14",
+                318,
+                "choose"
+              ],
+              [
+                "lambda$certify$14",
+                328,
+                "contract"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 4,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "QualificationWindowR26",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "examples": [
+              [
+                "ensureContinuousRuntimeR26",
+                2441,
+                "stopStateR31"
+              ],
+              [
+                "ensureContinuousRuntimeR26",
+                2442,
+                "<init>"
+              ],
+              [
+                "onDestroy",
+                1944,
+                "closeAndReleaseStore"
+              ],
+              [
+                "reconcileResearchOwner",
+                2492,
+                "healthSnapshotR31"
+              ],
+              [
+                "reconcileResearchOwner",
+                2494,
+                "reconcileResearchHealthR31"
+              ],
+              [
+                "releasePartialObjectGraphR3610",
+                1065,
+                "closeAndReleaseStore"
+              ],
+              [
+                "researchOwnedByCoordinatorR30",
+                4242,
+                "stopStateR31"
+              ],
+              [
+                "stopWork",
+                2670,
+                "close"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "callee": "com/ethk3/novaonepro/strategyv2/CertificateSU2",
+            "examples": [
+              [
+                "execute",
+                619,
+                "maintainOne"
+              ],
+              [
+                "execute",
+                645,
+                "maintain"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/CertificateSU2",
+            "callee": "com/ethk3/novaonepro/strategyv2/QualificationWindowR26",
+            "examples": [
+              [
+                "issueWithin",
+                112,
+                "completed"
+              ],
+              [
+                "maintainPolicy",
+                78,
+                "completed"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "EvidenceAccumulatorR26",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "examples": [
+              [
+                "ensureContinuousRuntimeR26",
+                2441,
+                "stopStateR31"
+              ],
+              [
+                "ensureContinuousRuntimeR26",
+                2442,
+                "<init>"
+              ],
+              [
+                "onDestroy",
+                1944,
+                "closeAndReleaseStore"
+              ],
+              [
+                "reconcileResearchOwner",
+                2492,
+                "healthSnapshotR31"
+              ],
+              [
+                "reconcileResearchOwner",
+                2494,
+                "reconcileResearchHealthR31"
+              ],
+              [
+                "releasePartialObjectGraphR3610",
+                1065,
+                "closeAndReleaseStore"
+              ],
+              [
+                "researchOwnedByCoordinatorR30",
+                4242,
+                "stopStateR31"
+              ],
+              [
+                "stopWork",
+                2670,
+                "close"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "callee": "com/ethk3/novaonepro/strategyv2/EvidenceAccumulatorR26",
+            "examples": [
+              [
+                "execute",
+                620,
+                "stepOne"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "CertificateSU2",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "examples": [
+              [
+                "ensureContinuousRuntimeR26",
+                2441,
+                "stopStateR31"
+              ],
+              [
+                "ensureContinuousRuntimeR26",
+                2442,
+                "<init>"
+              ],
+              [
+                "onDestroy",
+                1944,
+                "closeAndReleaseStore"
+              ],
+              [
+                "reconcileResearchOwner",
+                2492,
+                "healthSnapshotR31"
+              ],
+              [
+                "reconcileResearchOwner",
+                2494,
+                "reconcileResearchHealthR31"
+              ],
+              [
+                "releasePartialObjectGraphR3610",
+                1065,
+                "closeAndReleaseStore"
+              ],
+              [
+                "researchOwnedByCoordinatorR30",
+                4242,
+                "stopStateR31"
+              ],
+              [
+                "stopWork",
+                2670,
+                "close"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "callee": "com/ethk3/novaonepro/strategyv2/CertificateSU2",
+            "examples": [
+              [
+                "execute",
+                619,
+                "maintainOne"
+              ],
+              [
+                "execute",
+                645,
+                "maintain"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 12,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "DecisionGateEngine",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/DecisionGateEngine",
+            "examples": [
+              [
+                "buildV49FullWindowMoeDecision",
+                6417,
+                "decide"
+              ],
+              [
+                "buildV50PrimeDecision",
+                6486,
+                "toLegacyDecisionV50"
+              ],
+              [
+                "initializeRuntimeAfterForegroundR32",
+                1549,
+                "<init>"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 34,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "SettlementEngine",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/AutoFetchService",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/AutoFetchService",
+            "callee": "com/ethk3/novaonepro/SettlementEngine",
+            "examples": [
+              [
+                "initializeRuntimeAfterForegroundR32",
+                1551,
+                "<init>"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 5,
+        "declaredOwnerPresent": true
+      }
+    ],
+    "B07": [
+      {
+        "target": "ReportSnapshotR30",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportR29",
+            "examples": [
+              [
+                "drain",
+                400,
+                "chapters"
+              ],
+              [
+                "drain",
+                403,
+                "document"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ReportR29",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30",
+            "examples": [
+              [
+                "chapters",
+                17,
+                "capture"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 4,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "ReportObjectIndexR30",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportR29",
+            "examples": [
+              [
+                "drain",
+                400,
+                "chapters"
+              ],
+              [
+                "drain",
+                403,
+                "document"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ReportR29",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30",
+            "examples": [
+              [
+                "chapters",
+                17,
+                "capture"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30",
+            "examples": [
+              [
+                "capture",
+                129,
+                "buildProductionR31"
+              ],
+              [
+                "capture",
+                146,
+                "buildProductionR31"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "DiagnosisTraceReaderR33",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32",
+            "examples": [
+              [
+                "drain",
+                425,
+                "attach"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32",
+            "callee": "com/ethk3/novaonepro/strategyv2/DiagnosisProofR33",
+            "examples": [
+              [
+                "build",
+                280,
+                "classify"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/DiagnosisProofR33",
+            "callee": "com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33",
+            "examples": [
+              [
+                "classify",
+                25,
+                "validTrace"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 3,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "CapabilityNeedDiagnosticsR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportR29",
+            "examples": [
+              [
+                "drain",
+                400,
+                "chapters"
+              ],
+              [
+                "drain",
+                403,
+                "document"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ReportR29",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30",
+            "examples": [
+              [
+                "chapters",
+                17,
+                "capture"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30",
+            "examples": [
+              [
+                "capture",
+                129,
+                "buildProductionR31"
+              ],
+              [
+                "capture",
+                146,
+                "buildProductionR31"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30",
+            "callee": "com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335",
+            "examples": [
+              [
+                "buildProductionR31",
+                74,
+                "capture"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "RepairDiagnosisR32",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32",
+            "examples": [
+              [
+                "drain",
+                425,
+                "attach"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 2,
+        "declaredOwnerPresent": true
+      },
+      {
+        "target": "ReportRepairCaseIndexR335",
+        "reachableFromListedClass": true,
+        "startsAt": "com/ethk3/novaonepro/ReportExportServiceCP4",
+        "edges": [
+          {
+            "caller": "com/ethk3/novaonepro/ReportExportServiceCP4",
+            "callee": "com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32",
+            "examples": [
+              [
+                "drain",
+                425,
+                "attach"
+              ]
+            ]
+          },
+          {
+            "caller": "com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32",
+            "callee": "com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335",
+            "examples": [
+              [
+                "build",
+                328,
+                "capture"
+              ]
+            ]
+          }
+        ],
+        "directExternalOwnerCount": 1,
+        "declaredOwnerPresent": true
+      }
+    ]
+  }
+}

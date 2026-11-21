@@ -1,0 +1,50 @@
+{
+  "schema": "STARCORE_R33_ASSERTION_EVIDENCE_V2",
+  "groupId": "B05.3",
+  "assertionId": "B05.3.TRACE",
+  "contractSha256": "18c7bdca20b3eded271ff8a180ab5f98f70a5249e7ac307174f83201613a1264",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "outcome": "PASS",
+  "testName": "B05.3.TRACE production original verification",
+  "expected": "16组查询与原件/原因",
+  "observed": "对照全部 16 个实际 query 的 SQL 与同版 Android 返回的原键、空集、页边界、摘要和并发水位。",
+  "environment": "Current final signed production APK installed on a disposable Android emulator",
+  "executor": "Android application production runtime and registered original checks, with independent receiver",
+  "reviewer": "Codex 接收端，依据固定原卷及独立下载的签名候选逐 ID 审阅",
+  "howRecomputed": "对照全部 16 个实际 query 的 SQL 与同版 Android 返回的原键、空集、页边界、摘要和并发水位。",
+  "evidenceKind": "ANDROID_EMULATOR",
+  "dataRole": "CONTROLLED",
+  "rawArtifacts": [
+    {
+      "path": "receipts/production-table-queries.json",
+      "sha256": "81a928c7b02160bcc0eccefb519fbc852a47a97beccf8ed05081af63b806abec",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    }
+  ],
+  "current222Ledger": {
+    "path": "ledgers/clauses222.json",
+    "sha256": "602d4d93d584ba92c05e5ab7b83cca4892cf57069ca74d57748eaa8241ce9af7",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "current1832Ledger": {
+    "path": "ledgers/requirements1832.json",
+    "sha256": "b07a5784d5581e63b764f753a8ca25c54f4647b9e1e823af4d7a06800b97af69",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "caseResults": [
+    {
+      "caseId": "B05.3.TRACE.C01",
+      "requirementSha256": "a8a9b5c34313fd41c7ee9f9887bf8c24b3f398781a1a504e6d9362e638cd0f78",
+      "outcome": "PASS",
+      "scenario": "16个query原键空值原因与分页watermark",
+      "expected": "16个query原键空值原因与分页watermark",
+      "observed": "原始执行记录已复算，定位见 SQL by T01–T16, full native page read status and reason, row counts, offsets, source watermark and bound native hash for all three reports",
+      "rawIndex": 0,
+      "locator": "SQL by T01–T16, full native page read status and reason, row counts, offsets, source watermark and bound native hash for all three reports"
+    }
+  ]
+}

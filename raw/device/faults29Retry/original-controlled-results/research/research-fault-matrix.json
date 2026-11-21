@@ -1,0 +1,94 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "environment": "ANDROID_EMULATOR",
+  "result": "PASS",
+  "cells": [
+    {
+      "stage": "analysis",
+      "fault": "BUSY",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-analysis-BUSY",
+      "outputSha256": "47cd6d4d9415b9a8de4fa4b0f1cacd21f864c727c0cae9ace87eeee151511977"
+    },
+    {
+      "stage": "analysis",
+      "fault": "FULL",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-analysis-FULL",
+      "outputSha256": "a30199339df1cdd75ccfcd9e86982121ea9be66be814dc9774ed2d46bf9d1885"
+    },
+    {
+      "stage": "analysis",
+      "fault": "CANCEL",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-analysis-CANCEL",
+      "outputSha256": "c968ba5130c7b2e3a3db299d8c6205a13f18f0381ca5746646b87af9c89b4945"
+    },
+    {
+      "stage": "analysis",
+      "fault": "KILL",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-analysis-KILL",
+      "outputSha256": "4feffe8c7d96919456ef5f1472e4a535c1b760e887425ad111b48421caaa1b98"
+    },
+    {
+      "stage": "analysis",
+      "fault": "CORRUPT",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-analysis-CORRUPT",
+      "outputSha256": "0c52b54c92696a5d4ae5dfafa9ccabc962c1cbc174ebe277b65788fc33c47e74"
+    },
+    {
+      "stage": "analysis",
+      "fault": "SOURCE_CHANGE",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-analysis-SOURCE_CHANGE",
+      "outputSha256": "31120dbd9088b886129adfb3aad96cb211c983b6631a1db8ba1175acae858fe0"
+    },
+    {
+      "stage": "consume",
+      "fault": "BUSY",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-consume-BUSY",
+      "outputSha256": "e7693899a055540f210e29243754b09cafe891f5ff5fe4c7a5a9f0a9349d310e"
+    },
+    {
+      "stage": "consume",
+      "fault": "FULL",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-consume-FULL",
+      "outputSha256": "e6f62da8fdd7f69a63f7f16cb8f023174eadc106cfaebad94733d4ff5c23af46"
+    },
+    {
+      "stage": "consume",
+      "fault": "CANCEL",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-consume-CANCEL",
+      "outputSha256": "bf2b83d0e3907894c88fa7d838b154b777525e6680ce986315fd8a4d81d6f3c5"
+    },
+    {
+      "stage": "consume",
+      "fault": "KILL",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-consume-KILL",
+      "outputSha256": "a356d561572703d220634d4fcf4cede2212c8959ecd094aa7b797e077ab4554f"
+    },
+    {
+      "stage": "consume",
+      "fault": "CORRUPT",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-consume-CORRUPT",
+      "outputSha256": "d33b6a95f68e7e9443ee7773f1906ed3cb05ae33261a209a8986612165907b17"
+    },
+    {
+      "stage": "consume",
+      "fault": "SOURCE_CHANGE",
+      "pass": true,
+      "scope": "research-44860298748-1-40bb358d54d3-consume-SOURCE_CHANGE",
+      "outputSha256": "f23a8c2846b17498ffe892169f1fccc3462d4b244f9948763ae490200429b004"
+    }
+  ],
+  "semantics": "Real original writer admission; real SQLiteFullException; cancellation before write admission; SIGKILL after original batch guards before commit then real same-scope process reopen; exact child/hash and real input correction guards. Invalid source/payload stays blocked. No REAL certificate or formal exposure.",
+  "physicalDevice": "NOT_RUN",
+  "naturalQuality": "NOT_PROVEN"
+}

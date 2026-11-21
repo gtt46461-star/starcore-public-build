@@ -1,0 +1,133 @@
+diff --git a/tools/r30-repair/run_diagnosis_host.py b/tools/r30-repair/run_diagnosis_host.py
+index 913d338dd2f6cf1801c865c7d6a6a1c3d7d35852..2303d90357da536495864d38c02a2ab079036126 100644
+--- a/tools/r30-repair/run_diagnosis_host.py
++++ b/tools/r30-repair/run_diagnosis_host.py
+@@ -10,8 +10,8 @@ assert (classes.is_dir() or classes.is_file()) and jdbc.is_file()
+ def run(argv):subprocess.run([str(a) for a in argv],cwd=root,check=True)
+ with tempfile.TemporaryDirectory(prefix='fr-diagnosis-') as temporary:
+  out=pathlib.Path(temporary);pure=out/'pure';pure.mkdir()
+- run(['javac','-encoding','UTF-8','-d',pure,*sorted((plan/'verification/adapters').rglob('*.java')),source/'DiagnosisTextSU2.java',source/'UpgradeDiagnosisSU2.java',plan/'verification/DiagnosisMinimalProbe.java',plan/'verification/DiagnosisRenderRegression.java'])
+- run(['java','-cp',pure,'com.ethk3.novaonepro.strategyv2.DiagnosisRenderRegression',root/'tools/strategy_su2/fixtures/r16_diag'])
++ run(['javac','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[classes,sdk])),'-d',pure,*sorted((plan/'verification/adapters').rglob('*.java')),source/'DiagnosisTextSU2.java',source/'UpgradeDiagnosisSU2.java',plan/'verification/DiagnosisMinimalProbe.java',plan/'verification/DiagnosisRenderRegression.java'])
++ run(['java','-cp',os.pathsep.join(map(str,[pure,classes,sdk])),'com.ethk3.novaonepro.strategyv2.DiagnosisRenderRegression',root/'tools/strategy_su2/fixtures/r16_diag'])
+  shim=out/'shim';shim.mkdir()
+  # The report's per-PID observation calls Android Process.myPid. android.jar throws
+  # Stub! on a HOST JVM: adapt only that getter to this actual JVM PID. Java heap and
+diff --git a/tools/r30/qual_host/TenPositionR30HostTest.java b/tools/r30/qual_host/TenPositionR30HostTest.java
+index 50950312a9ff3acd99a1217da1b7afe45bb4192a..7c3dac4d8c7ceecfcd062971b0d432dcc774b005 100644
+--- a/tools/r30/qual_host/TenPositionR30HostTest.java
++++ b/tools/r30/qual_host/TenPositionR30HostTest.java
+@@ -73,6 +73,13 @@ public final class TenPositionR30HostTest {
+                 // R31-B06-C03: a partial issue never advances the complete watermark and is never consumed.
+                 Map<?,?> partial=(Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='atomnet' AND key='ten-position-r30'"));
+                 require(Boolean.FALSE.equals(partial.get("consumable"))&&((Number)partial.get("partialPositionsCommitted")).longValue()==STOP_POSITION&&((Number)partial.get("completeTrainedThroughOrdinal")).longValue()==TargetIssueResolver.sequenceOrdinalSU1(issue(80))/* 81 is the unregistered in-flight input, never learned */,"PARTIAL_ISSUE_ADVANCED_COMPLETE_WATERMARK");
++                {
++                String target=issue(83);
++                System.out.println("R335_PARTIAL_PUBLICATION_READBACK completeOrdinal="+TargetIssueResolver.sequenceOrdinalSU1(issue(80))+" partialOrdinal="+TargetIssueResolver.sequenceOrdinalSU1(issue(82))+" learnerPosition="+rt.atomSessionR30.nextPosition+" learnerConsumable="+rt.atomSessionR30.consumableR31()+" currentLearnerModel="+StatsR27.sha256(rt.atomSessionR30.trainer.net.encode()));
++                try(android.database.Cursor rows=db.rawQuery("SELECT f.position,f.model_hash,f.trained_through_ordinal,f.frozen_at,f.deadline_at,EXISTS(SELECT 1 FROM r31_atomnet_publication p WHERE p.model_hash=f.model_hash AND p.status='PUBLISHED') FROM r30_atomnet_forecast f WHERE target_issue=? ORDER BY position",new String[]{target})){
++                    while(rows.moveToNext())System.out.println("R335_SIGNED_MODEL_ROW position="+rows.getInt(0)+" model="+rows.getString(1)+" trainedThroughOrdinal="+rows.getLong(2)+" frozen="+rows.getLong(3)+" deadline="+rows.getLong(4)+" hasPublishedParent="+rows.getInt(5));
++                }
++                }
+                 require("0".equals(text(db,"SELECT count(*) FROM r30_atomnet_forecast WHERE target_issue='"+issue(83)+"'")),"PARTIAL_MODEL_CONSUMED");
+                 byte[] committedState=resolved(db);AtomNetSessionR30 expected=AtomNetSessionR30.decode(committedState,StatsR27.sha256(committedState));
+                 ReplayDatasetR27 data=StoreR27.loadDataset(db,100);AtomReplayR27.Frame frame=AtomReplayR27.build(data,81,82);
+diff --git a/tools/r31/host/R31ServiceProtocolHost.java b/tools/r31/host/R31ServiceProtocolHost.java
+index ccc70e690c1d4a2bb5b329adb19120adc76a27e0..8c1a46d99e6f31776803860e048734b055091c3b 100644
+--- a/tools/r31/host/R31ServiceProtocolHost.java
++++ b/tools/r31/host/R31ServiceProtocolHost.java
+@@ -28,17 +28,17 @@ public final class R31ServiceProtocolHost {
+     private static void set(Object target,String name,Object value)throws Exception{Field f=DatabaseCoordinator.class.getDeclaredField(name);f.setAccessible(true);f.set(target,value);}
+     private static long scalar(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){need(c.moveToFirst(),sql);return c.getLong(0);}}
+     private static Models.Draw draw(String issue){Models.Draw d=new Models.Draw();d.issue=issue;d.openTime=10000;d.fetchTime=10010;d.sourceLine="HOST";for(int i=0;i<10;i++)d.numbers[i]=i+1;return d;}
+-    private static void insertDraw(SQLiteDatabase db,Models.Draw draw){Object[] args=new Object[16];args[0]=draw.issue;args[1]=draw.openTime;args[2]=draw.fetchTime;args[3]=draw.fetchTime;args[4]=DrawHashR36.sha256V2(draw);for(int i=0;i<10;i++)args[i+5]=draw.numbers[i];args[15]=0;db.execSQL("INSERT INTO draws VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",args);db.execSQL("INSERT INTO "+DbHelper.TABLE_R811_DRAW_CANONICAL+" VALUES(?,'CONFIRMED_CANONICAL_DRAW',?)",new Object[]{draw.issue,DrawHashR36.sha256V2(draw)});}
++    private static void insertDraw(SQLiteDatabase db,Models.Draw draw){Object[] args=new Object[16];args[0]=draw.issue;args[1]=draw.openTime;args[2]=draw.fetchTime;args[3]=draw.fetchTime;args[4]=DrawHashR36.sha256V2(draw);for(int i=0;i<10;i++)args[i+5]=draw.numbers[i];args[15]=0;db.execSQL("INSERT INTO draws(issue,open_time,fetch_time,first_seen_at,draw_hash_v2,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,dirty) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",args);db.execSQL("INSERT INTO "+DbHelper.TABLE_R811_DRAW_CANONICAL+" VALUES(?,'CONFIRMED_CANONICAL_DRAW',?)",new Object[]{draw.issue,DrawHashR36.sha256V2(draw)});}
+     private static void schema(SQLiteDatabase db){
+         db.beginTransaction();try{
+             RuntimeSchemaR26.ensure(db);for(String sql:SchemaR27.R31_WRITE_DDL)db.execSQL(sql);SchemaDomainCoordinatorR926.migrateR31TransportTiming(db);
+             db.execSQL("CREATE TABLE app_state(state_key TEXT PRIMARY KEY,state_value TEXT,updated_at INTEGER)");
+             db.execSQL("CREATE TABLE "+DbHelper.TABLE_B03_TRANSACTION_AUDIT+"(idempotency_key TEXT PRIMARY KEY,operation TEXT,game_code TEXT,target_issue TEXT,transaction_hash TEXT,status TEXT,error_detail TEXT,created_at INTEGER)");
+-            db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,open_time INTEGER,fetch_time INTEGER,first_seen_at INTEGER,draw_hash_v2 TEXT,n1 INTEGER,n2 INTEGER,n3 INTEGER,n4 INTEGER,n5 INTEGER,n6 INTEGER,n7 INTEGER,n8 INTEGER,n9 INTEGER,n10 INTEGER,dirty INTEGER)");
++            db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,open_time INTEGER,fetch_time INTEGER,first_seen_at INTEGER,draw_hash_v2 TEXT,n1 INTEGER,n2 INTEGER,n3 INTEGER,n4 INTEGER,n5 INTEGER,n6 INTEGER,n7 INTEGER,n8 INTEGER,n9 INTEGER,n10 INTEGER,dirty INTEGER,draw_hash_version INTEGER NOT NULL DEFAULT 2)");
+             db.execSQL("CREATE VIEW "+DrawDependencyInputCP12.SOURCE+" AS SELECT * FROM draws");
+             db.execSQL("CREATE TABLE "+DbHelper.TABLE_R811_DRAW_CANONICAL+"(target_issue TEXT PRIMARY KEY,status TEXT,canonical_draw_hash TEXT)");
+             db.execSQL("CREATE TABLE "+DbHelper.TABLE_R36_SETTLEMENT_TASK+"(target_issue TEXT PRIMARY KEY,draw_issue TEXT,status TEXT,created_at INTEGER,updated_at INTEGER,completed_at INTEGER,lease_owner TEXT,lease_until INTEGER,attempts INTEGER,next_attempt_at INTEGER,draw_hash TEXT,settlement_hash TEXT,last_error TEXT,task_class TEXT,priority INTEGER,terminal_code TEXT,source TEXT,lease_generation INTEGER DEFAULT 0,process_boot_id TEXT DEFAULT '',last_progress_at INTEGER DEFAULT 0,eligibility TEXT,failure_class TEXT)");
+-            db.execSQL("CREATE TABLE "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+"(target_issue TEXT PRIMARY KEY,base_issue TEXT,position INTEGER,n1 INTEGER,n2 INTEGER,n3 INTEGER,selected_hit_p REAL,created_at INTEGER,commit_at INTEGER,record_hash TEXT,pre_draw_frozen INTEGER,model_proven INTEGER,settled INTEGER,history_hash TEXT,snapshot_hash TEXT,action_space_hash TEXT,game_code TEXT,history_max_issue TEXT,actual_number INTEGER,hit_label INTEGER,settled_at INTEGER,settlement_hash TEXT,error_code TEXT)");
++            db.execSQL("CREATE TABLE "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+"(target_issue TEXT PRIMARY KEY,base_issue TEXT,position INTEGER,n1 INTEGER,n2 INTEGER,n3 INTEGER,selected_hit_p REAL,created_at INTEGER,commit_at INTEGER,record_hash TEXT,pre_draw_frozen INTEGER,model_proven INTEGER,settled INTEGER,history_hash TEXT,snapshot_hash TEXT,action_space_hash TEXT,game_code TEXT,history_max_issue TEXT,actual_number INTEGER,hit_label INTEGER,settled_at INTEGER,settlement_hash TEXT,error_code TEXT,deadline_at INTEGER)");
+             db.execSQL("CREATE TABLE "+DbHelper.TABLE_R35_OOS_LABEL+"(target_issue TEXT PRIMARY KEY,game_code TEXT,base_issue TEXT,position INTEGER,n1 INTEGER,n2 INTEGER,n3 INTEGER,selected_hit_p REAL,actual_number INTEGER,hit_label INTEGER,strict_oos INTEGER,pre_draw_frozen INTEGER,prediction_created_at INTEGER,draw_open_time INTEGER,settled_at INTEGER,brier REAL,provenance_hash TEXT,record_hash TEXT,error_code TEXT)");
+             db.execSQL("CREATE TABLE "+SchemaRevisionR925.TABLE_FETCH_LEDGER+"(request_id TEXT PRIMARY KEY,method TEXT,endpoint TEXT,request_at INTEGER,status TEXT,error_code TEXT,clock_epoch TEXT,label_version TEXT,request_role TEXT,response_at INTEGER,received_at INTEGER DEFAULT 0,latency_ms INTEGER,http_code INTEGER,response_hash TEXT,payload_hash TEXT,received_mono_ms INTEGER,received_boot_id TEXT)");
+             db.setTransactionSuccessful();
+diff --git a/tools/r31/host/R31TaskRuntimeHost.java b/tools/r31/host/R31TaskRuntimeHost.java
+index de882eda22bd55ee1627ca8f89711323d59e0ae9..538a928d20e7e212e348b5b50b40cc76d153e4be 100644
+--- a/tools/r31/host/R31TaskRuntimeHost.java
++++ b/tools/r31/host/R31TaskRuntimeHost.java
+@@ -24,7 +24,7 @@ public final class R31TaskRuntimeHost {
+     static <T>T tx(Tx<T> action)throws Exception{db.beginTransaction();try{T result=action.call();db.setTransactionSuccessful();return result;}finally{db.endTransaction();}}
+     static void add(String id){db.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',1)",new Object[]{id,id});}
+     static RuntimeCoordinatorR26.Claim claim(String task,String owner)throws Exception{return tx(()->RuntimeCoordinatorR26.claimWithinR31(db,task,owner,"R27",null));}
+-    static void receipt(RuntimeCoordinatorR26.Claim claim,Throwable failure,long units)throws Exception{record.invoke(pool,claim.task,new ResearchPoolR27.Outcome(units,units>0?null:"WAITING_NEW_DRAW",claim.cursor,-1),failure,null,claim,"HOST_INJECTED",1L);}
++    static void receipt(RuntimeCoordinatorR26.Claim claim,Throwable failure,long units)throws Exception{record.invoke(pool,claim.task,new ResearchPoolR27.Outcome(units,units>0?null:"WAITING_NEW_DRAW",claim.cursor,-1),failure,null,200,claim,"HOST_INJECTED",1L);}
+     static void staleAndClock()throws Exception{
+         add("host-fenced");RuntimeCoordinatorR26.Claim old=claim("host-fenced","owner-A");need(old!=null,"initial claim");
+         db.execSQL("UPDATE r26_task SET lease_until=-86400000 WHERE task_id='host-fenced'");
+diff --git a/tools/r31/host_runtime_fixture.py b/tools/r31/host_runtime_fixture.py
+index 57baf5343ff1fcf44184e5e2f8908c8289e3657d..38015f0214948d139845c346aa769f229380baaf 100644
+--- a/tools/r31/host_runtime_fixture.py
++++ b/tools/r31/host_runtime_fixture.py
+@@ -39,7 +39,7 @@ def compile_owned_platform(root, output, classes, sdk):
+         "android/system/Os.java":'''package android.system;public final class Os{private static final java.util.Map<java.io.FileDescriptor,java.nio.channels.FileChannel> files=new java.util.IdentityHashMap<>();public static synchronized java.io.FileDescriptor open(String path,int flags,int mode)throws ErrnoException{try{java.io.FileDescriptor key=new java.io.FileDescriptor();files.put(key,java.nio.channels.FileChannel.open(java.nio.file.Paths.get(path),java.nio.file.StandardOpenOption.READ));return key;}catch(java.io.IOException error){throw new ErrnoException(error.toString(),1);}}public static synchronized void fsync(java.io.FileDescriptor key)throws ErrnoException{try{java.nio.channels.FileChannel channel=files.get(key);if(channel==null)throw new java.io.IOException("UNKNOWN_HOST_DESCRIPTOR");channel.force(true);}catch(java.io.IOException error){throw new ErrnoException(error.toString(),1);}}public static synchronized void close(java.io.FileDescriptor key)throws ErrnoException{try{java.nio.channels.FileChannel channel=files.remove(key);if(channel!=null)channel.close();}catch(java.io.IOException error){throw new ErrnoException(error.toString(),1);}}}''',
+         "android/os/SystemClock.java": 'package android.os;public final class SystemClock{public static long elapsedRealtime(){return System.nanoTime()/1000000L;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime()/1000000L;}}',
+         "android/os/Debug.java": 'package android.os;public final class Debug{public static long threadCpuTimeNanos(){return java.lang.management.ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime();}}',
+-        "android/os/Process.java": 'package android.os;public final class Process{public static final int THREAD_PRIORITY_BACKGROUND=10;public static void setThreadPriority(int priority){}}',
++        "android/os/Process.java": 'package android.os;public final class Process{public static int myPid(){return Math.toIntExact(java.lang.ProcessHandle.current().pid());} public static final int THREAD_PRIORITY_BACKGROUND=10;public static void setThreadPriority(int priority){}}',
+         "android/os/Looper.java": 'package android.os;public final class Looper{public static Looper myLooper(){return null;}public static Looper getMainLooper(){return null;}}',
+         "android/util/Log.java": 'package android.util;public final class Log{public static int w(String t,String m){return 0;}public static int w(String t,String m,Throwable e){return 0;}public static int e(String t,String m){return 0;}public static int e(String t,String m,Throwable e){return 0;}public static int d(String t,String m){return 0;}public static int i(String t,String m){return 0;}}',
+         "com/ethk3/novaonepro/DbHelper.java": 'package com.ethk3.novaonepro;import android.database.sqlite.SQLiteDatabase;public final class DbHelper{private final SQLiteDatabase db;public Runnable beforeWritable;public DbHelper(SQLiteDatabase db){this.db=db;}public SQLiteDatabase getReadableDatabase(){return db;}public SQLiteDatabase getWritableDatabase(){if(beforeWritable!=null)beforeWritable.run();return db;}public void close(){}}',
+diff --git a/tools/r31/run_write_protocol_host.py b/tools/r31/run_write_protocol_host.py
+index 76f7644321b6bdf2e603d34a0141b74d030c12fd..f10323d80d477949a9053a31d7f52ca792ef67c4 100644
+--- a/tools/r31/run_write_protocol_host.py
++++ b/tools/r31/run_write_protocol_host.py
+@@ -84,6 +84,7 @@ with (contextlib.nullcontext(str(options.prepare_contention.resolve())) if optio
+         target.write_text(text)
+         shim_files.append(target)
+     adapters = {
++        "android/os/Process.java": "package android.os;public final class Process{public static int myPid(){return Math.toIntExact(java.lang.ProcessHandle.current().pid());}}",
+         "android/content/Context.java": '''package android.content;public class Context{public java.io.File getDatabasePath(String name){throw new IllegalStateException("HOST_PATH_REQUIRED");}public Context getApplicationContext(){return this;}}''',
+         "android/app/Application.java": '''package android.app;public class Application extends android.content.Context{private final java.io.File path;public Application(java.io.File path){this.path=path;}@Override public java.io.File getDatabasePath(String name){return path;}}''',
+         "android/os/SystemClock.java": '''package android.os;public final class SystemClock{public static long elapsedRealtime(){return System.nanoTime()/1000000;}public static long uptimeMillis(){return elapsedRealtime();}public static long currentThreadTimeMillis(){return elapsedRealtime();}}''',
+diff --git a/tools/r31/unified_host/LifecycleSchemaR31Host.java b/tools/r31/unified_host/LifecycleSchemaR31Host.java
+index e0806eb478e3533bb204b1b840cea98c6e00c761..072dec37ebc60c3e08bbf8d84d3b63728e4d8617 100644
+--- a/tools/r31/unified_host/LifecycleSchemaR31Host.java
++++ b/tools/r31/unified_host/LifecycleSchemaR31Host.java
+@@ -11,11 +11,11 @@ import java.util.*;
+ public final class LifecycleSchemaR31Host {
+     static int assertions;
+     static void need(boolean value,String message){assertions++;if(!value)throw new AssertionError(message);}
+-    public static String[] fixture(){return new String[]{
++    public static String[] fixture(){java.util.List<String> defs=new java.util.ArrayList<>(java.util.Arrays.asList(new String[]{
+         "CREATE TABLE IF NOT EXISTS r31_keep_owner_fixture(id INTEGER PRIMARY KEY,value TEXT NOT NULL DEFAULT 'Ready ; IF NOT EXISTS X')",
+         "CREATE INDEX IF NOT EXISTS r31_keep_owner_index ON r31_keep_owner_fixture(value) WHERE value='Ready ; IF NOT EXISTS X'",
+         "CREATE TRIGGER IF NOT EXISTS r31_keep_owner_guard BEFORE UPDATE ON r31_keep_owner_fixture WHEN OLD.value='Original owner' BEGIN SELECT RAISE(ABORT,'Owner Literal ; IF NOT EXISTS'); END"
+-    };}
++    })); java.util.Collections.addAll(defs,com.ethk3.novaonepro.strategyv2.ResearchActionSchemaR33.DDL); java.util.Collections.addAll(defs,com.ethk3.novaonepro.strategyv2.DiagnosisSchemaR335.DDL); return defs.toArray(new String[0]);}
+     static class Db extends SQLiteDatabase {
+         int schemaStatements;String blocked="";
+         Db(Connection connection){super(connection);}
+@@ -32,7 +32,7 @@ public final class LifecycleSchemaR31Host {
+             need(db.schemaStatements<=1,"one actual DDL statement per committed unit");db.setTransactionSuccessful();return result;
+         }finally{db.endTransaction();}
+     }
+-    static void finish(Db db)throws Exception{for(int i=0;i<12;i++)if(unit(db).ready)return;throw new AssertionError("owner did not finish");}
++    static void finish(Db db)throws Exception{for(int i=0;i<fixture().length+12;i++)if(unit(db).ready)return;throw new AssertionError("owner did not finish");}
+     static Db open(File path)throws Exception{return new Db(DriverManager.getConnection("jdbc:sqlite:"+path));}
+     static void setup(Db db){SchemaDomainCoordinatorR926.ensureInfrastructure(db);db.execSQL("CREATE TABLE protected_critical_fixture(id INTEGER PRIMARY KEY,value TEXT NOT NULL)");db.execSQL("INSERT INTO protected_critical_fixture VALUES(1,'Original owner')");}
+     static void kill(File path,String point)throws Exception{
+@@ -84,7 +84,8 @@ public final class LifecycleSchemaR31Host {
+             try(Db db=open(killed)){
+                 finish(db);need(LifecycleSchemaR31.ready(db),"fresh process resumes at "+point);
+                 need(scalar(db,"SELECT count(*) FROM protected_critical_fixture WHERE value='Original owner'")==1,"original row survives real process death");
+-                need(scalar(db,"SELECT count(*) FROM v57_schema_migration_journal_r926 WHERE domain='RESEARCH_R31_LIFECYCLE' AND status='COMPLETED'")==3,"exactly one durable receipt per object after restart");
++                need(scalar(db,"SELECT count(*) FROM v57_schema_migration_journal_r926 WHERE domain='RESEARCH_R31_LIFECYCLE' AND step_id LIKE 'OBJECT:r31_keep_owner_%' AND status='COMPLETED'")==3,"exactly one durable receipt for each of the original three declared objects after restart");
++                need(scalar(db,"SELECT count(*) FROM v57_schema_migration_journal_r926 WHERE domain='RESEARCH_R31_LIFECYCLE' AND status='COMPLETED'")==fixture().length,"exactly one durable receipt per object after restart");
+             }
+         }
+         need(criticalCommits==3,"three actual independent commits");

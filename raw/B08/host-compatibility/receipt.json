@@ -1,0 +1,102 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "originalGateSummary": "9dd4f17ba4a2a86f5bc41bf00c8192553df50712c9a492578d6083d7a02ec924",
+  "modifiedTestTransport": [
+    "tools/r30-repair/run_diagnosis_host.py",
+    "tools/r30/qual_host/TenPositionR30HostTest.java",
+    "tools/r31/host/R31ServiceProtocolHost.java",
+    "tools/r31/host/R31TaskRuntimeHost.java",
+    "tools/r31/host_runtime_fixture.py",
+    "tools/r31/run_write_protocol_host.py",
+    "tools/r31/unified_host/LifecycleSchemaR31Host.java"
+  ],
+  "transportDiffSha256": "ab3ed5a24e1420f9432218cdd92dbf0e7cb8760b3ed2229a4db837a0157e5c6d",
+  "scope": "Additional native JVM/SQLite diagnostic only. All original B08 failures and assertions preserved.",
+  "cases": [
+    {
+      "id": "run_runtime_ddl_writer_regression",
+      "exit": 1,
+      "elapsed": 10.23,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_runtime_ddl_writer_regression"
+      ],
+      "path": "run_runtime_ddl_writer_regression.log",
+      "sha256": "f05ea51c1d1a64bb31592e3ef20f640f03f06d607d8d8fb42e363d1864b11f11"
+    },
+    {
+      "id": "run_write_protocol_host",
+      "exit": 0,
+      "elapsed": 10.29,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_write_protocol_host"
+      ],
+      "path": "run_write_protocol_host.log",
+      "sha256": "77998634b7955b4ff70acf87ff1cd04cc9f3de371e9ad23547e77fec43cb577a"
+    },
+    {
+      "id": "run_service_protocol_host",
+      "exit": 1,
+      "elapsed": 9.1,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_service_protocol_host"
+      ],
+      "path": "run_service_protocol_host.log",
+      "sha256": "987cb9e5d9c3682a7ef9d0f24517f8870bc402423afbc77571260c3796d9cfed"
+    },
+    {
+      "id": "run_writer_hold_fault_host",
+      "exit": 0,
+      "elapsed": 22.19,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_writer_hold_fault_host"
+      ],
+      "path": "run_writer_hold_fault_host.log",
+      "sha256": "737267d7650b387e72ad2042b82352490d34e748062d25bc67aacde8cb9daeb3"
+    },
+    {
+      "id": "r30repair_diagnosis",
+      "exit": 1,
+      "elapsed": 1.11,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "r30repair_diagnosis"
+      ],
+      "path": "r30repair_diagnosis.log",
+      "sha256": "641bc0732ff06609b66d389a2ace1f30e64fa9cf2d7f3efe6d9bf0b3a48cd7af"
+    },
+    {
+      "id": "r30repair_neural",
+      "exit": 1,
+      "elapsed": 2.95,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "r30repair_neural"
+      ],
+      "path": "r30repair_neural.log",
+      "sha256": "68aeb72864c76970a18812ba4d4378a7431821da7f6af2b169d343d52f264a15"
+    },
+    {
+      "id": "run_lifecycle_schema_host",
+      "exit": 1,
+      "elapsed": 3.32,
+      "command": [
+        "bash",
+        "tools/r312/host.sh",
+        "run_lifecycle_schema_host"
+      ],
+      "path": "run_lifecycle_schema_host.log",
+      "sha256": "3b9614285c1f748a32e2489c1b33455ecfe6178a38f918dbcc94965c9dfd3812"
+    }
+  ]
+}

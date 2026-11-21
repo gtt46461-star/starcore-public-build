@@ -1,11 +1,9 @@
-# STARCORE R33.5 施工与收件台账
+# STARCORE R33.5 施工与交付
 
-最终应用源提交是 `9e186d256f8de5ec00b5c20c6e509ee1d5bb983f`，最终版本码是 `577311052`。原签 APK、源码 ZIP、可从空库恢复的 Git bundle、原始 Gradle 日志及总 ZIP 随各批 GitHub Release 交付。每个已接收的文件在下载清单中都有地址和 SHA-256。[九批收件及下载索引](ledgers/deliveries-and-hashes.json)
+最终 Android 包为 `com.starcore.research.r13`，版本码 `577311058`。APK 内嵌的源码提交是 `69eab914678bc988b71f2d7ce2287ccf89bd49eb`，Git 树是 `1f6452db1d192c98e7463d52a07887e60c5fc64d`。各批原签 APK、源码 ZIP、完整历史 Git bundle、原始 Gradle 日志和总 ZIP 都已从各批 GitHub Release 下载核对。[最终交付表](最终交付.md) · [全部下载地址和 SHA-256](ledgers/deliveries-and-hashes.json) · [九批原验收器回执](ledgers/nine-signed-deliveries.json)
 
-66 行工单表列出问题、所属批次、实际提交、改动路径和证据位置。详细 JSON 保留 365 项原附件的绑定、逐项前后态、原卡验收入口、宿主测试命令及退出码。各批的 `compiled-callers.json.gz` 从实际 APK 的编译索引提取直接调用方和被调用方，附类名、方法描述符、源文件与行号。[工单 CSV](ledgers/work-orders.csv) · [完整工单 JSON](ledgers/work-orders.json)
+施工从正式 033 的 `bb7b49bbcc9266bad548ec37e71403256fc06a4d` 开始，原审定方案是 `6d23ddc26e2a827daca7efaf55801e90ccd5feb6`。原签现场授权环境独立构建每批版本，接收端核对 APK 证书、内嵌来源、Git 树和升级前安装版本。两份历史 033 原报告记录的 `577311033` 用作源码版本下限。目标 vivo V2353A 本次的实际安装版仍缺现场读取。[最终应用源码](https://github.com/gtt46461-star/starcore-public-build/tree/69eab914678bc988b71f2d7ce2287ccf89bd49eb) · [最终方案修订](https://github.com/gtt46461-star/starcore-public-build/tree/0780c7f4317ddf839e9c78a45fe18fd1859b7c87/construction/plans/STARCORE_R33_5_REVIEW_20261119)
 
-正式 033 基线为 `bb7b49bbcc9266bad548ec37e71403256fc06a4d`。指定方案为 `6d23ddc26e2a827daca7efaf55801e90ccd5feb6`。施工中保留了原 164 次操作和 138 条路径，因实际 Android 回归另登记了三份资源或测试材料。有效安装清单现有 167 次操作、141 条路径。P00 另有 AGP 应用脚本类路径补正。源码版本事务保留了两份正式 033 原报告记录的安装下限 577311033，现场 vivo 的实际安装版待核。修订后的 B01 至 B08 避开先前实物已分配的版本码，从 045 连续到 052。[发布源码](https://github.com/gtt46461-star/starcore-public-build/tree/9e186d256f8de5ec00b5c20c6e509ee1d5bb983f) · [施工修订及失败原件](https://github.com/gtt46461-star/starcore-public-build/tree/05d33dffcd594c4b3d3aa3ab5456f4257aa47455/construction/plans/STARCORE_R33_5_REVIEW_20261119/verification/20261121-source-repairs)
+原审定的 66 个工单、365 项附件、164 次操作和 138 条路径均已保留。为处理实际回归，修订后的受控操作共 169 次，覆盖 143 条路径。另行记录了四文件版本事务及 P00 的 AGP 加载修正。B05 修复首行超限阻断后续分页，B07 修复生产报告的矩阵引用在写入调度原件后失效。台账逐单记录源码前后态、方法、编译调用者、测试及尚缺的现场证据。[66 行工单表](ledgers/work-orders.csv) · [带附件的工单明细](ledgers/work-orders.json) · [逐路径真实 Git 差异摘要](raw/B08/real-git-changes.json)
 
-修订版 Android 构建采用 `46a5f30001f7be28132f07d5a1bec779951b262e` 的已审生产全文和原方案绑定。接收端的 `05d33dffcd594c4b3d3aa3ab5456f4257aa47455` 增补了 B02 探针的测试输入校验，实际应用树及生产安装清单相同。两个时点的 B08 安装器和累计源码回执均保留。[B08 原件目录](raw/B08) · [原签构建](https://github.com/gtt46461-star/starcore-public-build/actions/runs/44848002916) · [Android 连续覆盖升级](https://github.com/gtt46461-star/starcore-public-build/actions/runs/44848002681)
-
-目标现场为 vivo V2353A、Android 14。模拟器回执明确记录设备类型。自然资格按 R27 和 SU2 各自协议审阅。未测样本、未取回原件和未验证的效果在对应台账登记。[现场复核入口](恢复与现场验收.md)
+完整模式终审结果、独立通过数和未通过项见五份逐项台账。Android 模拟器上的实际覆盖升级、文件选择器导出、受控故障和实时观测均附运行来源。目标手机 24/72 小时与 R27、SU2 的自然资格分别登记。[终审汇总](ledgers/final-summary.json) · [原终审返回](raw/B08/full-final-review.json) · [恢复与现场命令](恢复与现场验收.md)

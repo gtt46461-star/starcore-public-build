@@ -1,0 +1,50 @@
+{
+  "id": "R31-B00-C02#A3",
+  "approvedOriginalText": "错误事件写入故障不会让真实交易回滚；下一次报告显示telemetry_incomplete及丢样数。",
+  "contractSha256": "24ce2aa690f02e4fa12067a5ee6f7c01d0a0e5da202af2fa9a95344059ee3ba9",
+  "role": "LOCAL",
+  "namedTests": [
+    {
+      "test": "HOST:run_telemetry_budget_host",
+      "log": "current-original-gate-bound/logs/host_run_telemetry_budget_host.log",
+      "sha256": "84533fb64c439a829af5e510457e5f7fca9a37efb6ff0c7aaddfd4e4fe0c3934",
+      "gateSummary": "current-original-gate-bound/BUILD_SUMMARY.json",
+      "exit": 0,
+      "original": {
+        "path": "receipts/original-clauses/current-original-gate-bound/logs/host_run_telemetry_budget_host.log",
+        "sha256": "84533fb64c439a829af5e510457e5f7fca9a37efb6ff0c7aaddfd4e4fe0c3934",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      },
+      "summary": {
+        "path": "receipts/original-clauses/current-original-gate-bound/BUILD_SUMMARY.json",
+        "sha256": "9dd4f17ba4a2a86f5bc41bf00c8192553df50712c9a492578d6083d7a02ec924",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      }
+    },
+    {
+      "test": "com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest#actualReportTaskChapterExportsFaultsLinksAndIncompleteCounters",
+      "log": "final-unit-originals/TEST-com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest.xml",
+      "sha256": "1bda7f11492ca5812cf167b2fa219d4d7bbb089916fbaa6f709fe04394a770a1",
+      "methodSource": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31FaultObservationContractTest.java",
+      "methodSourceSha256": "5bcd36ff333a29c8b53956eb7c38591da45b76f15a81703a67bbb4c059cf2395",
+      "seconds": "0.005",
+      "result": "PASS",
+      "original": {
+        "path": "receipts/original-clauses/final-unit-originals/TEST-com.ethk3.novaonepro.strategyv2.R31FaultObservationContractTest.xml",
+        "sha256": "1bda7f11492ca5812cf167b2fa219d4d7bbb089916fbaa6f709fe04394a770a1",
+        "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+        "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+      }
+    }
+  ],
+  "missingBindings": [
+    "HOST:run_write_protocol_host"
+  ],
+  "semanticReviewSelected": true,
+  "fullyCoveredByCurrentTests": false,
+  "bindingFile": "construction/r31/batches/K01/BINDINGS.json",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+}

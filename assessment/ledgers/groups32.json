@@ -1,0 +1,330 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "rows": [
+    {
+      "id": "B01.1",
+      "status": "BLOCKED",
+      "name": "暂停可取回且退避有效",
+      "anchor": "ReportExportServiceCP4#onStartCommand / ReportJobJournalCP12",
+      "reason": "仍未通过的断言为 B01.1.POS, B01.1.NEG, B01.1.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B01.2",
+      "status": "BLOCKED",
+      "name": "真实预算和阶段增量",
+      "anchor": "StorageBudgetR31 / ReportPhaseBudgetR31",
+      "reason": "仍未通过的断言为 B01.2.POS, B01.2.NEG, B01.2.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B01.3",
+      "status": "BLOCKED",
+      "name": "保留与可回收对象",
+      "anchor": "CheckpointGcStoreR31 / StorageMaintenanceFileR82",
+      "reason": "仍未通过的断言为 B01.3.POS, B01.3.NEG, B01.3.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B01.4",
+      "status": "BLOCKED",
+      "name": "完整包和诊断包真实边界",
+      "anchor": "DatabaseBackupManifestR926 / ReportPublicationCP12 / ReportAttachmentClosureCP12",
+      "reason": "仍未通过的断言为 B01.4.POS, B01.4.NEG",
+      "evidence": [
+        "envelopes/B01.4.TRACE.json"
+      ]
+    },
+    {
+      "id": "B02.1",
+      "status": "BLOCKED",
+      "name": "主进程写者和研究存活",
+      "anchor": "WriterHoldFaultsR31 / DatabaseCoordinator / AutoFetchService",
+      "reason": "仍未通过的断言为 B02.1.POS, B02.1.NEG, B02.1.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B02.2",
+      "status": "BLOCKED",
+      "name": "赛前决策和单期冻结",
+      "anchor": "BusinessReconcilerR36 / V51RuntimeOrchestrator / AnalysisSingleFlightR36",
+      "reason": "仍未通过的断言为 B02.2.POS, B02.2.NEG, B02.2.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B02.3",
+      "status": "BLOCKED",
+      "name": "开奖结算与反馈交接",
+      "anchor": "SettlementEngine / CanonicalObservationWriterR36 / OosAfterDrawWriterR36",
+      "reason": "仍未通过的断言为 B02.3.POS, B02.3.NEG, B02.3.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B02.4",
+      "status": "BLOCKED",
+      "name": "后台覆盖与时延",
+      "anchor": "AutoFetchService / RealtimeTaskScheduler / RuntimeHealthLedgerR36",
+      "reason": "仍未通过的断言为 B02.4.POS, B02.4.NEG, B02.4.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B03.1",
+      "status": "BLOCKED",
+      "name": "ABI安全重生与空工厂激活",
+      "anchor": "FoundryCampaignR26#step / WarmCandidateR26",
+      "reason": "仍未通过的断言为 B03.1.POS, B03.1.NEG, B03.1.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B03.2",
+      "status": "BLOCKED",
+      "name": "历史重放和角色隔离",
+      "anchor": "ReplayDatasetR27 / RuntimeR27 / ResearchInputPinR30R1",
+      "reason": "仍未通过的断言为 B03.2.POS, B03.2.NEG, B03.2.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B03.3",
+      "status": "BLOCKED",
+      "name": "逐策略训练和反馈消费",
+      "anchor": "FoundryCampaignR26 / StatsR27 / StoreR27",
+      "reason": "仍未通过的断言为 B03.3.POS, B03.3.NEG, B03.3.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B03.4",
+      "status": "BLOCKED",
+      "name": "进化变异融合及淘汰",
+      "anchor": "EvolutionLoopR27 / BirthGateR27 / FusionOpsR27",
+      "reason": "仍未通过的断言为 B03.4.POS, B03.4.NEG, B03.4.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B04.1",
+      "status": "BLOCKED",
+      "name": "样本物化与竞态",
+      "anchor": "AtomNetRuntimeR30 / AtomNetPublicationR31",
+      "reason": "仍未通过的断言为 B04.1.POS, B04.1.NEG, B04.1.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B04.2",
+      "status": "BLOCKED",
+      "name": "真梯度与整期状态",
+      "anchor": "AtomNetSessionR30 / AtomNetTrainerR27 / AtomNetStoreR30",
+      "reason": "仍未通过的断言为 B04.2.NEG",
+      "evidence": [
+        "envelopes/B04.2.POS.json",
+        "envelopes/B04.2.TRACE.json"
+      ]
+    },
+    {
+      "id": "B04.3",
+      "status": "BLOCKED",
+      "name": "模型发布与容量独立",
+      "anchor": "AtomNetPublicationR31 / ModelSurfaceProviderR30",
+      "reason": "仍未通过的断言为 B04.3.POS, B04.3.NEG, B04.3.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B04.4",
+      "status": "BLOCKED",
+      "name": "真实模型消费",
+      "anchor": "ModelSurfaceProviderR30 / IdeaI08NeuralRepresentationR27",
+      "reason": "仍未通过的断言为 B04.4.POS, B04.4.NEG, B04.4.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B05.1",
+      "status": "BLOCKED",
+      "name": "18张图输入与动作",
+      "anchor": "ResearchObservatoryR30R1#step / ResearchContextR30R1 / ResearchConsumptionStore",
+      "reason": "仍未通过的断言为 B05.1.POS, B05.1.NEG, B05.1.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B05.2",
+      "status": "BLOCKED",
+      "name": "原子、矩阵、分子与家族",
+      "anchor": "AtomWorldR27 / MatrixRegistryR30 / MatrixResearchR30R1 / DerivedAtomR27",
+      "reason": "仍未通过的断言为 B05.2.POS, B05.2.NEG, B05.2.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B05.3",
+      "status": "BLOCKED",
+      "name": "16张研究表的有效数据",
+      "anchor": "ResearchTableAdaptersR30R1#readPageR31 / ResearchTableAuditR32#audit",
+      "reason": "仍未通过的断言为 B05.3.POS, B05.3.NEG",
+      "evidence": [
+        "envelopes/B05.3.TRACE.json"
+      ]
+    },
+    {
+      "id": "B05.4",
+      "status": "BLOCKED",
+      "name": "29张统计图与手机显示",
+      "anchor": "ChartRegistryR31 / ChartsRepositoryR83 / ReportChartsR30",
+      "reason": "仍未通过的断言为 B05.4.POS, B05.4.NEG, B05.4.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B06.1",
+      "status": "BLOCKED",
+      "name": "独立冻结、校准与样本",
+      "anchor": "LiveShadowsR27 / CandidateCalibrationR932 / MainlineFreezeProofR31",
+      "reason": "仍未通过的断言为 B06.1.POS, B06.1.NEG, B06.1.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B06.2",
+      "status": "BLOCKED",
+      "name": "发证、拒证与撤销",
+      "anchor": "FixedWindowCertificatePublisherR932 / UnifiedResearchChoiceR932",
+      "reason": "仍未通过的断言为 B06.2.POS, B06.2.NEG, B06.2.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B06.3",
+      "status": "BLOCKED",
+      "name": "证书→唯一主链机会",
+      "anchor": "DecisionGateEngine / MainlineFreezeProofR31 / DbStore",
+      "reason": "仍未通过的断言为 B06.3.POS, B06.3.NEG, B06.3.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B06.4",
+      "status": "BLOCKED",
+      "name": "REAL和质量验真",
+      "anchor": "DecisionGateEngine / SettlementEngine / ReportAssessmentR33",
+      "reason": "仍未通过的断言为 B06.4.POS, B06.4.NEG, B06.4.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B07.1",
+      "status": "BLOCKED",
+      "name": "165对象与可复演根因",
+      "anchor": "ReportSnapshotR30#capture / ReportObjectIndexR30#buildProductionR31",
+      "reason": "仍未通过的断言为 B07.1.NEG, B07.1.TRACE",
+      "evidence": [
+        "envelopes/B07.1.POS.json"
+      ]
+    },
+    {
+      "id": "B07.2",
+      "status": "BLOCKED",
+      "name": "处方与旧报告兼容",
+      "anchor": "RepairDiagnosisR32#build / #attach / DiagnosisRulesR30",
+      "reason": "仍未通过的断言为 B07.2.POS, B07.2.NEG, B07.2.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B07.3",
+      "status": "BLOCKED",
+      "name": "导出过程可诊断",
+      "anchor": "ReportR29#chapters / ReportSemanticVerifierR31",
+      "reason": "仍未通过的断言为 B07.3.POS, B07.3.NEG, B07.3.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B07.4",
+      "status": "BLOCKED",
+      "name": "44指标96核验和真实优化",
+      "anchor": "ReportR29#metrics / ReportAssessmentR33#evaluate",
+      "reason": "仍未通过的断言为 B07.4.POS, B07.4.NEG, B07.4.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B08.1",
+      "status": "BLOCKED",
+      "name": "整机编译签名和覆盖升级",
+      "anchor": "app/build.gradle / tools/r31 / DELIVERY.json",
+      "reason": "仍未通过的断言为 B08.1.NEG",
+      "evidence": [
+        "envelopes/B08.1.POS.json",
+        "envelopes/B08.1.TRACE.json"
+      ]
+    },
+    {
+      "id": "B08.2",
+      "status": "BLOCKED",
+      "name": "接口联调与故障注入",
+      "anchor": "AutoFetchService / ReportExportServiceCP4 / tools/r31",
+      "reason": "仍未通过的断言为 B08.2.POS, B08.2.NEG, B08.2.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    },
+    {
+      "id": "B08.3",
+      "status": "PASS",
+      "name": "原222条履约复核",
+      "anchor": "CURRENT_ACCEPTANCE_222_EXECUTION.json / EXTERNAL_33_CURRENT_EVIDENCE.json",
+      "reason": "三条固定断言均已签收。",
+      "evidence": [
+        "envelopes/B08.3.POS.json",
+        "envelopes/B08.3.NEG.json",
+        "envelopes/B08.3.TRACE.json"
+      ]
+    },
+    {
+      "id": "B08.4",
+      "status": "BLOCKED",
+      "name": "真机持续、自然质量与交付",
+      "anchor": "tools/r31/collect_device_receipts.py / accept_device_receipts.py",
+      "reason": "仍未通过的断言为 B08.4.POS, B08.4.NEG, B08.4.TRACE",
+      "evidence": [
+        "records/scope.json"
+      ]
+    }
+  ]
+}

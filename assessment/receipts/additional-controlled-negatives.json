@@ -1,0 +1,66 @@
+{
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "candidateSource": {
+    "path": "evidence/B08/signed-intake.json",
+    "sha256": "519061a2543e1d639fa11d6fe1a7e822bac77c1d01b57a3515bc6708a07afab9"
+  },
+  "negativeOrigin": "Current release metadata from received signed APK; controlled single-field corruptions passed to the original frozen validation code. Native DIAGNOSTIC bytes from real Android app supplied to the original export parser. No signed APK bytes, original certification material or user database were changed.",
+  "originalToolSha256": "9b2f8d646c5e7aa71a56110dd94ea9f81a9db74954b6b2c6a680e9f48cea79e3",
+  "nativeExportValidatorSha256": "25f75664f00b69693416bcc3766d7a1434ee01ba7816bb40eb3fb52932c2e034",
+  "actualExportSha256": "a55eedf80c50db19aba379deff40edce4e2dcdf69e2aeeb451a14903606486eb",
+  "positiveNative": {
+    "status": "ARTIFACT_CONSISTENT",
+    "phoneExecutionVerified": false,
+    "jobId": "95b84ea75520928539972dfaee98b65199844ee387d408e0a8cd99ee5cb1d805",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+    "profile": "DIAGNOSTIC",
+    "snapshotSha256": "6b0385d191b46a17b6dba9858c541b622543cee4e3029bc575a1da9716137ae6",
+    "zipSha256": "a55eedf80c50db19aba379deff40edce4e2dcdf69e2aeeb451a14903606486eb",
+    "zipBytes": 11035736,
+    "members": 49,
+    "missingCheckpointObjects": 0,
+    "legacyDuplicateNameRows": 0,
+    "sourceClosureVerified": true,
+    "boundary": "EXPORTED_BYTES_AND_REFERENCES_ONLY; NO_DEVICE_TEST_OR_QUALITY_PASS"
+  },
+  "cases": [
+    {
+      "case": "wrong-package",
+      "observed": "REJECTED",
+      "type": "ValueError",
+      "reason": "RELEASE_PACKAGE_MISMATCH"
+    },
+    {
+      "case": "different-certificate",
+      "observed": "REJECTED",
+      "type": "ValueError",
+      "reason": "SIGNER_CHANGED"
+    },
+    {
+      "case": "033-version-in-new-candidate",
+      "observed": "REJECTED",
+      "type": "ValueError",
+      "reason": "RELEASE_VERSION_NOT_HIGHER"
+    },
+    {
+      "case": "diagnostic-cannot-stand-in-for-full-raw",
+      "observed": "REJECTED",
+      "type": "InvalidEvidence",
+      "reason": "EXPECTED_IDENTITY:profile"
+    },
+    {
+      "case": "empty-pseudo-delivery-index",
+      "observed": "REJECTED",
+      "type": "InvalidEvidence",
+      "reason": "ZIP_REQUIRED_MEMBERS:ARCHIVE_MANIFEST.jsonl,R26_FROZEN_SURFACE.json,R26_POLICY_IDENTITIES.jsonl,R26_REPORT.json,R27_REPORT.md,R30_REPORT.json,R30_REPORT.md,R31_SEMANTIC_RECEIPT.json,REPORT_DETAILS.txt,STORAGE_CENSUS.txt,source-manifest.json"
+    },
+    {
+      "case": "development-release-prohibited",
+      "observed": "REJECTED",
+      "reason": "R312_DEVELOPMENT_FORBIDS_RELEASE_SIGNING_APK",
+      "realBuildOutputSha256": "f6015f86fe08d0b894621d09dc2990df7a5a71e4afb317c67a6d51100588896c"
+    }
+  ]
+}

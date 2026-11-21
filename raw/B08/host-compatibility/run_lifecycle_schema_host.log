@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/workspace/r335s/qa-host-work/tools/r31/run_lifecycle_schema_host.py", line 45, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/r335s/qa-host-work/tools/r31/run_lifecycle_schema_host.py", line 41, in main
+    result=run(['java','-Xmx256m','-cp',cp,'com.ethk3.novaonepro.LifecycleSchemaR31Host','run',work/'owner.db'],'run.log')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/r335s/qa-host-work/tools/r31/run_lifecycle_schema_host.py", line 16, in run
+    if r.returncode:raise RuntimeError(name+'\n'+(r.stdout+r.stderr)[-5000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: run.log
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Exception in thread "main" java.lang.AssertionError: exactly one durable receipt per object after restart
+	at com.ethk3.novaonepro.LifecycleSchemaR31Host.need(LifecycleSchemaR31Host.java:13)
+	at com.ethk3.novaonepro.LifecycleSchemaR31Host.main(LifecycleSchemaR31Host.java:87)
+

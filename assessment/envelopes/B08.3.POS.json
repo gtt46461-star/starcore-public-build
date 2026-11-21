@@ -1,0 +1,76 @@
+{
+  "schema": "STARCORE_R33_ASSERTION_EVIDENCE_V2",
+  "groupId": "B08.3",
+  "assertionId": "B08.3.POS",
+  "contractSha256": "2163a25122036f8323d2010ea92aa602f8808b1076c3ad07e650545afebd1390",
+  "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f",
+  "outcome": "PASS",
+  "testName": "Recompute registered current 222/1832 evidence disposition",
+  "expected": "按原ID、原文摘要、原证据角色和本轮主组逐一复核222条及1832项。每项留当前结果、未签理由或完整原件。分别统计文档覆盖、逐项处置和真正通过数。",
+  "observed": "复算全部原身份、角色、证据和缺口；各类缺失、重复和历史代签负例均按详细原件返回。",
+  "environment": "Downloaded B08 candidate, sealed R3 original controls and independent local receiver",
+  "executor": "Version-pinned original score_acceptance, score_final and GitHub Actions build 69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+  "reviewer": "Codex 接收端，依据固定原卷及独立下载的签名候选逐 ID 审阅",
+  "howRecomputed": "重新运行原始 original_index/current_identity/original_reviews，然后检查每个固定子场景的原件定位。",
+  "evidenceKind": "RECORD_REVIEW",
+  "dataRole": "RECORD",
+  "rawArtifacts": [
+    {
+      "path": "records/original-register-comparison.json",
+      "sha256": "aadc839429bf9a4a3e17057a4dcfa3722a0cb1bab5359ed4cc701f6f6a9d6aae",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    },
+    {
+      "path": "records/ledger-recomputed.json",
+      "sha256": "d462f6262064bfb7cde3eb1d6dfe03f97761d0403e918dafd17978f02ee0011d",
+      "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+      "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+    }
+  ],
+  "current222Ledger": {
+    "path": "ledgers/clauses222.json",
+    "sha256": "602d4d93d584ba92c05e5ab7b83cca4892cf57069ca74d57748eaa8241ce9af7",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "current1832Ledger": {
+    "path": "ledgers/requirements1832.json",
+    "sha256": "b07a5784d5581e63b764f753a8ca25c54f4647b9e1e823af4d7a06800b97af69",
+    "sourceCommit": "69eab914678bc988b71f2d7ce2287ccf89bd49eb",
+    "apkSha256": "a8ce8f811af22cd29b14fe46774c32a12565b9a1e5b44b2c801c5412e71ae51f"
+  },
+  "caseResults": [
+    {
+      "caseId": "B08.3.POS.C01",
+      "requirementSha256": "c6a533b28fcca3ee44e92bc69850d9c63cc8164fb6628961b9fdf663b57a8d9f",
+      "outcome": "PASS",
+      "scenario": "222每条原ID原句角色逐项复核",
+      "expected": "222每条原ID原句角色逐项复核",
+      "observed": "原始执行记录已复算，定位见 completeAndUnique222",
+      "rawIndex": 0,
+      "locator": "completeAndUnique222"
+    },
+    {
+      "caseId": "B08.3.POS.C02",
+      "requirementSha256": "89dc9d04541aeedd8e8a37759e8375539fa1698351edfd7ad08a2ba4bb613131",
+      "outcome": "PASS",
+      "scenario": "1832每条原ID原句主组逐项复核",
+      "expected": "1832每条原ID原句主组逐项复核",
+      "observed": "原始执行记录已复算，定位见 completeAndUnique1832",
+      "rawIndex": 0,
+      "locator": "completeAndUnique1832"
+    },
+    {
+      "caseId": "B08.3.POS.C03",
+      "requirementSha256": "ed2b14ef4942aac2d5b67f514770fefed31b9bb466eb0e6b9668e719ef012a64",
+      "outcome": "PASS",
+      "scenario": "文档覆盖处置率与真正通过率独立",
+      "expected": "文档覆盖处置率与真正通过率独立",
+      "observed": "原始执行记录已复算，定位见 fullyEvidenced222/fullyEvidenced1832 versus documentCoverage",
+      "rawIndex": 1,
+      "locator": "fullyEvidenced222/fullyEvidenced1832 versus documentCoverage"
+    }
+  ]
+}

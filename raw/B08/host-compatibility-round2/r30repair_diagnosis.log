@@ -1,0 +1,31 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+/workspace/r335s/qa-host-work/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:978: error: cannot find symbol
+        CommitteeSU2 parent=CommitteeSU2.parse(championText);if(!parent.legalReadoutR26())return null;
+                                                                       ^
+  symbol:   method legalReadoutR26()
+  location: variable parent of type CommitteeSU2
+/workspace/r335s/qa-host-work/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:979: error: cannot find symbol
+        for(ModelGenomeSU2 old:parent.subs)for(ModelGenomeSU2.Member member:old.members)if("CONTMAT".equals(member.kind))return null;
+                                                                               ^
+  symbol:   variable members
+  location: variable old of type ModelGenomeSU2
+/workspace/r335s/qa-host-work/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:979: error: cannot find symbol
+        for(ModelGenomeSU2 old:parent.subs)for(ModelGenomeSU2.Member member:old.members)if("CONTMAT".equals(member.kind))return null;
+                                                             ^
+  symbol:   class Member
+  location: class ModelGenomeSU2
+/workspace/r335s/qa-host-work/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:981: error: cannot find symbol
+        ModelGenomeSU2 sub=new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("CONTMAT",parameters,1.0)),"STATIC",false,"MASS",parent.coverage,.2,true);
+                                                                                          ^
+  symbol:   class Member
+  location: class ModelGenomeSU2
+4 errors
+Traceback (most recent call last):
+  File "/workspace/r335s/qa-host-work/tools/r30-repair/run_diagnosis_host.py", line 13, in <module>
+    run(['javac','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[classes,sdk])),'-d',pure,*sorted((plan/'verification/adapters').rglob('*.java')),source/'DiagnosisTextSU2.java',source/'UpgradeDiagnosisSU2.java',plan/'verification/DiagnosisMinimalProbe.java',plan/'verification/DiagnosisRenderRegression.java'])
+  File "/workspace/r335s/qa-host-work/tools/r30-repair/run_diagnosis_host.py", line 10, in run
+    def run(argv):subprocess.run([str(a) for a in argv],cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['javac', '-encoding', 'UTF-8', '-cp', '/workspace/r335s/qa-host-work/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', '-d', '/tmp/fr-diagnosis-cps7noeu/pure', '/workspace/r335s/qa-host-work/construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/verification/adapters/com/ethk3/novaonepro/strategyv2/CommitteeSU2.java', '/workspace/r335s/qa-host-work/construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/verification/adapters/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java', '/workspace/r335s/qa-host-work/app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTextSU2.java', '/workspace/r335s/qa-host-work/app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java', '/workspace/r335s/qa-host-work/construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/verification/DiagnosisMinimalProbe.java', '/workspace/r335s/qa-host-work/construction/plans/STARCORE_R30_FINAL_REPAIR_20261101/verification/DiagnosisRenderRegression.java']' returned non-zero exit status 1.
