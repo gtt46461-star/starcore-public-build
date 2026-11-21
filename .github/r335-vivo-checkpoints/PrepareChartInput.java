@@ -34,7 +34,7 @@ public class PrepareChartInput {
    for(int index:new int[]{0,2})conn.execSQL(batch.ops.get(index).sql,batch.ops.get(index).args);
   }
   // Android opens the generated file and verifies HEATMAP, LINES and GRAPH with the real blob descriptor.
-  if(args.length==2 && "ANDROID_READER".equals(args[1])){ conn.close(); return; }
+  if(args.length==2 && "ANDROID_READER".equals(args[1])) return;
   Class<?> reader=Class.forName("com.ethk3.novaonepro.ResearchWorkbenchRepositoryR30R1");
   java.lang.reflect.Method load=reader.getDeclaredMethod("load",SQLiteDatabase.class,int.class,android.os.CancellationSignal.class); load.setAccessible(true);
   List<com.ethk3.novaonepro.ResearchVisualDataR82.Panel> panels=(List<com.ethk3.novaonepro.ResearchVisualDataR82.Panel>)load.invoke(null,conn,0,null);

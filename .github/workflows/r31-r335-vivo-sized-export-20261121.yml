@@ -108,7 +108,7 @@ jobs:
           mkdir "$RUNNER_TEMP/size-class"
           android="$ANDROID_HOME/platforms/android-35/android.jar"
           test -f "$android" || "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35'
-          javac -cp "$android" -d "$RUNNER_TEMP/size-class" .github/r335-vivo-sized-export/SizeFixture.java
+          javac --release 11 -cp "$android" -d "$RUNNER_TEMP/size-class" .github/r335-vivo-sized-export/SizeFixture.java
           "$ANDROID_HOME/build-tools/35.0.0/d8" --min-api 26 --lib "$android" --output "$RUNNER_TEMP/size-fixture.jar" "$RUNNER_TEMP/size-class/SizeFixture.class"
       - uses: reactivecircus/android-emulator-runner@v2
         with:
