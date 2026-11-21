@@ -36,6 +36,10 @@ public final class RuntimeR27 implements AutoCloseable {
     volatile AtomNetTrainerR27 atomNet; volatile String atomNetDataset = "";
     FtrlR27 atomFtrl; String atomTrainedThrough = "";
 
+    // Single observatory task; the source page and model study each keep their durable cursor.
+    private boolean modelStudyTurn;
+    synchronized boolean nextModelStudyTurnR335() { modelStudyTurn=!modelStudyTurn; return modelStudyTurn; }
+
     int calibrationIndexR30;
     static final class AtomPublicationR30 {final AtomNetSessionR30 state;final ModelSurfaceProviderR30.FrozenModelRef model;AtomPublicationR30(AtomNetSessionR30 state,ModelSurfaceProviderR30.FrozenModelRef model){this.state=state;this.model=model;}}
     volatile AtomPublicationR30 atomPublicationR30;

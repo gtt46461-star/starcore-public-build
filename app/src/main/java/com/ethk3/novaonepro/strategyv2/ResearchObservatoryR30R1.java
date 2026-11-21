@@ -139,8 +139,10 @@ public final class ResearchObservatoryR30R1 {
   try(Cursor q=db.rawQuery(sql,null)){return (q.moveToFirst()?q.getString(0):"EMPTY")+":"+Math.floorDiv(ResearchStoreR30R1.calendar(db),64);}
  }
  static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
-  if(ModelReplayStudyR30R1.settle(w))return ResearchPoolR27.Outcome.progress(1,0);
-  if(rt.atomSessionR30!=null&&ModelReplayStudyR30R1.bindSelectRequestR335(rt,w,rt.atomSessionR30))return ResearchPoolR27.Outcome.progress(1,0);
+  if(rt.nextModelStudyTurnR335() || rt.evoData==null){
+   if(ModelReplayStudyR30R1.settle(w))return ResearchPoolR27.Outcome.progress(1,0);
+   if(rt.atomSessionR30!=null&&ModelReplayStudyR30R1.bindSelectRequestR335(rt,w,rt.atomSessionR30))return ResearchPoolR27.Outcome.progress(1,0);
+  }
   if(rt.evoData==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(IMMUTABLE_REPLAY_DATASET)",0,-1);
   int count=ResearchGraphSpecsR30R1.ALL.size(),start=nextViewR335(w.ro,"OBSERVATORY",count);
   for(int scan=0;scan<count;scan++){
@@ -157,9 +159,21 @@ public final class ResearchObservatoryR30R1 {
     frame.put("isolatedStudentFailures",owned.rejectedPolicies);if(spec.id.equals("R15"))frame.put("modelReplayPerformance",ModelReplayStudyR30R1.summary(w.ro));
     b=productR335(w.ro,spec.id,spec.measure,c,revision,frame,System.nanoTime()-started,now);appendHeadR335(b,spec.id,identity,frame,now);owned.appendScan(b,now);advanceViewR335(b,"OBSERVATORY",(index+1)%count,now);
     b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",PANEL,spec.id,identity,now);
+    b.add("DELETE FROM r27_chart_cache WHERE panel_id=? AND key=?",SCHEDULER_R335,"SOURCE_ERROR_"+spec.id);
     ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(c.split.selectTo,c.split.selectTo,0L,null,c.data.ordinals[c.split.selectTo-1],StatsR27.sha256(identity+"|"+spec.id)));
     try{RuntimeR27.submit(w,"RESEARCH_OBSERVATORY_"+spec.id,b);}catch(RuntimeException failure){if(ResearchStoreR30R1.stale(failure))return ResearchPoolR27.Outcome.idle("DEPENDENCY(OBSERVATORY_INPUT_CHANGED)",0,-1);throw failure;}
     return ResearchPoolR27.Outcome.progress(1,c.split.selectTo);
+   }catch(android.database.sqlite.SQLiteException fault){
+    String reason=fault.getMessage();
+    if(reason==null || !(reason.contains("no such table") || reason.contains("no such column")))throw fault;
+    // Keep the source error and visit the remaining views. The next rotation retries this view.
+    Map<String,Object> failure=map();failure.put("viewId",spec.id);failure.put("source",BuildConfig.SOURCE_COMMIT_R26);
+    failure.put("reason",RuntimeFaultEvidenceR31.clean(reason,256));long now=System.currentTimeMillis();
+    ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+    b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",SCHEDULER_R335,"SOURCE_ERROR_"+spec.id,JsonR27.write(failure),now);
+    advanceViewR335(b,"OBSERVATORY",(index+1)%count,now);
+    RuntimeR27.submit(w,"RESEARCH_OBSERVATORY_SOURCE_ERROR",b);
+    return ResearchPoolR27.Outcome.idle("DEPENDENCY(OBSERVATORY_SOURCE:"+spec.id+")",0,-1);
    }
   }
   return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_POPULATION_OR_INPUT",0,-1);

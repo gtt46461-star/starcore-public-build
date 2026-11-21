@@ -150,11 +150,11 @@ public final class DatabaseCoordinator {
     private static final ThreadLocal<AttemptR31> ATTEMPT_R31=new ThreadLocal<>();
     private static final AtomicLong UNKNOWN_PRIORITY_R31=new AtomicLong(),DIAGNOSTIC_FAILURES_R31=new AtomicLong(),UNKNOWN_COMMITS_R31=new AtomicLong();
     private static final AtomicLong LAST_RESEARCH_SERVICE_R31=new AtomicLong();
-    private static final AtomicLong LAST_RESEARCH_DATA_R335=new AtomicLong();
+    private static final AtomicLong LAST_RESEARCH_CONTROL_R335=new AtomicLong();
 
     public static boolean researchDataDueR335() {
         return FREEZE_WAITERS_R31.get()==0
-                && TimeSourceR811.monoNowMs()-LAST_RESEARCH_DATA_R335.get()>=5000L;
+                && TimeSourceR811.monoNowMs()-LAST_RESEARCH_SERVICE_R31.get()>=5000L;
     }
     private static final AtomicLong LAST_FAULT_SERVICE_R33=new AtomicLong();
     private static final AtomicBoolean RESEARCH_SERVICE_SLOT_R31=new AtomicBoolean();
@@ -181,7 +181,7 @@ public final class DatabaseCoordinator {
         Map<String,Object> snapshot=new LinkedHashMap<>();snapshot.put("scope","CURRENT_PROCESS_ONLY_OUTSIDE_DATABASE_WATERMARK");snapshot.put("unknownPriorityCount",UNKNOWN_PRIORITY_R31.get());
         snapshot.put("lastUnknownPriority",lastUnknownPriorityR31);snapshot.put("diagnosticFailures",DIAGNOSTIC_FAILURES_R31.get());
         snapshot.put("lastDiagnosticFailure",lastDiagnosticR31);snapshot.put("unknownCommitCount",UNKNOWN_COMMITS_R31.get());
-        snapshot.put("lastResearchDataServiceMonoMs",LAST_RESEARCH_DATA_R335.get());snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
+        snapshot.put("lastResearchDataServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());snapshot.put("lastResearchControlServiceMonoMs",LAST_RESEARCH_CONTROL_R335.get());snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
         snapshot.put("writerHoldFaultReceipts",com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.snapshot());
         snapshot.put("postCanonicalObservationR33",PostCanonicalObservationR33.snapshot());
         return Collections.unmodifiableMap(snapshot);
@@ -889,7 +889,8 @@ public final class DatabaseCoordinator {
         final String operation=context.operation;
         final boolean critical=context.critical(),background=!critical;
         final boolean reentrant=writeLock.isHeldByCurrentThread();
-        final boolean research=context.writeClass==WriteClass.RESEARCH_CONTROL||context.writeClass==WriteClass.RESEARCH_DATA;
+        final boolean research=context.writeClass==WriteClass.RESEARCH_DATA;
+        final boolean researchControl=context.writeClass==WriteClass.RESEARCH_CONTROL;
         final boolean faultDrainR33=context.writeClass==WriteClass.TELEMETRY&&"R31_WRITER_HOLD_FAULT".equals(context.operation);
         long now=TimeSourceR811.monoNowMs();
         Long scoped=WRITE_DEADLINE_CP3.get();
@@ -903,16 +904,16 @@ public final class DatabaseCoordinator {
         waitingWriters.incrementAndGet();
         long started=now,waitStarted=now;
         boolean serviceSlot=false;
-        final boolean researchData=context.writeClass==WriteClass.RESEARCH_DATA;
-        final AtomicLong lastService=faultDrainR33?LAST_FAULT_SERVICE_R33:
-                researchData?LAST_RESEARCH_DATA_R335:LAST_RESEARCH_SERVICE_R31;
         try {
             // One aged, prepared research slice may enter the existing fair queue every five seconds.
             // An expiring freeze always retains precedence. This is admission, never a second writer.
             if((research||faultDrainR33)&&!reentrant&&FREEZE_WAITERS_R31.get()==0
-                    &&now-lastService.get()>=(faultDrainR33?1000L:5000L))
+                    &&now-(faultDrainR33?LAST_FAULT_SERVICE_R33.get():LAST_RESEARCH_SERVICE_R31.get())>=(faultDrainR33?1000L:5000L))
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
-            if(researchData&&!reentrant&&!serviceSlot
+            else if(researchControl&&!reentrant&&FREEZE_WAITERS_R31.get()==0
+                    &&now-LAST_RESEARCH_CONTROL_R335.get()>=5000L)
+                serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
+            if(research&&!reentrant&&!serviceSlot
                     &&com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.deferResearch())
                 throw new WriteRejectedR31("DEPENDENCY",operation,"ADMISSION",CommitOutcome.ROLLED_BACK,
                         new IllegalStateException("R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN"));
@@ -951,7 +952,8 @@ public final class DatabaseCoordinator {
                         failed=result instanceof TransactionResult&&!((TransactionResult<?>)result).success;
                         if(!attemptState.ownsTransaction&&!attemptState.externalTransaction)attemptState.outcome=failed?CommitOutcome.ROLLED_BACK:
                                 attemptState.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED;
-                        if(research&&!failed)lastService.set(TimeSourceR811.monoNowMs());
+                        if(research&&!failed)LAST_RESEARCH_SERVICE_R31.set(TimeSourceR811.monoNowMs());
+                        if(researchControl&&!failed)LAST_RESEARCH_CONTROL_R335.set(TimeSourceR811.monoNowMs());
                         if(faultDrainR33&&!failed)LAST_FAULT_SERVICE_R33.set(TimeSourceR811.monoNowMs());
                         diagnosticR31(attemptState,"RECORD_SUCCESS",()->recordSuccess(operation,started));
                         return result;

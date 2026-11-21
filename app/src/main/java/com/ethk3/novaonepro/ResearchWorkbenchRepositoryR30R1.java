@@ -34,9 +34,21 @@ final class ResearchWorkbenchRepositoryR30R1 {
             Panel committed=found.get(spec.id);
             if(committed!=null) { out.add(committed); continue; }
             if(waiting==null && error==null) waiting=producerStatus(db,cancel);
-            out.add(missing(spec,error==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",error==null?waiting:error));
+            String sourceError=error==null?viewSourceError(db,spec.id,cancel):error;
+            out.add(missing(spec,sourceError==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",sourceError==null?waiting:sourceError));
         }
         return out;
+    }
+    private static String viewSourceError(SQLiteDatabase db,String view,CancellationSignal cancel) {
+        try(Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='r335-research-scheduler' AND key=?",
+                new String[]{"SOURCE_ERROR_"+view},cancel)){
+            if(c.moveToFirst()){
+                Map<?,?> row=(Map<?,?>)JsonR27.parse(c.getString(0));
+                if(BuildConfig.SOURCE_COMMIT_R26.equals(row.get("source")) && view.equals(row.get("viewId")))
+                    return String.valueOf(row.get("reason"));
+            }
+        }catch(OperationCanceledException e){throw e;}catch(RuntimeException e){return "图表调度台账读取失败 "+e.getMessage();}
+        return null;
     }
     private static String producerStatus(SQLiteDatabase db,CancellationSignal cancel) {
         StringBuilder reason=new StringBuilder("本版本尚无这项分析的已提交产物。");
