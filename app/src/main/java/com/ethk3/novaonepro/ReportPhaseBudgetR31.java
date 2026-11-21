@@ -9,6 +9,12 @@ public final class ReportPhaseBudgetR31 {
     private static long multiply(long a,long b)throws IOException{try{return Math.multiplyExact(a,b);}catch(ArithmeticException overflow){throw new IOException("REPORT_PHASE_BUDGET_OVERFLOW",overflow);}}
     public static long initial(long snapshotUpper)throws IOException{if(snapshotUpper<1)throw new IOException("REPORT_SNAPSHOT_BOUND");return add(add(snapshotUpper,METADATA_ENVELOPE),MARGIN);}
     public static long attachmentFuture(long missingCopyBytes)throws IOException{if(missingCopyBytes<0)throw new IOException("REPORT_ATTACHMENT_BOUND");return add(add(missingCopyBytes,METADATA_ENVELOPE),MARGIN);}
+    /** A frozen attachment is staged at its actual length. Each new content address may
+     * create two directories and a final file block. Reused objects need no second copy. */
+    public static long frozenCopyBytes(long missingBytes,long missingMembers)throws IOException {
+        if(missingBytes<0||missingMembers<0)throw new IOException("REPORT_ATTACHMENT_BOUND");
+        return add(missingBytes,add(multiply(missingMembers,12L<<10),64L<<10));
+    }
     public static long zipUpper(long raw,long members)throws IOException{if(raw<0||members<1)throw new IOException("REPORT_PLAN_BOUND");return add(add(add(raw,raw/16),multiply(members,1024)),16L<<20);}
     public static long archiveFuture(long raw,long members)throws IOException{
         if(raw<0||members<1)throw new IOException("REPORT_PLAN_BOUND");

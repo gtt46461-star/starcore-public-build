@@ -160,16 +160,19 @@ public final class ReportAttachmentClosureCP12 {
             descriptor(out,"source-index-"+indexSha+".tsv",indexSha,indexBytes,"ASSET",RuntimeChainDiagnosisR975.INDEX,"");
             out.flush();fd.getFD().sync();
         }
-        File sorted=ReportMemberPlanCP12.sort(job,plans,control);total=0;long missingCopyBytes=0,plannedMembers=0;
+        File sorted=ReportMemberPlanCP12.sort(job,plans,control);total=0;long missingCopyBytes=0,plannedMembers=0,missingMembers=0;
         try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {byte[] line;while((line=rows.next())!=null){
             checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));long bytes=row.getLong("bytes");total=Math.addExact(total,bytes);plannedMembers++;
             File fixed=ReportArchiveVerifierCP12.inside(job,row.getString("path"));if(fixed.exists()){
                 if(fixed.length()!=bytes||!row.getString("sha256").equals(ReportArchiveCP4.hash(fixed,control)))throw new IOException("REPORT_FROZEN_ATTACHMENT_CHANGED");
-            }else missingCopyBytes=Math.addExact(missingCopyBytes,bytes);
+            }else{
+                missingCopyBytes=Math.addExact(missingCopyBytes,bytes);
+                missingMembers++;
+            }
         }}
-        control.reserveFutureBytesR31(ReportPhaseBudgetR31.attachmentFuture(missingCopyBytes));
+        control.reserveFutureBytesR31(ReportPhaseBudgetR31.frozenCopyBytes(missingCopyBytes,missingMembers));
         source.put("r31PlannedAttachmentPayloadBytes",total).put("r31PlannedAttachmentMembers",plannedMembers).put("r31MissingAttachmentCopyBytes",missingCopyBytes)
-                .put("r31AdmissionBoundary","SNAPSHOT_BOUND_EXACT_DESCRIPTOR_BYTES_PLUS_ENFORCED_METADATA_ENVELOPE; NOT_SOURCE_WORSTCASE_ESTIMATE");
+                .put("r31AdmissionBoundary","MISSING_VERIFIED_SOURCE_BYTES_AND_FILESYSTEM_METADATA");
         long available=new StatFs(app.getFilesDir().getPath()).getAvailableBytes();if(available<Math.addExact(missingCopyBytes,64*MiB))throw new IOException("REPORT_ATTACHMENT_DISK_BUDGET");
         File manifest=new File(job,"attachments.jsonl");try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192);FileOutputStream fd=new FileOutputStream(manifest);Writer refs=new OutputStreamWriter(ReportIoR31.protect(manifest,fd,control),StandardCharsets.UTF_8)) {
             byte[] line;while((line=rows.next())!=null){checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));String hash=row.getString("sha256");File fixed=ReportArchiveVerifierCP12.inside(job,row.getString("path"));long bytes=row.getLong("bytes");

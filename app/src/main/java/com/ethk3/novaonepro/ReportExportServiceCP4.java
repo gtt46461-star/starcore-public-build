@@ -441,7 +441,7 @@ public final class ReportExportServiceCP4 extends Service {
                 // Android snapshot connection is closed before the next native allocation stage.
                 File sorted=ReportMemberPlanCP12.sort(directory,memberInput,active);long plannedRaw=0,plannedMembers=0;
                 try(ReportArchiveVerifierCP12.LineReader plan=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)){byte[] row;while((row=plan.next())!=null){active.checkpoint();JSONObject member=new JSONObject(new String(row,StandardCharsets.UTF_8));plannedRaw=Math.addExact(plannedRaw,member.getLong("bytes"));plannedMembers++;}}
-                active.reserveFutureBytesR31(ReportPhaseBudgetR31.archiveFuture(plannedRaw,plannedMembers));
+                active.reserveArchiveWorkspaceR335(ReportPhaseBudgetR31.archiveFuture(plannedRaw,plannedMembers));
                 job.compressionAttempt=Math.addExact(job.compressionAttempt,1);
                 File archive=new File(directory,"archive-"+job.compressionAttempt);if(!archive.mkdir())throw new IOException("REPORT_ARCHIVE_EXCLUSIVE_DIRECTORY");job.publishedDir=archive.getName();
                 active.enter("COMPRESSING",120000);journal.transition(job,ReportJobJournalCP12.Stage.COMPRESSING,System.currentTimeMillis());
@@ -771,10 +771,18 @@ public final class ReportExportServiceCP4 extends Service {
         @Override public void beforeOutputBytesR31(File file,long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");if(!shouldContinue())throw new InterruptedIOException(stopReason);storageReservationR31.beforeChunk(bytes);}
         @Override public void reserveFutureBytesR31(long bytes)throws IOException{
             if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");
-            // Archive and ZIP sizes are upper estimates. Grow the grant as compressed bytes arrive.
-            // Actual filesystem writes also pass through beforeChunk, including the final flush.
-            storageReservationR31.ensureAdditional(Math.min(bytes,8*MiB),0,true);
+            storageReservationR31.ensureAdditional(bytes,0,true);
             job.temporaryReservationBytes=storageReservationR31.maximumGrowthBytes();
+        }
+        private void reserveArchiveWorkspaceR335(long upper)throws IOException{
+            // Zstd, ZIP and delivery volumes can temporarily coexist. When the upper
+            // estimate does not fit, admit a smaller stream and check further writes.
+            try{
+                reserveFutureBytesR31(upper);
+            }catch(StorageBudgetR31.Rejected failure){
+                if(!"FREE_SPACE_RESERVE".equals(failure.reason)||upper<=8*MiB)throw failure;
+                reserveFutureBytesR31(8*MiB);
+            }
         }
         @Override public OutputStream protectOutput(File file,OutputStream sink)throws IOException{
             try{
