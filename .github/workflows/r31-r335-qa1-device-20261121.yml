@@ -1,0 +1,75 @@
+name: R33.5 corrected Android upgrades and production exports
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-qa1-device-20261121.yml', '.github/r31-r335-qa1-device-20261121.py', '.github/r31-r335-device-20261121.json']
+permissions: {}
+jobs:
+  upgrades:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 220
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 9e186d256f8de5ec00b5c20c6e509ee1d5bb983f
+          path: app-source
+          sparse-checkout: |
+            app/src
+            tools/r31
+          persist-credentials: false
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -B .github/r31-r335-qa1-device-20261121.py
+      - name: Preserve original reports for the recipient and public package-manager receipts
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          dest="$RUNNER_TEMP/device-delivery"
+          mkdir -p "$dest"
+          prefix="R335-emulator-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          if [ -d report-originals ]; then
+            python3 -c 'import pathlib,sys,json; pathlib.Path("recipient.pem").write_text(json.load(open(sys.argv[1]))["reportEncryptionRecipient"])' "$GITHUB_WORKSPACE/.github/r31-r335-device-20261121.json"
+            zip -q -r originals.zip report-originals
+            sha256sum originals.zip > "$dest/$prefix-originals.sha256"
+            openssl cms -encrypt -binary -aes-256-cbc -stream -outform DER -in originals.zip -out "$dest/$prefix-originals.p7m" recipient.pem
+          fi
+          if [ -d upgrade-evidence ]; then
+            zip -q -r "$dest/$prefix-upgrades.zip" upgrade-evidence
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R335-emulator-records
+          path: ${{ runner.temp }}/device-delivery
+          if-no-files-found: warn
+      - name: Publish received-device evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=r335-B08-9e186d256f8d
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then tag=r335-P00-3b3e63e1dc1d; fi
+          gh release upload "$tag" --repo "$GITHUB_REPOSITORY" "$RUNNER_TEMP/device-delivery"/R335-emulator-*
