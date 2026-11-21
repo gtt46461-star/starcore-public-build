@@ -81,9 +81,10 @@ def main():
     record['completed']=True
     save()
 
-try:
-    main()
-except Exception as exc:
-    record.update(completed=False,failureType=type(exc).__name__)
-    save()
-    raise
+if __name__=='__main__':
+    try:
+        main()
+    except Exception as exc:
+        record.update(completed=False,failureType=type(exc).__name__)
+        save()
+        raise

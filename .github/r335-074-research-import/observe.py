@@ -76,12 +76,34 @@ def main():
     assert f.installed(f.EVID/'current.txt',577311074)==(olduid,digest)
     record['scope']='PUBLIC_HISTORICAL_REPLAY_ONLY_WITH_NORMAL_SERVICE_NO_NATURAL_QUALIFICATION';record['uiStart']=observer.tap_start();save();assert record['uiStart']
     from import_ui import import_history
-    import_history(f.PKG,query,record,save)
+    chart_path=Path('.github/r335-074-panel-readback/observe.py').resolve()
+    chart_spec=importlib.util.spec_from_file_location('history_chart_reader',chart_path)
+    charts=importlib.util.module_from_spec(chart_spec)
+    chart_spec.loader.exec_module(charts)
+    assert charts.source==source and charts.digest==digest
+    dex=chart_path.parent/'observer.dex.jar'
+    remote='/data/local/tmp/read-only-import-chart-observer.jar'
+    assert f.fingerprint(dex)==charts.observer_digest
+    f.adb('push',str(dex),remote)
+    f.adb('shell','chmod','444',remote)
+    assert f.adb('shell','sha256sum',remote).decode().split()[0]==charts.observer_digest
+    installed=f.adb('shell','pm','path',f.PKG).decode().strip().split('package:')[-1]
+    assert f.adb('shell','sha256sum',installed).decode().split()[0]==digest
+    capture_start=time.monotonic()
+    def read_panels():
+        charts.snapshot(installed,remote,int(time.monotonic()-capture_start))
+        record.setdefault('installedChartReads',[]).append(charts.record['samples'][-1])
+        save()
+    try:
+        import_history(f.PKG,query,record,save)
+    finally:
+        read_panels()
     record['scope']='PUBLIC_HISTORICAL_REPLAY_ONLY_WITH_NORMAL_SERVICE_NO_NATURAL_QUALIFICATION';save()
     start=time.monotonic()
     for at in (30,180,600,1200,2400,3600):
         time.sleep(max(0,start+at-time.monotonic()))
         sample(int(time.monotonic()-start))
+        if at in (600,2400,3600):read_panels()
         if at==180:
             f.adb('shell','input','keyevent','KEYCODE_HOME');record['backgroundAfterSeconds']=180;save()
     assert f.installed(f.EVID/'end.txt',577311074)==(olduid,digest)
