@@ -40,18 +40,43 @@ def import_history(package, query, record, save):
         time.sleep(6)
     activity=package+'/com.ethk3.novaonepro.ChartsActivityR83'
     adb('shell','am','start','-W','-n',activity)
+    def stage(code):
+        record['lastImportUiStep']=code
+        save()
     def start_or_resume(staged):
+        stage('OPEN_CHART_TOOLS')
         assert tap_text(['R27 工具']),'CHART_TOOLS_UNAVAILABLE'
+        stage('WAIT_TOOL_ACTION')
         if staged:
-            assert tap_text(['恢复未完成历史CSV（']),'RECOVERY_ACTION_UNAVAILABLE'
+            assert tap_text(['恢复未完成历史CSV（'],20),'RECOVERY_ACTION_UNAVAILABLE'
             return
-        assert tap_text(['导入历史CSV（']),'IMPORT_ACTION_UNAVAILABLE'
-        if not tap_text([fixture.name],2):
+        assert tap_text(['导入历史CSV（'],20),'IMPORT_ACTION_UNAVAILABLE'
+        stage('FIND_CSV_IN_DOCUMENT_PICKER')
+        if not tap_text([fixture.name],3):
+            stage('OPEN_DOCUMENT_ROOTS')
             assert tap_text(['Show roots','Open from','打开抽屉','显示根目录','Navigate up','drawer_toggle','Show navigation drawer']),'DOCUMENT_ROOTS_UNAVAILABLE'
+            stage('OPEN_DOWNLOADS')
             assert tap_text(['Downloads','下载内容','下载']),'DOWNLOADS_UNAVAILABLE'
-            assert tap_text([fixture.name]),'FIXTURE_NOT_FOUND_IN_PICKER'
+            stage('PICK_ARCHIVED_CSV')
+            assert tap_text([fixture.name],15),'FIXTURE_NOT_FOUND_IN_PICKER'
         record['documentPickerSelected']=True
-    start_or_resume(False)
+    initial=time.monotonic()
+    for attempt in range(3):
+        try:
+            start_or_resume(False)
+            record['secondsToSelectCsv']=int(time.monotonic()-initial)
+            save()
+            break
+        except AssertionError as error:
+            reason=str(error)
+            allowed={'CHART_TOOLS_UNAVAILABLE','IMPORT_ACTION_UNAVAILABLE','DOCUMENT_ROOTS_UNAVAILABLE','DOWNLOADS_UNAVAILABLE','FIXTURE_NOT_FOUND_IN_PICKER','RECOVERY_ACTION_UNAVAILABLE'}
+            if reason not in allowed:raise
+            record.setdefault('initialPickerFailures',[]).append({'reason':reason,'elapsed':int(time.monotonic()-initial)})
+            save()
+            if attempt==2:raise
+            adb('shell','input','keyevent','KEYCODE_BACK')
+            adb('shell','am','start','-W','-n',activity)
+            time.sleep(5)
     record['importProgress']=[]
     record['recoveryAttempts']=[]
     save()

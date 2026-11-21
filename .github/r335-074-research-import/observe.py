@@ -110,4 +110,7 @@ def main():
     record['completed']=True;save()
 try:main()
 except Exception as error:
-    record.update(completed=False,failureType=type(error).__name__);save();raise
+    record.update(completed=False,failureType=type(error).__name__)
+    import traceback
+    record['failureFrames']=[Path(frame.filename).name+':'+str(frame.lineno) for frame in traceback.extract_tb(error.__traceback__)][-8:]
+    save();raise
