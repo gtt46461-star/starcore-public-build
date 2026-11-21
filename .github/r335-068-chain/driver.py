@@ -51,6 +51,7 @@ def main():
     assert 'Success' in adb('install','-r',target)
     new_hash,new_uid=installed();assert (new_hash,new_uid)==(target_sha,uid)
     cases={'ShadowCycleAndroidTest':['eachPredrawSettlesOnceAndFeedsTheNextCycle'],
+           'WarmShadowCycleTest':['installedSchemaThenOriginalThreePredraws'],
            'R30RepairChartsAndroidTest':['eighteenViewsRenderCommittedAnalysisOrExplicitMissingStatesAndCancelCleanly'],
            'R30ChartsAndroidTest':['allFourteenLegacyAndTwoSnapshotChartsOpenInThreeStatesAndSaveScreenshots'],
            'R335VivoFieldRepairTest':[large]}

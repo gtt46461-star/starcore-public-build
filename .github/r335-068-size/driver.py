@@ -35,10 +35,17 @@ def main():
     holder='r335_disposable_size_fixture'
     # AOSP databases may use FULL auto-vacuum. Preserve that setting and retain a labelled
     # size-only table in this fresh, isolated guest when dropping it would reclaim the pages.
+    def available_kib(path):
+        return int(f.adb('shell','df','-k',path).decode().splitlines()[-1].split()[3])
+    record['guestFreeKiBBeforeFixture']=available_kib('/data')
+    record['hostFreeKiBBeforeFixture']=os.statvfs(tmp).f_bavail*os.statvfs(tmp).f_frsize//1024
     def sql(query):
-        p=subprocess.run(['adb','shell','sqlite3','-batch','-bail',location],input=query+';\n',capture_output=True,text=True,timeout=600)
+        p=subprocess.run(['adb','shell','sqlite3','-batch','-bail',location],input='.timeout 30000\n'+query+';\n',capture_output=True,text=True,timeout=600)
         if p.returncode:
-            reason='DATABASE_FULL' if 'full' in p.stderr.lower() else 'SQLITE_FIXTURE'
+            detail=(p.stdout+p.stderr).lower()
+            reason=next((name for fragment,name in [('locked','SQLITE_BUSY'),('full','DATABASE_FULL'),('i/o','SQLITE_IO'),('too big','SQLITE_LIMIT'),('readonly','SQLITE_READONLY')] if fragment in detail),'SQLITE_FIXTURE')
+            record.update(sqliteFixtureError=reason,guestFreeKiBOnError=available_kib('/data'))
+            save('CREATE_CONTROLLED_SIZE')
             raise RuntimeError(reason)
         return p.stdout.strip()
     def schema():
@@ -48,7 +55,8 @@ def main():
     assert not sql("SELECT 1 FROM sqlite_master WHERE name='"+holder+"'") and prior<1373483008
     sql("CREATE TABLE "+holder+"(sample BLOB)")
     while int(sql('PRAGMA page_count'))*page<1373483008:
-        sql("BEGIN; WITH RECURSIVE a(i) AS (VALUES(0) UNION ALL SELECT i+1 FROM a WHERE i<7) INSERT INTO "+holder+" SELECT zeroblob(8388608) FROM a; COMMIT")
+        sql("BEGIN; WITH RECURSIVE a(i) AS (VALUES(0) UNION ALL SELECT i+1 FROM a WHERE i<3) INSERT INTO "+holder+" SELECT zeroblob(4194304) FROM a; COMMIT")
+        sql('PRAGMA wal_checkpoint(TRUNCATE)')
     if vacuum!=1:sql("DROP TABLE "+holder)
     sql('PRAGMA wal_checkpoint(TRUNCATE)')
     size=int(sql('PRAGMA page_count'))*page
