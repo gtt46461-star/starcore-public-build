@@ -1,0 +1,53 @@
+name: STARCORE released application normal research production and consumption counts
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-069-live-research-20261121.yml', '.github/r335-069-live-research/**']
+permissions: {}
+jobs:
+  upgrades:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 0ba6625b870892b084e91e2fc91569267d9c653e
+          path: app-source
+          sparse-checkout: |
+            app/src
+            tools/r31
+            tools/r3251
+          persist-credentials: false
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -B .github/r335-069-live-research/observe.py
+      - name: Verify and publish numeric receipt
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/R335-069-live-research-$GITHUB_RUN_ID.json"
+          test -f "$output"
+          test "$(stat -c %s "$output")" -lt 300000
+          gh release upload r335-B08-0ba6625b8708 --repo "$GITHUB_REPOSITORY" "$output"
