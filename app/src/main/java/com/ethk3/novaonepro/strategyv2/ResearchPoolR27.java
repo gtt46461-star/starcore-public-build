@@ -64,19 +64,50 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public static final int BACKGROUND_PRIORITY = android.os.Process.THREAD_PRIORITY_BACKGROUND + 1;
     public static int defaultThreads() { int cores = Runtime.getRuntime().availableProcessors(); return Math.max(1, Math.min(2, cores - 1)); }
     private static final int CONTINUATION_LIMIT_R31=4,HELPER_LIMIT_R31=2;
-    private static final java.util.Map<String,Boolean> COMPUTE_OWNERS_R31=new java.util.LinkedHashMap<>();
-    public static synchronized void installComputeBudgetR31(){
-        if(!CooperativeContinuationR26.hasPermitProvider())CooperativeContinuationR26.installPermitProvider((owner,name)->acquireComputeR31(owner+":"+name,false));
+    private enum ComputeLane {
+        R26, R27, HELPER;
+        long waitingUntil;  // elapsedRealtime, guarded by COMPUTE_OWNERS_R31
     }
-    private static CooperativeContinuationR26.ComputePermit acquireComputeR31(String key,boolean helper){
-        synchronized(COMPUTE_OWNERS_R31){
-            if(COMPUTE_OWNERS_R31.containsKey(key))return null;
-            int count=0;for(boolean value:COMPUTE_OWNERS_R31.values())if(value==helper)count++;
-            if(count>=(helper?HELPER_LIMIT_R31:CONTINUATION_LIMIT_R31))return null;
-            COMPUTE_OWNERS_R31.put(key,helper);
+
+    private static final Map<String,ComputeLane> COMPUTE_OWNERS_R31 = new java.util.LinkedHashMap<>();
+
+    public static synchronized void installComputeBudgetR31() {
+        if (!CooperativeContinuationR26.hasPermitProvider()) {
+            CooperativeContinuationR26.installPermitProvider((owner, name) -> acquireComputeR31(owner + ":" + name,
+                    name.startsWith("starcore-r30-prepared-") ? ComputeLane.R27 : ComputeLane.R26));
         }
-        java.util.concurrent.atomic.AtomicBoolean released=new java.util.concurrent.atomic.AtomicBoolean();
-        return ()->{if(released.compareAndSet(false,true))synchronized(COMPUTE_OWNERS_R31){COMPUTE_OWNERS_R31.remove(key);}};
+    }
+
+    /** Call with the owner map locked. A waiting lane with no work admitted gets the next released slot. */
+    private static boolean hasComputeRoom(ComputeLane lane, long now) {
+        int mine = java.util.Collections.frequency(COMPUTE_OWNERS_R31.values(), lane);
+        if (lane == ComputeLane.HELPER) return mine < HELPER_LIMIT_R31;
+
+        ComputeLane peer = lane == ComputeLane.R27 ? ComputeLane.R26 : ComputeLane.R27;
+        int theirs = java.util.Collections.frequency(COMPUTE_OWNERS_R31.values(), peer);
+        int free = CONTINUATION_LIMIT_R31 - mine - theirs;
+        if (free > 0 && (free > 1 || theirs > 0 || peer.waitingUntil <= now)) return true;
+        // The regular retry backoff can exceed one service interval. A stopped requester expires after two.
+        lane.waitingUntil = now + 2 * CooperativeContinuationR26.SLICE_MS;
+        return false;
+    }
+
+    private static CooperativeContinuationR26.ComputePermit acquireComputeR31(String key, ComputeLane lane) {
+        synchronized (COMPUTE_OWNERS_R31) {
+            if (COMPUTE_OWNERS_R31.containsKey(key) || !hasComputeRoom(lane, SystemClock.elapsedRealtime())) return null;
+            COMPUTE_OWNERS_R31.put(key, lane);
+            lane.waitingUntil = 0;
+        }
+        java.util.concurrent.atomic.AtomicBoolean released = new java.util.concurrent.atomic.AtomicBoolean();
+        return () -> {
+            if (!released.compareAndSet(false, true)) return;
+            synchronized (COMPUTE_OWNERS_R31) {
+                COMPUTE_OWNERS_R31.remove(key);
+                if (!COMPUTE_OWNERS_R31.containsValue(ComputeLane.R26) && !COMPUTE_OWNERS_R31.containsValue(ComputeLane.R27)) {
+                    ComputeLane.R26.waitingUntil = ComputeLane.R27.waitingUntil = 0;
+                }
+            }
+        };
     }
     private static final java.util.concurrent.ConcurrentHashMap<String,HelperWorkR31> HELPER_WORK_R31=new java.util.concurrent.ConcurrentHashMap<>();
     public static final long HELPER_DESCRIPTOR_BYTES_R31=512;
@@ -121,7 +152,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
             RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
             if(claim==null)throw new RejectedExecutionException("R31_STALE_COMPUTE_HELPER_REQUIRES_CLAIM");
             String group=helperGroupR31(claim);if(CANCELLED_HELPER_GROUPS_R31.contains(group))throw new RejectedExecutionException("R31_CONTINUATION_CANCELLING");
-            String key=group+":helper:"+java.util.UUID.randomUUID();CooperativeContinuationR26.ComputePermit permit=acquireComputeR31(key,true);
+            String key=group+":helper:"+java.util.UUID.randomUUID();CooperativeContinuationR26.ComputePermit permit=acquireComputeR31(key,ComputeLane.HELPER);
             if(permit==null)throw new RejectedExecutionException("R31_COMPUTE_CAPACITY_WAIT");
             MemoryBudgetR31 budget=MemoryBudgetR31.processBudget();MemoryBudgetR31.Admission queued;try{queued=budget.tryAcquire(key,claim.fence,MemoryBudgetR31.Kind.QUEUED,HELPER_DESCRIPTOR_BYTES_R31,()->CANCELLED_HELPER_GROUPS_R31.contains(group));}catch(RuntimeException|Error failure){permit.close();throw failure;}
             if(!queued.acquired()){permit.close();throw new RejectedExecutionException("R31_MEMORY_CAPACITY_WAIT:"+queued.reason);}
@@ -178,44 +209,48 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 Task task;
                 try{task=next();}catch(Throwable failure){active.decrementAndGet();throw failure;}
                 if(task==null){active.decrementAndGet();sleep(250);continue;}
-                Outcome outcome=null;Throwable failure=null;ResourceBudget applied=null;int actualQuantumR335=200;RuntimeCoordinatorR26.Claim claim=null;String phase="CLAIM";
-                long cpu=android.os.Debug.threadCpuTimeNanos();PreparedTaskR30R1 current;
-                synchronized(this){current=prepared.get(task.id());}
-                try{
-                    if(current!=null&&current.state()==CooperativeContinuationR26.State.CANCELLING){
-                        if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(DRAINING_NOT_TERMINATED)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+250);}continue;}
-                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}invalidateDraftR31(task.id());finishCancelledR31(current.claim);current=null;
-                    }
-                    if(current!=null&&current.done()){
-                        current.awaitTermination(50);
-                        if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(RESULT_CLEANUP_PENDING)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+50);}continue;}
-                        clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}if(current.failedR31){invalidateDraftR31(task.id());finishCancelledR31(current.claim);}current=null;
-                    }
-                    ClaimAttempt attempt=claimPrepared(task.id(),current);claim=attempt.claim;phase=attempt.phase;
-                    if(claim==null){outcome=Outcome.idle("DEPENDENCY(ACTIVE_SCHEMA_SESSION_TASK_LEASE_OR_RECOVERY)",0,-1);}
-                    else{
-                        if(current==null){current=new PreparedTaskR30R1(task,w,claim);synchronized(this){prepared.put(task.id(),current);}}
-                        current.claim=claim;phase="COMPUTE_OR_PUBLISH";
-                        refreshResourceBudget(w.ro);applied=resourceBudget;int quantum=Math.min(applied.quantums.getOrDefault(task.id(),200),memoryPressureR31?100:200);actualQuantumR335=quantum;
-                        try{outcome=current.slice(quantum);}finally{
-                            recordResearchCost(task.id(),current.lastCpuNanos);
-                            if(current.done()&&!current.failedR31){current.awaitTermination(50);if(current.isTerminated()){clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}}}
+                try {
+                    Outcome outcome=null;Throwable failure=null;ResourceBudget applied=null;int actualQuantumR335=200;RuntimeCoordinatorR26.Claim claim=null;String phase="CLAIM";
+                    long cpu=android.os.Debug.threadCpuTimeNanos();PreparedTaskR30R1 current;
+                    synchronized(this){current=prepared.get(task.id());}
+                    try{
+                        if(current!=null&&current.state()==CooperativeContinuationR26.State.CANCELLING){
+                            if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(DRAINING_NOT_TERMINATED)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+250);}continue;}
+                            clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}invalidateDraftR31(task.id());finishCancelledR31(current.claim);current=null;
                         }
+                        if(current!=null&&current.done()){
+                            current.awaitTermination(50);
+                            if(!current.isTerminated()){outcome=Outcome.idle("DEPENDENCY(RESULT_CLEANUP_PENDING)",current.claim.cursor,-1);synchronized(this){notBefore.put(task.id(),SystemClock.elapsedRealtime()+50);}continue;}
+                            clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}if(current.failedR31){invalidateDraftR31(task.id());finishCancelledR31(current.claim);}current=null;
+                        }
+                        ClaimAttempt attempt=claimPrepared(task.id(),current);claim=attempt.claim;phase=attempt.phase;
+                        if(claim==null){outcome=Outcome.idle("DEPENDENCY(ACTIVE_SCHEMA_SESSION_TASK_LEASE_OR_RECOVERY)",0,-1);}
+                        else{
+                            if(current==null){current=new PreparedTaskR30R1(task,w,claim);synchronized(this){prepared.put(task.id(),current);}}
+                            current.claim=claim;phase="COMPUTE_OR_PUBLISH";
+                            refreshResourceBudget(w.ro);applied=resourceBudget;int quantum=Math.min(applied.quantums.getOrDefault(task.id(),200),memoryPressureR31?100:200);actualQuantumR335=quantum;
+                            try{outcome=current.slice(quantum);}finally{
+                                recordResearchCost(task.id(),current.lastCpuNanos);
+                                if(current.done()&&!current.failedR31){current.awaitTermination(50);if(current.isTerminated()){clearTaskHelperCancellationR31(current.claim);synchronized(this){prepared.remove(task.id(),current);}}}
+                            }
+                        }
+                    }catch(Throwable error){
+                        failure=error;FailureDispositionR31.Decision d=FailureDispositionR31.classify(error);
+                        if(current!=null&&(d.disposition==FailureDispositionR31.Disposition.STALE_OWNER||d.disposition==FailureDispositionR31.Disposition.CANCELLED||d.disposition==FailureDispositionR31.Disposition.FATAL||current.state()==CooperativeContinuationR26.State.CANCELLING)){current.failedR31=true;current.close();}
+                    }finally{active.decrementAndGet();}
+                    slices++;
+                    record(task.id(),outcome,failure,applied,actualQuantumR335,claim,phase,Math.max(0,android.os.Debug.threadCpuTimeNanos()-cpu)/1_000_000L);
+                    FailureDispositionR31.Decision disposition=failure==null?null:FailureDispositionR31.classify(failure);
+                    long delay=outcome!=null&&"COOPERATIVE_PREPARED_STEP".equals(outcome.reason)?25:1000;
+                    synchronized(this){
+                        if(disposition!=null&&disposition.disposition==FailureDispositionR31.Disposition.RETRY_LATER){int streak=retryStreakR31.getOrDefault(task.id(),0)+1;retryStreakR31.put(task.id(),streak);delay=FailureDispositionR31.backoffMillis(streak,task.id());}
+                        else if(failure==null&&outcome!=null&&outcome.units>0)retryStreakR31.remove(task.id());
+                        notBefore.put(task.id(),SystemClock.elapsedRealtime()+delay);
                     }
-                }catch(Throwable error){
-                    failure=error;FailureDispositionR31.Decision d=FailureDispositionR31.classify(error);
-                    if(current!=null&&(d.disposition==FailureDispositionR31.Disposition.STALE_OWNER||d.disposition==FailureDispositionR31.Disposition.CANCELLED||d.disposition==FailureDispositionR31.Disposition.FATAL||current.state()==CooperativeContinuationR26.State.CANCELLING)){current.failedR31=true;current.close();}
-                }finally{active.decrementAndGet();synchronized(this){running.put(task.id(),false);}}
-                slices++;
-                record(task.id(),outcome,failure,applied,actualQuantumR335,claim,phase,Math.max(0,android.os.Debug.threadCpuTimeNanos()-cpu)/1_000_000L);
-                FailureDispositionR31.Decision disposition=failure==null?null:FailureDispositionR31.classify(failure);
-                long delay=outcome!=null&&"COOPERATIVE_PREPARED_STEP".equals(outcome.reason)?25:1000;
-                synchronized(this){
-                    if(disposition!=null&&disposition.disposition==FailureDispositionR31.Disposition.RETRY_LATER){int streak=retryStreakR31.getOrDefault(task.id(),0)+1;retryStreakR31.put(task.id(),streak);delay=FailureDispositionR31.backoffMillis(streak,task.id());}
-                    else if(failure==null&&outcome!=null&&outcome.units>0)retryStreakR31.remove(task.id());
-                    notBefore.put(task.id(),SystemClock.elapsedRealtime()+delay);
+                    Error processFatal=FailureDispositionR31.processFatalCause(failure);if(processFatal!=null)throw processFatal;
+                } finally {
+                    synchronized(this){running.put(task.id(),false);}
                 }
-                Error processFatal=FailureDispositionR31.processFatalCause(failure);if(processFatal!=null)throw processFatal;
             }catch(VirtualMachineError|ThreadDeath|LinkageError fatal){closed=true;throw fatal;}
             catch(RuntimeException unexpected){android.util.Log.w("STARCORE_R31","worker control deferred "+w.name+":"+unexpected.getClass().getSimpleName());sleep(500);}
             long now=SystemClock.elapsedRealtime();if(now-flushed>15_000){flushCpu(w.name,android.os.Debug.threadCpuTimeNanos()-cpuStart,now-wallStart,slices);flushed=now;}
@@ -238,9 +273,16 @@ public final class ResearchPoolR27 implements AutoCloseable {
 
     private synchronized Task next() {
         long now = SystemClock.elapsedRealtime();
+        Boolean newSlotAvailable = null;
         for (Task t : tasks) {
             if (Boolean.TRUE.equals(running.get(t.id()))) continue;
             Long nb = notBefore.get(t.id()); if (nb != null && nb > now) continue;
+            if (!prepared.containsKey(t.id())) {
+                if (newSlotAvailable == null) {
+                    synchronized (COMPUTE_OWNERS_R31) { newSlotAvailable = hasComputeRoom(ComputeLane.R27,now); }
+                }
+                if (!newSlotAvailable) continue;
+            }
             running.put(t.id(), true); notBefore.remove(t.id());
             // Round-robin fairness: move the claimed task to the end.
             tasks.remove(t); tasks.add(t);
