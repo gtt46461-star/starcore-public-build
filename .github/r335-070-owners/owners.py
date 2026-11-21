@@ -34,6 +34,21 @@ def cases():
       'strategyv2.R335WorkbenchRenderTest':['realRenderedPanelsDoNotWriteBirthsOrResearchActions'],
       'strategyv2.R335MigratedPublicationTest':['observedCoverageFailurePersistsTwoBirthsAndTrainsTheDistinctChild','failedLookCreatesFreshBoundedResearchAndAtomicCursorWithoutInheritedQuality','completedCandidatePublishesBeforePeersAndFutureLabelRequiresTerminalFeedback','forgedCompletionCannotAllocateFutureQualification','expertPairTrainingReceiptsCommitWithBothModelsAndRollbackWithCheckpoint','mixedStatisticalAndGradientExpertRowsRollbackAsOnePair'],
       'R30ChartsAndroidTest':['allFourteenLegacyAndTwoSnapshotChartsOpenInThreeStatesAndSaveScreenshots']}
+    tests['strategyv2.R335MigratedPublicationTest'].extend([
+        'symbolicF13TrainingCommitsWithCandidateAndTerminalLiveCheckpoint',
+        'symbolicF14TrainingCommitsWithCandidateAndTerminalLiveCheckpoint',
+        'f06NeuralReceiptsFollowCandidateAndTerminalLiveCheckpointCas',
+        'f07NeuralReceiptsFollowCandidateAndTerminalLiveCheckpointCas',
+        'chainTrainingReceiptsFollowCandidateAndTerminalLiveCheckpointCas',
+        'autoregressiveTrainingReceiptsFollowCandidateAndTerminalLiveCheckpointCas',
+        'sparseTrainingReceiptsFollowCandidateAndTerminalLiveCheckpointCas',
+        'durationTrainingReceiptsFollowCandidateAndTerminalLiveCheckpointCas',
+        'suffixStatisticsFollowCandidateAndTerminalLiveCheckpoint',
+        'expiredPrivateWeightsForkFromVerifiedKernelsAndOnlyLaterLabels',
+        'badWarmParentIsPreservedAndDoesNotBlockAValidParent',
+        'missingWarmCheckpointCannotSilentlyBecomeColdTraining',
+        'completedFirstServiceDoesNotStarveAblationFromCpuQueue',
+    ])
     for cls,methods in tests.items():
         for method in methods:
             target='com.ethk3.novaonepro.'+cls+'#'+method
