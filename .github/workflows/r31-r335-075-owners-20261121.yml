@@ -1,0 +1,176 @@
+name: STARCORE repaired training checkpoint, settlement and owner readbacks
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-075-owners-20261121.yml', '.github/r335-075-owners/**']
+permissions: {}
+jobs:
+  protocols:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 230
+    permissions:
+      actions: read
+      contents: read
+    env:
+      SOURCE: d48b6bcd54d05250b1382e977c65832d3622b1c8
+      STAGE: B08
+      VERSION: '577311075'
+    steps:
+      - name: Receive the public package checksum for this exact release
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY_DIGEST'
+          import os,re,time,urllib.request
+          tag='r335-B08-d48b6bcd54d0'
+          member='STARCORE-R33-577311075-d48b6bcd54d0-release.apk'
+          for _ in range(85):
+              try:
+                  with urllib.request.urlopen('https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/SHA256SUMS.txt',timeout=20) as r: text=r.read(16385).decode()
+                  matches=[line.split()[0] for line in text.splitlines() if len(line.split())==2 and line.split()[1].lstrip('*')==member]
+                  if len(matches)!=1 or not re.fullmatch('[a-f0-9]{64}',matches[0]):raise ValueError('RELEASE_CHECKSUM_MISSING')
+                  with open(os.environ['GITHUB_ENV'],'a') as dst: print('REPAIRED_APK_SHA='+matches[0],file=dst)
+                  break
+              except OSError:time.sleep(30)
+          else:raise SystemExit('PUBLISHED_CANDIDATE_UNAVAILABLE')
+          PY_DIGEST
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore the audited plan and exact stage commit
+        run: |
+          set -euo pipefail
+          url="https://github.com/${GITHUB_REPOSITORY}.git"
+          git init -q app-source
+          git -C app-source fetch -q --no-tags "$url" "$SOURCE"
+          git -C app-source checkout -q --detach "$SOURCE"
+          test "$(git -C app-source rev-parse HEAD)" = "$SOURCE"
+          git -C app-source merge-base --is-ancestor bb7b49bbcc9266bad548ec37e71403256fc06a4d "$SOURCE"
+          git init -q plan-source
+          git -C plan-source sparse-checkout init --cone
+          git -C plan-source sparse-checkout set construction/plans/STARCORE_R33_5_REVIEW_20261119
+          git -C plan-source remote add origin "$url"
+          git -C plan-source config remote.origin.promisor true
+          git -C plan-source config remote.origin.partialclonefilter blob:none
+          git -C plan-source fetch -q --depth=1 --filter=blob:none origin 3f8495dd9405544597631349014b040a21640cb3
+          git -C plan-source checkout -q --detach FETCH_HEAD
+          test "$(git -C plan-source rev-parse HEAD)" = "3f8495dd9405544597631349014b040a21640cb3"
+          curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r33.5-plan/33.5.zip" -o "$RUNNER_TEMP/33.5.zip"
+          python3 -B plan-source/construction/plans/STARCORE_R33_5_REVIEW_20261119/prepare.py "$RUNNER_TEMP/33.5.zip" "$RUNNER_TEMP/material"
+          curl -fsSL --retry 3 "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/0fcf8b9e6286e24dc185328af0d02a0458aaee03/STARCORE-R32.5.1-C1-033-release.apk" -o "$RUNNER_TEMP/formal-033.apk"
+          cd app-source
+          python3 -c 'import json,os; m=json.load(open("release/release_manifest.json")); assert m["versionCode"]==int(os.environ["VERSION"]) and m["versionName"].startswith("R33.5-"+os.environ["STAGE"]+"-")'
+      - name: Install pinned build dependencies
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          python3 -m pip install numpy==2.3.5 'cryptography>=41,<51'
+          python3 -B "$RUNNER_TEMP/material/current-review/source/preflight_delivery.py" --repo app-source --android-sdk "$ANDROID_HOME" --baseline-apk "$RUNNER_TEMP/formal-033.apk" > "$RUNNER_TEMP/preflight.json"
+      - name: Restore the original installed signer in its authorized branch
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Load original baseline input for the existing signing helper
+        uses: actions/download-artifact@v4
+        with:
+          name: r31-report-032-signed-build
+          run-id: 43556844131
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/original032
+      - name: Verify the original signer and initialize existing build bindings
+        working-directory: app-source
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          git diff --quiet bb7b49bbcc9266bad548ec37e71403256fc06a4d HEAD -- tools/r3251/prepare_existing_signer.py
+          python3 tools/r3251/prepare_existing_signer.py
+      - name: Compile the project's private test APK and download the public final target
+        working-directory: app-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest=app/src/androidTest/java/com/ethk3/novaonepro
+          cp "$GITHUB_WORKSPACE/.github/r335-trained-backup/R335TrainedBackupTest.java" "$dest/strategyv2"
+          python3 -B "$GITHUB_WORKSPACE/.github/r335-075-owners/terminal_fixture.py" "$dest/strategyv2/R335TrainedBackupTest.java" "$dest/strategyv2/R335TerminalBackupTest.java"
+          python3 -B "$GITHUB_WORKSPACE/.github/r335-vivo-gallery/paired_fixture.py"
+          cp "$GITHUB_WORKSPACE/.github/r335-vivo-checkpoints/R335MigratedPublicationTest.java" "$dest/strategyv2"
+          python3 -B "$GITHUB_WORKSPACE/.github/r335-075-owners/append_case.py" "$dest/strategyv2/R335MigratedPublicationTest.java"
+          cp "$GITHUB_WORKSPACE/.github/r335-vivo-checkpoints/R335FeedbackCursorTest.java" "$dest"
+          cp "$GITHUB_WORKSPACE/.github/r335-feedback-idempotence/R335DuplicateFeedbackTest.java" "$dest/strategyv2"
+          cp "$GITHUB_WORKSPACE/.github/r335-workbench-render/R335WorkbenchRenderTest.java" "$dest/strategyv2"
+          export STARCORE_R33_PLAN_ROOT="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
+          mkdir -p "$RUNNER_TEMP/protocol-candidate" "$RUNNER_TEMP/upgrade-evidence" "$RUNNER_TEMP/report-originals"
+          ./gradlew --no-daemon --max-workers=2 :app:compileDebugJavaWithJavac > "$RUNNER_TEMP/report-originals/compile.log" 2>&1
+          (cd "$GITHUB_WORKSPACE" && python3 -B .github/r335-vivo-checkpoints/produce.py)
+          if ! ./gradlew --no-daemon --max-workers=2 -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$RUNNER_TEMP/report-originals/instrument-build.log" 2>&1; then
+            python3 -c 'import pathlib,os; p=pathlib.Path(os.environ["RUNNER_TEMP"]); (p/"upgrade-evidence"/"instrument-build-status.txt").write_text("Gradle test APK build failed. Original Gradle log is in the encrypted archive.\n")'
+            exit 1
+          fi
+          cp app/build/outputs/apk/androidTest/debug/*-androidTest.apk "$RUNNER_TEMP/protocol-candidate/instrument-androidTest.apk"
+          ./gradlew --no-daemon --max-workers=2 :app:assembleDebugAndroidTest > "$RUNNER_TEMP/report-originals/su1-build.log" 2>&1
+          cp app/build/outputs/apk/androidTest/debug/*-androidTest.apk "$RUNNER_TEMP/protocol-candidate/original-su1-androidTest.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/protocol-candidate/original-su1-androidTest.apk" | grep -q 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/protocol-candidate/instrument-androidTest.apk" | grep -q 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+          python3 -c 'import time,urllib.request,urllib.error; exec("for attempt in range(220):\n try:\n  urllib.request.urlopen(urllib.request.Request(\"https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-d48b6bcd54d0/SHA256SUMS.txt\",method=\"HEAD\"),timeout=30).close();break\n except OSError:time.sleep(35)\nelse:raise RuntimeError(\"final release not received\")")'
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/r335-B08-d48b6bcd54d0"
+          name=STARCORE-R33-577311075-d48b6bcd54d0-release.apk
+          curl -fLsS --retry 4 "$url/$name" -o "$RUNNER_TEMP/protocol-candidate/$name"
+          curl -fLsS --retry 4 "$url/SHA256SUMS.txt" -o "$RUNNER_TEMP/SHA256SUMS.txt"
+          cd "$RUNNER_TEMP/protocol-candidate"
+          awk -v n="$name" '$2==n{print; found=1} END{if (!found) exit 1}' "$RUNNER_TEMP/SHA256SUMS.txt" | sha256sum -c -
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$name" > "$RUNNER_TEMP/upgrade-evidence/target-certificate.txt"
+          grep -q 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7' "$RUNNER_TEMP/upgrade-evidence/target-certificate.txt"
+          df -h "$RUNNER_TEMP"
+      - name: Restore the independent checkpoint verifier
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 44880658676
+          name: raw-checkpoint-reader
+          path: ${{ runner.temp }}
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -B .github/r335-075-owners/driver.py > "$RUNNER_TEMP/guest-private.log" 2>&1
+      - name: Encrypt the disposable guest's numeric receipt to the workspace recipient
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/encrypted-qa"
+          for kind in checkpoints owner-replay; do
+            receipt="$RUNNER_TEMP/R335-075-$kind-$GITHUB_RUN_ID.json"
+            test -s "$receipt"
+            test "$(stat -c %s "$receipt")" -lt 500000
+            openssl cms -encrypt -binary -aes-256-gcm -outform DER -in "$receipt" -out "$RUNNER_TEMP/encrypted-qa/$kind.cms" .github/r335-070-verification/recipient.pem
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r335-075-owners-workspace-receipt
+          path: ${{ runner.temp }}/encrypted-qa/*.cms
+          if-no-files-found: error
+          retention-days: 1
