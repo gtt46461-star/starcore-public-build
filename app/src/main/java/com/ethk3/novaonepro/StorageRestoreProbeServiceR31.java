@@ -47,14 +47,31 @@ public final class StorageRestoreProbeServiceR31 extends Service {
                     if(assetFile.length()>(16L<<20))throw new IOException("RESTORE_LEGACY_ASSET_MANIFEST_BOUND");
                     Properties assets=StorageMaintenanceFileR82.read(assetFile);for(String path:assets.stringPropertyNames()){File file=StorageRestoreProofR31.child(root,path);if(!(StorageRestoreAssetsR324.hash(file)+":"+file.length()).equals(assets.getProperty(path)))throw new IOException("RESTORE_ASSET_BYTES_CHANGED");}
                 }else throw new IOException("RESTORE_ASSET_MANIFEST_UNKNOWN_FORMAT");
+                boolean legacy="R926_READ_ONLY_ORIGINAL_V1".equals(original.getProperty("legacy_mode"));
+                DatabaseBackupManifestR926 historical=null;
+                if(legacy){
+                    File manifest=new File(root,"legacy-manifest.txt");
+                    if(!original.getProperty("legacy_manifest_sha256","").equals(StorageRestoreAssetsR324.hash(manifest)))throw new IOException("R335_LEGACY_MANIFEST_CHANGED");
+                    historical=DatabaseBackupManifestR926.readManifestR335(manifest);
+                    if(!historical.databaseSha256.equals(original.getProperty("active_sha256")))throw new IOException("R335_LEGACY_SOURCE_IDENTITY");
+                }
                 Properties proof;
                 try(SQLiteDatabase read=SQLiteDatabase.openDatabase(clone.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
-                    proof=StorageRestoreBusinessProbeR31.inventory(read,original.getProperty("native_full_compare"),original.getProperty("asset_manifest_sha256"));
+                    if(historical!=null&&!historical.verifyHistoricalRows(read).passed)throw new IOException("R335_LEGACY_CLONE_HISTORY_CHANGED");
+                    proof=StorageRestoreBusinessProbeR31.inventoryR335(read,original.getProperty("native_full_compare"),original.getProperty("asset_manifest_sha256"),legacy);
                 }
                 ProbeApplication app=new ProbeApplication(getApplicationContext(),root);
                 DbStore store=new DbStore(app); // Actual original critical startup/reconciliation on the clone only.
                 if(!new File(store.readable().getPath()).getCanonicalFile().equals(clone.getCanonicalFile()))throw new IOException("RESTORE_COORDINATOR_PATH_ESCAPE");
                 StorageRestoreBusinessProbeR31.verify(store,proof);
+                if(historical!=null){
+                    DatabaseBackupManifestR926.Verification rows=historical.verifyHistoricalRows(store.readable());
+                    if(!rows.passed)throw new IOException("R335_LEGACY_STARTUP_HISTORY_CHANGED:"+rows.summary());
+                    proof.setProperty("restore_legacy_historical_rows","PASS:ORIGINAL_MANIFEST_EXACT_PREMIGRATION_COLUMNS");
+                    proof.setProperty("restore_legacy_manifest_sha256",original.getProperty("legacy_manifest_sha256"));
+                    proof.setProperty("restore_legacy_snapshot_hash",historical.snapshotHash);
+                    proof.setProperty("restore_legacy_cleanup_authority","NONE_ORIGINAL_RETAINED");
+                }
                 proof.setProperty("restore_application_boot","PRIVATE_PROCESS_NO_CREDENTIAL_OWNER_NO_LIVE_DB");
                 proof.setProperty("restore_method",StorageRestoreProofR31.METHOD);proof.setProperty("restore_nonce",nonce);proof.setProperty("restore_source_commit",BuildConfig.SOURCE_COMMIT_R26);proof.setProperty("restore_parent_pid",original.getProperty("parent_pid"));proof.setProperty("restore_probe_pid",Integer.toString(Process.myPid()));proof.setProperty("restore_active_sha256",original.getProperty("active_sha256"));proof.setProperty("restore_clone_sha256",original.getProperty("clone_sha256"));proof.setProperty("restore_request_sha256",StorageMaintenanceFileR82.sha256(request));
                 File result=new File(root,"result.properties");StorageMaintenanceFileR82.write(result,proof);reply.putString("result_sha256",StorageMaintenanceFileR82.sha256(result));code=0;

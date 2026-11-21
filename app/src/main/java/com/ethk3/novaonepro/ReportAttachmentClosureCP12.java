@@ -48,7 +48,7 @@ public final class ReportAttachmentClosureCP12 {
         String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);source.put("sourceTreeSha256",SourceManifestR815.SOURCE_TREE_SHA256);source.put("generatedRuleSha256",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
         BuildProvenanceR815.Snapshot runtimeIdentity=BuildProvenanceR815.lastSnapshot();if(runtimeIdentity!=null&&runtimeIdentity.valid&&apkBefore.equals(runtimeIdentity.apkSha256))source.put("signingCertificateSha256",runtimeIdentity.certSha256);else source.put("signingCertificateState","MATCHED_RUNTIME_FINGERPRINT_UNAVAILABLE");
         JSONObject registries=new JSONObject();
-        for(String table:new String[]{ResearchPlatformStoreR929.TABLE_BUNDLE,"research_evidence_archive_v2","research_training_input_v2","research_training_attachment_cp12"})
+        for(String table:new String[]{ResearchPlatformStoreR929.TABLE_BUNDLE,"research_evidence_archive_v2","research_training_input_v2","research_training_attachment_cp12","r335_fault_original"})
             registries.put(table,hasTable(copy,table)?"PRESENT":"MISSING_SCHEMA");
         source.put("attachmentRegistries",registries);
         source.put("registryEvidenceBoundary","MISSING_SCHEMA is unavailable evidence, never an empty initialized registry or a passed business check");
@@ -92,6 +92,7 @@ public final class ReportAttachmentClosureCP12 {
                 source.put("r26CheckpointObjects",closure.objects).put("r26CheckpointBytes",closure.bytes).put("r26CheckpointBodiesIncluded",true).put("r26CheckpointByteValidation","EACH_INCLUDED_BODY_SHA256_VERIFIED").put("r26CheckpointScope","Complete disk-indexed reference closure of this exact SQLite snapshot, including lossless cold originals; every included body is independently copied and checked before publication");
             }
             source.put("keepOriginalsR31",captureKeepOriginalsR31(copy,app.getFilesDir(),job,out,control,compact));
+            source.put("faultOriginalsR335",captureFaultOriginalsR335(copy,app.getFilesDir(),job,out,control,compact));
             String last="";
             try(FileOutputStream seedFd=new FileOutputStream(seedEvidence);Writer seeds=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(seedEvidence,seedFd,control),StandardCharsets.UTF_8),8192)) {
             while(hasTable(copy,ResearchPlatformStoreR929.TABLE_BUNDLE)) {
@@ -184,6 +185,7 @@ public final class ReportAttachmentClosureCP12 {
                         // Unique request files are immutable after queue publication. Copy verifies every original byte.
                         try(InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
                     else if(kind.equals("R26_CHECKPOINT")){File expected=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r26-checkpoints").getCanonicalFile(),hash+".bin");if(!expected.getPath().equals(input))throw new IOException("REPORT_R26_CHECKPOINT_SOURCE_PATH");try(InputStream in=com.ethk3.novaonepro.strategyv2.ColdCheckpointR324.open(expected.getParentFile(),hash)){copy(in,fixed,bytes,hash,control);}}
+                    else if(kind.equals("R335_FAULT_ORIGINAL")){File expected=RuntimeFaultOriginalStoreR335.path(app.getFilesDir(),hash);if(!expected.getPath().equals(input))throw new IOException("REPORT_FAULT_ORIGINAL_SOURCE_PATH");try(InputStream in=new ByteArrayInputStream(RuntimeFaultOriginalStoreR335.readFile(app.getFilesDir(),hash,bytes))){copy(in,fixed,bytes,hash,control);}}
                     else if(kind.equals("R31_KEEP_ORIGINAL")){File expected=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r31-keep").getCanonicalFile(),hash+".row");if(!expected.getPath().equals(input)||!expected.isFile()||expected.length()!=bytes)throw new IOException("REPORT_KEEP_ORIGINAL_SOURCE_PATH_OR_BYTES");try(InputStream in=new FileInputStream(expected)){copy(in,fixed,bytes,hash,control);}}
                     else if(kind.equals("FILE")){File file=new File(input);if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(app.getFilesDir().getCanonicalPath()+File.separator))throw new IOException("REPORT_ATTACHMENT_SOURCE_PATH");
                         try(SharedLease lease=shared(new File(lock));InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
@@ -200,6 +202,37 @@ public final class ReportAttachmentClosureCP12 {
         ReportMemberPlanCP12.append(members,"attachments.jsonl",manifest.getName(),ReportArchiveCP4.hash(manifest,control),manifest.length());
         JSONObject complete=new JSONObject();complete.put("format","CP12_FIXED_INPUT_CLOSURE_V1");complete.put("snapshotSha256",snapshotHash);complete.put("attachmentsSha256",ReportArchiveCP4.hash(manifest,control));complete.put("sourceSha256",ReportArchiveCP4.hash(sourceManifest,control));complete.put("observationSha256",ReportArchiveCP4.hash(observation,control));
         ReportJobJournalCP12.writeAtomic(new File(job,"inputs-complete.json"),complete.toString());
+    }
+    /** Exact-snapshot locators, receipts and byte-identical originals; compact mode records unavailable bytes explicitly. */
+    private static JSONObject captureFaultOriginalsR335(SQLiteDatabase snapshot,File files,File job,Writer plans,
+            ReportNativeCP4.Control control,boolean compact)throws Exception {
+        if(!ReportInputsLeaseCP12.currentThreadHoldsInput(files))throw new IOException("REPORT_FAULT_SOURCE_PIN_REQUIRED");
+        File metadata=new File(job,"r335-fault-originals.jsonl");long originals=0,bytes=0,verified=0,missing=0,unverified=0,checked=0;
+        boolean ready=RuntimeFaultOriginalStoreR335.ready(snapshot);String after="";
+        try(FileOutputStream fd=new FileOutputStream(metadata);Writer rows=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(metadata,fd,control),StandardCharsets.UTF_8),8192)){
+            while(ready){
+                checkpoint(control);String event,hash,path;long length;
+                try(Cursor c=snapshot.rawQuery("SELECT event_id,original_hash,original_bytes,relative_path FROM r335_fault_original WHERE event_id>? ORDER BY event_id LIMIT 1",new String[]{after})){
+                    if(!c.moveToFirst())break;event=c.getString(0);hash=c.getString(1);length=c.getLong(2);path=c.getString(3);
+                }
+                after=event;originals++;String state="UNKNOWN";File original=null;
+                try{
+                    requireHash(hash);if(length<1||length>FaultOriginalCodecR335.MAX_BYTES||!(RuntimeFaultOriginalStoreR335.DIRECTORY+"/"+hash+".row").equals(path))throw new IOException("REPORT_FAULT_LOCATOR_IDENTITY");
+                    bytes=Math.addExact(bytes,length);original=RuntimeFaultOriginalStoreR335.path(files,hash);
+                    if(!original.isFile()||original.length()!=length)throw new IOException("REPORT_FAULT_BODY_MISSING_OR_BYTES");
+                    if(compact&&checked+length>8*MiB){state="PRESENT_NOT_HASHED_COMPACT_BYTE_BUDGET";unverified++;}
+                    else {checked=Math.addExact(checked,length);if(RuntimeFaultOriginalStoreR335.readHotCold(snapshot,files,event)==null)throw new IOException("REPORT_FAULT_ORIGINAL_DISAPPEARED");state="EXACT_ORIGINAL_HASH_AND_RECEIPT_VERIFIED";verified++;}
+                }catch(IOException invalid){if(!compact)throw invalid;state="UNAVAILABLE:"+invalid.getMessage();missing++;}
+                JSONObject row=new JSONObject().put("eventId",event).put("originalSha256",hash).put("bytes",length).put("relativePath",path).put("codec",FaultOriginalCodecR335.CODEC).put("availability",state).put("bodyIncluded",!compact);
+                rows.write(row.toString());rows.write('\n');
+                if(!compact)descriptor(plans,"r335-fault-original-"+hash+".row",hash,length,"R335_FAULT_ORIGINAL",original.getPath(),"");
+            }
+            rows.flush();fd.getFD().sync();
+        }
+        descriptor(plans,metadata.getName(),ReportArchiveCP4.hash(metadata,control),metadata.length(),"FILE",metadata.getCanonicalPath(),new File(files,"r335-fault-report-metadata.lock").getCanonicalPath());
+        return new JSONObject().put("schemaState",ready?"PRESENT":"MISSING_SCHEMA").put("indexedOriginals",originals).put("indexedOriginalBytes",bytes)
+            .put("hashAndReceiptVerified",verified).put("unavailable",missing).put("unverifiedByCompactBudget",unverified).put("rawBodiesIncluded",!compact)
+            .put("metadataMember",metadata.getName()).put("hotQuotaMeaning","HOT_ROWS_ONLY; ALL_ARCHIVED_ORIGINALS_REMAIN_PROTECTED");
     }
     /** Snapshot-keyset metadata is streamed. Compact diagnostics spend at most
      * 8 MiB verifying keep bodies; a missing/hash-invalid original stays explicit.

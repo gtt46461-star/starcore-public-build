@@ -21,6 +21,7 @@ public final class WriterHoldFaultsR31 {
     private static final AtomicBoolean DRAINING = new AtomicBoolean();
     private static long observed, persisted, capacityLoss, drainFailures;
     private static int admitting;
+    private static long lastDrainWallR33,lastDrainMsR33;
     private static String lastFailure = "", lastOutcome = "NOT_RUN";
     private static final String COLUMNS = "event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count";
 
@@ -133,61 +134,88 @@ public final class WriterHoldFaultsR31 {
     /** One bounded receipt per actual Health dispatch. Failed/ambiguous delivery retains its event and lease. */
     /** Use the existing controller and per-event fenced writer, never hold the queue across events. */
     public static void drainControlSliceR32(DbStore store) {
-        long started = android.os.SystemClock.elapsedRealtime();
-        for (int i = 0; i < 4; i++) {
-            if (i > 0 && (!deferResearch() || android.os.SystemClock.elapsedRealtime() - started >= 40
-                    || com.ethk3.novaonepro.RealtimePressureGateR811.hasActiveCriticalWork())) return;
-            if (!drainOne(store)) return;
+        drainBatchR33(store,4);
+    }
+
+    public static boolean drainOne(DbStore store) { return drainBatchR33(store,1)>0; }
+
+    private static int drainBatchR33(DbStore store,int maximum) {
+        if(store==null||!DRAINING.compareAndSet(false,true))return 0;
+        final long started=android.os.SystemClock.elapsedRealtime();
+        try {
+            final java.util.ArrayList<Event> batch=new java.util.ArrayList<>();
+            synchronized(WriterHoldFaultsR31.class){for(Event e:PENDING){batch.add(e);if(batch.size()>=maximum)break;}}
+            if(batch.isEmpty())return 0;
+            SQLiteDatabase read=store.readable();
+            if(read.inTransaction())throw new IllegalStateException("R31_WRITER_HOLD_FAULT_DRAIN_REQUIRES_SEPARATE_TRANSACTION");
+            requireReady(read);
+            StringBuilder identities=new StringBuilder(),payloads=new StringBuilder();
+            long bindBytes=4096;
+            for(Event event:batch){identities.append(event.id);payloads.append(event.payload);bindBytes+=HoldLedgerFlushR30.bindBytesR31(event.row());}
+            while(bindBytes>HoldLedgerFlushR30.bindCapR31()&&batch.size()>1){
+                Event removed=batch.remove(batch.size()-1);bindBytes-=HoldLedgerFlushR30.bindBytesR31(removed.row());
+            }
+            if(bindBytes>HoldLedgerFlushR30.bindCapR31())throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_BIND_CAPACITY)");
+            identities.setLength(0);payloads.setLength(0);
+            for(Event event:batch){identities.append(event.id);payloads.append(event.payload);}
+            String batchId=StatsR27.sha256(identities.toString()),batchPayload=StatsR27.sha256(payloads.toString());
+            DatabaseCoordinator.CommitIdentityR31 identity=new DatabaseCoordinator.CommitIdentityR31(
+                "R33_WRITER_HOLD_BATCH:"+batchId,batchPayload,"writer-hold-fault-evidence",WriterHoldLedgerR30.PROCESS_SESSION,
+                0,batchId,0,"R33_WRITER_HOLD_BATCH_V1");
+            DatabaseCoordinator.WriteContext context=DatabaseCoordinator.WriteContext.of(
+                DatabaseCoordinator.WriteClass.TELEMETRY,"R31_WRITER_HOLD_FAULT").withDeadlineMonoMs(com.ethk3.novaonepro.TimeSourceR811.monoNowMs()+10L);
+            DatabaseCoordinator.CommitResultR31<Integer> result=store.coordinatorForResearchR952().runIdempotentAtomicWriteR31(
+                context,identity,db->{
+                    for(Event event:batch){
+                        requireQuota(db,event);
+                        db.execSQL("INSERT OR IGNORE INTO r31_runtime_fault("+COLUMNS+") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",event.row());
+                        if(!present(db,event))throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_MISSING");
+                    }
+                    return batch.size();
+                },batch.size());
+            if(result.outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED&&result.outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED)
+                throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
+            for(Event event:batch)if(!present(read,event))throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_RECEIPT_WITHOUT_EVENT");
+            synchronized(WriterHoldFaultsR31.class){
+                for(Event event:batch){if(PENDING.peekFirst()!=event)throw new IllegalStateException("R31_WRITER_HOLD_FAULT_QUEUE_IDENTITY");PENDING.removeFirst();persisted++;}
+                lastOutcome=result.outcome.name();lastFailure="";
+            }
+            for(Event event:batch)event.memory.close();
+            return batch.size();
+        }catch(RuntimeException unavailable){
+            Error fatal=FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;
+            String detail=RuntimeFaultEvidenceR31.clean(unavailable.getClass().getName()+":"+unavailable.getMessage(),512);
+            synchronized(WriterHoldFaultsR31.class){drainFailures++;lastFailure=detail;}
+            if(com.ethk3.novaonepro.RuntimeFaultArchiveB01.isProtectedDebt(unavailable))
+                com.ethk3.novaonepro.RuntimeFaultArchiveB01.request(store,"r31_runtime_fault",detail);
+            return 0;
+        }finally{
+            synchronized(WriterHoldFaultsR31.class){lastDrainWallR33=System.currentTimeMillis();lastDrainMsR33=android.os.SystemClock.elapsedRealtime()-started;}
+            DRAINING.set(false);
         }
     }
 
-    public static boolean drainOne(DbStore store) {
-        if (!DRAINING.compareAndSet(false, true)) return false;
-        try {
-            final Event event;
-            synchronized (WriterHoldFaultsR31.class) { event = PENDING.peekFirst(); }
-            if (event == null) return false;
-            SQLiteDatabase read = store.readable();
-            if (read.inTransaction()) throw new IllegalStateException("R31_WRITER_HOLD_FAULT_DRAIN_REQUIRES_SEPARATE_TRANSACTION");
-            requireReady(read); requireQuota(read, event);
-            RuntimeCoordinatorR26.Claim claim = RuntimeCoordinatorR26.currentClaimR30();
-            DatabaseCoordinator.CommitIdentityR31 identity = new DatabaseCoordinator.CommitIdentityR31(
-                    "R31_WRITER_HOLD_FAULT:" + event.id, event.payload,
-                    claim == null ? "writer-hold-fault-evidence" : claim.task,
-                    claim == null ? WriterHoldLedgerR30.PROCESS_SESSION : claim.owner,
-                    claim == null ? 0 : claim.fence, event.id, 0, "R31_WRITER_HOLD_OBSERVATION_V1");
-            Object[] row = event.row();
-            long bindBytes = HoldLedgerFlushR30.bindBytesR31(row) + 4096;
-            if (bindBytes > HoldLedgerFlushR30.bindCapR31()) throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_BIND_CAPACITY)");
-            DatabaseCoordinator.CommitResultR31<Integer> result = store.coordinatorForResearchR952().runIdempotentAtomicWriteR31(
-                    DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY, "R31_WRITER_HOLD_FAULT"), identity, db -> {
-                        requireQuota(db, event);
-                        db.execSQL("INSERT OR IGNORE INTO r31_runtime_fault(" + COLUMNS + ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", row);
-                        if (!present(db, event)) throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_MISSING");
-                        return 1;
-                    }, 1);
-            if (result.outcome != DatabaseCoordinator.CommitOutcome.COMMITTED
-                    && result.outcome != DatabaseCoordinator.CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED)
-                throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
-            if (!present(read, event)) throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_RECEIPT_WITHOUT_EVENT");
-            synchronized (WriterHoldFaultsR31.class) {
-                if (PENDING.peekFirst() != event) throw new IllegalStateException("R31_WRITER_HOLD_FAULT_QUEUE_IDENTITY");
-                PENDING.removeFirst(); persisted++; lastOutcome = result.outcome.name(); lastFailure = "";
-            }
-            event.memory.close();
-            return true;
-        } catch (RuntimeException unavailable) {
-            Error fatal = FailureDispositionR31.processFatalCause(unavailable);
-            if (fatal != null) throw fatal;
-            synchronized (WriterHoldFaultsR31.class) {
-                drainFailures++; lastFailure = RuntimeFaultEvidenceR31.clean(unavailable.getClass().getName() + ":" + unavailable.getMessage(), 512);
-            }
-            return false;
-        } finally { DRAINING.set(false); }
+    // Single primary process. A committed event stays pinned through the live read-back.
+    public static synchronized boolean retainsHotOriginalR33(String eventId) {
+        if(eventId==null)return true;
+        for(Event event:PENDING)if(eventId.equals(event.id))return true;
+        return false;
     }
 
     public static synchronized Map<String,Object> snapshot() {
         Map<String,Object> out = new LinkedHashMap<>();
+        out.put("faultArchiveRequestGeneration",com.ethk3.novaonepro.RuntimeFaultArchiveB01.requestedGeneration());
+        com.ethk3.novaonepro.RuntimeFaultArchiveB01.View archive=com.ethk3.novaonepro.RuntimeFaultArchiveB01.observation();
+        out.put("faultArchiveLastDetail",com.ethk3.novaonepro.RuntimeFaultOriginalStoreR335.processDetail());
+        out.put("checkpointRecoveryR335",CheckpointRecoveryR335.processObservation());
+        out.put("faultArchiveState",archive.state.name());out.put("faultArchiveObservedElapsedMs",archive.observedAtElapsedMs);
+        out.put("faultArchiveNextElapsedMs",archive.nextAttemptElapsedMs);out.put("faultArchiveRetiredThisPage",archive.retiredThisPage);
+        out.put("faultArchiveSignalAck",archive.acknowledged);
+        out.put("observerPid",android.os.Process.myPid());
+        out.put("observerProcessSession",WriterHoldLedgerR30.PROCESS_SESSION);
+        out.put("observationWallMs",System.currentTimeMillis());
+        out.put("lastDrainWallMs",lastDrainWallR33);out.put("lastDrainMs",lastDrainMsR33);
+        out.put("oldestPendingWallMs",PENDING.isEmpty()?null:PENDING.peekFirst().wall);
         out.put("observedOver200ms", observed); out.put("pending", PENDING.size()); out.put("persistedFaultReceipts", persisted);
         out.put("capacityLoss", capacityLoss); out.put("drainFailures", drainFailures); out.put("lastDrainFailure", lastFailure);
         out.put("lastDrainCommitOutcome", lastOutcome); out.put("maxPending", MAX_PENDING);

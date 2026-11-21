@@ -135,6 +135,38 @@ public final class DatabaseBackupManifestR926 {
         return b.toString();
     }
 
+
+    /** R33.5: read the original producer's manifest. Never regenerate missing
+     * pre-migration evidence from a current database and call it an old proof. */
+    public static DatabaseBackupManifestR926 readManifestR335(File file) throws Exception {
+        byte[] bytes=LegacyBackupRecoveryR335.readBounded(file,131072);
+        String text=StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+            .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT).decode(java.nio.ByteBuffer.wrap(bytes)).toString();
+        java.util.LinkedHashMap<String,String> headers=new java.util.LinkedHashMap<>();
+        LinkedHashMap<String,TableDigest> records=new LinkedHashMap<>();
+        java.util.List<String> expected=java.util.Arrays.asList(historicalTables());
+        for(String line:text.split("\\n",-1)){
+            if(line.isEmpty())continue;if(line.length()>32768||line.indexOf('\r')>=0)throw new java.io.IOException("R335_LEGACY_MANIFEST_LINE");
+            int equals=line.indexOf('=');if(equals<1)throw new java.io.IOException("R335_LEGACY_MANIFEST_SYNTAX");
+            String key=line.substring(0,equals),value=line.substring(equals+1);
+            if("TABLE".equals(key)){
+                String[] p=value.split("\\|",-1);if(p.length!=5||!expected.contains(p[0])||records.containsKey(p[0]))throw new java.io.IOException("R335_LEGACY_MANIFEST_TABLE");
+                long rows=Long.parseLong(p[1]);String[] cols=p[4].isEmpty()?new String[0]:p[4].split(",",-1);
+                if(rows<0||cols.length>256)throw new java.io.IOException("R335_LEGACY_MANIFEST_BOUND");
+                java.util.HashSet<String> unique=new java.util.HashSet<>();for(String col:cols)if(!col.matches("[A-Za-z_][A-Za-z0-9_]{0,127}")||!unique.add(col))throw new java.io.IOException("R335_LEGACY_MANIFEST_COLUMN");
+                if("MISSING".equals(p[3])){if(rows!=0||!p[2].isEmpty()||cols.length!=0)throw new java.io.IOException("R335_LEGACY_MANIFEST_MISSING_CONFLICT");}
+                else if(!"READY".equals(p[3])||!p[2].matches("[0-9a-f]{64}"))throw new java.io.IOException("R335_LEGACY_MANIFEST_DIGEST");
+                records.put(p[0],new TableDigest(p[0],cols,rows,p[2],p[3]));
+            }else if(!java.util.Arrays.asList("FORMAT","USER_VERSION","DATABASE_SHA256","DATABASE_PATH","CAPTURED_AT","SNAPSHOT_HASH").contains(key)||headers.put(key,value)!=null)throw new java.io.IOException("R335_LEGACY_MANIFEST_HEADER");
+        }
+        if(headers.size()!=6||!FORMAT.equals(headers.get("FORMAT"))||!headers.get("DATABASE_SHA256").matches("[0-9a-f]{64}")
+                ||!headers.get("SNAPSHOT_HASH").matches("[0-9a-f]{64}")||!new java.util.ArrayList<>(records.keySet()).equals(expected))throw new java.io.IOException("R335_LEGACY_MANIFEST_INCOMPLETE");
+        int version=Integer.parseInt(headers.get("USER_VERSION"));long captured=Long.parseLong(headers.get("CAPTURED_AT"));
+        if(version<0||captured<0)throw new java.io.IOException("R335_LEGACY_MANIFEST_TIME_VERSION");
+        DatabaseBackupManifestR926 original=new DatabaseBackupManifestR926(version,headers.get("DATABASE_SHA256"),headers.get("DATABASE_PATH"),captured,records);
+        if(!original.snapshotHash.equals(headers.get("SNAPSHOT_HASH")))throw new java.io.IOException("R335_LEGACY_MANIFEST_SNAPSHOT_HASH");return original;
+    }
+
     public static final class Verification {
         public final boolean passed;
         public final List<String> failures;

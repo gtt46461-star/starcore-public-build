@@ -33,9 +33,12 @@ public final class StorageBudgetR31 {
     }
     public static final class Rejected extends IOException implements com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure {
         public final String reason,owner,admissionOperation;public final long fence;
-        Rejected(String reason){this(reason,"COMMON_BUDGET",-1,"ADMISSION");}
-        private Rejected(String reason,String owner,long fence,String operation){super("STORAGE_BUDGET_"+reason+"|owner="+owner+"|fence="+fence);this.reason=reason;this.owner=owner;this.fence=fence;admissionOperation=operation;}
-        Rejected context(String owner,long fence,String operation){Rejected result=new Rejected(reason,owner,fence,operation);result.initCause(this);return result;}
+        /** Exact rejected admission ticket, never a later census presented as the old decision. */
+        public final Map<String,Object> admissionFactsB01;
+        Rejected(String reason){this(reason,"COMMON_BUDGET",-1,"ADMISSION",Collections.emptyMap());}
+        private Rejected(String reason,String owner,long fence,String operation,Map<String,Object> facts){super("STORAGE_BUDGET_"+reason+"|owner="+owner+"|fence="+fence);this.reason=reason;this.owner=owner;this.fence=fence;admissionOperation=operation;admissionFactsB01=Collections.unmodifiableMap(new LinkedHashMap<>(facts));}
+        Rejected context(String owner,long fence,String operation){Rejected result=new Rejected(reason,owner,fence,operation,admissionFactsB01);result.initCause(this);return result;}
+        private Rejected facts(Map<String,Object> facts){Rejected result=new Rejected(reason,owner,fence,admissionOperation,facts);result.initCause(this);return result;}
         public String failureCategory(){switch(reason){
             case "STALE_RESERVATION":case "OWNER_CLOSED":return "STALE_OWNER";
             case "CANCELLED":return "CANCELLED";
@@ -136,8 +139,8 @@ public final class StorageBudgetR31 {
                 outstanding=add(outstanding,row.bound-growth);
             }
             long limit=transientWork?config.transientHard:config.normalHard;
-            if(add(add(add(censusAccounted(census,null),outstanding),maximumGrowth),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT");
-            long available=available();if(add(add(add(outstanding,maximumGrowth),config.freeFloor),config.metadataHeadroom)>available)throw new Rejected("FREE_SPACE_RESERVE");
+            if(add(add(add(censusAccounted(census,null),outstanding),maximumGrowth),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT").facts(factsB01(ticket,outstanding,maximumGrowth,limit,transientWork,null));
+            long available=available();if(add(add(add(outstanding,maximumGrowth),config.freeFloor),config.metadataHeadroom)>available)throw new Rejected("FREE_SPACE_RESERVE").facts(factsB01(ticket,outstanding,maximumGrowth,limit,transientWork,available));
             String id=sha((owner+"|"+fence+"|"+relative+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));File leaseFile=inside(directory,id+".lease");
             RandomAccessFile io=new RandomAccessFile(leaseFile,"rw");FileLock lifetime=null;
             try{
@@ -146,6 +149,15 @@ public final class StorageBudgetR31 {
                 state.active.put(id,row);writeState(state);String key=leaseFile.getCanonicalPath();OPEN.add(key);return new Reservation(row,io,lifetime,key);
             }catch(IOException|RuntimeException failure){if(lifetime!=null)try{lifetime.release();}catch(IOException close){failure.addSuppressed(close);}try{io.close();}catch(IOException close){failure.addSuppressed(close);}throw failure;}
         });
+    }
+    private Map<String,Object> factsB01(CensusTicket ticket,long pending,long requested,long limit,boolean transientWork,Long free)throws IOException{
+        StorageCensusSU2.Census c=ticket.census;Map<String,Object> f=new LinkedHashMap<>();
+        f.put("scope","EXACT_REJECTED_ADMISSION_TICKET_NOT_SQL_SNAPSHOT");f.put("censusGeneration",ticket.generation);
+        f.put("observedWallMs",System.currentTimeMillis());f.put("observedMonotonicNanos",System.nanoTime());
+        f.put("regularBytes",c.total);f.put("allocatedBytes",c.allocatedBytesKnown?c.allocatedFileAndDirectoryBytes:null);
+        f.put("accountedBytes",censusAccounted(c,null));f.put("outstandingBytes",pending);f.put("requestedGrowthBytes",requested);
+        f.put("metadataHeadroomBytes",config.metadataHeadroom);f.put("limitBytes",limit);f.put("transientWork",transientWork);
+        f.put("freeDiskBytes",free);f.put("freeFloorBytes",config.freeFloor);f.put("freeMeasurementUnavailableReason",free==null?"NOT_MEASURED_BEFORE_PROTECTED_DEBT_REFUSAL":"");return f;
     }
     public final class Reservation implements Closeable {
         public final String id,owner,scope;public final long fence,generation;
@@ -177,8 +189,9 @@ public final class StorageBudgetR31 {
                 StorageCensusSU2.Census census=ticket.census;if(census.truncated)throw new Rejected("CENSUS_INCOMPLETE");if(config.requireAllocated&&!census.allocatedBytesKnown)throw new Rejected("ALLOCATED_BYTES_UNKNOWN");
                 long pending=0,ownActual=censusAccounted(census,own.scope),growth=Math.max(0,ownActual-own.baseline),target=Math.max(own.bound,add(growth,futureBytes));
                 for(Row row:state.active.values()){long actual=censusAccounted(census,row.scope),used=Math.max(0,actual-row.baseline);if(used>row.bound)throw new Rejected("EXISTING_OWNER_EXCEEDED_BOUND");pending=add(pending,(row==own?target:row.bound)-used);}
-                if(add(add(censusAccounted(census,null),pending),config.metadataHeadroom)>(transientWork?config.transientHard:config.normalHard))throw new Rejected("BLOCKED_PROTECTED_DEBT");
-                if(add(add(pending,config.freeFloor),config.metadataHeadroom)>available())throw new Rejected("FREE_SPACE_RESERVE");own.bound=target;own.writeBound=Math.max(own.writeBound,Math.max(target,maximumWritten));own.observed=ownActual;own.observedCharged=own.charged;writeState(state);return null;
+                long limit=transientWork?config.transientHard:config.normalHard;
+                if(add(add(censusAccounted(census,null),pending),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT").facts(factsB01(ticket,pending-(target-own.bound),target-own.bound,limit,transientWork,null));
+                long available=available();if(add(add(pending,config.freeFloor),config.metadataHeadroom)>available)throw new Rejected("FREE_SPACE_RESERVE").facts(factsB01(ticket,pending-(target-own.bound),target-own.bound,limit,transientWork,available));own.bound=target;own.writeBound=Math.max(own.writeBound,Math.max(target,maximumWritten));own.observed=ownActual;own.observedCharged=own.charged;writeState(state);return null;
             });
         }
         public synchronized long maximumGrowthBytes()throws IOException{if(closed)throw new Rejected("OWNER_CLOSED").context(owner,fence,"OBSERVE_RESERVATION");return owned("OBSERVE_RESERVATION",state->require(state).bound);}
