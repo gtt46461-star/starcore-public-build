@@ -91,7 +91,20 @@ def _layers(verification):
     }
 
 
-def create_delivery(built, verification_path, out, ident=None, acceptance_dir=None):
+def current_installed_receipt_r33(path):
+    need(path is not None and Path(path).is_file(), 'R33_CURRENT_INSTALLED_RECEIPT_REQUIRED')
+    value = json.loads(Path(path).read_text())
+    need(value.get('format') == 'R33_INSTALLED_APK_IDENTITY_1', 'R33_INSTALLED_RECEIPT_FORMAT')
+    need(value.get('package') == 'com.starcore.research.r13', 'R33_INSTALLED_PACKAGE_MISMATCH')
+    need(type(value.get('versionCode')) is int and value['versionCode'] >= 577311033, 'R33_INSTALLED_VERSION_UNKNOWN')
+    need(re.fullmatch(r'[0-9a-f]{64}', str(value.get('apkSha256', ''))) is not None, 'R33_INSTALLED_APK_HASH_UNKNOWN')
+    need(value.get('signerCertSha256') == INSTALLED['signerCertSha256'], 'R33_INSTALLED_SIGNER_CHANGED')
+    need(type(value.get('observedAtMs')) is int and value['observedAtMs'] > 0, 'R33_INSTALLED_OBSERVATION_TIME_REQUIRED')
+    need(value.get('observationEvidenceSha256') and re.fullmatch(r'[0-9a-f]{64}', value['observationEvidenceSha256']), 'R33_INSTALLED_OBSERVATION_HASH_REQUIRED')
+    return value
+
+
+def create_delivery(built, verification_path, out, ident=None, acceptance_dir=None, installed_receipt=None):
     ident = ident or identity()
     built, out = Path(built), Path(out); out.mkdir(parents=True, exist_ok=True)
     try:
@@ -109,7 +122,7 @@ def create_delivery(built, verification_path, out, ident=None, acceptance_dir=No
         apk = apks[0]; stem = apk.stem
         facts = verify_apk(apk, r31v / ('badging-%s.txt' % stem), r31v / ('signature-%s.txt' % stem), r31v / 'SHA256SUMS.txt', ident)
         label = 'OFFICIAL' if official else ('OVERLAY-INSTALL-R27-IDENTITY' if device else 'DEBUG-NOT-OFFICIAL')
-        installed = FIELD_032 if facts['versionCode'] > FIELD_032['versionCode'] else INSTALLED
+        installed = current_installed_receipt_r33(installed_receipt) if facts['versionCode'] >= 577311034 else (FIELD_032 if facts['versionCode'] > FIELD_032['versionCode'] else INSTALLED)
         overlay = {'installed': installed, 'sameSigner': facts['signerCertSha256'] == installed['signerCertSha256'],
                    'samePackage': facts['package'] == installed['package'], 'versionCodeHigher': facts['versionCode'] > installed['versionCode']}
         overlay['scope'] = 'STATIC_PACKAGE_SIGNER_VERSION_COMPATIBILITY'
@@ -178,11 +191,11 @@ def verify_zip(path, ident=None):
 
 def main():
     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest='cmd', required=True)
-    c = sub.add_parser('create'); c.add_argument('--built', required=True); c.add_argument('--verification', required=True); c.add_argument('--out', required=True);c.add_argument('--acceptance',default=None)
+    c = sub.add_parser('create'); c.add_argument('--built', required=True); c.add_argument('--verification', required=True); c.add_argument('--out', required=True);c.add_argument('--acceptance',default=None);c.add_argument('--installed-receipt',default=None)
     v = sub.add_parser('verify'); v.add_argument('zip')
     a = ap.parse_args()
     try:
-        if a.cmd == 'create': create_delivery(a.built, a.verification, a.out,acceptance_dir=a.acceptance)
+        if a.cmd == 'create': create_delivery(a.built, a.verification, a.out,acceptance_dir=a.acceptance,installed_receipt=a.installed_receipt)
         else: print(json.dumps(verify_zip(a.zip), ensure_ascii=False)[:2000])
     except Refused:
         sys.exit(1)

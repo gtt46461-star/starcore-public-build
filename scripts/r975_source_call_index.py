@@ -9,16 +9,29 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'app/src/main/assets/research/r975_source_calls.tsv'
 class Reader:
  def __init__(self,b):self.b=b;self.p=0
- def n(self,k):v=self.b[self.p:self.p+k];self.p+=k;return v
+ def n(self,k):
+  if k<0 or self.p+k>len(self.b):raise ValueError("TRUNCATED_CLASSFILE")
+  v=self.b[self.p:self.p+k];self.p+=k;return v
  def u1(self):return self.n(1)[0]
  def u2(self):return int.from_bytes(self.n(2),'big')
  def u4(self):return int.from_bytes(self.n(4),'big')
+def modified_utf8(raw):
+ # CONSTANT_Utf8 uses Java modified UTF-8: NUL is C0 80 and supplementary
+ # codepoints are encoded as a surrogate pair. Preserve lone surrogates in
+ # unused string constants; never silently replace a method/source identifier.
+ if b'\x00' in raw or any(x>=0xf0 for x in raw):raise ValueError('INVALID_MODIFIED_UTF8')
+ text=raw.replace(b'\xc0\x80',b'\x00').decode('utf-8','surrogatepass')
+ return text.encode('utf-16-be','surrogatepass').decode('utf-16-be','surrogatepass')
 def attrs(r,cp):return [(cp[r.u2()],r.n(r.u4())) for _ in range(r.u2())]
 def methods(path):
- r=Reader(path.read_bytes());assert r.u4()==0xcafebabe;r.n(4);n=r.u2();cp=[None]*n;i=1
+ r=Reader(path.read_bytes())
+ if r.u4()!=0xcafebabe:raise ValueError('INVALID_CLASSFILE_MAGIC')
+ minor=r.u2();major=r.u2();
+ if not 45<=major<=61 or minor==65535:raise ValueError('UNSUPPORTED_OR_PREVIEW_CLASS_VERSION:'+str(major))
+ n=r.u2();cp=[None]*n;i=1
  while i<n:
   t=r.u1()
-  if t==1:cp[i]=r.n(r.u2()).decode('utf-8',errors='replace')
+  if t==1:cp[i]=modified_utf8(r.n(r.u2()))
   elif t in (3,4):cp[i]=(t,r.n(4))
   elif t in (5,6):cp[i]=(t,r.n(8));i+=1
   elif t in (7,8,16,19,20):cp[i]=(t,r.u2())
@@ -52,16 +65,20 @@ def methods(path):
     elif op in (0xaa,0xab):
      q=(p+4)&~3
      if op==0xaa:
-      low,high=struct.unpack('>ii',code[q+4:q+12]);size=q-p+12+4*(high-low+1)
+      low,high=struct.unpack('>ii',code[q+4:q+12]);
+      if high<low:raise ValueError('INVALID_TABLESWITCH_RANGE')
+      size=q-p+12+4*(high-low+1)
      else:
-      pairs=struct.unpack('>i',code[q+4:q+8])[0];size=q-p+8+8*pairs
+      pairs=struct.unpack('>i',code[q+4:q+8])[0];
+      if pairs<0:raise ValueError('INVALID_LOOKUPSWITCH_COUNT')
+      size=q-p+8+8*pairs
     if p+size>len(code):raise ValueError(('bad bytecode length',name,nm,p,size))
     p+=size
   ms.append((nm,desc,flags,min([l for _,l in lines],default=0),max([l for _,l in lines],default=0),calls))
  source=None
  for an,bb in attrs(r,cp):
   if an=='SourceFile':source=cp[int.from_bytes(bb,'big')]
- assert r.p==len(r.b)
+ if r.p!=len(r.b):raise ValueError('TRAILING_CLASSFILE_BYTES')
  return name,source,ms
 
 def main():

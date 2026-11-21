@@ -1,0 +1,85 @@
+// R335: public AGP8.12 scoped-artifact + generated-source APIs.
+// Direct dependencies: compiled project classes -> generated assets. No preBuild edge.
+// API references: android/gradle-recipes agp-8.12 getScopedArtifacts and addGeneratedSourceFolder.
+import com.android.build.api.artifact.ScopedArtifact
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.ScopedArtifacts
+import groovy.transform.CompileStatic
+import kotlin.jvm.functions.Function1
+import org.gradle.api.Action
+import org.gradle.api.DefaultTask
+import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.tasks.*
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
+
+@CompileStatic
+abstract class R335SourceCallAssets extends DefaultTask {
+    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
+    abstract ListProperty<RegularFile> getProjectJars()
+    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
+    abstract ListProperty<Directory> getProjectDirectories()
+    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
+    abstract DirectoryProperty getProductJava()
+    @InputFile @PathSensitive(PathSensitivity.RELATIVE)
+    abstract RegularFileProperty getGeneratorScript()
+    @InputFile @PathSensitive(PathSensitivity.RELATIVE)
+    abstract RegularFileProperty getParserScript()
+    @InputFile @PathSensitive(PathSensitivity.RELATIVE)
+    abstract RegularFileProperty getSourceProvenance()
+    @OutputDirectory abstract DirectoryProperty getOutputDirectory()
+    @Internal abstract DirectoryProperty getCheckoutRoot()
+    @Inject abstract ExecOperations getExecOperations()
+
+    @TaskAction void generate() {
+        File output = new File(outputDirectory.get().asFile, 'research/r975_source_calls.tsv')
+        List<String> command = ['python3', generatorScript.get().asFile.absolutePath,
+                                '--from-classes', '--output', output.absolutePath]
+        for (Directory directory : projectDirectories.get()) {
+            command.add('--class-directory'); command.add(directory.asFile.absolutePath)
+        }
+        for (RegularFile archive : projectJars.get()) {
+            command.add('--class-jar'); command.add(archive.asFile.absolutePath)
+        }
+        File checkout = checkoutRoot.get().asFile
+        execOperations.exec { spec ->
+            spec.workingDir(checkout)
+            spec.commandLine(command)
+        }.assertNormalExitValue()
+    }
+}
+
+@CompileStatic
+class R335SourceCallWiring {
+    static void register(Project project, ApplicationVariant variant) {
+        String taskName = 'generate' + variant.name.capitalize() + 'R335SourceCallAssets'
+        TaskProvider<R335SourceCallAssets> generator = project.tasks.register(taskName, R335SourceCallAssets,
+            { R335SourceCallAssets task ->
+                task.checkoutRoot.set(project.rootProject.layout.projectDirectory)
+                task.productJava.set(project.rootProject.layout.projectDirectory.dir('app/src/main/java'))
+                task.generatorScript.set(project.rootProject.layout.projectDirectory.file('scripts/r982_source_call_asset.py'))
+                task.parserScript.set(project.rootProject.layout.projectDirectory.file('scripts/r975_source_call_index.py'))
+                task.sourceProvenance.set(project.layout.buildDirectory.file('generated/r815/source-manifest.json'))
+                // The original r815 task validates declared tool/source bytes before classes exist.
+                task.dependsOn(project.tasks.named('verifyR815Provenance'))
+            } as Action<R335SourceCallAssets>)
+        variant.artifacts.forScope(ScopedArtifacts.Scope.PROJECT).use(generator).toGet(
+            ScopedArtifact.CLASSES.INSTANCE,
+            { R335SourceCallAssets task -> task.projectJars } as Function1<R335SourceCallAssets,ListProperty<RegularFile>>,
+            { R335SourceCallAssets task -> task.projectDirectories } as Function1<R335SourceCallAssets,ListProperty<Directory>>)
+        variant.sources.assets.addGeneratedSourceDirectory(generator,
+            { R335SourceCallAssets task -> task.outputDirectory } as Function1<R335SourceCallAssets,DirectoryProperty>)
+    }
+    static void wire(Project project, ApplicationAndroidComponentsExtension components) {
+        components.onVariants(components.selector().all(),
+            { ApplicationVariant variant -> register(project, variant) } as Action<ApplicationVariant>)
+    }
+}
+
+R335SourceCallWiring.wire(project, extensions.getByType(ApplicationAndroidComponentsExtension))

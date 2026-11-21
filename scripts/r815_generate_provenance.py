@@ -26,7 +26,8 @@ BUILD_CONTRACTS = (FACADE, 'app/build.gradle', 'build.gradle', 'settings.gradle'
                    'scripts/r817_generate_provenance.sh', 'scripts/r967_semantic_identity.py',
                    'scripts/r926_release_manifest.py', 'scripts/cp4_compile_catalog.py',
                    'scripts/cp4_compile_molecule_seeds.py', 'scripts/verify_catalog_assets_cp12.py',
-                   'scripts/r982_source_call_asset.py', 'scripts/r997_construction_assets.py',
+                   'scripts/r982_source_call_asset.py', 'scripts/r975_source_call_index.py',
+                   'gradle/r335_source_calls.gradle', 'scripts/r997_construction_assets.py',
                    'scripts/opt299_stage_build.py',
                    'release/research_dependencies_r967.json', 'release/research_gate_plan_r967.json')
 
