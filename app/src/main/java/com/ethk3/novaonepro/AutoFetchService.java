@@ -11643,7 +11643,7 @@ public final class AutoFetchService extends Service {
             }
 
             if (!need) {
-                HotHistoryWindowR335 hot = store.hotHistoryWindowR335();
+                HotHistoryWindowR335 hot = HotHistoryWindowR335.read(store);
                 if (hot != null && hot.missingPeriods > 0) {
                     need = true;
                     reason = "最近5000期尚缺" + hot.missingPeriods + "期";
@@ -11718,14 +11718,14 @@ public final class AutoFetchService extends Service {
                 }
             }
 
-            HotHistoryWindowR335 window = store.hotHistoryWindowR335();
+            HotHistoryWindowR335 window = HotHistoryWindowR335.read(store);
             if (window == null && (b07ForcedBackfill || !shouldDeferHeavyBackgroundNow())) {
                 Models.ApiResult today = apiClient.fetchTodayBackfill();
                 datesRequested++;
                 if (today != null && today.ok && today.draws != null && !today.draws.isEmpty()) {
                     datedRows += today.draws.size();
                     totalInserted += store.saveDraws(today.draws);
-                    window = store.hotHistoryWindowR335();
+                    window = HotHistoryWindowR335.read(store);
                 } else {
                     failedDates++;
                 }
@@ -11766,7 +11766,7 @@ public final class AutoFetchService extends Service {
             lastBackfillAt = now;
             startupBackfillDone = true;
 
-            HotHistoryWindowR335 remaining = store.hotHistoryWindowR335();
+            HotHistoryWindowR335 remaining = HotHistoryWindowR335.read(store);
             String coverage = remaining == null ? "等待首期有效开奖" : "最近5000期尚缺" + remaining.missingPeriods + "期";
             String msg = "最新100返回" + latest100Count + "条，按日期请求" + datesRequested
                     + "次，窗口内返回" + datedRows + "条，空响应或失败" + failedDates + "次；新增"

@@ -22,6 +22,11 @@ final class HotHistoryWindowR335 {
         missingPeriods = missing;
     }
 
+    static HotHistoryWindowR335 read(DbStore store) {
+        Models.Draw head = store.getLatestDraw();
+        return head == null || !head.isValid() ? null : read(store.readable(), head.issue);
+    }
+
     static HotHistoryWindowR335 read(SQLiteDatabase db, String last) {
         long end = TargetIssueResolver.sequenceOrdinalSU1(last);
         long begin = Math.max(1L, end - AppConfig.MAX_LOCAL_HISTORY_SAVE + 1L);

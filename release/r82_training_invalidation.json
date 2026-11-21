@@ -133,7 +133,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
-      "after_sha256": "bc7203c1b69dbe310469cb5c87f4a67d0bf55d86640a38d92bdaf1268aa15bd7",
+      "after_sha256": "289933f7b7f00fe925256146392772461890dced82502c9aba27b52e20c38e6b",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
@@ -365,13 +365,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
-      "before_sha256": "cc3fa2bd36023110012d9cb425c692d0a7b6bd12ea8561afcc388e5c1f301ef3",
-      "after_sha256": "fb305fb959eae97a22b4656c49b877837af6b21f4766c32afc8525a5613d926d",
-      "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Recover the exact most recent 5000 calendar positions, including the leading partial provider date. Query each deficient date on the background worker, keep read-only coverage, exclude future and obsolete rows, classify missing history to preserve retries, and leave pre-draw forecasting immutable."
+      "after_sha256": "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",
+      "before_role": "NUMERIC",
+      "before_sha256": "cc3fa2bd36023110012d9cb425c692d0a7b6bd12ea8561afcc388e5c1f301ef3",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "rationale": "在旧link表创建目标索引之前幂等补target_issue、candidate_rank、candidate_key；不删除旧行、不虚构候选主键。重复非空键保持明确拒绝。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
+      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
     },
     {
       "after_role": "NUMERIC",
@@ -592,7 +592,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/HotHistoryWindowR335.java",
       "before_sha256": "",
-      "after_sha256": "fd8bbff9f94d427aa388cf728127c50e877969b692c329f6eb1393139f655361",
+      "after_sha256": "20781f6b7372b12c959cfe13e81da3ea04fc8a9d941fe55337c05b1a6b6bf9da",
       "before_role": "",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
@@ -3677,13 +3677,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "ee560f91ca3fe7e5398ef711ec6e8a6311f543d098edc5fb76d283f2e9c07b8e",
-      "before_role": "",
-      "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayR26.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "",
+      "after_sha256": "40fc433f98f985f27f6eb279f633e681de953a7df08e9b2cde52ce9913178978",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "Codex R33.5 vivo field repair",
+      "rationale": "Authenticate future live-model and legacy-training labels against the exact confirmed-draw outbox plus the settlement task under its owner, status, completion, and current or legacy draw identity. Check again when committing the checkpoint."
     },
     {
       "after_role": "NUMERIC",
@@ -3704,13 +3704,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "08b79c232f5c81990deab283a0e86078fcf12dd3162aabce6f294f01c3ccbf87",
-      "before_role": "",
-      "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LivePoolR26.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "",
+      "after_sha256": "ef2cdf733b5f40b08bd7099a5c106b77360a58414bf3330bc235e6f056c4a0c6",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "Codex R33.5 vivo field repair",
+      "rationale": "Authenticate future live-model and legacy-training labels against the exact confirmed-draw outbox plus the settlement task under its owner, status, completion, and current or legacy draw identity. Check again when committing the checkpoint."
     },
     {
       "after_role": "NUMERIC",
@@ -9269,7 +9269,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "c9af78553706a1fafdb46a1057e296b9b7d42faaec210d86d44a02845e723037",
+  "reviewed_input_provenance_sha256": "5b0ef3076c97ce7ab30f812fda22b0f900a786d874461fe9efd187af384e88f3",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

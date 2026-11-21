@@ -101,7 +101,7 @@ public final class LegacyReplayR26 {
                 db.execSQL("UPDATE r26_legacy_runtime SET cursor=?,through_ordinal=?,state=?,state_hash=?,parent_hash=?,checkpoint_hash=?,status=?,snapshot=CASE WHEN ?=1 THEN X'' ELSE snapshot END,updated_at=? WHERE singleton=1 AND checkpoint_hash=? AND through_ordinal=? AND cursor=? AND snapshot_hash=? AND source_through=? AND state_hash=? AND numerical_abi=? AND status=? AND roster_hash=? AND parent_hash=? AND snapshot=?",new Object[]{committedCursor,committedThrough,file.reference(),hash,previous.checkpoint,checkpoint,bootDone?"LIVE":previous.status,bootDone?1:0,System.currentTimeMillis(),previous.checkpoint,oldThrough,previous.cursor,previous.source,previous.sourceThrough,previous.stateHash,previous.abi,previous.status,previous.roster,previous.parent,previous.snapshot});
                 try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R26_LEGACY_PARENT_CAS");}
                 CheckpointManifestR26.record(db,checkpoint,"LEGACY:"+previous.roster,previous.source,previous.checkpoint,committedThrough,file.reference());
-                for(String[] event:events){long ordinal=Long.parseLong(event[3]);if(ordinal>committedThrough)continue;try(Cursor c=db.rawQuery("SELECT 1 FROM r26_feedback WHERE event_id=? AND source_hash=?",new String[]{event[0],event[2]})){if(!c.moveToFirst())throw new IllegalStateException("R26_LEGACY_EVENT_CAS");}for(String text:state.canonical)db.execSQL("INSERT OR IGNORE INTO r26_consumption VALUES(?,?,?,'REVEALED_LIVE_LABEL')",new Object[]{event[0],LegacyReplayStateR26.key(text),checkpoint});}
+                for(String[] event:events){long ordinal=Long.parseLong(event[3]);if(ordinal>committedThrough)continue;if(!terminalFeedback(db,event[0],event[1],event[2],event[4]))throw new IllegalStateException("R26_LEGACY_EVENT_CAS");for(String text:state.canonical)db.execSQL("INSERT OR IGNORE INTO r26_consumption VALUES(?,?,?,'REVEALED_LIVE_LABEL')",new Object[]{event[0],LegacyReplayStateR26.key(text),checkpoint});}
                 return 0;});
             working=state;workingCheckpoint=checkpoint;
             Row committed=row(store.readable());if(committed!=null&&committed.status.equals("LIVE")&&committed.through==latestOrdinal)activate(store,committed);
@@ -169,7 +169,23 @@ public final class LegacyReplayR26 {
         try(Cursor c=store.readable().rawQuery("SELECT issue FROM draws WHERE dirty=0 AND issue>=? ORDER BY issue LIMIT 1",new String[]{after})){if(c.moveToFirst())issue=c.getString(0);}if(issue==null)return null;
         Models.Draw draw=store.getDrawByIssue(issue);if(draw==null||!draw.isValid())throw new IllegalStateException("R26_LEGACY_CANONICAL_INPUT");String hash=DrawHashR36.sha256V2(draw);long ordinal=TargetIssueResolver.sequenceOrdinalSU1(issue);String event="";
         try(Cursor c=store.readable().rawQuery("SELECT event_id,source_hash FROM r26_feedback WHERE issue_ordinal=?",new String[]{String.valueOf(ordinal)})){if(c.moveToFirst()){if(!hash.equals(c.getString(1)))throw new IllegalStateException("R26_LEGACY_CANONICAL_CONFLICT");event=c.getString(0);}}
-        return new String[]{event,issue,hash,String.valueOf(ordinal)};
+        String legacyHash = DrawHashR36.sha256(draw);
+        if (!event.isEmpty() && !terminalFeedback(store.readable(), event, issue, hash, legacyHash)) event = "";
+        return new String[]{event, issue, hash, String.valueOf(ordinal), legacyHash};
+    }
+
+    /** The ingestion outbox may precede settlement. Live learners require a matching committed task. */
+    static boolean terminalFeedback(SQLiteDatabase db, String event, String issue, String source, String legacyHash) {
+        String sql = "SELECT 1 FROM r26_feedback f JOIN " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                + " t ON t.target_issue=? AND t.draw_issue=t.target_issue "
+                + "WHERE f.event_id=? AND f.source_hash=? AND f.issue_ordinal=? "
+                + "AND t.draw_hash IN (?,?) AND t.completed_at>0 AND length(t.settlement_hash)>0 "
+                + "AND t.status IN (?,?)";
+        String[] args = {issue, event, source, Long.toString(TargetIssueResolver.sequenceOrdinalSU1(issue)),
+                source, legacyHash, SettlementTaskStoreR36.COMPLETED, SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL};
+        try (Cursor row = db.rawQuery(sql, args)) {
+            return row.moveToFirst();
+        }
     }
     private static void activate(DbStore store,Row row)throws IOException {verifyCheckpoint(store,row);Prepared p=active;if(p!=null&&p.checkpoint.equals(row.checkpoint))return;LegacyReplayStateR26 ready=decode(store,row);active=new Prepared(row,ready);}
     public static int capture(DbStore store,String target){
