@@ -14,7 +14,7 @@
 | B07 | 577311064 | [c99962e827e3](https://github.com/gtt46461-star/starcore-public-build/commit/c99962e827e3f3fa00b1becea99d9855c6084880) | 664 | [下载](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B07-c99962e827e3/STARCORE-R33-577311064-c99962e827e3-release.apk) | [下载](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B07-c99962e827e3/STARCORE-R33-577311064-c99962e827e3-APK-SOURCE-EVIDENCE.zip) |
 | B08 | 577311065 | [a724adbfb31d](https://github.com/gtt46461-star/starcore-public-build/commit/a724adbfb31dd96f1459aa2e5cbd94582dd6e82d) | 664 | [下载](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/STARCORE-R33-577311065-a724adbfb31d-release.apk) | [下载](https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/STARCORE-R33-577311065-a724adbfb31d-APK-SOURCE-EVIDENCE.zip) |
 
-66 项工单与修订所据的原施工卡可逐项查阅。[工单表](orders.csv)
+66 项工单均列出本批实跑验证命令和退出码。其中 48 项可从对应 APK 的编译索引定位到方法，48 项列有直接调用及源码行。运行验收栏另列实际观察。[工单表](orders.csv)
 
 原方案完整模式返回 `INCOMPLETE`。实体 vivo V2353A 已认证时长为 0 小时。每条原要求保留固定 ID、通过状态、缺项与详细证据索引。[五类逐项结果](closure.csv) · [计数与同 APK 百期工程观测](results.json)
 
