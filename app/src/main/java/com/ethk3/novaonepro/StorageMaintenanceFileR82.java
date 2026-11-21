@@ -160,6 +160,17 @@ public final class StorageMaintenanceFileR82 {
         if(proof==null||!proof.matches("OK rows=[0-9]+ tables=[0-9]+ auto_vacuum=2 user_version=[0-9]+ application_id=[0-9]+"))throw new IOException("RESTORE_NATIVE_FULL_COPY_FAILED");
         requireHash(db,before,"active changed while preparing restore copy");requireNoSidecars(db);return proof;
     }
+    /** Exact historical source is read-only. No live-file swap and no cleanup authority. */
+    static String prepareLegacyRestoreCopyR335(File source,File destination,String sourceHash)throws IOException {
+        if(!DatabaseCoordinator.isClosedOfflineOwnerR31())throw new IOException("R335_LEGACY_CLOSED_OWNER_REQUIRED");
+        requireNoSidecars(source);requireHash(source,sourceHash,"legacy source");
+        if(destination.exists()||!destination.getAbsoluteFile().equals(destination.getCanonicalFile()))throw new IOException("R335_LEGACY_EXCLUSIVE_COPY_REQUIRED");
+        long minimum=Math.addExact(source.length(),64L<<20);
+        if(availableRestoreBytesR31(destination.getParentFile())<minimum)throw new IOException("WAIT_LEGACY_COPY_DISK_CAPACITY");
+        String proof=nativeRebuild(source.getCanonicalPath(),destination.getCanonicalPath());
+        if(proof==null||!proof.matches("OK rows=[0-9]+ tables=[0-9]+ auto_vacuum=2 user_version=[0-9]+ application_id=[0-9]+"))throw new IOException("R335_LEGACY_NATIVE_FULL_COPY_FAILED");
+        requireHash(source,sourceHash,"legacy source changed");requireNoSidecars(source);return proof;
+    }
     public static String backupSummary(File database) {
         try{File db=database.getCanonicalFile(),old=backup(db);return "retained_backup_bytes="+(old.isFile()?old.length():0)+
                 " pending_swap="+journal(db).exists()+" backup_receipt="+receipt(db).isFile()+" backup_cleanup=EXPLICIT_SEPARATE_ACTION";}

@@ -14,11 +14,30 @@ import java.util.*;
 /** One retention Owner. Selection/file preparation are outside the existing writer. */
 public final class DataRetentionGovernorR900 {
     private static final java.util.concurrent.atomic.AtomicBoolean ACTIVE=new java.util.concurrent.atomic.AtomicBoolean();
+    // A failed ordinary trim call leaves a one-turn yield hint, not an immortal
+    // queued owner: its caller may never retry. Consume the hint on the next lane.
+    private static final java.util.concurrent.atomic.AtomicBoolean REGULAR_WAITING_R335=new java.util.concurrent.atomic.AtomicBoolean();
+    private static final RuntimeFaultOriginalStoreR335 FAULT_ORIGINAL_R335=new RuntimeFaultOriginalStoreR335();
+    /** Called only by the service-owned background executor, under the same maintenance owner as trim. */
+    public static boolean runFaultMaintenanceR335(DbStore store,long deadlineElapsed){
+        if(store==null||Looper.myLooper()==Looper.getMainLooper()||RealtimePressureGateR811.hasActiveCriticalWork()
+                ||Thread.currentThread().isInterrupted()||REGULAR_WAITING_R335.getAndSet(false)||!ACTIVE.compareAndSet(false,true))return false;
+        try{return RuntimeFaultArchiveB01.step(store,android.os.SystemClock.elapsedRealtime(),deadlineElapsed,FAULT_ORIGINAL_R335);}
+        finally{ACTIVE.set(false);}
+    }
+    public static String runCheckpointRecoveryR335(DbStore store,long deadlineElapsed){
+        if(store==null||Looper.myLooper()==Looper.getMainLooper()||RealtimePressureGateR811.hasActiveCriticalWork()
+                ||Thread.currentThread().isInterrupted()||REGULAR_WAITING_R335.getAndSet(false)||!ACTIVE.compareAndSet(false,true))return "MAINTENANCE_BUSY_OR_PRESSURE";
+        try{return com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335.step(store,deadlineElapsed);}
+        finally{ACTIVE.set(false);}
+    }
     private static final String INFLIGHT="retention_cp12_inflight_request",TABLE_CURSOR="retention_cp12_table_cursor";
     private DataRetentionGovernorR900(){}
     public static String trim(DbStore store){return trim(store,50L);}
     public static String trim(final DbStore store,long budgetMs){
+        REGULAR_WAITING_R335.set(true);
         if(!ACTIVE.compareAndSet(false,true))return "RETENTION_OWNER_BUSY";
+        REGULAR_WAITING_R335.set(false);
         try{return trimOwnedCP12(store,budgetMs);}finally{ACTIVE.set(false);}
     }
     private static String trimOwnedCP12(final DbStore store,long budgetMs){

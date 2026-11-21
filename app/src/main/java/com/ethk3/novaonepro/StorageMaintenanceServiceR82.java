@@ -13,9 +13,30 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class StorageMaintenanceServiceR82 extends Service {
     public static final String ACTION_REBUILD="com.ethk3.novaonepro.R82_REBUILD_DATABASE";
     public static final String ACTION_CLEAN_BACKUP="com.ethk3.novaonepro.R82_DELETE_VERIFIED_BACKUP";
+    public static final String ACTION_VERIFY_LEGACY_R335="com.ethk3.novaonepro.R335_VERIFY_LEGACY_BACKUP";
+    public static void requestLegacyBackupProofR335(Context context,String fileName){
+        LegacyBackupRecoveryR335.requireName(fileName);
+        requestActionR335(context,ACTION_VERIFY_LEGACY_R335,fileName);
+    }
+    public static final String ACTION_CUSTODY_EXPORT_R335="com.ethk3.novaonepro.R335_CUSTODY_EXPORT";
+    public static final String ACTION_CUSTODY_VERIFY_R335="com.ethk3.novaonepro.R335_CUSTODY_VERIFY";
+    public static final String ACTION_CUSTODY_RECONCILE_R335="com.ethk3.novaonepro.R335_CUSTODY_RECONCILE";
+    public static final String ACTION_CUSTODY_RELEASE_R335="com.ethk3.novaonepro.R335_CUSTODY_RELEASE";
+    public static final String ACTION_CUSTODY_IMPORT_R335="com.ethk3.novaonepro.R335_CUSTODY_IMPORT";
+    public static final String ACTION_CUSTODY_RETIRE_R335="com.ethk3.novaonepro.R335_CUSTODY_RETIRE";
+    public static void requestCustodyReconcileR335(Context context,String id){requestActionR335(context,ACTION_CUSTODY_RECONCILE_R335,null,null,id,null);}
+    public static void requestCustodyReleaseR335(Context context,String id){requestActionR335(context,ACTION_CUSTODY_RELEASE_R335,null,null,id,null);}
+    public static void requestCustodyImportR335(Context context,android.net.Uri document){requestActionR335(context,ACTION_CUSTODY_IMPORT_R335,null,document==null?null:document.toString(),null,null);}
+    public static void requestCustodyExportR335(Context context,String name,android.net.Uri tree){LegacyBackupRecoveryR335.requireName(name);requestActionR335(context,ACTION_CUSTODY_EXPORT_R335,name,tree==null?null:tree.toString(),null,null);}
+    public static void requestCustodyVerifyR335(Context context,String id){requestActionR335(context,ACTION_CUSTODY_VERIFY_R335,null,null,id,null);}
+    public static void requestCustodyRetireR335(Context context,String id,String token){requestActionR335(context,ACTION_CUSTODY_RETIRE_R335,null,null,id,token);}
     private static final String PREF="r82_storage_maintenance";
     private static final AtomicBoolean WORKER=new AtomicBoolean();
     public static void request(Context context,boolean cleanup) {
+        requestActionR335(context,cleanup?ACTION_CLEAN_BACKUP:ACTION_REBUILD,null);
+    }
+    private static void requestActionR335(Context context,String action,String legacyName){requestActionR335(context,action,legacyName,null,null,null);}
+    private static void requestActionR335(Context context,String action,String legacyName,String tree,String caseId,String token){
         Context app=context.getApplicationContext();
         synchronized(DatabaseCoordinator.RUNTIME_TRANSITION_R82) {
             new ServiceHeartbeatStore(app).setUserEnabled(false);
@@ -23,7 +44,7 @@ public final class StorageMaintenanceServiceR82 extends Service {
         }
         try{
             app.stopService(new Intent(app,AutoFetchService.class));
-            Intent intent=new Intent(app,StorageMaintenanceServiceR82.class).setAction(cleanup?ACTION_CLEAN_BACKUP:ACTION_REBUILD);
+            Intent intent=new Intent(app,StorageMaintenanceServiceR82.class).setAction(action).putExtra("legacy_backup_name",legacyName).putExtra("custody_tree",tree).putExtra("custody_case",caseId).putExtra("custody_authorization",token);
             if(Build.VERSION.SDK_INT>=26)app.startForegroundService(intent);else app.startService(intent);
         }catch(RuntimeException failure){DatabaseCoordinator.endExplicitMaintenanceR82();record(app,"START_FAILED",failure.toString());throw failure;}
     }
@@ -38,7 +59,7 @@ public final class StorageMaintenanceServiceR82 extends Service {
         Context app=context.getApplicationContext();android.content.SharedPreferences p=app.getSharedPreferences(PREF,Context.MODE_PRIVATE);
         return "STORAGE_MAINTENANCE_R82|phase="+p.getString("phase","NEVER_REQUESTED")+"|sampleWallMs="+p.getLong("sample_wall_ms",0)+
                 "|explicitWindowActive="+DatabaseCoordinator.isExplicitMaintenanceActiveR82()+"|runtimeAutoRestart=false|detail="+p.getString("detail","")+
-                "|"+StorageMaintenanceFileR82.backupSummary(app.getDatabasePath(AppConfig.DB_NAME));
+                "|"+StorageMaintenanceFileR82.backupSummary(app.getDatabasePath(AppConfig.DB_NAME))+"\n"+LegacyBackupCustodyR335.summary(app);
     }
     @Override public void onCreate(){super.onCreate();String channel="r82_database_maintenance";NotificationManager nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT>=26)nm.createNotificationChannel(new NotificationChannel(channel,"数据库离线空间维护",NotificationManager.IMPORTANCE_LOW));
@@ -48,7 +69,7 @@ public final class StorageMaintenanceServiceR82 extends Service {
     }
     @Override public int onStartCommand(Intent intent,int flags,int startId) {
         String action=intent==null?"":intent.getAction();
-        if((!ACTION_REBUILD.equals(action)&&!ACTION_CLEAN_BACKUP.equals(action))||!DatabaseCoordinator.isExplicitMaintenanceActiveR82()){stopSelf();return START_NOT_STICKY;}
+        if((!ACTION_REBUILD.equals(action)&&!ACTION_CLEAN_BACKUP.equals(action)&&!ACTION_VERIFY_LEGACY_R335.equals(action)&&!ACTION_CUSTODY_EXPORT_R335.equals(action)&&!ACTION_CUSTODY_VERIFY_R335.equals(action)&&!ACTION_CUSTODY_RETIRE_R335.equals(action)&&!ACTION_CUSTODY_IMPORT_R335.equals(action)&&!ACTION_CUSTODY_RELEASE_R335.equals(action)&&!ACTION_CUSTODY_RECONCILE_R335.equals(action))||!DatabaseCoordinator.isExplicitMaintenanceActiveR82()){stopSelf();return START_NOT_STICKY;}
         if(!WORKER.compareAndSet(false,true))return START_NOT_STICKY;
         new Thread(()->{
             try{
@@ -58,7 +79,29 @@ public final class StorageMaintenanceServiceR82 extends Service {
                     if(SystemClock.elapsedRealtime()>end)throw new IOException("runtime shutdown did not complete; source preserved");Thread.sleep(50);
                 }
                 System.loadLibrary("starcore_report_cp4");
-                if(ACTION_CLEAN_BACKUP.equals(action)){
+                try(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Lease memory=action.startsWith("com.ethk3.novaonepro.R335_CUSTODY_")?LegacyBackupCustodyR335.memory():null){
+                if(ACTION_CUSTODY_RECONCILE_R335.equals(action)){
+                    LegacyRetirementFileR335.Result result=LegacyBackupCustodyR335.reconcile(this,intent.getStringExtra("custody_case"));record(this,result.state,"case="+intent.getStringExtra("custody_case")+"; read_only_ack_reconciliation; new_unlink=false; freeDelta="+result.observedFreeDelta());
+                }else if(ACTION_CUSTODY_RELEASE_R335.equals(action)){
+                    LegacyBackupCustodyR335.releaseIsolated(this,intent.getStringExtra("custody_case"));record(this,"R335_VERIFIED_PRIVATE_RECOVERY_COPY_RELEASED","case="+intent.getStringExtra("custody_case")+"; original .bak/manifest/external archive unchanged");
+                }else if(ACTION_CUSTODY_IMPORT_R335.equals(action)){
+                    record(this,"R335_EXTERNAL_IMPORT_TO_ISOLATED_TREE","no active database replacement; exact external members and original consumers required");
+                    StorageRestoreProofR31.Session imported=LegacyBackupCustodyR335.importExternal(this,android.net.Uri.parse(intent.getStringExtra("custody_tree")));String caseId=imported.custody.id();String workspace=runRestoreSessionR335(imported);
+                    record(this,"R335_EXTERNAL_ISOLATED_RECOVERY_VERIFIED","case="+caseId+"; current live DB unchanged; verified recovered tree retained; "+workspace);
+                }else if(ACTION_CUSTODY_EXPORT_R335.equals(action)||ACTION_CUSTODY_VERIFY_R335.equals(action)){
+                    record(this,"R335_EXTERNAL_CUSTODY_VERIFYING","external write never authorizes deletion; original retained; independent restore requires admitted local capacity");
+                    StorageRestoreProofR31.Session custody=ACTION_CUSTODY_EXPORT_R335.equals(action)?LegacyBackupCustodyR335.exportAndPrepare(this,intent.getStringExtra("legacy_backup_name"),android.net.Uri.parse(intent.getStringExtra("custody_tree"))):LegacyBackupCustodyR335.verifyExisting(this,intent.getStringExtra("custody_case"));
+                    String caseId=custody.custody.id(),workspace=runRestoreSessionR335(custody);
+                    record(this,"R335_EXTERNAL_CUSTODY_VERIFIED_RETAINED","case="+caseId+"; independent restore verified; deletion_authorization=NONE; "+workspace);
+                }else if(ACTION_CUSTODY_RETIRE_R335.equals(action)){
+                    LegacyRetirementFileR335.Result result=LegacyBackupCustodyR335.retire(this,intent.getStringExtra("custody_case"),intent.getStringExtra("custody_authorization"));
+                    record(this,result.state,"case="+intent.getStringExtra("custody_case")+"; removed_file_length="+result.removedLength+"; observed_available_before="+result.availableBefore+"; observed_available_after="+result.availableAfter+"; observed_free_delta="+result.observedFreeDelta()+"; other originals/manifest/proofs retained");
+                }else if(ACTION_VERIFY_LEGACY_R335.equals(action)){
+                    String name=intent.getStringExtra("legacy_backup_name");LegacyBackupRecoveryR335.requireName(name);
+                    record(this,"VERIFYING_R926_ORIGINAL_IN_PRIVATE_PROCESS","source="+name+"; active database is not replaced; original retained");
+                    String workspace=collectRestoreProofR31(name);
+                    record(this,"R926_ORIGINAL_RESTORE_VERIFIED_RETAINED","source="+name+"; independent original-consumer proof recorded; cleanup_authority=NONE; "+workspace);
+                }else if(ACTION_CLEAN_BACKUP.equals(action)){
                     long bytes=DatabaseCoordinator.withClosedDatabaseR31(this,StorageMaintenanceFileR82::deleteVerifiedBackup);
                     record(this,"BACKUP_EXPLICITLY_REMOVED","verified_backup_file_bytes_removed="+bytes+"; actual free-space change depends on filesystem");
                 }else{
@@ -69,8 +112,9 @@ public final class StorageMaintenanceServiceR82 extends Service {
                         record(this,"REBUILT_BACKUP_RETAINED",receipt.summary());
                     }
                     record(this,"VERIFYING_REAL_RESTORE_PROCESS","backup remains protected; no runtime restart");
-                    String workspace=collectRestoreProofR31();
+                    String workspace=collectRestoreProofR31(null);
                     record(this,"RESTORE_VERIFIED_BACKUP_RETAINED","independent Android clone startup/consumer receipt recorded; backup cleanup remains a separate explicit user action; "+workspace);
+                }
                 }
             }catch(Throwable failure){record(this,"FAILED_OR_RECOVERY_REQUIRED",DatabaseCoordinator.describeCauseChain(failure,2000));}
             finally{
@@ -83,9 +127,14 @@ public final class StorageMaintenanceServiceR82 extends Service {
         },"r82-explicit-offline-maintenance").start();
         return START_NOT_STICKY;
     }
-    private String collectRestoreProofR31()throws Exception {
+    private String collectRestoreProofR31(String legacyBackup)throws Exception {
         String nonce=StorageRestoreProofR31.digest(java.util.UUID.randomUUID().toString()+"|"+SystemClock.elapsedRealtimeNanos());
-        StorageRestoreProofR31.Session session=DatabaseCoordinator.withClosedDatabaseR31(this,db->StorageRestoreProofR31.prepare(db,new File(getFilesDir(),"r31-restore-probes"),nonce,android.os.Process.myPid(),BuildConfig.SOURCE_COMMIT_R26));
+        StorageRestoreProofR31.Session session=DatabaseCoordinator.withClosedDatabaseR31(this,db->legacyBackup==null?StorageRestoreProofR31.prepare(db,new File(getFilesDir(),"r31-restore-probes"),nonce,android.os.Process.myPid(),BuildConfig.SOURCE_COMMIT_R26):LegacyBackupRecoveryR335.prepare(db,new File(getFilesDir(),"r31-restore-probes"),legacyBackup,nonce,android.os.Process.myPid(),BuildConfig.SOURCE_COMMIT_R26));
+        return runRestoreSessionR335(session);
+    }
+    private String runRestoreSessionR335(StorageRestoreProofR31.Session session)throws Exception {
+        final String nonce=session.nonce;
+        try{LegacyBackupCustodyR335.markProbeSubmitted(session);}catch(IOException failure){try{session.releaseLegacyBudget();}catch(IOException suppressed){failure.addSuppressed(suppressed);}throw failure;}
         CountDownLatch connected=new CountDownLatch(1),terminal=new CountDownLatch(1);AtomicReference<Exception> failure=new AtomicReference<>();
         AtomicReference<IBinder> lifetime=new AtomicReference<>();
         java.util.concurrent.atomic.AtomicInteger actualProbePid=new java.util.concurrent.atomic.AtomicInteger();AtomicReference<String> reportedResultHash=new AtomicReference<>();
@@ -109,7 +158,9 @@ public final class StorageMaintenanceServiceR82 extends Service {
         };
         // Both original actor locks were released before Android IPC or waiting.
         Intent probe=new Intent(this,StorageRestoreProbeServiceR31.class).putExtra("nonce",nonce).putExtra("receiver",receiver);
-        if(!bindService(probe,connection,Context.BIND_AUTO_CREATE))throw new IOException("WAIT_RESTORE_BIND_REJECTED");
+        boolean bound;
+        try{bound=bindService(probe,connection,Context.BIND_AUTO_CREATE);}catch(RuntimeException bindingFailure){session.releaseLegacyBudget();throw bindingFailure;}
+        if(!bound){session.releaseLegacyBudget();throw new IOException("WAIT_RESTORE_BIND_REJECTED");}
         boolean interrupted=false;
         try{
             for(;;)try{if(connected.await(60,TimeUnit.SECONDS))break;record(this,"WAIT_RESTORE_PROCESS_BINDING","no worker has been submitted; backup retained");}catch(InterruptedException cancelled){interrupted=true;}
@@ -138,7 +189,7 @@ public final class StorageMaintenanceServiceR82 extends Service {
         }finally{
             // The worker-submitted path above exits only after actual lifetime
             // Binder death. Neither a timeout nor a component disconnect does so.
-            unbindService(connection);if(interrupted)Thread.currentThread().interrupt();
+            try{unbindService(connection);}finally{session.releaseLegacyBudget();if(interrupted)Thread.currentThread().interrupt();}
         }
 
     }

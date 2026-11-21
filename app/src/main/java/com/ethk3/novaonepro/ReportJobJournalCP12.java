@@ -12,12 +12,21 @@ public final class ReportJobJournalCP12 implements Closeable {
     public enum Stage { CLAIMED,BACKUP,SNAPSHOT_DURABLE,INDEXING,INDEX_DURABLE,COMPRESSING,VERIFYING,READY_TO_SHARE,RETENTION_ENCODING,RETENTION_RECEIPT_DURABLE,RETENTION_READY,PAUSED,FAILED,CANCELLED }
     public enum Recovery { BACKUP,REBUILD_INDEX,RECOMPRESS,VERIFY_AND_PUBLISH,READ_PUBLISHED,WAIT_FOR_KICK,TERMINAL }
     public static final int MAX_JSON=65536,MAX_FULL_OBSERVATIONS_R31=24;
-    private static final Object CANCEL_COMMANDS_LOCK=new Object();
+    private static final java.util.concurrent.locks.ReentrantLock CANCEL_COMMANDS_LOCK=new java.util.concurrent.locks.ReentrantLock(true);
+    private static final long CANCEL_READ_LOCK_MS_R334=100L,CANCEL_WRITE_LOCK_MS_R334=2000L;
+    /** No command was read, changed or acknowledged when acquisition reaches this limit. */
+    static final class CancellationLockBusyR334 extends IOException {
+        final String operation,layer;final long waitedNanos;
+        CancellationLockBusyR334(boolean readOnly,String layer,long waitedNanos){
+            super("REPORT_CANCEL_COMMAND_LOCK_BUSY|"+(readOnly?"READ":"WRITE")+"|"+layer);
+            this.operation=readOnly?"READ":"WRITE";this.layer=layer;this.waitedNanos=Math.max(0L,waitedNanos);
+        }
+    }
     private interface CancelWork<T>{T run()throws Exception;}
     /** Independent durable commands: cancelling one task cannot overwrite another task's command. */
     public static void requestCancellation(File root,String id)throws Exception {
         long requestedNanosR30=System.nanoTime();
-        hash(id);withCancellationLock(root,()->{
+        hash(id);withCancellationLock(root,false,()->{
             File job=ReportArchiveVerifierCP12.inside(root,"jobs/"+id+"/job.json");
             if(job.exists()) {
                 if(!id.equals(Job.parse(readAtomic(job,MAX_JSON)).jobId))throw new IOException("REPORT_CANCEL_IDENTITY");
@@ -38,7 +47,7 @@ public final class ReportJobJournalCP12 implements Closeable {
         });
     }
     public static boolean isCancellationRequested(File root,String id)throws Exception {
-        hash(id);return withCancellationLock(root,()->{
+        hash(id);return withCancellationLock(root,true,()->{
             File command=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
             if(command.exists()) {
                 try{JSONObject row=new JSONObject(readAtomic(command,4096));
@@ -52,12 +61,32 @@ public final class ReportJobJournalCP12 implements Closeable {
         });
     }
     public static void removeCancellation(File root,String id)throws Exception {
-        hash(id);withCancellationLock(root,()->{File command=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
+        hash(id);withCancellationLock(root,false,()->{File command=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
             if(command.exists())new AtomicFile(command).delete();if(command.exists())throw new IOException("REPORT_CANCEL_CLEANUP");return null;});
     }
-    private static <T>T withCancellationLock(File root,CancelWork<T> work)throws Exception {
-        synchronized(CANCEL_COMMANDS_LOCK){if(!root.isDirectory())throw new IOException("REPORT_CANCEL_ROOT");
-            try(RandomAccessFile io=new RandomAccessFile(ReportArchiveVerifierCP12.inside(root,"cancel-command.lock"),"rw");FileLock lock=io.getChannel().lock()){return work.run();}}
+    /** One budget covers both lock acquisitions. Filesystem I/O and durable callback work are measured separately. */
+    private static <T>T withCancellationLock(File root,boolean readOnly,CancelWork<T> work)throws Exception {
+        final long started=System.nanoTime();
+        final long budget=java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(readOnly?CANCEL_READ_LOCK_MS_R334:CANCEL_WRITE_LOCK_MS_R334);
+        boolean entered=false;
+        try {
+            try {entered=CANCEL_COMMANDS_LOCK.tryLock(budget,java.util.concurrent.TimeUnit.NANOSECONDS);}
+            catch(InterruptedException interrupted){Thread.currentThread().interrupt();InterruptedIOException failure=new InterruptedIOException("REPORT_CANCEL_COMMAND_LOCK_INTERRUPTED");failure.initCause(interrupted);throw failure;}
+            if(!entered)throw new CancellationLockBusyR334(readOnly,"JVM",System.nanoTime()-started);
+            if(!root.isDirectory())throw new IOException("REPORT_CANCEL_ROOT");
+            try(RandomAccessFile io=new RandomAccessFile(ReportArchiveVerifierCP12.inside(root,"cancel-command.lock"),"rw")) {
+                FileLock lease=null;
+                while(lease==null) {
+                    if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("REPORT_CANCEL_COMMAND_LOCK_INTERRUPTED");
+                    long remaining=budget-(System.nanoTime()-started);
+                    if(remaining<=0)throw new CancellationLockBusyR334(readOnly,"FILE",System.nanoTime()-started);
+                    try {lease=io.getChannel().tryLock();}catch(OverlappingFileLockException busy){/* Another same-JVM channel still owns the file. */}
+                    if(lease==null)java.util.concurrent.locks.LockSupport.parkNanos(Math.min(remaining,java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(2L)));
+                }
+                // try-with-resources preserves the original callback failure if release also fails.
+                try(FileLock ownedLease=lease){return work.run();}
+            }
+        } finally {if(entered)CANCEL_COMMANDS_LOCK.unlock();}
     }
     public static final class Job {
         public final String jobId,requestId,releaseHash,mode;
@@ -65,6 +94,8 @@ public final class ReportJobJournalCP12 implements Closeable {
         public String failureDetailR32="",failurePhaseR32="",recoveryPublicationR32="",recoveryFailureR32="";
         public long revision,attempt,createdWallMs,updatedWallMs,snapshotWallMs,snapshotBytes,temporaryReservationBytes,publishedQuotaBytes;
         public int compressionAttempt,preemptions,failureAttempts;
+        // failureAttempts counts functional failures only. Resource waits have their own durable state.
+        public ReportResourceWaitR335.State resourceWaitR335=ReportResourceWaitR335.State.empty();
         public boolean evidenceComplete,checksComplete,allChecksPassed;
         public long acknowledgedRevision=-1L;
         public String semanticVerificationR31="LEGACY_NO_SEMANTIC_RECEIPT";
@@ -76,6 +107,9 @@ public final class ReportJobJournalCP12 implements Closeable {
             JSONObject o=new JSONObject();o.put("revision_name","REPORT_JOB_CP12_1");o.put("jobId",jobId);o.put("requestId",requestId);o.put("releaseHash",releaseHash);o.put("mode",mode);
             o.put("stage",stage);o.put("resumeStage",resumeStage);o.put("lastReason",lastReason);o.put("snapshotSha",snapshotSha);o.put("publishedDir",publishedDir);o.put("manifestSha",manifestSha);
             o.put("revision",revision);o.put("attempt",attempt);o.put("createdWallMs",createdWallMs);o.put("updatedWallMs",updatedWallMs);o.put("snapshotWallMs",snapshotWallMs);o.put("snapshotBytes",snapshotBytes);
+            o.put("waitReasonR335",resourceWaitR335.reason).put("dependencyFingerprintR335",resourceWaitR335.fingerprint)
+                .put("retryBootR335",resourceWaitR335.boot).put("resourceWaitSinceWallMsR335",resourceWaitR335.sinceWallMs)
+                .put("nextRetryElapsedMsR335",resourceWaitR335.nextElapsedMs).put("waitAttemptR335",resourceWaitR335.attempt);
             o.put("temporaryReservationBytes",temporaryReservationBytes);o.put("publishedQuotaBytes",publishedQuotaBytes);o.put("compressionAttempt",compressionAttempt);o.put("preemptions",preemptions);o.put("failureAttempts",failureAttempts);
             o.put("evidenceComplete",evidenceComplete);o.put("checksComplete",checksComplete);o.put("allChecksPassed",allChecksPassed);o.put("acknowledgedRevision",acknowledgedRevision);o.put("semanticVerificationR31",semanticVerificationR31);appendFailureR32(o,this);return o;
         }
@@ -89,6 +123,9 @@ public final class ReportJobJournalCP12 implements Closeable {
                ||(!j.publishedDir.isEmpty()&&!j.publishedDir.matches("archive-[0-9]{1,9}")))throw new IOException("REPORT_JOB_FIELD");
             j.revision=o.getLong("revision");j.attempt=o.getLong("attempt");j.updatedWallMs=o.getLong("updatedWallMs");j.snapshotWallMs=o.getLong("snapshotWallMs");j.snapshotBytes=o.getLong("snapshotBytes");
             j.temporaryReservationBytes=o.getLong("temporaryReservationBytes");j.publishedQuotaBytes=o.getLong("publishedQuotaBytes");j.compressionAttempt=o.getInt("compressionAttempt");j.preemptions=o.getInt("preemptions");j.failureAttempts=o.optInt("failureAttempts",0);
+            j.resourceWaitR335=new ReportResourceWaitR335.State(o.optString("waitReasonR335",""),
+                o.optString("dependencyFingerprintR335",""),o.optString("retryBootR335",""),
+                o.optLong("resourceWaitSinceWallMsR335",0L),o.optLong("nextRetryElapsedMsR335",0L),o.optInt("waitAttemptR335",0));
             j.evidenceComplete=o.getBoolean("evidenceComplete");j.checksComplete=o.getBoolean("checksComplete");j.allChecksPassed=o.getBoolean("allChecksPassed");
             j.acknowledgedRevision=o.optLong("acknowledgedRevision",-1L);
             j.semanticVerificationR31=o.optString("semanticVerificationR31","LEGACY_NO_SEMANTIC_RECEIPT");
@@ -157,7 +194,9 @@ public final class ReportJobJournalCP12 implements Closeable {
     public void transition(Job j,Stage next,long now)throws Exception {check();Stage prior=Stage.valueOf(j.stage);if(!allowed(prior,next))throw new IOException("REPORT_STAGE_TRANSITION|"+prior+"|"+next);
         // Persist a detached copy first. The in-memory state must not claim success if fsync fails.
         Job copy=Job.parse(j.json().toString());copy.stage=next.name();copy.updatedWallMs=now;copy.revision=Math.addExact(copy.revision,1);
-        writeAtomic(new File(directory(j),"job.json"),copy.json().toString());j.stage=copy.stage;j.updatedWallMs=copy.updatedWallMs;j.revision=copy.revision;
+        if(next==Stage.READY_TO_SHARE||next==Stage.RETENTION_READY||next==Stage.CANCELLED||next==Stage.FAILED)
+            copy.resourceWaitR335=ReportResourceWaitR335.State.empty();
+        writeAtomic(new File(directory(j),"job.json"),copy.json().toString());j.stage=copy.stage;j.updatedWallMs=copy.updatedWallMs;j.revision=copy.revision;j.resourceWaitR335=copy.resourceWaitR335;
         try{acknowledge(j.requestId,j);}catch(IOException retry){android.util.Log.w("ReportJournalCP12","Durable ACK outbox pending for "+j.requestId+"@"+j.revision,retry);}
     }
     public void checkpoint(Job j,long now)throws Exception {check();Job copy=Job.parse(j.json().toString());copy.updatedWallMs=now;copy.revision=Math.addExact(copy.revision,1);

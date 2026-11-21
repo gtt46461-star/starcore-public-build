@@ -15,7 +15,7 @@ final class ReportControlBudgetR31 {
     private static final long QUOTA=2L<<20,RECORD_LIMIT=65536;
     static boolean isProgress(File root,File file)throws IOException {
         String prefix=root.getCanonicalPath()+File.separator,path=file.getCanonicalPath();
-        return path.startsWith(prefix)&&path.substring(prefix.length()).matches("jobs/[0-9a-f]{64}/(?:stage|backup)-progress\\.json");
+        return path.startsWith(prefix)&&path.substring(prefix.length()).matches("jobs/[0-9a-f]{64}/(?:(?:stage|backup)-progress|resource-observation-b01)\\.json");
     }
     static boolean accepts(File root,File file)throws IOException {
         if(!file.getCanonicalPath().startsWith(root.getCanonicalPath()+File.separator))return false;
@@ -28,7 +28,7 @@ final class ReportControlBudgetR31 {
                 || relative.matches("(?:request-queue|interactive-pending-r69|current-job|cancel)\\.json");
     }
     static Closeable admit(File root,File file,long bytes,StorageBudgetR31 budget)throws IOException {
-        if(bytes<0||bytes>RECORD_LIMIT||!accepts(root,file))throw new IOException("REPORT_CONTROL_RECORD_BOUND");
+        if(bytes<0||bytes>RECORD_LIMIT||(file.getName().equals("resource-observation-b01.json")&&bytes>16384L)||!accepts(root,file))throw new IOException("REPORT_CONTROL_RECORD_BOUND");
         if(file.exists()&&!file.isFile())throw new IOException("REPORT_CONTROL_TARGET_TYPE");
         boolean progress=isProgress(root,file);
         long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);boolean entered=false;
@@ -69,7 +69,7 @@ final class ReportControlBudgetR31 {
             if(jobs.exists())try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(jobs)) {
                 File job;while((job=cursor.next())!=null) {
                     if(++entries>2048||!job.getName().matches("[0-9a-f]{64}")||!job.getAbsoluteFile().equals(job.getCanonicalFile())||!job.isDirectory())throw new IOException("REPORT_CONTROL_SCOPE");
-                    for(String name:new String[]{"job.json","stage-progress.json","backup-progress.json"})
+                    for(String name:new String[]{"job.json","stage-progress.json","backup-progress.json","resource-observation-b01.json"})
                         for(String suffix:new String[]{"",".bak",".new"})used=Math.addExact(used,accountedControlEntryIfPresent(new File(job,name+suffix)));
                 }
             }

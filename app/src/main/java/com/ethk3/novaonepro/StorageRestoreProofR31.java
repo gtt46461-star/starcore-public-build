@@ -14,7 +14,10 @@ final class StorageRestoreProofR31 {
     static final class Session {
         final File active,root,clone,request,result;final String nonce,activeHash,cloneHash,requestHash;final int parentPid;
         int observedProbePid;String observedResultHash;boolean recorded;
-        private Session(File active,File root,File clone,String nonce,String activeHash,String cloneHash,int parentPid,File request,File result,String requestHash){this.active=active;this.root=root;this.clone=clone;this.nonce=nonce;this.activeHash=activeHash;this.cloneHash=cloneHash;this.parentPid=parentPid;this.request=request;this.result=result;this.requestHash=requestHash;}
+        File legacySource,legacyManifest;String legacyManifestHash;StorageBudgetR31.Reservation legacyBudget;
+        LegacyRecoveryPointLeaseR335 legacyPointLease;LegacyBackupCustodyR335.Case custody;
+        void releaseLegacyBudget()throws IOException{IOException failure=null;try{if(legacyBudget!=null){StorageBudgetR31.Reservation b=legacyBudget;legacyBudget=null;b.close();}}catch(IOException error){failure=error;}finally{if(legacyPointLease!=null){LegacyRecoveryPointLeaseR335 pin=legacyPointLease;legacyPointLease=null;try{pin.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}}}if(failure!=null)throw failure;}
+        Session(File active,File root,File clone,String nonce,String activeHash,String cloneHash,int parentPid,File request,File result,String requestHash){this.active=active;this.root=root;this.clone=clone;this.nonce=nonce;this.activeHash=activeHash;this.cloneHash=cloneHash;this.parentPid=parentPid;this.request=request;this.result=result;this.requestHash=requestHash;}
     }
     static String digest(String value)throws IOException {try{return hex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));}catch(Exception e){throw new IOException(e);}}
     private static String hex(byte[] bytes){StringBuilder b=new StringBuilder();for(byte v:bytes)b.append(String.format(Locale.ROOT,"%02x",v&255));return b.toString();}
@@ -28,7 +31,7 @@ final class StorageRestoreProofR31 {
         File clone=new File(root,"databases/"+AppConfig.DB_NAME);String activeHash=StorageMaintenanceFileR82.sha256(active);
         String fullCopy=StorageMaintenanceFileR82.prepareRestoreCopyR31(active,clone),cloneHash=StorageMaintenanceFileR82.sha256(clone);
         File originalRoot=active.getParentFile().getParentFile();
-        StorageRestoreAssetsR324.Totals assets=StorageRestoreAssetsR324.copy(originalRoot,root,new String[]{"files/r26-checkpoints","files/r26-checkpoints-cold-r324","files/r31-keep","files/model-bundles-r929","files/trusted-model-key-r932.der","files/r31-history-inputs","files/research-input-v2","databases/su1-archives"});
+        StorageRestoreAssetsR324.Totals assets=StorageRestoreAssetsR324.copy(originalRoot,root,new String[]{"files/r26-checkpoints","files/r26-checkpoints-cold-r324","files/r31-keep","files/model-bundles-r929","files/trusted-model-key-r932.der","files/r31-history-inputs","files/research-input-v2","files/r335-fault-originals","files/r335-checkpoint-recovery","databases/su1-archives"});
         File assetFile=new File(root,StorageRestoreAssetsR324.MEMBER);
         Properties request=new Properties();request.setProperty("nonce",nonce);request.setProperty("source",source);request.setProperty("parent_pid",Integer.toString(parentPid));request.setProperty("active_sha256",activeHash);request.setProperty("clone_sha256",cloneHash);request.setProperty("native_full_compare",fullCopy);request.setProperty("asset_manifest_sha256",StorageRestoreAssetsR324.hash(assetFile));request.setProperty("asset_manifest_format",StorageRestoreAssetsR324.FORMAT);request.setProperty("asset_files",Long.toString(assets.files));request.setProperty("asset_bytes",Long.toString(assets.bytes));
         File requestFile=new File(root,"request.properties");StorageMaintenanceFileR82.write(requestFile,request);
@@ -45,6 +48,8 @@ final class StorageRestoreProofR31 {
         if(s.recorded||s.observedProbePid<=0||s.observedResultHash==null||!s.observedResultHash.equals(StorageMaintenanceFileR82.sha256(s.result))||!s.requestHash.equals(StorageMaintenanceFileR82.sha256(s.request)))throw new IOException("RESTORE_AUTHENTICATED_COLLECTOR_REQUIRED");
         for(String[] pair:new String[][]{{"restore_nonce",s.nonce},{"restore_active_sha256",s.activeHash},{"restore_clone_sha256",s.cloneHash},{"restore_parent_pid",Integer.toString(s.parentPid)},{"restore_probe_pid",Integer.toString(s.observedProbePid)},{"restore_request_sha256",s.requestHash}})if(!pair[1].equals(proof.getProperty(pair[0])))throw new IOException("RESTORE_COLLECTOR_ENVELOPE_IDENTITY:"+pair[0]);
         proof.setProperty("restore_probe_receipt_sha256",s.observedResultHash);proof.setProperty("restore_collector_authenticated","BINDER_PID_AND_FRESH_OFFLINE_NONCE");proof.setProperty("restore_collector_envelope_sha256",digest(canonical(proof)));
+        if(s.custody!=null){LegacyBackupCustodyR335.recordCollected(s,proof);s.recorded=true;return;}
+        if(s.legacySource!=null){LegacyBackupRecoveryR335.recordCollected(s,proof);s.recorded=true;return;}
         RECORDING.set(s);try{StorageMaintenanceFileR82.recordRestoreProofR31(s.active,proof);s.recorded=true;}finally{RECORDING.remove();}
     }
     static void requireRecordingAuthority(File active,Properties proof)throws IOException {
@@ -56,8 +61,9 @@ final class StorageRestoreProofR31 {
      * The original backup is handled solely by the separate user action. */
     static boolean discardVerifiedWorkspace(Session session)throws IOException {
         if(!session.recorded)throw new IOException("RESTORE_DURABLE_RECEIPT_REQUIRED_BEFORE_WORKSPACE_RELEASE");
+        if(session.custody!=null&&"true".equals(session.custody.p.getProperty("keep_restored_tree"))){session.custody.p.setProperty("private_workspace","VERIFIED_ISOLATED_RECOVERY_TREE_RETAINED");session.custody.p.setProperty("restored_workspace",session.root.getCanonicalPath());session.custody.save();return false;}
         boolean removed=StorageRestoreAssetsR324.removePrivateTree(session.root,session.root,0);
-        if(removed)session.root.getParentFile().delete();return removed;
+        if(removed){session.root.getParentFile().delete();LegacyBackupCustodyR335.workspaceReleased(session);}return removed;
     }
     static String receiptRefusal(Properties p){
         if(!METHOD.equals(p.getProperty("restore_method")))return "REFUSED_UNAUTHENTICATED_RESTORE_COLLECTOR";
