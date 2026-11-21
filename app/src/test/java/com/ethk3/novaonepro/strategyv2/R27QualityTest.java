@@ -297,6 +297,40 @@ public final class R27QualityTest {
                 ()->restoreR32ReviewedDbStoreForH15(source+first.get("after")));
     }
 
+    /** Recover the previous settlement text from individually checked R33.5 hunks for H15. */
+    @SuppressWarnings("unchecked")
+    private static String restoreR335ReviewedSettlement(String source) throws Exception {
+        File card = new File(R27TestSupport.root(), "verification/r335-construction/settlement-h15-reviewed-hunks.json");
+        byte[] bytes = Files.readAllBytes(card.toPath());
+        assertEquals("R33.5 settlement hunk receipt", "0a5af056062b2a4f9f636c9d08608a41400954ca1b065564dfe6d24a43e21620", StatsR27.sha256(bytes));
+        Map<String,Object> row = (Map<String,Object>) JsonR27.parse(new String(bytes, java.nio.charset.StandardCharsets.UTF_8));
+        List<Object> hunks = (List<Object>) row.get("hunks");
+        assertEquals(7, hunks.size());
+        for (int i = hunks.size() - 1; i >= 0; --i) {
+            Map<String,Object> hunk = (Map<String,Object>) hunks.get(i);
+            String after = (String) hunk.get("after");
+            int at = source.indexOf(after);
+            assertTrue("H15 missing or repeated reviewed settlement hunk " + i,
+                    at >= 0 && source.indexOf(after, at + 1) < 0);
+            source = source.substring(0, at) + hunk.get("before") + source.substring(at + after.length());
+        }
+        return source;
+    }
+
+    @Test public void r335SettlementClockAndOwnerMutationsRemainRejected() throws Exception {
+        String source = new String(Files.readAllBytes(new File(R27TestSupport.root(),
+                "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java").toPath()), java.nio.charset.StandardCharsets.UTF_8);
+        for (String token : new String[]{"now < oos.labelSettledAt", "out.value.settlementHashR334",
+                "startedMonoR334,System.currentTimeMillis(),TimeSourceR811.monoNowMs()"}) {
+            assertTrue("mutation target must exist", source.contains(token));
+            String mutated = source.replace(token, "R335_UNREGISTERED_CHANGE");
+            assertThrows(AssertionError.class, () -> restoreR335ReviewedSettlement(mutated));
+        }
+        String restored = restoreR335ReviewedSettlement(source);
+        assertEquals("exact prior 033 settlement bytes", "bffca6af2f7a704fee78d475d5ec71e012b8c30148891c52d7f7dd982d8dd5b8",
+                StatsR27.sha256(restored.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    }
+
     @Test public void h15MainlineRedLines() throws Exception {
         File root = R27TestSupport.root();
         // 1. Original bytes match after the registered R30 wrappers and exact R31 research extraction.
@@ -312,6 +346,7 @@ public final class R27QualityTest {
             }
             if(f[0].endsWith("/SettlementEngine.java")) {
                 String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
+                source=restoreR335ReviewedSettlement(source);
                 assertEquals("One registered source-revocation delegator",1,source.split("R30_REVOCATION_BEGIN",-1).length-1);
                 source=source.replaceAll("(?s)    // R30_REVOCATION_BEGIN\\n.*?    // R30_REVOCATION_END\\n\\n", "");
                 String normalized=restoreR31FeedbackExtractionForH15(source);
@@ -599,7 +634,9 @@ public final class R27QualityTest {
         int deadline = src.lastIndexOf("if(left<=0)thrownewIllegalStateException(\"CP3_DB_BUSY_DEADLINE\");", gate);
         assertTrue("critical admission and expiry checks precede the sole writer lock", deadline >= 0 && gate > deadline && lock > gate);
         assertTrue("a bounded aged research slot cannot preempt a freeze",
-                src.contains("FREEZE_WAITERS_R31.get()==0&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L"));
+                src.contains("if((research||faultDrainR33)&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
+                        + "&&now-(faultDrainR33?LAST_FAULT_SERVICE_R33.get():LAST_RESEARCH_SERVICE_R31.get())"
+                        + ">=(faultDrainR33?1000L:5000L))serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);"));
         assertEquals(5000, ((Number) DatabaseCoordinator.writeProtocolSnapshotR31().get("researchServiceIntervalMs")).intValue());
         String report = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java").toPath()), "UTF-8");
         assertTrue("report carries app thread stacks", report.contains("collectObservation(root,id,observation,\"threadStacks\",ReportExportServiceCP4::threadStacksR27)"));

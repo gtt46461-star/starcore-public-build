@@ -94,7 +94,24 @@ public final class V51ExpertHealthRegistry {
                     + '|'
                     + updatedAt;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Snapshot(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.expertId = (String) decodedR335.value(0);
+            this.state = (HealthState) decodedR335.value(1);
+            this.sample = ((Integer) decodedR335.value(2)).intValue();
+            this.consecutiveBad = ((Integer) decodedR335.value(3)).intValue();
+            this.recoveryGood = ((Integer) decodedR335.value(4)).intValue();
+            this.reliability = ((Double) decodedR335.value(5)).doubleValue();
+            this.recentReliability = ((Double) decodedR335.value(6)).doubleValue();
+            this.calibrationError = ((Double) decodedR335.value(7)).doubleValue();
+            this.rankRegret = ((Double) decodedR335.value(8)).doubleValue();
+            this.weightMultiplier = ((Double) decodedR335.value(9)).doubleValue();
+            this.reason = (String) decodedR335.value(10);
+            this.updatedAt = ((Long) decodedR335.value(11)).longValue();
+        }
+}
 
     private static final class Entry {
         HealthState state = HealthState.NO_SAMPLE;

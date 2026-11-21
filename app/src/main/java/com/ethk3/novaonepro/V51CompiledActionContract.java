@@ -51,4 +51,19 @@ public final class V51CompiledActionContract {
                                 + V51ArtifactBundleManifest.BUNDLE_HASH
                                 + (proof==null?"":"|"+proof.hash));
     }
+
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        V51CompiledActionContract(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.selected = (V51Models.SelectedActionEnvelope) decodedR335.value(0);
+            this.policy = (V51SelectiveRiskController.Result) decodedR335.value(1);
+            this.stability = (V51RankStabilityEngine.Result) decodedR335.value(2);
+            this.certifiedPrediction = (CertifiedPredictionR974.Proof) decodedR335.value(3);
+            this.featureHash = (String) decodedR335.value(4);
+            this.stateHash = (String) decodedR335.value(5);
+            this.expertHash = (String) decodedR335.value(6);
+            this.probabilityHash = (String) decodedR335.value(7);
+            this.actionHash = (String) decodedR335.value(8);
+            this.checksum = (String) decodedR335.value(9);
+        }
 }

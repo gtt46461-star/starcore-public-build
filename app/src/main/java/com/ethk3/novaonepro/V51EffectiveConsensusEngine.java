@@ -33,7 +33,21 @@ public final class V51EffectiveConsensusEngine {
             stateReliability = h;
             effective = i;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Consensus(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.distributionAgreement = ((Double) decodedR335.value(0)).doubleValue();
+            this.top3Overlap = ((Double) decodedR335.value(1)).doubleValue();
+            this.rankAgreement = ((Double) decodedR335.value(2)).doubleValue();
+            this.directionalAgreement = ((Double) decodedR335.value(3)).doubleValue();
+            this.signalStrength = ((Double) decodedR335.value(4)).doubleValue();
+            this.historicalReliability = ((Double) decodedR335.value(5)).doubleValue();
+            this.recentReliability = ((Double) decodedR335.value(6)).doubleValue();
+            this.stateReliability = ((Double) decodedR335.value(7)).doubleValue();
+            this.effective = ((Double) decodedR335.value(8)).doubleValue();
+        }
+}
 
     public Consensus[] evaluate(
             V51Models.ExpertEvidence[] experts,

@@ -209,7 +209,34 @@ public final class ResearchMainlineContributionAuditR922 {
         private static double finite(double value) {
             return Double.isNaN(value) || Double.isInfinite(value) ? -1.0d : value;
         }
-    }
+    
+        /** R33.5 exact prepared-payload hydration; invoked only by the closed codec.
+         * It restores frozen fields without consulting mutable current model state. */
+        Contribution(PreparedCanonicalCodecR335.Decoded decodedR335) {
+            this.targetIssue = (String) decodedR335.value(0);
+            this.runtimeVersion = (String) decodedR335.value(1);
+            this.lane = (String) decodedR335.value(2);
+            this.candidateId = (String) decodedR335.value(3);
+            this.candidateName = (String) decodedR335.value(4);
+            this.status = (String) decodedR335.value(5);
+            this.evidenceHash = (String) decodedR335.value(6);
+            this.rankOneHash = (String) decodedR335.value(7);
+            this.recordHash = (String) decodedR335.value(8);
+            this.applied = ((Boolean) decodedR335.value(9)).booleanValue();
+            this.controlledInfluenceEligible = ((Boolean) decodedR335.value(10)).booleanValue();
+            this.influenceWeight = ((Double) decodedR335.value(11)).doubleValue();
+            this.hitRate = ((Double) decodedR335.value(12)).doubleValue();
+            this.wilsonLower = ((Double) decodedR335.value(13)).doubleValue();
+            this.brier = ((Double) decodedR335.value(14)).doubleValue();
+            this.ece = ((Double) decodedR335.value(15)).doubleValue();
+            this.coverage = ((Double) decodedR335.value(16)).doubleValue();
+            this.futureN = ((Integer) decodedR335.value(17)).intValue();
+            this.pairedN = ((Integer) decodedR335.value(18)).intValue();
+            this.pairedDelta = ((Double) decodedR335.value(19)).doubleValue();
+            this.fdrQ = ((Double) decodedR335.value(20)).doubleValue();
+            this.createdAt = ((Long) decodedR335.value(21)).longValue();
+        }
+}
 
 public static String recentDetailSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, int limit) {
         if (store == null) return "READ_ERROR:STORE_NULL";

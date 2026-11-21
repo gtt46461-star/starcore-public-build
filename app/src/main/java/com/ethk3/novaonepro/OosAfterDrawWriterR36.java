@@ -19,6 +19,9 @@ public final class OosAfterDrawWriterR36 {
         String drawHash = DrawHashR36.sha256V2(draw);
         if (!SettlementEngine.isOwnerTokenR36(token, target))
             throw new SecurityException("R36_SETTLEMENT_OWNER_REQUIRED");
+        long firstSeenAt = firstSeenAt(db, target, draw.openTime, drawHash);
+        if (!FrozenFeedbackProofR335.observedLabelTime(draw.openTime, firstSeenAt, System.currentTimeMillis()))
+            throw new IllegalStateException("R335_DRAW_NOT_READY_FOR_SETTLEMENT");
         Cursor c = null;
         String base;
         int position, n1, n2, n3, preDraw, alreadySettled;
@@ -96,17 +99,6 @@ public final class OosAfterDrawWriterR36 {
                     historyHash,
                     frozenHash,
                     drawHash);
-        long firstSeenAt = firstSeenAt(db, target);
-        if (firstSeenAt <= 0L)
-            return fail(
-                    target,
-                    "DRAW_FIRST_SEEN_MISSING",
-                    base,
-                    frozenAt,
-                    draw.openTime,
-                    historyHash,
-                    frozenHash,
-                    drawHash);
         if (frozenAt <= 0L || draw.openTime <= 0L
                 || frozenAt >= firstSeenAt || frozenAt >= draw.openTime)
             return fail(
@@ -141,6 +133,9 @@ public final class OosAfterDrawWriterR36 {
                     drawHash);
         int hit = actual == n1 || actual == n2 || actual == n3 ? 1 : 0;
         long now = System.currentTimeMillis();
+        if (!FrozenFeedbackProofR335.observedLabelTime(draw.openTime, firstSeenAt, now))
+            throw new IllegalStateException("R335_LABEL_CLOCK_RETRY");
+        long labelSettledAt = now;
         String provenance =
                 V51ChecksumEngine.sha256(
                         "R36_OOS_PROVENANCE|"
@@ -193,13 +188,17 @@ public final class OosAfterDrawWriterR36 {
             }
             // Frozen prediction/draw provenance is part of replay identity. Legacy labels
             // remain immutable evidence; a hash-only difference cannot authorize a new replay.
+            if (!FrozenFeedbackProofR335.observedLabelTime(draw.openTime, firstSeenAt, existing.settledAt))
+                return fail(target, "PIT_EXISTING_LABEL_TIME_INVALID", base, frozenAt, draw.openTime,
+                        historyHash, frozenHash, drawHash);
+            labelSettledAt = existing.settledAt;
             effectiveRecord = existing.recordHash;
         }
         ContentValues shadow = new ContentValues();
         shadow.put("settled", 1);
         shadow.put("actual_number", actual);
         shadow.put("hit_label", hit);
-        shadow.put("settled_at", now);
+        shadow.put("settled_at", labelSettledAt);
         shadow.put("settlement_hash", effectiveRecord);
         shadow.put("error_code", "");
         int changed =
@@ -226,7 +225,7 @@ public final class OosAfterDrawWriterR36 {
                 draw.openTime,
                 historyHash,
                 frozenHash,
-                drawHash);
+                drawHash, labelSettledAt);
     }
 
     /** Action labels do not require a calibrated probability. The explicit -1 sentinel is
@@ -348,14 +347,15 @@ public final class OosAfterDrawWriterR36 {
         Cursor c = null;
         try {
             c = db.rawQuery(
-                    "SELECT record_hash,base_issue,position,n1,n2,n3,actual_number,hit_label"
+                    "SELECT record_hash,base_issue,position,n1,n2,n3,actual_number,hit_label,settled_at"
                             + " FROM " + DbHelper.TABLE_R35_OOS_LABEL
                             + " WHERE target_issue=? LIMIT 1",
                     new String[] {target});
             if (!c.moveToFirst()) return null;
             return new ExistingLabel(
                     safe(c.getString(0)), safe(c.getString(1)), c.getInt(2),
-                    c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7));
+                    c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7),
+                    c.getType(8) == Cursor.FIELD_TYPE_INTEGER ? c.getLong(8) : -1L);
         } finally {
             if (c != null) c.close();
         }
@@ -364,7 +364,9 @@ public final class OosAfterDrawWriterR36 {
     private static final class ExistingLabel {
         final String recordHash, baseIssue;
         final int position, n1, n2, n3, actual, hit;
-        ExistingLabel(String r, String b, int p, int a, int bb, int cc, int actual, int hit) {
+        final long settledAt;
+        ExistingLabel(String r, String b, int p, int a, int bb, int cc, int actual, int hit, long settledAt) {
+            this.settledAt = settledAt;
             recordHash=r; baseIssue=b; position=p; n1=a; n2=bb; n3=cc;
             this.actual=actual; this.hit=hit;
         }
@@ -374,16 +376,16 @@ public final class OosAfterDrawWriterR36 {
         }
     }
 
-    private static long firstSeenAt(SQLiteDatabase db, String target) {
+    private static long firstSeenAt(SQLiteDatabase db, String target, long opened, String drawHash) {
         Cursor c = null;
         try {
             c =
                     db.rawQuery(
                             "SELECT first_seen_at FROM "
                                     + DrawDependencyInputCP12.SOURCE
-                                    + " WHERE issue=? LIMIT 1",
-                            new String[] {target});
-            return c.moveToFirst() ? c.getLong(0) : 0L;
+                                    + " WHERE issue=? AND open_time=? AND dirty=0 AND draw_hash_version=2 AND draw_hash_v2=?",
+                            new String[] {target, String.valueOf(opened), drawHash});
+            return c.moveToFirst() && c.getType(0) == Cursor.FIELD_TYPE_INTEGER ? c.getLong(0) : 0L;
         } finally {
             if (c != null) c.close();
         }
@@ -434,7 +436,7 @@ public final class OosAfterDrawWriterR36 {
                 drawOpenTime,
                 historyHash,
                 canonicalHash,
-                drawHash);
+                drawHash, 0L);
     }
 
     private static String safe(String x) {
@@ -452,7 +454,7 @@ public final class OosAfterDrawWriterR36 {
                 drawHash;
         public final int hitLabel;
         public final double selectedHitP, brier;
-        public final long frozenAt, drawOpenTime;
+        public final long frozenAt, drawOpenTime, labelSettledAt;
 
         LabelResult(
                 boolean ok,
@@ -477,7 +479,7 @@ public final class OosAfterDrawWriterR36 {
                     0L,
                     "",
                     "",
-                    "");
+                    "", 0L);
         }
 
         LabelResult(
@@ -494,7 +496,8 @@ public final class OosAfterDrawWriterR36 {
                 long drawOpenTime,
                 String historyHash,
                 String canonicalHash,
-                String drawHash) {
+                String drawHash, long labelSettledAt) {
+            this.labelSettledAt = labelSettledAt;
             success = ok;
             this.replay = replay;
             targetIssue = safe(target);
