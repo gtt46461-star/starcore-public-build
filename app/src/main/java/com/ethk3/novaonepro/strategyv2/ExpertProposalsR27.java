@@ -48,7 +48,7 @@ public final class ExpertProposalsR27 {
             case "E07": ast = PolicyAstR27.op("mix", 0.5, PolicyAstR27.op("zscore", base.ast), PolicyAstR27.op("zscore", PolicyAstR27.leaf("family", 20))); hyp = "现有特征不能区分成败"; change = "加入片段检索家族表征"; mech = "F20表征"; break;
             case "E08": if(ctx.research!=null){PolicySpecR27 guided=ctx.research.premiseHypothesis(ctx,r);if(guided!=null)return one(expert,cluster,"Machine premise and reverse-association research", "Typed causal input combination", "Refutable research hypothesis",refute,guided);}
                 ast = IdeaFamilyR27.Grow.tree(MutationOpsR27.ALL_KINDS, tp, 4, true, ctx, r); hyp = "参数变异无进展需结构重写"; change = "重写完整Typed-AST"; mech = "符号结构搜索"; break;
-            case "E09": if(ctx.research!=null){PolicySpecR27 guided=ctx.research.residualHypothesis(base,ctx,r);if(guided!=null)return one(expert,cluster,"Actual class residual", "Causal frequency smoothing hypothesis", "Residual-driven research",refute,guided);}
+            case "E09": if(ctx.research!=null){PolicySpecR27 guided=ctx.champion==null?null:ctx.research.failurePrescriptionR335(ctx.champion,ctx,r);if(guided==null)guided=ctx.research.residualHypothesis(base,ctx,r);if(guided!=null)return one(expert,cluster,"Actual class residual", "Causal frequency smoothing hypothesis", "Residual-driven research",refute,guided);}
                 ast = PolicyAstR27.op("if", PolicyAstR27.leaf("regime", 128), PolicyAstR27.constant(0.1), base.ast, PolicyAstR27.op("neg", PolicyAstR27.op("zscore", base.ast))); hyp = "特定状态反复失误"; change = "失败状态下反向残差分支"; mech = "定向残差修复"; break;
             case "E10":
                 if (ctx.archive.size() < 2) return audit(expert, cluster, "档案成员不足2个，无法互补融合");

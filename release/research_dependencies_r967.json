@@ -4619,9 +4619,29 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisEvidenceR335.java",
+      "role": "NUMERIC",
+      "rationale": "B05 RE24 exact paired-window timing, missing and pending ordinal accounting; preserve NUMERIC role and invalidate old qualification."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRefitReportR335.java",
+      "role": "NUMERIC",
+      "rationale": "R335 C10 actual reviewed source: 只读S5原件registry元数据，先核schema/单例/长度边界，报告case/hash/字节/时点，不读取压缩checkpoint BLOB；缺对象或超限明确原因。绑定固定报告读水位，保守NUMERIC，不从元数据签收数值资格。 新规则按原R82失效机制；旧DEV/标签原件保留，无任何旧规则资格、证书或自然成绩继承。"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
       "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisSchemaR335.java",
+      "role": "NUMERIC",
+      "rationale": "R335 C10 actual reviewed source: 仅由原LifecycleSchema迁移owner安装有界单例不可改/删的S5 refit原件表及保护trigger，业务事务不临时建DDL；原件容量、身份校验和可恢复读回直接影响S5资格证据及容量等待，因此新owner保守NUMERIC。 新规则按原R82失效机制；旧DEV/标签原件保留，无任何旧规则资格、证书或自然成绩继承。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+      "role": "NUMERIC",
+      "rationale": "R335 C10 actual reviewed source: 在原SU2_DIAGNOSIS写事务中提交同case子代、league、shadow和两份原收据，写前真实锁外资源预算、原件hash核验，提交后独立连接读回才返回ACK；失败/资源等待/暂态结果不冒充成功，影响诊断裁决，保守NUMERIC。 新规则按原R82失效机制；旧DEV/标签原件保留，无任何旧规则资格、证书或自然成绩继承。"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
@@ -5771,6 +5791,21 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+      "role": "NUMERIC",
+      "rationale": "R335 B05 精确源码复核：ResearchActionPolicyR33.java。固定原priors+确切父子/数据/revision去重信用+25%探索，原stepBirth使用；原发布事务after从真实完整evolution cursor解析OP/FAMILY/EXPERT后态再写r33 receipt，未变化不计应用。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
+      "role": "NUMERIC",
+      "rationale": "R335 实际源码审查：为原研究实际配置动作与输入head声明精确DDL/约束/只读准入；保留TRAIN仅R08、正式CONFIRM/FUTURE不进入配置动作、before/after不同及原source引用约束。 新规则按原R82机制生成；旧DEV/模型/标签保留，但无任何旧规则资格、证书或自然成绩继承。"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
+      "role": "NUMERIC",
+      "rationale": "R335 B05 精确源码复核：ResearchActionStoreR33.java。固定原priors+确切父子/数据/revision去重信用+25%探索，原stepBirth使用；原发布事务after从真实完整evolution cursor解析OP/FAMILY/EXPERT后态再写r33 receipt，未变化不计应用。；report真实读取r33 action原件，kind/view/role分组全量保留行计数，最近20件核after/product hash及先后顺序；样本验证数不冒充全量有效数，不合并BORN或质量。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchAdviceR30R1.java",
       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
       "role": "NUMERIC"
@@ -5839,6 +5874,11 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchHypothesisR31.java",
       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
       "role": "POLICY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+      "role": "NUMERIC",
+      "rationale": "R335 B05 精确源码复核：ResearchInputContextR33.java。按 dataset+revision+scope 持久 keyset 扫描，每次至多64原件、8合法策略；源独立视图不读学生；坏策略保留且逐件隔离，存储/取消/致命异常向上传播。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",

@@ -56,13 +56,14 @@ public final class MatrixResearchR30R1 {
         }
         if(t==null)return new OutcomeR31(StatusR31.WAITING_SOURCE,null,dependency(kind));
         if(!t.datasetHash.equals(datasetHash)||t.revision!=revision)return new OutcomeR31(StatusR31.INVALID,null,"MATRIX_SOURCE_IDENTITY_CHANGED");
+        if(!("TEMPORAL_PRECEDENCE".equals(kind)?"ONLINE_RESEARCH":"SELECT").equals(t.role))return new OutcomeR31(StatusR31.INVALID,null,"MATRIX_ROLE_KIND_MISMATCH");
         if(t.presentCells==0)return new OutcomeR31(StatusR31.INSUFFICIENT,null,"MATRIX_NO_SUPPORTED_CELL");
         return new OutcomeR31(StatusR31.PRODUCED,t,"");
     }
     static boolean isStorageFaultR31(Throwable t){IdentityHashMap<Throwable,Boolean> seen=new IdentityHashMap<>();for(Throwable c=t;c!=null&&seen.size()<16&&seen.put(c,Boolean.TRUE)==null;c=c.getCause()){String n=c.getClass().getName();if(n.startsWith("android.database.sqlite.")||n.equals("java.sql.SQLException"))return true;}return false;}
     /** Receipt of one kind; a non-PRODUCED state carries the previous valid tensor hash forward, flagged as stale. */
     public static Map<String,Object> receiptR31(String matrixId,String dependencyKey,String datasetHash,long revision,OutcomeR31 o,Map<?,?> previous,long costNs){
-        Map<String,Object> r=new LinkedHashMap<>();r.put("matrixId",matrixId);r.put("inputIdentity",dependencyKey);r.put("datasetHash",datasetHash);r.put("sourceRevision",revision);r.put("role","SELECT");
+        Map<String,Object> r=new LinkedHashMap<>();r.put("matrixId",matrixId);r.put("inputIdentity",dependencyKey);r.put("datasetHash",datasetHash);r.put("sourceRevision",revision);r.put("role",o.tensor!=null?o.tensor.role:matrixId.endsWith(":TEMPORAL_PRECEDENCE")?"ONLINE_RESEARCH":"SELECT");
         r.put("producerVersion",MatrixTensorR30R1.VERSION);r.put("status",o.status==StatusR31.PRODUCED?"PRODUCED":o.status==StatusR31.WAITING_SOURCE?"BLOCKED_DEPENDENCY":o.status.name());r.put("statusR31",o.status.name());
         r.put("reason",o.status==StatusR31.PRODUCED?null:o.reason);r.put("matrixHash",o.tensor==null?null:o.tensor.hash);
         Object lastValid=o.tensor!=null?o.tensor.hash:previous==null?null:previous.get("matrixHash")!=null?previous.get("matrixHash"):previous.get("lastValidMatrixHash");
@@ -116,25 +117,29 @@ public final class MatrixResearchR30R1 {
         return new MatrixTensorR30R1.Tensor(kind,"SELECT",d.datasetHash,policy==null?StatsR27.sha256("SOURCE_ONLY"):policy.policyHash(),through,target,revision,rows,cols,v,n,more);
     }
     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
-        EvolutionLoopR27 evolution=rt.evo;if(evolution==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-evolution)",0,-1);
-        EvalContextR27 ctx=evolution.context();if(ResearchInputPinR30R1.invalid(w.ro,ctx.data.datasetHash))return ResearchPoolR27.Outcome.idle("DEPENDENCY(CORRECTED_DATASET)",0,-1);long revision=ResearchInputPinR30R1.revision(w.ro,ctx.data.datasetHash);if(revision<0)return ResearchPoolR27.Outcome.idle("DEPENDENCY(SOURCE_REVISION)",0,-1);
-        PolicySpecR27 policy=evolution.population.isEmpty()?null:evolution.population.get(0).spec;
-        List<PolicySpecR27> policies=new ArrayList<>();for(EvolutionLoopR27.Member member:new ArrayList<>(evolution.population)){policies.add(member.spec);if(policies.size()==8)break;}for(PolicySpecR27 p:evolution.archive.members())if(policies.size()<12)policies.add(p);StringBuilder policyIdentity=new StringBuilder();for(PolicySpecR27 p:policies)policyIdentity.append(p.policyHash());
+        if(rt.evoData==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(IMMUTABLE_REPLAY_DATASET)",0,-1);
+        try(ResearchInputContextR33 owned=ResearchInputContextR33.acquire(rt,w,"MATRICES",true)) {
+        EvalContextR27 ctx=owned.context;long revision=owned.revision;
+        List<PolicySpecR27> policies=owned.policies;PolicySpecR27 policy=policies.isEmpty()?null:policies.get(0);
+        StringBuilder policyIdentity=new StringBuilder();for(PolicySpecR27 p:policies)policyIdentity.append(p.policyHash());
         long measuredVersion=0;try(Cursor q=w.ro.rawQuery("SELECT coalesce(max(rowid),0) FROM r30r1_research_measure WHERE kind IN ('ATOM_PAIRED_GAIN','OPERATOR_GAIN_COST','MODEL_PAIR_FROZEN','MODEL_PAIR_SETTLED')",null)){if(q.moveToFirst())measuredVersion=q.getLong(0);}
         String baseInput=ctx.data.datasetHash+"|"+revision+"|"+com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26;
 
-        for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")&&!def.kind.equals("COUNTERFACTUAL")){
+        List<MatrixRegistryR30.Definition> definitions=new ArrayList<>();for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")&&!def.kind.equals("COUNTERFACTUAL"))definitions.add(def);
+        int next=ResearchObservatoryR30R1.nextViewR335(w.ro,"MATRICES",definitions.size());
+        for(int scan=0;scan<definitions.size();scan++){int index=(next+scan)%definitions.size();MatrixRegistryR30.Definition def=definitions.get(index);
             boolean sourceOnly=SOURCE_ONLY_KINDS_R31.contains(def.kind);
             long measured=Arrays.asList("CAUSAL_SUPPORT","COUNTER_EVIDENCE","EVOLUTION_CREDIT","TEMPORAL_PRECEDENCE").contains(def.kind)?measuredVersion:def.kind.equals("RESOURCE_EFFICIENCY")?ResearchStoreR30R1.calendar(w.ro):0;
             String input=dependencyKeyR31(ctx.data.datasetHash,revision,def.kind,sourceOnly?"SOURCE_ONLY":StatsR27.sha256(policyIdentity.toString()),measured,com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);
             Map<?,?> previous=null;
             try(Cursor c=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,def.kind})){if(c.moveToFirst()){Object saved=JsonR27.parse(c.getString(0));if(saved instanceof Map)previous=(Map<?,?>)saved;}}
-            if(decidedR31(previous,input))continue; // R31-B08-C01#A2: unchanged dependency -> no new waiting job
+            if(decidedR31(previous,input)){ResearchWriteQueueR27.Batch scanBatch=new ResearchWriteQueueR27.Batch();long scanAt=System.currentTimeMillis();owned.appendScan(scanBatch,scanAt);ResearchObservatoryR30R1.advanceViewR335(scanBatch,"MATRICES",(index+1)%definitions.size(),scanAt);RuntimeR27.submit(w,"MATRIX_SCAN",scanBatch);return ResearchPoolR27.Outcome.idle("WAITING_NEW_MATRIX_SOURCE_PAGE",0,-1);}
             long started=System.nanoTime();final PolicySpecR27 student=sourceOnly?null:policy;
             OutcomeR31 outcome=produceR31(def.kind,policy!=null,ctx.data.datasetHash,revision,()->{MatrixTensorR30R1.Tensor t=build(def.kind,ctx,student,revision);if(t==null)t=MatrixEvidenceR30R1.compute(def.kind,ctx,policies,revision);if(t==null)t=MatrixEvidenceR30R1.stored(def.kind,w.ro,ctx,revision,rt);return t;});
             MatrixTensorR30R1.Tensor tensor=outcome.tensor;long now=System.currentTimeMillis();Map<String,Object> receipt=receiptR31(def.id,input,ctx.data.datasetHash,revision,outcome,previous,System.nanoTime()-started);
             ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();if(tensor!=null)MatrixTensorR30R1.append(b,tensor,now);
             b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",PANEL,def.kind,JsonR27.write(receipt),now);
+            owned.appendScan(b,now);ResearchObservatoryR30R1.advanceViewR335(b,"MATRICES",(index+1)%definitions.size(),now);
             final MatrixTensorR30R1.Tensor preparedTensor=tensor;
             b.guardBefore(db->{ResearchInputPinR30R1.require(db,ctx.data.datasetHash,revision);if(preparedTensor!=null&&"ONLINE_RESEARCH".equals(preparedTensor.role)){Object parsed=JsonR27.parse(preparedTensor.payload);Object raw=((Map<?,?>)((Map<?,?>)parsed).get("details")).get("sourceRun");if(!(raw instanceof String))throw new IllegalStateException("MATRIX_ONLINE_SOURCE_REFERENCE");ResearchInputPinR30R1.requireRun(db,(String)raw);}return 0;});
             if(tensor!=null)ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(tensor.throughOrdinal,tensor.throughOrdinal,null,null,tensor.throughOrdinal,tensor.hash));
@@ -143,5 +148,6 @@ public final class MatrixResearchR30R1 {
             return tensor==null?ResearchPoolR27.Outcome.progress(1,0):ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
         }
         return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_INPUT",0,-1);
+        }
     }
 }

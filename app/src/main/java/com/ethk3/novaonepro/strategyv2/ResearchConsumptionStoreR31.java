@@ -104,7 +104,7 @@ public final class ResearchConsumptionStoreR31 {
     }
     /** Bounded read-only report consumer. Unknown schema is never zero success. */
     public static Map<String,Object> report(SQLiteDatabase db){
-        Map<String,Object> out=map();out.put("version",VERSION);out.put("state","UNKNOWN");out.put("scope","CURRENT_SOURCE_SELECT_RESEARCH_ACTIONS_NOT_REAL_OR_NATURAL_QUALITY");
+        Map<String,Object> out=map();out.put("version",VERSION);out.put("nonBornActions",nonBornReportR335(db));out.put("state","UNKNOWN");out.put("scope","CURRENT_SOURCE_SELECT_RESEARCH_ACTIONS_NOT_REAL_OR_NATURAL_QUALITY");
         try(Cursor c=db.rawQuery("SELECT count(*),sum(CASE WHEN json_extract(m.payload_json,'$.resultContractR31.validated')=1 THEN 1 ELSE 0 END) FROM r30r1_research_measure m JOIN r30r1_analysis_run r ON r.run_id=m.run_id WHERE m.kind='RESEARCH_SOURCE_CONSUMPTION' AND r.source_commit=?",new String[]{BuildConfig.SOURCE_COMMIT_R26})){
             if(c.moveToFirst()){out.put("sourceConsumptionReceipts",c.getLong(0));out.put("validatedActionReceipts",c.isNull(1)?0:c.getLong(1));out.put("state","OBSERVED_RECEIPTS_ONLY");}
         }catch(RuntimeException unavailable){out.put("reason","ACTION_RECEIPTS_UNAVAILABLE");return out;}
@@ -114,4 +114,13 @@ public final class ResearchConsumptionStoreR31 {
         }catch(RuntimeException unavailable){out.put("ablationState","UNKNOWN_RECEIPTS_UNAVAILABLE");}
         return Collections.unmodifiableMap(out);
     }
+ /** Separate exact original actions; a configuration receipt is never a BORN or effectiveness receipt. */
+ public static Map<String,Object> nonBornReportR335(SQLiteDatabase db){Map<String,Object> out=map();out.put("scope","PERSISTED_ORIGINAL_ACTIONS_NOT_BIRTH_NOT_NATURAL_QUALITY");out.put("status","NOT_RECORDED");
+  try(Cursor q=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r33_research_applied'",null)){if(!q.moveToFirst())return out;}
+  List<Object> groups=new ArrayList<>(),sample=new ArrayList<>();
+  try(Cursor q=db.rawQuery("SELECT action_kind,view_id,role,count(*) FROM r33_research_applied WHERE source_commit=? GROUP BY action_kind,view_id,role ORDER BY action_kind,view_id,role",new String[]{BuildConfig.SOURCE_COMMIT_R26})){while(q.moveToNext()){Map<String,Object> row=map();row.put("actionKind",q.getString(0));row.put("view",q.getString(1));row.put("role",q.getString(2));row.put("retainedOriginalRows",q.getLong(3));groups.add(row);}}
+  long valid=0;try(Cursor q=db.rawQuery("SELECT a.consume_key,a.source_run,a.view_id,a.action_kind,a.before_hash,a.after_hash,a.applied_json,a.product_hash,r.summary_json,a.object_key,a.action_ordinal,a.latest_label_ordinal,a.applied_at FROM r33_research_applied a LEFT JOIN r30r1_analysis_run r ON r.run_id=a.source_run WHERE a.source_commit=? ORDER BY a.applied_at DESC,a.consume_key LIMIT 20",new String[]{BuildConfig.SOURCE_COMMIT_R26})){while(q.moveToNext()){Map<String,Object> row=map();row.put("consumeKey",q.getString(0));row.put("sourceRun",q.getString(1));row.put("view",q.getString(2));row.put("actionKind",q.getString(3));row.put("object",q.getString(9));row.put("actionOrdinal",q.getLong(10));row.put("latestLabelOrdinal",q.getLong(11));row.put("appliedAt",q.getLong(12));String applied=q.getString(6),source=q.getString(8);boolean ok=applied!=null&&source!=null&&applied.length()<=262144&&source.length()<=262144&&!q.getString(4).equals(q.getString(5))&&q.getString(5).equals(StatsR27.sha256(applied))&&q.getString(7).equals(StatsR27.sha256(source))&&ResearchStoreR30R1.currentSource(BuildConfig.SOURCE_COMMIT_R26,source)&&q.getLong(10)>q.getLong(11);row.put("originalHashesAndOrderingValid",ok);if(ok)valid++;sample.add(row);}}
+  out.put("status","ORIGINAL_RECEIPTS_READ");out.put("groups",groups);out.put("last20",sample);out.put("sampledRows",sample.size());out.put("sampledValidOriginalHashes",valid);out.put("validityScope","BOUNDED_ORIGINAL_HASH_AND_CAUSAL_ORDER_AUDIT; ALL_RETAINED_COUNTS_ARE_NOT_ALL_VALIDATED_COUNTS");out.put("bornOrQualityCount",false);return Collections.unmodifiableMap(out);
+ }
+
 }
