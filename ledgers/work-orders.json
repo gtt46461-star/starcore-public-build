@@ -7722,7 +7722,589 @@
       "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "class": "com/ethk3/novaonepro/AutoFetchService",
+        "method": "drainWriterFaultControlR334",
+        "descriptor": "()V",
+        "lines": [
+          2446,
+          2464
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/AutoFetchService",
+            "method": "lambda$initializeRuntimeAfterForegroundR32$1",
+            "line": 1449,
+            "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 2448,
+            "callee": "com/ethk3/novaonepro/RuntimeFaultMaintenanceR335.signal(Lcom/ethk3/novaonepro/DbStore;)V"
+          },
+          {
+            "line": 2450,
+            "callee": "com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.drainControlSliceR32(Lcom/ethk3/novaonepro/DbStore;)V"
+          },
+          {
+            "line": 2453,
+            "callee": "com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.snapshot()Ljava/util/Map;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "class": "com/ethk3/novaonepro/AutoFetchService",
+        "method": "initializeRuntimeAfterForegroundR32",
+        "descriptor": "()V",
+        "lines": [
+          1246,
+          1730
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/AutoFetchService$14",
+            "method": "run",
+            "line": 1220,
+            "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 1246,
+            "callee": "com/ethk3/novaonepro/AutoFetchService.finishCancelledRuntimeInitializationR94()Z"
+          },
+          {
+            "line": 1247,
+            "callee": "com/ethk3/novaonepro/CrashRecorder.setRuntimeContext(Ljava/lang/String;Ljava/lang/String;)V"
+          },
+          {
+            "line": 1249,
+            "callee": "com/ethk3/novaonepro/AutoFetchService.heartbeatStateV8()Lcom/ethk3/novaonepro/ServiceHeartbeatStore;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "class": "com/ethk3/novaonepro/DatabaseCoordinator",
+        "method": "runWrite",
+        "descriptor": "(Lcom/ethk3/novaonepro/DatabaseCoordinator$WriteContext;Lcom/ethk3/novaonepro/DatabaseCoordinator$WriteCallable;Ljava/lang/Object;)Ljava/lang/Object;",
+        "lines": [
+          875,
+          991
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 5,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/DatabaseCoordinator",
+            "method": "runAtomicWrite",
+            "line": 1010,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/DatabaseCoordinator",
+            "method": "runIdempotentAtomicWriteR31",
+            "line": 1088,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/DatabaseCoordinator",
+            "method": "runWrite",
+            "line": 859,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 877,
+            "callee": "com/ethk3/novaonepro/DatabaseCoordinator.rejectMaintenanceR82()V"
+          },
+          {
+            "line": 879,
+            "callee": "com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.deferResearch()Z"
+          },
+          {
+            "line": 880,
+            "callee": "com/ethk3/novaonepro/DatabaseCoordinator$WriteRejectedR31.<init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/ethk3/novaonepro/DatabaseCoordinator$CommitOutcome;Ljava/lang/Throwable;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "class": "com/ethk3/novaonepro/DatabaseCoordinator",
+        "method": "writeProtocolSnapshotR31",
+        "descriptor": "()Ljava/util/Map;",
+        "lines": [
+          175,
+          181
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/ReportSnapshotR30",
+            "method": "capture",
+            "line": 119,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 179,
+            "callee": "com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.snapshot()Ljava/util/Map;"
+          },
+          {
+            "line": 180,
+            "callee": "com/ethk3/novaonepro/PostCanonicalObservationR33.snapshot()Ljava/util/Map;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/DurableReturnTimingR334.java",
+        "class": "com/ethk3/novaonepro/DurableReturnTimingR334",
+        "method": "<init>",
+        "descriptor": "(JJJJ)V",
+        "lines": [
+          10,
+          15
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine",
+            "method": "executeFromCoordinatorR815",
+            "line": 260,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java",
+        "class": "com/ethk3/novaonepro/FaultControlLoopR334",
+        "method": "post",
+        "descriptor": "(JJ)V",
+        "lines": [
+          46,
+          52
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/FaultControlLoopR334",
+            "method": "start",
+            "line": 35,
+            "file": "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/FaultControlLoopR334",
+            "method": "tick",
+            "line": 72,
+            "file": "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 46,
+            "callee": "com/ethk3/novaonepro/FaultControlLoopR334$1.<init>(Lcom/ethk3/novaonepro/FaultControlLoopR334;J)V"
+          },
+          {
+            "line": 47,
+            "callee": "com/ethk3/novaonepro/FaultControlLoopR334$Scheduler.postDelayed(Ljava/lang/Runnable;J)Z"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/FaultControlLoopR334.java",
+        "class": "com/ethk3/novaonepro/FaultControlLoopR334",
+        "method": "start",
+        "descriptor": "()V",
+        "lines": [
+          31,
+          36
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/AutoFetchService",
+            "method": "postResearchControlR31",
+            "line": 2474,
+            "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/AutoFetchService",
+            "method": "startWorkR3610OffMain",
+            "line": 2540,
+            "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 34,
+            "callee": "com/ethk3/novaonepro/FaultControlLoopR334$Clock.elapsedMs()J"
+          },
+          {
+            "line": 35,
+            "callee": "com/ethk3/novaonepro/FaultControlLoopR334.post(JJ)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/PostCanonicalObservationR33.java",
+        "class": "com/ethk3/novaonepro/PostCanonicalObservationR33",
+        "method": "offer",
+        "descriptor": "(Ljava/lang/Runnable;)Z",
+        "lines": [
+          19,
+          24
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 5,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalStoreR335",
+            "method": "clearAfterCommit",
+            "line": 157,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine",
+            "method": "executeFromCoordinatorR815",
+            "line": 263,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "finishPreparedR335",
+            "line": 541,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/PostCanonicalObservationR33.java",
+        "class": "com/ethk3/novaonepro/PostCanonicalObservationR33",
+        "method": "snapshot",
+        "descriptor": "()Ljava/util/Map;",
+        "lines": [
+          26,
+          26
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/DatabaseCoordinator",
+            "method": "writeProtocolSnapshotR31",
+            "line": 180,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
+        "class": "com/ethk3/novaonepro/RealtimeContractR33",
+        "method": "digest",
+        "descriptor": "(Ljava/lang/String;)Ljava/lang/String;",
+        "lines": [
+          67,
+          69
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/RealtimeContractR33",
+            "method": "inboxPayload",
+            "line": 61,
+            "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/RealtimeContractR33",
+            "method": "requireInboxAck",
+            "line": 58,
+            "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/RealtimeContractR33$FeedbackEnvelope",
+            "method": "<init>",
+            "line": 50,
+            "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
+        "class": "com/ethk3/novaonepro/RealtimeContractR33",
+        "method": "fields",
+        "descriptor": "([Ljava/lang/String;)Ljava/lang/String;",
+        "lines": [
+          63,
+          63
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/RealtimeContractR33",
+            "method": "inboxPayload",
+            "line": 61,
+            "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/RealtimeContractR33",
+            "method": "requireInboxAck",
+            "line": 58,
+            "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/RealtimeContractR33$FeedbackEnvelope",
+            "method": "<init>",
+            "line": 50,
+            "file": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "class": "com/ethk3/novaonepro/SettlementEngine",
+        "method": "executeFromCoordinatorR815",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/SettlementEngine$SettlementReport;",
+        "lines": [
+          109,
+          308
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementCoordinatorR815",
+            "method": "execute",
+            "line": 300,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 110,
+            "callee": "com/ethk3/novaonepro/TimeSourceR811.monoNowMs()J"
+          },
+          {
+            "line": 111,
+            "callee": "com/ethk3/novaonepro/SettlementEngine$SettlementReport.<init>()V"
+          },
+          {
+            "line": 112,
+            "callee": "com/ethk3/novaonepro/SettlementEngine.safe(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "class": "com/ethk3/novaonepro/SettlementEngine",
+        "method": "recordPostCommitTelemetryR911",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/ethk3/novaonepro/DurableReturnTimingR334;)V",
+        "lines": [
+          313,
+          338
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine",
+            "method": "lambda$executeFromCoordinatorR815$0",
+            "line": 263,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 315,
+            "callee": "com/ethk3/novaonepro/RuntimeHealthLedgerR36.record(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJIIZLjava/lang/String;)V"
+          },
+          {
+            "line": 329,
+            "callee": "com/ethk3/novaonepro/DbStore.setStates(Ljava/util/Map;)V"
+          },
+          {
+            "line": 331,
+            "callee": "com/ethk3/novaonepro/strategyv2/FailureDispositionR31.processFatalCause(Ljava/lang/Throwable;)Ljava/lang/Error;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "endComputeR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V",
+        "lines": [
+          514,
+          516
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 5,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "finishPreparedR335",
+            "line": 546,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 392,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 501,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 514,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.spans()Ljava/util/List;"
+          },
+          {
+            "line": 515,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.end(Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "finishPreparedR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Lease;Lcom/ethk3/novaonepro/PredrawWakeLeaseR81;Lcom/ethk3/novaonepro/V51RuntimeResult;Lcom/ethk3/novaonepro/V51Repository$CanonicalCommitResult;Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;)Lcom/ethk3/novaonepro/V51RuntimeOrchestrator$OutcomeR36;",
+        "lines": [
+          539,
+          548
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "resumePreparedR335",
+            "line": 563,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 49,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 425,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 540,
+            "callee": "com/ethk3/novaonepro/V51RuntimeOrchestrator.canonicalReturnDetailR335(Ljava/lang/String;J)Ljava/lang/String;"
+          },
+          {
+            "line": 541,
+            "callee": "com/ethk3/novaonepro/PostCanonicalObservationR33.offer(Ljava/lang/Runnable;)Z"
+          },
+          {
+            "line": 545,
+            "callee": "com/ethk3/novaonepro/AnalysisSingleFlightR36$CancellationToken.markCanonicalCommitted()V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+        "method": "existingBusinessLabel",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$ExistingLabel;",
+        "lines": [
+          347,
+          361
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 183,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 356,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 356,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 358,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36$ExistingLabel.<init>(Ljava/lang/String;Ljava/lang/String;IIIIIIJ)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+        "method": "settleFrozenWithinTransaction",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/SettlementEngine$OwnerToken;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$LabelResult;",
+        "lines": [
+          15,
+          221
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine$1",
+            "method": "call",
+            "line": 165,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 17,
+            "callee": "com/ethk3/novaonepro/Models$Draw.isValid()Z"
+          },
+          {
+            "line": 17,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.fail(Ljava/lang/String;Ljava/lang/String;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$LabelResult;"
+          },
+          {
+            "line": 18,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "原33.4有效修复在本轮全文件后态中继续保留：排债独立线程/代次、提交前采集标量、成功后观察排队；保留B01维护钩子及原唯一结算事务。",
     "reviewedChanges": null,
@@ -7734,6 +8316,21 @@
       "Android前后台/杀进程/真实时延仍需同APK设备证据。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -7811,7 +8408,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -7914,6 +8511,21 @@
     ],
     "batchEvidenceAndExitCodes": [
       {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
+      {
         "suite": "B02-clock-and-dispatch",
         "command": [
           "bash",
@@ -7990,7 +8602,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -8526,7 +9138,1156 @@
       "B02/r335_prepared/README.md"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "class": "com/ethk3/novaonepro/CertifiedPredictionR974$Proof",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          71,
+          91
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 75,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 72,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 73,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 74,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "class": "com/ethk3/novaonepro/CertifiedPredictionR974",
+        "method": "beforeInsert",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/V51CompiledActionContract;)V",
+        "lines": [
+          384,
+          401
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/DbStore",
+            "method": "insertAuthorizedTradeWithinCanonicalR915",
+            "line": 5353,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DbStore.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 385,
+            "callee": "com/ethk3/novaonepro/CertifiedPredictionR974$Proof.matches(Lcom/ethk3/novaonepro/V51Models$SelectedActionEnvelope;)Z"
+          },
+          {
+            "line": 386,
+            "callee": "com/ethk3/novaonepro/CertifiedPredictionR974.verifyCertificate(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/CertifiedPredictionR974$Proof;)Ljava/lang/String;"
+          },
+          {
+            "line": 387,
+            "callee": "com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.candidate(Ljava/lang/String;)Z"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+        "class": "com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922$Opportunity",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          319,
+          349
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 76,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 320,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 321,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 322,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+        "class": "com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922",
+        "method": "capture",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;I)Lcom/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922$Report;",
+        "lines": [
+          146,
+          178
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 5,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923",
+            "method": "capture",
+            "line": 20,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923",
+            "method": "capture",
+            "line": 21,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923",
+            "method": "capture",
+            "line": 22,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 146,
+            "callee": "com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922$Report.readError(ILjava/lang/String;)Lcom/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922$Report;"
+          },
+          {
+            "line": 150,
+            "callee": "com/ethk3/novaonepro/DbStore.readable()Landroid/database/sqlite/SQLiteDatabase;"
+          },
+          {
+            "line": 170,
+            "callee": "com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922$Opportunity.<init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DZZLjava/lang/String;Ljava/lang/String;IIIIDDDDDDDDDJLjava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+        "class": "com/ethk3/novaonepro/K3FunnelOrchestrator$Audit",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          227,
+          235
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 77,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 228,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 229,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 230,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+        "class": "com/ethk3/novaonepro/K3FunnelOrchestrator$PositionPath",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          145,
+          153
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 78,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 146,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 147,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 148,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/NumberSurfaceTensorEngine.java",
+        "class": "com/ethk3/novaonepro/NumberSurfaceTensorEngine$TensorResult",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          68,
+          79
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 80,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 69,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 70,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 71,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/NumberSurfaceTensorEngine.java",
+        "class": "com/ethk3/novaonepro/NumberSurfaceTensorEngine",
+        "method": "build",
+        "descriptor": "([Lcom/ethk3/novaonepro/V51Models$ExpertEvidence;[[DLcom/ethk3/novaonepro/V51Models$NumberProbabilityMatrix;[Lcom/ethk3/novaonepro/V51Models$StateTrajectorySnapshot;)Lcom/ethk3/novaonepro/NumberSurfaceTensorEngine$TensorResult;",
+        "lines": [
+          87,
+          165
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51PermutationNumberModelEngine",
+            "method": "predictFrozen",
+            "line": 274,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 99,
+            "callee": "com/ethk3/novaonepro/NumberSurfaceTensorEngine.effective([D)D"
+          },
+          {
+            "line": 107,
+            "callee": "com/ethk3/novaonepro/V51Math.entropy([D)D"
+          },
+          {
+            "line": 107,
+            "callee": "com/ethk3/novaonepro/NumberSurfaceTensorEngine.clamp01(D)D"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+        "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+        "method": "construct",
+        "descriptor": "(I[Ljava/lang/Object;)Ljava/lang/Object;",
+        "lines": [
+          73,
+          103
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "read",
+            "line": 182,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 73,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.<init>([Ljava/lang/Object;)V"
+          },
+          {
+            "line": 75,
+            "callee": "com/ethk3/novaonepro/CertifiedPredictionR974$Proof.<init>(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V"
+          },
+          {
+            "line": 76,
+            "callee": "com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922$Opportunity.<init>(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+        "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+        "method": "decode",
+        "descriptor": "([B)Lcom/ethk3/novaonepro/V51RuntimeResult;",
+        "lines": [
+          128,
+          133
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalStoreR335",
+            "method": "decode",
+            "line": 74,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 131,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Limits.<init>()V"
+          },
+          {
+            "line": 131,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335.read(Ljava/io/DataInputStream;Ljava/lang/Class;Ljava/util/ArrayList;Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Limits;I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+        "class": "com/ethk3/novaonepro/ResearchMainlineContributionAuditR922$Contribution",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          215,
+          238
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 81,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 216,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 217,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 218,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+        "class": "com/ethk3/novaonepro/ResearchMainlineContributionAuditR922",
+        "method": "insertWithinTransaction",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/ResearchMainlineContributionAuditR922$Contribution;)V",
+        "lines": [
+          46,
+          88
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51Repository$1",
+            "method": "call",
+            "line": 473,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 48,
+            "callee": "com/ethk3/novaonepro/ResearchMainlineContributionAuditR922$Contribution.valid()Z"
+          },
+          {
+            "line": 52,
+            "callee": "com/ethk3/novaonepro/BudgetedQueryR927.query(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;[Ljava/lang/String;)Landroid/database/Cursor;"
+          },
+          {
+            "line": 56,
+            "callee": "com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.safe(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51CompiledActionContract.java",
+        "class": "com/ethk3/novaonepro/V51CompiledActionContract",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          57,
+          68
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 82,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 58,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 59,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 60,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51CompiledActionContract.java",
+        "class": "com/ethk3/novaonepro/V51CompiledActionContract",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/V51Models$SelectedActionEnvelope;Lcom/ethk3/novaonepro/V51SelectiveRiskController$Result;Lcom/ethk3/novaonepro/V51RankStabilityEngine$Result;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+        "lines": [
+          20,
+          21
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/Batch2GateEvidenceR926",
+            "method": "nonBetAuthorizationMatches",
+            "line": 355,
+            "file": "app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/DecisionGateEngine",
+            "method": "decideV51B12OriginalR30",
+            "line": 11258,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 20,
+            "callee": "com/ethk3/novaonepro/V51CompiledActionContract.<init>(Lcom/ethk3/novaonepro/V51Models$SelectedActionEnvelope;Lcom/ethk3/novaonepro/V51SelectiveRiskController$Result;Lcom/ethk3/novaonepro/V51RankStabilityEngine$Result;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/ethk3/novaonepro/CertifiedPredictionR974$Proof;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+        "class": "com/ethk3/novaonepro/V51EffectiveConsensusEngine$Consensus",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          39,
+          49
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 83,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 40,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 41,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 42,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+        "class": "com/ethk3/novaonepro/V51EffectiveConsensusEngine",
+        "method": "direction",
+        "descriptor": "([D[D)D",
+        "lines": [
+          179,
+          181
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51EffectiveConsensusEngine",
+            "method": "evaluateFrozen",
+            "line": 81,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 179,
+            "callee": "com/ethk3/novaonepro/V51Math.mean([D)D"
+          },
+          {
+            "line": 179,
+            "callee": "com/ethk3/novaonepro/V51Math.mean([D)D"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+        "class": "com/ethk3/novaonepro/V51ExpertGateEngine",
+        "method": "<init>",
+        "descriptor": "()V",
+        "lines": [
+          7,
+          72
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/ModuleReplayR932",
+            "method": "rerun",
+            "line": 27,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51PermutationNumberModelEngine",
+            "method": "<init>",
+            "line": 214,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 72,
+            "callee": "com/ethk3/novaonepro/V51ExpertHealthRegistry.<init>()V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+        "class": "com/ethk3/novaonepro/V51ExpertGateEngine$Result",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          59,
+          69
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 84,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 60,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 61,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 62,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51ExpertHealthRegistry.java",
+        "class": "com/ethk3/novaonepro/V51ExpertHealthRegistry$Snapshot",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          100,
+          113
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 85,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 101,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 102,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 103,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51ExpertHealthRegistry.java",
+        "class": "com/ethk3/novaonepro/V51ExpertHealthRegistry",
+        "method": "<init>",
+        "descriptor": "()V",
+        "lines": [
+          10,
+          122
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51ExpertGateEngine",
+            "method": "<init>",
+            "line": 72,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+        "class": "com/ethk3/novaonepro/V51Models$AuthorizedDecision",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          460,
+          467
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 86,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 461,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 462,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 463,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+        "class": "com/ethk3/novaonepro/V51Models$DomainCertificate",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          368,
+          378
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 87,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 369,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 370,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 371,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "class": "com/ethk3/novaonepro/V51PermutationNumberModelEngine",
+        "method": "<init>",
+        "descriptor": "()V",
+        "lines": [
+          7,
+          218
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/ModuleReplayR932",
+            "method": "rerun",
+            "line": 28,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ModuleReplayR932.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 143,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 202,
+            "callee": "com/ethk3/novaonepro/V51HierarchicalPriorNumberExpert.<init>()V"
+          },
+          {
+            "line": 202,
+            "callee": "com/ethk3/novaonepro/V51MultiScaleTrendNumberExpert.<init>()V"
+          },
+          {
+            "line": 202,
+            "callee": "com/ethk3/novaonepro/V51ContextTreeNumberExpert.<init>()V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "class": "com/ethk3/novaonepro/V51PermutationNumberModelEngine$GateTelemetryR811",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          117,
+          127
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 96,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 118,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 119,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 120,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51PolicyCell.java",
+        "class": "com/ethk3/novaonepro/V51PolicyCell",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          63,
+          82
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 98,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 64,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 65,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 66,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51PolicyCell.java",
+        "class": "com/ethk3/novaonepro/V51PolicyCell",
+        "method": "<init>",
+        "descriptor": "(Ljava/lang/String;Ljava/lang/String;Lcom/ethk3/novaonepro/V51Enums$Lifecycle;IDDDDDDDIDDDDDZ)V",
+        "lines": [
+          40,
+          59
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/ModelBundleParametersR932",
+            "method": "cells",
+            "line": 186,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ModelBundleParametersR932.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RankStabilityEngine.java",
+        "class": "com/ethk3/novaonepro/V51RankStabilityEngine$Result",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          20,
+          25
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 99,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 21,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 22,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 23,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RankStabilityEngine.java",
+        "class": "com/ethk3/novaonepro/V51RankStabilityEngine",
+        "method": "evaluate",
+        "descriptor": "(Lcom/ethk3/novaonepro/V51Models$PositionAction;[Lcom/ethk3/novaonepro/V51Models$PositionAction;)Lcom/ethk3/novaonepro/V51RankStabilityEngine$Result;",
+        "lines": [
+          29,
+          53
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "buildRankedActionStage",
+            "line": 643,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "buildRankedActionStage",
+            "line": 719,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 30,
+            "callee": "com/ethk3/novaonepro/V51RankStabilityEngine$Result.<init>(DDD)V"
+          },
+          {
+            "line": 51,
+            "callee": "com/ethk3/novaonepro/V51Math.clamp(DDD)D"
+          },
+          {
+            "line": 52,
+            "callee": "com/ethk3/novaonepro/V51Math.clamp(DDD)D"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeResult",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          152,
+          170
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 100,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 153,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 154,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 155,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeResult",
+        "method": "publishedViewCP12",
+        "descriptor": "()Lcom/ethk3/novaonepro/V51RuntimeResult;",
+        "lines": [
+          146,
+          146
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "finishPreparedR335",
+            "line": 548,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 498,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 146,
+            "callee": "com/ethk3/novaonepro/V51RuntimeResult.<init>(ZLcom/ethk3/novaonepro/V51Models$PredictionContext;Lcom/ethk3/novaonepro/V51Models$PermutationFeatureSnapshot;[Lcom/ethk3/novaonepro/V51Models$StateTrajectorySnapshot;Lcom/ethk3/novaonepro/V51PermutationNumberModelEngine$Result;[Lcom/ethk3/novaonepro/V51EffectiveConsensusEngine$Consensus;Lcom/ethk3/novaonepro/K3FunnelOrchestrator$Audit;[Lcom/ethk3/novaonepro/V51Models$PositionAction;Lcom/ethk3/novaonepro/V51Models$SelectedActionEnvelope;Lcom/ethk3/novaonepro/V51Models$AuthorizedDecision;Lcom/ethk3/novaonepro/V51CompiledActionContract;Ljava/lang/String;JLjava/lang/String;Lcom/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922$Opportunity;Lcom/ethk3/novaonepro/ResearchMainlineContributionAuditR922$Contribution;Ljava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51SelectiveRiskController.java",
+        "class": "com/ethk3/novaonepro/V51SelectiveRiskController",
+        "method": "<init>",
+        "descriptor": "()V",
+        "lines": [
+          7,
+          46
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 262,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 45,
+            "callee": "com/ethk3/novaonepro/V51PolicySurfaceEngine.<init>()V"
+          },
+          {
+            "line": 46,
+            "callee": "com/ethk3/novaonepro/V51SelectivePolicyCompiler.<init>()V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51SelectiveRiskController.java",
+        "class": "com/ethk3/novaonepro/V51SelectiveRiskController$Result",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          36,
+          42
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 101,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 37,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 38,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 39,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+        "class": "com/ethk3/novaonepro/V51SinkhornEngine$ProjectionResult",
+        "method": "<init>",
+        "descriptor": "(Lcom/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded;)V",
+        "lines": [
+          69,
+          78
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalCodecR335",
+            "method": "construct",
+            "line": 102,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 70,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 71,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          },
+          {
+            "line": 72,
+            "callee": "com/ethk3/novaonepro/PreparedCanonicalCodecR335$Decoded.value(I)Ljava/lang/Object;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+        "class": "com/ethk3/novaonepro/V51SinkhornEngine",
+        "method": "fallback",
+        "descriptor": "(Lcom/ethk3/novaonepro/V51SinkhornEngine$FallbackReason;DDI)Lcom/ethk3/novaonepro/V51SinkhornEngine$ProjectionResult;",
+        "lines": [
+          168,
+          175
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 7,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51SinkhornEngine",
+            "method": "projectDetailed",
+            "line": 93,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51SinkhornEngine",
+            "method": "projectDetailed",
+            "line": 95,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51SinkhornEngine",
+            "method": "projectDetailed",
+            "line": 105,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 170,
+            "callee": "com/ethk3/novaonepro/V51AssignmentDecoder.decode([[D)[I"
+          },
+          {
+            "line": 171,
+            "callee": "com/ethk3/novaonepro/V51ChecksumEngine.sha256(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 172,
+            "callee": "com/ethk3/novaonepro/V51Models$NumberProbabilityMatrix.<init>([[DDDIZZ[ILjava/lang/String;)V"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "添加关闭类型codec及28个DTO的304字段原值构造器；保留alias/raw double/资格/审计/recipe，拒非法类型和超限输入。",
     "reviewedChanges": null,
@@ -8538,6 +10299,21 @@
       "传输往返通过不代表自然资格或真实业务授权。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -8615,7 +10391,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -8764,7 +10540,160 @@
       "B02/r335_prepared/README.md"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "class": "com/ethk3/novaonepro/PreparedCanonicalStoreR335",
+        "method": "boot",
+        "descriptor": "()Ljava/lang/String;",
+        "lines": [
+          26,
+          26
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalStoreR335",
+            "method": "save",
+            "line": 127,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/PreparedCanonicalStoreR335$Prepared",
+            "method": "requireReusable",
+            "line": 22,
+            "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 26,
+            "callee": "com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.bootId()Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "class": "com/ethk3/novaonepro/PreparedCanonicalStoreR335",
+        "method": "clearAfterCommit",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;)V",
+        "lines": [
+          157,
+          163
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "finishPreparedR335",
+            "line": 547,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 497,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 157,
+            "callee": "com/ethk3/novaonepro/PostCanonicalObservationR33.offer(Ljava/lang/Runnable;)Z"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "endComputeR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V",
+        "lines": [
+          514,
+          516
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 5,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "finishPreparedR335",
+            "line": 546,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 392,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 501,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 514,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.spans()Ljava/util/List;"
+          },
+          {
+            "line": 515,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.end(Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "finishPreparedR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Lease;Lcom/ethk3/novaonepro/PredrawWakeLeaseR81;Lcom/ethk3/novaonepro/V51RuntimeResult;Lcom/ethk3/novaonepro/V51Repository$CanonicalCommitResult;Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;)Lcom/ethk3/novaonepro/V51RuntimeOrchestrator$OutcomeR36;",
+        "lines": [
+          539,
+          548
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "resumePreparedR335",
+            "line": 563,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 49,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 425,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 540,
+            "callee": "com/ethk3/novaonepro/V51RuntimeOrchestrator.canonicalReturnDetailR335(Ljava/lang/String;J)Ljava/lang/String;"
+          },
+          {
+            "line": 541,
+            "callee": "com/ethk3/novaonepro/PostCanonicalObservationR33.offer(Ljava/lang/Runnable;)Z"
+          },
+          {
+            "line": 545,
+            "callee": "com/ethk3/novaonepro/AnalysisSingleFlightR36$CancellationToken.markCanonicalCommitted()V"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "同request派生路径、4槽预算、文件SHA/AtomicFile/目录同步/重开验证；先读原canonical事实，未提交才核同boot/deadline/bundle后由原owner提交。正常成功路径不增加全图编码/全局census。",
     "reviewedChanges": null,
@@ -8777,6 +10706,21 @@
       "Android杀进程/原生fsync/目标机内存时延待真实设备检查。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -8854,7 +10798,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -9003,7 +10947,178 @@
       "B02/r335_prepared/README.md"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "class": "com/ethk3/novaonepro/V51Repository",
+        "method": "commitCanonicalBundleVerifiedR368",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Ljava/lang/String;Lcom/ethk3/novaonepro/V51RuntimeResult;[BLjava/lang/String;Lcom/ethk3/novaonepro/DeferredEvidenceSnapshotR36$Header;Lcom/ethk3/novaonepro/RuntimeTraceR36;)Lcom/ethk3/novaonepro/V51Repository$CanonicalCommitResult;",
+        "lines": [
+          418,
+          563
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51Repository",
+            "method": "commitCanonicalBundleR36",
+            "line": 398,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51Repository",
+            "method": "commitCanonicalBundleR36",
+            "line": 371,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 420,
+            "callee": "com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.sha256([B)Ljava/lang/String;"
+          },
+          {
+            "line": 428,
+            "callee": "com/ethk3/novaonepro/CanonicalObservationWriterR36.fromRuntime(Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Lcom/ethk3/novaonepro/V51RuntimeResult;Lcom/ethk3/novaonepro/DeferredEvidenceSnapshotR36$Header;Ljava/lang/String;J)Lcom/ethk3/novaonepro/CanonicalObservationWriterR36$CanonicalRecord;"
+          },
+          {
+            "line": 431,
+            "callee": "com/ethk3/novaonepro/DbStore.coordinatorR36()Lcom/ethk3/novaonepro/DatabaseCoordinator;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "class": "com/ethk3/novaonepro/V51Repository",
+        "method": "addColumn",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;)V",
+        "lines": [
+          2060,
+          2068
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 40,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51Repository",
+            "method": "ensure",
+            "line": 227,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51Repository",
+            "method": "ensure",
+            "line": 228,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51Repository",
+            "method": "ensure",
+            "line": 229,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 2061,
+            "callee": "com/ethk3/novaonepro/V51Repository.columnExists(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;)Z"
+          },
+          {
+            "line": 2065,
+            "callee": "com/ethk3/novaonepro/V51Repository.columnExists(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;)Z"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "endComputeR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V",
+        "lines": [
+          514,
+          516
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 5,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "finishPreparedR335",
+            "line": 546,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 392,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 501,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 514,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.spans()Ljava/util/List;"
+          },
+          {
+            "line": 515,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.end(Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "finishPreparedR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Lease;Lcom/ethk3/novaonepro/PredrawWakeLeaseR81;Lcom/ethk3/novaonepro/V51RuntimeResult;Lcom/ethk3/novaonepro/V51Repository$CanonicalCommitResult;Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;)Lcom/ethk3/novaonepro/V51RuntimeOrchestrator$OutcomeR36;",
+        "lines": [
+          539,
+          548
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "resumePreparedR335",
+            "line": 563,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 49,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 425,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 540,
+            "callee": "com/ethk3/novaonepro/V51RuntimeOrchestrator.canonicalReturnDetailR335(Ljava/lang/String;J)Ljava/lang/String;"
+          },
+          {
+            "line": 541,
+            "callee": "com/ethk3/novaonepro/PostCanonicalObservationR33.offer(Ljava/lang/Runnable;)Z"
+          },
+          {
+            "line": 545,
+            "callee": "com/ethk3/novaonepro/AnalysisSingleFlightR36$CancellationToken.markCanonicalCommitted()V"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "IllegalStateException保留outcome.failureCause；按原FailureDisposition分类，仅typedretry保存结果；缓存保存失败作为suppressed，不覆盖原原因。",
     "reviewedChanges": null,
@@ -9014,6 +11129,21 @@
       "错误分类在设备DB_BUSY/unknown commit案例中仍需真实回执。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -9091,7 +11221,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -9229,7 +11359,363 @@
       "verification/r335-construction/settlement-h15-reviewed-hunks.json"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+        "class": "com/ethk3/novaonepro/EnabledWindowJournalR335",
+        "method": "appendState",
+        "descriptor": "(Ljava/lang/String;Ljava/lang/String;JJLjava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+        "lines": [
+          85,
+          97
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/EnabledWindowJournalR335",
+            "method": "append",
+            "line": 81,
+            "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+            "method": "appendEnabledAssignmentR335",
+            "line": 1396,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 85,
+            "callee": "com/ethk3/novaonepro/EnabledWindowJournalR335.require(ZLjava/lang/String;)V"
+          },
+          {
+            "line": 86,
+            "callee": "com/ethk3/novaonepro/EnabledWindowJournalR335.parse(Ljava/lang/String;)Lcom/ethk3/novaonepro/EnabledWindowJournalR335$Journal;"
+          },
+          {
+            "line": 87,
+            "callee": "com/ethk3/novaonepro/EnabledWindowJournalR335.require(ZLjava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+        "class": "com/ethk3/novaonepro/EnabledWindowJournalR335",
+        "method": "number",
+        "descriptor": "(Ljava/lang/String;)J",
+        "lines": [
+          100,
+          101
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 4,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/EnabledWindowJournalR335",
+            "method": "parse",
+            "line": 54,
+            "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/EnabledWindowJournalR335",
+            "method": "parse",
+            "line": 60,
+            "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 100,
+            "callee": "com/ethk3/novaonepro/EnabledWindowJournalR335.require(ZLjava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "class": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+        "method": "appendEnabledAssignmentR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/ServiceHeartbeatStore$RuntimePatch;)V",
+        "lines": [
+          1378,
+          1405
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+            "method": "commitPatchLocked",
+            "line": 1356,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 1386,
+            "callee": "com/ethk3/novaonepro/ServiceHeartbeatStore.getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 1388,
+            "callee": "com/ethk3/novaonepro/ServiceHeartbeatStore$RuntimePatch.putString(Ljava/lang/String;Ljava/lang/String;)V"
+          },
+          {
+            "line": 1394,
+            "callee": "com/ethk3/novaonepro/ServiceHeartbeatStore.getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "class": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+        "method": "commitPatchLocked",
+        "descriptor": "(Lcom/ethk3/novaonepro/ServiceHeartbeatStore$RuntimePatch;)V",
+        "lines": [
+          1353,
+          1375
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 6,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+            "method": "commitPatch",
+            "line": 1348,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+            "method": "markActualProcessStart",
+            "line": 574,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/ServiceHeartbeatStore",
+            "method": "markRecoveryRequest",
+            "line": 273,
+            "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 1356,
+            "callee": "com/ethk3/novaonepro/ServiceHeartbeatStore.appendEnabledAssignmentR335(Lcom/ethk3/novaonepro/ServiceHeartbeatStore$RuntimePatch;)V"
+          },
+          {
+            "line": 1359,
+            "callee": "com/ethk3/novaonepro/ServiceHeartbeatStore.prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;"
+          },
+          {
+            "line": 1359,
+            "callee": "com/ethk3/novaonepro/ServiceHeartbeatStore.applyPatch(Landroid/content/SharedPreferences$Editor;Lcom/ethk3/novaonepro/ServiceHeartbeatStore$RuntimePatch;)Landroid/content/SharedPreferences$Editor;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "class": "com/ethk3/novaonepro/SettlementEngine",
+        "method": "executeFromCoordinatorR815",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/SettlementEngine$SettlementReport;",
+        "lines": [
+          109,
+          308
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementCoordinatorR815",
+            "method": "execute",
+            "line": 300,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 110,
+            "callee": "com/ethk3/novaonepro/TimeSourceR811.monoNowMs()J"
+          },
+          {
+            "line": 111,
+            "callee": "com/ethk3/novaonepro/SettlementEngine$SettlementReport.<init>()V"
+          },
+          {
+            "line": 112,
+            "callee": "com/ethk3/novaonepro/SettlementEngine.safe(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "class": "com/ethk3/novaonepro/SettlementEngine",
+        "method": "recordPostCommitTelemetryR911",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/ethk3/novaonepro/DurableReturnTimingR334;)V",
+        "lines": [
+          313,
+          338
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine",
+            "method": "lambda$executeFromCoordinatorR815$0",
+            "line": 263,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 315,
+            "callee": "com/ethk3/novaonepro/RuntimeHealthLedgerR36.record(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJIIZLjava/lang/String;)V"
+          },
+          {
+            "line": 329,
+            "callee": "com/ethk3/novaonepro/DbStore.setStates(Ljava/util/Map;)V"
+          },
+          {
+            "line": 331,
+            "callee": "com/ethk3/novaonepro/strategyv2/FailureDispositionR31.processFatalCause(Ljava/lang/Throwable;)Ljava/lang/Error;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "endComputeR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V",
+        "lines": [
+          514,
+          516
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 5,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "finishPreparedR335",
+            "line": 546,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 392,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 501,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 514,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.spans()Ljava/util/List;"
+          },
+          {
+            "line": 515,
+            "callee": "com/ethk3/novaonepro/RuntimeTraceR36.end(Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;ZLjava/lang/String;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+        "method": "finishPreparedR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Request;Lcom/ethk3/novaonepro/AnalysisSingleFlightR36$Lease;Lcom/ethk3/novaonepro/PredrawWakeLeaseR81;Lcom/ethk3/novaonepro/V51RuntimeResult;Lcom/ethk3/novaonepro/V51Repository$CanonicalCommitResult;Lcom/ethk3/novaonepro/RuntimeTraceR36;Lcom/ethk3/novaonepro/RuntimeTraceR36$Mark;)Lcom/ethk3/novaonepro/V51RuntimeOrchestrator$OutcomeR36;",
+        "lines": [
+          539,
+          548
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "resumePreparedR335",
+            "line": 563,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 49,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/V51RuntimeOrchestrator",
+            "method": "runR36",
+            "line": 425,
+            "file": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 540,
+            "callee": "com/ethk3/novaonepro/V51RuntimeOrchestrator.canonicalReturnDetailR335(Ljava/lang/String;J)Ljava/lang/String;"
+          },
+          {
+            "line": 541,
+            "callee": "com/ethk3/novaonepro/PostCanonicalObservationR33.offer(Ljava/lang/Runnable;)Z"
+          },
+          {
+            "line": 545,
+            "callee": "com/ethk3/novaonepro/AnalysisSingleFlightR36$CancellationToken.markCanonicalCommitted()V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+        "class": "com/ethk3/novaonepro/EnabledWindowCaptureProviderR335",
+        "method": "projection",
+        "descriptor": "(Lorg/xmlpull/v1/XmlPullParser;)[B",
+        "lines": [
+          60,
+          91
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/EnabledWindowCaptureProviderR335",
+            "method": "openFile",
+            "line": 43,
+            "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 84,
+            "callee": "com/ethk3/novaonepro/EnabledWindowJournalR335.parse(Ljava/lang/String;)Lcom/ethk3/novaonepro/EnabledWindowJournalR335$Journal;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java",
+        "class": "com/ethk3/novaonepro/EnabledWindowCaptureProviderR335",
+        "method": "allowedRead",
+        "descriptor": "(ILjava/lang/String;Ljava/lang/String;Z)Z",
+        "lines": [
+          27,
+          27
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/EnabledWindowCaptureProviderR335",
+            "method": "openFile",
+            "line": 33,
+            "file": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowCaptureProviderR335.java"
+          }
+        ],
+        "projectCallees": []
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "真实权限写入的同次SharedPreferences提交附带有界哈希审计链；START/END采集实际APK/prefs/设备时钟；保留独立100期日历，逐期核原canonical和结算，显式停用单列，丢原件/时钟变动UNKNOWN，未新增结算链或更改r29资格。 启用被维护拒绝记录独立R状态，不能作为用户显式停用排除分母。",
     "reviewedChanges": "API 21 起使用 Android shell UID 校验只读端点。三种结算计时和身份突变均由回归拒绝。",
@@ -9242,6 +11728,21 @@
       "512条有界轮换若丢失START见证则UNKNOWN，不自动缩小窗口。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -9319,7 +11820,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -9438,7 +11939,279 @@
       "verification/r335-construction/settlement-h15-reviewed-hunks.json"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+        "class": "com/ethk3/novaonepro/FrozenFeedbackProofR335",
+        "method": "verify",
+        "descriptor": "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJJI[I[IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+        "lines": [
+          16,
+          38
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26$FrozenR335",
+            "method": "<init>",
+            "line": 212,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 33,
+            "callee": "com/ethk3/novaonepro/FrozenFeedbackProofR335.sha(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 34,
+            "callee": "com/ethk3/novaonepro/FrozenFeedbackProofR335.sha(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 36,
+            "callee": "com/ethk3/novaonepro/FrozenFeedbackProofR335.sha(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+        "class": "com/ethk3/novaonepro/FrozenFeedbackProofR335",
+        "method": "observedLabelTime",
+        "descriptor": "(JJJ)Z",
+        "lines": [
+          11,
+          11
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 4,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 23,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 136,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 191,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "class": "com/ethk3/novaonepro/SettlementEngine",
+        "method": "executeFromCoordinatorR815",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/SettlementEngine$SettlementReport;",
+        "lines": [
+          109,
+          308
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementCoordinatorR815",
+            "method": "execute",
+            "line": 300,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 110,
+            "callee": "com/ethk3/novaonepro/TimeSourceR811.monoNowMs()J"
+          },
+          {
+            "line": 111,
+            "callee": "com/ethk3/novaonepro/SettlementEngine$SettlementReport.<init>()V"
+          },
+          {
+            "line": 112,
+            "callee": "com/ethk3/novaonepro/SettlementEngine.safe(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "class": "com/ethk3/novaonepro/SettlementEngine",
+        "method": "recordPostCommitTelemetryR911",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/ethk3/novaonepro/DurableReturnTimingR334;)V",
+        "lines": [
+          313,
+          338
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine",
+            "method": "lambda$executeFromCoordinatorR815$0",
+            "line": 263,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 315,
+            "callee": "com/ethk3/novaonepro/RuntimeHealthLedgerR36.record(Lcom/ethk3/novaonepro/DbStore;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJIIZLjava/lang/String;)V"
+          },
+          {
+            "line": 329,
+            "callee": "com/ethk3/novaonepro/DbStore.setStates(Ljava/util/Map;)V"
+          },
+          {
+            "line": 331,
+            "callee": "com/ethk3/novaonepro/strategyv2/FailureDispositionR31.processFatalCause(Ljava/lang/Throwable;)Ljava/lang/Error;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+        "method": "consumeFrozenEffectsR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;I)J",
+        "lines": [
+          259,
+          292
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+            "method": "lambda$reconcileFeedbackR31$0",
+            "line": 159,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 260,
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.cursorR335(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 273,
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.stateR335(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;)V"
+          },
+          {
+            "line": 274,
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26$FrozenR335.<init>(Landroid/database/Cursor;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+        "method": "reconcileFeedbackR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26$Claim;Lcom/ethk3/novaonepro/strategyv2/BudgetTokenSU1;)J",
+        "lines": [
+          146,
+          155
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "method": "execute",
+            "line": 627,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 146,
+            "callee": "com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.checkpointOrYield()V"
+          },
+          {
+            "line": 148,
+            "callee": "com/ethk3/novaonepro/DbStore.getState(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 150,
+            "callee": "com/ethk3/novaonepro/DbStore.readable()Landroid/database/sqlite/SQLiteDatabase;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+        "method": "existingBusinessLabel",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$ExistingLabel;",
+        "lines": [
+          347,
+          361
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 183,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 356,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 356,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 358,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36$ExistingLabel.<init>(Ljava/lang/String;Ljava/lang/String;IIIIIIJ)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+        "method": "settleFrozenWithinTransaction",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/SettlementEngine$OwnerToken;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$LabelResult;",
+        "lines": [
+          15,
+          221
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine$1",
+            "method": "call",
+            "line": 165,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 17,
+            "callee": "com/ethk3/novaonepro/Models$Draw.isValid()Z"
+          },
+          {
+            "line": 17,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.fail(Ljava/lang/String;Ljava/lang/String;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$LabelResult;"
+          },
+          {
+            "line": 18,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "在实际r31 producer/consumer源查询重验game/base/history/位置K3/开奖置换/COMPLETED结算/hash/firstSeen/fixedDeadline，并重算 draw V2、provenance、label hash；NULL与-1 probability区分缺值，非法概率拒绝。",
     "reviewedChanges": "结算主链的历史摘要回归逐片还原限制的审定计时差异，保留支付和授权越界负例。",
@@ -9451,6 +12224,21 @@
       "独立自然实验的FUTURE/资格/REAL账没有被降级；本生产shadow/OOS反馈只标MAINLINE_FROZEN_OBSERVATION，不冒充资格证据"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -9528,7 +12316,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -9613,7 +12401,211 @@
       "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+        "class": "com/ethk3/novaonepro/FrozenFeedbackProofR335",
+        "method": "verify",
+        "descriptor": "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJJI[I[IIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+        "lines": [
+          16,
+          38
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26$FrozenR335",
+            "method": "<init>",
+            "line": 212,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 33,
+            "callee": "com/ethk3/novaonepro/FrozenFeedbackProofR335.sha(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 34,
+            "callee": "com/ethk3/novaonepro/FrozenFeedbackProofR335.sha(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 36,
+            "callee": "com/ethk3/novaonepro/FrozenFeedbackProofR335.sha(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/FrozenFeedbackProofR335.java",
+        "class": "com/ethk3/novaonepro/FrozenFeedbackProofR335",
+        "method": "observedLabelTime",
+        "descriptor": "(JJJ)Z",
+        "lines": [
+          11,
+          11
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 4,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 23,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 136,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 191,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          }
+        ],
+        "projectCallees": []
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+        "method": "consumeFrozenEffectsR31",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;I)J",
+        "lines": [
+          259,
+          292
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+            "method": "lambda$reconcileFeedbackR31$0",
+            "line": 159,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 260,
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.cursorR335(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 273,
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.stateR335(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/lang/String;)V"
+          },
+          {
+            "line": 274,
+            "callee": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26$FrozenR335.<init>(Landroid/database/Cursor;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "class": "com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26",
+        "method": "reconcileFeedbackR31",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26$Claim;Lcom/ethk3/novaonepro/strategyv2/BudgetTokenSU1;)J",
+        "lines": [
+          146,
+          155
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26",
+            "method": "execute",
+            "line": 627,
+            "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 146,
+            "callee": "com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.checkpointOrYield()V"
+          },
+          {
+            "line": 148,
+            "callee": "com/ethk3/novaonepro/DbStore.getState(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 150,
+            "callee": "com/ethk3/novaonepro/DbStore.readable()Landroid/database/sqlite/SQLiteDatabase;"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+        "method": "existingBusinessLabel",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$ExistingLabel;",
+        "lines": [
+          347,
+          361
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+            "method": "settleFrozenWithinTransaction",
+            "line": 183,
+            "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 356,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 356,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 358,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36$ExistingLabel.<init>(Ljava/lang/String;Ljava/lang/String;IIIIIIJ)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "class": "com/ethk3/novaonepro/OosAfterDrawWriterR36",
+        "method": "settleFrozenWithinTransaction",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Lcom/ethk3/novaonepro/SettlementEngine$OwnerToken;Lcom/ethk3/novaonepro/Models$Draw;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$LabelResult;",
+        "lines": [
+          15,
+          221
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/SettlementEngine$1",
+            "method": "call",
+            "line": 165,
+            "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 17,
+            "callee": "com/ethk3/novaonepro/Models$Draw.isValid()Z"
+          },
+          {
+            "line": 17,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.fail(Ljava/lang/String;Ljava/lang/String;)Lcom/ethk3/novaonepro/OosAfterDrawWriterR36$LabelResult;"
+          },
+          {
+            "line": 18,
+            "callee": "com/ethk3/novaonepro/OosAfterDrawWriterR36.safe(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "废止另建r33平行交接，沿既有r26 outbox→r31 typed events→原模型checkpoint receipts/新版本残差receipt。confirmed draw恢复不再依赖settlement_task；typed draw重验原csv/hash/ordinal/canonical，公平event键；frozen consumer公平(issue,event_id)复合游标，坏原件不ACK；原immutable旧消费者账保留。",
     "reviewedChanges": null,
@@ -9627,6 +12619,21 @@
       "旧C05平行机会DDL不安装；研究agent已接原ServiceHeartbeatStore实际启停审计+EnabledWindowJournalR335/capture/reconcile。独立资格分母仍由原r29_qual_calendar；历史未知启用边界不补造。"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -9704,7 +12711,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -9749,7 +12756,76 @@
       "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+        "class": "com/ethk3/novaonepro/EssentialSettlementFeedbackR923",
+        "method": "drain",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;IJ)Lcom/ethk3/novaonepro/EssentialSettlementFeedbackR923$Result;",
+        "lines": [
+          73,
+          120
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/AutoFetchService$37",
+            "method": "run",
+            "line": 4380,
+            "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 73,
+            "callee": "com/ethk3/novaonepro/EssentialSettlementFeedbackR923$Result.<init>(ZLjava/lang/String;Ljava/lang/String;IJ)V"
+          },
+          {
+            "line": 74,
+            "callee": "com/ethk3/novaonepro/RealtimePressureGateR811.hasActiveCriticalWork()Z"
+          },
+          {
+            "line": 75,
+            "callee": "com/ethk3/novaonepro/SettlementExecutionGateR819.isActive()Z"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+        "class": "com/ethk3/novaonepro/EssentialSettlementFeedbackR923",
+        "method": "exactExplanationR335",
+        "descriptor": "(Lcom/ethk3/novaonepro/DbStore;Lcom/ethk3/novaonepro/Models$Draw;)Z",
+        "lines": [
+          23,
+          47
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 1,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/EssentialSettlementFeedbackR923",
+            "method": "settleNow",
+            "line": 56,
+            "file": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 31,
+            "callee": "com/ethk3/novaonepro/DbStore.readable()Landroid/database/sqlite/SQLiteDatabase;"
+          },
+          {
+            "line": 33,
+            "callee": "com/ethk3/novaonepro/V51ChecksumEngine.sha256(Ljava/lang/String;)Ljava/lang/String;"
+          },
+          {
+            "line": 38,
+            "callee": "com/ethk3/novaonepro/V51ChecksumEngine.sha256(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "rows0只在精确原post解释已存在并通过原recordhash/predraw/canonical/draw/deadline等读回时ALREADY_VERIFIED；无predraw/无解释不能成功。单飞CAS、单调预算、公平issue游标持久读回、低优先telemetry投影，fatal传播。；另重新计算predraw九段canonical hash、验证原K3/实际hit/draw_hash_v2及shadow commit同时早于deadline/open/firstSeen。",
     "reviewedChanges": null,
@@ -9761,6 +12837,21 @@
       "不能以rows0或样例结果宣称该生产issue已有完整解释；目标机真实精确结算和重复调用须验"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -9838,7 +12929,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
@@ -9883,7 +12974,78 @@
       "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java"
     ],
     "methodNamedOnOriginalCard": null,
-    "compiledExamples": [],
+    "compiledExamples": [
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+        "class": "com/ethk3/novaonepro/DrawDependencyInputCP12",
+        "method": "referenceSql",
+        "descriptor": "(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;)Lcom/ethk3/novaonepro/DrawDependencyInputCP12$Reference;",
+        "lines": [
+          107,
+          183
+        ],
+        "intersectsChange": true,
+        "incomingInstructionCount": 2,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/DrawDependencyInputCP12",
+            "method": "preserveIfReferencedWithinWrite",
+            "line": 47,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/DrawDependencyInputCP12",
+            "method": "releaseConsumedWithinWrite",
+            "line": 75,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 183,
+            "callee": "com/ethk3/novaonepro/DrawDependencyInputCP12$Reference.<init>(Ljava/util/List;)V"
+          }
+        ]
+      },
+      {
+        "file": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+        "class": "com/ethk3/novaonepro/DrawDependencyInputCP12",
+        "method": "inputHash",
+        "descriptor": "(Landroid/database/Cursor;)Ljava/lang/String;",
+        "lines": [
+          187,
+          194
+        ],
+        "intersectsChange": false,
+        "incomingInstructionCount": 3,
+        "callerExamples": [
+          {
+            "class": "com/ethk3/novaonepro/DrawDependencyInputCP12",
+            "method": "preserveIfReferencedWithinWrite",
+            "line": 57,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/DrawDependencyInputCP12",
+            "method": "preserveIfReferencedWithinWrite",
+            "line": 65,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java"
+          },
+          {
+            "class": "com/ethk3/novaonepro/DrawDependencyInputCP12",
+            "method": "verifiedOpenTimeR77",
+            "line": 208,
+            "file": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java"
+          }
+        ],
+        "projectCallees": [
+          {
+            "line": 194,
+            "callee": "com/ethk3/novaonepro/V51ChecksumEngine.sha256(Ljava/lang/String;)Ljava/lang/String;"
+          }
+        ]
+      }
+    ],
     "fullCompiledCalleesAndCallers": "raw/B02/compiled-callers.json.gz",
     "implementedBehavior": "加入pending r26 feedback、未typed draw event、未V2 frozen消费及未产出冻结事件的引用保护；partial native schema显式拒绝；继续唯一draw_dependency_input CP12冷热输入图，不复制第二历史账。",
     "reviewedChanges": null,
@@ -9895,6 +13057,21 @@
       "无可恢复证明的毒记录会形成保护债，不能清零或伪ACK换空间；设备容量长跑仍待验收"
     ],
     "batchEvidenceAndExitCodes": [
+      {
+        "name": "Android full Gradle gate",
+        "command": [
+          "./gradlew",
+          "--no-daemon",
+          "--max-workers=2",
+          ":app:compileDebugJavaWithJavac",
+          ":app:compileDebugAndroidTestJavaWithJavac",
+          ":app:testDebugUnitTest",
+          ":app:lintDebug",
+          "--continue"
+        ],
+        "exit": 0,
+        "evidence": "raw/B02/android-full.json"
+      },
       {
         "suite": "B02-clock-and-dispatch",
         "command": [
@@ -9972,7 +13149,7 @@
         "file": "runtime/run_source_probes.py"
       }
     ],
-    "engineeringStatus": "源码已提交，交付核验状态见总表",
+    "engineeringStatus": "生产变更已提交且原签交付已收验",
     "separateRuntimeAcceptance": "需最终 APK 的完整事前日历、START/END、逐期冻结和耐久结算返回记录。"
   },
   {
