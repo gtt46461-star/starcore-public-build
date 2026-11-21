@@ -16,11 +16,6 @@ jobs:
         with:
           sparse-checkout: .github
           persist-credentials: false
-      - uses: actions/checkout@v4
-        with:
-          ref: a724adbfb31dd96f1459aa2e5cbd94582dd6e82d
-          path: app-source
-          persist-credentials: false
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -28,6 +23,10 @@ jobs:
       - name: Restore sealed observation tools and await final candidate
         run: |
           set -euo pipefail
+          git init -q app-source
+          git -C app-source fetch -q --no-tags "https://github.com/$GITHUB_REPOSITORY.git" a724adbfb31dd96f1459aa2e5cbd94582dd6e82d
+          git -C app-source checkout -q --detach FETCH_HEAD
+          git -C app-source merge-base --is-ancestor bb7b49bbcc9266bad548ec37e71403256fc06a4d HEAD
           git init -q plan-source
           git -C plan-source sparse-checkout init --cone
           git -C plan-source sparse-checkout set construction/plans/STARCORE_R33_5_REVIEW_20261119
@@ -41,6 +40,7 @@ jobs:
       - name: Compile only the independent checkpoint reader
         run: |
           set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           cd app-source
           export STARCORE_R33_PLAN_ROOT="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
           export STARCORE_R33_REVIEW_ROOT="$RUNNER_TEMP/material/current-review"

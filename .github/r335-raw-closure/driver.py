@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import sqlite3
 import subprocess
 import sys
 import time
@@ -107,6 +108,29 @@ def select_tree(folder):
                 check(tap(lambda n:n.get('resource-id','')=='android:id/button1' or n.get('text','').lower() in ['create','创建','确定'],10),'SAF_DESTINATION_FOLDER')
     check(tap(lambda n:n.get('resource-id','').endswith('/action_menu_select') or n.get('text','').lower() in ['use this folder','使用此文件夹','使用这个文件夹','选择此文件夹']),'SAF_USE_FOLDER_BUTTON')
     tap(lambda n:n.get('text','').lower() in ['allow','允许'] or n.get('resource-id')=='android:id/button1',15)
+def training_objects(archive,snapshot):
+    expected={}
+    with sqlite3.connect(snapshot.as_uri()+'?mode=ro&immutable=1',uri=True) as db:
+        tables={name for name, in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        for table,column,prefix,suffix in [('research_training_input_v2','input_hash','training-input-','.scdev'),('research_training_attachment_cp12','attachment_hash','training-bound-','.scbind')]:
+            if table not in tables:continue
+            for sha,rel,size in db.execute(f'SELECT {column},relative_path,byte_count FROM {table}'):
+                check(re.fullmatch('[0-9a-f]{64}',sha) and rel==sha+suffix and 0<size<=8*1024**2,'TRAINING_ROW_IDENTITY')
+                name=prefix+rel
+                check(name not in expected,'TRAINING_ROW_IDENTITY')
+                expected[name]=(sha,size)
+    rows=[json.loads(line) for line in archive.read('attachments.jsonl').splitlines() if line.strip()]
+    observed={}
+    for row in rows:
+        if row.get('sourceKind')!='TRAINING':continue
+        name=row['logicalName']
+        check(name not in observed and name in expected and row.get('state')=='FIXED_VERIFIED','TRAINING_DESCRIPTOR')
+        with archive.open(name) as body:sha=hashlib.file_digest(body,'sha256').hexdigest()
+        observed[name]=(sha,archive.getinfo(name).file_size)
+        check(observed[name]==(row['sha256'],row['bytes']),'TRAINING_BODY_IDENTITY')
+    check(expected==observed,'TRAINING_DB_CLOSURE')
+    bound=digest(''.join(name+' '+sha+' '+str(size)+chr(10) for name,(sha,size) in sorted(observed.items())).encode())
+    return dict(trainingRowsReopened=True,trainingMembers=len(observed),trainingBytes=sum(v[1] for v in observed.values()),trainingSetSha256=bound)
 def extract_full_raw_closure(joined,job):
     # FULL_RAW exports the actual reference graph and bodies. The compact audit is a separate profile.
     from pathlib import PurePosixPath
@@ -128,6 +152,7 @@ def extract_full_raw_closure(joined,job):
         db=area/'snapshot.db'
         with z.open('snapshot.db') as src,db.open('wb') as out:shutil.copyfileobj(src,out)
         check(field.fingerprint(db)==mf['snapshotSha256'] and db.stat().st_size==mf['snapshotBytes'],'ORIGINAL_DB_BYTES')
+        training=training_objects(z,db)
     expected=digest(''.join(h+' '+str(hashes[h])+chr(10) for h in sorted(hashes)).encode())
     remote='/data/local/tmp/r335-raw-closure-'+job
     field.adb('shell','mkdir',remote)
@@ -140,7 +165,7 @@ def extract_full_raw_closure(joined,job):
     body=race.stdout+race.stderr;(area/'android-closure.log').write_bytes(body)
     proof=re.search(rb'RAW_CLOSURE roots=(\d+) objects=(\d+) bytes=(\d+) collection=([a-f0-9]{64}) sqlite=ok',body)
     check(race.returncode==0 and proof and int(proof[2])==n and int(proof[3])==total and proof[4].decode()==expected,'SNAPSHOT_DESCENDANTS')
-    return dict(fullRawClosureReplayed=True,uniqueSnapshotRoots=int(proof[1]),checkpointBodies=n,checkpointBytes=total,checkpointSetSha256=expected,sqliteIntegrityOk=True,nativeClosureLogSha256=digest(body),rawSnapshotBytes=db.stat().st_size,rawSnapshotSha256=field.fingerprint(db))
+    return dict(fullRawClosureReplayed=True,uniqueSnapshotRoots=int(proof[1]),checkpointBodies=n,checkpointBytes=total,checkpointSetSha256=expected,sqliteIntegrityOk=True,nativeClosureLogSha256=digest(body),rawSnapshotBytes=db.stat().st_size,rawSnapshotSha256=field.fingerprint(db),**training)
 def reopen_uri(uri,file,expected):
     parsed=urlparse(uri)
     check(parsed.scheme=='content' and parsed.netloc in {'com.android.externalstorage.documents','com.android.providers.downloads.documents','com.google.android.documentsui.fileprovider'},'SAF_URI_AUTHORITY')
