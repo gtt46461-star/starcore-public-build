@@ -11,7 +11,7 @@ kit=workspace/'.github/r335-trained-backup'
 run=int(os.environ['GITHUB_RUN_ID'])
 doc=dict(runId=run,scope='CONTROLLED_TRAINING_CHECKPOINT_IN_GENUINE_FULL_RAW_UI_EXPORT',
          sourceCommit='7fa01ef5a69d6682bf6dec744425de524dc7e92f',apkSha256=next(line.split()[0] for line in (temp/'SHA256SUMS.txt').read_text().splitlines() if line.endswith('7fa01ef5a69d-release.apk')),
-         registeredMethod='confirmedDrawAdvancesOneTrainingCursorAndGrantsNoNaturalAuthority',
+         registeredMethod='terminalDrawAdvancesOneTrainingCursorAndGrantsNoNaturalAuthority',
          trainedAndReopened=False,phase='START')
 def verify(v,code):
     if not v:raise ValueError(code)
@@ -83,12 +83,13 @@ def main():
     verify(draws==0 and tables>0 and verified,'FRESH_UPGRADED_DATABASE')
     doc['phase']='REAL_TRAINING'
     component=pkg+'.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'
-    cmd=['adb','shell','am','instrument','-w','-r','-e','class','com.ethk3.novaonepro.strategyv2.R335TrainedBackupTest#'+doc['registeredMethod'],component]
+    cmd=['adb','shell','am','instrument','-w','-r','-e','class','com.ethk3.novaonepro.strategyv2.R335TerminalBackupTest#'+doc['registeredMethod'],component]
     proc=subprocess.run(cmd,capture_output=True,timeout=420);log=proc.stdout+proc.stderr
     (temp/'trained-backup-instrumentation-private.log').write_bytes(log)
-    doc.update(instrumentationExit=proc.returncode,testFixtureSha256=f.fingerprint(kit/'R335TrainedBackupTest.java'),trainingLogSha256=hashlib.sha256(log).hexdigest())
+    derived=workspace/'app-source/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R335TerminalBackupTest.java'
+    doc.update(instrumentationExit=proc.returncode,testFixtureSha256=f.fingerprint(derived),originalFixtureSha256=f.fingerprint(kit/'R335TrainedBackupTest.java'),trainingLogSha256=hashlib.sha256(log).hexdigest())
     if not (proc.returncode==0 and re.search(rb'OK\s*\(1 test\)',log) and b'FAILURES!!!' not in log):
-        frames=re.findall(rb'(?:R335TrainedBackupTest|DbStore|DatabaseCoordinator)[.]java:(\d+)\)',log)
+        frames=re.findall(rb'(?:R335TerminalBackupTest|DbStore|DatabaseCoordinator)[.]java:(\d+)\)',log)
         doc['trainingFailureLineNumbers']=[int(x) for x in frames[:8]]
         raise ValueError('NATIVE_TRAINING_TEST')
     checkpoint=f.adb('exec-out','cat','/data/user/0/'+pkg+'/cache/r335-controlled-backup-checkpoint.txt').decode().strip()

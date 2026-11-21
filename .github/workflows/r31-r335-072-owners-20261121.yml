@@ -102,6 +102,7 @@ jobs:
           set -euo pipefail
           dest=app/src/androidTest/java/com/ethk3/novaonepro
           cp "$GITHUB_WORKSPACE/.github/r335-trained-backup/R335TrainedBackupTest.java" "$dest/strategyv2"
+          python3 -B "$GITHUB_WORKSPACE/.github/r335-072-owners/terminal_fixture.py" "$dest/strategyv2/R335TrainedBackupTest.java" "$dest/strategyv2/R335TerminalBackupTest.java"
           python3 -B "$GITHUB_WORKSPACE/.github/r335-vivo-gallery/paired_fixture.py"
           cp "$GITHUB_WORKSPACE/.github/r335-vivo-checkpoints/R335MigratedPublicationTest.java" "$dest/strategyv2"
           python3 -B "$GITHUB_WORKSPACE/.github/r335-072-owners/append_case.py" "$dest/strategyv2/R335MigratedPublicationTest.java"
