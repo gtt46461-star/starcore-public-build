@@ -126,24 +126,27 @@ public final class MatrixResearchR30R1 {
         String baseInput=ctx.data.datasetHash+"|"+revision+"|"+com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26;
 
         List<MatrixRegistryR30.Definition> definitions=new ArrayList<>();for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")&&!def.kind.equals("COUNTERFACTUAL"))definitions.add(def);
-        int next=ResearchObservatoryR30R1.nextViewR335(w.ro,"MATRICES",definitions.size());
-        for(int scan=0;scan<definitions.size();scan++){int index=(next+scan)%definitions.size();MatrixRegistryR30.Definition def=definitions.get(index);
+        ResearchObservatoryR30R1.ViewCursor cursor=ResearchObservatoryR30R1.ViewCursor.read(w.ro,"MATRICES",definitions.size());
+        for(int scan=0;scan<definitions.size();scan++){int index=(cursor.index+scan)%definitions.size();MatrixRegistryR30.Definition def=definitions.get(index);
             boolean sourceOnly=SOURCE_ONLY_KINDS_R31.contains(def.kind);
             long measured=Arrays.asList("CAUSAL_SUPPORT","COUNTER_EVIDENCE","EVOLUTION_CREDIT","TEMPORAL_PRECEDENCE").contains(def.kind)?measuredVersion:def.kind.equals("RESOURCE_EFFICIENCY")?ResearchStoreR30R1.calendar(w.ro):0;
             String input=dependencyKeyR31(ctx.data.datasetHash,revision,def.kind,sourceOnly?"SOURCE_ONLY":StatsR27.sha256(policyIdentity.toString()),measured,com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);
             Map<?,?> previous=null;
             try(Cursor c=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,def.kind})){if(c.moveToFirst()){Object saved=JsonR27.parse(c.getString(0));if(saved instanceof Map)previous=(Map<?,?>)saved;}}
-            if(decidedR31(previous,input)){ResearchWriteQueueR27.Batch scanBatch=new ResearchWriteQueueR27.Batch();long scanAt=System.currentTimeMillis();owned.appendScan(scanBatch,scanAt);ResearchObservatoryR30R1.advanceViewR335(scanBatch,"MATRICES",(index+1)%definitions.size(),scanAt);RuntimeR27.submit(w,"MATRIX_SCAN",scanBatch);return ResearchPoolR27.Outcome.idle("WAITING_NEW_MATRIX_SOURCE_PAGE",0,-1);}
+            if(decidedR31(previous,input)){
+                cursor.scan(w,owned,(index+1)%definitions.size(),null,null);
+                return ResearchPoolR27.Outcome.idle("WAITING_NEW_MATRIX_SOURCE_PAGE",0,-1);
+            }
             long started=System.nanoTime();final PolicySpecR27 student=sourceOnly?null:policy;
             OutcomeR31 outcome=produceR31(def.kind,policy!=null,ctx.data.datasetHash,revision,()->{MatrixTensorR30R1.Tensor t=build(def.kind,ctx,student,revision);if(t==null)t=MatrixEvidenceR30R1.compute(def.kind,ctx,policies,revision);if(t==null)t=MatrixEvidenceR30R1.stored(def.kind,w.ro,ctx,revision,rt);return t;});
             MatrixTensorR30R1.Tensor tensor=outcome.tensor;long now=System.currentTimeMillis();Map<String,Object> receipt=receiptR31(def.id,input,ctx.data.datasetHash,revision,outcome,previous,System.nanoTime()-started);
             ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();if(tensor!=null)MatrixTensorR30R1.append(b,tensor,now);
             b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",PANEL,def.kind,JsonR27.write(receipt),now);
-            owned.appendScan(b,now);ResearchObservatoryR30R1.advanceViewR335(b,"MATRICES",(index+1)%definitions.size(),now);
+            owned.appendScan(b,now);cursor.advance(b,(index+1)%definitions.size(),now);
             final MatrixTensorR30R1.Tensor preparedTensor=tensor;
             b.guardBefore(db->{ResearchInputPinR30R1.require(db,ctx.data.datasetHash,revision);if(preparedTensor!=null&&"ONLINE_RESEARCH".equals(preparedTensor.role)){Object parsed=JsonR27.parse(preparedTensor.payload);Object raw=((Map<?,?>)((Map<?,?>)parsed).get("details")).get("sourceRun");if(!(raw instanceof String))throw new IllegalStateException("MATRIX_ONLINE_SOURCE_REFERENCE");ResearchInputPinR30R1.requireRun(db,(String)raw);}return 0;});
             if(tensor!=null)ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(tensor.throughOrdinal,tensor.throughOrdinal,null,null,tensor.throughOrdinal,tensor.hash));
-            try{RuntimeR27.submit(w,"MATRIX_TYPED",b);}catch(RuntimeException sourceChanged){if(ResearchStoreR30R1.stale(sourceChanged))return ResearchPoolR27.Outcome.idle("DEPENDENCY(MATRIX_SOURCE_CHANGED_RETRY)",0,-1);throw sourceChanged;}
+            try{RuntimeR27.submit(w,"MATRIX_TYPED",b,false,cursor.snapshot(input));}catch(RuntimeException sourceChanged){if(ResearchStoreR30R1.stale(sourceChanged))return ResearchPoolR27.Outcome.idle("DEPENDENCY(MATRIX_SOURCE_CHANGED_RETRY)",0,-1);throw sourceChanged;}
             // A non-produced kind records its state and lets the round continue with the next kind on the next slice.
             return tensor==null?ResearchPoolR27.Outcome.progress(1,0):ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
         }

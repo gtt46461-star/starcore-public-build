@@ -163,6 +163,20 @@ public final class ResearchWriteQueueR27 {
                     db->{execute(db,batch,operation);return 0;},0);
         });
     }
+    /** Bounded view scheduling metadata shares the existing deadline and cancellation gate. */
+    void commitViewHints(ResearchPoolR27.Worker worker,RuntimeCoordinatorR26.Claim claim,
+                         DatabaseCoordinator.WriteCallable<Integer> update) throws InterruptedException {
+        for (;;) {
+            if (worker.cancelled()) throw new InterruptedException("R27_CANCELLED");
+            if (submitAttemptR31(worker::cancelled,false,false,()->
+                    store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                            RuntimeCoordinatorR26.controlContextR31("R27_VIEW_SCAN"),db->{
+                                RuntimeCoordinatorR26.requireFence(db,claim);
+                                return update.call(db);
+                            }))) return;
+            CooperativeContinuationR26.yieldPreparedWrite();
+        }
+    }
     private boolean submitAttemptR31(java.util.function.BooleanSupplier cancelled,boolean freezeWrite,boolean savedHistory,Runnable write) {
         long start=System.nanoTime();
         while((critical.getAsBoolean() && !(savedHistory && !SettlementExecutionGateR819.isActive()

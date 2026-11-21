@@ -87,7 +87,7 @@ public final class ResearchObservatoryR30R1 {
   }else if(view.equals("R16")){
    List<Map<String,Object>> costs=rt==null?Collections.emptyList():rt.pool.researchCosts();f.put("actualTaskCpu",costs);Map<String,Object> cpu=new HashMap<>();for(Map<String,Object> cost:costs)cpu.put(String.valueOf(cost.get("task")),((Number)cost.get("actualContinuationCpuNs")).doubleValue()/1000000);f.put("series",Collections.singletonList("本会话计算CPU毫秒"));try(Cursor q=db.rawQuery("SELECT task_id,work_cursor,pending,last_commit_clock_ordinal,completed_input_ordinal,work_unit,artifact_identity FROM r30r1_task_progress ORDER BY task_id LIMIT 80",null)){while(q.moveToNext()){Map<String,Object> row=point(q.getString(0),cpu.get(q.getString(0)),q.isNull(2)?-1:q.getLong(2),q.getString(5));row.put("workCursor",q.getLong(1));row.put("stack",cpu.containsKey(q.getString(0))?Collections.singletonList(cpu.get(q.getString(0))):null);row.put("artifactIdentity",q.getString(6));row.put("calendarCommitClock",q.isNull(3)?null:q.getLong(3));row.put("completedInput",q.isNull(4)?null:q.getLong(4));points(f).add(row);}}f.put("admittedResearchChildren",scalar(db,"SELECT count(*) FROM r30r1_consume"));f.put("pendingResearchProposals",scalar(db,"SELECT count(*) FROM r30r1_proposal WHERE state='READY'"));f.put("explorationFloor",.25);
   }else if(view.equals("R18")){
-   f.put("role","FUTURE");f.put("formalReadOnly",true);try(Cursor q=db.rawQuery("SELECT p.run_id,p.proposal_id,c.child_policy_hash,s.state,f.task_key,f.state,f.verified,f.registration_experiment_id,k.status,e.state FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id LEFT JOIN r27_policy s ON s.policy_hash=c.child_policy_hash LEFT JOIN r30_frozen_confirm f ON f.policy_hash=c.child_policy_hash LEFT JOIN r27_certificate k ON k.policy_hash=f.registration_experiment_id LEFT JOIN r27_eprocess e ON e.policy_hash=f.registration_experiment_id ORDER BY p.created_at DESC LIMIT 80",null)){while(q.moveToNext()){Map<String,Object> row=point(q.getString(1),q.isNull(2)?0:1,1,"逐真实外键；无child/确认/资格则链停在对应段，不能按同一期归因REAL");row.put("analysisRun",q.getString(0));row.put("proposal",q.getString(1));row.put("childHash",q.getString(2));row.put("admissionState",q.getString(3));row.put("confirmationTask",q.getString(4));row.put("confirmationState",q.getString(5));row.put("verified",q.isNull(6)?null:q.getInt(6));row.put("experiment",q.getString(7));row.put("certificateStatus",q.getString(8));row.put("sequentialState",q.getString(9));row.put("realAuthorization","EXISTING_TYPED_AUTHORIZATION_OWNER_REQUIRED_R27_REQUEST_IS_NOT_AUTHORITY");row.put("attributedRealSettlement",null);row.put("attributionReason","EXACT_ORIGINAL_POLICY_AUTHORIZATION_AND_SETTLEMENT_KEY_REQUIRED_NO_SAME_ISSUE_INFERENCE");points(f).add(row);}}f.put("uniqueRealOwner","DecisionGateEngine_AND_SettlementEngine");f.put("naturalQuality","NOT_PROVEN");
+   f.put("role","FUTURE");f.put("formalReadOnly",true);try(Cursor q=db.rawQuery("SELECT p.run_id,p.proposal_id,c.child_policy_hash,s.state,f.task_key,f.state,f.verified,f.registration_experiment_id,k.status,e.state FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id LEFT JOIN r27_policy s ON s.policy_hash=c.child_policy_hash LEFT JOIN r30_frozen_confirm f ON f.policy_hash=c.child_policy_hash LEFT JOIN r27_certificate k ON k.policy_hash=f.registration_experiment_id LEFT JOIN r27_eprocess e ON e.policy_hash=f.registration_experiment_id ORDER BY p.created_at DESC,p.proposal_id,f.task_key LIMIT 80",null)){while(q.moveToNext()){Map<String,Object> row=point(q.getString(1),q.isNull(2)?0:1,1,"逐真实外键；无child/确认/资格则链停在对应段，不能按同一期归因REAL");row.put("analysisRun",q.getString(0));row.put("proposal",q.getString(1));row.put("childHash",q.getString(2));row.put("admissionState",q.getString(3));row.put("confirmationTask",q.getString(4));row.put("confirmationState",q.getString(5));row.put("verified",q.isNull(6)?null:q.getInt(6));row.put("experiment",q.getString(7));row.put("certificateStatus",q.getString(8));row.put("sequentialState",q.getString(9));row.put("realAuthorization","EXISTING_TYPED_AUTHORIZATION_OWNER_REQUIRED_R27_REQUEST_IS_NOT_AUTHORITY");row.put("attributedRealSettlement",null);row.put("attributionReason","EXACT_ORIGINAL_POLICY_AUTHORIZATION_AND_SETTLEMENT_KEY_REQUIRED_NO_SAME_ISSUE_INFERENCE");points(f).add(row);}}f.put("uniqueRealOwner","DecisionGateEngine_AND_SettlementEngine");f.put("naturalQuality","NOT_PROVEN");
   }else return null;
   ResearchProvenanceGraphR30R1.project(view,f,db);if(points(f).isEmpty()){f.put("status","INSUFFICIENT");f.put("reason","NO_ORIGINAL_RECEIPTS_YET");}return f;
  }
@@ -111,8 +111,58 @@ public final class ResearchObservatoryR30R1 {
   ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();batch.guardBefore(tx->{ResearchInputPinR30R1.require(tx,c.data.datasetHash,revision);return originalHash.equals(ResearchOriginalR335.read(tx,run,null).originalHash)?0:-1;});batch.add("INSERT OR IGNORE INTO r30r1_chart_cache VALUES(?,?,?,?,?,?)",view,hash,run,payload,hash,now);return batch;
  }
  static final String SCHEDULER_R335="r335-research-scheduler";
- static int nextViewR335(SQLiteDatabase db,String key,int count){try(Cursor q=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{SCHEDULER_R335,key})){if(q.moveToFirst()){try{return Math.floorMod(Integer.parseInt(q.getString(0)),count);}catch(NumberFormatException corruptHint){return 0;}}}return 0;}
- static void advanceViewR335(ResearchWriteQueueR27.Batch b,String key,int next,long now){b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",SCHEDULER_R335,key,Integer.toString(next),now);}
+ static final class ViewCursor {
+  final String group,previous;
+  final long updated;
+  final int index;
+
+  private ViewCursor(String group,String previous,long updated,int count) {
+   this.group=group;
+   this.previous=previous;
+   this.updated=updated;
+   int slot=0;
+   if(previous!=null)try {slot=Integer.parseInt(previous);}catch(NumberFormatException ignored) {}
+   this.index=Math.floorMod(slot,count);
+  }
+
+  static ViewCursor read(SQLiteDatabase db,String group,int count) {
+   try(Cursor q=db.rawQuery("SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id=? AND key=?",
+           new String[]{SCHEDULER_R335,group})) {
+    return q.moveToFirst()?new ViewCursor(group,q.getString(0),q.getLong(1),count):new ViewCursor(group,null,0,count);
+   }
+  }
+
+  private boolean current(SQLiteDatabase db) {
+   ViewCursor live=read(db,group,1);
+   return Objects.equals(previous,live.previous)&&updated==live.updated;
+  }
+
+  String snapshot(String dependency) {
+   return StatsR27.sha256(JsonR27.write(Arrays.asList(group,previous,updated,dependency)));
+  }
+
+  void advance(ResearchWriteQueueR27.Batch batch,int next,long wall) {
+   batch.guardBefore(db->{if(!current(db))throw new ResearchStoreR30R1.StaleResearch();return 0;});
+   long stamp=wall>updated?wall:Math.addExact(updated,1);
+   batch.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",SCHEDULER_R335,group,Integer.toString(next),stamp);
+  }
+
+  // A replayed or superseded rotation is a no-op. A scan owns only a cursor, an optional
+  // student-page hint and a missing-source diagnostic. It never creates a scientific receipt.
+  void scan(ResearchPoolR27.Worker w,ResearchInputContextR33 page,int next,String errorView,String error) throws InterruptedException {
+   RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
+   if(claim==null)throw new IllegalStateException("R31_DEPENDENCY_TASK_CLAIM_REQUIRED");
+   long now=System.currentTimeMillis();
+   ResearchWriteQueueR27.Batch hints=new ResearchWriteQueueR27.Batch();
+   if(page!=null)page.appendScan(hints,now);
+   if(errorView!=null)hints.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",SCHEDULER_R335,"SOURCE_ERROR_"+errorView,error,now);
+   advance(hints,next,now);
+   w.writes().commitViewHints(w,claim,db->{
+    if(current(db))ResearchWriteQueueR27.execute(db,hints,"RESEARCH_VIEW_SCAN");
+    return 0;
+   });
+  }
+ }
  static void classifyFrameR335(Map<String,Object> frame){
   boolean formal=Boolean.TRUE.equals(frame.get("formalReadOnly"));long usable=0;
   Object raw=frame.get("points");if(raw instanceof List)for(Object o:(List<?>)raw)if(o instanceof Map){Map<?,?> p=(Map<?,?>)o;Object v=p.get("value"),n=p.get("n");boolean finite=v instanceof Number&&Double.isFinite(((Number)v).doubleValue());if(p.get("stack") instanceof List)for(Object cell:(List<?>)p.get("stack"))finite|=cell instanceof Number&&Double.isFinite(((Number)cell).doubleValue());if(finite&&n instanceof Number&&((Number)n).longValue()>0)usable++;}
@@ -133,7 +183,6 @@ public final class ResearchObservatoryR30R1 {
    case "R11":sql="SELECT count(*)||':'||coalesce(max(completed_at),0) FROM r30_frozen_confirm";break;
    case "R14":sql="SELECT count(*)||':'||coalesce(max(rowid),0) FROM r30_model_surface";break;
    case "R17":sql="SELECT count(*)||':'||coalesce(max(rowid),0) FROM r30r1_research_measure WHERE kind='FAILURE_MEMORY'";break;
-   case "R18":sql="SELECT count(*)||':'||coalesce(max(rowid),0) FROM r30r1_consume";break;
    default:return Arrays.asList("R01","R02","R03","R04","R05","R07","R08","R12","R13","R15").contains(view)?"DATASET_AND_POLICIES":Long.toString(Math.floorDiv(ResearchStoreR30R1.calendar(db),64));
   }
   try(Cursor q=db.rawQuery(sql,null)){return (q.moveToFirst()?q.getString(0):"EMPTY")+":"+Math.floorDiv(ResearchStoreR30R1.calendar(db),64);}
@@ -144,35 +193,37 @@ public final class ResearchObservatoryR30R1 {
    if(rt.atomSessionR30!=null&&ModelReplayStudyR30R1.bindSelectRequestR335(rt,w,rt.atomSessionR30))return ResearchPoolR27.Outcome.progress(1,0);
   }
   if(rt.evoData==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(IMMUTABLE_REPLAY_DATASET)",0,-1);
-  int count=ResearchGraphSpecsR30R1.ALL.size(),start=nextViewR335(w.ro,"OBSERVATORY",count);
+  int count=ResearchGraphSpecsR30R1.ALL.size();
+  ViewCursor cursor=ViewCursor.read(w.ro,"OBSERVATORY",count);
   for(int scan=0;scan<count;scan++){
-   int index=(start+scan)%count;ResearchGraphSpecsR30R1.Spec spec=ResearchGraphSpecsR30R1.ALL.get(index);if(spec.id.equals("R06"))continue;
+   int index=(cursor.index+scan)%count;ResearchGraphSpecsR30R1.Spec spec=ResearchGraphSpecsR30R1.ALL.get(index);if(spec.id.equals("R06"))continue;
    boolean needs=Arrays.asList("R05","R07","R08","R12","R13").contains(spec.id);
    try(ResearchInputContextR33 owned=ResearchInputContextR33.acquire(rt,w,"OBSERVATORY:"+spec.id,needs)){
     EvalContextR27 c=owned.context;long revision=owned.revision;StringBuilder ids=new StringBuilder();for(PolicySpecR27 p:owned.policies)ids.append(p.policyHash());
-    String receipts=sourceWatermarkR335(w.ro,spec.id);
+    Map<String,Object> formal=spec.id.equals("R18")?stored(spec.id,c,w.ro,rt):null;
+    String receipts=formal==null?sourceWatermarkR335(w.ro,spec.id):StatsR27.sha256(JsonR27.write(formal.get("sourceRecords")));
     String identity=StatsR27.sha256(VERSION+"|R335|"+spec.id+"|"+c.data.datasetHash+"|"+revision+"|"+ids+"|"+receipts+"|"+BuildConfig.SOURCE_COMMIT_R26);
     boolean decided=false;try(Cursor q=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,spec.id})){decided=q.moveToFirst()&&identity.equals(q.getString(0));}
     long now=System.currentTimeMillis();ResearchWriteQueueR27.Batch b;
-    if(decided){b=new ResearchWriteQueueR27.Batch();owned.appendScan(b,now);advanceViewR335(b,"OBSERVATORY",(index+1)%count,now);RuntimeR27.submit(w,"RESEARCH_OBSERVATORY_SCAN",b);return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_SOURCE_PAGE",0,-1);}
-    long started=System.nanoTime();Map<String,Object> frame=stored(spec.id,c,w.ro,rt);if(frame==null)frame=compute(spec.id,c,owned.policies,revision);
+    if(decided){
+     cursor.scan(w,owned,(index+1)%count,null,null);
+     return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_SOURCE_PAGE",0,-1);
+    }
+    long started=System.nanoTime();Map<String,Object> frame=formal!=null?formal:stored(spec.id,c,w.ro,rt);if(frame==null)frame=compute(spec.id,c,owned.policies,revision);
     frame.put("isolatedStudentFailures",owned.rejectedPolicies);if(spec.id.equals("R15"))frame.put("modelReplayPerformance",ModelReplayStudyR30R1.summary(w.ro));
-    b=productR335(w.ro,spec.id,spec.measure,c,revision,frame,System.nanoTime()-started,now);appendHeadR335(b,spec.id,identity,frame,now);owned.appendScan(b,now);advanceViewR335(b,"OBSERVATORY",(index+1)%count,now);
+    b=productR335(w.ro,spec.id,spec.measure,c,revision,frame,System.nanoTime()-started,now);appendHeadR335(b,spec.id,identity,frame,now);owned.appendScan(b,now);cursor.advance(b,(index+1)%count,now);
     b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",PANEL,spec.id,identity,now);
     b.add("DELETE FROM r27_chart_cache WHERE panel_id=? AND key=?",SCHEDULER_R335,"SOURCE_ERROR_"+spec.id);
     ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(c.split.selectTo,c.split.selectTo,0L,null,c.data.ordinals[c.split.selectTo-1],StatsR27.sha256(identity+"|"+spec.id)));
-    try{RuntimeR27.submit(w,"RESEARCH_OBSERVATORY_"+spec.id,b);}catch(RuntimeException failure){if(ResearchStoreR30R1.stale(failure))return ResearchPoolR27.Outcome.idle("DEPENDENCY(OBSERVATORY_INPUT_CHANGED)",0,-1);throw failure;}
+    try{RuntimeR27.submit(w,"RESEARCH_OBSERVATORY_"+spec.id,b,false,cursor.snapshot(identity));}catch(RuntimeException failure){if(ResearchStoreR30R1.stale(failure))return ResearchPoolR27.Outcome.idle("DEPENDENCY(OBSERVATORY_INPUT_CHANGED)",0,-1);throw failure;}
     return ResearchPoolR27.Outcome.progress(1,c.split.selectTo);
    }catch(android.database.sqlite.SQLiteException fault){
     String reason=fault.getMessage();
     if(reason==null || !(reason.contains("no such table") || reason.contains("no such column")))throw fault;
     // Keep the source error and visit the remaining views. The next rotation retries this view.
     Map<String,Object> failure=map();failure.put("viewId",spec.id);failure.put("source",BuildConfig.SOURCE_COMMIT_R26);
-    failure.put("reason",RuntimeFaultEvidenceR31.clean(reason,256));long now=System.currentTimeMillis();
-    ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
-    b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",SCHEDULER_R335,"SOURCE_ERROR_"+spec.id,JsonR27.write(failure),now);
-    advanceViewR335(b,"OBSERVATORY",(index+1)%count,now);
-    RuntimeR27.submit(w,"RESEARCH_OBSERVATORY_SOURCE_ERROR",b);
+    failure.put("reason",RuntimeFaultEvidenceR31.clean(reason,256));
+    cursor.scan(w,null,(index+1)%count,spec.id,JsonR27.write(failure));
     return ResearchPoolR27.Outcome.idle("DEPENDENCY(OBSERVATORY_SOURCE:"+spec.id+")",0,-1);
    }
   }
