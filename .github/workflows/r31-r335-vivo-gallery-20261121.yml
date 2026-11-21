@@ -84,6 +84,7 @@ jobs:
           set -euo pipefail
           export STARCORE_R33_PLAN_ROOT="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
           mkdir -p "$RUNNER_TEMP/protocol-candidate" "$RUNNER_TEMP/upgrade-evidence" "$RUNNER_TEMP/report-originals"
+          python3 -B "$GITHUB_WORKSPACE/.github/r335-vivo-gallery/paired_fixture.py"
           if ! ./gradlew --no-daemon --max-workers=2 -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$RUNNER_TEMP/report-originals/instrument-build.log" 2>&1; then
             python3 -c 'import pathlib,os; p=pathlib.Path(os.environ["RUNNER_TEMP"]); (p/"upgrade-evidence"/"instrument-build-status.txt").write_text("Gradle test APK build failed. Original Gradle log is in the encrypted archive.\n")'
             python3 "$GITHUB_WORKSPACE/.github/r335-vivo-final-validation/gradle_result.py"

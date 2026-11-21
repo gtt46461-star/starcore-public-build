@@ -30,13 +30,33 @@ def main():
     uid,_=f.installed(f.EVID/'pre-sized-upgrade.txt',577311065)
     f.adb('shell','am','force-stop',f.PKG)
     location='/data/user/0/'+f.PKG+'/databases/'+n.observe.DB
-    jar='/data/local/tmp/starcore-disposable-fixture.jar'
-    f.adb('push',str(tmp/'size-fixture.jar'),jar);f.adb('shell','chmod','0444',jar)
     save('CREATE_CONTROLLED_SIZE')
-    raw=f.adb('shell','CLASSPATH='+jar,'app_process','/system/bin','SizeFixture',location,timeout=700)
-    m=re.search(rb'SIZE_FIXTURE\|(\d+)\|(\d+)\|(\d+)\|(\d+)\|(\d+)\|([0-9a-f]{64})',raw);assert m
-    record.update(priorDbBytes=int(m[1]),controlledDbBytes=int(m[2]),freePages=int(m[3]),pageSize=int(m[4]),unchangedDrawCount=int(m[5]),unchangedProductionSchemaSha256=m[6].decode())
+    import hashlib
+    holder='r335_disposable_size_fixture'
+    # AOSP databases may use FULL auto-vacuum. Preserve that setting and retain a labelled
+    # size-only table in this fresh, isolated guest when dropping it would reclaim the pages.
+    def sql(query):
+        p=subprocess.run(['adb','shell','sqlite3','-batch','-bail',location],input=query+';\n',capture_output=True,text=True,timeout=600)
+        if p.returncode:
+            reason='DATABASE_FULL' if 'full' in p.stderr.lower() else 'SQLITE_FIXTURE'
+            raise RuntimeError(reason)
+        return p.stdout.strip()
+    def schema():
+        return hashlib.sha256(sql("SELECT type,name,coalesce(sql,'') FROM sqlite_master WHERE name!='"+holder+"' ORDER BY type,name").encode()).hexdigest()
+    draws=int(sql('SELECT count(*) FROM draws'));page=int(sql('PRAGMA page_size'));prior=int(sql('PRAGMA page_count'))*page
+    vacuum=int(sql('PRAGMA auto_vacuum'));original_schema=schema()
+    assert not sql("SELECT 1 FROM sqlite_master WHERE name='"+holder+"'") and prior<1373483008
+    sql("CREATE TABLE "+holder+"(sample BLOB)")
+    while int(sql('PRAGMA page_count'))*page<1373483008:
+        sql("BEGIN; WITH RECURSIVE a(i) AS (VALUES(0) UNION ALL SELECT i+1 FROM a WHERE i<7) INSERT INTO "+holder+" SELECT zeroblob(8388608) FROM a; COMMIT")
+    if vacuum!=1:sql("DROP TABLE "+holder)
+    sql('PRAGMA wal_checkpoint(TRUNCATE)')
+    size=int(sql('PRAGMA page_count'))*page
+    assert size>=1373483008 and int(sql('SELECT count(*) FROM draws'))==draws and schema()==original_schema and int(sql('PRAGMA auto_vacuum'))==vacuum
+    record.update(priorDbBytes=prior,controlledDbBytes=size,autoVacuum=vacuum,sizeOnlyTablePresent=vacuum==1,freePages=int(sql('PRAGMA freelist_count')),pageSize=page,unchangedDrawCount=draws,unchangedProductionSchemaSha256=original_schema)
     kept='/data/user/0/'+f.PKG+'/files/r335-qa-retained-original'
+    assert subprocess.run(['adb','shell','test','-e',kept]).returncode!=0
+    f.adb('shell','truncate','-s','1073741824',kept)
     f.adb('shell','chown',str(uid)+':'+str(uid),kept)
     def kept_digest():return f.adb('shell','sha256sum',kept,timeout=250).split()[0].decode()
     original=kept_digest()

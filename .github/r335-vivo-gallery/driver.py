@@ -28,7 +28,7 @@ def run(cls,method,phase):
         data=(error.stdout or b'')+(error.stderr or b'');exit_code=124
     name=phase+'-'+method+'.txt';(private/name).write_bytes(data)
     text=data.decode(errors='replace')
-    failures=[x.strip()[:320] for x in text.splitlines() if ('AssertionError' in x or 'Exception:' in x or 'Error in ' in x or 'INSTRUMENTATION_FAILED' in x)][:5]
+    failures=[x.strip()[:320] for x in text.splitlines() if ('AssertionError' in x or 'expected:<' in x or 'ComparisonFailure' in x or 'Exception:' in x or 'Error in ' in x or 'INSTRUMENTATION_FAILED' in x)][:5]
     return {'phase':phase,'test':qualified,'passed':exit_code==0 and bool(re.search(r'OK\s*\(1 test\)',text)) and 'FAILURES!!!' not in text,
              'exit':exit_code,'diagnosis':failures,
             'errorTypes':list(dict.fromkeys(re.findall(r'(?:[A-Za-z$]+Error|[A-Za-z$]+Exception|ComparisonFailure)',text)))[:15],
