@@ -51,10 +51,14 @@
     },
     {
       "id": "B02.4",
-      "status": "BLOCKED",
+      "status": "FAIL",
       "localEvidence": "assessment/ledgers/groups32.json#B02.4",
       "publicPlanRequirement": "后台覆盖与时延",
-      "reason": "以下固定断言仍待签收：B02.4.POS、B02.4.NEG、B02.4.TRACE"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "两个窗口各预登记且启用 100 期。第一窗缺冻 12 期，冻结返回超过 5 秒 63/88，结算返回超过 1 秒 88/88。第二窗缺冻 3 期，冻结返回超过 5 秒 72/96，结算返回超过 1 秒 96/96。 第二窗从应用已发现开奖起算，冻结仍有 52/96 超过 5 秒，结算有 8/96 超过 1 秒。"
     },
     {
       "id": "B03.1",
@@ -145,7 +149,11 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/groups32.json#B06.1",
       "publicPlanRequirement": "独立冻结、校准与样本",
-      "reason": "以下固定断言仍待签收：B06.1.POS、B06.1.NEG、B06.1.TRACE"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "以下固定断言仍待签收：B06.1.POS、B06.1.NEG、B06.1.TRACE 两次独立运行的实际出手、结算和证书数均为零。单候选最高 R27 样本为 0/250，SU2 冻结期为 10/69120。"
     },
     {
       "id": "B06.2",
@@ -166,7 +174,11 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/groups32.json#B06.4",
       "publicPlanRequirement": "REAL和质量验真",
-      "reason": "以下固定断言仍待签收：B06.4.POS、B06.4.NEG、B06.4.TRACE"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "以下固定断言仍待签收：B06.4.POS、B06.4.NEG、B06.4.TRACE 两次独立运行的实际出手、结算和证书数均为零。单候选最高 R27 样本为 0/250，SU2 冻结期为 10/69120。"
     },
     {
       "id": "B07.1",
@@ -222,7 +234,7 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/groups32.json#B08.4",
       "publicPlanRequirement": "真机持续、自然质量与交付",
-      "reason": "以下固定断言仍待签收：B08.4.POS、B08.4.NEG、B08.4.TRACE"
+      "reason": "以下固定断言仍待签收：B08.4.POS、B08.4.NEG、B08.4.TRACE 目标 vivo V2353A 已取得的 24/72 小时现场原件为零。"
     }
   ],
   "assertions96": [
@@ -375,10 +387,14 @@
     },
     {
       "id": "B02.4.POS",
-      "status": "BLOCKED",
+      "status": "FAIL",
       "localEvidence": "assessment/ledgers/assertions96.json#B02.4.POS",
       "publicPlanRequirement": "在有上游可用和服务启用期测1秒轮询、开奖可得后1秒落库结算、5秒内下一期出号；另报全期覆盖、P95和超限数",
-      "reason": "待取得同版原件的场景包括 B02.4.POS.C01、B02.4.POS.C02、B02.4.POS.C03。"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "两个窗口各预登记且启用 100 期。第一窗缺冻 12 期，冻结返回超过 5 秒 63/88，结算返回超过 1 秒 88/88。第二窗缺冻 3 期，冻结返回超过 5 秒 72/96，结算返回超过 1 秒 96/96。 第二窗从应用已发现开奖起算，冻结仍有 52/96 超过 5 秒，结算有 8/96 超过 1 秒。"
     },
     {
       "id": "B02.4.NEG",
@@ -392,7 +408,11 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/assertions96.json#B02.4.TRACE",
       "publicPlanRequirement": "设备单调时钟、画面、分母、原网络时序",
-      "reason": "待取得同版原件的场景包括 B02.4.TRACE.C01。"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "待取得同版原件的场景包括 B02.4.TRACE.C01。 两个窗口各预登记且启用 100 期。第一窗缺冻 12 期，冻结返回超过 5 秒 63/88，结算返回超过 1 秒 88/88。第二窗缺冻 3 期，冻结返回超过 5 秒 72/96，结算返回超过 1 秒 96/96。 第二窗从应用已发现开奖起算，冻结仍有 52/96 超过 5 秒，结算有 8/96 超过 1 秒。"
     },
     {
       "id": "B03.1.POS",
@@ -651,7 +671,11 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/assertions96.json#B06.1.POS",
       "publicPlanRequirement": "同一候选版本在预登记独立窗积累真正Future；报告先验阈值和覆盖",
-      "reason": "待取得同版原件的场景包括 B06.1.POS.C01、B06.1.POS.C02。"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "待取得同版原件的场景包括 B06.1.POS.C01、B06.1.POS.C02。 两次独立运行的实际出手、结算和证书数均为零。单候选最高 R27 样本为 0/250，SU2 冻结期为 10/69120。"
     },
     {
       "id": "B06.1.NEG",
@@ -714,7 +738,11 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/assertions96.json#B06.4.POS",
       "publicPlanRequirement": "REAL/SHADOW分开，同目标K3复算自然胜率、频率、稳定性和证据区间",
-      "reason": "待取得同版原件的场景包括 B06.4.POS.C01、B06.4.POS.C02。"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "待取得同版原件的场景包括 B06.4.POS.C01、B06.4.POS.C02。 两次独立运行的实际出手、结算和证书数均为零。单候选最高 R27 样本为 0/250，SU2 冻结期为 10/69120。"
     },
     {
       "id": "B06.4.NEG",
@@ -798,7 +826,7 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/assertions96.json#B07.4.POS",
       "publicPlanRequirement": "报告逐指标解释分母、质量门、能力缺口与如何改；96逐项保留非通过状态 对同一处方追踪施工前后，按同角色、同机会及独立协议报告已改善、无优势、退化或证据不足。",
-      "reason": "待取得同版原件的场景包括 B07.4.POS.C03。"
+      "reason": "待取得同版原件的场景包括 B07.4.POS.C03。 同一 T13 病例的两份原报告均记录 EMPTY_READ_PAGE。工单已与两份报告绑定，复报验收返回 EFFECT_UNPROVEN。"
     },
     {
       "id": "B07.4.NEG",
@@ -882,7 +910,7 @@
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/assertions96.json#B08.4.POS",
       "publicPlanRequirement": "V2353A前后台24/72h、真实网络样本与覆盖，报告和可下载APK回执；自然观察单独持续到协议要求",
-      "reason": "待取得同版原件的场景包括 B08.4.POS.C01、B08.4.POS.C02、B08.4.POS.C03、B08.4.POS.C04。"
+      "reason": "待取得同版原件的场景包括 B08.4.POS.C01、B08.4.POS.C02、B08.4.POS.C03、B08.4.POS.C04。 目标 vivo V2353A 已取得的 24/72 小时现场原件为零。"
     },
     {
       "id": "B08.4.NEG",
@@ -1414,19 +1442,27 @@
     },
     {
       "id": "B02.4.POS.C02",
-      "status": "BLOCKED",
+      "status": "FAIL",
       "localEvidence": "assessment/ledgers/scenarios288.json#B02.4.POS.C02",
       "publicPlanRequirement": "可得后1秒正式提交及5秒下一期决策逐期计算",
-      "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求可得后1秒正式提交及5秒下一期决策逐期计算。"
+      "individualStatus": "FAIL",
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "两个窗口各预登记且启用 100 期。第一窗缺冻 12 期，冻结返回超过 5 秒 63/88，结算返回超过 1 秒 88/88。第二窗缺冻 3 期，冻结返回超过 5 秒 72/96，结算返回超过 1 秒 96/96。 第二窗从应用已发现开奖起算，冻结仍有 52/96 超过 5 秒，结算有 8/96 超过 1 秒。"
     },
     {
       "id": "B02.4.POS.C03",
       "status": "BLOCKED",
       "localEvidence": "assessment/ledgers/scenarios288.json#B02.4.POS.C03",
       "publicPlanRequirement": "同时报告漏期数覆盖P95和超限数",
-      "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求同时报告漏期数覆盖P95和超限数。"
+      "individualStatus": "PASS",
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "所属完整断言仍待签收。 两个窗口各预登记且启用 100 期。第一窗缺冻 12 期，冻结返回超过 5 秒 63/88，结算返回超过 1 秒 88/88。第二窗缺冻 3 期，冻结返回超过 5 秒 72/96，结算返回超过 1 秒 96/96。 第二窗从应用已发现开奖起算，冻结仍有 52/96 超过 5 秒，结算有 8/96 超过 1 秒。"
     },
     {
       "id": "B02.4.NEG.C01",
@@ -2538,7 +2574,11 @@
       "localEvidence": "assessment/ledgers/scenarios288.json#B06.4.POS.C01",
       "publicPlanRequirement": "REAL_SHADOW独立逐目标K3重算",
       "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求REAL_SHADOW独立逐目标K3重算。"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "本次待取得该项实测原件。固定场景要求REAL_SHADOW独立逐目标K3重算。 两次独立运行的实际出手、结算和证书数均为零。单候选最高 R27 样本为 0/250，SU2 冻结期为 10/69120。"
     },
     {
       "id": "B06.4.POS.C02",
@@ -2546,7 +2586,11 @@
       "localEvidence": "assessment/ledgers/scenarios288.json#B06.4.POS.C02",
       "publicPlanRequirement": "同日历复算频率稳定性和证据区间",
       "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求同日历复算频率稳定性和证据区间。"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "本次待取得该项实测原件。固定场景要求同日历复算频率稳定性和证据区间。 两次独立运行的实际出手、结算和证书数均为零。单候选最高 R27 样本为 0/250，SU2 冻结期为 10/69120。"
     },
     {
       "id": "B06.4.NEG.C01",
@@ -2810,7 +2854,7 @@
       "localEvidence": "assessment/ledgers/scenarios288.json#B07.4.POS.C03",
       "publicPlanRequirement": "同处方同角色同机会复核改善无优势退化证据不足",
       "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求同处方同角色同机会复核改善无优势退化证据不足。"
+      "reason": "本次待取得该项实测原件。固定场景要求同处方同角色同机会复核改善无优势退化证据不足。 同一 T13 病例的两份原报告均记录 EMPTY_READ_PAGE。工单已与两份报告绑定，复报验收返回 EFFECT_UNPROVEN。"
     },
     {
       "id": "B07.4.NEG.C01",
@@ -3138,7 +3182,7 @@
       "localEvidence": "assessment/ledgers/scenarios288.json#B08.4.POS.C01",
       "publicPlanRequirement": "V2353A前后台24小时连续样本",
       "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求V2353A前后台24小时连续样本。"
+      "reason": "本次待取得该项实测原件。固定场景要求V2353A前后台24小时连续样本。 目标 vivo V2353A 已取得的 24/72 小时现场原件为零。"
     },
     {
       "id": "B08.4.POS.C02",
@@ -3146,7 +3190,7 @@
       "localEvidence": "assessment/ledgers/scenarios288.json#B08.4.POS.C02",
       "publicPlanRequirement": "同活动72小时与24小时前缀一致",
       "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求同活动72小时与24小时前缀一致。"
+      "reason": "本次待取得该项实测原件。固定场景要求同活动72小时与24小时前缀一致。 目标 vivo V2353A 已取得的 24/72 小时现场原件为零。"
     },
     {
       "id": "B08.4.POS.C03",
@@ -3162,7 +3206,11 @@
       "localEvidence": "assessment/ledgers/scenarios288.json#B08.4.POS.C04",
       "publicPlanRequirement": "自然观察按独立协议继续",
       "individualStatus": "BLOCKED",
-      "reason": "本次待取得该项实测原件。固定场景要求自然观察按独立协议继续。"
+      "publicEvidence": [
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-window-metrics-44871949835.json",
+        "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-independent-window-44873559282.json"
+      ],
+      "reason": "本次待取得该项实测原件。固定场景要求自然观察按独立协议继续。 两次独立运行的实际出手、结算和证书数均为零。单候选最高 R27 样本为 0/250，SU2 冻结期为 10/69120。"
     },
     {
       "id": "B08.4.NEG.C01",

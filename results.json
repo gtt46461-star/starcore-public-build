@@ -31,7 +31,71 @@
     "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-fullraw-collection-44874952825.json",
     "sha256": "8cd64a73372e488bca7a47a67324f157a4970e0288b91d89521c2c9acfc10300"
   },
+  "firstControlledTrainedExportRefusal": {
+    "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-trained-backup-44882296591.json",
+    "sha256": "7b80f6292c025da49efc662b92ad87840460ddc5f57434650af8f56c70a0b94c"
+  },
+  "controlledTrainedCheckpointAndFullBackup": {
+    "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/R335-trained-backup-44883366814.json",
+    "sha256": "75cdb64d6a0e09747a77236110829aa9afac45a61f841336834074200e5a681d",
+    "verified": false
+  },
   "localAndroidControls": {
+    "controlledObservationOfQualification": {
+      "enrolledWindows": 2,
+      "realActs": [
+        0,
+        0
+      ],
+      "realSettled": [
+        0,
+        0
+      ],
+      "realHits": [
+        0,
+        0
+      ],
+      "R27MaxFutureSettledActs": [
+        0,
+        0
+      ],
+      "R27RequiredFutureSettledActs": 250,
+      "SU2MaxFrozenPeriods": [
+        10,
+        0
+      ],
+      "SU2RequiredFrozenPeriods": 69120,
+      "R27Certificates": [
+        0,
+        0
+      ],
+      "SU2Certificates": [
+        0,
+        0
+      ]
+    },
+    "T13SameCaseReports": {
+      "firstReportSha256": "93a5d77b44665ff425f72e53009ede7772f93c2cf41d3333e27be911ad67c4be",
+      "nextReportSha256": "7f10f08bec9232d3aefa3e1077b0ef290b002e6fd6d7a106055c0384d8d03bb7",
+      "workRecordSha256": "9064710727604bc70ea54a642c8f0f339d01d0aef49b78faffa76cdc74d5e0ea",
+      "finalLogSha256": "f1d762b5d42687c5c9bb9131139444fa6094f3b870befa910eb0b63e85332142",
+      "sourceCommit": "48217d388b8ea67f964cf43ff7a7149ff854982c",
+      "workOrders": [
+        "R335-RE15"
+      ],
+      "startedUnixMs": 1795236390390,
+      "committedUnixMs": 1795236419352,
+      "remainingCondition": "EMPTY_READ_PAGE",
+      "effect": "EFFECT_UNPROVEN"
+    },
+    "supplementalTaskFixtureWithProductionSchema": {
+      "registered": 16,
+      "completed": 14,
+      "allReturned": false,
+      "exit": 1,
+      "rawOutputSha256": "8e04c35f12873d4301247f922c6b889dc37a2b783f128c7e658fcebdd0c14fa6",
+      "previousFailureSha256": "9f2c1595d524f72f7d0cfb162f2abc0055cf14b95ef775c814edf524c22d7f9f"
+    },
     "independentWindowTimingTotals": {
       "metrics": {
         "registered": 100,
@@ -45,6 +109,7 @@
             "failedWithFirstSeen": 0,
             "firstSeenAlreadyOverLimit": 0,
             "firstSeenWithinLimitReturnOver": 0,
+            "afterFirstSeenOverLimit": 0,
             "returnTime": {
               "n": 88,
               "p50Ms": 6555,
@@ -77,6 +142,7 @@
             "failedWithFirstSeen": 0,
             "firstSeenAlreadyOverLimit": 0,
             "firstSeenWithinLimitReturnOver": 0,
+            "afterFirstSeenOverLimit": 0,
             "returnTime": {
               "n": 88,
               "p50Ms": 3799,
@@ -116,6 +182,7 @@
             "failedWithFirstSeen": 72,
             "firstSeenAlreadyOverLimit": 4,
             "firstSeenWithinLimitReturnOver": 68,
+            "afterFirstSeenOverLimit": 52,
             "returnTime": {
               "n": 96,
               "p50Ms": 9808,
@@ -148,6 +215,7 @@
             "failedWithFirstSeen": 96,
             "firstSeenAlreadyOverLimit": 96,
             "firstSeenWithinLimitReturnOver": 0,
+            "afterFirstSeenOverLimit": 8,
             "returnTime": {
               "n": 96,
               "p50Ms": 3511,
@@ -218,7 +286,7 @@
     "scenarios288": {
       "verified": 49,
       "denominator": 288,
-      "individuallyVerified": 75
+      "individuallyVerified": 76
     },
     "clauses222": {
       "verified": 92,
