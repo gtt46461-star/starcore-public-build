@@ -71,7 +71,8 @@ final class ChartsRepositoryR27 {
             Map<String, Object> m = (Map<String, Object>) parsed;
             String latest=null;try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null,cancel)){if(issue.moveToFirst())latest=issue.getString(0);}
             String invalid=com.ethk3.novaonepro.strategyv2.ChartCacheR27.validateR31(m,latest,c.getLong(1),System.currentTimeMillis());
-            if(invalid!=null)return new Panel(PAGE,id,"STATUS","r27_chart_cache","",invalid+"；等待真实源帧重新生成。",invalid,null,null);
+            boolean historical="STALE_SOURCE_WATERMARK".equals(invalid) && TargetIssueResolver.isValid(String.valueOf(m.get("sourceIssue")));
+            if(invalid!=null&&!historical)return new Panel(PAGE,id,"STATUS","r27_chart_cache","",invalid+"；等待真实源帧重新生成。",invalid,null,null);
             List<Point> pts = new ArrayList<>();
             for (Object o : (List<Object>) m.get("points")) {
                 Map<String, Object> p = (Map<String, Object>) o; double[] stack = null;
@@ -86,6 +87,10 @@ final class ChartsRepositoryR27 {
             String status = String.valueOf(m.get("status"));
             String window = m.get("window") + "｜更新于" + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(new java.util.Date(c.getLong(1)));
             String note = m.get("note") + "\n数据来源：" + m.get("source");
+            if(historical) {
+                status="HISTORICAL_FRAME";
+                note+="\n历史实测，数据截至 "+m.get("sourceIssue")+" 期，最新已见 "+latest+" 期。";
+            }
             if (pts.size() > POINTS_PER_PAGE_R30) { // R30-B02-05 paging
                 int total = pts.size();
                 pts = new ArrayList<>(pts.subList(total - POINTS_PER_PAGE_R30, total));

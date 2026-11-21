@@ -14,20 +14,39 @@ final class ResearchWorkbenchRepositoryR30R1 {
     static List<Panel> load(SQLiteDatabase db,int group,CancellationSignal cancel){
         List<ResearchGraphSpecsR30R1.Spec> specs=ResearchGraphSpecsR30R1.group(group);Map<String,Panel> found=new HashMap<>();
         String[] args=new String[specs.size()+2];args[specs.size()]=BuildConfig.SOURCE_COMMIT_R26;args[specs.size()+1]=BuildConfig.SOURCE_COMMIT_R26;StringBuilder marks=new StringBuilder();for(int i=0;i<specs.size();i++){args[i]=specs.get(i).id;if(i>0)marks.append(',');marks.append('?');}
-        String sql="SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id,r.summary_json,r.contract_hash FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN ("+marks+") AND r.source_commit=? AND r.status='COMMITTED' AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n JOIN r30r1_analysis_run nr ON nr.run_id=n.run_id WHERE n.view_id=c.view_id AND nr.source_commit=? AND nr.status='COMMITTED' ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6";
+        String sql="SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id,r.contract_hash FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN ("+marks+") AND r.source_commit=? AND r.status='COMMITTED' AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n JOIN r30r1_analysis_run nr ON nr.run_id=n.run_id WHERE n.view_id=c.view_id AND nr.source_commit=? AND nr.status='COMMITTED' ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6";
         String error=null;
         try(Cursor c=db.rawQuery(sql,args,cancel)){
             while(c.moveToNext())for(ResearchGraphSpecsR30R1.Spec spec:specs)if(spec.id.equals(c.getString(0))){
                 try{if(cancel!=null)cancel.throwIfCanceled();String payload=c.getString(1);if(payload==null||payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("FRAME_BYTE_BUDGET");if(!ResearchContractR30R1.hash(payload).equals(c.getString(2)))throw new IllegalStateException("FRAME_HASH_MISMATCH");
                     @SuppressWarnings("unchecked") Map<String,Object> frame=(Map<String,Object>)JsonR27.parse(payload);
-                    String original=c.getString(7);if(original==null||original.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144||!ResearchStoreR30R1.currentSource(BuildConfig.SOURCE_COMMIT_R26,original))throw new IllegalStateException("CURRENT_ORIGINAL_RESEARCH_SOURCE_REQUIRED");Map<?,?> source=(Map<?,?>)JsonR27.parse(original);
+                    ResearchOriginalR335 original=ResearchOriginalR335.read(db,c.getString(6),cancel);
+                    Map<?,?> source=original.fields;
                     if("R06".equals(spec.id)){for(String key:java.util.Arrays.asList("sourceContract","mean","lower95","upper95","componentPath","counterfactualHash","status","evaluatedIssues"))if(!JsonR27.write(source.get(key)).equals(JsonR27.write(frame.get(key))))throw new IllegalStateException("R06_ORIGINAL_PROJECTION_CHANGED:"+key);}
-                    else if(!(source.get("frame") instanceof Map)||!c.getString(8).equals(StatsR27.sha256(JsonR27.write(source.get("frame"))))||!spec.id.equals(source.get("viewId"))||!matchesOriginalFrame(c.getString(8),frame))throw new IllegalStateException("RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL");
+                    else if(!c.getString(7).equals(original.frameHash)||!spec.id.equals(source.get("viewId"))||!matchesOriginalFrame(c.getString(7),frame))throw new IllegalStateException("RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL");
                     found.put(spec.id,panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6)));
                 }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
             }
         }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException missing){error=missing.getClass().getSimpleName();}
-        List<Panel> out=new ArrayList<>();for(ResearchGraphSpecsR30R1.Spec spec:specs)out.add(found.containsKey(spec.id)?found.get(spec.id):missing(spec,error==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",error==null?"尚无已提交分析产物；不能以统计行数代替分析":error));return out;
+        String waiting=null;
+        List<Panel> out=new ArrayList<>();
+        for(ResearchGraphSpecsR30R1.Spec spec:specs) {
+            Panel committed=found.get(spec.id);
+            if(committed!=null) { out.add(committed); continue; }
+            if(waiting==null && error==null) waiting=producerStatus(db,cancel);
+            out.add(missing(spec,error==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",error==null?waiting:error));
+        }
+        return out;
+    }
+    private static String producerStatus(SQLiteDatabase db,CancellationSignal cancel) {
+        StringBuilder reason=new StringBuilder("本版本尚无这项分析的已提交产物。");
+        try(Cursor tasks=db.rawQuery("SELECT task_id,status,blocked_reason,cursor,last_progress FROM r26_task "
+                +"WHERE task_id IN ('r27-replay-dataset','r27-observatory-r1','r27-evolution') ORDER BY task_id",null,cancel)){
+            while(tasks.moveToNext()) reason.append("\n").append(tasks.getString(0)).append(" ").append(tasks.getString(1))
+                    .append(" ").append(tasks.isNull(2)?"":tasks.getString(2)).append(" 游标=").append(tasks.getLong(3))
+                    .append(" 最近进展=").append(tasks.getLong(4));
+        }catch(OperationCanceledException e){throw e;}catch(android.database.sqlite.SQLiteException e){reason.append(" 任务台账读取失败 ").append(e.getMessage());}
+        return reason.toString();
     }
     static boolean matchesOriginalFrame(String originalHash, Map<?, ?> cache) {
         if (originalHash == null || !originalHash.matches("[0-9a-f]{64}")) return false;

@@ -40,6 +40,11 @@ public final class ReportPublicationCP12 {
  /** R30 default: one ordinary ZIP up to 20MiB, otherwise ordered byte parts of that verified ZIP.
   * Parts are not independent ZIPs. The last-written index specifies reconstruction order and whole-ZIP SHA. */
  public static final long ZIP_LIMIT_R30=20L*1024L*1024L;
+ // Keep the delivery manifest bounded while allowing a compressed report of any supported file size.
+ static long zipPartBytes(long size)throws IOException{
+  if(size<1)throw new IOException("REPORT_ZIP_SOURCE_EMPTY");
+  return Math.max(ZIP_LIMIT_R30,1+(size-1)/128);
+ }
  public static final String ZIP_PART_FORMAT_R30="SCREPORT_ZIP_PARTS_R30_1";
  public static long prepareBoundedZipR30(File job,File archive,String id,String manifestHash,boolean complete,boolean checks,boolean passed,ReportNativeCP4.Control control)throws Exception{
   prepareSingleZip(job,archive,id,manifestHash,complete,checks,passed,control);
@@ -53,13 +58,13 @@ public final class ReportPublicationCP12 {
   JSONArray existing=index.getJSONArray("files");if(existing.length()!=1)throw new IOException("R30_ZIP_SOURCE_COUNT");
   JSONObject source=existing.getJSONObject(0);File zip=ReportArchiveVerifierCP12.inside(job,source.getString("path"));
   if(!"delivery/STARCORE_FULL_REPORT.zip".equals(source.getString("path"))||!zip.isFile()||zip.length()!=source.getLong("bytes"))throw new IOException("R30_ZIP_SOURCE_IDENTITY");
-  long size=zip.length(),parts=(size+ZIP_LIMIT_R30-1)/ZIP_LIMIT_R30;
+  long size=zip.length(),partBytes=zipPartBytes(size),parts=1+(size-1)/partBytes;
   if(parts>128)throw new IOException("R30_ZIP_DELIVERY_INDEX_LIMIT");
   File[] previous=DirectoryCursorR31.children(delivery,256);
   for(File file:previous)if(file.getName().matches("STARCORE_FULL_REPORT\\.zip\\.part[0-9]{2,3}(\\.partial)?")){
    checkR30(control);if(!file.getAbsoluteFile().equals(file.getCanonicalFile())||!file.isFile()||!file.delete())throw new IOException("R30_OLD_ZIP_PART_CLEANUP");
   }
-  index.put("defaultZipLimitBytes",ZIP_LIMIT_R30);
+  index.put("defaultZipLimitBytes",ZIP_LIMIT_R30).put("partBytes",partBytes);
   if(size<=ZIP_LIMIT_R30){index.put("expectedVolumes",1).put("exportedVolumes",1).put("omittedVolumes",0);ReportJobJournalCP12.writeAtomic(indexFile,index.toString());return size+indexFile.length();}
   JSONArray rows=new JSONArray();java.security.MessageDigest all=java.security.MessageDigest.getInstance("SHA-256");long copied=0;
   try(InputStream input=new BufferedInputStream(new FileInputStream(zip),32768)){
@@ -68,7 +73,7 @@ public final class ReportPublicationCP12 {
     File target=ReportArchiveVerifierCP12.inside(delivery,name),partial=new File(target.getPath()+".partial");
     long start=copied,bytes=0;java.security.MessageDigest hash=java.security.MessageDigest.getInstance("SHA-256");
     try(FileOutputStream outputFile=new FileOutputStream(partial);OutputStream output=ReportIoR31.protect(partial,outputFile,control)){
-     while(bytes<ZIP_LIMIT_R30&&copied<size){checkR30(control);int n=input.read(buffer,0,(int)Math.min(buffer.length,Math.min(ZIP_LIMIT_R30-bytes,size-copied)));if(n<0)throw new EOFException("R30_ZIP_SOURCE_TRUNCATED");output.write(buffer,0,n);hash.update(buffer,0,n);all.update(buffer,0,n);bytes+=n;copied+=n;}
+     while(bytes<partBytes&&copied<size){checkR30(control);int n=input.read(buffer,0,(int)Math.min(buffer.length,Math.min(partBytes-bytes,size-copied)));if(n<0)throw new EOFException("R30_ZIP_SOURCE_TRUNCATED");output.write(buffer,0,n);hash.update(buffer,0,n);all.update(buffer,0,n);bytes+=n;copied+=n;}
      output.flush();outputFile.getFD().sync();
     }
     String sha=ReportArchiveCP4.hex(hash.digest());if(partial.length()!=bytes||!sha.equals(ReportArchiveCP4.hash(partial,control)))throw new IOException("R30_ZIP_PART_READBACK");
@@ -85,11 +90,12 @@ public final class ReportPublicationCP12 {
   if(!zip.delete())throw new IOException("R30_ZIP_REDUNDANT_SOURCE_CLEANUP");return size+indexFile.length();
  }
  static boolean verifyPartsR30(File job,JSONObject index,ReportNativeCP4.Control control)throws Exception{
-  JSONArray files=index.getJSONArray("files");long size=index.getLong("zipBytes"),total=0;int expected=(int)((size+ZIP_LIMIT_R30-1)/ZIP_LIMIT_R30);
+  JSONArray files=index.getJSONArray("files");long size=index.getLong("zipBytes"),total=0,partBytes=zipPartBytes(size);int expected=(int)(1+(size-1)/partBytes);
+  if(index.optLong("partBytes",ZIP_LIMIT_R30)!=partBytes)throw new IOException("R30_ZIP_PART_BOUND");
   if(size<=ZIP_LIMIT_R30||expected<2||expected>128||files.length()!=expected||index.getLong("expectedVolumes")!=expected||index.getLong("exportedVolumes")!=expected||index.getLong("omittedVolumes")!=0)throw new IOException("R30_ZIP_PART_COUNT");
   java.security.MessageDigest all=java.security.MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[32768];
   for(int i=0;i<files.length();i++){
-   checkR30(control);JSONObject row=files.getJSONObject(i);String name=String.format(Locale.ROOT,"STARCORE_FULL_REPORT.zip.part%02d",i+1);long wanted=Math.min(ZIP_LIMIT_R30,size-total);
+   checkR30(control);JSONObject row=files.getJSONObject(i);String name=String.format(Locale.ROOT,"STARCORE_FULL_REPORT.zip.part%02d",i+1);long wanted=Math.min(partBytes,size-total);
    if(!"ZIP_PART".equals(row.getString("kind"))||!name.equals(row.getString("name"))||!("delivery/"+name).equals(row.getString("path"))||row.getInt("partNumber")!=i+1||row.getLong("offset")!=total||row.getLong("bytes")!=wanted)throw new IOException("R30_ZIP_PART_IDENTITY");
    File file=ReportArchiveVerifierCP12.inside(job,row.getString("path"));if(!file.isFile()||file.length()!=wanted)throw new IOException("R30_ZIP_PART_SIZE");
    java.security.MessageDigest part=java.security.MessageDigest.getInstance("SHA-256");try(InputStream input=new FileInputStream(file)){int n;while((n=input.read(buffer))!=-1){checkR30(control);all.update(buffer,0,n);part.update(buffer,0,n);}}
@@ -135,13 +141,25 @@ public final class ReportPublicationCP12 {
   for(File directory:dirs){if(!directory.getName().matches("[0-9a-f]{64}")||!directory.getAbsoluteFile().equals(directory.getCanonicalFile()))throw new IOException("REPORT_USER_DELETE_PATH");
    cleanChildren(directory,Collections.<String>emptySet());if(!directory.delete())throw new IOException("REPORT_USER_DELETE_FAILED");}
  }
- /** Publication owner calls before READY. Single writer lock is already held. Eight reports and aggregate Q are hard limits. */
+ /** Keep recent deliveries within the cache target. The current report and in-use shares have priority. */
  public static void enforceQuota(File root,File current,long quota)throws Exception{
-  long physical=allPhysicalBytes(root);if(physical>ReportBudgetSU2.PHYSICAL_REPORT_ADMISSION_BYTES)throw new IOException("REPORT_PHYSICAL_QUOTA_PROTECTED_DEBT:"+physical);
-  File jobs=new File(root,"jobs");File[] dirs=DirectoryCursorR31.children(jobs,1024);long total=0;List<File> published=new ArrayList<>();for(File d:dirs){if(!d.getName().matches("[0-9a-f]{64}")||!d.isDirectory())throw new IOException("REPORT_QUOTA_JOB_PATH");File ptr=new File(d,"published.json");if(ptr.isFile()||d.equals(current)){published.add(d);total=Math.addExact(total,publishedBytes(d));}}
-  Collections.sort(published,(a,b)->Long.compare(a.lastModified(),b.lastModified()));for(File d:published){if(total<=quota&&published.size()<=8)break;if(d.equals(current))continue;long bytes=publishedBytes(d);if(deletePublished(d,System.currentTimeMillis())){total-=bytes;published.remove(d);break;}}
-  // Repeat using a fresh bounded scan; removal changes neither caller's archive nor another held shared lease.
-  if(total>quota||published.size()>8){boolean progress=false;for(File d:new ArrayList<File>(published)){if(d.equals(current))continue;long bytes=publishedBytes(d);if(deletePublished(d,System.currentTimeMillis())){total-=bytes;published.remove(d);progress=true;if(total<=quota&&published.size()<=8)break;}}if(total>quota||published.size()>8)throw new IOException("REPORT_PUBLISHED_QUOTA_PROTECTED");}
+  File jobs=new File(root,"jobs");
+  List<File> old=new ArrayList<>();
+  long total=publishedBytes(current);
+  for(File job:DirectoryCursorR31.children(jobs,1024)){
+   if(!job.getName().matches("[0-9a-f]{64}")||!job.isDirectory())throw new IOException("REPORT_QUOTA_JOB_PATH");
+   if(!job.equals(current)&&new File(job,"published.json").isFile()){
+    old.add(job);
+    total=Math.addExact(total,publishedBytes(job));
+   }
+  }
+  old.sort(Comparator.comparingLong(File::lastModified));
+  int retained=old.size()+1;
+  for(File job:old){
+   if(total<=quota&&retained<=8)break;
+   long bytes=publishedBytes(job);
+   if(deletePublished(job,System.currentTimeMillis())){total-=bytes;retained--;}
+  }
  }
  private static long publishedBytes(File job)throws Exception{long bytes=0;JSONObject index=new File(job,"delivery/index.json").isFile()?delivery(job):null;if(index!=null){JSONArray rows=index.getJSONArray("files");if(rows.length()>128)throw new IOException("REPORT_DELIVERY_BOUND");for(int i=0;i<rows.length();i++)bytes=Math.addExact(bytes,rows.getJSONObject(i).getLong("bytes"));bytes=Math.addExact(bytes,new File(job,"delivery/index.json").length());ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));if(!state.publishedDir.isEmpty())bytes=Math.addExact(bytes,new File(job,state.publishedDir+"/manifest.jsonl").length());}return bytes;}
  private static boolean deletePublished(File job,long now)throws Exception{File until=new File(job,"share-until.json");if(until.exists()&&new JSONObject(ReportJobJournalCP12.readAtomic(until,4096)).getLong("expiresWallMs")>now)return false;synchronized(OPEN){if(OPEN.containsKey(new File(job,"share.lock").getCanonicalPath()))return false;try(RandomAccessFile io=new RandomAccessFile(new File(job,"share.lock"),"rw")){FileLock lock;try{lock=io.getChannel().tryLock();}catch(OverlappingFileLockException held){return false;}if(lock==null)return false;try{cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","share.lock")));ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));state.stage="FAILED";state.lastReason="REPORT_EXPIRED_BY_QUOTA";ReportJobJournalCP12.writeAtomic(new File(job,"job.json"),state.json().toString());JSONObject ack=new JSONObject();ack.put("requestId",state.requestId);ack.put("jobId",state.jobId);ack.put("stage","FAILED");ack.put("reason",state.lastReason);ReportJobJournalCP12.writeAtomic(new File(job.getParentFile().getParentFile(),"requests/"+state.requestId+".ack.json"),ack.toString());return true;}finally{lock.release();}}}}

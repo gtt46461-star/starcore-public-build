@@ -299,6 +299,11 @@ public final class SettlementCoordinatorR815 {
             SettlementEngine.SettlementReport report =
                     new SettlementEngine().executeFromCoordinatorR815(store, draw);
             SettlementTaskStoreR36.Terminal terminal = SettlementTaskStoreR36.terminal(store, draw.issue);
+            if (terminal != null && store.contextForR26() != null) {
+                new ServiceHeartbeatStore(store.contextForR26()).markSettlementTerminal(
+                        terminal.targetIssue, terminal.status,
+                        terminal.error.isEmpty() ? terminal.terminalCode : terminal.error, terminal.completedAt);
+            }
             if (terminal != null && SettlementTaskStoreR36.COMPLETED.equals(terminal.status)) {
                 // Essential why-hit/why-miss and Teacher/reverse/causal feedback must exist before
                 // optional genome/formula/asset fan-out can consume the post-commit budget.

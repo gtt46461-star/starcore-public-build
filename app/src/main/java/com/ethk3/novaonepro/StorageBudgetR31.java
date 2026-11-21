@@ -12,6 +12,9 @@ import java.util.*;
  */
 public final class StorageBudgetR31 {
     public static final long MiB=1024L*1024L;
+    public static final long NORMAL_DISK_BYTES = 20L << 30;
+    public static final long TRANSIENT_DISK_BYTES = 30L << 30;
+    public static final long FREE_FLOOR_BYTES = 256L << 20;
     public static final String VERSION="R31_STORAGE_ADMISSION_V1";
     public static final int MAX_ACTIVE=64,MAX_RECEIPTS=64,MAX_LEDGER_BYTES=262144;
     private static final int MAGIC=0x52333142;
@@ -24,12 +27,19 @@ public final class StorageBudgetR31 {
     public interface Space { long available(File root)throws IOException; }
     public static final class Config {
         public final long normalHard,transientHard,freeFloor,metadataHeadroom;public final String version;public final boolean requireAllocated;
+        public final boolean capacityDriven;
         public Config(long normal,long transientBytes,long floor,long metadata,String version){
+            this(normal,transientBytes,floor,metadata,version,false);
+        }
+        Config(long normal,long transientBytes,long floor,long metadata,String version,boolean capacityDriven){
             if(normal<1||transientBytes<normal||floor<0||metadata<0||version==null||version.length()>128)throw new IllegalArgumentException("STORAGE_CONFIG");
             normalHard=normal;transientHard=transientBytes;freeFloor=floor;metadataHeadroom=metadata;this.version=version;requireAllocated=VERSION.equals(version);
+            this.capacityDriven=capacityDriven;
         }
-        public static Config production(){return new Config(2048*MiB,4096*MiB,256*MiB,2*MiB,VERSION);}
-        String hash(){return sha((version+"|"+normalHard+"|"+transientHard+"|"+freeFloor+"|"+metadataHeadroom).getBytes(StandardCharsets.UTF_8));}
+        public static Config production(){
+            return new Config(NORMAL_DISK_BYTES, TRANSIENT_DISK_BYTES, FREE_FLOOR_BYTES, 2*MiB, VERSION,true);
+        }
+        String hash(){return sha((version+"|"+normalHard+"|"+transientHard+"|"+freeFloor+"|"+metadataHeadroom+(capacityDriven?"|FREE_DISK":"")).getBytes(StandardCharsets.UTF_8));}
     }
     public static final class Rejected extends IOException implements com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure {
         public final String reason,owner,admissionOperation;public final long fence;
@@ -82,7 +92,18 @@ public final class StorageBudgetR31 {
                 long left=deadline-System.nanoTime();if(left<=0L)throw new Rejected("COORDINATOR_BUSY");
                 java.util.concurrent.locks.LockSupport.parkNanos(Math.min(left,java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(10L)));
             }
-            try{State state=readState();if(!state.active.isEmpty()&&!state.configHash.equals(config.hash()))throw new Rejected("CONFIG_CHANGED_WITH_ACTIVE_OWNER");state.configHash=config.hash();return work.run(state);}finally{lock.release();}
+            try {
+                State state=readState();
+                String configuration=config.hash();
+                if(!state.active.isEmpty()&&!state.configHash.equals(configuration)){
+                    // An in-place package upgrade kills the old process. Only its released
+                    // OS lease authorizes retirement of the old promise; keep every file.
+                    if(recoverWithin(state)>0)writeState(state);
+                    if(!state.active.isEmpty())throw new Rejected("CONFIG_CHANGED_WITH_ACTIVE_OWNER");
+                }
+                state.configHash=configuration;
+                return work.run(state);
+            } finally {lock.release();}
             }
         } finally {if(entered)JVM_LOCK.unlock();}
     }
@@ -139,7 +160,7 @@ public final class StorageBudgetR31 {
                 outstanding=add(outstanding,row.bound-growth);
             }
             long limit=transientWork?config.transientHard:config.normalHard;
-            if(add(add(add(censusAccounted(census,null),outstanding),maximumGrowth),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT").facts(factsB01(ticket,outstanding,maximumGrowth,limit,transientWork,null));
+            if(!config.capacityDriven && add(add(add(censusAccounted(census,null),outstanding),maximumGrowth),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT").facts(factsB01(ticket,outstanding,maximumGrowth,limit,transientWork,null));
             long available=available();if(add(add(add(outstanding,maximumGrowth),config.freeFloor),config.metadataHeadroom)>available)throw new Rejected("FREE_SPACE_RESERVE").facts(factsB01(ticket,outstanding,maximumGrowth,limit,transientWork,available));
             String id=sha((owner+"|"+fence+"|"+relative+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));File leaseFile=inside(directory,id+".lease");
             RandomAccessFile io=new RandomAccessFile(leaseFile,"rw");FileLock lifetime=null;
@@ -156,19 +177,36 @@ public final class StorageBudgetR31 {
         f.put("observedWallMs",System.currentTimeMillis());f.put("observedMonotonicNanos",System.nanoTime());
         f.put("regularBytes",c.total);f.put("allocatedBytes",c.allocatedBytesKnown?c.allocatedFileAndDirectoryBytes:null);
         f.put("accountedBytes",censusAccounted(c,null));f.put("outstandingBytes",pending);f.put("requestedGrowthBytes",requested);
-        f.put("metadataHeadroomBytes",config.metadataHeadroom);f.put("limitBytes",limit);f.put("transientWork",transientWork);
+        f.put("metadataHeadroomBytes",config.metadataHeadroom);f.put("limitBytes",config.capacityDriven?null:limit);f.put("transientWork",transientWork);
         f.put("freeDiskBytes",free);f.put("freeFloorBytes",config.freeFloor);f.put("freeMeasurementUnavailableReason",free==null?"NOT_MEASURED_BEFORE_PROTECTED_DEBT_REFUSAL":"");return f;
     }
     public final class Reservation implements Closeable {
         public final String id,owner,scope;public final long fence,generation;
+        private final boolean streamingReport;
         private final RandomAccessFile io;private final FileLock lifetime;private final String key;private boolean closed;
-        private Reservation(Row row,RandomAccessFile io,FileLock lifetime,String key){id=row.id;owner=row.owner;scope=row.scope;fence=row.fence;generation=row.generation;this.io=io;this.lifetime=lifetime;this.key=key;}
+        private Reservation(Row row,RandomAccessFile io,FileLock lifetime,String key){id=row.id;owner=row.owner;scope=row.scope;fence=row.fence;generation=row.generation;this.io=io;this.lifetime=lifetime;this.key=key;streamingReport=config.capacityDriven&&Category.REPORT_WORKSPACE.name().equals(row.category);}
         private <T>T owned(String operation,Work<T> work)throws IOException{return lockedContext(owner,fence,operation,work);}
         /** Durable admission before the chunk is written. A failed write stays charged until measured reconciliation. */
         public synchronized void beforeChunk(long bytes)throws IOException{
             if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED").context(owner,fence,"BEFORE_CHUNK");if(bytes<0)throw new IllegalArgumentException("STORAGE_CHUNK");if(closed||!lifetime.isValid())throw new Rejected("OWNER_CLOSED").context(owner,fence,"BEFORE_CHUNK");if(bytes==0)return;
-            boolean needsMeasurement=owned("CHUNK_PREFLIGHT",state->{Row row=require(state);return add(add(Math.max(0,row.observed-row.baseline),row.charged-row.observedCharged),bytes)>row.bound;});
-            if(needsMeasurement)reconcile();
+            boolean needsMeasurement=owned("CHUNK_PREFLIGHT",state->{Row row=require(state);return add(add(Math.max(0,row.observed-row.baseline),row.charged-row.observedCharged),bytes)>row.bound || (streamingReport && bytes>row.writeBound-row.charged);});
+            if(needsMeasurement){
+                reconcile();
+                if(streamingReport){
+                    long charged=owned("REPORT_WINDOW",state->{
+                        Row row=require(state);
+                        return bytes>row.writeBound-row.charged || bytes>row.bound-Math.max(0,row.observed-row.baseline) ? row.charged : -1L;
+                    });
+                    if(charged>=0){
+                        long window=Math.max(bytes,8*MiB);
+                        try{ensureAdditional(window,add(charged,window),true);}
+                        catch(Rejected full){
+                            if(!"FREE_SPACE_RESERVE".equals(full.reason)||window==bytes)throw full;
+                            ensureAdditional(bytes,add(charged,bytes),true);
+                        }
+                    }
+                }
+            }
             owned("BEFORE_CHUNK",state->{Row row=require(state);if(bytes>row.writeBound-row.charged)throw new Rejected("WRITE_BOUND_EXCEEDED");
                 long upper=add(Math.max(0,row.observed-row.baseline),row.charged-row.observedCharged);
                 if(add(upper,bytes)>row.bound)throw new Rejected("PHYSICAL_GROWTH_BOUND");
@@ -190,7 +228,7 @@ public final class StorageBudgetR31 {
                 long pending=0,ownActual=censusAccounted(census,own.scope),growth=Math.max(0,ownActual-own.baseline),target=Math.max(own.bound,add(growth,futureBytes));
                 for(Row row:state.active.values()){long actual=censusAccounted(census,row.scope),used=Math.max(0,actual-row.baseline);if(used>row.bound)throw new Rejected("EXISTING_OWNER_EXCEEDED_BOUND");pending=add(pending,(row==own?target:row.bound)-used);}
                 long limit=transientWork?config.transientHard:config.normalHard;
-                if(add(add(censusAccounted(census,null),pending),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT").facts(factsB01(ticket,pending-(target-own.bound),target-own.bound,limit,transientWork,null));
+                if(!config.capacityDriven && add(add(censusAccounted(census,null),pending),config.metadataHeadroom)>limit)throw new Rejected("BLOCKED_PROTECTED_DEBT").facts(factsB01(ticket,pending-(target-own.bound),target-own.bound,limit,transientWork,null));
                 long available=available();if(add(add(pending,config.freeFloor),config.metadataHeadroom)>available)throw new Rejected("FREE_SPACE_RESERVE").facts(factsB01(ticket,pending-(target-own.bound),target-own.bound,limit,transientWork,available));own.bound=target;own.writeBound=Math.max(own.writeBound,Math.max(target,maximumWritten));own.observed=ownActual;own.observedCharged=own.charged;writeState(state);return null;
             });
         }
@@ -250,7 +288,7 @@ public final class StorageBudgetR31 {
     }
     public Map<String,Object> snapshot()throws IOException{final CensusTicket ticket=measureOutside(null);return locked(state->{ticket.validate(state);StorageCensusSU2.Census c=ticket.census;long pending=0;List<Map<String,Object>> owners=new ArrayList<>();
         for(Row row:state.active.values()){long actual=censusAccounted(c,row.scope),remaining=Math.max(0,row.bound-Math.max(0,actual-row.baseline));pending=add(pending,remaining);Map<String,Object> x=new LinkedHashMap<>();x.put("id",row.id);x.put("owner",row.owner);x.put("fence",row.fence);x.put("category",row.category);x.put("scope",row.scope);x.put("maximumGrowthBytes",row.bound);x.put("chargedWriteBytes",row.charged);x.put("scopeAccountedBytes",actual);x.put("scopeRegularFileBytes",c.scopeBytes.get(row.scope));x.put("scopeAllocatedBytes",c.allocatedBytesKnown&&!c.truncated?c.allocatedScopeBytes.get(row.scope):null);x.put("unallocatedReservationBytes",remaining);x.put("boot",row.boot);x.put("pid",row.pid);owners.add(x);}
-        Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("configurationHash",config.hash());out.put("measuredRegularFileBytes",c.total);out.put("measuredAllocatedBytes",c.allocatedBytesKnown&&!c.truncated?c.allocatedFileAndDirectoryBytes:null);out.put("accountingBasis",config.requireAllocated?"MAX_REGULAR_AND_ALLOCATED; UNKNOWN_BLOCKS_DENY_ADMISSION":"EXPLICIT_FIXTURE_FILE_LENGTH_WITH_ALLOCATED_IF_AVAILABLE");out.put("complete",!c.truncated&&(!config.requireAllocated||c.allocatedBytesKnown));out.put("incompleteReasons",new ArrayList<>(c.incompleteReasons));out.put("unallocatedReservationBytes",pending);out.put("accountedPlusPendingBytes",add(censusAccounted(c,null),pending));out.put("normalAdmissionBytes",config.normalHard);out.put("transientAdmissionBytes",config.transientHard);out.put("freeSpaceBytes",available());out.put("owners",owners);out.put("receipts",new ArrayList<>(state.receipts));out.put("state",c.truncated?"UNKNOWN_INCOMPLETE_CENSUS":config.requireAllocated&&!c.allocatedBytesKnown?"UNKNOWN_ALLOCATION_DENY_ADMISSION":censusAccounted(c,null)>config.normalHard?"BLOCKED_PROTECTED_DEBT":"MEASURED");out.put("coverage","REGISTERED_WRITERS_ONLY; other growth sources must be explicitly integrated");out.put("memoryMetric",false);return out;});}
+        Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("configurationHash",config.hash());out.put("measuredRegularFileBytes",c.total);out.put("measuredAllocatedBytes",c.allocatedBytesKnown&&!c.truncated?c.allocatedFileAndDirectoryBytes:null);out.put("accountingBasis",config.requireAllocated?"MAX_REGULAR_AND_ALLOCATED; UNKNOWN_BLOCKS_DENY_ADMISSION":"EXPLICIT_FIXTURE_FILE_LENGTH_WITH_ALLOCATED_IF_AVAILABLE");out.put("complete",!c.truncated&&(!config.requireAllocated||c.allocatedBytesKnown));out.put("incompleteReasons",new ArrayList<>(c.incompleteReasons));out.put("unallocatedReservationBytes",pending);out.put("accountedPlusPendingBytes",add(censusAccounted(c,null),pending));out.put("normalAdmissionBytes",config.capacityDriven?null:config.normalHard);out.put("transientAdmissionBytes",config.capacityDriven?null:config.transientHard);out.put("retentionTargetBytes",config.normalHard);out.put("capacityDriven",config.capacityDriven);out.put("freeSpaceBytes",available());out.put("owners",owners);out.put("receipts",new ArrayList<>(state.receipts));out.put("state",c.truncated?"UNKNOWN_INCOMPLETE_CENSUS":config.requireAllocated&&!c.allocatedBytesKnown?"UNKNOWN_ALLOCATION_DENY_ADMISSION":censusAccounted(c,null)>config.normalHard?(config.capacityDriven?"ABOVE_RETENTION_TARGET":"BLOCKED_PROTECTED_DEBT"):"MEASURED");out.put("coverage","REGISTERED_WRITERS_ONLY; other growth sources must be explicitly integrated");out.put("memoryMetric",false);return out;});}
     long controlHeadroomR31(){return config.metadataHeadroom;}
     long controlFloorR31(){return config.freeFloor;}
     long controlAvailableR31()throws IOException{return available();}

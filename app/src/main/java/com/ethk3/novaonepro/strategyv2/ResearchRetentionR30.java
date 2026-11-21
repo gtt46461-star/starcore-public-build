@@ -6,7 +6,7 @@ import java.util.*;
 /** Total physical regular-file budget. Evidence has no automatic deletion policy; only explicit duplicates/caches do. */
 public final class ResearchRetentionR30 {
     private ResearchRetentionR30() {}
-    public static final long DEFAULT_BUDGET_BYTES=1_500_000_000L; // decimal 1.5 GB, reported in bytes
+    public static final long DEFAULT_BUDGET_BYTES=com.ethk3.novaonepro.StorageBudgetR31.NORMAL_DISK_BYTES;
     public static final int MAX_FILES_PER_STEP=64, MAX_SCAN_ENTRIES=200_000, MAX_DEPTH=16;
     public static final String RETIRED="databases/starcore-r29-research.db.r30-retired";
     public static final List<String> PROTECTED_TABLES=Collections.unmodifiableList(Arrays.asList(

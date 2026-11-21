@@ -66,6 +66,35 @@ public final class ResearchSourceJournalR31 {
     /** Only the existing schema writer/Domain cutover wrapper calls this. No callback into Pin.ensure. */
     public static void ensureSchemaR31(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_SOURCE_SCHEMA_WRITER_REQUIRED");String shape=inspectUpgradeR31(db);if(shape.equals("R31_EXACT")||shape.equals("R31_V1_EXACT"))for(String table:new String[]{EVENT,MEMBER,FENCE})if(actual(db,table)==null)throw new IllegalStateException("R31_SOURCE_EVIDENCE_SCHEMA_MISSING:"+table);if(shape.equals("CONFLICT"))throw new IllegalStateException("R31_SOURCE_TRIGGER_CONFLICT");for(String expected:DDL){String observed=actual(db,name(expected));if(observed!=null&&!canonical(expected).equals(canonical(observed)))throw new IllegalStateException("R31_SOURCE_SCHEMA_CONFLICT:"+name(expected));}for(String sql:DDL)db.execSQL(sql);if(shape.equals("OLD_EXACT"))for(String sql:legacySql())db.execSQL("DROP TRIGGER "+name(sql));for(String sql:sourceTriggerSqlR31())db.execSQL(sql);if(!readySchemaR31(db))throw new IllegalStateException("R31_SOURCE_SCHEMA_NOT_READY");}
     public static boolean readySchemaR31(SQLiteDatabase db){if(com.ethk3.novaonepro.TransactionSchemaCacheR941.readyCommitted(db,"R31_SOURCE_JOURNAL2_KNOWN_AT"))return true;for(String sql:DDL)if(!canonical(sql).equals(canonical(actual(db,name(sql)))))return false;if(!"R31_EXACT".equals(inspectUpgradeR31(db)))return false;com.ethk3.novaonepro.TransactionSchemaCacheR941.markCommitted(db,"R31_SOURCE_JOURNAL2_KNOWN_AT");return true;}
+    static final class DatasetRead {
+        final long revision;
+        final long event;
+        DatasetRead(long revision, long event) { this.revision=revision; this.event=event; }
+
+        static DatasetRead capture(SQLiteDatabase db) {
+            ResearchInputPinR30R1.requireReady(db);
+            try (Cursor c=db.rawQuery("SELECT generation,COALESCE((SELECT seq FROM sqlite_sequence WHERE name='r31_source_event'),0) FROM r30_live_source_revision WHERE singleton=1",null)) {
+                if (!c.moveToFirst()) throw new ResearchStoreR30R1.StaleResearch();
+                return new DatasetRead(c.getLong(0),c.getLong(1));
+            }
+        }
+
+        boolean valid(SQLiteDatabase db, long first, long through) {
+            if (revision<0 || first>through || !SchemaR27.liveSourceTriggersValid(db)) return false;
+            // Both clocks and the intervening events must belong to the same SQLite read snapshot.
+            String sql="SELECT g.generation,COALESCE((SELECT seq FROM sqlite_sequence WHERE name='r31_source_event'),0),"
+                    +"COUNT(e.event_seq),COUNT(CASE WHEN e.source_name='draws' AND "
+                    +"((e.operation='INSERT' AND e.new_ordinal>CAST(? AS INTEGER)) OR "
+                    +"(e.operation='DELETE' AND e.old_ordinal<CAST(? AS INTEGER))) THEN 1 END) "
+                    +"FROM r30_live_source_revision g LEFT JOIN r31_source_event e ON e.event_seq>CAST(? AS INTEGER) "
+                    +"WHERE g.singleton=1 GROUP BY g.generation";
+            try (Cursor c=db.rawQuery(sql,new String[]{Long.toString(through),Long.toString(first),Long.toString(event)})) {
+                if (!c.moveToFirst()) return false;
+                long n=c.getLong(2);
+                return c.getLong(0)-revision==n && c.getLong(1)-event==n && n==c.getLong(3);
+            }
+        }
+    }
     public static long currentFence(SQLiteDatabase db){ResearchInputPinR30R1.requireReady(db);try(Cursor q=db.rawQuery("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name='r31_source_event'),0)",null)){return q.moveToFirst()?q.getLong(0):-1;}}
     public static void requireFence(SQLiteDatabase db,long expected){ResearchInputPinR30R1.requireReady(db);if(expected<0||!SchemaR27.liveSourceTriggersValid(db)||currentFence(db)!=expected)throw new ResearchStoreR30R1.StaleResearch();}
     private static String key(String value){if(value==null||value.isEmpty()||value.length()>512)throw new IllegalArgumentException("R31_SOURCE_IDENTITY");return value;}

@@ -529,7 +529,8 @@ public final class ReportExportServiceCP4 extends Service {
         // Reserve only new bytes; invalid/incomplete snapshot closure still reserves a fresh backup.
         // This is a capped initial workspace promise. Exact attachment and archive plans
         // must enlarge it before materialization; 256MiB is not a source-data worstcase.
-        job.temporaryReservationBytes=verifiedSnapshotReusable?Math.addExact(ReportPhaseBudgetR31.METADATA_ENVELOPE,ReportPhaseBudgetR31.MARGIN):ReportPhaseBudgetR31.initial(snapshot);job.publishedQuotaBytes=ReportBudgetSU2.PUBLISHED_QUOTA_BYTES;
+        job.temporaryReservationBytes=verifiedSnapshotReusable?8*MiB:snapshot;
+        job.publishedQuotaBytes=ReportBudgetSU2.PUBLISHED_QUOTA_BYTES;
         String relative="files/r981_reports/jobs/"+job.jobId;
         try{active.storageReservationR31=StorageBudgetR31.forFiles(getFilesDir()).reserve("report:"+job.jobId,job.revision,StorageBudgetR31.Category.REPORT_WORKSPACE,relative,job.temporaryReservationBytes,Math.multiplyExact(job.temporaryReservationBytes,4L),true);}
         catch(StorageBudgetR31.Rejected unavailable){throw new IOException("REPORT_STORAGE_BUDGET_"+unavailable.reason,unavailable);}
@@ -761,7 +762,13 @@ public final class ReportExportServiceCP4 extends Service {
         }catch(IOException|RuntimeException error){stopR31(classify(error),error);throw error;}}
         @Override public boolean hasDiskAdmissionR31(){return storageReservationR31!=null;}
         @Override public void beforeOutputBytesR31(File file,long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");if(!shouldContinue())throw new InterruptedIOException(stopReason);storageReservationR31.beforeChunk(bytes);}
-        @Override public void reserveFutureBytesR31(long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");storageReservationR31.ensureAdditional(bytes,ReportPhaseBudgetR31.MAX_WRITTEN,true);job.temporaryReservationBytes=storageReservationR31.maximumGrowthBytes();}
+        @Override public void reserveFutureBytesR31(long bytes)throws IOException{
+            if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");
+            // Archive and ZIP sizes are upper estimates. Grow the grant as compressed bytes arrive.
+            // Actual filesystem writes also pass through beforeChunk, including the final flush.
+            storageReservationR31.ensureAdditional(Math.min(bytes,8*MiB),0,true);
+            job.temporaryReservationBytes=storageReservationR31.maximumGrowthBytes();
+        }
         @Override public OutputStream protectOutput(File file,OutputStream sink)throws IOException{
             try{
                 if(storageReservationR31==null)return sink;

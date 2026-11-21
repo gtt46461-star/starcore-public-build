@@ -43,12 +43,18 @@ public final class ResearchInputPinR30R1 {
     }
     /** The production caller holds this scope across submit/retry, closing in its actual worker finally. */
     public static PinPublicationR31.Scope appendAdmitted(ResearchWriteQueueR27.Batch b,SQLiteDatabase ro,File filesRoot,ReplayDatasetR27 d,long sourceRevision,long now){
+        return appendAdmitted(b,ro,filesRoot,d,sourceRevision,now,null);
+    }
+    static PinPublicationR31.Scope appendAdmitted(ResearchWriteQueueR27.Batch b,SQLiteDatabase ro,File filesRoot,ReplayDatasetR27 d,long sourceRevision,long now,ResearchSourceJournalR31.DatasetRead captured){
         if(d.size()==0||d.size()>10000||sourceRevision<0)throw new IllegalArgumentException("PIN_INPUT_BOUNDARY");
         PinPublicationR31.enforceBatch(b,new Object[0]);
         PinPublicationR31.Scope scope=PinPublicationR31.admit(ro,filesRoot,d.datasetHash,sourceRevision,d.size());
-        try{append(b,d,sourceRevision,now,scope,true);return scope;}catch(RuntimeException|Error failed){scope.close();throw failed;}
+        try{append(b,d,sourceRevision,now,scope,true,captured);return scope;}catch(RuntimeException|Error failed){scope.close();throw failed;}
     }
     static void append(ResearchWriteQueueR27.Batch b,ReplayDatasetR27 d,long sourceRevision,long now,PinPublicationR31.Scope scope,boolean managed){
+        append(b,d,sourceRevision,now,scope,managed,null);
+    }
+    private static void append(ResearchWriteQueueR27.Batch b,ReplayDatasetR27 d,long sourceRevision,long now,PinPublicationR31.Scope scope,boolean managed,ResearchSourceJournalR31.DatasetRead captured){
         try{
         PinSnapshotProofR31.prepare();Map<String,Object> payload=new LinkedHashMap<>();StringBuilder raw=new StringBuilder();for(int i=0;i<d.size();i++){if((i&63)==0)ExecutionBudgetR26.poll();if(!ReplayDatasetR27.legal(d.draws[i])||!TargetIssueResolver.isValid(d.issues[i])||TargetIssueResolver.sequenceOrdinalSU1(d.issues[i])!=d.ordinals[i])throw new IllegalArgumentException("PIN_CANONICAL_ISSUE");raw.append(d.issues[i]).append(':');for(int n:d.draws[i])raw.append((char)('a'+n-1));raw.append('\n');}
         byte[] original=d.legacyIdentityR31?raw.toString().getBytes(StandardCharsets.UTF_8):d.originalBytesR31();
@@ -57,9 +63,9 @@ public final class ResearchInputPinR30R1 {
         ExecutionBudgetR26.poll();String json=JsonR27.write(payload),hash=StatsR27.sha256(json);decode(d.datasetHash,sourceRevision,json,hash); // Validate the frozen bytes/roles outside the writer, not mutable caller arrays.
         Object[] args={id(d.datasetHash,sourceRevision),d.datasetHash,StatsR27.sha256("ORIGINAL_DATASET_INPUT"),"SELECT",BuildConfig.SOURCE_COMMIT_R26,sourceRevision,d.ordinals[0],d.ordinals[d.size()-1],hash,STATUS,json,now,d.datasetHash};
         PinPublicationR31.enforceBatch(b,args);scope.payload(json);
-        b.guardBefore(db->{if(managed)scope.requireActive();if(SchemaR27.liveSourceRevision(db)!=sourceRevision||!triggersValid(db))throw new ResearchStoreR30R1.StaleResearch();return 0;});
+        b.guardBefore(db->{if(managed)scope.requireActive();if(!triggersValid(db)||(captured==null ? SchemaR27.liveSourceRevision(db)!=sourceRevision : !captured.valid(db,d.ordinals[0],d.ordinals[d.size()-1])))throw new ResearchStoreR30R1.StaleResearch();return 0;});
         b.add("INSERT OR IGNORE INTO r30r1_analysis_run SELECT ?,?,?,?,?,?,?,?,?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM r30r1_analysis_run p WHERE p.dataset_hash=? AND p.status='INPUT_DATASET_PINNED' AND ("+validRunSql("p")+"))",args);
-        b.guardAfter(db->{if(SchemaR27.liveSourceRevision(db)!=sourceRevision)throw new ResearchStoreR30R1.StaleResearch();try(Cursor c=db.rawQuery("SELECT contract_hash,summary_json,run_id FROM r30r1_analysis_run WHERE dataset_hash=? AND status='INPUT_DATASET_PINNED' ORDER BY source_revision DESC LIMIT 1",new String[]{d.datasetHash})){if(!c.moveToFirst()||!hash.equals(c.getString(0))||!json.equals(c.getString(1)))throw new IllegalStateException("PIN_IDENTITY_CONFLICT");PinSnapshotProofR31.verified(db,c.getString(2),hash);if(invalid(db,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();}return 0;});
+        b.guardAfter(db->{if(captured==null ? SchemaR27.liveSourceRevision(db)!=sourceRevision : !captured.valid(db,d.ordinals[0],d.ordinals[d.size()-1]))throw new ResearchStoreR30R1.StaleResearch();try(Cursor c=db.rawQuery("SELECT contract_hash,summary_json,run_id FROM r30r1_analysis_run WHERE dataset_hash=? AND status='INPUT_DATASET_PINNED' ORDER BY source_revision DESC LIMIT 1",new String[]{d.datasetHash})){if(!c.moveToFirst()||!hash.equals(c.getString(0))||!json.equals(c.getString(1)))throw new IllegalStateException("PIN_IDENTITY_CONFLICT");PinSnapshotProofR31.verified(db,c.getString(2),hash);if(invalid(db,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();}return 0;});
         }finally{scope.preparationFinished();}
     }
     /** Original evidence recovery, including invalidated snapshots; never itself a source-admission gate. */

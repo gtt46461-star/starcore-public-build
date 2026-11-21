@@ -491,18 +491,29 @@ public final class ServiceHeartbeatStore {
 
     public void markSettlementTerminal(
             String target, String terminalStatus, String detail, long completedAt) {
-        RuntimePatch p = new RuntimePatch();
-        long at = completedAt > 0L ? completedAt : System.currentTimeMillis();
-        p.putString("settlement_stage_state", safe(terminalStatus));
-        p.putString("settlement_stage_issue", safe(target));
-        p.putString("settlement_stage_detail", safe(detail));
-        p.putLong("settlement_stage_at", at);
-        // One task terminal is not evidence that the global backlog is empty.
-        if ("COMPLETED".equals(terminalStatus)) {
-            p.putLong("last_settlement_success_at", at);
-            p.putString("last_settlement_issue", safe(target));
+        if (completedAt <= 0L || !TargetIssueResolver.isValid(target)) return;
+        synchronized (LOCK) {
+            RuntimePatch p = new RuntimePatch();
+            long previous = getLong("settlement_terminal_progress_at", 0L);
+            if (completedAt > previous) p.putLong("settlement_terminal_progress_at", completedAt);
+            String stageIssue = getString("settlement_stage_issue", "");
+            if ((!TargetIssueResolver.isValid(stageIssue) || TargetIssueResolver.compare(target, stageIssue) >= 0)
+                    && (completedAt >= getLong("settlement_stage_at", 0L) || !target.equals(stageIssue))) {
+                p.putString("settlement_stage_state", safe(terminalStatus));
+                p.putString("settlement_stage_issue", target);
+                p.putString("settlement_stage_detail", safe(detail));
+                p.putLong("settlement_stage_at", completedAt);
+            }
+            if ("COMPLETED".equals(terminalStatus)) {
+                String previousIssue = getLastSettlementIssue();
+                if (!TargetIssueResolver.isValid(previousIssue) || TargetIssueResolver.compare(target, previousIssue) > 0
+                        || (target.equals(previousIssue) && completedAt > getLastSettlementSuccessAt())) {
+                    p.putLong("last_settlement_success_at", completedAt);
+                    p.putString("last_settlement_issue", target);
+                }
+            }
+            if (p.size > 0) applyTelemetryPatchR76(p);
         }
-        applyTelemetryPatchR76(p);
     }
 
     public void markRecoveryTrigger(String source) {
@@ -813,12 +824,10 @@ public final class ServiceHeartbeatStore {
                         || now - analysis > AppConfig.SERVICE_ANALYSIS_STALE_MS)
                 && !isAnalysisWorkFresh()) return "ANALYSIS_STALE_NO_PROGRESS";
         int pending = getInt("pending_settlement_count", -1);
-        long settlement = getLastSettlementSuccessAt(),
-                settlementStage = getLong("settlement_stage_at", 0L);
-        if (pending > 0
-                && (settlement <= 0L
-                        || now - Math.max(settlement, settlementStage)
-                                > AppConfig.SERVICE_SETTLEMENT_STALE_MS)) return "SETTLEMENT_STALE";
+        long lastTerminal = Math.max(getLastSettlementSuccessAt(),
+                getLong("settlement_terminal_progress_at", 0L));
+        if (pending > 0 && (lastTerminal <= 0L || now - lastTerminal > AppConfig.SERVICE_SETTLEMENT_STALE_MS))
+            return "SETTLEMENT_STALE";
         if(pending<0)return "SETTLEMENT_PENDING_UNKNOWN";
         String researchStale = getResearchStaleReason();
         if (researchStale.length() > 0) return researchStale;
@@ -908,6 +917,18 @@ public final class ServiceHeartbeatStore {
     /** R955: completed useful autonomous-research progress, not mere dispatch/yield. */
     public void markLearningPump(String state, String detail) {
         markLoopPulse("learning_pump", state, detail);
+    }
+
+    public void observeResearchArtifactR335(String task, String artifact, long committedAt) {
+        if(committedAt<=0 || committedAt>System.currentTimeMillis() || artifact==null || artifact.isEmpty()) return;
+        synchronized(LOCK) {
+            if(committedAt<=getLearningPumpAt()) return;
+            RuntimePatch p=new RuntimePatch();
+            p.putLong("learning_pump_at",committedAt);
+            p.putString("learning_pump_state","COMMITTED_RESEARCH_ARTIFACT");
+            p.putString("learning_pump_detail",safe(task)+"|"+safe(artifact));
+            applyTelemetryPatchR76(p);
+        }
     }
 
     /** R955: dispatcher attempt/yield/error heartbeat; never refreshes the progress clock. */

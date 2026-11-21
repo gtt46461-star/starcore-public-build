@@ -199,7 +199,7 @@ public final class RuntimeR27 implements AutoCloseable {
             // Same process gate as the writer. Avoid re-decoding a 1MiB pinned
             // original while its metadata commit is known to be inadmissible.
             // The actual writer still rechecks, so a race remains fail-closed.
-            if(WriterHoldFaultsR31.deferResearch())
+            if(WriterHoldFaultsR31.deferResearch() && !com.ethk3.novaonepro.DatabaseCoordinator.researchDataDueR335())
                 return ResearchPoolR27.Outcome.idle("DEPENDENCY(WRITER_HOLD_FAULT_BACKLOG)",0,-1);
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
@@ -214,7 +214,7 @@ public final class RuntimeR27 implements AutoCloseable {
                         boolean published = false;
                         try {
                             ModelSurfaceStoreR30.bindHistorical(w.ro, recovered);
-                            publishRecoveredReplayKnowledgeR31(w, pin, "RECOVERED_COMMITTED_PIN", -1);
+                            publishRecoveredReplayKnowledgeR31(w, pin, "RECOVERED_COMMITTED_PIN");
                             evoData = pin.data;
                             evoCache = recovered;
                             published = true;
@@ -228,9 +228,10 @@ public final class RuntimeR27 implements AutoCloseable {
 
             if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
             long t0 = System.currentTimeMillis();
-            final long capturedRevision=SchemaR27.liveSourceRevision(w.ro);
+            final ResearchSourceJournalR31.DatasetRead captured=ResearchSourceJournalR31.DatasetRead.capture(w.ro);
+            final long capturedRevision=captured.revision;
             ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
-            if(capturedRevision<0||capturedRevision!=SchemaR27.liveSourceRevision(w.ro))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
+            if(d.size()>0 && !captured.valid(w.ro,d.ordinals[0],d.ordinals[d.size()-1]))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
             if (d.size() < 3 * SplitR27.BLOCK) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
             FeatureCacheR27 c = featureCacheR31(d,48);boolean published=false;
             try{
@@ -250,8 +251,8 @@ public final class RuntimeR27 implements AutoCloseable {
                     RuntimeCoordinatorR26.Claim current=RuntimeCoordinatorR26.currentClaimR30();
                     if(current==null)throw new IllegalStateException("R31_DEPENDENCY_TASK_CLAIM_REQUIRED");
                     RuntimeCoordinatorR26.requireFence(w.ro,current);
-                    if(capturedRevision!=SchemaR27.liveSourceRevision(w.ro)||ResearchInputPinR30R1.invalid(w.ro,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
-                    publishRecoveredReplayKnowledgeR31(w,pinned,"RESTORED_PUBLISHED_DATASET",capturedRevision);
+                    if(ResearchInputPinR30R1.invalid(w.ro,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
+                    publishRecoveredReplayKnowledgeR31(w,pinned,"RESTORED_PUBLISHED_DATASET");
                     if(evoData==null){evoData=d;evoCache=c;}else{pendingData=d;pendingCache=c;}
                     published=true;
                     return ResearchPoolR27.Outcome.progress(1,d.ordinals[d.size()-1]);
@@ -259,7 +260,7 @@ public final class RuntimeR27 implements AutoCloseable {
                 ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
                 b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
                         d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
-                try(PinPublicationR31.Scope pin=ResearchInputPinR30R1.appendAdmitted(b,w.ro,store.researchInputRootCP11().getParentFile(),d,capturedRevision,System.currentTimeMillis())){
+                try(PinPublicationR31.Scope pin=ResearchInputPinR30R1.appendAdmitted(b,w.ro,store.researchInputRootCP11().getParentFile(),d,capturedRevision,System.currentTimeMillis(),captured)){
                     ReplayKnowledgeStoreR31.appendR31(b,d,capturedRevision,"NEW_INPUT_PINNED",System.currentTimeMillis());
                     submit(w, "REPLAY_DATASET", b,false,d.datasetHash+"|sourceRevision="+capturedRevision);
                 }
@@ -270,9 +271,9 @@ public final class RuntimeR27 implements AutoCloseable {
         }
     }
 
-    private static void publishRecoveredReplayKnowledgeR31(ResearchPoolR27.Worker worker,ResearchInputPinR30R1.Pin pin,String mode,long expectedGlobalRevision)throws InterruptedException{
+    private static void publishRecoveredReplayKnowledgeR31(ResearchPoolR27.Worker worker,ResearchInputPinR30R1.Pin pin,String mode)throws InterruptedException{
         ResearchWriteQueueR27.Batch metadata=new ResearchWriteQueueR27.Batch();
-        metadata.guardBefore(db->{ResearchInputPinR30R1.require(db,pin.data.datasetHash,pin.revision);if(expectedGlobalRevision>=0&&SchemaR27.liveSourceRevision(db)!=expectedGlobalRevision)throw new ResearchStoreR30R1.StaleResearch();return 0;});
+        metadata.guardBefore(db->{ResearchInputPinR30R1.require(db,pin.data.datasetHash,pin.revision);return 0;});
         ReplayKnowledgeStoreR31.appendR31(metadata,pin.data,pin.revision,mode,System.currentTimeMillis());
         submit(worker,"REPLAY_KNOWLEDGE_RECOVERY",metadata,false,pin.data.datasetHash+"|pinSourceRevision="+pin.revision);
     }

@@ -18,8 +18,7 @@ import java.util.*;
  */
 public final class ReportBudgetSU2 {
     private ReportBudgetSU2() {}
-    public static final long PUBLISHED_QUOTA_BYTES = 192L << 20;          // R31 published-report category target
-    public static final long PHYSICAL_REPORT_ADMISSION_BYTES = 4096L << 20; // also subject to the smaller app-wide shared grant
+    public static final long PUBLISHED_QUOTA_BYTES = 4L << 30;
     public static final long RECOVERY_DATABASE_LIMIT = 256L << 20;        // a DB copy is attached only on explicit raw request and below this size
     public static final int RECOVERY_KEEP = 3;                            // newest heavy recovery artefacts kept
     public static final long RECOVERY_MAX_AGE_MS = 24L * 60 * 60 * 1000;

@@ -2792,7 +2792,7 @@ public final class AutoFetchService extends Service {
         long backoffR30=FETCH_R30.consecutiveFailures()>0?FETCH_R30.nextDelayMs(false,Long.MIN_VALUE):1000L;
         String reason=FETCH_R30.consecutiveFailures()>0?"HTTP_FAILURE_OR_429_BACKOFF":"NORMAL_OR_PREVIOUS_WORK_OVERRUN";
         if(offlineStreakR31>0){backoffR30=Math.max(backoffR30,Math.min(15000L,1000L<<Math.min(4,offlineStreakR31-1)));reason="NETWORK_UNAVAILABLE_BACKOFF";}
-        long delay=fetchCadenceR31.nextDelay(android.os.SystemClock.elapsedRealtime(),backoffR30,reason,AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS);
+        long delay=fetchCadenceR31.nextDelay(android.os.SystemClock.elapsedRealtime(),backoffR30,reason,1L);
         heartbeatStateV8().markFetchCadenceR31(fetchCadenceR31.snapshot());
         fetchHandler.removeCallbacks(fetchLoop);
         fetchHandler.postDelayed(fetchLoop, delay);
@@ -2931,24 +2931,8 @@ public final class AutoFetchService extends Service {
             persistProviderFreshnessR3611("LATEST");
             Models.Draw authoritativeLatest = getAuthoritativeLatest(latestFromApi);
 
-            if (authoritativeLatest != null && authoritativeLatest.isValid()) {
-                saveLatestDrawState(authoritativeLatest, "latest");
-                broadcastDrawsUpdated(true);
-            }
-
-            List<Models.Draw> history = store.getRecentDraws(300);
-            ArrayList<Models.Draw> cleanHistory = dataGuard.normalizeHistory(history);
-
-            if (cleanHistory.size() > 0) {
-                Models.Draw lastClean = cleanHistory.get(cleanHistory.size() - 1);
-                if (isDrawNewer(lastClean, authoritativeLatest)) {
-                    authoritativeLatest = lastClean;
-                }
-                countdownClock.syncByHistory(cleanHistory);
-            } else {
-                countdownClock.syncByLatestDraw(authoritativeLatest, cleanHistory);
-            }
-
+            // getAuthoritativeLatest reads the newest committed clean draw after history ingest.
+            // The changed-draw callback samples the clock once per new issue.
             if (authoritativeLatest != null
                     && !safe(authoritativeLatest.issue).equals(dispatchedIssueR57[0])) {
                 handleLatestDrawAfterSave(authoritativeLatest, oldLatest, recovered, "latest");
@@ -3040,13 +3024,11 @@ public final class AutoFetchService extends Service {
 
         if (countdownClock != null) {
             try {
-                List<Models.Draw> history = store == null ? null : store.getRecentDraws(300);
-                ArrayList<Models.Draw> clean = dataGuard.normalizeHistory(history);
-
-                if (isNew) {
-                    countdownClock.onNewDrawArrived(authoritativeLatest, clean);
+                if (isNew || countdownClock.getCurrentIssue().isEmpty()) {
+                    ArrayList<Models.Draw> clean=dataGuard.normalizeHistory(store.getRecentDraws(300));
+                    countdownClock.onNewDrawArrived(authoritativeLatest,clean);
                 } else {
-                    countdownClock.syncByLatestDraw(authoritativeLatest, clean);
+                    countdownClock.syncByLatestDraw(authoritativeLatest,null);
                 }
             } catch (Throwable e) {
             }
@@ -3295,19 +3277,14 @@ public final class AutoFetchService extends Service {
                     store.setState("draw_history_backfill_error", safeError(historyFailure));
                 }
             }
-            store.setState("draw_save_error", "");
-
-            if (result.apiLine != null && result.apiLine.length() > 0) {
-                store.setState("api_line", result.apiLine);
-            }
-
-            Models.Draw latest = getAuthoritativeLatest(result.latestDraw);
-            if (latest != null && latest.isValid()) {
-                saveLatestDrawState(latest, "api_latest");
-            }
-
-            store.setState("draw_save_inserted", String.valueOf(inserted));
-            store.setState("draw_save_updated_at", String.valueOf(System.currentTimeMillis()));
+            java.util.Map<String,String> ingestState=new java.util.LinkedHashMap<>();
+            ingestState.put("draw_save_error","");
+            if(result.apiLine!=null&&!result.apiLine.isEmpty())ingestState.put("api_line",result.apiLine);
+            ingestState.put("draw_save_inserted",String.valueOf(inserted));
+            ingestState.put("draw_save_updated_at",String.valueOf(System.currentTimeMillis()));
+            store.setStates(ingestState);
+            Models.Draw latest=getAuthoritativeLatest(result.latestDraw);
+            if(latest!=null&&latest.isValid())saveLatestDrawState(latest,"api_latest");
             broadcastDrawsUpdated(true);
         } catch (Throwable e) {
             lastError = safeError(e);
@@ -11114,16 +11091,6 @@ public final class AutoFetchService extends Service {
                     SettlementTaskStoreR36.Terminal terminal =
                             SettlementTaskStoreR36.terminal(store, issue);
                     if (terminal != null) {
-                        heartbeatStateV8()
-                                .markSettlementTerminal(
-                                        issue,
-                                        terminal.status,
-                                        terminal.error.length() > 0
-                                                ? terminal.error
-                                                : (report == null ? error : report.detail),
-                                        terminal.completedAt > 0L
-                                                ? terminal.completedAt
-                                                : System.currentTimeMillis());
                         broadcastSettlementUpdated();
                     } else {
                         heartbeatStateV8().markSettlementRunning(issue, 1);

@@ -29,7 +29,7 @@ public final class FoundryCampaignR26 {
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
         // Wait before snapshot/codec work. This is the same main-process writer
         // backpressure; it never upgrades a data write into CONTROL or TELEMETRY.
-        if(WriterHoldFaultsR31.deferResearch())
+        if(WriterHoldFaultsR31.deferResearch() && !com.ethk3.novaonepro.DatabaseCoordinator.researchDataDueR335())
             throw new ModelPublicationR31.PublicationDependencyR31("R33_WAIT_WRITER_HOLD_FAULT_BACKLOG");
         ModelPublicationR31.requireSchemaR31(store.readable());HypothesisStoreR31.requireSchemaR31(store.readable());pruneFinishedR31(store,claims.get());final String numericalAbi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         try(WarmCandidateR26.PreparedAbiR31 abi=WarmCandidateR26.prepareAbiR31(store.readable(),numericalAbi);

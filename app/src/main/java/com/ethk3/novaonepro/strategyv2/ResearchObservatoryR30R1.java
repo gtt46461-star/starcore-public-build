@@ -98,12 +98,17 @@ public final class ResearchObservatoryR30R1 {
  }
  /** Same logical frame must keep its first original availability and measured cost on rediscovery. */
  @SuppressWarnings("unchecked") static ResearchWriteQueueR27.Batch productR335(SQLiteDatabase db,String view,String measure,EvalContextR27 c,long revision,Map<String,Object> frame,long costNs,long now){
-  classifyFrameR335(frame);String input=StatsR27.sha256(JsonR27.write(frame)),run=StatsR27.sha256(VERSION+"|R335|"+view+'|'+revision+'|'+input+'|'+BuildConfig.SOURCE_COMMIT_R26);String original=null;
-  try(Cursor q=db.rawQuery("SELECT summary_json,contract_hash,status FROM r30r1_analysis_run WHERE run_id=?",new String[]{run})){if(q.moveToFirst()){if(!input.equals(q.getString(1))||!"COMMITTED".equals(q.getString(2)))throw new IllegalStateException("R335_RESEARCH_IMMUTABLE_FRAME_DRIFT");original=q.getString(0);}}
-  if(original==null)return product(view,measure,c,revision,frame,costNs,now);
-  Map<String,Object> source=(Map<String,Object>)JsonR27.parse(original);Object raw=source.get("frame");if(!(raw instanceof Map)||!view.equals(source.get("viewId"))||!input.equals(source.get("inputHash"))||!input.equals(StatsR27.sha256(JsonR27.write(raw)))||!ResearchStoreR30R1.currentSource(BuildConfig.SOURCE_COMMIT_R26,original))throw new IllegalStateException("R335_RESEARCH_ORIGINAL_MISMATCH");
-  frame.clear();frame.putAll((Map<String,Object>)raw);String role=String.valueOf(frame.get("role"));frame.put("windowScope",role.equals("SELECT")?"ORIGINAL_SELECT_RESEARCH_WINDOW":role.equals("TRAIN")?"ORIGINAL_FIXED_TRAIN_PROBE_WINDOW":"INPUT_CONTEXT_ONLY_FORMAL_RECORDS_HAVE_THEIR_OWN_ORIGINAL_BOUNDARIES_NO_FORMAL_SCORE_DENOMINATOR_INFERRED");frame.put("runId",run);frame.put("originalMachineFrameSha256",input);frame.put("machineMeasure",measure);frame.put("computationNs",source.get("computationNs"));String payload=JsonR27.write(ResearchFrameBoundR30R1.project(frame)),hash=StatsR27.sha256(payload),originalHash=StatsR27.sha256(original);
-  ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();batch.guardBefore(tx->{ResearchInputPinR30R1.require(tx,c.data.datasetHash,revision);try(Cursor q=tx.rawQuery("SELECT summary_json FROM r30r1_analysis_run WHERE run_id=? AND status='COMMITTED'",new String[]{run})){return q.moveToFirst()&&originalHash.equals(StatsR27.sha256(q.getString(0)))?0:-1;}});batch.add("INSERT OR IGNORE INTO r30r1_chart_cache VALUES(?,?,?,?,?,?)",view,hash,run,payload,hash,now);return batch;
+  classifyFrameR335(frame);String input=StatsR27.sha256(JsonR27.write(frame)),run=StatsR27.sha256(VERSION+"|R335|"+view+'|'+revision+'|'+input+'|'+BuildConfig.SOURCE_COMMIT_R26);
+  try(Cursor q=db.rawQuery("SELECT contract_hash,status FROM r30r1_analysis_run WHERE run_id=?",new String[]{run})){
+   if(!q.moveToFirst())return product(view,measure,c,revision,frame,costNs,now);
+   if(!input.equals(q.getString(0))||!"COMMITTED".equals(q.getString(1)))throw new IllegalStateException("R335_RESEARCH_IMMUTABLE_FRAME_DRIFT");
+  }
+  ResearchOriginalR335 original=ResearchOriginalR335.read(db,run,null);
+  Map<String,Object> source=original.fields;
+  if(!view.equals(source.get("viewId"))||!input.equals(source.get("inputHash"))||!input.equals(original.frameHash))
+   throw new IllegalStateException("R335_RESEARCH_ORIGINAL_MISMATCH");
+  String role=String.valueOf(frame.get("role"));frame.put("windowScope",role.equals("SELECT")?"ORIGINAL_SELECT_RESEARCH_WINDOW":role.equals("TRAIN")?"ORIGINAL_FIXED_TRAIN_PROBE_WINDOW":"INPUT_CONTEXT_ONLY_FORMAL_RECORDS_HAVE_THEIR_OWN_ORIGINAL_BOUNDARIES_NO_FORMAL_SCORE_DENOMINATOR_INFERRED");frame.put("runId",run);frame.put("originalMachineFrameSha256",input);frame.put("machineMeasure",measure);frame.put("computationNs",source.get("computationNs"));String payload=JsonR27.write(ResearchFrameBoundR30R1.project(frame)),hash=StatsR27.sha256(payload),originalHash=original.originalHash;
+  ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();batch.guardBefore(tx->{ResearchInputPinR30R1.require(tx,c.data.datasetHash,revision);return originalHash.equals(ResearchOriginalR335.read(tx,run,null).originalHash)?0:-1;});batch.add("INSERT OR IGNORE INTO r30r1_chart_cache VALUES(?,?,?,?,?,?)",view,hash,run,payload,hash,now);return batch;
  }
  static final String SCHEDULER_R335="r335-research-scheduler";
  static int nextViewR335(SQLiteDatabase db,String key,int count){try(Cursor q=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{SCHEDULER_R335,key})){if(q.moveToFirst()){try{return Math.floorMod(Integer.parseInt(q.getString(0)),count);}catch(NumberFormatException corruptHint){return 0;}}}return 0;}
