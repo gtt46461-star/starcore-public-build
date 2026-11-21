@@ -6,7 +6,7 @@ Daemon will be stopped at the end of the build
 Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (Read-only file system)
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN e08ba328809af2d99ddb773f2db35fea2a4c0238 9a99b2064462e575bb32e9ea47f0f535f006cc4c
+R27_BUILD_IDENTITY_WRITTEN ca1508c58aceb1a0cdf406d41c4768d875fb2f44 fa790567396081fb9b07cc05d8ca7803d6dda142
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -22,16 +22,16 @@ CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
 SU2 production DDL: reproducible and executable
 
 > Task :app:generateR967Semantics
-R967_SEMANTIC_IDENTITY_GENERATED|4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0
+R967_SEMANTIC_IDENTITY_GENERATED|e641073d90a96a1f3e5d17949451ccdd7c9d2ed2a5f3c95d794c09d3a2a7a1eb
 
 > Task :app:verifyR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0
+R967_SEMANTIC_IDENTITY_VERIFIED|e641073d90a96a1f3e5d17949451ccdd7c9d2ed2a5f3c95d794c09d3a2a7a1eb
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=c1f0598405dffac20ae8dde025e95c21450864abe9a15f770255d1c584c6c54c|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=2169a25723ee6a8da581c2f24cafcebe71134f80768ad95bdcfb153664d12217|GENERATED_AT=2026-11-21T01:53:24Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=d337499640ca3612cc0e54a90a3749fedeadd8b3a07367820e2e58bb269f11c4|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=d0c71dea04161bb50e53bc29c012b2de320230bf4caf558e54de2046e510c946|GENERATED_AT=2026-11-21T02:23:00Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=c1f0598405dffac20ae8dde025e95c21450864abe9a15f770255d1c584c6c54c|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=2169a25723ee6a8da581c2f24cafcebe71134f80768ad95bdcfb153664d12217|GENERATED_AT=2026-11-21T01:53:24Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=d337499640ca3612cc0e54a90a3749fedeadd8b3a07367820e2e58bb269f11c4|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=d0c71dea04161bb50e53bc29c012b2de320230bf4caf558e54de2046e510c946|GENERATED_AT=2026-11-21T02:23:00Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
@@ -59,13 +59,11 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=c1f0598405dffac20ae8dde025e95c21450864abe
 > Task :app:mapDebugAndroidTestSourceSetPaths
 > Task :app:generateDebugAndroidTestResources FROM-CACHE
 > Task :app:mergeDebugAndroidTestResources FROM-CACHE
-> Task :app:processDebugAndroidTestResources
-> Task :app:preDebugUnitTestBuild
 > Task :app:processDebugResources
-> Task :app:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :app:processDebugAndroidTestResources
 
 > Task :app:compileDebugJavaWithJavac
-/workspace/r335r/checkouts/B05/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
+/workspace/r335s/checkouts/B05/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
 public strictfp final class DevelopmentTrainerCP9 {
                       ^
 Note: Some input files use or override a deprecated API.
@@ -82,10 +80,13 @@ Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
 > Task :app:verifyFinalR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0
+R967_SEMANTIC_IDENTITY_VERIFIED|e641073d90a96a1f3e5d17949451ccdd7c9d2ed2a5f3c95d794c09d3a2a7a1eb
 
 > Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=c1f0598405dffac20ae8dde025e95c21450864abe9a15f770255d1c584c6c54c|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=2169a25723ee6a8da581c2f24cafcebe71134f80768ad95bdcfb153664d12217|GENERATED_AT=2026-11-21T01:53:24Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=d337499640ca3612cc0e54a90a3749fedeadd8b3a07367820e2e58bb269f11c4|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=d0c71dea04161bb50e53bc29c012b2de320230bf4caf558e54de2046e510c946|GENERATED_AT=2026-11-21T02:23:00Z
+
+> Task :app:preDebugUnitTestBuild
+> Task :app:javaPreCompileDebugUnitTest FROM-CACHE
 
 > Task :app:compileDebugUnitTestJavaWithJavac
 Note: Some input files use unchecked or unsafe operations.
@@ -111,11 +112,11 @@ Warning: Unable to initialize metrics, ensure /home/agent/.android is writable, 
 > Task :app:lintReportDebug
 Lint found no new issues (and 51 errors filtered by baseline lint-baseline.xml)
 
-7 errors/warnings were listed in the baseline file (/workspace/r335r/checkouts/B05/app/lint-baseline.xml) but not found in the project; perhaps they have been fixed?
+7 errors/warnings were listed in the baseline file (/workspace/r335s/checkouts/B05/app/lint-baseline.xml) but not found in the project; perhaps they have been fixed?
 
 > Task :app:lintDebug
 
-[Incubating] Problems report is available at: file:///workspace/r335r/checkouts/B05/build/reports/problems/problems-report.html
+[Incubating] Problems report is available at: file:///workspace/r335s/checkouts/B05/build/reports/problems/problems-report.html
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
@@ -123,5 +124,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 12m 24s
+BUILD SUCCESSFUL in 18m 53s
 55 actionable tasks: 43 executed, 12 from cache

@@ -6,7 +6,7 @@ Daemon will be stopped at the end of the build
 Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (Read-only file system)
 
 > Task :app:generateR27BuildIdentity
-R27_BUILD_IDENTITY_WRITTEN 0dfc0b668332b4396be210336a042656d339432e f07759786c8b6877d6e308348c28a1c8a59c6d04
+R27_BUILD_IDENTITY_WRITTEN 82db6e5745b8d73911f8c221efc32f94c9854e13 4f8b20531abfff1f43271940320e8138d29e3335
 
 > Task :app:verifyR31Baseline
 > Task :app:generateR31BuildIdentity
@@ -22,23 +22,23 @@ CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
 SU2 production DDL: reproducible and executable
 
 > Task :app:generateR967Semantics
-R967_SEMANTIC_IDENTITY_GENERATED|4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0
+R967_SEMANTIC_IDENTITY_GENERATED|e641073d90a96a1f3e5d17949451ccdd7c9d2ed2a5f3c95d794c09d3a2a7a1eb
 
 > Task :app:verifyR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0
+R967_SEMANTIC_IDENTITY_VERIFIED|e641073d90a96a1f3e5d17949451ccdd7c9d2ed2a5f3c95d794c09d3a2a7a1eb
 
 > Task :app:generateR815Provenance
-R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=ba8e9285d99867711337b31a78b6e186e1775e00164ad061f966fe7a6225beaa|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=849a6e164246bbcdaaa0f42a4bc030abdc5dec3bc00f12b558d7b3d796f85b42|GENERATED_AT=2026-11-21T02:05:49Z
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=beeb1b56c43824d8bd5d1147602f8e4b152fb22949caaf8f3d82d628795c78a0|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=d4815171955ae4dd5750f1d3417fb8a30980a115b09abb7cfad622e55ac62064|GENERATED_AT=2026-11-21T02:41:36Z
 
 > Task :app:verifyR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=ba8e9285d99867711337b31a78b6e186e1775e00164ad061f966fe7a6225beaa|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=849a6e164246bbcdaaa0f42a4bc030abdc5dec3bc00f12b558d7b3d796f85b42|GENERATED_AT=2026-11-21T02:05:49Z
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=beeb1b56c43824d8bd5d1147602f8e4b152fb22949caaf8f3d82d628795c78a0|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=d4815171955ae4dd5750f1d3417fb8a30980a115b09abb7cfad622e55ac62064|GENERATED_AT=2026-11-21T02:41:36Z
 
 > Task :app:preBuild
 > Task :app:preDebugBuild
 > Task :app:generateDebugBuildConfig
 > Task :app:javaPreCompileDebug FROM-CACHE
-> Task :app:generateDebugResValues FROM-CACHE
 > Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues FROM-CACHE
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources FROM-CACHE
 > Task :app:mergeDebugResources FROM-CACHE
@@ -61,11 +61,12 @@ R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=ba8e9285d99867711337b31a78b6e186e1775e001
 > Task :app:mergeDebugAndroidTestResources FROM-CACHE
 > Task :app:processDebugAndroidTestResources
 > Task :app:preDebugUnitTestBuild
-> Task :app:processDebugResources
 > Task :app:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :app:processDebugResources
+> Task :app:processDebugJavaRes NO-SOURCE
 
 > Task :app:compileDebugJavaWithJavac
-/workspace/r335r/checkouts/B06/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
+/workspace/r335s/checkouts/B06/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
 public strictfp final class DevelopmentTrainerCP9 {
                       ^
 Note: Some input files use or override a deprecated API.
@@ -74,26 +75,24 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 1 warning
 
-> Task :app:bundleDebugClassesToRuntimeJar
-> Task :app:processDebugJavaRes NO-SOURCE
-> Task :app:processDebugUnitTestJavaRes
-> Task :app:extractProguardFiles
 > Task :app:bundleDebugClassesToCompileJar
-> Task :app:generateDebugLintReportModel
-
-> Task :app:verifyFinalR967Semantics
-R967_SEMANTIC_IDENTITY_VERIFIED|4c90a308619c89baf2f0efd7ba939bb969c835e2992900a55923c12bc650daf0
-
-> Task :app:verifyFinalR815Provenance
-R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=ba8e9285d99867711337b31a78b6e186e1775e00164ad061f966fe7a6225beaa|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=849a6e164246bbcdaaa0f42a4bc030abdc5dec3bc00f12b558d7b3d796f85b42|GENERATED_AT=2026-11-21T02:05:49Z
+> Task :app:bundleDebugClassesToRuntimeJar
 
 > Task :app:compileDebugAndroidTestJavaWithJavac
 Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
+> Task :app:verifyFinalR967Semantics
+R967_SEMANTIC_IDENTITY_VERIFIED|e641073d90a96a1f3e5d17949451ccdd7c9d2ed2a5f3c95d794c09d3a2a7a1eb
+
+> Task :app:verifyFinalR815Provenance
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=beeb1b56c43824d8bd5d1147602f8e4b152fb22949caaf8f3d82d628795c78a0|RESOURCE=95c0211426c2154e1acb430a0fc856b66d185574664c04b8aae3ca63a33875f3|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=d4815171955ae4dd5750f1d3417fb8a30980a115b09abb7cfad622e55ac62064|GENERATED_AT=2026-11-21T02:41:36Z
+
 > Task :app:compileDebugUnitTestJavaWithJavac
 Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
+
+> Task :app:processDebugUnitTestJavaRes
 
 > Task :app:testDebugUnitTest
 Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
