@@ -36,8 +36,8 @@ def main():
     save('CREATE_CONTROLLED_SIZE')
     import hashlib
     holder='r335_disposable_size_fixture'
-    # AOSP databases may use FULL auto-vacuum. Preserve that setting and retain a labelled
-    # size-only table in this fresh, isolated guest when dropping it would reclaim the pages.
+    # Keep the size-only rows until the external ZIP is verified. SQLite may reclaim pages
+    # at close, and a file of reclaimed pages is not a stable test input across devices.
     def available_kib(path):
         return int(f.adb('shell','df','-k',path).decode().splitlines()[-1].split()[3])
     record['guestFreeKiBBeforeFixture']=available_kib('/data')
@@ -60,11 +60,15 @@ def main():
     while int(sql('PRAGMA page_count'))*page<1373483008:
         sql("BEGIN; WITH RECURSIVE a(i) AS (VALUES(0) UNION ALL SELECT i+1 FROM a WHERE i<3) INSERT INTO "+holder+" SELECT zeroblob(4194304) FROM a; COMMIT")
         sql('PRAGMA wal_checkpoint(TRUNCATE)')
-    if vacuum!=1:sql("DROP TABLE "+holder)
     sql('PRAGMA wal_checkpoint(TRUNCATE)')
     size=int(sql('PRAGMA page_count'))*page
-    assert size>=1373483008 and int(sql('SELECT count(*) FROM draws'))==draws and schema()==original_schema and int(sql('PRAGMA auto_vacuum'))==vacuum
-    record.update(priorDbBytes=prior,controlledDbBytes=size,autoVacuum=vacuum,sizeOnlyTablePresent=vacuum==1,freePages=int(sql('PRAGMA freelist_count')),pageSize=page,unchangedDrawCount=draws,unchangedProductionSchemaSha256=original_schema)
+    record.update(priorDbBytes=prior,controlledDbBytes=size,autoVacuum=vacuum,
+                  sizeOnlyTablePresent=True,freePages=int(sql('PRAGMA freelist_count')),pageSize=page,
+                  targetReached=size>=1373483008,drawCountPreserved=int(sql('SELECT count(*) FROM draws'))==draws,
+                  schemaPreserved=schema()==original_schema,vacuumModePreserved=int(sql('PRAGMA auto_vacuum'))==vacuum)
+    save('VERIFY_CONTROLLED_SIZE')
+    assert all(record[key] for key in ('targetReached','drawCountPreserved','schemaPreserved','vacuumModePreserved'))
+    record.update(unchangedDrawCount=draws,unchangedProductionSchemaSha256=original_schema)
     kept='/data/user/0/'+f.PKG+'/files/r335-qa-retained-original'
     assert subprocess.run(['adb','shell','test','-e',kept]).returncode!=0
     f.adb('shell','truncate','-s','1073741824',kept)
@@ -81,7 +85,7 @@ def main():
     ui.request(1,set());result=ui.record['attempts'][0];record['attempt']=result;save('EXTERNAL_RECEIVER')
     assert kept_digest()==original and f.installed(f.EVID/'returned.txt',577311070)==(uid,expected)
     record['privateOriginalPreserved']=True
-    assert result.get('fullyVerifiedRawAndSystemPicker') and result.get('rawSnapshotBytes',0)>0 and result.get('archiveBytes',0)>0
+    assert result.get('fullyVerifiedRawAndSystemPicker') and result.get('rawSnapshotBytes',0)>=1373483008 and result.get('archiveBytes',0)>0
     record.update(passed=True);save('COMPLETE')
 try:
     main()
