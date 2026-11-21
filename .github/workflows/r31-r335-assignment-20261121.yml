@@ -1,0 +1,56 @@
+name: R33.5 final signed B08 read-only assignment transport on a normal fresh launch
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-assignment-20261121.yml', '.github/r335-assignment-transport/**']
+permissions: {}
+jobs:
+  upgrades:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - name: Download fixed signed release and verify test DEX
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -c 'import time,urllib.request,urllib.error; exec("for attempt in range(220):\n try:\n  urllib.request.urlopen(urllib.request.Request(\"https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-69eab914678b/SHA256SUMS.txt\",method=\"HEAD\"),timeout=30).close();break\n except OSError:time.sleep(35)\nelse:raise RuntimeError(\"final release not received\")")'
+          base="https://github.com/$GITHUB_REPOSITORY/releases/download/r335-B08-69eab914678b"
+          name=STARCORE-R33-577311058-69eab914678b-release.apk
+          curl -fLsS --retry 4 "$base/$name" -o "$RUNNER_TEMP/B08-release.apk"
+          curl -fLsS --retry 4 "$base/SHA256SUMS.txt" -o "$RUNNER_TEMP/SHA256SUMS.txt"
+          python3 -c 'import hashlib,os,pathlib,sys; t=pathlib.Path(os.environ["RUNNER_TEMP"]); rows=dict((n,s) for s,n in (v.split("  ",1) for v in (t/"SHA256SUMS.txt").read_text().splitlines())); assert hashlib.sha256((t/"B08-release.apk").read_bytes()).hexdigest()==rows[sys.argv[1]]' "$name"
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/B08-release.apk" > "$RUNNER_TEMP/registered-certificate.txt"
+          grep -q 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7' "$RUNNER_TEMP/registered-certificate.txt"
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 5120M
+          script: python3 -B .github/r335-assignment-transport/run.py
+      - name: Publish bounded assignment and UI-control states
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          result="$RUNNER_TEMP/numeric-diag/R335-assignment-transport-$GITHUB_RUN_ID.json"
+          test -s "$result"
+          test "$(stat -c %s "$result")" -lt 24000
+          gh release upload r335-B08-69eab914678b --repo "$GITHUB_REPOSITORY" "$result"
