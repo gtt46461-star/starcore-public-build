@@ -11,16 +11,16 @@ public final class ResearchTableAdaptersR30R1 {
   SQL.put("T05","SELECT run_id,measure_key,parent_hash,from_ordinal,to_ordinal,evaluated_calendar_issues,mean_gain,lower95,upper95,payload_json FROM r30r1_research_measure WHERE kind='ATOM_PAIRED_GAIN' ORDER BY run_id,measure_key");
   SQL.put("T06","SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='MOLECULE_SYNERGY' ORDER BY run_id,measure_key");
   SQL.put("T07","SELECT dataset_hash,probe_set_hash,signature,kept_policy,dropped_policy,stage,recorded_at FROM r30_behavior_dup ORDER BY recorded_at DESC,kept_policy,dropped_policy");
-  SQL.put("T08","SELECT generation,expert,proposal_json,policy_hash,recorded_at FROM r27_expert_proposal ORDER BY generation DESC,expert");
+  SQL.put("T08","SELECT generation,expert,proposal_json,policy_hash,recorded_at FROM r27_expert_proposal ORDER BY generation DESC,expert,policy_hash");
   // R31-B08-C05: R10 writes OPERATOR_GAIN_COST (ResearchMeasureKindR31); pre-R31 names are listed only as HISTORICAL rows.
-  SQL.put("T09","SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,CASE m.kind "+unitCases(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+" ELSE 'HISTORICAL_UNIT_UNVERIFIED' END AS unit,CASE WHEN m.kind IN ("+ResearchMeasureKindR31.sqlList(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+") THEN 'CURRENT' ELSE 'HISTORICAL' END AS tier,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ("+ResearchMeasureKindR31.sqlList(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+",'OPERATOR_COST','PARENT_CHILD_GAIN') ORDER BY r.recorded_at DESC,m.measure_key");
+  SQL.put("T09","SELECT r.run_id,r.role,r.policy_hash,m.measure_key,m.kind,CASE m.kind "+unitCases(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+" ELSE 'HISTORICAL_UNIT_UNVERIFIED' END AS unit,CASE WHEN m.kind IN ("+ResearchMeasureKindR31.sqlList(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+") THEN 'CURRENT' ELSE 'HISTORICAL' END AS tier,m.mean_gain,m.payload_json FROM r30r1_analysis_run r JOIN r30r1_research_measure m ON m.run_id=r.run_id WHERE m.kind IN ("+ResearchMeasureKindR31.sqlList(ResearchMeasureKindR31.OPERATOR_GAIN_COST,ResearchMeasureKindR31.PARENT_CHILD_PAIRED,ResearchMeasureKindR31.RESEARCH_BUDGET)+",'OPERATOR_COST','PARENT_CHILD_GAIN') ORDER BY r.recorded_at DESC,m.measure_key,r.run_id");
   SQL.put("T10","SELECT run_id,measure_key,parent_hash,payload_json FROM r30r1_research_measure WHERE kind='FUSION_COMPLEMENTARITY' ORDER BY run_id,measure_key");
   SQL.put("T11","SELECT target_ordinal,position,model_hash,history_hash,probabilities,probability_hash,trained_through_ordinal,model_available_at,feature_through_ordinal,frozen_at,deadline_at FROM r30_model_surface ORDER BY target_ordinal DESC,position,model_hash");
   SQL.put("T12","SELECT key AS policy_hash,payload_json,updated_at FROM r27_chart_cache WHERE panel_id='calibration-r30' ORDER BY key");
   SQL.put("T13","SELECT task_key,policy_hash,dataset_hash,block_id,state,verified,registration_state,registration_experiment_id,packet_json,result_json,'FORMAL_READ_ONLY' AS role FROM r30_frozen_confirm ORDER BY created_at DESC,task_key");
   SQL.put("T14","SELECT p.*,t.lane,t.status,t.blocked_reason FROM r30r1_task_progress p LEFT JOIN r26_task t ON t.task_id=p.task_id ORDER BY p.task_id");
   SQL.put("T15","SELECT p.proposal_id,p.run_id,p.parent_hash,p.kind,p.payload_json,p.state,p.reason,c.child_policy_hash,c.source_generation,c.consumer_version,c.receipt_hash,c.consumed_at FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id ORDER BY p.created_at DESC,p.proposal_id");
-  SQL.put("T16","SELECT issue,decision_key,entry_point,original_allow,original_reason,certificate_active,items_json,source_json,recorded_at,'FORMAL_READ_ONLY' AS role FROM r30_decision_explain ORDER BY recorded_at DESC,issue");
+  SQL.put("T16","SELECT issue,decision_key,entry_point,original_allow,original_reason,certificate_active,items_json,source_json,recorded_at,'FORMAL_READ_ONLY' AS role FROM r30_decision_explain ORDER BY recorded_at DESC,issue,decision_key,entry_point");
 }
  private static String unitCases(ResearchMeasureKindR31... kinds){StringBuilder b=new StringBuilder();for(ResearchMeasureKindR31 k:kinds)b.append("WHEN '").append(k.name()).append("' THEN '").append(k.unit).append("' ");return b.toString();}
  public static String query(String id){return SQL.get(id);}
@@ -40,12 +40,13 @@ public final class ResearchTableAdaptersR30R1 {
  }
  /** Shared actual reader for report export and the paged research-table screen. */
  public static Map<String,Object> readPageR31(android.database.sqlite.SQLiteDatabase db,String id,Map<String,String> filters,long offset,int size,android.os.CancellationSignal cancellation) {
-  Page query=page(id,filters,offset,size);Map<String,Object> out=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();
+  Page query=page(id,filters,offset,size);query.args[query.args.length-2]=Integer.toString(size+1);Map<String,Object> out=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();
   out.put("id",id);out.put("offset",offset);out.put("pageSize",size);out.put("filters",filters);out.put("readStartedAt",System.currentTimeMillis());out.put("readOnly",true);
-  long bytes=0;
+  long bytes=0;boolean more=false;boolean blockedAtStart=false;String capacityReason=null;Long before=sourceVersionR335(db,cancellation);
   try(android.database.Cursor cursor=db.rawQuery(query.sql,query.args,cancellation)) {
    while(cursor.moveToNext()) {
-    if(cancellation!=null)cancellation.throwIfCanceled();Map<String,Object> row=new LinkedHashMap<>();
+    if(cancellation!=null)cancellation.throwIfCanceled();if(rows.size()==size){more=true;break;}Map<String,Object> row=new LinkedHashMap<>();
+    String oversizedColumn=null;
     for(int column=0;column<cursor.getColumnCount();column++) {
      String name=cursor.getColumnName(column);Object value=null;
      if(!cursor.isNull(column))switch(cursor.getType(column)) {
@@ -53,10 +54,18 @@ public final class ResearchTableAdaptersR30R1 {
       case android.database.Cursor.FIELD_TYPE_FLOAT:value=cursor.getDouble(column);break;
       case android.database.Cursor.FIELD_TYPE_BLOB:value="BINARY_ORIGINAL_IN_SOURCE";break;
       case android.database.Cursor.FIELD_TYPE_NULL:break;
-      case android.database.Cursor.FIELD_TYPE_STRING:String raw=cursor.getString(column);if(raw.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("TABLE_CELL_BYTE_BUDGET:"+name);value=raw;break;
+      case android.database.Cursor.FIELD_TYPE_STRING:String raw=cursor.getString(column);if(raw.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144){oversizedColumn=name;break;}value=raw;break;
       default:throw new IllegalStateException("TABLE_CELL_UNKNOWN_TYPE:"+name);
      }
+     if(oversizedColumn!=null)break;
      row.put(name,value);
+    }
+    if(oversizedColumn!=null){
+     capacityReason="TABLE_CELL_BYTE_BUDGET:"+oversizedColumn;
+     out.put("truncatedReason",capacityReason);
+     blockedAtStart=rows.isEmpty();
+     more=!blockedAtStart||cursor.moveToNext();
+     break;
     }
     if("T09".equals(id)&&row.get("payload_json") instanceof String) {
      String kind=String.valueOf(row.get("kind"));
@@ -66,17 +75,33 @@ public final class ResearchTableAdaptersR30R1 {
      }
     }
     int rowBytes=JsonR27.write(row).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
-    if(bytes+rowBytes>524288){out.put("truncatedReason","TABLE_PAGE_BYTE_BUDGET");break;}bytes+=rowBytes;rows.add(row);
+    if(bytes+rowBytes>524288){
+     capacityReason="TABLE_FIRST_ROW_BYTE_BUDGET";
+     out.put("truncatedReason","TABLE_PAGE_BYTE_BUDGET");
+     blockedAtStart=rows.isEmpty();
+     more=!blockedAtStart||cursor.moveToNext();
+     break;
+    }
+    bytes+=rowBytes;rows.add(row);
    }
    // Two individually legal cells can still exceed one page. An unreadable
    // first row is a capacity failure, never evidence that the source is empty.
-   boolean firstRowBlocked=rows.isEmpty()&&out.containsKey("truncatedReason");
-   out.put("status",firstRowBlocked?"READ_ERROR":rows.isEmpty()?"EMPTY_NO_ROWS":"READ_OK");
-   if(firstRowBlocked)out.put("reason","TABLE_FIRST_ROW_BYTE_BUDGET");
+   out.put("status",blockedAtStart?"READ_ERROR":rows.isEmpty()?"EMPTY_NO_ROWS":"READ_OK");
+   if(blockedAtStart){
+    out.put("reason",capacityReason);
+    out.put("blockedOffset",offset);
+   }
   }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
    catch(RuntimeException error){out.put("status","READ_ERROR");out.put("reason",error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage()));}
-  out.put("rows",rows);out.put("shown",rows.size());out.put("hasMore",rows.size()==size||out.containsKey("truncatedReason"));out.put("bytes",bytes);out.put("readFinishedAt",System.currentTimeMillis());out.put("receiptSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
+  if(blockedAtStart||!"READ_ERROR".equals(out.get("status"))){String countSql="SELECT count(*) FROM ("+query.sql.substring(0,query.sql.lastIndexOf(" LIMIT ? OFFSET ?"))+")";String[] countArgs=Arrays.copyOf(query.args,query.args.length-2);try(android.database.Cursor count=db.rawQuery(countSql,countArgs,cancellation)){if(count.moveToFirst())out.put("totalMatchingRows",count.getLong(0));}Long after=sourceVersionR335(db,cancellation);out.put("readSourceVersion",before);out.put("sourceVersionStatus",versionStatusR335(before,after));out.put("totalCountObservedAt",System.currentTimeMillis());if(before==null||after==null)out.put("totalMatchingRowsScope","SEPARATE_LIVE_COUNT_NOT_ATOMIC_WITH_PAGE");if(versionChangedR335(before,after)){rows.clear();bytes=0;more=false;blockedAtStart=false;out.remove("blockedOffset");out.remove("truncatedReason");out.remove("totalMatchingRows");out.put("status","READ_RETRY_REQUIRED");out.put("reason","ORIGINAL_CHANGED_DURING_PAGE_AND_COUNT");}}
+  // A capacity error keeps its exact source offset. The next UI action moves
+  // past that one unreadable original only when the cursor saw a following row.
+  long nextOffset=Math.addExact(offset,blockedAtStart?1L:rows.size());
+  out.put("paginationConsistency","LIVE_OFFSET_PAGES_REFRESH_ON_SOURCE_CHANGE; NO_CROSS_REQUEST_SNAPSHOT_CLAIM");out.put("nextOffset",nextOffset);out.put("rows",rows);out.put("shown",rows.size());out.put("hasMore",more);out.put("bytes",bytes);out.put("readFinishedAt",System.currentTimeMillis());out.put("receiptSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
  }
+ private static Long sourceVersionR335(android.database.sqlite.SQLiteDatabase db,android.os.CancellationSignal cancellation){try(android.database.Cursor q=db.rawQuery("PRAGMA data_version",null,cancellation)){/* API21/22 SQLite predates this pragma: an empty cursor means unsupported, never version zero. */return q.moveToFirst()&&!q.isNull(0)?q.getLong(0):null;}}
+ static boolean versionChangedR335(Long before,Long after){return before!=null&&after!=null&&!before.equals(after);}
+ static String versionStatusR335(Long before,Long after){return before==null||after==null?"UNAVAILABLE_PLATFORM_PRAGMA_NO_SNAPSHOT_CLAIM":versionChangedR335(before,after)?"CHANGED_RETRY_REQUIRED":"OBSERVED_UNCHANGED_WITHIN_REQUEST_ONLY";}
  public static Set<String> ids(){return Collections.unmodifiableSet(SQL.keySet());}
  public static List<Map<String,Object>> contracts(){List<Map<String,Object>> out=new ArrayList<>();for(Map.Entry<String,String> e:SQL.entrySet()){Map<String,Object> m=new LinkedHashMap<>();m.put("id",e.getKey());m.put("sourceSql",e.getValue());m.put("owner","ORIGINAL_SOURCE_OWNER_AND_SchemaR27");m.put("filters",FILTERS_R31.getOrDefault(e.getKey(),Collections.<String>emptyList()));m.put("maxPage",(long)MAX_PAGE_R31);m.put("newPhysicalTable",false);m.put("displayIsFullDenominator",false);m.put("fullSource","verified snapshot.db; construction/r30-repair/RESEARCH_TABLE_CONTRACTS.json");out.add(m);}return Collections.unmodifiableList(out);}
 }
