@@ -1,0 +1,79 @@
+name: STARCORE raw checkpoint graph and independent provider readback
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-raw-closure-20261121.yml', '.github/r335-raw-closure/**']
+permissions: {}
+jobs:
+  upgrades:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: a724adbfb31dd96f1459aa2e5cbd94582dd6e82d
+          path: app-source
+          sparse-checkout: |
+            app/src
+            tools/r31
+            tools/r3251
+          persist-credentials: false
+      - name: Restore sealed observation tools and await final candidate
+        run: |
+          set -euo pipefail
+          git init -q plan-source
+          git -C plan-source sparse-checkout init --cone
+          git -C plan-source sparse-checkout set construction/plans/STARCORE_R33_5_REVIEW_20261119
+          git -C plan-source remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
+          git -C plan-source fetch --quiet --depth=1 --filter=blob:none origin 3f8495dd9405544597631349014b040a21640cb3
+          git -C plan-source checkout --quiet --detach FETCH_HEAD
+          curl -fsSL --retry 3 "https://github.com/$GITHUB_REPOSITORY/releases/download/r33.5-plan/33.5.zip" -o "$RUNNER_TEMP/plan.zip"
+          python3 -B plan-source/construction/plans/STARCORE_R33_5_REVIEW_20261119/prepare.py "$RUNNER_TEMP/plan.zip" "$RUNNER_TEMP/material"
+          python3 -B "$RUNNER_TEMP/material/current-review/runtime/prepare_tools.py" "$RUNNER_TEMP/material/STARCORE_R33_5_20261118" "$RUNNER_TEMP/tools"
+          python3 -c 'import time,urllib.request,urllib.error; exec("for attempt in range(220):\n try:\n  urllib.request.urlopen(urllib.request.Request(\"https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/SHA256SUMS.txt\",method=\"HEAD\"),timeout=30).close();break\n except OSError:time.sleep(35)\nelse:raise RuntimeError(\"final release not received\")")'
+      - name: Compile only the independent checkpoint reader
+        run: |
+          set -euo pipefail
+          cd app-source
+          export STARCORE_R33_PLAN_ROOT="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
+          export STARCORE_R33_REVIEW_ROOT="$RUNNER_TEMP/material/current-review"
+          ./gradlew --no-daemon --max-workers=2 :app:compileDebugJavaWithJavac
+          classes="$PWD/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+          android="$ANDROID_HOME/platforms/android-36/android.jar"
+          mkdir "$RUNNER_TEMP/closure-reader"
+          javac --release 8 -encoding UTF-8 -classpath "$classes:$android" -d "$RUNNER_TEMP/closure-reader" "$GITHUB_WORKSPACE/.github/r335-raw-closure/RawClosure.java"
+          jar cf "$RUNNER_TEMP/closure-classes.jar" -C "$RUNNER_TEMP/closure-reader" .
+          "$ANDROID_HOME/build-tools/36.0.0/d8" --min-api 26 --lib "$android" --classpath "$classes" --output "$RUNNER_TEMP/raw-closure-dex.jar" "$RUNNER_TEMP/closure-classes.jar"
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -B .github/r335-raw-closure/driver.py > "$RUNNER_TEMP/fullraw-private-console.txt" 2>&1
+      - name: Verify and publish numeric receipt
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/R335-raw-closure-$GITHUB_RUN_ID.json"
+          test -f "$output"
+          test "$(stat -c %s "$output")" -lt 300000
+          gh release upload r335-B08-a724adbfb31d --repo "$GITHUB_REPOSITORY" "$output"
