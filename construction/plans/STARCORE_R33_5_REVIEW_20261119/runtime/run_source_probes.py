@@ -29,11 +29,21 @@ def main():
     inputs = json.loads((review / 'production/REVIEW_INPUTS.json').read_bytes())
     owners = []
     for row in inputs['files']:
-        if row['stage'] != 'B02' or not row['path'].endswith('.java'):
+        if row['stage'] != 'B02':
             continue
         source = review / row['payload']
-        if sha(source) != row['sha256'] or receipt['inputs'][row['path']] != row['sha256']:
-            raise ValueError('SOURCE_OR_PREFIX_DIFFERS:' + row['path'])
+        if sha(source) != row['sha256']:
+            raise ValueError('REVIEW_IMAGE_DIFFERS:' + row['path'])
+        if row['path'].startswith('app/src/main/java/') and row['path'].endswith('.java'):
+            if receipt['inputs'][row['path']] != row['sha256']:
+                raise ValueError('SOURCE_OR_PREFIX_DIFFERS:' + row['path'])
+        else:
+            # Resources, the manifest and reviewed regression fixtures are part of the install.
+            # Only production Java appears in the javac input receipt.
+            installed = args.prefix / 'prefix_candidate' / row['path']
+            if not installed.is_file() or sha(installed) != row['sha256']:
+                raise ValueError('NON_JAVA_INSTALL_OR_TEST_SOURCE_DIFFERS:' + row['path'])
+            continue
         owners.append(str(source))
     java = args.java.resolve()
     with tempfile.TemporaryDirectory() as tmp:
