@@ -44,7 +44,10 @@ jobs:
           git init -q plan-source
           git -C plan-source sparse-checkout init --cone
           git -C plan-source sparse-checkout set construction/plans/STARCORE_R33_5_REVIEW_20261119
-          git -C plan-source fetch -q --depth=1 --filter=blob:none "$url" 6d23ddc26e2a827daca7efaf55801e90ccd5feb6
+          git -C plan-source remote add origin "$url"
+          git -C plan-source config remote.origin.promisor true
+          git -C plan-source config remote.origin.partialclonefilter blob:none
+          git -C plan-source fetch -q --depth=1 --filter=blob:none origin 6d23ddc26e2a827daca7efaf55801e90ccd5feb6
           git -C plan-source checkout -q --detach FETCH_HEAD
           curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r33.5-plan/33.5.zip" -o "$RUNNER_TEMP/33.5.zip"
           python3 -B plan-source/construction/plans/STARCORE_R33_5_REVIEW_20261119/prepare.py "$RUNNER_TEMP/33.5.zip" "$RUNNER_TEMP/material"
