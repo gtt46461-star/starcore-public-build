@@ -1,0 +1,7 @@
+gradle.beforeProject { p ->
+    if (p.path == ':app') {
+        p.pluginManager.withPlugin('com.android.application') {
+            p.android.sourceSets.getByName('androidTest').java.srcDir(System.getenv('R335_OWNER_TEST_DIR'))
+        }
+    }
+}
