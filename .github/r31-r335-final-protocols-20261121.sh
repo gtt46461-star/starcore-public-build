@@ -16,7 +16,6 @@ adb shell dumpsys package com.starcore.research.r13 > "$e/installed-package.txt"
 printf '%s\n' "$actual" > "$e/target-source-apk-sha256.txt"
 git rev-parse HEAD > "$e/source-commit.txt"
 adb shell pm grant com.starcore.research.r13 android.permission.POST_NOTIFICATIONS
-cp "$RUNNER_TEMP/android-test-build.log" "$raw/instrument-build.log"
 rc=0
 python3 -B tools/r31/run_android_joint_protocols.py --out "$raw/joint" --sandbox-prefix r335-052 > "$raw/joint-console.txt" 2>&1 || rc=$?
 python3 - "$raw/joint/JOINT-ANDROID-RECEIPT.json" "$e/protocol-counts.json" "$actual" "$rc" <<'PUBLIC'

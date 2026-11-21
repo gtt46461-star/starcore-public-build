@@ -83,8 +83,11 @@ jobs:
         run: |
           set -euo pipefail
           export STARCORE_R33_PLAN_ROOT="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
-          ./gradlew --no-daemon --max-workers=2 -Pr312Development=true -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$RUNNER_TEMP/android-test-build.log" 2>&1
           mkdir -p "$RUNNER_TEMP/protocol-candidate" "$RUNNER_TEMP/upgrade-evidence" "$RUNNER_TEMP/report-originals"
+          if ! ./gradlew --no-daemon --max-workers=2 -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$RUNNER_TEMP/report-originals/instrument-build.log" 2>&1; then
+            python3 -c 'import pathlib,os; p=pathlib.Path(os.environ["RUNNER_TEMP"]); (p/"upgrade-evidence"/"instrument-build-status.txt").write_text("Gradle test APK build failed. Original Gradle log is in the encrypted archive.\n")'
+            exit 1
+          fi
           cp app/build/outputs/apk/androidTest/debug/*-androidTest.apk "$RUNNER_TEMP/protocol-candidate/instrument-androidTest.apk"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/protocol-candidate/instrument-androidTest.apk" | grep -q 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
           python3 -c 'import time,urllib.request,urllib.error; exec("for attempt in range(220):\n try:\n  urllib.request.urlopen(urllib.request.Request(\"https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-9e186d256f8d/SHA256SUMS.txt\",method=\"HEAD\"),timeout=30).close();break\n except OSError:time.sleep(35)\nelse:raise RuntimeError(\"final release not received\")")'
