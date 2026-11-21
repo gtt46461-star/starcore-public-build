@@ -21,6 +21,16 @@ public final class LiveShadowsR27 {
      * strategy's real per-period record visible (docs/01: FUTURE evidence is collected, qualification is unchanged). */
     static final String OBSERVE_STATES = "('OBSERVE','OBSERVE_REPAIR1')";
 
+    /** Count the shadow and observer rosters that the pre-draw worker actually reads. */
+    public static int scheduledPolicyCount(SQLiteDatabase db, android.os.CancellationSignal cancel) {
+        String sql = "SELECT COUNT(*) FROM r27_live_shadow WHERE status IN " + LIVE_STATES
+                + " OR status IN " + OBSERVE_STATES;
+        try (Cursor result = db.rawQuery(sql, null, cancel)) {
+            result.moveToFirst();
+            return result.getInt(0);
+        }
+    }
+
     /** R29 r29_policy_defaults.freeze_margin_ms: a FUTURE freeze must be committed at least 5 s before the draw. */
     public static final long FREEZE_MARGIN_MS = 5000;
 

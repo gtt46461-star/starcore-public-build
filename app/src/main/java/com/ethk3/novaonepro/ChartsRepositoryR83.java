@@ -390,10 +390,8 @@ final class ChartsRepositoryR83 {
         }
         int m = EvidenceAccountingR31.multipleTestingCount(fullCandidates, rows.size());
         double zBonf = normalQuantile(1 - 0.05 / m);
-        int observers = 0, scheduled = 0;
-        try (Cursor c = db.rawQuery("SELECT COUNT(*) FROM r27_live_shadow WHERE status IN ('OBSERVE','ACTIVE','CONTROL_I00','CONTROL_NULL')", null, cancel)) {
-            if (c.moveToFirst()) scheduled = c.getInt(0);
-        }
+        int observers = 0;
+        int scheduled = com.ethk3.novaonepro.strategyv2.LiveShadowsR27.scheduledPolicyCount(db, cancel);
         for (Object[] r : rows) {
             String id = (String) r[0], base = r[1] == null || ((String) r[1]).isEmpty() ? id : (String) r[1], status = (String) r[3];
             int n = (Integer) r[4], k = (Integer) r[5], acts = (Integer) r[6], actHits = (Integer) r[7];
@@ -423,12 +421,22 @@ final class ChartsRepositoryR83 {
                     + "\n同时观察" + m + "个算法，校正后下沿 " + pct(lowerBonf) + "；需高于保本 " + pct(BREAK_EVEN) + "。结论：" + verdict));
         }
         points.sort((a, b) -> Double.compare(b.value, a.value));
-        String status = points.isEmpty() ? (scheduled == 0 ? "EMPTY_WAITING_FIRST_GENERATION" : "EMPTY_WAITING_FIRST_SETTLEMENT") : "READY";
+        String status = points.isEmpty() ? emptyAlgorithmBoardStatus(db, cancel, scheduled) : "READY";
         return new Panel(PAGE, "全部算法逐期实盘榜（每期冻结·开奖结算）", "BAR", "r27_live_frozen", rows.size() + "个算法有结算（其中观察" + observers + "个），当前每期跟踪" + scheduled + "个",
                 "进化出的最好" + com.ethk3.novaonepro.strategyv2.RuntimeR27.OBSERVE_CAP + "个算法和通过留出检验的影子，每一期开奖前都冻结预测、开奖后结算，"
                         + "并在最多一万期历史上回放训练。柱=逐期命中率（随机30%），竖线=95%区间。同时看" + m + "个算法，最好的那个偏高是正常的；"
                         + "多重比较校正后下沿仍高于" + pct(BREAK_EVEN) + "才算真优势。观察算法不参与真实出手，资格与证书规则不变。",
                 status, points, null);
+    }
+
+    private static String emptyAlgorithmBoardStatus(SQLiteDatabase db, CancellationSignal cancel, int scheduled) {
+        if (scheduled > 0) return "EMPTY_WAITING_FIRST_SETTLEMENT";
+        try (Cursor source = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r27_generation'", null, cancel)) {
+            if (!source.moveToFirst()) return "EMPTY_NO_SCHEDULED_STRATEGY";
+        }
+        try (Cursor generation = db.rawQuery("SELECT 1 FROM r27_generation LIMIT 1", null, cancel)) {
+            return generation.moveToFirst() ? "EMPTY_WAITING_OBSERVER_REGISTRATION" : "EMPTY_WAITING_FIRST_GENERATION";
+        }
     }
 
     private static String familyZh(String id) {
@@ -439,9 +447,12 @@ final class ChartsRepositoryR83 {
 
     private static String statusZh(String status) {
         switch (status) {
-            case "OBSERVE": return "逐期观察中";
-            case "OBSERVE_RETIRED": return "已退出前" + com.ethk3.novaonepro.strategyv2.RuntimeR27.OBSERVE_CAP + "（记录保留）";
-            case "ACTIVE": return "留出检验通过·实时影子";
+            case "OBSERVE":
+            case com.ethk3.novaonepro.strategyv2.RuntimeR27.OBSERVE: return "逐期观察中";
+            case "OBSERVE_RETIRED":
+            case com.ethk3.novaonepro.strategyv2.RuntimeR27.OBSERVE_RETIRED: return "已退出前" + com.ethk3.novaonepro.strategyv2.RuntimeR27.OBSERVE_CAP + "（记录保留）";
+            case "ACTIVE":
+            case "ACTIVE_REPAIR1": return "留出检验通过·实时影子";
             case "CONTROL_I00": return "随机基线对照";
             case "CONTROL_NULL": return "打乱标签对照";
             default: return status;

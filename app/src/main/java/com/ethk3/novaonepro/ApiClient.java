@@ -551,7 +551,6 @@ public final class ApiClient {
             conn.setUseCaches(false);
             conn.setDoInput(true);
             conn.setRequestProperty("Accept", "application/json,text/plain,*/*");
-            conn.setRequestProperty("Connection", "close");
             conn.setRequestProperty("User-Agent", buildUserAgent());
 
             int code = conn.getResponseCode();
@@ -627,7 +626,6 @@ public final class ApiClient {
             conn.setDoOutput(true);
             conn.setRequestProperty("Accept", "application/json,text/plain,*/*");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.setRequestProperty("Connection", "close");
             conn.setRequestProperty("User-Agent", buildUserAgent());
 
             byte[] data = jsonBody == null ? new byte[0] : jsonBody.getBytes("UTF-8");
