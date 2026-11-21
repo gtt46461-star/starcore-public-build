@@ -21,7 +21,7 @@ from host_runtime_fixture import compile_owned_platform
 from host_tool_support import dependencies, run
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--modes", default="stock-unknown,suite,writer-contention,rollback-cancel,io-debt,source-members,source-race,streaming-format,crash-chunk,lease-pending,resume-chunk,crash-members,member-lease-pending,resume-members,crash-publish,resume-publish")
+parser.add_argument("--modes", default="stock-unknown,suite,writer-contention,slow-preparation,rollback-cancel,io-debt,source-members,source-race,streaming-format,crash-chunk,lease-pending,resume-chunk,crash-members,member-lease-pending,resume-members,crash-publish,resume-publish")
 parser.add_argument("--out", type=Path, default=ROOT / "verification/r31/p01/history-import/current")
 parser.add_argument("--scratch-root", type=Path, help="Explicit real fixture filesystem; production free-floor/config stay unchanged")
 args = parser.parse_args()

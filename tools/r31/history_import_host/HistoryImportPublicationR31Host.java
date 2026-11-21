@@ -246,6 +246,31 @@ public final class HistoryImportPublicationR31Host {
         noOwners(dataRoot(database));
         System.out.println("HISTORY_CONTENDED_OWNER_PASS rows=160 jobs=1 repeated=0");
     }
+    static void slowStorageAfterFirstPage(DbStore store, File database) throws Exception {
+        migrate(store);
+        SQLiteDatabase db = store.readable();
+        AtomicBoolean delayed = new AtomicBoolean(false);
+        byte[] input = source(48, false);
+        String completion = HistoryImportR27.importCsv(store, new ByteArrayInputStream(input), () -> {
+            if (!delayed.get() && !db.inTransaction()
+                    && scalar(db, "SELECT count(*) FROM r31_history_import_run WHERE status='STAGING' AND cursor_line=16") == 1
+                    && delayed.compareAndSet(false, true)) {
+                // A genuinely elapsed wait outside the writer, after the first durable page.
+                try { Thread.sleep(32000); }
+                catch (InterruptedException stop) { Thread.currentThread().interrupt(); return true; }
+            }
+            return false;
+        });
+        check(delayed.get(), "did not observe the first saved page");
+        check(scalar(db, "SELECT count(*) FROM r31_history_import_run WHERE status='COMPLETE' AND cursor_line=48 AND imported_rows=48") == 1,
+                "slow I/O lost the same import job");
+        check(scalar(db, "SELECT count(*) FROM r31_history_import_row") == 48, "repeated staged rows");
+        String id = text(db, "SELECT job_id FROM r31_history_import_run");
+        check(completion.equals(HistoryImportR27.resumeSavedR31(store, id, () -> false)), "changed on reopen");
+        noOwners(dataRoot(database));
+        System.out.println("HISTORY_SLOW_PREPARATION_PASS rows=48 jobs=1 repeatRows=0");
+    }
+
     public static void main(String[] args)throws Exception{
         Class.forName("org.sqlite.JDBC");File database=new File(args[1]).getCanonicalFile();database.getParentFile().mkdirs();File root=dataRoot(database);new File(root,"files").mkdirs();
         if(!args[0].equals("stock-unknown"))HistoryPosixStatR31Host.install(args[2]);
@@ -257,6 +282,7 @@ public final class HistoryImportPublicationR31Host {
                     case "stock-unknown":stockUnknown(store,root);break;
                     case "suite":suite(store,database);break;
                     case "writer-contention":transientWriterDoesNotAbortImport(store,database);break;
+                    case "slow-preparation":slowStorageAfterFirstPage(store,database);break;
                     case "rollback-cancel":rollbackAndCancel(store,database);break;
                     case "io-debt":ioExitAndDebt(store,database);break;
                     case "source-members":sourceMembersAndGuards(store,database);break;

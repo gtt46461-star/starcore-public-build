@@ -3328,11 +3328,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java",
       "before_sha256": "",
-      "after_sha256": "2295456d37c5dd05c30dc3dc7dedb2484da6928accf4df89a6d172d0137bb7e5",
+      "after_sha256": "415a4ce8a810169eb4b0273eeb96b7b0c0a6c2c9e9bf01e2b6fe88aad37e5e7a",
       "before_role": "",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Resume only the same byte-authenticated CSV after a rolled-back writer rejection or expired owner. Retain the committed cursor and total, recheck ownership during retries, reuse the immutable private original and yield to live settlement."
+      "rationale": "Keep a live immutable CSV claim during slow file I/O; preserve the source, strictly fence commits and start a new claim at the durable cursor after a rolled-back expiry without taking over another owner."
     },
     {
       "after_role": "NUMERIC",
@@ -9269,7 +9269,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "ded24ee4f364a587366ab3591d5b7b2c98c91746b42e0d791f2ae72da4431535",
+  "reviewed_input_provenance_sha256": "85574944486ca9fd5bbf935b9657b4dac54b54514991af1d0122996eacfacc87",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /** R27-018 offline history import (docs/03 3.1). Each CSV row is compared with the database row of the same issue:
  * identical permutation → MATCH (nothing imported, the database stays the source); different → CONFLICT (listed,
@@ -146,7 +149,7 @@ public final class HistoryImportR27 {
         @Override public void close()throws IOException{reader.close();}
     }
     private static final class JobR31 {
-        String id,source,path,owner,abi,role;long fence,cursor,chunk,created,invalid,sourceBytes,renewAfterElapsed;boolean complete;
+        String id,source,path,owner,abi,role;long fence,cursor,chunk,created,invalid,sourceBytes;volatile long renewAfterElapsed;boolean complete;
     }
     private static JobR31 job(SQLiteDatabase db,String id) {
         try(Cursor c=db.rawQuery("SELECT source_hash,source_path,owner_epoch,fence,cursor_line,chunk_seq,created_at,invalid_rows,status,parser_abi,data_role,source_bytes FROM r31_history_import_run WHERE job_id=?",new String[]{id})){
@@ -222,6 +225,74 @@ public final class HistoryImportR27 {
                             new Object[]{now+LEASE_MS_R31,job.id,job.owner,job.fence});
                     return now+5000;
                 });
+    }
+
+    // The parser can wait on source and storage I/O outside SQLite. Refresh its
+    // live epoch independently; only the parser can advance or publish a cursor.
+    private static final class ImportLease implements AutoCloseable {
+        private static final ScheduledThreadPoolExecutor TIMER = newTimer();
+        private final DbStore store;
+        private final JobR31 job;
+        private final Thread parser = Thread.currentThread();
+        private final ScheduledFuture<?> wake;
+        private boolean closed;
+
+        private static ScheduledThreadPoolExecutor newTimer() {
+            ScheduledThreadPoolExecutor timer = new ScheduledThreadPoolExecutor(1, work -> {
+                Thread t = new Thread(work, "r335-history-lease");
+                t.setDaemon(true);
+                return t;
+            });
+            timer.setRemoveOnCancelPolicy(true);
+            timer.setKeepAliveTime(LEASE_MS_R31, TimeUnit.MILLISECONDS);
+            timer.allowCoreThreadTimeOut(true);
+            return timer;
+        }
+
+        ImportLease(DbStore store, JobR31 job) {
+            this.store = store;
+            this.job = job;
+            wake = TIMER.scheduleWithFixedDelay(this::refresh, 5, 5, TimeUnit.SECONDS);
+        }
+
+        private synchronized void refresh() {
+            if (closed || !parser.isAlive() || parser.isInterrupted()
+                    || android.os.SystemClock.elapsedRealtime() < job.renewAfterElapsed) return;
+            try {
+                DatabaseCoordinator.WriteContext ctx = DatabaseCoordinator.WriteContext.of(
+                        DatabaseCoordinator.WriteClass.RESEARCH_CONTROL, "R31_HISTORY_IMPORT_RENEW")
+                        .withDeadlineMonoMs(TimeSourceR811.monoNowMs() + 200);
+                long next = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(ctx, db -> {
+                    long now = android.os.SystemClock.elapsedRealtime();
+                    // Match the still-live owner. A competing claim or an expired
+                    // lease requires normal fenced reentry on the parser thread.
+                    db.execSQL("UPDATE r31_history_import_run SET lease_elapsed_ms=? WHERE job_id=? " +
+                            "AND source_hash=? AND owner_epoch=? AND fence=? AND owner_boot=? " +
+                            "AND status='STAGING' AND lease_elapsed_ms>?", new Object[]{
+                            now + LEASE_MS_R31, job.id, job.source, job.owner, job.fence,
+                            IssueTimelineWriterR30.bootId(), now});
+                    try (Cursor changed = db.rawQuery("SELECT changes()", null)) {
+                        return changed.moveToFirst() && changed.getInt(0) == 1 ? now + 5000 : 0L;
+                    }
+                });
+                if (next > 0) job.renewAfterElapsed = next;
+            } catch (DatabaseCoordinator.WriteRejectedR31 rejected) {
+                if (!temporaryWriterFailure(rejected))
+                    android.util.Log.w("HistoryImportR27", "History lease refresh deferred", rejected);
+            }
+        }
+
+        @Override public synchronized void close() {
+            closed = true;
+            wake.cancel(false);
+        }
+    }
+
+    private static boolean lostCursorLease(DatabaseCoordinator.WriteRejectedR31 failure) {
+        Throwable cause = failure.getCause();
+        return failure.commitOutcome == DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                && cause instanceof DependencyR31
+                && "HISTORY_IMPORT_STALE_OWNER_OR_CURSOR".equals(cause.getMessage());
     }
 
     private static void verifySource(DbStore store,JobR31 job,BooleanSupplier work)throws Exception {
@@ -500,39 +571,56 @@ public final class HistoryImportR27 {
             if(saved!=null)verifySource(store,saved,cancelled);
             // Validate the immutable private snapshot before creating a durable reference to it.
             try(CsvR31 header=new CsvR31(new FileInputStream(privatePath(store,source.path)))){header.header(cancelled);}
-            JobR31 job=claim(store,source,cancelled);
-            if(job.complete)return completedMessage(store.readable(),job.id);
-            BooleanSupplier work=()->{
-                if(Thread.currentThread().isInterrupted()||cancelled.getAsBoolean())return true;
-                try {renewIfDue(store,job,cancelled);return false;}
-                catch(InterruptedException stopped){return true;}
-            };
-            try{
-                verifySource(store,job,work);
-                try(CsvR31 csv=new CsvR31(new FileInputStream(privatePath(store,job.path)))){
-                    csv.header(work);long line=0;
-                    while(line<job.cursor){checkCancelled(work);if(csv.next(work)==null)throw new IllegalStateException("HISTORY_CURSOR_PAST_SOURCE");line++;}
-                    boolean eof=false;
-                    while(!eof){List<RowR31> rows=new ArrayList<>(CHUNK_ROWS_R31);long invalid=0,from=line;
-                        for(int count=0;count<CHUNK_ROWS_R31;count++){
-                            checkCancelled(work);String[] fields=csv.next(work);if(fields==null){eof=true;break;}line++;
-                            if(fields[0].isEmpty()&&fields[1].isEmpty()&&fields[2].isEmpty())continue;
-                            if(!"OK".equals(fields[3])){invalid++;continue;}
-                            if(!"1".equals(fields[2]))continue; // Preserve the source format's explicit valid=1 role.
-                            RowR31 row=parse(fields,line);if(row==null)invalid++;else rows.add(row);
-                        }
-                        if(line==from)break;
-                        for(;;){try{chunk(store,job,rows,line,invalid,cancelled);break;}catch(RuntimeException failure){if(!rollbackRetry(failure))throw failure;checkCancelled(work);}}
+            for (;;) {
+                JobR31 job = claim(store, source, cancelled);
+                if (job.complete) return completedMessage(store.readable(), job.id);
+                try {
+                    return consumeClaim(store, job, cancelled);
+                } catch (DatabaseCoordinator.WriteRejectedR31 failure) {
+                    if (!lostCursorLease(failure)) throw failure;
+                    JobR31 durable = job(store.readable(), job.id);
+                    if (durable == null || !job.source.equals(durable.source)) throw failure;
+                    if (durable.complete) return completedMessage(store.readable(), durable.id);
+                    if (durable.fence != job.fence || !job.owner.equals(durable.owner)) throw failure;
+                    // Drop every prepared batch. A new claim checks the same file
+                    // again and resumes its persisted cursor under a fresh fence.
+                    checkCancelled(cancelled);
+                }
+            }
+        }
+    }
+
+    private static String consumeClaim(DbStore store, JobR31 job, BooleanSupplier cancelled) throws Exception {
+        BooleanSupplier work=()->{
+            if(Thread.currentThread().isInterrupted()||cancelled.getAsBoolean())return true;
+            try {renewIfDue(store,job,cancelled);return false;}
+            catch(InterruptedException stopped){return true;}
+        };
+        try(ImportLease lease=new ImportLease(store,job)){
+            verifySource(store,job,work);
+            try(CsvR31 csv=new CsvR31(new FileInputStream(privatePath(store,job.path)))){
+                csv.header(work);long line=0;
+                while(line<job.cursor){checkCancelled(work);if(csv.next(work)==null)throw new IllegalStateException("HISTORY_CURSOR_PAST_SOURCE");line++;}
+                boolean eof=false;
+                while(!eof){List<RowR31> rows=new ArrayList<>(CHUNK_ROWS_R31);long invalid=0,from=line;
+                    for(int count=0;count<CHUNK_ROWS_R31;count++){
+                        checkCancelled(work);String[] fields=csv.next(work);if(fields==null){eof=true;break;}line++;
+                        if(fields[0].isEmpty()&&fields[1].isEmpty()&&fields[2].isEmpty())continue;
+                        if(!"OK".equals(fields[3])){invalid++;continue;}
+                        if(!"1".equals(fields[2]))continue; // Preserve the source format's explicit valid=1 role.
+                        RowR31 row=parse(fields,line);if(row==null)invalid++;else rows.add(row);
                     }
+                    if(line==from)break;
+                    for(;;){try{chunk(store,job,rows,line,invalid,cancelled);break;}catch(RuntimeException failure){if(!rollbackRetry(failure))throw failure;checkCancelled(work);}}
                 }
-                publish(store,job,cancelled,work);return completedMessage(store.readable(),job.id);
-            }finally{
-                // A cancelled or failed worker has really left its parser/writer before surrendering this epoch.
-                if(!job.complete&&!Thread.currentThread().isInterrupted()){
-                    try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_HISTORY_IMPORT_RELEASE").withDeadlineMonoMs(TimeSourceR811.monoNowMs()+200),db->{
-                        db.execSQL("UPDATE r31_history_import_run SET lease_elapsed_ms=0 WHERE job_id=? AND owner_epoch=? AND fence=? AND status='STAGING'",new Object[]{job.id,job.owner,job.fence});return 0;
-                    });}catch(RuntimeException releasePending){/* The bounded lease still expires; it is never mistaken for a completed manifest. */}
-                }
+            }
+            publish(store,job,cancelled,work);return completedMessage(store.readable(),job.id);
+        }finally{
+            // A cancelled or failed worker has really left its parser/writer before surrendering this epoch.
+            if(!job.complete&&!Thread.currentThread().isInterrupted()){
+                try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_HISTORY_IMPORT_RELEASE").withDeadlineMonoMs(TimeSourceR811.monoNowMs()+200),db->{
+                    db.execSQL("UPDATE r31_history_import_run SET lease_elapsed_ms=0 WHERE job_id=? AND owner_epoch=? AND fence=? AND status='STAGING'",new Object[]{job.id,job.owner,job.fence});return 0;
+                });}catch(RuntimeException releasePending){/* The bounded lease still expires; it is never mistaken for a completed manifest. */}
             }
         }
     }
