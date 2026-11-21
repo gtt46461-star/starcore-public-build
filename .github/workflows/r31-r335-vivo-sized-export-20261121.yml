@@ -48,7 +48,7 @@ jobs:
           classes="$PWD/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
           android="$ANDROID_HOME/platforms/android-36/android.jar"
           mkdir "$RUNNER_TEMP/closure-reader"
-          javac --release 8 -encoding UTF-8 -classpath "$classes:$android" -d "$RUNNER_TEMP/closure-reader" "$GITHUB_WORKSPACE/.github/r335-vivo-sized-export/RawClosure.java"
+          javac --release 8 -encoding UTF-8 -classpath "$classes:$android" -d "$RUNNER_TEMP/closure-reader" "$GITHUB_WORKSPACE/.github/r335-vivo-final-export/RawClosure.java"
           jar cf "$RUNNER_TEMP/closure-classes.jar" -C "$RUNNER_TEMP/closure-reader" .
           "$ANDROID_HOME/build-tools/36.0.0/d8" --min-api 26 --lib "$android" --classpath "$classes" --output "$RUNNER_TEMP/raw-closure-dex.jar" "$RUNNER_TEMP/closure-classes.jar"
       - name: Store the standalone verification class
