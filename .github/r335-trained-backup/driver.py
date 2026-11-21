@@ -2,6 +2,8 @@
 from contextlib import redirect_stderr, redirect_stdout
 import hashlib,importlib.util,json,os,re,sqlite3,subprocess,traceback
 from pathlib import Path
+import time
+import zipfile
 
 temp=Path(os.environ['RUNNER_TEMP'])
 workspace=Path(os.environ['GITHUB_WORKSPACE'])
@@ -13,6 +15,35 @@ doc=dict(runId=run,scope='CONTROLLED_TRAINING_CHECKPOINT_IN_GENUINE_FULL_RAW_UI_
          trainedAndReopened=False,phase='START')
 def verify(v,code):
     if not v:raise ValueError(code)
+def catalog_observation(reader, archive):
+    contract=json.loads((temp/'material/STARCORE_R33_5_20261118/B01/scripts/report_expected_ids_r334.json').read_bytes())
+    known=set(contract['checks'])
+    assert len(known)==96
+    result={'incompleteCheckIds':[],'errorKinds':{},'catalogPages':0,'observedChecks':0}
+    states={'EXECUTED','READ_ERROR','UNCOMPUTED','NOT_RUN','MISSING','CONDITIONAL','NO_DATA','OBSERVED','PASS','FAIL','SKIP'}
+    with zipfile.ZipFile(archive) as z:
+        footer=json.loads(z.read('ARCHIVE_MANIFEST.jsonl').splitlines()[-1])
+        assert footer['kind']=='footer'
+        for key in ('evidence_complete','checks_complete'):
+            assert type(footer[key])==bool
+            result[key]=footer[key]
+        for name in z.namelist():
+            if not re.fullmatch(r'catalog-[0-9]{4,}\.jsonl',name):continue
+            result['catalogPages']+=1
+            with z.open(name) as records:
+                for line in records:
+                    row=json.loads(line)
+                    kind=row.get('kind')
+                    if kind in ('table_error','index_error','catalog_error'):
+                        counts=result['errorKinds']
+                        counts[kind]=counts.get(kind,0)+1
+                    if kind!='check_result':continue
+                    check=row['id'];assert check in known
+                    result['observedChecks']+=1
+                    if row.get('completes_contract') is not True:
+                        state=row.get('execution_state')
+                        result['incompleteCheckIds'].append({'id':check,'executionState':state if state in states else 'OTHER'})
+    return result
 def main():
     spec=importlib.util.spec_from_file_location('native_reader',workspace/'.github/r335-raw-closure/driver.py')
     n=importlib.util.module_from_spec(spec);spec.loader.exec_module(n);f=n.field;pkg=f.PKG
@@ -42,9 +73,14 @@ def main():
     (f.EVID/'B08').mkdir(exist_ok=True)
     f.adb('shell','pm','grant',pkg,'android.permission.POST_NOTIFICATIONS')
     f.adb('shell','am','start','-W','-n',f.ACTIVITY)
+    time.sleep(75)
     f.safe_reports('B08',1,doc['sourceCommit'])
     observation=n.observe_native(f.NATIVE/'B08/1',1,set());doc['attempt']=observation
-    verify(observation.get('fullyVerifiedRawAndSystemPicker') and observation['checkpointBodies']>0 and observation['checkpointBytes']>0 and observation['uniqueSnapshotRoots']>0,'NONEMPTY_RAW_GRAPH_AND_SAF')
+    archive=n.private/'1/external/joined.zip'
+    if not archive.is_file():archive=n.private/'1/joined.zip'
+    verify(f.fingerprint(archive)==observation['archiveSha256'],'ARCHIVE_SHA')
+    doc['catalogFooter']=catalog_observation(n,archive)
+    verify(observation.get('actualSystemPicker') and observation.get('fullRawClosureReplayed') and observation['checkpointBodies']>0 and observation['checkpointBytes']>0 and observation['uniqueSnapshotRoots']>0,'NONEMPTY_RAW_GRAPH_AND_SAF')
     db=n.private/('closure-'+observation['jobId'])/'snapshot.db'
     verify(f.fingerprint(db)==observation['rawSnapshotSha256'],'REOPENED_SNAPSHOT')
     with sqlite3.connect(db.as_uri()+'?mode=ro&immutable=1',uri=True) as c:
@@ -53,11 +89,13 @@ def main():
         cert=c.execute('SELECT count(*) FROM su2_certificate').fetchone()[0]
     verify(consumed==1 and live==1 and cert==0,'TRAINING_CURSOR_CHECKPOINT_BINDING')
     verify(f.installed(f.EVID/'trained-backup-returned-package.txt',577311065)==identity,'FINAL_TARGET')
-    doc.update(trainedAndReopened=True,consumedCheckpoints=consumed,liveModelWithExactCheckpoint=live,certificatesInControlledSnapshot=cert,phase='DONE')
+    doc.update(consumedCheckpoints=consumed,liveModelWithExactCheckpoint=live,certificatesInControlledSnapshot=cert)
+    verify(observation['fullyVerifiedRawAndSystemPicker'] and observation['strictStatus']=='ARTIFACT_CONSISTENT','ORIGINAL_ARCHIVE_VERIFIER_REFUSED')
+    doc.update(trainedAndReopened=True,phase='DONE')
 with (temp/'trained-backup-private.log').open('w') as private,redirect_stderr(private),redirect_stdout(private):
     try:main()
     except Exception as error:
-        allowed={'GUEST','FRESH_GUEST','APK_SHA','INSTALLED_APK','NATIVE_TRAINING_TEST','CHECKPOINT_KEY','NONEMPTY_RAW_GRAPH_AND_SAF','REOPENED_SNAPSHOT','TRAINING_CURSOR_CHECKPOINT_BINDING','FINAL_TARGET'}
+        allowed={'GUEST','FRESH_GUEST','APK_SHA','INSTALLED_APK','NATIVE_TRAINING_TEST','CHECKPOINT_KEY','NONEMPTY_RAW_GRAPH_AND_SAF','REOPENED_SNAPSHOT','TRAINING_CURSOR_CHECKPOINT_BINDING','FINAL_TARGET','ARCHIVE_SHA','ORIGINAL_ARCHIVE_VERIFIER_REFUSED'}
         doc['failureCode']=str(error) if str(error) in allowed else type(error).__name__
         doc['failureLineNumbers']=[f.lineno for f in traceback.extract_tb(error.__traceback__) if Path(f.filename).name=='driver.py']
 (temp/('R335-trained-backup-'+str(run)+'.json')).write_text(json.dumps(doc,indent=2)+'\n')
