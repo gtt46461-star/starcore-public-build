@@ -196,6 +196,11 @@ public final class RuntimeR27 implements AutoCloseable {
     final class DatasetTask implements ResearchPoolR27.Task {
         public String id() { return "r27-replay-dataset"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            // Same process gate as the writer. Avoid re-decoding a 1MiB pinned
+            // original while its metadata commit is known to be inadmissible.
+            // The actual writer still rechecks, so a race remains fail-closed.
+            if(WriterHoldFaultsR31.deferResearch())
+                return ResearchPoolR27.Outcome.idle("DEPENDENCY(WRITER_HOLD_FAULT_BACKLOG)",0,-1);
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
             ReplayDatasetR27 cur = pendingData != null ? pendingData : evoData;
