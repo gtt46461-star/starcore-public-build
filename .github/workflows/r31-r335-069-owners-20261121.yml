@@ -86,6 +86,7 @@ jobs:
           cp "$GITHUB_WORKSPACE/.github/r335-trained-backup/R335TrainedBackupTest.java" "$dest/strategyv2"
           python3 -B "$GITHUB_WORKSPACE/.github/r335-vivo-gallery/paired_fixture.py"
           cp "$GITHUB_WORKSPACE/.github/r335-vivo-checkpoints/R335MigratedPublicationTest.java" "$dest/strategyv2"
+          python3 -B "$GITHUB_WORKSPACE/.github/r335-069-owners/append_case.py" "$dest/strategyv2/R335MigratedPublicationTest.java"
           cp "$GITHUB_WORKSPACE/.github/r335-vivo-checkpoints/R335FeedbackCursorTest.java" "$dest"
           cp "$GITHUB_WORKSPACE/.github/r335-feedback-idempotence/R335DuplicateFeedbackTest.java" "$dest/strategyv2"
           cp "$GITHUB_WORKSPACE/.github/r335-workbench-render/R335WorkbenchRenderTest.java" "$dest/strategyv2"

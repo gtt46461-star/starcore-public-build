@@ -19,8 +19,11 @@ def request(seq,known):
     before=n.ui.acknowledgements()
     if not n.tap(lambda node: node.get('text')=='另存完整原始备份（体积大）' and node.get('enabled')=='true',15):
         raise RuntimeError('RAW_MENU_NOT_CLICKED')
-    if '另存完整原始备份（体积大）' in n.labels():
-        raise RuntimeError('RAW_MENU_DID_NOT_DISMISS')
+    dismissal_deadline = time.monotonic() + 20
+    while '另存完整原始备份（体积大）' in n.labels():
+        if time.monotonic() >= dismissal_deadline:
+            raise RuntimeError('RAW_MENU_DID_NOT_DISMISS')
+        time.sleep(0.4)
     deadline=time.monotonic()+1200
     row['phase']='WAIT_PUBLICATION';save()
     while time.monotonic()<deadline:

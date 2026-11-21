@@ -32,7 +32,7 @@ def cases():
       'R335FeedbackCursorTest':['missingOptionalTableDoesNotBlockEligibleFeedback','sidecarStillFindsMissingClosuresAfterFeedbackTableAppears'],
       'strategyv2.R335DuplicateFeedbackTest':['confirmedDrawAdvancesOneTrainingCursorAndGrantsNoNaturalAuthority','missingPredrawUsesTheSoleTerminalAndKeepsTheOriginalDrawLabel'],
       'strategyv2.R335WorkbenchRenderTest':['realRenderedPanelsDoNotWriteBirthsOrResearchActions'],
-      'strategyv2.R335MigratedPublicationTest':['failedLookCreatesFreshBoundedResearchAndAtomicCursorWithoutInheritedQuality','completedCandidatePublishesBeforePeersAndFutureLabelRequiresTerminalFeedback','forgedCompletionCannotAllocateFutureQualification','expertPairTrainingReceiptsCommitWithBothModelsAndRollbackWithCheckpoint','mixedStatisticalAndGradientExpertRowsRollbackAsOnePair'],
+      'strategyv2.R335MigratedPublicationTest':['observedCoverageFailurePersistsTwoBirthsAndTrainsTheDistinctChild','failedLookCreatesFreshBoundedResearchAndAtomicCursorWithoutInheritedQuality','completedCandidatePublishesBeforePeersAndFutureLabelRequiresTerminalFeedback','forgedCompletionCannotAllocateFutureQualification','expertPairTrainingReceiptsCommitWithBothModelsAndRollbackWithCheckpoint','mixedStatisticalAndGradientExpertRowsRollbackAsOnePair'],
       'R30ChartsAndroidTest':['allFourteenLegacyAndTwoSnapshotChartsOpenInThreeStatesAndSaveScreenshots']}
     for cls,methods in tests.items():
         for method in methods:
