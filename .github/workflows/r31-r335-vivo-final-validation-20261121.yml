@@ -86,6 +86,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/protocol-candidate" "$RUNNER_TEMP/upgrade-evidence" "$RUNNER_TEMP/report-originals"
           if ! ./gradlew --no-daemon --max-workers=2 -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$RUNNER_TEMP/report-originals/instrument-build.log" 2>&1; then
             python3 -c 'import pathlib,os; p=pathlib.Path(os.environ["RUNNER_TEMP"]); (p/"upgrade-evidence"/"instrument-build-status.txt").write_text("Gradle test APK build failed. Original Gradle log is in the encrypted archive.\n")'
+            python3 "$GITHUB_WORKSPACE/.github/r335-vivo-final-validation/gradle_result.py"
             exit 1
           fi
           cp app/build/outputs/apk/androidTest/debug/*-androidTest.apk "$RUNNER_TEMP/protocol-candidate/instrument-androidTest.apk"
