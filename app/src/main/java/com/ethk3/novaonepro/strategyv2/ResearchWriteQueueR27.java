@@ -146,7 +146,7 @@ public final class ResearchWriteQueueR27 {
         if(store!=null){frozen=new Batch();for(Op op:batch.ops)frozen.ops.add(new Op(op.sql,op.args));frozen.before=batch.before;frozen.after=batch.after;}
         final Batch prepared=frozen;long bytes=0;boolean ddl=false;for(Op op:prepared.ops){bytes+=bindBytesR31(op.args);ddl|=ddlR31(op.sql);}
         inventoryR31(operation,prepared.ops.size(),bytes,prepared.ops.size()>64||bytes>Math.min(262144L,Runtime.getRuntime().maxMemory()/512L),true,ddl);
-        return submitAttemptR31(cancelled,freezeWrite,()->writer.write(operation,prepared));
+        return submitAttemptR31(cancelled,freezeWrite,false,()->writer.write(operation,prepared));
     }
     public boolean submit(String operation,ImmutableBatch batch,java.util.function.BooleanSupplier cancelled) {
         return submit(operation,batch,cancelled,false);
@@ -156,16 +156,17 @@ public final class ResearchWriteQueueR27 {
         if(batch.isEmpty())return true;
         inventoryR31(operation,batch.opCount,batch.bindBytes,batch.overInitialBudget,false,batch.containsDdl);
         if(batch.containsDdl)throw new DatabaseCoordinator.WriteRejectedR31("DEPENDENCY","R27_"+operation,"SCHEMA_PENDING",DatabaseCoordinator.CommitOutcome.ROLLED_BACK,new IllegalStateException("R31_RUNTIME_DDL_REQUIRES_MIGRATION_OWNER"));
-        return submitAttemptR31(cancelled,freezeWrite,()->{
+        return submitAttemptR31(cancelled,freezeWrite,"HISTORY_IMPORT_R31".equals(operation),()->{
             if(store==null)throw new IllegalStateException("R31_DURABLE_BATCH_REQUIRES_DATABASE");
             DatabaseCoordinator.WriteClass kind=freezeWrite?DatabaseCoordinator.WriteClass.LIVE_FREEZE:DatabaseCoordinator.WriteClass.RESEARCH_DATA;
             store.coordinatorForResearchR952().runIdempotentAtomicWriteR31(DatabaseCoordinator.WriteContext.of(kind,"R27_"+operation),batch.identityR31,
                     db->{execute(db,batch,operation);return 0;},0);
         });
     }
-    private boolean submitAttemptR31(java.util.function.BooleanSupplier cancelled,boolean freezeWrite,Runnable write) {
+    private boolean submitAttemptR31(java.util.function.BooleanSupplier cancelled,boolean freezeWrite,boolean savedHistory,Runnable write) {
         long start=System.nanoTime();
-        while(critical.getAsBoolean()||(!freezeWrite&&freezeWindow(System.currentTimeMillis()))) {
+        while((critical.getAsBoolean() && !(savedHistory && !SettlementExecutionGateR819.isActive()
+                && DatabaseCoordinator.researchDataDueR335())) || (!freezeWrite&&freezeWindow(System.currentTimeMillis()))) {
             long waited=(System.nanoTime()-start)/1_000_000L;
             if(cancelled.getAsBoolean()||Thread.currentThread().isInterrupted()){stat(waited,true);return false;}
             long remaining=MAX_WAIT_MS-waited;if(remaining<=0){stat(waited,true);return false;}

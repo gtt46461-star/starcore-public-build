@@ -21,7 +21,7 @@ from host_runtime_fixture import compile_owned_platform
 from host_tool_support import dependencies, run
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--modes", default="stock-unknown,suite,rollback-cancel,io-debt,source-members,source-race,streaming-format,crash-chunk,lease-pending,resume-chunk,crash-members,member-lease-pending,resume-members,crash-publish,resume-publish")
+parser.add_argument("--modes", default="stock-unknown,suite,writer-contention,rollback-cancel,io-debt,source-members,source-race,streaming-format,crash-chunk,lease-pending,resume-chunk,crash-members,member-lease-pending,resume-members,crash-publish,resume-publish")
 parser.add_argument("--out", type=Path, default=ROOT / "verification/r31/p01/history-import/current")
 parser.add_argument("--scratch-root", type=Path, help="Explicit real fixture filesystem; production free-floor/config stay unchanged")
 args = parser.parse_args()
@@ -75,9 +75,20 @@ try:
     platform = compile_owned_platform(ROOT, temporary / "owned", CLASSES, SDK)
     adapter_sources = temporary / "owned/sources"
     context = adapter_sources / "android/content/Context.java"
-    context.write_text(context.read_text().replace("public Context getApplicationContext()", 'public java.io.File getFilesDir(){throw new IllegalStateException("HOST_FILES_PATH_REQUIRED");}public Context getApplicationContext()'))
+    if "getFilesDir()" not in context.read_text():
+        context.write_text(context.read_text().replace("public Context getApplicationContext()", 'public java.io.File getFilesDir(){throw new IllegalStateException("HOST_FILES_PATH_REQUIRED");}public Context getApplicationContext()'))
     application = adapter_sources / "android/app/Application.java"
-    application.write_text(application.read_text().replace("@Override public java.io.File getDatabasePath", '@Override public java.io.File getFilesDir(){java.io.File files=new java.io.File(path.getParentFile().getParentFile(),"files");if(!files.isDirectory()&&!files.mkdirs())throw new IllegalStateException("HOST_FILES_DIRECTORY");return files;}@Override public java.io.File getDatabasePath'))
+    # The shared adapter now has a files directory. This fixture requires the
+    # Android sibling directories data/files and data/databases for its POSIX probe.
+    shared = application.read_text()
+    history_files = 'new java.io.File(path.getParentFile().getParentFile(),"files")'
+    if "getFilesDir()" in shared:
+        old_directory = 'new java.io.File(path.getAbsolutePath()+".files")'
+        if old_directory not in shared:
+            raise RuntimeError("Unrecognized shared Application files directory")
+        application.write_text(shared.replace(old_directory, history_files))
+    else:
+        application.write_text(shared.replace("@Override public java.io.File getDatabasePath", '@Override public java.io.File getFilesDir(){java.io.File files='+history_files+';if(!files.isDirectory()&&!files.mkdirs())throw new IllegalStateException("HOST_FILES_DIRECTORY");return files;}@Override public java.io.File getDatabasePath'))
     process = adapter_sources / "android/os/Process.java"
     process.write_text(process.read_text().replace("public static final int", "public static int myPid(){long pid=java.lang.ProcessHandle.current().pid();if(pid<1||pid>Integer.MAX_VALUE)throw new IllegalStateException(\"HOST_PID_RANGE\");return(int)pid;}public static final int"))
     db_source = adapter_sources / "android/database/sqlite/SQLiteDatabase.java"

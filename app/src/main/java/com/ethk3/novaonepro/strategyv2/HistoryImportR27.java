@@ -81,6 +81,8 @@ public final class HistoryImportR27 {
         final DbStore store; final String path, hash; final long bytes; final StorageBudgetR31.Reservation reservation;
         SourceR31(DbStore store, String path, String hash, long bytes, StorageBudgetR31.Reservation reservation) { this.store=store;this.path=path;this.hash=hash;this.bytes=bytes;this.reservation=reservation; }
         @Override public void close() throws IOException {
+            // Recovery borrows the already referenced immutable source.
+            if(reservation==null)return;
             try {
                 boolean referenced = true;
                 try (Cursor row = store.readable().rawQuery("SELECT 1 FROM r31_history_import_run WHERE source_path=? LIMIT 1", new String[] {path})) { referenced = row.moveToFirst(); }
@@ -144,7 +146,7 @@ public final class HistoryImportR27 {
         @Override public void close()throws IOException{reader.close();}
     }
     private static final class JobR31 {
-        String id,source,path,owner,abi,role;long fence,cursor,chunk,created,invalid,sourceBytes;boolean complete;
+        String id,source,path,owner,abi,role;long fence,cursor,chunk,created,invalid,sourceBytes,renewAfterElapsed;boolean complete;
     }
     private static JobR31 job(SQLiteDatabase db,String id) {
         try(Cursor c=db.rawQuery("SELECT source_hash,source_path,owner_epoch,fence,cursor_line,chunk_seq,created_at,invalid_rows,status,parser_abi,data_role,source_bytes FROM r31_history_import_run WHERE job_id=?",new String[]{id})){
@@ -159,9 +161,37 @@ public final class HistoryImportR27 {
         IntegrityR31(String reason){super("HISTORY_IMPORT_INTEGRITY:"+reason);}
         public String failureCategory(){return "INTEGRITY";}public String operation(){return "HISTORY_IMPORT";}public String phase(){return "PREPARE_OR_PUBLICATION";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
     }
+    private static boolean temporaryWriterFailure(DatabaseCoordinator.WriteRejectedR31 error) {
+        if(error.commitOutcome!=DatabaseCoordinator.CommitOutcome.ROLLED_BACK)return false;
+        if("LOCK_BUSY".equals(error.category)||"TEMP_TIMEOUT".equals(error.category))return true;
+        Throwable cause=error.getCause();
+        return "DEPENDENCY".equals(error.category) && "ADMISSION".equals(error.phase) && cause!=null
+                && "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN".equals(cause.getMessage());
+    }
+
+    private static int waitForWriter(BooleanSupplier cancelled,int delay)throws InterruptedException {
+        checkCancelled(cancelled);
+        try { Thread.sleep(delay); }
+        catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw interrupted;}
+        checkCancelled(cancelled);
+        return Math.min(500,delay*2);
+    }
+
+    private static <T> T retryRolledBackWriter(BooleanSupplier cancelled,java.util.function.Supplier<T> operation)throws InterruptedException {
+        int delay=25;
+        for(;;) {
+            checkCancelled(cancelled);
+            try { return operation.get(); }
+            catch(DatabaseCoordinator.WriteRejectedR31 busy) {
+                if(!temporaryWriterFailure(busy))throw busy;
+                delay=waitForWriter(cancelled,delay);
+            }
+        }
+    }
+
     private static JobR31 claim(DbStore store,SourceR31 source,BooleanSupplier cancelled)throws Exception {
         checkCancelled(cancelled);String id=StatsR27.sha256(R31_IMPORT_ABI+"|"+source.hash),epoch=UUID.randomUUID().toString();
-        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_HISTORY_IMPORT_CLAIM").withDeadlineMonoMs(TimeSourceR811.monoNowMs()+200),db->{
+        return retryRolledBackWriter(cancelled,()->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_HISTORY_IMPORT_CLAIM").withDeadlineMonoMs(TimeSourceR811.monoNowMs()+200),db->{
             JobR31 prior=job(db,id);if(prior!=null&&(!source.hash.equals(prior.source)||!R31_IMPORT_ABI.equals(prior.abi)||!R31_ROLE.equals(prior.role)))throw new IntegrityR31("SOURCE_IDENTITY_CONFLICT");if(prior!=null&&prior.complete)return prior;
             long now=android.os.SystemClock.elapsedRealtime();String boot=IssueTimelineWriterR30.bootId();
             if(prior==null){try(Cursor active=db.rawQuery("SELECT count(*) FROM r31_history_import_run WHERE status='STAGING' AND owner_boot=? AND lease_elapsed_ms>?",new String[]{boot,String.valueOf(now)})){if(active.moveToFirst()&&active.getLong(0)>=4)throw new DependencyR31("ACTIVE_INPUT_CAPACITY");}
@@ -169,18 +199,31 @@ public final class HistoryImportR27 {
             }
             try(Cursor owner=db.rawQuery("SELECT owner_boot,lease_elapsed_ms FROM r31_history_import_run WHERE job_id=?",new String[]{id})){if(owner.moveToFirst()&&boot.equals(owner.getString(0))&&owner.getLong(1)>now)throw new DependencyR31("OWNER_DRAINING");}
             db.execSQL("UPDATE r31_history_import_run SET owner_epoch=?,fence=fence+1,owner_pid=?,owner_boot=?,lease_elapsed_ms=? WHERE job_id=? AND status='STAGING'",new Object[]{epoch,android.os.Process.myPid(),boot,now+LEASE_MS_R31,id});
-            JobR31 current=job(db,id);if(current==null||!epoch.equals(current.owner)||!source.hash.equals(current.source))throw new DependencyR31("CLAIM_CAS");return current;
-        });
+            JobR31 current=job(db,id);if(current==null||!epoch.equals(current.owner)||!source.hash.equals(current.source))throw new DependencyR31("CLAIM_CAS");current.renewAfterElapsed=now+5000;return current;
+        }));
     }
     private static void requireOwner(SQLiteDatabase db,JobR31 j,long cursor,long sequence) {
         try(Cursor c=db.rawQuery("SELECT 1 FROM r31_history_import_run WHERE job_id=? AND source_hash=? AND status='STAGING' AND owner_epoch=? AND fence=? AND owner_boot=? AND lease_elapsed_ms>? AND cursor_line=? AND chunk_seq=?",new String[]{j.id,j.source,j.owner,String.valueOf(j.fence),IssueTimelineWriterR30.bootId(),String.valueOf(android.os.SystemClock.elapsedRealtime()),String.valueOf(cursor),String.valueOf(sequence)})){
             if(!c.moveToFirst())throw new DependencyR31("STALE_OWNER_OR_CURSOR");
         }
     }
-    private static void pulse(DbStore store,JobR31 j) {
-        long now=android.os.SystemClock.elapsedRealtime();
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_HISTORY_IMPORT_RENEW").withDeadlineMonoMs(TimeSourceR811.monoNowMs()+200),db->{requireOwner(db,j,j.cursor,j.chunk);db.execSQL("UPDATE r31_history_import_run SET lease_elapsed_ms=? WHERE job_id=? AND owner_epoch=? AND fence=?",new Object[]{now+LEASE_MS_R31,j.id,j.owner,j.fence});return 0;});
+    private static void renewIfDue(DbStore store,JobR31 job,BooleanSupplier cancelled)throws InterruptedException {
+        if(android.os.SystemClock.elapsedRealtime()<job.renewAfterElapsed)return;
+        retryRolledBackWriter(cancelled,()->{pulse(store,job);return true;});
     }
+
+    private static void pulse(DbStore store,JobR31 job) {
+        job.renewAfterElapsed=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_HISTORY_IMPORT_RENEW")
+                        .withDeadlineMonoMs(TimeSourceR811.monoNowMs()+200), db->{
+                    requireOwner(db,job,job.cursor,job.chunk);
+                    long now=android.os.SystemClock.elapsedRealtime();
+                    db.execSQL("UPDATE r31_history_import_run SET lease_elapsed_ms=? WHERE job_id=? AND owner_epoch=? AND fence=?",
+                            new Object[]{now+LEASE_MS_R31,job.id,job.owner,job.fence});
+                    return now+5000;
+                });
+    }
+
     private static void verifySource(DbStore store,JobR31 job,BooleanSupplier work)throws Exception {
         File file=privatePath(store,job.path);if(!file.isFile()||file.length()!=job.sourceBytes)throw new IntegrityR31("REFERENCED_SOURCE_MISSING_OR_CHANGED");
         java.security.MessageDigest hash=java.security.MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[COPY_BYTES_R31];
@@ -214,7 +257,16 @@ public final class HistoryImportR27 {
         ResearchWriteQueueR27 queue=new ResearchWriteQueueR27(store);
         try(StorageBudgetR31.Reservation disk=databaseBudget(store,job)){
             disk.beforeChunk(DB_PHASE_BYTES_R31);
-            while(true){checkCancelled(cancelled);pulse(store,job);if(queue.submit(operation,prepared,cancelled))break;Thread.sleep(25);}
+            int delay=25;
+            for(;;) {
+                checkCancelled(cancelled);
+                renewIfDue(store,job,cancelled);
+                try { if(queue.submit(operation,prepared,cancelled))break; }
+                catch(DatabaseCoordinator.WriteRejectedR31 busy) {
+                    if(!temporaryWriterFailure(busy))throw busy;
+                }
+                delay=waitForWriter(cancelled,delay);
+            }
             disk.reconcile();
         }
     }
@@ -390,6 +442,35 @@ public final class HistoryImportR27 {
     private static void requireSchemas(DbStore store){
         if(!publicationSchemaReadyReadOnlyR31(store.readable())||!ResearchSourceJournalR31.readySchemaR31(store.readable()))throw new DependencyR31("SCHEMA_PENDING");
     }
+    private static final java.util.concurrent.atomic.AtomicBoolean RECOVERY_RUNNING=new java.util.concurrent.atomic.AtomicBoolean();
+    private static final java.util.concurrent.atomic.AtomicLong NEXT_RECOVERY_CHECK=new java.util.concurrent.atomic.AtomicLong();
+
+    public static void resumePendingOffThread(android.content.Context context,BooleanSupplier cancelled) {
+        long now=android.os.SystemClock.elapsedRealtime(),next=NEXT_RECOVERY_CHECK.get();
+        if(now<next || !NEXT_RECOVERY_CHECK.compareAndSet(next,now+60000) || !RECOVERY_RUNNING.compareAndSet(false,true))return;
+        android.content.Context app=context.getApplicationContext();
+        Thread worker=new Thread(()->{
+            DbStore store=null;
+            try {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                if(cancelled.getAsBoolean())return;
+                store=new DbStore(app);
+                SQLiteDatabase read=store.readable();
+                if(!publicationSchemaReadyReadOnlyR31(read) || !ResearchSourceJournalR31.readySchemaR31(read))return;
+                String id=null;
+                try(Cursor c=read.rawQuery("SELECT job_id FROM r31_history_import_run WHERE status='STAGING' AND (owner_boot<>? OR lease_elapsed_ms<=?) ORDER BY created_at,job_id LIMIT 1",
+                        new String[]{IssueTimelineWriterR30.bootId(),String.valueOf(android.os.SystemClock.elapsedRealtime())})){
+                    if(c.moveToFirst())id=c.getString(0);
+                }
+                if(id!=null)resumeSavedR31(store,id,cancelled);
+            } catch(InterruptedException stopped){Thread.currentThread().interrupt();}
+            catch(Exception failed){android.util.Log.w("HistoryImportR27","Saved history import remains pending",failed);}
+            finally {try{if(store!=null)store.close();}finally{RECOVERY_RUNNING.set(false);}}
+        },"r335-saved-history-recovery");
+        try {worker.start();}
+        catch(RuntimeException | Error failed){RECOVERY_RUNNING.set(false);throw failed;}
+    }
+
     /** Explicit recovery UI selects an original persisted task; an active epoch still has to drain/expire. */
     public static String pendingJobIdR31(DbStore store){
         requireSchemas(store);
@@ -401,29 +482,30 @@ public final class HistoryImportR27 {
         if(!R31_IMPORT_ABI.equals(prior.abi)||!R31_ROLE.equals(prior.role)||!jobId.equals(StatsR27.sha256(R31_IMPORT_ABI+'|'+prior.source)))throw new IntegrityR31("RECOVERY_IDENTITY");
         if(prior.complete)return completedMessage(store.readable(),jobId);
         File file=privatePath(store,prior.path);if(!file.isFile())throw new DependencyR31("RECOVERY_SNAPSHOT_MISSING");if(file.length()!=prior.sourceBytes)throw new IntegrityR31("RECOVERY_SOURCE_SIZE");
-        try(InputStream input=new FileInputStream(file)){return importCsvExpected(store,input,cancelled,prior.source);}
+        return importCsvExpected(store,null,cancelled,prior);
     }
     /** Caller owns its input stream. Cancellation stops work; permits close only after the real work exits. */
     public static String importCsv(DbStore store,InputStream in,BooleanSupplier cancelled)throws Exception {
         return importCsvExpected(store,in,cancelled,null);
     }
-    private static String importCsvExpected(DbStore store,InputStream in,BooleanSupplier cancelled,String expectedSource)throws Exception {
-        if(in==null||cancelled==null)throw new IllegalArgumentException("HISTORY_IMPORT_INPUT_REQUIRED");
+    private static String importCsvExpected(DbStore store,InputStream in,BooleanSupplier cancelled,JobR31 saved)throws Exception {
+        if((in==null&&saved==null)||cancelled==null)throw new IllegalArgumentException("HISTORY_IMPORT_INPUT_REQUIRED");
         checkCancelled(cancelled);
         requireSchemas(store);
         // Bounded parser/rows/bind copies plus the common <=256KiB storage-ledger read/decode/write phases.
         MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("HISTORY_PREPARED_WORK",MemoryBudgetR31.Kind.RESEARCH,2L<<20,cancelled);
         if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);
-        try(MemoryBudgetR31.Lease memory=admission.lease;SourceR31 source=snapshot(store,in,cancelled)){
-            if(expectedSource!=null&&!expectedSource.equals(source.hash))throw new IntegrityR31("RECOVERY_SOURCE_HASH");
+        try(MemoryBudgetR31.Lease memory=admission.lease;SourceR31 source=saved==null?snapshot(store,in,cancelled):
+                new SourceR31(store,saved.path,saved.source,saved.sourceBytes,null)){
+            if(saved!=null)verifySource(store,saved,cancelled);
             // Validate the immutable private snapshot before creating a durable reference to it.
             try(CsvR31 header=new CsvR31(new FileInputStream(privatePath(store,source.path)))){header.header(cancelled);}
             JobR31 job=claim(store,source,cancelled);
             if(job.complete)return completedMessage(store.readable(),job.id);
-            final long[] renewed={android.os.SystemClock.elapsedRealtime()};
             BooleanSupplier work=()->{
                 if(Thread.currentThread().isInterrupted()||cancelled.getAsBoolean())return true;
-                long now=android.os.SystemClock.elapsedRealtime();if(now-renewed[0]>=5000){pulse(store,job);renewed[0]=now;}return false;
+                try {renewIfDue(store,job,cancelled);return false;}
+                catch(InterruptedException stopped){return true;}
             };
             try{
                 verifySource(store,job,work);

@@ -2807,6 +2807,8 @@ public final class AutoFetchService extends Service {
         final long generationR31=fetchGenerationR31;
 
         try {
+            com.ethk3.novaonepro.strategyv2.HistoryImportR27.resumePendingOffThread(this,
+                    ()->!running || userRequestedStopV5 || generationR31!=fetchGenerationR31);
             long now = System.currentTimeMillis();
             lastFetchLoopAt = now;
 

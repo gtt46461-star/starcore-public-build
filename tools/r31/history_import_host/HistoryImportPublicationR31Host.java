@@ -206,6 +206,46 @@ public final class HistoryImportPublicationR31Host {
         importBytes(store,bytes);check(published(db)==67&&rejects(db)==1,"actual process reentry publishes/counters once");check(scalar(db,"SELECT count(*) FROM r31_history_import_run")==1,"process reentry same job");check(files(new File(dataRoot(database),"files/r31-history-inputs"))==1,"original source retained once across crash/reentry");noOwners(dataRoot(database));
         System.out.println("HISTORY_ACTUAL_PROCESS_REENTRY|phase="+mode+"|checks="+checks+"|published="+published(db)+"|rejects="+rejects(db)+"|PASS");
     }
+    static void transientWriterDoesNotAbortImport(DbStore store,File database)throws Exception {
+        migrate(store);
+        final java.util.concurrent.CountDownLatch copying = new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.CountDownLatch holding = new java.util.concurrent.CountDownLatch(1);
+        final java.util.concurrent.atomic.AtomicReference<Throwable> failed = new java.util.concurrent.atomic.AtomicReference<>();
+        final byte[] csv = source(160,false);
+        Thread competing = new Thread(() -> {
+            try {
+                check(copying.await(15,java.util.concurrent.TimeUnit.SECONDS),"no CSV read");
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                        DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.DRAW_INGEST,"R335_HOST_EXISTING_DRAW_WRITER"),db->{
+                            holding.countDown();
+                            Thread.sleep(1500);
+                            return 1;
+                        });
+            } catch(Throwable error) { failed.set(error); }
+        },"history-competing-writer");
+        competing.start();
+        InputStream original = new ByteArrayInputStream(csv) {
+            private boolean started;
+            @Override public synchronized int read(byte[] bytes,int offset,int length) {
+                if(!started) {
+                    started=true;copying.countDown();
+                    try {check(holding.await(15,java.util.concurrent.TimeUnit.SECONDS),"writer never acquired");}
+                    catch(InterruptedException error){Thread.currentThread().interrupt();throw new AssertionError(error);}
+                }
+                return super.read(bytes,offset,length);
+            }
+        };
+        try { HistoryImportR27.importCsv(store,original); } finally {competing.join(18000);}
+        check(!competing.isAlive() && failed.get()==null,"competing writer failure "+failed.get());
+        SQLiteDatabase db=store.readable();
+        check(scalar(db,"SELECT count(*) FROM r31_history_import_run WHERE status='COMPLETE' AND cursor_line=160 AND imported_rows=160")==1,"lost committed cursor");
+        check(scalar(db,"SELECT count(*) FROM r31_history_import_row WHERE status='IMPORTED'")==160,"lost rows");
+        String id=text(db,"SELECT job_id FROM r31_history_import_run WHERE cursor_line=160");
+        HistoryImportR27.resumeSavedR31(store,id,()->false);
+        check(scalar(db,"SELECT count(*) FROM r31_history_import_row WHERE job_id=?",id)==160,"same-job replay duplicated input");
+        noOwners(dataRoot(database));
+        System.out.println("HISTORY_CONTENDED_OWNER_PASS rows=160 jobs=1 repeated=0");
+    }
     public static void main(String[] args)throws Exception{
         Class.forName("org.sqlite.JDBC");File database=new File(args[1]).getCanonicalFile();database.getParentFile().mkdirs();File root=dataRoot(database);new File(root,"files").mkdirs();
         if(!args[0].equals("stock-unknown"))HistoryPosixStatR31Host.install(args[2]);
@@ -216,6 +256,7 @@ public final class HistoryImportPublicationR31Host {
                 switch(args[0]){
                     case "stock-unknown":stockUnknown(store,root);break;
                     case "suite":suite(store,database);break;
+                    case "writer-contention":transientWriterDoesNotAbortImport(store,database);break;
                     case "rollback-cancel":rollbackAndCancel(store,database);break;
                     case "io-debt":ioExitAndDebt(store,database);break;
                     case "source-members":sourceMembersAndGuards(store,database);break;
