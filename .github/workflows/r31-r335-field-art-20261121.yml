@@ -1,0 +1,79 @@
+name: R33.5 final ART release ABI and per-step optimizer receipts
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-field-art-20261121.yml', '.github/r335-field-art-tests/**']
+permissions: {}
+jobs:
+  upgrades:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - name: Download fixed signed release and verify test DEX
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -c 'import time,urllib.request,urllib.error; exec("for attempt in range(220):\n try:\n  urllib.request.urlopen(urllib.request.Request(\"https://github.com/gtt46461-star/starcore-public-build/releases/download/r335-B08-a724adbfb31d/SHA256SUMS.txt\",method=\"HEAD\"),timeout=30).close();break\n except OSError:time.sleep(35)\nelse:raise RuntimeError(\"final release not received\")")'
+          base="https://github.com/$GITHUB_REPOSITORY/releases/download/r335-B08-a724adbfb31d"
+          name=STARCORE-R33-577311065-a724adbfb31d-release.apk
+          curl -fLsS --retry 4 "$base/$name" -o "$RUNNER_TEMP/B08-release.apk"
+          curl -fLsS --retry 4 "$base/SHA256SUMS.txt" -o "$RUNNER_TEMP/SHA256SUMS.txt"
+          python3 -c 'import hashlib,os,pathlib,sys; t=pathlib.Path(os.environ["RUNNER_TEMP"]); rows=dict((n,s) for s,n in (v.split("  ",1) for v in (t/"SHA256SUMS.txt").read_text().splitlines())); assert hashlib.sha256((t/"B08-release.apk").read_bytes()).hexdigest()==rows[sys.argv[1]]' "$name"
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/B08-release.apk" > "$RUNNER_TEMP/registered-certificate.txt"
+          grep -q 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7' "$RUNNER_TEMP/registered-certificate.txt"
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 5120M
+          script: python3 -B .github/r335-field-art-tests/run.py
+      - name: Preserve original reports for the recipient and public package-manager receipts
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          dest="$RUNNER_TEMP/device-delivery"
+          mkdir -p "$dest"
+          prefix="R335-emulator-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          if [ -d report-originals ]; then
+            python3 -c 'import pathlib,sys,json; pathlib.Path("recipient.pem").write_text(json.load(open(sys.argv[1]))["reportEncryptionRecipient"])' "$GITHUB_WORKSPACE/.github/r31-r335-device-20261121.json"
+            zip -q -r originals.zip report-originals
+            sha256sum originals.zip > "$dest/$prefix-originals.sha256"
+            openssl cms -encrypt -binary -aes-256-cbc -stream -outform DER -in originals.zip -out "$dest/$prefix-originals.p7m" recipient.pem
+          fi
+          if [ -d upgrade-evidence ]; then
+            zip -q -r "$dest/$prefix-upgrades.zip" upgrade-evidence
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R335-final-ART-records
+          path: ${{ runner.temp }}/device-delivery
+          if-no-files-found: warn
+      - name: Publish received-device evidence
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=r335-B08-a724adbfb31d
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then tag=r335-P00-3b3e63e1dc1d; fi
+          gh release upload "$tag" --repo "$GITHUB_REPOSITORY" "$RUNNER_TEMP/device-delivery"/R335-emulator-*
