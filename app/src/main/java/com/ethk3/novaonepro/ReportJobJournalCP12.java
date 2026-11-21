@@ -5,6 +5,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.channels.*;
 import java.util.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** The file lock owns this journal. It grants no business database write authority. */
@@ -316,6 +317,56 @@ public final class ReportJobJournalCP12 implements Closeable {
             if(latest==null||time>latest.optLong("createdWallMs",0)||time==latest.optLong("createdWallMs",0)&&request.compareTo(latest.getString("requestId"))>0)latest=value;
         }catch(Exception damaged){android.util.Log.w("ReportJournalCP12","Unrelated ACK unavailable during history lookup");}
         return latest;
+    }
+    /** Select a matching live request without cancelling another profile or reopening a completed report. */
+    static String reusableFullRequestR335(File root, boolean raw, String submitted) throws Exception {
+        if (submitted != null) {
+            JSONObject state = requestStateR31(root, submitted);
+            if ((state == null || activeFullStateR335(state)) && ReportRequestStatusR31.failure(submitted) == null
+                    && !new File(root, "failures/"+submitted+".txt").isFile()) {
+                return submitted;
+            }
+        }
+        if (!new File(root, "requests").isDirectory()) return null;
+        for (File directory : DirectoryCursorR31.children(new File(root, "jobs"), 1024)) {
+            Job job;
+            try {
+                job = Job.parse(readAtomic(new File(directory, "job.json"), MAX_JSON));
+            } catch (IOException | org.json.JSONException unavailable) {
+                android.util.Log.w("ReportJournalCP12", "Job unavailable while reattaching a report", unavailable);
+                continue;
+            }
+            if (directory.getName().equals(job.jobId) && "FULL_REPORT".equals(job.mode)
+                    && activeStageR335(Stage.valueOf(job.stage)) && profileMatchesR335(root, job.requestId, raw)) return job.requestId;
+        }
+        // The process can exit after committing the request envelope and before updating the FIFO.
+        if (submitted == null) ReportRequestQueueCP12.reconcileRequestsR31(root);
+        JSONArray queued = ReportRequestQueueCP12.pending(root);
+        for (int i = 0; i < queued.length(); i++) {
+            JSONObject item = queued.getJSONObject(i);
+            if (!"FULL_REPORT".equals(item.getString("mode"))) continue;
+            String id = item.getString("requestId");
+            if (!profileMatchesR335(root, id, raw)) continue;
+            JSONObject state = requestStateR31(root, id);
+            if (state == null || activeFullStateR335(state)) return id;
+        }
+        return null;
+    }
+    private static boolean activeFullStateR335(JSONObject state) throws org.json.JSONException {
+        if (!"FULL_REPORT".equals(state.optString("mode"))) return false;
+        return activeStageR335(Stage.valueOf(state.getString("stage")));
+    }
+    private static boolean activeStageR335(Stage stage) {
+        return stage != Stage.READY_TO_SHARE && stage != Stage.FAILED && stage != Stage.CANCELLED;
+    }
+    private static boolean profileMatchesR335(File root, String id, boolean raw) throws Exception {
+        hash(id);
+        File path = ReportArchiveVerifierCP12.inside(root, "requests/"+id+".json");
+        if (!path.isFile()) return false;
+        JSONObject input = new JSONObject(readAtomic(path, MAX_JSON));
+        return id.equals(input.getString("requestId")) && "FULL_REPORT".equals(input.getString("mode"))
+                && ReleaseManifestR926.MANIFEST_SHA256.equals(input.getString("releaseHash"))
+                && input.optBoolean("includeRawEvidence", false) == raw;
     }
     public static final class FailureDetailR31 {
         public final String text,requestId,recoverySha;

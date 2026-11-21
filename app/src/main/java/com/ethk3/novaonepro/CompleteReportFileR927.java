@@ -2,7 +2,9 @@ package com.ethk3.novaonepro;
 import android.app.Activity;import android.app.AlertDialog;import android.app.Fragment;import android.os.Bundle;import android.content.*;import android.net.Uri;import android.widget.*;import java.io.*;import java.lang.ref.WeakReference;import java.util.*;import java.util.concurrent.*;import java.util.concurrent.atomic.AtomicBoolean;import org.json.*;
 /** UI adapter only. ReportExportServiceCP4 owns snapshot creation, evaluation, publication and recovery. */
 public final class CompleteReportFileR927 {
- private static final AtomicBoolean RUNNING=new AtomicBoolean();private static final ScheduledExecutorService UI_IO=Executors.newSingleThreadScheduledExecutor(r->new Thread(r,"report-ui-state-cp12"));
+ private static final ScheduledExecutorService UI_IO=Executors.newSingleThreadScheduledExecutor(r->new Thread(r,"report-ui-state-cp12"));
+ // Only accessed on UI_IO. A returned request ID can precede the durable enqueue by one executor turn.
+ private static final String[] submittedFullRequest = new String[2];
  private static final java.util.concurrent.atomic.AtomicLong POLL_SESSION=new java.util.concurrent.atomic.AtomicLong();
  private CompleteReportFileR927(){}
  public static void openExportMenu(Activity activity,Button button,TextView status){if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
@@ -12,29 +14,29 @@ public final class CompleteReportFileR927 {
  }
  private static void cancelLatest(Activity activity,Button button,TextView status){controlReports(activity,button,status,false,false);}
  private static void controlReports(Activity activity,Button button,TextView status,boolean clear,boolean restart){
-  final long session=POLL_SESSION.incrementAndGet();RUNNING.set(false);
+  final long session=POLL_SESSION.incrementAndGet();
   Context app=activity.getApplicationContext();WeakReference<Activity> weak=new WeakReference<>(activity);WeakReference<Button>b=new WeakReference<>(button);WeakReference<TextView>s=new WeakReference<>(status);
   show(activity,button,status,clear?"正在停止旧任务并清理报告缓存；开奖数据和学习成果保留。":"正在停止报告生成和保存任务。",true);
-  UI_IO.execute(()->{try{String command=ReportExportServiceCP4.requestReportControl(app,clear);pollControl(app,command,weak,b,s,session,restart,0);}
+  UI_IO.execute(()->{try{Arrays.fill(submittedFullRequest,null);String command=ReportExportServiceCP4.requestReportControl(app,clear);pollControl(app,command,weak,b,s,session,restart,0);}
    catch(Exception error){Activity current=weak.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"报告操作未完成："+error.getMessage(),true);});}});
  }
  private static void pollControl(Context app,String command,WeakReference<Activity>a,WeakReference<Button>b,WeakReference<TextView>s,long session,boolean restart,int attempts){
   UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;try{
    JSONObject state=ReportTaskControlR69.status(app.getFilesDir(),command);String stage=state.getString("stage");Activity current=a.get();
    if(stage.equals("CONTROL_FAILED"))throw new IOException(state.optString("reason"));
-   if(stage.equals("CONTROL_DONE")){RUNNING.set(false);if(current!=null)current.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;if(restart)export(current,b.get(),s.get(),false);else show(current,b.get(),s.get(),state.optBoolean("clear")?"旧报告任务与缓存已清理，可以重新生成完整报告。":"报告任务已停止，可以重新生成。",true);});return;}
+   if(stage.equals("CONTROL_DONE")){if(current!=null)current.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;if(restart)export(current,b.get(),s.get(),false);else show(current,b.get(),s.get(),state.optBoolean("clear")?"旧报告任务与缓存已清理，可以重新生成完整报告。":"报告任务已停止，可以重新生成。",true);});return;}
    String message=stage.equals("WAITING_FOR_READERS")?"任务已停止；旧报告仍被文件预览或分享读取，释放后自动完成清理。":"正在等待旧任务关闭文件并清理；未宣称已经完成。";
    if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),message,true);});
    if(attempts<600)pollControl(app,command,a,b,s,session,restart,attempts+1);
-  }catch(Exception error){RUNNING.set(false);Activity current=a.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"报告操作未完成："+error.getMessage(),true);});}},500,TimeUnit.MILLISECONDS);
+  }catch(Exception error){Activity current=a.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"报告操作未完成："+error.getMessage(),true);});}},500,TimeUnit.MILLISECONDS);
  }
  private static void recover(Activity activity,Button button,TextView status){final Context app=activity.getApplicationContext();WeakReference<Activity> weak=new WeakReference<>(activity);WeakReference<Button>b=new WeakReference<>(button);WeakReference<TextView>s=new WeakReference<>(status);
   // Reattach to the durable owner after Activity recreation; an old UI poll is not an execution lease.
-  final long session=POLL_SESSION.incrementAndGet();RUNNING.set(true);show(activity,button,status,"正在取回上次报告。",false);
+  final long session=POLL_SESSION.incrementAndGet();show(activity,button,status,"正在取回上次报告。",false);
   UI_IO.execute(()->{try{File root=ReportDirectoriesCP12.root(app.getFilesDir());JSONObject state=ReportJobJournalCP12.latestFullReportStateR31(root,false);if(state==null)throw new IOException("没有可取回的完整报告，请生成当前报告。");
    if(!"FAILED".equals(state.getString("stage"))&&!"CANCELLED".equals(state.getString("stage"))&&!"READY_TO_SHARE".equals(state.getString("stage")))ReportExportServiceCP4.resumeExport(app,state.getString("jobId"));
    poll(app,state.getString("requestId"),weak,b,s,0,session);
-  }catch(Exception error){RUNNING.set(false);Activity current=weak.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"上次报告无法取回："+error.getMessage(),true);});}});
+  }catch(Exception error){Activity current=weak.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"上次报告无法取回："+error.getMessage(),true);});}});
  }
  private static void showLastFailure(Activity activity){final Context app=activity.getApplicationContext();WeakReference<Activity> weak=new WeakReference<>(activity);
   UI_IO.execute(()->{ReportJobJournalCP12.FailureDetailR31 detail;try{File root=ReportDirectoriesCP12.root(app.getFilesDir());JSONObject state=ReportJobJournalCP12.latestFullReportStateR31(root,true);
@@ -52,26 +54,50 @@ public final class CompleteReportFileR927 {
 
  public static void export(Activity activity){export(activity,null,null);}
  public static void export(Activity activity,Button button,TextView status){export(activity,button,status,false);}
- private static void export(Activity activity,Button button,TextView status,boolean raw){if(activity==null||activity.isFinishing()||activity.isDestroyed())return;if(!RUNNING.compareAndSet(false,true)){controlReports(activity,button,status,false,true);return;}
-  final long session=POLL_SESSION.incrementAndGet();final Context app=activity.getApplicationContext();final String request;try{request=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,raw);}catch(RuntimeException error){RUNNING.set(false);show(activity,button,status,"完整报告请求失败："+error.getMessage(),true);return;}WeakReference<Activity> weak=new WeakReference<>(activity);WeakReference<Button> b=new WeakReference<>(button);WeakReference<TextView> s=new WeakReference<>(status);show(activity,button,status,raw?"原始备份已排队；包含数据库和二进制，体积可能很大。":"完整检测已排队；一个ZIP保留全部检测结果、运行证据、算法训练状态、文件状态和源码调用索引。",false);poll(app,request,weak,b,s,0,session);
+ private static void export(Activity activity,Button button,TextView status,boolean raw) {
+  if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
+  final Context app=activity.getApplicationContext();
+  final WeakReference<Activity> screen=new WeakReference<>(activity);
+  final WeakReference<Button> action=new WeakReference<>(button);
+  final WeakReference<TextView> message=new WeakReference<>(status);
+  final long session=POLL_SESSION.incrementAndGet();
+  show(activity,button,status,raw?"正在提交原始备份请求。":"正在提交完整检测报告请求。",true);
+  UI_IO.execute(()->{
+   try{
+    int profile=raw?1:0;
+    File root=ReportDirectoriesCP12.root(app.getFilesDir());
+    String id=ReportJobJournalCP12.reusableFullRequestR335(root,raw,submittedFullRequest[profile]);
+    if(id==null){
+     id=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,raw);
+    }else if(new File(root,"requests/"+id+".json").isFile()){
+     try { ReportExportServiceCP4.resumeExport(app,id); }
+     catch (RuntimeException | IOException pending) { android.util.Log.w("CompleteReport", "Existing report awaits service wake", pending); }
+    }
+    submittedFullRequest[profile]=id;
+    if(session==POLL_SESSION.get())poll(app,id,screen,action,message,0,session);
+   }catch(Exception error){
+    Activity current=screen.get();
+    if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,action.get(),message.get(),"完整报告请求失败："+error.getMessage(),true);});
+   }
+  });
  }
  private static void poll(Context app,String request,WeakReference<Activity> a,WeakReference<Button>b,WeakReference<TextView>s,int attempt,long session){UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;Activity activity=a.get();try{
    File root=ReportDirectoriesCP12.root(app.getFilesDir());File ack=new File(root,"requests/"+request+".ack.json");JSONObject authority=ReportJobJournalCP12.requestStateR31(root,request);if(!ack.exists()&&authority==null){
     if(attempt%8==0&&new File(root,"requests/"+request+".json").isFile())try{ReportExportServiceCP4.resumeExport(app,request);}catch(RuntimeException pending){android.util.Log.w("CompleteReport","Persisted request waiting for foreground service",pending);}
 String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw new IOException("REPORT_REQUEST_FAILED_BEFORE_DURABLE_ACK: "+failure);if(attempt>0&&attempt%8==0&&activity!=null){final long waited=attempt*750L/1000L;activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),"正在采集报告输入或等待导出服务确认（已等待 "+waited+" 秒，尚未取得持久回执）。若超过1分钟仍无进展，请点“快速诊断”复制结果发送。",true);});}if(attempt<1200){poll(app,request,a,b,s,attempt+1,session);return;}throw new IOException("REPORT_REQUEST_ACK_TIMEOUT");}
    JSONObject value=authority!=null?authority:new JSONObject(ReportJobJournalCP12.readAtomic(ack,65536));String stage=value.getString("stage"),reason=value.optString("reason","");
-   if(stage.equals("READY_TO_SHARE")){String id=value.getString("jobId");File job=ReportPublicationCP12.job(app.getFilesDir(),id);JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());ArrayList<Uri> volumes=new ArrayList<>();JSONArray files=index.getJSONArray("files");boolean single="SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format"));boolean r30Parts=ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.optString("format"));if(!single)volumes.add(uri(app,id,"index.json"));for(int i=0;i<files.length();i++)volumes.add(uri(app,id,files.getJSONObject(i).getString("name")));boolean healthy=index.getBoolean("allChecksPassed");RUNNING.set(false);if(activity!=null)activity.runOnUiThread(()->{show(activity,b.get(),s.get(),"完整报告已生成｜"+files.length()+(r30Parts?"个ZIP分卷（按索引合并）｜":"个完整文件｜")+String.format(Locale.ROOT,"%.2f MB",index.optLong("totalVolumeBytes")/(1024.0*1024.0))+"｜证据完整="+index.optBoolean("evidenceComplete")+"｜检查执行完整="+index.optBoolean("checksComplete")+"｜全部健康检查通过="+healthy,true);Intent share=new Intent(Intent.ACTION_SEND_MULTIPLE).setType(single?"application/zip":"application/octet-stream").putParcelableArrayListExtra(Intent.EXTRA_STREAM,volumes).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);ClipData clip=ClipData.newRawUri("STARCORE report",volumes.get(0));for(int i=1;i<volumes.size();i++)clip.addItem(new ClipData.Item(volumes.get(i)));share.setClipData(clip);if(activity.isFinishing()||activity.isDestroyed())return;new AlertDialog.Builder(activity).setTitle("完整检测报告交付").setItems(single?new String[]{"一次保存完整ZIP文件","分享完整ZIP","保存到文件夹"}:new String[]{"一次保存完整报告到文件夹","分享全部分卷","保存一个分卷到文件"},(dialog,which)->{try{if(which==0)chooseSafDestination(activity,id,single?"STARCORE_FULL_REPORT.zip":"*");else if(which==1)activity.startActivity(Intent.createChooser(share,"分享完整检测报告"));else if(single)chooseSafDestination(activity,id,"*");else chooseSafVolume(activity,id,volumes);}catch(Exception unavailable){show(activity,b.get(),s.get(),"报告已生成；交付入口不可用："+unavailable.getMessage(),true);}}).show();});return;}
-   if(stage.equals("FAILED")){ReportJobJournalCP12.FailureDetailR31 detail=ReportJobJournalCP12.failureDetailR31(root,value);RUNNING.set(false);if(activity!=null)activity.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;show(activity,b.get(),s.get(),"完整报告失败："+reason+"。可查看和复制失败详情；恢复诊断是失败材料。",true);showFailureR31(activity,detail);});return;}
+   if(stage.equals("READY_TO_SHARE")){String id=value.getString("jobId");File job=ReportPublicationCP12.job(app.getFilesDir(),id);JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());ArrayList<Uri> volumes=new ArrayList<>();JSONArray files=index.getJSONArray("files");boolean single="SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format"));boolean r30Parts=ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.optString("format"));if(!single)volumes.add(uri(app,id,"index.json"));for(int i=0;i<files.length();i++)volumes.add(uri(app,id,files.getJSONObject(i).getString("name")));boolean healthy=index.getBoolean("allChecksPassed");if(activity!=null)activity.runOnUiThread(()->{show(activity,b.get(),s.get(),"完整报告已生成｜"+files.length()+(r30Parts?"个ZIP分卷（按索引合并）｜":"个完整文件｜")+String.format(Locale.ROOT,"%.2f MB",index.optLong("totalVolumeBytes")/(1024.0*1024.0))+"｜证据完整="+index.optBoolean("evidenceComplete")+"｜检查执行完整="+index.optBoolean("checksComplete")+"｜全部健康检查通过="+healthy,true);Intent share=new Intent(Intent.ACTION_SEND_MULTIPLE).setType(single?"application/zip":"application/octet-stream").putParcelableArrayListExtra(Intent.EXTRA_STREAM,volumes).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);ClipData clip=ClipData.newRawUri("STARCORE report",volumes.get(0));for(int i=1;i<volumes.size();i++)clip.addItem(new ClipData.Item(volumes.get(i)));share.setClipData(clip);if(activity.isFinishing()||activity.isDestroyed())return;new AlertDialog.Builder(activity).setTitle("完整检测报告交付").setItems(single?new String[]{"一次保存完整ZIP文件","分享完整ZIP","保存到文件夹"}:new String[]{"一次保存完整报告到文件夹","分享全部分卷","保存一个分卷到文件"},(dialog,which)->{try{if(which==0)chooseSafDestination(activity,id,single?"STARCORE_FULL_REPORT.zip":"*");else if(which==1)activity.startActivity(Intent.createChooser(share,"分享完整检测报告"));else if(single)chooseSafDestination(activity,id,"*");else chooseSafVolume(activity,id,volumes);}catch(Exception unavailable){show(activity,b.get(),s.get(),"报告已生成；交付入口不可用："+unavailable.getMessage(),true);}}).show();});return;}
+   if(stage.equals("FAILED")){ReportJobJournalCP12.FailureDetailR31 detail=ReportJobJournalCP12.failureDetailR31(root,value);if(activity!=null)activity.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;show(activity,b.get(),s.get(),"完整报告失败："+reason+"。可查看和复制失败详情；恢复诊断是失败材料。",true);showFailureR31(activity,detail);});return;}
    if(stage.equals("FAILED")||stage.equals("CANCELLED"))throw new IOException(stage+":"+reason);
    String progressText=value.has("jobId")?stageProgressText(app,value.getString("jobId")):"";
    final String pendingText="检测报告状态="+stage+progressText+(reason.isEmpty()?"":"｜原因="+reason)+"｜可点击取回或取消";
-   if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),pendingText,true));if(attempt<1200)poll(app,request,a,b,s,attempt+1,session);else{RUNNING.set(false);if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"后台任务仍保留，请稍后查看；任务不会因界面停止而取消。",true));}
+   if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),pendingText,true));if(attempt<1200)poll(app,request,a,b,s,attempt+1,session);else{if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"后台任务仍保留，请稍后查看；任务不会因界面停止而取消。",true));}
   }catch(Exception error){
    // READY is durable while the diagnostics process may still be retiring its
    // private workspace. Retry only its typed OS lease conflict, on this same
    // request and within the original poll ceiling; never recreate the report.
    if(error instanceof ReportPublicationCP12.ShareBusyR31&&attempt<1200){poll(app,request,a,b,s,attempt+1,session);return;}
-   RUNNING.set(false);if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"完整报告未交付："+error.getMessage(),true));}},750,TimeUnit.MILLISECONDS);}
+   if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"完整报告未交付："+error.getMessage(),true));}},750,TimeUnit.MILLISECONDS);}
  static String stageProgressText(Context app,String id){try{
   if(!id.matches("[0-9a-f]{64}"))throw new IOException("REPORT_PROGRESS_JOB_ID");
   File file=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),"jobs/"+id+"/stage-progress.json");

@@ -40,6 +40,26 @@ public final class R26RuntimeDeviceTest {
         @Override public SQLiteDatabase openOrCreateDatabase(String name,int mode,SQLiteDatabase.CursorFactory factory,DatabaseErrorHandler errors){return SQLiteDatabase.openOrCreateDatabase(getDatabasePath(name).getPath(),factory,errors);}
         @Override public boolean deleteDatabase(String name){return SQLiteDatabase.deleteDatabase(getDatabasePath(name));}
     }
+    @Test public void liveAndDelayedLeasesCannotHideEligibleTasksInEitherLane() {
+        try (SQLiteDatabase db=SQLiteDatabase.create(null)) {
+            db.execSQL("CREATE TABLE r26_task(task_id TEXT PRIMARY KEY,lane TEXT,status TEXT,last_served INTEGER,owner TEXT,fence INTEGER)");
+            db.execSQL("CREATE TABLE r31_task_lease(task_id TEXT PRIMARY KEY,owner_epoch TEXT,fence INTEGER,boot_id TEXT,deadline_elapsed_ms INTEGER,next_elapsed_ms INTEGER)");
+            db.execSQL("INSERT INTO r26_task VALUES('delayed','P1','BLOCKED',1,'owner',4),('busy','P1','RUNNING',2,'owner',1),('schema','P1','READY',3,NULL,0)");
+            db.execSQL("INSERT INTO r31_task_lease VALUES('delayed','owner',4,'boot',0,200),('busy','owner',1,'boot',300,0)");
+            for (String lane : new String[]{"P1","P2"}) {
+                db.execSQL("UPDATE r26_task SET lane=?",new Object[]{lane});
+                try (Cursor c=RuntimeCoordinatorR26.claimableLaneTasksR335(db,lane,false,"boot",100)) {
+                    assertTrue(c.moveToFirst());assertEquals("schema",c.getString(0));assertFalse(c.moveToNext());
+                }
+                try (Cursor c=RuntimeCoordinatorR26.claimableLaneTasksR335(db,lane,false,"previous-boot",100)) {
+                    assertTrue(c.moveToFirst());assertEquals("delayed",c.getString(0));
+                }
+                try (Cursor c=RuntimeCoordinatorR26.claimableLaneTasksR335(db,lane,true,"boot",300)) {
+                    assertTrue(c.moveToFirst());assertEquals("schema",c.getString(0));assertFalse(c.moveToNext());
+                }
+            }
+        }
+    }
     private static long scalar(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()&&!c.isNull(0)?c.getLong(0):0;}}
     private static boolean table(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{name})){return c.moveToFirst();}}
     private static Models.Draw draw(long first,int index,long opened){Models.Draw d=new Models.Draw();d.issue=TargetIssueResolver.fromSequenceOrdinalSU1(first+index);d.numbers=new int[10];for(int p=0;p<10;p++)d.numbers[p]=(p+index%7)%10+1;d.openTime=opened+index*60000L;d.fetchTime=d.openTime+1000;return d;}

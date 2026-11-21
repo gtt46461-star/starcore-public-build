@@ -49,6 +49,32 @@ public final class R31UnifiedReportHostTest {
             System.out.println("ADMISSION_HELD");System.out.flush();System.in.read();
         }
     }
+    static void repeatedProfiles(File files) throws Exception {
+        File root=ReportDirectoriesCP12.root(files);
+        String raw=id("raw-profile"), compact=id("compact-profile");
+        need(ReportJobJournalCP12.reusableFullRequestR335(root,true,null)==null,"EMPTY_QUEUE_RETURNED_A_JOB");
+        for(String request:Arrays.asList(raw,compact)){
+            JSONObject envelope=new JSONObject().put("mode","FULL_REPORT").put("requestId",request)
+                    .put("releaseHash",ReleaseManifestR926.MANIFEST_SHA256).put("includeRawEvidence",raw.equals(request));
+            ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+request+".json"),envelope.toString());
+            if(request.equals(compact)) ReportRequestQueueCP12.enqueue(root,request,"FULL_REPORT");
+        }
+        need(!ReportRequestQueueCP12.pendingIds(root).contains(raw),"INTERRUPTED_ENQUEUE_ALREADY_COMPLETED");
+        need(raw.equals(ReportJobJournalCP12.reusableFullRequestR335(root,true,null)),"RESTART_LOST_RAW_FIFO_JOB");
+        need(ReportRequestQueueCP12.pendingIds(root).contains(raw),"ORIGINAL_ENVELOPE_NOT_REENQUEUED");
+        need(compact.equals(ReportJobJournalCP12.reusableFullRequestR335(root,false,null)),"COMPACT_SELECTED_RAW_JOB");
+        try(ReportJobJournalCP12 owner=ReportJobJournalCP12.tryClaim(files)){
+            ReportJobJournalCP12.Job job=owner.recoverOrCreateR31(raw,ReleaseManifestR926.MANIFEST_SHA256,"FULL_REPORT");
+            owner.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());
+            owner.acknowledge(raw,job);
+            need(raw.equals(ReportJobJournalCP12.reusableFullRequestR335(root,true,null)),"PAUSED_JOB_WAS_REPLACED");
+            owner.transition(job,ReportJobJournalCP12.Stage.CANCELLED,System.currentTimeMillis());
+            owner.acknowledge(raw,job);
+            need(ReportJobJournalCP12.reusableFullRequestR335(root,true,raw)==null,"COMPLETED_CANCELLATION_REUSED");
+            need(compact.equals(ReportJobJournalCP12.reusableFullRequestR335(root,false,null)),"CANCELLATION_REMOVED_OTHER_PROFILE");
+        }
+        System.out.println("R335_REPORT_PROFILE_REUSE_PASSED queued=true restarted=true paused=true cancelled=true separateProfile=true");
+    }
     static void observationWakeControl(File files, boolean resourceWait)throws Exception{
         files.mkdirs();File root=ReportDirectoriesCP12.root(files);String request=id("HOST_OBSERVER_WAKE_WITH_NO_OS_ALARM");
         JSONObject intent=new JSONObject().put("requestId",request).put("mode","FULL_REPORT").put("releaseHash",id("release")).put("createdWallMs",System.currentTimeMillis()-4500).put("observationState","UNKNOWN_NOT_COLLECTED");
@@ -113,6 +139,7 @@ public final class R31UnifiedReportHostTest {
         need(!ReportExportServiceCP4.observationPreparationPendingR31(preparing,10000),"COLLECTED_OBSERVATION_UNNECESSARILY_WAITED");
         File app=new File(args[0]);if(args.length>1&&args[1].equals("hold")){heldAdmissionChild(app);return;}
         File files=new File(app,"files");files.mkdirs();android.app.Service.filesR31=files;
+        repeatedProfiles(new File(app,"profile-reuse/files"));
         observationWakeControl(new File(app,"observer-wake/files"),false);
         observationWakeControl(new File(app,"resource-wake/files"),true);
         StorageBudgetR31 budget=new StorageBudgetR31(app,new StorageBudgetR31.Config(256*MiB,256*MiB,1024,2*MiB,"HOST_UNIFIED_REPORT_FIXTURE"),f->2L<<30);

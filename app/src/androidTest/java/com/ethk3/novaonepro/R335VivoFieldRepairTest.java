@@ -12,6 +12,37 @@ import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class R335VivoFieldRepairTest {
+    @Test public void pendingRetentionArchivesBlockOnlyActualRetirement() {
+        try (SQLiteDatabase db = SQLiteDatabase.create(null)) {
+            db.execSQL("CREATE TABLE r26_foundry(campaign_id TEXT,status TEXT,numerical_abi TEXT,snapshot BLOB,snapshot_hash TEXT,source_through INTEGER,created_at INTEGER)");
+            db.execSQL("CREATE TABLE r26_candidate(campaign_id TEXT,policy_hash TEXT,checkpoint_hash TEXT,state_hash TEXT,cursor INTEGER,status TEXT,state BLOB,canonical_text TEXT)");
+            db.execSQL("CREATE TABLE r26_live_model(policy_hash TEXT)");
+            db.execSQL("INSERT INTO r26_foundry VALUES('current','RUNNING','current',X'0102','source',19,1)");
+            try (WarmCandidateR26.PreparedAbiR31 abi = WarmCandidateR26.prepareAbiR31(db, "current");
+                 WarmCandidateR26.PreparedPreservationR31 retention = WarmCandidateR26.preparePreservationR31(db)) {
+                assertTrue(abi.campaigns().isEmpty());
+                assertEquals(0, retention.rows());
+            }
+            try (WarmCandidateR26.PreparedAbiR31 ignored = WarmCandidateR26.prepareAbiR31(db, "new")) {
+                fail("An old snapshot requires authenticated archive protection");
+            } catch (DatabaseCoordinator.SchemaPendingR31 expected) {
+                assertTrue(expected.getMessage(), expected.getMessage().contains("SOURCE_NOT_PRESENT"));
+            }
+            db.execSQL("UPDATE r26_foundry SET status='EXPIRED_RETENTION'");
+            db.execSQL("INSERT INTO r26_candidate VALUES('current','child','checkpoint','state',1,'DONE',X'03','learned')");
+            try (WarmCandidateR26.PreparedPreservationR31 ignored = WarmCandidateR26.preparePreservationR31(db)) {
+                fail("A retained candidate requires authenticated archive protection");
+            } catch (DatabaseCoordinator.SchemaPendingR31 expected) {
+                assertTrue(expected.getMessage(), expected.getMessage().contains("SOURCE_NOT_PRESENT"));
+            }
+            try (android.database.Cursor c = db.rawQuery("SELECT hex(snapshot),hex(state) FROM r26_foundry JOIN r26_candidate USING(campaign_id)", null)) {
+                assertTrue(c.moveToFirst());
+                assertEquals("0102", c.getString(0));
+                assertEquals("03", c.getString(1));
+            }
+        }
+    }
+
     @Test public void largeOriginalAndCorruptSiblingRemainIndependentForEveryGroup() {
         try(SQLiteDatabase db=SQLiteDatabase.create(null)) {
             db.execSQL("CREATE TABLE r30r1_analysis_run(run_id TEXT PRIMARY KEY, dataset_hash TEXT,role TEXT,through_ordinal INTEGER,source_commit TEXT,status TEXT,summary_json TEXT,contract_hash TEXT)");

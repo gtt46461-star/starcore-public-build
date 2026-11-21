@@ -13,6 +13,10 @@ public final class ResearchSchemaCoordinatorR926 {
     private static volatile String state = "NOT_STARTED";
     private static volatile String cursor = "";
     private static volatile String error = "";
+    // The hint is valid only on the same database while its schema and external-commit versions agree.
+    // It cannot publish domain readiness; the original full verifier still owns that transition.
+    private static java.lang.ref.WeakReference<SQLiteDatabase> strategyDatabase = new java.lang.ref.WeakReference<>(null);
+    private static long strategyVersion = -1;
     private static Throwable failureCause; // guarded by LOCK, copied into the invocation result
 
     private ResearchSchemaCoordinatorR926() {}
@@ -105,6 +109,10 @@ public final class ResearchSchemaCoordinatorR926 {
 
     private static boolean advance(SQLiteDatabase db) {
         synchronized (LOCK) {
+            if (strategyDatabase.get() == db && com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP.equals(cursor)
+                    && !RealtimePressureGateR811.isUnderPressure() && strategyVersion == databaseVersion(db)) {
+                if (!advanceDomainStrategy(db)) return false;
+            }
             SchemaDomainCoordinatorR926.Contract contract = SchemaDomainCoordinatorR926.researchContract();
             boolean priorDomainReady = SchemaDomainCoordinatorR926.matches(db, contract);
             if (priorDomainReady && extensionReady(db)
@@ -145,7 +153,7 @@ public final class ResearchSchemaCoordinatorR926 {
                     // baseline fingerprint commit together, so restart never replays old units.
                     cursor = nextAdditiveStep(db);
                     if (com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP.equals(cursor)
-                            && !com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db)) return false;
+                            && !advanceDomainStrategy(db)) return false;
                     installAdditiveStep(db, contract, cursor, true);
                     if (!"VERIFY".equals(nextAdditiveStep(db))) {
                         state="INITIALIZING"; cursor=nextAdditiveStep(db); error=""; return false;
@@ -186,7 +194,7 @@ public final class ResearchSchemaCoordinatorR926 {
                     SchemaDomainCoordinatorR926.runStep(db, contract, step, x -> {});
                 } else if (isAdditiveStep(step)) {
                     if (com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP.equals(step)
-                            && !com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db)) return false;
+                            && !advanceDomainStrategy(db)) return false;
                     installAdditiveStep(db, contract, step, false);
                 }
                 String remaining = nextStep(db, contract);
@@ -206,6 +214,24 @@ public final class ResearchSchemaCoordinatorR926 {
                 return false;
             }
         }
+    }
+
+    private static long databaseVersion(SQLiteDatabase db) {
+        try (android.database.Cursor schema = db.rawQuery("PRAGMA schema_version", null);
+             android.database.Cursor data = db.rawQuery("PRAGMA data_version", null)) {
+            if (!schema.moveToFirst() || !data.moveToFirst()) return -1;
+            return (schema.getLong(0) << 32) | (data.getLong(0) & 0xffffffffL);
+        }
+    }
+
+    private static boolean advanceDomainStrategy(SQLiteDatabase db) {
+        strategyDatabase.clear();
+        boolean ready = com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db);
+        if (!ready) {
+            strategyVersion = databaseVersion(db);
+            if (strategyVersion != -1) strategyDatabase = new java.lang.ref.WeakReference<>(db);
+        }
+        return ready;
     }
 
     private static boolean advanceExtensionOneStep(SQLiteDatabase db,

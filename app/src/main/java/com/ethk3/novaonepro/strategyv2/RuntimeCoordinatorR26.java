@@ -439,6 +439,17 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         String reason=kind.equals("EXPERT")&&!implementation.isEmpty()?"Concrete resumable paired experiment or evidence audit; full proposal and expert acceptance pending":implementation.isEmpty()?"Full R26 mechanism integration and decisive experiments pending; no fallback substituted":"Concrete numerical kernel registered; complete family experiments and natural quality pending";
         db.execSQL("INSERT OR REPLACE INTO r26_capability(mechanism,kind,implementation,state,reason,last_progress) VALUES(?,?,?,?,?,coalesce((SELECT last_progress FROM r26_capability WHERE mechanism=?),0))",new Object[]{id,kind,implementation,state,reason,id});
     }
+    static Cursor claimableLaneTasksR335(SQLiteDatabase db,String lane,boolean schemaOnly,String boot,long nowElapsed) {
+        String sql = "SELECT t.task_id FROM r26_task t WHERE t.lane=? AND t.status IN ('READY','YIELDED','BLOCKED','RUNNING')"
+                + " AND NOT EXISTS (SELECT 1 FROM r31_task_lease l WHERE l.task_id=t.task_id AND l.owner_epoch IS t.owner"
+                + " AND l.fence=t.fence AND l.boot_id=? AND (l.deadline_elapsed_ms>? OR l.next_elapsed_ms>?))";
+        if (schemaOnly) sql += " AND t.task_id='schema'";
+        sql += " ORDER BY t.last_served,t.task_id";
+        if (!lane.equals("P2")) sql += " LIMIT 1";
+        String elapsed = Long.toString(nowElapsed);
+        return db.rawQuery(sql,new String[]{lane,boot,elapsed,elapsed});
+    }
+    private boolean lifecycleReadyR335;
     private Claim claim(){
         // R27-008: right after a new draw the incumbent forecast for the next target is prepared first, so the
         // freeze is a small write long before the open time instead of INCUMBENT_MISSING_AFTER_OPEN.
@@ -447,16 +458,19 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(strategyStorageReady&&stallRoundR30++%SLOTS.length==0){Claim boosted=claimStalledR30();if(boosted!=null)return boosted;}
         // Dependency-blocked tasks are not ready work. Polling forty of them between migration
         // units made a fresh installation spend minutes without reaching its first model sample.
-        final String dependency=strategyStorageReady?"":" AND task_id='schema'";
+        if (strategyStorageReady && !lifecycleReadyR335 && stallRoundR30 % SLOTS.length == 2) {
+            Claim migration = claimTask("lifecycle-schema","P1");
+            if (migration != null) return migration;
+        }
         for(int attempt=0;attempt<SLOTS.length;attempt++){
             String lane=attempt==0&&service.needsP2()?"P2":SLOTS[slot++%SLOTS.length];
             Claim result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(controlContextR31("R26_TASK_CLAIM"),db->{
-                long now=System.currentTimeMillis();String id=null;long fence=0,cursor=0;
+                String id=null;
                 int liveModels=1;if(lane.equals("P2")&&strategyStorageReady)try(Cursor count=db.rawQuery("SELECT count(*) FROM r26_live_model WHERE status='ACTIVE'",null)){if(count.moveToFirst())liveModels=Math.max(1,count.getInt(0));}
                 Set<String> unserved=new HashSet<>();if(lane.equals("P2")&&strategyStorageReady)try(Cursor capabilities=db.rawQuery("SELECT mechanism FROM r26_capability WHERE last_progress=0 AND implementation<>''",null)){while(capabilities.moveToNext())unserved.add(capabilities.getString(0));}
                 int bestPriority=Integer.MAX_VALUE;double best=Double.POSITIVE_INFINITY;
-                try(Cursor c=db.rawQuery("SELECT task_id,fence,cursor FROM r26_task WHERE lane=? AND status IN ('READY','YIELDED','BLOCKED','RUNNING')"+dependency+" ORDER BY last_served,task_id"+(lane.equals("P2")?"":" LIMIT 1"),new String[]{lane})){
-                    while(c.moveToNext()){double score=lane.equals("P2")?service.score(c.getString(0),CapabilityServiceR26.weight(c.getString(0),FamilyRegistryR26.EXECUTABLE.size(),liveModels)):0;int priority=lane.equals("P2")&&CapabilityServiceR26.firstService(c.getString(0),unserved)?0:1;if(priority<bestPriority||priority==bestPriority&&score<best){id=c.getString(0);fence=c.getLong(1)+1;cursor=c.getLong(2);best=score;bestPriority=priority;}}
+                try(Cursor c=claimableLaneTasksR335(db,lane,!strategyStorageReady,IssueTimelineWriterR30.bootId(),SystemClock.elapsedRealtime())){
+                    while(c.moveToNext()){double score=lane.equals("P2")?service.score(c.getString(0),CapabilityServiceR26.weight(c.getString(0),FamilyRegistryR26.EXECUTABLE.size(),liveModels)):0;int priority=lane.equals("P2")&&CapabilityServiceR26.firstService(c.getString(0),unserved)?0:1;if(priority<bestPriority||priority==bestPriority&&score<best){id=c.getString(0);best=score;bestPriority=priority;}}
                 }
                 if(id==null)return null;
                 return claimWithinR31(db,id,owner,lane,null);
@@ -609,13 +623,24 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         }
         if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
         if(c.task.equals("lifecycle-schema")){
-            budget.checkpointOrYield();
-            LifecycleSchemaR31.Result result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
-                    DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_LIFECYCLE_SCHEMA_UNIT"),db->{
-                        requireFence(db,c);return LifecycleSchemaR31.advanceWithinMigration(db);
-                    });
-            c.reason(result.committedUnit?"COOPERATIVE_LIFECYCLE_SCHEMA_UNIT_COMMITTED:"+result.object:"WAITING_NEW_LIFECYCLE_SCHEMA_OBJECTS");
-            return result.committedUnit?1:0;
+            long until = SystemClock.elapsedRealtime() + SCHEMA_BATCH_MS;
+            int units = 0;
+            LifecycleSchemaR31.Result result;
+            do {
+                try { budget.checkpointOrYield(); }
+                catch (BudgetTokenSU1.Yield pause) { if (units == 0) throw pause; break; }
+                result = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                        DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_LIFECYCLE_SCHEMA_UNIT"), db -> {
+                            requireFence(db,c);
+                            return LifecycleSchemaR31.advanceWithinMigration(db);
+                        });
+                lifecycleReadyR335 = result.ready;
+                if (!result.committedUnit) break;
+                units++;
+                c.reason("COOPERATIVE_LIFECYCLE_SCHEMA_UNIT_COMMITTED:"+result.object);
+            } while (!lifecycleReadyR335 && !preempt() && SystemClock.elapsedRealtime() < until);
+            if (units == 0) c.reason("WAITING_NEW_LIFECYCLE_SCHEMA_OBJECTS");
+            return units;
         }
         ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
