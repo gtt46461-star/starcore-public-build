@@ -102,10 +102,10 @@ jobs:
           set -euo pipefail
           export STARCORE_R33_PLAN_ROOT="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
           mkdir -p "$RUNNER_TEMP/protocol-candidate" "$RUNNER_TEMP/upgrade-evidence" "$RUNNER_TEMP/report-originals"
-          python3 -B "$GITHUB_WORKSPACE/.github/r335-vivo-gallery/paired_fixture.py"
           support="$GITHUB_WORKSPACE/.github/r335-085-fixtures"
           export STARCORE_QA_TEST_SOURCES="$(python3 -B "$support/stage_tests.py" "$PWD" "$RUNNER_TEMP/current-085-test-sources")"
           test -d "$STARCORE_QA_TEST_SOURCES"
+          (cd "$RUNNER_TEMP/current-085-test-sources" && python3 -B "$GITHUB_WORKSPACE/.github/r335-vivo-gallery/paired_fixture.py")
           git diff --exit-code HEAD -- app/src
           if ! ./gradlew -I "$support/test-sources.gradle" --no-daemon --max-workers=2 -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$RUNNER_TEMP/report-originals/instrument-build.log" 2>&1; then
             python3 -c 'import pathlib,os; p=pathlib.Path(os.environ["RUNNER_TEMP"]); (p/"upgrade-evidence"/"instrument-build-status.txt").write_text("Gradle test APK build failed. Original Gradle log is in the encrypted archive.\n")'
