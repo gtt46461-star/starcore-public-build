@@ -57,10 +57,14 @@ def request(seq,known):
             sig=[stage,code,j.get('resumeStage'),j.get('revision')]
             if not row['stages'] or row['stages'][-1]!=sig:
                 row['stages'].append(sig);save()
-                if stage=='PAUSED':
+                if stage in ('PAUSED','FAILED','CANCELLED'):
                     trace=j.get('failureDetailR32','')
                     row['lastFailureFrames']=list(dict.fromkeys(re.findall(r'[(]([A-Za-z][A-Za-z_0-9]+[.]java:[0-9]+)[)]',trace)))[:16]
                     row['lastFailurePhase']=j.get('failurePhaseR32','')
+                    row['failureTypes']=sorted(set(re.findall(r'\b([A-Z][A-Za-z0-9]+(?:Exception|Error))\b',trace+reason)))[:12]
+                    row['registeredCodes']=sorted(set(re.findall(r'\b([A-Z][A-Z0-9]+_[A-Z0-9_]{4,65})\b',trace+reason)))[:16]
+                    prep=j.get('reportSourcePreparation','')
+                    if re.fullmatch(r'[A-Z_]{1,80}',prep):row['reportSourcePreparation']=prep
                     save()
             if stage in ('FAILED','CANCELLED'):raise ValueError('NATIVE_REPORT_TERMINAL_FAILURE')
             if stage=='READY_TO_SHARE':
