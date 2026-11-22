@@ -117,6 +117,7 @@ public final class EvolutionPublicationStoreR31 {
             if(closed)throw new java.util.concurrent.CancellationException("R31_EVOLUTION_PREPARED_CLOSED");
             if(!verified)throw new IllegalStateException("R31_EVOLUTION_UNVERIFIED_STAGING");if(completeObserved)return new ResearchWriteQueueR27.Batch();ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
             batch.guardBefore(db->{owned(db);requireSchema(db);CursorState now=CursorState.capture(db,loop);if(!sameCursor(now,old))throw new Stale();
+                plan.requireCurrentTriggers(db);
                 try(Cursor c=db.rawQuery("SELECT state,payload_hash,op_count,value_count FROM r31_evolution_publication WHERE publication_id=?",new String[]{id})){if(!c.moveToFirst()||!"PREPARING".equals(c.getString(0))||!payloadHash.equals(c.getString(1))||c.getInt(2)!=rows.size()||c.getInt(3)!=values.size())throw new Stale();}
                 if(scalar(db,"SELECT count(*) FROM r31_evolution_op WHERE publication_id=?",id)!=rows.size()||scalar(db,"SELECT count(*) FROM r31_evolution_value WHERE publication_id=?",id)!=values.size())throw new IllegalStateException("R31_EVOLUTION_INCOMPLETE_STAGING");
                 return original.before==null?0:original.before.call(db);});

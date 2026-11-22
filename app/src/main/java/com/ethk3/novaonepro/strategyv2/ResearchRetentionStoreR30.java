@@ -38,6 +38,17 @@ public final class ResearchRetentionStoreR30 {
     }
     private static String columnsHashR31(List<String[]> columns){List<List<String>> metadata=new ArrayList<>();for(String[] column:columns)metadata.add(Arrays.asList(column));return StatsR27.sha256(JsonR27.write(metadata));}
     private static String normalizedGuardR31(String sql){if(sql==null)return "";String value=sql.trim(),header="CREATE TRIGGER IF NOT EXISTS ";return value.startsWith(header)?"CREATE TRIGGER "+value.substring(header.length()):value;}
+    /** Verify the complete installed trigger before treating a bound, nonempty replacement
+     * as incapable of clearing an archived payload. Other retention modes are distinct. */
+    static boolean isOriginalClearTriggerR335(SQLiteDatabase db,String source,String definition) {
+        if (!ResearchRetentionR30.PROTECTED_TABLES.contains(source)) return false;
+        List<String[]> metadata = columns(db,source);
+        String hash = columnsHashR31(metadata);
+        String name = "r30_keep_" + source + "_" + hash.substring(0,12) + "_clear";
+        String expected = guardsR31(source,metadata,hash).get(name);
+        return expected != null && normalizedGuardR31(expected).equals(definition);
+    }
+
     /** Read-only owner contract used by consumers to distinguish known archive guards from unknown work. */
     public static String[][] sourceProtectionTriggersR31(SQLiteDatabase db,String source){
         if(!ResearchRetentionR30.PROTECTED_TABLES.contains(source))throw new IllegalArgumentException("R31_RETENTION_SOURCE_NOT_PROTECTED");

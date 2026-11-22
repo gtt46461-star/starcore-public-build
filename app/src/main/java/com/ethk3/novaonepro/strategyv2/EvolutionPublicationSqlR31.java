@@ -8,11 +8,23 @@ import java.util.regex.*;
 /** Compiles the owner's INSERT/point-UPDATE dialect before acquiring the writer. */
 final class EvolutionPublicationSqlR31 {
     private EvolutionPublicationSqlR31() {}
+    // Match only the column-list header emitted by the retention owner. Unrecognized
+    // trigger definitions continue to require an explicitly ordered publication.
+    private static final Pattern RETENTION_CLEAR_HEADER = Pattern.compile(
+            "\\ACREATE\\s+TRIGGER\\s+\"r30_keep_([a-z0-9_]+)_[0-9a-f]{12}_clear\""
+            + "\\s+BEFORE\\s+UPDATE\\s+OF\\s+(\"[a-z0-9_]+\"(?:\\s*,\\s*\"[a-z0-9_]+\")*)"
+            + "\\s+ON\\s+\"([a-z0-9_]+)\"\\s+WHEN\\s+", Pattern.CASE_INSENSITIVE);
     static final class Shape {
         final String sql,table,verb,where;final List<String> columns,values,assignments,primaryKeys;
         final List<Integer> keyArguments;final List<String> keyLiterals;final int whereArgument;final Set<String> foreignTables=new HashSet<>();
+        private final Set<String> updatedColumns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        private final Set<String> nonemptyColumns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        private String originalClearDefinition;
         boolean firstUpdate;long chunkedArguments;
         Shape(SQLiteDatabase read,String sql){
+            this(read,sql,Collections.emptyList());
+        }
+        Shape(SQLiteDatabase read,String sql,List<ResearchWriteQueueR27.Op> rows){
             this.sql=sql;Matcher insert=Pattern.compile("(?is)^(INSERT(?: OR (?:IGNORE|REPLACE))?) INTO ([a-zA-Z0-9_]+)(?:\\(([^)]*)\\))? VALUES\\((.*)\\)$").matcher(sql);
             List<String> schema=new ArrayList<>(),pk=new ArrayList<>();Map<Integer,String> ordered=new TreeMap<>();
             Matcher update=Pattern.compile("(?is)^UPDATE ([a-zA-Z0-9_]+) SET (.+?) WHERE (.+)$").matcher(sql);
@@ -21,12 +33,6 @@ final class EvolutionPublicationSqlR31 {
             try(Cursor c=read.rawQuery("PRAGMA table_info("+table+")",null)){while(c.moveToNext()){schema.add(c.getString(1));if(c.getInt(5)>0)ordered.put(c.getInt(5),c.getString(1));}}
             pk.addAll(ordered.values());if(schema.isEmpty()||pk.isEmpty())throw unsupported("TABLE_OR_PRIMARY_KEY:"+table);primaryKeys=Collections.unmodifiableList(pk);
             try(Cursor c=read.rawQuery("PRAGMA foreign_key_list("+table+")",null)){while(c.moveToNext())foreignTables.add(c.getString(2));}
-            // Grouping must not reorder application-defined cross-row triggers. A DELETE-only
-            // retention trigger is inactive here because no DELETE is accepted and REPLACE's
-            // implicit DELETE triggers require recursive_triggers=ON (checked by the caller).
-            try(Cursor c=read.rawQuery("SELECT sql FROM sqlite_master WHERE type='trigger' AND tbl_name=?",new String[]{table})){
-                while(c.moveToNext()){String ddl=c.getString(0).toUpperCase(Locale.ROOT);boolean relevant=ddl.matches("(?s).*\\b(?:BEFORE|AFTER)\\s+"+(isInsert?"INSERT":"UPDATE")+"\\b.*");if(relevant&&!ddl.contains("BEGIN SELECT RAISE"))throw unsupported("CANONICAL_TRIGGER_REQUIRES_EXPLICIT_OWNER_PLAN:"+table);}
-            }
             keyArguments=new ArrayList<>();keyLiterals=new ArrayList<>();
             if(isInsert){verb=insert.group(1);where=null;assignments=Collections.emptyList();columns=insert.group(3)==null?schema:split(insert.group(3));values=split(insert.group(4));whereArgument=0;
                 if(columns.size()!=values.size())throw unsupported("INSERT_SHAPE:"+table);
@@ -39,6 +45,14 @@ final class EvolutionPublicationSqlR31 {
                 for(String key:pk){Matcher match=Pattern.compile("(?i)(?<![a-zA-Z0-9_])"+key+"\\s*=\\s*(\\?|'(?:''|[^'])*'|-?[0-9]+)(?![a-zA-Z0-9_])").matcher(where);
                     if(!match.find())throw unsupported("NON_POINT_UPDATE:"+key+":"+sql);String value=match.group(1);int argument=whereArgument+questionCount(where.substring(0,match.start(1)));
                     if(value.equals("?")){keyArguments.add(argument);keyLiterals.add(null);}else{keyArguments.add(-1);keyLiterals.add(literal(value));}}
+                updatedColumns.addAll(changed);
+                int argIndex = 0;
+                for (String assignment : assignments) {
+                    String[] pair = assignment.split("=", 2);
+                    if (!pair[1].trim().equals("?")) continue;
+                    if (!rows.isEmpty() && allBindNonempty(rows,argIndex)) nonemptyColumns.add(pair[0].trim());
+                    argIndex++;
+                }
                 Set<String> predicateChanges=new HashSet<>();for(String name:changed)if(!pk.contains(name)&&Pattern.compile("(?i)(?<![a-zA-Z0-9_])"+name+"(?![a-zA-Z0-9_])").matcher(where).find())predicateChanges.add(name);
                 if(!predicateChanges.isEmpty()){
                     if(table.equals("r27_policy")&&predicateChanges.equals(Collections.singleton("state"))&&where.contains("state NOT IN ('LIVE')"))firstUpdate=false;
@@ -47,7 +61,62 @@ final class EvolutionPublicationSqlR31 {
                     else throw unsupported("STATEFUL_UPDATE_REQUIRES_EXPLICIT_OWNER_PLAN:"+sql);
                 }
             }
+            try (Cursor triggers = read.rawQuery(
+                    "SELECT sql FROM main.sqlite_master WHERE type='trigger' AND tbl_name=? COLLATE NOCASE",
+                    new String[]{table})) {
+                while (triggers.moveToNext()) {
+                    String definition = triggers.getString(0);
+                    if (!nonemptyColumns.isEmpty() && RETENTION_CLEAR_HEADER.matcher(definition).lookingAt()
+                            && ResearchRetentionStoreR30.isOriginalClearTriggerR335(read,table,definition)) {
+                        originalClearDefinition = definition;
+                    }
+                    requireCompatibleTrigger(definition);
+                }
+            }
         }
+
+        private static boolean allBindNonempty(List<ResearchWriteQueueR27.Op> rows,int index) {
+            for (ResearchWriteQueueR27.Op op : rows) {
+                if (op.args == null || index >= op.args.length) return false;
+                Object value = op.args[index];
+                if (value instanceof byte[] && ((byte[]) value).length > 0) continue;
+                // SQLite length(TEXT) stops at the first NUL.
+                if (value instanceof String && !((String) value).isEmpty()
+                        && ((String) value).charAt(0) != 0) continue;
+                return false;
+            }
+            return true;
+        }
+
+        void requireCompatibleTrigger(String definition) {
+            String operation = verb.equals("UPDATE") ? "UPDATE" : "INSERT";
+            String ddl = definition.toUpperCase(Locale.ROOT);
+            if (!ddl.matches("(?s).*\\b(?:BEFORE|AFTER)\\s+" + operation + "\\b.*")
+                    || ddl.contains("BEGIN SELECT RAISE")) return;
+
+            // SQLite fires UPDATE OF if a column is named in SET, even when its value
+            // stays equal. The compiled UPDATE assigns exactly the original columns.
+            if (verb.equals("UPDATE")) {
+                Matcher header = RETENTION_CLEAR_HEADER.matcher(definition);
+                if (header.lookingAt() && table.equalsIgnoreCase(header.group(1))
+                        && table.equalsIgnoreCase(header.group(3))) {
+                    boolean fires = false;
+                    for (String item : header.group(2).split(",")) {
+                        String quoted = item.trim();
+                        String column = quoted.substring(1, quoted.length() - 1);
+                        if (!updatedColumns.contains(column)) continue;
+                        // The authenticated guard archives only a nonempty OLD payload
+                        // replaced by NULL or length zero. Every staged row must satisfy this.
+                        if (definition.equals(originalClearDefinition) && nonemptyColumns.contains(column)) continue;
+                        fires = true;
+                        break;
+                    }
+                    if (!fires) return;
+                }
+            }
+            throw unsupported("CANONICAL_TRIGGER_REQUIRES_EXPLICIT_OWNER_PLAN:" + table);
+        }
+
         String key(ResearchWriteQueueR27.Op op){List<String> key=new ArrayList<>();for(int i=0;i<keyArguments.size();i++){int argument=keyArguments.get(i);Object value=argument<0?keyLiterals.get(i):op.args[argument];if(value==null||value instanceof byte[])throw unsupported("NULL_OR_BLOB_KEY");key.add(String.valueOf(value));}return table+'|'+JsonR27.write(key);}
         Object[] lookup(ResearchWriteQueueR27.Op op){Object[] keys=new Object[4];if(verb.equals("UPDATE")){if(primaryKeys.size()>4)throw unsupported("OWNER_POINT_KEY_ARITY");for(int i=0;i<primaryKeys.size();i++)keys[i]=keyArguments.get(i)<0?keyLiterals.get(i):op.args[keyArguments.get(i)];}return keys;}
         void validate(ResearchWriteQueueR27.Op op){
@@ -68,11 +137,35 @@ final class EvolutionPublicationSqlR31 {
         final List<Shape> shapes;final List<Integer> kinds;final List<Integer> ordered;
         Plan(SQLiteDatabase read,List<ResearchWriteQueueR27.Op> ops){
             try(Cursor c=read.rawQuery("PRAGMA recursive_triggers",null)){if(!c.moveToFirst()||c.getInt(0)!=0)throw unsupported("RECURSIVE_TRIGGERS_REQUIRE_EXPLICIT_OWNER_PLAN");}
+            Map<String,List<ResearchWriteQueueR27.Op>> sourceRows = new LinkedHashMap<>();
+            for (ResearchWriteQueueR27.Op op : ops)
+                sourceRows.computeIfAbsent(op.sql,key -> new ArrayList<>()).add(op);
             shapes=new ArrayList<>();kinds=new ArrayList<>();Map<String,Integer> bySql=new LinkedHashMap<>(),last=new HashMap<>();List<Set<Integer>> edges=new ArrayList<>();
-            for(ResearchWriteQueueR27.Op op:ops){Integer kind=bySql.get(op.sql);if(kind==null){kind=shapes.size();bySql.put(op.sql,kind);shapes.add(new Shape(read,op.sql));edges.add(new LinkedHashSet<>());}Shape shape=shapes.get(kind);shape.validate(op);String key=shape.key(op);Integer prior=last.put(key,kind);if(prior!=null&&!prior.equals(kind))edges.get(prior).add(kind);kinds.add(kind);}
+            for(ResearchWriteQueueR27.Op op:ops){Integer kind=bySql.get(op.sql);if(kind==null){kind=shapes.size();bySql.put(op.sql,kind);shapes.add(new Shape(read,op.sql,sourceRows.get(op.sql)));edges.add(new LinkedHashSet<>());}Shape shape=shapes.get(kind);shape.validate(op);String key=shape.key(op);Integer prior=last.put(key,kind);if(prior!=null&&!prior.equals(kind))edges.get(prior).add(kind);kinds.add(kind);}
             for(int child=0;child<shapes.size();child++)for(int parent=0;parent<shapes.size();parent++)if(child!=parent&&!shapes.get(child).verb.equals("UPDATE")&&!shapes.get(parent).verb.equals("UPDATE")&&shapes.get(child).foreignTables.contains(shapes.get(parent).table))edges.get(parent).add(child);
             int[] degree=new int[shapes.size()];for(Set<Integer> group:edges)for(int target:group)degree[target]++;ordered=new ArrayList<>();Set<Integer> used=new HashSet<>();
             while(ordered.size()<shapes.size()){Integer next=null;for(int i=0;i<shapes.size();i++)if(!used.contains(i)&&degree[i]==0){next=i;break;}if(next==null)throw unsupported("NONCOMMUTING_OWNER_STATEMENT_CYCLE");used.add(next);ordered.add(next);for(int target:edges.get(next))degree[target]--;}
+        }
+        /** A migration can install another trigger after staging. Recheck in the final
+         * writer transaction before any canonical row or cursor can change. */
+        void requireCurrentTriggers(SQLiteDatabase db) {
+            try (Cursor settings = db.rawQuery("PRAGMA recursive_triggers", null)) {
+                if (!settings.moveToFirst() || settings.getInt(0) != 0)
+                    throw unsupported("RECURSIVE_TRIGGERS_REQUIRE_EXPLICIT_OWNER_PLAN");
+            }
+            if (shapes.isEmpty()) return;
+            Map<String,List<Shape>> byTable = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            for (Shape shape : shapes)
+                byTable.computeIfAbsent(shape.table, key -> new ArrayList<>()).add(shape);
+            String marks = String.join(",", Collections.nCopies(byTable.size(), "?"));
+            try (Cursor triggers = db.rawQuery(
+                    "SELECT tbl_name,sql FROM main.sqlite_master WHERE type='trigger' AND tbl_name COLLATE NOCASE IN (" + marks + ")",
+                    byTable.keySet().toArray(new String[0]))) {
+                while (triggers.moveToNext()) {
+                    for (Shape shape : byTable.get(triggers.getString(0)))
+                        shape.requireCompatibleTrigger(triggers.getString(1));
+                }
+            }
         }
     }
     static String argument(int index){String column="a"+index;long bit=1L<<index;
