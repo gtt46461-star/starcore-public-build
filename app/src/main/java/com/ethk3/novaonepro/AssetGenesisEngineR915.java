@@ -42,15 +42,7 @@ public final class AssetGenesisEngineR915 {
         ensureSchema(db, false);
     }
 
-    static void ensureSchema(SQLiteDatabase db, boolean stagedRegistries) {
-        if (db == null) throw new IllegalArgumentException("R915_GENESIS_DB_NULL");
-        createRegistryTables(db, TABLE_LEGACY_REGISTRY, TABLE_ATOM_SCHEMA);
-        ensureColumn(db,TABLE_ATOM_SCHEMA,"value_range","TEXT NOT NULL DEFAULT 'UNKNOWN'");
-        ensureColumn(db,TABLE_ATOM_SCHEMA,"window_spec","TEXT NOT NULL DEFAULT 'UNKNOWN'");
-        ensureColumn(db,TABLE_ATOM_SCHEMA,"max_lag","INTEGER NOT NULL DEFAULT 0");
-        ensureColumn(db,TABLE_ATOM_SCHEMA,"min_support","INTEGER NOT NULL DEFAULT 1");
-        ensureColumn(db,TABLE_ATOM_SCHEMA,"evidence_stage","TEXT NOT NULL DEFAULT 'UNCLASSIFIED'");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ATOM_PROPOSAL + "("
+    private static final String CREATE_ATOM_PROPOSAL = "CREATE TABLE IF NOT EXISTS " + TABLE_ATOM_PROPOSAL + "("
                 + "proposal_id TEXT PRIMARY KEY,namespace TEXT NOT NULL CHECK(namespace='ATOM_PROPOSAL'),"
                 + "proposed_name TEXT NOT NULL,value_type TEXT NOT NULL,definition_spec TEXT NOT NULL,"
                 + "source_atom_ids TEXT NOT NULL,leakage_class TEXT NOT NULL,update_timing TEXT NOT NULL,"
@@ -59,12 +51,12 @@ public final class AssetGenesisEngineR915 {
                 + "status TEXT NOT NULL,reject_reason TEXT NOT NULL DEFAULT '',future_n INTEGER NOT NULL DEFAULT 0,"
                 + "incremental_info REAL NOT NULL DEFAULT 0,activation_schema_version TEXT NOT NULL DEFAULT '',"
                 + "semantic_digest TEXT NOT NULL UNIQUE,created_issue TEXT NOT NULL DEFAULT '',"
-                + "created_ms INTEGER NOT NULL,updated_ms INTEGER NOT NULL)");
-        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_r915_atom_proposal_name ON "
-                + TABLE_ATOM_PROPOSAL + "(proposed_name)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_r915_atom_proposal_state ON "
-                + TABLE_ATOM_PROPOSAL + "(status,created_ms DESC)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ASSET_GENOME + "("
+                + "created_ms INTEGER NOT NULL,updated_ms INTEGER NOT NULL)";
+    private static final String CREATE_IDX_R915_ATOM_PROPOSAL_NAME = "CREATE UNIQUE INDEX IF NOT EXISTS idx_r915_atom_proposal_name ON "
+                + TABLE_ATOM_PROPOSAL + "(proposed_name)";
+    private static final String CREATE_IDX_R915_ATOM_PROPOSAL_STATE = "CREATE INDEX IF NOT EXISTS idx_r915_atom_proposal_state ON "
+                + TABLE_ATOM_PROPOSAL + "(status,created_ms DESC)";
+    private static final String CREATE_ASSET_GENOME = "CREATE TABLE IF NOT EXISTS " + TABLE_ASSET_GENOME + "("
                 + "asset_id TEXT PRIMARY KEY,namespace TEXT NOT NULL CHECK(namespace='GENESIS_NEW'),"
                 + "display_name_zh TEXT NOT NULL,mechanism_spec_zh TEXT NOT NULL,genome_spec TEXT NOT NULL,"
                 + "structural_hash TEXT NOT NULL UNIQUE,behavior_hash TEXT NOT NULL UNIQUE,"
@@ -81,10 +73,10 @@ public final class AssetGenesisEngineR915 {
                 + "paired_mainline_n INTEGER NOT NULL DEFAULT 0,paired_mainline_delta REAL NOT NULL DEFAULT 0,"
                 + "incremental_info REAL NOT NULL DEFAULT 0,redundancy REAL NOT NULL DEFAULT 1,"
                 + "fdr_q REAL NOT NULL DEFAULT 1,evidence_hash TEXT NOT NULL DEFAULT '',"
-                + "lifecycle_reason TEXT NOT NULL DEFAULT '',created_ms INTEGER NOT NULL,updated_ms INTEGER NOT NULL)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_r915_asset_lifecycle ON " + TABLE_ASSET_GENOME
-                + "(status,future_wilson_lower DESC,paired_mainline_delta DESC,updated_ms)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ASSET_FREEZE + "("
+                + "lifecycle_reason TEXT NOT NULL DEFAULT '',created_ms INTEGER NOT NULL,updated_ms INTEGER NOT NULL)";
+    private static final String CREATE_IDX_R915_ASSET_LIFECYCLE = "CREATE INDEX IF NOT EXISTS idx_r915_asset_lifecycle ON " + TABLE_ASSET_GENOME
+                + "(status,future_wilson_lower DESC,paired_mainline_delta DESC,updated_ms)";
+    private static final String CREATE_ASSET_FREEZE = "CREATE TABLE IF NOT EXISTS " + TABLE_ASSET_FREEZE + "("
                 + "asset_id TEXT NOT NULL,target_issue TEXT NOT NULL,asset_version_hash TEXT NOT NULL,"
                 + "base_issue TEXT NOT NULL,history_hash TEXT NOT NULL,surface_hash TEXT NOT NULL,"
                 + "history_rows INTEGER NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,"
@@ -95,14 +87,10 @@ public final class AssetGenesisEngineR915 {
                 + "record_hash TEXT NOT NULL UNIQUE,frozen_ms INTEGER NOT NULL,actual_number INTEGER NOT NULL DEFAULT 0,"
                 + "hit_label INTEGER NOT NULL DEFAULT -1 CHECK(hit_label IN(-1,0,1)),base_hit INTEGER NOT NULL DEFAULT -1,"
                 + "brier REAL NOT NULL DEFAULT 0,settled_ms INTEGER NOT NULL DEFAULT 0,outcome_hash TEXT NOT NULL DEFAULT '',"
-                + "PRIMARY KEY(asset_id,target_issue))");
-        ensureColumn(db,TABLE_ASSET_FREEZE,"output_type","TEXT NOT NULL DEFAULT 'SCALAR_SCORE'");
-        ensureColumn(db,TABLE_ASSET_FREEZE,"output_shape","TEXT NOT NULL DEFAULT '1'");
-        ensureColumn(db,TABLE_ASSET_FREEZE,"output_blob","TEXT NOT NULL DEFAULT ''");
-        ensureColumn(db,TABLE_ASSET_FREEZE,"output_hash","TEXT NOT NULL DEFAULT ''");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_r915_asset_freeze_pending ON " + TABLE_ASSET_FREEZE
-                + "(target_issue,hit_label,asset_id)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ASSET_CERTIFICATE + "("
+                + "PRIMARY KEY(asset_id,target_issue))";
+    private static final String CREATE_IDX_R915_ASSET_FREEZE_PENDING = "CREATE INDEX IF NOT EXISTS idx_r915_asset_freeze_pending ON " + TABLE_ASSET_FREEZE
+                + "(target_issue,hit_label,asset_id)";
+    private static final String CREATE_ASSET_CERTIFICATE = "CREATE TABLE IF NOT EXISTS " + TABLE_ASSET_CERTIFICATE + "("
                 + "certificate_id TEXT PRIMARY KEY,asset_id TEXT NOT NULL,asset_version_hash TEXT NOT NULL,"
                 + "display_name_zh TEXT NOT NULL,evidence_start_issue TEXT NOT NULL,evidence_end_issue TEXT NOT NULL,"
                 + "future_n INTEGER NOT NULL,future_hit_rate REAL NOT NULL,wilson_lower REAL NOT NULL,"
@@ -110,15 +98,57 @@ public final class AssetGenesisEngineR915 {
                 + "regime_min REAL NOT NULL,max_miss INTEGER NOT NULL,paired_n INTEGER NOT NULL,paired_delta REAL NOT NULL,"
                 + "incremental_info REAL NOT NULL,redundancy REAL NOT NULL,fdr_q REAL NOT NULL,"
                 + "status TEXT NOT NULL,revocation_code TEXT NOT NULL DEFAULT '',evidence_hash TEXT NOT NULL,"
-                + "created_ms INTEGER NOT NULL,updated_ms INTEGER NOT NULL,UNIQUE(asset_id,asset_version_hash))");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_r915_asset_certificate ON " + TABLE_ASSET_CERTIFICATE
-                + "(status,wilson_lower DESC,paired_delta DESC,future_n DESC)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_EVOLUTION_EVENT + "("
+                + "created_ms INTEGER NOT NULL,updated_ms INTEGER NOT NULL,UNIQUE(asset_id,asset_version_hash))";
+    private static final String CREATE_IDX_R915_ASSET_CERTIFICATE = "CREATE INDEX IF NOT EXISTS idx_r915_asset_certificate ON " + TABLE_ASSET_CERTIFICATE
+                + "(status,wilson_lower DESC,paired_delta DESC,future_n DESC)";
+    private static final String CREATE_EVOLUTION_EVENT = "CREATE TABLE IF NOT EXISTS " + TABLE_EVOLUTION_EVENT + "("
                 + "event_id TEXT PRIMARY KEY,event_issue TEXT NOT NULL,entity_type TEXT NOT NULL,entity_id TEXT NOT NULL,"
                 + "operation TEXT NOT NULL,parent_ids TEXT NOT NULL,child_ids TEXT NOT NULL,failure_vector TEXT NOT NULL,"
-                + "need_plan TEXT NOT NULL,created_ms INTEGER NOT NULL,record_hash TEXT NOT NULL UNIQUE)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_r915_evolution_type ON " + TABLE_EVOLUTION_EVENT
-                + "(entity_type,created_ms DESC)");
+                + "need_plan TEXT NOT NULL,created_ms INTEGER NOT NULL,record_hash TEXT NOT NULL UNIQUE)";
+    private static final String CREATE_IDX_R915_EVOLUTION_TYPE = "CREATE INDEX IF NOT EXISTS idx_r915_evolution_type ON " + TABLE_EVOLUTION_EVENT
+                + "(entity_type,created_ms DESC)";
+
+    private static final ResearchSchemaDdlR335 RESEARCH_OBJECTS = new ResearchSchemaDdlR335(new String[] {
+            CREATE_ATOM_PROPOSAL,
+            CREATE_IDX_R915_ATOM_PROPOSAL_NAME,
+            CREATE_IDX_R915_ATOM_PROPOSAL_STATE,
+            CREATE_ASSET_GENOME,
+            CREATE_IDX_R915_ASSET_LIFECYCLE,
+            CREATE_ASSET_FREEZE,
+            CREATE_IDX_R915_ASSET_FREEZE_PENDING,
+            CREATE_ASSET_CERTIFICATE,
+            CREATE_IDX_R915_ASSET_CERTIFICATE,
+            CREATE_EVOLUTION_EVENT,
+            CREATE_IDX_R915_EVOLUTION_TYPE
+    });
+
+    static boolean prepareResearchObjects(SQLiteDatabase db) {
+        return RESEARCH_OBJECTS.installNext(db);
+    }
+
+    static void ensureSchema(SQLiteDatabase db, boolean stagedRegistries) {
+        if (db == null) throw new IllegalArgumentException("R915_GENESIS_DB_NULL");
+        createRegistryTables(db, TABLE_LEGACY_REGISTRY, TABLE_ATOM_SCHEMA);
+        ensureColumn(db,TABLE_ATOM_SCHEMA,"value_range","TEXT NOT NULL DEFAULT 'UNKNOWN'");
+        ensureColumn(db,TABLE_ATOM_SCHEMA,"window_spec","TEXT NOT NULL DEFAULT 'UNKNOWN'");
+        ensureColumn(db,TABLE_ATOM_SCHEMA,"max_lag","INTEGER NOT NULL DEFAULT 0");
+        ensureColumn(db,TABLE_ATOM_SCHEMA,"min_support","INTEGER NOT NULL DEFAULT 1");
+        ensureColumn(db,TABLE_ATOM_SCHEMA,"evidence_stage","TEXT NOT NULL DEFAULT 'UNCLASSIFIED'");
+        db.execSQL(CREATE_ATOM_PROPOSAL);
+        db.execSQL(CREATE_IDX_R915_ATOM_PROPOSAL_NAME);
+        db.execSQL(CREATE_IDX_R915_ATOM_PROPOSAL_STATE);
+        db.execSQL(CREATE_ASSET_GENOME);
+        db.execSQL(CREATE_IDX_R915_ASSET_LIFECYCLE);
+        db.execSQL(CREATE_ASSET_FREEZE);
+        ensureColumn(db,TABLE_ASSET_FREEZE,"output_type","TEXT NOT NULL DEFAULT 'SCALAR_SCORE'");
+        ensureColumn(db,TABLE_ASSET_FREEZE,"output_shape","TEXT NOT NULL DEFAULT '1'");
+        ensureColumn(db,TABLE_ASSET_FREEZE,"output_blob","TEXT NOT NULL DEFAULT ''");
+        ensureColumn(db,TABLE_ASSET_FREEZE,"output_hash","TEXT NOT NULL DEFAULT ''");
+        db.execSQL(CREATE_IDX_R915_ASSET_FREEZE_PENDING);
+        db.execSQL(CREATE_ASSET_CERTIFICATE);
+        db.execSQL(CREATE_IDX_R915_ASSET_CERTIFICATE);
+        db.execSQL(CREATE_EVOLUTION_EVENT);
+        db.execSQL(CREATE_IDX_R915_EVOLUTION_TYPE);
         CertifiedResearchMixerR915.ensureSchema(db);
         if (stagedRegistries) publishStagedRegistries(db);
         else seedImmutableRegistries(db);

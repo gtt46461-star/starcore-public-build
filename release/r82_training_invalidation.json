@@ -124,11 +124,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
       "before_sha256": "29014e95e9efb17e61535ad760a0d1a54451ee2c68276b5063b022f9c7e975d8",
-      "after_sha256": "c05c44599128809cb5c73ab36bf410974f720e37c264ed9e50cf5c2058abddfb",
+      "after_sha256": "6d25c5dfdb3adb5d114060b938cbc5a705b0e32321e4bcc8e492924118372679",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Resume registry migration through durable pages under the existing owner, atomically publish both signed manifests, and empty the staging data for bounded reuse under the existing schema retirement contract."
+      "rationale": "Resume research-schema installation after an interrupted bounded write. Install one missing declared research table or index per writer callback. The original atomic step still validates both signed registries before exposing READY."
     },
     {
       "after_role": "NUMERIC",
@@ -367,11 +367,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
       "before_sha256": "754c01343d9fe165c24869495a07190878fb0d4e68012a4ebe92b550423c8382",
-      "after_sha256": "715a0f79af8a1ae7134d1757f0a13e4d29159b19f87126974be479ac2dcd937d",
+      "after_sha256": "c659494d8f4b52ff7e249da3aab28ae5342fa6dc8c32229db69dd49b0d8fe8e6",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Resume R906 registry preparation in durable private pages under the existing migration writer. Rebuild damaged pending content against the signed manifests and publish both original registries in the same rollback-safe transaction. Install the full genome schema on fresh databases and advance additive old columns one at a time. The bounded migration failure was captured on the preserved 081 schema and independently reproduced offline before applying the repair."
+      "rationale": "Resume research-schema installation after an interrupted bounded write. Install one missing declared research table or index per writer callback. The original atomic step still validates both signed registries before exposing READY."
     },
     {
       "after_role": "NUMERIC",
@@ -1240,11 +1240,20 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
       "before_sha256": "500dc743e129386c416e1759c60799224fad69091080b960dd6b50aa015f5572",
-      "after_sha256": "a675d184fd16c2f06a3cf8d31a5ebba71b6ade71d6a709e468571b94a73fe1ca",
+      "after_sha256": "7feab29e326f251462f234a1765614a393263c3d81fa8a36ff11cd4181515afa",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Resume R906 registry preparation in durable private pages under the existing migration writer. Rebuild damaged pending content against the signed manifests and publish both original registries in the same rollback-safe transaction. Install the full genome schema on fresh databases and advance additive old columns one at a time. The bounded migration failure was captured on the preserved 081 schema and independently reproduced offline before applying the repair."
+      "rationale": "Resume research-schema installation after an interrupted bounded write. Install one missing declared research table or index per writer callback. The original atomic step still validates both signed registries before exposing READY."
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaDdlR335.java",
+      "before_sha256": "",
+      "after_sha256": "109aea1b7b8d60214ccc50ec843d5e3229468b53a1f3336629585fd7fa1ee08a",
+      "before_role": "",
+      "after_role": "NUMERIC",
+      "reviewer": "Codex R33.5 vivo field repair",
+      "rationale": "Resume research-schema installation after an interrupted bounded write. Install one missing declared research table or index per writer callback. The original atomic step still validates both signed registries before exposing READY."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
@@ -6062,7 +6071,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "ad0aea4aecd46e11ded13bb3bc30a26ce8084c39886b5bbeb569d8b08eb12862",
+  "current_controlled_roles_sha256": "43de8312c00d596ddea0bf39c3b580429e34a53ca241209ee0907c888d829420",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -6400,6 +6409,12 @@
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaDdlR335.java",
+      "role": "NUMERIC",
+      "reviewer": "Codex R33.5 vivo field repair",
+      "rationale": "Resume research-schema installation after an interrupted bounded write. Install one missing declared research table or index per writer callback. The original atomic step still validates both signed registries before exposing READY."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
@@ -9278,7 +9293,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "988cc05ccbfdb1c7b724a917a0c5d611b97dc8800c69be6a7da1b318d33350d7",
+  "reviewed_input_provenance_sha256": "21fd035eea55e4a2079e05fdc68caf98d9e4a60fbe8e0b79dc6f71b33f6747a4",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
