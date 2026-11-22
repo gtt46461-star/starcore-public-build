@@ -65,6 +65,14 @@ def main():
      manifest=json.loads(z.read('source-manifest.json'));doc=json.loads(z.read('R30_REPORT.json'))
      info=json.loads(z.read('runtime-observation.json'));state=info.get('reportSourcePreparation')
      if isinstance(state,str) and re.fullmatch(r'[A-Z_]{1,100}',state):record['reportSourcePreparation']=state
+     if isinstance(state,str) and state!='REGISTERED_REPORT_SOURCES_AVAILABLE':
+      import shlex
+      database='/data/user/0/'+pkg+'/databases/binance_k3_nova_one_pro_v57.db'
+      query="SELECT cursor||'|'||last_error FROM v57_schema_domain_r926 WHERE domain='RESEARCH'"
+      trace=f.adb('shell','sqlite3','-readonly',database,shlex.quote(query)).decode(errors='replace')[:2400]
+      record['ownerErrorCodes']=sorted(set(re.findall(r'\b([A-Z][A-Z_0-9]+_[A-Z_0-9]{3,70})\b',trace)))[:18]
+      record['ownerErrorTypes']=sorted(set(re.findall(r'\b([A-Z][A-Za-z0-9]+(?:Exception|Error))\b',trace)))[:10]
+      record['ownerTraceSha256']=hashlib.sha256(trace.encode()).hexdigest()
      check(manifest['sourceCommit']==n.source and manifest['apkSha256']==n.apk and z.testzip() is None,'MIXED_RELEASE')
      record.update(archiveSha256=f.fingerprint(archive),archiveBytes=archive.stat().st_size,zipMembers=len(z.namelist()),reportBytes=z.getinfo('R30_REPORT.json').file_size,reportMarkdownBytes=z.getinfo('R30_REPORT.md').file_size,rawEvidenceIncluded=manifest['rawEvidenceIncluded'],chapters=len(doc['chapters']),metrics=len(doc['metricResults']),checksComplete=d.get('checksComplete'),allChecksPassed=d.get('allChecksPassed'))
      semantic=json.loads(z.read('R31_SEMANTIC_RECEIPT.json'))
