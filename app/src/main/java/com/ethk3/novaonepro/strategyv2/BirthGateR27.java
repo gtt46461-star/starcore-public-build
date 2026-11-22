@@ -74,11 +74,16 @@ public final class BirthGateR27 {
         long state = 160L;
         for (PolicyAstR27.Node n : PolicyAstR27.nodes(ast)) if (n.op.equals("family")) state += 64L << 10; else if (n.op.equals("ema")) state += 80;
         if (state > MAX_STATE_BYTES) return reject(Reason.COST, "stateBytes=" + state);
-        long started = System.nanoTime(); PolicyAstR27.ScopedScoresR31 s;
+        // Measure time spent evaluating the policy. The worker yields its permit entirely during a
+        // scheduled pause. Real delays while the evaluation is running still count against the limit.
+        BudgetTokenSU1 budget = ExecutionBudgetR26.current();
+        long started = budget == null ? System.nanoTime() : budget.activeNanos();
+        PolicyAstR27.ScopedScoresR31 s;
         try { s = PolicyAstR27.evalScopedR31(ast, cache, spec.position); }
         catch (RuntimeException e) { propagateRuntimeDependencyR31(e);return reject(Reason.RANGE, "EVAL:" + e.getClass().getSimpleName() + ":" + e.getMessage()); }
         try(PolicyAstR27.ScopedScoresR31 scoped=s){
-        double perPeriodMs = (System.nanoTime() - started) / 1e6 / Math.max(1, cache.data.size());
+        long finished = budget == null ? System.nanoTime() : budget.activeNanos();
+        double perPeriodMs = (finished - started) / 1e6 / Math.max(1, cache.data.size());
         if (perPeriodMs > costLimitMs) return reject(Reason.COST, "predictMsPerPeriod=" + perPeriodMs);
         ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.runScopedR31(spec, s, cache.data, cache.data.draws, spec.temperature, probeFrom, probeTo);
         int available = 0; double[] z = new double[10], p = new double[10];
