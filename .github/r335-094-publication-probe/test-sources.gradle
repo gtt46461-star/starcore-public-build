@@ -1,0 +1,13 @@
+allprojects { project ->
+    project.pluginManager.withPlugin("com.android.application") {
+        project.extensions.getByName("androidComponents").finalizeDsl { android ->
+            def testJava = android.sourceSets.getByName("androidTest").java
+            def normal = project.file("src/androidTest/java").canonicalFile
+            def extra = new File(System.getenv("STARCORE_QA_TEST_SOURCES")).canonicalFile
+            if (!extra.isDirectory() || !testJava.srcDirs*.canonicalFile.contains(normal)) {
+                throw new GradleException("Expected Android instrumentation Java source directory missing")
+            }
+            testJava.setSrcDirs(testJava.srcDirs.findAll { it.canonicalFile != normal } + [extra])
+        }
+    }
+}
