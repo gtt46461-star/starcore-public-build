@@ -25,6 +25,7 @@ def persist():
 def sha(data):
     return hashlib.sha256(data).hexdigest()
 persist()
+SAF_EXACT_SOURCE='# Android may select a suffixed display name for a second export in the same Downloads folder.\n# Retain the original system picker, acknowledgement, and expected SHA checks up to the reopening step.\nimport inspect as _inspect\n_saf_source = _inspect.getsource(n.ui.save_via_real_document_picker)\nassert hashlib.sha256(_saf_source.encode()).hexdigest() == \'ebfd62ef6f74c7b659b1558ea43a30280bf78099d083dd57a4adb80a28acfcd0\'\n_cut = _saf_source.index("    downloaded=args.out/\'SAF_SAVED_FULL_REPORT.zip\'")\nn.ui._paired_read_uri = n.reopen_uri\n_saf_source = _saf_source[:_cut] + """    downloaded=args.out/\'SAF_SAVED_FULL_REPORT.zip\'\n    receipt_request=read_json(path.removesuffix(\'.ack.json\')+\'.json\')\n    assert receipt_request[\'jobId\']==job and receipt_request[\'volumeName\']==member[\'name\']\n    destination=receipt_request[\'destination\']\n    access=_paired_read_uri(destination,downloaded,member[\'sha256\'])\n    digest=hashlib.sha256(downloaded.read_bytes()).hexdigest()\n    assert access in (\'CONTENT_RESOLVER\',\'EXACT_DOCUMENT_PATH\') and digest==member[\'sha256\'] and downloaded.stat().st_size==member[\'bytes\'],\'REPORT_SAF_EXACT_DOCUMENT_READBACK_MISMATCH\'\n    return dict(state=\'VERIFIED_READBACK\',externalFileSha256=digest,bytes=downloaded.stat().st_size,actualSystemPicker=True,sameAsPublishedZip=True)\n"""\nexec(compile(_saf_source,n.ui.__file__,\'exec\'),n.ui.__dict__)\n'
 def run_report(v,commit,digest,attempt):
     root = temp/('paired-report-%03d-%d'%(v,attempt))
     root.mkdir()
@@ -52,6 +53,12 @@ def run_report(v,commit,digest,attempt):
 """
     setup += " record['androidUid']=olduid\n"
     modified = (template[:start]+setup+template[stop:]).replace("n.source='"+commits[95][0]+"'","n.source='"+commit+"'")
+    marker='def main():'
+    modified=modified.replace(marker,SAF_EXACT_SOURCE+'\n'+marker,1)
+    target="    strict=n.oracle.validate_export(archive,{'profile':'DIAGNOSTIC','jobId':job,'sourceCommit':n.source,'apkSha256':n.apk})"
+    assert modified.count(target)==1
+    modified=modified.replace(target, "    try:\n "+target+"\n    except n.oracle.InvalidEvidence as rejected:\n     if str(rejected)!='ARCHIVE_INCOMPLETE':raise\n     strict={'status':str(rejected)}\n     record['originalVerifierRejected']=True")
+    modified=modified.replace("save('VERIFIED');return","save('RETURNED_WITH_INCOMPLETE_CHECKS' if record.get('originalVerifierRejected') else 'VERIFIED');return")
     ast.parse(modified)
     driver=root/'run_report.py';driver.write_text(modified)
     env=dict(os.environ,RUNNER_TEMP=str(root),REPAIRED_APK_SHA=digest)
@@ -61,12 +68,12 @@ def run_report(v,commit,digest,attempt):
     assert original['sourceCommit']==commit and original['apkSha256']==digest
     item={'version':577311000+v,'sourceCommit':commit,'apkSha256':digest,'exit':process.returncode,'driverSha256':sha(driver.read_bytes()),'stage':original['stage'],'originalReceiptSha256':sha((root/f'R335-095-compact-{run_id}.json').read_bytes())}
     item['attempt']=attempt
-    for key in ('checksComplete','allChecksPassed','failurePhase','failure','androidUid','actualSystemPicker','archiveBytes','jobId','archiveSha256','safExternalZipSha256','originalVerifier','checkExecutions'):
+    for key in ('checksComplete','allChecksPassed','failurePhase','failure','androidUid','actualSystemPicker','originalVerifierRejected','archiveBytes','jobId','archiveSha256','safExternalZipSha256','originalVerifier','checkExecutions'):
         if key in original:item[key]=original[key]
     if attempt>1:
         receipt.setdefault('priorAttempts',[]).append(receipt['attempts'].pop())
     receipt['attempts'].append(item);persist()
-    if original['stage']!='VERIFIED':return False
+    if original['stage'] not in ('VERIFIED','RETURNED_WITH_INCOMPLETE_CHECKS'):return False
     assert original['actualSystemPicker'] and original['safExternalZipSha256']==original['archiveSha256']
     local=root/'separate-private-native-readback/joined.zip'
     assert sha(local.read_bytes())==original['archiveSha256']
