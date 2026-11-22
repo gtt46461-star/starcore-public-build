@@ -133,13 +133,20 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$name" > "$RUNNER_TEMP/upgrade-evidence/target-certificate.txt"
           grep -q 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7' "$RUNNER_TEMP/upgrade-evidence/target-certificate.txt"
           df -h "$RUNNER_TEMP"
-      - name: Restore the independent checkpoint verifier
-        uses: actions/download-artifact@v4
-        with:
-          github-token: ${{ github.token }}
-          run-id: 44880658676
-          name: raw-checkpoint-reader
-          path: ${{ runner.temp }}
+      - name: Build the independently pinned checkpoint verifier from source
+        working-directory: app-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          reader="$GITHUB_WORKSPACE/.github/r335-raw-closure/RawClosure.java"
+          echo "32f308736eb8a4617d5e07b9b310af4f16d008a1d68fa40b447551ef1b993b19  $reader" | sha256sum -c -
+          classes="$PWD/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+          android="$ANDROID_HOME/platforms/android-36/android.jar"
+          mkdir "$RUNNER_TEMP/closure-reader"
+          javac --release 8 -encoding UTF-8 -classpath "$classes:$android" -d "$RUNNER_TEMP/closure-reader" "$reader"
+          jar cf "$RUNNER_TEMP/closure-classes.jar" -C "$RUNNER_TEMP/closure-reader" .
+          "$ANDROID_HOME/build-tools/36.0.0/d8" --min-api 26 --lib "$android" --classpath "$classes" --output "$RUNNER_TEMP/raw-closure-dex.jar" "$RUNNER_TEMP/closure-classes.jar"
+          unzip -t "$RUNNER_TEMP/raw-closure-dex.jar"
       - name: Prepare API 34 guest
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
