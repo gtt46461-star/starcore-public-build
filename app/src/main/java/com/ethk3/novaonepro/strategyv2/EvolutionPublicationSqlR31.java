@@ -20,6 +20,7 @@ final class EvolutionPublicationSqlR31 {
         private final Set<String> updatedColumns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         private final Set<String> nonemptyColumns = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         private String originalClearDefinition;
+        private final boolean cursorRecoveryRows;
         boolean firstUpdate;long chunkedArguments;
         Shape(SQLiteDatabase read,String sql){
             this(read,sql,Collections.emptyList());
@@ -61,6 +62,8 @@ final class EvolutionPublicationSqlR31 {
                     else throw unsupported("STATEFUL_UPDATE_REQUIRES_EXPLICIT_OWNER_PLAN:"+sql);
                 }
             }
+            cursorRecoveryRows = verb.equals("INSERT OR IGNORE") && table.equals("r30r1_analysis_run")
+                    && onlyCursorRecoveryStatuses(rows);
             try (Cursor triggers = read.rawQuery(
                     "SELECT sql FROM main.sqlite_master WHERE type='trigger' AND tbl_name=? COLLATE NOCASE",
                     new String[]{table})) {
@@ -73,6 +76,22 @@ final class EvolutionPublicationSqlR31 {
                     requireCompatibleTrigger(definition);
                 }
             }
+        }
+
+        // A recovery receipt preserves the old snapshot. The journal owner only captures
+        // source fences for input pins and online model registrations.
+        private boolean onlyCursorRecoveryStatuses(List<ResearchWriteQueueR27.Op> rows) {
+            int column = columns.indexOf("status");
+            if (column < 0 || !values.get(column).equals("?") || rows.isEmpty()) return false;
+            int argument = 0;
+            for (int i = 0; i < column; i++) argument += questionCount(values.get(i));
+            for (ResearchWriteQueueR27.Op row : rows) {
+                if (row.args == null || argument >= row.args.length) return false;
+                Object status = row.args[argument];
+                if (!"LEGACY_CURSOR_BOUNDARY_RECOVERY".equals(status)
+                        && !"INVALID_INPUT_CURSOR_PRESERVED".equals(status)) return false;
+            }
+            return true;
         }
 
         private static boolean allBindNonempty(List<ResearchWriteQueueR27.Op> rows,int index) {
@@ -89,6 +108,7 @@ final class EvolutionPublicationSqlR31 {
         }
 
         void requireCompatibleTrigger(String definition) {
+            if (cursorRecoveryRows && ResearchSourceJournalR31.isOriginalPinCapture(definition)) return;
             String operation = verb.equals("UPDATE") ? "UPDATE" : "INSERT";
             String ddl = definition.toUpperCase(Locale.ROOT);
             if (!ddl.matches("(?s).*\\b(?:BEFORE|AFTER)\\s+" + operation + "\\b.*")

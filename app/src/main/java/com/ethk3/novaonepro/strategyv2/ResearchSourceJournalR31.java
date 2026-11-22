@@ -10,6 +10,12 @@ public final class ResearchSourceJournalR31 {
     private ResearchSourceJournalR31(){}
     public static final String EVENT="r31_source_event",MEMBER="r31_source_member",FENCE="r31_pin_source_fence";
     public static final int REVISION=2;
+    private static final String PIN_CAPTURE = "r31_pin_source_capture AFTER INSERT ON r30r1_analysis_run WHEN NEW.status IN ('INPUT_DATASET_PINNED','ONLINE_MODEL_ROLE_REGISTERED') BEGIN INSERT OR IGNORE INTO r31_pin_source_fence VALUES(NEW.run_id,COALESCE((SELECT seq FROM sqlite_sequence WHERE name='r31_source_event'),0)); END";
+
+    static boolean isOriginalPinCapture(String sqliteDefinition) {
+        return ("CREATE TRIGGER " + PIN_CAPTURE).equals(sqliteDefinition);
+    }
+
     private static final String[] DDL={
         "CREATE TABLE IF NOT EXISTS r31_source_event(event_seq INTEGER PRIMARY KEY AUTOINCREMENT,event_key TEXT UNIQUE,source_name TEXT NOT NULL,operation TEXT NOT NULL CHECK(operation IN ('INSERT','UPDATE','DELETE','IMPORT_INSERT','IMPORT_REPLACE')),old_ordinal INTEGER,new_ordinal INTEGER,first_ordinal INTEGER,through_ordinal INTEGER,member_set TEXT,recorded_at INTEGER NOT NULL,CHECK(first_ordinal IS NULL OR through_ordinal IS NULL OR first_ordinal<=through_ordinal))",
         "CREATE TABLE IF NOT EXISTS r31_source_member(member_set TEXT NOT NULL,operation TEXT NOT NULL CHECK(operation IN ('INSERT','REPLACE')),ordinal INTEGER NOT NULL,PRIMARY KEY(member_set,operation,ordinal))",
@@ -24,7 +30,7 @@ public final class ResearchSourceJournalR31 {
         "CREATE TRIGGER IF NOT EXISTS r31_source_event_no_delete BEFORE DELETE ON r31_source_event BEGIN SELECT RAISE(ABORT,'R31_SOURCE_EVENT_IMMUTABLE'); END",
         "CREATE TRIGGER IF NOT EXISTS r31_source_event_no_update BEFORE UPDATE ON r31_source_event BEGIN SELECT RAISE(ABORT,'R31_SOURCE_EVENT_IMMUTABLE'); END",
         "CREATE TRIGGER IF NOT EXISTS r31_source_import_revision AFTER INSERT ON r31_source_event WHEN NEW.source_name='CSV_IMPORT' BEGIN UPDATE r30_live_source_revision SET generation=generation+1 WHERE singleton=1; END",
-        "CREATE TRIGGER IF NOT EXISTS r31_pin_source_capture AFTER INSERT ON r30r1_analysis_run WHEN NEW.status IN ('INPUT_DATASET_PINNED','ONLINE_MODEL_ROLE_REGISTERED') BEGIN INSERT OR IGNORE INTO r31_pin_source_fence VALUES(NEW.run_id,COALESCE((SELECT seq FROM sqlite_sequence WHERE name='r31_source_event'),0)); END",
+        "CREATE TRIGGER IF NOT EXISTS "+PIN_CAPTURE,
         "CREATE TRIGGER IF NOT EXISTS r31_pin_source_fence_no_update BEFORE UPDATE ON r31_pin_source_fence BEGIN SELECT RAISE(ABORT,'R31_PIN_SOURCE_FENCE_IMMUTABLE'); END",
         "CREATE TRIGGER IF NOT EXISTS r31_pin_source_fence_no_delete BEFORE DELETE ON r31_pin_source_fence BEGIN SELECT RAISE(ABORT,'R31_PIN_SOURCE_FENCE_IMMUTABLE'); END",
         "CREATE TRIGGER IF NOT EXISTS r31_input_pin_no_delete BEFORE DELETE ON r30r1_analysis_run WHEN OLD.status='INPUT_DATASET_PINNED' BEGIN SELECT RAISE(ABORT,'RESEARCH_INPUT_PIN_IMMUTABLE'); END",
