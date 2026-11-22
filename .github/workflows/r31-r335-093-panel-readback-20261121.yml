@@ -1,0 +1,79 @@
+name: STARCORE read every chart and table from the installed network service
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r31-r335-093-panel-readback-20261121.yml', '.github/r335-093-panel-readback/**']
+permissions: {}
+jobs:
+  upgrades:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    permissions:
+      contents: read
+    steps:
+      - name: Receive the public package checksum for this exact release
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY_DIGEST'
+          import os,re,time,urllib.request
+          tag='r335-B08-cf2ddc1bf611'
+          member='STARCORE-R33-577311093-cf2ddc1bf611-release.apk'
+          for _ in range(85):
+              try:
+                  with urllib.request.urlopen('https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/SHA256SUMS.txt',timeout=20) as r: text=r.read(16385).decode()
+                  matches=[line.split()[0] for line in text.splitlines() if len(line.split())==2 and line.split()[1].lstrip('*')==member]
+                  if len(matches)!=1 or not re.fullmatch('[a-f0-9]{64}',matches[0]):raise ValueError('RELEASE_CHECKSUM_MISSING')
+                  with open(os.environ['GITHUB_ENV'],'a') as dst: print('REPAIRED_APK_SHA='+matches[0],file=dst)
+                  break
+              except OSError:time.sleep(30)
+          else:raise SystemExit('PUBLISHED_CANDIDATE_UNAVAILABLE')
+          PY_DIGEST
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: cf2ddc1bf61122eee11633671b51f29dfc37ab41
+          path: app-source
+          sparse-checkout: |
+            app/src
+            tools/r31
+            tools/r3251
+          persist-credentials: false
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -B .github/r335-093-panel-readback/observe.py > "$RUNNER_TEMP/guest-private.log" 2>&1
+      - name: Encrypt the disposable guest's numeric receipt to the workspace recipient
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/encrypted-qa"
+          for kind in panels; do
+            receipt="$RUNNER_TEMP/R335-093-$kind-$GITHUB_RUN_ID.json"
+            test -s "$receipt"
+            test "$(stat -c %s "$receipt")" -lt 500000
+            openssl cms -encrypt -binary -aes-256-gcm -outform DER -in "$receipt" -out "$RUNNER_TEMP/encrypted-qa/$kind.cms" .github/r335-070-verification/recipient.pem
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r335-093-panel-readback-workspace-receipt
+          path: ${{ runner.temp }}/encrypted-qa/*.cms
+          if-no-files-found: error
+          retention-days: 1
