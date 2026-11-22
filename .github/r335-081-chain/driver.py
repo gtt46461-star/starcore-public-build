@@ -31,7 +31,7 @@ def run(cls,method,phase):
     text=data.decode(errors='replace')
     failures=[x.strip()[:320] for x in text.splitlines() if ('AssertionError' in x or 'expected:<' in x or 'ComparisonFailure' in x or 'Exception:' in x or 'Error in ' in x or 'INSTRUMENTATION_FAILED' in x)][:5]
     return {'phase':phase,'test':qualified,'passed':exit_code==0 and bool(re.search(r'OK\s*\(1 test\)',text)) and 'FAILURES!!!' not in text,
-             'exit':exit_code,'elapsedMs':int((time.monotonic()-started)*1000),'diagnosis':failures,
+             'exit':exit_code,'elapsedMs':int((time.monotonic()-started)*1000),'diagnosisCount':len(failures),
             'errorTypes':list(dict.fromkeys(re.findall(r'(?:[A-Za-z$]+Error|[A-Za-z$]+Exception|ComparisonFailure)',text)))[:15],
             'frames':list(dict.fromkeys(re.findall(r'[(]([A-Za-z0-9_$]+[.]java:[0-9]+)[)]',text)))[:24],'originalLogSha256':hashlib.sha256(data).hexdigest()}
 
@@ -58,6 +58,9 @@ def main():
            'R335VivoFieldRepairTest':[large,'pendingRetentionArchivesBlockOnlyActualRetirement'],
            'strategyv2.R335AppliedBudgetTableTest':['originalOldAndCurrentBudgetRowsReopenBesideTheR16Frame'],
            'strategyv2.R26RuntimeDeviceTest':['liveAndDelayedLeasesCannotHideEligibleTasksInEitherLane']}
+    extra_cases = {'R335VivoFieldRepairTest': ['historicalReplayAndMissingFreezeDoNotReplaceLatestSettlement'], 'FeedbackBootstrapAndroidTest': ['missingOptionalTableDoesNotBlockEligibleFeedback', 'sidecarStillFindsMissingClosuresAfterFeedbackTableAppears'], 'R30ResearchRetentionAndroidTest': ['withoutRowidEvidenceArchivesExactlyAndRollbackKeepsOriginal'], 'R30ReportSnapshotAndroidTest': ['twelveChaptersKeepOneViewWhileTheWriterAdvances', 'cancelledReadSignalStopsThePrimarySnapshotWithoutHoldingATransaction'], 'R31StorageProtocolInstrumentedTest': ['kernelAllocatedBlocksAndLegacyEnumerationAreHonest', 'productionBlockRequirementAndInjectedSpaceDenialKeepOriginal'], 'R31OwnerFenceProtocolInstrumentedTest': ['staleOwnerReceiptsCannotReplaceNewClaimAndCommitIsIdempotent', 'independentSqliteWriterContentionReleasesBeforeSameInputRetry'], 'R31RuntimeProtocolInstrumentedTest': ['committedDiagnosticFailuresNeverRepeatBusiness', 'rollbackCanRetryAndPayloadConflictCannotMutate', 'feedbackReceiptRequiresTheActualCheckpointTransaction'], 'R30DecisionChainAndroidTest': ['correctionRevokesAndNextAuthorityReadRejectsWithinFiveSeconds', 'originalOwnerPositiveAndIndependentNegativeAuthorities'], 'strategyv2.R26PublicationDeviceTest': ['failedLookCreatesFreshBoundedResearchAndAtomicCursorWithoutInheritedQuality', 'forgedCompletionCannotAllocateFutureQualification', 'waitingFuturePolicyDoesNotStarveReadyPrebirthCatchup', 'mixedStatisticalAndGradientExpertRowsRollbackAsOnePair', 'symbolicF13TrainingCommitsWithCandidateAndTerminalLiveCheckpoint', 'badWarmParentIsPreservedAndDoesNotBlockAValidParent'], 'strategyv2.R31FamilyContinuationInstrumentedTest': ['realOperationYieldsCancelAndJoinOldBodiesThenResumeTheSameStream', 'partialParentsDeepForkAcrossFamiliesAndAllTenPositionsMatchFresh'], 'strategyv2.R26RuntimeDeviceTest': ['allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit']}
+    for group, methods in extra_cases.items():
+        cases.setdefault(group, []).extend(methods)
     doc={'sourceCommit':source,'apkSha256':target_sha,'priorApkSha256':old_hash,'uidRetained':uid==new_uid,
          'device':adb('shell','getprop','ro.product.model'),'api':adb('shell','getprop','ro.build.version.sdk'),
          'scope':'CONTROLLED_EMULATOR_UPGRADE_AND_ORIGINAL_PRODUCTION_METHODS','baseline':before,'candidate':[]}
