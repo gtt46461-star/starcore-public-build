@@ -42,7 +42,7 @@ public final class ResearchTableAdaptersR30R1 {
  public static Map<String,Object> readPageR31(android.database.sqlite.SQLiteDatabase db,String id,Map<String,String> filters,long offset,int size,android.os.CancellationSignal cancellation) {
   Page query=page(id,filters,offset,size);query.args[query.args.length-2]=Integer.toString(size+1);Map<String,Object> out=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();
   out.put("id",id);out.put("offset",offset);out.put("pageSize",size);out.put("filters",filters);out.put("readStartedAt",System.currentTimeMillis());out.put("readOnly",true);
-  long bytes=0;boolean more=false;boolean blockedAtStart=false;String capacityReason=null;Long before=sourceVersionR335(db,cancellation);
+  long bytes=0;boolean more=false;boolean blockedAtStart=false;String capacityReason=null,projectionFailure=null;Long before=sourceVersionR335(db,cancellation);
   // The denominator and the bounded rows belong to one SQLite read statement.
   // The totals row survives even when OFFSET is beyond the end of the view.
   int pageLimit=query.sql.lastIndexOf(" LIMIT ? OFFSET ?");
@@ -88,11 +88,10 @@ public final class ResearchTableAdaptersR30R1 {
      more=!blockedAtStart||cursor.moveToNext();
      break;
     }
-    if("T09".equals(id)&&row.get("payload_json") instanceof String) {
-     String kind=String.valueOf(row.get("kind"));
-     if(kind.equals("OPERATOR_GAIN_COST")||kind.equals("PARENT_CHILD_PAIRED")||kind.equals("RESEARCH_BUDGET")) {
-      List<Object> objects=new ArrayList<>();for(ResearchMeasureProjectionR31.ObjectRow object:ResearchMeasureProjectionR31.projectObjects(kind,(String)row.get("payload_json")))objects.add(object.json());
-      row.put("objects",objects);row.put("valueSource","payload_json.frame.points; top-level NULL is not zero");
+    if("T09".equals(id) && row.get("payload_json") instanceof String) {
+     try { projectMeasure(row); }
+     catch (IllegalArgumentException invalid) {
+      projectionFailure=invalid.getMessage();row.put("projectionError",projectionFailure);
      }
     }
     int rowBytes=JsonR27.write(row).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
@@ -108,6 +107,7 @@ public final class ResearchTableAdaptersR30R1 {
    // Two individually legal cells can still exceed one page. An unreadable
    // first row is a capacity failure, never evidence that the source is empty.
    out.put("status",blockedAtStart?"READ_ERROR":rows.isEmpty()?"EMPTY_NO_ROWS":"READ_OK");
+   if(projectionFailure!=null){out.put("status","READ_ERROR");out.put("reason",projectionFailure);}
    if(blockedAtStart){
     out.put("reason",capacityReason);
     out.put("blockedOffset",offset);
@@ -118,6 +118,19 @@ public final class ResearchTableAdaptersR30R1 {
   // past that one unreadable original only when the cursor saw a following row.
   long nextOffset=Math.addExact(offset,blockedAtStart?1L:rows.size());
   out.put("paginationConsistency","LIVE_OFFSET_PAGES_REFRESH_ON_SOURCE_CHANGE; NO_CROSS_REQUEST_SNAPSHOT_CLAIM");out.put("nextOffset",nextOffset);out.put("rows",rows);out.put("shown",rows.size());out.put("hasMore",more);out.put("bytes",bytes);out.put("readFinishedAt",System.currentTimeMillis());out.put("receiptSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
+ }
+ private static void projectMeasure(Map<String,Object> row) {
+  String kind=(String)row.get("kind");
+  String payload=(String)row.get("payload_json");
+  if ("RESEARCH_BUDGET".equals(kind) && String.valueOf(row.get("measure_key")).startsWith("BUDGET_APPLIED_GENERATION:")) {
+   row.put("objects",ResearchMeasureProjectionR31.appliedBudget((String)row.get("run_id"),(String)row.get("role"),payload));
+   row.put("valueSource","payload_json.beforeWeights / afterWeights (mutation operator order)");
+  } else if ("OPERATOR_GAIN_COST".equals(kind) || "PARENT_CHILD_PAIRED".equals(kind) || "RESEARCH_BUDGET".equals(kind)) {
+   List<Object> objects=new ArrayList<>();
+   for (ResearchMeasureProjectionR31.ObjectRow object:ResearchMeasureProjectionR31.projectObjects(kind,payload)) objects.add(object.json());
+   row.put("objects",objects);
+   row.put("valueSource","payload_json.frame.points; top-level NULL is not zero");
+  }
  }
  private static Long sourceVersionR335(android.database.sqlite.SQLiteDatabase db,android.os.CancellationSignal cancellation){try(android.database.Cursor q=db.rawQuery("PRAGMA data_version",null,cancellation)){/* API21/22 SQLite predates this pragma: an empty cursor means unsupported, never version zero. */return q.moveToFirst()&&!q.isNull(0)?q.getLong(0):null;}}
  static boolean versionChangedR335(Long before,Long after){return before!=null&&after!=null&&!before.equals(after);}

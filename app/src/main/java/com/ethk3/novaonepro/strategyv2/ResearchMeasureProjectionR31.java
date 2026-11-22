@@ -67,6 +67,44 @@ public final class ResearchMeasureProjectionR31 {
         if (!ResearchMeasureKindR31.OPERATOR_GAIN_COST.name().equals(kindColumn)) throw new IllegalArgumentException("R31_PROJECTION_NOT_OPERATOR_GAIN_COST:" + kindColumn);
         return projectObjects(kindColumn, payloadJson);
     }
+
+    /** The generation writer stores before/after operator weights under the same measure kind as the R16 view. */
+    static List<Map<String,Object>> appliedBudget(String run, String role, String payload) {
+        Object parsed = JsonR27.parse(payload);
+        if (!(parsed instanceof Map)) throw new IllegalArgumentException("BUDGET_RECEIPT_SHAPE");
+        Map<?,?> receipt = (Map<?,?>)parsed;
+        Object version = receipt.get("version");
+        boolean withPriors = "RESEARCH_PAIRED_BUDGET2_R335".equals(version);
+        if (!withPriors && !"RESEARCH_PAIRED_BUDGET1".equals(version))
+            throw new IllegalArgumentException("BUDGET_RECEIPT_VERSION");
+        if (!"SELECT".equals(role) || !role.equals(receipt.get("role")) || !run.equals(receipt.get("sourceRun")))
+            throw new IllegalArgumentException("BUDGET_RECEIPT_SOURCE");
+        List<?> before = operatorWeights(receipt, "beforeWeights");
+        List<?> after = operatorWeights(receipt, "afterWeights");
+        List<?> priors = withPriors ? operatorWeights(receipt, "fixedPriors") : null;
+        List<Map<String,Object>> result = new ArrayList<>();
+        for (int i = 0; i < MutationOpsR27.OPS.length; i++) {
+            Map<String,Object> entry = new LinkedHashMap<>();
+            entry.put("operator", MutationOpsR27.OPS[i]);
+            entry.put("beforeWeight", before.get(i));
+            entry.put("afterWeight", after.get(i));
+            if (priors != null) entry.put("fixedPrior", priors.get(i));
+            result.add(entry);
+        }
+        return result;
+    }
+
+    private static List<?> operatorWeights(Map<?,?> receipt, String name) {
+        Object raw = receipt.get(name);
+        if (!(raw instanceof List) || ((List<?>)raw).size() != MutationOpsR27.OPS.length)
+            throw new IllegalArgumentException("BUDGET_RECEIPT_OPERATOR_COUNT:" + name);
+        List<?> weights = (List<?>)raw;
+        for (Object item : weights) {
+            Double value = number(item, name);
+            if (value == null || value < 0) throw new IllegalArgumentException("BUDGET_RECEIPT_WEIGHT:" + name);
+        }
+        return weights;
+    }
     /** Units of a point must be the ones its kind declares. */
     public static void validateUnits(ResearchMeasureKindR31 kind, Map<String, Object> point) {
         Object declared = point.get("unit");
