@@ -67,7 +67,21 @@ def request(seq,known):
                 p=base/'native'/job;p.mkdir(parents=True,exist_ok=True)
                 n.pull(n.ui.ROOT+'/jobs/'+job+'/delivery/index.json',p/'index.json')
                 row['phase']='VERIFY_AND_SAVE';save()
-                verified=n.observe_native(base,seq,known);row.update(verified);save()
+                verified=n.observe_native(base,seq,known);row.update(verified)
+                # Keep each original strict result. A fresh guest may still be installing
+                # research tables at its first backup. Export only bounded status fields.
+                import zipfile,hashlib
+                archive=n.private/str(seq)/'joined.zip'
+                if archive.is_file():
+                    with zipfile.ZipFile(archive) as z:
+                        semantic=json.loads(z.read('R31_SEMANTIC_RECEIPT.json'))
+                        with z.open('ARCHIVE_MANIFEST.jsonl') as stream:
+                            footer=next((v for line in stream if (v:=json.loads(line)).get('kind')=='footer'),{})
+                        row['archiveFooter']={k:footer.get(k) for k in ('evidence_complete','checks_complete') if isinstance(footer.get(k),bool)}
+                        checks=semantic.get('checks',{})
+                        row['checkExecutions']={key:{k:(v if isinstance(v,bool) or isinstance(v,str) and re.fullmatch('[A-Z_]{1,65}',v) else None) for k,v in item.items() if k in ('execution_state','domain_outcome','health','completes_contract')} for key,item in checks.items() if isinstance(item,dict) and re.fullmatch('[A-Za-z0-9_.-]{1,90}',key)}
+                        row['semanticReceiptSha256']=hashlib.sha256(z.read('R31_SEMANTIC_RECEIPT.json')).hexdigest()
+                save()
                 return verified.get('fullyVerifiedRawAndSystemPicker',False)
         time.sleep(3)
     row['phase']='PUBLICATION_TIMEOUT';save();return False
