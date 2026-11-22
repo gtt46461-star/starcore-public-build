@@ -34,6 +34,7 @@ public class SignedRegisteredFamilies {
         return CandidateAstR952.parse("AST3:" + StrictCanonicalJson.write(root));
     }
 
+ static CandidateAstR952 parent(boolean vector) {List<Object> nodes=new ArrayList<>();for(int i=0;i<(vector?1:2);i++)nodes.add(fields("id","n"+i,"operator","CONSTANT","atomId","","outputType",vector?"SCORE_VECTOR10":"DOUBLE","stage","FROZEN_PREDRAW","unit","dimensionless","parameters",vector?Arrays.asList("0x1.0p0","0x1.0p1","0x1.8p1","0x1.0p2","0x1.4p2","0x1.8p2","0x1.cp2","0x1.0p3","0x1.2p3","0x1.4p3"):Collections.singletonList(Double.toHexString(i+1)),"parents",Collections.emptyList()));List<String> f=vector?Collections.emptyList():Arrays.asList("n0","n1");Map<String,Object> r=fields("compilerRevision","AST3_CP4_1","experts",Collections.emptyList(),"family",vector?"FREQUENCY":"LINEAR","featureOutputIds",new ArrayList<>(f),"game",ReleaseManifestR926.GAME_CODE,"inputDimension",vector?10:4,"modelKind",vector?"FIXED_GRAPH":"SOFTMAX_LINEAR","nodes",nodes,"normalizerPolicy","TRAIN_ONLY_ZSCORE_V1","outputId",vector?"n0":"@MODEL","position",1,"version",3);r.put("featureManifest",fields("revision","CP4_FEATURE_1","graphHash",CandidateAstR952.hashGraphKernelWithoutManifest(r),"orderedFeatureIds",new ArrayList<>(f),"featureTypes",vector?Collections.emptyList():Arrays.asList("DOUBLE","DOUBLE"),"requiredHistory",0,"atomSpecHashes",Collections.emptyList(),"bindingHashes",Collections.emptyList(),"matrixSpecRefs",Collections.emptyList(),"normalizerPolicy","TRAIN_ONLY_ZSCORE_V1","missingPolicyPerFeature",vector?Collections.emptyList():Arrays.asList("MASK","MASK"),"inputDimension",vector?10:4,"estimatedStateBytes",4096));return CandidateAstR952.parse("AST3:"+StrictCanonicalJson.write(r));}
     private static void require(boolean valid,String reason){if(!valid)throw new AssertionError(reason);}
     private static String hex(byte[] b){StringBuilder s=new StringBuilder();for(byte v:b)s.append(String.format(Locale.ROOT,"%02x",v&255));return s.toString();}
     public static void main(String[] args)throws Exception{
@@ -46,7 +47,16 @@ public class SignedRegisteredFamilies {
         String identity=hex(digest.digest());require(total==AtomCatalogPinnedCP12.ROWS&&identity.equals(AtomCatalogPinnedCP12.SHA256),"asset identity");
         int families=0,variants=0,maxBytes=0;List<ExpertRef> refs=new ArrayList<>();
         for(int n=0;n<3;n++)refs.add(new ExpertRef(V51ChecksumEngine.sha256("freeze"+n),V51ChecksumEngine.sha256("model"+n),V51ChecksumEngine.sha256("manifest"+n),1));
-        CandidateAstR952 parent=parentAt(position);
+        CandidateAstR952 parent=mode.equals("families")?parent(false):parentAt(position);
+        if(mode.equals("families")){
+            try {
+                MutationGraphCP12.propose(parentAt(position),null,"signed-family-on-device","NEW_FAMILY",registry.get(1),Collections.emptySet(),refs,CandidateAstR952.Family.LINEAR,Long.MAX_VALUE);
+                throw new AssertionError("numeric features required");
+            } catch(MutationGraphCP12.Wait wait) {
+                require("WAIT_NUMERIC_PARENT_FEATURE".equals(wait.reason),"wrong dependency:"+wait.reason);
+                System.out.println("SIGNED_DEPENDENCY "+wait.reason);
+            }
+        }
         if(!mode.equals("variants"))for(CandidateAstR952.Family f:CandidateAstR952.Family.values()){
             if(mode.equals("old-regime")&&f!=CandidateAstR952.Family.REGIME)continue;
             MutationGraphCP12.Proposal a=MutationGraphCP12.propose(parent,null,"signed-family-on-device","NEW_FAMILY",registry.get(1),Collections.emptySet(),refs,f,Long.MAX_VALUE);
