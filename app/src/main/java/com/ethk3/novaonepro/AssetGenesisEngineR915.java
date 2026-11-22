@@ -39,20 +39,12 @@ public final class AssetGenesisEngineR915 {
     private AssetGenesisEngineR915() {}
 
     public static void ensureSchema(SQLiteDatabase db) {
+        ensureSchema(db, false);
+    }
+
+    static void ensureSchema(SQLiteDatabase db, boolean stagedRegistries) {
         if (db == null) throw new IllegalArgumentException("R915_GENESIS_DB_NULL");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_LEGACY_REGISTRY + "("
-                + "asset_key TEXT PRIMARY KEY,name_zh TEXT NOT NULL,owner_class TEXT NOT NULL UNIQUE,"
-                + "output_schema TEXT NOT NULL,consumer TEXT NOT NULL,source_digest TEXT NOT NULL,"
-                + "semantic_digest TEXT NOT NULL,db_contract_digest TEXT NOT NULL,"
-                + "baseline_behavior_digest TEXT NOT NULL,locked INTEGER NOT NULL CHECK(locked=1),"
-                + "registered_ms INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ATOM_SCHEMA + "("
-                + "atom_id TEXT PRIMARY KEY,group_id TEXT NOT NULL,name TEXT NOT NULL UNIQUE,"
-                + "datatype TEXT NOT NULL,value_range TEXT NOT NULL,window_spec TEXT NOT NULL,"
-                + "max_lag INTEGER NOT NULL,min_support INTEGER NOT NULL,evidence_stage TEXT NOT NULL,"
-                + "leakage_class TEXT NOT NULL,update_timing TEXT NOT NULL,"
-                + "version INTEGER NOT NULL,cost_class TEXT NOT NULL,enabled INTEGER NOT NULL,"
-                + "semantic_digest TEXT NOT NULL UNIQUE)");
+        createRegistryTables(db, TABLE_LEGACY_REGISTRY, TABLE_ATOM_SCHEMA);
         ensureColumn(db,TABLE_ATOM_SCHEMA,"value_range","TEXT NOT NULL DEFAULT 'UNKNOWN'");
         ensureColumn(db,TABLE_ATOM_SCHEMA,"window_spec","TEXT NOT NULL DEFAULT 'UNKNOWN'");
         ensureColumn(db,TABLE_ATOM_SCHEMA,"max_lag","INTEGER NOT NULL DEFAULT 0");
@@ -128,41 +120,173 @@ public final class AssetGenesisEngineR915 {
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r915_evolution_type ON " + TABLE_EVOLUTION_EVENT
                 + "(entity_type,created_ms DESC)");
         CertifiedResearchMixerR915.ensureSchema(db);
-        seedImmutableRegistries(db);
+        if (stagedRegistries) publishStagedRegistries(db);
+        else seedImmutableRegistries(db);
         writeState(db,"r915_genesis_schema_ready","1");
         writeState(db,"r915_genesis_schema_fingerprint",GenesisSchemaRegistryR915.fingerprint());
         writeState(db,"r915_legacy_registry_fingerprint",LegacyFixedAssetRegistryR915.fingerprint());
     }
 
+    private static void createRegistryTables(SQLiteDatabase db, String legacy, String atoms) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + legacy + "("
+                + "asset_key TEXT PRIMARY KEY,name_zh TEXT NOT NULL,owner_class TEXT NOT NULL UNIQUE,"
+                + "output_schema TEXT NOT NULL,consumer TEXT NOT NULL,source_digest TEXT NOT NULL,"
+                + "semantic_digest TEXT NOT NULL,db_contract_digest TEXT NOT NULL,"
+                + "baseline_behavior_digest TEXT NOT NULL,locked INTEGER NOT NULL CHECK(locked=1),"
+                + "registered_ms INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + atoms + "("
+                + "atom_id TEXT PRIMARY KEY,group_id TEXT NOT NULL,name TEXT NOT NULL UNIQUE,"
+                + "datatype TEXT NOT NULL,value_range TEXT NOT NULL,window_spec TEXT NOT NULL,"
+                + "max_lag INTEGER NOT NULL,min_support INTEGER NOT NULL,evidence_stage TEXT NOT NULL,"
+                + "leakage_class TEXT NOT NULL,update_timing TEXT NOT NULL,"
+                + "version INTEGER NOT NULL,cost_class TEXT NOT NULL,enabled INTEGER NOT NULL,"
+                + "semantic_digest TEXT NOT NULL UNIQUE)");
+    }
+
+    private static ContentValues legacyValues(LegacyFixedAssetRegistryR915.Entry entry, long registeredAt) {
+        ContentValues value = new ContentValues();
+        value.put("asset_key",entry.id); value.put("name_zh",entry.nameZh);
+        value.put("owner_class",entry.sourceClass); value.put("output_schema",entry.output);
+        value.put("consumer",entry.consumer); value.put("source_digest",entry.sourceHash);
+        value.put("semantic_digest",V51ChecksumEngine.sha256("SEMANTIC|"+entry.canonical()));
+        value.put("db_contract_digest",V51ChecksumEngine.sha256("DB_READ_ONLY|"+entry.id));
+        value.put("baseline_behavior_digest",V51ChecksumEngine.sha256("BASELINE|"+entry.canonical()));
+        value.put("locked",1); value.put("registered_ms",registeredAt);
+        return value;
+    }
+
+    private static ContentValues atomValues(GenesisSchemaRegistryR915.AtomSpec atom) {
+        ContentValues value = new ContentValues();
+        value.put("atom_id",atom.id); value.put("group_id",atom.group); value.put("name",atom.name);
+        value.put("datatype",atom.valueType); value.put("value_range",atom.valueRange);
+        value.put("window_spec",atom.windowSpec); value.put("max_lag",atom.maxLag);
+        value.put("min_support",atom.minSupport); value.put("evidence_stage",atom.evidenceStage);
+        value.put("leakage_class",atom.leakagePolicy); value.put("update_timing",atom.updateTiming);
+        value.put("version",atom.version); value.put("cost_class",atom.costClass); value.put("enabled",1);
+        value.put("semantic_digest",V51ChecksumEngine.sha256(atom.canonical()));
+        return value;
+    }
+
     private static void seedImmutableRegistries(SQLiteDatabase db) {
         long now = System.currentTimeMillis();
-        // This table is R915 manifest metadata, not historical user evidence. Replacing its rows is
-        // required so cover-install upgrades the earlier incomplete 14-row draft to all 133 locks.
+        // Only this signed legacy manifest is replaced. Evidence and operator-created atoms survive.
         db.delete(TABLE_LEGACY_REGISTRY, null, null);
         for (LegacyFixedAssetRegistryR915.Entry entry : LegacyFixedAssetRegistryR915.entries()) {
             ResearchWorkBudgetR927.checkpoint();
-            ContentValues value = new ContentValues();
-            value.put("asset_key",entry.id); value.put("name_zh",entry.nameZh);
-            value.put("owner_class",entry.sourceClass); value.put("output_schema",entry.output);
-            value.put("consumer",entry.consumer); value.put("source_digest",entry.sourceHash);
-            value.put("semantic_digest",V51ChecksumEngine.sha256("SEMANTIC|"+entry.canonical()));
-            value.put("db_contract_digest",V51ChecksumEngine.sha256("DB_READ_ONLY|"+entry.id));
-            value.put("baseline_behavior_digest",V51ChecksumEngine.sha256("BASELINE|"+entry.canonical()));
-            value.put("locked",1); value.put("registered_ms",now);
-            db.insertOrThrow(TABLE_LEGACY_REGISTRY,null,value);
+            db.insertOrThrow(TABLE_LEGACY_REGISTRY, null, legacyValues(entry, now));
         }
         for (GenesisSchemaRegistryR915.AtomSpec atom : GenesisSchemaRegistryR915.atoms()) {
             ResearchWorkBudgetR927.checkpoint();
-            ContentValues value = new ContentValues();
-            value.put("atom_id",atom.id); value.put("group_id",atom.group); value.put("name",atom.name);
-            value.put("datatype",atom.valueType); value.put("value_range",atom.valueRange);
-            value.put("window_spec",atom.windowSpec); value.put("max_lag",atom.maxLag);
-            value.put("min_support",atom.minSupport); value.put("evidence_stage",atom.evidenceStage);
-            value.put("leakage_class",atom.leakagePolicy); value.put("update_timing",atom.updateTiming);
-            value.put("version",atom.version); value.put("cost_class",atom.costClass); value.put("enabled",1);
-            value.put("semantic_digest",V51ChecksumEngine.sha256(atom.canonical()));
-            db.insertWithOnConflict(TABLE_ATOM_SCHEMA,null,value,SQLiteDatabase.CONFLICT_REPLACE);
+            db.insertWithOnConflict(TABLE_ATOM_SCHEMA, null, atomValues(atom), SQLiteDatabase.CONFLICT_REPLACE);
         }
+    }
+
+    private static final int SEED_ROWS_PER_SLICE = 24;
+
+    /** Both the synchronous and the resumable paths derive every field from the same signed registries. */
+    private static final class SeedRegistry {
+        final String target, staging, columns;
+        final List<ContentValues> rows;
+        final String[] keys;
+        SeedRegistry(String target, List<ContentValues> rows) {
+            this.target = target;
+            this.staging = target + "_r335_pending";
+            this.rows = rows;
+            java.util.TreeSet<String> names = new java.util.TreeSet<>();
+            for (java.util.Map.Entry<String,Object> entry : rows.get(0).valueSet()) names.add(entry.getKey());
+            keys = names.toArray(new String[0]);
+            StringBuilder sql = new StringBuilder();
+            for (String key : keys) {
+                if (sql.length() != 0) sql.append(',');
+                sql.append(key);
+            }
+            columns = sql.toString();
+        }
+
+        // Return the longest contiguous prefix whose fields match the signed manifest. A damaged
+        // or older pending suffix is expendable. The published registries are never touched here.
+        int verifiedPrefix(SQLiteDatabase db, boolean repair) {
+            int i = 0;
+            long invalidRow = 0;
+            boolean mismatch = false;
+            try (Cursor c = db.rawQuery("SELECT rowid," + columns + " FROM " + staging + " ORDER BY rowid", null)) {
+                while (c.moveToNext()) {
+                    invalidRow = c.getLong(0);
+                    mismatch = i >= rows.size() || invalidRow != i + 1L;
+                    for (int k = 0; !mismatch && k < keys.length; k++)
+                        mismatch = !rows.get(i).getAsString(keys[k]).equals(c.getString(k + 1));
+                    if (mismatch) break;
+                    i++;
+                }
+            }
+            if (mismatch) {
+                if (!repair) throw new IllegalStateException("R335_REGISTRY_STAGE_MISMATCH:" + target);
+                db.delete(staging, "rowid>=?", new String[]{Long.toString(invalidRow)});
+            }
+            return i;
+        }
+
+        boolean stagePage(SQLiteDatabase db) {
+            int start = verifiedPrefix(db, true);
+            if (start == rows.size()) return true;
+            int end = Math.min(rows.size(), start + SEED_ROWS_PER_SLICE);
+            for (int i = start; i < end; i++) {
+                ContentValues row = new ContentValues(rows.get(i));
+                row.put("rowid", (long)i + 1);
+                db.insertOrThrow(staging, null, row);
+            }
+            return false;
+        }
+
+        void requireComplete(SQLiteDatabase db) {
+            if (verifiedPrefix(db, false) != rows.size()) throw new IllegalStateException("R335_REGISTRY_STAGE_INCOMPLETE:" + target);
+        }
+    }
+
+    private static final class SeedManifests {
+        static final SeedRegistry LEGACY = new SeedRegistry(TABLE_LEGACY_REGISTRY, legacyRows());
+        static final SeedRegistry ATOMS = new SeedRegistry(TABLE_ATOM_SCHEMA, atomRows());
+
+        static List<ContentValues> legacyRows() {
+            ArrayList<ContentValues> rows = new ArrayList<>();
+            for (LegacyFixedAssetRegistryR915.Entry e : LegacyFixedAssetRegistryR915.entries()) rows.add(legacyValues(e, 0));
+            return rows;
+        }
+
+        static List<ContentValues> atomRows() {
+            ArrayList<ContentValues> rows = new ArrayList<>();
+            for (GenesisSchemaRegistryR915.AtomSpec atom : GenesisSchemaRegistryR915.atoms()) rows.add(atomValues(atom));
+            return rows;
+        }
+    }
+
+    /** Called under the research migration writer, before the original atomic R906 publication. */
+    static boolean prepareRegistrySlice(SQLiteDatabase db) {
+        ResearchWorkBudgetR927.checkpoint();
+        SeedRegistry legacy = SeedManifests.LEGACY, atoms = SeedManifests.ATOMS;
+        db.beginTransaction();
+        try {
+            createRegistryTables(db, legacy.staging, atoms.staging);
+            boolean complete = legacy.stagePage(db) && atoms.stagePage(db);
+            db.setTransactionSuccessful();
+            return complete;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private static void publishStagedRegistries(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R335_REGISTRY_PUBLICATION_TRANSACTION_REQUIRED");
+        SeedRegistry legacy = SeedManifests.LEGACY, atoms = SeedManifests.ATOMS;
+        legacy.requireComplete(db);
+        atoms.requireComplete(db);
+        ResearchWorkBudgetR927.checkpoint();
+        db.delete(legacy.target, null, null);
+        db.execSQL("INSERT INTO " + legacy.target + "(" + legacy.columns + ") SELECT " + legacy.columns + " FROM " + legacy.staging);
+        db.execSQL("UPDATE " + legacy.target + " SET registered_ms=?", new Object[]{System.currentTimeMillis()});
+        db.execSQL("INSERT OR REPLACE INTO " + atoms.target + "(" + atoms.columns + ") SELECT " + atoms.columns + " FROM " + atoms.staging);
+        db.execSQL("DROP TABLE " + legacy.staging);
+        db.execSQL("DROP TABLE " + atoms.staging);
     }
 
     /** Failure-driven generation. Existing Legacy owners are never parents or mutation targets. */

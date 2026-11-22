@@ -7383,13 +7383,70 @@ public final class DbHelper extends SQLiteOpenHelper {
         writeSchemaStateR906(db, "r906_schema_critical_ready", "1", now);
     }
 
+    private static final String[] R908_GENOME_COLUMNS = {
+        "future_n INTEGER NOT NULL DEFAULT 0",
+        "future_hit INTEGER NOT NULL DEFAULT 0",
+        "future_hit_rate REAL",
+        "future_wilson_lower REAL",
+        "future_last_issue TEXT NOT NULL DEFAULT ''",
+        "future_evidence_hash TEXT NOT NULL DEFAULT ''",
+        "mechanism_spec_zh TEXT NOT NULL DEFAULT ''",
+        "future_brier REAL NOT NULL DEFAULT 1",
+        "future_ece REAL NOT NULL DEFAULT 1",
+        "future_coverage REAL NOT NULL DEFAULT 0",
+        "future_block_min REAL NOT NULL DEFAULT 0",
+        "future_regime_min REAL NOT NULL DEFAULT 0",
+        "future_max_miss INTEGER NOT NULL DEFAULT 0",
+        "paired_mainline_n INTEGER NOT NULL DEFAULT 0",
+        "paired_mainline_delta REAL NOT NULL DEFAULT 0",
+        "lifecycle_reason TEXT NOT NULL DEFAULT ''",
+        "research_genome_contract TEXT NOT NULL DEFAULT ''",
+        "future_fdr_q REAL NOT NULL DEFAULT 1",
+        "mutation_intent TEXT NOT NULL DEFAULT ''",
+        "creation_reason TEXT NOT NULL DEFAULT ''",
+    };
+
+    private static java.util.Set<String> genomeColumnsR908(SQLiteDatabase db) {
+        java.util.Set<String> names = new java.util.HashSet<>();
+        try (Cursor c = db.rawQuery("PRAGMA table_info(" + TABLE_R908_ALGORITHM_GENOME + ")", null)) {
+            int column = c.getColumnIndexOrThrow("name");
+            while (c.moveToNext()) names.add(c.getString(column));
+        }
+        return names;
+    }
+
+    /** A pre-existing genome table can receive one compatible column between critical writes. */
+    static boolean prepareExistingGenomeColumn(SQLiteDatabase db) {
+        java.util.Set<String> present = genomeColumnsR908(db);
+        if (present.isEmpty()) return true;
+        for (String definition : R908_GENOME_COLUMNS) {
+            if (present.contains(definition.substring(0, definition.indexOf(' ')))) continue;
+            ResearchWorkBudgetR927.checkpoint();
+            db.beginTransaction();
+            try {
+                addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, definition);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+            return false;
+        }
+        return true;
+    }
+
     /** R926 research-only R906/R908 schema. Failure is observable and never disguised as critical success. */
     public static void ensureR906ResearchSchema(SQLiteDatabase db) {
+        ensureR906ResearchSchema(db, false);
+    }
+
+    static void ensureR906ResearchSchema(SQLiteDatabase db, boolean stagedRegistries) {
         if (db == null) throw new IllegalArgumentException("R906_RESEARCH_DB_NULL");
         final long now = System.currentTimeMillis();
         boolean researchReady = false;
         String researchError = "";
         try {
+            StringBuilder genomeColumns = new StringBuilder();
+            for (String definition : R908_GENOME_COLUMNS) genomeColumns.append(", ").append(definition);
             String[] research = new String[] {                "CREATE TABLE IF NOT EXISTS v57_research_asset_r906 ( asset_id TEXT PRIMARY KEY, display_name_zh TEXT NOT NULL, normalized_name_zh TEXT NOT NULL UNIQUE, candidate_type TEXT NOT NULL, novelty_class TEXT NOT NULL, tier TEXT NOT NULL, method_signature TEXT NOT NULL, canonical_spec TEXT NOT NULL, representation_family TEXT NOT NULL, learner_family TEXT NOT NULL, update_rule TEXT NOT NULL, objective_family TEXT NOT NULL, calibration_family TEXT NOT NULL, risk_family TEXT NOT NULL, falsifier_family TEXT NOT NULL, parent_asset_ids TEXT NOT NULL DEFAULT '', generation INTEGER NOT NULL, genetic_operator TEXT NOT NULL, feature_schema_hash TEXT NOT NULL DEFAULT '', artifact_status TEXT NOT NULL, artifact_hash TEXT NOT NULL DEFAULT '', trained_until_issue TEXT NOT NULL DEFAULT '', earliest_use_issue TEXT NOT NULL DEFAULT '', runtime_executable INTEGER NOT NULL DEFAULT 0, may_authorize_real INTEGER NOT NULL DEFAULT 0 CHECK(may_authorize_real=0), last_transition_code TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, registry_hash TEXT NOT NULL UNIQUE )",
                 "CREATE INDEX IF NOT EXISTS idx_r906_asset_tier ON v57_research_asset_r906(tier,runtime_executable,updated_at)",
                 "CREATE INDEX IF NOT EXISTS idx_r906_asset_signature ON v57_research_asset_r906(method_signature,created_at)",
@@ -7400,42 +7457,23 @@ public final class DbHelper extends SQLiteOpenHelper {
                 "CREATE TABLE IF NOT EXISTS v57_research_artifact_job_r906 ( job_id TEXT PRIMARY KEY, asset_id TEXT NOT NULL, job_status TEXT NOT NULL, dataset_hash TEXT NOT NULL, data_until_issue TEXT NOT NULL, feature_schema_hash TEXT NOT NULL, canonical_method_spec TEXT NOT NULL, seed INTEGER NOT NULL, protocol_hash TEXT NOT NULL, artifact_hash TEXT NOT NULL DEFAULT '', manifest_hash TEXT NOT NULL DEFAULT '', parity_status TEXT NOT NULL DEFAULT 'NOT_RUN', last_error_code TEXT NOT NULL DEFAULT '', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, UNIQUE(asset_id,dataset_hash,protocol_hash) )",
                 "CREATE TABLE IF NOT EXISTS v57_research_certificate_r906 ( certificate_id TEXT PRIMARY KEY, asset_id TEXT NOT NULL, certificate_type TEXT NOT NULL, evidence_start_issue TEXT NOT NULL, evidence_end_issue TEXT NOT NULL, future_n INTEGER NOT NULL, coverage REAL NOT NULL, paired_delta REAL NOT NULL, adjusted_lower REAL NOT NULL, brier REAL NOT NULL, ece REAL NOT NULL, block_stability REAL NOT NULL, drift_score REAL NOT NULL, latency_p95_ms REAL NOT NULL, ram_p95_bytes INTEGER NOT NULL, valid_from_issue TEXT NOT NULL, valid_until_issue TEXT NOT NULL, status TEXT NOT NULL, revocation_code TEXT NOT NULL DEFAULT '', evidence_hash TEXT NOT NULL, record_hash TEXT NOT NULL UNIQUE, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL )",
                 "CREATE INDEX IF NOT EXISTS idx_r906_certificate_active ON v57_research_certificate_r906(status,valid_from_issue,valid_until_issue)",
-                "CREATE TABLE IF NOT EXISTS v57_algorithm_genome_r908 ( genome_id TEXT PRIMARY KEY, display_name_zh TEXT NOT NULL, genome_spec TEXT NOT NULL, structural_hash TEXT NOT NULL UNIQUE, behavior_hash TEXT NOT NULL DEFAULT '', generation INTEGER NOT NULL, parent_ids TEXT NOT NULL DEFAULT '', trained_until_issue TEXT NOT NULL DEFAULT '', earliest_use_issue TEXT NOT NULL DEFAULT '', dev_n INTEGER NOT NULL DEFAULT 0, dev_hit INTEGER NOT NULL DEFAULT 0, dev_hit_rate REAL, dev_wilson_lower REAL, dev_block_min REAL, dev_max_miss INTEGER NOT NULL DEFAULT 0, novelty REAL NOT NULL DEFAULT 0, complexity REAL NOT NULL DEFAULT 0, state_blob TEXT NOT NULL, state_updates INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, may_authorize_real INTEGER NOT NULL DEFAULT 0 CHECK(may_authorize_real=0), created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL )",
+                "CREATE TABLE IF NOT EXISTS v57_algorithm_genome_r908 ( genome_id TEXT PRIMARY KEY, display_name_zh TEXT NOT NULL, genome_spec TEXT NOT NULL, structural_hash TEXT NOT NULL UNIQUE, behavior_hash TEXT NOT NULL DEFAULT '', generation INTEGER NOT NULL, parent_ids TEXT NOT NULL DEFAULT '', trained_until_issue TEXT NOT NULL DEFAULT '', earliest_use_issue TEXT NOT NULL DEFAULT '', dev_n INTEGER NOT NULL DEFAULT 0, dev_hit INTEGER NOT NULL DEFAULT 0, dev_hit_rate REAL, dev_wilson_lower REAL, dev_block_min REAL, dev_max_miss INTEGER NOT NULL DEFAULT 0, novelty REAL NOT NULL DEFAULT 0, complexity REAL NOT NULL DEFAULT 0, state_blob TEXT NOT NULL, state_updates INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL, may_authorize_real INTEGER NOT NULL DEFAULT 0 CHECK(may_authorize_real=0), created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL" + genomeColumns + ")",
                 "CREATE INDEX IF NOT EXISTS idx_r908_algorithm_status ON v57_algorithm_genome_r908(status,generation,updated_at)",
                 "CREATE TABLE IF NOT EXISTS v57_algorithm_predraw_r908 ( genome_id TEXT NOT NULL, target_issue TEXT NOT NULL, position INTEGER NOT NULL, n1 INTEGER NOT NULL, n2 INTEGER NOT NULL, n3 INTEGER NOT NULL, selected_ordinal INTEGER NOT NULL, score REAL NOT NULL, feature_blob TEXT NOT NULL, feature_hash TEXT NOT NULL, frozen_at INTEGER NOT NULL, record_hash TEXT NOT NULL UNIQUE, actual_number INTEGER NOT NULL DEFAULT 0, hit_label INTEGER NOT NULL DEFAULT -1 CHECK(hit_label IN (-1,0,1)), settled_at INTEGER NOT NULL DEFAULT 0, outcome_hash TEXT NOT NULL DEFAULT '', PRIMARY KEY(genome_id,target_issue) )",
                 "CREATE INDEX IF NOT EXISTS idx_r908_algorithm_predraw_issue ON v57_algorithm_predraw_r908(target_issue,hit_label,genome_id)"
             };
             for (String statement : research) db.execSQL(statement);
-            // R908 additive evolution evidence. Existing DB_VERSION=36 installs receive these
-            // columns idempotently; no destructive migration and no uninstall is required.
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_n INTEGER NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_hit INTEGER NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_hit_rate REAL");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_wilson_lower REAL");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_last_issue TEXT NOT NULL DEFAULT ''");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_evidence_hash TEXT NOT NULL DEFAULT ''");
-            // R914 algorithm-family evidence is additive on DB v36 so cover-install keeps every
-            // existing draw, prediction, settlement and invented genome intact.
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "mechanism_spec_zh TEXT NOT NULL DEFAULT ''");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_brier REAL NOT NULL DEFAULT 1");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_ece REAL NOT NULL DEFAULT 1");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_coverage REAL NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_block_min REAL NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_regime_min REAL NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_max_miss INTEGER NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "paired_mainline_n INTEGER NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "paired_mainline_delta REAL NOT NULL DEFAULT 0");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "lifecycle_reason TEXT NOT NULL DEFAULT ''");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "research_genome_contract TEXT NOT NULL DEFAULT ''");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "future_fdr_q REAL NOT NULL DEFAULT 1");
-            // R919 makes invention auditable: every generated program records which settled
-            // failure vector requested the structural repair and which topology intent was used.
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "mutation_intent TEXT NOT NULL DEFAULT ''");
-            addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, "creation_reason TEXT NOT NULL DEFAULT ''");
+            // Existing v36 installations may predate individual columns. A new table already
+            // contains the complete contract and never rewrites sqlite_schema twenty times.
+            java.util.Set<String> present = genomeColumnsR908(db);
+            for (String definition : R908_GENOME_COLUMNS) {
+                String column = definition.substring(0, definition.indexOf(' '));
+                if (!present.contains(column)) addColumnR36(db, TABLE_R908_ALGORITHM_GENOME, definition);
+            }
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_r914_algorithm_future ON "
                     + TABLE_R908_ALGORITHM_GENOME
                     + "(status,future_wilson_lower DESC,future_n DESC,updated_at)");
-            AssetGenesisEngineR915.ensureSchema(db);
+            AssetGenesisEngineR915.ensureSchema(db, stagedRegistries);
             LegacyPredrawContextBridgeR915.ensureSchema(db);
             requireSchemaObjectR906(db, "table", TABLE_R906_RESEARCH_ASSET);
             requireSchemaObjectR906(db, "table", TABLE_R906_RESEARCH_EVAL_COVERAGE);

@@ -178,8 +178,8 @@ public final class ResearchSchemaCoordinatorR926 {
                     SchemaDomainCoordinatorR926.runStep(db, contract, step,
                             new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) { DbHelper.ensureR815ResearchSchema(x); }});
                 } else if ("R906_RESEARCH_R64_VERIFIED".equals(step)) {
-                    SchemaDomainCoordinatorR926.runStep(db, contract, step,
-                            new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) { DbHelper.ensureR906ResearchSchema(x); }});
+                    if (!DbHelper.prepareExistingGenomeColumn(db) || !AssetGenesisEngineR915.prepareRegistrySlice(db)) return false;
+                    SchemaDomainCoordinatorR926.runStep(db, contract, step, x -> DbHelper.ensureR906ResearchSchema(x, true));
                 } else if ("R925_RESEARCH".equals(step)) {
                     SchemaDomainCoordinatorR926.runStep(db, contract, step,
                             new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) { SchemaRevisionR925.ensureResearchTables(x); }});
