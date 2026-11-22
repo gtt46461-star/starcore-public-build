@@ -64,6 +64,8 @@ public final class ExtensionInspectionRollbackTest {
             SchemaDomainCoordinatorR926.ensureInfrastructure(db);
             db.execSQL("CREATE TABLE draws (id INTEGER PRIMARY KEY)");
             db.execSQL("CREATE TABLE observed (id INTEGER)");
+            db.execSQL("CREATE TABLE main.r335_extension_catalog (original_value INTEGER)");
+            db.execSQL("INSERT INTO main.r335_extension_catalog VALUES (721)");
             db.execSQL(GUARD);
         }
         prepare();
@@ -102,14 +104,30 @@ public final class ExtensionInspectionRollbackTest {
         require(scalar("SELECT count(*) FROM observed") == 0, "A failed definition check committed");
         require(advance(ExtensionInspectionRollbackTest::writeReceipt), "Verified child failed to commit");
         require(scalar("SELECT count(*) FROM observed") == 1, "Reopen lost verified child");
+        require(scalar("SELECT original_value FROM main.r335_extension_catalog") == 721,
+                "Temporary storage changed the original owner");
         try (SQLiteDatabase db = open()) {
+            // Exercise the reused writer connection as well as closes between callback attempts.
+            for (int pass = 0; pass < 2; pass++) {
+                db.beginTransaction();
+                try {
+                    if (SchemaDomainCoordinatorR926.prepareExtensionInspection(db, DECLARATIONS, REPLACEMENTS))
+                        SchemaDomainCoordinatorR926.installInspectedAttachments(db, DECLARATIONS, value -> {});
+                    db.setTransactionSuccessful();
+                } finally { db.endTransaction(); }
+            }
+            for (String table : new String[]{"r335_extension_catalog", "r335_extension_seal", "r335_extension_journal"}) {
+                try (Cursor row = db.rawQuery("SELECT count(*) FROM temp." + table, null)) {
+                    require(row.moveToFirst() && row.getLong(0) == 0, "Temporary rows retained in " + table);
+                }
+            }
             db.execSQL("DROP TRIGGER cp8_test_extension");
             db.execSQL(GUARD.replace("SELECT 1", "SELECT 3"));
         }
         expectRefusal(DatabaseCoordinator.SchemaPendingR31.class, ExtensionInspectionRollbackTest::writeReceipt);
         require(scalar("SELECT count(*) FROM observed") == 1, "Preexisting drift was published");
         System.out.println("EXTENSION_CUSTODY_PASS catalogue_drift=rollback critical_journal_drift=rollback"
-                + " elapsed_admission=yield unknown_before=refused unknown_after=rollback verified_child=1 reopened=true");
+                + " elapsed_admission=yield unknown_before=refused unknown_after=rollback verified_child=1 reopened=true temp_rows=0 original_owner=721");
     }
 
     public static void main(String[] args) {

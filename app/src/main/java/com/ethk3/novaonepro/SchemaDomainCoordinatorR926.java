@@ -786,25 +786,27 @@ public final class SchemaDomainCoordinatorR926 {
         // Pin the actual pre-DDL inputs in SQLite under this writer lock. Computing the
         // canonical digest before the registry's admission checkpoint can starve every unit.
         // Nothing in the child transaction is visible until the old image and new guards pass.
-        db.execSQL("CREATE TEMP TABLE r335_extension_catalog AS SELECT rowid AS original_id,"
-                +"+type AS type,+name AS name,+tbl_name AS tbl_name,+sql AS sql FROM main.sqlite_master");
-        try {
-            db.execSQL("CREATE TEMP TABLE r335_extension_seal AS SELECT * FROM main."+TABLE_DOMAIN
-                    +" WHERE domain=?",new Object[]{critical.domain});
-            try {
-                db.execSQL("CREATE TEMP TABLE r335_extension_journal AS SELECT step_id,status,domain,revision FROM main."+TABLE_JOURNAL
-                        +" WHERE domain=? AND revision=?",new Object[]{critical.domain,critical.revision});
-                try {
-                    installWithAttachmentPreimage(db,critical,definitions,prior.preimage,target->{
-                        install.run(target);
-                        if(!Arrays.equals(prior.identity,extensionInspectionIdentity(target,critical,true))){
-                            extensionInspection=null;
-                            throw new ChangedExtensionPreimage();
-                        }
-                    });
-                } finally { db.execSQL("DROP TABLE temp.r335_extension_journal"); }
-            } finally { db.execSQL("DROP TABLE temp.r335_extension_seal"); }
-        } finally { db.execSQL("DROP TABLE temp.r335_extension_catalog"); }
+        db.execSQL("CREATE TEMP TABLE IF NOT EXISTS r335_extension_catalog("
+                +"original_id INTEGER PRIMARY KEY,type,name,tbl_name,sql)");
+        db.execSQL("CREATE TEMP TABLE IF NOT EXISTS r335_extension_seal(domain TEXT,revision INTEGER,contract_hash TEXT,fingerprint TEXT,state TEXT)");
+        db.execSQL("CREATE TEMP TABLE IF NOT EXISTS r335_extension_journal(step_id TEXT,status TEXT,domain TEXT,revision INTEGER)");
+        // These three connection-local workspaces contain only catalogue metadata. Each use
+        // owns one write transaction. Success empties them, and failure restores the empty preimage.
+        db.execSQL("INSERT INTO temp.r335_extension_catalog SELECT rowid,type,name,tbl_name,sql FROM main.sqlite_master");
+        db.execSQL("INSERT INTO temp.r335_extension_seal SELECT domain,revision,contract_hash,fingerprint,state FROM main."+TABLE_DOMAIN
+                +" WHERE domain=?",new Object[]{critical.domain});
+        db.execSQL("INSERT INTO temp.r335_extension_journal SELECT step_id,status,domain,revision FROM main."+TABLE_JOURNAL
+                +" WHERE domain=? AND revision=?",new Object[]{critical.domain,critical.revision});
+        installWithAttachmentPreimage(db,critical,definitions,prior.preimage,target->{
+            install.run(target);
+            if(!Arrays.equals(prior.identity,extensionInspectionIdentity(target,critical,true))){
+                extensionInspection=null;
+                throw new ChangedExtensionPreimage();
+            }
+        });
+        db.execSQL("DELETE FROM temp.r335_extension_catalog");
+        db.execSQL("DELETE FROM temp.r335_extension_seal");
+        db.execSQL("DELETE FROM temp.r335_extension_journal");
         extensionInspection=null;
     }
 
