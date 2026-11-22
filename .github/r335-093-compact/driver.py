@@ -65,6 +65,25 @@ def main():
      manifest=json.loads(z.read('source-manifest.json'));doc=json.loads(z.read('R30_REPORT.json'))
      check(manifest['sourceCommit']==n.source and manifest['apkSha256']==n.apk and z.testzip() is None,'MIXED_RELEASE')
      record.update(archiveSha256=f.fingerprint(archive),archiveBytes=archive.stat().st_size,zipMembers=len(z.namelist()),reportBytes=z.getinfo('R30_REPORT.json').file_size,reportMarkdownBytes=z.getinfo('R30_REPORT.md').file_size,rawEvidenceIncluded=manifest['rawEvidenceIncluded'],chapters=len(doc['chapters']),metrics=len(doc['metricResults']),checksComplete=d.get('checksComplete'),allChecksPassed=d.get('allChecksPassed'))
+     semantic=json.loads(z.read('R31_SEMANTIC_RECEIPT.json'))
+     expected=set(json.loads((temp/'material/STARCORE_R33_5_20261118/B01/scripts/report_expected_ids_r334.json').read_bytes())['checks'])
+     check(set(semantic['checks'])==expected and len(expected)==96,'ORIGINAL_CATALOG_MISMATCH')
+     from collections import Counter
+     record['checkExecutions']=dict(Counter(v.get('execution_state') for v in semantic['checks'].values()))
+     record['errorsByCheck']={}
+     for member in z.namelist():
+      if not member.startswith('catalog-'):continue
+      with z.open(member) as entries:
+       for line in entries:
+        row=json.loads(line)
+        if row.get('kind')!='check_result' or row.get('execution_state')!='READ_ERROR':continue
+        key=row['id'];check(key in expected,'UNREGISTERED_CHECK')
+        detail=row.get('error_detail','')
+        # Return only registered check IDs, known source labels, counts and a digest.
+        known=('r952_candidate','r952_research_outbox','research_historical_genome_archive_r967','research_exact_probability_f05','r952_candidate_funnel')
+        absent=re.findall(r'no such table: ([A-Za-z0-9_]+)',detail)
+        record['errorsByCheck'][key]={'missingRegisteredSources':sorted(set(absent)&set(known)),'otherMissingSource':bool(set(absent)-set(known)), 'detailSha256':hashlib.sha256(detail.encode()).hexdigest()}
+     save('VERIFY_SOURCE')
     strict=n.oracle.validate_export(archive,{'profile':'DIAGNOSTIC','jobId':job,'sourceCommit':n.source,'apkSha256':n.apk})
     record['originalVerifier']=strict['status'];save('SYSTEM_PICKER')
     record.update(n.system_save(idx,job,archive,dest,hashes))
