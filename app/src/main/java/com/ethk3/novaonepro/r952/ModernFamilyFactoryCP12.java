@@ -130,7 +130,7 @@ public final class ModernFamilyFactoryCP12 {
    case TRANSITION:output=b.cross(w);break;
    case STATISTICAL:{String f=b.vector("FREQUENCY",w,0),o=b.omission(w),entropy=b.atom("ENTROPY",fields("window",w));String scale=b.node("SAFE_DIVIDE","DOUBLE",Arrays.asList(entropy,b.constant(Math.log(10))));String weighted=b.node("SCALAR_MULTIPLY_VECTOR10","SCORE_VECTOR10",Arrays.asList(scale,o));output=b.weighted(Arrays.asList(f,weighted),1,.25);break;}
    case RULE:{List<String> scores=new ArrayList<>();String threshold=b.constant(.1);for(int d=0;d<10;d++){String f=b.atom("FREQUENCY",fields("digit",d,"window",w)),o=b.atom("OMISSION",fields("digit",d));o=b.node("LOG1P_ABS","DOUBLE",Arrays.asList(b.node("MINIMUM","DOUBLE",Arrays.asList(o,b.constant(w)))));String test=b.node("THRESHOLD_GE","BOOLEAN",Arrays.asList(f,threshold));scores.add(b.node("CONDITIONAL","DOUBLE",Arrays.asList(test,f,o)));}output=b.node("PACK10","SCORE_VECTOR10",scores);break;}
-   case REGIME:{String[] vectors={b.vector("FREQUENCY",20,0),b.vector("FREQUENCY",w,0),b.vector("MARKOV_SCORE",w,0),b.omission(w),b.cross(w)};List<String> mixture=new ArrayList<>();for(int i=0;i<5;i++){String score=b.atom("REGIME_SCORE",fields("regime",AtomRegimePolicyCP12.LABELS[i],"window",w));String probability=b.node("NORMALIZE_POSITIVE","SCORE_VECTOR10",Arrays.asList(vectors[i]));mixture.add(b.node("SCALAR_MULTIPLY_VECTOR10","SCORE_VECTOR10",Arrays.asList(score,probability)));}output=b.weighted(mixture,1,1,1,1,1);break;}
+   case REGIME:{String[] vectors={b.vector("FREQUENCY",20,0),b.vector("FREQUENCY",w,0),b.packedMarkovProbabilities(w),b.omission(w),b.cross(w)};List<String> mixture=new ArrayList<>();for(int i=0;i<5;i++){String score=b.atom("REGIME_SCORE",fields("regime",AtomRegimePolicyCP12.LABELS[i],"window",w));String probability=b.node("NORMALIZE_POSITIVE","SCORE_VECTOR10",Arrays.asList(vectors[i]));mixture.add(b.node("SCALAR_MULTIPLY_VECTOR10","SCORE_VECTOR10",Arrays.asList(score,probability)));}output=b.weighted(mixture,1,1,1,1,1);break;}
    default:throw new IllegalArgumentException("FAMILY_NOT_EXECUTABLE:"+family);
   }
   output=b.node("NORMALIZE_POSITIVE","SCORE_VECTOR10",Arrays.asList(output));Map<String,Object> root=base(family,position,"FIXED_GRAPH",b.nodes,Collections.emptyList(),output,10,Collections.emptyList());List<AtomSpecCP4> specs=new ArrayList<>(b.specs.values());finishManifest(root,specs,b.matrixRefs);CandidateAstR952 ast=CandidateAstR952.parse("AST3:"+StrictCanonicalJson.write(root));CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,specs);return new Proposal(ast,V51ChecksumEngine.sha256("CP12_FAMILY_FOUNDATION|"+family+'|'+position+'|'+w),specs);
@@ -207,8 +207,42 @@ public final class ModernFamilyFactoryCP12 {
   void reuseExistingNodes(){reuse=true;for(Object raw:nodes){Map<String,Object> n=map(raw);String op=str(n,"operator"),id=str(n,"id");if(op.equals("CONSTANT"))constants.put((String)list(n.get("parameters")).get(0),id);if(op.equals("ATOM")&&str(n,"outputType").equals("DOUBLE"))atomNodes.put(str(n,"atomId"),id);if(op.equals("NUMERIC_TO_DOUBLE")){List<?> parents=list(n.get("parents"));Map<String,Object> parent=map(nodes.get(Integer.parseInt(((String)parents.get(0)).substring(1))));if(str(parent,"operator").equals("ATOM"))atomNodes.put(str(parent,"atomId"),id);}}}
   String node(String op,String type,List<String> parents,double... parameters){List<String> ps=new ArrayList<>();for(double v:parameters)ps.add(Double.toHexString(v==0?0:v));if(reuse)for(Object raw:nodes){Map<String,Object> old=map(raw);if(op.equals(old.get("operator"))&&type.equals(old.get("outputType"))&&parents.equals(old.get("parents"))&&ps.equals(old.get("parameters")))return str(old,"id");}String id="n"+nodes.size();nodes.add(nodeMap(nodes.size(),op,type,parents,ps,""));return id;}
   String constant(double value){String key=Double.toHexString(value);String old=constants.get(key);if(old!=null)return old;String id=node("CONSTANT","DOUBLE",Collections.emptyList(),value);constants.put(key,id);return id;}
-  String atom(String family,Map<String,Object>params){ResearchWorkBudgetR927.checkpoint();Map<String,Object>s=fields("context","PIT_DRAW","family",family,"params",params,"position",position,"regime","ALL","transform","IDENTITY","version","CP2");String specJson=StrictCanonicalJson.write(s);if(params.containsKey("alpha"))specJson=specJson.replace("\"alpha\":\"0.5\"","\"alpha\":0.5");String hash=V51ChecksumEngine.sha256(specJson),id="ATOM2-"+hash.substring(0,24);AtomSpecCP4 spec=db!=null?spec(db,id):registeredById.get(id);if(spec==null)throw new DevelopmentProductionCP12.Wait("WAIT_ATOM_REGISTRATION");need(spec.canonicalSpec.equals(specJson),"FAMILY_ATOM_SPEC_IDENTITY");specs.put(id,spec);String old=atomNodes.get(id);if(old!=null)return old;String type=spec.outputType.equals("PROBABILITY")?"PROBABILITY":spec.outputType.equals("BOOLEAN")?"BOOLEAN":"DOUBLE",node="n"+nodes.size();nodes.add(nodeMap(nodes.size(),"ATOM",type,Collections.emptyList(),Collections.emptyList(),id));if(!type.equals("DOUBLE"))node=node("NUMERIC_TO_DOUBLE","DOUBLE",Arrays.asList(node));atomNodes.put(id,node);return node;}
-  String vector(String family,int w,int from){List<String>x=new ArrayList<>();for(int d=0;d<10;d++)x.add(atom(family,family.equals("TRANSITION_P1")?fields("from",from,"to",d,"window",w):family.equals("MARKOV_SCORE")?fields("alpha","0.5","digit",d,"order",1,"window",w):fields("digit",d,"window",w)));return node("PACK10","SCORE_VECTOR10",x);}
+  String atom(String family,Map<String,Object> params){
+   return atom(family,params,false);
+  }
+  String atom(String family,Map<String,Object> params,boolean packProbability){
+   ResearchWorkBudgetR927.checkpoint();
+   Map<String,Object> definition=fields("context","PIT_DRAW","family",family,"params",params,"position",position,"regime","ALL","transform","IDENTITY","version","CP2");
+   String specJson=StrictCanonicalJson.write(definition);
+   if(params.containsKey("alpha"))specJson=specJson.replace("\"alpha\":\"0.5\"","\"alpha\":0.5");
+   String hash=V51ChecksumEngine.sha256(specJson),id="ATOM2-"+hash.substring(0,24);
+   AtomSpecCP4 spec=db!=null?spec(db,id):registeredById.get(id);
+   if(spec==null)throw new DevelopmentProductionCP12.Wait("WAIT_ATOM_REGISTRATION");
+   need(spec.canonicalSpec.equals(specJson),"FAMILY_ATOM_SPEC_IDENTITY");
+   specs.put(id,spec);
+   if(packProbability)need(spec.outputType.equals("PROBABILITY"),"FAMILY_MARKOV_PROBABILITY");
+   String cacheKey=packProbability?id+"/PROBABILITY":id;
+   String cached=atomNodes.get(cacheKey);
+   if(cached!=null)return cached;
+   String type=spec.outputType.equals("PROBABILITY")?"PROBABILITY":spec.outputType.equals("BOOLEAN")?"BOOLEAN":"DOUBLE";
+   String result="n"+nodes.size();
+   nodes.add(nodeMap(nodes.size(),"ATOM",type,Collections.emptyList(),Collections.emptyList(),id));
+   if(!packProbability&&!type.equals("DOUBLE"))result=node("NUMERIC_TO_DOUBLE","DOUBLE",Collections.singletonList(result));
+   atomNodes.put(cacheKey,result);
+   return result;
+  }
+  String packedMarkovProbabilities(int window){
+   // PACK10 reads the scalar value and its presence mask directly from each registered probability.
+   List<String> scores=new ArrayList<>();
+   for(int digit=0;digit<10;digit++){
+    scores.add(atom("MARKOV_SCORE",markovParams(digit,window),true));
+   }
+   return node("PACK10","SCORE_VECTOR10",scores);
+  }
+  Map<String,Object> markovParams(int digit,int window){
+   return fields("alpha","0.5","digit",digit,"order",1,"window",window);
+  }
+  String vector(String family,int w,int from){List<String>x=new ArrayList<>();for(int d=0;d<10;d++)x.add(atom(family,family.equals("TRANSITION_P1")?fields("from",from,"to",d,"window",w):family.equals("MARKOV_SCORE")?markovParams(d,w):fields("digit",d,"window",w)));return node("PACK10","SCORE_VECTOR10",x);}
   String cross(int w){List<String>x=new ArrayList<>();for(int d=0;d<10;d++){
    String ordinary=atom("FREQUENCY",fields("digit",d,"window",w));Map<String,Object> existing=map(nodes.get(Integer.parseInt(ordinary.substring(1))));
    String node="n"+nodes.size();nodes.add(nodeMap(nodes.size(),"ATOM","DOUBLE",Collections.emptyList(),Collections.emptyList(),str(existing,"atomId")));
