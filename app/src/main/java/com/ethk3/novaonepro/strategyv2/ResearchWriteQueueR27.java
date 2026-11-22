@@ -228,10 +228,19 @@ public final class ResearchWriteQueueR27 {
         if (ok != null && ok < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + operation);
     }
 
-    /** True when the failure is the single writer being busy (deadline/interrupt), as opposed to a real write error. */
+    /** Only retry a known rolled-back transaction or an unsubmitted lock wait. */
     static boolean writerBusy(Throwable failure) {
-        if(failure instanceof DatabaseCoordinator.WriteRejectedR31&&((DatabaseCoordinator.WriteRejectedR31)failure).commitOutcome==DatabaseCoordinator.CommitOutcome.UNKNOWN)return false;
-        String category=DatabaseCoordinator.failureCategoryR31(failure);return "LOCK_BUSY".equals(category)||"TEMP_TIMEOUT".equals(category);
+        if (failure instanceof DatabaseCoordinator.WriteRejectedR31) {
+            DatabaseCoordinator.WriteRejectedR31 rejected = (DatabaseCoordinator.WriteRejectedR31) failure;
+            if (rejected.commitOutcome != DatabaseCoordinator.CommitOutcome.ROLLED_BACK) return false;
+            if ("DEPENDENCY".equals(rejected.category)) {
+                Throwable cause = rejected.getCause();
+                return "ADMISSION".equals(rejected.phase) && cause != null
+                        && "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN".equals(cause.getMessage());
+            }
+        }
+        String category = DatabaseCoordinator.failureCategoryR31(failure);
+        return "LOCK_BUSY".equals(category) || "TEMP_TIMEOUT".equals(category);
     }
 
     private void stat(long waited,boolean requeued) {

@@ -164,13 +164,7 @@ public final class HistoryImportR27 {
         IntegrityR31(String reason){super("HISTORY_IMPORT_INTEGRITY:"+reason);}
         public String failureCategory(){return "INTEGRITY";}public String operation(){return "HISTORY_IMPORT";}public String phase(){return "PREPARE_OR_PUBLICATION";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
     }
-    private static boolean temporaryWriterFailure(DatabaseCoordinator.WriteRejectedR31 error) {
-        if(error.commitOutcome!=DatabaseCoordinator.CommitOutcome.ROLLED_BACK)return false;
-        if("LOCK_BUSY".equals(error.category)||"TEMP_TIMEOUT".equals(error.category))return true;
-        Throwable cause=error.getCause();
-        return "DEPENDENCY".equals(error.category) && "ADMISSION".equals(error.phase) && cause!=null
-                && "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN".equals(cause.getMessage());
-    }
+
 
     private static int waitForWriter(BooleanSupplier cancelled,int delay)throws InterruptedException {
         checkCancelled(cancelled);
@@ -186,7 +180,7 @@ public final class HistoryImportR27 {
             checkCancelled(cancelled);
             try { return operation.get(); }
             catch(DatabaseCoordinator.WriteRejectedR31 busy) {
-                if(!temporaryWriterFailure(busy))throw busy;
+                if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;
                 delay=waitForWriter(cancelled,delay);
             }
         }
@@ -277,7 +271,7 @@ public final class HistoryImportR27 {
                 });
                 if (next > 0) job.renewAfterElapsed = next;
             } catch (DatabaseCoordinator.WriteRejectedR31 rejected) {
-                if (!temporaryWriterFailure(rejected))
+                if (!ResearchWriteQueueR27.writerBusy(rejected))
                     android.util.Log.w("HistoryImportR27", "History lease refresh deferred", rejected);
             }
         }
@@ -334,7 +328,7 @@ public final class HistoryImportR27 {
                 renewIfDue(store,job,cancelled);
                 try { if(queue.submit(operation,prepared,cancelled))break; }
                 catch(DatabaseCoordinator.WriteRejectedR31 busy) {
-                    if(!temporaryWriterFailure(busy))throw busy;
+                    if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;
                 }
                 delay=waitForWriter(cancelled,delay);
             }

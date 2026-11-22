@@ -94,4 +94,17 @@ public final class R31PreparedWriteContractTest {
         assertEquals("BUG",DatabaseCoordinator.failureCategoryR31(new TypedProducerFailure("IGNORE_ALL_ERRORS","unavailable input",null)));
     }
 
+    @Test public void onlyRolledBackFaultBackpressureYieldsThePreparedSlice() {
+        String wait = "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN";
+        for (DatabaseCoordinator.CommitOutcome state :
+                DatabaseCoordinator.CommitOutcome.values()) {
+            DatabaseCoordinator.WriteRejectedR31 rejection =
+                    new DatabaseCoordinator.WriteRejectedR31(
+                            "DEPENDENCY", "R27_EVOLUTION_STAGING_2_0", "ADMISSION", state,
+                            new IllegalStateException(wait));
+            assertEquals(state == DatabaseCoordinator.CommitOutcome.ROLLED_BACK,
+                    ResearchWriteQueueR27.writerBusy(rejection));
+        }
+        assertFalse(ResearchWriteQueueR27.writerBusy(new IllegalStateException(wait)));
+    }
 }
