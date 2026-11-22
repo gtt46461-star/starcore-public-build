@@ -48,6 +48,7 @@ public final class ReplayKnowledgePublicationR31Host {
             ResearchPoolR27.Outcome fresh=fixture.owned(()->fixture.runtime.new DatasetTask().step(fixture.worker));
             need(fresh.units==1&&fixture.runtime.evoData.size()==5000,"ACTUAL_NEW_DATASET_TASK_PUBLISHED_ORIGINAL_5000_WINDOW");
             ReplayDatasetR27 data=fixture.runtime.evoData;Map<String,Object> projection=report(db);verify(projection,"NEW_INPUT_PINNED",data.datasetHash);
+            db.execSQL("VACUUM INTO ?",new Object[]{file.resolveSibling("revoked-evolution.db").toString()});
             Map<?,?> provenance=(Map<?,?>)projection.get("provenance");need(((Number)provenance.get("recordedKnownAtRows")).intValue()==4999&&((Number)provenance.get("unknownKnownAtRows")).intValue()==1,"ACTUAL_MIXED_KNOWN_AND_UNKNOWN_INPUT_REPORTED");
             need("RECORDED_INPUT_METADATA_ONLY".equals(projection.get("status")),"TIMESTAMP_RECORDING_IS_NOT_PAST_FORECAST_PROOF");
             need(ChartCacheR27.classR31(ReplayKnowledgeStoreR31.PANEL)!=ChartCacheR27.CacheClassR31.DISPLAY,"METADATA_SLOT_IS_NOT_DISPLAY_GC");
@@ -100,12 +101,78 @@ public final class ReplayKnowledgePublicationR31Host {
             System.out.println("REPEATED_OWNED_DATASET_RESTART_PASS pid="+ProcessHandle.current().pid());
         } finally { db.jdbc.close(); }
     }
+    static void revokedEvolution(Path file, String library, long priorPid) throws Exception {
+        HistoryPosixStatR31Host.install(library);
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + file)) {
+            ObservedDb db = new ObservedDb(connection);
+            try (R31OwnedRuntimeFixture dataset = new R31OwnedRuntimeFixture(db, "r27-replay-dataset");
+                 R31OwnedRuntimeFixture evolution = new R31OwnedRuntimeFixture(db, "r27-evolution")) {
+                RuntimeR27 runtime = evolution.runtime;
+                dataset.recoverAfterConfirmedProcessExit(priorPid);
+                dataset.coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(
+                        DatabaseCoordinator.WriteClass.MIGRATION, "HOST_EVOLUTION_INPUT_SETUP"), tx -> {
+                    tx.execSQL("CREATE TABLE IF NOT EXISTS app_state(state_key TEXT PRIMARY KEY,state_value TEXT,updated_at INTEGER DEFAULT 0)");
+                    StrategySchemaSU2.ensure(tx);
+                    return 0;
+                });
+                boolean ready = false;
+                for (int i = 0; i < 1024 && !ready; i++) {
+                    ready = dataset.coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(
+                            DatabaseCoordinator.WriteClass.MIGRATION, "HOST_EVOLUTION_LIFECYCLE_SETUP"),
+                            tx -> com.ethk3.novaonepro.LifecycleSchemaR31.advanceWithinMigration(tx).ready);
+                }
+                need(ready, "LIFECYCLE_SCHEMA_MUST_BE_COMPLETE");
+                need(dataset.owned(() -> runtime.new DatasetTask().step(dataset.worker)).units == 1, "RECOVER_DATASET");
+                FeatureCacheR27 original = runtime.evoCache;
+                for (int i = 0; i < 2; i++)
+                    need(evolution.owned(() -> runtime.new EvolutionTask().step(evolution.worker)).units == 1, "ADVANCE_TO_BIRTH_GATE");
+                String hash = original.data.datasetHash;
+                need(EvolutionPublicationStoreR31.CursorState.capture(db, RuntimeR27.LOOP).step == 3, "BIRTH_GATE_COMMITTED");
+                need(count(db, "r27_policy") == 0, "NO_BIRTH_BEFORE_GATE");
+
+                List<ReplayDatasetR27.Row> otherRows = new ArrayList<>();
+                for (int i = 1; i < original.data.size(); i++)
+                    otherRows.add(new ReplayDatasetR27.Row(original.data.issues[i], original.data.ordinals[i], original.data.draws[i]));
+                try (FeatureCacheR27 different = new FeatureCacheR27(ReplayDatasetR27.of(otherRows), 48)) {
+                    for (int i = 0; i < 3; i++) {
+                        runtime.invalidateTaskDraftR31("r27-evolution");
+                        if (i > 0) {
+                            // Simulate losing the in-process acknowledgement after the cursor committed.
+                            runtime.evoCache = different;
+                            runtime.evoData = different.data;
+                            runtime.pendingCache = i == 1 ? original : null;
+                            runtime.pendingData = i == 1 ? original.data : null;
+                        }
+                        ResearchPoolR27.Outcome next = evolution.owned(() -> runtime.new EvolutionTask().step(evolution.worker));
+                        EvolutionPublicationStoreR31.CursorState cursor = EvolutionPublicationStoreR31.CursorState.capture(db, RuntimeR27.LOOP);
+                        need(next.units == 1 && cursor.step == 4 + i && hash.equals(cursor.dataset), "RESUME_EXACT_COMMITTED_INPUT_" + i);
+                    }
+                }
+                long births = count(db, "r27_policy");
+                need(births > 0 && count(db, "r27_replay_dataset") == 1, "DURABLE_BIRTHS_ON_SINGLE_PIN");
+                db.execSQL("UPDATE draws SET n1=n2,n2=n1 WHERE issue=?",new Object[]{original.data.issues[100]});
+                need(ResearchInputPinR30R1.invalid(db,hash), "IN_WINDOW_CORRECTION_REVOKES_PIN");
+                runtime.invalidateTaskDraftR31("r27-evolution");
+                ResearchPoolR27.Outcome stale = evolution.owned(() -> runtime.new EvolutionTask().step(evolution.worker));
+                need(stale.units == 0 && "DEPENDENCY(CORRECTED_REPLAY_DATASET)".equals(stale.reason), "CORRECTED_PIN_REFUSED");
+                need(count(db,"r27_policy") == births && EvolutionPublicationStoreR31.CursorState.capture(db,RuntimeR27.LOOP).step == 6,
+                        "CORRECTED_INPUT_CANNOT_ADVANCE_OR_PUBLISH");
+                System.out.println("REVOKED_EVOLUTION_INPUT_PASS births=" + births + " throughStep=6 correctedRejected=true");
+            }
+        }
+    }
+
     public static void main(String[] args)throws Exception{
+        if ("revoked-evolution".equals(args[0])) { revokedEvolution(Paths.get(args[1]),args[2],Long.parseLong(args[3])); return; }
         if("restart".equals(args[0])){restart(Paths.get(args[1]),args[2],Long.parseLong(args[3]));return;}
         if("write".equals(args[0])){write(Paths.get(args[1]),args[2]);return;}if("read".equals(args[0])){read(Paths.get(args[1]));return;}
         File root=new File(args[0]);File database=new File(root,"databases/main.db");String java=new File(System.getProperty("java.home"),"bin/java").getPath(),cp=System.getProperty("java.class.path");
         Process writer=new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),"write",database.getPath(),args[1]).inheritIO().start();need(writer.waitFor()==0,"WRITE_PROCESS_EXIT");
         long exitedPid = writer.pid();
+        Process evolution = new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),
+                "revoked-evolution",new File(database.getParentFile(),"revoked-evolution.db").getPath(),args[1],
+                Long.toString(exitedPid)).inheritIO().start();
+        need(evolution.waitFor()==0,"REVOKED_EVOLUTION_AND_CORRECTION");
         for (int i=0;i<3;i++) {
             Process restart=new ProcessBuilder(java,"-Xmx768m","-cp",cp,ReplayKnowledgePublicationR31Host.class.getName(),"restart",
                     new File(database.getParentFile(),"restart.db").getPath(),args[1],Long.toString(exitedPid)).inheritIO().start();

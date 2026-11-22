@@ -126,8 +126,11 @@ public final class RuntimeR27 implements AutoCloseable {
     public synchronized void invalidateTaskDraftR31(String task) {
         switch(task) {
             case "r27-evolution":
-                // DatasetTask reloads the exact pinned dataset referenced by the durable evolution cursor.
-                evo=null;evoData=null;evoCache=null;pendingData=null;pendingCache=null;recoveredLegacyCursor=null;
+                // A lease owns its computation. DatasetTask publishes these inputs only after COMMIT.
+                // The next evolution owner reopens the durable cursor before using either input.
+                if (evo != null) evo.close();
+                evo = null;
+                recoveredLegacyCursor = null;
                 break;
             case "r27-live":
                 liveData=null;liveCache=null;liveCacheKeyR30="";
@@ -219,8 +222,7 @@ public final class RuntimeR27 implements AutoCloseable {
                         try {
                             ModelSurfaceStoreR30.bindHistorical(w.ro, recovered);
                             publishRecoveredReplayKnowledgeR31(w, pin, "RECOVERED_COMMITTED_PIN");
-                            evoData = pin.data;
-                            evoCache = recovered;
+                            publishDatasetInputR335(recovered);
                             published = true;
                             return ResearchPoolR27.Outcome.progress(1, pin.data.ordinals[pin.data.size() - 1]);
                         } finally {
@@ -259,7 +261,7 @@ public final class RuntimeR27 implements AutoCloseable {
                     RuntimeCoordinatorR26.requireFence(w.ro,current);
                     if(ResearchInputPinR30R1.invalid(w.ro,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
                     publishRecoveredReplayKnowledgeR31(w,pinned,"RESTORED_PUBLISHED_DATASET");
-                    if(evoData==null){evoData=d;evoCache=c;}else{pendingData=d;pendingCache=c;}
+                    publishDatasetInputR335(c);
                     published=true;
                     return ResearchPoolR27.Outcome.progress(1,d.ordinals[d.size()-1]);
                 }
@@ -270,7 +272,7 @@ public final class RuntimeR27 implements AutoCloseable {
                     ReplayKnowledgeStoreR31.appendR31(b,d,capturedRevision,"NEW_INPUT_PINNED",System.currentTimeMillis());
                     submit(w, "REPLAY_DATASET", b,false,d.datasetHash+"|sourceRevision="+capturedRevision);
                 }
-                if (evoData == null) { evoData = d; evoCache = c; } else { pendingData = d; pendingCache = c; }
+                publishDatasetInputR335(c);
                 published=true;
                 return ResearchPoolR27.Outcome.progress(1, d.ordinals[d.size() - 1]);
             }finally{if(!published)c.close();}
@@ -311,6 +313,43 @@ public final class RuntimeR27 implements AutoCloseable {
         public String phase(){return "VERIFY_PERSISTED_INPUT";}public String commitOutcomeName(){return "NOT_SUBMITTED";}
     }
 
+    private synchronized void publishDatasetInputR335(FeatureCacheR27 cache) {
+        if (evoCache == null) {
+            evoData = cache.data;
+            evoCache = cache;
+        } else {
+            pendingData = cache.data;
+            pendingCache = cache;
+        }
+    }
+
+    /** COMMIT can succeed just before cancellation suppresses the in-process cursor update. */
+    private void recoverCommittedEvolutionInputR335(SQLiteDatabase read,
+            EvolutionPublicationStoreR31.CursorState cursor) {
+        if (!cursor.exists || cursor.dataset.equals(evoCache.data.datasetHash)) return;
+        FeatureCacheR27 restored = pendingCache;
+        if (restored == null || !cursor.dataset.equals(restored.data.datasetHash)) {
+            ResearchInputPinR30R1.Pin pin = ResearchInputPinR30R1.loadCurrent(read, cursor.dataset);
+            // A corrected or legacy input follows the existing audited generation-boundary recovery.
+            if (pin == null) return;
+            restored = featureCacheR31(pin.data, 48);
+            try {
+                ModelSurfaceStoreR30.bindHistorical(read, restored);
+            } catch (RuntimeException | Error failure) {
+                restored.close();
+                throw failure;
+            }
+        }
+        synchronized (this) {
+            evoData = restored.data;
+            evoCache = restored;
+            if (pendingCache == restored) {
+                pendingData = null;
+                pendingCache = null;
+            }
+        }
+    }
+
     // ------------------------------------------------------------------ r27-evolution (R27-021..032)
     final class EvolutionTask implements ResearchPoolR27.Task {
         public String id() { return "r27-evolution"; }
@@ -319,7 +358,11 @@ public final class RuntimeR27 implements AutoCloseable {
             final EvolutionPublicationStoreR31.CursorState expectedEvolutionCursor=EvolutionPublicationStoreR31.CursorState.capture(w.ro,LOOP);
             EvolutionLoopR27 committed=evo;
             final boolean restoredObserverBoundaryR31=committed==null;
-            if(committed==null){committed=restoreOrCreate(w);ConfirmReadStoreR30.restore(w.ro,committed.ledger());}
+            if (committed == null) {
+                recoverCommittedEvolutionInputR335(w.ro, expectedEvolutionCursor);
+                committed = restoreOrCreate(w);
+                ConfirmReadStoreR30.restore(w.ro, committed.ledger());
+            }
             // Recover observer consumption after a committed generation; never rerun the committed step9.
             // A current in-memory loop already acknowledged its refresh and needs no duplicate ACK.
             if(restoredObserverBoundaryR31&&committed.step==1&&committed.generation>0&&expectedEvolutionCursor.exists
