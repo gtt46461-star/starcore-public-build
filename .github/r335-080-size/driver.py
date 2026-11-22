@@ -1,6 +1,6 @@
 """Read back a native full report after recreating the measured size pressure on a disposable Android guest."""
 from pathlib import Path
-import hashlib,importlib.util,json,os,re,subprocess,time
+import hashlib,importlib.util,json,os,re,subprocess,time,zipfile
 root=Path(os.environ['GITHUB_WORKSPACE'])
 tmp=Path(os.environ['RUNNER_TEMP'])
 spec=importlib.util.spec_from_file_location('native_archive',root/'.github/r335-vivo-final-export/driver.py')
@@ -15,6 +15,18 @@ record={'sourceCommit':active,'apkSha256':expected,'runId':int(os.environ['GITHU
 out=tmp/('R335-080-sized-export-'+str(record['runId'])+'.json')
 def save(stage):
     record['phase']=stage;out.write_text(json.dumps(record,indent=2)+'\n')
+
+def archive_execution(seq):
+    contract=tmp/'material/STARCORE_R33_5_20261118/B01/scripts/report_expected_ids_r334.json'
+    registered=set(json.loads(contract.read_bytes())['checks'])
+    with zipfile.ZipFile(n.private/str(seq)/'joined.zip') as archive:
+        receipt=json.loads(archive.read('R31_SEMANTIC_RECEIPT.json'))
+        footer=json.loads(archive.read('ARCHIVE_MANIFEST.jsonl').splitlines()[-1])
+    observed=receipt['checks']
+    assert set(observed)==registered
+    return {'registeredCheckCount':len(registered),
+            'checksThatDidNotComplete':sorted(k for k in registered if observed[k].get('completes_contract') is not True),
+            'checksComplete':footer['checks_complete'],'evidenceComplete':footer['evidence_complete']}
 def main():
     assert f.adb('get-serialno').decode().strip().startswith('emulator-') and f.adb('shell','getprop','ro.kernel.qemu').strip()==b'1'
     f.adb('root');f.adb('wait-for-device')
@@ -93,7 +105,13 @@ def main():
     f.adb('shell','am','start','-W','-n',f.ACTIVITY);time.sleep(65)
     lib=importlib.util.spec_from_file_location('controlled_ui',root/'.github/r335-080-owners/capture.py')
     ui=importlib.util.module_from_spec(lib);lib.loader.exec_module(ui);ui.n=n;ui.f=f
-    ui.request(1,set());result=ui.record['attempts'][0];record['attempt']=result;save('EXTERNAL_RECEIVER')
+    known=set();ui.request(1,known);result=ui.record['attempts'][0];record['attempt']=result;save('EXTERNAL_RECEIVER')
+    if result.get('phase')=='DONE':record['firstCheckExecution']=archive_execution(1)
+    if result.get('strictRefusalCode')=='ARCHIVE_INCOMPLETE':
+        save('REPEAT_ORIGINAL_AFTER_INCOMPLETE_CHECKS')
+        ui.request(2,known);second=ui.record['attempts'][1];record['repeatAttempt']=second
+        if second.get('phase')=='DONE':record['repeatCheckExecution']=archive_execution(2)
+    save('EXTERNAL_RECEIVER')
     assert kept_digest()==original and f.installed(f.EVID/'returned.txt',577311080)==(uid,expected)
     record['privateOriginalPreserved']=True
     assert result.get('fullyVerifiedRawAndSystemPicker') and result.get('rawSnapshotBytes',0)>=1373483008 and result.get('archiveBytes',0)>0

@@ -1,5 +1,5 @@
 """Test the 065-to-066 upgrade and the original production owners in a disposable Android guest."""
-import hashlib,json,os,re,subprocess,urllib.request
+import hashlib,json,os,re,subprocess,time,urllib.request
 from pathlib import Path
 
 temp=Path(os.environ['RUNNER_TEMP'])
@@ -21,6 +21,7 @@ def installed():
 
 def run(cls,method,phase):
     qualified='com.ethk3.novaonepro.'+cls+'#'+method
+    started=time.monotonic()
     cmd=['adb','shell','am','instrument','-w','-r','-e','r30Sandbox','vivo-'+phase+'-'+method[:40],'-e','class',qualified,runner]
     try:
         result=subprocess.run(cmd,capture_output=True,timeout=480);data=result.stdout+result.stderr;exit_code=result.returncode
@@ -30,7 +31,7 @@ def run(cls,method,phase):
     text=data.decode(errors='replace')
     failures=[x.strip()[:320] for x in text.splitlines() if ('AssertionError' in x or 'expected:<' in x or 'ComparisonFailure' in x or 'Exception:' in x or 'Error in ' in x or 'INSTRUMENTATION_FAILED' in x)][:5]
     return {'phase':phase,'test':qualified,'passed':exit_code==0 and bool(re.search(r'OK\s*\(1 test\)',text)) and 'FAILURES!!!' not in text,
-             'exit':exit_code,'diagnosis':failures,
+             'exit':exit_code,'elapsedMs':int((time.monotonic()-started)*1000),'diagnosis':failures,
             'errorTypes':list(dict.fromkeys(re.findall(r'(?:[A-Za-z$]+Error|[A-Za-z$]+Exception|ComparisonFailure)',text)))[:15],
             'frames':list(dict.fromkeys(re.findall(r'[(]([A-Za-z0-9_$]+[.]java:[0-9]+)[)]',text)))[:24],'originalLogSha256':hashlib.sha256(data).hexdigest()}
 
