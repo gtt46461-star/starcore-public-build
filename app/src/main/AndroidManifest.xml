@@ -59,6 +59,12 @@
             android:exported="true" />
 
         <provider
+            android:name=".ReportSchemaSourceProviderR335"
+            android:authorities="${applicationId}.report.schema"
+            android:exported="false"
+            android:grantUriPermissions="false" />
+
+        <provider
             android:name=".DiagnosticReportProviderR923"
             android:authorities="${applicationId}.diagnostic.reports"
             android:exported="false"

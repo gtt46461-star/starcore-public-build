@@ -92,6 +92,7 @@ public final class ReportJobJournalCP12 implements Closeable {
     }
     public static final class Job {
         public final String jobId,requestId,releaseHash,mode;
+        public String reportSourcePreparation="";
         public String stage="CLAIMED",resumeStage="BACKUP",lastReason="",snapshotSha="",publishedDir="",manifestSha="";
         public String failureDetailR32="",failurePhaseR32="",recoveryPublicationR32="",recoveryFailureR32="";
         public long revision,attempt,createdWallMs,updatedWallMs,snapshotWallMs,snapshotBytes,temporaryReservationBytes,publishedQuotaBytes;
@@ -107,6 +108,7 @@ public final class ReportJobJournalCP12 implements Closeable {
         }
         JSONObject json()throws Exception {
             JSONObject o=new JSONObject();o.put("revision_name","REPORT_JOB_CP12_1");o.put("jobId",jobId);o.put("requestId",requestId);o.put("releaseHash",releaseHash);o.put("mode",mode);
+            o.put("reportSourcePreparation",reportSourcePreparation);
             o.put("stage",stage);o.put("resumeStage",resumeStage);o.put("lastReason",lastReason);o.put("snapshotSha",snapshotSha);o.put("publishedDir",publishedDir);o.put("manifestSha",manifestSha);
             o.put("revision",revision);o.put("attempt",attempt);o.put("createdWallMs",createdWallMs);o.put("updatedWallMs",updatedWallMs);o.put("snapshotWallMs",snapshotWallMs);o.put("snapshotBytes",snapshotBytes);
             o.put("waitReasonR335",resourceWaitR335.reason).put("dependencyFingerprintR335",resourceWaitR335.fingerprint)
@@ -120,6 +122,7 @@ public final class ReportJobJournalCP12 implements Closeable {
             JSONObject o=new JSONObject(json);if(!"REPORT_JOB_CP12_1".equals(o.getString("revision_name")))throw new IOException("REPORT_JOB_REVISION");
             Job j=new Job(o.getString("jobId"),o.getString("requestId"),o.getString("releaseHash"),o.getString("mode"),o.getLong("createdWallMs"));
             j.stage=o.getString("stage");j.resumeStage=o.getString("resumeStage");Stage.valueOf(j.stage);Stage.valueOf(j.resumeStage);
+            j.reportSourcePreparation=o.optString("reportSourcePreparation","");
             j.lastReason=o.getString("lastReason");j.snapshotSha=o.getString("snapshotSha");j.publishedDir=o.getString("publishedDir");j.manifestSha=o.getString("manifestSha");
             if(j.lastReason.length()>512||(!j.snapshotSha.isEmpty()&&!j.snapshotSha.matches("[0-9a-f]{64}"))||(!j.manifestSha.isEmpty()&&!j.manifestSha.matches("[0-9a-f]{64}"))
                ||(!j.publishedDir.isEmpty()&&!j.publishedDir.matches("archive-[0-9]{1,9}")))throw new IOException("REPORT_JOB_FIELD");
@@ -220,6 +223,7 @@ public final class ReportJobJournalCP12 implements Closeable {
         }
         JSONObject ack=new JSONObject();ack.put("requestId",requestId);ack.put("jobId",j.jobId);ack.put("mode",j.mode);ack.put("stage",j.stage);ack.put("revision",j.revision);ack.put("reason",j.lastReason);ack.put("createdWallMs",j.createdWallMs);ack.put("updatedWallMs",j.updatedWallMs);ack.put("resumeStage",j.resumeStage);ack.put("evidenceComplete",j.evidenceComplete);ack.put("checksComplete",j.checksComplete);ack.put("allChecksPassed",j.allChecksPassed);
         ack.put("semanticVerificationR31",j.semanticVerificationR31);
+        if(!j.reportSourcePreparation.isEmpty())ack.put("reportSourcePreparation",j.reportSourcePreparation);
         appendFailureR32(ack,j);
         addRecoveryReceipt(root,requestId,ack);writeAtomic(target,ack.toString());
         // Crash after ACK and before this receipt only causes an idempotent resend.

@@ -274,7 +274,7 @@ public final class ReportExportServiceCP4 extends Service {
             journal.acknowledge(job.requestId,job);ActiveControl active=new ActiveControl(job,journal.root());control=active;foreground("报告采集与核验进行中");
             final long resourceDelayR335=ReportResourceWaitR335.remaining(job.resourceWaitR335,
                     ReportTaskControlR69.readBootR30(),SystemClock.elapsedRealtime());
-            try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),active);ReportInputsLeaseCP12 inputPin=job.mode.equals("FULL_REPORT")&&resourceDelayR335==0L?ReportInputsLeaseCP12.acquire(getFilesDir()):null) {
+            try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),active);ReportInputsLeaseCP12 inputPin=job.mode.equals("FULL_REPORT")&&resourceDelayR335==0L?prepareAndPinReportInputs(job,active):null) {
                 if(resourceDelayR335>0L){
                     active.checkpoint(); // Durable user cancellation takes precedence over a wait deadline.
                     journal.acknowledge(job.requestId,job);
@@ -349,7 +349,9 @@ public final class ReportExportServiceCP4 extends Service {
                         JSONObject latest=loadRequest(journal.root(),job.requestId);
                         if(!job.requestId.equals(latest.getString("requestId"))||!job.releaseHash.equals(latest.getString("releaseHash")))throw new IOException("REPORT_REQUEST_OBSERVATION_IDENTITY");
                         JSONObject frozenRequest=new JSONObject(request.toString());
-                        frozenRequest.put("observation",ReportAttachmentClosureCP12.requestObservationR31(latest));
+                        JSONObject observation=ReportAttachmentClosureCP12.requestObservationR31(latest);
+                        if(!job.reportSourcePreparation.isEmpty())observation.put("reportSourcePreparation",job.reportSourcePreparation);
+                        frozenRequest.put("observation",observation);
                         ReportAttachmentClosureCP12.capture(this,copy,directory,frozenRequest,active,members,job.snapshotSha,job.snapshotBytes);
                     }
                     android.os.CancellationSignal cancellation=new android.os.CancellationSignal();
@@ -520,6 +522,14 @@ public final class ReportExportServiceCP4 extends Service {
             }
         }
     }
+    private ReportInputsLeaseCP12 prepareAndPinReportInputs(ReportJobJournalCP12.Job job,ActiveControl active)throws Exception {
+        if(job.snapshotSha.isEmpty() && job.releaseHash.equals(ReleaseManifestR926.MANIFEST_SHA256)) {
+            active.enter("PREPARE_REGISTERED_REPORT_SOURCES",120000L);
+            job.reportSourcePreparation=ReportSchemaSourceProviderR335.prepareBeforeSnapshot(this,active::checkpoint);
+        }
+        return ReportInputsLeaseCP12.acquire(getFilesDir());
+    }
+
     private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal,ActiveControl active,boolean verifiedSnapshotReusable)throws Exception {
         long snapshot=0;
         if(!verifiedSnapshotReusable){
