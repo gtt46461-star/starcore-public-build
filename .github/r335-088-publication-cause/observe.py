@@ -103,6 +103,28 @@ def sampled(elapsed):
         sites[key]=sites.get(key,0)+1
     row['publicationFaultSites']=sites
     row['observedTablesMentioned']=[name for name in ('r27_policy','r27_lineage','r30r1_proposal','r30r1_consume','r27_replay_dataset','r27_evolution_cursor','r33_research_applied') if name in str(fault_rows)]
+    # Only immutable identifiers from the published application schema are returned.
+    # The fault text and database values stay in the disposable guest.
+    diagnostic_tables = ('r26_evolution','r27_evolution_cursor','r27_expert_proposal','r27_policy','r27_lineage','r27_replay_score','r27_generation','r30r1_analysis_run','r30r1_proposal','r30r1_consume','r30_confirm_dataset','r30_frozen_confirm','r33_research_applied','r27_chart_cache','r27_eprocess','r27_holdout_exposure','r31_evolution_publication')
+    fault = "coalesce(last_stack,'')||' '||coalesce(last_cause_chain_json,'')||' '||coalesce(stack,'')||' '||coalesce(cause_chain_json,'')"
+    row['failedPublicationTargets'] = {}
+    for table in diagnostic_tables:
+        n = query("SELECT coalesce(sum(occurrences),0) FROM r31_runtime_fault WHERE task_id='r27-evolution' AND instr("+fault+",'CANONICAL_TRIGGER_REQUIRES_EXPLICIT_OWNER_PLAN:"+table+"')>0")
+        if str(n).strip() not in ('0','', '[]', "['0']"):row['failedPublicationTargets'][table]=str(n)[:70]
+    # Record the installed trigger identities on the actual published-source tables.
+    # Hashes and known first operation tokens identify DDL, without disclosing any stored values.
+    import hashlib
+    table_set = ",".join("'"+t+"'" for t in diagnostic_tables)
+    definitions=query("SELECT lower(tbl_name)||'|'||name||'|'||replace(replace(sql,char(10),' '),char(13),' ') FROM sqlite_master WHERE type='trigger' AND lower(tbl_name) IN ("+table_set+") ORDER BY tbl_name,name")
+    selected=[]
+    for definition in definitions.splitlines() if isinstance(definitions,str) else definitions:
+        fields=definition.split('|',2)
+        if len(fields)!=3:continue
+        table,name,ddl=fields
+        if table not in diagnostic_tables or not re.fullmatch(r'[A-Za-z0-9_]{1,120}',name):continue
+        event=re.search(r'\b(?:BEFORE|AFTER)\s+(INSERT|UPDATE|DELETE)\b',ddl,re.I)
+        selected.append({'table':table,'name':name,'ddlSha256':hashlib.sha256(ddl.encode()).hexdigest(),'event':event[1].upper() if event else 'OTHER'})
+    row['knownTargetTriggerDefinitions']=selected
     row['cliConnectionRecursiveTriggersOnly']=numbers('PRAGMA recursive_triggers')
     namespace['save']()
 namespace['sample']=sampled
