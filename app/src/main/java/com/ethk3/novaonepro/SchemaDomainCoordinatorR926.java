@@ -658,6 +658,27 @@ public final class SchemaDomainCoordinatorR926 {
         if(!db.inTransaction())throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_OWNER_REQUIRED");
         ensureInfrastructure(db);
         Contract critical=criticalContract();
+        AttachmentPreimage before=readAttachmentPreimage(db,critical,definitions,replacements);
+        installWithAttachmentPreimage(db,critical,definitions,before,install);
+    }
+
+    private static final class AttachmentPreimage {
+        final Set<String> roots;
+        final java.util.Map<String,String> replacements;
+        final java.util.Map<String,String[]> objects;
+        final java.util.regex.Pattern declaration;
+        final String before;
+        final boolean trusted,recovered;
+        AttachmentPreimage(Set<String> roots,java.util.Map<String,String> replacements,
+                java.util.Map<String,String[]> objects,java.util.regex.Pattern declaration,
+                String before,boolean trusted,boolean recovered) {
+            this.roots=roots;this.replacements=replacements;this.objects=objects;this.declaration=declaration;
+            this.before=before;this.trusted=trusted;this.recovered=recovered;
+        }
+    }
+
+    private static AttachmentPreimage readAttachmentPreimage(SQLiteDatabase db,Contract critical,
+            String[] definitions,String[] replacements) {
         Set<String> roots=new HashSet<>(Arrays.asList(critical.objects));
         Set<String> delta=new HashSet<>();
         java.util.regex.Pattern declaration=java.util.regex.Pattern.compile(
@@ -677,11 +698,12 @@ public final class SchemaDomainCoordinatorR926 {
                     ||exactReplacements.put(named.group(1),normalizedTriggerR31(expected))!=null)
                 throw new IllegalArgumentException("R3251_RESEARCH_REPLACEMENT_DECLARATION");
         }
-        String reason=matchReason(db,critical),before=fingerprint(db,critical);
+        String before=fingerprint(db,critical);
+        String reason=matchReason(db,critical,before);
         boolean trusted=reason.startsWith("MATCH"),recovered=false;
-        String core=fingerprint(db,critical,false,null,delta);
         java.util.Map<String,String[]> beforeObjects=criticalObjectsForDeltaR3251(db,critical);
         if(!trusted&&!"STAMP_MISSING".equals(reason)){
+            String core=fingerprint(db,critical,false,null,delta);
             String sealed=null;
             try(Cursor row=db.rawQuery("SELECT fingerprint FROM "+TABLE_DOMAIN
                     +" WHERE domain=? AND revision=? AND contract_hash=? AND state='READY'",
@@ -693,46 +715,215 @@ public final class SchemaDomainCoordinatorR926 {
                     "R3251_RESEARCH_ATTACHMENT","UNTRUSTED_CRITICAL:"+reason);
             before=sealed;
         }
+        return new AttachmentPreimage(roots,exactReplacements,beforeObjects,declaration,before,trusted,recovered);
+    }
+
+    private static void installWithAttachmentPreimage(SQLiteDatabase db,Contract critical,String[] definitions,
+            AttachmentPreimage prepared,Step install) {
         try{
             install.run(db);
+            java.util.regex.Pattern declaration=prepared.declaration;
             requireR3251ResearchAttachmentDefinitions(db,definitions,declaration);
             // The sole original extension owner also installs declared guards
             // outside CP8. Existing objects stay exact, except for the original
             // CP4 guard replacements whose complete definitions are declared.
-            requireAdditiveCriticalAttachmentsR3251(beforeObjects,
-                    criticalObjectsForDeltaR3251(db,critical),roots,exactReplacements);
+            requireAdditiveCriticalAttachmentsR3251(prepared.objects,
+                    criticalObjectsForDeltaR3251(db,critical),prepared.roots,prepared.replacements);
             String after=fingerprint(db,critical);
-            if(recovered||trusted&&!before.equals(after)){
+            if(prepared.recovered||prepared.trusted&&!prepared.before.equals(after)){
                 long now=System.currentTimeMillis();
                 db.execSQL("INSERT OR IGNORE INTO "+TABLE_JOURNAL
                                 +"(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
                                 +" VALUES(?,?,?,'COMPLETED',1,'EXACT_ORIGINAL_CP8_ATTACHMENT_DELTA',?,?,?,?, '')",
                         new Object[]{critical.domain,critical.revision,"R3251_RESEARCH_ATTACHMENT_CUTOVER_V1:"+after,
-                                before,after,now,now});
+                                prepared.before,after,now,now});
                 verifyAndStamp(db,critical);
             }
         }catch(RuntimeException failure){throw failure;}
         catch(Exception failure){throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_MIGRATION_FAILED",failure);}
     }
 
+    // A completed inspection may serve the next callback only if the catalogue, critical seal
+    // and its journal still have exactly the inspected content in the new write transaction.
+    // A lost process merely repeats the inspection. No durable receipt is written by preparation.
+    private static final class ExtensionInspection {
+        final String path;
+        final byte[] identity;
+        final String[] definitions,replacements;
+        final AttachmentPreimage preimage;
+        ExtensionInspection(SQLiteDatabase db,byte[] identity,String[] definitions,String[] replacements,
+                AttachmentPreimage preimage) {
+            path=db.getPath();this.identity=identity;this.definitions=definitions.clone();
+            this.replacements=replacements.clone();this.preimage=preimage;
+        }
+    }
+    private static volatile ExtensionInspection extensionInspection;
+
+    static final class ChangedExtensionPreimage extends RuntimeException {
+        ChangedExtensionPreimage(){super("R3251_EXTENSION_PREIMAGE_CHANGED");}
+    }
+
+    static boolean prepareExtensionInspection(SQLiteDatabase db,String[] definitions,String[] replacements) {
+        if(!db.inTransaction())throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_OWNER_REQUIRED");
+        Contract critical=criticalContract();
+        ExtensionInspection prior=extensionInspection;
+        if(prior==null || !db.getPath().equals(prior.path)
+                || !Arrays.equals(definitions,prior.definitions) || !Arrays.equals(replacements,prior.replacements)) {
+            byte[] identity=extensionInspectionIdentity(db,critical,false);
+            AttachmentPreimage inspected=readAttachmentPreimage(db,critical,definitions,replacements);
+            extensionInspection=new ExtensionInspection(db,identity,definitions,replacements,inspected);
+            return false;
+        }
+        return true;
+    }
+
+    static void installInspectedAttachments(SQLiteDatabase db,String[] definitions,Step install) {
+        if(!db.inTransaction())throw new IllegalStateException("R3251_RESEARCH_ATTACHMENT_OWNER_REQUIRED");
+        Contract critical=criticalContract();
+        ExtensionInspection prior=extensionInspection;
+        if(prior==null || !db.getPath().equals(prior.path) || !Arrays.equals(definitions,prior.definitions))
+            throw new ChangedExtensionPreimage();
+        // Pin the actual pre-DDL inputs in SQLite under this writer lock. Computing the
+        // canonical digest before the registry's admission checkpoint can starve every unit.
+        // Nothing in the child transaction is visible until the old image and new guards pass.
+        db.execSQL("CREATE TEMP TABLE r335_extension_catalog AS SELECT rowid AS original_id,"
+                +"+type AS type,+name AS name,+tbl_name AS tbl_name,+sql AS sql FROM main.sqlite_master");
+        try {
+            db.execSQL("CREATE TEMP TABLE r335_extension_seal AS SELECT * FROM main."+TABLE_DOMAIN
+                    +" WHERE domain=?",new Object[]{critical.domain});
+            try {
+                db.execSQL("CREATE TEMP TABLE r335_extension_journal AS SELECT step_id,status,domain,revision FROM main."+TABLE_JOURNAL
+                        +" WHERE domain=? AND revision=?",new Object[]{critical.domain,critical.revision});
+                try {
+                    installWithAttachmentPreimage(db,critical,definitions,prior.preimage,target->{
+                        install.run(target);
+                        if(!Arrays.equals(prior.identity,extensionInspectionIdentity(target,critical,true))){
+                            extensionInspection=null;
+                            throw new ChangedExtensionPreimage();
+                        }
+                    });
+                } finally { db.execSQL("DROP TABLE temp.r335_extension_journal"); }
+            } finally { db.execSQL("DROP TABLE temp.r335_extension_seal"); }
+        } finally { db.execSQL("DROP TABLE temp.r335_extension_catalog"); }
+        extensionInspection=null;
+    }
+
+    private static byte[] extensionInspectionIdentity(SQLiteDatabase db,Contract critical,boolean snapshot) {
+        String catalog=snapshot?"temp.r335_extension_catalog":"main.sqlite_master";
+        String id=snapshot?"original_id":"rowid";
+        String domain=snapshot?"temp.r335_extension_seal":"main."+TABLE_DOMAIN;
+        String journalTable=snapshot?"temp.r335_extension_journal":"main."+TABLE_JOURNAL;
+        final java.security.MessageDigest digest;
+        try { digest=java.security.MessageDigest.getInstance("SHA-256"); }
+        catch(java.security.NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
+        // SQLite builds short blocks. Length-prefix each actual value in BYTES and retain
+        // its storage class, so NULL, empty strings, unusual identifiers and BLOBs are distinct.
+        String[] columns={"type","name","tbl_name","sql"};
+        StringBuilder record=new StringBuilder();
+        for(String column:columns) {
+            if(record.length()>0)record.append("||");
+            record.append("typeof(").append(column).append(")||ifnull(length(CAST(").append(column)
+                    .append(" AS BLOB)),0)||':'||ifnull(").append(column).append(",'')");
+        }
+        String query="SELECT CAST(group_concat(entry,'') AS BLOB) FROM (SELECT "+id+" AS catalog_id,"
+                +record+" AS entry FROM "+catalog+" ORDER BY "+id+") GROUP BY (catalog_id-1)/16 ORDER BY (catalog_id-1)/16";
+        try(Cursor rows=db.rawQuery(query,null)){
+            while(rows.moveToNext())digest.update(rows.getBlob(0));
+        }
+        digest.update((byte)0xff);
+        // Only these Critical domain and journal fields participate in the legacy preimage test.
+        try(Cursor stamp=db.rawQuery("SELECT revision,contract_hash,fingerprint,state FROM "+domain+" WHERE domain=?",
+                new String[]{critical.domain})){
+            while(stamp.moveToNext())updateInspectionFields(digest,stamp);
+        }
+        digest.update((byte)0xfe);
+        try(Cursor journal=db.rawQuery("SELECT step_id,status FROM "+journalTable
+                +" WHERE domain=? AND revision=? ORDER BY step_id",new String[]{critical.domain,String.valueOf(critical.revision)})){
+            while(journal.moveToNext())updateInspectionFields(digest,journal);
+        }
+        return digest.digest();
+    }
+
+    private static void updateInspectionFields(java.security.MessageDigest digest,Cursor row) {
+        for(int i=0;i<row.getColumnCount();i++){
+            digest.update((byte)row.getType(i));
+            if(row.isNull(i))continue;
+            byte[] value=row.getString(i).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            int n=value.length;
+            digest.update((byte)(n>>>24));digest.update((byte)(n>>>16));
+            digest.update((byte)(n>>>8));digest.update((byte)n);digest.update(value);
+        }
+    }
+
     private static void requireR3251ResearchAttachmentDefinitions(SQLiteDatabase db,String[] definitions,
             java.util.regex.Pattern declaration){
+        java.util.Map<String,String> expectedByName=new java.util.LinkedHashMap<>();
         for(String expected:definitions){
             java.util.regex.Matcher named=declaration.matcher(expected);
             if(!named.find())throw new IllegalArgumentException("R3251_RESEARCH_ATTACHMENT_DECLARATION");
-            try(Cursor row=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{named.group(1)})){
-                if(row.moveToFirst()&&(!"trigger".equals(row.getString(0))
-                        ||!normalizedTriggerR31(expected).equals(normalizedTriggerR31(row.getString(1)))))
-                    throw new DatabaseCoordinator.SchemaPendingR31("R3251_RESEARCH_ATTACHMENT",
-                            "UNKNOWN_TRIGGER_DEFINITION:"+named.group(1));
+            expectedByName.put(named.group(1),expected);
+        }
+        // A bound IN lookup authenticates every present declaration in one catalogue scan per batch.
+        // Missing triggers are legitimate while their original incremental units are pending.
+        java.util.List<String> names=new java.util.ArrayList<>(expectedByName.keySet());
+        for(int first=0;first<names.size();first+=400){
+            java.util.List<String> batch=names.subList(first,Math.min(first+400,names.size()));
+            String marks=android.text.TextUtils.join(",",java.util.Collections.nCopies(batch.size(),"?"));
+            try(Cursor rows=db.rawQuery("SELECT name,type,sql FROM sqlite_master WHERE name COLLATE BINARY IN ("+marks+")",
+                    batch.toArray(new String[batch.size()]))){
+                while(rows.moveToNext()){
+                    String name=rows.getString(0);
+                    if(!"trigger".equals(rows.getString(1))||!normalizedTriggerR31(expectedByName.get(name)).equals(normalizedTriggerR31(rows.getString(2))))
+                        throw new DatabaseCoordinator.SchemaPendingR31("R3251_RESEARCH_ATTACHMENT","UNKNOWN_TRIGGER_DEFINITION:"+name);
+                }
             }
         }
+    }
+
+    /** Read exactly the matching root and attachment rows, keeping unusual identifiers for the Java check. */
+    private static Cursor contractCatalogRows(SQLiteDatabase db,Set<String> wanted,boolean includeSqlite){
+        String sql = "SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master WHERE " + (includeSqlite ? "1=1" : "name NOT LIKE 'sqlite_%'");
+        String[] args = null;
+        boolean filter = !wanted.isEmpty() && wanted.size() <= 499;
+        for (String name : wanted) {
+            if (name == null || name.length() == 0) { filter = false; break; }
+            for (int i = 0; i < name.length(); i++) {
+                char ch = name.charAt(i);
+                if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+                        || (ch >= '0' && ch <= '9') || ch == '_')) { filter = false; break; }
+            }
+        }
+        if (filter) {
+            // Reduce cursor transfer only: SQLite still scans its catalog. Java's filter below
+            // remains authoritative. Match String.trim() for ASCII controls; retain suspicious
+            // identifiers so NUL, NULL or non-TEXT catalog values cannot hide a matching row.
+            StringBuilder marks = new StringBuilder();
+            ArrayList<String> values = new ArrayList<String>(wanted);
+            for (int i = 0; i < values.size(); i++) {
+                if (i > 0) marks.append(',');
+                marks.append('?');
+            }
+            // Ordinary identifiers take the direct membership path. Edge controls, NUL,
+            // NULL and non-TEXT values are retained for the authoritative Java trim/filter.
+            // This is a lossless prefilter; it never caches a catalogue or a READY decision.
+            sql += " AND (name COLLATE BINARY IN (" + marks + ")"
+                    + " OR tbl_name COLLATE BINARY IN (" + marks + ")"
+                    + " OR unicode(substr(name,1,1)) BETWEEN 1 AND 32"
+                    + " OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32"
+                    + " OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32"
+                    + " OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32"
+                    + " OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0"
+                    + " OR typeof(name)<>'text' OR typeof(tbl_name)<>'text')";
+            values.addAll(new ArrayList<String>(values));
+            args = values.toArray(new String[values.size()]);
+        }
+        return db.rawQuery(sql + " ORDER BY type,name", args);
     }
 
     private static java.util.Map<String,String[]> criticalObjectsForDeltaR3251(SQLiteDatabase db,Contract contract){
         Set<String> roots=new HashSet<>(Arrays.asList(contract.objects));
         java.util.Map<String,String[]> objects=new java.util.LinkedHashMap<>();
-        try(Cursor row=db.rawQuery("SELECT type,name,tbl_name,sql FROM sqlite_master ORDER BY type,name",null)){
+        try(Cursor row=contractCatalogRows(db,roots,true)){
             while(row.moveToNext()){
                 String type=safe(row.getString(0)),name=safe(row.getString(1)),table=safe(row.getString(2));
                 if(roots.contains(name)||roots.contains(table))
@@ -1133,6 +1324,11 @@ public final class SchemaDomainCoordinatorR926 {
 
     /** Records which existing stamp check failed; never treats missing evidence as ready. */
     public static String matchReason(SQLiteDatabase db, Contract contract) {
+        return matchReason(db,contract,null);
+    }
+
+    /** A caller in the same write transaction can reuse the exact catalogue it just authenticated. */
+    private static String matchReason(SQLiteDatabase db, Contract contract, String currentFingerprint) {
         if (db == null || contract == null) return "ARGUMENT_MISSING";
         Cursor c = null;
         try {
@@ -1143,7 +1339,8 @@ public final class SchemaDomainCoordinatorR926 {
             if (!contract.contractHash.equals(c.getString(1))) return "CONTRACT_MISMATCH";
             if (!"READY".equals(c.getString(3))) return "STATE_NOT_READY";
             String stored = c.getString(2);
-            if (fingerprint(db, contract).equals(stored)) return "MATCH";
+            String actual=currentFingerprint==null?fingerprint(db,contract):currentFingerprint;
+            if (actual.equals(stored)) return "MATCH";
             if (DOMAIN_CRITICAL.equals(contract.domain)
                     && completeCriticalJournal(db, contract)
                     && (com.ethk3.novaonepro.strategyv2.ResearchInputPinR30R1.triggersValid(db)
@@ -1698,43 +1895,7 @@ public final class SchemaDomainCoordinatorR926 {
         if (db == null || contract == null) return "";
         Set<String> wanted = new HashSet<String>(Arrays.asList(contract.objects));
         ArrayList<String> rows = new ArrayList<String>();
-        String sql = "SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master"
-                + " WHERE name NOT LIKE 'sqlite_%'";
-        String[] args = null;
-        boolean filter = !wanted.isEmpty() && wanted.size() <= 499;
-        for (String name : wanted) {
-            if (name == null || name.length() == 0) { filter = false; break; }
-            for (int i = 0; i < name.length(); i++) {
-                char ch = name.charAt(i);
-                if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
-                        || (ch >= '0' && ch <= '9') || ch == '_')) { filter = false; break; }
-            }
-        }
-        if (filter) {
-            // Reduce cursor transfer only: SQLite still scans its catalog. Java's filter below
-            // remains authoritative. Match String.trim() for ASCII controls; retain suspicious
-            // identifiers so NUL, NULL or non-TEXT catalog values cannot hide a matching row.
-            StringBuilder marks = new StringBuilder();
-            ArrayList<String> values = new ArrayList<String>(wanted);
-            for (int i = 0; i < values.size(); i++) {
-                if (i > 0) marks.append(',');
-                marks.append('?');
-            }
-            // Ordinary identifiers take the direct membership path. Edge controls, NUL,
-            // NULL and non-TEXT values are retained for the authoritative Java trim/filter.
-            // This is a lossless prefilter; it never caches a catalogue or a READY decision.
-            sql += " AND (name COLLATE BINARY IN (" + marks + ")"
-                    + " OR tbl_name COLLATE BINARY IN (" + marks + ")"
-                    + " OR unicode(substr(name,1,1)) BETWEEN 1 AND 32"
-                    + " OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32"
-                    + " OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32"
-                    + " OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32"
-                    + " OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0"
-                    + " OR typeof(name)<>'text' OR typeof(tbl_name)<>'text')";
-            values.addAll(new ArrayList<String>(values));
-            args = values.toArray(new String[values.size()]);
-        }
-        Cursor c = db.rawQuery(sql + " ORDER BY type,name", args);
+        Cursor c=contractCatalogRows(db,wanted,false);
         try {
             while (c.moveToNext()) {
                 String name = safe(c.getString(1));

@@ -164,9 +164,11 @@ public final class ResearchSchemaCoordinatorR926 {
                 String step = nextStep(db, contract);
                 cursor = step;
                 boolean registryStep = "R906_RESEARCH_R64_VERIFIED".equals(step);
-                if (!registryStep || !SchemaDomainCoordinatorR926.hasResearchProgressStamp(db, contract, step)) {
+                boolean extensionStep = "R952_EXTENSION".equals(step);
+                if ((!registryStep && !extensionStep) || !SchemaDomainCoordinatorR926.hasResearchProgressStamp(db, contract, step)) {
                     SchemaDomainCoordinatorR926.markState(db, contract, state, cursor, "");
-                    if (registryStep) return false;
+                    // Commit the starting catalogue separately. Child DDL and its journal own the next writer turn.
+                    if (registryStep || extensionStep) return false;
                 }
                 if ("VERIFY".equals(step)) {
                     // Final verification has its own writer callback. Do not append the
@@ -250,17 +252,22 @@ public final class ResearchSchemaCoordinatorR926 {
 
     private static boolean advanceExtensionOneStep(SQLiteDatabase db,
             SchemaDomainCoordinatorR926.Contract contract,boolean preserveCoreReady) {
-        final boolean[] complete={false};
+        boolean complete=false;
         db.beginTransaction();
         try {
-            SchemaDomainCoordinatorR926.migrateR3251ResearchAttachments(db,
-                    com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalSourceAttachmentsR3251(),
-                    com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalReplacementDefinitionsR3251(),
-                    target -> complete[0]=com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(target));
-            if(preserveCoreReady)SchemaDomainCoordinatorR926.verifyAndStamp(db,contract);
+            String[] definitions=com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalSourceAttachmentsR3251();
+            String[] replacements=com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.criticalReplacementDefinitionsR3251();
+            if(SchemaDomainCoordinatorR926.prepareExtensionInspection(db,definitions,replacements)) {
+                complete=com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(db,
+                        unit -> SchemaDomainCoordinatorR926.installInspectedAttachments(db,definitions,unit));
+                if(preserveCoreReady)SchemaDomainCoordinatorR926.verifyAndStamp(db,contract);
+            }
             db.setTransactionSuccessful();
+        } catch (SchemaDomainCoordinatorR926.ChangedExtensionPreimage changed) {
+            // No success mark: roll back the child DDL, its journal and all seals together.
+            return false;
         } finally { db.endTransaction(); }
-        return complete[0];
+        return complete;
     }
 
     /** Read durable completion outside a transaction; the R952 transaction cache is
@@ -285,12 +292,16 @@ public final class ResearchSchemaCoordinatorR926 {
     public static String summary() { return state + "|cursor=" + cursor + "|error=" + error; }
 
     private static String nextStep(SQLiteDatabase db, SchemaDomainCoordinatorR926.Contract c) {
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R811_RESEARCH")) return "R811_RESEARCH";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R815_RESEARCH")) return "R815_RESEARCH";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R906_RESEARCH_R64_VERIFIED")) return "R906_RESEARCH_R64_VERIFIED";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R925_RESEARCH")) return "R925_RESEARCH";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R932_UNIFIED")) return "R932_UNIFIED";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R952_EXTENSION")) return "R952_EXTENSION";
+        String[] ordered={"R811_RESEARCH","R815_RESEARCH","R906_RESEARCH_R64_VERIFIED",
+                "R925_RESEARCH","R932_UNIFIED","R952_EXTENSION"};
+        SchemaDomainCoordinatorR926.ensureInfrastructure(db);
+        java.util.Set<String> completed=new java.util.HashSet<>();
+        try(android.database.Cursor rows=db.rawQuery("SELECT step_id FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
+                +" WHERE domain=? AND revision=? AND status='COMPLETED' AND step_id IN (?,?,?,?,?,?)",
+                new String[]{c.domain,String.valueOf(c.revision),ordered[0],ordered[1],ordered[2],ordered[3],ordered[4],ordered[5]})){
+            while(rows.moveToNext())completed.add(rows.getString(0));
+        }
+        for(String id:ordered)if(!completed.contains(id))return id;
         return nextAdditiveStep(db);
     }
 

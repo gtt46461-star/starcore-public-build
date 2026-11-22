@@ -42,12 +42,17 @@ public final class ResearchMigrationRegistryR952 {
 
     /** Original CP8 definitions only; callers receive a new array, never the DDL owner array. */
     public static String[] criticalSourceAttachmentsR3251() {
-        return criticalTriggerDefinitionsR3251(CP8_DDL);
+        return CriticalTriggerDefinitions.ATTACHMENTS.clone();
     }
 
     /** Exact final CP4 guards; their original source SQL remains the sole definition. */
     public static String[] criticalReplacementDefinitionsR3251() {
-        return criticalTriggerDefinitionsR3251(CP4_DDL);
+        return CriticalTriggerDefinitions.REPLACEMENTS.clone();
+    }
+
+    private static final class CriticalTriggerDefinitions {
+        static final String[] ATTACHMENTS=criticalTriggerDefinitionsR3251(CP8_DDL);
+        static final String[] REPLACEMENTS=criticalTriggerDefinitionsR3251(CP4_DDL);
     }
 
     private static String[] criticalTriggerDefinitionsR3251(String[] source) {
@@ -63,21 +68,32 @@ public final class ResearchMigrationRegistryR952 {
         return definitions.toArray(new String[0]);
     }
 
+    public interface MigrationUnit {
+        void install(SchemaDomainCoordinatorR926.Step unit) throws Exception;
+    }
+
     /** One durable migration unit per existing research callback, then release the sole writer. */
     public static boolean advanceR64(SQLiteDatabase db) {
+        return advanceR64(db,unit -> unit.run(db));
+    }
+
+    public static boolean advanceR64(SQLiteDatabase db,MigrationUnit installer) {
         if (db == null) throw new IllegalArgumentException("R952_MIGRATION_DB_NULL");
-        if (TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
-                && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) return true;
-        SchemaDomainCoordinatorR926.ensureInfrastructure(db);
-        java.util.Set<String> completed = new java.util.HashSet<>();
-        try (Cursor rows=db.rawQuery("SELECT step_id FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
-                +" WHERE domain=? AND revision=? AND status='COMPLETED'",
-                new String[]{SchemaDomainCoordinatorR926.researchContract().domain,
-                        String.valueOf(SchemaDomainCoordinatorR926.researchContract().revision)})) {
-            while(rows.moveToNext()) completed.add(rows.getString(0));
-        }
         try {
-            if (runPendingR64(db,completed,"R64_EXTENSION_BASE_0", target -> {
+            if (TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
+                    && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) {
+                installer.install(target -> {});
+                return true;
+            }
+            SchemaDomainCoordinatorR926.ensureInfrastructure(db);
+            java.util.Set<String> completed = new java.util.HashSet<>();
+            try (Cursor rows=db.rawQuery("SELECT step_id FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
+                    +" WHERE domain=? AND revision=? AND status='COMPLETED'",
+                    new String[]{SchemaDomainCoordinatorR926.researchContract().domain,
+                            String.valueOf(SchemaDomainCoordinatorR926.researchContract().revision)})) {
+                while(rows.moveToNext()) completed.add(rows.getString(0));
+            }
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_BASE_0", target -> {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_runtime_event(event_hash TEXT PRIMARY KEY,target_issue TEXT NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL DEFAULT '',payload_hash TEXT NOT NULL,source_commit TEXT NOT NULL,created_at INTEGER NOT NULL)");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_research_outbox(delivery_hash TEXT PRIMARY KEY,target_issue TEXT NOT NULL,candidate_id TEXT NOT NULL,settlement_hash TEXT NOT NULL,label_hash TEXT NOT NULL,model_input_hash TEXT NOT NULL DEFAULT '',event_type TEXT NOT NULL,state TEXT NOT NULL,attempt_count INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,last_error TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)");
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r952_outbox_state ON r952_research_outbox(state,updated_at)");
@@ -85,7 +101,7 @@ public final class ResearchMigrationRegistryR952 {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_candidate_funnel(target_issue TEXT NOT NULL,candidate_id TEXT NOT NULL,stage TEXT NOT NULL,stage_hash TEXT NOT NULL,reason TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,PRIMARY KEY(target_issue,candidate_id,stage))");
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r952_funnel_stage ON r952_candidate_funnel(stage,target_issue)");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_BASE_1", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_BASE_1", target -> {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_module_registry(module_id TEXT PRIMARY KEY,revision TEXT NOT NULL,extension_point TEXT NOT NULL,owner TEXT NOT NULL,contract_hash TEXT NOT NULL,may_create_real INTEGER NOT NULL CHECK(may_create_real=0),updated_at INTEGER NOT NULL)");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_recovery_journal(delivery_hash TEXT NOT NULL,attempt INTEGER NOT NULL,state TEXT NOT NULL,error_code TEXT NOT NULL DEFAULT '',event_hash TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(delivery_hash,attempt,state))");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_candidate(candidate_id TEXT PRIMARY KEY,intent_id TEXT NOT NULL,ast TEXT NOT NULL,structural_hash TEXT NOT NULL UNIQUE,parent_id TEXT NOT NULL DEFAULT '',state TEXT NOT NULL,future_n INTEGER NOT NULL DEFAULT 0,created_issue TEXT NOT NULL,may_create_real INTEGER NOT NULL CHECK(may_create_real=0),created_at INTEGER NOT NULL)");
@@ -93,7 +109,7 @@ public final class ResearchMigrationRegistryR952 {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_intent(intent_id TEXT PRIMARY KEY,problem_type TEXT NOT NULL,parent_candidates TEXT NOT NULL,evidence_deficit TEXT NOT NULL,target_metrics TEXT NOT NULL,allowed_operators TEXT NOT NULL,budget INTEGER NOT NULL,created_issue TEXT NOT NULL,intent_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL)");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_artifact(artifact_hash TEXT PRIMARY KEY,candidate_id TEXT NOT NULL,parent_hash TEXT NOT NULL,target_issue TEXT NOT NULL,delivery_hash TEXT NOT NULL UNIQUE,payload_hash TEXT NOT NULL,created_at INTEGER NOT NULL)");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_BASE_2", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_BASE_2", target -> {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_world_atom(atom_id TEXT PRIMARY KEY,type TEXT NOT NULL,domain TEXT NOT NULL,producer TEXT NOT NULL,value_schema TEXT NOT NULL,pit_contract TEXT NOT NULL,lineage_hash TEXT NOT NULL,cost_class TEXT NOT NULL,revision TEXT NOT NULL,atom_hash TEXT NOT NULL UNIQUE)");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_world_molecule(molecule_id TEXT PRIMARY KEY,operator TEXT NOT NULL,input_ids TEXT NOT NULL,structural_hash TEXT NOT NULL UNIQUE,semantic_hash TEXT NOT NULL,depth INTEGER NOT NULL,cost INTEGER NOT NULL)");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_causal_edge(edge_hash TEXT PRIMARY KEY,source TEXT NOT NULL,target TEXT NOT NULL,relation_type TEXT NOT NULL,temporal_direction TEXT NOT NULL,hypothesis_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,confidence REAL NOT NULL,status TEXT NOT NULL,updated_at INTEGER NOT NULL)");
@@ -101,14 +117,14 @@ public final class ResearchMigrationRegistryR952 {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_knowledge(knowledge_hash TEXT PRIMARY KEY,target_issue TEXT NOT NULL,candidate_id TEXT NOT NULL,kind TEXT NOT NULL,payload_hash TEXT NOT NULL,created_at INTEGER NOT NULL)");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_pareto(candidate_id TEXT PRIMARY KEY,quality REAL NOT NULL,calibration REAL NOT NULL,stability REAL NOT NULL,diversity REAL NOT NULL,latency REAL NOT NULL,memory REAL NOT NULL,evidence_n INTEGER NOT NULL,score_hash TEXT NOT NULL,updated_at INTEGER NOT NULL)");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_BASE_3", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_BASE_3", target -> {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r958_frozen_candidate(candidate_id TEXT PRIMARY KEY,learner_id TEXT NOT NULL UNIQUE,ast TEXT NOT NULL,model_payload TEXT NOT NULL,structural_hash TEXT NOT NULL UNIQUE,model_hash TEXT NOT NULL,trained_until_issue TEXT NOT NULL,created_issue TEXT NOT NULL,source_artifact TEXT NOT NULL,created_at INTEGER NOT NULL)");
                 target.execSQL("CREATE TABLE IF NOT EXISTS r958_frozen_predraw(target_issue TEXT NOT NULL,candidate_id TEXT NOT NULL,record_hash TEXT NOT NULL,input_hash TEXT NOT NULL,position INTEGER NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,score REAL NOT NULL,captured_at INTEGER NOT NULL,settled INTEGER NOT NULL DEFAULT 0,hit INTEGER NOT NULL DEFAULT -1,label_hash TEXT NOT NULL DEFAULT '',settlement_hash TEXT NOT NULL DEFAULT '',proof_error TEXT NOT NULL DEFAULT '',PRIMARY KEY(target_issue,candidate_id))");
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r958_frozen_pending ON r958_frozen_predraw(settled,target_issue)");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS r958_frozen_model_update BEFORE UPDATE ON r958_frozen_candidate BEGIN SELECT RAISE(ABORT,'R958_FROZEN_MODEL_IMMUTABLE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS r958_frozen_model_delete BEFORE DELETE ON r958_frozen_candidate BEGIN SELECT RAISE(ABORT,'R958_FROZEN_EVIDENCE_PERMANENT'); END");
             })) return false;
-            if (runPendingR64(db,completed,"R958_NUMERIC_MODEL_V1", target -> {
+            if (runPendingR64(db,completed,installer,"R958_NUMERIC_MODEL_V1", target -> {
                 addColumn(target,"r952_candidate_predraw","frozen_features","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r952_candidate_predraw","input_hash","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r952_candidate_predraw","evidence_role","TEXT NOT NULL DEFAULT 'LEGACY_UNTRAINABLE'");
@@ -118,7 +134,7 @@ public final class ResearchMigrationRegistryR952 {
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r958_candidate_training ON r952_research_outbox(candidate_id,target_issue,state)");
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r958_pending_settlement ON r952_candidate_predraw(settled,target_issue)");
             })) return false;
-            if (runPendingR64(db,completed,"R958_WORLD_EXECUTION_V2", target -> {
+            if (runPendingR64(db,completed,installer,"R958_WORLD_EXECUTION_V2", target -> {
                 addColumn(target,"r952_world_molecule","parameters","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r952_world_molecule","compiled_hash","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r952_world_molecule","resolved_semantic_hash","TEXT NOT NULL DEFAULT ''");
@@ -129,49 +145,49 @@ public final class ResearchMigrationRegistryR952 {
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_immutable_delete BEFORE DELETE ON "+table+" BEGIN SELECT RAISE(ABORT,'R958_WORLD_LINEAGE_PERMANENT'); END");
                 }
             })) return false;
-            if (runPendingR64(db,completed,"R958_MATRIX_IMMUTABLE_FEEDBACK_V1", target -> {
+            if (runPendingR64(db,completed,installer,"R958_MATRIX_IMMUTABLE_FEEDBACK_V1", target -> {
                 target.execSQL("CREATE TABLE IF NOT EXISTS r952_matrix_feedback(target_issue TEXT PRIMARY KEY,snapshot_hash TEXT NOT NULL,settlement_hash TEXT NOT NULL,label_hash TEXT NOT NULL,effective_from_issue TEXT NOT NULL,actual_numbers TEXT NOT NULL,feedback_hash TEXT NOT NULL UNIQUE,frozen_at INTEGER NOT NULL,completed_at INTEGER NOT NULL)");
                 for(String table:new String[]{"r952_matrix_snapshot","r952_matrix_feedback"}){
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_immutable_update BEFORE UPDATE ON "+table+" BEGIN SELECT RAISE(ABORT,'R958_MATRIX_EVIDENCE_IMMUTABLE'); END");
                 }
             })) return false;
-            if (runPendingR64(db,completed,"R958_KNOWLEDGE_BODY_V1", target -> {
+            if (runPendingR64(db,completed,installer,"R958_KNOWLEDGE_BODY_V1", target -> {
                 addColumn(target,"r952_knowledge","payload","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r952_knowledge","payload_format","TEXT NOT NULL DEFAULT 'LEGACY_HASH_ONLY'");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS r952_knowledge_immutable_update BEFORE UPDATE ON r952_knowledge BEGIN SELECT RAISE(ABORT,'R958_KNOWLEDGE_IMMUTABLE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS r952_knowledge_admission_delete BEFORE DELETE ON r952_knowledge WHEN OLD.kind='ATOM_ADMISSION' BEGIN SELECT RAISE(ABORT,'R958_WORLD_ADMISSION_PERMANENT'); END");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_0", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_0", target -> {
                 addColumn(target,"r952_research_outbox","lease_owner","TEXT NOT NULL DEFAULT ''");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_1", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_1", target -> {
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r979_outbox_unresolved ON r952_research_outbox(candidate_id,target_issue) WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED')");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_2", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_2", target -> {
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r979_outbox_ready_order ON r952_research_outbox(updated_at,target_issue,candidate_id) WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED')");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_3", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_3", target -> {
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r979_outbox_candidate_issue ON r952_research_outbox(candidate_id,target_issue)");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_4", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_4", target -> {
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r979_predraw_candidate_issue ON r952_candidate_predraw(candidate_id,target_issue)");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_5", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_5", target -> {
                 target.execSQL("CREATE INDEX IF NOT EXISTS idx_r979_predraw_legacy ON r952_candidate_predraw(evidence_role,settled,proof_error,target_issue,candidate_id)");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_6", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_6", target -> {
                 com.ethk3.novaonepro.ResearchTaskQueueR967.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_7", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_7", target -> {
                 com.ethk3.novaonepro.ResearchEvaluationRunR967.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_8", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_8", target -> {
                 com.ethk3.novaonepro.HistoricalGenomeImportR967.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_SCHEDULER_9", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_SCHEDULER_9", target -> {
                 ComputationReceiptR974.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"F05_EXACT_CALIBRATED_REAL_RECEIPT_V1", target -> {
+            if (runPendingR64(db,completed,installer,"F05_EXACT_CALIBRATED_REAL_RECEIPT_V1", target -> {
                 target.execSQL("CREATE TABLE IF NOT EXISTS research_exact_probability_f05(game_code TEXT NOT NULL,target_issue TEXT NOT NULL,trade_id INTEGER NOT NULL UNIQUE REFERENCES trades(_id),candidate_id TEXT NOT NULL,model_hash TEXT NOT NULL CHECK(length(model_hash)=64),certificate_hash TEXT NOT NULL CHECK(length(certificate_hash)=64),calibration_hash TEXT NOT NULL CHECK(length(calibration_hash)=64),selection_hash TEXT NOT NULL CHECK(length(selection_hash)=64),scope_policy_hash TEXT NOT NULL CHECK(length(scope_policy_hash)=64),selected_hit_p REAL NOT NULL CHECK(selected_hit_p>0 AND selected_hit_p<1),proof_hash TEXT NOT NULL CHECK(length(proof_hash)=64),action_hash TEXT NOT NULL CHECK(length(action_hash)=64),authorization_hash TEXT NOT NULL,captured_at INTEGER NOT NULL,committed_at INTEGER NOT NULL CHECK(committed_at>=captured_at),PRIMARY KEY(game_code,target_issue))");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_model_no_update BEFORE UPDATE ON research_candidate_cal_model_r932 BEGIN SELECT RAISE(ABORT,'F05_CAL_MODEL_IMMUTABLE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_model_no_replace BEFORE INSERT ON research_candidate_cal_model_r932 WHEN EXISTS(SELECT 1 FROM research_candidate_cal_model_r932 m WHERE m.study_hash=NEW.study_hash) BEGIN SELECT RAISE(ABORT,'F05_CAL_MODEL_FIRST_WRITE'); END");
@@ -182,89 +198,89 @@ public final class ResearchMigrationRegistryR952 {
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_exact_probability_no_update BEFORE UPDATE ON research_exact_probability_f05 BEGIN SELECT RAISE(ABORT,'F05_EXACT_PROBABILITY_IMMUTABLE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_exact_probability_no_replace BEFORE INSERT ON research_exact_probability_f05 WHEN EXISTS(SELECT 1 FROM research_exact_probability_f05 e WHERE e.game_code=NEW.game_code AND e.target_issue=NEW.target_issue) BEGIN SELECT RAISE(ABORT,'F05_EXACT_PROBABILITY_FIRST_WRITE'); END");
             })) return false;
-            if (runPendingR64(db,completed,"R64_EXTENSION_EVOLUTION", target -> {
+            if (runPendingR64(db,completed,installer,"R64_EXTENSION_EVOLUTION", target -> {
                 EvolutionEvidenceR975.schema(target);
             })) return false;
             for (int offset=0; offset<CP4_DDL.length; offset+=6) {
                 final int first=offset, end=Math.min(offset+6,CP4_DDL.length);
-                if (runPendingR64(db,completed,"R64_CP4_DDL_"+offset, target -> {
+                if (runPendingR64(db,completed,installer,"R64_CP4_DDL_"+offset, target -> {
                     installCp4UnitR3251(target,first,end);
                 })) return false;
             }
-            if (runPendingR64(db,completed,"R64_CP5_COLUMNS_0", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP5_COLUMNS_0", target -> {
                 addColumn(target,"r952_artifact","training_kind","TEXT NOT NULL DEFAULT 'LEGACY_ONLINE'");
                 addColumn(target,"r952_artifact","development_receipt_hash","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r952_artifact","development_sample_n","INTEGER NOT NULL DEFAULT 0");
                 addColumn(target,"r952_artifact","validation_sample_n","INTEGER NOT NULL DEFAULT 0");
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP5_COLUMNS_1", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP5_COLUMNS_1", target -> {
                 addColumn(target,"r952_artifact","validation_pass","INTEGER NOT NULL DEFAULT 0");
                 addColumn(target,"r952_artifact","validation_hash","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r958_frozen_predraw","frozen_context","TEXT NOT NULL DEFAULT ''");
                 addColumn(target,"r958_frozen_predraw","context_hash","TEXT NOT NULL DEFAULT ''");
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP5_COLUMNS_2", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP5_COLUMNS_2", target -> {
                 addColumn(target,"research_evidence_archive_member_v2","source_generation","INTEGER NOT NULL DEFAULT 0 CHECK(source_generation>=0)");
                 addColumn(target,"research_evidence_archive_member_v2","source_rowid","INTEGER NOT NULL DEFAULT 0");
                 addColumn(target,"research_retention_permit_v2","source_generation","INTEGER NOT NULL DEFAULT 0 CHECK(source_generation>=0)");
             })) return false;
             for (int offset=0; offset<CP8_DDL.length; offset+=6) {
                 final int first=offset, end=Math.min(offset+6,CP8_DDL.length);
-                if (runPendingR64(db,completed,"R64_CP8_DDL_"+offset, target -> {
+                if (runPendingR64(db,completed,installer,"R64_CP8_DDL_"+offset, target -> {
                     for(int i=first;i<end;i++) target.execSQL(CP8_DDL[i]);
                 })) return false;
             }
-            if (runPendingR64(db,completed,"CP5_CANONICAL_PLAN_DDL_V1", target -> {
+            if (runPendingR64(db,completed,installer,"CP5_CANONICAL_PLAN_DDL_V1", target -> {
                 try(Cursor c=target.rawQuery("PRAGMA foreign_key_check",null)){
                 if(c.moveToFirst()) throw new IllegalStateException("CP4_FOREIGN_KEY_CHECK_FAILED");
                 }
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_0", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_0", target -> {
                 DevelopmentProductionCP12.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_1", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_1", target -> {
                 com.ethk3.novaonepro.RetentionArtifactIdentityCP12.install(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_2", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_2", target -> {
                 com.ethk3.novaonepro.ResearchFeedbackCP12.schemaCP12(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_3", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_3", target -> {
                 CanonicalSchemaCP12.installMatrix(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_4", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_4", target -> {
                 AtomAdmissionCP12.schemaCP12(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_5", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_5", target -> {
                 ModernSeedFactoryCP12.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_6", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_6", target -> {
                 ModernFamilyFactoryCP12.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_7", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_7", target -> {
                 com.ethk3.novaonepro.CandidateCalibrationR932.qualitySchemaCP12(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_8", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_8", target -> {
                 CanonicalSchemaCP12.installReasons(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_9", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_9", target -> {
                 CanonicalSchemaCP12.installSemantic(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_10", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_10", target -> {
                 AtomCatalogImportCP12.schemaCP12(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_11", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_11", target -> {
                 com.ethk3.novaonepro.RetentionTaskExpiryCP12.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_12", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_12", target -> {
                 com.ethk3.novaonepro.RetentionDurableModelQuotaCP12.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_13", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_13", target -> {
                 com.ethk3.novaonepro.RetentionWorkingStorageQuotaCP12.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"R64_CP12_CLOSURE_14", target -> {
+            if (runPendingR64(db,completed,installer,"R64_CP12_CLOSURE_14", target -> {
                 com.ethk3.novaonepro.RetentionRevisionSchemaCP12.schema(target);
             })) return false;
-            if (runPendingR64(db,completed,"CP12_CANONICAL_CLOSURE_DDL_V1", target -> {
+            if (runPendingR64(db,completed,installer,"CP12_CANONICAL_CLOSURE_DDL_V1", target -> {
                 try(Cursor c=target.rawQuery("PRAGMA foreign_key_check",null)){
                 if(c.moveToFirst())throw new IllegalStateException("CP12_FOREIGN_KEY_CHECK_FAILED");
                 }
@@ -274,28 +290,36 @@ public final class ResearchMigrationRegistryR952 {
                 for (int i = 0; i < com.ethk3.novaonepro.RetentionRevisionSchemaCP12.diagnosisSchemaUnitCountCP12(); i++) {
                     final int unit = i;
                     final String table = com.ethk3.novaonepro.RetentionRevisionSchemaCP12.diagnosisSchemaTableCP12(unit);
-                    if (runPendingR64(db,completed,"R26_CP12_DIAGNOSIS_TABLE_" + table, target -> {
+                    if (runPendingR64(db,completed,installer,"R26_CP12_DIAGNOSIS_TABLE_" + table, target -> {
                         com.ethk3.novaonepro.DbHelper.installDiagnosisLoopSchemaUnitCP12(target,table);
                         com.ethk3.novaonepro.RetentionRevisionSchemaCP12.diagnosisSchemaUnitCP12(target,unit);
                     })) return false;
                 }
             }
-            if (runPendingR64(db,completed,"CP12_RUNTIME_DIAGNOSIS_RETENTION_V1", target -> {
+            if (runPendingR64(db,completed,installer,"CP12_RUNTIME_DIAGNOSIS_RETENTION_V1", target -> {
                 com.ethk3.novaonepro.DbHelper.requireDiagnosisLoopSchemaCP12(target);
                 try(Cursor c=target.rawQuery("PRAGMA foreign_key_check",null)){
                 if(c.moveToFirst())throw new IllegalStateException("CP12_FOREIGN_KEY_CHECK_FAILED");
                 }
             })) return false;
-            if (runPendingR64(db,completed,"CP12_MOLECULE_SEEK_DDL_V1", target -> {
+            if (runPendingR64(db,completed,installer,"CP12_MOLECULE_SEEK_DDL_V1", target -> {
                 ModernSeedFactoryCP12.checkpointSchemaCP12(target);
             })) return false;
-            if (runPendingR64(db,completed,"R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1", target -> {
+            if (runPendingR64(db,completed,installer,"R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1", target -> {
                 com.ethk3.novaonepro.RetentionRevisionSchemaCP12.championProbabilitySchemaR82(target);
             })) return false;
-            if (!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) { ensureChampionProbabilityR82(db); return false; }
-            if (!readyOrderR79(db)) { ensureReadyOrderR79(db); return false; }
-            TransactionSchemaCacheR941.markCommitted(db,"R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1");
-            TransactionSchemaCacheR941.markCommitted(db,"CP12_CANONICAL_PLAN_DIAG_RETENTION_SEEK_V1");
+            if (!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) {
+                installer.install(ResearchMigrationRegistryR952::ensureChampionProbabilityR82); return false;
+            }
+            if (!readyOrderR79(db)) {
+                com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();
+                installer.install(ResearchMigrationRegistryR952::installReadyOrderR79);
+                return false;
+            }
+            installer.install(target -> {
+                TransactionSchemaCacheR941.markCommitted(target,"R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1");
+                TransactionSchemaCacheR941.markCommitted(target,"CP12_CANONICAL_PLAN_DIAG_RETENTION_SEEK_V1");
+            });
             return true;
         } catch (com.ethk3.novaonepro.ResearchWorkBudgetR927.Yield | com.ethk3.novaonepro.RuntimeResourceAuditR927.BudgetExceeded yielded) {
             throw yielded;
@@ -311,6 +335,11 @@ public final class ResearchMigrationRegistryR952 {
     public static void ensureReadyOrderR79(SQLiteDatabase db) throws Exception {
         if (readyOrderR79(db)) return;
         com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();
+        installReadyOrderR79(db);
+    }
+
+    private static void installReadyOrderR79(SQLiteDatabase db) throws Exception {
+        com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpointRealtime();
         boolean ownTx=!db.inTransaction();
         if(ownTx)db.beginTransaction();
         try {
@@ -364,10 +393,13 @@ public final class ResearchMigrationRegistryR952 {
         }
     }
 
-    private static boolean runPendingR64(SQLiteDatabase db,java.util.Set<String> completed,String id,SchemaDomainCoordinatorR926.Step step) throws Exception {
+    private static boolean runPendingR64(SQLiteDatabase db,java.util.Set<String> completed,MigrationUnit installer,String id,SchemaDomainCoordinatorR926.Step step) throws Exception {
         if (completed.contains(id)) return false;
         com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();
-        SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(),id,step);
+        installer.install(target -> SchemaDomainCoordinatorR926.runStep(target,SchemaDomainCoordinatorR926.researchContract(),id,unit -> {
+            com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpointRealtime();
+            step.run(unit);
+        }));
         return true;
     }
     private static void addColumn(SQLiteDatabase db,String table,String name,String definition) {

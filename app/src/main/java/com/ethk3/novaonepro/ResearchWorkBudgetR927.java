@@ -10,8 +10,14 @@ public final class ResearchWorkBudgetR927 {
     public static boolean isActive(){return CURRENT.get()!=null;}
     public static void checkpoint(){
         Scope s=CURRENT.get();if(s==null)return;
-        if(Thread.currentThread().isInterrupted()||RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())throw new Yield("REALTIME_PREEMPTED");
+        checkpointRealtime();
         if(TimeSourceR811.monoNowMs()>=s.deadline)throw new Yield("MONOTONIC_SLICE_EXHAUSTED");
+    }
+    /** Recheck external preemption at the actual write after a unit has already won timed admission. */
+    public static void checkpointRealtime() {
+        if(CURRENT.get()!=null && (Thread.currentThread().isInterrupted()
+                || RealtimePressureGateR811.hasActiveCriticalWork() || SettlementExecutionGateR819.isActive()))
+            throw new Yield("REALTIME_PREEMPTED");
     }
     /** Only short lease bookkeeping may outlive a yielded compute slice. It cannot
      * publish model results or alter evidence; the original scope is always restored. */
