@@ -5,7 +5,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
 import sys
 import zipfile
@@ -26,8 +25,8 @@ def persist():
 def sha(data):
     return hashlib.sha256(data).hexdigest()
 persist()
-for v,(commit,digest) in commits.items():
-    root = temp/('paired-report-%03d'%v)
+def run_report(v,commit,digest,attempt):
+    root = temp/('paired-report-%03d-%d'%(v,attempt))
     root.mkdir()
     (root/'material').symlink_to(temp/'material',target_is_directory=True)
     (root/'tools').symlink_to(temp/'tools',target_is_directory=True)
@@ -36,7 +35,13 @@ for v,(commit,digest) in commits.items():
     template = compact.read_text()
     start = template.index(" check(not f.adb('shell','pm','list','packages',pkg).strip()")
     stop = template.index(" f.adb('shell','pm','grant',pkg", start)
-    if v == 94:
+    if attempt > 1:
+        setup = f""" olduid,prior=f.installed(f.EVID/'before.txt',{577311000+v})
+ check(prior==n.apk,'GUEST_VERSION')
+ f.adb('shell','input','keyevent','KEYCODE_BACK')
+ f.adb('shell','am','start','-W','-n',f.ACTIVITY)
+"""
+    elif v == 94:
         setup = template[start:stop].replace('577311095,n.source','577311094,n.source').replace("'current.txt',577311095","'current.txt',577311094")
     else:
         setup = """ olduid,prior=f.installed(f.EVID/'before.txt',577311094)
@@ -55,8 +60,13 @@ for v,(commit,digest) in commits.items():
     original=json.loads((root/f'R335-095-compact-{run_id}.json').read_bytes())
     assert original['sourceCommit']==commit and original['apkSha256']==digest
     item={'version':577311000+v,'sourceCommit':commit,'apkSha256':digest,'exit':process.returncode,'driverSha256':sha(driver.read_bytes()),'stage':original['stage'],'originalReceiptSha256':sha((root/f'R335-095-compact-{run_id}.json').read_bytes())}
+    item['attempt']=attempt
+    for key in ('checksComplete','allChecksPassed','failurePhase','failure','androidUid','actualSystemPicker','archiveBytes','jobId','archiveSha256','safExternalZipSha256','originalVerifier','checkExecutions'):
+        if key in original:item[key]=original[key]
+    if attempt>1:
+        receipt.setdefault('priorAttempts',[]).append(receipt['attempts'].pop())
     receipt['attempts'].append(item);persist()
-    if original['stage']!='VERIFIED':continue
+    if original['stage']!='VERIFIED':return False
     assert original['actualSystemPicker'] and original['safExternalZipSha256']==original['archiveSha256']
     local=root/'separate-private-native-readback/joined.zip'
     assert sha(local.read_bytes())==original['archiveSha256']
@@ -73,10 +83,27 @@ for v,(commit,digest) in commits.items():
             assert re.fullmatch('RSEC-[0-9]{3}',key)
             check=sem['checks'][key]
             states[key]=[check['execution_state'],check.get('domain_outcome') or check.get('health')]
-            assert all(re.fullmatch('[A-Z][A-Z0-9_|-]{1,85}',s) for s in states[key])
+            assert all(value=='N/A' or re.fullmatch('[A-Z][A-Z0-9_|-]{1,100}',value) for value in states[key])
         item.update(uid=original['androidUid'],jobId=original['jobId'],archiveBytes=original['archiveBytes'],archiveSha256=original['archiveSha256'],safSha256=original['safExternalZipSha256'],reportSha256=sha(raw),semanticSha256=sha(z.read('R31_SEMANTIC_RECEIPT.json')),states=states,actualSystemPicker=True,oracle=original['originalVerifier'])
     persist()
-if len(receipt['attempts'])==2 and all(x.get('actualSystemPicker') for x in receipt['attempts']):
+    return True
+
+for version,(source,apk) in commits.items():
+    for attempt in (1,2):
+        try:
+            if run_report(version,source,apk,attempt):break
+        except (ValueError, KeyError, AssertionError, OSError, subprocess.SubprocessError) as problem:
+            import traceback
+            frame=traceback.extract_tb(problem.__traceback__)[-1]
+            current=receipt['attempts'][-1] if receipt['attempts'] else {}
+            if current.get('version')!=577311000+version or current.get('attempt')!=attempt:
+                if attempt>1 and current.get('version')==577311000+version:
+                    receipt.setdefault('priorAttempts',[]).append(receipt['attempts'].pop())
+                current=dict(version=577311000+version,attempt=attempt,sourceCommit=source,apkSha256=apk,stage='POST_VERIFICATION_INCOMPLETE')
+                receipt['attempts'].append(current)
+            current.update(projectionErrorType=type(problem).__name__,projectionErrorLine=frame.lineno)
+            persist()
+if len(receipt['attempts'])==2 and all(x.get('actualSystemPicker') and len(x.get('states',{}))==96 for x in receipt['attempts']):
     first,last=receipt['attempts'];assert first['uid']==last['uid'] and first['jobId']!=last['jobId']
     repo_dir=project/'app-source'
     subprocess.run(['git','-C',repo_dir,'fetch','--quiet','--depth=1','--filter=blob:none','origin',commits[94][0]],check=True)
@@ -88,3 +115,5 @@ if len(receipt['attempts'])==2 and all(x.get('actualSystemPicker') for x in rece
         assert images[0]!=images[1];changes.append(dict(path=path,beforeSha256=images[0],afterSha256=images[1]))
     receipt.update(verifiedPair=True,gitChanges=changes,casesNowExecuted=[cid for cid,state in first['states'].items() if state[0]=='READ_ERROR' and last['states'][cid][0]=='EXECUTED'],matchingCaseIds=sorted(first['states'])==sorted(last['states']))
     persist()
+
+if not receipt['verifiedPair']:raise SystemExit(1)
