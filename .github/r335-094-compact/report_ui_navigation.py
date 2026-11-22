@@ -26,24 +26,31 @@ def install(n, record, package):
         launcher='导出完整报告（含数据库和训练附件）'
         retrieve='取回上次报告或继续生成'
         width,height=map(int,re.findall(r'(\d+)x(\d+)',n.ui.adb('shell','wm','size'))[-1])
-        start=time.monotonic();direction=1;last=None;static=0
+        start=time.monotonic();direction=1;last=None;static=0;empty=0;swipes=0
         for i in range(90):
             if time.monotonic()-start>480:break
             tree=hierarchy()
             nodes=[node for node in tree.iter('node') if node.get('enabled')=='true' and node.get('package')==package]
+            record['appNodesSeen']=max(record.get('appNodesSeen',0),len(nodes))
             if any(node.get('text')==label for node in nodes):return
             controls=[node for node in nodes if node.get('text') in (retrieve,launcher)]
             if controls:
                 if tap_node(controls[0]):
+                    record['actualReportMenuTaps']=1+record.get('actualReportMenuTaps',0)
                     time.sleep(1)
                     continue
             if not nodes:
+                empty+=1
+                if empty in (3,12):
+                    n.ui.adb('shell','am','start','-W','-n',n.field.ACTIVITY,timeout=90)
                 time.sleep(1)
                 continue
-            view=tuple((node.get('resource-id'),node.get('text','')[:8],node.get('bounds')) for node in nodes if node.get('text'))
+            view=tuple((node.get('resource-id'),node.get('class'),node.get('bounds')) for node in nodes if node.get('text'))
             static=static+1 if view==last else 0;last=view
-            if static>=2:
-                direction=-direction;static=0
+            if static>=2 or swipes>=20:
+                direction=-direction;static=0;swipes=0
+            swipes+=1
+            record['reportMenuSwipes']=1+record.get('reportMenuSwipes',0)
             y1,y2=(height*8//10,height*3//10) if direction>0 else (height*3//10,height*8//10)
             n.ui.adb('shell','input','swipe',str(width//2),str(y1),str(width//2),str(y2),'310',timeout=40)
         raise RuntimeError('VISIBLE_REPORT_CONTROL_UNAVAILABLE')
