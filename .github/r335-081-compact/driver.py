@@ -26,6 +26,8 @@ def readHierarchy():
    pending=problem;time.sleep(2)
  raise pending
 n.ui.hierarchy=readHierarchy
+import importlib.util as _spec
+_nav=_spec.spec_from_file_location('bounded_report_menu', Path(__file__).parent/'report_ui_navigation.py');_navigation=_spec.module_from_spec(_nav);_nav.loader.exec_module(_navigation);_navigation.install(n,record,pkg)
 def main():
  f.EVID.mkdir(exist_ok=True);check(f.adb('shell','getprop','ro.kernel.qemu').strip()==b'1','ISOLATED_GUEST')
  f.adb('root');f.adb('wait-for-device')
