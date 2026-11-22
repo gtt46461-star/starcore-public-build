@@ -1180,6 +1180,14 @@ public final class SchemaDomainCoordinatorR926 {
                         fingerprint, "READY", "COMPLETE", Long.valueOf(now), Long.valueOf(now), ""});
     }
 
+    static boolean hasResearchProgressStamp(SQLiteDatabase db, Contract contract, String cursor) {
+        try (Cursor c = db.rawQuery("SELECT 1 FROM " + TABLE_DOMAIN
+                + " WHERE domain=? AND revision=? AND contract_hash=? AND state='INITIALIZING' AND cursor=?",
+                new String[]{contract.domain, String.valueOf(contract.revision), contract.contractHash, cursor})) {
+            return c.moveToFirst();
+        }
+    }
+
     public static void markState(SQLiteDatabase db, Contract contract, String state, String cursor, String error) {
         ensureInfrastructure(db);
         long now = System.currentTimeMillis();
@@ -1294,24 +1302,58 @@ public final class SchemaDomainCoordinatorR926 {
 
     public static void runStep(SQLiteDatabase db, Contract contract, String stepId, Step step) throws Exception {
         if (stepComplete(db, contract, stepId)) return;
+        recordStepStart(db, contract, stepId, false);
+        finishStartedStep(db, contract, stepId, step, 0);
+    }
+
+    private static final String PREPARED_R906 = "R335_R906_INPUT_RECORDED";
+
+    // R906 records its actual starting catalog in a separate callback. Publication still checks
+    // both complete staged manifests under the writer and commits the target plus the final
+    // catalog seal in the original transaction. A killed process can reopen the prepared step.
+    static int preparedResearchAttempt(SQLiteDatabase db, Contract contract, String stepId) {
+        try (Cursor c = db.rawQuery("SELECT attempt FROM " + TABLE_JOURNAL
+                + " WHERE domain=? AND revision=? AND step_id=? AND status='RUNNING' AND cursor=?"
+                + " AND length(before_hash)=64 AND before_hash NOT GLOB '*[^0-9a-f]*'",
+                new String[]{contract.domain, String.valueOf(contract.revision), stepId, PREPARED_R906})) {
+            return c.moveToFirst() ? c.getInt(0) : 0;
+        }
+    }
+
+    static void prepareResearchStep(SQLiteDatabase db, Contract contract, String stepId) {
+        db.beginTransaction();
+        try {
+            if (!stepComplete(db, contract, stepId) && preparedResearchAttempt(db, contract, stepId) == 0)
+                recordStepStart(db, contract, stepId, true);
+            db.setTransactionSuccessful();
+        } finally { db.endTransaction(); }
+    }
+
+    private static void recordStepStart(SQLiteDatabase db, Contract contract, String stepId, boolean prepared) {
         ensureInfrastructure(db);
         final long now = System.currentTimeMillis();
         int attempt = scalarInt(db, "SELECT COALESCE(MAX(attempt),0)+1 FROM " + TABLE_JOURNAL
                         + " WHERE domain=? AND revision=? AND step_id=?",
                 new String[] {contract.domain, String.valueOf(contract.revision), safe(stepId)}, 1);
-        String before = safeFingerprint(db, contract);
+        String before = prepared ? fingerprint(db, contract) : safeFingerprint(db, contract);
         db.execSQL("INSERT OR REPLACE INTO " + TABLE_JOURNAL
                         + "(domain,revision,step_id,status,attempt,cursor,before_hash,after_hash,started_at,completed_at,error_code)"
                         + " VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                 new Object[] {contract.domain, Integer.valueOf(contract.revision), safe(stepId), "RUNNING",
-                        Integer.valueOf(attempt), "START", before, "", Long.valueOf(now), Long.valueOf(0L), ""});
+                        Integer.valueOf(attempt), prepared ? PREPARED_R906 : "START", before, "", Long.valueOf(now), Long.valueOf(0L), ""});
+    }
+
+    static void finishStartedStep(SQLiteDatabase db, Contract contract, String stepId, Step step,
+                                  int preparedAttempt) throws Exception {
         boolean ownTx = !db.inTransaction() && AUTOCOMMIT_STEP_R31Q.get() == null;
         try {
             if (ownTx) db.beginTransaction();
+            // An earlier process may already have finished or retired this exact attempt.
+            if (preparedAttempt != 0 && preparedResearchAttempt(db, contract, stepId) != preparedAttempt) return;
             cutPointR31(contract.domain, stepId, "STEP_STARTED");
             step.run(db);
             cutPointR31(contract.domain, stepId, "STEP_BODY_DONE");
-            String after = safeFingerprint(db, contract);
+            String after = preparedAttempt != 0 ? fingerprint(db, contract) : safeFingerprint(db, contract);
             db.execSQL("UPDATE " + TABLE_JOURNAL
                             + " SET status='COMPLETED',cursor='DONE',after_hash=?,completed_at=?,error_code=''"
                             + " WHERE domain=? AND revision=? AND step_id=?",
@@ -1325,9 +1367,9 @@ public final class SchemaDomainCoordinatorR926 {
             }
             db.execSQL("UPDATE " + TABLE_JOURNAL
                             + " SET status=?,cursor='RETRY',completed_at=?,error_code=?"
-                            + " WHERE domain=? AND revision=? AND step_id=?",
+                            + " WHERE domain=? AND revision=? AND step_id=? AND (?=0 OR (attempt=? AND status='RUNNING' AND cursor=?))",
                     new Object[] {failure instanceof LegacyDdlR31.Pending ? "PENDING" : "FAILED", Long.valueOf(System.currentTimeMillis()), error(failure), contract.domain,
-                            Integer.valueOf(contract.revision), safe(stepId)});
+                            Integer.valueOf(contract.revision), safe(stepId), preparedAttempt, preparedAttempt, PREPARED_R906});
             if (failure instanceof Exception) throw (Exception) failure;
             throw new IllegalStateException("R926_MIGRATION_STEP_FAILED:" + stepId, failure);
         } finally {

@@ -134,6 +134,7 @@ public final class AssetGenesisEngineR915 {
         ensureColumn(db,TABLE_ATOM_SCHEMA,"max_lag","INTEGER NOT NULL DEFAULT 0");
         ensureColumn(db,TABLE_ATOM_SCHEMA,"min_support","INTEGER NOT NULL DEFAULT 1");
         ensureColumn(db,TABLE_ATOM_SCHEMA,"evidence_stage","TEXT NOT NULL DEFAULT 'UNCLASSIFIED'");
+        if (stagedRegistries) publishStagedRegistries(db);
         db.execSQL(CREATE_ATOM_PROPOSAL);
         db.execSQL(CREATE_IDX_R915_ATOM_PROPOSAL_NAME);
         db.execSQL(CREATE_IDX_R915_ATOM_PROPOSAL_STATE);
@@ -150,8 +151,7 @@ public final class AssetGenesisEngineR915 {
         db.execSQL(CREATE_EVOLUTION_EVENT);
         db.execSQL(CREATE_IDX_R915_EVOLUTION_TYPE);
         CertifiedResearchMixerR915.ensureSchema(db);
-        if (stagedRegistries) publishStagedRegistries(db);
-        else seedImmutableRegistries(db);
+        if (!stagedRegistries) seedImmutableRegistries(db);
         writeState(db,"r915_genesis_schema_ready","1");
         writeState(db,"r915_genesis_schema_fingerprint",GenesisSchemaRegistryR915.fingerprint());
         writeState(db,"r915_legacy_registry_fingerprint",LegacyFixedAssetRegistryR915.fingerprint());
@@ -215,7 +215,8 @@ public final class AssetGenesisEngineR915 {
 
     /** Both the synchronous and the resumable paths derive every field from the same signed registries. */
     private static final class SeedRegistry {
-        final String target, staging, columns;
+        private static final char ROW_SEPARATOR = 30, FIELD_SEPARATOR = 31;
+        final String target, staging, columns, completeSql, completeManifest;
         final List<ContentValues> rows;
         final String[] keys;
         SeedRegistry(String target, List<ContentValues> rows) {
@@ -231,11 +232,44 @@ public final class AssetGenesisEngineR915 {
                 sql.append(key);
             }
             columns = sql.toString();
+            // The complete manifest has a fixed number of fields and rows. A separator in a
+            // staged value, a NULL, an extra row or a different rowid cannot equal this encoding.
+            StringBuilder expected = new StringBuilder();
+            int largestField = 1;
+            for (int i = 0; i < rows.size(); i++) {
+                if (i > 0) expected.append(ROW_SEPARATOR);
+                expected.append(i + 1);
+                for (String key : keys) {
+                    String value = rows.get(i).getAsString(key);
+                    if (value == null || value.indexOf(FIELD_SEPARATOR) >= 0 || value.indexOf(ROW_SEPARATOR) >= 0)
+                        throw new IllegalStateException("R335_REGISTRY_INVALID_DECLARATION:" + key);
+                    largestField = Math.max(largestField, value.length());
+                    expected.append(FIELD_SEPARATOR).append(value);
+                }
+            }
+            completeManifest = expected.toString();
+            StringBuilder row = new StringBuilder("CAST(rowid AS TEXT)");
+            for (String key : keys) {
+                String value = "CAST(" + key + " AS TEXT)";
+                // An outsize damaged field must never allocate an unbounded aggregate.
+                row.append("||char(31)||CASE WHEN typeof(").append(key).append(")<>'blob' AND length(CAST(")
+                        .append(value).append(" AS BLOB))<=")
+                        .append(largestField * 4L).append(" THEN ").append(value).append(" END");
+            }
+            completeSql = "SELECT count(*)=" + rows.size() + " AND count(packed)=" + rows.size()
+                    + " AND group_concat(packed,char(30)) COLLATE BINARY = ? FROM (SELECT " + row
+                    + " AS packed FROM " + staging + " ORDER BY rowid LIMIT " + (rows.size() + 1) + ")";
+
         }
 
         // Return the longest contiguous prefix whose fields match the signed manifest. A damaged
         // or older pending suffix is expendable. The published registries are never touched here.
         int verifiedPrefix(SQLiteDatabase db, boolean repair) {
+            // In the common complete case, return a single scalar rather than copying every
+            // field from a CursorWindow. A nonmatch still uses the original per-field recovery.
+            try (Cursor c = db.rawQuery(completeSql, new String[]{completeManifest})) {
+                if (c.moveToFirst() && c.getInt(0) == 1) return rows.size();
+            }
             int i = 0;
             long invalidRow = 0;
             boolean mismatch = false;

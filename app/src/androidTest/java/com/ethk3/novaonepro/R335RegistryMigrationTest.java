@@ -60,6 +60,25 @@ public final class R335RegistryMigrationTest {
         }
         need(ready, "no progress across reopen");
         try (SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(file, null)) {
+            String atomStage = atoms + "_r335_pending";
+            long atomCount = GenesisSchemaRegistryR915.atoms().size();
+            // Count stays unchanged in all three cases. Publication must validate every field
+            // and row position, including a displaced last row and a row before position one.
+            db.execSQL("UPDATE " + atomStage + " SET rowid=? WHERE rowid=?",
+                    new Object[] {atomCount + 17, atomCount});
+            rejectDamagedStage(db);
+            need(!AssetGenesisEngineR915.prepareRegistrySlice(db), "missing tail was accepted");
+            need(count(db, "SELECT max(rowid) FROM " + atomStage) == atomCount, "surplus row survived");
+            db.execSQL("UPDATE " + atomStage + " SET window_spec=window_spec||char(39) WHERE rowid=23");
+            rejectDamagedStage(db);
+            need(!AssetGenesisEngineR915.prepareRegistrySlice(db), "changed field was accepted");
+            need(count(db, "SELECT count(*) FROM " + atomStage) == 46, "verified prefix was lost");
+            finishStage(db);
+            db.execSQL("UPDATE " + pending + " SET rowid=-4 WHERE rowid=9");
+            rejectDamagedStage(db);
+            need(!AssetGenesisEngineR915.prepareRegistrySlice(db), "nonpositive row was accepted");
+            need(count(db, "SELECT min(rowid) FROM " + pending) == 1, "nonpositive row survived");
+            finishStage(db);
             db.beginTransaction();
             try { AssetGenesisEngineR915.ensureSchema(db, true); }
             finally { db.endTransaction(); }
@@ -73,5 +92,24 @@ public final class R335RegistryMigrationTest {
             need(count(db, "SELECT count(*) FROM " + pending) == 0, "legacy staging rows retained");
             need(count(db, "SELECT count(*) FROM " + atoms + "_r335_pending") == 0, "atom staging rows retained");
         }
+    }
+
+    private static void rejectDamagedStage(SQLiteDatabase db) {
+        boolean rejected = false;
+        db.beginTransaction();
+        try {
+            AssetGenesisEngineR915.ensureSchema(db, true);
+        } catch (IllegalStateException mismatch) {
+            rejected = mismatch.getMessage() != null &&
+                    mismatch.getMessage().startsWith("R335_REGISTRY_STAGE_MISMATCH:");
+            if (!rejected) throw mismatch;
+        } finally { db.endTransaction(); }
+        need(rejected, "damaged stage was publishable");
+    }
+
+    private static void finishStage(SQLiteDatabase db) {
+        for (int i = 0; i < 40; i++)
+            if (AssetGenesisEngineR915.prepareRegistrySlice(db)) return;
+        throw new AssertionError("repair did not converge");
     }
 }

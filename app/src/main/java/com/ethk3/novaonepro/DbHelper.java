@@ -7478,6 +7478,9 @@ public final class DbHelper extends SQLiteOpenHelper {
         boolean researchReady = false;
         String researchError = "";
         try {
+            // Publish an authenticated staged registry at the start of this transaction. All
+            // remaining schema checks and the journal seal must succeed before it is visible.
+            if (stagedRegistries) AssetGenesisEngineR915.ensureSchema(db, true);
             ResearchDdl.CORE.installAll(db);
             // Existing v36 installations may predate individual columns. A new table already
             // contains the complete contract and never rewrites sqlite_schema twenty times.
@@ -7489,7 +7492,7 @@ public final class DbHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_r914_algorithm_future ON "
                     + TABLE_R908_ALGORITHM_GENOME
                     + "(status,future_wilson_lower DESC,future_n DESC,updated_at)");
-            AssetGenesisEngineR915.ensureSchema(db, stagedRegistries);
+            if (!stagedRegistries) AssetGenesisEngineR915.ensureSchema(db, false);
             LegacyPredrawContextBridgeR915.ensureSchema(db);
             requireSchemaObjectR906(db, "table", TABLE_R906_RESEARCH_ASSET);
             requireSchemaObjectR906(db, "table", TABLE_R906_RESEARCH_EVAL_COVERAGE);

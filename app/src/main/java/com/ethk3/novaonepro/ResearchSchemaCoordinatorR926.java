@@ -161,9 +161,13 @@ public final class ResearchSchemaCoordinatorR926 {
                     state="READY";cursor="COMPLETE";error="";return true;
                 }
                 SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, contract);
-            String step = nextStep(db, contract);
+                String step = nextStep(db, contract);
                 cursor = step;
-                SchemaDomainCoordinatorR926.markState(db, contract, state, cursor, "");
+                boolean registryStep = "R906_RESEARCH_R64_VERIFIED".equals(step);
+                if (!registryStep || !SchemaDomainCoordinatorR926.hasResearchProgressStamp(db, contract, step)) {
+                    SchemaDomainCoordinatorR926.markState(db, contract, state, cursor, "");
+                    if (registryStep) return false;
+                }
                 if ("VERIFY".equals(step)) {
                     // Final verification has its own writer callback. Do not append the
                     // complete integrity/readiness scan to the last DDL installation unit.
@@ -177,11 +181,19 @@ public final class ResearchSchemaCoordinatorR926 {
                 } else if ("R815_RESEARCH".equals(step)) {
                     SchemaDomainCoordinatorR926.runStep(db, contract, step,
                             new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) { DbHelper.ensureR815ResearchSchema(x); }});
-                } else if ("R906_RESEARCH_R64_VERIFIED".equals(step)) {
-                    if (!DbHelper.prepareExistingGenomeColumn(db)
-                            || !DbHelper.prepareResearchObjectsR906(db)
-                            || !AssetGenesisEngineR915.prepareRegistrySlice(db)) return false;
-                    SchemaDomainCoordinatorR926.runStep(db, contract, step, x -> DbHelper.ensureR906ResearchSchema(x, true));
+                } else if (registryStep) {
+                    int preparedAttempt = SchemaDomainCoordinatorR926.preparedResearchAttempt(db, contract, step);
+                    if (preparedAttempt == 0) {
+                        if (DbHelper.prepareExistingGenomeColumn(db) && DbHelper.prepareResearchObjectsR906(db)
+                                && AssetGenesisEngineR915.prepareRegistrySlice(db))
+                            SchemaDomainCoordinatorR926.prepareResearchStep(db, contract, step);
+                        // Capture the actual catalog after the durable unit. Paying for this scan
+                        // before each unit can consume the whole slice without installing one row.
+                        SchemaDomainCoordinatorR926.markState(db, contract, state, cursor, "");
+                        return false;
+                    }
+                    SchemaDomainCoordinatorR926.finishStartedStep(db, contract, step,
+                            x -> DbHelper.ensureR906ResearchSchema(x, true), preparedAttempt);
                 } else if ("R925_RESEARCH".equals(step)) {
                     SchemaDomainCoordinatorR926.runStep(db, contract, step,
                             new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) { SchemaRevisionR925.ensureResearchTables(x); }});

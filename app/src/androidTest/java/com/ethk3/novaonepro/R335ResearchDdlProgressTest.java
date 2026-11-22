@@ -59,11 +59,51 @@ public final class R335ResearchDdlProgressTest {
                     need(scalar(db, "SELECT count(*) FROM sqlite_master WHERE name IN "
                             + "('research_legacy_fixed_registry_v41','research_atom_schema_v41')") == 0,
                             "definition preparation published the immutable registries");
+                    exercisePreparedJournal(dbFile);
                     return;
                 }
                 committed++;
             }
         }
         throw new AssertionError("additive objects did not survive restart");
+    }
+
+    private static void exercisePreparedJournal(File file) {
+        SchemaDomainCoordinatorR926.Contract contract = SchemaDomainCoordinatorR926.researchContract();
+        String step = "R906_RESEARCH_R64_VERIFIED";
+        int first;
+        try (SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(file, null)) {
+            SchemaDomainCoordinatorR926.prepareResearchStep(db, contract, step);
+            first = SchemaDomainCoordinatorR926.preparedResearchAttempt(db, contract, step);
+            need(first > 0 && !SchemaDomainCoordinatorR926.stepComplete(db, contract, step), "premature completion");
+        }
+        try (SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(file, null)) {
+            need(first == SchemaDomainCoordinatorR926.preparedResearchAttempt(db, contract, step), "lost prepared start");
+            try {
+                SchemaDomainCoordinatorR926.finishStartedStep(db, contract, step, x -> {
+                    x.execSQL("CREATE TABLE rejected_research_target(n INTEGER)");
+                    throw new IllegalStateException("injected publication failure");
+                }, first);
+                throw new AssertionError("failed publication succeeded");
+            } catch (Exception expected) {
+                need("injected publication failure".equals(expected.getMessage()), "unexpected failure");
+            }
+            need(scalar(db, "SELECT count(*) FROM sqlite_master WHERE name='rejected_research_target'") == 0, "rollback leaked target");
+            SchemaDomainCoordinatorR926.prepareResearchStep(db, contract, step);
+            int next = SchemaDomainCoordinatorR926.preparedResearchAttempt(db, contract, step);
+            need(next > first, "failed attempt was reused");
+            try {
+                SchemaDomainCoordinatorR926.finishStartedStep(db, contract, step,
+                        x -> { throw new AssertionError("retired writer ran"); }, first);
+                SchemaDomainCoordinatorR926.finishStartedStep(db, contract, step,
+                        x -> x.execSQL("CREATE TABLE accepted_research_target(n INTEGER)"), next);
+            } catch (Exception failure) { throw new AssertionError(failure); }
+            need(SchemaDomainCoordinatorR926.stepComplete(db, contract, step), "valid publication missing");
+            need(scalar(db, "SELECT count(*) FROM " + SchemaDomainCoordinatorR926.TABLE_JOURNAL
+                    + " WHERE step_id='R906_RESEARCH_R64_VERIFIED' AND length(before_hash)=64 AND after_hash=before_hash") == 1,
+                    "original catalog pair missing for unrelated test tables");
+            need(scalar(db, "SELECT count(*) FROM sqlite_master WHERE name='accepted_research_target'") == 1,
+                    "committed target missing");
+        }
     }
 }
