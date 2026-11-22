@@ -285,8 +285,10 @@ public final class AssetGenesisEngineR915 {
         db.execSQL("INSERT INTO " + legacy.target + "(" + legacy.columns + ") SELECT " + legacy.columns + " FROM " + legacy.staging);
         db.execSQL("UPDATE " + legacy.target + " SET registered_ms=?", new Object[]{System.currentTimeMillis()});
         db.execSQL("INSERT OR REPLACE INTO " + atoms.target + "(" + atoms.columns + ") SELECT " + atoms.columns + " FROM " + atoms.staging);
-        db.execSQL("DROP TABLE " + legacy.staging);
-        db.execSQL("DROP TABLE " + atoms.staging);
+        // Reuse the empty staging schema on future contract repairs. SQLite can reuse its freed
+        // pages, and no business or migration table is retired by publishing these manifests.
+        db.delete(legacy.staging, null, null);
+        db.delete(atoms.staging, null, null);
     }
 
     /** Failure-driven generation. Existing Legacy owners are never parents or mutation targets. */

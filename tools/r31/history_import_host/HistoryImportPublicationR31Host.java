@@ -65,6 +65,10 @@ public final class HistoryImportPublicationR31Host {
         check(NUMBERS.equals(text(db,"SELECT numbers FROM "+HistoryImportR27.publishedRowsSqlR31()+" WHERE issue=?",issue(1))),"self conflicting issue cannot shadow valid earlier evidence");
         List<ReplayDatasetR27.Row> older=new ArrayList<>();HistoryImportR27.appendOlder(db,older,issue(5000),10000);check(older.size()==4001,"replay consumes complete imported older rows only");
         check(older.stream().noneMatch(r->r.issue.compareTo(issue(5000))>=0),"canonical overlap never enters imported replay role");
+        ReplayDatasetR27 active = StoreR27.loadDataset(db, StoreR27.HOT_DRAWS_LIMIT_R30);
+        check(active.size() == 5000 && issue(5000).equals(active.issues[0]) && issue(9999).equals(active.issues[4999]),
+                "mixed canonical and verified CSV replay keeps exactly the newest 5000 periods");
+
         check(scalar(db,"SELECT count(*) FROM draws")==5000&&original.equals(canonicalHash(db)),"all canonical 5000 rows and values preserved");
         check(SQLiteDatabase.historyDdlR31==0,"zero business runtime DDL");check(SQLiteDatabase.maxHistoryOpsR31<=65,"physical top-level chunk ops bounded including receipt");
         Map<?,?> inventory=(Map<?,?>)ResearchWriteQueueR27.batchInventoryR31().get("HISTORY_IMPORT_R31");check(inventory!=null&&((Number)inventory.get("maxOps")).longValue()<=64,"prepared producer remains <=64 ops");check(((Number)inventory.get("overInitialBudget")).longValue()==0,"all prepared binds fit real cap");

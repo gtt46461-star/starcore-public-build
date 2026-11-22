@@ -70,7 +70,8 @@ public final class R335RegistryMigrationTest {
             finally { db.endTransaction(); }
             need(count(db, "SELECT count(*) FROM " + legacy + " WHERE locked=1 AND registered_ms>0") == LegacyFixedAssetRegistryR915.entries().length, "incomplete legacy manifest");
             need(count(db, "SELECT count(*) FROM " + atoms) == GenesisSchemaRegistryR915.atoms().size(), "incomplete atom manifest");
-            need(count(db, "SELECT count(*) FROM sqlite_master WHERE name IN ('" + pending + "','" + atoms + "_r335_pending')") == 0, "staging retained");
+            need(count(db, "SELECT count(*) FROM " + pending) == 0, "legacy staging rows retained");
+            need(count(db, "SELECT count(*) FROM " + atoms + "_r335_pending") == 0, "atom staging rows retained");
         }
     }
 }

@@ -29,15 +29,16 @@ public final class StoreR27 {
      * the CP12 retention tail); older replay rows come only from verified imported history (r27_history_import). */
     public static final int HOT_DRAWS_LIMIT_R30 = com.ethk3.novaonepro.AppConfig.MAX_LOCAL_HISTORY_SAVE;
     public static ReplayDatasetR27 loadDataset(SQLiteDatabase ro, int limit) {
-        List<ReplayDatasetR27.Row> rows = new ArrayList<>(limit);
+        int hotLimit = Math.min(limit, HOT_DRAWS_LIMIT_R30);
+        List<ReplayDatasetR27.Row> rows = new ArrayList<>(hotLimit);
         final class RawDrawR33 { final String issue; final int[] numbers; final long opened,known;
             RawDrawR33(String issue,int[] numbers,long opened,long known){this.issue=issue;this.numbers=numbers;this.opened=opened;this.known=known;} }
         // Bounded hot tail only. Close its SQLite cursor before any parkable
         // calendar/identity validation, so yielding does not pin a WAL reader.
-        List<RawDrawR33> rawR33=new ArrayList<>(Math.min(limit,HOT_DRAWS_LIMIT_R30));
+        List<RawDrawR33> rawR33=new ArrayList<>(hotLimit);
         java.util.Set<String> sourceColumns=new java.util.HashSet<>();try(Cursor schema=ro.rawQuery("PRAGMA table_info(draws)",null)){while(schema.moveToNext())sourceColumns.add(schema.getString(1));}
         String opened=sourceColumns.contains("open_time")?"open_time":"NULL",known=sourceColumns.contains("first_seen_at")?"first_seen_at":"NULL";
-        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,"+opened+","+known+" FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT " + Math.min(limit, HOT_DRAWS_LIMIT_R30), null)) {
+        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,"+opened+","+known+" FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT " + hotLimit, null)) {
             while (c.moveToNext()) {
                 String issue = c.getString(0);
                 int[] p = new int[10]; for (int i = 0; i < 10; i++) p[i] = c.getInt(i + 1);
@@ -50,8 +51,11 @@ public final class StoreR27 {
             rows.add(new ReplayDatasetR27.Row(raw.issue,TargetIssueResolver.sequenceOrdinalSU1(raw.issue),raw.numbers,raw.opened,raw.known,ReplayDatasetR27.READER_ABI_R31,"DRAW_FIRST_SEEN"));
         }
         rawR33.clear();
-        // R27-018: verified-imported CSV history older than the database (replay only), up to 10,000 rows in total.
-        if (!rows.isEmpty() && rows.size() < 10_000) HistoryImportR27.appendOlder(ro, rows, rows.get(rows.size() - 1).issue, 10_000 - rows.size());
+        // Short consumers keep their original CSV cutoff. The combined active replay, including
+        // verified older imports, must still fit the same rolling history as the live reader.
+        int remaining = HOT_DRAWS_LIMIT_R30 - rows.size();
+        if (!rows.isEmpty() && remaining > 0)
+            HistoryImportR27.appendOlder(ro, rows, rows.get(rows.size() - 1).issue, remaining);
         return ReplayDatasetR27.of(rows);
     }
 

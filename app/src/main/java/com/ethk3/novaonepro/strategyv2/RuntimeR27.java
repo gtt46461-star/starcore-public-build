@@ -230,7 +230,9 @@ public final class RuntimeR27 implements AutoCloseable {
                 }
             }
 
-            if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
+            // A previously published larger pin remains available to its unfinished generation.
+            // Prepare its bounded successor even when the newest issue has not changed.
+            if (cur != null && cur.size() <= DATASET_ROWS && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
             long t0 = System.currentTimeMillis();
             final ResearchSourceJournalR31.DatasetRead captured=ResearchSourceJournalR31.DatasetRead.capture(w.ro);
             final long capturedRevision=captured.revision;
