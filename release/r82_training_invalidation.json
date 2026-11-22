@@ -1420,11 +1420,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
       "before_sha256": "1fe1ae6ad5ec799cea0900ebb828b1dc36cfbcf1c4b12761d753ec91dfcc237c",
-      "after_sha256": "779fd24143318e493b0be76adacbae43a856f517e8e8230f7d4b3d020e92bb5d",
+      "after_sha256": "a580ee153d5fc11ef1982b72e923073e3cafd85f1e470d11a658811a3bb0a27c",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Reuse isolated connection-local schema workspaces and clear only their temporary rows, with full preimage checks, rollback, original data preservation and bounded storage."
+      "rationale": "Keep the registered changed-catalogue signal intact through the R64 registry so a concurrent schema commit rolls back the child and retries the same migration without invalidating completed research."
     },
     {
       "after_role": "NUMERIC",
@@ -1996,11 +1996,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java",
       "before_sha256": "9582b8cb20a7c715bb7adb8da21c7231e7dfb6a2a50d12c8547c43fdb35a2b34",
-      "after_sha256": "79f88c41486d4327055eb091f6e431b4a88f07b11b90c6450d549b9d62fbfa7a",
+      "after_sha256": "fb801f6c93a4d090bf00834234529a0c451d9f2e490fb70e9b25eb948d165aa6",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
       "reviewer": "Codex R33.5 vivo field repair",
-      "rationale": "Resume the original R952 extension one admitted unit at a time. Preserve the complete pre-DDL catalogue, Critical seal and journal, compare them inside the same transaction and authenticate all original trigger definitions and deltas before commit."
+      "rationale": "Keep the registered changed-catalogue signal intact through the R64 registry so a concurrent schema commit rolls back the child and retries the same migration without invalidating completed research."
     },
     {
       "after_role": "PRESENTATION",
@@ -9317,7 +9317,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "e4260afd3818e6231f206a575582f10c3f3ddde1c578a4356d1bb1d3f7d37665",
+  "reviewed_input_provenance_sha256": "d874a29eee4d151aa7cb8eaecfc879c6103d648c961cb40d76a9735a76d15e1b",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

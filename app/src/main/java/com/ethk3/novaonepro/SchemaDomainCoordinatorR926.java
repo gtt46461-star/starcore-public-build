@@ -759,7 +759,8 @@ public final class SchemaDomainCoordinatorR926 {
     }
     private static volatile ExtensionInspection extensionInspection;
 
-    static final class ChangedExtensionPreimage extends RuntimeException {
+    /** A different owner committed a schema change between the two inspection slices. */
+    public static final class ChangedExtensionPreimage extends RuntimeException {
         ChangedExtensionPreimage(){super("R3251_EXTENSION_PREIMAGE_CHANGED");}
     }
 

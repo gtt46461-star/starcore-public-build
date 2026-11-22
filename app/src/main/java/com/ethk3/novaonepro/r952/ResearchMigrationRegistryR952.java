@@ -321,6 +321,9 @@ public final class ResearchMigrationRegistryR952 {
                 TransactionSchemaCacheR941.markCommitted(target,"CP12_CANONICAL_PLAN_DIAG_RETENTION_SEEK_V1");
             });
             return true;
+        } catch (SchemaDomainCoordinatorR926.ChangedExtensionPreimage changed) {
+            // The outer ownership transaction must roll back this slice and take a fresh catalogue snapshot.
+            throw changed;
         } catch (com.ethk3.novaonepro.ResearchWorkBudgetR927.Yield | com.ethk3.novaonepro.RuntimeResourceAuditR927.BudgetExceeded yielded) {
             throw yielded;
         } catch (Exception failure) {
