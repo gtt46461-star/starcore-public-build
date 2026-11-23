@@ -2,6 +2,7 @@ package com.ethk3.novaonepro.strategyv2;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.DatabaseCoordinator;
 import java.sql.DriverManager;
 
 /** Exercise the production owner with separate real SQLite connections. */
@@ -12,14 +13,22 @@ public final class RetentionMigrationHost {
             SQLiteDatabase read=new SQLiteDatabase(DriverManager.getConnection(url))) {
             try(Cursor mode=write.rawQuery("PRAGMA journal_mode=WAL",null)) { mode.moveToFirst(); }
             write.execSQL("CREATE TABLE host_unrelated_fetch(ordinal INTEGER)");
+            boolean[] delayFirstAdmission={true};
             RetentionMigrationR34.Writer owner=(context,task)->{
                 // A real commit between preparation and admission changes data_version on the read connection.
                 if ("R34_RETENTION_UNIT".equals(context.operation))write.execSQL("INSERT INTO host_unrelated_fetch VALUES(1)");
 
                 write.beginTransaction();
                 try {
+                    if (delayFirstAdmission[0] && "R34_RETENTION_UNIT".equals(context.operation)) {
+                        delayFirstAdmission[0]=false;
+                        Thread.sleep(330);
+                    }
                     task.run(write);
                     write.setTransactionSuccessful();
+                } catch(SchemaUnitPlanR34.ProtocolViolation fault) {
+                    throw new DatabaseCoordinator.WriteRejectedR31("BUG",context.operation,"BODY",
+                            DatabaseCoordinator.CommitOutcome.ROLLED_BACK,fault);
                 } catch(RuntimeException failure) {
                     throw failure;
                 } catch(Exception failure) {
@@ -29,6 +38,8 @@ public final class RetentionMigrationHost {
                 }
             };
             RetentionMigrationR34.Session first=new RetentionMigrationR34.Session(read,owner,"process-one");
+            if(first.step() || number(read,"SELECT count(*) FROM r34_schema_unit_receipt")!=0)
+                throw new AssertionError("expired ticket changed the original cursor");
             for(int i=0;i<14;i++)if(first.step())throw new AssertionError("completed before all units");
             if(number(read,"SELECT count(*) FROM r34_schema_unit_receipt")!=14)throw new AssertionError("receipt count after first process");
             RetentionMigrationR34.Session resumed=new RetentionMigrationR34.Session(read,owner,"process-two");

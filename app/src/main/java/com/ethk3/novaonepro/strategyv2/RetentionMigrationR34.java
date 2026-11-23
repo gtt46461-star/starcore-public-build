@@ -161,15 +161,20 @@ public final class RetentionMigrationR34 {
             if(generation!=dataVersion(read)&&!emptySource(read,source))return false;
             boolean install=before.phase==SchemaUnitPlanR34.Phase.INSTALL;
             SchemaUnitPlanR34.Cost cost=ResearchRetentionStoreR30.protectionCostR34(read,source,install);
+            noMetadataTriggers(read);
+            if(cookie(read)!=prepared.schemaCookie)return false;
             SchemaUnitPlanR34.Ticket ticket=SchemaUnitPlanR34.prepare(plan,before,prepared,cost,BUDGET,SystemClock.elapsedRealtime()+250);
             final SchemaUnitPlanR34.ReceiptPayload[] payload={null};
             try {
                 writer.write(migration("R34_RETENTION_UNIT").withDeadlineMonoMs(ticket.deadlineMonoMs),db->{
+                    // Once the writer starts, other connections cannot install a trigger or
+                    // replace the checked source definition without changing this schema cookie.
+                    if(cookie(db)!=prepared.schemaCookie || !databaseId(db).equals(prepared.databaseId))
+                        throw new DatabaseCoordinator.SchemaPendingR31("R34_RETENTION","WAIT_PREPARED_PROOF");
                     if(dataVersion(read)!=generation && !(emptySource(db,source)
                             && root.equals(SchemaDomainCoordinatorR926.retentionOriginalRootR34(db,source))))
                         throw new DatabaseCoordinator.SchemaPendingR31("R34_RETENTION","WAIT_PREPARED_PROOF");
-                    noMetadataTriggers(db);
-                    SchemaUnitPlanR34.Admission admission=SchemaUnitPlanR34.beforeWrite(plan,ticket,cursor(db,plan),view(db,source,root),SystemClock.elapsedRealtime());
+                    SchemaUnitPlanR34.Admission admission=SchemaUnitPlanR34.beforeWrite(plan,ticket,cursor(db,plan),prepared,SystemClock.elapsedRealtime());
                     if(install) {
                         if(source.equals("r26_feedback"))SchemaDomainCoordinatorR926.migrateR31RetentionProtection(db,x->ResearchRetentionStoreR30.installProtectionUnitR34(x,source));
                         else ResearchRetentionStoreR30.installProtectionUnitR34(db,source);
@@ -191,6 +196,14 @@ public final class RetentionMigrationR34 {
                     advance(db,before,value.next,value.commitKey);
                 });
             } catch(DatabaseCoordinator.WriteRejectedR31 failure) {
+                // A confirmed rollback before DDL leaves the same durable unit ready.
+                // Never retry a fault in its definition, owner fence, cost or receipt as a timeout.
+                if (failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                        && failure.getCause() instanceof SchemaUnitPlanR34.ProtocolViolation) {
+                    String code=((SchemaUnitPlanR34.ProtocolViolation)failure.getCause()).code;
+                    if ("DEADLINE_BEFORE_BEGIN".equals(code) || "REPREPARE_SCHEMA_COOKIE".equals(code)
+                            || "REPREPARE_ORIGINAL_INPUT".equals(code)) return false;
+                }
                 if(payload[0]==null || failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK)throw failure;
                 SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.UNKNOWN,readBack(read,plan,ticket.commitKey));
                 return false;
@@ -209,10 +222,13 @@ public final class RetentionMigrationR34 {
         DatabaseCoordinator owner=store.coordinatorForResearchR952();
         try(SQLiteDatabase read=SQLiteDatabase.openDatabase(store.readable().getPath(),null,
                 SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
-            Session session=new Session(read,(context,task)->owner.runAtomicWriteOrThrowF01(
-                context,db->{task.run(db);return 0;}),ownerEpoch);
+            Writer writer=(context,task)->owner.runAtomicWriteOrThrowF01(context,db->{task.run(db);return 0;});
+            Session session=null;
             while(!cancelled.getAsBoolean()){
                 try{
+                    // Bootstrap can miss the writer just like an individual unit. Keep an
+                    // already completed base migration and this read connection across retries.
+                    if(session==null)session=new Session(read,writer,ownerEpoch);
                     if(session.step())return;
                 }catch(DatabaseCoordinator.WriteRejectedR31 failure){
                     if(!ResearchPoolR27.retryRolledBackLock(failure)
