@@ -218,6 +218,13 @@ def identity(repo, plan, binding_file, require_clean=False):
                   source_baseline=BASE,plan_binding_sha256=sha(binding_file),
                   checkoutBytes=checkout,
                   engineeringAcceptance='NOT_INFERRED',deviceAcceptance='NOT_INFERRED',naturalQuality='NOT_INFERRED')
+    release = read(repo/'release/release_manifest.json')
+    if (repo/'release/r34_plan_binding.json').exists() or release['versionName'].startswith('R34-'):
+        from importlib.util import module_from_spec, spec_from_file_location
+        spec = spec_from_file_location('r34_build_identity', repo/'tools/r34/build_identity.py')
+        owner = module_from_spec(spec)
+        spec.loader.exec_module(owner)
+        result['r34'] = owner.identity(repo, head, result['source_tree'], release)
     return result
 
 

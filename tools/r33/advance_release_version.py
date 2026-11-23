@@ -63,10 +63,12 @@ def atomic(path,data):
     finally:temp.unlink(missing_ok=True)
 
 
-def prepare(repo,journal,installed_version,stage,day):
+def prepare(repo,journal,installed_version,stage,day,series='R33.5'):
     repo=Path(repo).resolve();journal=Path(journal).absolute()
     require(type(installed_version) is int and installed_version>0,'POSITIVE_INSTALLED_VERSION_REQUIRED')
-    require(stage in STAGES,'KNOWN_STAGE_REQUIRED')
+    require(series in ('R33.5','R34'),'KNOWN_RELEASE_SERIES_REQUIRED')
+    stages = STAGES if series == 'R33.5' else tuple(f'B{i:02d}' for i in range(13))
+    require(stage in stages,'KNOWN_STAGE_REQUIRED')
     datetime.date.fromisoformat(day)
     require(not journal.exists() and not journal.is_symlink() and not journal.resolve().is_relative_to(repo),
             'FRESH_EXTERNAL_VERSION_JOURNAL_REQUIRED')
@@ -75,7 +77,7 @@ def prepare(repo,journal,installed_version,stage,day):
     version=max(current['versionCode'],installed_version,577311033)+1
     require(version<=2100000000,'ANDROID_VERSION_CODE_LIMIT')
     new=json.loads(json.dumps(current));new['versionCode']=version
-    new['versionName']=f'R33.5-{stage}-{day}-{version}'
+    new['versionName']=f'{series}-{stage}-{day}-{version}'
     manifest=(json.dumps(new,ensure_ascii=False,sort_keys=True,indent=2)+'\n').encode()
     digest=sha(manifest)
     after=(manifest,gen.prop_text(new,digest).encode(),gen.java_text(new,digest).encode(),
@@ -151,7 +153,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
     parser.add_argument('--journal',type=Path,required=True)
-    parser.add_argument('--stage',choices=STAGES)
+    parser.add_argument('--stage')
+    parser.add_argument('--series',choices=['R33.5','R34'],default='R33.5')
     parser.add_argument('--installed-version',type=int)
     parser.add_argument('--date',default=datetime.datetime.now(ZoneInfo('Asia/Shanghai')).date().isoformat())
     parser.add_argument('--apply',action='store_true')
@@ -162,7 +165,7 @@ def main():
         result=apply(args.repo,args.journal)
     else:
         require(args.stage is not None and args.installed_version is not None,'STAGE_AND_INSTALLED_VERSION_REQUIRED')
-        result=prepare(args.repo,args.journal,args.installed_version,args.stage,args.date)
+        result=prepare(args.repo,args.journal,args.installed_version,args.stage,args.date,args.series)
         if args.apply:result=apply(args.repo,args.journal)
     print(json.dumps(result,ensure_ascii=False,indent=2))
 

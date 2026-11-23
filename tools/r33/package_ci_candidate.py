@@ -207,6 +207,9 @@ def embedded(apk,identity):
     with zipfile.ZipFile(apk) as z:
         old=json.loads(z.read('assets/diagnostics/build-identity-r31.json'))
         current=json.loads(z.read('assets/diagnostics/build-identity-r334.json'))
+        if 'r34' in identity:
+            require(json.loads(z.read('assets/diagnostics/build-identity-r34.json')) == identity['r34'],
+                    'R34_EMBEDDED_OWNER_OR_PLAN_MISMATCH')
     require(old.get('source_commit')==identity['source_commit'] and old.get('source_tree')==identity['source_tree']
             and old.get('source_dirty') is False,'EMBEDDED_R31_SOURCE_IDENTITY_MISMATCH')
     require(current==identity,'EMBEDDED_R334_PLAN_OR_SOURCE_MISMATCH')
@@ -243,7 +246,8 @@ def main():
             and build.get('gradleLogSha256')==sha(args.build_log)
             and ':app:assembleRelease' in build.get('command',[]),'ACTUAL_BUILD_RECEIPT_MISMATCH')
     out.mkdir(parents=True,exist_ok=False)
-    stem=f"STARCORE-R33-{new['versionCode']}-{identity['source_commit'][:12]}"
+    series = 'R34' if 'r34' in identity else 'R33'
+    stem=f"STARCORE-{series}-{new['versionCode']}-{identity['source_commit'][:12]}"
     copied=out/(stem+'-release.apk');shutil.copy2(apk,copied)
     require(sha(copied)==new['sha256'],'COPIED_APK_MISMATCH')
     (out/'public-certificate.txt').write_text(signature);(out/'badging.txt').write_text(badging)

@@ -398,6 +398,13 @@ if (requestedRelease) r334IdentityArgs += ['--require-clean']
 def generateR334PlanIdentity = tasks.register('generateR334PlanIdentity', Exec) {
     workingDir rootProject.projectDir
     commandLine r334IdentityArgs + ['--out', layout.buildDirectory.file('generated/assets/r334/diagnostics/build-identity-r334.json').get().asFile.absolutePath]
+    doLast {
+        def dir = layout.buildDirectory.dir('generated/assets/r334/diagnostics').get().asFile
+        def legacy = new groovy.json.JsonSlurper().parse(new File(dir, 'build-identity-r334.json'))
+        def asset = new File(dir, 'build-identity-r34.json')
+        if (legacy.r34) asset.setText(groovy.json.JsonOutput.toJson(legacy.r34), 'UTF-8')
+        else project.delete(asset)
+    }
     outputs.upToDateWhen { false }
 }
 def verifyFinalR334PlanIdentity = tasks.register('verifyFinalR334PlanIdentity') {
