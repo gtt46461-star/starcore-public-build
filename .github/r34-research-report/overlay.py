@@ -136,6 +136,14 @@ def main():
     report_spec=importlib.util.spec_from_file_location('warm_report',report_path)
     warm=importlib.util.module_from_spec(report_spec);report_spec.loader.exec_module(warm)
     assert warm.installed(122)==olduid
+    warm.adb('shell','input','keyevent','KEYCODE_WAKEUP')
+    warm.adb('shell','wm','dismiss-keyguard')
+    warm.adb('shell','wm','size','480x850')
+    warm.adb('shell','wm','density','195')
+    warm.adb('shell','settings','put','system','screen_off_timeout','7200000')
+    warm.adb('shell','svc','power','stayon','true')
+    warm.adb('shell','am','start','-W','--activity-new-task','--activity-clear-task','-n',warm.ACTIVITY)
+    time.sleep(8)
     try:
         for i,profile in enumerate(['COMPACT_DIAGNOSTIC','FULL_RAW'],1):
             warm.report(122,i,profile)
@@ -147,6 +155,14 @@ def main():
 try:main()
 except Exception as error:
     record.update(completed=False,failureType=type(error).__name__)
+    import re
+    if re.fullmatch('[A-Z0-9_]{1,80}',str(error)):record['driverReason']=str(error)
+    try:
+        from xml.etree import ElementTree
+        latest=next((f.TEMP/'test-documents').glob('entry-*-last.xml'))
+        nodes=list(ElementTree.fromstring(latest.read_bytes()).iter('node'))
+        record['lastUi']={'app':sum(n.get('package')==f.PKG for n in nodes),'buttons':sum(n.get('class')=='android.widget.Button' for n in nodes),'scrollers':sum(n.get('scrollable')=='true' for n in nodes),'labels':[t for t in ['导入','完整报告','检测报告','快速诊断','开始','继续','确定','返回','等待','停止','训练','备份'] if any(t in n.get('text','') for n in nodes)]}
+    except (StopIteration,OSError,ValueError):pass
     import traceback
     record['failureFrames']=[Path(frame.filename).name+':'+str(frame.lineno) for frame in traceback.extract_tb(error.__traceback__)][-8:]
     save();raise
