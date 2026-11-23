@@ -19,7 +19,7 @@ out=tmp/('art-'+os.environ['GITHUB_RUN_ID']+'.json')
 doc=dict(sourceCommit='db60f716c3bca8ced4a873aa94b16123307b683f',apkSha256=expected,api=34,physical=False,testDexSha256=pin['dexSha256'],runId=int(os.environ['GITHUB_RUN_ID']),cases={})
 def save():out.write_text(json.dumps(doc,indent=2)+'\n')
 save()
-cases=[('AtomNetSessionResumeReviewTest',['fixed'],'PASS_EXPECTED_REVISION_BEHAVIOR'),('AtomNetSessionNumericalProbe',[],'B04_ACTUAL_SESSION_NUMERICS'),('R335AndroidGradientTrace',[],'R335_ANDROID_GRADIENT_TRACE'),('ResearchConsumerR335Host',[],'PASS'),('R33NaturalQualificationHost',[],'PASS')]
+cases=[('AtomNetSessionResumeReviewTest',['fixed'],'PASS_EXPECTED_REVISION_BEHAVIOR'),('AtomNetSessionNumericalProbe',[],'B04_ACTUAL_SESSION_NUMERICS'),('R335AndroidGradientTrace',[],'R335_ANDROID_GRADIENT_TRACE'),('ResearchConsumerR335Host',[],'R335_ACTUAL_CONSUMER_PURE'),('R33NaturalQualificationHost',[],'PASS')]
 for cls,args,marker in cases:
     call=['adb','shell','env','CLASSPATH='+path+':'+dest,'app_process','-Xms24m','-Xmx400m','/system/bin','com.ethk3.novaonepro.strategyv2.'+cls,*args]
     start=time.monotonic();p=subprocess.run(call,capture_output=True,timeout=600);raw=p.stdout+p.stderr
