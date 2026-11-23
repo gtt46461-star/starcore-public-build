@@ -124,6 +124,7 @@ public final class SettlementTaskStoreR36 {
         // A confirmed revealed draw is training input even when no prediction was frozen.
         // This legacy-compatible outbox table is owned by the Critical startup migration.
         com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.feedbackWithinTransaction(db,draw);
+        BaselineShadowR34.settleWithin(db,draw,now);
         String target = safe(draw.issue), hash = DrawHashR36.sha256V2(draw);
         Cursor c = null;
         try {

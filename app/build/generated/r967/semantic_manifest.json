@@ -1,12 +1,12 @@
 {
   "revision": "R967_SEMANTIC_BUILD_V1",
-  "training_rule_sha256": "546f3fcec530dad381f1c3e34c6df9ac3e83253790ffb4a4642efede02452544",
+  "training_rule_sha256": "10a81941f9fea778a1ba0e320716a7f52cab916c220492e4121528bfcd2f1b4d",
   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
-  "manifest_sha256": "b745b9c2560142a79a7b08e3e30c9bfb1a4b29b6d0208b5c0efdaaec66c974b0",
-  "controlled_file_count": 1563,
-  "numeric_dependency_count": 1423,
-  "source_provenance_sha256": "39b484af5cf14598b7029af5d2931fb4d68eea1186e5cbac0d23f2013799f516",
+  "manifest_sha256": "307210aa22a89ae1248e018096566baea6acf8485b9bd51c9e7789f506244348",
+  "controlled_file_count": 1564,
+  "numeric_dependency_count": 1424,
+  "source_provenance_sha256": "159200d44138b19cc4e0a6a14990dcc9664019b01a34594ec90984b942f38b7d",
   "dependencies": [
     [
       "app/build.gradle",
@@ -646,7 +646,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "NUMERIC",
-      "ad0100fb0bf248a1491ba823eaf756e574adb8a32b8b40aa2b9260fbe378e307"
+      "f74bf896072ad6762388b961a6519aba0701d80e3aa2fcfc7c3944f9a187e6a5"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/AutonomousResearchEvolutionEngine.java",
@@ -692,6 +692,11 @@
       "app/src/main/java/com/ethk3/novaonepro/BacklogConvergenceR925.java",
       "NUMERIC",
       "dac79dd4f1e55e2df90f1985f3983fc32e3ed8a235ca2a405f4c8279ba66f935"
+    ],
+    [
+      "app/src/main/java/com/ethk3/novaonepro/BaselineShadowR34.java",
+      "NUMERIC",
+      "370a5b266754f9e1566bb5696756716ffb322e8fbc0a8de46faad0214d84c429"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/Batch2ContractCoreR926.java",
@@ -3296,7 +3301,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
       "NUMERIC",
-      "1f35a8cec198598a506a5621ca30b1ad6494cfa44f1e64e3d86aeb66f154e0b2"
+      "7b51f1b0e4f5615b285d7f4e4411fa90a87e9e89dd763582059d3d8831ad4eed"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/ShadowHealthGateEngine.java",
@@ -7126,6 +7131,6 @@
   ],
   "compatible_predecessor_rule_sha256": "",
   "compatible_predecessor_rules_sha256": [],
-  "continuation_proof_sha256": "21719bd9f24b7cd1727e63ca4bef3b72c9f6995661aa26382afc82040915add2",
+  "continuation_proof_sha256": "acb109f1d622af7afbff12d243350d9bd9bb5006c528e9b756d4c486ed47b097",
   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
 }

@@ -1642,6 +1642,8 @@ public final class AutoFetchService extends Service {
                 }
             }
 
+            store.coordinatorR36().runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(
+                DatabaseCoordinator.WriteClass.MIGRATION,"R34_S0_SCHEMA"),db->{BaselineShadowR34.schema(db);return 0;});
             writeEngineBootState();
 
 
@@ -3006,6 +3008,15 @@ public final class AutoFetchService extends Service {
         }
         if (isNew) {
             realtimePriorityUntilAt = System.currentTimeMillis() + REALTIME_PRIORITY_HOLD_MS;
+            // Run the short comparison on the analysis owner before expensive preparation.
+            if(analysisHandler!=null){
+                final Models.Draw base=authoritativeLatest;
+                analysisHandler.postAtFrontOfQueue(()->{
+                    if(!running||userRequestedStopV5)return;
+                    try{BaselineShadowR34.freeze(store,base);}
+                    catch(RuntimeException failure){recordCriticalCatchR926("R34_S0_FREEZE",base.issue,failure);}
+                });
+            }
             // R71: finite-window owners run before telemetry or optional history queries.
             try {
                 postAnalysisForLatest("R71_DURABLE_DRAW_IMMEDIATE_ANALYSIS", true);
@@ -3579,12 +3590,6 @@ public final class AutoFetchService extends Service {
         if (CanonicalObservationWriterR36.hasCanonical(store, target)) {
             Models.Decision view = CanonicalDecisionViewAdapterR36.read(store, target);
             setAnalysisState("OK", 100, "R3.6 canonical已存在：" + target);
-            try {
-                heartbeatStateV8()
-                        .markAnalysisCanonicalCommitted(target, System.currentTimeMillis());
-            } catch (Throwable ignore) {
-                recordCriticalCatchR926("HEARTBEAT_CANONICAL_EXISTING", target, ignore);
-            }
             if (view != null) broadcastDecision(view);
             scheduleDeferredDrainR36();
             return;
