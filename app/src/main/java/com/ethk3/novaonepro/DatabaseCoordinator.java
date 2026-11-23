@@ -158,6 +158,7 @@ public final class DatabaseCoordinator {
     }
     private static final AtomicLong LAST_FAULT_SERVICE_R33=new AtomicLong();
     private static final AtomicBoolean RESEARCH_SERVICE_SLOT_R31=new AtomicBoolean();
+    private static final AtomicBoolean FAULT_SERVICE_SLOT_R34=new AtomicBoolean();
     private static final AtomicInteger FREEZE_WAITERS_R31=new AtomicInteger();
     private static volatile String lastDiagnosticR31="",lastUnknownPriorityR31="";
     interface DiagnosticFaultR31 { void at(String phase); }
@@ -909,7 +910,7 @@ public final class DatabaseCoordinator {
             // Other aged, prepared research may enter the existing fair queue every five seconds.
             // An expiring freeze always retains precedence. This is admission, never a second writer.
             if(faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_FAULT_SERVICE_R33.get()>=1000L)
-                serviceSlot=true;
+                serviceSlot=FAULT_SERVICE_SLOT_R34.compareAndSet(false,true);
             else if(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L)
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
             else if(researchControl&&!faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0
@@ -999,7 +1000,7 @@ public final class DatabaseCoordinator {
         } finally {
             waitingWriters.decrementAndGet();if(critical)criticalBusinessWaitersR914.decrementAndGet();
             if(context.writeClass==WriteClass.LIVE_FREEZE)FREEZE_WAITERS_R31.decrementAndGet();
-            if(serviceSlot&&!faultDrainR33)RESEARCH_SERVICE_SLOT_R31.set(false);
+            if(serviceSlot)(faultDrainR33?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);
             if(previousAttempt==null)ATTEMPT_R31.remove();
         }
     }

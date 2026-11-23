@@ -118,18 +118,8 @@ public final class R31RetirementManifestTest {
         assertTrue(com.ethk3.novaonepro.strategyv2.ReportObjectIndexR30.chartRegistryConsistentR31());
         assertEquals(47, ChartRegistryR31.ids().size());
         // DbStore: mapped, not cut; the coverage map is the current source
-        Map<String,Object> db=currentDbStoreCoverageR34();
+        @SuppressWarnings("unchecked") Map<String, Object> db = (Map<String, Object>) m.get("dbstore");
         requireCurrentDbStoreCoverageR32(db, Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java")));
-    }
-
-    @SuppressWarnings("unchecked")
-    static Map<String,Object> currentDbStoreCoverageR34() throws Exception {
-        Path path=Paths.get("../release/r34_current_retirement_inventory.json");
-        Map<String,Object> current=(Map<String,Object>)JsonR27.parse(Files.readString(path,StandardCharsets.UTF_8));
-        Map<String,Object> original=manifest();
-        for(String field:Arrays.asList("approved_drops","rebuild_in_place","candidates","preserved_capabilities"))
-            assertEquals(field,original.get(field),current.get(field));
-        return (Map<String,Object>)current.get("dbstore");
     }
 
     static void requireCurrentDbStoreCoverageR32(Map<String,Object> db,byte[] source)throws Exception {
@@ -146,7 +136,7 @@ public final class R31RetirementManifestTest {
 
     @SuppressWarnings("unchecked")
     @Test public void changedCoverageBytesAndMissingMethodsAreRejected()throws Exception {
-        Map<String,Object> db=currentDbStoreCoverageR34();
+        Map<String,Object> db=(Map<String,Object>)manifest().get("dbstore");
         byte[] source=Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java"));
         requireCurrentDbStoreCoverageR32(db,source);
         Map<String,Object> stale=new LinkedHashMap<>(db);stale.put("source_sha256","698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93");

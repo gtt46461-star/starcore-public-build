@@ -633,10 +633,16 @@ public final class R27QualityTest {
         int lock = src.indexOf("if(writeLock.tryLock(", gate);
         int deadline = src.lastIndexOf("if(left<=0)thrownewIllegalStateException(\"CP3_DB_BUSY_DEADLINE\");", gate);
         assertTrue("critical admission and expiry checks precede the sole writer lock", deadline >= 0 && gate > deadline && lock > gate);
-        assertTrue("a bounded aged research slot cannot preempt a freeze",
-                src.contains("if((research||faultDrainR33)&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
-                        + "&&now-(faultDrainR33?LAST_FAULT_SERVICE_R33.get():LAST_RESEARCH_SERVICE_R31.get())"
-                        + ">=(faultDrainR33?1000L:5000L))serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);"));
+        assertTrue("an aged research slot cannot preempt a freeze",
+                src.contains("elseif(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
+                        + "&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L)"
+                        + "serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);"));
+        assertTrue("a fault drain has its own bounded slot and cannot preempt a freeze",
+                src.contains("if(faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
+                        + "&&now-LAST_FAULT_SERVICE_R33.get()>=1000L)"
+                        + "serviceSlot=FAULT_SERVICE_SLOT_R34.compareAndSet(false,true);"));
+        assertTrue("completion releases only the admission actually held",
+                src.contains("if(serviceSlot)(faultDrainR33?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);"));
         assertEquals(5000, ((Number) DatabaseCoordinator.writeProtocolSnapshotR31().get("researchServiceIntervalMs")).intValue());
         String report = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java").toPath()), "UTF-8");
         assertTrue("report carries app thread stacks", report.contains("collectObservation(root,id,observation,\"threadStacks\",ReportExportServiceCP4::threadStacksR27)"));

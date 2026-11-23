@@ -390,6 +390,8 @@ public final class CertifiedPredictionR974 {
     static void beforeInsert(DbStore store,SQLiteDatabase db,V51CompiledActionContract compiled){
         Proof proof=compiled.certifiedPrediction;if(proof==null)return;
         if(!db.inTransaction()||!proof.matches(compiled.selected))throw new IllegalStateException("R974_EXACT_COMMIT_PIT_OR_DEADLINE");
+        // The original canonical decision remains authoritative when an older trade projection is missing.
+        if(hasCanonicalBetR34(db,proof.target))throw new IllegalStateException("R34_ORIGINAL_REAL_TRADE_PROJECTION_MISSING");
         String error=verifyCertificate(store,proof);if(!error.isEmpty())throw new IllegalStateException("R974_EXACT_COMMIT_"+error);
         if(com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31.candidate(proof.candidate)){
             if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterR31.verifyFrozen(store,proof,compiled.selected.action))throw new IllegalStateException("R31_R27_EXACT_COMMIT_ACTION_CHANGED");return;

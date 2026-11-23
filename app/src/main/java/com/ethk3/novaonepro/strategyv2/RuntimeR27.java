@@ -569,7 +569,7 @@ public final class RuntimeR27 implements AutoCloseable {
             // Publish/freeze on the existing settled prefix before consuming overdue research labels.
             long units=LiveShadowsR27.certify(RuntimeR27.this,w,latestOrd);
             units+=LiveShadowsR27.freeze(RuntimeR27.this,w,latest,latestOrd,deadline);
-            units+=LiveShadowsR27.freeze(RuntimeR27.this,w,latest,latestOrd,deadline,LiveShadowsR27.OBSERVE_STATES,false);
+            units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
             units+=LiveShadowsR27.settle(RuntimeR27.this,w,latestOrd);
             units+=LiveShadowsR27.qualify(RuntimeR27.this,w,latestOrd);
             try{units+=QualificationGapRepairR30R1.step(w.ro,(operation,batch)->{submit(w,operation,batch);return true;});}catch(RuntimeException sourceFailure){QualificationGapRepairR30R1.observeFailure(sourceFailure);}
