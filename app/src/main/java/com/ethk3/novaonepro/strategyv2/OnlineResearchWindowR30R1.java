@@ -21,6 +21,30 @@ public final class OnlineResearchWindowR30R1 {
             return c.moveToFirst()?new Window(c.getString(0),c.getLong(1),c.getLong(2),c.getLong(3)):null;
         }
     }
+    static final class Label {
+        final String issue;
+        final long open,seen;
+        final Window window;
+        Label(String issue,long open,long seen,Window window){
+            this.issue=issue;this.open=open;this.seen=seen;this.window=window;
+        }
+    }
+    static Label nextLabel(SQLiteDatabase db,String dataset,String completeIssue,String partialIssue){
+        String ordinal=ResearchInputPinR30R1.ordinal("d");
+        String sql="SELECT d.issue,d.open_time,d.first_seen_at,r.run_id,r.from_ordinal,r.through_ordinal,r.recorded_at"
+            +" FROM draws d JOIN r30r1_analysis_run r ON "+ordinal+" BETWEEN r.from_ordinal AND r.through_ordinal"
+            +" WHERE d.dirty=0 AND d.issue"+(partialIssue.isEmpty()?">?":"=?")
+            +" AND d.open_time>0 AND d.first_seen_at>r.recorded_at AND r.dataset_hash=? AND r.policy_hash=?"
+            +" AND r.role='ONLINE_RESEARCH' AND r.status=?"
+            +" AND NOT EXISTS(SELECT 1 FROM r34_atomnet_unavailable_label u WHERE u.dataset_hash=r.dataset_hash AND u.issue=d.issue)"
+            +" AND ("+ResearchInputPinR30R1.validRunSql("r")+") ORDER BY d.issue,r.from_ordinal DESC LIMIT 1";
+        try(Cursor c=db.rawQuery(sql,new String[]{partialIssue.isEmpty()?completeIssue:partialIssue,dataset,
+                HashingSU1.text(AtomNetSessionR30.OWNER),STATUS})){
+            if(!c.moveToFirst())return null;
+            return new Label(c.getString(0),c.getLong(1),c.getLong(2),
+                new Window(c.getString(3),c.getLong(4),c.getLong(5),c.getLong(6)));
+        }
+    }
     /** Register before collection, with one issue excluded for an in-flight HTTP request. */
     public static void register(ResearchPoolR27.Worker worker,String dataset)throws Exception{
         String head=RuntimeR27.latestIssue(worker.ro);if(head==null)return;

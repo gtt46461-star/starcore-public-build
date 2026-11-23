@@ -54,6 +54,8 @@ public final class AtomNetRuntimeR30 {
         // Copy before computing: no failed/cancelled write can mutate the committed/published learner.
         byte[] previous=saved.encode();AtomNetSessionR30 next=AtomNetSessionR30.decode(previous,StatsR27.sha256(previous));
         ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();long now=System.currentTimeMillis();int n=0;ModelReplayStudyR30R1.ReplayDecision replayDecision=null;
+        String trainingSource="H_TRAIN|"+saved.epoch+"|"+saved.offset;
+        String onlineWindow=null;
         // Formal confirmation labels never enter the optimizer. Materializing their unused
         // feature rows used to delay the first gradient without supplying a consumer.
         // Existing original holdout rows remain intact; new work stops at SELECT.
@@ -73,31 +75,60 @@ public final class AtomNetRuntimeR30 {
         }else if(!next.ready()) n=next.work(AtomNetStoreR30.samples(w.ro,next));
         else{
             final long sourceRevision=SchemaR27.liveSourceRevision(w.ro);
-            ReplayDatasetR27 recent=StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64);
-            int t=-1;OnlineResearchWindowR30R1.Window collected=null;
-            for(int i=AtomReplayR27.MIN_ROWS;i<recent.size();i++)if(recent.issues[i].compareTo(next.completeIssue)>0){
-                OnlineResearchWindowR30R1.Window window=OnlineResearchWindowR30R1.find(w.ro,next.datasetHash,recent.ordinals[i]);if(window!=null){t=i;collected=window;break;}
+            OnlineResearchWindowR30R1.Label label=OnlineResearchWindowR30R1.nextLabel(w.ro,next.datasetHash,next.completeIssue,next.partialIssue);
+            if(label==null)return ResearchPoolR27.Outcome.idle(next.partialIssue.isEmpty()
+                    ?"WAITING_PREREGISTERED_ONLINE_RESEARCH_INPUT":"BLOCKED_PARTIAL_ISSUE_MISSING",next.trainer.onlineSteps,-1);
+            long ordinal=TargetIssueResolver.sequenceOrdinalSU1(label.issue);
+            label.window.require(ordinal,label.seen);
+            ReplayDatasetR27 recent=StoreR27.loadDatasetThrough(w.ro,AtomReplayR27.HISTORY+1,label.issue);
+            int t=recent.size()-1;
+            if(t<0||!label.issue.equals(recent.issues[t])||label.seen!=recent.knownAtR31[t]
+                    ||label.open!=recent.openTimeR31[t])return ResearchPoolR27.Outcome.idle("ONLINE_LABEL_SOURCE_CHANGED",next.trainer.onlineSteps,-1);
+            long cutoff=label.open-LiveShadowsR27.FREEZE_MARGIN_MS;
+            AtomReplayR27.VisibleFrame visible=cutoff>0?AtomReplayR27.buildAsOf(recent,t,cutoff):null;
+            final String dataset=next.datasetHash,window=label.window.id;
+            if(visible==null){
+                if(!next.partialIssue.isEmpty())return ResearchPoolR27.Outcome.idle("BLOCKED_PARTIAL_ISSUE_PIT_INPUT_MISSING",next.trainer.onlineSteps,-1);
+                requireLabel(b,sourceRevision,window);
+                b.add("INSERT OR IGNORE INTO r34_atomnet_unavailable_label VALUES(?,?,?,?,?,?,?)",
+                    dataset,label.issue,window,sourceRevision,label.seen,"INSUFFICIENT_VISIBLE_CONSECUTIVE_PREDRAW_CONTEXT",now);
+                try {RuntimeR27.submit(w,"ATOMNET_ONLINE_UNAVAILABLE_INPUT",b);}
+                catch(IllegalStateException stale){if(!QualificationInboxR29.precondition(stale))throw stale;}
+                return ResearchPoolR27.Outcome.idle("ONLINE_LABEL_CONTEXT_MISSING:"+label.issue,next.trainer.onlineSteps,-1);
             }
-            if(t<0){forecast(rt,w,saved,recent);return ResearchPoolR27.Outcome.idle("WAITING_PREREGISTERED_ONLINE_RESEARCH_INPUT",next.trainer.onlineSteps,-1);}
-            if(!next.partialIssue.isEmpty()&&!next.partialIssue.equals(recent.issues[t]))return ResearchPoolR27.Outcome.idle("BLOCKED_PARTIAL_ISSUE_MISSING",next.trainer.onlineSteps,-1);
-            try(Cursor availability=w.ro.rawQuery("SELECT first_seen_at FROM draws WHERE issue=? AND dirty=0",new String[]{recent.issues[t]})){if(!availability.moveToFirst()||availability.isNull(0))return ResearchPoolR27.Outcome.idle("BLOCKED_ONLINE_ROLE_FIRST_OBSERVATION_MISSING",next.trainer.onlineSteps,-1);collected.require(recent.ordinals[t],availability.getLong(0));}
-            AtomReplayR27.Frame frame=AtomReplayR27.build(recent,t,t+1);int p=next.nextPosition-1;
+            AtomReplayR27.Frame frame=visible.frame;
+            int p=next.nextPosition-1;
             if(frame.values[p]==null)return ResearchPoolR27.Outcome.idle("BLOCKED_POSITION_INPUT",next.trainer.onlineSteps,-1);
             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[p],frame.present[p],true),p+1);
-            settle(b,w,recent.issues[t],p+1,frame.hit[p],now);
-            final String collectionRun=collected.id;b.guardBefore(db->{if(sourceRevision<0||SchemaR27.liveSourceRevision(db)!=sourceRevision||!SchemaR27.liveSourceTriggersValid(db))return -1;return ResearchInputPinR30R1.runValid(db,collectionRun)?0:-1;});
+            settle(b,w,label.issue,p+1,frame.hit[p],now);
+            requireLabel(b,sourceRevision,window);
             replayDecision=ModelReplayStudyR30R1.allocateReplay(w.ro,next,b);
-            next.online(new AtomNetTrainerR27.Sample(x,frame.hit[p],frame.actual[p]-1,AtomNetSessionR30.eventKey(recent.issues[t],p+1)),recent.issues[t],recent.ordinals[t],p+1);n=1;
+            next.online(new AtomNetTrainerR27.Sample(x,frame.hit[p],frame.actual[p]-1,AtomNetSessionR30.eventKey(label.issue,p+1)),label.issue,ordinal,p+1);
+            trainingSource=AtomNetSessionR30.eventKey(label.issue,p+1);
+            onlineWindow=window+"|"+visible.historyHash;
+            n=1;
         }
         AtomNetProgressR33.validate(progressBeforeR33,progressFrameR33(next),n);
         try(AtomNetPublicationR31.Prepared publication=AtomNetPublicationR31.prepare(w.store(),w.ro,b,next,System.currentTimeMillis(),expectedCheckpointR31)){
             stage(w,publication);publication.verifyPrepared(w.ro);ModelReplayStudyR30R1.recordReplayDecision(b,next,replayDecision,publication.stateHash);
+            AtomNetR27.OptimizerStep optimizer=next.trainer.net.lastStep();
+            if(optimizer!=null){
+                String input=onlineWindow==null?optimizer.inputHash:HashingSU1.fields(optimizer.inputHash,onlineWindow);
+                b.add("INSERT OR IGNORE INTO r34_atomnet_optimizer_step VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    publication.id,expectedCheckpointR31,publication.stateHash,next.datasetHash,
+                    onlineWindow==null?SplitR27.TRAIN:"ONLINE_RESEARCH",trainingSource,input,optimizer.adamStep,
+                    optimizer.batchSize,optimizer.gradientNorm,optimizer.parameterChange,optimizer.batchLoss,now);
+            }
             try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",publication.publicationBatch(b,next),false,publication.id);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
             rt.publishAtomStateR31(next,publication.model);
         }
         if(forecastModelR32(rt,next)!=null)forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
         }
+    }
+    private static void requireLabel(ResearchWriteQueueR27.Batch batch,long revision,String window){
+        batch.guardBefore(db->revision>=0&&SchemaR27.liveSourceRevision(db)==revision
+                &&SchemaR27.liveSourceTriggersValid(db)&&ResearchInputPinR30R1.runValid(db,window)?0:-1);
     }
     private static AtomNetProgressR33.Frame progressFrameR33(AtomNetSessionR30 s){
         return new AtomNetProgressR33.Frame(s.datasetHash,s.phase,s.materializedSamples,s.pretrainSamples,s.trainer.onlineSteps,s.epoch,s.offset,s.fillOffset,s.nextPosition,s.completeIssue,s.partialIssue);
@@ -134,7 +165,9 @@ public final class AtomNetRuntimeR30 {
         recent=StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64);
         if(recent.size()==0||recent.ordinals[recent.size()-1]+1!=targetOrdinal)return;
         ReplayDatasetR27 slot=recent.append(new ReplayDatasetR27.Row(target,targetOrdinal,new int[]{1,2,3,4,5,6,7,8,9,10}));
-        AtomReplayR27.Frame frame=AtomReplayR27.build(slot,slot.size()-1,slot.size());
+        AtomReplayR27.VisibleFrame visible=AtomReplayR27.buildAsOf(slot,slot.size()-1,System.currentTimeMillis());
+        if(visible==null)return;
+        AtomReplayR27.Frame frame=visible.frame;
         if(forecastModelR32(rt,state)!=modelRef)return; // do not mix two committed publications
         AtomNetR27 frozenNet=AtomNetR27.decode(modelRef.weights());
         boolean completeCurrent=state.consumableR31()&&modelRef.trainedThroughOrdinal==state.trainedThroughOrdinal()
@@ -147,7 +180,7 @@ public final class AtomNetRuntimeR30 {
             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[i],frame.present[i],true),i+1);
             AtomNetR27.Out prediction=frozenNet.forward(x,null);
             long preparedAt=System.currentTimeMillis();
-            ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,ModelSurfaceProviderR30.historyHash(slot,slot.size()-1),x,preparedAt,preparedAt,preparedAt,deadline);
+            ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,visible.historyHash,x,visible.lastKnownAt,preparedAt,preparedAt,deadline);
             ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,modelRef);
             ModelReplayStudyR30R1.appendRequestedR335(w.ro,batch,researchWindow,pit,surface,previous);
             ModelSurfaceStoreR30.surface(batch,surface,i==0?modelRef:null);

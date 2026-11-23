@@ -5,6 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /** R27-033 AtomNet (docs/06 6.2): in → 32 → 16 → {1 sigmoid (K3 hit), 10 softmax (number at the position)}, ReLU,
  * dropout 0.1 while training, loss = BCE + 0.5·CE + 1e-4·L2, Adam. ≤ 7k parameters at in = 172. Pure Java. */
@@ -21,6 +24,22 @@ public final class AtomNetR27 {
     final double[] w1, b1, w2, b2, wh, bh, wc, bc; // hidden1, hidden2, hit head, class head
     // Adam moments
     private final double[][] m, v; private long adamT;
+    static final class OptimizerStep {
+        final long adamStep;
+        final int batchSize;
+        final String inputHash;
+        final double gradientNorm,parameterChange,batchLoss;
+        OptimizerStep(long adamStep,int batchSize,String inputHash,double gradientNorm,double parameterChange,double batchLoss){
+            this.adamStep=adamStep;
+            this.batchSize=batchSize;
+            this.inputHash=inputHash;
+            this.gradientNorm=gradientNorm;
+            this.parameterChange=parameterChange;
+            this.batchLoss=batchLoss;
+        }
+    }
+    private OptimizerStep lastStep;
+    OptimizerStep lastStep(){return lastStep;}
 
     public AtomNetR27(int in, long seed) {
         this.in = in;
@@ -58,6 +77,7 @@ public final class AtomNetR27 {
         double[][] p = params(); double[][] g = new double[p.length][];
         for (int i = 0; i < p.length; i++) g[i] = new double[p[i].length];
         double loss = 0; int n = xs.length;
+        if(n<1||adamT==Long.MAX_VALUE)throw new IllegalArgumentException("R34_ATOMNET_STEP_INPUT");
         for (int b = 0; b < n; b++) {
             double[] x = xs[b]; Out o = forward(x, rng);
             loss -= y[b] == 1 ? Math.log(Math.max(1e-12, o.pHit)) : Math.log(Math.max(1e-12, 1 - o.pHit));
@@ -82,13 +102,38 @@ public final class AtomNetR27 {
                 g[1][j] += d;
             }
         }
+        double gradientNormSquared=0,parameterChangeSquared=0;
         adamT++; double b1c = 1 - Math.pow(0.9, adamT), b2c = 1 - Math.pow(0.999, adamT);
         for (int i = 0; i < p.length; i++) for (int k = 0; k < p[i].length; k++) {
             double gr = g[i][k] / n + ((i % 2 == 0) ? L2 * p[i][k] : 0);
             m[i][k] = 0.9 * m[i][k] + 0.1 * gr; v[i][k] = 0.999 * v[i][k] + 0.001 * gr * gr;
+            double before=p[i][k];
             p[i][k] -= lr * (m[i][k] / b1c) / (Math.sqrt(v[i][k] / b2c) + 1e-8);
+            double change=p[i][k]-before;
+            gradientNormSquared+=gr*gr;
+            parameterChangeSquared+=change*change;
         }
-        return loss / n;
+        if(!Double.isFinite(loss)||!Double.isFinite(gradientNormSquared)||!Double.isFinite(parameterChangeSquared))
+            throw new IllegalStateException("R34_ATOMNET_NONFINITE_OPTIMIZER");
+        lastStep=new OptimizerStep(adamT,n,batchHash(xs,y,cls),Math.sqrt(gradientNormSquared),Math.sqrt(parameterChangeSquared),loss/n);
+        return lastStep.batchLoss;
+    }
+
+    private String batchHash(double[][] xs,int[] y,int[] cls){
+        try {
+            MessageDigest digest=MessageDigest.getInstance("SHA-256");
+            ByteBuffer row=ByteBuffer.allocate(8+8*in);
+            for(int i=0;i<xs.length;i++){
+                row.clear();
+                row.putInt(y[i]).putInt(cls[i]);
+                for(double feature:xs[i])row.putDouble(feature);
+                digest.update(row.array());
+            }
+            StringBuilder result=new StringBuilder(64);
+            for(byte value:digest.digest())
+                result.append(Character.forDigit((value>>>4)&15,16)).append(Character.forDigit(value&15,16));
+            return result.toString();
+        } catch(NoSuchAlgorithmException failure){throw new IllegalStateException(failure);}
     }
 
     public byte[] encode() {
@@ -104,9 +149,17 @@ public final class AtomNetR27 {
         try {
             DataInputStream d = new DataInputStream(new ByteArrayInputStream(bytes));
             if (d.readInt() != 0x27A70001) throw new IOException("R27_ATOMNET_ABI");
-            AtomNetR27 n = new AtomNetR27(d.readInt(), 0); n.adamT = d.readLong();
+            int input=d.readInt();
+            long updates=d.readLong();
+            if(input<1||updates<0||bytes.length!=16+24L*(H1*(long)input+H1+H1*H2+2*H2+1+10*H2+10))
+                throw new IOException("R34_ATOMNET_OPTIMIZER_SHAPE");
+            AtomNetR27 n = new AtomNetR27(input, 0); n.adamT = updates;
             double[][] p = n.params();
-            for (int i = 0; i < p.length; i++) for (double[] a : new double[][] {p[i], n.m[i], n.v[i]}) for (int k = 0; k < a.length; k++) a[k] = d.readDouble();
+            for (int i = 0; i < p.length; i++) for (double[] a : new double[][] {p[i], n.m[i], n.v[i]}) for (int k = 0; k < a.length; k++) {
+                double value=d.readDouble();
+                if(!Double.isFinite(value)||a==n.v[i]&&value<0)throw new IOException("R34_ATOMNET_OPTIMIZER_VALUE");
+                a[k]=value;
+            }
             return n;
         } catch (IOException e) { throw new IllegalStateException(e); }
     }

@@ -1,6 +1,7 @@
 package com.ethk3.novaonepro;
 
 import com.ethk3.novaonepro.strategyv2.ReplayDatasetR27;
+import com.ethk3.novaonepro.strategyv2.ModelSurfaceProviderR30;
 import com.ethk3.novaonepro.strategyv2.StatsR27;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,34 @@ public final class AtomReplayR27 {
     /** Atoms for rows [from,to). Rows with fewer than 24 prior rows are left null (missing). */
     public static Frame build(ReplayDatasetR27 d, int from, int to) {
         return build(d, from, to, true);
+    }
+
+    public static final class VisibleFrame {
+        public final Frame frame;
+        public final String historyHash;
+        public final long lastKnownAt;
+        VisibleFrame(Frame frame,String historyHash,long lastKnownAt){
+            this.frame=frame;this.historyHash=historyHash;this.lastKnownAt=lastKnownAt;
+        }
+    }
+
+    /** Exact earlier inputs visible at the target cutoff. A gap ends the usable suffix. */
+    public static VisibleFrame buildAsOf(ReplayDatasetR27 data,int target,long cutoff){
+        if(target<0||target>=data.size()||cutoff<=0)throw new IllegalArgumentException("R34_ATOM_REPLAY_CUTOFF");
+        List<ReplayDatasetR27.Row> rows=new ArrayList<>(HISTORY+1);
+        long expected=data.ordinals[target]-1,lastKnown=0;
+        for(int i=target-1;i>=0&&rows.size()<HISTORY;i--,expected--){
+            if(data.ordinals[i]!=expected||data.knownAtR31[i]<=0||data.knownAtR31[i]>cutoff
+                    ||data.openTimeR31[i]<=0||data.openTimeR31[i]>cutoff)break;
+            lastKnown=Math.max(lastKnown,data.knownAtR31[i]);
+            rows.add(new ReplayDatasetR27.Row(data.issues[i],data.ordinals[i],data.draws[i],
+                data.openTimeR31[i],data.knownAtR31[i],data.readerAbiR31[i],data.knowledgeScopeR31[i]));
+        }
+        if(rows.size()<MIN_ROWS)return null;
+        rows.add(new ReplayDatasetR27.Row(data.issues[target],data.ordinals[target],data.draws[target]));
+        ReplayDatasetR27 frame=ReplayDatasetR27.of(rows);
+        return new VisibleFrame(build(frame,frame.size()-1,frame.size()),
+            ModelSurfaceProviderR30.historyHash(frame,frame.size()-1),lastKnown);
     }
 
     /** Preserves the existing atom-score and rotating-position model ABI; new neural training uses build(). */
