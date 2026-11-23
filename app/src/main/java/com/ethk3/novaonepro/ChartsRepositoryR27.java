@@ -23,27 +23,52 @@ final class ChartsRepositoryR27 {
 
     /** R31-B09-C01: page order and membership come from ChartRegistryR31 stable ids; titles never filter or route. */
     static List<Panel> load(SQLiteDatabase db, CancellationSignal cancel) {
-        List<Panel> out = new ArrayList<>();
-        Map<String,Object> frame=snapshotR30(db,cancel);
-        ChartsRepositoryR83.ReadContext r83=null;
-        for (String id : ChartRegistryR31.visibleLegacyIds()) {
-            ChartRegistryR31.Entry e = ChartRegistryR31.find(id);
-            switch (e.group) {
-                case LEGACY_STATUS: out.add(frame==null?headline(db,cancel):headlineSnapshotR30(frame)); break;
-                case LEGACY_CACHED: out.add(cached(db, cancel, id)); break;
-                case LEGACY_SNAPSHOT: out.add(snapshotPanelR30(frame, java.util.Arrays.asList(com.ethk3.novaonepro.strategyv2.ReportChartsR30.IDS).indexOf(id))); break;
-                case LEGACY_R83: {
-                    if (r83 == null) r83 = new ChartsRepositoryR83.ReadContext(db, cancel);
-                    Panel p = ChartsRepositoryR83.loadPanel(id, db, cancel, r83);
-                    if (id.equals("r83_brier20")) p = new Panel(PAGE, "短期波动（仅参考）：滚动20期Brier", p.kind, p.source, p.window,
-                            "纯噪声下滚动20期Brier即可在0.11—0.35摆动（docs/01 E）；不能用来判断“越学越准”。请看上方图A/图B。", p.status, p.points, p.edges);
-                    out.add(p); break;
-                }
-                default: throw new IllegalStateException("R31_CHART_GROUP_NOT_ON_LEGACY_PAGE:" + id);
+        Page page = new Page(db);
+        List<Panel> panels = new ArrayList<>();
+        for (String id : panelIdsR31()) panels.add(page.read(id, cancel));
+        return panels;
+    }
+
+    static final class Page {
+        private final SQLiteDatabase db;
+        private boolean snapshotLoaded;
+        private Map<String,Object> frame;
+        private ChartsRepositoryR83.ReadContext history;
+
+        Page(SQLiteDatabase db) { this.db = db; }
+
+        private Map<String,Object> snapshot(CancellationSignal cancel) {
+            if (!snapshotLoaded) {
+                frame = snapshotR30(db, cancel);
+                snapshotLoaded = true;
+            }
+            return frame;
+        }
+
+        Panel read(String id, CancellationSignal cancel) {
+            ChartRegistryR31.Entry entry = ChartRegistryR31.find(id);
+            switch (entry.group) {
+                case LEGACY_STATUS:
+                    Map<String,Object> current = snapshot(cancel);
+                    return current == null ? headline(db, cancel) : headlineSnapshotR30(current);
+                case LEGACY_CACHED:
+                    return cached(db, cancel, id);
+                case LEGACY_SNAPSHOT:
+                    int index = java.util.Arrays.asList(com.ethk3.novaonepro.strategyv2.ReportChartsR30.IDS).indexOf(id);
+                    return snapshotPanelR30(snapshot(cancel), index);
+                case LEGACY_R83:
+                    if (history == null) history = new ChartsRepositoryR83.ReadContext(db, cancel);
+                    Panel chart = ChartsRepositoryR83.loadPanel(id, db, cancel, history);
+                    if (!id.equals("r83_brier20")) return chart;
+                    return new Panel(PAGE, "短期波动（仅参考）：滚动20期Brier", chart.kind, chart.source, chart.window,
+                            "纯噪声下滚动20期Brier即可在0.11—0.35摆动（docs/01 E）；不能用来判断“越学越准”。请看上方图A/图B。",
+                            chart.status, chart.points, chart.edges);
+                default:
+                    throw new IllegalStateException("R31_CHART_GROUP_NOT_ON_LEGACY_PAGE:" + id);
             }
         }
-        return out;
     }
+
     /** The ids this page shows, in order (the same set the report index and machine tables use). */
     static List<String> panelIdsR31() { return ChartRegistryR31.visibleLegacyIds(); }
 

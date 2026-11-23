@@ -28,9 +28,11 @@ import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
 public final class ChartsActivityR83 extends Activity {
     private static final long READ_TIMEOUT_MS = 15000L;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    private final ExecutorService controls = Executors.newSingleThreadExecutor();
     private final Handler ui = new Handler(Looper.getMainLooper());
     private LinearLayout charts;
     private TextView status;
+    private TextView actionStatus;
     private Future<?> future;
     private final java.util.concurrent.atomic.AtomicBoolean historyImportBusyR31 = new java.util.concurrent.atomic.AtomicBoolean();
     private final java.util.concurrent.atomic.AtomicBoolean historyImportCancelledR31 = new java.util.concurrent.atomic.AtomicBoolean();
@@ -73,6 +75,9 @@ public final class ChartsActivityR83 extends Activity {
         tools.setAllCaps(false);
         tools.setOnClickListener(v -> toolsR27());
         root.addView(tools);
+        actionStatus = text("", 13, muted);
+        actionStatus.setVisibility(android.view.View.GONE);
+        root.addView(actionStatus);
         Button research=new Button(this);research.setText("研究工作台 · 18图（每组6图）");research.setOnClickListener(v->startActivity(new android.content.Intent(this,ResearchWorkbenchActivityR30R1.class)));root.addView(research);
         status = text("正在读取……", 13, muted);
         root.addView(status);
@@ -103,6 +108,7 @@ public final class ChartsActivityR83 extends Activity {
         historyImportCancelledR31.set(true);
         Thread importer = historyImportThreadR31;
         if (importer != null) importer.interrupt();
+        controls.shutdownNow();
         worker.shutdownNow();
         ui.removeCallbacksAndMessages(null);
         super.onDestroy();
@@ -116,51 +122,55 @@ public final class ChartsActivityR83 extends Activity {
         final long epoch = ++generation;
         status.setText("正在后台读取图表数据……");
         final File file = getApplicationContext().getDatabasePath(AppConfig.DB_NAME);
-        ui.postDelayed(cancel::cancel, READ_TIMEOUT_MS);
         future = worker.submit(() -> {
-            try { android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND); } catch (Throwable ignored) { }
-            List<Panel> panels = null;
-            String error = "";
-            long started = System.currentTimeMillis();
+            try { android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND); }
+            catch (SecurityException ignored) { }
+            long started = android.os.SystemClock.elapsedRealtime();
+            List<String> ids = ChartsRepositoryR27.panelIdsR31();
             try {
                 if (!file.isFile()) throw new IllegalStateException("数据库尚未建立");
                 try (SourceReadLeaseR82 lease = SourceReadLeaseR82.acquire(getApplicationContext(), file, cancel);
                      SQLiteDatabase db = SQLiteDatabase.openDatabase(file.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY)) {
-                    panels = ChartsRepositoryR27.load(db, cancel);
+                    ChartsRepositoryR27.Page page = new ChartsRepositoryR27.Page(db);
+                    int count = 0;
+                    int withData = 0;
+                    int timeouts = 0;
+                    for (String id : ids) {
+                        ChartRegistryR31.Entry source = ChartRegistryR31.find(id);
+                        Panel timedOut = new Panel("charts", id, "STATUS", source.sourceOwner, "",
+                                "本图读取超时，可点刷新重试。", "READ_TIMEOUT", null, null);
+                        Panel panel = ChartPageReadR34.panel(cancel, ui, READ_TIMEOUT_MS,
+                                item -> page.read(id, item), timedOut);
+                        if (!panel.points.isEmpty() || !panel.edges.isEmpty() || !panel.matrixRows.isEmpty()) withData++;
+                        if ("READ_TIMEOUT".equals(panel.status)) timeouts++;
+                        final int n = ++count, data = withData, late = timeouts;
+                        ui.post(() -> {
+                            if (epoch != generation || isFinishing()) return;
+                            if (n == 1) charts.removeAllViews();
+                            try { addPanel(panel); }
+                            catch (RuntimeException failure) {
+                                charts.addView(text(panel.title + " 本图显示失败 " + failure.getClass().getSimpleName(), 13, muted));
+                            }
+                            status.setText("已读取 " + n + "/" + ids.size() + " 张图，有绘图数据 " + data + " 张，读取超时 " + late + " 张。");
+                        });
+                    }
                 }
-            } catch (OperationCanceledException canceled) {
-                error = "读取超时或已取消，请点刷新重试。";
-            } catch (OutOfMemoryError memory) {
-                panels = null; error = "内存不足，图表未加载（不影响后台运行）；请稍后点刷新。";
-            } catch (Throwable failure) {
-                error = "读取失败：" + DatabaseCoordinator.describeCauseChain(failure, 600);
+                recordLoadR27(android.os.SystemClock.elapsedRealtime() - started);
+            } catch (OperationCanceledException stopped) {
+                // The owner retired this request on refresh, backgrounding or source replacement.
+                showLoadError(epoch, "本次读取已取消，可点刷新重试。");
+            } catch (OutOfMemoryError pressure) {
+                showLoadError(epoch, "可用运行内存不足，已完成的图表可继续查看。");
+            } catch (RuntimeException | java.io.IOException failure) {
+                showLoadError(epoch, "读取失败 " + DatabaseCoordinator.describeCauseChain(failure, 600));
             }
-            final List<Panel> ready = panels;
-            final String message = error;
-            final long cost = System.currentTimeMillis() - started;
-            if (ready != null) try { recordLoadR27(cost); } catch (RuntimeException ignored) { }
-            ui.post(() -> {
-                if (epoch != generation || isFinishing()) return;
-                if (ready == null) {
-                    status.setText(message);
-                    return;
-                }
-                render(ready, cost);
-            });
         });
     }
 
-    private void render(List<Panel> panels, long cost) {
-        charts.removeAllViews();
-        int ready = 0;
-        for (Panel panel : panels) {
-            if ("READY".equals(panel.status)) ready++;
-            // R27.2: one bad panel shows its error instead of closing the page (device video 10.29 09:57: the app
-            // restarted while this page loaded).
-            try { addPanel(panel); }
-            catch (RuntimeException failure) { charts.addView(text(panel.title + "：本图显示失败（" + failure.getClass().getSimpleName() + "），其他图不受影响。", 13, muted)); }
-        }
-        status.setText("共" + panels.size() + "张图，" + ready + "张已有数据；读取耗时" + cost + "ms。数据随运行持续积累。");
+    private void showLoadError(long epoch, String reason) {
+        ui.post(() -> {
+            if (epoch == generation && !isFinishing()) status.setText(reason);
+        });
     }
 
     private void addPanel(Panel panel) {
@@ -184,16 +194,21 @@ public final class ChartsActivityR83 extends Activity {
     }
 
     private static final int IMPORT_CSV_R27 = 27018;
+    private void showActionStatus(String message) {
+        actionStatus.setVisibility(android.view.View.VISIBLE);
+        actionStatus.setText(message);
+    }
+
     private void toolsR27() {
-        worker.submit(() -> {
+        controls.submit(() -> {
             DbStore store = new DbStore(getApplicationContext());
             String legacy = store.getState(ResearchLearningContinuityR912.R27_LEGACY_SWITCH, "1");
             // R27.2: the device crashed here (BadTokenException) when the page closed before the read returned.
             ui.post(() -> { if (isFinishing() || isDestroyed()) return; new android.app.AlertDialog.Builder(this).setTitle("R27 工具")
                     .setItems(new String[] {"导入历史CSV（与库内同期逐期比对，冲突不导入）", "旧R9xx研究链并行：" + ("0".equals(legacy) ? "已关闭（点此重新开启）" : "开启中（并行观察≥1440期后再关闭）"), "重试全部已隔离（QUARANTINED）的研究任务", "恢复未完成历史CSV（使用已保存的原始输入）"}, (d, which) -> {
                         if (which == 0) { android.content.Intent i = new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT); i.addCategory(android.content.Intent.CATEGORY_OPENABLE); i.setType("*/*"); startActivityForResult(i, IMPORT_CSV_R27); }
-                        else if (which == 1) worker.submit(() -> { store.setState(ResearchLearningContinuityR912.R27_LEGACY_SWITCH, "0".equals(legacy) ? "1" : "0"); ui.post(() -> status.setText("旧研究链开关已改为 " + ("0".equals(legacy) ? "开启" : "关闭") + "；旧表保留只读。")); });
-                        else if (which == 2) worker.submit(() -> { int n = com.ethk3.novaonepro.strategyv2.HistoryImportR27.retryQuarantined(store); ui.post(() -> status.setText("已重置隔离任务：" + n + "个")); });
+                        else if (which == 1) controls.submit(() -> { store.setState(ResearchLearningContinuityR912.R27_LEGACY_SWITCH, "0".equals(legacy) ? "1" : "0"); ui.post(() -> showActionStatus("旧研究链开关已改为 " + ("0".equals(legacy) ? "开启" : "关闭") + "；旧表保留只读。")); });
+                        else if (which == 2) controls.submit(() -> { int n = com.ethk3.novaonepro.strategyv2.HistoryImportR27.retryQuarantined(store); ui.post(() -> showActionStatus("已重置隔离任务：" + n + "个")); });
                         else startHistoryImportR31(null);
                     }).show(); });
         });
@@ -208,11 +223,11 @@ public final class ChartsActivityR83 extends Activity {
 
     private void startHistoryImportR31(final android.net.Uri uri) {
         if (!historyImportBusyR31.compareAndSet(false, true)) {
-            status.setText("已有历史CSV导入正在退出或推进，请等待实际任务结束。");
+            showActionStatus("已有历史CSV导入正在退出或推进，请等待实际任务结束。");
             return;
         }
         historyImportCancelledR31.set(false);
-        status.setText("正在比对并导入历史CSV……");
+        showActionStatus("正在比对并导入历史CSV……");
         Thread importer = new Thread(() -> {
             String message;
             DbStore store = null;
@@ -231,7 +246,7 @@ public final class ChartsActivityR83 extends Activity {
                 historyImportThreadR31 = null;
                 historyImportBusyR31.set(false); // Real exit, never Future.cancel() as resource-release proof.
             }
-            final String m = message; ui.post(() -> { if (!isFinishing() && !isDestroyed()) status.setText(m); });
+            final String m = message; ui.post(() -> { if (!isFinishing() && !isDestroyed()) showActionStatus(m); });
         }, "r31-history-csv");
         historyImportThreadR31 = importer;
         importer.start();

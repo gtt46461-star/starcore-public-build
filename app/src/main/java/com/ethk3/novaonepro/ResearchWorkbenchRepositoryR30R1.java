@@ -8,51 +8,102 @@ import java.util.*;
 import com.ethk3.novaonepro.strategyv2.*;
 import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
 
-/** A single SELECT captures the latest frame for all six views. This class is strictly read-only. */
+/** One small read pins the six frame identities; immutable bodies are verified independently. */
 final class ResearchWorkbenchRepositoryR30R1 {
     private ResearchWorkbenchRepositoryR30R1(){}
-    static List<Panel> load(SQLiteDatabase db,int group,CancellationSignal cancel){
-        List<ResearchGraphSpecsR30R1.Spec> specs=ResearchGraphSpecsR30R1.group(group);Map<String,Panel> found=new HashMap<>();
-        String[] args=new String[specs.size()+1];args[specs.size()]=BuildConfig.SOURCE_COMMIT_R26;
-        StringBuilder marks=new StringBuilder();
-        for(int i=0;i<specs.size();i++){args[i]=specs.get(i).id;if(i>0)marks.append(',');marks.append('?');}
-        String sql="SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,"
-            +"c.run_id,r.contract_hash,r.source_commit FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id"
-            +" WHERE c.view_id IN ("+marks+") AND r.status='COMMITTED' AND c.frame_id=("
-            +"SELECT n.frame_id FROM r30r1_chart_cache n JOIN r30r1_analysis_run nr ON nr.run_id=n.run_id"
-            +" WHERE n.view_id=c.view_id AND nr.status='COMMITTED' ORDER BY (nr.source_commit=?) DESC,"
-            +"n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6";
-        String error=null;
-        try(Cursor c=db.rawQuery(sql,args,cancel)){
-            while(c.moveToNext())for(ResearchGraphSpecsR30R1.Spec spec:specs)if(spec.id.equals(c.getString(0))){
-                try{if(cancel!=null)cancel.throwIfCanceled();String payload=c.getString(1);if(payload==null||payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("FRAME_BYTE_BUDGET");if(!ResearchContractR30R1.hash(payload).equals(c.getString(2)))throw new IllegalStateException("FRAME_HASH_MISMATCH");
-                    @SuppressWarnings("unchecked") Map<String,Object> frame=(Map<String,Object>)JsonR27.parse(payload);
-                    String producer=c.getString(8);ResearchOriginalR335 original=ResearchOriginalR335.readForDisplay(db,c.getString(6),producer,cancel);
-                    Map<?,?> source=original.fields;
-                    if("R06".equals(spec.id)){for(String key:java.util.Arrays.asList("sourceContract","mean","lower95","upper95","componentPath","counterfactualHash","status","evaluatedIssues"))if(!JsonR27.write(source.get(key)).equals(JsonR27.write(frame.get(key))))throw new IllegalStateException("R06_ORIGINAL_PROJECTION_CHANGED:"+key);}
-                    else if(!c.getString(7).equals(original.frameHash)||!spec.id.equals(source.get("viewId"))||!matchesOriginalFrame(c.getString(7),frame))throw new IllegalStateException("RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL");
-                    Panel panel=panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6));
-                    if(!BuildConfig.SOURCE_COMMIT_R26.equals(producer)){
-                        Panel previous=new Panel(panel.page,panel.title,panel.kind,panel.source,panel.window,
-                            "历史帧 "+producer+"。本版本暂无已提交帧。\n"+panel.note,"HISTORICAL_ABI",
-                            panel.points,panel.edges,panel.refs,panel.series);
-                        panel=new Panel(previous,panel.matrixRows,panel.matrixColumns);
-                    }
-                    found.put(spec.id,panel);
-                }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
-            }
-        }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException missing){error=missing.getClass().getSimpleName();}
-        String waiting=null;
-        List<Panel> out=new ArrayList<>();
-        for(ResearchGraphSpecsR30R1.Spec spec:specs) {
-            Panel committed=found.get(spec.id);
-            if(committed!=null) { out.add(committed); continue; }
-            if(waiting==null && error==null) waiting=producerStatus(db,cancel);
-            String sourceError=error==null?viewSourceError(db,spec.id,cancel):error;
-            out.add(missing(spec,sourceError==null?"WAITING_ANALYSIS":"BLOCKED_SOURCE",sourceError==null?waiting:sourceError));
-        }
-        return out;
+
+    static List<Panel> load(SQLiteDatabase db, int group, CancellationSignal cancel) {
+        Page page = new Page(db, group);
+        List<Panel> panels = new ArrayList<>();
+        for (ResearchGraphSpecsR30R1.Spec spec : page.specs) panels.add(page.read(spec, cancel));
+        return panels;
     }
+
+    static final class Page {
+        private final SQLiteDatabase db;
+        final List<ResearchGraphSpecsR30R1.Spec> specs;
+        private Map<String,String> frameIds;
+        private String waiting;
+
+        Page(SQLiteDatabase db, int group) {
+            this.db = db;
+            specs = ResearchGraphSpecsR30R1.group(group);
+        }
+
+        private Map<String,String> pin(CancellationSignal cancel) {
+            String[] args = new String[specs.size() + 1];
+            for (int i = 0; i < specs.size(); i++) args[i] = specs.get(i).id;
+            args[specs.size()] = BuildConfig.SOURCE_COMMIT_R26;
+            String values = String.join(",", Collections.nCopies(specs.size(), "(?)"));
+            String sql = "WITH wanted(view_id) AS (VALUES " + values + ") SELECT w.view_id,("
+                    + "SELECT c.frame_id FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id "
+                    + "WHERE c.view_id=w.view_id AND r.status='COMMITTED' ORDER BY (r.source_commit=?) DESC,"
+                    + "c.updated_at DESC,c.frame_id LIMIT 1) FROM wanted w";
+            Map<String,String> selected = new HashMap<>();
+            try (Cursor c = db.rawQuery(sql, args, cancel)) {
+                while (c.moveToNext()) selected.put(c.getString(0), c.getString(1));
+            }
+            return selected;
+        }
+
+        Panel read(ResearchGraphSpecsR30R1.Spec spec, CancellationSignal cancel) {
+            try {
+                if (frameIds == null) frameIds = pin(cancel);
+                String frame = frameIds.get(spec.id);
+                if (frame == null) {
+                    String reason = viewSourceError(db, spec.id, cancel);
+                    if (reason != null) return missing(spec, "BLOCKED_SOURCE", reason);
+                    if (waiting == null) waiting = producerStatus(db, cancel);
+                    return missing(spec, "WAITING_ANALYSIS", waiting);
+                }
+                return readFrame(db, spec, frame, cancel);
+            } catch (OperationCanceledException stopped) {
+                throw stopped;
+            } catch (RuntimeException failure) {
+                return missing(spec, "READ_ERROR", failure.getClass().getSimpleName() + ":" + failure.getMessage());
+            }
+        }
+    }
+
+    private static Panel readFrame(SQLiteDatabase db, ResearchGraphSpecsR30R1.Spec spec,
+            String frameId, CancellationSignal cancel) {
+        String sql = "SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,"
+                + "c.run_id,r.contract_hash,r.source_commit FROM r30r1_chart_cache c "
+                + "JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id=? AND c.frame_id=? AND r.status='COMMITTED'";
+        try (Cursor c = db.rawQuery(sql, new String[]{spec.id, frameId}, cancel)) {
+            if (!c.moveToFirst()) return missing(spec, "READ_ERROR", "PINNED_FRAME_UNAVAILABLE");
+            if (cancel != null) cancel.throwIfCanceled();
+            String payload = c.getString(1);
+            if (payload == null || payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 262144)
+                throw new IllegalStateException("FRAME_BYTE_BUDGET");
+            if (!ResearchContractR30R1.hash(payload).equals(c.getString(2)))
+                throw new IllegalStateException("FRAME_HASH_MISMATCH");
+            @SuppressWarnings("unchecked")
+            Map<String,Object> frame = (Map<String,Object>) JsonR27.parse(payload);
+            String producer = c.getString(8);
+            ResearchOriginalR335 original = ResearchOriginalR335.readForDisplay(db, c.getString(6), producer, cancel);
+            Map<?,?> source = original.fields;
+            if ("R06".equals(spec.id)) {
+                for (String key : Arrays.asList("sourceContract", "mean", "lower95", "upper95", "componentPath",
+                        "counterfactualHash", "status", "evaluatedIssues")) {
+                    if (!JsonR27.write(source.get(key)).equals(JsonR27.write(frame.get(key))))
+                        throw new IllegalStateException("R06_ORIGINAL_PROJECTION_CHANGED:" + key);
+                }
+            } else if (!c.getString(7).equals(original.frameHash) || !spec.id.equals(source.get("viewId"))
+                    || !matchesOriginalFrame(c.getString(7), frame)) {
+                throw new IllegalStateException("RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL");
+            }
+            Panel panel = panel(spec, frame, c.getString(3), c.getString(4), c.getLong(5), c.getString(6));
+            if (!BuildConfig.SOURCE_COMMIT_R26.equals(producer)) {
+                Panel previous = new Panel(panel.page, panel.title, panel.kind, panel.source, panel.window,
+                        "历史帧 " + producer + "。本版本暂无已提交帧。\n" + panel.note, "HISTORICAL_ABI",
+                        panel.points, panel.edges, panel.refs, panel.series);
+                panel = new Panel(previous, panel.matrixRows, panel.matrixColumns);
+            }
+            return panel;
+        }
+    }
+
     private static String viewSourceError(SQLiteDatabase db,String view,CancellationSignal cancel) {
         try(Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='r335-research-scheduler' AND key=?",
                 new String[]{"SOURCE_ERROR_"+view},cancel)){
