@@ -62,17 +62,20 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
         // Start the synthetic next-draw clock after real schema migration, not
         // before 162 migration units. The production 60s deadline/PIT gate is unchanged.
         deadline=System.currentTimeMillis()+59_000;
-        transaction(()->insertDraw(targetOrdinal-501,deadline-60_000-500*60_000L));
+        final long anchorOpen = deadline - 501 * 60_000L;
+        final long registrationTime = anchorOpen + 1000;
+        transaction(()->insertDraw(targetOrdinal-501,anchorOpen));
         runtime=new RuntimeR27(store,owner);worker=runtime.pool().new Worker(db,"typed-host");runtime.operatorAbi=Collections.singletonMap("freq",StatsR27.sha256("HOST_SYNTHETIC_OPERATOR_ABI"));runtime.operatorAbiHash=SemanticAbiR27.operatorSetHash(runtime.operatorAbi);
         PolicySpecR27 spec=new PolicySpecR27(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),3,PolicySpecR27.Rule.ALWAYS,0,1,1,false,.01,0,IdeaFamilyR27.meta("I09","R31_TEST_NAMESPACE",0,1,"HOST_SYNTHETIC_MECHANICS_NOT_NATURAL_QUALITY"));policy=spec.policyHash();
         String controlA=StatsR27.sha256("HOST_TYPED_CONTROL_I00"),controlB=StatsR27.sha256("HOST_TYPED_CONTROL_NULL");
         transaction(()->{
-            StoreR27.insertShadow(db,spec,1,"HOST_SYNTHETIC_MECHANICS",runtime.semanticAbi(spec),policy,policy);
-            StoreR27.insertShadow(db,spec,1,"HOST_SYNTHETIC_CONTROL",runtime.semanticAbi(spec),controlA,policy);db.execSQL("UPDATE r27_live_shadow SET status='CONTROL_I00' WHERE policy_hash=?",new Object[]{controlA});
-            StoreR27.insertShadow(db,spec,1,"HOST_SYNTHETIC_CONTROL",runtime.semanticAbi(spec),controlB,policy);db.execSQL("UPDATE r27_live_shadow SET status='CONTROL_NULL' WHERE policy_hash=?",new Object[]{controlB});
-            // Explicit test-calendar clock; these generated rows are never
-            // represented as past natural predictions or production quality.
-            db.execSQL("UPDATE r29_qual_calendar SET registered_at=? WHERE experiment_id IN (?,?,?)",new Object[]{deadline-60_000-500*60_000L-20_000,policy,controlA,controlB});
+            StoreR27.insertShadow(db,spec,1,"HOST_SYNTHETIC_MECHANICS",runtime.semanticAbi(spec),policy,policy,()->registrationTime);
+            StoreR27.insertShadow(db,spec,1,"HOST_SYNTHETIC_CONTROL",runtime.semanticAbi(spec),controlA,policy,()->registrationTime);db.execSQL("UPDATE r27_live_shadow SET status='CONTROL_I00' WHERE policy_hash=?",new Object[]{controlA});
+            StoreR27.insertShadow(db,spec,1,"HOST_SYNTHETIC_CONTROL",runtime.semanticAbi(spec),controlB,policy,()->registrationTime);db.execSQL("UPDATE r27_live_shadow SET status='CONTROL_NULL' WHERE policy_hash=?",new Object[]{controlB});
+            if (scalar(db, "SELECT count(*) FROM r29_qual_calendar WHERE first_ordinal=" + (targetOrdinal-500)
+                    + " AND registered_at=" + registrationTime + " AND origin='REGISTERED_BEFORE_FUTURE'") != 3
+                    || scalar(db, "SELECT count(*) FROM r27_live_frozen") != 0)
+                throw new AssertionError("SYNTHETIC_FUTURE_REGISTRATION_MUST_PRECEDE_ALL_FIXTURE_ROWS");
             for(int i=0;i<500;i++){
                 long ordinal=targetOrdinal-500+i,opened=deadline-60_000-(499-i)*60_000L;insertDraw(ordinal,opened);int hit=i%10==9?0:1;
                 frozen(policy,ordinal,opened,hit,hit==1?1:4);frozen(controlA,ordinal,opened,0,4);frozen(controlB,ordinal,opened,0,4);

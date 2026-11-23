@@ -325,6 +325,34 @@ public final class StorageBudgetR31 {
     private long accountedScopeBytes(File file)throws IOException{
         long[] usage=scopeUsage(file);if(config.requireAllocated&&usage[1]<0)throw new Rejected("ALLOCATED_BYTES_UNKNOWN");return Math.max(usage[0],Math.max(0,usage[1]));
     }
+    @androidx.annotation.RequiresApi(26)
+    static final class ScopeEntry {
+        final boolean directory;
+        final long length;
+
+        private ScopeEntry(boolean directory, long length) {
+            this.directory = directory;
+            this.length = length;
+        }
+
+        static ScopeEntry read(File entry) throws IOException {
+            java.nio.file.attribute.BasicFileAttributes attributes;
+            try {
+                attributes = java.nio.file.Files.readAttributes(entry.toPath(),
+                        java.nio.file.attribute.BasicFileAttributes.class, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+            } catch (java.nio.file.NoSuchFileException removed) {
+                return null;
+            }
+            if (attributes.isSymbolicLink()) throw new Rejected("SCOPE_SYMLINK");
+            if (!attributes.isDirectory() && !attributes.isRegularFile()) throw new Rejected("SCOPE_UNKNOWN_TYPE");
+            return new ScopeEntry(attributes.isDirectory(), attributes.isDirectory() ? 0 : attributes.size());
+        }
+
+        static boolean confirmedAbsent(File entry) {
+            return java.nio.file.Files.notExists(entry.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        }
+    }
+
     /** Bounded streaming traversal: regular lengths and kernel blocks stay independent. */
     private static long[] scopeUsage(File file)throws IOException{
         if(!file.exists())return new long[]{0,0};if(!file.getAbsoluteFile().equals(file.getCanonicalFile()))throw new Rejected("SCOPE_SYMLINK");
@@ -335,8 +363,24 @@ public final class StorageBudgetR31 {
         try{stack.push(new Frame(file,0));while(!stack.isEmpty()){
             if(Thread.currentThread().isInterrupted())throw new Rejected("CANCELLED");Frame frame=stack.peek();File child=frame.cursor.next();if(child==null){frame.cursor.close();stack.pop();continue;}
             if(++entries>200000)throw new Rejected("SCOPE_ENTRY_BUDGET");if(!child.getAbsoluteFile().equals(child.getCanonicalFile()))throw new Rejected("SCOPE_SYMLINK");
-            long blocks=StorageCensusSU2.allocatedBytes(child);if(blocks<0)known=false;else if(known)allocated=add(allocated,blocks);
-            if(child.isDirectory()){if(frame.depth>=16)throw new Rejected("SCOPE_DEPTH_BUDGET");stack.push(new Frame(child,frame.depth+1));}else if(child.isFile())bytes=add(bytes,child.length());else throw new Rejected("SCOPE_UNKNOWN_TYPE");
+            // Opening the directory cursor above has already checked the API 26 boundary.
+            ScopeEntry entry = ScopeEntry.read(child);
+            if (entry == null) continue;
+            long blocks = StorageCensusSU2.allocatedBytes(child);
+            if (blocks < 0 && ScopeEntry.confirmedAbsent(child)) continue;
+            if (entry.directory) {
+                if (frame.depth >= 16) throw new Rejected("SCOPE_DEPTH_BUDGET");
+                try {
+                    stack.push(new Frame(child, frame.depth + 1));
+                } catch (IOException failed) {
+                    if (ScopeEntry.confirmedAbsent(child)) continue;
+                    throw failed;
+                }
+            } else {
+                bytes = add(bytes, entry.length);
+            }
+            if (blocks < 0) known = false;
+            else if (known) allocated = add(allocated, blocks);
         }}finally{IOException closing=null;while(!stack.isEmpty())try{stack.pop().cursor.close();}catch(IOException failed){if(closing==null)closing=failed;else closing.addSuppressed(failed);}if(closing!=null)throw closing;}return new long[]{bytes,known?allocated:-1};
     }
     private State readState()throws IOException{

@@ -208,7 +208,13 @@ public final class R31FullChainFaultHost {
         need(full, "F04 disk-full GC commit surfaced");
         need(n(f.db, "SELECT count(*) FROM r27_chart_cache WHERE panel_id='p01_three_scores'") >= 3, "F04 rolled-back GC deleted nothing");
         f.coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RETENTION, "R26_ARTIFACT_RETENTION"), db -> { db.execSQL(ResearchRetentionStoreR30.visualCacheDeleteSql()); return 0; });
-        need(n(f.db, "SELECT count(*) FROM r27_chart_cache WHERE panel_id IN ('p01_three_scores','p13_runtime_health')") == 0, "B05 DISPLAY cache collected");
+        for (String panel : new String[]{"p01_three_scores", "p13_runtime_health"}) {
+            need(n(f.db, "SELECT count(*) FROM r27_chart_cache WHERE panel_id='" + panel + "'") == 1,
+                    "B05 obsolete DISPLAY frames collected for " + panel);
+            need(n(f.db, "SELECT count(*) FROM r27_chart_cache WHERE panel_id='" + panel
+                    + "' AND key='k2' AND updated_at=12 AND payload_json='{}'") == 1,
+                    "B05 latest readable frame preserved for " + panel);
+        }
         need(n(f.db, "SELECT count(*) FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'") == 1, "B05 GC never touches the mainline projection");
         MainlineChoiceStoreR31.Choice after = MainlineChoiceStoreR31.current(f.db);
         need(after != null && after.choiceId.equals(before.choiceId), "B10 persistent choice survives GC");

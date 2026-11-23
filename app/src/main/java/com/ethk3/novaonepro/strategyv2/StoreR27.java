@@ -169,11 +169,16 @@ public final class StoreR27 {
 
     /** Inside a write transaction: registers a verified champion as a live shadow with a permanent global index. */
     public static void insertShadow(SQLiteDatabase db, PolicySpecR27 spec, double tau, String reason, String semanticAbi, String id, String basePolicy) {
+        insertShadow(db, spec, tau, reason, semanticAbi, id, basePolicy, System::currentTimeMillis);
+    }
+
+    static void insertShadow(SQLiteDatabase db, PolicySpecR27 spec, double tau, String reason, String semanticAbi, String id, String basePolicy,
+                             java.util.function.LongSupplier registrationClock) {
         try (Cursor c = db.rawQuery("SELECT 1 FROM r27_live_shadow WHERE policy_hash=?", new String[] {id})) { if (c.moveToFirst()) return; }
         long index = 1;
         try (Cursor c = db.rawQuery("SELECT coalesce(max(global_index),0)+1 FROM r27_eprocess", null)) { if (c.moveToFirst()) index = Math.max(1, c.getLong(0)); }
         try (Cursor c = db.rawQuery("SELECT coalesce(max(global_index),0)+1 FROM r27_live_shadow", null)) { if (c.moveToFirst()) index = Math.max(index, c.getLong(0)); }
-        long now = System.currentTimeMillis();
+        long now = registrationClock.getAsLong();
         String latest = RuntimeR27.latestIssue(db);
         if (latest == null) throw new IllegalStateException("R29_REGISTRATION_REQUIRES_CALENDAR");
         long firstOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest)+1;

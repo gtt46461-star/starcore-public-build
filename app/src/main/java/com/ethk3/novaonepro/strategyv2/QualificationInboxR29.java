@@ -116,6 +116,7 @@ public final class QualificationInboxR29 {
     public static final class Plan {
         public final List<Consumed> consumed = new ArrayList<>(); public String block = BLOCK_NONE; public long blockedOrdinal = -1; public String conflictDetail;
         public String conflictDigest;
+        private long firstOrdinal = -1;
     }
 
     /** Scoring-relevant facts only: non-ACT periods score 0 whatever the draw, so a late draw never changes their digest. */
@@ -130,10 +131,16 @@ public final class QualificationInboxR29 {
     }
     static Plan plan(SequentialQualificationR27.State s, List<Row> rows, long latestOrdinal, int max, long firstOrdinal) {
         Plan p = new Plan();
+        p.firstOrdinal = firstOrdinal;
+        if (s.lastOrdinal < 0 && firstOrdinal >= 0 && firstOrdinal > latestOrdinal) {
+            p.block = BLOCK_NOT_DUE;
+            p.blockedOrdinal = firstOrdinal;
+            return p;
+        }
         long expected = s.lastOrdinal >= 0 ? s.lastOrdinal + 1 : firstOrdinal;
         for (Row r : rows) {
             if (p.consumed.size() >= max) break;
-            if (r.ordinal <= s.lastOrdinal) continue; // already consumed (defensive; the query starts after the cursor)
+            if (r.ordinal <= s.lastOrdinal || r.ordinal < firstOrdinal) continue;
             if (expected >= 0 && expected <= latestOrdinal && r.ordinal != expected) {
                 p.block = BLOCK_MISSING_OPPORTUNITY; p.blockedOrdinal = expected; break;
             }
@@ -217,11 +224,12 @@ public final class QualificationInboxR29 {
                 CooperativeContinuationR26.poll();
                 SequentialQualificationR27.State s = StoreR27.readEprocess(ro, id); if (s == null) break;
                 final long expectLast = s.lastOrdinal, expectN = s.n;
-                Plan p = plan(s, rows(ro, id, s.lastOrdinal, RECEIPTS_PER_COMMIT_R31 + 1), latestOrdinal, RECEIPTS_PER_COMMIT_R31, firstOrdinal);
+                long after = Math.max(expectLast, firstOrdinal - 1);
+                Plan p = plan(s, rows(ro, id, after, RECEIPTS_PER_COMMIT_R31 + 1), latestOrdinal, RECEIPTS_PER_COMMIT_R31, firstOrdinal);
                 if (p.consumed.isEmpty() && !BLOCK_CONFLICT.equals(p.block) && sameCursor(ro, id, p)) { pass.blocked.put(id, p.block); break; }
                 ResearchWriteQueueR27.Batch b = step(id, s, p, expectLast, expectN);
                 appendReplayMarkerR31(ro,b,id,p,s.lastOrdinal);
-                requireBudgetR31(b,2,bindBytesR31(id,id,String.valueOf(expectLast)));
+                requireBudgetR31(b,3,bindBytesR31(id,id,id,String.valueOf(after)));
                 boolean ok;
                 try { ok = sink.commit("R29_QUAL_CONSUME", b); }
                 catch (IllegalStateException cas) { if (!precondition(cas)) throw cas; ok = false; }
@@ -253,6 +261,8 @@ public final class QualificationInboxR29 {
     /** Builds the single transaction for one plan. */
     static ResearchWriteQueueR27.Batch step(final String id, final SequentialQualificationR27.State s, final Plan p, final long expectLast, final long expectN) {
         final long now = System.currentTimeMillis();
+        final long firstOrdinal = p.firstOrdinal;
+        final long afterOrdinal = Math.max(expectLast, firstOrdinal - 1);
         final List<Consumed> prefix=java.util.Collections.unmodifiableList(new ArrayList<>(p.consumed));
         if(prefix.size()>RECEIPTS_PER_COMMIT_R31)throw new IllegalArgumentException("R31_QUALIFICATION_PHYSICAL_PREFIX_TOO_LARGE");
         ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
@@ -260,8 +270,9 @@ public final class QualificationInboxR29 {
             try(Cursor current=db.rawQuery("SELECT last_ordinal,n FROM r27_eprocess WHERE policy_hash=?",new String[]{id})) {
                 if(!current.moveToFirst()||current.getLong(0)!=expectLast||current.getLong(1)!=expectN)return -1;
             }
+            if (firstOrdinal >= 0 && calendarStart(db, id) != firstOrdinal) return -1;
             if(!prefix.isEmpty()) {
-                List<Row> current=rows(db,id,expectLast,prefix.size());if(current.size()!=prefix.size())return -1;
+                List<Row> current=rows(db,id,afterOrdinal,prefix.size());if(current.size()!=prefix.size())return -1;
                 for(int i=0;i<prefix.size();i++) {
                     Row before=prefix.get(i).row,after=current.get(i);
                     if(before.ordinal!=after.ordinal||!before.issue.equals(after.issue)||before.registeredAct()!=after.registeredAct())return -1;
@@ -274,7 +285,7 @@ public final class QualificationInboxR29 {
             // Only refresh the visible block reason; no state change.
             b.add("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)", id, p.blockedOrdinal, p.block, now);
             b.add("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,updated_at=? WHERE experiment_id=? AND (blocked_ordinal<>? OR blocked_reason<>?)", p.blockedOrdinal, p.block, now, id, p.blockedOrdinal, p.block);
-            requireBudgetR31(b,1,bindBytesR31(id));return b;
+            requireBudgetR31(b,2,bindBytesR31(id,id));return b;
         }
             for (Consumed x : prefix)
                 b.add("INSERT INTO r29_qual_receipt(experiment_id,target_ordinal,target_issue,act,hit,u,digest,state_after,consumed_at) VALUES(?,?,?,?,?,?,?,?,?)",
@@ -287,7 +298,7 @@ public final class QualificationInboxR29 {
                 b.add("INSERT OR IGNORE INTO r29_qual_conflict(experiment_id,target_ordinal,kind,receipt_digest,observed_digest,detail,detected_at) VALUES(?,?,'RESULT_CONFLICT',NULL,?,?,?)",id,p.blockedOrdinal,p.conflictDigest,p.conflictDetail,now);
             b.add("INSERT OR IGNORE INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,?,?,?)",id,p.blockedOrdinal,p.block,now);
             b.add("UPDATE r29_qual_cursor SET blocked_ordinal=?,blocked_reason=?,consumed_total=consumed_total+?,updated_at=? WHERE experiment_id=?",p.blockedOrdinal,p.block,prefix.size(),now,id);
-        requireBudgetR31(b,2,bindBytesR31(id,id,String.valueOf(expectLast)));return b;
+        requireBudgetR31(b,3,bindBytesR31(id,id,id,String.valueOf(afterOrdinal)));return b;
     }
 
     private static void appendReplayMarkerR31(SQLiteDatabase ro,ResearchWriteQueueR27.Batch b,String id,Plan p,long through) {
