@@ -24,6 +24,14 @@ public final class AtomPublicationConsumerHost {
   // R31-B06-C03: a partially trained shared ten-position model is never consumed; all ten positions must commit first.
   {RuntimeR27 partialRuntime=new RuntimeR27(AtomPublicationNativeHost.store,"HOST_PARTIAL_CONSUMER");partialRuntime.restoreAtomStateR32(state,current);
    long partialTarget=online.ordinals[online.size()-1]+1;ReplayDatasetR27 partialSlot=online.append(new ReplayDatasetR27.Row(TargetIssueResolver.fromSequenceOrdinalSU1(partialTarget),partialTarget,new int[]{1,2,3,4,5,6,7,8,9,10}));
+   List<ReplayDatasetR27.Row> legacyRows=new ArrayList<>();
+   for(int i=0;i<partialSlot.size();i++)
+    legacyRows.add(new ReplayDatasetR27.Row(partialSlot.issues[i],partialSlot.ordinals[i],partialSlot.draws[i]));
+   try(FeatureCacheR27 legacy=new FeatureCacheR27(ReplayDatasetR27.of(legacyRows))){
+    ModelSurfaceStoreR30.Prepared unknown=ModelSurfaceStoreR30.prepareLive(ModelSurfaceStoreR30.archived(AtomPublicationNativeHost.db,legacy.data),
+      legacy,System.currentTimeMillis()+60000,partialRuntime.atomPublicationR30.model,false);
+    need(unknown.rows.isEmpty()&&unknown.blocked.size()>=10,"unknown arrival times block all ten current model surfaces");
+   }
    try(FeatureCacheR27 partialCache=new FeatureCacheR27(partialSlot)){ModelSurfaceStoreR30.Prepared complete=ModelSurfaceStoreR30.prepareLive(ModelSurfaceStoreR30.archived(AtomPublicationNativeHost.db,partialCache.data),partialCache,System.currentTimeMillis()+60000,partialRuntime.atomPublicationR30.model,false);need(complete.rows.size()==10&&complete.blocked.isEmpty(),"earlier complete model remains consumable while the optimizer has a partial issue");for(ModelSurfaceProviderR30.Surface surface:complete.rows.values())need(old.modelHash.equals(surface.modelHash),"partial optimizer weights are never consumed as a ten-position model");}
    finally{partialRuntime.close();need(partialRuntime.pool().awaitResourcesTerminatedR31(2000),"partial consumer pool exits");need(partialRuntime.releaseTerminatedCachesR31(),"partial consumer cache close after pool termination");}}
   for(int position=2;position<=10;position++){String before=AtomNetPublicationR31.currentStateHash(AtomPublicationNativeHost.db);double[] xp=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[position-1],frame.present[position-1],true),position);

@@ -46,27 +46,42 @@ public final class MainlineFreezeProofR31 {
     private static Map<String,Object> originalRow(SQLiteDatabase db,String sql,String policy){
         Map<String,Object> row=new LinkedHashMap<>();try(Cursor q=db.rawQuery(sql,new String[]{policy})){if(!q.moveToFirst())throw new IllegalStateException("R31_R27_QUALIFICATION_ROW_MISSING");for(int i=0;i<q.getColumnCount();i++){Object value;if(q.isNull(i))value=null;else if(q.getType(i)==Cursor.FIELD_TYPE_INTEGER)value=Long.valueOf(q.getLong(i));else if(q.getType(i)==Cursor.FIELD_TYPE_FLOAT)value=Double.valueOf(q.getDouble(i));else value=q.getString(i);row.put(q.getColumnName(i),value);}}return row;
     }
-    /** Capture BEFORE the certificate owner's existing full integrity scan. The
-     * immutable receipt guards plus global append watermark/schema detect a
-     * later orphan append, mutation or guard ABA without a history scan in the
-     * freeze/canonical writer. These are original bytes, not a freshness guess. */
+    /** The certifier verifies the complete contiguous prefix. Its immutable unique keys then leave
+     * only the two ends open for additional receipts belonging to this experiment. Both endpoints
+     * use the existing (experiment_id,target_ordinal) primary key on every authority read. */
     public static Map<String,Object> qualificationBinding(SQLiteDatabase db,String policy){
-        Map<String,Object> out=new LinkedHashMap<>();out.put("policyHash",policy);out.put("format","R31_R27_QUALIFICATION_ORIGINALS_V1");
+        Map<String,Object> out=new LinkedHashMap<>();out.put("policyHash",policy);out.put("format","R34_R27_QUALIFICATION_ORIGINALS_V2");
         try{
             QualificationInboxR29.requireLegacyReceiptGuardsR31(db);
             Map<String,Object> state=originalRow(db,"SELECT global_index,alpha,target_rate,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,updated_at FROM r27_eprocess WHERE policy_hash=?",policy);
             Map<String,Object> calendar=originalRow(db,"SELECT first_ordinal,registered_at,origin FROM r29_qual_calendar WHERE experiment_id=?",policy);
             Map<String,Object> cursor=originalRow(db,"SELECT blocked_ordinal,blocked_reason,consumed_total,cas_retries,updated_at FROM r29_qual_cursor WHERE experiment_id=?",policy);
             if(!SequentialQualificationR27.QUALIFIED.equals(state.get("state"))||number(state,"n")!=number(cursor,"consumed_total")||!(QualificationInboxR29.BLOCK_NONE.equals(cursor.get("blocked_reason"))||QualificationInboxR29.BLOCK_NOT_DUE.equals(cursor.get("blocked_reason")))||QualificationInboxR29.hasOpenConflict(db,policy)){out.put("state","WAIT_QUALIFICATION_ORIGINALS");return out;}
-            long last=0;try(Cursor q=db.rawQuery("SELECT rowid FROM r29_qual_receipt ORDER BY rowid DESC LIMIT 1",null)){if(q.moveToFirst())last=q.getLong(0);}
+            long firstOrdinal = number(calendar, "first_ordinal");
+            long lastOrdinal = number(state, "last_ordinal");
+            long firstReceipt = qualificationEdge(db, policy, firstOrdinal, true);
+            long lastReceipt = qualificationEdge(db, policy, lastOrdinal, false);
+            if (firstOrdinal < 0 || lastOrdinal < firstOrdinal || lastOrdinal - firstOrdinal + 1 != number(state, "n")
+                    || firstReceipt < 1 || lastReceipt < 1) {
+                out.put("state", "WAIT_QUALIFICATION_ORIGINALS");
+                return out;
+            }
             // NONE -> NOT_DUE merely records the already frozen next period;
             // its wall timestamp/CAS retries are not new FUTURE evidence. The
             // complete exposure state/calendar/watermark stay exact, and both
             // allowed block states plus open conflicts are checked every read.
             Map<String,Object> exposure=new LinkedHashMap<>();exposure.put("consumed_total",cursor.get("consumed_total"));exposure.put("readCondition","NONE_OR_NOT_DUE_ONLY");
-            out.put("eprocess",state);out.put("calendar",calendar);out.put("cursor",exposure);out.put("receiptAppendWatermark",last);out.put("schemaVersion",SchemaR27.liveSourceSchemaVersion(db));out.put("state","BOUND");out.put("qualificationSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
+            out.put("eprocess",state);out.put("calendar",calendar);out.put("cursor",exposure);out.put("firstReceiptRowid",firstReceipt);out.put("lastReceiptRowid",lastReceipt);out.put("schemaVersion",SchemaR27.liveSourceSchemaVersion(db));out.put("state","BOUND");out.put("qualificationSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
         }catch(RuntimeException missing){if(missing instanceof ResearchWorkBudgetR927.Yield)throw missing;out.put("state","WAIT_QUALIFICATION_ORIGINALS");return out;}
     }
+    private static long qualificationEdge(SQLiteDatabase db, String policy, long expected, boolean first) {
+        String order = first ? "ASC" : "DESC";
+        try (Cursor c = db.rawQuery("SELECT target_ordinal,rowid FROM r29_qual_receipt WHERE experiment_id=? ORDER BY target_ordinal "
+                + order + " LIMIT 1", new String[]{policy})) {
+            return c.moveToFirst() && c.getLong(0) == expected ? c.getLong(1) : -1;
+        }
+    }
+
     public static boolean qualificationStillCommitted(SQLiteDatabase db,Map<String,Object> binding){return "BOUND".equals(binding.get("state"))&&JsonR27.write(binding).equals(JsonR27.write(qualificationBinding(db,String.valueOf(binding.get("policyHash")))));}
     static long number(Map<?,?> m,String key){Object value=m.get(key);if(!(value instanceof Number))throw new IllegalStateException("R31_R27_PROOF_NUMBER");return ((Number)value).longValue();}
     static double decimal(Map<?,?> m,String key){Object value=m.get(key);if(!(value instanceof Number)||!Double.isFinite(((Number)value).doubleValue()))throw new IllegalStateException("R31_R27_PROOF_DECIMAL");return ((Number)value).doubleValue();}

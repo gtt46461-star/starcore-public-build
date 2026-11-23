@@ -49,7 +49,7 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
                 Method schema=com.ethk3.novaonepro.r952.ComputationReceiptR974.class.getDeclaredMethod("schema",SQLiteDatabase.class);schema.setAccessible(true);schema.invoke(null,db);
             }catch(ReflectiveOperationException error){throw new IllegalStateException("HOST_ACTUAL_TERMINAL_SCHEMA_PROJECTION",error);}
             db.execSQL("CREATE TABLE IF NOT EXISTS research_exact_probability_f05(game_code TEXT NOT NULL,target_issue TEXT NOT NULL,trade_id INTEGER NOT NULL UNIQUE REFERENCES trades(_id),candidate_id TEXT NOT NULL,model_hash TEXT NOT NULL CHECK(length(model_hash)=64),certificate_hash TEXT NOT NULL CHECK(length(certificate_hash)=64),calibration_hash TEXT NOT NULL CHECK(length(calibration_hash)=64),selection_hash TEXT NOT NULL CHECK(length(selection_hash)=64),scope_policy_hash TEXT NOT NULL CHECK(length(scope_policy_hash)=64),selected_hit_p REAL NOT NULL CHECK(selected_hit_p>0 AND selected_hit_p<1),proof_hash TEXT NOT NULL CHECK(length(proof_hash)=64),action_hash TEXT NOT NULL CHECK(length(action_hash)=64),authorization_hash TEXT NOT NULL,captured_at INTEGER NOT NULL,committed_at INTEGER NOT NULL CHECK(committed_at>=captured_at),PRIMARY KEY(game_code,target_issue))");
-            db.execSQL("CREATE TABLE v57_shadow_observation_r35(target_issue TEXT PRIMARY KEY,decision_action TEXT,pre_draw_frozen INTEGER)");
+            db.execSQL("CREATE TABLE v57_shadow_observation_r35(target_issue TEXT PRIMARY KEY,game_code TEXT NOT NULL CHECK(game_code='Binance1-PK10'),decision_action TEXT,pre_draw_frozen INTEGER)");
             RuntimeSchemaR26.ensure(db);StrategySchemaSU2.ensure(db);SchemaR27.ensure(db);
             ResearchPlatformStoreR929.createSchema(db);
             try{Method schema=ResearchCohortR932.class.getDeclaredMethod("schema",SQLiteDatabase.class);schema.setAccessible(true);schema.invoke(null,db);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
@@ -114,6 +114,8 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
     }
     private void verifyHotQueryPlans(){
         String[][] queries={
+            {"sqlite_autoindex_r29_qual_receipt_1","SELECT target_ordinal,rowid FROM r29_qual_receipt WHERE experiment_id=? ORDER BY target_ordinal ASC LIMIT 1",policy},
+            {"sqlite_autoindex_r29_qual_receipt_1","SELECT target_ordinal,rowid FROM r29_qual_receipt WHERE experiment_id=? ORDER BY target_ordinal DESC LIMIT 1",policy},
             {"idx_r31_mainline_qualification_open","SELECT 1 FROM r29_qual_conflict WHERE experiment_id=? AND resolved_at=0 LIMIT 1",policy},
             {"idx_r31_mainline_choice_current","SELECT choice_id,policy_hash,experiment_id,gate_contract,certificate_digest,model_state_hash,source_revision,effective_from_ordinal,selection_fence,status FROM r31_mainline_choice WHERE status IN ('ACTIVE','FALLBACK') ORDER BY selection_fence DESC,created_at DESC LIMIT 1"},
             {"idx_r31_mainline_choice_fence","SELECT coalesce(max(selection_fence),0) FROM r31_mainline_choice"},
@@ -121,7 +123,7 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
             {"idx_r31_mainline_model_publication","SELECT publication_id,state_hash,weights_hash,through_ordinal,model_available_at,published_at FROM r31_atomnet_publication WHERE model_hash=? AND weights_hash=? AND status='PUBLISHED' ORDER BY published_at DESC,publication_id LIMIT 1",StatsR27.sha256("fixture-model"),StatsR27.sha256("fixture-weights")}
         };
         for(String[] query:queries){boolean indexed=false;try(Cursor plan=db.rawQuery("EXPLAIN QUERY PLAN "+query[1],query.length==2?null:Arrays.copyOfRange(query,2,query.length))){while(plan.moveToNext()){String detail=plan.getString(3);if(detail.contains("TEMP B-TREE"))throw new AssertionError("TYPED_HOT_QUERY_TEMP_SORT:"+query[0]);indexed|=detail.contains(query[0]);}}if(!indexed)throw new AssertionError("TYPED_HOT_QUERY_NOT_INDEXED:"+query[0]);}
-        System.out.println("TYPED_MAINLINE_QUERY_PLAN_PASS actualIndexes=5 exactProductionPredicates=true");
+        System.out.println("TYPED_MAINLINE_QUERY_PLAN_PASS actualQueries=7 exactProductionPredicates=true");
     }
     private void insertDraw(long ordinal,long opened){Object[] row=new Object[14];row[0]=TargetIssueResolver.fromSequenceOrdinalSU1(ordinal);row[1]=opened;row[2]=opened+1;row[3]=0;for(int p=0;p<10;p++)row[p+4]=p+1;db.execSQL("INSERT INTO draws(issue,open_time,first_seen_at,dirty,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",row);}
     private void frozen(String id,long ordinal,long opened,int hit,int first){double[] probabilities=new double[10];Arrays.fill(probabilities,.1);db.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit,settled_at) VALUES(?,?,?,3,?,?,?,?,1,'FROZEN',?,?,?,?)",new Object[]{id,ordinal,TargetIssueResolver.fromSequenceOrdinalSU1(ordinal),StoreR27.pack(probabilities),first,first+1,first+2,opened-10_000,opened,hit,opened+1});}
@@ -147,12 +149,38 @@ public final class TypedFreezeRuntimeR31Fixture implements AutoCloseable {
     public void certifyAndFreeze()throws Exception{
         owned(()->runtime.new LiveTask().step(worker));
         MainlineFreezeProofR31.Authority proof=MainlineFreezeProofR31.read(db,targetOrdinal,System.currentTimeMillis());if(proof==null)throw new AssertionError("ACTUAL_LIVE_TASK_DID_NOT_PUBLISH_TYPED_FREEZE");
+        verifyIsolatedReceiptEdges();
         long issued=scalar(db,"SELECT issued_at FROM r27_certificate WHERE policy_hash='"+policy+"'"),expiry=scalar(db,"SELECT expires_at FROM r27_certificate WHERE policy_hash='"+policy+"'");
         owned(()->runtime.new LiveTask().step(worker));
         MainlineFreezeProofR31.Authority repeated=MainlineFreezeProofR31.read(db,targetOrdinal,System.currentTimeMillis());
         if(repeated==null||!proof.proofHash.equals(repeated.proofHash)||issued!=scalar(db,"SELECT issued_at FROM r27_certificate WHERE policy_hash='"+policy+"'")||expiry!=scalar(db,"SELECT expires_at FROM r27_certificate WHERE policy_hash='"+policy+"'"))throw new AssertionError("UNCHANGED_LIVE_TASK_REISSUED_CERTIFICATE_OR_LOST_ORIGINAL_FREEZE");
         System.out.println("TYPED_ACTUAL_LIVE_TASK_PASS executions=2 unchangedCertificateTimes=true originalFreezePreserved=true");
     }
+    private void verifyIsolatedReceiptEdges() {
+        Map<String,Object> binding = MainlineFreezeProofR31.qualificationBinding(db, policy);
+        if (!"BOUND".equals(binding.get("state"))
+                || scalar(db,"SELECT count(*) FROM r29_qual_receipt WHERE experiment_id<>'"+policy+"'") != 1000)
+            throw new AssertionError("CONTROL_RECEIPTS_MUST_NOT_INVALIDATE_SELECTED_EXPERIMENT");
+        long first = QualificationInboxR29.calendarStart(db, policy);
+        for (long outside : new long[]{first - 1, targetOrdinal + 1}) {
+            transaction(()->{
+                db.execSQL("SAVEPOINT fixture_orphan");
+                try {
+                    db.execSQL("INSERT INTO r29_qual_receipt SELECT experiment_id,?,target_issue,act,hit,u,digest,state_after,consumed_at "
+                            + "FROM r29_qual_receipt WHERE experiment_id=? ORDER BY target_ordinal LIMIT 1",new Object[]{outside,policy});
+                    if (MainlineFreezeProofR31.qualificationStillCommitted(db,binding))
+                        throw new AssertionError("OWN_ORPHAN_RECEIPT_MUST_INVALIDATE_AUTHORITY");
+                } finally {
+                    db.execSQL("ROLLBACK TO fixture_orphan");
+                    db.execSQL("RELEASE fixture_orphan");
+                }
+            });
+            if (!MainlineFreezeProofR31.qualificationStillCommitted(db,binding))
+                throw new AssertionError("ROLLBACK_MUST_PRESERVE_ORIGINAL_RECEIPTS");
+        }
+        System.out.println("R34_QUALIFICATION_ISOLATION_PASS selected=500 controls=1000 staleOwnAppendRejectedAtBothEdges=true");
+    }
+
     public void transaction(Runnable work){coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"HOST_TYPED_FIXTURE_BOUNDARY"),tx->{work.run();return 0;});}
     public void close()throws Exception{RuntimeCoordinatorR26.unbindBackgroundClaimR31();runtime.close();if(!runtime.pool().awaitResourcesTerminatedR31(2000))throw new AssertionError("TYPED_FIXTURE_RUNTIME_DRAIN");db.jdbc.close();}
 }
