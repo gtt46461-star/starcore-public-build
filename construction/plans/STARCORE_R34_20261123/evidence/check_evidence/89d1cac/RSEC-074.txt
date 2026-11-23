@@ -1,0 +1,145 @@
+Source: reports/89d1cac/REPORT_DETAILS.txt line 80
+1|B14-F020-RUNTIME|P0|FAIL|confidence=0.95|owner=AutoFetchService->BusinessReconcilerR36->V51RuntimeOrchestrator|file=AutoFetchService.java|RuntimeHealthLedgerR36.java
+结论=FAIL|RUNTIME_CHAIN|OK
+原因=运行失败项：businessAlive=0；rootCause=RUNTIME_CHAIN；latestAttemptFailed=1；requestToCommitP95=36776ms >5000ms；观察值：serviceAlive=1，businessAlive=0，rootCause=RUNTIME_CHAIN，latestAttemptFailed=1，requestToCommitP95=36776，maxConcurrency=1，oomCount=0
+影响=已观察到业务链异常；抓取、分析、结算或证据闭环可能未及时推进；最近分析尝试失败，需核对本期正式产物；请求到提交时延超出5000ms要求，压缩本期处理窗口。
+施工=repair typed database/framework path first; then rerun screen-on/off, kill and soak matrix
+验证=T01-T04 single-flight plus T29-T34 physical runtime matrix
+期望=gate fails closed and raw evidence is retained
+回滚=keep SHADOW_ONLY and export DB/logcat before further changes
+FindingHash=d9afa0abed378b5d8c6c7d073f6fe458efd8d1e2339b51f5ff7d9662aad74685
+
+2|B14-F130-CODE_OWNER|P0|FAIL|confidence=0.95|owner=CodeOwnershipCompletenessAuditEngine|file=CodeOwnershipCompletenessAuditEngine.java
+结论=完整Owner审核=HARD_BLOCK|explicitConflict=false
+原因=observed invariant or runtime gate failed
+影响=duplicate owners create double writes and inconsistent decisions
+施工=retain one runtime, issue, gate, settlement, OOS and deferred owner
+验证=owner matrix and active-path instantiation scan
+期望=gate fails closed and raw evidence is retained
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=8a556db2ca8443b681a40d856ce5145e1e5d8c400e312fcce676cd4465a4f9c3
+
+3|B14-F040-NUMBER_SURFACE|P1|NOT_PROVEN|confidence=1.0|owner=V51NumberModelArtifact+V51SinkhornEngine|file=V51NumberModelArtifact.java|V51SinkhornEngine.java
+结论=号码面工程存在但模型未证明
+原因=frozen model artifact and strict OOS certificate are absent or unproven
+影响=unproven number probabilities cannot support REAL authorization
+施工=train offline, freeze artifact/hash and replay PIT number probabilities
+验证=PIT replay, row sums, Sinkhorn parity and artifact hash
+期望=SHADOW_ONLY; REAL remains locked
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=0fa244b80c44db6b35ed05224d2e16a5ada45bdf9090d5c35ebf24a363ab0b6f
+
+4|B14-F080-RANKER|P1|NOT_PROVEN|confidence=1.0|owner=V51ActionRankerEngine|file=V51ActionRankerEngine.java|V51ActionRankerArtifact.java
+结论=Ranker未训练/未证明
+原因=frozen model artifact and strict OOS certificate are absent or unproven
+影响=unproven ordering invalidates champion and selected-action claims
+施工=freeze groupwise rank artifact; validate MRR/NDCG/pairwise stability OOS
+验证=same-issue grouping, deterministic ties and frozen rank certificate
+期望=SHADOW_ONLY; REAL remains locked
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=92fa6ea1c927e0d0f5108fd31377b5d7add16628b17a0941d623709cfd75ae1e
+
+5|B14-F090-CALIBRATION|P1|NOT_PROVEN|confidence=1.0|owner=OosAfterDrawWriterR36+ModelEffectivenessAnalyzerR35|file=OosAfterDrawWriterR36.java|ModelEffectivenessAnalyzerR35.java
+结论=read=OK|model=DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY
+原因=frozen model artifact and strict OOS certificate are absent or unproven
+影响=unknown selected probability prevents safe coverage/threshold decisions
+施工=write labels only after draw from frozen canonical rows; compute Wilson/ECE/Brier
+验证=T20/T21 coverage and T23 injected read error; min OOS sample 120
+期望=SHADOW_ONLY; REAL remains locked
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=30e01890ac81094a4427964bbcb46f802bf0471989bc84705625e2879ecb227e
+
+6|B14-F100-FREQUENCY|P1|NOT_PROVEN|confidence=1.0|owner=DecisionGateEngine_ONLY|file=DecisionGateEngine.java|V51BuildManifest.java
+结论=实际REAL合同审核=PASS_EXACT_CONTROLLED_LEDGER|claimed=0
+原因=frozen model artifact and strict OOS certificate are absent or unproven
+影响=frequency debt or auto-unlock could create unauthorized REAL actions
+施工=keep SHADOW_ONLY and zero frequency debt until every hard certificate passes
+验证=static forbidden-token gate and zero observed REAL BET rows
+期望=SHADOW_ONLY; REAL remains locked
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=c6a118444062b920e388bcc64d3f965ebe84f199c5982c263a1816dbacb4536a
+
+7|B14-F030-LEDGER|P2|RETEST_REQUIRED|confidence=0.8|owner=V51Repository+CanonicalObservationWriterR36|file=V51Repository.java|CanonicalObservationWriterR36.java
+结论=账本等待 canonical 或延后证据完成
+原因=static integration exists but sufficient physical runtime evidence is absent
+影响=mutable or missing canonical rows invalidate OOS and first-write-wins proof
+施工=preserve atomic canonical write and export raw rows on invariant failure
+验证=B12 invariant audit, first-write replay and exact settlement idempotency
+期望=engineering remains implemented; physical proof stays open
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=80bc07935f0f30d0e3bd72af6a6c0df605b58566bc67f2d05d343d14ab81cf6a
+
+8|B14-F050-CROSS_POSITION|P2|RETEST_REQUIRED|confidence=0.8|owner=V51RelationGraphVerifier+V51PermutationFeatureEngine|file=V51RelationGraphVerifier.java|V51PermutationFeatureEngine.java
+结论=跨位置等待运行样本
+原因=static integration exists but sufficient physical runtime evidence is absent
+影响=leakage or spurious relation can inflate offline performance
+施工=verify pre-draw timestamp boundary and cross-block certificate
+验证=timestamp leakage audit and cross-block holdout
+期望=engineering remains implemented; physical proof stays open
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=02f15c855cca7518496ddf4439c9f24d8e02e538407fe4ecfab8201d7933ab12
+
+9|B14-F060-K3_FUNNEL|P2|RETEST_REQUIRED|confidence=0.8|owner=K3FunnelOrchestrator_ONLY|file=K3FunnelOrchestrator.java
+结论=固定K3漏斗合同成立
+原因=static integration exists but sufficient physical runtime evidence is absent
+影响=non-nested stages can silently replace fixed K3 semantics
+施工=persist exact nested 9/8/7/6/5/4/3 trace without deleting 1200 actions
+验证=seven exact stages, nested membership and final length three
+期望=engineering remains implemented; physical proof stays open
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=0bc2138f22d49eae18f22b29f911a2cc9bfd67a4d6d8b06c8910f418eb14523f
+
+10|B14-F070-ACTION_SPACE|P2|RETEST_REQUIRED|confidence=0.8|owner=K3ActionSpaceEngine+V51Repository|file=K3ActionSpaceEngine.java|V51PositionActionBuilder.java
+结论=formula=1200|persisted=0|deferredEvidenceStatus=MISSING
+原因=static integration exists but sufficient physical runtime evidence is absent
+影响=missing identities invalidate ranking, deferred proof and exact settlement
+施工=enumerate all 10*C(10,3) identities and validate ordinals 0..1199
+验证=1200 unique identities, combination ordinal boundaries and payload hash
+期望=engineering remains implemented; physical proof stays open
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=a228aa8202971b54495997181f2b50653e7b8c644b047d17ac5e5f3ba8d9e968
+
+11|B14-F010-DATA|P2|WARN|confidence=0.65|owner=TargetIssueResolver_ONLY|file=TargetIssueResolver.java
+结论=期号需运行时复核
+原因=evidence is incomplete or internally uncertain
+影响=wrong target identity would contaminate every downstream label and settlement
+施工=use TargetIssueResolver only; reject invalid base/target pairs before enqueue
+验证=T05 rollover, invalid sequence and exact distance
+期望=stable deterministic evidence with no redline violation
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=e9fa05cc5008162d53823e4202cfa6bac666e7884b5b8d995ececd9a5a247fa5
+
+12|B14-F110-FAILURE_TREE|P2|WARN|confidence=0.65|owner=V57FailureDiagnosisEngine+K3FailureDiagnosisEngine|file=V57FailureDiagnosisEngine.java|K3FailureDiagnosisEngine.java
+结论=RUNTIME_CHAIN|BLOCKED_UPSTREAM
+原因=evidence is incomplete or internally uncertain
+影响=wrong root cause wastes repairs and can weaken redlines
+施工=test P0 read/runtime causes before model hypotheses
+验证=finding counter-evidence and root-cause priority replay
+期望=stable deterministic evidence with no redline violation
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=b5cca719b2106fed76f42ed2fcb85872a3ca9263bcda39ba2eff87b69fc38314
+
+13|B14-F120-ABLATION|P3|OBSERVED|confidence=0.65|owner=StrategyConflictAblationEngine+FormulaAlgorithmAuditEngine|file=StrategyConflictAblationEngine.java|FormulaAlgorithmAuditEngine.java
+结论=冲突、消融、公式审计已生成
+原因=evidence exists but does not independently prove promotion fitness
+影响=correlated modules may be double-counted without counterfactual tests
+施工=run leave-one-module-out and conflict replay offline
+验证=blockwise ablation deltas with uncertainty intervals
+期望=stable deterministic evidence with no redline violation
+回滚=keep canonical rows immutable, disable new path and remain SHADOW_ONLY
+FindingHash=77dfb38c397b5dd0e8cd9d35ae6d5bb8a0e3b9eb25b3bdcb405847dae043733f
+
+14|B14-F140-IMPROVEMENT|P3|OBSERVED|confidence=0.65|owner=ImprovementChallengerPlanEngine|file=ImprovementChallengerPlanEngine.java
+结论=可执行Challenger计划已生成，生产参数未修改
+原因=evidence exists but does not independently prove promotion fitness
+影响=unvalidated changes can regress the frozen active chain
+施工=implement challenger behind shadow gate; promote only with immutable certificate
+验证=champion/challenger rollback rehearsal and deterministic bundle hash
+期望=stable deterministic evidence with no redline violation
+回滚=retain current champion and remove challenger from active registry
+FindingHash=70473919e60109fc287e309f4e066b201df7d70c43f918acd3d40712d58d1686
+
+
+conclusion=每个结论均绑定证据、反证、Owner、代码位置、施工、验证和回滚
+counterEvidence=诊断结论不是模型效果证明，也不得直接解锁REAL
+action=按P0→P1→P2顺序关闭；READ_ERROR优先于模型调参

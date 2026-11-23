@@ -1,17 +1,20 @@
-# STARCORE 当前施工方案 · R33.5 2026-11-20第三次复核
+# STARCORE 当前施工方案 · R34 · 2026-11-23
 
-当前完整入口为 [R33.5施工方案](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)，直接执行的任务书为 [CODEX_EXECUTE.md](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md)。[本轮逐项审计](construction/plans/STARCORE_R33_5_REVIEW_20261119/REVIEW_THIRD_20261120.md) · [当前证据与验收状态](construction/verification/STARCORE_R33_5_20261120/third-review/README.md) · [机器可读范围](construction/plans/STARCORE_R33_5_REVIEW_20261119/FINAL_SCOPE.json)。
+当前入口：[R34完整施工方案](construction/plans/STARCORE_R34_20261123/README.md) · [Codex施工任务书](construction/plans/STARCORE_R34_20261123/CODEX_EXECUTE.md) · [13批66项工单](construction/plans/STARCORE_R34_20261123/BATCHES.md) · [152条逐文件卡](construction/plans/STARCORE_R34_20261123/FILE_INDEX.md)。
 
-本轮在已上传方案上补正，**9阶段、66项原业务问题，最终164次文件操作、138条不同生产路径**。本次新增 V26—V32，累计 32 条复核记录。全批工单索引核 365 项附件，B08 逐批打开并复验九份交付，另设全案验收。15份Java完整后态和1份Android清单进入批次安装。查看[逐批问题与文件索引](construction/plans/STARCORE_R33_5_REVIEW_20261119/WORK_ORDERS.json)。目录沿用20261119名称以保持入口稳定，内容版本为2026-11-20。
+本轮以三份实际577311095现场报告及精确源码273641e838e0b8dd842b42a67a674e184942a30a为依据，设计R34返修。应用施工必须从construction/r335-field-095的上述提交或其已核实R34前序继续，不将main旧应用或033旧后态覆盖现场。
 
-1. [下载33.5.zip](https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip)，运行当前复核目录的prepare.py。工具还原第一卷62个缺件、17个旧件，验证6276件认证原件并带出本轮全部修订。无需继续历史75分片上传路线。
-2. 在工程外保存方案，从正式033源码`bb7b49bbcc9266bad548ec37e71403256fc06a4d`的独立Git检出开始，或从已核对的本方案合法前序阶段继续。
-3. 统一使用replay/stage_checked.py，依P00→B01→B02→B03→B04→B05→B06→B07→B08实施。工具组合原卷与当前完整补正，逐批核实际版本提交、累计文件、工作树、索引和生成文件；不要直接调用发布原包的旧stage入口。
-4. 每批完成版本四文件、真实提交、APK构建签名、下载件、原件与现场验收；构建前运行source/preflight_delivery.py核工具链、原033 APK和完整Git历史。R967已跟踪输出已正式列入安装清单，提交前仍用原生成器--check。
-5. B08运行完整源终验和同候选现场终审。源码预演与编译、正式APK、目标机24/72小时、独立自然资格分别记录。
+## 当前交付
 
-本轮审计已修订方案与生产载荷，并保存当前组合的实际测试回执；应用实施、签名APK、真机和自然效果按任务书继续逐批完成。已有2026-11-19 P00补正中的有效要求已纳入当前工具和说明，历史记录保留用于追溯。
+- 完整取证、13批66问题、R33.5旧66要求逐项承接、152条文件卡。
+- 12份Java修改后态及delta、6份完整新Java类、4份完整计划/证据工具；130条文件仍是待实现方法合同。
+- 三份用户报告原ZIP已原字节封存：[原件目录](construction/evidence/STARCORE_R34_20261123/raw/)，[摘要清单](construction/evidence/STARCORE_R34_20261123/INPUT_MANIFEST.json)。
+- [方案与局部代码验证](construction/plans/STARCORE_R34_20261123/verification/SELF_CHECK.json)及[最终封包校验](construction/verification/STARCORE_R34_20261123/PLAN_CHECK.json)。
 
-## 历史方案索引
+当前完成的是施工方案与局部参考实现。本次没有实施全部应用改动、没有构建新的APK、没有真机或自然质量通过结论。完整范围见[验证边界](construction/plans/STARCORE_R34_20261123/VERIFICATION_BOUNDARY.md)。未来执行按明确施工指令及任务书逐批实施、编译、签名、装机和采样，不把本入口存在当作应用完成。
 
-R32.5.1总包、问题清单与验证范围见[历史交付目录](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/README.md)。该历史版为5批、18个联合问题、312条受控路径和410份完整文件卡；其[复核](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/FINAL_REVIEW_R3251.md)、[交付清单](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/DELIVERY.json)与[既有验证](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/VERIFICATION.json)均保留历史身份。
+## 历史方案
+
+[R33.5 2026-11-20第三次复核](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)及其32门/96断言/288场景继续保留，并由R34承接重验。[R33.5逐项承接](construction/plans/STARCORE_R34_20261123/R335_CROSSWALK.md)。
+
+[R32.5.1历史交付](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/README.md)保留历史身份，不作为095当前施工前态。

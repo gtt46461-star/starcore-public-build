@@ -1,0 +1,15 @@
+{
+  "scope": "Native SQLite exact 095 source-delete and expert-delete SQL; candidate preselection/recheck assembled from unchanged source strings; not Android owner invocation. Archive trigger copy omitted because it does not protect active row.",
+  "eligible_candidate_rows": [
+    [
+      "eligible-old",
+      "eligible-policy"
+    ]
+  ],
+  "source_after_prune": 0,
+  "child_after_retention": 0,
+  "immutable_birth_receipt_after": 1,
+  "reproduction_confirmed": true,
+  "source_delete_sql": "DELETE FROM r26_foundry WHERE campaign_id IN (SELECT f.campaign_id FROM r26_foundry f WHERE f.status<>'RUNNING' AND NOT EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id) AND f.campaign_id NOT IN (SELECT campaign_id FROM r26_foundry ORDER BY created_at DESC LIMIT 2) ORDER BY f.created_at,f.campaign_id LIMIT 2)",
+  "child_delete_sql": "DELETE FROM r26_expert_experiment WHERE rowid IN (SELECT rowid FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND (length(state)=0 OR cursor=0 AND checkpoint_hash='') LIMIT 512)"
+}

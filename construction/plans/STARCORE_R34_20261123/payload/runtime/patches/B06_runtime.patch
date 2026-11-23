@@ -1,0 +1,29 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/DirectedResearchCreationR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DirectedResearchCreationR932.java
+@@ -32,19 +32,14 @@
+         // their committed results; repeating those workers here could exhaust every creation slice.
+         String active=store.getState(ModelBundleManagerR929.STATE_ACTIVE,"");if(active.isEmpty())active=ModelBundleRuntimeR932.current().hash;
+         try(ModelBundleRuntimeR932.Scope scope=ModelBundleRuntimeR932.forEvidence(active,TargetIssueResolver.next(latest).targetIssue,System.currentTimeMillis())){
+-            final RuntimeException[] failure=new RuntimeException[1];
+-            boolean ingested=store.coordinatorR36().runAtomicWrite("R963_CREATION_INGEST",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
+-                try{ingest(db);}catch(RuntimeException e){failure[0]=e;throw e;}
+-            }});
+-            if(!ingested)throw new IllegalStateException("R963_CREATION_INGEST_COMMIT_FAILED|"+
+-                    (failure[0]==null?"WRITER_INTERRUPTED":DatabaseCoordinator.describeCauseChain(failure[0],1000)),failure[0]);
++            // R34: preserve the coordinator's typed outcome. A WAIT/ADMISSION rollback
++            // must not be converted to a new untyped WRITER_INTERRUPTED/BUG failure.
++            store.coordinatorR36().runAtomicWriteOrThrowF01("R963_CREATION_INGEST",db->{
++                ingest(db);return Boolean.TRUE;
++            });
+             ResearchWorkBudgetR927.checkpoint();
+-            String result=store.coordinatorR36().runAtomicWrite("R932_DIRECTED_CREATION_"+lane,new DatabaseCoordinator.WriteCallable<String>(){public String call(SQLiteDatabase db){
+-                try{return create(db,lane);}catch(RuntimeException e){failure[0]=e;throw e;}
+-            }},"COMMIT_FAILED");
+-            if(result==null||result.equals("COMMIT_FAILED"))throw new IllegalStateException("R932_CREATION_COMMIT_FAILED|"+
+-                    (failure[0]==null?"WRITER_INTERRUPTED":DatabaseCoordinator.describeCauseChain(failure[0],1000)),failure[0]);
+-            return result;
++            return store.coordinatorR36().runAtomicWriteOrThrowF01(
++                    "R932_DIRECTED_CREATION_"+lane,db->create(db,lane));
+         }
+     }
+     /** Append-only row cursor and aggregates commit together; only actual active-module replays count. */

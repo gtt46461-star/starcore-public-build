@@ -1,5 +1,7 @@
-# STARCORE 最终施工入口
+# STARCORE 最终施工入口 · R34
 
-[打开R33.5当前方案](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md) · [完整Codex施工指令](construction/plans/STARCORE_R33_5_REVIEW_20261119/CODEX_EXECUTE.md) · [2026-11-20自检补正](construction/plans/STARCORE_R33_5_REVIEW_20261119/REVIEW_THIRD_20261120.md) · [本轮验证](construction/verification/STARCORE_R33_5_20261120/third-review/README.md)。
+[打开R34完整施工方案](construction/plans/STARCORE_R34_20261123/README.md) · [Codex完整施工任务书](construction/plans/STARCORE_R34_20261123/CODEX_EXECUTE.md) · [取证与根因](construction/plans/STARCORE_R34_20261123/EVIDENCE_AND_CAUSES.md) · [三份原始检测报告](construction/evidence/STARCORE_R34_20261123/raw/)。
 
-本轮方案为9阶段、66个原业务问题、164次完整文件操作、138条不同生产路径。入口沿用原目录，内容已更新至2026-11-20；从prepare.py取得完整方案后按stage_checked.py逐批实施。当前状态及历史索引见[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。
+13批、66项R34问题，逐项承接R33.5旧66项；152条逐文件卡。精确基线为construction/r335-field-095@273641e838e0b8dd842b42a67a674e184942a30a，不从033旧后态覆盖095。
+
+方案、局部补丁、真实应用施工、APK、真机和自然有效性分别验收。当前状态与历史索引见[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。

@@ -1,0 +1,194 @@
+{
+  "source_commit": "273641e838e0b8dd842b42a67a674e184942a30a",
+  "research_charts": [
+    {
+      "id": "R01",
+      "title": "多尺度结构状态与可用窗口",
+      "kind": "HEATMAP",
+      "group": "0",
+      "measure": "STRUCTURE_STATE",
+      "consumer": "StructureGeneratorRegistryR30",
+      "verification": "固定窗口条件收益，禁止后验挑窗"
+    },
+    {
+      "id": "R02",
+      "title": "结构预测与下一期落地误差",
+      "kind": "LINES",
+      "group": "0",
+      "measure": "STRUCTURE_FORECAST_ERROR",
+      "consumer": "FailureProfileR30",
+      "verification": "事前结构概率与结算误差配对"
+    },
+    {
+      "id": "R03",
+      "title": "号码位置兼容与跨位结构",
+      "kind": "GRAPH",
+      "group": "0",
+      "measure": "POSITION_COMPATIBILITY",
+      "consumer": "IdeaI04CrossPositionR27",
+      "verification": "移除跨位输入的独立增益"
+    },
+    {
+      "id": "R04",
+      "title": "多位置围号交集与缩减证据",
+      "kind": "STACK",
+      "group": "0",
+      "measure": "SET_INTERSECTION_SUPPORT",
+      "consumer": "SetIntersectionPolicyR30",
+      "verification": "候选集合→单位置K3，支持不足弃权"
+    },
+    {
+      "id": "R05",
+      "title": "失败簇→假设→可执行子代",
+      "kind": "GRAPH",
+      "group": "0",
+      "measure": "FAILURE_PRESCRIPTION",
+      "consumer": "ExpertProposalsR27",
+      "verification": "实际子代hash与后续确认回执"
+    },
+    {
+      "id": "R06",
+      "title": "原子条件边际贡献",
+      "kind": "BAR",
+      "group": "0",
+      "measure": "ATOM_PAIRED_GAIN",
+      "consumer": "MutationOpsR27",
+      "verification": "同日历期分块配对及角色隔离"
+    },
+    {
+      "id": "R07",
+      "title": "分子协同与冗余贡献",
+      "kind": "HEATMAP",
+      "group": "1",
+      "measure": "MOLECULE_SYNERGY",
+      "consumer": "DerivedAtomR27",
+      "verification": "组合优于各单体且复杂度受控"
+    },
+    {
+      "id": "R08",
+      "title": "思路族行为差异与机制覆盖",
+      "kind": "GRAPH",
+      "group": "1",
+      "measure": "BEHAVIOR_DIVERSITY",
+      "consumer": "BirthGateR27",
+      "verification": "固定probe集行为hash及错误相关"
+    },
+    {
+      "id": "R09",
+      "title": "专家处方落地与归因",
+      "kind": "BAR",
+      "group": "1",
+      "measure": "EXPERT_EXECUTABLE_CREDIT",
+      "consumer": "ExpertProposalsR27",
+      "verification": "提案→AST→确认，文字不计产出"
+    },
+    {
+      "id": "R10",
+      "title": "变异算子增益与计算成本",
+      "kind": "LINES",
+      "group": "1",
+      "measure": "OPERATOR_GAIN_COST",
+      "consumer": "EvolutionLoopR27",
+      "verification": "研究算子预算改变及未来独立验证"
+    },
+    {
+      "id": "R11",
+      "title": "父子同期配对收益与确认",
+      "kind": "LINE",
+      "group": "1",
+      "measure": "PARENT_CHILD_PAIRED",
+      "consumer": "FrozenConfirmationR30",
+      "verification": "负结果保留，确认结果不回流进化选择"
+    },
+    {
+      "id": "R12",
+      "title": "融合互补与共同失败区域",
+      "kind": "HEATMAP",
+      "group": "1",
+      "measure": "FUSION_COMPLEMENTARITY",
+      "consumer": "FusionOpsR27",
+      "verification": "组合新身份新确认，不继承父证书"
+    },
+    {
+      "id": "R13",
+      "title": "置信度失准与支持域风险",
+      "kind": "RELIABILITY",
+      "group": "2",
+      "measure": "CALIBRATION_SUPPORT",
+      "consumer": "CalibrationRowsR27",
+      "verification": "prior-only拟合、域外拒绝、BSS并列"
+    },
+    {
+      "id": "R14",
+      "title": "梯度→概率面→策略消费",
+      "kind": "GRAPH",
+      "group": "2",
+      "measure": "MODEL_CONSUMPTION_CHAIN",
+      "consumer": "IdeaI08NeuralRepresentationR27",
+      "verification": "输入/梯度/发布水位及冻结消费逐键对应"
+    },
+    {
+      "id": "R15",
+      "title": "状态漂移、遗忘与回放价值",
+      "kind": "LINES",
+      "group": "2",
+      "measure": "DRIFT_REPLAY_VALUE",
+      "consumer": "AtomNetRuntimeR30",
+      "verification": "新旧模型同期评估及回滚对照"
+    },
+    {
+      "id": "R16",
+      "title": "研究探索预算与有效产出",
+      "kind": "STACK",
+      "group": "2",
+      "measure": "RESEARCH_BUDGET",
+      "consumer": "ResearchPoolR27",
+      "verification": "不忙等，按研究角色分配并保留探索份额"
+    },
+    {
+      "id": "R17",
+      "title": "失败机制记忆与重复消耗",
+      "kind": "GRAPH",
+      "group": "2",
+      "measure": "FAILED_MECHANISM_MEMORY",
+      "consumer": "EvolutionLoopR27",
+      "verification": "重复反证减少且有保护资产不被误淘汰"
+    },
+    {
+      "id": "R18",
+      "title": "研究动作到主链效果全链",
+      "kind": "GRAPH",
+      "group": "2",
+      "measure": "END_TO_END_RECEIPTS",
+      "consumer": "DecisionGateEngine",
+      "verification": "研究→新资产→资格→唯一REAL→结算，不跳门禁"
+    }
+  ],
+  "r930_matrices": [
+    "EVIDENCE_TEACHER",
+    "STUDENT_ERROR",
+    "FORWARD_REASONING",
+    "REVERSE_REASONING",
+    "COUNTERFACTUAL",
+    "FEEDBACK",
+    "CONTRADICTION",
+    "TEACHER_DIVERSITY",
+    "TEMPORAL_PRECEDENCE",
+    "INVARIANCE",
+    "CAUSAL_SUPPORT",
+    "COUNTER_EVIDENCE",
+    "RESIDUAL_MECHANISM",
+    "NUMBER_POSITION_COMPATIBILITY",
+    "CROSS_POSITION_FLOW",
+    "ACTION_UTILITY",
+    "ALGORITHM_COMPLEMENTARITY",
+    "EVOLUTION_CREDIT",
+    "RESOURCE_EFFICIENCY"
+  ],
+  "su2_matrix": "SU2:LEARNED_FACTOR_TEACHER_CHECKPOINT",
+  "matrix_count": 20,
+  "chart_count": 18,
+  "legacy_chart_count": 29,
+  "logical_table_count": 16,
+  "counts_are_declarations_not_runtime_proof": true
+}

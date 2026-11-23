@@ -1,0 +1,82 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.AtomReplayR27;
+import java.util.*;
+
+/** Provenance and model consumption use the same existing short transaction as the actual policy freeze. */
+public final class ModelSurfaceStoreR30 {
+    private ModelSurfaceStoreR30(){}
+    public static final String[] DDL={
+        "CREATE TABLE IF NOT EXISTS r30_model_artifact(model_hash TEXT PRIMARY KEY,feature_abi TEXT NOT NULL,weights BLOB NOT NULL,trained_through_ordinal INTEGER NOT NULL,available_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS r30_model_surface(target_ordinal INTEGER NOT NULL,position INTEGER NOT NULL,model_hash TEXT NOT NULL,history_hash TEXT NOT NULL,probabilities BLOB NOT NULL,probability_hash TEXT NOT NULL,trained_through_ordinal INTEGER NOT NULL,model_available_at INTEGER NOT NULL,feature_through_ordinal INTEGER NOT NULL,feature_available_at INTEGER NOT NULL,prepared_at INTEGER NOT NULL,frozen_at INTEGER NOT NULL,deadline_at INTEGER NOT NULL,PRIMARY KEY(target_ordinal,position,model_hash,history_hash))",
+        "CREATE TABLE IF NOT EXISTS r30_model_call(call_key TEXT PRIMARY KEY,policy_hash TEXT NOT NULL,model_hash TEXT,target_ordinal INTEGER NOT NULL,position INTEGER NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,probability_hash TEXT,required_count INTEGER NOT NULL,called_at INTEGER NOT NULL,frozen_at INTEGER)"
+    };
+    public static void surface(ResearchWriteQueueR27.Batch b,ModelSurfaceProviderR30.Surface s,ModelSurfaceProviderR30.FrozenModelRef ref){
+        if(ref!=null&&(!ref.modelHash.equals(s.modelHash)||ref.trainedThroughOrdinal!=s.trainedThroughOrdinal||ref.availableAt!=s.modelAvailableAt))throw new ModelSurfaceProviderR30.Blocked("SURFACE_ARTIFACT_VERSION_MISMATCH");
+        if(ref!=null)b.add("INSERT OR IGNORE INTO r30_model_artifact VALUES(?,?,?,?,?)",ref.modelHash,AtomNetSessionR30.ABI,ref.storedWeightsR31(),ref.trainedThroughOrdinal,ref.availableAt);
+        b.add("INSERT OR IGNORE INTO r30_model_surface VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",s.targetOrdinal,s.position,s.modelHash,s.historyHash,StoreR27.pack(s.probabilities()),s.probabilityHash,s.trainedThroughOrdinal,s.modelAvailableAt,s.featureThroughOrdinal,s.featureAvailableAt,s.preparedAt,s.frozenAt,s.deadlineAt);
+    }
+    static final class Prepared {
+        final Map<Long,ModelSurfaceProviderR30.Surface> rows=new HashMap<>();final Map<Long,String> blocked=new HashMap<>();
+        final Map<String,ModelSurfaceProviderR30.FrozenModelRef> models=new HashMap<>();
+        void bind(FeatureCacheR27 cache){cache.bindModelSurfaces(ModelSurfaceProviderR30.source(rows,blocked));}
+    }
+    static Prepared archived(SQLiteDatabase ro,ReplayDatasetR27 data){
+        Prepared p=new Prepared();if(data.size()==0)return p;
+        Map<String,ModelSurfaceProviderR30.FrozenModelRef> verifiedModels=new LinkedHashMap<String,ModelSurfaceProviderR30.FrozenModelRef>(16,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,ModelSurfaceProviderR30.FrozenModelRef> e){return size()>16;}};
+        Map<Long,Integer> indices=new HashMap<>();Map<Integer,String> hashes=new HashMap<>();for(int i=0;i<data.size();i++){if((i&63)==0)ExecutionBudgetR26.poll();indices.put(data.ordinals[i],i);}
+        try(Cursor c=ro.rawQuery("SELECT s.target_ordinal,s.position,s.model_hash,s.history_hash,s.probabilities,s.probability_hash,s.trained_through_ordinal,s.model_available_at,s.feature_through_ordinal,s.feature_available_at,s.prepared_at,s.frozen_at,s.deadline_at,a.feature_abi,a.weights,a.trained_through_ordinal,a.available_at FROM r30_model_surface s JOIN r30_model_artifact a ON a.model_hash=s.model_hash WHERE s.target_ordinal>=? AND s.target_ordinal<=? ORDER BY s.frozen_at ASC",new String[]{Long.toString(data.ordinals[0]),Long.toString(data.ordinals[data.size()-1])})){
+            while(c.moveToNext()){
+                Integer row=indices.get(c.getLong(0));if(row==null)continue;int position=c.getInt(1);long key=ModelSurfaceProviderR30.key(row,position);if(p.rows.containsKey(key))continue;
+                String hash=hashes.get(row);if(hash==null){hash=ModelSurfaceProviderR30.historyHash(data,row);hashes.put(row,hash);}
+                if(!hash.equals(c.getString(3))){p.blocked.put(key,"ARCHIVED_HISTORY_MISMATCH");continue;}
+                try{
+                    if(!AtomNetSessionR30.ABI.equals(c.getString(13)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_FEATURE_ABI");
+                    ModelSurfaceProviderR30.FrozenModelRef original=verifiedModels.get(c.getString(2));if(original==null){original=ModelSurfaceProviderR30.FrozenModelRef.archived(ro,c.getString(2),c.getBlob(14),c.getLong(15),c.getLong(16));verifiedModels.put(original.modelHash,original);}
+                    if(original.trainedThroughOrdinal!=c.getLong(6)||original.availableAt!=c.getLong(7))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_ARTIFACT_BOUNDARY_MISMATCH");
+                    ModelSurfaceProviderR30.Surface s=ModelSurfaceProviderR30.archived(c.getString(2),hash,StoreR27.unpack(c.getBlob(4)),c.getLong(0),c.getLong(6),c.getLong(7),c.getLong(8),c.getLong(9),position,c.getLong(10),c.getLong(11),c.getLong(12));
+                    if(!s.probabilityHash.equals(c.getString(5)))throw new ModelSurfaceProviderR30.Blocked("ARCHIVED_PROBABILITY_HASH");
+                    p.rows.put(key,s);
+                }catch(RuntimeException invalid){if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;p.blocked.put(key,(FailureDispositionR31.classify(invalid).disposition==FailureDispositionR31.Disposition.DEPENDENCY?"UNAVAILABLE_ARCHIVED_SURFACE:":"INVALID_ARCHIVED_SURFACE:")+invalid.getMessage());}
+            }
+        }catch(RuntimeException missingSchema){if(missingSchema instanceof BudgetTokenSU1.Yield||missingSchema instanceof java.util.concurrent.CancellationException)throw missingSchema;p.blocked.put(-1L,"MODEL_SCHEMA_UNAVAILABLE");}
+        return p;
+    }
+    public static void bindHistorical(SQLiteDatabase ro,FeatureCacheR27 cache){archived(ro,cache.data).bind(cache);}
+    static Prepared prepareLive(RuntimeR27 rt,ResearchPoolR27.Worker w,FeatureCacheR27 cache,long deadline){
+        Prepared p=archived(w.ro,cache.data);int row=cache.data.size()-1;
+        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;AtomNetSessionR30 state=publication==null?null:publication.state;String unavailable=state==null?"ATOMNET_NOT_TRAINED":!state.ready()||publication.model==null?"ATOMNET_CHECKPOINT_NOT_READY":null;
+        if(unavailable!=null){for(int pos=1;pos<=10;pos++)p.blocked.put(ModelSurfaceProviderR30.key(row,pos),unavailable);p.bind(cache);return p;}
+        ModelSurfaceProviderR30.FrozenModelRef ref=publication.model;
+        AtomReplayR27.Frame frame=AtomReplayR27.build(cache.data,row,row+1);String history=ModelSurfaceProviderR30.historyHash(cache.data,row);
+        for(int pos=1;pos<=10;pos++){
+            long key=ModelSurfaceProviderR30.key(row,pos);if(p.rows.containsKey(key))continue;
+            try{
+                if(frame.values[pos-1]==null)throw new ModelSurfaceProviderR30.Blocked("INSUFFICIENT_FEATURE_HISTORY");
+                double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[pos-1],frame.present[pos-1],true),pos);long now=System.currentTimeMillis();
+                ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(cache.data.ordinals[row],row>0?cache.data.ordinals[row-1]:cache.data.ordinals[row],pos,history,x,now,now,now,deadline);
+                ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,ref);p.rows.put(key,surface);p.models.put(ref.modelHash,ref);
+            }catch(RuntimeException invalid){if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;p.blocked.put(key,invalid.getMessage());}
+        }
+        p.bind(cache);return p;
+    }
+    static void calls(ResearchWriteQueueR27.Batch b,String policy,PolicySpecR27 spec,long target,FeatureCacheR27 cache,Prepared prepared,boolean valid,String reason){
+        int count=Integer.bitCount(spec.ast.modelPositions);if(count==0)return;Set<String> addedModels=new HashSet<>();int row=cache==null?-1:cache.data.size()-1;long now=System.currentTimeMillis();
+        for(int pos=1;pos<=10;pos++)if((spec.ast.modelPositions&(1<<(pos-1)))!=0){
+            ModelSurfaceProviderR30.Surface s=cache==null?null:cache.modelSurface(row,pos);
+            if(valid&&s!=null){
+                surface(b,s,prepared==null||!addedModels.add(s.modelHash)?null:prepared.models.get(s.modelHash));
+                b.add("INSERT OR IGNORE INTO r30_model_call SELECT ?,?,?,?,?,'MATCHED','',?,?,?,frozen_at FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal=? AND status='FROZEN'",
+                        "MATCHED:"+policy+":"+target+":"+pos,policy,s.modelHash,target,pos,s.probabilityHash,count,now,policy,target);
+            }else{
+                String why=s==null&&cache!=null?cache.modelBlockReason(row,pos):reason;if(why==null||why.isEmpty())why="POLICY_PREDICTION_UNAVAILABLE";
+                String key="BLOCKED:"+policy+":"+target+":"+pos+":"+now+":"+StatsR27.sha256(why);
+                b.add("INSERT OR IGNORE INTO r30_model_call VALUES(?,?,?,?,?,'BLOCKED',?,?,?,?,NULL)",key,policy,s==null?null:s.modelHash,target,pos,why,s==null?null:s.probabilityHash,count,now);
+            }
+        }
+    }
+    static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){if(!c.moveToFirst())throw new IllegalStateException("MODEL_METRIC_UNAVAILABLE");return c.getLong(0);}}
+    public static Map<String,Object> report(SQLiteDatabase db){return ModelConsumptionCensusR30R1.report(db);}
+}

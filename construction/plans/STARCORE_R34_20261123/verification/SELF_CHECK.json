@@ -1,0 +1,154 @@
+{
+  "schema": "R34_PRESEAL_SELF_CHECK_1",
+  "scope": "PLAN_AND_PARTIAL_PAYLOAD_ONLY",
+  "source_baseline": "273641e838e0b8dd842b42a67a674e184942a30a",
+  "batches": 13,
+  "issues": 66,
+  "legacy_requirements": 66,
+  "file_cards": 152,
+  "material_counts": {
+    "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION": 130,
+    "APPLICABLE_PATCH_WITH_FULL_POSTIMAGE": 12,
+    "FULL_NEW_SOURCE": 6,
+    "COMPLETE_PLAN_VALIDATION_TOOL": 4
+  },
+  "runtime": {
+    "status": "PASS",
+    "baseline": "273641e838e0b8dd842b42a67a674e184942a30a",
+    "hashes_checked": 6,
+    "patch_application_check": "PASS",
+    "java_checks": 15,
+    "sqlite_contract_checks": [
+      "receipt_draw_same_transaction",
+      "rollback_preserves_atomicity",
+      "stale_retry_owner_rejected"
+    ],
+    "android_full_compile": "NOT_RUN",
+    "device_test": "NOT_RUN",
+    "release_apk": "NOT_BUILT",
+    "scope": "Helpers and extracted exact policy compiled/executed; SQL contracts exercised. Full Android modified classes remain integration-gated."
+  },
+  "schema_core": {
+    "schema": "R34_SCHEMA_UNIT_SUPPLEMENT_VERIFY_V1",
+    "baseline": "273641e838e0b8dd842b42a67a674e184942a30a",
+    "status": "HOST_AND_SQLITE_CONTRACTS_PASS",
+    "protectedRegistryMatches095": true,
+    "javaProtocolChecks": 21,
+    "protectedTables": 58,
+    "committedUnitsInFixture": 116,
+    "sqliteScenarios": [
+      "child_process_exit_before_commit_rolls_back_DDL_receipt_cursor",
+      "commit_before_ACK_restart_reuses_one_receipt_and_preserves_original_BLOB",
+      "same_name_wrong_guard_rejected_without_drop_or_repair",
+      "stale_owner_cannot_create_DDL_or_advance_cursor",
+      "real_SQLite_writer_contention_retries_same_unit_after_lock_release",
+      "schema_changed_after_prepare_rejected_before_mutation"
+    ],
+    "sqliteVersion": "3.53.1",
+    "compileScope": "Java21 jdk.compiler -source 17 -target 17; no Android API compilation",
+    "productionAndroidOwnerIntegrated": false,
+    "androidBuild": "NOT_RUN",
+    "device": "NOT_RUN",
+    "apk": "NOT_BUILT"
+  },
+  "cold_rebirth": {
+    "java_assertions": 33,
+    "sqlite_cross_language_checks": 44,
+    "scope": "ACTUAL_JAVA_PURE_CONTRACT_AND_EXACT_OWNER_SQL_ON_NATIVE_SQLITE; NOT_ANDROID_OR_SCHEDULER_INTEGRATION"
+  },
+  "guards": {
+    "status": "PASS",
+    "cases": [
+      "valid_known_fixture",
+      "future_label_in_features",
+      "deadline_late_even_before_result",
+      "result_already_visible",
+      "wall_clock_looks_ok_monotonic_late",
+      "clock_epoch_changed",
+      "draw_label_before_observation",
+      "two_real_positions_same_game_target",
+      "shadow_must_not_become_real",
+      "changed_policy_cannot_inherit_certificate",
+      "duplicate_number_not_k3",
+      "changed_draw_cannot_reuse_label",
+      "repeated_settlement",
+      "missing_opportunity_denominator",
+      "certificate_expired",
+      "self_reported_all_done_cannot_approve",
+      "real_application_id_parser_fixture",
+      "java_package_is_not_application_id",
+      "missing_device_reference_does_not_leave_delivery_verified",
+      "empty_batch_scope_not_verified",
+      "self_consistent_but_wrong_plan_seal_rejected"
+    ],
+    "assertion_count": 21,
+    "application_compile": "NOT_RUN",
+    "device": "NOT_RUN",
+    "nature": "NOT_PROVEN"
+  },
+  "combined_patch_set": {
+    "schema": "R34_SUPPLIED_PATCH_SET_CHECK_1",
+    "status": "PASS",
+    "baseline": "273641e838e0b8dd842b42a67a674e184942a30a",
+    "patches": [
+      {
+        "patch": "payload/runtime/patches/B01_runtime.patch",
+        "sha256": "7c61d1d3eaa42a041cca9912e35aa486d26f1e691154d6c1b6ec3864418d0c7f",
+        "status": "APPLIED_IN_CUMULATIVE_ISOLATED_095_SUBSET"
+      },
+      {
+        "patch": "payload/runtime/supplement/B01_schema_core_ADD.patch",
+        "sha256": "58e91f2c62b039e38af865c2ca41e1c30e6d5ab02fdeacb1d7e03089a6547b35",
+        "status": "APPLIED_IN_CUMULATIVE_ISOLATED_095_SUBSET"
+      },
+      {
+        "patch": "payload/runtime/patches/B02_runtime.patch",
+        "sha256": "5c4625416655f984df5e68fcf8e3866e5320550cd468b89aa4eb27b8d628b2bd",
+        "status": "APPLIED_IN_CUMULATIVE_ISOLATED_095_SUBSET"
+      },
+      {
+        "patch": "payload/runtime/patches/B06_runtime.patch",
+        "sha256": "f058395256b63315ede72e2c46d951f2187cfe1d4cda06ee46fdb6c921948fa5",
+        "status": "APPLIED_IN_CUMULATIVE_ISOLATED_095_SUBSET"
+      },
+      {
+        "patch": "payload/learning/patches/B06_cold_rebirth_integration.patch",
+        "sha256": "12bec04aa860adb008113cd536e11b9cd57357a128d3e6c3cd64a253a0d66169",
+        "status": "APPLIED_IN_CUMULATIVE_ISOLATED_095_SUBSET"
+      }
+    ],
+    "postimages_checked": 18,
+    "paths": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/DirectedResearchCreationR932.java",
+      "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+      "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/RawHttpIdentityR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthContractR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaUnitPlanR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java"
+    ],
+    "source_checkout_mutated": false,
+    "all_66_issues_implemented": false,
+    "android_build": "NOT_RUN",
+    "apk": "NOT_BUILT",
+    "device": "NOT_RUN",
+    "natural_quality": "NOT_PROVEN"
+  },
+  "app_implementation": "NOT_COMPLETED_BY_THIS_DELIVERY",
+  "android_compile": "NOT_RUN",
+  "apk": "NOT_BUILT",
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "seal_verification": "Run verify_plan after MANIFEST_SHA256 creation; final output is kept outside this seal to avoid self-reference."
+}

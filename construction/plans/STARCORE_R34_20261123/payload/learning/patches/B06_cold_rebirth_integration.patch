@@ -1,0 +1,146 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java
+@@ -13,6 +13,7 @@
+ import com.ethk3.novaonepro.strategyv2.ImprovementStoreR31;
+ import com.ethk3.novaonepro.strategyv2.ResearchActionSchemaR33;
+ import com.ethk3.novaonepro.strategyv2.DiagnosisSchemaR335;
++import com.ethk3.novaonepro.strategyv2.ColdRebirthSchemaR34;
+ import java.util.*;
+ import java.util.regex.*;
+ 
+@@ -37,7 +38,7 @@
+             Matcher m=DECLARATION.matcher(sql);
+             if(!m.find())throw new IllegalArgumentException("R31_LIFECYCLE_UNDECLARED_DDL");
+             kind=m.group(1).toLowerCase(Locale.ROOT);name=m.group(2);this.sql=sql;
+-            if(!(DiagnosisSchemaR335.declares(name)||ResearchActionSchemaR33.declares(name)||name.startsWith("r31_startup_checkpoint_")||name.startsWith("r31_gap_")||name.startsWith("idx_r31_gap_")||name.startsWith("r31_keep_")||name.startsWith("r31_gc_")||name.startsWith("r31_hypothesis_")||name.startsWith("idx_r31_keep_")||name.startsWith("idx_r31_gc_")||name.startsWith("idx_r31_hypothesis_")||name.startsWith("r31_mainline_")||name.startsWith("idx_r31_mainline_")||name.startsWith("r31_improvement_")||name.startsWith("idx_r31_improvement_")))
++            if(!(ColdRebirthSchemaR34.declares(name)||DiagnosisSchemaR335.declares(name)||ResearchActionSchemaR33.declares(name)||name.startsWith("r31_startup_checkpoint_")||name.startsWith("r31_gap_")||name.startsWith("idx_r31_gap_")||name.startsWith("r31_keep_")||name.startsWith("r31_gc_")||name.startsWith("r31_hypothesis_")||name.startsWith("idx_r31_keep_")||name.startsWith("idx_r31_gc_")||name.startsWith("idx_r31_hypothesis_")||name.startsWith("r31_mainline_")||name.startsWith("idx_r31_mainline_")||name.startsWith("r31_improvement_")||name.startsWith("idx_r31_improvement_")))
+                 throw new IllegalArgumentException("R31_LIFECYCLE_FOREIGN_OBJECT");
+             unit="OBJECT:"+name+":"+V51ChecksumEngine.sha256(canonical(sql));
+         }
+@@ -77,6 +78,7 @@
+         Collections.addAll(sql,ImprovementStoreR31.DDL);Collections.addAll(sql,ImprovementStoreR31.sourceGuardsR31(db));
+         Collections.addAll(sql,ResearchActionSchemaR33.DDL);
+         Collections.addAll(sql,DiagnosisSchemaR335.DDL);
++        Collections.addAll(sql,ColdRebirthSchemaR34.DDL);
+         return definitions(sql.toArray(new String[0]));
+     }
+     private static boolean startupSourcePresentR31(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r29_model_checkpoint'",null)){return c.moveToFirst();}}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+@@ -218,10 +218,12 @@
+                     if(workPending!=null&&latest!=null){
+                         if((id.equals("r27-live")||id.equals("legacy-replay")||id.equals("live-model-training"))&&committedInput!=null&&latest>=committedInput)workPending=latest-committedInput;
+                         else if(id.equals("r27-replay-dataset")&&!rows.isNull(8)&&latest>=rows.getLong(8))workPending=Math.max(0,latest-rows.getLong(8)-RuntimeR27.REFRESH_NEW_ROWS+1);
++                        else if(id.equals(ColdRebirthR34.TASK))workPending=ColdRebirthR34.pendingParentsForHealth(db);
+                         else if(workPending==0&&entry.unit!=TaskProgressR30R1.Unit.TIME_TICK&&(clock==null||latest>clock)){workPending=null;sourceFailure="PENDING_ZERO_IS_FROM_OLDER_SOURCE_WATERMARK";}
+                     }
+                     if(workPending==null&&sourceFailure==null)sourceFailure="OWNER_PENDING_NOT_MATERIALIZED";
+-                }else sourceFailure=entry==null?"UNREGISTERED_TASK_ID":"NO_CURRENT_TYPED_PROGRESS_OR_WORK_UNIT_MISMATCH";
++                }else if(entry!=null&&id.equals(ColdRebirthR34.TASK)){workPending=ColdRebirthR34.pendingParentsForHealth(db);sourceFailure=workPending==null?"COLD_REBIRTH_SCHEMA_UNAVAILABLE":null;}
++                else sourceFailure=entry==null?"UNREGISTERED_TASK_ID":"NO_CURRENT_TYPED_PROGRESS_OR_WORK_UNIT_MISMATCH";
+                 boolean resourceWait=WaitKindR27.RESOURCE.equals(waitKind);
+                 boolean dependency=WaitKindR27.DEPENDENCY.equals(waitKind)||blocked!=null&&(blocked.startsWith("DEPENDENCY")||blocked.startsWith("WAITING_"));
+                 boolean validLease="RUNNING".equals(status)&&boot.equals(rows.getString(20))&&!rows.isNull(21)&&rows.getLong(21)>elapsed;
+@@ -402,7 +404,7 @@
+             db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status IN ('RUNNING','CANCELLING')");
+             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
+             add(db,"schema","P1");add(db,"schema-base","P1");add(db,"lifecycle-schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");add(db,"incumbent-forecast","P1");
+-            add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"warm-candidates","P2");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"live-forecast-preparation","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
++            add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"warm-candidates","P2");add(db,ColdRebirthR34.TASK,"P2");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"live-forecast-preparation","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
+             for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}
+             db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27' AND status NOT IN ('QUARANTINED','NEEDS_FIX')");
+             for(String r27Task:new String[]{"r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
+@@ -654,6 +656,7 @@
+             case "aggregate-evidence":return EvidenceAccumulatorR26.stepOne(store,c,budget,seq+1);
+             case "incumbent-forecast":{if(c.cursor>=seq)return 0;long done=TaskContinuationR26.step(store,c,budget,seq+1);if(done>0)c.advanceCursorTo(seq);return done;}
+             case "warm-candidates":return TaskContinuationR26.step(store,c,budget,seq+1);
++            case "cold-rebirth-r34":return TaskContinuationR26.step(store,c,budget,seq+1);
+             case "publish-models":return TaskContinuationR26.step(store,c,budget,seq+1);
+             case "live-forecast-preparation":return TaskContinuationR26.step(store,c,budget,seq+1);
+             case "live-model-training":return TaskContinuationR26.step(store,c,budget,seq+1);
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java
+@@ -84,6 +84,7 @@
+         if (task.startsWith("expert-")) return ExpertWorkshopR26.step(store, () -> context.claim, token, target);
+         if (task.equals("incumbent-forecast")) return IncumbentLoopSU2.prepareNext(store, () -> context.claim, token, target);
+         if (task.equals("warm-candidates")) return WarmCandidateR26.step(store, () -> context.claim, token);
++        if (task.equals(ColdRebirthR34.TASK)) return ColdRebirthR34.step(store, () -> context.claim, token);
+         if (task.equals("publish-models")) return LivePoolR26.publishOne(store, () -> context.claim, token);
+         if (task.equals("live-forecast-preparation")) return PreparedForecastStoreR26.step(store, () -> context.claim, token);
+         if (task.equals("live-model-training")) return LivePoolR26.trainOne(store, () -> context.claim, token);
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java
+@@ -118,6 +118,8 @@
+ 
+     /** Builds the stepwise model named by a member (same constructor the live loop uses). */
+     public static OnlineModelsSU2.Model build(String kind, Map<String, String> p) {
++        // R34 lineage is hashed in the policy; strict model factories receive numerical fields only.
++        if(ColdRebirthContractR34.hasColdParameters(p))return build(kind,ColdRebirthContractR34.stripColdParameters(p));
+         if(WarmModelSeedR26.has(p))return build(kind,WarmModelSeedR26.structuralParameters(p));
+         if(p.containsKey("_birth_snapshot")||p.containsKey("_birth_through")){Map<String,String> raw=new TreeMap<>(p);String birth=raw.remove("_birth_snapshot"),through=raw.remove("_birth_through");if(birth==null||!birth.matches("[0-9a-f]{64}")||through==null||!through.matches("[0-9]+"))throw new IllegalArgumentException("R26_BIRTH_BINDING");return build(kind,raw);}
+ 
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java
+@@ -31,7 +31,7 @@
+     }
+     private static void add(Map<String,Entry> all,String ids,TaskProgressR30R1.Unit unit,boolean training,String input){for(String id:ids.split(" ")){if(all.put(id,new Entry(id,id.startsWith("r27-")?"RuntimeR27":"RuntimeCoordinatorR26",unit,training,input))!=null)throw new IllegalStateException(id);}}
+     public static final Map<String,Entry> ADDITIONAL;
+-    static {Map<String,Entry> m=new LinkedHashMap<>();add(m,"r27-atomnet-archive",TaskProgressR30R1.Unit.POLICY,false,"committed immutable sample segments; isolated archive failures are not learner failures");add(m,"lifecycle-schema",TaskProgressR30R1.Unit.PHASE,false,"one exact lifecycle schema object and migration receipt per writer transaction");add(m,"r27-matrices-r1",TaskProgressR30R1.Unit.ISSUE,false,"actual matrix input-through, not heartbeat");add(m,"r27-study-r1",TaskProgressR30R1.Unit.POSITION_SAMPLE,false,"256-row prepared replay checkpoint; original calendar boundary stored separately");add(m,"r27-observatory-r1",TaskProgressR30R1.Unit.PHASE,false,"committed object analysis, original machine measure and read-only chart frame");ADDITIONAL=Collections.unmodifiableMap(m);}
++    static {Map<String,Entry> m=new LinkedHashMap<>();add(m,"r27-atomnet-archive",TaskProgressR30R1.Unit.POLICY,false,"committed immutable sample segments; isolated archive failures are not learner failures");add(m,"lifecycle-schema",TaskProgressR30R1.Unit.PHASE,false,"one exact lifecycle schema object and migration receipt per writer transaction");add(m,"r27-matrices-r1",TaskProgressR30R1.Unit.ISSUE,false,"actual matrix input-through, not heartbeat");add(m,"r27-study-r1",TaskProgressR30R1.Unit.POSITION_SAMPLE,false,"256-row prepared replay checkpoint; original calendar boundary stored separately");add(m,"r27-observatory-r1",TaskProgressR30R1.Unit.PHASE,false,"committed object analysis, original machine measure and read-only chart frame");add(m,"cold-rebirth-r34",TaskProgressR30R1.Unit.POLICY,false,"immutable zero-evidence child births; not numeric training or quality");ADDITIONAL=Collections.unmodifiableMap(m);}
+     public static Map<String,Entry> all(){Map<String,Entry> m=new LinkedHashMap<>(ENTRIES);m.putAll(ADDITIONAL);return Collections.unmodifiableMap(m);}
+     public static Entry require(String id){Entry entry=ENTRIES.get(id);if(entry==null)entry=ADDITIONAL.get(id);if(entry==null)throw new IllegalArgumentException("UNREGISTERED_TYPED_TASK:"+id);return entry;}
+ }
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java
+@@ -147,13 +147,14 @@
+         db.execSQL("UPDATE r26_foundry SET status='DONE' WHERE campaign_id=? AND status='RUNNING'",new Object[]{campaign});try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R31_FOUNDRY_FINISH_CAS");}
+     }
+     private static void pruneFinishedR31(DbStore store,RuntimeCoordinatorR26.Claim claim){
+-        List<String[]> rows=new ArrayList<>();String old="campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status<>'RUNNING' ORDER BY created_at DESC LIMIT -1 OFFSET 2)";
++        ColdRebirthSchemaR34.require(store.readable());
++        List<String[]> rows=new ArrayList<>();String old="campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status<>'RUNNING' ORDER BY created_at DESC LIMIT -1 OFFSET 2) AND NOT "+ColdRebirthContractR34.protectZeroCandidateSql("r26_candidate");
+         try(Cursor c=store.readable().rawQuery("SELECT campaign_id,policy_hash FROM r26_candidate WHERE "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)) ORDER BY campaign_id,policy_hash LIMIT 8",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1)});}
+         if(rows.isEmpty())return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_FOUNDRY_RETENTION_SLICE",db->{
+             RuntimeCoordinatorR26.requireFence(db,claim);
+             WarmPublicationR31.requireCandidateArchiveR31(db);
+             WarmPublicationR31.requireFoundryArchiveR31(db);
+-            for(String[] row:rows)db.execSQL("DELETE FROM r26_candidate WHERE campaign_id=? AND policy_hash=? AND "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash))",row);db.execSQL("DELETE FROM r26_foundry WHERE campaign_id IN (SELECT f.campaign_id FROM r26_foundry f WHERE f.status<>'RUNNING' AND NOT EXISTS(SELECT 1 FROM r26_candidate c WHERE c.campaign_id=f.campaign_id) AND f.campaign_id NOT IN (SELECT campaign_id FROM r26_foundry ORDER BY created_at DESC LIMIT 2) ORDER BY f.created_at,f.campaign_id LIMIT 2)");RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
++            for(String[] row:rows)db.execSQL("DELETE FROM r26_candidate WHERE campaign_id=? AND policy_hash=? AND "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash))",row);db.execSQL(ColdRebirthContractR34.pruneSourceSql());RuntimeCoordinatorR26.requireFence(db,claim);return 0;});
+     }
+     static final class HistoryRankR32 implements Comparable<HistoryRankR32> {
+         final String key;
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java
+@@ -60,8 +60,9 @@
+         MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("warm-preservation",MemoryBudgetR31.Kind.QUEUED,262144,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);boolean retained=false;
+         try{
+             long version=scalar(read,"PRAGMA schema_version");
++            ColdRebirthSchemaR34.require(read);
+             String learned="length(c.state)>0 AND (c.cursor>0 OR instr(c.canonical_text,'_warm_kernel=')>0)",published="EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=c.policy_hash)";
+-            String action="CASE WHEN c.state IS NULL OR length(c.state)=0 OR c.cursor=0 AND instr(c.canonical_text,'_warm_kernel=')=0 OR "+published+" THEN 3 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi<>? AND c.status<>'BLOCKED_WARM_NUMERICAL_ABI_PRESERVED' THEN 2 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi=? AND c.status NOT LIKE 'BLOCKED_WARM_%' AND c.status<>'"+WAITING+"' THEN 1 ELSE 0 END";
++            String action="CASE WHEN "+ColdRebirthContractR34.protectZeroCandidateSql("c")+" THEN 0 WHEN c.state IS NULL OR length(c.state)=0 OR c.cursor=0 AND instr(c.canonical_text,'_warm_kernel=')=0 OR "+published+" THEN 3 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi<>? AND c.status<>'BLOCKED_WARM_NUMERICAL_ABI_PRESERVED' THEN 2 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi=? AND c.status NOT LIKE 'BLOCKED_WARM_%' AND c.status<>'"+WAITING+"' THEN 1 ELSE 0 END";
+             List<String[]> rows=new ArrayList<>();boolean more=false;String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;List<String> args=new ArrayList<>(Arrays.asList(abi,abi));String eligibility="f.status IN ('EXPIRED_RETENTION','ABANDONED_NUMERICAL_ABI')";if(!expiringCampaigns.isEmpty()){eligibility+=" OR f.campaign_id IN ("+String.join(",",Collections.nCopies(expiringCampaigns.size(),"?"))+")";args.addAll(expiringCampaigns);}
+             try(Cursor c=read.rawQuery("SELECT * FROM (SELECT c.campaign_id,c.policy_hash,c.checkpoint_hash,c.state_hash,c.cursor,c.status,f.numerical_abi,f.snapshot_hash,f.source_through,f.created_at,length(c.state) AS state_bytes,"+action+" AS action FROM r26_candidate c JOIN r26_foundry f ON f.campaign_id=c.campaign_id WHERE "+eligibility+") WHERE action>0 ORDER BY created_at,campaign_id,policy_hash LIMIT 9",args.toArray(new String[0]))){
+                 while(c.moveToNext()){if(rows.size()==PRESERVATION_ROWS_R31){more=true;break;}if(!c.isNull(10)&&c.getLong(10)>(4L<<20))throw new ModelPublicationR31.PublicationDependencyR31("WARM_OLD_STATE_OUTSIDE_DECLARED_VALID_BOUND");String[] row=new String[12];long bytes=0;for(int i=0;i<row.length;i++){row[i]=c.getString(i);if(row[i]!=null)bytes+=row[i].getBytes(java.nio.charset.StandardCharsets.UTF_8).length;}if(bytes>2048)throw new ModelPublicationR31.PublicationDependencyR31("WARM_PRESERVATION_METADATA_BOUND");rows.add(row);}
+@@ -91,7 +92,7 @@
+         String source=" AND EXISTS(SELECT 1 FROM r26_foundry f WHERE f.campaign_id=r26_candidate.campaign_id AND f.status IN ('EXPIRED_RETENTION','ABANDONED_NUMERICAL_ABI') AND f.numerical_abi=? AND f.snapshot_hash=? AND f.source_through=?)";
+         for(String[] row:prepared.rows){
+             int action=Integer.parseInt(row[11]);String conditions=" WHERE campaign_id=? AND policy_hash=? AND checkpoint_hash=? AND state_hash=? AND cursor=? AND status=?"+source;Object[] args={row[0],row[1],row[2],row[3],Long.parseLong(row[4]),row[5],row[6],row[7],Long.parseLong(row[8])};
+-            if(action==3)db.execSQL("DELETE FROM r26_candidate"+conditions+" AND (state IS NULL OR length(state)=0 OR cursor=0 AND instr(canonical_text,'_warm_kernel=')=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash))",args);
++            if(action==3)db.execSQL("DELETE FROM r26_candidate"+conditions+" AND (state IS NULL OR length(state)=0 OR cursor=0 AND instr(canonical_text,'_warm_kernel=')=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)) AND NOT "+ColdRebirthContractR34.protectZeroCandidateSql("r26_candidate"),args);
+             else{String state=action==1?WAITING:"BLOCKED_WARM_NUMERICAL_ABI_PRESERVED";Object[] values=new Object[args.length+1];values[0]=state;System.arraycopy(args,0,values,1,args.length);db.execSQL("UPDATE r26_candidate SET status=?"+conditions+" AND length(state)>0 AND (cursor>0 OR instr(canonical_text,'_warm_kernel=')>0) AND NOT EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)",values);}
+             changed+=(int)scalar(db,"SELECT changes()");
+         }return changed;
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java
+@@ -103,8 +103,9 @@
+                 return 0;
+             }
+             case 13:{
++        ColdRebirthSchemaR34.require(db);
+         ExpertContinuationR26.preserveExpired(db);
+-        db.execSQL("DELETE FROM r26_expert_experiment WHERE rowid IN (SELECT rowid FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND (length(state)=0 OR cursor=0 AND checkpoint_hash='') LIMIT "+SLICE_R30+")");
++        db.execSQL(ColdRebirthContractR34.pruneExpiredExpertsSql(SLICE_R30));
+                 return 0;
+             }
+             case 14:{

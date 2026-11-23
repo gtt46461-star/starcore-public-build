@@ -1,0 +1,73 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java
+@@ -34,7 +34,7 @@
+         String e = error == null ? "" : error;
+         if (e.contains("SNAPSHOT_HASH_MISMATCH") || e.contains("SNAPSHOT_MISSING")
+                 || e.contains("CARDINALITY") || e.contains("CURSOR_RANGE") || e.contains("INTEGRITY")) return false;
+-        return e.contains("CP3_DB_BUSY")
++        return DeferredWaitR34.isWriterBackpressure(e) || e.contains("CP3_DB_BUSY")
+                 || e.contains("SQLiteDatabaseLockedException") || e.equals("OOM_CAUGHT")
+                 || e.contains("E02A_RESEARCH_YIELD:") || e.contains("B05_TIMEOUT")
+                 || e.contains("InterruptedException");
+@@ -52,7 +52,8 @@
+                                 + "(last_error LIKE '%CP3_DB_BUSY%' OR last_error LIKE '%WRITE_COORDINATION_FAILED%'"
+                                 + " OR last_error LIKE '%SQLiteDatabaseLockedException%' OR last_error='OOM_CAUGHT'"
+                                 + " OR last_error LIKE '%E02A_RESEARCH_YIELD:%' OR last_error LIKE '%B05_TIMEOUT%'"
+-                                + " OR last_error LIKE '%InterruptedException%') ORDER BY target_issue LIMIT 16", null)) {
++                                + " OR last_error LIKE '%InterruptedException%'"
++                                + " OR last_error LIKE '%R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN%') ORDER BY target_issue LIMIT 16", null)) {
+                             while (rows.moveToNext() && targets.size() < 4)
+                                 if (transientResourceFailure(rows.getString(1))) targets.add(rows.getString(0));
+                         }
+@@ -547,6 +548,9 @@
+                                                 || attempts >= AppConfig.R36_DEFERRED_MAX_ATTEMPTS);
+                                 ContentValues cv = new ContentValues();
+                                 cv.put("status", terminal ? FAILED_TERMINAL : RETRY_WAIT);
++                                // An unentered admission is not a failed materialization attempt.
++                                if (DeferredWaitR34.isWriterBackpressure(error))
++                                    cv.put("attempts", Math.max(0, attempts - 1));
+                                 cv.put("lease_owner", "");
+                                 cv.put("lease_until", 0L);
+                                 cv.put("updated_at", now);
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+@@ -60,7 +60,7 @@
+         registerR31(registry,WriteClass.DRAW_INGEST,"R32_PREDRAW_SUFFIX","R914_DRAW_SAVE_ATOMIC*","R925_FETCH_BEGIN","R925_FETCH_PAYLOAD","R925_FETCH_COMPLETE");
+         registerR31(registry,WriteClass.LIVE_FREEZE,"R932_DOMAIN_ROUTE","R932_BUNDLE_CAPTURE","R932_FREEZE_ONE_RESEARCH_CONSUMER","R36_CANONICAL*","R36_ANALYSIS*","R366_ANALYSIS*","R26_INCUMBENT_FREEZE","R26_LIVE_FREEZE");
+         registerR31(registry,WriteClass.SETTLEMENT,"R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER","R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM","R919_TERMINALIZE_AUDITED_NO_PREDRAW","R911_SETTLEMENT_REOPEN_CURRENT_FAILED","R914_SETTLEMENT_HANDOFF_CURRENT*","R36_SETTLEMENT*","R811_SETTLEMENT_PROMOTE_CURRENT*","R909_SETTLEMENT_REOPEN_CURRENT*","R905_REOPEN_FALSE_NO_PREDRAW*","R820_SETTLEMENT*","R900_SETTLEMENT*");
+-        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP");
++        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP","R36_DEFERRED_FAILURE","R941_DEFERRED_RESOURCE_RECOVERY");
+         registerR31(registry,WriteClass.TELEMETRY,"R31_BUILD_MODULE_REGISTRY","R31_RUNTIME_OBSERVATION","R31_FETCH_TIMING","R31_FETCH_BEGIN_ASYNC","R27_THREAD_CPU","R27_WRITE_WAIT","R30_WRITER_HOLD_FLUSH","R30_TIMELINE_COMMIT_OBSERVATIONS","R927_RESOURCE*");
+         registerR31(registry,WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA","R26_SU2_SCHEMA","R26_STRATEGY_STORAGE_UNIT","R31_LEGACY_SCHEMA_PREPARE","R929_PLATFORM_SCHEMA","R930_EVOLUTION_SCHEMA","R932_ABLATION_SCHEMA","R932_D2_REPLAY_SCHEMA","R932_FIXED_WINDOW_SCHEMA","R948_RESEARCH_INTEGRITY_SCHEMA","R958_RESEARCH_SCHEMA_STEP");
+         registerR31(registry,WriteClass.RETENTION,"RETENTION_CP12*","R26_RETENTION_PHASE_*","R26_ARTIFACT_RETENTION","R914_DRAW_HISTORY_TRIM*");
+@@ -85,8 +85,8 @@
+         registerR31(registry,WriteClass.RESEARCH_DATA,"R929_BUNDLE_STAGE","R929_CERTIFICATE_PUT","R929_CONTRIBUTION_RECORD","R929_TRIAL_CAS","R929_TRIAL_REGISTER","R930_ABLATION_PUT","R930_ATOM_ADMISSION_PUT","R930_C06_BUDGET_READ");
+         registerR31(registry,WriteClass.RESEARCH_DATA,"R930_C06_DECIDE","R930_C06_RESERVE","R930_CAPTURE_CAS","R930_CONTRIBUTION_GRAPH_PUT","R930_DEDUPE_PUT","R930_FAILURE_PUT","R930_FRESH_CERTIFICATE_SYNC","R930_FRONTIER_PUT");
+         registerR31(registry,WriteClass.RESEARCH_DATA,"R930_LIFECYCLE_PUT","R930_MATRIX_SNAPSHOT_PUT","R930_MIRROR_L4_SHADOW_APPLICATIONS","R930_TASK_PUT","R932_ABLATION_RESULT_AND_CURSOR","R932_ATOM_INCREMENTAL_QUALITY","R932_CAPTURE_STAGE","R932_CERTIFICATE_REVOKE");
+-        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_COHORT_REVIEW","R932_D2_CAPTURE_ADVANCE","R932_DIRECTED_CREATION_","R932_FIXED_PAIR_SETTLE","R932_FIXED_WINDOW_CLOSE","R932_FREEZE_INDEPENDENT_CHAMPION","R932_INDEPENDENT_ATOM_CAPTURE");
+-        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_NEW_FUTURE_CHALLENGES","R932_NURSERY_PROXY","R932_OWNER_DISPATCH","R932_WINDOW_AUDIT_PUBLICATION","R941_DEFERRED_RESOURCE_RECOVERY","R943_ATOMIC_RESEARCH_LEARNING","R943_RESEARCH_FORMULA_FREEZE_ONE","R943_RESEARCH_GENESIS_FREEZE_ONE");
++        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_COHORT_REVIEW","R932_D2_CAPTURE_ADVANCE","R932_DIRECTED_CREATION_*","R932_FIXED_PAIR_SETTLE","R932_FIXED_WINDOW_CLOSE","R932_FREEZE_INDEPENDENT_CHAMPION","R932_INDEPENDENT_ATOM_CAPTURE");
++        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_NEW_FUTURE_CHALLENGES","R932_NURSERY_PROXY","R932_OWNER_DISPATCH","R932_WINDOW_AUDIT_PUBLICATION","R943_ATOMIC_RESEARCH_LEARNING","R943_RESEARCH_FORMULA_FREEZE_ONE","R943_RESEARCH_GENESIS_FREEZE_ONE");
+         registerR31(registry,WriteClass.RESEARCH_DATA,"R943_RESEARCH_ROSTER_PAGE","R947_MOLECULAR_TOOL_REFRESH","R948_CAL_MODEL_PUBLISH","R948_CAL_SETTLE_PAGE","R948_CHALLENGE_SETTLE_PAGE","R948_RESEARCH_INTEGRITY_PAGE","R952_BOOTSTRAP_CANDIDATE","R952_MATRIX_PUBLISH");
+         registerR31(registry,WriteClass.RESEARCH_DATA,"R952_MODULE_RECONCILE","R952_PREDRAW_FREEZE","R952_STRICT_FUTURE_SETTLE","R952_TRAIN_CONSUME","R952_WORLD_ATOM","R952_WORLD_MOLECULE","R958_FROZEN_FULL1200_PREDRAW","R959_DEV_PREREGISTER");
+         registerR31(registry,WriteClass.RESEARCH_DATA,"R959_NUMERIC_DEV_CHECKPOINT","R961_LIFECYCLE_REVIEW_ONE","R961_LIFECYCLE_SELECT","R963_CREATION_INGEST","R965_ABLATION_SOURCE_BOUNDARY","R969_FREEZE_VERSIONED_CANDIDATE","R969_PREREGISTER_DISJOINT_TRAIN_RUN","R975_CAL_INVALID_INPUT");
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java
+@@ -0,0 +1,17 @@
++package com.ethk3.novaonepro;
++
++/** Narrow backpressure recognition for persisted pre-R34 materialization receipts. */
++public final class DeferredWaitR34 {
++    private DeferredWaitR34() {}
++    public static final String WRITER_BACKLOG =
++            "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN";
++
++    /** Only a declared, unentered, rolled-back writer admission is a wait. */
++    public static boolean isWriterBackpressure(String error) {
++        return error != null
++                && error.contains(WRITER_BACKLOG)
++                && error.contains("category=DEPENDENCY")
++                && error.contains("phase=ADMISSION")
++                && error.contains("commitOutcome=ROLLED_BACK");
++    }
++}

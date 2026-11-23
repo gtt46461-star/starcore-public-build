@@ -1,0 +1,75 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java
++++ b/app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java
+@@ -104,6 +104,10 @@
+         PendingBeginR31 start;PendingResponseR31 response;
+         synchronized(PENDING_BEGIN_R31){start=PENDING_BEGIN_R31.get(id);}synchronized(PENDING_RESPONSE_R31){response=PENDING_RESPONSE_R31.get(id);}
+         if(start!=null)insertBeginR31(db,start);
++        // R34: a retry may fill a missing/REQUESTED receipt, never rewrite a durable identity.
++        if(response!=null)try(Cursor existing=db.rawQuery("SELECT payload_hash FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{id})){
++            if(existing.moveToFirst())RawHttpIdentityR34.requireNoOverwrite(existing.getString(0),response.hash);
++        }
+         if(response!=null)db.execSQL("UPDATE "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" SET response_at=coalesce(response_at,?),received_at=CASE WHEN received_at>0 THEN received_at ELSE ? END,latency_ms=?,http_code=?,response_hash=?,payload_hash=?,status=?,error_code=?,clock_epoch=?,label_version=?,received_mono_ms=coalesce(received_mono_ms,?),received_boot_id=coalesce(received_boot_id,?) WHERE request_id=?",new Object[]{response.wall,response.wall,response.elapsed,response.code,response.hash,response.hash,response.status,response.error,CLOCK_EPOCH,SOURCE_EVENT_LABEL_VERSION,response.mono,response.boot,id});
+         try(Cursor existing=db.rawQuery("SELECT payload_hash FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{id})){
+             if(!existing.moveToFirst()||!safe(existing.getString(0)).matches("[0-9a-f]{64}")||response!=null&&!response.hash.equals(existing.getString(0)))throw new IllegalStateException("R31_DEPENDENCY_HTTP_RECEIPT_NOT_DURABLE");
+@@ -120,7 +124,7 @@
+         final long receivedAt = raw!=null&&raw.bodyCompleteWallMs>0?raw.bodyCompleteWallMs:TimeSourceR811.wallNowMs();
+         final long receivedMono=raw!=null&&raw.bodyCompleteMonoMs>0?raw.bodyCompleteMonoMs:android.os.SystemClock.elapsedRealtime();final String receivedBoot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
+         observeTransportR31(store,id,raw);
+-        final String payloadHash = V51ChecksumEngine.sha256(body);
++        final String payloadHash = RawHttpIdentityR34.payloadSha256(body);
+         String rawReason = raw == null ? "TRANSPORT_NULL_RESULT" : safe(raw.errorMessage);
+         if (rawReason.length() == 0) {
+             rawReason = httpCode == 503 ? "HTTP_503" : "TRANSPORT_EXCEPTION";
+@@ -403,13 +407,13 @@
+     }
+     /** Only the exact successful raw transport object supplies its request identity. */
+     static void bindRawResultR82(Models.ApiResult raw,String request) {
+-        if(raw!=null&&request!=null)RAW_R82.put(raw,new RawBindingR82(request,V51ChecksumEngine.sha256(safe(raw.rawJson))));
++        if(raw!=null&&request!=null)RAW_R82.put(raw,new RawBindingR82(request,RawHttpIdentityR34.payloadSha256(raw.rawJson)));
+     }
+     /** No SQL and no lookup by issue: bind the actual objects returned by ApiParser. */
+     static void bindParsedResultR82(Models.ApiResult raw,Models.ApiResult parsed) {
+         RawBindingR82 b=RAW_R82.get(raw);if(b==null||parsed==null)return;
+         observeStageR31(null,b.request,parsed.latestDraw==null?"":parsed.latestDraw.issue,false,true);
+-        if(!b.payload.equals(V51ChecksumEngine.sha256(safe(raw.rawJson))))throw new IllegalStateException("HTTP_RAW_BINDING_MUTATED");
++        if(!b.payload.equals(RawHttpIdentityR34.payloadSha256(raw.rawJson)))throw new IllegalStateException("HTTP_RAW_BINDING_MUTATED");
+         java.util.Set<Models.Draw> seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Models.Draw,Boolean>());
+         if(parsed.latestDraw!=null)seen.add(parsed.latestDraw);
+         if(parsed.history!=null)seen.addAll(parsed.history);if(parsed.draws!=null)seen.addAll(parsed.draws);
+@@ -431,8 +435,13 @@
+         if(!b.fingerprint.equals(drawFingerprintR82(draw,b.rawHash))||(!b.rawHash.equals(rawHash)&&!(b.restored&&safe(draw.rawJson).isEmpty())))
+             throw new IllegalStateException("HTTP_DRAW_BINDING_MUTATED");
+         if(b.request.isEmpty()||!b.payload.matches("[0-9a-f]{64}"))throw new IllegalStateException("HTTP_REQUEST_RECEIPT_NOT_DURABLE");
++        // R34: COMPLETE/PAYLOAD can yield to a busy writer. The exact in-memory transport
++        // receipt is persisted here inside the SAME transaction as the canonical draw.
++        // No request is reconstructed from an issue, and no clock/hash is manufactured.
++        ensureReceiptWithinR31(db,b.request);
+         try(Cursor c=db.rawQuery("SELECT payload_hash,source_line,status,http_code,received_at FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{b.request})){
+-            if(!c.moveToFirst()||!b.payload.equals(c.getString(0)))throw new IllegalStateException("HTTP_REQUEST_PAYLOAD_IDENTITY_MISMATCH");
++            if(!c.moveToFirst())throw new IllegalStateException("R31_DEPENDENCY_HTTP_RECEIPT_NOT_DURABLE");
++            if(!b.payload.equals(c.getString(0)))throw new IllegalStateException("HTTP_REQUEST_PAYLOAD_IDENTITY_MISMATCH");
+             String source=safe(c.getString(1)),status=safe(c.getString(2));int http=c.getInt(3);
+             if((!source.isEmpty()&&!source.equals(b.source))||http<200||http>=300||c.getLong(4)<=0
+                     ||!(status.equals("HTTP_PAYLOAD_ACCEPTED")||status.equals("HTTP_OK_BODY_RECEIVED")||status.equals("BUSINESS_ACCEPTED")||status.equals("ACCEPTED_DUPLICATE")))
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/RawHttpIdentityR34.java
+@@ -0,0 +1,19 @@
++package com.ethk3.novaonepro;
++
++/** Exact received body identity. No trim, parsing, normalization or hash overwrite. */
++public final class RawHttpIdentityR34 {
++    private RawHttpIdentityR34() {}
++
++    public static String payloadSha256(String body) {
++        return V51ChecksumEngine.sha256(body == null ? "" : body);
++    }
++
++    /** A REQUESTED row has an empty hash; a completed row is immutable in identity. */
++    public static void requireNoOverwrite(String persistedHash, String receivedHash) {
++        if (receivedHash == null || !receivedHash.matches("[0-9a-f]{64}"))
++            throw new IllegalArgumentException("R34_HTTP_RECEIVED_HASH_REQUIRED");
++        if (persistedHash != null && !persistedHash.isEmpty()
++                && !persistedHash.equals(receivedHash))
++            throw new IllegalStateException("R34_INTEGRITY_CONFLICT_HTTP_REQUEST_PAYLOAD");
++    }
++}

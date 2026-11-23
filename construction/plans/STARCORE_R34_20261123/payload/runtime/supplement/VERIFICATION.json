@@ -1,0 +1,23 @@
+{
+  "schema": "R34_SCHEMA_UNIT_SUPPLEMENT_VERIFY_V1",
+  "baseline": "273641e838e0b8dd842b42a67a674e184942a30a",
+  "status": "HOST_AND_SQLITE_CONTRACTS_PASS",
+  "protectedRegistryMatches095": true,
+  "javaProtocolChecks": 21,
+  "protectedTables": 58,
+  "committedUnitsInFixture": 116,
+  "sqliteScenarios": [
+    "child_process_exit_before_commit_rolls_back_DDL_receipt_cursor",
+    "commit_before_ACK_restart_reuses_one_receipt_and_preserves_original_BLOB",
+    "same_name_wrong_guard_rejected_without_drop_or_repair",
+    "stale_owner_cannot_create_DDL_or_advance_cursor",
+    "real_SQLite_writer_contention_retries_same_unit_after_lock_release",
+    "schema_changed_after_prepare_rejected_before_mutation"
+  ],
+  "sqliteVersion": "3.53.1",
+  "compileScope": "Java21 jdk.compiler -source 17 -target 17; no Android API compilation",
+  "productionAndroidOwnerIntegrated": false,
+  "androidBuild": "NOT_RUN",
+  "device": "NOT_RUN",
+  "apk": "NOT_BUILT"
+}

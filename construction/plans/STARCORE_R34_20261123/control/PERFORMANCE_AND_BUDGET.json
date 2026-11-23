@@ -1,0 +1,41 @@
+{
+  "schema": "R34_PREFROZEN_BUDGET_PROPOSAL_1",
+  "userTargets": {
+    "poll_period_ms": 1000,
+    "source_to_durable_and_min_settlement_ms": 1000,
+    "next_decision_budget_ms": 5000,
+    "hot_history_max_issues": 5000,
+    "coverage_floor": 0.15,
+    "coverage_target": 0.3
+  },
+  "denominators": [
+    "scheduledN",
+    "startedN",
+    "completedN",
+    "timeoutN",
+    "unmeasuredN",
+    "withinSloN"
+  ],
+  "percentiles": {
+    "method": "nearest-rank on successful completed finite durations",
+    "must_display_completed_and_scheduled_N": true,
+    "unknown_is_not_zero": true
+  },
+  "candidateBudgets": {
+    "rebirth_max_per_slice": 1,
+    "rebirth_pending_training_limit": 16,
+    "rebirth_source_rows_max": 4096,
+    "rebirth_snapshot_bytes_max": 180224
+  },
+  "needsDeviceCalibrationBeforeAcceptance": [
+    "minimum_completed_samples",
+    "observation_window",
+    "writer_hold_slice_ms",
+    "cpu_quantum_ms",
+    "active_learner_slots",
+    "feedback_backlog_bytes",
+    "db_wal_report_reservations",
+    "device_memory_ceiling"
+  ],
+  "scope": "User targets remain required; implementation budget values not measured here must be frozen in B00 before protocol execution. No preclaimed SLO."
+}

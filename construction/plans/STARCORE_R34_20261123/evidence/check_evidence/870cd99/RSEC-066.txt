@@ -1,0 +1,69 @@
+Source: reports/870cd99/REPORT_DETAILS.txt line 72
+【K3失败九类拆解】
+Version=V57_K3_FAILURE_DIAGNOSIS_FULL_20260808
+PrimaryLayer=RUNTIME_CHAIN|Verdict=BLOCKED_UPSTREAM
+1.NUMBER|BLOCKED|confidence=1.0
+Positive=NumberQ artifact|PROVEN=false
+Negative=Untrained NumberQ cannot establish top-number quality
+Reason=Strict OOS artifact proof is missing
+NextTest=Train/freeze NumberQ; compare top-k recall and Sinkhorn parity.
+Hash=188a8c07b32305677574b8281e3fa23d00fb91928b496e47af2903fc7721746f
+
+2.RANK|BLOCKED|confidence=1.0
+Positive=1200-action rank artifact|PROVEN=false
+Negative=Untrained ranker cannot establish Champion ordering
+Reason=Strict OOS artifact proof is missing
+NextTest=Run same-issue groupwise OOS Rank1/MRR/NDCG/pairwise stability.
+Hash=04dd7351eac06dd82af4b9fffe376070b7f865e47b594e7a46fb63f9eb2fd84a
+
+3.THIRD|UNAVAILABLE|confidence=0.0
+Positive=N/A
+Negative=No persisted runtime evidence
+Reason=Third boundary decides whether final K3 loses its marginal candidate
+NextTest=Audit rank3 vs rank4 margin, miss migration and after-draw counterfactual.
+Hash=6b79dd3575f6e6884abccc9ba90ac2200ea6630bf2c2af228348ceff0a35e0c9
+
+4.WINDOW|UNAVAILABLE|confidence=0.0
+Positive=N/A
+Negative=No persisted runtime evidence
+Reason=Window choice can overfit local repetition or react too slowly
+NextTest=Compare 12/24/48/96/360 survival and PIT-stable window selection.
+Hash=fb3a48fa1bc2d5e28442c917c82f59400f6fb92e839b0127032d1fab2102cfed
+
+5.REGIME|UNAVAILABLE|confidence=0.0
+Positive=N/A
+Negative=No persisted runtime evidence
+Reason=Regime mismatch can invalidate an otherwise strong motif/expert
+NextTest=Blockwise regime transition replay; inspect CUSUM/BOCPD/drift flags.
+Hash=5c21f76c86346f97ba4c37d6cb76d5b36db86f656d68be3f9a833416efda04b0
+
+6.MOTIF|UNAVAILABLE|confidence=0.0
+Positive=N/A
+Negative=No persisted runtime evidence
+Reason=Motif may be sparse, stale or duplicated across templates
+NextTest=Require support, recent validity and negative evidence before promotion.
+Hash=32e23403c5b53c02ba73ab0509c51dd7bef16b695d1f80a76ba87818f1267b0d
+
+7.RELATION|UNAVAILABLE|confidence=0.0
+Positive=N/A
+Negative=No persisted runtime evidence
+Reason=Cross-position relation can be spurious or leak contemporaneous information
+NextTest=Verify relation uses only pre-draw history and survives block ablation.
+Hash=ed64e2c478c02f484a80404a6928a808cd31024f665f2a266dc1e88e6c34e1ac
+
+8.CONSENSUS|UNAVAILABLE|confidence=0.0
+Positive=N/A
+Negative=No persisted runtime evidence
+Reason=Consensus can become correlated-vote double counting
+NextTest=Measure expert diversity, regret and leave-one-expert-out delta.
+Hash=ee3932ea4105789fae103d999748483cf24d5b906f8af0c3e863266986fdc346
+
+9.CALIBRATION|BLOCKED|confidence=1.0
+Positive=SelectedHitP calibration artifact|PROVEN=false
+Negative=Untrained calibration makes threshold/coverage decisions unreliable
+Reason=Strict OOS artifact proof is missing
+NextTest=Use selection-conditioned pre-draw OOS ECE/Brier/Wilson/subgroup certificates.
+Hash=b56a0c0e94baee871985a8f23a4d725e5905ac9a1d3733cb744df123eea93f51
+
+ReportHash=da0944685a25647178b8ed8655aa303c93e0b87ca7514962aa2b08f722a4b5ab
+

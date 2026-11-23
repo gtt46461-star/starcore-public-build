@@ -1,0 +1,26 @@
+{
+  "scope": "095 unchanged base guards and archive DDL; specialized owner guards still require Android integration",
+  "source": "r26_feedback",
+  "sourceDDL": "CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL)",
+  "archiveDDL": "CREATE TABLE IF NOT EXISTS \"r30_keep_r26_feedback\"(__r30_id INTEGER PRIMARY KEY AUTOINCREMENT,__r30_at INTEGER NOT NULL,__r30_reason TEXT NOT NULL,\"event_id\",\"issue_ordinal\",\"source_hash\",\"payload\",\"ready_at\")",
+  "guards": [
+    [
+      "r30_keep_r26_feedback_2319c46b6936_delete",
+      "CREATE TRIGGER IF NOT EXISTS \"r30_keep_r26_feedback_2319c46b6936_delete\" BEFORE DELETE ON \"r26_feedback\" WHEN (SELECT schema_hash FROM r30_retention_archive_index WHERE source_table='r26_feedback')='2319c46b6936db020979a02e1845e51464666f5852f8838034d60f1619be8761' BEGIN INSERT INTO \"r30_keep_r26_feedback\"(__r30_at,__r30_reason,\"event_id\",\"issue_ordinal\",\"source_hash\",\"payload\",\"ready_at\") VALUES(CAST((julianday('now')-2440587.5)*86400000 AS INTEGER),'BEFORE_ORIGINAL_DELETE',OLD.\"event_id\",OLD.\"issue_ordinal\",OLD.\"source_hash\",OLD.\"payload\",OLD.\"ready_at\"); UPDATE r30_retention_archive_index SET retained_rows=retained_rows+1,updated_at=CAST((julianday('now')-2440587.5)*86400000 AS INTEGER) WHERE source_table='r26_feedback'; END"
+    ],
+    [
+      "r30_keep_r26_feedback_immutable_update",
+      "CREATE TRIGGER IF NOT EXISTS \"r30_keep_r26_feedback_immutable_update\" BEFORE UPDATE ON \"r30_keep_r26_feedback\" BEGIN SELECT RAISE(ABORT,'R30_PROTECTED_ARCHIVE_IMMUTABLE'); END"
+    ],
+    [
+      "r30_keep_r26_feedback_immutable_delete",
+      "CREATE TRIGGER IF NOT EXISTS \"r30_keep_r26_feedback_immutable_delete\" BEFORE DELETE ON \"r30_keep_r26_feedback\" BEGIN SELECT RAISE(ABORT,'R30_PROTECTED_ARCHIVE_IMMUTABLE'); END"
+    ]
+  ],
+  "extractedMethodSha256": [
+    "35010c6216b95b08ab6c018ccdc60bec3d2c0aeec692032e450aac08a58822e5",
+    "2eaf5a8fafef5e7eb546ecfce681b8ddeec66a244ef530fda5231be4b4608755",
+    "9b3b7f212464ff1bdf4b80cc6003d0df8f32971ab842d08454e6db3d5aa77502",
+    "10abbf2d428509c810fbf92addd106b170f6e60777f22b1c3b7ef729046c3fc1"
+  ]
+}
