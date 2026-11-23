@@ -54,7 +54,33 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
   }catch(JSONException e){throw new ReportReadFailureCP4("REPORT_PROFILE_INVALID",e);}
  }
  public String evidenceMemberR64(){return compactDiagnosticR64()?"DIAGNOSTIC_SCOPE.json":"snapshot.db";}
- public String assetReference(String asset){try{JSONObject reference=new JSONObject(source.json).getJSONObject("assets").getJSONObject(asset);return "RAW_ASSET_REFERENCE|asset="+asset+"|member="+reference.getString("member")+"|sha256="+reference.getString("sha256")+"|bytes="+reference.getLong("bytes");}catch(JSONException missing){throw new ReportReadFailureCP4("REPORT_ASSET_REFERENCE_MISSING",missing);}}
+ public String assetReference(String asset) {
+  try {
+   JSONObject manifest = new JSONObject(source.json);
+   if (RuntimeChainDiagnosisR975.INDEX.equals(asset) && compactDiagnosticR64() && manifest.has("sourceIndexReference")) {
+    JSONObject index = manifest.getJSONObject("sourceIndexReference");
+    String digest = index.getString("sha256");
+    long bytes = index.getLong("bytes");
+    String commit = index.getString("sourceCommit");
+    String apk = index.getString("apkSha256");
+    if (!"EXACT_INSTALLED_APK_ASSET".equals(index.getString("scope"))
+      || !asset.equals(index.getString("assetPath")) || !asset.equals(manifest.getString("sourceIndexAsset"))
+      || !digest.matches("[a-f0-9]{64}") || !digest.equals(manifest.getString("sourceIndexSha256"))
+      || bytes <= 0 || bytes != manifest.getLong("sourceIndexBytes")
+      || !commit.matches("[a-f0-9]{40}") || !commit.equals(manifest.getString("sourceCommit"))
+      || !apk.matches("[a-f0-9]{64}") || !apk.equals(manifest.getString("apkSha256"))) {
+     throw new ReportReadFailureCP4("REPORT_SOURCE_INDEX_BINDING_MISMATCH");
+    }
+    return "INSTALLED_APK_ASSET_REFERENCE|asset=" + asset + "|sha256=" + digest + "|bytes=" + bytes
+      + "|sourceCommit=" + commit + "|apkSha256=" + apk;
+   }
+   JSONObject reference = manifest.getJSONObject("assets").getJSONObject(asset);
+   return "RAW_ASSET_REFERENCE|asset=" + asset + "|member=" + reference.getString("member")
+     + "|sha256=" + reference.getString("sha256") + "|bytes=" + reference.getLong("bytes");
+  } catch (JSONException missing) {
+   throw new ReportReadFailureCP4("REPORT_ASSET_REFERENCE_MISSING", missing);
+  }
+ }
  public void checkpoint(){if(closed||cancellation.isCanceled()||Thread.currentThread().isInterrupted())throw new ReportReadFailureCP4("REPORT_CONTEXT_CANCELLED");}
  public SQLiteDatabase readable(){checkpoint();return snapshot;}public SQLiteDatabase snapshotReadOnly(){return readable();}
  public CancellationSignal cancellationSignal(){return cancellation;}

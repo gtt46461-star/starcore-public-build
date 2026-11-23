@@ -1130,13 +1130,13 @@
       "rationale": "Reuse the existing ordered part identity, size and whole SHA verification to stream verified parts to the selected provider, reread its complete result and preserve previous destination on corrupt source."
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "320071e86ddf03e44ed9cb484ef417606ee560a320091a90ba963308ccd7bccb",
-      "before_role": "NUMERIC",
-      "before_sha256": "da949f97eff255e2df26c77aac47ec924063b870c63deacf32862561d06c8372",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "da949f97eff255e2df26c77aac47ec924063b870c63deacf32862561d06c8372",
+      "after_sha256": "b45a78e3a2bbef68401b3bc4ec60bcc3335dc815faad2e0c705247fed3b15f37",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R34 B12-122",
+      "rationale": "Read the authenticated compact report source index from its installed APK binding. Retain full raw archive member validation."
     },
     {
       "after_role": "NUMERIC",
@@ -9524,7 +9524,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "a7f4ceab09d3fe12047f2d109d21df8597e9a88d72e7c06884458f1aad1b9bc7",
+  "reviewed_input_provenance_sha256": "8725445876a1d8e8ae626de0c2451ef3bfc1e05f397e8c1e161a8a4b23e442ad",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
