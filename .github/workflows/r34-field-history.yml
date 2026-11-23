@@ -18,8 +18,8 @@ jobs:
           set -euo pipefail
           python3 - <<'PY_DIGEST'
           import os,re,time,urllib.request
-          tag='r34-B12-5fae0728cd46'
-          member='STARCORE-R34-577311113-5fae0728cd46-release.apk'
+          tag='r34-B12-a7b4c3f85ae6'
+          member='STARCORE-R34-577311114-a7b4c3f85ae6-release.apk'
           for _ in range(85):
               try:
                   with urllib.request.urlopen('https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/SHA256SUMS.txt',timeout=20) as r: text=r.read(16385).decode()
@@ -36,7 +36,7 @@ jobs:
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
-          ref: 5fae0728cd461a5d8185ca5a8df3772ed07f13e5
+          ref: a7b4c3f85ae6914c7a5e1e87f23cb12ee8e559f8
           path: app-source
           sparse-checkout: |
             research_data
