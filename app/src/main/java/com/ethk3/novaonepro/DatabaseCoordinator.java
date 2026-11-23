@@ -1016,11 +1016,9 @@ public final class DatabaseCoordinator {
         } finally {
             waitingWriters.decrementAndGet();if(critical)criticalBusinessWaitersR914.decrementAndGet();
             if(context.writeClass==WriteClass.LIVE_FREEZE)FREEZE_WAITERS_R31.decrementAndGet();
-            if(serviceSlot){
-                if(faultDrainR33)FAULT_SERVICE_SLOT_R34.set(false);
-                else if(context.writeClass==WriteClass.MIGRATION)MIGRATION_SERVICE_SLOT_R34.set(false);
-                else RESEARCH_SERVICE_SLOT_R31.set(false);
-            }
+            if(context.writeClass==WriteClass.MIGRATION){
+                if(serviceSlot)MIGRATION_SERVICE_SLOT_R34.set(false);
+            }else if(serviceSlot)(faultDrainR33?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);
             if(previousAttempt==null)ATTEMPT_R31.remove();
         }
     }
