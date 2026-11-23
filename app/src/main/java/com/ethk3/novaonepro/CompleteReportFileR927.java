@@ -8,32 +8,36 @@ public final class CompleteReportFileR927 {
  private static final java.util.concurrent.atomic.AtomicLong POLL_SESSION=new java.util.concurrent.atomic.AtomicLong();
  private CompleteReportFileR927(){}
  public static void openExportMenu(Activity activity,Button button,TextView status){if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
-  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"清理旧报告并生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存"},(dialog,which)->{
-   if(which==0){controlReports(activity,button,status,true,true);return;}if(which==5){controlReports(activity,button,status,true,false);return;}if(which==4){export(activity,button,status,true);return;}if(which==2){showLastFailure(activity);return;}if(which==3){cancelLatest(activity,button,status);return;}recover(activity,button,status);
+  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存"},(dialog,which)->{
+   if(which==0){export(activity,button,status,false);return;}if(which==5){controlReports(activity,button,status,true);return;}if(which==4){export(activity,button,status,true);return;}if(which==2){showLastFailure(activity);return;}if(which==3){cancelLatest(activity,button,status);return;}recover(activity,button,status);
   }).show();
  }
- private static void cancelLatest(Activity activity,Button button,TextView status){controlReports(activity,button,status,false,false);}
- private static void controlReports(Activity activity,Button button,TextView status,boolean clear,boolean restart){
+ private static void cancelLatest(Activity activity,Button button,TextView status){controlReports(activity,button,status,false);}
+ private static void controlReports(Activity activity,Button button,TextView status,boolean clear){
   final long session=POLL_SESSION.incrementAndGet();
   Context app=activity.getApplicationContext();WeakReference<Activity> weak=new WeakReference<>(activity);WeakReference<Button>b=new WeakReference<>(button);WeakReference<TextView>s=new WeakReference<>(status);
   show(activity,button,status,clear?"正在停止旧任务并清理报告缓存；开奖数据和学习成果保留。":"正在停止报告生成和保存任务。",true);
-  UI_IO.execute(()->{try{Arrays.fill(submittedFullRequest,null);String command=ReportExportServiceCP4.requestReportControl(app,clear);pollControl(app,command,weak,b,s,session,restart,0);}
+  UI_IO.execute(()->{try{Arrays.fill(submittedFullRequest,null);String command=ReportExportServiceCP4.requestReportControl(app,clear);pollControl(app,command,weak,b,s,session,0);}
    catch(Exception error){Activity current=weak.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"报告操作未完成："+error.getMessage(),true);});}});
  }
- private static void pollControl(Context app,String command,WeakReference<Activity>a,WeakReference<Button>b,WeakReference<TextView>s,long session,boolean restart,int attempts){
+ private static void pollControl(Context app,String command,WeakReference<Activity>a,WeakReference<Button>b,WeakReference<TextView>s,long session,int attempts){
   UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;try{
    JSONObject state=ReportTaskControlR69.status(app.getFilesDir(),command);String stage=state.getString("stage");Activity current=a.get();
    if(stage.equals("CONTROL_FAILED"))throw new IOException(state.optString("reason"));
-   if(stage.equals("CONTROL_DONE")){if(current!=null)current.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;if(restart)export(current,b.get(),s.get(),false);else show(current,b.get(),s.get(),state.optBoolean("clear")?"旧报告任务与缓存已清理，可以重新生成完整报告。":"报告任务已停止，可以重新生成。",true);});return;}
+   if(stage.equals("CONTROL_DONE")){if(current!=null)current.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;show(current,b.get(),s.get(),state.optBoolean("clear")?"旧报告任务与缓存已清理，可以重新生成完整报告。":"报告任务已停止，可以重新生成。",true);});return;}
    String message=stage.equals("WAITING_FOR_READERS")?"任务已停止；旧报告仍被文件预览或分享读取，释放后自动完成清理。":"正在等待旧任务关闭文件并清理；未宣称已经完成。";
    if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),message,true);});
-   if(attempts<600)pollControl(app,command,a,b,s,session,restart,attempts+1);
+   if(attempts<600)pollControl(app,command,a,b,s,session,attempts+1);
   }catch(Exception error){Activity current=a.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"报告操作未完成："+error.getMessage(),true);});}},500,TimeUnit.MILLISECONDS);
  }
  private static void recover(Activity activity,Button button,TextView status){final Context app=activity.getApplicationContext();WeakReference<Activity> weak=new WeakReference<>(activity);WeakReference<Button>b=new WeakReference<>(button);WeakReference<TextView>s=new WeakReference<>(status);
   // Reattach to the durable owner after Activity recreation; an old UI poll is not an execution lease.
   final long session=POLL_SESSION.incrementAndGet();show(activity,button,status,"正在取回上次报告。",false);
-  UI_IO.execute(()->{try{File root=ReportDirectoriesCP12.root(app.getFilesDir());JSONObject state=ReportJobJournalCP12.latestFullReportStateR31(root,false);if(state==null)throw new IOException("没有可取回的完整报告，请生成当前报告。");
+  UI_IO.execute(()->{try{File root=ReportDirectoriesCP12.root(app.getFilesDir());JSONObject state=ReportJobJournalCP12.latestFullReportStateR31(root,false);if(state==null){
+    Activity current=weak.get();
+    if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())export(current,b.get(),s.get(),false);});
+    return;
+   }
    if(!"FAILED".equals(state.getString("stage"))&&!"CANCELLED".equals(state.getString("stage"))&&!"READY_TO_SHARE".equals(state.getString("stage")))ReportExportServiceCP4.resumeExport(app,state.getString("jobId"));
    poll(app,state.getString("requestId"),weak,b,s,0,session);
   }catch(Exception error){Activity current=weak.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"上次报告无法取回："+error.getMessage(),true);});}});
