@@ -235,6 +235,7 @@ public final class RuntimeHealthLedgerR36 {
             out.expectedSettledIssue = c.moveToFirst() ? safe(c.getString(0)) : "";
             c.close();
             c = null;
+            readProgressR34(null,db,out);
             out.analysisP95Ms = analysis.p95Ms;
             out.analysisEpochAt = RuntimeReleaseEpochR817.readAt(store);
             applyPerformanceR80(out, analysis);
@@ -244,6 +245,24 @@ public final class RuntimeHealthLedgerR36 {
             return BusinessTruth.readError(e.getClass().getSimpleName());
         } finally {
             if (c != null) c.close();
+        }
+    }
+
+    private static void readProgressR34(ReportReadContextCP4 report,SQLiteDatabase db,BusinessTruth out) {
+        String sql="SELECT target_issue,request_at,status,last_stage FROM "+DbHelper.TABLE_R36_ANALYSIS_REQUEST
+                +" WHERE status IN ('REQUESTED','RETRY_WAIT','RUNNING') ORDER BY request_at,target_issue LIMIT 1";
+        try(Cursor pending=report==null?db.rawQuery(sql,null):report.select(sql,null)){
+            if(pending.moveToFirst()) {
+                out.oldestPendingIssue=safe(pending.getString(0));
+                out.oldestPendingSince=pending.getLong(1);
+                out.oldestPendingStage=safe(pending.getString(2))+"/"+safe(pending.getString(3));
+            }
+        }
+        String committed="SELECT commit_at FROM "+DbHelper.TABLE_R35_RUNTIME_HEALTH
+                +" WHERE stage=? AND status IN ('SUCCESS','UNMEASURED') AND commit_at>0 ORDER BY event_at DESC LIMIT 1";
+        String[] args={DURABLE_RETURN_EVENT_R923};
+        try(Cursor row=report==null?db.rawQuery(committed,args):report.select(committed,args)){
+            if(row.moveToFirst())out.lastAnalysisDurableReturn=row.getLong(0);
         }
     }
 
@@ -301,6 +320,8 @@ public final class RuntimeHealthLedgerR36 {
         public int drawToSettledLag = -1;
         public int settledToOosLag = -1;
         public int deferredPending = -1;
+        public String oldestPendingIssue = "", oldestPendingStage = "";
+        public long oldestPendingSince = -1L, lastAnalysisDurableReturn = -1L;
         public long analysisP95Ms = -1L;
         public long analysisEpochAt = -1L;
         public String performanceState = "UNKNOWN";
@@ -349,6 +370,10 @@ public final class RuntimeHealthLedgerR36 {
                     + settledToOosLag
                     + "|deferred="
                     + deferredPending
+                    + "|oldestAnalysisPending=" + oldestPendingIssue
+                    + "|oldestAnalysisRequestedWall=" + oldestPendingSince
+                    + "|oldestAnalysisStage=" + oldestPendingStage
+                    + "|lastAnalysisDurableReturnWall=" + lastAnalysisDurableReturn
                     + "|analysisP95="
                     + analysisP95Ms
                     + "|performanceState=" + performanceState
@@ -423,6 +448,7 @@ public static BusinessTruth businessTruthSnapshotCP4(com.ethk3.novaonepro.Report
             out.expectedSettledIssue = c.moveToFirst() ? safe(c.getString(0)) : "";
             c.close();
             c = null;
+            readProgressR34(report,db,out);
             out.analysisP95Ms = analysis.p95Ms;
             out.analysisEpochAt = RuntimeReleaseEpochR817.readAtSnapshotCP4(report, store);
             applyPerformanceR80(out, analysis);

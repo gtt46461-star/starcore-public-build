@@ -11,7 +11,7 @@ import android.util.AtomicFile;
  * Only the sole canonical transaction may publish it. Expired derived caches are disposable.
  */
 public final class PreparedCanonicalStoreR335 {
-    private static final int MAGIC=0x50333335, MAX_FILE=16*1024*1024, MAX_SLOTS=4;
+    private static final int MAGIC=0x50333430, MAX_FILE=16*1024*1024, MAX_SLOTS=4;
     private static final String DIRECTORY="r335-prepared-canonical";
     private PreparedCanonicalStoreR335(){}
     public static final class Prepared {
@@ -64,7 +64,11 @@ public final class PreparedCanonicalStoreR335 {
         catch(java.security.NoSuchAlgorithmException impossible){throw new IOException(impossible);}return body;
     }
     private static Prepared decode(DataInputStream in,AnalysisSingleFlightR36.Request r)throws IOException {
-        if(in.readInt()!=MAGIC)throw new IOException("R335_PREPARED_MAGIC");String storedBoot=in.readUTF();
+        if(in.readInt()!=MAGIC)throw new IOException("R335_PREPARED_MAGIC");
+        if(!in.readUTF().equals(ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256)
+                || !in.readUTF().equals(PreparedCanonicalCodecR335.SCHEMA_HASH))
+            throw new IOException("R34_PREPARED_NUMERICAL_IDENTITY");
+        String storedBoot=in.readUTF();
         if(!in.readUTF().equals(r.requestHash)||in.readLong()!=r.generation||!in.readUTF().equals(r.baseIssue)||!in.readUTF().equals(r.targetIssue)
                 ||!in.readUTF().equals(r.historyHash)||in.readLong()!=r.requestAt||in.readLong()!=r.deadlineAt)
             throw new IOException("R335_PREPARED_IDENTITY");
@@ -111,7 +115,15 @@ public final class PreparedCanonicalStoreR335 {
         if(result.context==null||!r.baseIssue.equals(result.context.baseIssue)||!r.targetIssue.equals(result.context.targetIssue)||!r.historyHash.equals(result.context.historyHash))throw new IOException("R335_PREPARED_RESULT_CONTEXT");
         File dir=directory(store,true);String n=name(r);File f=new File(dir,n);
         try(Lock lock=new Lock(dir)){
-            expire(dir,n);AtomicFile atomic=new AtomicFile(f);
+            expire(dir,n);
+            AtomicFile atomic=new AtomicFile(f);
+            if(f.exists()||new File(dir,n+".bak").exists()){
+                Prepared prior=readPrepared(atomic,r);
+                if(!prior.snapshotHash.equals(snapshot.sha256)
+                        ||!Arrays.equals(resultBytes,PreparedCanonicalCodecR335.encode(prior.result)))
+                    throw new IOException("R34_PREPARED_RESULT_IDENTITY_CONFLICT");
+                return;
+            }
             if(f.exists()||new File(dir,n+".bak").exists()){
                 Prepared existing=readPrepared(atomic,r);
                 if(!existing.snapshotHash.equals(snapshot.sha256)||!Arrays.equals(resultBytes,PreparedCanonicalCodecR335.encode(existing.result)))throw new IOException("R335_PREPARED_IDENTITY_CONFLICT");return;
@@ -124,7 +136,10 @@ public final class PreparedCanonicalStoreR335 {
                     if(TimeSourceR811.monoNowMs()>=r.deadlineMonoAt||System.currentTimeMillis()>=r.deadlineAt)throw new IOException("R335_PREPARED_EXPIRED");
                     sink=atomic.startWrite();java.security.MessageDigest digest=sha256();
                     DataOutputStream out=new DataOutputStream(new java.security.DigestOutputStream(sink,digest));
-                    out.writeInt(MAGIC);out.writeUTF(boot());out.writeUTF(r.requestHash);out.writeLong(r.generation);
+                    out.writeInt(MAGIC);
+                    out.writeUTF(ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);
+                    out.writeUTF(PreparedCanonicalCodecR335.SCHEMA_HASH);
+                    out.writeUTF(boot());out.writeUTF(r.requestHash);out.writeLong(r.generation);
                     out.writeUTF(r.baseIssue);out.writeUTF(r.targetIssue);out.writeUTF(r.historyHash);out.writeLong(r.requestAt);out.writeLong(r.deadlineAt);out.writeLong(r.deadlineMonoAt);
                     out.writeInt(resultBytes.length);out.write(resultBytes);out.writeInt(snapshot.bytes.length);out.write(snapshot.bytes);out.writeUTF(snapshot.sha256);out.flush();
                     expected=digest.digest();sink.write(expected);sink.getFD().sync();atomic.finishWrite(sink);sink=null;syncDirectory(dir);

@@ -990,12 +990,14 @@ public final class AnalysisRequestStoreR36 {
                                             + DbHelper.TABLE_R36_ANALYSIS_REQUEST
                                             + " WHERE ((status IN (?,?) AND next_attempt_at<=?)"
                                             + " OR (status=? AND lease_until<=?))"
-                                            + " ORDER BY target_issue DESC LIMIT 1",
+                                            + " ORDER BY CASE WHEN deadline_at>? THEN 0 ELSE 1 END,"
+                                            + " deadline_at ASC,target_issue ASC LIMIT 1",
                                     new String[] {
                                         REQUESTED,
                                         RETRY_WAIT,
                                         String.valueOf(now),
                                         RUNNING,
+                                        String.valueOf(now),
                                         String.valueOf(now)
                                     });
             return c.moveToFirst() ? from(c) : null;

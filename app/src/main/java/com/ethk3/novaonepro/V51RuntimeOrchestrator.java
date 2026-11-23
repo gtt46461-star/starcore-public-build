@@ -402,6 +402,9 @@ public final class V51RuntimeOrchestrator {
             // before the canonical transaction; its body (V51Repository.commitCanonicalBundleVerifiedR368) only
             // re-checks the target issue and writes the prepared rows plus timeline NEXT_PREPARED/NEXT_FROZEN.
             // Do not call model/feature code inside it (construction/r30/B02_04_TX_AUDIT.md).
+            lease.token.checkpoint("BEFORE_PREPARED_RESULT_R34");
+            // Publish the complete restart input before entering the sole canonical transaction.
+            PreparedCanonicalStoreR335.save(store,request,result,snapshot);
             lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.COMMIT,1000L);
             checkpoint(requests,lease,"BEFORE_CANONICAL_COMMIT");
             RuntimeTraceR36.Mark commitMark = trace.begin("DB_CANONICAL_WAIT");
@@ -409,8 +412,7 @@ public final class V51RuntimeOrchestrator {
             try {
                 commit=V51Repository.commitCanonicalBundleR36(store,request,lease.ownerId,result,snapshot,trace);
             } catch(RuntimeException commitFailure) {
-                // The normal success path adds no file encoding or global storage census.
-                // First resolve an unknown return from the original transaction.
+                // Resolve an ambiguous transaction immediately using the canonical receipt.
                 V51Repository.CanonicalCommitResult confirmed=null;
                 try{confirmed=readCommittedR335(store,request,result,snapshot.header,snapshot.sha256);}
                 catch(RuntimeException readbackFailure) {
@@ -423,13 +425,6 @@ public final class V51RuntimeOrchestrator {
                     // the next attempt must still query the sole canonical fact first.
                 }
                 if(confirmed!=null){trace.end(commitMark,true,"R335_CANONICAL_READBACK");return finishPreparedR335(store,request,lease,predrawWakeR81,result,confirmed,trace,root);}
-                com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Decision disposition=
-                        com.ethk3.novaonepro.strategyv2.FailureDispositionR31.classify(commitFailure);
-                if(disposition.disposition==com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Disposition.RETRY_LATER
-                        ||disposition.disposition==com.ethk3.novaonepro.strategyv2.FailureDispositionR31.Disposition.DEPENDENCY) {
-                    try{PreparedCanonicalStoreR335.save(store,request,result,snapshot);}
-                    catch(java.io.IOException|RuntimeException saveFailure){commitFailure.addSuppressed(saveFailure);}
-                }
                 throw commitFailure;
             }
             if (commit != null && commit.success) {

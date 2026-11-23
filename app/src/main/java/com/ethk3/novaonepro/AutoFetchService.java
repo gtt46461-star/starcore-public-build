@@ -73,7 +73,10 @@ public final class AutoFetchService extends Service {
     public static boolean requestResearchReconcileR31(final String reason){
         final AutoFetchService service=activeInstanceR82;
         if(service==null||!lifecycleActiveR82||!service.running||service.userRequestedStopV5||!service.runtimeInitialized||service.runtimeGuardHandler==null)return false;
+        long now=TimeSourceR811.monoNowMs();
+        if(now<service.nextResearchControlR34)return true;
         if(!service.researchControlPostedR31.compareAndSet(false,true))return true;
+        service.nextResearchControlR34=now+1000L;
         boolean posted=false;
         try{posted=service.runtimeGuardHandler.post(new Runnable(){@Override public void run(){
             try{
@@ -83,6 +86,7 @@ public final class AutoFetchService extends Service {
             }finally{service.researchControlPostedR31.set(false);}
         }});return posted;}finally{if(!posted)service.researchControlPostedR31.set(false);}
     }
+    private volatile long nextResearchControlR34;
     private static volatile Thread[] teardownThreadsR82 = new Thread[0];
     /** Reads existing live owners and validated provider facts; performs no SQL or side effects. */
     public static String runtimeHealthBlockerR82(String baseIssue,String targetIssue) {

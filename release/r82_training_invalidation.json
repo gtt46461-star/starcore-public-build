@@ -86,13 +86,13 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
-      "after_role": "NUMERIC",
-      "after_sha256": "0699b99699e3c6018e7c91e310b32821fc7d0795f9a86fc07e5d1952c8003d64",
-      "before_role": "NUMERIC",
-      "before_sha256": "f7b1da0722b62dee468382820396ba4c4e359bdddd10d2e0636a77b4c3f62f36",
       "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "before_sha256": "f7b1da0722b62dee468382820396ba4c4e359bdddd10d2e0636a77b4c3f62f36",
+      "after_sha256": "c080b615931fca561828da747203c477e1e7135878a9165ce4f1ed2a92cd5a01",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R34 B03",
+      "rationale": "Order durable eligible analysis by fixed deadline and then terminalize expired entries without creating past forecasts."
     },
     {
       "after_role": "NUMERIC",
@@ -142,11 +142,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
-      "after_sha256": "c9d9f2380e04a05d93de554681c727548adb4ef13c03ddae7cae3d91a0bc7731",
+      "after_sha256": "ad0100fb0bf248a1491ba823eaf756e574adb8a32b8b40aa2b9260fbe378e307",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R34 B02",
-      "rationale": "Continue processing a confirmed latest draw when optional telemetry is deferred and track independent history gap retries and actual return times."
+      "reviewer": "R34 B03",
+      "rationale": "Throttle repeated control dispatch while the existing owner is alive using the monotonic clock."
     },
     {
       "after_role": "NUMERIC",
@@ -880,11 +880,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
       "before_sha256": "",
-      "after_sha256": "ad31eae11faa9fda93f7db520b769f3a2291079203ddce54390da209fb8235dd",
+      "after_sha256": "e5fbd34f7ac978cd393793458a68a4f1dcb08a6f64cb4a4c282827100c8befcf",
       "before_role": "",
       "after_role": "NUMERIC",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)",
-      "rationale": "R335 B02 精确源码复核：PreparedCanonicalStoreR335.java。C04完整prepared结果恢复构造与冻结DTO精确字段序列化；保留正常canonical事务快路、精确读回、失败重试与原K3数值契约，拒绝不完整字段和未知状态。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。"
+      "reviewer": "R34 B03",
+      "rationale": "Validate full immutable prepared result, current numerical ABI, codec and exact request before restart reuse."
     },
     {
       "after_role": "NUMERIC",
@@ -1436,6 +1436,15 @@
       "reviewer": "Codex SU1 source integration"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+      "before_sha256": "ecbd68d1b389f773bdae6c71a2029226b7b4c455dc77ed905030ec169a79123a",
+      "after_sha256": "3486f013667136b290085917851c4f9649cd21e1491c9e8dbb90f45bcd998083",
+      "before_role": "NUMERIC",
+      "after_role": "NUMERIC",
+      "reviewer": "R34 B03",
+      "rationale": "Report oldest pending analysis and latest original durable return in both live and snapshot readers."
+    },
+    {
       "after_role": "NUMERIC",
       "after_sha256": "69e6f615b4683a0eb0d6e4074b8ca675847f48d6ca4be02663cc0ffd0ba68ed9",
       "before_role": "NUMERIC",
@@ -1816,11 +1825,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
       "before_sha256": "105bc06fdda0f5a7c203fe4a51604ae83fb342976f8f0ad92496965fd445ae79",
-      "after_sha256": "c5852b85c4e3dd7075ce0ec39ac61e353196b58cd4d472ea9216cb66b93bb808",
+      "after_sha256": "a644903c5906057f1d1c34ab1a3779dab70149e36cd3af2bf5fc65566bbfc7d3",
       "before_role": "NUMERIC",
       "after_role": "NUMERIC",
-      "reviewer": "R33.5 second source review 2026-11-20",
-      "rationale": "B02/C01: record when the already durable prepared result is actually observed, including commit-unknown readback and resumed commit. Use the exact request and canonical hash. A later readback provides only an upper time bound."
+      "reviewer": "R34 B03",
+      "rationale": "Persist the exact prepared result before the canonical write and read back ambiguous commit outcomes through the single owner."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java",
@@ -9401,7 +9410,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "8d92f535c5fefab7b0d56d70bfaa89b86d15c4a9ded577255601acef7cba1869",
+  "reviewed_input_provenance_sha256": "39b484af5cf14598b7029af5d2931fb4d68eea1186e5cbac0d23f2013799f516",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
