@@ -5,8 +5,8 @@ on:
     paths: ['.github/workflows/r34-field-window.yml', '.github/r34-field-window/**']
 permissions: {}
 env:
-  R34_WINDOW_SOURCE: "f4d8f6757c566a844d4ffa0a8a7f9b7343fdc6b2"
-  R34_WINDOW_VERSION: "577311118"
+  R34_WINDOW_SOURCE: "815eace78d258b17f8959dae3300e9ecdbd044f8"
+  R34_WINDOW_VERSION: "577311119"
 jobs:
   upgrades:
     if: github.repository == 'gtt46461-star/starcore-public-build'
@@ -21,8 +21,8 @@ jobs:
           set -euo pipefail
           python3 - <<'PY_DIGEST'
           import os,re,time,urllib.request
-          tag='r34-B12-f4d8f6757c56'
-          member='STARCORE-R34-577311118-f4d8f6757c56-release.apk'
+          tag='r34-B12-815eace78d25'
+          member='STARCORE-R34-577311119-815eace78d25-release.apk'
           for _ in range(85):
               try:
                   with urllib.request.urlopen('https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/SHA256SUMS.txt',timeout=20) as r: text=r.read(16385).decode()
@@ -39,7 +39,7 @@ jobs:
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
-          ref: f4d8f6757c566a844d4ffa0a8a7f9b7343fdc6b2
+          ref: 815eace78d258b17f8959dae3300e9ecdbd044f8
           path: app-source
           sparse-checkout: |
             app/src
@@ -58,7 +58,7 @@ jobs:
           curl -fsSL --retry 3 "https://github.com/$GITHUB_REPOSITORY/releases/download/r33.5-plan/33.5.zip" -o "$RUNNER_TEMP/plan.zip"
           python3 -B plan-source/construction/plans/STARCORE_R33_5_REVIEW_20261119/prepare.py "$RUNNER_TEMP/plan.zip" "$RUNNER_TEMP/material"
           python3 -B "$RUNNER_TEMP/material/current-review/runtime/prepare_tools.py" "$RUNNER_TEMP/material/STARCORE_R33_5_20261118" "$RUNNER_TEMP/tools"
-          python3 -c 'import time,urllib.request,urllib.error; exec("for attempt in range(220):\n try:\n  urllib.request.urlopen(urllib.request.Request(\"https://github.com/gtt46461-star/starcore-public-build/releases/download/r34-B12-f4d8f6757c56/SHA256SUMS.txt\",method=\"HEAD\"),timeout=30).close();break\n except OSError:time.sleep(35)\nelse:raise RuntimeError(\"final release not received\")")'
+          python3 -c 'import time,urllib.request,urllib.error; exec("for attempt in range(220):\n try:\n  urllib.request.urlopen(urllib.request.Request(\"https://github.com/gtt46461-star/starcore-public-build/releases/download/r34-B12-815eace78d25/SHA256SUMS.txt\",method=\"HEAD\"),timeout=30).close();break\n except OSError:time.sleep(35)\nelse:raise RuntimeError(\"final release not received\")")'
       - name: Bind both installed versions to the retained original collector
         run: python3 -B .github/r34-field-window/bind.py
       - name: Prepare API 34 guest
