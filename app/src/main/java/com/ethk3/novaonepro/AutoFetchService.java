@@ -3284,7 +3284,13 @@ public final class AutoFetchService extends Service {
             if(result.apiLine!=null&&!result.apiLine.isEmpty())ingestState.put("api_line",result.apiLine);
             ingestState.put("draw_save_inserted",String.valueOf(inserted));
             ingestState.put("draw_save_updated_at",String.valueOf(System.currentTimeMillis()));
-            store.setStates(ingestState);
+            try {
+                store.setStates(ingestState);
+            } catch (DatabaseCoordinator.WriteRejectedR31 failure) {
+                if (!latestDurableR50 || !"LOCK_BUSY".equals(failure.category)
+                        || failure.commitOutcome != DatabaseCoordinator.CommitOutcome.ROLLED_BACK) throw failure;
+                recordCriticalCatchR926("DRAW_INGEST_TELEMETRY_DEFERRED", result.latestDraw.issue, failure);
+            }
             Models.Draw latest=getAuthoritativeLatest(result.latestDraw);
             if(latest!=null&&latest.isValid())saveLatestDrawState(latest,"api_latest");
             broadcastDrawsUpdated(true);

@@ -41,7 +41,7 @@ public final class StartupCheckpointIdentityR31 {
     private static long schema(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA main.schema_version",null)){if(!c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SCHEMA_UNKNOWN");return c.getLong(0);}}
     private static String identity(SQLiteDatabase db){
         String main=null;try(Cursor c=db.rawQuery("PRAGMA database_list",null)){while(c.moveToNext()){String name=c.getString(1);if("main".equals(name))main=c.getString(2);else if(!"temp".equals(name))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_ATTACHED_DATABASE");}}
-        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_temp_master LIMIT 1",null)){if(c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_TEMP_SCHEMA");}
+        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_temp_master WHERE type <> 'table' OR name NOT IN ('r335_extension_catalog','r335_extension_seal','r335_extension_journal') LIMIT 1",null)){if(c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_TEMP_SCHEMA");}
         if(main==null)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_DATABASE_UNKNOWN");return main.isEmpty()?"MEMORY@"+System.identityHashCode(db):main;
     }
     private static LinkedHashMap<String,String> columns(SQLiteDatabase db){

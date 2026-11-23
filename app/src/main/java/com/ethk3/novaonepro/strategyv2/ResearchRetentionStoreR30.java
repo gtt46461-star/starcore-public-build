@@ -170,6 +170,14 @@ public final class ResearchRetentionStoreR30 {
     /** Preserve the incoming version's complete checkpoint before ordinary training replaces it.
      * The marker commits with the archive: a failed startup can retry, while repeated schema/retention
      * checks in this process never copy every intermediate training checkpoint. */
+    static void preservePreparedStartupCheckpoint(SQLiteDatabase db, StartupCheckpointIdentityR31.Prepared startup) {
+        // A CAS cutover already has a guarded archive. Consume the pre-DDL identity
+        // while its schema cookie still describes this database. The boot marker,
+        // checkpoint receipt and subsequent migration commit or roll back together.
+        startup.requireWithin(db);
+        requireKeepMigrationSourceR31(db, StartupCheckpointIdentityR31.ARCHIVE);
+        preserveStartupCheckpoint(db, startup);
+    }
     private static void preserveStartupCheckpoint(SQLiteDatabase db){
         preserveStartupCheckpoint(db,null);
     }

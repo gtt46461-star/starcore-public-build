@@ -1977,7 +1977,13 @@ public final class SchemaDomainCoordinatorR926 {
         try { return fingerprint(db, c); } catch (Throwable ignored) { return ""; }
     }
     private static String error(Throwable t) {
-        return bounded((t == null ? "UNKNOWN" : t.getClass().getSimpleName() + ':' + safe(t.getMessage())), 900);
+        if (t == null) return "UNKNOWN";
+        StringBuilder chain = new StringBuilder();
+        for (int depth = 0; t != null && depth < 5; depth++, t = t.getCause()) {
+            if (depth != 0) chain.append(" <- ");
+            chain.append(t.getClass().getSimpleName()).append(':').append(bounded(t.getMessage(), 135));
+        }
+        return bounded(chain.toString(), 900);
     }
     private static String join(List<String> xs) {
         StringBuilder b = new StringBuilder(); for (String x : xs) { if (b.length() > 0) b.append(','); b.append(x); } return b.toString();

@@ -389,7 +389,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static SchemaDomainCoordinatorR926.UpgradeSpecR31 startupUpgradeSpecR31(String owner,StartupCheckpointIdentityR31.Prepared startup){
         // R31-B12-C01: the startup schema owner runs inside the overlay-install upgrade journal (PREPARE..CLEANUP,
         // protected roots verified inside the TRANSFORM commit). Steady starts re-enter only the idempotent owner.
-        SchemaDomainCoordinatorR926.Step startupSchemaR31=db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db,startup);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
+        SchemaDomainCoordinatorR926.Step startupSchemaR31=db->{
+            if (startup != null) ResearchRetentionStoreR30.preservePreparedStartupCheckpoint(db, startup);
+            RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db,startup);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             // R31 inherited quarantines are recovered one fenced half-open probe at a time.
             RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
