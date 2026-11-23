@@ -12,6 +12,24 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Receive the public package checksum for this exact release
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY_DIGEST'
+          import os,re,time,urllib.request
+          tag='r34-B12-5562f9b19aa0'
+          member='STARCORE-R34-577311122-5562f9b19aa0-release.apk'
+          for _ in range(85):
+              try:
+                  with urllib.request.urlopen('https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/SHA256SUMS.txt',timeout=20) as r: text=r.read(16385).decode()
+                  matches=[line.split()[0] for line in text.splitlines() if len(line.split())==2 and line.split()[1].lstrip('*')==member]
+                  if len(matches)!=1 or not re.fullmatch('[a-f0-9]{64}',matches[0]):raise ValueError('RELEASE_CHECKSUM_MISSING')
+                  with open(os.environ['GITHUB_ENV'],'a') as dst: print('REPAIRED_APK_SHA='+matches[0],file=dst)
+                  break
+              except OSError:time.sleep(30)
+          else:raise SystemExit('PUBLISHED_CANDIDATE_UNAVAILABLE')
+          PY_DIGEST
       - uses: actions/checkout@v4
         with:
           sparse-checkout: .github
@@ -25,8 +43,8 @@ jobs:
       - name: Receive published inputs and restore the original verification program
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --location --retry 3 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r34-B12-284c4a379c23/STARCORE-R34-577311120-284c4a379c23-release.apk' -o "$RUNNER_TEMP/v120.apk"
           curl --fail --silent --show-error --location --retry 3 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r34-B12-db60f716c3bc/STARCORE-R34-577311121-db60f716c3bc-release.apk' -o "$RUNNER_TEMP/v121.apk"
+          curl --fail --silent --show-error --location --retry 3 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r34-B12-5562f9b19aa0/STARCORE-R34-577311122-5562f9b19aa0-release.apk' -o "$RUNNER_TEMP/v122.apk"
           curl --fail --silent --show-error --location --retry 3 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r33.5-plan/33.5.zip' -o "$RUNNER_TEMP/plan.zip"
           python3 -B reviewed/construction/plans/STARCORE_R33_5_REVIEW_20261119/prepare.py "$RUNNER_TEMP/plan.zip" "$RUNNER_TEMP/restored"
       - name: Prepare API 34 guest

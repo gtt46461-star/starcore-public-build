@@ -184,7 +184,7 @@ def raw_readback(archive,semantics):
 def save_report(tree,tag,picker_open=False):
     if not picker_open and not tap(tree,'一次保存完整ZIP文件'):
         raise RuntimeError('SINGLE_ZIP_SAVE_OPTION_MISSING')
-    file_base='starcore121r'+tag.rsplit('-',1)[-1]+'t'+str(int(time.time()))
+    file_base='starcore122r'+tag.rsplit('-',1)[-1]+'t'+str(int(time.time()))
     roots=['/sdcard/Download','/sdcard/Documents']
     def files():
         found=adb('shell','find',*roots,'-type','f',check=False)
@@ -253,10 +253,10 @@ def save_report(tree,tag,picker_open=False):
 import importlib.util
 from collections import Counter
 T=Path(os.environ['RUNNER_TEMP']);src=Path(os.environ['GITHUB_WORKSPACE'])
-pin={120:('284c4a379c2348ebdba0eaefa2c3a661df686238','2af9014b9fe883081a7464a89f2b883761c452f57fba82566b8e44f18d3ecfd7'),121:('db60f716c3bca8ced4a873aa94b16123307b683f','52fac634b22f42da9bea4dd1d21dbe00eaa24d81698fad5008879cba6b605c97')}
+pin={121:('db60f716c3bca8ced4a873aa94b16123307b683f','52fac634b22f42da9bea4dd1d21dbe00eaa24d81698fad5008879cba6b605c97'),122:('5562f9b19aa09f9f7d9e69ca085db56c537967fc',os.environ['REPAIRED_APK_SHA'])}
 spec=importlib.util.spec_from_file_location('original_oracle',T/'restored/STARCORE_R33_5_20261118/B01/scripts/verify_export_artifacts_r334.py');oracle=importlib.util.module_from_spec(spec);spec.loader.exec_module(oracle)
 assert hashlib.sha256(Path(oracle.__file__).read_bytes()).hexdigest()=='25f75664f00b69693416bcc3766d7a1434ee01ba7816bb40eb3fb52932c2e034'
-receipt={'sourceCommit':pin[121][0],'apkSha256':pin[121][1],'runId':int(os.environ['GITHUB_RUN_ID']),'api':34,'physical':False,'scope':'DISPOSABLE_ANDROID_API34_SIGNED_UPGRADE_AND_DOCUMENTS_PROVIDER_READBACK','reports':[]}
+receipt={'sourceCommit':pin[122][0],'apkSha256':pin[122][1],'runId':int(os.environ['GITHUB_RUN_ID']),'api':34,'physical':False,'scope':'DISPOSABLE_ANDROID_API34_SIGNED_UPGRADE_AND_DOCUMENTS_PROVIDER_READBACK','reports':[]}
 def persist():
     name=T/('report-'+os.environ['GITHUB_RUN_ID']+'.json')
     data=json.dumps(receipt,indent=2)
@@ -309,19 +309,19 @@ try:
     assert not adb('shell','pm','list','packages',PACKAGE).strip()
     adb('shell','wm','size','480x850');adb('shell','wm','density','195')
     adb('shell','settings','put','system','screen_off_timeout','7200000');adb('shell','svc','power','stayon','true')
-    for v in (120,121):
+    for v in (121,122):
         phase='INSTALL_'+str(v);file=T/('v'+str(v)+'.apk')
         assert hashlib.sha256(file.read_bytes()).hexdigest()==pin[v][1]
-        if v==121:
+        if v==122:
             adb('shell','am','force-stop',PACKAGE)
             receipt['before']=quiescent();persist()
         assert 'Success' in adb('install','-r',str(file),timeout=300)
         uid=installed(v);receipt['uid'+str(v)]=uid
-        if v==121:
-            receipt['after']=quiescent();receipt['sameUid']=receipt['uid120']==uid;persist()
+        if v==122:
+            receipt['after']=quiescent();receipt['sameUid']=receipt['uid121']==uid;persist()
         adb('shell','pm','grant',PACKAGE,'android.permission.POST_NOTIFICATIONS')
         adb('shell','am','start','-W','-n',ACTIVITY);time.sleep(20)
-        if v==120:phase='BEFORE_REPORT';report(v,1,'COMPACT_DIAGNOSTIC')
+        if v==121:phase='BEFORE_REPORT';report(v,1,'COMPACT_DIAGNOSTIC')
         else:
             for i,kind in enumerate(['COMPACT_DIAGNOSTIC','FULL_RAW','COMPACT_DIAGNOSTIC'],1):
                 phase='FINAL_REPORT_'+str(i);report(v,i,kind)
