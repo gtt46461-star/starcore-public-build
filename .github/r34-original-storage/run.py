@@ -34,6 +34,7 @@ assert apk_hash == digest(temp/'verified-target.apk') == os.environ['REPAIRED_AP
 test_path = adb('shell','pm','path',package+'.test').decode().strip().removeprefix('package:')
 assert adb('shell','sha256sum',test_path).decode().split()[0] == digest(temp/'verified-tests.apk')
 methods = {
+    'com.ethk3.novaonepro.ReportIndexReferenceR34Test#checkCompactBindingAndHistoricalRawReferences': 'app/src/androidTest/java/com/ethk3/novaonepro/ReportIndexReferenceR34Test.java',
     'com.ethk3.novaonepro.DrawDependencyAndroidCP12Test#realAndroidStoreRollsAndProtectsUnfinishedSettlement': 'app/src/androidTest/java/com/ethk3/novaonepro/DrawDependencyAndroidCP12Test.java',
     'com.ethk3.novaonepro.R30ResearchRetentionAndroidTest#withoutRowidEvidenceArchivesExactlyAndRollbackKeepsOriginal': 'app/src/androidTest/java/com/ethk3/novaonepro/R30ResearchRetentionAndroidTest.java',
     'com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest#kernelAllocatedBlocksAndLegacyEnumerationAreHonest': 'app/src/androidTest/java/com/ethk3/novaonepro/R31StorageProtocolInstrumentedTest.java',
