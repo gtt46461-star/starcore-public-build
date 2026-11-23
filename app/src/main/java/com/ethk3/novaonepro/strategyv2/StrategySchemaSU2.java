@@ -63,8 +63,8 @@ public final class StrategySchemaSU2 {
         return sql != null && sql.contains("8192") && sql.contains("'SU2C'") && sql.contains("'SU2S'");
     }
     public static boolean ready(SQLiteDatabase db) {
-        try (Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('su2_model_genome','su2_live_decision','su2_league','su2_storage_budget','su2_track_block','su2_diag_state','su2_diag_snapshot','su2_diag_shadow','su2_stage_bundle','su2_track_cursor','su2_matrix_snapshot')", null)) {
-            return c.moveToFirst() && c.getInt(0) == 11 && supportsCommittees(genomeDefinition(db))
+        try (Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('su2_model_genome','su2_live_decision','su2_league','su2_storage_budget','su2_track_block','su2_diag_state','su2_diag_snapshot','su2_diag_shadow','su2_stage_bundle','su2_track_cursor','su2_matrix_snapshot','su2_certificate','su2_alpha_look','su2_mainline_binding')", null)) {
+            return c.moveToFirst() && c.getInt(0) == 14 && supportsCommittees(genomeDefinition(db))
                     && SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.r31ModelPublicationContract());
         }
     }

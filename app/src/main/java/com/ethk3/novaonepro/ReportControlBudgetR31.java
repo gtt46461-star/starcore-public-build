@@ -13,6 +13,9 @@ final class ReportControlBudgetR31 {
     private ReportControlBudgetR31() {}
     private static final ReentrantLock JVM=new ReentrantLock(true);
     private static final long QUOTA=2L<<20,RECORD_LIMIT=65536;
+    static final class Busy extends IOException {
+        Busy() { super("REPORT_CONTROL_BUSY"); }
+    }
     static boolean isProgress(File root,File file)throws IOException {
         String prefix=root.getCanonicalPath()+File.separator,path=file.getCanonicalPath();
         return path.startsWith(prefix)&&path.substring(prefix.length()).matches("jobs/[0-9a-f]{64}/(?:(?:stage|backup)-progress|resource-observation-b01)\\.json");
@@ -21,7 +24,7 @@ final class ReportControlBudgetR31 {
         if(!file.getCanonicalPath().startsWith(root.getCanonicalPath()+File.separator))return false;
         String relative=file.getCanonicalPath().substring(root.getCanonicalPath().length()+1);
         return isProgress(root,file)||relative.matches("requests/[0-9a-f]{64}(?:\\.ack)?\\.json")
-                || relative.matches("jobs/[0-9a-f]{64}/job\\.json")
+                || relative.matches("jobs/[0-9a-f]{64}/(?:job|share-until)\\.json")
                 || relative.matches("quarantine/[0-9a-f]{64}\\.json")
                 || relative.matches("cancel-commands/[0-9a-f]{64}\\.json")
                 || relative.matches("control-r69/(?:command|status|cancel)-[0-9a-f]{64}\\.json")
@@ -35,7 +38,7 @@ final class ReportControlBudgetR31 {
         RandomAccessFile io=null;FileLock lease=null;
         try {
             try{entered=progress?JVM.tryLock():JVM.tryLock(5,TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException("REPORT_CONTROL_CANCELLED",e);}
-            if(!entered)throw new IOException("REPORT_CONTROL_BUSY");
+            if(!entered)throw new Busy();
             File lockFile=new File(root,"control-budget.lock");if(!lockFile.getAbsoluteFile().equals(lockFile.getCanonicalFile()))throw new IOException("REPORT_CONTROL_LOCK_PATH");
             io=new RandomAccessFile(lockFile,"rw");
             while(lease==null) {
@@ -43,9 +46,9 @@ final class ReportControlBudgetR31 {
                 if(lease!=null)break;
                 // Lowest-priority UI samples never stall a native copy while
                 // an authoritative request/journal/control record owns the lock.
-                if(progress)throw new IOException("REPORT_CONTROL_BUSY");
+                if(progress)throw new Busy();
                 if(Thread.currentThread().isInterrupted())throw new IOException("REPORT_CONTROL_CANCELLED");
-                if(System.nanoTime()>=deadline)throw new IOException("REPORT_CONTROL_BUSY");
+                if(System.nanoTime()>=deadline)throw new Busy();
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(5));
             }
             long used=0;int entries=0;
@@ -69,7 +72,7 @@ final class ReportControlBudgetR31 {
             if(jobs.exists())try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(jobs)) {
                 File job;while((job=cursor.next())!=null) {
                     if(++entries>2048||!job.getName().matches("[0-9a-f]{64}")||!job.getAbsoluteFile().equals(job.getCanonicalFile())||!job.isDirectory())throw new IOException("REPORT_CONTROL_SCOPE");
-                    for(String name:new String[]{"job.json","stage-progress.json","backup-progress.json","resource-observation-b01.json"})
+                    for(String name:new String[]{"job.json","share-until.json","stage-progress.json","backup-progress.json","resource-observation-b01.json"})
                         for(String suffix:new String[]{"",".bak",".new"})used=Math.addExact(used,accountedControlEntryIfPresent(new File(job,name+suffix)));
                 }
             }

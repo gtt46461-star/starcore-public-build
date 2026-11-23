@@ -182,10 +182,27 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public int workerLimit() { return parallelismLimit; }
     public String thermalReason() { return thermalReason; }
 
+    static boolean retryRolledBackLock(DatabaseCoordinator.WriteRejectedR31 failure) {
+        return failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                && ("LOCK_BUSY".equals(failure.category)||"TEMP_TIMEOUT".equals(failure.category));
+    }
     public void start() {
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_REGISTER_RESEARCH_TASKS"),db->{
-            long now=System.currentTimeMillis();for(Task task:tasks)db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{task.id(),task.id(),now});return 0;
-        });
+        // No worker or read connection exists before the registration commits.
+        // An interrupted wait can safely retry the same idempotent transaction.
+        while(!closed&&!Thread.currentThread().isInterrupted()){
+            try{
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(RuntimeCoordinatorR26.controlContextR31("R31_REGISTER_RESEARCH_TASKS"),db->{
+                    long now=System.currentTimeMillis();
+                    for(Task task:tasks)db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{task.id(),task.id(),now});
+                    return 0;
+                });
+                break;
+            }catch(DatabaseCoordinator.WriteRejectedR31 failure){
+                if(!retryRolledBackLock(failure))throw failure;
+                sleep(250);
+            }
+        }
+        if(closed||Thread.currentThread().isInterrupted())return;
         String path = store.contextForR26().getDatabasePath(AppConfig.DB_NAME).getPath();
         for (int i = 0; i < size; i++) {
             SQLiteDatabase ro = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);

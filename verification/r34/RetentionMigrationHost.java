@@ -11,7 +11,11 @@ public final class RetentionMigrationHost {
         try(SQLiteDatabase write=new SQLiteDatabase(DriverManager.getConnection(url));
             SQLiteDatabase read=new SQLiteDatabase(DriverManager.getConnection(url))) {
             try(Cursor mode=write.rawQuery("PRAGMA journal_mode=WAL",null)) { mode.moveToFirst(); }
+            write.execSQL("CREATE TABLE host_unrelated_fetch(ordinal INTEGER)");
             RetentionMigrationR34.Writer owner=(context,task)->{
+                // A real commit between preparation and admission changes data_version on the read connection.
+                if ("R34_RETENTION_UNIT".equals(context.operation))write.execSQL("INSERT INTO host_unrelated_fetch VALUES(1)");
+
                 write.beginTransaction();
                 try {
                     task.run(write);
@@ -35,6 +39,7 @@ public final class RetentionMigrationHost {
             } catch(IllegalStateException expected) {
                 if(!"R34_STALE_MIGRATION_OWNER".equals(expected.getMessage()))throw expected;
             }
+            if(number(read,"SELECT count(*) FROM host_unrelated_fetch")<15)throw new AssertionError("missing competing commits");
             int turns=0;
             while(!resumed.step())if(++turns>120)throw new AssertionError("stalled migration at "+number(read,"SELECT max(next_index) FROM r34_schema_unit_run"));
             if(number(read,"SELECT count(*) FROM r34_schema_unit_receipt")!=116)throw new AssertionError("must have 58 install and 58 verify receipts");

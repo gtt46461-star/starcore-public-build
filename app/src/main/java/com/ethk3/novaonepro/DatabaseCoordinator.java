@@ -158,6 +158,11 @@ public final class DatabaseCoordinator {
     }
     private static final AtomicLong LAST_FAULT_SERVICE_R33=new AtomicLong();
     private static final AtomicBoolean RESEARCH_SERVICE_SLOT_R31=new AtomicBoolean();
+    private static final AtomicLong LAST_MIGRATION_SERVICE_R34=new AtomicLong();
+    private static final AtomicBoolean MIGRATION_SERVICE_SLOT_R34=new AtomicBoolean();
+    static boolean migrationServiceDue(WriteContext context,long now,long last,int freezeWaiters) {
+        return context.writeClass==WriteClass.MIGRATION && freezeWaiters==0 && now-last>=1000L;
+    }
     private static final AtomicBoolean FAULT_SERVICE_SLOT_R34=new AtomicBoolean();
     private static final AtomicInteger FREEZE_WAITERS_R31=new AtomicInteger();
     private static volatile String lastDiagnosticR31="",lastUnknownPriorityR31="";
@@ -911,6 +916,8 @@ public final class DatabaseCoordinator {
             // An expiring freeze always retains precedence. This is admission, never a second writer.
             if(faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_FAULT_SERVICE_R33.get()>=1000L)
                 serviceSlot=FAULT_SERVICE_SLOT_R34.compareAndSet(false,true);
+            else if(!reentrant&&migrationServiceDue(context,now,LAST_MIGRATION_SERVICE_R34.get(),FREEZE_WAITERS_R31.get()))
+                serviceSlot=MIGRATION_SERVICE_SLOT_R34.compareAndSet(false,true);
             else if(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L)
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
             else if(researchControl&&!faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0
@@ -934,7 +941,15 @@ public final class DatabaseCoordinator {
                             Thread.sleep(Math.min(4L,left));
                             RuntimeResourceAuditR927.checkpoint("DB_LOCK_WAIT");ResearchWorkBudgetR927.checkpoint();continue;
                         }
-                        if(writeLock.tryLock(Math.min(background?10L:50L,left),TimeUnit.MILLISECONDS)) {
+                        // Keep an aged schema unit in the fair queue until its existing deadline.
+                        // Yield before executing any SQL if a live freeze arrived in the meantime.
+                        boolean migrationTurn=serviceSlot&&context.writeClass==WriteClass.MIGRATION;
+                        long wait=migrationTurn?left:Math.min(background?10L:50L,left);
+                        if(writeLock.tryLock(wait,TimeUnit.MILLISECONDS)) {
+                            if(migrationTurn&&FREEZE_WAITERS_R31.get()>0){
+                                writeLock.unlock();
+                                continue;
+                            }
                             locked=true;heldSince=TimeSourceR811.monoNowMs();localWait=Math.max(0,heldSince-waitStarted);
                             continuation=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
                             if(heldSince>=writeDeadline)throw new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE");
@@ -955,6 +970,7 @@ public final class DatabaseCoordinator {
                         failed=result instanceof TransactionResult&&!((TransactionResult<?>)result).success;
                         if(!attemptState.ownsTransaction&&!attemptState.externalTransaction)attemptState.outcome=failed?CommitOutcome.ROLLED_BACK:
                                 attemptState.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED;
+                        if(context.writeClass==WriteClass.MIGRATION&&!failed)LAST_MIGRATION_SERVICE_R34.set(TimeSourceR811.monoNowMs());
                         if(research&&!failed)LAST_RESEARCH_SERVICE_R31.set(TimeSourceR811.monoNowMs());
                         if(researchControl&&!faultDrainR33&&!failed)LAST_RESEARCH_CONTROL_R335.set(TimeSourceR811.monoNowMs());
                         if(faultDrainR33&&!failed)LAST_FAULT_SERVICE_R33.set(TimeSourceR811.monoNowMs());
@@ -1000,7 +1016,11 @@ public final class DatabaseCoordinator {
         } finally {
             waitingWriters.decrementAndGet();if(critical)criticalBusinessWaitersR914.decrementAndGet();
             if(context.writeClass==WriteClass.LIVE_FREEZE)FREEZE_WAITERS_R31.decrementAndGet();
-            if(serviceSlot)(faultDrainR33?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);
+            if(serviceSlot){
+                if(faultDrainR33)FAULT_SERVICE_SLOT_R34.set(false);
+                else if(context.writeClass==WriteClass.MIGRATION)MIGRATION_SERVICE_SLOT_R34.set(false);
+                else RESEARCH_SERVICE_SLOT_R31.set(false);
+            }
             if(previousAttempt==null)ATTEMPT_R31.remove();
         }
     }

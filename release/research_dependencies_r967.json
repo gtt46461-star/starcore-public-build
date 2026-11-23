@@ -956,10 +956,10 @@
       "role": "NUMERIC"
     },
     {
-      "dynamic_review_sha256": "19b387a56b3c188d74aefc37ae3beb689270a117ee4c12a26d88b016b2e90f78",
+      "dynamic_review_sha256": "507fc0fd60f9a9663a1b84b85b6825fad253a257e079cfc6828eeeed7fdab075",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "role": "NUMERIC",
-      "rationale": "R34-B12 bound fault drain to its own concurrent admission slot without releasing a prepared research slot or outranking a live freeze"
+      "rationale": "Admit aged migration to the existing fair writer queue within its unchanged deadline and yield to waiting freezes before SQL."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",

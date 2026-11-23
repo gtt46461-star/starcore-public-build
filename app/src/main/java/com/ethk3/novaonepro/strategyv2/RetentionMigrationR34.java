@@ -37,6 +37,13 @@ public final class RetentionMigrationR34 {
             return RetentionDefinitionsR34.approved(source,c.moveToFirst()?c.getString(0):null);
         }
     }
+    // A busy telemetry or fetch writer changes main.data_version even when a
+    // protected table is absent or empty. Probe one row before recomputing its
+    // exact empty digest under the writer. Nonempty originals stay outside it.
+    private static boolean emptySource(SQLiteDatabase db,String source) {
+        if(!SchemaUnitPlanR34.PROTECTED_TABLES_095.contains(source))throw new IllegalArgumentException("R34_UNKNOWN_PROTECTED_TABLE");
+        return !ResearchRetentionStoreR30.exists(db,source) || scalar(db,"SELECT NOT EXISTS(SELECT 1 FROM main."+source+" LIMIT 1)")!=0;
+    }
     private static void bootstrap(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS r34_database_identity(singleton INTEGER PRIMARY KEY CHECK(singleton=1),database_id TEXT NOT NULL)");
         db.execSQL("INSERT OR IGNORE INTO r34_database_identity VALUES(1,?)",new Object[]{UUID.randomUUID().toString()});
@@ -151,14 +158,16 @@ public final class RetentionMigrationR34 {
             String root=SchemaDomainCoordinatorR926.retentionOriginalRootR34(read,source);
             SchemaUnitPlanR34.View prepared=view(read,source,root);
             if(prepared.schemaCookie!=planCookie)return false;
-            if(generation!=dataVersion(read))return false;
+            if(generation!=dataVersion(read)&&!emptySource(read,source))return false;
             boolean install=before.phase==SchemaUnitPlanR34.Phase.INSTALL;
             SchemaUnitPlanR34.Cost cost=ResearchRetentionStoreR30.protectionCostR34(read,source,install);
             SchemaUnitPlanR34.Ticket ticket=SchemaUnitPlanR34.prepare(plan,before,prepared,cost,BUDGET,SystemClock.elapsedRealtime()+250);
             final SchemaUnitPlanR34.ReceiptPayload[] payload={null};
             try {
                 writer.write(migration("R34_RETENTION_UNIT").withDeadlineMonoMs(ticket.deadlineMonoMs),db->{
-                    if(dataVersion(read)!=generation)throw new DatabaseCoordinator.SchemaPendingR31("R34_RETENTION","WAIT_PREPARED_PROOF");
+                    if(dataVersion(read)!=generation && !(emptySource(db,source)
+                            && root.equals(SchemaDomainCoordinatorR926.retentionOriginalRootR34(db,source))))
+                        throw new DatabaseCoordinator.SchemaPendingR31("R34_RETENTION","WAIT_PREPARED_PROOF");
                     noMetadataTriggers(db);
                     SchemaUnitPlanR34.Admission admission=SchemaUnitPlanR34.beforeWrite(plan,ticket,cursor(db,plan),view(db,source,root),SystemClock.elapsedRealtime());
                     if(install) {
@@ -188,7 +197,11 @@ public final class RetentionMigrationR34 {
             }
             if(payload[0]==null)throw new IllegalStateException("R34_SCHEMA_RECEIPT_NOT_PRODUCED");
             SchemaUnitPlanR34.Ack ack=SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.COMMITTED,readBack(read,plan,ticket.commitKey));
-            return ack.resolution==SchemaUnitPlanR34.Resolution.ACKNOWLEDGED && ack.cursor.phase==SchemaUnitPlanR34.Phase.DONE;
+            if(ack.resolution!=SchemaUnitPlanR34.Resolution.ACKNOWLEDGED)return false;
+            // This owner only installed the derived archive, its guards and its journal.
+            // External DDL still changes the cookie and forces a complete plan comparison.
+            planCookie=payload[0].schemaCookieAfter;
+            return ack.cursor.phase==SchemaUnitPlanR34.Phase.DONE;
         }
     }
 
@@ -198,7 +211,17 @@ public final class RetentionMigrationR34 {
                 SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
             Session session=new Session(read,(context,task)->owner.runAtomicWriteOrThrowF01(
                 context,db->{task.run(db);return 0;}),ownerEpoch);
-            while(!cancelled.getAsBoolean() && !session.step())yield.run();
+            while(!cancelled.getAsBoolean()){
+                try{
+                    if(session.step())return;
+                }catch(DatabaseCoordinator.WriteRejectedR31 failure){
+                    if(!ResearchPoolR27.retryRolledBackLock(failure)
+                            && !(failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                            && failure.getCause() instanceof DatabaseCoordinator.SchemaPendingR31
+                            && "SCHEMA_PENDING:R34_RETENTION:WAIT_PREPARED_PROOF".equals(failure.getCause().getMessage())))throw failure;
+                }
+                yield.run();
+            }
         }
     }
 }

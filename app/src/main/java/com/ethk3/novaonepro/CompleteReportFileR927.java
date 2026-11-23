@@ -97,10 +97,14 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
    final String pendingText="检测报告状态="+stage+progressText+(reason.isEmpty()?"":"｜原因="+reason)+"｜可点击取回或取消";
    if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),pendingText,true));if(attempt<1200)poll(app,request,a,b,s,attempt+1,session);else{if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"后台任务仍保留，请稍后查看；任务不会因界面停止而取消。",true));}
   }catch(Exception error){
-   // READY is durable while the diagnostics process may still be retiring its
-   // private workspace. Retry only its typed OS lease conflict, on this same
-   // request and within the original poll ceiling; never recreate the report.
-   if(error instanceof ReportPublicationCP12.ShareBusyR31&&attempt<1200){poll(app,request,a,b,s,attempt+1,session);return;}
+   // The worker has its own durable job. A control lease or changing disk
+   // census can delay publication without invalidating the verified archive.
+   if(ReportPublicationCP12.retryDelivery(error)){
+    if(activity!=null)activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),
+        attempt<1200?"报告任务已保留，正在重试交付。":"报告任务已保留，可点击取回后继续交付。",true);});
+    if(attempt<1200)poll(app,request,a,b,s,attempt+1,session);
+    return;
+   }
    if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"完整报告未交付："+error.getMessage(),true));}},750,TimeUnit.MILLISECONDS);}
  static String stageProgressText(Context app,String id){try{
   if(!id.matches("[0-9a-f]{64}"))throw new IOException("REPORT_PROGRESS_JOB_ID");
