@@ -2819,19 +2819,6 @@ public final class AutoFetchService extends Service {
             lastFetchLoopAt = now;
 
             boolean realtimeLike = isRealtimeLikeWindow();
-            Models.Draw localLatestBeforeFetch = store == null ? null : store.getLatestDraw();
-            boolean staleLatestBeforeFetch = isLatestDrawStaleForRecovery(localLatestBeforeFetch, now);
-            boolean shouldFetch = true; // R31 healthy foreground polling target is one second.
-
-            if (!shouldFetch) {
-                updateRuntimeState(AppConfig.SERVICE_STATUS_WAITING, "");
-                postAnalysisForLatest("空闲期补齐正式预测", false);
-                postLearningTick("空闲期后台小批量学习", false);
-                postRealBetDiagnosisRefresh("空闲期刷新真实BET复盘诊断", REAL_BET_DIAG_IDLE_DELAY_MS, false);
-                postFullDiagnosisRefresh("空闲期刷新满级诊断闭环", FULL_DIAG_LOOP_IDLE_DELAY_MS, false);
-                return;
-            }
-
             forceRefresh = false;
 
             if (!isNetworkAvailable()) {
@@ -2854,7 +2841,6 @@ public final class AutoFetchService extends Service {
             lastStatus = AppConfig.SERVICE_STATUS_FETCHING;
             lastError = "";
 
-            Models.Draw oldLatest = localLatestBeforeFetch;
             // R30-B02-02: single flight around the actual draw request; a concurrent caller returns without a
             // request (no queueing). Only a request that ran changes the backoff counter.
             if (!FETCH_R30.tryBegin()) {
@@ -2874,6 +2860,9 @@ public final class AutoFetchService extends Service {
                 countdownClock.markFetched(latestResult != null && latestResult.ok);
             }
 
+            // A slow database must not delay starting the HTTP request. Compare the response
+            // with the durable head immediately before admitting it to the draw writer.
+            Models.Draw oldLatest = store == null ? null : store.getLatestDraw();
             if (latestResult == null || !latestResult.ok || latestResult.latestDraw == null) {
                 lastError=ApiClient.failureSummary(latestResult);
                 heartbeatStateV8().markFetchFailed(safeIssue(oldLatest),lastError);
@@ -3017,11 +3006,16 @@ public final class AutoFetchService extends Service {
                     catch(RuntimeException failure){recordCriticalCatchR926("R34_S0_FREEZE",base.issue,failure);}
                 });
             }
-            // R71: finite-window owners run before telemetry or optional history queries.
+            // The confirmed label and the next pre-draw request have independent owners.
+            // An analysis read or writer wait must not queue the current settlement behind it.
+            Handler settlementOwner=settlementRecoveryHandlerR908;
+            boolean posted=settlementOwner!=null && settlementOwner.postAtFrontOfQueue(()->{
+                if(running&&!userRequestedStopV5)queueConfirmedSettlementR57(authoritativeLatest);
+            });
             try {
                 postAnalysisForLatest("R71_DURABLE_DRAW_IMMEDIATE_ANALYSIS", true);
             } finally {
-                queueConfirmedSettlementR57(authoritativeLatest);
+                if(!posted)queueConfirmedSettlementR57(authoritativeLatest);
             }
         }
         b13RecordBusinessBeat(store, "FETCH_SUCCEEDED", authoritativeLatest.issue);

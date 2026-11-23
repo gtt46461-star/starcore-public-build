@@ -85,27 +85,48 @@ public final class CompleteReportFileR927 {
    }
   });
  }
- private static void poll(Context app,String request,WeakReference<Activity> a,WeakReference<Button>b,WeakReference<TextView>s,int attempt,long session){UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;Activity activity=a.get();try{
+ private static void poll(Context app,String request,WeakReference<Activity> a,WeakReference<Button>b,WeakReference<TextView>s,int attempt,long session){UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;Activity activity=a.get();
+   if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
+   try{
    File root=ReportDirectoriesCP12.root(app.getFilesDir());File ack=new File(root,"requests/"+request+".ack.json");JSONObject authority=ReportJobJournalCP12.requestStateR31(root,request);if(!ack.exists()&&authority==null){
     if(attempt%8==0&&new File(root,"requests/"+request+".json").isFile())try{ReportExportServiceCP4.resumeExport(app,request);}catch(RuntimeException pending){android.util.Log.w("CompleteReport","Persisted request waiting for foreground service",pending);}
 String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw new IOException("REPORT_REQUEST_FAILED_BEFORE_DURABLE_ACK: "+failure);if(attempt>0&&attempt%8==0&&activity!=null){final long waited=attempt*750L/1000L;activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),"正在采集报告输入或等待导出服务确认（已等待 "+waited+" 秒，尚未取得持久回执）。若超过1分钟仍无进展，请点“快速诊断”复制结果发送。",true);});}if(attempt<1200){poll(app,request,a,b,s,attempt+1,session);return;}throw new IOException("REPORT_REQUEST_ACK_TIMEOUT");}
    JSONObject value=authority!=null?authority:new JSONObject(ReportJobJournalCP12.readAtomic(ack,65536));String stage=value.getString("stage"),reason=value.optString("reason","");
-   if(stage.equals("READY_TO_SHARE")){String id=value.getString("jobId");File job=ReportPublicationCP12.job(app.getFilesDir(),id);JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());ArrayList<Uri> volumes=new ArrayList<>();JSONArray files=index.getJSONArray("files");boolean single="SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format"));boolean r30Parts=ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.optString("format"));if(!single)volumes.add(uri(app,id,"index.json"));for(int i=0;i<files.length();i++)volumes.add(uri(app,id,files.getJSONObject(i).getString("name")));boolean healthy=index.getBoolean("allChecksPassed");if(activity!=null)activity.runOnUiThread(()->{show(activity,b.get(),s.get(),"完整报告已生成｜"+files.length()+(r30Parts?"个ZIP分卷（按索引合并）｜":"个完整文件｜")+String.format(Locale.ROOT,"%.2f MB",index.optLong("totalVolumeBytes")/(1024.0*1024.0))+"｜证据完整="+index.optBoolean("evidenceComplete")+"｜检查执行完整="+index.optBoolean("checksComplete")+"｜全部健康检查通过="+healthy,true);Intent share=new Intent(Intent.ACTION_SEND_MULTIPLE).setType(single?"application/zip":"application/octet-stream").putParcelableArrayListExtra(Intent.EXTRA_STREAM,volumes).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);ClipData clip=ClipData.newRawUri("STARCORE report",volumes.get(0));for(int i=1;i<volumes.size();i++)clip.addItem(new ClipData.Item(volumes.get(i)));share.setClipData(clip);if(activity.isFinishing()||activity.isDestroyed())return;new AlertDialog.Builder(activity).setTitle("完整检测报告交付").setItems(single?new String[]{"一次保存完整ZIP文件","分享完整ZIP","保存到文件夹"}:new String[]{"一次保存完整报告到文件夹","分享全部分卷","保存一个分卷到文件"},(dialog,which)->{try{if(which==0)chooseSafDestination(activity,id,single?"STARCORE_FULL_REPORT.zip":"*");else if(which==1)activity.startActivity(Intent.createChooser(share,"分享完整检测报告"));else if(single)chooseSafDestination(activity,id,"*");else chooseSafVolume(activity,id,volumes);}catch(Exception unavailable){show(activity,b.get(),s.get(),"报告已生成；交付入口不可用："+unavailable.getMessage(),true);}}).show();});return;}
+   if(stage.equals("READY_TO_SHARE")){String id=value.getString("jobId");File job=ReportPublicationCP12.job(app.getFilesDir(),id);JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());ArrayList<Uri> volumes=new ArrayList<>();JSONArray files=index.getJSONArray("files");boolean single="SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format"));boolean r30Parts=ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.optString("format"));if(!single)volumes.add(uri(app,id,"index.json"));for(int i=0;i<files.length();i++)volumes.add(uri(app,id,files.getJSONObject(i).getString("name")));boolean healthy=index.getBoolean("allChecksPassed");if(activity!=null)activity.runOnUiThread(()->{if(session!=POLL_SESSION.get()||activity.isFinishing()||activity.isDestroyed())return;show(activity,b.get(),s.get(),"完整报告已生成｜"+files.length()+(r30Parts?"个ZIP分卷（按索引合并）｜":"个完整文件｜")+String.format(Locale.ROOT,"%.2f MB",index.optLong("totalVolumeBytes")/(1024.0*1024.0))+"｜证据完整="+index.optBoolean("evidenceComplete")+"｜检查执行完整="+index.optBoolean("checksComplete")+"｜全部健康检查通过="+healthy,true);Intent share=new Intent(Intent.ACTION_SEND_MULTIPLE).setType(single?"application/zip":"application/octet-stream").putParcelableArrayListExtra(Intent.EXTRA_STREAM,volumes).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);ClipData clip=ClipData.newRawUri("STARCORE report",volumes.get(0));for(int i=1;i<volumes.size();i++)clip.addItem(new ClipData.Item(volumes.get(i)));share.setClipData(clip);if(activity.isFinishing()||activity.isDestroyed())return;new AlertDialog.Builder(activity).setTitle("完整检测报告交付").setItems(deliveryActions(single,r30Parts),(dialog,which)->{
+      try {
+       if(single||r30Parts){
+        if(which==0)chooseSafDestination(activity,id,"STARCORE_FULL_REPORT.zip");
+        else if(which==1)activity.startActivity(Intent.createChooser(share,"分享完整检测报告"));
+        else if(which==2)chooseSafDestination(activity,id,"*");
+        else chooseSafVolume(activity,id,volumes);
+       }else if(which==0)chooseSafDestination(activity,id,"*");
+       else if(which==1)activity.startActivity(Intent.createChooser(share,"分享完整检测报告"));
+       else chooseSafVolume(activity,id,volumes);
+      }catch(Exception unavailable){show(activity,b.get(),s.get(),"报告已生成，交付入口不可用："+unavailable.getMessage(),true);}
+     }).show();});return;}
    if(stage.equals("FAILED")){ReportJobJournalCP12.FailureDetailR31 detail=ReportJobJournalCP12.failureDetailR31(root,value);if(activity!=null)activity.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;show(activity,b.get(),s.get(),"完整报告失败："+reason+"。可查看和复制失败详情；恢复诊断是失败材料。",true);showFailureR31(activity,detail);});return;}
    if(stage.equals("FAILED")||stage.equals("CANCELLED"))throw new IOException(stage+":"+reason);
    String progressText=value.has("jobId")?stageProgressText(app,value.getString("jobId")):"";
    final String pendingText="检测报告状态="+stage+progressText+(reason.isEmpty()?"":"｜原因="+reason)+"｜可点击取回或取消";
-   if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),pendingText,true));if(attempt<1200)poll(app,request,a,b,s,attempt+1,session);else{if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"后台任务仍保留，请稍后查看；任务不会因界面停止而取消。",true));}
+   activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),pendingText,true);});
+   poll(app,request,a,b,s,nextDeliveryPoll(attempt),session);
   }catch(Exception error){
    // The worker has its own durable job. A control lease or changing disk
    // census can delay publication without invalidating the verified archive.
    if(ReportPublicationCP12.retryDelivery(error)){
     if(activity!=null)activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),
-        attempt<1200?"报告任务已保留，正在重试交付。":"报告任务已保留，可点击取回后继续交付。",true);});
-    if(attempt<1200)poll(app,request,a,b,s,attempt+1,session);
+        "报告任务已保留，正在重试交付。",true);});
+    poll(app,request,a,b,s,nextDeliveryPoll(attempt),session);
     return;
    }
-   if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"完整报告未交付："+error.getMessage(),true));}},750,TimeUnit.MILLISECONDS);}
+   if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"完整报告未交付："+error.getMessage(),true));}},attempt<1200?750:5000,TimeUnit.MILLISECONDS);}
+ // Durable jobs keep their observer while this Activity is alive. Poll slowly on long exports.
+ static int nextDeliveryPoll(int attempt){return Math.min(1200,attempt+1);}
+ static String[] deliveryActions(boolean single,boolean parts){
+  if(single)return new String[]{"一次保存完整ZIP文件","分享完整ZIP","保存到文件夹"};
+  if(parts)return new String[]{"一次保存完整ZIP文件","分享全部分卷","保存全部分卷到文件夹","保存一个分卷到文件"};
+  return new String[]{"一次保存完整报告到文件夹","分享全部分卷","保存一个分卷到文件"};
+ }
  static String stageProgressText(Context app,String id){try{
   if(!id.matches("[0-9a-f]{64}"))throw new IOException("REPORT_PROGRESS_JOB_ID");
   File file=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),"jobs/"+id+"/stage-progress.json");

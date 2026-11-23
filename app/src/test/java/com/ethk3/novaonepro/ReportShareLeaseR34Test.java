@@ -8,6 +8,16 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ReportShareLeaseR34Test {
+    @Test public void longExportsKeepTheVerifiedJobAndExposeOneZipForBothFormats() {
+        assertEquals(1200,CompleteReportFileR927.nextDeliveryPoll(1199));
+        assertEquals(1200,CompleteReportFileR927.nextDeliveryPoll(1200));
+        assertEquals("一次保存完整ZIP文件",CompleteReportFileR927.deliveryActions(true,false)[0]);
+        String[] split=CompleteReportFileR927.deliveryActions(false,true);
+        assertEquals("一次保存完整ZIP文件",split[0]);
+        assertEquals("保存全部分卷到文件夹",split[2]);
+        assertEquals("一次保存完整报告到文件夹",CompleteReportFileR927.deliveryActions(false,false)[0]);
+    }
+
     @Test public void publicationRetriesOnlyRecoverableContention() {
         assertTrue(ReportPublicationCP12.retryDelivery(new ReportControlBudgetR31.Busy()));
         assertTrue(ReportPublicationCP12.retryDelivery(new ReportPublicationCP12.ShareBusyR31()));

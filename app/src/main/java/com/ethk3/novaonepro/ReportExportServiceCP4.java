@@ -849,7 +849,14 @@ public final class ReportExportServiceCP4 extends Service {
 
     /** SAF transfers only verified completed parts. The caller supplies one URI per part; every copy is reopened and hashed. */
     private static void transferPart(Context context,File completedPart,String expectedSha,long expectedBytes,Uri destination,ReportNativeCP4.Control control)throws Exception {
-        Context app=context.getApplicationContext();ReportSafCopyCP12.copy(completedPart,expectedSha,expectedBytes,new ReportSafCopyCP12.Destination(){public OutputStream openOutputTruncating()throws IOException{return app.getContentResolver().openOutputStream(destination,"wt");}public InputStream openInput()throws IOException{return app.getContentResolver().openInputStream(destination);}},control);
+        ReportSafCopyCP12.copy(completedPart,expectedSha,expectedBytes,safDestination(context,destination),control);
+    }
+    private static ReportSafCopyCP12.Destination safDestination(Context context,Uri destination){
+        ContentResolver resolver=context.getApplicationContext().getContentResolver();
+        return new ReportSafCopyCP12.Destination(){
+            public OutputStream openOutputTruncating()throws IOException{return resolver.openOutputStream(destination,"wt");}
+            public InputStream openInput()throws IOException{return resolver.openInputStream(destination);}
+        };
     }
 
     private static boolean isRetryable(String reason){return reason.startsWith("REPORT_RESOURCE_WAIT|")||reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.startsWith("REPORT_MEMORY_BUDGET_WAIT")||reason.equals("IOException");}
@@ -869,9 +876,13 @@ public final class ReportExportServiceCP4 extends Service {
             active=new ActiveControl(sourceState,root,transfer);control=active;foreground("报告分卷保存与回读核验中");active.enter("SAF_COPY",120000);
             try(ReportPublicationCP12.Lease pin=ReportPublicationCP12.shared(sourceJob)){
                 JSONObject index=ReportPublicationCP12.delivery(sourceJob);String name=request.getString("volumeName"),path="",sha="";long bytes=0;
-                if(name.equals("index.json")){path="delivery/index.json";File file=new File(sourceJob,path);bytes=file.length();sha=ReportArchiveCP4.hash(file,active);}else{JSONArray files=index.getJSONArray("files");for(int i=0;i<files.length();i++){JSONObject row=files.getJSONObject(i);if(row.getString("name").equals(name)){path=row.getString("path");sha=row.getString("sha256");bytes=row.getLong("bytes");break;}}}
-                if(path.isEmpty())throw new IOException("REPORT_SAF_VOLUME_UNLISTED");state.put("expectedSha256",sha);state.put("expectedBytes",bytes);ReportJobJournalCP12.writeAtomic(journal,state.toString());
-                transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,Uri.parse(request.getString("destination")),active);
+                boolean joined=name.equals("STARCORE_FULL_REPORT.zip")&&ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.optString("format"));
+                if(joined){sha=index.getString("zipSha256");bytes=index.getLong("zipBytes");}
+                else if(name.equals("index.json")){path="delivery/index.json";File file=new File(sourceJob,path);bytes=file.length();sha=ReportArchiveCP4.hash(file,active);}else{JSONArray files=index.getJSONArray("files");for(int i=0;i<files.length();i++){JSONObject row=files.getJSONObject(i);if(row.getString("name").equals(name)){path=row.getString("path");sha=row.getString("sha256");bytes=row.getLong("bytes");break;}}}
+                if(!joined&&path.isEmpty())throw new IOException("REPORT_SAF_VOLUME_UNLISTED");state.put("expectedSha256",sha);state.put("expectedBytes",bytes);ReportJobJournalCP12.writeAtomic(journal,state.toString());
+                Uri destination=Uri.parse(request.getString("destination"));
+                if(joined)ReportPublicationCP12.saveJoinedZipR34(sourceJob,index,safDestination(this,destination),active);
+                else transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,destination,active);
                 active.checkpoint();
                 state.put("state","VERIFIED_READBACK");state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.remove(root,transfer);

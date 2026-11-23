@@ -60,11 +60,39 @@ public final class WarmCandidateR26 {
         MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("warm-preservation",MemoryBudgetR31.Kind.QUEUED,262144,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);boolean retained=false;
         try{
             long version=scalar(read,"PRAGMA schema_version");
-            ColdRebirthSchemaR34.require(read);
-            String learned="length(c.state)>0 AND (c.cursor>0 OR instr(c.canonical_text,'_warm_kernel=')>0)",published="EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=c.policy_hash)";
-            String action="CASE WHEN "+ColdRebirthContractR34.protectZeroCandidateSql("c")+" THEN 0 WHEN c.state IS NULL OR length(c.state)=0 OR c.cursor=0 AND instr(c.canonical_text,'_warm_kernel=')=0 OR "+published+" THEN 3 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi<>? AND c.status<>'BLOCKED_WARM_NUMERICAL_ABI_PRESERVED' THEN 2 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi=? AND c.status NOT LIKE 'BLOCKED_WARM_%' AND c.status<>'"+WAITING+"' THEN 1 ELSE 0 END";
-            List<String[]> rows=new ArrayList<>();boolean more=false;String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;List<String> args=new ArrayList<>(Arrays.asList(abi,abi));String eligibility="f.status IN ('EXPIRED_RETENTION','ABANDONED_NUMERICAL_ABI')";if(!expiringCampaigns.isEmpty()){eligibility+=" OR f.campaign_id IN ("+String.join(",",Collections.nCopies(expiringCampaigns.size(),"?"))+")";args.addAll(expiringCampaigns);}
-            try(Cursor c=read.rawQuery("SELECT * FROM (SELECT c.campaign_id,c.policy_hash,c.checkpoint_hash,c.state_hash,c.cursor,c.status,f.numerical_abi,f.snapshot_hash,f.source_through,f.created_at,length(c.state) AS state_bytes,"+action+" AS action FROM r26_candidate c JOIN r26_foundry f ON f.campaign_id=c.campaign_id WHERE "+eligibility+") WHERE action>0 ORDER BY created_at,campaign_id,policy_hash LIMIT 9",args.toArray(new String[0]))){
+            String learned="length(c.state)>0 AND (c.cursor>0 OR instr(c.canonical_text,'_warm_kernel=')>0)";
+            String published="EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=c.policy_hash)";
+            String retirementActions="WHEN c.state IS NULL OR length(c.state)=0 OR c.cursor=0 AND instr(c.canonical_text,'_warm_kernel=')=0 OR "+published+" THEN 3 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi<>? AND c.status<>'BLOCKED_WARM_NUMERICAL_ABI_PRESERVED' THEN 2 WHEN "+learned+" AND NOT "+published+" AND f.numerical_abi=? AND c.status NOT LIKE 'BLOCKED_WARM_%' AND c.status<>'"+WAITING+"' THEN 1 ELSE 0 END";
+            String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
+            List<String> args=new ArrayList<>(Arrays.asList(abi,abi));
+            String eligibility="f.status IN ('EXPIRED_RETENTION','ABANDONED_NUMERICAL_ABI')";
+            if(!expiringCampaigns.isEmpty()){
+                eligibility+=" OR f.campaign_id IN ("+String.join(",",Collections.nCopies(expiringCampaigns.size(),"?"))+")";
+                args.addAll(expiringCampaigns);
+            }
+            String candidates=" FROM r26_candidate c JOIN r26_foundry f ON f.campaign_id=c.campaign_id WHERE "+eligibility;
+            String[] bindings=args.toArray(new String[0]);
+            List<String[]> rows=new ArrayList<>();
+            boolean more=false;
+            try {
+                ColdRebirthSchemaR34.require(read);
+            } catch(DatabaseCoordinator.SchemaPendingR31 pending) {
+                // On upgrade only an empty retirement set is safe without authenticated cold-child pins.
+                String query="SELECT 1 FROM (SELECT CASE "+retirementActions+" AS action"+candidates+") WHERE action>0 LIMIT 1";
+                try(Cursor potential=read.rawQuery(query,bindings)) {
+                    if(potential.moveToFirst()) {
+                        WarmPublicationR31.requireCandidateArchiveR31(read);
+                        throw pending;
+                    }
+                }
+                if(scalar(read,"PRAGMA schema_version")!=version)throw new DatabaseCoordinator.SchemaPendingR31("R31_WARM_PRESERVATION","SCHEMA_CHANGED_DURING_PREPARE");
+                PreparedPreservationR31 empty=new PreparedPreservationR31(rows,false,version,admission.lease);
+                retained=true;
+                return empty;
+            }
+            String action="CASE WHEN "+ColdRebirthContractR34.protectZeroCandidateSql("c")+" THEN 0 "+retirementActions;
+            String selection="SELECT c.campaign_id,c.policy_hash,c.checkpoint_hash,c.state_hash,c.cursor,c.status,f.numerical_abi,f.snapshot_hash,f.source_through,f.created_at,length(c.state) AS state_bytes,"+action+" AS action"+candidates;
+            try(Cursor c=read.rawQuery("SELECT * FROM ("+selection+") WHERE action>0 ORDER BY created_at,campaign_id,policy_hash LIMIT 9",bindings)){
                 while(c.moveToNext()){if(rows.size()==PRESERVATION_ROWS_R31){more=true;break;}if(!c.isNull(10)&&c.getLong(10)>(4L<<20))throw new ModelPublicationR31.PublicationDependencyR31("WARM_OLD_STATE_OUTSIDE_DECLARED_VALID_BOUND");String[] row=new String[12];long bytes=0;for(int i=0;i<row.length;i++){row[i]=c.getString(i);if(row[i]!=null)bytes+=row[i].getBytes(java.nio.charset.StandardCharsets.UTF_8).length;}if(bytes>2048)throw new ModelPublicationR31.PublicationDependencyR31("WARM_PRESERVATION_METADATA_BOUND");rows.add(row);}
             }
             if (!rows.isEmpty()) WarmPublicationR31.requireCandidateArchiveR31(read);
