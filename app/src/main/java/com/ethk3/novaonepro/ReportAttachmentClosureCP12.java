@@ -156,8 +156,23 @@ public final class ReportAttachmentClosureCP12 {
             source.put("assets",assets);
             // One bundled source index, streamed twice with exact hash; no repeated source TSV expansion in each section.
             MessageDigest digest=MessageDigest.getInstance("SHA-256");long indexBytes=0;try(InputStream index=app.getAssets().open(RuntimeChainDiagnosisR975.INDEX)){byte[] buffer=new byte[32768];int n;while((n=index.read(buffer))!=-1){checkpoint(control);digest.update(buffer,0,n);indexBytes=Math.addExact(indexBytes,n);}}
-            String indexSha=ReportArchiveCP4.hex(digest.digest());source.put("sourceIndexSha256",indexSha);source.put("sourceIndexBytes",indexBytes);JSONObject indexRef=new JSONObject();indexRef.put("member","source-index-"+indexSha+".tsv");indexRef.put("sha256",indexSha);indexRef.put("bytes",indexBytes);source.getJSONObject("assets").put(RuntimeChainDiagnosisR975.INDEX,indexRef);
-            descriptor(out,"source-index-"+indexSha+".tsv",indexSha,indexBytes,"ASSET",RuntimeChainDiagnosisR975.INDEX,"");
+            String indexSha=ReportArchiveCP4.hex(digest.digest());
+            source.put("sourceIndexSha256",indexSha);
+            source.put("sourceIndexBytes",indexBytes);
+            JSONObject indexRef=new JSONObject();
+            indexRef.put("sha256",indexSha);
+            indexRef.put("bytes",indexBytes);
+            if(compact){
+                indexRef.put("scope","EXACT_INSTALLED_APK_ASSET");
+                indexRef.put("assetPath",RuntimeChainDiagnosisR975.INDEX);
+                indexRef.put("sourceCommit",source.optString("sourceCommit"));
+                indexRef.put("apkSha256",source.optString("apkSha256"));
+                source.put("sourceIndexReference",indexRef);
+            }else{
+                indexRef.put("member","source-index-"+indexSha+".tsv");
+                source.getJSONObject("assets").put(RuntimeChainDiagnosisR975.INDEX,indexRef);
+                descriptor(out,"source-index-"+indexSha+".tsv",indexSha,indexBytes,"ASSET",RuntimeChainDiagnosisR975.INDEX,"");
+            }
             out.flush();fd.getFD().sync();
         }
         File sorted=ReportMemberPlanCP12.sort(job,plans,control);total=0;long missingCopyBytes=0,plannedMembers=0,missingMembers=0;

@@ -54,11 +54,17 @@ public final class CheckpointRecoveryR335 {
         TreeSet<String> page=new TreeSet<>();int scanned=0;
         try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(directory)){File file;while((file=cursor.next())!=null){check(deadline);if(++scanned>32770)throw new IOException("R335_RECOVERY_INTAKE_ENTRY_BOUND");String name=file.getName();if(!name.matches("[0-9a-f]{64}\\.proof\\.json"))continue;String hash=name.substring(0,64);if(hash.compareTo(after)<=0)continue;page.add(hash);if(page.size()>8)page.pollLast();}}
         final String next=page.isEmpty()?"":page.last();
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(context("R335_CHECKPOINT_RECOVERY_INTAKE"),db->{for(String hash:page)add(db,hash,"EXPLICIT_EXACT_BYTE_INTAKE");db.execSQL("UPDATE r335_checkpoint_recovery_cursor SET intake_after=? WHERE singleton=1",new Object[]{next});return 0;});
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(context("R335_CHECKPOINT_RECOVERY_INTAKE"),db->{for(String hash:page){
+                add(db,hash,"EXPLICIT_EXACT_BYTE_INTAKE");
+                db.execSQL("UPDATE r335_checkpoint_recovery SET updated_at=0 WHERE expected_hash=? AND status='WAIT_SOURCE'",
+                    new Object[]{hash});
+            }db.execSQL("UPDATE r335_checkpoint_recovery_cursor SET intake_after=? WHERE singleton=1",new Object[]{next});return 0;});
     }
     private static final class Item {String hash,owner,status,source;long attempts,seq;int childCursor;}
     private static Item next(DbStore store){return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(context("R335_CHECKPOINT_RECOVERY_CLAIM"),db->{
-        Item out=new Item();try(Cursor c=db.rawQuery("SELECT expected_hash,owner_identity,status,attempts,child_cursor,source_evidence FROM r335_checkpoint_recovery WHERE status<>'BYTES_RESTORED_NOT_MODEL_ACCEPTED' ORDER BY updated_seq,expected_hash LIMIT 1",null)){
+        Item out=new Item();try(Cursor c=db.rawQuery("SELECT expected_hash,owner_identity,status,attempts,child_cursor,source_evidence FROM r335_checkpoint_recovery WHERE status<>'BYTES_RESTORED_NOT_MODEL_ACCEPTED'"
+            +" AND (status<>'WAIT_SOURCE' OR attempts=0 OR updated_at<=? OR updated_at>?) ORDER BY updated_seq,expected_hash LIMIT 1",
+            new String[]{Long.toString(System.currentTimeMillis()-15L*60L*1000L),Long.toString(System.currentTimeMillis())})){
             if(!c.moveToFirst())return null;out.hash=c.getString(0);out.owner=c.getString(1);out.status=c.getString(2);out.attempts=Math.addExact(c.getLong(3),1);out.childCursor=c.getInt(4);out.source=c.getString(5);
         }
         out.seq=sequence(db);db.execSQL("UPDATE r335_checkpoint_recovery SET attempts=?,updated_seq=?,updated_at=? WHERE expected_hash=?",new Object[]{out.attempts,out.seq,System.currentTimeMillis(),out.hash});return out;
@@ -85,7 +91,7 @@ public final class CheckpointRecoveryR335 {
         if(!ready(db)||!CheckpointGcStoreR31.ready(db))return "WAIT_SCHEMA";
         Item item=null;
         try{
-            check(deadline);persistSignals(store);discoverIntake(store,deadline);item=next(store);if(item==null){observation="NO_PERSISTED_REQUEST";return observation;}
+            check(deadline);persistSignals(store);discoverIntake(store,deadline);item=next(store);if(item==null){observation="NO_RUNNABLE_RECOVERY_REQUEST";return observation;}
             final Item selected=item;File files=store.contextForR26().getFilesDir().getCanonicalFile(),hotRoot=new File(files,"r26-checkpoints");
             File intake=new File(files,DIRECTORY),sourceFile=inside(intake,item.hash+".bin");
             boolean exists=ColdCheckpointR324.exists(hotRoot,item.hash);long length=exists?ColdCheckpointR324.rawSize(hotRoot,item.hash):sourceFile.length();

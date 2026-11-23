@@ -544,8 +544,21 @@ public final class ReportExportServiceCP4 extends Service {
         job.temporaryReservationBytes=verifiedSnapshotReusable?8*MiB:snapshot;
         job.publishedQuotaBytes=ReportBudgetSU2.PUBLISHED_QUOTA_BYTES;
         String relative="files/r981_reports/jobs/"+job.jobId;
-        try{active.storageReservationR31=StorageBudgetR31.forFiles(getFilesDir()).reserve("report:"+job.jobId,job.revision,StorageBudgetR31.Category.REPORT_WORKSPACE,relative,job.temporaryReservationBytes,Math.multiplyExact(job.temporaryReservationBytes,4L),true);}
-        catch(StorageBudgetR31.Rejected unavailable){throw new IOException("REPORT_STORAGE_BUDGET_"+unavailable.reason,unavailable);}
+        StorageBudgetR31 budget=StorageBudgetR31.forFiles(getFilesDir());
+        for(int attempt=0;;attempt++){
+            try{
+                active.storageReservationR31=budget.reserve("report:"+job.jobId,job.revision,
+                    StorageBudgetR31.Category.REPORT_WORKSPACE,relative,job.temporaryReservationBytes,
+                    Math.multiplyExact(job.temporaryReservationBytes,4L),true);
+                break;
+            }catch(StorageBudgetR31.Rejected unavailable){
+                if(attempt!=0||!"FREE_SPACE_RESERVE".equals(unavailable.reason))
+                    throw new IOException("REPORT_STORAGE_BUDGET_"+unavailable.reason,unavailable);
+                // The existing owner only retires a redundant recovery copy with a verified replacement.
+                if(ReportBudgetSU2.pruneHeavyRecovery(journal.root(),System.currentTimeMillis())==0)
+                    throw new IOException("REPORT_STORAGE_BUDGET_"+unavailable.reason,unavailable);
+            }
+        }
         journal.checkpoint(job,System.currentTimeMillis());
         try{StorageLedgerR31.sampleIfDue(getFilesDir(),"REPORT_ADMITTED",job.jobId,true);}catch(IOException censusFailure){android.util.Log.w("ReportExportCP12","Storage sample incomplete",censusFailure);}
     }
