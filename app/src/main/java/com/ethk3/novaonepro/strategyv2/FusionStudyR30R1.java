@@ -1,12 +1,137 @@
 package com.ethk3.novaonepro.strategyv2;
-import java.util.*;
-/** Same original SELECT targets, including non-acting forecasts. No confirmation label is available here. */
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Paired forecasts on the original SELECT calendar, including periods with no action. */
 public final class FusionStudyR30R1 {
- private FusionStudyR30R1(){}
- public static double loss(double[] p,int actual){if(p==null||p.length!=10||actual<1||actual>10)return Double.NaN;double sum=0,loss=0;for(int i=0;i<10;i++){if(!Double.isFinite(p[i])||p[i]<0)return Double.NaN;sum+=p[i];double e=p[i]-(i==actual-1?1:0);loss+=.5*e*e;}return Math.abs(sum-1)<1e-8?loss:Double.NaN;}
- public static final class Pair {public final int n,bothMiss,eitherMiss;public final double residualCorrelation;Pair(int n,int both,int either,double correlation){this.n=n;bothMiss=both;eitherMiss=either;residualCorrelation=correlation;}public boolean complementary(){return n>=200&&Double.isFinite(residualCorrelation)&&Math.abs(residualCorrelation)<FusionOpsR27.MAX_CORRELATION;}public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("calendarIssues",n);m.put("residualCorrelation",Double.isFinite(residualCorrelation)?residualCorrelation:null);m.put("bothMiss",bothMiss);m.put("eitherMiss",eitherMiss);m.put("commonFailureRate",eitherMiss==0?null:bothMiss/(double)eitherMiss);m.put("complementaryResearchOnly",complementary());return m;}}
- public static Pair pair(PolicySpecR27 a,PolicySpecR27 b,EvalContextR27 c){if(a.position!=b.position)throw new IllegalArgumentException("FUSION_DIFFERENT_TARGET");if(c.labels!=c.data.draws)throw new IllegalArgumentException("FUSION_ORIGINAL_SELECT_ONLY");ReplayEvaluatorR27.Trace x=trace(a,c),y=trace(b,c);double dot=0,xx=0,yy=0;int n=0,both=0,either=0;for(int t=c.split.selectFrom;t<c.split.selectTo;t++){if((t&31)==0)CooperativeContinuationR26.poll();if(x.skipped[t]||y.skipped[t]||x.probabilityRows[t]==null||y.probabilityRows[t]==null)continue;n++;int actual=c.data.draws[t][a.position-1]-1;for(int k=0;k<10;k++){double u=x.probabilityRows[t][k]-(k==actual?1:0),v=y.probabilityRows[t][k]-(k==actual?1:0);dot+=u*v;xx+=u*u;yy+=v*v;}boolean xm=x.hit[t]==0,ym=y.hit[t]==0;if(xm&&ym)both++;if(xm||ym)either++;}return new Pair(n,both,either,xx>0&&yy>0?dot/Math.sqrt(xx*yy):Double.NaN);}
- static ReplayEvaluatorR27.Trace trace(PolicySpecR27 p,EvalContextR27 c){return ReplayEvaluatorR27.selectTraceWithProbabilities(p,c,c.temperature(p));}
- public static ResearchGainR30R1 gain(PolicySpecR27 base,PolicySpecR27 child,EvalContextR27 c){if(base.position!=child.position||c.labels!=c.data.draws)throw new IllegalArgumentException("FUSION_PAIRED_TARGET_ROLE");ResearchGainR30R1 g=new ResearchGainR30R1(c.data.ordinals[c.split.selectFrom],c.data.ordinals[c.split.selectTo-1],64,4,200);ReplayEvaluatorR27.Trace a=trace(base,c),b=trace(child,c);for(int t=c.split.selectFrom;t<c.split.selectTo;t++){int y=c.data.draws[t][base.position-1];double x=loss(a.probabilityRows[t],y),z=loss(b.probabilityRows[t],y);if(Double.isFinite(x)&&Double.isFinite(z))g.add(c.data.ordinals[t],x,z);}return g;}
- public static boolean improvesEveryParent(List<PolicySpecR27> parents,PolicySpecR27 child,EvalContextR27 c){for(PolicySpecR27 p:parents){ResearchGainR30R1.Estimate e=gain(p,child,c).estimate();if(!e.supported()||e.lower95<=0)return false;}return true;}
+    private FusionStudyR30R1(){}
+
+    public static double loss(double[] p,int actual){
+        if(p==null||p.length!=10||actual<1||actual>10)return Double.NaN;
+        double sum=0,loss=0;
+        for(int i=0;i<10;i++){
+            if(!Double.isFinite(p[i])||p[i]<0)return Double.NaN;
+            sum+=p[i];
+            double error=p[i]-(i==actual-1?1:0);
+            loss+=.5*error*error;
+        }
+        return Math.abs(sum-1)<1e-8?loss:Double.NaN;
+    }
+
+    public static final class Pair {
+        public final int n,bothMiss,eitherMiss,leftOnlyHit,rightOnlyHit;
+        public final long expected;
+        public final double residualCorrelation;
+        Pair(int n,long expected,int both,int either,int leftOnly,int rightOnly,double correlation){
+            this.n=n;this.expected=expected;bothMiss=both;eitherMiss=either;
+            leftOnlyHit=leftOnly;rightOnlyHit=rightOnly;residualCorrelation=correlation;
+        }
+        public boolean complementary(){
+            return n>=200&&n==expected&&leftOnlyHit>0&&rightOnlyHit>0
+                &&Double.isFinite(residualCorrelation)&&Math.abs(residualCorrelation)<FusionOpsR27.MAX_CORRELATION;
+        }
+        public Map<String,Object> json(){
+            Map<String,Object> m=new LinkedHashMap<>();
+            m.put("calendarIssues",n);m.put("expectedCalendarIssues",expected);m.put("missingCalendarIssues",expected-n);
+            m.put("residualCorrelation",Double.isFinite(residualCorrelation)?residualCorrelation:null);
+            m.put("bothMiss",bothMiss);m.put("eitherMiss",eitherMiss);
+            m.put("leftOnlyHit",leftOnlyHit);m.put("rightOnlyHit",rightOnlyHit);
+            m.put("commonFailureRate",eitherMiss==0?null:bothMiss/(double)eitherMiss);
+            m.put("complementaryResearchOnly",complementary());return m;
+        }
+    }
+
+    public static Pair pair(PolicySpecR27 left,PolicySpecR27 right,EvalContextR27 context){
+        requireTarget(left,right,context);
+        ReplayEvaluatorR27.Trace x=trace(left,context),y=trace(right,context);
+        double dot=0,xx=0,yy=0;
+        int paired=0,both=0,either=0,leftOnly=0,rightOnly=0;
+        long expected=context.split.selectFrom<context.split.selectTo
+            ?context.data.ordinals[context.split.selectTo-1]-context.data.ordinals[context.split.selectFrom]+1:0;
+        for(int row=context.split.selectFrom;row<context.split.selectTo;row++){
+            if((row&31)==0)CooperativeContinuationR26.poll();
+            int actual=context.data.draws[row][left.position-1]-1;
+            double[] p=x.probabilityRows[row],q=y.probabilityRows[row];
+            if(x.skipped[row]||y.skipped[row]||!Double.isFinite(loss(p,actual+1))||!Double.isFinite(loss(q,actual+1)))continue;
+            paired++;
+            for(int k=0;k<10;k++){
+                double u=p[k]-(k==actual?1:0),v=q[k]-(k==actual?1:0);
+                dot+=u*v;xx+=u*u;yy+=v*v;
+            }
+            boolean leftMiss=x.hit[row]==0,rightMiss=y.hit[row]==0;
+            if(leftMiss&&rightMiss)both++;
+            if(leftMiss||rightMiss)either++;
+            if(!leftMiss&&rightMiss)leftOnly++;
+            if(leftMiss&&!rightMiss)rightOnly++;
+        }
+        return new Pair(paired,expected,both,either,leftOnly,rightOnly,xx>0&&yy>0?dot/Math.sqrt(xx*yy):Double.NaN);
+    }
+
+    private static void requireTarget(PolicySpecR27 a,PolicySpecR27 b,EvalContextR27 c){
+        if(a.position!=b.position)throw new IllegalArgumentException("FUSION_DIFFERENT_TARGET");
+        if(c.labels!=c.data.draws)throw new IllegalArgumentException("FUSION_ORIGINAL_SELECT_ONLY");
+    }
+    static ReplayEvaluatorR27.Trace trace(PolicySpecR27 p,EvalContextR27 c){
+        return ReplayEvaluatorR27.selectTraceWithProbabilities(p,c,c.temperature(p));
+    }
+    private static ResearchGainR30R1 gainWindow(EvalContextR27 c){
+        return new ResearchGainR30R1(c.data.ordinals[c.split.selectFrom],
+            c.data.ordinals[c.split.selectTo-1],64,4,200);
+    }
+    public static ResearchGainR30R1 gain(PolicySpecR27 base,PolicySpecR27 child,EvalContextR27 c){
+        requireTarget(base,child,c);
+        ResearchGainR30R1 result=gainWindow(c);
+        ReplayEvaluatorR27.Trace a=trace(base,c),b=trace(child,c);
+        for(int row=c.split.selectFrom;row<c.split.selectTo;row++){
+            int actual=c.data.draws[row][base.position-1];
+            double x=loss(a.probabilityRows[row],actual),y=loss(b.probabilityRows[row],actual);
+            if(Double.isFinite(x)&&Double.isFinite(y))result.add(c.data.ordinals[row],x,y);
+        }
+        return result;
+    }
+    public static boolean improvesEveryParent(List<PolicySpecR27> parents,PolicySpecR27 child,EvalContextR27 c){
+        return comparison(parents,child,c)!=null;
+    }
+    /** Use the same complete blocks for every parent and the unweighted probability control. */
+    static Map<String,Object> comparison(List<PolicySpecR27> parents,PolicySpecR27 child,EvalContextR27 c){
+        if(parents.size()<2||c.split.selectTo<=c.split.selectFrom)return null;
+        List<ReplayEvaluatorR27.Trace> inputs=new ArrayList<>();
+        ResearchGainR30R1[] comparisons=new ResearchGainR30R1[parents.size()+1];
+        for(int i=0;i<parents.size();i++){
+            requireTarget(parents.get(i),child,c);
+            inputs.add(trace(parents.get(i),c));
+            comparisons[i]=gainWindow(c);
+        }
+        comparisons[parents.size()]=gainWindow(c);
+        ReplayEvaluatorR27.Trace candidate=trace(child,c);
+        double[] average=new double[10],parentLoss=new double[parents.size()];
+        for(int row=c.split.selectFrom;row<c.split.selectTo;row++){
+            if((row&31)==0)CooperativeContinuationR26.poll();
+            int actual=c.data.draws[row][child.position-1];
+            double childLoss=loss(candidate.probabilityRows[row],actual);
+            if(!Double.isFinite(childLoss))continue;
+            java.util.Arrays.fill(average,0);
+            boolean complete=true;
+            for(int i=0;i<inputs.size();i++){
+                double[] p=inputs.get(i).probabilityRows[row];
+                parentLoss[i]=loss(p,actual);
+                if(!Double.isFinite(parentLoss[i])){complete=false;break;}
+                for(int digit=0;digit<10;digit++)average[digit]+=p[digit]/inputs.size();
+            }
+            if(!complete)continue;
+            for(int i=0;i<parentLoss.length;i++)comparisons[i].add(c.data.ordinals[row],parentLoss[i],childLoss);
+            comparisons[parentLoss.length].add(c.data.ordinals[row],loss(average,actual),childLoss);
+        }
+        Map<String,Object> evidence=new LinkedHashMap<>();
+        for(int i=0;i<comparisons.length;i++){
+            ResearchGainR30R1.Estimate estimate=comparisons[i].estimate();
+            if(!estimate.supported()||estimate.incompleteFullBlocks!=0||estimate.lower95<=0)return null;
+            evidence.put(i<parents.size()?parents.get(i).policyHash():"equalProbabilityAverage",
+                java.util.Arrays.asList(estimate.evaluatedIssues,estimate.meanBlockGain,estimate.lower95,estimate.analysisContractHash));
+        }
+        return evidence;
+    }
 }

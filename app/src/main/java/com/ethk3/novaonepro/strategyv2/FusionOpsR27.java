@@ -56,12 +56,24 @@ public final class FusionOpsR27 {
             for (int at : leaves) {
                 PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=" + at);
                 PolicySpecR27 child = new PolicySpecR27(PolicyAstR27.replace(first.ast,at,ast),tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-                if (FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx)) return research==null?child:research.annotate(child);
+                PolicySpecR27 accepted=compare(child,members,ctx,research);
+                if(accepted!=null)return accepted;
             }
         }
         PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=WHOLE_PROGRAM");
         PolicySpecR27 child = new PolicySpecR27(ast,tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-        return FailureProfileR30.legal(child)&&FusionStudyR30R1.improvesEveryParent(members,child,ctx) ? (research==null?child:research.annotate(child)) : null;
+        return compare(child,members,ctx,research);
+    }
+
+    private static PolicySpecR27 compare(PolicySpecR27 child,List<PolicySpecR27> parents,EvalContextR27 ctx,
+            ResearchContextR30R1 research){
+        if(!FailureProfileR30.legal(child))return null;
+        java.util.Map<String,Object> evidence=FusionStudyR30R1.comparison(parents,child,ctx);
+        if(evidence==null)return null;
+        PolicySpecR27.Meta meta=child.meta;
+        PolicySpecR27 accepted=child.withMeta(new PolicySpecR27.Meta(meta.idea,meta.operator,meta.parents,meta.generation,
+            meta.seed,meta.reason+" PAIRED_SELECT_R34="+JsonR27.write(evidence)));
+        return research==null?accepted:research.annotate(accepted);
     }
 
     static PolicySpecR27 weighted(List<PolicySpecR27> members, double[] w, PolicySpecR27 first) {

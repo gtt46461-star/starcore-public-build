@@ -133,7 +133,7 @@ public final class MutationOpsR27 {
             int at = leaves.get(r.nextInt(leaves.size()));
             PolicyAstR27.Node leaf = IdeaFamilyR27.Grow.leaf(IdeaFamilyR27.Grow.pick(kinds,ctx,r),parent.position,r);
             PolicySpecR27 child = parent.withAst(PolicyAstR27.replace(parent.ast,at,leaf),IdeaFamilyR27.meta(idea,"M_LEAF",gen,r.state,"思路族专属叶子替换；" + profile.reason(),parent.policyHash()));
-            if (FailureProfileR30.legal(child)) return child;
+            if (FailureProfileR30.legal(child)&&!child.policyHash().equals(parent.policyHash())) return child;
         }
         return null;
     }

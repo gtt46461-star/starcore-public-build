@@ -255,6 +255,9 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); for(ResearchStoreR30R1.Ready r:directedResearch)if(s!=null&&s.policyHash().equals(r.child.policyHash())){p.researchProposal=r.proposal;break;}pending.add(p); }
         directedResearch=Collections.emptyList();
         count("attempts", births.size());
+        genStats.put("submittedProposals",(long)births.size());
+        genStats.put("mutationInvocations",(long)mut);genStats.put("crossoverInvocations",(long)cx);
+        genStats.put("fusionInvocations",(long)fu);genStats.put("expertInvocations",(long)ex);
         genStats.put("births", (long) births.size());
     }
 
@@ -262,7 +265,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         Set<String> existing = new HashSet<>(); for (Member m : population) existing.add(m.hash());
         Set<String> seenThisGen = new HashSet<>();
         List<Pending> bornThisGeneration=new ArrayList<>();List<Object> localBehaviorDuplicates=new ArrayList<>();int localBehaviorDuplicatesTotal=0;
-        int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>(); researchInfluencedR31 = 0;
+        int rejected = 0, noop = 0, dup = 0, structural = 0, valid=0; Map<String, Integer> reasons = new LinkedHashMap<>(); researchInfluencedR31 = 0;
         for (Pending p : pending) {
             if("RESEARCH_STALE".equals(p.state)||"SKIPPED_REFUTED".equals(p.state)){rejected++;continue;}
             BirthGateR27.Verdict contract = BirthGateR27.candidateContract(p.spec);
@@ -272,7 +275,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
                 if (pendingSpecJson(p) != null) sink.policy(p.spec, "REJECTED", "BIRTH_REJECTED(" + contract.reason + "):" + contract.detail, generation, ctx.data.datasetHash);
                 continue;
             }
-            String familyR31 = familyR31(p.spec); creation.record(familyR31, "contractValid", 1);
+            String familyR31 = familyR31(p.spec); creation.record(familyR31, "contractValid", 1);valid++;
             String h = p.spec.policyHash();
             if (recordedBirthCandidates.contains(h)) {
                 p.state = "DUPLICATE_BEHAVIOR";
@@ -299,8 +302,18 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             sink.policy(p.spec, "BORN", p.spec.meta == null ? "" : p.spec.meta.reason, generation, ctx.data.datasetHash);
             if (p.spec.meta != null) for (String parent : p.spec.meta.parents) sink.lineage(h, parent, role(p.spec.meta.operator), p.spec.meta.operator, generation);
         }
+        List<String> children=new ArrayList<>(bornThisGeneration.size());
+        Set<String> parents=new java.util.TreeSet<>();
+        for(Pending child:bornThisGeneration){
+            children.add(child.spec.policyHash());
+            if(child.spec.meta!=null)parents.addAll(child.spec.meta.parents);
+        }
+        genStats.put("contractValidProposals",(long)valid);
+        genStats.put("publishedBirths",(long)children.size());
+        genStats.put("birthPolicyHashes",children);
+        genStats.put("parentCohortHashes",new ArrayList<>(parents));
         genStats.put("researchInfluencedBirths", (long) researchInfluencedR31); researchInfluencedR31 = 0;
-        count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", pending.size() - rejected - noop - dup);
+        count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", bornThisGeneration.size());
         genStats.put("rejected", (long) rejected); genStats.put("noOp", (long) noop); genStats.put("duplicates", (long) dup); genStats.put("rejectReasons", new LinkedHashMap<String, Object>(reasons));genStats.put("sameGenerationBehaviorDuplicates",localBehaviorDuplicates);genStats.put("sameGenerationBehaviorDuplicatesTotal",localBehaviorDuplicatesTotal);genStats.put("sameGenerationBehaviorDuplicatesOmitted",Math.max(0,localBehaviorDuplicatesTotal-localBehaviorDuplicates.size()));
     }
 
@@ -345,6 +358,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         // Deferral records are written only once the step has completed (same sink transaction as the cursor).
         for (Pending p : deferredThisReplayR31) sink.policy(p.spec, "RETIRED", "R31_CREATION_BUDGET_DEFERRED:" + p.reason.substring("R31_CREATION_BUDGET:".length()), generation, ctx.data.datasetHash);
         deferredThisReplayR31.clear();
+        genStats.put("developmentReplayCompleted",(long)born.size());
         genStats.put("creationDeferred", deferred); genStats.put("creationSpentUnits", creation.spentThisGeneration());
         replayStatsR31(t0);
     }
@@ -452,10 +466,15 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             if (c.spec.meta != null && c.spec.meta.parents.size() == 1 && c.spec.meta.operator != null) {
                 // Same SELECT window and same evaluator for parent and child; booked once per experiment key.
                 Member parent = null; for (Member x : population) if (x.hash().equals(c.spec.meta.parents.get(0))) { parent = x; break; }
-                if (parent != null && Double.isFinite(parent.u) && Double.isFinite(m.u) && m.u > parent.u && !ResearchContextR30R1.references(c.spec).isEmpty()) researchPairedGainR31++;
-                if (parent != null && Double.isFinite(parent.u) && Double.isFinite(m.u))
-                    creation.creditOperator(c.spec.meta.operator, parent.hash(), m.hash(), ctx.data.datasetHash + "|" + ctx.split.selectFrom + "-" + ctx.split.selectTo, m.u - parent.u,
-                            CreationBudgetR31.costUnits(c.spec, ctx.split.selectTo - ctx.split.selectFrom) / (double) creation.generationCostUnits);
+                if(parent!=null&&parent.spec.position==c.spec.position&&ctx.labels==ctx.data.draws){
+                    ResearchGainR30R1.Estimate paired=FusionStudyR30R1.gain(parent.spec,m.spec,ctx).estimate();
+                    if(paired.supported()&&paired.incompleteFullBlocks==0){
+                        if(paired.lower95>0&&!ResearchContextR30R1.references(c.spec).isEmpty())researchPairedGainR31++;
+                        creation.creditOperator(c.spec.meta.operator,parent.hash(),m.hash(),
+                            paired.analysisContractHash+"|"+ctx.data.datasetHash,paired.meanBlockGain,
+                            CreationBudgetR31.costUnits(c.spec,ctx.split.selectTo-ctx.split.selectFrom)/(double)creation.generationCostUnits);
+                    }
+                }
             }
             population.add(m); gate.register(m.hash(), m.sig,m.spec.position);
             sink.policy(c.spec, "ACTIVE", "SURVIVED_R0_R1_R2", generation, ctx.data.datasetHash); sink.score(m.hash(), ctx.data.datasetHash, c.select);
