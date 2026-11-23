@@ -315,10 +315,23 @@ public final class HistoryImportR27 {
         String relative=directory.getPath().substring(root.getPath().length()+1);
         return new StorageBudgetR31(root).reserve("HISTORY_DB:"+j.id,j.fence,StorageBudgetR31.Category.DATABASE,relative,DB_PHASE_BYTES_R31,false);
     }
-    private static void submit(DbStore store,JobR31 job,ResearchWriteQueueR27.Batch draft,String part,long sequence,BooleanSupplier cancelled)throws Exception {
-        String operation="HISTORY_IMPORT_R31",key=StatsR27.sha256(R31_IMPORT_ABI+"|"+job.id+"|"+part+"|"+sequence);
-        ResearchWriteQueueR27.ImmutableBatch prepared=draft.prepareR31(operation,key,"HISTORY:"+job.id,job.owner,job.fence,job.source,sequence,R31_IMPORT_ABI);
-        if(prepared.opCount>64||prepared.bindBytes>Math.min(262144L,Runtime.getRuntime().maxMemory()/512L))throw new IllegalStateException("HISTORY_PREPARED_CHUNK_BOUND");
+    private static ResearchWriteQueueR27.ImmutableBatch preparePage(JobR31 job, ResearchWriteQueueR27.Batch draft,
+                                                                  String part, long sequence) {
+        String key = StatsR27.sha256(R31_IMPORT_ABI + "|" + job.id + "|" + part + "|" + sequence);
+        ResearchWriteQueueR27.ImmutableBatch prepared = draft.prepareR31("HISTORY_IMPORT_R31", key,
+                "HISTORY:" + job.id, job.owner, job.fence, job.source, sequence, R31_IMPORT_ABI);
+        if (prepared.opCount > 64 || prepared.bindBytes > Math.min(262144L, Runtime.getRuntime().maxMemory() / 512L))
+            throw new IllegalStateException("HISTORY_PREPARED_CHUNK_BOUND");
+        return prepared;
+    }
+
+    private static void submit(DbStore store, JobR31 job, ResearchWriteQueueR27.Batch draft,
+                               String part, long sequence, BooleanSupplier cancelled) throws Exception {
+        submit(store, job, preparePage(job, draft, part, sequence), cancelled);
+    }
+
+    private static void submit(DbStore store, JobR31 job, ResearchWriteQueueR27.ImmutableBatch prepared,
+                               BooleanSupplier cancelled) throws Exception {
         ResearchWriteQueueR27 queue=new ResearchWriteQueueR27(store);
         try(StorageBudgetR31.Reservation disk=databaseBudget(store,job)){
             disk.beforeChunk(DB_PHASE_BYTES_R31);
@@ -326,7 +339,7 @@ public final class HistoryImportR27 {
             for(;;) {
                 checkCancelled(cancelled);
                 renewIfDue(store,job,cancelled);
-                try { if(queue.submit(operation,prepared,cancelled))break; }
+                try { if(queue.submit(prepared.operation,prepared,cancelled))break; }
                 catch(DatabaseCoordinator.WriteRejectedR31 busy) {
                     if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;
                 }
@@ -391,9 +404,19 @@ public final class HistoryImportR27 {
         ChangesR31 evidence=new ChangesR31();evidence.fence=ResearchSourceJournalR31.currentFence(store.readable());
         String after="";long page=0;
         for(;;){checkCancelled(work);List<RowR31> changed=new ArrayList<>();int fetched=0;
-            try(Cursor c=store.readable().rawQuery("SELECT issue,numbers,status,db_numbers,source_line FROM r31_history_import_row WHERE job_id=? AND issue>? ORDER BY issue LIMIT 16",new String[]{job.id,after})){
+            String pageSql = "SELECT r.issue,r.numbers,r.status,r.db_numbers,r.source_line,d.issue,"
+                    + "d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 "
+                    + "FROM r31_history_import_row r LEFT JOIN draws d ON d.issue=r.issue AND d.dirty=0 "
+                    + "WHERE r.job_id=? AND r.issue>? ORDER BY r.issue LIMIT 16";
+            try(Cursor c=store.readable().rawQuery(pageSql,new String[]{job.id,after})){
                 while(c.moveToNext()){
-                    fetched++;after=c.getString(0);String canonical=canonicalNumbers(store.readable(),after),numbers=c.getString(1);
+                    fetched++;after=c.getString(0);
+                    String canonical = null, numbers = c.getString(1);
+                    if (!c.isNull(5)) {
+                        int[] values = new int[10];
+                        for (int i = 0; i < values.length; i++) values[i] = c.getInt(6 + i);
+                        canonical = join(values);
+                    }
                     String status=canonical==null?"IMPORTED":canonical.equals(numbers)?"MATCH":"CONFLICT";
                     if(status.equals(c.getString(2))&&java.util.Objects.equals(canonical,c.isNull(3)?null:c.getString(3)))continue;
                     String[] parts=numbers.split(",",-1);int[] values=new int[10];for(int n=0;n<10;n++)values[n]=Integer.parseInt(parts[n]);
@@ -411,21 +434,65 @@ public final class HistoryImportR27 {
         }
         rebaseChanges(store,job,evidence,work);return evidence;
     }
+    /** Member rows and their receipt commit together. A recovered owner can verify a saved page
+     * without reserving another write. New or partial unreceipted pages still use the full transaction. */
+    private static boolean committedMemberPage(SQLiteDatabase db, JobR31 job,
+                                               ResearchWriteQueueR27.ImmutableBatch prepared, String memberSet,
+                                               List<Long> inserts, List<Long> replaces) {
+        try (Cursor receipt = db.rawQuery("SELECT payload_hash FROM r31_commit_receipt WHERE commit_key=?",
+                new String[]{prepared.commitKey})) {
+            if (!receipt.moveToFirst()) return false;
+            if (!prepared.payloadHash.equals(receipt.getString(0))) throw new IntegrityR31("PREPARED_MEMBER_PAYLOAD");
+        }
+        requireOwner(db, job, job.cursor, job.chunk);
+        List<String> args = new ArrayList<>();
+        args.add(memberSet);
+        for (Long ordinal : inserts) args.add(String.valueOf(ordinal));
+        for (Long ordinal : replaces) args.add(String.valueOf(ordinal));
+        int expected = args.size() - 1;
+        String placeholders = String.join(",", java.util.Collections.nCopies(expected, "?"));
+        String sql = "SELECT operation,ordinal FROM r31_source_member WHERE member_set=? AND ordinal IN (" + placeholders + ")";
+        int found = 0;
+        try (Cursor rows = db.rawQuery(sql, args.toArray(new String[0]))) {
+            while (rows.moveToNext()) {
+                long ordinal = rows.getLong(1);
+                String operation = rows.getString(0);
+                if (!("INSERT".equals(operation) && inserts.contains(ordinal))
+                        && !("REPLACE".equals(operation) && replaces.contains(ordinal)))
+                    throw new IntegrityR31("PREPARED_MEMBER_OPERATION");
+                found++;
+            }
+        }
+        if (found != expected) throw new IntegrityR31("PREPARED_MEMBER_COUNT");
+        return true;
+    }
+
     private static ChangesR31 prepareChanges(DbStore store,JobR31 job,SummaryR31 summary,ChangesR31 evidence,BooleanSupplier cancelled,BooleanSupplier work)throws Exception {
         ChangesR31 changes=new ChangesR31();changes.fence=evidence.fence;
         changes.members=StatsR27.sha256(job.id+'|'+summary.hash+"|MEMBERS|"+changes.fence);String after="";long part=0;
+        String prior = "SELECT 1 FROM " + publishedRowsSqlR31()
+                + " p WHERE p.issue=r.issue AND p.status='IMPORTED'";
+        String pageSql = "SELECT r.issue,r.ordinal,CASE WHEN r.status<>'IMPORTED' THEN 'UNCHANGED' "
+                + "WHEN NOT EXISTS(" + prior + " AND p.numbers IS NOT NULL) THEN 'INSERT' "
+                + "WHEN EXISTS(" + prior + " AND p.numbers=r.numbers AND p.known_at>0) THEN 'UNCHANGED' "
+                + "ELSE 'REPLACE' END FROM r31_history_import_row r WHERE r.job_id=? "
+                + "AND r.duplicate_conflicts=0 AND r.issue>? ORDER BY r.issue LIMIT 16";
         for(;;){checkCancelled(work);List<Long> inserts=new ArrayList<>(),replaces=new ArrayList<>();int fetched=0;
-            try(Cursor c=store.readable().rawQuery("SELECT issue,ordinal,numbers,status FROM r31_history_import_row WHERE job_id=? AND duplicate_conflicts=0 AND issue>? ORDER BY issue LIMIT 16",new String[]{job.id,after})){
+            try(Cursor c=store.readable().rawQuery(pageSql,new String[]{job.id,after})){
                 while(c.moveToNext()){
-                    fetched++;after=c.getString(0);long ordinal=c.getLong(1);String before=null;boolean priorKnowledge=false;
-                    if(!"IMPORTED".equals(c.getString(3)))continue; // Current canonical data wins in every reader.
-                    try(Cursor prior=store.readable().rawQuery("SELECT numbers,known_at FROM "+publishedRowsSqlR31()+" WHERE issue=? AND status='IMPORTED' LIMIT 1",new String[]{after})){if(prior.moveToFirst()){before=prior.getString(0);priorKnowledge=!prior.isNull(1)&&prior.getLong(1)>0;}}
-                    // Different consumers use canonical tails of 544/5000 rows. Preserve their own cutoff;
-                    // the shared source journal records changes to the actual published replay candidate pool.
-                    String next=c.getString(2);
-                    if(java.util.Objects.equals(before,next)&&priorKnowledge)continue;
-                    if(before==null){inserts.add(ordinal);if(changes.insertCount++==0)changes.insertFirst=ordinal;changes.insertLast=ordinal;}
-                    else{replaces.add(ordinal);if(changes.replaceCount++==0)changes.replaceFirst=ordinal;changes.replaceLast=ordinal;}
+                    fetched++;
+                    after=c.getString(0);
+                    long ordinal=c.getLong(1);
+                    String operation=c.getString(2);
+                    if("INSERT".equals(operation)){
+                        inserts.add(ordinal);
+                        if(changes.insertCount++==0)changes.insertFirst=ordinal;
+                        changes.insertLast=ordinal;
+                    } else if("REPLACE".equals(operation)){
+                        replaces.add(ordinal);
+                        if(changes.replaceCount++==0)changes.replaceFirst=ordinal;
+                        changes.replaceLast=ordinal;
+                    }
                 }
             }
             if(fetched==0)break;part++;
@@ -435,7 +502,9 @@ public final class HistoryImportR27 {
                 ResearchSourceJournalR31.appendImportMembers(members,changes.members,"INSERT",inserts);
                 ResearchSourceJournalR31.appendImportMembers(members,changes.members,"REPLACE",replaces);
                 members.guardAfter(db->{requireOwner(db,job,cursor,sequence);return 0;});
-                submit(store,job,members,"MEMBERS:"+changes.members,part,cancelled);
+                ResearchWriteQueueR27.ImmutableBatch page = preparePage(job, members, "MEMBERS:" + changes.members, part);
+                if (!committedMemberPage(store.readable(), job, page, changes.members, inserts, replaces))
+                    submit(store, job, page, cancelled);
             }
         }
         return changes;

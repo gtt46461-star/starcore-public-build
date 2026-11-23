@@ -21,7 +21,7 @@ from host_runtime_fixture import compile_owned_platform
 from host_tool_support import dependencies, run
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--modes", default="stock-unknown,suite,writer-contention,slow-preparation,rollback-cancel,io-debt,source-members,source-race,streaming-format,crash-chunk,lease-pending,resume-chunk,crash-members,member-lease-pending,resume-members,crash-publish,resume-publish")
+parser.add_argument("--modes", default="stock-unknown,suite,writer-contention,slow-preparation,rollback-cancel,io-debt,source-members,source-race,streaming-format,crash-chunk,lease-pending,resume-chunk,crash-members,member-lease-pending,prepared-resume,prepared-missing-member,prepared-wrong-member,prepared-wrong-payload,resume-members,crash-publish,resume-publish")
 parser.add_argument("--out", type=Path, default=ROOT / "verification/r31/p01/history-import/current")
 parser.add_argument("--scratch-root", type=Path, help="Explicit real fixture filesystem; production free-floor/config stay unchanged")
 args = parser.parse_args()
@@ -117,7 +117,13 @@ try:
     for mode in modes:
         family = "chunk-process" if mode in {"crash-chunk", "lease-pending", "resume-chunk"} else "member-process" if mode in {"crash-members", "member-lease-pending", "resume-members"} else "publish-process" if mode in {"crash-publish", "resume-publish"} else mode
         database = temporary / family / "databases/main.db"
-        if mode in {"resume-chunk", "resume-members"}:
+        runner = "HistoryImportPublicationR31Host"
+        argument = mode
+        if mode.startswith("prepared-"):
+            runner = "HistoryPreparedMemberResumeR34Host"
+            argument = mode[len("prepared-"):]
+            shutil.copytree(temporary / "member-process", temporary / family)
+        if mode in {"resume-chunk", "resume-members"} or mode.startswith("prepared-"):
             # The real elapsed-time lease is allowed to expire; no DB clock/lease field is edited.
             import sqlite3
             with sqlite3.connect(database) as connection:
@@ -128,7 +134,7 @@ try:
                 raise AssertionError("unexpected lease duration " + str(remaining))
             if remaining:
                 time.sleep(remaining)
-        command = [str(JAVA), "-Xmx512m", "-cp", cp, "com.ethk3.novaonepro.strategyv2.HistoryImportPublicationR31Host", mode, str(database), str(library)]
+        command = [str(JAVA), "-Xmx512m", "-cp", cp, "com.ethk3.novaonepro.strategyv2." + runner, argument, str(database), str(library)]
         start = time.monotonic()
         completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
         log = OUT / (mode + ".log")
