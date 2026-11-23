@@ -34,7 +34,7 @@ public final class DeferredEvidenceWriterR36 {
         String e = error == null ? "" : error;
         if (e.contains("SNAPSHOT_HASH_MISMATCH") || e.contains("SNAPSHOT_MISSING")
                 || e.contains("CARDINALITY") || e.contains("CURSOR_RANGE") || e.contains("INTEGRITY")) return false;
-        return e.contains("CP3_DB_BUSY")
+        return DeferredWaitR34.isWriterBackpressure(e) || e.contains("CP3_DB_BUSY")
                 || e.contains("SQLiteDatabaseLockedException") || e.equals("OOM_CAUGHT")
                 || e.contains("E02A_RESEARCH_YIELD:") || e.contains("B05_TIMEOUT")
                 || e.contains("InterruptedException");
@@ -52,7 +52,8 @@ public final class DeferredEvidenceWriterR36 {
                                 + "(last_error LIKE '%CP3_DB_BUSY%' OR last_error LIKE '%WRITE_COORDINATION_FAILED%'"
                                 + " OR last_error LIKE '%SQLiteDatabaseLockedException%' OR last_error='OOM_CAUGHT'"
                                 + " OR last_error LIKE '%E02A_RESEARCH_YIELD:%' OR last_error LIKE '%B05_TIMEOUT%'"
-                                + " OR last_error LIKE '%InterruptedException%') ORDER BY target_issue LIMIT 16", null)) {
+                                + " OR last_error LIKE '%InterruptedException%'"
+                                + " OR last_error LIKE '%R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN%') ORDER BY target_issue LIMIT 16", null)) {
                             while (rows.moveToNext() && targets.size() < 4)
                                 if (transientResourceFailure(rows.getString(1))) targets.add(rows.getString(0));
                         }
@@ -547,6 +548,9 @@ public final class DeferredEvidenceWriterR36 {
                                                 || attempts >= AppConfig.R36_DEFERRED_MAX_ATTEMPTS);
                                 ContentValues cv = new ContentValues();
                                 cv.put("status", terminal ? FAILED_TERMINAL : RETRY_WAIT);
+                                // An unentered admission is not a failed materialization attempt.
+                                if (DeferredWaitR34.isWriterBackpressure(error))
+                                    cv.put("attempts", Math.max(0, attempts - 1));
                                 cv.put("lease_owner", "");
                                 cv.put("lease_until", 0L);
                                 cv.put("updated_at", now);

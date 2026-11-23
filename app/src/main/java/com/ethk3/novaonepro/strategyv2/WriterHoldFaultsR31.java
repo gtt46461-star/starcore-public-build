@@ -163,7 +163,7 @@ public final class WriterHoldFaultsR31 {
                 "R33_WRITER_HOLD_BATCH:"+batchId,batchPayload,"writer-hold-fault-evidence",WriterHoldLedgerR30.PROCESS_SESSION,
                 0,batchId,0,"R33_WRITER_HOLD_BATCH_V1");
             DatabaseCoordinator.WriteContext context=DatabaseCoordinator.WriteContext.of(
-                DatabaseCoordinator.WriteClass.TELEMETRY,"R31_WRITER_HOLD_FAULT");
+                DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_WRITER_HOLD_FAULT");
             DatabaseCoordinator.CommitResultR31<Integer> result=store.coordinatorForResearchR952().runIdempotentAtomicWriteR31(
                 context,identity,db->{
                     for(Event event:batch){

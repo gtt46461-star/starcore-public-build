@@ -60,7 +60,7 @@ public final class DatabaseCoordinator {
         registerR31(registry,WriteClass.DRAW_INGEST,"R32_PREDRAW_SUFFIX","R914_DRAW_SAVE_ATOMIC*","R925_FETCH_BEGIN","R925_FETCH_PAYLOAD","R925_FETCH_COMPLETE");
         registerR31(registry,WriteClass.LIVE_FREEZE,"R932_DOMAIN_ROUTE","R932_BUNDLE_CAPTURE","R932_FREEZE_ONE_RESEARCH_CONSUMER","R36_CANONICAL*","R36_ANALYSIS*","R366_ANALYSIS*","R26_INCUMBENT_FREEZE","R26_LIVE_FREEZE");
         registerR31(registry,WriteClass.SETTLEMENT,"R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER","R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM","R919_TERMINALIZE_AUDITED_NO_PREDRAW","R911_SETTLEMENT_REOPEN_CURRENT_FAILED","R914_SETTLEMENT_HANDOFF_CURRENT*","R36_SETTLEMENT*","R811_SETTLEMENT_PROMOTE_CURRENT*","R909_SETTLEMENT_REOPEN_CURRENT*","R905_REOPEN_FALSE_NO_PREDRAW*","R820_SETTLEMENT*","R900_SETTLEMENT*");
-        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP");
+        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP","R36_DEFERRED_FAILURE","R941_DEFERRED_RESOURCE_RECOVERY","R31_WRITER_HOLD_FAULT");
         registerR31(registry,WriteClass.TELEMETRY,"R31_BUILD_MODULE_REGISTRY","R31_RUNTIME_OBSERVATION","R31_FETCH_TIMING","R31_FETCH_BEGIN_ASYNC","R27_THREAD_CPU","R27_WRITE_WAIT","R30_WRITER_HOLD_FLUSH","R30_TIMELINE_COMMIT_OBSERVATIONS","R927_RESOURCE*");
         registerR31(registry,WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA","R26_SU2_SCHEMA","R26_STRATEGY_STORAGE_UNIT","R31_LEGACY_SCHEMA_PREPARE","R929_PLATFORM_SCHEMA","R930_EVOLUTION_SCHEMA","R932_ABLATION_SCHEMA","R932_D2_REPLAY_SCHEMA","R932_FIXED_WINDOW_SCHEMA","R948_RESEARCH_INTEGRITY_SCHEMA","R958_RESEARCH_SCHEMA_STEP");
         registerR31(registry,WriteClass.RETENTION,"RETENTION_CP12*","R26_RETENTION_PHASE_*","R26_ARTIFACT_RETENTION","R914_DRAW_HISTORY_TRIM*");
@@ -85,8 +85,8 @@ public final class DatabaseCoordinator {
         registerR31(registry,WriteClass.RESEARCH_DATA,"R929_BUNDLE_STAGE","R929_CERTIFICATE_PUT","R929_CONTRIBUTION_RECORD","R929_TRIAL_CAS","R929_TRIAL_REGISTER","R930_ABLATION_PUT","R930_ATOM_ADMISSION_PUT","R930_C06_BUDGET_READ");
         registerR31(registry,WriteClass.RESEARCH_DATA,"R930_C06_DECIDE","R930_C06_RESERVE","R930_CAPTURE_CAS","R930_CONTRIBUTION_GRAPH_PUT","R930_DEDUPE_PUT","R930_FAILURE_PUT","R930_FRESH_CERTIFICATE_SYNC","R930_FRONTIER_PUT");
         registerR31(registry,WriteClass.RESEARCH_DATA,"R930_LIFECYCLE_PUT","R930_MATRIX_SNAPSHOT_PUT","R930_MIRROR_L4_SHADOW_APPLICATIONS","R930_TASK_PUT","R932_ABLATION_RESULT_AND_CURSOR","R932_ATOM_INCREMENTAL_QUALITY","R932_CAPTURE_STAGE","R932_CERTIFICATE_REVOKE");
-        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_COHORT_REVIEW","R932_D2_CAPTURE_ADVANCE","R932_DIRECTED_CREATION_","R932_FIXED_PAIR_SETTLE","R932_FIXED_WINDOW_CLOSE","R932_FREEZE_INDEPENDENT_CHAMPION","R932_INDEPENDENT_ATOM_CAPTURE");
-        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_NEW_FUTURE_CHALLENGES","R932_NURSERY_PROXY","R932_OWNER_DISPATCH","R932_WINDOW_AUDIT_PUBLICATION","R941_DEFERRED_RESOURCE_RECOVERY","R943_ATOMIC_RESEARCH_LEARNING","R943_RESEARCH_FORMULA_FREEZE_ONE","R943_RESEARCH_GENESIS_FREEZE_ONE");
+        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_COHORT_REVIEW","R932_D2_CAPTURE_ADVANCE","R932_DIRECTED_CREATION_*","R932_FIXED_PAIR_SETTLE","R932_FIXED_WINDOW_CLOSE","R932_FREEZE_INDEPENDENT_CHAMPION","R932_INDEPENDENT_ATOM_CAPTURE");
+        registerR31(registry,WriteClass.RESEARCH_DATA,"R932_NEW_FUTURE_CHALLENGES","R932_NURSERY_PROXY","R932_OWNER_DISPATCH","R932_WINDOW_AUDIT_PUBLICATION","R943_ATOMIC_RESEARCH_LEARNING","R943_RESEARCH_FORMULA_FREEZE_ONE","R943_RESEARCH_GENESIS_FREEZE_ONE");
         registerR31(registry,WriteClass.RESEARCH_DATA,"R943_RESEARCH_ROSTER_PAGE","R947_MOLECULAR_TOOL_REFRESH","R948_CAL_MODEL_PUBLISH","R948_CAL_SETTLE_PAGE","R948_CHALLENGE_SETTLE_PAGE","R948_RESEARCH_INTEGRITY_PAGE","R952_BOOTSTRAP_CANDIDATE","R952_MATRIX_PUBLISH");
         registerR31(registry,WriteClass.RESEARCH_DATA,"R952_MODULE_RECONCILE","R952_PREDRAW_FREEZE","R952_STRICT_FUTURE_SETTLE","R952_TRAIN_CONSUME","R952_WORLD_ATOM","R952_WORLD_MOLECULE","R958_FROZEN_FULL1200_PREDRAW","R959_DEV_PREREGISTER");
         registerR31(registry,WriteClass.RESEARCH_DATA,"R959_NUMERIC_DEV_CHECKPOINT","R961_LIFECYCLE_REVIEW_ONE","R961_LIFECYCLE_SELECT","R963_CREATION_INGEST","R965_ABLATION_SOURCE_BOUNDARY","R969_FREEZE_VERSIONED_CANDIDATE","R969_PREREGISTER_DISJOINT_TRAIN_RUN","R975_CAL_INVALID_INPUT");
@@ -891,7 +891,7 @@ public final class DatabaseCoordinator {
         final boolean reentrant=writeLock.isHeldByCurrentThread();
         final boolean research=context.writeClass==WriteClass.RESEARCH_DATA;
         final boolean researchControl=context.writeClass==WriteClass.RESEARCH_CONTROL;
-        final boolean faultDrainR33=context.writeClass==WriteClass.TELEMETRY&&"R31_WRITER_HOLD_FAULT".equals(context.operation);
+        final boolean faultDrainR33=context.writeClass==WriteClass.RESEARCH_CONTROL&&"R31_WRITER_HOLD_FAULT".equals(context.operation);
         long now=TimeSourceR811.monoNowMs();
         Long scoped=WRITE_DEADLINE_CP3.get();
         long deadline=now+(critical?2000L:250L);
@@ -905,12 +905,14 @@ public final class DatabaseCoordinator {
         long started=now,waitStarted=now;
         boolean serviceSlot=false;
         try {
-            // One aged, prepared research slice may enter the existing fair queue every five seconds.
+            // Drain work has its own controlled service slot. Expiring live freezes retain precedence.
+            // Other aged, prepared research may enter the existing fair queue every five seconds.
             // An expiring freeze always retains precedence. This is admission, never a second writer.
-            if((research||faultDrainR33)&&!reentrant&&FREEZE_WAITERS_R31.get()==0
-                    &&now-(faultDrainR33?LAST_FAULT_SERVICE_R33.get():LAST_RESEARCH_SERVICE_R31.get())>=(faultDrainR33?1000L:5000L))
+            if(faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_FAULT_SERVICE_R33.get()>=1000L)
+                serviceSlot=true;
+            else if(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L)
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
-            else if(researchControl&&!reentrant&&FREEZE_WAITERS_R31.get()==0
+            else if(researchControl&&!faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0
                     &&now-LAST_RESEARCH_CONTROL_R335.get()>=5000L)
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
             if(research&&!reentrant&&!serviceSlot
@@ -953,7 +955,7 @@ public final class DatabaseCoordinator {
                         if(!attemptState.ownsTransaction&&!attemptState.externalTransaction)attemptState.outcome=failed?CommitOutcome.ROLLED_BACK:
                                 attemptState.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED;
                         if(research&&!failed)LAST_RESEARCH_SERVICE_R31.set(TimeSourceR811.monoNowMs());
-                        if(researchControl&&!failed)LAST_RESEARCH_CONTROL_R335.set(TimeSourceR811.monoNowMs());
+                        if(researchControl&&!faultDrainR33&&!failed)LAST_RESEARCH_CONTROL_R335.set(TimeSourceR811.monoNowMs());
                         if(faultDrainR33&&!failed)LAST_FAULT_SERVICE_R33.set(TimeSourceR811.monoNowMs());
                         diagnosticR31(attemptState,"RECORD_SUCCESS",()->recordSuccess(operation,started));
                         return result;
@@ -997,7 +999,7 @@ public final class DatabaseCoordinator {
         } finally {
             waitingWriters.decrementAndGet();if(critical)criticalBusinessWaitersR914.decrementAndGet();
             if(context.writeClass==WriteClass.LIVE_FREEZE)FREEZE_WAITERS_R31.decrementAndGet();
-            if(serviceSlot)RESEARCH_SERVICE_SLOT_R31.set(false);
+            if(serviceSlot&&!faultDrainR33)RESEARCH_SERVICE_SLOT_R31.set(false);
             if(previousAttempt==null)ATTEMPT_R31.remove();
         }
     }

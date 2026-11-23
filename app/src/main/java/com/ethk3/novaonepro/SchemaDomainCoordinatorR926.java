@@ -1820,6 +1820,66 @@ public final class SchemaDomainCoordinatorR926 {
         for (int i = 0; i < name.length(); i++) { char ch = name.charAt(i); if (!(ch == '_' || ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9')) return false; }
         return true;
     }
+    /** Called outside the writer for one declared protection unit. */
+    public static String retentionOriginalRootR34(SQLiteDatabase db,String source) {
+        if(!com.ethk3.novaonepro.strategyv2.ResearchRetentionR30.PROTECTED_TABLES.contains(source))
+            throw new IllegalArgumentException("R34_UNDECLARED_PROTECTED_SOURCE");
+        if(!schemaObjectExists(db,source))return V51ChecksumEngine.sha256("R34_ABSENT:"+source);
+        java.util.TreeMap<Integer,String> keyColumns=new java.util.TreeMap<>();
+        List<String> columns=new ArrayList<>();
+        try(Cursor c=db.rawQuery("PRAGMA main.table_info("+source+")",null)){
+            while(c.moveToNext()){
+                String name=c.getString(1);
+                if(!name.matches("[a-zA-Z_][a-zA-Z_0-9]*"))throw new IllegalStateException("R34_INVALID_ROOT_COLUMN");
+                columns.add(name);
+                int ordinal=c.getInt(5);
+                if(ordinal>0)keyColumns.put(ordinal,name);
+            }
+        }
+        boolean withoutRowId;
+        try(Cursor c=db.rawQuery("SELECT sql FROM main.sqlite_master WHERE name=? AND type='table'",new String[]{source})){
+            if(!c.moveToFirst())throw new IllegalStateException("R34_ROOT_SOURCE_CHANGED");
+            withoutRowId=c.getString(0).toUpperCase(java.util.Locale.ROOT).contains("WITHOUT ROWID");
+        }
+        String order="rowid";
+        if(withoutRowId){
+            if(keyColumns.isEmpty())throw new IllegalStateException("R34_ROOT_PRIMARY_KEY_REQUIRED");
+            order=String.join(",",keyColumns.values());
+        }else columns.add(0,"rowid");
+        try{
+            java.security.MessageDigest digest=java.security.MessageDigest.getInstance("SHA-256");
+            digest.update(("R34_PROTECTED_ROWS_V1|"+source+"|"+String.join(",",columns)).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            java.nio.ByteBuffer length=java.nio.ByteBuffer.allocate(Long.BYTES);
+            try(Cursor c=db.rawQuery("SELECT "+String.join(",",columns)+" FROM main."+source+" ORDER BY "+order,null)){
+                while(c.moveToNext()){
+                    for(int i=0;i<columns.size();i++){
+                        int type=c.getType(i);
+                        digest.update((byte)type);
+                        length.clear();
+                        switch(type){
+                            case Cursor.FIELD_TYPE_INTEGER:
+                                digest.update(length.putLong(c.getLong(i)).array());
+                                break;
+                            case Cursor.FIELD_TYPE_FLOAT:
+                                digest.update(length.putLong(Double.doubleToRawLongBits(c.getDouble(i))).array());
+                                break;
+                            case Cursor.FIELD_TYPE_STRING:
+                            case Cursor.FIELD_TYPE_BLOB:
+                                byte[] value=type==Cursor.FIELD_TYPE_BLOB?c.getBlob(i):c.getString(i).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                                digest.update(length.putLong(value.length).array());
+                                digest.update(value);
+                                break;
+                            default:
+                                if(type!=Cursor.FIELD_TYPE_NULL)throw new IllegalStateException("R34_UNKNOWN_ROOT_STORAGE_TYPE");
+                        }
+                    }
+                }
+            }
+            StringBuilder hex=new StringBuilder(64);
+            for(byte value:digest.digest())hex.append(String.format(java.util.Locale.ROOT,"%02x",value&0xff));
+            return hex.toString();
+        }catch(java.security.NoSuchAlgorithmException unavailable){throw new IllegalStateException(unavailable);}
+    }
     /** Hash of every original row value of every root, read in bounded rowid pages. */
     static java.util.Map<String, String> tableHashesR31(SQLiteDatabase db, String columns) {
         java.util.Map<String, String> out = new java.util.LinkedHashMap<>();
@@ -1977,7 +2037,13 @@ public final class SchemaDomainCoordinatorR926 {
         try { return fingerprint(db, c); } catch (Throwable ignored) { return ""; }
     }
     private static String error(Throwable t) {
-        return bounded((t == null ? "UNKNOWN" : t.getClass().getSimpleName() + ':' + safe(t.getMessage())), 900);
+        if (t == null) return "UNKNOWN";
+        StringBuilder chain = new StringBuilder();
+        for (int depth = 0; t != null && depth < 5; depth++, t = t.getCause()) {
+            if (depth != 0) chain.append(" <- ");
+            chain.append(t.getClass().getSimpleName()).append(':').append(bounded(t.getMessage(), 135));
+        }
+        return bounded(chain.toString(), 900);
     }
     private static String join(List<String> xs) {
         StringBuilder b = new StringBuilder(); for (String x : xs) { if (b.length() > 0) b.append(','); b.append(x); } return b.toString();

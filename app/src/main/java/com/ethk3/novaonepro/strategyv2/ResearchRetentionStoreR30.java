@@ -142,8 +142,16 @@ public final class ResearchRetentionStoreR30 {
     private static void ensureProtectedObjectsR31(SQLiteDatabase db,StartupCheckpointIdentityR31.Prepared startup){
         if(!db.inTransaction())throw new IllegalStateException("R30_RETENTION_EXISTING_WRITER_REQUIRED");
         db.execSQL(INDEX_DDL);db.execSQL(RUN_DDL);db.execSQL(FILE_DDL);
-        for(String source:ResearchRetentionR30.PROTECTED_TABLES){
-            if(!exists(db,source))continue;List<String[]> columns=columns(db,source);if(columns.isEmpty())throw new IllegalStateException("R30_RETENTION_SOURCE_COLUMNS:"+source);
+        for(String source:ResearchRetentionR30.PROTECTED_TABLES) installProtectionUnitR34(db,source);
+        preserveStartupCheckpoint(db,startup);
+    }
+    static void initializeProtectionMetadataR34(SQLiteDatabase db) {
+        db.execSQL(INDEX_DDL);db.execSQL(RUN_DDL);db.execSQL(FILE_DDL);
+    }
+    static void installProtectionUnitR34(SQLiteDatabase db,String source) {
+        if(!db.inTransaction() || !ResearchRetentionR30.PROTECTED_TABLES.contains(source))
+            throw new IllegalStateException("R34_RETENTION_UNIT_OWNER");
+            if(!exists(db,source))return;List<String[]> columns=columns(db,source);if(columns.isEmpty())throw new IllegalStateException("R30_RETENTION_SOURCE_COLUMNS:"+source);
             String target="r30_keep_"+source;List<List<String>> metadata=new ArrayList<>();for(String[] c:columns)metadata.add(Arrays.asList(c));String encoded=JsonR27.write(metadata);String hash=StatsR27.sha256(encoded);
             LinkedHashMap<String,String> guards=GapReferenceR31.expectedGuards(db,source,KeepArchiveRetirementR31.expectedGuards(db,source,KeepMismatchReferenceR31.expectedGuards(db,source,guardsR31(source,columns,hash))));
             String[][] definitions=new String[guards.size()][];int guardIndex=0;for(Map.Entry<String,String> guard:guards.entrySet())definitions[guardIndex++]=new String[]{guard.getKey(),guard.getValue()};
@@ -153,7 +161,7 @@ public final class ResearchRetentionStoreR30 {
             if(same&&exists(db,target)){
                 Set<String> archived=new HashSet<>();for(String[] column:columns(db,target))archived.add(column[0]);
                 for(String[] column:columns)if(!archived.contains(column[0]))throw new DatabaseCoordinator.SchemaPendingR31("R31_RETENTION","ARCHIVE_DECLARED_COLUMN_MISSING:"+target+":"+column[0]);
-                if(complete)continue;
+                if(complete)return;
             }
             StringBuilder ddl=new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(q(target)).append("(__r30_id INTEGER PRIMARY KEY AUTOINCREMENT,__r30_at INTEGER NOT NULL,__r30_reason TEXT NOT NULL");
             for(String[] column:columns){if(column[0].startsWith("__r30_"))throw new IllegalStateException("R30_RETENTION_RESERVED_COLUMN:"+source);ddl.append(',').append(q(column[0]));}ddl.append(')');db.execSQL(ddl.toString());
@@ -164,12 +172,48 @@ public final class ResearchRetentionStoreR30 {
             requireArchiveDefinitionR31(db,target);
             for(String sql:guards.values())db.execSQL(sql);
             requireGuardDefinitionsR31(db,definitions,true);
-        }
-        preserveStartupCheckpoint(db,startup);
     }
+    static String protectionDefinitionR34(SQLiteDatabase db,String source) {
+        if(!exists(db,source))return StatsR27.sha256("R34_ABSENT:"+source);
+        List<String[]> columns=columns(db,source);
+        LinkedHashMap<String,String> guards=GapReferenceR31.expectedGuards(db,source,
+            KeepArchiveRetirementR31.expectedGuards(db,source,
+            KeepMismatchReferenceR31.expectedGuards(db,source,guardsR31(source,columns,columnsHashR31(columns)))));
+        return StatsR27.sha256(archiveDdlR31("r30_keep_"+source,columns)+JsonR27.write(guards));
+    }
+    static SchemaUnitPlanR34.Cost protectionCostR34(SQLiteDatabase db,String source,boolean install) {
+        if(!exists(db,source))return new SchemaUnitPlanR34.Cost(0,0,0,0);
+        String archive="r30_keep_"+source;
+        List<String[]> columns=columns(db,source);
+        String ddl=archiveDdlR31(archive,columns);
+        int bytes=ddl.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+        LinkedHashMap<String,String> guards=GapReferenceR31.expectedGuards(db,source,
+            KeepArchiveRetirementR31.expectedGuards(db,source,
+            KeepMismatchReferenceR31.expectedGuards(db,source,guardsR31(source,columns,columnsHashR31(columns)))));
+        for(String sql:guards.values())bytes+=sql.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+        int alter=0;
+        if(install && exists(db,archive)) {
+            Set<String> existing=new HashSet<>();
+            for(String[] column:columns(db,archive))existing.add(column[0]);
+            for(String[] column:columns)if(!existing.contains(column[0]))alter++;
+        }
+        return new SchemaUnitPlanR34.Cost(install?1+alter+guards.size():0,columns.size(),guards.size(),bytes);
+    }
+    static void verifyProtectionUnitR34(SQLiteDatabase db,String source) {
+        if(exists(db,source)) requireKeepMigrationSourceR31(db,"r30_keep_"+source);
+    }
+    static void preserveAfterMigrationR34(SQLiteDatabase db) {preserveStartupCheckpoint(db,null);}
     /** Preserve the incoming version's complete checkpoint before ordinary training replaces it.
      * The marker commits with the archive: a failed startup can retry, while repeated schema/retention
      * checks in this process never copy every intermediate training checkpoint. */
+    static void preservePreparedStartupCheckpoint(SQLiteDatabase db, StartupCheckpointIdentityR31.Prepared startup) {
+        // A CAS cutover already has a guarded archive. Consume the pre-DDL identity
+        // while its schema cookie still describes this database. The boot marker,
+        // checkpoint receipt and subsequent migration commit or roll back together.
+        startup.requireWithin(db);
+        requireKeepMigrationSourceR31(db, StartupCheckpointIdentityR31.ARCHIVE);
+        preserveStartupCheckpoint(db, startup);
+    }
     private static void preserveStartupCheckpoint(SQLiteDatabase db){
         preserveStartupCheckpoint(db,null);
     }

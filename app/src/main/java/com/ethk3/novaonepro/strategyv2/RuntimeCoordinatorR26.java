@@ -389,9 +389,18 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static SchemaDomainCoordinatorR926.UpgradeSpecR31 startupUpgradeSpecR31(String owner,StartupCheckpointIdentityR31.Prepared startup){
         // R31-B12-C01: the startup schema owner runs inside the overlay-install upgrade journal (PREPARE..CLEANUP,
         // protected roots verified inside the TRANSFORM commit). Steady starts re-enter only the idempotent owner.
-        SchemaDomainCoordinatorR926.Step startupSchemaR31=db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db,startup);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
+        SchemaDomainCoordinatorR926.Step startupSchemaR31=db->{
+            if (startup != null) ResearchRetentionStoreR30.preservePreparedStartupCheckpoint(db, startup);
+            RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db,startup);SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             // R31 inherited quarantines are recovered one fenced half-open probe at a time.
+            registerSessionR34(db,owner);
+            };
+        return new SchemaDomainCoordinatorR926.UpgradeSpecR31("R26_RUNTIME_SCHEMA",SchemaR27.REVISION,
+                BuildConfig.SOURCE_COMMIT_R26+"|"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,SchemaDomainCoordinatorR926.PROTECTED_ROOTS_R31,
+                SchemaDomainCoordinatorR926.UPGRADE_MIN_FREE_BYTES_R31,null,startupSchemaR31,null);
+    }
+    private static void registerSessionR34(SQLiteDatabase db,String owner) {
             RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
             java.util.List<Object> interrupted=new java.util.ArrayList<>();
@@ -407,10 +416,26 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27' AND status NOT IN ('QUARANTINED','NEEDS_FIX')");
             for(String r27Task:new String[]{"r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
                 db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{r27Task,r27Task,now});
-            };
-        return new SchemaDomainCoordinatorR926.UpgradeSpecR31("R26_RUNTIME_SCHEMA",SchemaR27.REVISION,
-                BuildConfig.SOURCE_COMMIT_R26+"|"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,SchemaDomainCoordinatorR926.PROTECTED_ROOTS_R31,
-                SchemaDomainCoordinatorR926.UPGRADE_MIN_FREE_BYTES_R31,null,startupSchemaR31,null);
+    }
+    private void prepareStartupSchemaR34() {
+        StartupCheckpointIdentityR31.Prepared checkpoint=prepareStartupCheckpointR31(store);
+        if(checkpoint!=null)store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R34_STARTUP_CHECKPOINT"),db->{
+                ResearchRetentionStoreR30.preservePreparedStartupCheckpoint(db,checkpoint);return 0;});
+        // Base schema keeps its existing authenticated migration owners. Retention units
+        // then enter the same serialized writer separately before session registration.
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R34_RUNTIME_BASE"),db->{
+                if(!RetentionMigrationR34.runtimeBaseCurrent(db)){
+                    RuntimeSchemaR26.ensure(db);
+                    SchemaR27.ensure(db);
+                }
+                return 0;});
+        RetentionMigrationR34.prepare(store,owner,()->cancelled,()->await(20));
+        if(cancelled)throw new IllegalStateException("R34_STARTUP_CANCELLED");
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R34_STARTUP_CHECKPOINT_READY"),db->{
+                ResearchRetentionStoreR30.preserveAfterMigrationR34(db);return 0;});
     }
     private void initialize(){
         // The live Context is an explicit authority for this private directory.
@@ -422,8 +447,16 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
         catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        StartupCheckpointIdentityR31.Prepared incomingCheckpointR31=prepareStartupCheckpointR31(store);
-        SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=startupUpgradeSpecR31(owner,incomingCheckpointR31);
+        prepareStartupSchemaR34();
+        SchemaDomainCoordinatorR926.UpgradeSpecR31 original=startupUpgradeSpecR31(owner,null);
+        SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=new SchemaDomainCoordinatorR926.UpgradeSpecR31(
+            original.id,original.revision,original.contractHash,original.roots,original.requiredFreeBytes,
+            original.disk,db->{
+                if(!RetentionMigrationR34.runtimeBaseCurrent(db))
+                    SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
+                registerSessionR34(db,owner);
+                RetentionMigrationR34.sealRuntimeBase(db);
+            },original.cleanup);
         SchemaDomainCoordinatorR926.UpgradeOutcomeR31 upgradedR31;
         try{upgradedR31=SchemaDomainCoordinatorR926.runUpgradeR31(null,(label,body)->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
                 DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,label),db->{body.run(db);return 0;}),upgradeR31);}
