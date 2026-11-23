@@ -126,10 +126,10 @@ def main():
         read_panels()
     record['scope']='PUBLIC_HISTORICAL_REPLAY_ONLY_WITH_NORMAL_SERVICE_NO_NATURAL_QUALIFICATION';save()
     start=time.monotonic()
-    for at in (30,180,600):
+    for at in (30,180,300):
         time.sleep(max(0,start+at-time.monotonic()))
         sample(int(time.monotonic()-start))
-        if at in (600,2400,3600):read_panels()
+        if at==300:read_panels()
         if at==180:
             f.adb('shell','input','keyevent','KEYCODE_HOME');record['backgroundAfterSeconds']=180;save()
     report_path=Path('.github/r34-research-report/warm_report.py').resolve()
@@ -142,7 +142,7 @@ def main():
     warm.adb('shell','wm','density','195')
     warm.adb('shell','settings','put','system','screen_off_timeout','7200000')
     warm.adb('shell','svc','power','stayon','true')
-    warm.adb('shell','am','start','-W','--activity-new-task','--activity-clear-task','-n',warm.ACTIVITY)
+    warm.adb('shell','am','start','-W','-f','0x10008000','-n',warm.ACTIVITY)
     time.sleep(8)
     try:
         for i,profile in enumerate(['COMPACT_DIAGNOSTIC','FULL_RAW'],1):
