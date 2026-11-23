@@ -1,0 +1,148 @@
+name: STARCORE original rolling 5000-draw and storage assertions on the signed 121 release
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r34-original-storage.yml', '.github/r34-original-storage/**']
+permissions: {}
+jobs:
+  protocols:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 230
+    permissions:
+      actions: read
+      contents: read
+    env:
+      SOURCE: db60f716c3bca8ced4a873aa94b16123307b683f
+      STAGE: B12
+      VERSION: '577311121'
+    steps:
+      - name: Receive the public package checksum for this exact release
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY_DIGEST'
+          import os,re,time,urllib.request
+          tag='r34-B12-db60f716c3bc'
+          member='STARCORE-R34-577311121-db60f716c3bc-release.apk'
+          for _ in range(85):
+              try:
+                  with urllib.request.urlopen('https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/SHA256SUMS.txt',timeout=20) as r: text=r.read(16385).decode()
+                  matches=[line.split()[0] for line in text.splitlines() if len(line.split())==2 and line.split()[1].lstrip('*')==member]
+                  if len(matches)!=1 or not re.fullmatch('[a-f0-9]{64}',matches[0]):raise ValueError('RELEASE_CHECKSUM_MISSING')
+                  with open(os.environ['GITHUB_ENV'],'a') as dst: print('REPAIRED_APK_SHA='+matches[0],file=dst)
+                  break
+              except OSError:time.sleep(30)
+          else:raise SystemExit('PUBLISHED_CANDIDATE_UNAVAILABLE')
+          PY_DIGEST
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore the audited plan and exact stage commit
+        run: |
+          set -euo pipefail
+          url="https://github.com/${GITHUB_REPOSITORY}.git"
+          git init -q app-source
+          git -C app-source fetch -q --no-tags "$url" "$SOURCE"
+          git -C app-source checkout -q --detach "$SOURCE"
+          test "$(git -C app-source rev-parse HEAD)" = "$SOURCE"
+          git -C app-source merge-base --is-ancestor bb7b49bbcc9266bad548ec37e71403256fc06a4d "$SOURCE"
+          git init -q plan-source
+          git -C plan-source sparse-checkout init --cone
+          git -C plan-source sparse-checkout set construction/plans/STARCORE_R33_5_REVIEW_20261119
+          git -C plan-source remote add origin "$url"
+          git -C plan-source config remote.origin.promisor true
+          git -C plan-source config remote.origin.partialclonefilter blob:none
+          git -C plan-source fetch -q --depth=1 --filter=blob:none origin 3f8495dd9405544597631349014b040a21640cb3
+          git -C plan-source checkout -q --detach FETCH_HEAD
+          test "$(git -C plan-source rev-parse HEAD)" = "3f8495dd9405544597631349014b040a21640cb3"
+          curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r33.5-plan/33.5.zip" -o "$RUNNER_TEMP/33.5.zip"
+          python3 -B plan-source/construction/plans/STARCORE_R33_5_REVIEW_20261119/prepare.py "$RUNNER_TEMP/33.5.zip" "$RUNNER_TEMP/material"
+          curl -fsSL --retry 3 "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/0fcf8b9e6286e24dc185328af0d02a0458aaee03/STARCORE-R32.5.1-C1-033-release.apk" -o "$RUNNER_TEMP/formal-033.apk"
+          git init -q field-plan
+          git -C field-plan sparse-checkout init --cone
+          git -C field-plan sparse-checkout set construction/plans/STARCORE_R34_20261123
+          git -C field-plan fetch -q --depth=1 --filter=blob:none "$url" 4e1606e9c20c5f01a82cf495b8d39b2630c766f0
+          git -C field-plan checkout -q --detach FETCH_HEAD
+          echo "STARCORE_R34_PLAN_ROOT=$PWD/field-plan/construction/plans/STARCORE_R34_20261123" >> "$GITHUB_ENV"
+          echo "STARCORE_R33_PLAN_ROOT=$RUNNER_TEMP/material/STARCORE_R33_5_20261118" >> "$GITHUB_ENV"
+          cd app-source
+          python3 -c 'import json,os; m=json.load(open("release/release_manifest.json")); assert m["versionCode"]==int(os.environ["VERSION"]) and m["versionName"].startswith("R34-"+os.environ["STAGE"]+"-")'
+      - name: Install pinned build dependencies
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          python3 -m pip install numpy==2.3.5 'cryptography>=41,<51'
+          python3 -B "$RUNNER_TEMP/material/current-review/source/preflight_delivery.py" --repo app-source --android-sdk "$ANDROID_HOME" --baseline-apk "$RUNNER_TEMP/formal-033.apk" > "$RUNNER_TEMP/preflight.json"
+      - name: Restore the original installed signer in its authorized branch
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Load original baseline input for the existing signing helper
+        uses: actions/download-artifact@v4
+        with:
+          name: r31-report-032-signed-build
+          run-id: 43556844131
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/original032
+      - name: Verify the original signer and initialize existing build bindings
+        working-directory: app-source
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          git diff --quiet bb7b49bbcc9266bad548ec37e71403256fc06a4d HEAD -- tools/r3251/prepare_existing_signer.py
+          python3 tools/r3251/prepare_existing_signer.py
+      - name: Build untouched original test sources and verify both signed APKs
+        working-directory: app-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --max-workers=2 :app:assembleDebugAndroidTest > "$RUNNER_TEMP/android-test-build.log" 2>&1
+          git diff --exit-code --quiet HEAD
+          cp app/build/outputs/apk/androidTest/debug/*-androidTest.apk "$RUNNER_TEMP/verified-tests.apk"
+          curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r34-B12-db60f716c3bc/STARCORE-R34-577311121-db60f716c3bc-release.apk" -o "$RUNNER_TEMP/verified-target.apk"
+          echo "$REPAIRED_APK_SHA  $RUNNER_TEMP/verified-target.apk" | sha256sum -c -
+          for kind in tests target; do
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/verified-$kind.apk" > "$RUNNER_TEMP/$kind-cert.txt"
+            grep -qx 'Signer #1 certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7' "$RUNNER_TEMP/$kind-cert.txt"
+          done
+      - name: Prepare API 34 guest
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;35.0.0'
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 12G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -B .github/r34-original-storage/run.py > "$RUNNER_TEMP/guest-private.log" 2>&1
+      - name: Return the method-level outcomes
+        if: always()
+        run: |
+          set -euo pipefail
+          test -s "$RUNNER_TEMP/storage-instrumentation.json"
+          test "$(stat -c %s "$RUNNER_TEMP/storage-instrumentation.json")" -lt 30000
+          openssl cms -encrypt -binary -aes-256-gcm -outform DER -in "$RUNNER_TEMP/storage-instrumentation.json" -out "$RUNNER_TEMP/storage.cms" .github/r335-070-verification/recipient.pem
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r34-installed-storage-contracts
+          path: ${{ runner.temp }}/storage.cms
+          if-no-files-found: error
+          retention-days: 1
