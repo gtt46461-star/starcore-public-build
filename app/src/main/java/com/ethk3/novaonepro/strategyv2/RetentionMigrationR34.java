@@ -126,6 +126,7 @@ public final class RetentionMigrationR34 {
         private final String ownerEpoch;
         private SchemaUnitPlanR34.Plan plan;
         private long planCookie = -1;
+        private boolean runAdmissionPending;
 
         Session(SQLiteDatabase read,Writer writer,String ownerEpoch) {
             this.read=read;
@@ -140,10 +141,19 @@ public final class RetentionMigrationR34 {
             if(plan==null || planCookie!=schemaCookie) {
                 SchemaUnitPlanR34.Plan preparedPlan=plan(read);
                 if(schemaCookie!=cookie(read))return false;
-                if(plan==null || !plan.planHash.equals(preparedPlan.planHash))
-                    writer.write(migration("R34_RETENTION_RUN"),db->seed(db,preparedPlan,ownerEpoch));
+                if(plan==null || !plan.planHash.equals(preparedPlan.planHash))runAdmissionPending=true;
                 plan=preparedPlan;
                 planCookie=schemaCookie;
+            }
+            if(runAdmissionPending) {
+                // A rolled-back writer admission did not change the reviewed definitions.
+                // Keep the pending plan and fence its next attempt against the live schema.
+                writer.write(migration("R34_RETENTION_RUN"),db->{
+                    if(cookie(db)!=planCookie || !databaseId(db).equals(plan.databaseId))
+                        throw new DatabaseCoordinator.SchemaPendingR31("R34_RETENTION","WAIT_PREPARED_PROOF");
+                    seed(db,plan,ownerEpoch);
+                });
+                runAdmissionPending=false;
             }
             SchemaUnitPlanR34.Cursor before=cursor(read,plan);
             if(!before.ownerEpoch.equals(ownerEpoch))throw new IllegalStateException("R34_STALE_MIGRATION_OWNER");

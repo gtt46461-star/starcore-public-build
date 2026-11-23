@@ -5308,11 +5308,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
       "before_sha256": "",
-      "after_sha256": "360159d1ccdad068e4ceaf4384c7ff7b34d37c511267d9e1ac734aa3b944873e",
+      "after_sha256": "d25500c18cd294f1adde9f7eb758ffb8529b5b9bf2ac7360970041d306ed1daa",
       "before_role": "",
       "after_role": "NUMERIC",
-      "reviewer": "R34 B12-114",
-      "rationale": "Real Android R34_SCHEMA_DEADLINE_BEFORE_BEGIN reproduced in the production SQLite owner. Reprepare only before mutations after confirmed rollback, reread schema cookie and database identity inside the transaction, preserve the same migration entry when bootstrap cannot take the writer. The failed receipt and the original 250ms budget are retained."
+      "reviewer": "R34 B12-115",
+      "rationale": "Two real SQLite busy rollbacks at run admission previously recomputed the original 58-source plan three times on the 794-table snapshot. Cache its pending run across confirmed lock retries, check the database ID and schema cookie under the writer, and reauthenticate a changed schema before any write. No numerical thresholds or protection rules changed."
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
@@ -9509,7 +9509,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "b23c3013fefc7b2465472ae75d7266d239c2af0a4b9b369c9f6b47166537ee43",
+  "reviewed_input_provenance_sha256": "2bba4cabaef0db808a68bef72d7ddcafd03edb6c88c2ae7039a82c5e50484e3e",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
