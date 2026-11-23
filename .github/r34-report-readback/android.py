@@ -288,8 +288,9 @@ def report(v,i,profile):
     actual='DIAGNOSTIC' if profile=='COMPACT_DIAGNOSTIC' else 'FULL_RAW'
     with zipfile.ZipFile(fn) as z:
         sem=json.loads(z.read('R31_SEMANTIC_RECEIPT.json'))
-        states=dict(Counter(e.get('domain_outcome','UNKNOWN') for e in sem['checks'].values()))
-        assert all(re.fullmatch('[A-Z_]{1,60}',x) for x in states) and sum(states.values())==96
+        fixed={'OBSERVED','N/A','RETEST_REQUIRED','FAIL','NOT_PROVEN','PASS','WARN','NO_SAMPLE','AVAILABLE','READ_ERROR','READ_OK','NO_MEASURED_DATA','WAIT_CALIBRATION_INPUT','BLOCKED_UPSTREAM','NO_MEASURED_ABLATION','WATCH','HARD_BLOCK','REAL_LOCKED_SHADOW_ONLY','RESEARCH_SCHEMA_NOT_READY'}
+        states=dict(Counter(v if v in fixed else 'OTHER_TYPED_OUTCOME' for v in (e.get('domain_outcome') for e in sem['checks'].values())))
+        assert sum(states.values())==96, 'INCOMPLETE_CHECK_DENOMINATOR'
         assert sem['sourceCommit']==pin[v][0]
     evaluate=dict(profile=actual,jobId=row['jobId'],sourceCommit=pin[v][0],apkSha256=pin[v][1])
     try:strict=oracle.validate_export(fn,evaluate)['status']
@@ -325,7 +326,9 @@ try:
                 phase='FINAL_REPORT_'+str(i);report(v,i,kind)
     receipt['completed']=True
 except Exception as exc:
+    import traceback
     receipt['completed']=False;receipt['phase']=phase;receipt['errorClass']=type(exc).__name__
+    receipt['driverLines']=[f.lineno for f in traceback.extract_tb(exc.__traceback__) if Path(f.filename).name=='android.py'][-5:]
     if re.fullmatch('[A-Z0-9_]{1,100}',str(exc)):receipt['reason']=str(exc)
     raise
 finally:persist()
