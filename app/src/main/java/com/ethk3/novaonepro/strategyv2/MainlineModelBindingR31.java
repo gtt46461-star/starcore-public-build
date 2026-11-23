@@ -24,12 +24,9 @@ public final class MainlineModelBindingR31 {
         if(spec.ast.modelPositions==0)binding.put("modelKind","POLICY_EXECUTABLE_AND_SHADOW_STATE");
         else {
             binding.put("modelKind","ATOMNET_PUBLISHED_LEARNER_AND_WEIGHTS");
-            if(model==null){binding.put("state","WAIT_MODEL_PUBLICATION");return Collections.unmodifiableMap(binding);}
-            try(Cursor c=db.rawQuery("SELECT publication_id,state_hash,weights_hash,through_ordinal,model_available_at,published_at FROM r31_atomnet_publication WHERE model_hash=? AND weights_hash=? AND status='PUBLISHED' ORDER BY published_at DESC,publication_id LIMIT 1",new String[]{model.modelHash,model.weightsHash})) {
-                if(!c.moveToFirst()||c.isNull(5)||c.getLong(3)!=model.trainedThroughOrdinal||c.getLong(4)!=model.availableAt||!c.getString(1).matches("[0-9a-f]{64}")){
-                    binding.put("state","WAIT_MODEL_PUBLICATION");return Collections.unmodifiableMap(binding);
-                }
-                binding.put("publicationId",c.getString(0));binding.put("learnerStateHash",c.getString(1));binding.put("modelHash",model.modelHash);binding.put("weightsHash",c.getString(2));binding.put("trainedThroughOrdinal",c.getLong(3));binding.put("modelAvailableAt",c.getLong(4));binding.put("publishedAt",c.getLong(5));
+            if(!FutureModelRegistrationR34.fillBinding(db,policy,binding)){
+                binding.put("state","WAIT_PREREGISTERED_FROZEN_MODEL");
+                return Collections.unmodifiableMap(binding);
             }
         }
         binding.put("state","BOUND");binding.put("bindingSha256",StatsR27.sha256(JsonR27.write(binding)));return Collections.unmodifiableMap(binding);
@@ -45,8 +42,12 @@ public final class MainlineModelBindingR31 {
         try(Cursor c=db.rawQuery("SELECT temperature,bias,through_ordinal FROM r27_live_shadow WHERE policy_hash=? AND status IN ('ACTIVE','ACTIVE_REPAIR1')",new String[]{String.valueOf(binding.get("policyHash"))})){
             if(!c.moveToFirst()||Double.compare(c.getDouble(0),((Number)binding.get("temperature")).doubleValue())!=0||!Objects.equals(binding.get("shadowBiasSha256"),StatsR27.sha256(c.getBlob(1)))||c.getLong(2)!=((Number)binding.get("shadowThroughOrdinal")).longValue())return false;
         }
-        if(!binding.containsKey("publicationId"))return true;
-        try(Cursor c=db.rawQuery("SELECT 1 FROM r31_atomnet_publication WHERE publication_id=? AND state_hash=? AND model_hash=? AND weights_hash=? AND status='PUBLISHED'",new String[]{String.valueOf(binding.get("publicationId")),String.valueOf(binding.get("learnerStateHash")),String.valueOf(binding.get("modelHash")),String.valueOf(binding.get("weightsHash"))})){return c.moveToFirst();}
+        if(!binding.containsKey("publicationId"))return spec.ast.modelPositions==0;
+        Map<String,Object> registered=new LinkedHashMap<>();
+        if(!FutureModelRegistrationR34.fillBinding(db,String.valueOf(binding.get("policyHash")),registered))return false;
+        for(Map.Entry<String,Object> entry:registered.entrySet())
+            if(!Objects.equals(entry.getValue(),binding.get(entry.getKey())))return false;
+        return true;
     }
     /** A semantic rebirth has a new experiment ID and permanent alpha index, but
      * retains the executable spec. Only the original ABI_REBIRTH writer's exact

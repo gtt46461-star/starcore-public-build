@@ -477,12 +477,15 @@ public final class RuntimeR27 implements AutoCloseable {
             blocked.add("UPDATE r30_frozen_confirm SET registration_state='BLOCKED_SOURCE_CHANGED' WHERE task_key=? AND registered_at=0",task.key);
             submit(w,"CONFIRM_REGISTRATION_SOURCE_CHANGED",blocked); return;
         }
-        if (operatorAbi == null) return;
+        if(operatorAbi==null||!registrationSourceReady(w.ro))return;
         String abi = semanticAbi(task.champion.spec()); // prepare before entering the single database writer
-        try { submit(w,"CONFIRMED_FUTURE_REGISTRATION",FrozenConfirmationStoreR30.register(task,abi,cap)); }
+        AtomPublicationR30 publication=atomPublicationR30;
+        if(task.champion.spec().ast.modelPositions!=0&&(publication==null||publication.model==null))return;
+        try { submit(w,"CONFIRMED_FUTURE_REGISTRATION",FrozenConfirmationStoreR30.register(task,abi,cap,publication==null?null:publication.model)); }
         catch (IllegalStateException failure) {
             boolean full = false;
-            for (Throwable t = failure; t != null && t.getCause() != t; t = t.getCause()) if (String.valueOf(t.getMessage()).contains("R30_CONFIRM_WAIT_SLOT")) full = true;
+            for (Throwable t = failure; t != null && t.getCause() != t; t = t.getCause()) if(String.valueOf(t.getMessage()).contains("R30_CONFIRM_WAIT_SLOT")
+                ||String.valueOf(t.getMessage()).contains("R34_CONFIRM_WAIT_IMMUTABLE_PUBLICATION"))full=true;
             if (!full) throw failure; // a full live pool leaves the immutable queued candidate intact
         }
     }
@@ -563,23 +566,26 @@ public final class RuntimeR27 implements AutoCloseable {
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest), deadline = latestOpen(w.ro) + 60_000L;
             w.writes().setNextDeadline(deadline);
-            long units = LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
-            units += LiveShadowsR27.qualify(RuntimeR27.this, w, latestOrd);
+            // Publish/freeze on the existing settled prefix before consuming overdue research labels.
+            long units=LiveShadowsR27.certify(RuntimeR27.this,w,latestOrd);
+            units+=LiveShadowsR27.freeze(RuntimeR27.this,w,latest,latestOrd,deadline);
+            units+=LiveShadowsR27.freeze(RuntimeR27.this,w,latest,latestOrd,deadline,LiveShadowsR27.OBSERVE_STATES,false);
+            units+=LiveShadowsR27.settle(RuntimeR27.this,w,latestOrd);
+            units+=LiveShadowsR27.qualify(RuntimeR27.this,w,latestOrd);
             try{units+=QualificationGapRepairR30R1.step(w.ro,(operation,batch)->{submit(w,operation,batch);return true;});}catch(RuntimeException sourceFailure){QualificationGapRepairR30R1.observeFailure(sourceFailure);}
             ensureControls(w);
-            // Publish authority from the already settled prefix before the next
-            // immutable freeze. A certificate issued after a freeze can never
-            // retroactively authorise that prediction.
-            units += LiveShadowsR27.certify(RuntimeR27.this, w, latestOrd);
-            units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
-            units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
             return units > 0 ? ResearchPoolR27.Outcome.progress(units, latestOrd) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", latestOrd, latestOrd);
         }
     }
 
+    static boolean registrationSourceReady(SQLiteDatabase db){
+        long head=latestOpen(db),now=System.currentTimeMillis();
+        return head>0&&head<=now&&now-head<120_000L;
+    }
+
     /** Keeps one I00 and one shuffled-label control frozen every period next to the shadows (same-period negative controls). */
     void ensureControls(ResearchPoolR27.Worker w) throws Exception {
-        EvolutionLoopR27 l = evo; if (l == null) return;
+        EvolutionLoopR27 l = evo; if(l==null||!registrationSourceReady(w.ro))return;
         Object[][] controls = {{"CONTROL_I00", l.i00Champion, l.i00Tau}, {"CONTROL_NULL", l.nullEvolution.champion, l.nullEvolution.championTau}};
         for (Object[] c : controls) {
             final PolicySpecR27 spec = (PolicySpecR27) c[1]; if (spec == null) continue; final String status = (String) c[0];

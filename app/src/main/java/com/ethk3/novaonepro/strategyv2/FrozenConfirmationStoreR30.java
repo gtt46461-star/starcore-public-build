@@ -136,7 +136,11 @@ public final class FrozenConfirmationStoreR30 {
             return c.moveToFirst() ? FrozenConfirmationR30.Task.parse(c.getString(0)) : null;
         }
     }
-    public static ResearchWriteQueueR27.Batch register(FrozenConfirmationR30.Task task, String abi, int cap) {
+    public static ResearchWriteQueueR27.Batch register(FrozenConfirmationR30.Task task,String abi,int cap){
+        return register(task,abi,cap,null);
+    }
+    public static ResearchWriteQueueR27.Batch register(FrozenConfirmationR30.Task task,String abi,int cap,
+            ModelSurfaceProviderR30.FrozenModelRef publishedModel) {
         PolicySpecR27 spec = task.champion.spec(); String reason = "INDEPENDENT_CONFIRMATION:" + task.key;
         ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
         batch.guardBefore(db -> {
@@ -151,6 +155,17 @@ public final class FrozenConfirmationStoreR30 {
             String experiment=spec.policyHash();boolean exists=false;
             try(Cursor current=db.rawQuery("SELECT status,updated_at FROM r27_live_shadow WHERE policy_hash=?",new String[]{experiment})){if(current.moveToFirst()){exists=true;if(QualificationGapRepairR30R1.SEALED.equals(current.getString(0))){if(task.frozenAt<=current.getLong(1))throw new IllegalStateException("R30_CONFIRM_NEW_PACKET_REQUIRED_AFTER_SEALED_SEGMENT");experiment=StatsR27.sha256("R30_REPAIR_NEW_FUTURE_SEGMENT|"+spec.policyHash()+"|"+task.key);exists=false;}}}
             if(!exists)try(Cursor c=db.rawQuery("SELECT count(*) FROM r27_live_shadow WHERE status IN ('ACTIVE','ACTIVE_REPAIR1')",null)){if(c.moveToFirst()&&c.getLong(0)>=cap)throw new IllegalStateException("R30_CONFIRM_WAIT_SLOT");}
+            if(spec.ast.modelPositions!=0){
+                if(exists){
+                    if(!FutureModelRegistrationR34.fillBinding(db,experiment,new LinkedHashMap<>())){
+                        db.execSQL("UPDATE r30_frozen_confirm SET registration_state='BLOCKED_OLD_UNBOUND_EXPERIMENT' WHERE task_key=? AND registered_at=0",
+                            new Object[]{task.key});
+                        return 0;
+                    }
+                }else if(!FutureModelRegistrationR34.register(db,experiment,publishedModel,System.currentTimeMillis())){
+                    throw new IllegalStateException("R34_CONFIRM_WAIT_IMMUTABLE_PUBLICATION");
+                }
+            }
             StoreR27.insertShadow(db,spec,task.champion.temperature,reason,abi,experiment,spec.policyHash());
             db.execSQL("UPDATE r30_frozen_confirm SET registered_at=?,registration_state='REGISTERED',registration_experiment_id=? WHERE task_key=? AND registered_at=0",new Object[]{System.currentTimeMillis(),experiment,task.key});return 0;
         });

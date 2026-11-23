@@ -12,7 +12,7 @@ import java.util.*;
 public final class AtomNetPublicationR31 {
     private AtomNetPublicationR31() {}
     public static final String VERSION="R32_ATOMNET_COMPLETE_PUBLICATION_2";
-    public static final int REVISION=6,MAX_SAMPLES=120,MAX_STAGE_ROWS=32;
+    public static final int REVISION=7,MAX_SAMPLES=120,MAX_STAGE_ROWS=32;
     public static final long MAX_STAGE_BINDS=65536,MAX_RESERVED_SAMPLE_BYTES=128L<<20;
     private static final String[] BASE_DDL={
         "CREATE TABLE IF NOT EXISTS r33_atomnet_progress_head(owner TEXT PRIMARY KEY,publication_id TEXT NOT NULL,dataset_hash TEXT NOT NULL,state_hash TEXT NOT NULL,numerical_abi TEXT NOT NULL,effective_phase TEXT NOT NULL,materialized_samples INTEGER NOT NULL,materialization_required_samples INTEGER NOT NULL,pretrain_samples INTEGER NOT NULL,online_position_updates INTEGER NOT NULL,epoch INTEGER NOT NULL,phase_offset INTEGER NOT NULL,complete_issue TEXT NOT NULL,partial_issue TEXT NOT NULL,next_position INTEGER NOT NULL,model_hash TEXT,published_at INTEGER NOT NULL)",
@@ -25,11 +25,14 @@ public final class AtomNetPublicationR31 {
         "CREATE TRIGGER IF NOT EXISTS r31_atomnet_stage_no_update BEFORE UPDATE ON r31_atomnet_sample_stage BEGIN SELECT RAISE(ABORT,'R31_ATOM_SAMPLE_IMMUTABLE'); END",
         "CREATE TABLE IF NOT EXISTS r34_atomnet_optimizer_step(publication_id TEXT PRIMARY KEY,previous_state_hash TEXT NOT NULL,state_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('H_TRAIN','ONLINE_RESEARCH')),source_key TEXT NOT NULL,input_hash TEXT NOT NULL,adam_step INTEGER NOT NULL CHECK(adam_step>0),sample_count INTEGER NOT NULL CHECK(sample_count>0),gradient_norm REAL NOT NULL CHECK(gradient_norm>=0),parameter_change REAL NOT NULL CHECK(parameter_change>=0),batch_loss REAL NOT NULL,recorded_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r34_atomnet_unavailable_label(dataset_hash TEXT NOT NULL,issue TEXT NOT NULL,role_window TEXT NOT NULL,source_revision INTEGER NOT NULL,first_seen_at INTEGER NOT NULL,reason TEXT NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(dataset_hash,issue))",
+        FutureModelRegistrationR34.DEFINITION,
+        FutureModelRegistrationR34.GUARD,
         AtomNetSampleArchiveR324.SAMPLE_DELETE_GUARD
     };
     public static final String[] DDL;
     static {List<String> all=new ArrayList<>(Arrays.asList(BASE_DDL));Collections.addAll(all,AtomNetSampleArchiveR324.DDL);DDL=all.toArray(new String[0]);}
     private static final String[][] TABLES={
+        {FutureModelRegistrationR34.TABLE,FutureModelRegistrationR34.COLUMNS},
         {"r34_atomnet_optimizer_step","publication_id,previous_state_hash,state_hash,dataset_hash,role,source_key,input_hash,adam_step,sample_count,gradient_norm,parameter_change,batch_loss,recorded_at"},
         {"r34_atomnet_unavailable_label","dataset_hash,issue,role_window,source_revision,first_seen_at,reason,recorded_at"},
         {"r33_atomnet_progress_head","owner,publication_id,dataset_hash,state_hash,numerical_abi,effective_phase,materialized_samples,materialization_required_samples,pretrain_samples,online_position_updates,epoch,phase_offset,complete_issue,partial_issue,next_position,model_hash,published_at"},
@@ -45,8 +48,8 @@ public final class AtomNetPublicationR31 {
         if(replace)db.execSQL("DROP TRIGGER r31_atomnet_stage_published_no_delete");
         for(String ddl:DDL)db.execSQL(ddl);requireReady(db);
     }
-    public static String[][] schemaObjectsR31(){List<String[]> objects=new ArrayList<>(Arrays.asList(new String[][]{{"table","r34_atomnet_optimizer_step"},{"table","r34_atomnet_unavailable_label"},{"table","r33_atomnet_progress_head"},{"table","r31_atomnet_publication"},{"table","r31_atomnet_sample_stage"},{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}}));Collections.addAll(objects,AtomNetSampleArchiveR324.schemaObjects());return objects.toArray(new String[0][]);}
-    public static void requireReady(SQLiteDatabase db){DatabaseCoordinator.requireSchemaObjectsR31(db,"R31_ATOMNET_PUBLICATION",TABLES,new String[][]{{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}});AtomNetSampleArchiveR324.requireReady(db);}
+    public static String[][] schemaObjectsR31(){List<String[]> objects=new ArrayList<>(Arrays.asList(new String[][]{{"table",FutureModelRegistrationR34.TABLE},{"trigger",FutureModelRegistrationR34.TRIGGER},{"table","r34_atomnet_optimizer_step"},{"table","r34_atomnet_unavailable_label"},{"table","r33_atomnet_progress_head"},{"table","r31_atomnet_publication"},{"table","r31_atomnet_sample_stage"},{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}}));Collections.addAll(objects,AtomNetSampleArchiveR324.schemaObjects());return objects.toArray(new String[0][]);}
+    public static void requireReady(SQLiteDatabase db){DatabaseCoordinator.requireSchemaObjectsR31(db,"R31_ATOMNET_PUBLICATION",TABLES,new String[][]{{"trigger",FutureModelRegistrationR34.TRIGGER},{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}});AtomNetSampleArchiveR324.requireReady(db);}
     /** This is a storage observation, not permission to drop protected originals.
      * Capacity is a resource bound; it must not be reported as an algorithm quota
      * or as proof that archive/readback/reclamation is implemented. */

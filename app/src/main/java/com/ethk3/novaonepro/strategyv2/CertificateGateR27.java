@@ -48,6 +48,27 @@ public final class CertificateGateR27 {
         if (!ok) fail.add(name);
     }
 
+    /** Counts come only from the original, independent, per-epoch qualification ledger. */
+    static Map<String,Object> futureSummary(long opportunities,long acts,long hits){
+        boolean valid=opportunities>0&&acts>=0&&acts<=opportunities&&hits>=0&&hits<=acts;
+        double rate=valid?acts/(double)opportunities:Double.NaN;
+        double hitRate=valid&&acts>0?hits/(double)acts:Double.NaN;
+        double win=com.ethk3.novaonepro.AppConfig.WIN_NET_PROFIT,miss=com.ethk3.novaonepro.AppConfig.MISS_LOSS;
+        double profit=valid?hits*win-(acts-hits)*miss:Double.NaN;
+        Map<String,Object> out=new LinkedHashMap<>();
+        out.put("opportunities",opportunities);out.put("acts",acts);out.put("hits",hits);out.put("settledActs",acts);
+        out.put("coverage",Double.isFinite(rate)?rate:null);out.put("minimumCoverage",.15);out.put("targetCoverage",.30);
+        out.put("coveragePass",valid&&rate>=.15);
+        out.put("hitRate",Double.isFinite(hitRate)?hitRate:null);
+        out.put("hitRateWilson95",valid&&acts>0?StatsR27.wilson(hits,acts,1.959963984540054):null);
+        out.put("breakEvenHitRate",miss/(win+miss));out.put("winNetProfit",win);out.put("missLoss",miss);
+        out.put("expectedPayoffPositive",valid&&profit>0);
+        out.put("netRecordedPayoff",Double.isFinite(profit)?profit:null);
+        out.put("descriptiveExcludesUnobservedFees",true);
+        out.put("familyAlphaScope","R27_ONLY; NO_CROSS_FAMILY_ERROR_RATE_ESTABLISHED");
+        return out;
+    }
+
     /** Mainline choice among ACTIVE certificates: maximum logE × calibration quality (docs/09 9.3-3); null = keep fallback. */
     public static String choose(List<Evidence> active) {
         String best = null; double score = Double.NEGATIVE_INFINITY;

@@ -45,22 +45,39 @@ public final class ModelSurfaceStoreR30 {
         return p;
     }
     public static void bindHistorical(SQLiteDatabase ro,FeatureCacheR27 cache){archived(ro,cache.data).bind(cache);}
-    static Prepared prepareLive(RuntimeR27 rt,ResearchPoolR27.Worker w,FeatureCacheR27 cache,long deadline){
-        Prepared p=archived(w.ro,cache.data);int row=cache.data.size()-1;
-        RuntimeR27.AtomPublicationR30 publication=rt.atomPublicationR30;AtomNetSessionR30 state=publication==null?null:publication.state;String unavailable=state==null?"ATOMNET_NOT_TRAINED":!state.ready()||publication.model==null?"ATOMNET_CHECKPOINT_NOT_READY":null;
-        if(unavailable!=null){for(int pos=1;pos<=10;pos++)p.blocked.put(ModelSurfaceProviderR30.key(row,pos),unavailable);p.bind(cache);return p;}
-        ModelSurfaceProviderR30.FrozenModelRef ref=publication.model;
-        AtomReplayR27.Frame frame=AtomReplayR27.build(cache.data,row,row+1);String history=ModelSurfaceProviderR30.historyHash(cache.data,row);
-        for(int pos=1;pos<=10;pos++){
-            long key=ModelSurfaceProviderR30.key(row,pos);if(p.rows.containsKey(key))continue;
-            try{
-                if(frame.values[pos-1]==null)throw new ModelSurfaceProviderR30.Blocked("INSUFFICIENT_FEATURE_HISTORY");
-                double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[pos-1],frame.present[pos-1],true),pos);long now=System.currentTimeMillis();
-                ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(cache.data.ordinals[row],row>0?cache.data.ordinals[row-1]:cache.data.ordinals[row],pos,history,x,now,now,now,deadline);
-                ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,ref);p.rows.put(key,surface);p.models.put(ref.modelHash,ref);
-            }catch(RuntimeException invalid){if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;p.blocked.put(key,invalid.getMessage());}
+    static Prepared prepareLive(Prepared original,FeatureCacheR27 cache,long deadline,
+            ModelSurfaceProviderR30.FrozenModelRef ref,boolean fixed){
+        Prepared p=new Prepared();
+        int row=cache.data.size()-1;
+        if(ref!=null)for(Map.Entry<Long,ModelSurfaceProviderR30.Surface> entry:original.rows.entrySet()){
+            ModelSurfaceProviderR30.Surface surface=entry.getValue();
+            if(surface.targetOrdinal!=cache.data.ordinals[row]&&(!fixed||ref.modelHash.equals(surface.modelHash)))
+                p.rows.put(entry.getKey(),surface);
         }
-        p.bind(cache);return p;
+        p.blocked.putAll(original.blocked);
+        long observedAt=System.currentTimeMillis();
+        AtomReplayR27.VisibleFrame visible=ref==null?null:AtomReplayR27.buildAsOf(cache.data,row,observedAt);
+        for(int pos=1;pos<=10;pos++){
+            long key=ModelSurfaceProviderR30.key(row,pos);
+            try{
+                if(ref==null)throw new ModelSurfaceProviderR30.Blocked(fixed
+                    ?"WAIT_PREREGISTERED_FROZEN_MODEL":"ATOMNET_NOT_TRAINED");
+                if(visible==null||visible.frame.values[pos-1]==null)
+                    throw new ModelSurfaceProviderR30.Blocked("INSUFFICIENT_VISIBLE_FEATURE_HISTORY");
+                AtomReplayR27.Frame frame=visible.frame;
+                double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[pos-1],frame.present[pos-1],true),pos);
+                long now=System.currentTimeMillis();
+                ModelSurfaceProviderR30.Pit pit=new ModelSurfaceProviderR30.Pit(cache.data.ordinals[row],
+                    cache.data.ordinals[row-1],pos,visible.historyHash,x,visible.lastKnownAt,now,now,deadline);
+                ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(pit,ref);
+                p.rows.put(key,surface);p.models.put(ref.modelHash,ref);
+            }catch(RuntimeException invalid){
+                if(invalid instanceof BudgetTokenSU1.Yield||invalid instanceof java.util.concurrent.CancellationException)throw invalid;
+                p.blocked.put(key,invalid.getMessage());
+            }
+        }
+        p.bind(cache);
+        return p;
     }
     static void calls(ResearchWriteQueueR27.Batch b,String policy,PolicySpecR27 spec,long target,FeatureCacheR27 cache,Prepared prepared,boolean valid,String reason){
         int count=Integer.bitCount(spec.ast.modelPositions);if(count==0)return;Set<String> addedModels=new HashSet<>();int row=cache==null?-1:cache.data.size()-1;long now=System.currentTimeMillis();

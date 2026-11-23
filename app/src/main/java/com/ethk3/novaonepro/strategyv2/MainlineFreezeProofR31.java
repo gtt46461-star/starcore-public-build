@@ -107,6 +107,10 @@ public final class MainlineFreezeProofR31 {
         }
         Map<String,Object> qualification=map(g.get("qualificationBindingR31"));
         if(!choice.policyHash.equals(qualification.get("policyHash"))||!qualificationStillCommitted(db,qualification)||CertificateRevocationR30.blockedPolicy(db,"R27",choice.policyHash))return null;
+        Map<String,Object> observed=map(qualification.get("eprocess"));
+        Map<String,Object> future=CertificateGateR27.futureSummary(number(observed,"n"),evidence.acts,evidence.hits);
+        if(!Boolean.TRUE.equals(future.get("coveragePass"))||!Boolean.TRUE.equals(future.get("expectedPayoffPositive"))
+                ||g.containsKey("registeredFutureR34")&&!JsonR27.write(future).equals(JsonR27.write(g.get("registeredFutureR34"))))return null;
         long created;try(Cursor q=db.rawQuery("SELECT created_at FROM r31_mainline_choice WHERE choice_id=?",new String[]{choice.choiceId})){if(!q.moveToFirst())return null;created=q.getLong(0);}
         return new Certificate(choice,model,cal,abi,spec,issued,created);
     }

@@ -176,7 +176,10 @@ public final class StoreR27 {
         long now = System.currentTimeMillis();
         String latest = RuntimeR27.latestIssue(db);
         if (latest == null) throw new IllegalStateException("R29_REGISTRATION_REQUIRES_CALENDAR");
-        long firstOrdinal = TargetIssueResolver.sequenceOrdinalSU1(latest) + 1;
+        long firstOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest)+1;
+        long open=RuntimeR27.latestOpen(db);
+        if(open>0&&open<=now&&now>=open+60_000L-LiveShadowsR27.FREEZE_MARGIN_MS)
+            firstOrdinal+=1+(now-(open+60_000L-LiveShadowsR27.FREEZE_MARGIN_MS))/60_000L;
         db.execSQL("INSERT INTO r29_qual_calendar(experiment_id,first_ordinal,registered_at,origin) VALUES(?,?,?,'REGISTERED_BEFORE_FUTURE')",
                 new Object[] {id, firstOrdinal, now});
         double rate = SelectorPolicyR30.registeredRate(spec);

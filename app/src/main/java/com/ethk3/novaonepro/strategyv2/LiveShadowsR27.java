@@ -163,7 +163,15 @@ public final class LiveShadowsR27 {
     static long freeze(RuntimeR27 rt, ResearchPoolR27.Worker w, String latestIssue, long latestOrd, long deadline, String statuses, boolean opportunity) throws Exception {
         long target = latestOrd + 1; String targetIssue = TargetIssueResolver.fromSequenceOrdinalSU1(target);
         List<Shadow> all = shadows(w.ro, statuses), todo = new ArrayList<>();
-        for (Shadow s : all) try (Cursor c = w.ro.rawQuery("SELECT 1 FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal=?", new String[] {s.id, String.valueOf(target)})) { if (!c.moveToFirst()) todo.add(s); }
+        for(Shadow shadow:all){
+            if(opportunity)try(Cursor window=w.ro.rawQuery("SELECT first_ordinal FROM r29_qual_calendar WHERE experiment_id=?",new String[]{shadow.id})){
+                if(!window.moveToFirst()||target<window.getLong(0))continue;
+            }
+            try(Cursor existing=w.ro.rawQuery("SELECT 1 FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal=?",
+                    new String[]{shadow.id,Long.toString(target)})){
+                if(!existing.moveToFirst())todo.add(shadow);
+            }
+        }
         if (todo.isEmpty()) return 0;
         long now = System.currentTimeMillis();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); int frozen = 0, acted = 0;
@@ -180,9 +188,22 @@ public final class LiveShadowsR27 {
             if (sourceRevision!=SchemaR27.liveSourceRevision(w.ro) || sourceSchema!=SchemaR27.liveSourceSchemaVersion(w.ro)) {
                 recordSourceWait(w,todo,target,"SOURCE_CHANGED_DURING_PREPARATION"); return 0;
             }
-            boolean needsModel=false;for(Shadow shadow:todo)needsModel|=shadow.spec.ast.modelPositions!=0;
-            ModelSurfaceStoreR30.Prepared modelPrepared=needsModel?ModelSurfaceStoreR30.prepareLive(rt,w,cache,deadline):null;
+            ModelSurfaceStoreR30.Prepared historical=null;
+            Map<String,ModelSurfaceStoreR30.Prepared> modelCache=new LinkedHashMap<>();
             for (Shadow s : todo) {
+                ModelSurfaceStoreR30.Prepared modelPrepared=null;
+                if(s.spec.ast.modelPositions!=0){
+                    if(historical==null)historical=ModelSurfaceStoreR30.archived(w.ro,cache.data);
+                    RuntimeR27.AtomPublicationR30 atom=rt.atomPublicationR30;
+                    boolean fixed=opportunity&&!"CONTROL_I00".equals(s.status)&&!"CONTROL_NULL".equals(s.status);
+                    ModelSurfaceProviderR30.FrozenModelRef ref=fixed?FutureModelRegistrationR34.read(w.ro,s.id):atom==null?null:atom.model;
+                    String key=(fixed?"FIXED|":"OBSERVE|")+(ref==null?"MISSING":ref.modelHash);
+                    modelPrepared=modelCache.get(key);
+                    if(modelPrepared==null){
+                        modelPrepared=ModelSurfaceStoreR30.prepareLive(historical,cache,deadline,ref,fixed);
+                        modelCache.put(key,modelPrepared);
+                    }else modelPrepared.bind(cache);
+                }
                 double[] out = ReplayEvaluatorR27.predictNext(s.spec, cache, s.tau);
                 boolean ok = Double.isFinite(out[0]);
                 double[] p = new double[10]; if (ok) System.arraycopy(out, 0, p, 0, 10);
@@ -283,6 +304,9 @@ public final class LiveShadowsR27 {
             CertificateGateR27.Verdict v = CertificateGateR27.evaluate(e);
             // R29-035: an isolated result conflict blocks the certificate until it is resolved (never overwritten).
             List<String> failing = new ArrayList<>(v.failing); boolean issued = v.active;
+            Map<String,Object> future=CertificateGateR27.futureSummary(st.n,st.acts,st.hits);
+            if(!Boolean.TRUE.equals(future.get("coveragePass"))){issued=false;failing.add("FUTURE_COVERAGE_BELOW_15_PERCENT");}
+            if(!Boolean.TRUE.equals(future.get("expectedPayoffPositive"))){issued=false;failing.add("FUTURE_PAYOFF_NOT_POSITIVE");}
             RuntimeR27.AtomPublicationR30 modelPublication=rt.atomPublicationR30;
             final Map<String,Object> modelBinding=MainlineModelBindingR31.capture(w.ro,s.id,s.spec,s.tau,s.semanticAbi,modelPublication==null?null:modelPublication.model);
             if(!"BOUND".equals(modelBinding.get("state"))){issued=false;failing.add("MODEL_PUBLICATION_RECEIPT_REQUIRED");}
@@ -292,7 +316,7 @@ public final class LiveShadowsR27 {
             if (QualificationInboxR29.blockedForCertificate(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_GAP_OR_CONFLICT"); }
             if(!"BOUND".equals(qualificationBinding.get("state"))){issued=false;failing.add("QUALIFICATION_ORIGINALS_BINDING_REQUIRED");}
             Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("gateVersion",CertificateGateR27.GATE_VERSION); g.put("failing", new ArrayList<Object>(failing));
-            g.put("modelStateBindingR31",modelBinding);
+            g.put("modelStateBindingR31",modelBinding);g.put("registeredFutureR34",future);
             g.put("gateEvidenceR31",MainlineFreezeProofR31.gateEvidence(e));g.put("calibrationBindingR31",calibrationBinding);
             g.put("qualificationBindingR31",qualificationBinding);
             GateV2R29.Evidence v2=GateV2R29.evidence(w.ro,s.id,latestOrd);v2.pairedLcbVsI00=e.pairedLcbVsI00;v2.pairedLcbVsNull=e.pairedLcbVsNull;v2.deployed=s.id.equals(deployed);
