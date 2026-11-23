@@ -13,13 +13,13 @@ project = Path(os.environ['GITHUB_WORKSPACE'])
 temp = Path(os.environ['RUNNER_TEMP'])
 repo = 'https://github.com/gtt46461-star/starcore-public-build.git'
 compact = project/'.github/r335-096-compact/driver.py'
-fixed_driver_sha = '2fbbdbc0f095eca848eddfe7ab6421b79f027e689b2430968ebf51812970d982'
+fixed_driver_sha = 'f30fddb848a50267eb984cb655dba30be06f93dd84f74992522457cbdbd4a701'
 assert hashlib.sha256(compact.read_bytes()).hexdigest() == fixed_driver_sha
-commits = {94: ('d417e459c1bd0e89d70b4dd549f5555b93e49d4e','e7d36e074852ba330b7786460b48569271a9e46abb1a75c40a6824aa44c94aca'),
-           95: ('68280a1f8d2e05ab7b1996f876a94ac95793fc7b','0faab4a067efcd63c71bced7c4bbb8287e43f784bb636f6a0faa0dcb8e3d0b2a')}
+commits = {95: ('273641e838e0b8dd842b42a67a674e184942a30a','0faab4a067efcd63c71bced7c4bbb8287e43f784bb636f6a0faa0dcb8e3d0b2a'),
+           96: ('68280a1f8d2e05ab7b1996f876a94ac95793fc7b','08663d5998db4d346ecdb0612d15e2aa378970ff7952d978c1921d98e8a2008d')}
 run_id = int(os.environ['GITHUB_RUN_ID'])
-out = temp/f'R335-095-paired-ui-{run_id}.json'
-receipt = dict(sourceCommit=commits[95][0],apkSha256=commits[95][1],runId=run_id,scope='TWO_NATIVE_DEFAULT_REPORTS_SAME_DISPOSABLE_ANDROID14_RETAINED_UID',attempts=[],verifiedPair=False)
+out = temp/f'R335-096-paired-ui-{run_id}.json'
+receipt = dict(sourceCommit=commits[96][0],apkSha256=commits[96][1],runId=run_id,scope='TWO_NATIVE_DEFAULT_REPORTS_SAME_DISPOSABLE_ANDROID14_RETAINED_UID',attempts=[],verifiedPair=False)
 def persist():
     out.write_text(json.dumps(receipt,indent=2)+'\n')
 def sha(data):
@@ -42,17 +42,17 @@ def run_report(v,commit,digest,attempt):
  f.adb('shell','input','keyevent','KEYCODE_BACK')
  f.adb('shell','am','start','-W','-n',f.ACTIVITY)
 """
-    elif v == 94:
-        setup = template[start:stop].replace('577311096,n.source','577311094,n.source').replace("'current.txt',577311096","'current.txt',577311094")
+    elif v == 95:
+        setup = template[start:stop].replace('577311096,n.source','577311095,n.source').replace("'current.txt',577311096","'current.txt',577311095")
     else:
-        setup = """ olduid,prior=f.installed(f.EVID/'before.txt',577311094)
- check(prior=='e7d36e074852ba330b7786460b48569271a9e46abb1a75c40a6824aa44c94aca','PRIOR_RELEASE')
+        setup = """ olduid,prior=f.installed(f.EVID/'before.txt',577311095)
+ check(prior=='0faab4a067efcd63c71bced7c4bbb8287e43f784bb636f6a0faa0dcb8e3d0b2a','PRIOR_RELEASE')
  current=n.observe.get_apk('B08',577311096,n.source);check(f.fingerprint(current)==n.apk,'SIGNED_IDENTITY')
  f.adb('install','-r',str(current))
  check(f.installed(f.EVID/'current.txt',577311096)==(olduid,n.apk),'GUEST_VERSION')
 """
     setup += " record['androidUid']=olduid\n"
-    modified = (template[:start]+setup+template[stop:]).replace("n.source='"+commits[95][0]+"'","n.source='"+commit+"'")
+    modified = (template[:start]+setup+template[stop:]).replace("n.source='"+commits[96][0]+"'","n.source='"+commit+"'")
     marker='def main():'
     modified=modified.replace(marker,SAF_EXACT_SOURCE+'\n'+marker,1)
     target="    strict=n.oracle.validate_export(archive,{'profile':'DIAGNOSTIC','jobId':job,'sourceCommit':n.source,'apkSha256':n.apk})"
@@ -113,9 +113,9 @@ for version,(source,apk) in commits.items():
 if len(receipt['attempts'])==2 and all(x.get('actualSystemPicker') and len(x.get('states',{}))==96 for x in receipt['attempts']):
     first,last=receipt['attempts'];assert first['uid']==last['uid'] and first['jobId']!=last['jobId']
     repo_dir=project/'app-source'
-    subprocess.run(['git','-C',repo_dir,'fetch','--quiet','--depth=1','--filter=blob:none','origin',commits[94][0]],check=True)
+    subprocess.run(['git','-C',repo_dir,'fetch','--quiet','--depth=1','--filter=blob:none','origin',commits[95][0]],check=True)
     changes=[]
-    for filename in ['ResearchMigrationRegistryR952.java','SchemaDomainCoordinatorR926.java']:
+    for filename in ['StartupCheckpointIdentityR31.java','ResearchRetentionStoreR30.java','RuntimeCoordinatorR26.java','AutoFetchService.java','SchemaDomainCoordinatorR926.java']:
         paths=[p.relative_to(repo_dir).as_posix() for p in (repo_dir/'app/src').rglob(filename)]
         assert len(paths)==1;path=paths[0]
         images=[sha(subprocess.check_output(['git','-C',repo_dir,'show',commit+':'+path])) for commit,_ in commits.values()]
