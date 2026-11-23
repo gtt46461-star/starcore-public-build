@@ -1,0 +1,41 @@
+name: R34 materialize exact original reports
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'construction/evidence/STARCORE_R34_20261123/TRANSPORT_MANIFEST.json'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: r34-original-reports
+  cancel-in-progress: false
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            construction/evidence/STARCORE_R34_20261123
+            .github/workflows
+      - name: Restore and verify exact original ZIP bytes
+        run: python3 construction/evidence/STARCORE_R34_20261123/restore_reports.py
+      - name: Commit verified originals and retire temporary transport
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('construction/evidence/STARCORE_R34_20261123')
+          path = root / 'INPUT_MANIFEST.json'
+          manifest = json.loads(path.read_text())
+          manifest['status'] = 'ORIGINAL_INPUTS_VERIFIED_IN_REPOSITORY'
+          path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+          PY
+          git add construction/evidence/STARCORE_R34_20261123/raw construction/evidence/STARCORE_R34_20261123/INPUT_MANIFEST.json construction/evidence/STARCORE_R34_20261123/ORIGINALS_VERIFIED.json
+          git rm -r construction/evidence/STARCORE_R34_20261123/transport
+          git rm .github/workflows/r34-materialize-original-reports.yml
+          git -c user.name='github-actions[bot]' -c user.email='github-actions[bot]@users.noreply.github.com' commit -m 'Preserve three verified R34 original report ZIPs'
+          git push origin HEAD:main
