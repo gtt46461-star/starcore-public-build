@@ -51,7 +51,8 @@ receipt = temp / 'storage-instrumentation.json'
 for name, path in sorted(methods.items()):
     runner = package+'.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'
     try:
-        p = subprocess.run(['adb','shell','am','instrument','-w','-r','-e','class',name,runner], stdout=subprocess.PIPE,
+        flags = ['-e','r31qRealService','true','-e','r31WalDisposable','true'] if 'R31StorageCheckpointAndroidTest#' in name else []
+        p = subprocess.run(['adb','shell','am','instrument','-w','-r',*flags,'-e','class',name,runner], stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT, timeout=1800 if 'DrawDependencyAndroidCP12Test' in name else 360)
         raw=p.stdout; code=p.returncode
     except subprocess.TimeoutExpired as exc:
