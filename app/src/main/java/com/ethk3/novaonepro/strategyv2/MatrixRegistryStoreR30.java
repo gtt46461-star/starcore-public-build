@@ -7,6 +7,40 @@ import java.util.*;
 /** Read-only inventory over existing tables. Stored observations are not statistical validation. */
 public final class MatrixRegistryStoreR30 {
     private MatrixRegistryStoreR30(){}
+    /** Same report snapshot as the original SU2 export. Typed tensors retain their own ABI and role. */
+    public static Map<String,Object> exportR34(SQLiteDatabase db){
+        Map<String,Object> out=new LinkedHashMap<>();
+        Object previous=JsonR27.parse(MatrixStoreSU2.report(db));
+        if(previous instanceof Map)for(Map.Entry<?,?> entry:((Map<?,?>)previous).entrySet())
+            out.put(String.valueOf(entry.getKey()),entry.getValue());
+        out.put("matrixInventoryR34",report(db));
+        List<Object> rows=new ArrayList<>();
+        String current=com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26;
+        for(MatrixRegistryR30.Definition definition:MatrixRegistryR30.all()){
+            if(!definition.namespace.equals("R930"))continue;
+            Map<String,Object> row=new LinkedHashMap<>();
+            row.put("id",definition.id);row.put("state","OBSERVED_EMPTY");
+            String sql="SELECT m.matrix_hash,m.payload_json,r.source_commit,m.analysis_run_id FROM research_matrix_snapshot_r930 m"
+                +" JOIN r30r1_analysis_run r ON r.run_id=m.analysis_run_id WHERE m.kind=? AND m.producer_version=?"
+                +" AND r.status='COMMITTED' AND m.payload_json IS NOT NULL AND length(CAST(m.payload_json AS BLOB))<=262144"
+                +" ORDER BY (r.source_commit=?) DESC,m.frozen_at DESC,m.matrix_hash LIMIT 1";
+            try(Cursor c=db.rawQuery(sql,new String[]{definition.kind,MatrixTensorR30R1.VERSION,current})){
+                if(c.moveToFirst()){
+                    String content=c.getString(1),commit=c.getString(2);
+                    if(!StatsR27.sha256(content).equals(c.getString(0)))throw new IllegalStateException("MATRIX_ORIGINAL_PAYLOAD_HASH");
+                    row.put("state",current.equals(commit)?"CURRENT_SOURCE":"HISTORICAL_ABI");
+                    row.put("matrixHash",c.getString(0));row.put("sourceCommit",commit);row.put("analysisRunId",c.getString(3));
+                    row.put("payload",JsonR27.parse(content));
+                }
+            }catch(RuntimeException unavailable){
+                if(unavailable instanceof android.os.OperationCanceledException)throw unavailable;
+                row.put("state","SOURCE_UNAVAILABLE");row.put("reason",RuntimeFaultEvidenceR31.clean(unavailable.getMessage(),180));
+            }
+            rows.add(row);
+        }
+        out.put("r930TypedSnapshotsR34",rows);return out;
+    }
+
     public static Map<String,Object> report(SQLiteDatabase db){
         Map<String,Map<String,Object>> nativeRows=new HashMap<>();String nativeUnavailable=null,su2Unavailable=null;Map<String,Object> su2=null;
         try(Cursor c=db.rawQuery("SELECT kind,count(*),max(target_issue),max(frozen_at) FROM research_matrix_snapshot_r930 GROUP BY kind",null)){

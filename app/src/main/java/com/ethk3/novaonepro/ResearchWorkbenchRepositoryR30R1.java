@@ -13,18 +13,32 @@ final class ResearchWorkbenchRepositoryR30R1 {
     private ResearchWorkbenchRepositoryR30R1(){}
     static List<Panel> load(SQLiteDatabase db,int group,CancellationSignal cancel){
         List<ResearchGraphSpecsR30R1.Spec> specs=ResearchGraphSpecsR30R1.group(group);Map<String,Panel> found=new HashMap<>();
-        String[] args=new String[specs.size()+2];args[specs.size()]=BuildConfig.SOURCE_COMMIT_R26;args[specs.size()+1]=BuildConfig.SOURCE_COMMIT_R26;StringBuilder marks=new StringBuilder();for(int i=0;i<specs.size();i++){args[i]=specs.get(i).id;if(i>0)marks.append(',');marks.append('?');}
-        String sql="SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,c.run_id,r.contract_hash FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id WHERE c.view_id IN ("+marks+") AND r.source_commit=? AND r.status='COMMITTED' AND c.frame_id=(SELECT n.frame_id FROM r30r1_chart_cache n JOIN r30r1_analysis_run nr ON nr.run_id=n.run_id WHERE n.view_id=c.view_id AND nr.source_commit=? AND nr.status='COMMITTED' ORDER BY n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6";
+        String[] args=new String[specs.size()+1];args[specs.size()]=BuildConfig.SOURCE_COMMIT_R26;
+        StringBuilder marks=new StringBuilder();
+        for(int i=0;i<specs.size();i++){args[i]=specs.get(i).id;if(i>0)marks.append(',');marks.append('?');}
+        String sql="SELECT c.view_id,c.payload_json,c.payload_hash,r.dataset_hash,r.role,r.through_ordinal,"
+            +"c.run_id,r.contract_hash,r.source_commit FROM r30r1_chart_cache c JOIN r30r1_analysis_run r ON r.run_id=c.run_id"
+            +" WHERE c.view_id IN ("+marks+") AND r.status='COMMITTED' AND c.frame_id=("
+            +"SELECT n.frame_id FROM r30r1_chart_cache n JOIN r30r1_analysis_run nr ON nr.run_id=n.run_id"
+            +" WHERE n.view_id=c.view_id AND nr.status='COMMITTED' ORDER BY (nr.source_commit=?) DESC,"
+            +"n.updated_at DESC,n.frame_id LIMIT 1) ORDER BY c.view_id LIMIT 6";
         String error=null;
         try(Cursor c=db.rawQuery(sql,args,cancel)){
             while(c.moveToNext())for(ResearchGraphSpecsR30R1.Spec spec:specs)if(spec.id.equals(c.getString(0))){
                 try{if(cancel!=null)cancel.throwIfCanceled();String payload=c.getString(1);if(payload==null||payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalStateException("FRAME_BYTE_BUDGET");if(!ResearchContractR30R1.hash(payload).equals(c.getString(2)))throw new IllegalStateException("FRAME_HASH_MISMATCH");
                     @SuppressWarnings("unchecked") Map<String,Object> frame=(Map<String,Object>)JsonR27.parse(payload);
-                    ResearchOriginalR335 original=ResearchOriginalR335.read(db,c.getString(6),cancel);
+                    String producer=c.getString(8);ResearchOriginalR335 original=ResearchOriginalR335.readForDisplay(db,c.getString(6),producer,cancel);
                     Map<?,?> source=original.fields;
                     if("R06".equals(spec.id)){for(String key:java.util.Arrays.asList("sourceContract","mean","lower95","upper95","componentPath","counterfactualHash","status","evaluatedIssues"))if(!JsonR27.write(source.get(key)).equals(JsonR27.write(frame.get(key))))throw new IllegalStateException("R06_ORIGINAL_PROJECTION_CHANGED:"+key);}
                     else if(!c.getString(7).equals(original.frameHash)||!spec.id.equals(source.get("viewId"))||!matchesOriginalFrame(c.getString(7),frame))throw new IllegalStateException("RESEARCH_CACHE_NOT_BOUND_TO_ORIGINAL");
-                    found.put(spec.id,panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6)));
+                    Panel panel=panel(spec,frame,c.getString(3),c.getString(4),c.getLong(5),c.getString(6));
+                    if(!BuildConfig.SOURCE_COMMIT_R26.equals(producer)){
+                        Panel previous=new Panel(panel.page,panel.title,panel.kind,panel.source,panel.window,
+                            "历史帧 "+producer+"。本版本暂无已提交帧。\n"+panel.note,"HISTORICAL_ABI",
+                            panel.points,panel.edges,panel.refs,panel.series);
+                        panel=new Panel(previous,panel.matrixRows,panel.matrixColumns);
+                    }
+                    found.put(spec.id,panel);
                 }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException malformed){found.put(spec.id,missing(spec,"READ_ERROR",malformed.getClass().getSimpleName()+":"+String.valueOf(malformed.getMessage())));}
             }
         }catch(OperationCanceledException cancelled){throw cancelled;}catch(RuntimeException missing){error=missing.getClass().getSimpleName();}

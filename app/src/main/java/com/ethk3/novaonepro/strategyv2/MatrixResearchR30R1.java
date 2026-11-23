@@ -118,17 +118,22 @@ public final class MatrixResearchR30R1 {
     }
     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
         if(rt.evoData==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(IMMUTABLE_REPLAY_DATASET)",0,-1);
-        try(ResearchInputContextR33 owned=ResearchInputContextR33.acquire(rt,w,"MATRICES",true)) {
-        EvalContextR27 ctx=owned.context;long revision=owned.revision;
+        List<MatrixRegistryR30.Definition> definitions=new ArrayList<>();
+        for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())
+            if(def.namespace.equals("R930")&&!def.kind.equals("COUNTERFACTUAL"))definitions.add(def);
+        // Persisted round robin remains fair. Its first pass uses source-only definitions before students.
+        definitions.sort(java.util.Comparator.comparing(def->!SOURCE_ONLY_KINDS_R31.contains(def.kind)));
+        ResearchObservatoryR30R1.ViewCursor cursor=ResearchObservatoryR30R1.ViewCursor.read(w.ro,"MATRICES_R34",definitions.size());
+        for(int scan=0;scan<definitions.size();scan++){
+            int index=(cursor.index+scan)%definitions.size();MatrixRegistryR30.Definition def=definitions.get(index);
+            boolean sourceOnly=SOURCE_ONLY_KINDS_R31.contains(def.kind);
+            try(ResearchInputContextR33 owned=ResearchInputContextR33.acquire(rt,w,"MATRICES:"+def.kind,!sourceOnly)){
+            EvalContextR27 ctx=owned.context;long revision=owned.revision;
         List<PolicySpecR27> policies=owned.policies;PolicySpecR27 policy=policies.isEmpty()?null:policies.get(0);
         StringBuilder policyIdentity=new StringBuilder();for(PolicySpecR27 p:policies)policyIdentity.append(p.policyHash());
         long measuredVersion=0;try(Cursor q=w.ro.rawQuery("SELECT coalesce(max(rowid),0) FROM r30r1_research_measure WHERE kind IN ('ATOM_PAIRED_GAIN','OPERATOR_GAIN_COST','MODEL_PAIR_FROZEN','MODEL_PAIR_SETTLED')",null)){if(q.moveToFirst())measuredVersion=q.getLong(0);}
         String baseInput=ctx.data.datasetHash+"|"+revision+"|"+com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26;
 
-        List<MatrixRegistryR30.Definition> definitions=new ArrayList<>();for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")&&!def.kind.equals("COUNTERFACTUAL"))definitions.add(def);
-        ResearchObservatoryR30R1.ViewCursor cursor=ResearchObservatoryR30R1.ViewCursor.read(w.ro,"MATRICES",definitions.size());
-        for(int scan=0;scan<definitions.size();scan++){int index=(cursor.index+scan)%definitions.size();MatrixRegistryR30.Definition def=definitions.get(index);
-            boolean sourceOnly=SOURCE_ONLY_KINDS_R31.contains(def.kind);
             long measured=Arrays.asList("CAUSAL_SUPPORT","COUNTER_EVIDENCE","EVOLUTION_CREDIT","TEMPORAL_PRECEDENCE").contains(def.kind)?measuredVersion:def.kind.equals("RESOURCE_EFFICIENCY")?ResearchStoreR30R1.calendar(w.ro):0;
             String input=dependencyKeyR31(ctx.data.datasetHash,revision,def.kind,sourceOnly?"SOURCE_ONLY":StatsR27.sha256(policyIdentity.toString()),measured,com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);
             Map<?,?> previous=null;
@@ -148,9 +153,10 @@ public final class MatrixResearchR30R1 {
             if(tensor!=null)ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(tensor.throughOrdinal,tensor.throughOrdinal,null,null,tensor.throughOrdinal,tensor.hash));
             try{RuntimeR27.submit(w,"MATRIX_TYPED",b,false,cursor.snapshot(input));}catch(RuntimeException sourceChanged){if(ResearchStoreR30R1.stale(sourceChanged))return ResearchPoolR27.Outcome.idle("DEPENDENCY(MATRIX_SOURCE_CHANGED_RETRY)",0,-1);throw sourceChanged;}
             // A non-produced kind records its state and lets the round continue with the next kind on the next slice.
-            return tensor==null?ResearchPoolR27.Outcome.progress(1,0):ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
+            return tensor==null?ResearchPoolR27.Outcome.idle("MATRIX:"+def.kind+":"+outcome.status,0,-1)
+                    :ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
+            }
         }
         return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_INPUT",0,-1);
-        }
     }
 }

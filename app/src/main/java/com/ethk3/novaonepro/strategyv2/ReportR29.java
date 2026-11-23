@@ -52,6 +52,7 @@ public final class ReportR29 {
         chapters.get(11).put("evidenceAssessmentR33",assessment);
         chapters.get(11).put("capabilityRepairR32", repair);
         chapters.get(11).put("researchTables",input.data.get("researchTablesR31"));
+        chapters.get(11).put("fieldFollowupR34",input.data.get("fieldFollowupR34"));
         // The chapter projections are curated views. Keep every bounded source
         // captured by the production snapshot as well: newly wired fetch,
         // feedback, lease, publication and control receipts must not disappear

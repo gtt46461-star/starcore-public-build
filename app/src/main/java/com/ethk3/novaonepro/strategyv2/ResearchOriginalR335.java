@@ -55,10 +55,18 @@ public final class ResearchOriginalR335 {
         }
     }
     public static ResearchOriginalR335 read(SQLiteDatabase db,String run,CancellationSignal cancel) {
+        return read(db,run,com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26,cancel,true);
+    }
+    /** Archived frames may be displayed after their original source and digest are verified. */
+    public static ResearchOriginalR335 readForDisplay(SQLiteDatabase db,String run,String sourceCommit,CancellationSignal cancel){
+        return read(db,run,sourceCommit,cancel,com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26.equals(sourceCommit));
+    }
+    private static ResearchOriginalR335 read(SQLiteDatabase db,String run,String commit,CancellationSignal cancel,boolean current) {
+        if(commit==null||!commit.matches("[0-9a-f]{40}"))throw new IllegalStateException("RESEARCH_ORIGINAL_COMMIT");
         if(cancel!=null) cancel.throwIfCanceled();
-        String sql="SELECT CAST(summary_json AS BLOB) FROM r30r1_analysis_run WHERE run_id=? AND status='COMMITTED'";
+        String sql="SELECT CAST(summary_json AS BLOB) FROM r30r1_analysis_run WHERE run_id=? AND source_commit=? AND status='COMMITTED'";
         try(SQLiteStatement statement=db.compileStatement(sql)) {
-            statement.bindString(1,run);
+            statement.bindString(1,run);statement.bindString(2,commit);
             ParcelFileDescriptor descriptor=statement.simpleQueryForBlobFileDescriptor();
             if(descriptor==null) throw new IllegalStateException("MISSING_ORIGINAL_RESEARCH_SUMMARY");
             MessageDigest full=digest();
@@ -86,8 +94,10 @@ public final class ResearchOriginalR335 {
                 reader.endObject();
                 if(reader.peek()!=JsonToken.END_DOCUMENT) throw new IOException("ORIGINAL_TRAILING_DATA");
                 result.originalHash=hex(full.digest());
-                if(!ResearchStoreR30R1.currentSource(com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26,JsonR27.write(
-                        Collections.singletonMap("sourceContract",result.fields.get("sourceContract")))))
+                Object raw=result.fields.get("sourceContract");
+                if(!(raw instanceof Map)||!commit.equals(((Map<?,?>)raw).get("source")))
+                    throw new IllegalStateException("ORIGINAL_RESEARCH_SOURCE_MISMATCH");
+                if(current&&!ResearchStoreR30R1.currentSource(commit,JsonR27.write(Collections.singletonMap("sourceContract",raw))))
                     throw new IllegalStateException("CURRENT_ORIGINAL_RESEARCH_SOURCE_REQUIRED");
                 return result;
             }

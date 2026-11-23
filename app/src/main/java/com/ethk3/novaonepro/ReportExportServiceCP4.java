@@ -430,7 +430,7 @@ public final class ReportExportServiceCP4 extends Service {
                         try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(diag,new java.io.FileOutputStream(diag)),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
                         ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}
                     File su2Matrices=new File(directory,"STRATEGY_MATRICES.json");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(su2Matrices,new java.io.FileOutputStream(su2Matrices)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.MatrixStoreSU2.report(copy));}
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(su2Matrices,new java.io.FileOutputStream(su2Matrices)),StandardCharsets.UTF_8)){ReportJsonWriterR31.write(com.ethk3.novaonepro.strategyv2.MatrixRegistryStoreR30.exportR34(copy),w);}
                     ReportMemberPlanCP12.append(members,su2Matrices.getName(),su2Matrices.getName(),ReportArchiveCP4.hash(su2Matrices,active),su2Matrices.length());
                     ReportMemberPlanCP12.append(members,inventory.getName(),inventory.getName(),ReportArchiveCP4.hash(inventory,active),inventory.length());
                     for(File page:catalog.indexFiles)ReportMemberPlanCP12.append(members,page.getName(),"catalog/"+page.getName(),ReportArchiveCP4.hash(page,active),page.length());
