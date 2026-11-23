@@ -14,12 +14,14 @@ final class HotHistoryWindowR335 {
     final String lastIssue;
     final List<String> dates;
     final int missingPeriods;
+    final List<String> gapRanges;
 
-    private HotHistoryWindowR335(String first, String last, List<String> dates, int missing) {
+    private HotHistoryWindowR335(String first, String last, List<String> dates, int missing,List<String> ranges) {
         firstIssue = first;
         lastIssue = last;
         this.dates = Collections.unmodifiableList(dates);
         missingPeriods = missing;
+        gapRanges = Collections.unmodifiableList(ranges);
     }
 
     static HotHistoryWindowR335 read(DbStore store) {
@@ -32,14 +34,30 @@ final class HotHistoryWindowR335 {
         long begin = Math.max(1L, end - AppConfig.MAX_LOCAL_HISTORY_SAVE + 1L);
         String first = TargetIssueResolver.fromSequenceOrdinalSU1(begin);
         Map<String,Integer> counts = new HashMap<>();
-        try (Cursor c = db.rawQuery("SELECT substr(issue,1,8),count(*) FROM draws "
-                + "WHERE dirty=0 AND issue BETWEEN ? AND ? AND length(issue)=12 "
-                + "AND substr(issue,9,4) GLOB '[0-9][0-9][0-9][0-9]' "
-                + "AND substr(issue,9,4) BETWEEN '0001' AND '1440' GROUP BY substr(issue,1,8)",
+        List<String> ranges=new ArrayList<>();
+        long cursor=begin;
+        try (Cursor c = db.rawQuery("SELECT issue FROM draws "
+                + "WHERE dirty=0 AND issue BETWEEN ? AND ? AND length(issue)=12 ORDER BY issue",
                 new String[]{first,last})) {
-            while (c.moveToNext()) counts.put(c.getString(0),c.getInt(1));
+            while(c.moveToNext()) {
+                String issue=c.getString(0);
+                if(!TargetIssueResolver.isValid(issue))continue;
+                long position=TargetIssueResolver.sequenceOrdinalSU1(issue);
+                if(position<cursor||position>end)continue;
+                if(position>cursor)ranges.add(range(cursor,position-1));
+                cursor=position+1;
+                String date=issue.substring(0,8);
+                Integer count=counts.get(date);
+                counts.put(date,count==null?1:count+1);
+            }
         }
-        return coverage(begin,end,first,last,counts);
+        if(cursor<=end)ranges.add(range(cursor,end));
+        HotHistoryWindowR335 summary=coverage(begin,end,first,last,counts);
+        return new HotHistoryWindowR335(first,last,summary.dates,summary.missingPeriods,ranges);
+    }
+
+    private static String range(long from,long through) {
+        return TargetIssueResolver.fromSequenceOrdinalSU1(from)+"–"+TargetIssueResolver.fromSequenceOrdinalSU1(through);
     }
 
     static HotHistoryWindowR335 coverage(long begin, long end, String first, String last, Map<String,Integer> counts) {
@@ -56,7 +74,7 @@ final class HotHistoryWindowR335 {
             }
             through=from-1;
         }
-        return new HotHistoryWindowR335(first,last,missingDates,missing);
+        return new HotHistoryWindowR335(first,last,missingDates,missing,Collections.<String>emptyList());
     }
 
     List<Models.Draw> inRange(List<Models.Draw> page) {

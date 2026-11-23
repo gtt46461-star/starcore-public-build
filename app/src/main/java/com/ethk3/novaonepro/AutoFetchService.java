@@ -3234,6 +3234,8 @@ public final class AutoFetchService extends Service {
 
         int inserted = 0;
         boolean latestDurableR50 = false;
+        long latestCommitReturnElapsed=0L;
+        long latestCommitReturnWall=0L;
 
         try {
             // Latest settlement/clock progress must not wait behind historical backfill.
@@ -3241,6 +3243,10 @@ public final class AutoFetchService extends Service {
                 Models.Draw previous = store.getDrawByIssue(result.latestDraw.issue);
                 long row = DrawPollingReplayR67.alreadyDurable(previous,result.latestDraw)
                         && !FetchLedgerR925.hasDrawBindingR82(result.latestDraw) ? 0L : store.saveDraw(result.latestDraw);
+                if(row>0L){
+                    latestCommitReturnElapsed=TimeSourceR811.monoNowMs();
+                    latestCommitReturnWall=TimeSourceR811.wallNowMs();
+                }
                 Models.Draw committed = store.getDrawByIssue(result.latestDraw.issue);
                 latestDurableR50 = committed != null && committed.isValid()
                         && java.util.Arrays.equals(committed.numbers, result.latestDraw.numbers);
@@ -3284,7 +3290,20 @@ public final class AutoFetchService extends Service {
             if(result.apiLine!=null&&!result.apiLine.isEmpty())ingestState.put("api_line",result.apiLine);
             ingestState.put("draw_save_inserted",String.valueOf(inserted));
             ingestState.put("draw_save_updated_at",String.valueOf(System.currentTimeMillis()));
-            store.setStates(ingestState);
+            if(latestCommitReturnElapsed>0L && latestDurableR50 && !historyPage){
+                ingestState.put("r34_last_draw_commit_issue",result.latestDraw.issue);
+                ingestState.put("r34_last_draw_commit_return_elapsed",String.valueOf(latestCommitReturnElapsed));
+                ingestState.put("r34_last_draw_commit_return_wall",String.valueOf(latestCommitReturnWall));
+                ingestState.put("r34_last_draw_commit_boot",com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId());
+                ingestState.put("r34_last_draw_source_to_commit","NOT_MEASURABLE_SOURCE_PUBLICATION_UNCONFIRMED");
+            }
+            try {
+                store.setStates(ingestState);
+            } catch (DatabaseCoordinator.WriteRejectedR31 failure) {
+                if (!latestDurableR50 || !"LOCK_BUSY".equals(failure.category)
+                        || failure.commitOutcome != DatabaseCoordinator.CommitOutcome.ROLLED_BACK) throw failure;
+                recordCriticalCatchR926("DRAW_INGEST_TELEMETRY_DEFERRED", result.latestDraw.issue, failure);
+            }
             Models.Draw latest=getAuthoritativeLatest(result.latestDraw);
             if(latest!=null&&latest.isValid())saveLatestDrawState(latest,"api_latest");
             broadcastDrawsUpdated(true);
@@ -11733,19 +11752,46 @@ public final class AutoFetchService extends Service {
                 }
             }
             if (window != null) {
+                StringBuilder currentGaps=new StringBuilder();
+                for(String gap:window.gapRanges) {
+                    if(currentGaps.length()>=3800)break;
+                    if(currentGaps.length()>0)currentGaps.append(',');
+                    currentGaps.append(gap);
+                }
+                java.util.Map<String,String> gapState=new java.util.LinkedHashMap<>();
+                gapState.put("r34_hot_gap_ranges",currentGaps.toString());
+                gapState.put("r34_hot_gap_count",String.valueOf(window.gapRanges.size()));
+                LiveTelemetryProjectionR81.tryWrite(store,gapState);
+                org.json.JSONObject backoff;
+                try {backoff=new org.json.JSONObject(safe(store.getState("r34_history_date_backoff","")));}
+                catch(org.json.JSONException invalid){backoff=new org.json.JSONObject();}
+                String boot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
+                if(!boot.equals(backoff.optString("boot")))backoff=new org.json.JSONObject();
+                org.json.JSONObject nextBackoff=new org.json.JSONObject();
+                nextBackoff.put("boot",boot);
                 for (String date : window.dates) {
                     if (!running || (!b07ForcedBackfill && shouldDeferHeavyBackgroundNow())) break;
+                    long elapsed=TimeSourceR811.monoNowMs();
+                    if (backoff.optLong(date,0L)>elapsed) {
+                        nextBackoff.put(date,backoff.optLong(date));
+                        continue;
+                    }
                     Models.ApiResult result = apiClient.fetchBackfillDate(date);
                     datesRequested++;
                     if (result == null || !result.ok || result.draws == null || result.draws.isEmpty()) {
                         failedDates++;
+                        nextBackoff.put(date,elapsed+BACKFILL_FAST_RETRY_MS);
                         continue;
                     }
                     List<Models.Draw> history = window.inRange(result.draws);
                     datedRows += history.size();
-                    totalInserted += store.saveDraws(history);
+                    int inserted=store.saveDraws(history);
+                    totalInserted+=inserted;
+                    if(inserted==0)nextBackoff.put(date,elapsed+BACKFILL_FAST_RETRY_MS);
                     if (result.apiLine != null && !result.apiLine.isEmpty()) store.setState("api_line", result.apiLine);
                 }
+                LiveTelemetryProjectionR81.tryWrite(store,java.util.Collections.singletonMap(
+                    "r34_history_date_backoff",nextBackoff.toString()));
             }
 
             Models.Draw latestAfter = store.getLatestDraw();

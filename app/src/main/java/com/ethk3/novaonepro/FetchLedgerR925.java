@@ -104,9 +104,20 @@ public final class FetchLedgerR925 {
         PendingBeginR31 start;PendingResponseR31 response;
         synchronized(PENDING_BEGIN_R31){start=PENDING_BEGIN_R31.get(id);}synchronized(PENDING_RESPONSE_R31){response=PENDING_RESPONSE_R31.get(id);}
         if(start!=null)insertBeginR31(db,start);
-        if(response!=null)db.execSQL("UPDATE "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" SET response_at=coalesce(response_at,?),received_at=CASE WHEN received_at>0 THEN received_at ELSE ? END,latency_ms=?,http_code=?,response_hash=?,payload_hash=?,status=?,error_code=?,clock_epoch=?,label_version=?,received_mono_ms=coalesce(received_mono_ms,?),received_boot_id=coalesce(received_boot_id,?) WHERE request_id=?",new Object[]{response.wall,response.wall,response.elapsed,response.code,response.hash,response.hash,response.status,response.error,CLOCK_EPOCH,SOURCE_EVENT_LABEL_VERSION,response.mono,response.boot,id});
+        String existingHash;
+        try(Cursor existing=db.rawQuery("SELECT payload_hash,method,endpoint,request_at,request_role FROM "
+                +SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{id})){
+            if(!existing.moveToFirst())throw new DatabaseCoordinator.SchemaPendingR31("R34_FETCH_BINDING","WAIT_DURABLE_BINDING:REQUEST_UNKNOWN");
+            existingHash=existing.getString(0);
+            if(start!=null&&(!start.verb.equals(existing.getString(1))||!start.path.equals(existing.getString(2))
+                    ||start.wall!=existing.getLong(3)||!start.role.equals(existing.getString(4))))
+                throw new IllegalStateException("HTTP_REQUEST_IDENTITY_MISMATCH");
+        }
+        // A later retry has no authority to overwrite an already admitted receipt's stage.
+        if(response!=null)RawHttpIdentityR34.requireNoOverwrite(existingHash,response.hash);
+        if(response!=null&&safe(existingHash).isEmpty())db.execSQL("UPDATE "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" SET response_at=coalesce(response_at,?),received_at=CASE WHEN received_at>0 THEN received_at ELSE ? END,latency_ms=?,http_code=?,response_hash=?,payload_hash=?,status=?,error_code=?,clock_epoch=?,label_version=?,received_mono_ms=coalesce(received_mono_ms,?),received_boot_id=coalesce(received_boot_id,?) WHERE request_id=?",new Object[]{response.wall,response.wall,response.elapsed,response.code,response.hash,response.hash,response.status,response.error,CLOCK_EPOCH,SOURCE_EVENT_LABEL_VERSION,response.mono,response.boot,id});
         try(Cursor existing=db.rawQuery("SELECT payload_hash FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{id})){
-            if(!existing.moveToFirst()||!safe(existing.getString(0)).matches("[0-9a-f]{64}")||response!=null&&!response.hash.equals(existing.getString(0)))throw new IllegalStateException("R31_DEPENDENCY_HTTP_RECEIPT_NOT_DURABLE");
+            if(!existing.moveToFirst()||!safe(existing.getString(0)).matches("[0-9a-f]{64}")||response!=null&&!response.hash.equals(existing.getString(0)))throw new DatabaseCoordinator.SchemaPendingR31("R34_FETCH_BINDING","WAIT_DURABLE_BINDING:RESPONSE_NOT_COMMITTED");
         }
     }
     private static void receiptDurableR31(String id){synchronized(PENDING_BEGIN_R31){PENDING_BEGIN_R31.remove(id);}synchronized(PENDING_RESPONSE_R31){PENDING_RESPONSE_R31.remove(id);}}
@@ -120,7 +131,7 @@ public final class FetchLedgerR925 {
         final long receivedAt = raw!=null&&raw.bodyCompleteWallMs>0?raw.bodyCompleteWallMs:TimeSourceR811.wallNowMs();
         final long receivedMono=raw!=null&&raw.bodyCompleteMonoMs>0?raw.bodyCompleteMonoMs:android.os.SystemClock.elapsedRealtime();final String receivedBoot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
         observeTransportR31(store,id,raw);
-        final String payloadHash = V51ChecksumEngine.sha256(body);
+        final String payloadHash = RawHttpIdentityR34.payloadSha256(body);
         String rawReason = raw == null ? "TRANSPORT_NULL_RESULT" : safe(raw.errorMessage);
         if (rawReason.length() == 0) {
             rawReason = httpCode == 503 ? "HTTP_503" : "TRANSPORT_EXCEPTION";
@@ -403,13 +414,13 @@ public final class FetchLedgerR925 {
     }
     /** Only the exact successful raw transport object supplies its request identity. */
     static void bindRawResultR82(Models.ApiResult raw,String request) {
-        if(raw!=null&&request!=null)RAW_R82.put(raw,new RawBindingR82(request,V51ChecksumEngine.sha256(safe(raw.rawJson))));
+        if(raw!=null&&request!=null)RAW_R82.put(raw,new RawBindingR82(request,RawHttpIdentityR34.payloadSha256(raw.rawJson)));
     }
     /** No SQL and no lookup by issue: bind the actual objects returned by ApiParser. */
     static void bindParsedResultR82(Models.ApiResult raw,Models.ApiResult parsed) {
         RawBindingR82 b=RAW_R82.get(raw);if(b==null||parsed==null)return;
         observeStageR31(null,b.request,parsed.latestDraw==null?"":parsed.latestDraw.issue,false,true);
-        if(!b.payload.equals(V51ChecksumEngine.sha256(safe(raw.rawJson))))throw new IllegalStateException("HTTP_RAW_BINDING_MUTATED");
+        if(!b.payload.equals(RawHttpIdentityR34.payloadSha256(raw.rawJson)))throw new IllegalStateException("HTTP_RAW_BINDING_MUTATED");
         java.util.Set<Models.Draw> seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Models.Draw,Boolean>());
         if(parsed.latestDraw!=null)seen.add(parsed.latestDraw);
         if(parsed.history!=null)seen.addAll(parsed.history);if(parsed.draws!=null)seen.addAll(parsed.draws);
@@ -431,8 +442,13 @@ public final class FetchLedgerR925 {
         if(!b.fingerprint.equals(drawFingerprintR82(draw,b.rawHash))||(!b.rawHash.equals(rawHash)&&!(b.restored&&safe(draw.rawJson).isEmpty())))
             throw new IllegalStateException("HTTP_DRAW_BINDING_MUTATED");
         if(b.request.isEmpty()||!b.payload.matches("[0-9a-f]{64}"))throw new IllegalStateException("HTTP_REQUEST_RECEIPT_NOT_DURABLE");
+        // R34: COMPLETE/PAYLOAD can yield to a busy writer. The exact in-memory transport
+        // receipt is persisted here inside the SAME transaction as the canonical draw.
+        // No request is reconstructed from an issue, and no clock/hash is manufactured.
+        ensureReceiptWithinR31(db,b.request);
         try(Cursor c=db.rawQuery("SELECT payload_hash,source_line,status,http_code,received_at FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{b.request})){
-            if(!c.moveToFirst()||!b.payload.equals(c.getString(0)))throw new IllegalStateException("HTTP_REQUEST_PAYLOAD_IDENTITY_MISMATCH");
+            if(!c.moveToFirst())throw new DatabaseCoordinator.SchemaPendingR31("R34_FETCH_BINDING","WAIT_DURABLE_BINDING:RESPONSE_NOT_COMMITTED");
+            if(!b.payload.equals(c.getString(0)))throw new IllegalStateException("HTTP_REQUEST_PAYLOAD_IDENTITY_MISMATCH");
             String source=safe(c.getString(1)),status=safe(c.getString(2));int http=c.getInt(3);
             if((!source.isEmpty()&&!source.equals(b.source))||http<200||http>=300||c.getLong(4)<=0
                     ||!(status.equals("HTTP_PAYLOAD_ACCEPTED")||status.equals("HTTP_OK_BODY_RECEIVED")||status.equals("BUSINESS_ACCEPTED")||status.equals("ACCEPTED_DUPLICATE")))
