@@ -13,9 +13,9 @@ jobs:
       actions: read
       contents: read
     env:
-      SOURCE: db60f716c3bca8ced4a873aa94b16123307b683f
+      SOURCE: 5562f9b19aa09f9f7d9e69ca085db56c537967fc
       STAGE: B12
-      VERSION: '577311121'
+      VERSION: '577311122'
     steps:
       - name: Receive the public package checksum for this exact release
         shell: bash
@@ -23,8 +23,8 @@ jobs:
           set -euo pipefail
           python3 - <<'PY_DIGEST'
           import os,re,time,urllib.request
-          tag='r34-B12-db60f716c3bc'
-          member='STARCORE-R34-577311121-db60f716c3bc-release.apk'
+          tag='r34-B12-5562f9b19aa0'
+          member='STARCORE-R34-577311122-5562f9b19aa0-release.apk'
           for _ in range(85):
               try:
                   with urllib.request.urlopen('https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/SHA256SUMS.txt',timeout=20) as r: text=r.read(16385).decode()
@@ -110,7 +110,7 @@ jobs:
           ./gradlew --no-daemon --max-workers=2 :app:assembleDebugAndroidTest > "$RUNNER_TEMP/android-test-build.log" 2>&1
           git diff --exit-code --quiet HEAD
           cp app/build/outputs/apk/androidTest/debug/*-androidTest.apk "$RUNNER_TEMP/verified-tests.apk"
-          curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r34-B12-db60f716c3bc/STARCORE-R34-577311121-db60f716c3bc-release.apk" -o "$RUNNER_TEMP/verified-target.apk"
+          curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r34-B12-5562f9b19aa0/STARCORE-R34-577311122-5562f9b19aa0-release.apk" -o "$RUNNER_TEMP/verified-target.apk"
           echo "$REPAIRED_APK_SHA  $RUNNER_TEMP/verified-target.apk" | sha256sum -c -
           for kind in tests target; do
             "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/verified-$kind.apk" > "$RUNNER_TEMP/$kind-cert.txt"
