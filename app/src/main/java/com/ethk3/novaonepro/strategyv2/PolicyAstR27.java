@@ -194,7 +194,14 @@ public final class PolicyAstR27 {
         private ScopedScoresR31(SharedFeatureStoreR31.Reader reader){shared=reader;}
         private ScopedScoresR31(ScratchPoolR31 pool,ScratchBlockR31 block){this.pool=pool;this.block=block;values=block.values;}
         public double at(int index){open();return shared==null?values[index]:shared.doubleAt(index);}
-        public void copyRow(int row,double[] target){open();if(shared==null)System.arraycopy(values,row*10,target,0,10);else shared.copyRangeTo(row*10,target,0,10);}
+        public void copyRow(int row, double[] target) {
+            copyRange(row * 10, target, 0, 10);
+        }
+        private void copyRange(int from, double[] target, int to, int count) {
+            open();
+            if (shared == null) System.arraycopy(values, from, target, to, count);
+            else shared.copyRangeTo(from, target, to, count);
+        }
         private void open(){if(closed)throw new IllegalStateException("R31_SCORE_READER_CLOSED");}
         double[] copyForPublicCaller(){open();double[] copy=new double[shared==null?values.length:shared.length()];if(shared==null)System.arraycopy(values,0,copy,0,copy.length);else shared.copyTo(copy,0);return copy;}
         static ScopedScoresR31 legacy(double[] values){return new ScopedScoresR31(values);}
@@ -234,34 +241,138 @@ public final class PolicyAstR27 {
                 if(n.modelPositions!=0){ScopedScoresR31 copy=f.scratchPoolR31().borrow(critical);System.arraycopy(result.values,0,copy.values,0,copy.values.length);result.close();result=copy;}
             }else{
                 for(int i=0;i<k.length;i++)k[i]=evalScopedR31(n.kids[i],f,tp,critical);
-                result=f.scratchPoolR31().borrow(critical);double[] v=result.values;int len=v.length;double p=n.param;
-                switch(n.op){
-                    case "c":Arrays.fill(v,p);break;
-                    case "neg":for(int i=0;i<len;i++)v[i]=-k[0].at(i);break;
-                    case "abs":for(int i=0;i<len;i++)v[i]=Math.abs(k[0].at(i));break;
-                    case "log1p":for(int i=0;i<len;i++)v[i]=Math.log1p(Math.abs(k[0].at(i)));break;
-                    case "sqrt":for(int i=0;i<len;i++)v[i]=Math.sqrt(Math.abs(k[0].at(i)));break;
-                    case "sigmoid":for(int i=0;i<len;i++)v[i]=1/(1+Math.exp(-k[0].at(i)));break;
-                    case "tanh":for(int i=0;i<len;i++)v[i]=Math.tanh(k[0].at(i));break;
-                    case "add":for(int i=0;i<len;i++)v[i]=k[0].at(i)+k[1].at(i);break;
-                    case "sub":for(int i=0;i<len;i++)v[i]=k[0].at(i)-k[1].at(i);break;
-                    case "mul":for(int i=0;i<len;i++)v[i]=k[0].at(i)*k[1].at(i);break;
-                    case "div":for(int i=0;i<len;i++){double d=k[1].at(i);v[i]=Math.abs(d)<1e-9?0:k[0].at(i)/d;}break;
-                    case "max":for(int i=0;i<len;i++)v[i]=Math.max(k[0].at(i),k[1].at(i));break;
-                    case "min":for(int i=0;i<len;i++)v[i]=Math.min(k[0].at(i),k[1].at(i));break;
-                    case "mix":for(int i=0;i<len;i++)v[i]=p*k[0].at(i)+(1-p)*k[1].at(i);break;
-                    case "if":for(int i=0;i<len;i++)v[i]=k[0].at(i)>k[1].at(i)?k[2].at(i):k[3].at(i);break;
-                    case "rank":rowWiseScopedR31(k[0],v,0,0);break;
-                    case "zscore":rowWiseScopedR31(k[0],v,1,0);break;
-                    case "softmax":rowWiseScopedR31(k[0],v,2,p);break;
-                    case "lagdiff":Arrays.fill(v,Double.NaN);for(int t=1;t<f.data.size();t++)if(f.data.consecutive(t,1))for(int j=0;j<10;j++)v[t*10+j]=k[0].at(t*10+j)-k[0].at((t-1)*10+j);break;
-                    case "ema":double[] e=new double[10];boolean[] init=new boolean[10];for(int t=0;t<f.data.size();t++)for(int j=0;j<10;j++){double x=k[0].at(t*10+j);if(Double.isNaN(x)){v[t*10+j]=init[j]?e[j]:Double.NaN;continue;}e[j]=init[j]?p*x+(1-p)*e[j]:x;init[j]=true;v[t*10+j]=e[j];}break;
-                    default:throw new IllegalArgumentException("R27_AST_EVAL:"+n.op);
+                result = f.scratchPoolR31().borrow(critical);
+                double[] scores = result.values;
+                switch (n.op) {
+                    case "c":
+                        Arrays.fill(scores, n.param);
+                        break;
+                    case "rank":
+                        rowWiseScopedR31(k[0], scores, 0, 0);
+                        break;
+                    case "zscore":
+                        rowWiseScopedR31(k[0], scores, 1, 0);
+                        break;
+                    case "softmax":
+                        rowWiseScopedR31(k[0], scores, 2, n.param);
+                        break;
+                    case "lagdiff":
+                        lagDifferences(k[0], f.data, scores);
+                        break;
+                    case "ema":
+                        movingAverage(k[0], n.param, scores);
+                        break;
+                    default:
+                        elementwise(n.op, n.param, k, scores);
                 }
             }
             if(n.modelPositions!=0)f.maskMissingModelRows(result.values,n.modelPositions);complete=true;return result;
         }finally{for(ScopedScoresR31 child:k)if(child!=null)child.close();if(!complete&&result!=null)result.close();}
     }
+    // Copy at most 16 periods per input while retaining the scoped reader for the complete expression.
+    private static final int VECTOR_BLOCK = 160;
+
+    private static void elementwise(String operation, double parameter, ScopedScoresR31[] inputs, double[] result) {
+        Integer arity = ARITY.get(operation);
+        if (arity == null || inputs.length != arity) throw new IllegalArgumentException("R27_AST_EVAL:" + operation);
+        int width = Math.min(VECTOR_BLOCK, result.length);
+        double[] right = inputs.length > 1 ? new double[width] : null;
+        double[] whenTrue = inputs.length == 4 ? new double[width] : null;
+        double[] whenFalse = inputs.length == 4 ? new double[width] : null;
+        for (int start = 0; start < result.length; start += VECTOR_BLOCK) {
+            CooperativeContinuationR26.poll();
+            int count = Math.min(VECTOR_BLOCK, result.length - start);
+            inputs[0].copyRange(start, result, start, count);
+            if (right != null) inputs[1].copyRange(start, right, 0, count);
+            if (whenTrue != null) {
+                inputs[2].copyRange(start, whenTrue, 0, count);
+                inputs[3].copyRange(start, whenFalse, 0, count);
+            }
+            switch (operation) {
+                case "neg":
+                    for (int i = 0; i < count; i++) result[start + i] = -result[start + i];
+                    break;
+                case "abs":
+                    for (int i = 0; i < count; i++) result[start + i] = Math.abs(result[start + i]);
+                    break;
+                case "log1p":
+                    for (int i = 0; i < count; i++) result[start + i] = Math.log1p(Math.abs(result[start + i]));
+                    break;
+                case "sqrt":
+                    for (int i = 0; i < count; i++) result[start + i] = Math.sqrt(Math.abs(result[start + i]));
+                    break;
+                case "sigmoid":
+                    for (int i = 0; i < count; i++) result[start + i] = 1 / (1 + Math.exp(-result[start + i]));
+                    break;
+                case "tanh":
+                    for (int i = 0; i < count; i++) result[start + i] = Math.tanh(result[start + i]);
+                    break;
+                case "add":
+                    for (int i = 0; i < count; i++) result[start + i] = result[start + i] + right[i];
+                    break;
+                case "sub":
+                    for (int i = 0; i < count; i++) result[start + i] = result[start + i] - right[i];
+                    break;
+                case "mul":
+                    for (int i = 0; i < count; i++) result[start + i] = result[start + i] * right[i];
+                    break;
+                case "div":
+                    for (int i = 0; i < count; i++) result[start + i] = Math.abs(right[i]) < 1e-9 ? 0 : result[start + i] / right[i];
+                    break;
+                case "max":
+                    for (int i = 0; i < count; i++) result[start + i] = Math.max(result[start + i], right[i]);
+                    break;
+                case "min":
+                    for (int i = 0; i < count; i++) result[start + i] = Math.min(result[start + i], right[i]);
+                    break;
+                case "mix":
+                    for (int i = 0; i < count; i++) result[start + i] = parameter * result[start + i] + (1 - parameter) * right[i];
+                    break;
+                case "if":
+                    for (int i = 0; i < count; i++) result[start + i] = result[start + i] > right[i] ? whenTrue[i] : whenFalse[i];
+                    break;
+                default:
+                    throw new IllegalArgumentException("R27_AST_EVAL:" + operation);
+            }
+        }
+    }
+
+    private static void lagDifferences(ScopedScoresR31 input, ReplayDatasetR27 data, double[] result) {
+        double[] previous = new double[10];
+        double[] current = new double[10];
+        Arrays.fill(result, Double.NaN);
+        for (int row = 0; row < data.size(); row++) {
+            if ((row & 15) == 0) CooperativeContinuationR26.poll();
+            input.copyRow(row, current);
+            if (row > 0 && data.consecutive(row, 1)) {
+                for (int digit = 0; digit < 10; digit++) {
+                    result[row * 10 + digit] = current[digit] - previous[digit];
+                }
+            }
+            double[] spare = previous;
+            previous = current;
+            current = spare;
+        }
+    }
+
+    private static void movingAverage(ScopedScoresR31 input, double weight, double[] result) {
+        double[] state = new double[10];
+        double[] current = new double[10];
+        boolean[] initialized = new boolean[10];
+        for (int row = 0; row < result.length / 10; row++) {
+            if ((row & 15) == 0) CooperativeContinuationR26.poll();
+            input.copyRow(row, current);
+            for (int digit = 0; digit < 10; digit++) {
+                double value = current[digit];
+                if (!Double.isNaN(value)) {
+                    state[digit] = initialized[digit] ? weight * value + (1 - weight) * state[digit] : value;
+                    initialized[digit] = true;
+                }
+                result[row * 10 + digit] = initialized[digit] ? state[digit] : Double.NaN;
+            }
+        }
+    }
+
     private static void rowWiseScopedR31(ScoreInputR31 input,double[] v,int mode,double temperature){
         double[] x=new double[10];for(int t=0;t<v.length/10;t++){if((t&31)==0)CooperativeContinuationR26.poll();input.copyRow(t,x);int o=t*10;boolean bad=false;for(int j=0;j<10;j++)if(Double.isNaN(x[j]))bad=true;
             if(bad){for(int j=0;j<10;j++)v[o+j]=Double.NaN;continue;}
