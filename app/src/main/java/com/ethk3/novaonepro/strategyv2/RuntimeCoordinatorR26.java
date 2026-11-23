@@ -218,10 +218,12 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                     if(workPending!=null&&latest!=null){
                         if((id.equals("r27-live")||id.equals("legacy-replay")||id.equals("live-model-training"))&&committedInput!=null&&latest>=committedInput)workPending=latest-committedInput;
                         else if(id.equals("r27-replay-dataset")&&!rows.isNull(8)&&latest>=rows.getLong(8))workPending=Math.max(0,latest-rows.getLong(8)-RuntimeR27.REFRESH_NEW_ROWS+1);
+                        else if(id.equals(ColdRebirthR34.TASK))workPending=ColdRebirthR34.pendingParentsForHealth(db);
                         else if(workPending==0&&entry.unit!=TaskProgressR30R1.Unit.TIME_TICK&&(clock==null||latest>clock)){workPending=null;sourceFailure="PENDING_ZERO_IS_FROM_OLDER_SOURCE_WATERMARK";}
                     }
                     if(workPending==null&&sourceFailure==null)sourceFailure="OWNER_PENDING_NOT_MATERIALIZED";
-                }else sourceFailure=entry==null?"UNREGISTERED_TASK_ID":"NO_CURRENT_TYPED_PROGRESS_OR_WORK_UNIT_MISMATCH";
+                }else if(entry!=null&&id.equals(ColdRebirthR34.TASK)){workPending=ColdRebirthR34.pendingParentsForHealth(db);sourceFailure=workPending==null?"COLD_REBIRTH_SCHEMA_UNAVAILABLE":null;}
+                else sourceFailure=entry==null?"UNREGISTERED_TASK_ID":"NO_CURRENT_TYPED_PROGRESS_OR_WORK_UNIT_MISMATCH";
                 boolean resourceWait=WaitKindR27.RESOURCE.equals(waitKind);
                 boolean dependency=WaitKindR27.DEPENDENCY.equals(waitKind)||blocked!=null&&(blocked.startsWith("DEPENDENCY")||blocked.startsWith("WAITING_"));
                 boolean validLease="RUNNING".equals(status)&&boot.equals(rows.getString(20))&&!rows.isNull(21)&&rows.getLong(21)>elapsed;
@@ -411,7 +413,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status IN ('RUNNING','CANCELLING')");
             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
             add(db,"schema","P1");add(db,"schema-base","P1");add(db,"lifecycle-schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");add(db,"incumbent-forecast","P1");
-            add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"warm-candidates","P2");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"live-forecast-preparation","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
+            add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"warm-candidates","P2");add(db,ColdRebirthR34.TASK,"P2");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"live-forecast-preparation","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
             for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}
             db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27' AND status NOT IN ('QUARANTINED','NEEDS_FIX')");
             for(String r27Task:new String[]{"r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
@@ -687,6 +689,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "aggregate-evidence":return EvidenceAccumulatorR26.stepOne(store,c,budget,seq+1);
             case "incumbent-forecast":{if(c.cursor>=seq)return 0;long done=TaskContinuationR26.step(store,c,budget,seq+1);if(done>0)c.advanceCursorTo(seq);return done;}
             case "warm-candidates":return TaskContinuationR26.step(store,c,budget,seq+1);
+            case "cold-rebirth-r34":return TaskContinuationR26.step(store,c,budget,seq+1);
             case "publish-models":return TaskContinuationR26.step(store,c,budget,seq+1);
             case "live-forecast-preparation":return TaskContinuationR26.step(store,c,budget,seq+1);
             case "live-model-training":return TaskContinuationR26.step(store,c,budget,seq+1);

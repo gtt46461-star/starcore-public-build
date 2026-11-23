@@ -118,6 +118,8 @@ public final class ModelReplaySU2 {
 
     /** Builds the stepwise model named by a member (same constructor the live loop uses). */
     public static OnlineModelsSU2.Model build(String kind, Map<String, String> p) {
+        // R34 lineage is hashed in the policy; strict model factories receive numerical fields only.
+        if(ColdRebirthContractR34.hasColdParameters(p))return build(kind,ColdRebirthContractR34.stripColdParameters(p));
         if(WarmModelSeedR26.has(p))return build(kind,WarmModelSeedR26.structuralParameters(p));
         if(p.containsKey("_birth_snapshot")||p.containsKey("_birth_through")){Map<String,String> raw=new TreeMap<>(p);String birth=raw.remove("_birth_snapshot"),through=raw.remove("_birth_through");if(birth==null||!birth.matches("[0-9a-f]{64}")||through==null||!through.matches("[0-9]+"))throw new IllegalArgumentException("R26_BIRTH_BINDING");return build(kind,raw);}
 

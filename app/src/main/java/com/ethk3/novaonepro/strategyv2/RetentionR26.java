@@ -103,8 +103,9 @@ public final class RetentionR26 {
                 return 0;
             }
             case 13:{
+        ColdRebirthSchemaR34.require(db);
         ExpertContinuationR26.preserveExpired(db);
-        db.execSQL("DELETE FROM r26_expert_experiment WHERE rowid IN (SELECT rowid FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND (length(state)=0 OR cursor=0 AND checkpoint_hash='') LIMIT "+SLICE_R30+")");
+        db.execSQL(ColdRebirthContractR34.pruneExpiredExpertsSql(SLICE_R30));
                 return 0;
             }
             case 14:{

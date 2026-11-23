@@ -84,6 +84,7 @@ public final class TaskContinuationR26 {
         if (task.startsWith("expert-")) return ExpertWorkshopR26.step(store, () -> context.claim, token, target);
         if (task.equals("incumbent-forecast")) return IncumbentLoopSU2.prepareNext(store, () -> context.claim, token, target);
         if (task.equals("warm-candidates")) return WarmCandidateR26.step(store, () -> context.claim, token);
+        if (task.equals(ColdRebirthR34.TASK)) return ColdRebirthR34.step(store, () -> context.claim, token);
         if (task.equals("publish-models")) return LivePoolR26.publishOne(store, () -> context.claim, token);
         if (task.equals("live-forecast-preparation")) return PreparedForecastStoreR26.step(store, () -> context.claim, token);
         if (task.equals("live-model-training")) return LivePoolR26.trainOne(store, () -> context.claim, token);

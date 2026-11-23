@@ -2,6 +2,7 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
+import java.util.function.Supplier;
 /** Distinct executable, paired prequential research protocols. Exposed history never grants live authority. */
 public final class ExpertExperimentR26 {
     private ExpertExperimentR26() {}
@@ -31,7 +32,7 @@ public final class ExpertExperimentR26 {
         return FamilyRegistryR26.genome(code);
     }
     /** Full private pair plus metrics, serialized after completed samples only. */
-    public static final class Pair {
+    public static final class Pair implements AutoCloseable {
         public final Spec spec;public final LiveStateR26 left,right;
         public int cursor,gaps,novel,jointFailure,leftOnly,rightOnly;
         public long retainedModelSamples,continuationSourceFirst,continuationSourceThrough,parentExposedThrough,parentTrainedThrough;
@@ -55,7 +56,29 @@ public final class ExpertExperimentR26 {
             if(side<0||side>1)throw new IllegalArgumentException("R26_EXPERT_SIDE");int mask=0;
             for(OnlineModelsSU2.Model model:(side==0?left:right).hub.models.values())if(model instanceof ScaleInputR26){ScaleInputR26 input=(ScaleInputR26)model;int declared=input.configuredScaleMask(),available=input.availableScaleMask();if((declared&~63)!=0||(available&~declared)!=0)throw new IllegalStateException("R26_MODEL_SCALE_MASK");mask|=configured?declared:available;}return mask;
         }
-        public Pair(Spec s,String snapshot,long through){spec=s;left=new LiveStateR26(genome(s.left).bindBirth(snapshot,through));right=new LiveStateR26(genome(s.right).bindBirth(snapshot,through));}
+        public Pair(Spec s,String snapshot,long through){
+            this(s,()->new LiveStateR26(genome(s.left).bindBirth(snapshot,through)),
+                ()->new LiveStateR26(genome(s.right).bindBirth(snapshot,through)));
+        }
+        Pair(Spec s,Supplier<LiveStateR26> leftFactory,Supplier<LiveStateR26> rightFactory){
+            spec=s;
+            left=Objects.requireNonNull(leftFactory.get());
+            try {
+                right=Objects.requireNonNull(rightFactory.get());
+            } catch(RuntimeException|Error failure){
+                left.closeAfterFailure(failure);
+                throw failure;
+            }
+        }
+        @Override public void close(){
+            try {
+                left.close();
+            } catch(RuntimeException|Error failure){
+                right.closeAfterFailure(failure);
+                throw failure;
+            }
+            right.close();
+        }
         private Pair(Spec s,LiveStateR26 a,LiveStateR26 b){spec=s;left=a;right=b;}
         public void requireSource(String snapshot,long through)throws IOException{
             if(!continuationSnapshot.isEmpty()){
@@ -81,6 +104,28 @@ public final class ExpertExperimentR26 {
             left.learn(draw);right.learn(draw);cursor++;
         }
         public byte[] encode()throws IOException{ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new BufferedOutputStream(new CooperativeOutputStreamR26(new GZIPOutputStream(bytes)),32768))){out.writeInt(continuationSnapshot.isEmpty()?0x26e10002:0x26e10003);out.writeUTF(spec.id);for(LiveStateR26 model:new LiveStateR26[]{left,right}){out.writeUTF(model.genome.text());byte[] state=model.encode();out.writeInt(state.length);out.write(state);}for(int x:new int[]{cursor,gaps,novel,jointFailure,leftOnly,rightOnly})out.writeInt(x);for(int[] a:new int[][]{actions,hits,streak,maxStreak,probabilityN})for(int x:a)out.writeInt(x);for(double[] a:new double[][]{loss,brier})for(double x:a)out.writeDouble(x);for(int[][] a:new int[][][]{topRetention,blockActions,blockHits})for(int[] row:a)for(int x:row)out.writeInt(x);for(int side=0;side<2;side++)for(int i=0;i<probabilityN[side];i++){out.writeDouble(probability[side][i]);out.writeBoolean(outcome[side][i]);}out.writeInt(scaleMeasurementStart);for(int[] counts:scalePredictions)for(int count:counts)out.writeInt(count);if(!continuationSnapshot.isEmpty()){out.writeLong(retainedModelSamples);out.writeUTF(continuationSnapshot);out.writeLong(continuationSourceFirst);out.writeLong(continuationSourceThrough);out.writeUTF(continuationParent);out.writeUTF(continuationParentState);out.writeLong(parentExposedThrough);out.writeLong(parentTrainedThrough);}}if(bytes.size()>8<<20)throw new IOException("R26_EXPERT_STATE_CAPACITY");return bytes.toByteArray();}
-        public static Pair decode(byte[] bytes)throws IOException{if(bytes==null||bytes.length>8<<20)throw new IOException("R26_EXPERT_STATE_CAPACITY");try(DataInputStream in=new DataInputStream(new BufferedInputStream(new CooperativeInputStreamR26(new GZIPInputStream(new ByteArrayInputStream(bytes))),32768))){int header=in.readInt();if(header!=0x26e10001&&header!=0x26e10002&&header!=0x26e10003)throw new IOException("R26_EXPERT_ABI");Spec s=spec(in.readUTF());LiveStateR26[] states=new LiveStateR26[2];for(int side=0;side<2;side++){String text=in.readUTF();int n=in.readInt();if(n<1||n>4<<20)throw new IOException("R26_EXPERT_MODEL_BOUND");byte[] b=new byte[n];in.readFully(b);states[side]=LiveStateR26.decode(text,b,LiveStateR26.hash(b));}Pair p=new Pair(s,states[0],states[1]);p.cursor=in.readInt();p.gaps=in.readInt();p.novel=in.readInt();p.jointFailure=in.readInt();p.leftOnly=in.readInt();p.rightOnly=in.readInt();if(p.cursor<0||p.cursor>5000||header!=0x26e10003&&(p.left.samples()!=p.cursor||p.right.samples()!=p.cursor))throw new IOException("R26_EXPERT_CURSOR");for(int[] a:new int[][]{p.actions,p.hits,p.streak,p.maxStreak,p.probabilityN})for(int i=0;i<a.length;i++){a[i]=in.readInt();if(a[i]<0||a[i]>5000)throw new IOException("R26_EXPERT_COUNTS");}for(double[] a:new double[][]{p.loss,p.brier})for(int i=0;i<a.length;i++){a[i]=in.readDouble();if(!Double.isFinite(a[i]))throw new IOException("R26_EXPERT_NUMERICS");}for(int[][] a:new int[][][]{p.topRetention,p.blockActions,p.blockHits})for(int[] row:a)for(int i=0;i<row.length;i++)row[i]=in.readInt();for(int side=0;side<2;side++)for(int i=0;i<p.probabilityN[side];i++){p.probability[side][i]=in.readDouble();p.outcome[side][i]=in.readBoolean();if(!Double.isFinite(p.probability[side][i])||p.probability[side][i]<0||p.probability[side][i]>1)throw new IOException("R26_EXPERT_PROBABILITY");}if(header!=0x26e10001){p.scaleMeasurementStart=in.readInt();if(p.scaleMeasurementStart<0||p.scaleMeasurementStart>p.cursor)throw new IOException("R26_EXPERT_SCALE_WINDOW");for(int side=0;side<2;side++){int declared=p.configuredScaleMask(side);for(int scale=0;scale<6;scale++){int count=in.readInt();if(count<0||count>p.cursor-p.scaleMeasurementStart||count>0&&(declared&(1<<scale))==0)throw new IOException("R26_EXPERT_SCALE_COUNTS");p.scalePredictions[side][scale]=count;}}}else p.scaleMeasurementStart=p.cursor;if(header==0x26e10003){p.retainedModelSamples=in.readLong();p.continuationSnapshot=in.readUTF();p.continuationSourceFirst=in.readLong();p.continuationSourceThrough=in.readLong();p.continuationParent=in.readUTF();p.continuationParentState=in.readUTF();p.parentExposedThrough=in.readLong();p.parentTrainedThrough=in.readLong();if(p.retainedModelSamples<1||p.retainedModelSamples>Long.MAX_VALUE-p.cursor||p.left.samples()!=p.retainedModelSamples+p.cursor||p.right.samples()!=p.retainedModelSamples+p.cursor||!p.continuationSnapshot.matches("[0-9a-f]{64}")||p.continuationSourceFirst<1||p.continuationSourceThrough<p.continuationSourceFirst||p.parentTrainedThrough<0)throw new IOException("R26_EXPERT_CONTINUATION_CLOCK");p.requireSource(p.continuationSnapshot,p.continuationSourceFirst,p.continuationSourceThrough);}if(in.read()!=-1)throw new IOException("R26_EXPERT_TRAILING");return p;}}
+        public static Pair decode(byte[] bytes)throws IOException{
+            if(bytes==null||bytes.length>8<<20)throw new IOException("R26_EXPERT_STATE_CAPACITY");
+            LiveStateR26[] states=new LiveStateR26[2];
+            Pair p;
+            try(DataInputStream in=new DataInputStream(new BufferedInputStream(new CooperativeInputStreamR26(new GZIPInputStream(new ByteArrayInputStream(bytes))),32768))){
+                int header=in.readInt();if(header!=0x26e10001&&header!=0x26e10002&&header!=0x26e10003)throw new IOException("R26_EXPERT_ABI");
+                Spec s=spec(in.readUTF());
+                for(int side=0;side<2;side++){String text=in.readUTF();int n=in.readInt();if(n<1||n>4<<20)throw new IOException("R26_EXPERT_MODEL_BOUND");byte[] b=new byte[n];in.readFully(b);states[side]=LiveStateR26.decode(text,b,LiveStateR26.hash(b));}
+                p=new Pair(s,states[0],states[1]);
+                p.cursor=in.readInt();p.gaps=in.readInt();p.novel=in.readInt();p.jointFailure=in.readInt();p.leftOnly=in.readInt();p.rightOnly=in.readInt();if(p.cursor<0||p.cursor>5000||header!=0x26e10003&&(p.left.samples()!=p.cursor||p.right.samples()!=p.cursor))throw new IOException("R26_EXPERT_CURSOR");
+                for(int[] a:new int[][]{p.actions,p.hits,p.streak,p.maxStreak,p.probabilityN})for(int i=0;i<a.length;i++){a[i]=in.readInt();if(a[i]<0||a[i]>5000)throw new IOException("R26_EXPERT_COUNTS");}
+                for(double[] a:new double[][]{p.loss,p.brier})for(int i=0;i<a.length;i++){a[i]=in.readDouble();if(!Double.isFinite(a[i]))throw new IOException("R26_EXPERT_NUMERICS");}
+                for(int[][] a:new int[][][]{p.topRetention,p.blockActions,p.blockHits})for(int[] row:a)for(int i=0;i<row.length;i++)row[i]=in.readInt();
+                for(int side=0;side<2;side++)for(int i=0;i<p.probabilityN[side];i++){p.probability[side][i]=in.readDouble();p.outcome[side][i]=in.readBoolean();if(!Double.isFinite(p.probability[side][i])||p.probability[side][i]<0||p.probability[side][i]>1)throw new IOException("R26_EXPERT_PROBABILITY");}
+                if(header!=0x26e10001){p.scaleMeasurementStart=in.readInt();if(p.scaleMeasurementStart<0||p.scaleMeasurementStart>p.cursor)throw new IOException("R26_EXPERT_SCALE_WINDOW");for(int side=0;side<2;side++){int declared=p.configuredScaleMask(side);for(int scale=0;scale<6;scale++){int count=in.readInt();if(count<0||count>p.cursor-p.scaleMeasurementStart||count>0&&(declared&(1<<scale))==0)throw new IOException("R26_EXPERT_SCALE_COUNTS");p.scalePredictions[side][scale]=count;}}}else p.scaleMeasurementStart=p.cursor;
+                if(header==0x26e10003){p.retainedModelSamples=in.readLong();p.continuationSnapshot=in.readUTF();p.continuationSourceFirst=in.readLong();p.continuationSourceThrough=in.readLong();p.continuationParent=in.readUTF();p.continuationParentState=in.readUTF();p.parentExposedThrough=in.readLong();p.parentTrainedThrough=in.readLong();if(p.retainedModelSamples<1||p.retainedModelSamples>Long.MAX_VALUE-p.cursor||p.left.samples()!=p.retainedModelSamples+p.cursor||p.right.samples()!=p.retainedModelSamples+p.cursor||!p.continuationSnapshot.matches("[0-9a-f]{64}")||p.continuationSourceFirst<1||p.continuationSourceThrough<p.continuationSourceFirst||p.parentTrainedThrough<0)throw new IOException("R26_EXPERT_CONTINUATION_CLOCK");p.requireSource(p.continuationSnapshot,p.continuationSourceFirst,p.continuationSourceThrough);}
+                if(in.read()!=-1)throw new IOException("R26_EXPERT_TRAILING");
+            } catch(IOException|RuntimeException|Error failure){
+                for(LiveStateR26 state:states)if(state!=null)state.closeAfterFailure(failure);
+                throw failure;
+            }
+            return p;
+        }
     }
 }

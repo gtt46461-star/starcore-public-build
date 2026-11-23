@@ -13,6 +13,7 @@ import com.ethk3.novaonepro.strategyv2.MainlineFreezeProofR31;
 import com.ethk3.novaonepro.strategyv2.ImprovementStoreR31;
 import com.ethk3.novaonepro.strategyv2.ResearchActionSchemaR33;
 import com.ethk3.novaonepro.strategyv2.DiagnosisSchemaR335;
+import com.ethk3.novaonepro.strategyv2.ColdRebirthSchemaR34;
 import java.util.*;
 import java.util.regex.*;
 
@@ -37,7 +38,7 @@ public final class LifecycleSchemaR31 {
             Matcher m=DECLARATION.matcher(sql);
             if(!m.find())throw new IllegalArgumentException("R31_LIFECYCLE_UNDECLARED_DDL");
             kind=m.group(1).toLowerCase(Locale.ROOT);name=m.group(2);this.sql=sql;
-            if(!(DiagnosisSchemaR335.declares(name)||ResearchActionSchemaR33.declares(name)||name.startsWith("r31_startup_checkpoint_")||name.startsWith("r31_gap_")||name.startsWith("idx_r31_gap_")||name.startsWith("r31_keep_")||name.startsWith("r31_gc_")||name.startsWith("r31_hypothesis_")||name.startsWith("idx_r31_keep_")||name.startsWith("idx_r31_gc_")||name.startsWith("idx_r31_hypothesis_")||name.startsWith("r31_mainline_")||name.startsWith("idx_r31_mainline_")||name.startsWith("r31_improvement_")||name.startsWith("idx_r31_improvement_")))
+            if(!(ColdRebirthSchemaR34.declares(name)||DiagnosisSchemaR335.declares(name)||ResearchActionSchemaR33.declares(name)||name.startsWith("r31_startup_checkpoint_")||name.startsWith("r31_gap_")||name.startsWith("idx_r31_gap_")||name.startsWith("r31_keep_")||name.startsWith("r31_gc_")||name.startsWith("r31_hypothesis_")||name.startsWith("idx_r31_keep_")||name.startsWith("idx_r31_gc_")||name.startsWith("idx_r31_hypothesis_")||name.startsWith("r31_mainline_")||name.startsWith("idx_r31_mainline_")||name.startsWith("r31_improvement_")||name.startsWith("idx_r31_improvement_")))
                 throw new IllegalArgumentException("R31_LIFECYCLE_FOREIGN_OBJECT");
             unit="OBJECT:"+name+":"+V51ChecksumEngine.sha256(canonical(sql));
         }
@@ -77,6 +78,7 @@ public final class LifecycleSchemaR31 {
         Collections.addAll(sql,ImprovementStoreR31.DDL);Collections.addAll(sql,ImprovementStoreR31.sourceGuardsR31(db));
         Collections.addAll(sql,ResearchActionSchemaR33.DDL);
         Collections.addAll(sql,DiagnosisSchemaR335.DDL);
+        Collections.addAll(sql,ColdRebirthSchemaR34.DDL);
         return definitions(sql.toArray(new String[0]));
     }
     private static boolean startupSourcePresentR31(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r29_model_checkpoint'",null)){return c.moveToFirst();}}
