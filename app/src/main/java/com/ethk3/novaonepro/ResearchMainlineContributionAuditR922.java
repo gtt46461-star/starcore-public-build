@@ -3,6 +3,10 @@ package com.ethk3.novaonepro;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Per-issue proof of whether an invented asset/algorithm/formula actually changed Production
@@ -85,6 +89,47 @@ public final class ResearchMainlineContributionAuditR922 {
         v.put("record_hash", row.recordHash);
         v.put("created_at", row.createdAt);
         db.insertOrThrow(TABLE, null, v);
+    }
+
+    /** Resolve original rank, canonical authorization and real settlement identities. */
+    public static List<Map<String,Object>> exactRealAttributionR34(SQLiteDatabase db,int limit){
+        List<Map<String,Object>> results=new ArrayList<>();
+        String sql="SELECT e.target_issue,e.candidate_id,e.model_hash,e.certificate_hash,e.proof_hash,e.authorization_hash,"
+            +"t._id,s.record_hash,t.settled,t.actual_number,t.hit,t.pnl,t.result,s.settlement_hash,q.draw_hash,q.settlement_hash"
+            +" FROM r974_exact_real_receipt e JOIN "+DbHelper.TABLE_TRADES+" t"
+            +" ON t._id=e.trade_id AND t.target_issue=e.target_issue AND t.authorization_id=e.authorization_hash"
+            +" JOIN "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s ON s.target_issue=e.target_issue AND s.authorization_hash=e.authorization_hash"
+            +" JOIN "+V51Repository.AUTH+" a ON a.target_issue=e.target_issue AND a.authorization_hash=e.authorization_hash"
+            +" AND a.bundle_hash=s.bundle_hash AND a.contract_hash=s.contract_hash"
+            +" JOIN "+TABLE+" r ON r.target_issue=e.target_issue AND r.candidate_id=e.candidate_id AND r.rank1_hash=e.action_hash"
+            +" LEFT JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" q ON q.target_issue=e.target_issue AND q.status='COMPLETED'"
+            +" WHERE s.game_code=? AND s.pre_draw_frozen=1 AND s.decision_action='BET' AND t.action='BET' AND t.stat_scope='REAL_TRADE'"
+            +" AND t.position=s.position AND t.n1=s.n1 AND t.n2=s.n2 AND t.n3=s.n3 AND r.applied=1"
+            +" ORDER BY e.target_issue DESC LIMIT ?";
+        try(Cursor c=BudgetedQueryR927.query(db,sql,new String[]{V51Repository.GAME_CODE,Integer.toString(Math.max(1,Math.min(100,limit)))})){
+            while(c.moveToNext()){
+                Map<String,Object> row=new LinkedHashMap<>();
+                row.put("targetIssue",c.getString(0));row.put("policy",c.getString(1));row.put("modelHash",c.getString(2));
+                row.put("certificateHash",c.getString(3));row.put("predictionProof",c.getString(4));
+                row.put("authorizationHash",c.getString(5));row.put("tradeId",c.getLong(6));row.put("canonicalHash",c.getString(7));
+                boolean settled=c.getInt(8)==1&&matchesTerminal(c.getLong(6),c.getInt(9),c.getInt(10),
+                    c.getString(12),c.getString(13),c.getString(14),c.getString(15));
+                row.put("state",settled?"SETTLED_EXACT":c.getInt(8)==1?"SETTLEMENT_IDENTITY_UNKNOWN":"BET_AWAITING_SETTLEMENT");
+                if(settled){row.put("hit",c.getInt(10));row.put("pnl",c.getDouble(11));row.put("settlementHash",c.getString(15));}
+                results.add(row);
+            }
+        }
+        return results;
+    }
+
+    static boolean matchesTerminal(long trade,int actual,int hit,String result,String label,String draw,String terminal){
+        if(trade<1||actual<1||actual>10||hit<0||hit>1||!Batch2ContractCoreR926.isSha256(label)
+                ||!Batch2ContractCoreR926.isSha256(draw)||!Batch2ContractCoreR926.isSha256(terminal))return false;
+        String prefix="R36_SETTLEMENT|"+draw+'|'+label+'|';
+        String real=V51ChecksumEngine.sha256("R36_REAL|"+trade+'|'+draw+'|'+actual+'|'+hit);
+        if(terminal.equals(V51ChecksumEngine.sha256(prefix+real+"|COMPLETED")))return true;
+        String replay=V51ChecksumEngine.sha256("R36_REAL_REPLAY|"+trade+'|'+result+'|'+actual);
+        return terminal.equals(V51ChecksumEngine.sha256(prefix+replay+"|COMPLETED"));
     }
 
     public static String recentDetail(DbStore store, int limit) {

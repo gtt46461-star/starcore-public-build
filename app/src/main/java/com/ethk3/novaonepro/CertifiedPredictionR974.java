@@ -337,7 +337,7 @@ public final class CertifiedPredictionR974 {
         else if(store!=null){
             if(!BuildIdentity.isBetCompatible(store.getState(BuildIdentity.STATE_STATUS,"")))error="BUILD_IDENTITY";
             else if(store.hasDrawIssue(proof.target))error="POST_DRAW";
-            else if(store.getTradeByTargetIssue(proof.target)!=null)error="DUPLICATE";
+            else if(store.getTradeByTargetIssue(proof.target)!=null||hasCanonicalBetR34(store.readable(),proof.target))error="DUPLICATE";
             else{
                 error=verifyCertificate(store,proof);
                 if(error.isEmpty()&&proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)
@@ -347,6 +347,13 @@ public final class CertifiedPredictionR974 {
         }
         return new V51CandidateRealGateR915.Evaluation(error.isEmpty(),error.isEmpty()?"ELIGIBLE_CERTIFIED_EXACT_K3":error,
                 proof==null?"NO_QUALIFIED_PROOF":LANE+"|candidate="+proof.candidate+"|certificate="+proof.certificate+"|proof="+proof.hash+"|frequencyCap=NONE");
+    }
+    static boolean hasCanonicalBetR34(SQLiteDatabase db,String target){
+        try(Cursor c=BudgetedQueryR927.query(db,"SELECT 1 FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION
+                +" WHERE game_code=? AND target_issue=? AND decision_action='BET' LIMIT 1",
+                new String[]{V51Repository.GAME_CODE,target})){
+            return c.moveToFirst();
+        }
     }
     static String verifyCertificate(DbStore store,Proof proof){
         try{

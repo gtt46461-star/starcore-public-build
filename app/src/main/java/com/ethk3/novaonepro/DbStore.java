@@ -5350,6 +5350,10 @@ public final class DbStore {
         } finally {
             if (existing != null) existing.close();
         }
+        // An already committed canonical BET remains the only authority even if a legacy trade
+        // projection is missing. Repair of original sealed rows has its own recovery owner.
+        if(CertifiedPredictionR974.hasCanonicalBetR34(db,target))
+            throw new IllegalStateException("R34_ORIGINAL_REAL_TRADE_PROJECTION_MISSING");
         CertifiedPredictionR974.beforeInsert(this,db,result.contract);
         // Exact branch already requires its Proof; only same target is unique. Legacy writers retain their separate policy.
 
