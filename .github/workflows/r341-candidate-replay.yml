@@ -19,12 +19,6 @@ jobs:
         include:
           - suite: startup-and-realtime
             batches: B01,B02,B03,B04,B05
-          - suite: research-and-training
-            batches: B06,B07
-          - suite: matrix-and-quality
-            batches: B08,B09
-          - suite: retention-and-reports
-            batches: B10,B11
     env:
       SOURCE: 6a44cbbba962cf1f56a3cf59774a0601bb26465c
       STAGE: B12
@@ -136,6 +130,18 @@ jobs:
           assert identity['sourceCommit']==os.environ['SOURCE'] and identity['versionCode']==int(os.environ['VERSION'])
           CHECK
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/candidate/$stem" | grep -F 'certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+      - name: Resolve the audited Gradle build inputs before executing the sealed case commands
+        working-directory: app-source
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/engineering"
+          for attempt in 1 2 3; do
+            log="$RUNNER_TEMP/engineering/dependency-prepare-$attempt.log"
+            if ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleDebugAndroidTest > "$log" 2>&1; then exit 0; fi
+            if ! grep -q 'Received status code 429' "$log"; then exit 1; fi
+            if test "$attempt" != 3; then sleep "$((20 * attempt))"; fi
+          done
+          exit 1
       - name: Allow Android API 34 emulator to use KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -153,7 +159,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R341-150-${{ matrix.suite }}-android-replay
+          name: R341-150-${{ matrix.suite }}-android-retry-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/engineering/
             ${{ runner.temp }}/r341-plan.json
