@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "batches",
+    "status"
+  ],
+  "properties": {
+    "batches": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12
+    },
+    "status": {
+      "enum": [
+        "ENGINEERING_COMPLETE",
+        "ENGINEERING_INCOMPLETE"
+      ]
+    }
+  }
+}

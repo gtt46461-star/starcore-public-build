@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "level",
+    "status",
+    "batch",
+    "plan_manifest_sha256"
+  ],
+  "properties": {
+    "level": {
+      "const": "NATURAL"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "NATURAL_PENDING",
+        "FAIL",
+        "BLOCKED",
+        "NOT_RUN"
+      ]
+    }
+  }
+}

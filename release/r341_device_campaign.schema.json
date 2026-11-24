@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "apkSha256",
+    "bootId",
+    "wallEpochSeconds",
+    "uptimeOriginal",
+    "serial"
+  ],
+  "properties": {
+    "apkSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}
