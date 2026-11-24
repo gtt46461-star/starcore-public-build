@@ -47,22 +47,40 @@ public final class AtomNetTrainerR27 {
             epochs.add(new Epoch(e, SplitR27.TRAIN, tr[0], tr[1])); epochs.add(new Epoch(e, SplitR27.SELECT, se[0], se[1]));
             if (se[0] < best - 1e-6) { best = se[0]; bad = 0; bestNet = net.encode(); } else if (++bad >= PATIENCE) { e++; break; }
         }
-        net = AtomNetR27.decode(bestNet); onlineLr = lr * 0.1; checkpoint = net.encode();
-        buffer.clear(); buffer.addAll(train.subList(Math.max(0, train.size() - REPLAY), train.size()));
+        net=AtomNetR27.decode(bestNet);
+        bindSelectReadoutR341(select);
+        onlineLr=lr*.1;checkpoint=net.encode();
+        buffer.clear();
+        int replaySeeds=Math.min(REPLAY,train.size());
+        for(int slot=0;slot<replaySeeds;slot++)buffer.add(train.get(replaySeedIndexR341(slot,train.size(),replaySeeds)));
         events.add("PRETRAINED epochs=" + e + " bestSelectLogloss=" + best + " onlineLr=" + onlineLr);
         nextEpochReceipt = epochs.size();
         return e;
+    }
+
+    /** Cover the entire eligible TRAIN window when seeding the rolling online buffer. */
+    static int replaySeedIndexR341(int slot,int trainCount,int seedCount){
+        return seedCount==1?trainCount-1:(int)((long)slot*(trainCount-1)/(seedCount-1));
     }
 
     /** {log-loss of the hit head, Brier of the hit head, standard error of log-loss}. */
     public static double[] evaluate(AtomNetR27 net, List<Sample> xs) {
         if (xs.isEmpty()) return new double[] {Double.NaN, Double.NaN, Double.NaN};
         StatsR27.Moments ll = new StatsR27.Moments(); double br = 0;
-        for (Sample s : xs) { double p = net.predict(s.x); ll.add(-(s.y == 1 ? Math.log(Math.max(1e-12, p)) : Math.log(Math.max(1e-12, 1 - p)))); br += (p - s.y) * (p - s.y); }
+        for (Sample s : xs) { double p = net.validationHitR341(s.x); ll.add(-(s.y == 1 ? Math.log(Math.max(1e-12, p)) : Math.log(Math.max(1e-12, 1 - p)))); br += (p - s.y) * (p - s.y); }
         return new double[] {ll.mean, br / xs.size(), ll.se()};
     }
 
     void remember(Sample s) { buffer.add(s); if (buffer.size() > REPLAY) buffer.remove(0); }
+
+    private void bindSelectReadoutR341(List<Sample> samples){
+        StatsR27.Moments paired=new StatsR27.Moments();
+        for(Sample sample:samples){
+            double p=net.validationHitR341(sample.x),reference=StatsR27.BASE-sample.y,error=p-sample.y;
+            paired.add(reference*reference-error*error);
+        }
+        net.bindHitReadoutR341(paired);
+    }
 
     /** One online step for a newly settled sample (experience replay). Returns the batch loss. */
     public double online(Sample s) {return online(s,false);}
@@ -97,6 +115,7 @@ public final class AtomNetTrainerR27 {
         double[] h = evaluate(net, developmentBlock); sinceCheck = 0;
         boolean degrade = Double.isFinite(lastCheckLogloss) && h[0] > lastCheckLogloss + 2 * Math.max(h[2], lastCheckSe);
         if (degrade) { net = AtomNetR27.decode(checkpoint); onlineLr *= 0.5; events.add("ROLLBACK_DEGRADED logloss=" + h[0] + " previous=" + lastCheckLogloss); return true; }
+        if(role==ResearchContractR30R1.Role.SELECT)bindSelectReadoutR341(developmentBlock);
         lastCheckLogloss = h[0]; lastCheckSe = h[2]; checkpoint = net.encode(); epochs.add(new Epoch(nextEpochReceipt++, "DEVELOPMENT_VALIDATION", h[0], h[1]));
         return false;
     }

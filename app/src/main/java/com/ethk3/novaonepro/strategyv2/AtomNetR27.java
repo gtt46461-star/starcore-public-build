@@ -39,6 +39,7 @@ public final class AtomNetR27 {
         }
     }
     private OptimizerStep lastStep;
+    private boolean referenceHitReadout;
     OptimizerStep lastStep(){return lastStep;}
 
     public AtomNetR27(int in, long seed) {
@@ -57,6 +58,19 @@ public final class AtomNetR27 {
     public static final class Out { public double pHit; public final double[] pClass = new double[10]; final double[] h1 = new double[H1], h2 = new double[H2]; final boolean[] d1 = new boolean[H1], d2 = new boolean[H2]; }
 
     public Out forward(double[] x, StatsR27.SplitMix dropout) {
+        Out scores=rawForward(x,dropout);
+        if(dropout==null&&referenceHitReadout)scores.pHit=StatsR27.BASE;
+        return scores;
+    }
+
+    double validationHitR341(double[] x){return rawForward(x,null).pHit;}
+    boolean referenceHitReadoutR341(){return referenceHitReadout;}
+    void bindHitReadoutR341(StatsR27.Moments pairedBrierGain){
+        referenceHitReadout=pairedBrierGain.n<BrierSkillR27.MIN_N
+                ||pairedBrierGain.mean-StatsR27.Z95*pairedBrierGain.se()<=0;
+    }
+
+    private Out rawForward(double[] x,StatsR27.SplitMix dropout){
         if (x == null || x.length != in) throw new IllegalArgumentException("R30_MODEL_INPUT_SHAPE");
         Out o = new Out();
         for (int j = 0; j < H1; j++) { double s = b1[j]; for (int i = 0; i < in; i++) s += w1[j * in + i] * x[i]; o.h1[j] = Math.max(0, s); if (dropout != null) { o.d1[j] = dropout.chance(DROPOUT); o.h1[j] = o.d1[j] ? 0 : o.h1[j] / (1 - DROPOUT); } }
@@ -87,7 +101,7 @@ public final class AtomNetR27 {
         for (int i = 0; i < p.length; i++) g[i] = new double[p[i].length];
         double loss = 0;
         for (int b = 0; b < n; b++) {
-            double[] x = xs[b]; Out o = forward(x, rng);
+            double[] x = xs[b]; Out o = rawForward(x, rng);
             loss -= y[b] == 1 ? Math.log(Math.max(1e-12, o.pHit)) : Math.log(Math.max(1e-12, 1 - o.pHit));
             if (cls[b] >= 0) loss -= CE_WEIGHT * Math.log(Math.max(1e-12, o.pClass[cls[b]]));
             double dz = o.pHit - y[b]; double[] dh2 = new double[H2];
@@ -161,7 +175,7 @@ public final class AtomNetR27 {
     public byte[] encode() {
         try {
             ByteArrayOutputStream b = new ByteArrayOutputStream(); DataOutputStream o = new DataOutputStream(b);
-            o.writeInt(0x27A70001); o.writeInt(in); o.writeLong(adamT);
+            o.writeInt(referenceHitReadout?0x27A70002:0x27A70001); o.writeInt(in); o.writeLong(adamT);
             double[][] p = params();
             for (int i = 0; i < p.length; i++) for (double[] a : new double[][] {p[i], m[i], v[i]}) for (double x : a) o.writeDouble(x);
             o.close(); return b.toByteArray();
@@ -170,12 +184,14 @@ public final class AtomNetR27 {
     public static AtomNetR27 decode(byte[] bytes) {
         try {
             DataInputStream d = new DataInputStream(new ByteArrayInputStream(bytes));
-            if (d.readInt() != 0x27A70001) throw new IOException("R27_ATOMNET_ABI");
+            int version=d.readInt();
+            if(version!=0x27A70001&&version!=0x27A70002)throw new IOException("R27_ATOMNET_ABI");
             int input=d.readInt();
             long updates=d.readLong();
             if(input<1||updates<0||bytes.length!=16+24L*(H1*(long)input+H1+H1*H2+2*H2+1+10*H2+10))
                 throw new IOException("R34_ATOMNET_OPTIMIZER_SHAPE");
             AtomNetR27 n = new AtomNetR27(input, 0); n.adamT = updates;
+            n.referenceHitReadout=version==0x27A70002;
             double[][] p = n.params();
             for (int i = 0; i < p.length; i++) for (double[] a : new double[][] {p[i], n.m[i], n.v[i]}) for (int k = 0; k < a.length; k++) {
                 double value=d.readDouble();

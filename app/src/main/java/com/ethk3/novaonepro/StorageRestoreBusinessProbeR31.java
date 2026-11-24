@@ -67,9 +67,9 @@ final class StorageRestoreBusinessProbeR31 {
     private static void verifyLegacyModel(SQLiteDatabase db,byte[] stored,String hash)throws Exception {
         byte[] bytes=CheckpointArtifactsR26.resolveSerializedR31(db,stored);if(bytes==null||bytes.length<4||!StatsR27.sha256(bytes).equals(hash))throw new IOException("RESTORE_LEGACY_MODEL_HASH");
         int magic;try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes))){magic=in.readInt();}
-        if(magic==0x30A70001||magic==0x30A70002||magic==0x30A70003){AtomNetSessionR30.decode(db,stored,hash);return;}
+        if(magic>=0x30A70001&&magic<=0x30A70005){AtomNetSessionR30.decode(db,stored,hash);return;}
         if(magic==0x29A70001||magic==0x29A70002){ModelArtifactR29.decode(db,stored,hash);return;}
-        if(magic==0x27A70001){try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes))){in.readInt();int input=in.readInt();if(input<1||input>4096||in.readLong()<0||(bytes.length-16)%8!=0)throw new IOException("RESTORE_LEGACY_NETWORK_HEADER");while(in.available()>0)if(!Double.isFinite(in.readDouble()))throw new IOException("RESTORE_LEGACY_NETWORK_NONFINITE");}if(!Arrays.equals(bytes,AtomNetR27.decode(bytes).encode()))throw new IOException("RESTORE_LEGACY_NETWORK_CANONICAL_BYTES");return;}
+        if(magic==0x27A70001||magic==0x27A70002){try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(bytes))){in.readInt();int input=in.readInt();if(input<1||input>4096||in.readLong()<0||(bytes.length-16)%8!=0)throw new IOException("RESTORE_LEGACY_NETWORK_HEADER");while(in.available()>0)if(!Double.isFinite(in.readDouble()))throw new IOException("RESTORE_LEGACY_NETWORK_NONFINITE");}if(!Arrays.equals(bytes,AtomNetR27.decode(bytes).encode()))throw new IOException("RESTORE_LEGACY_NETWORK_CANONICAL_BYTES");return;}
         throw new IOException("WAIT_RESTORE_UNSUPPORTED_LEGACY_MODEL_CODEC");
     }
     private static long verifyReplayWorkspaces(DbStore store)throws Exception {

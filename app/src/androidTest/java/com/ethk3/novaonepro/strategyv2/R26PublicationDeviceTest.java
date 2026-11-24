@@ -26,7 +26,17 @@ public final class R26PublicationDeviceTest {
             assertNull("Each fixture must start in a fresh instrumentation process",DatabaseCoordinator.peek());keepFiles=keep;
             app=name==null?new R26RuntimeDeviceTest.Sandbox(InstrumentationRegistry.getInstrumentation().getTargetContext()):new R26RuntimeDeviceTest.Sandbox(InstrumentationRegistry.getInstrumentation().getTargetContext(),name);store=new DbStore(app);db=store.readable();
             if(initialize){
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_PUBLICATION_SCHEMA",w->{RuntimeSchemaR26.ensure(w);R31FixtureSchemaOwners.installSu1WithinWriterR31(w);StrategySchemaSU2.ensure(w);long now=System.currentTimeMillis();w.execSQL("INSERT INTO r26_session VALUES('SYNTHETIC',1,'SYNTHETIC','RUNNING',?,0)",new Object[]{now});w.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,fence,lease_until,owner,status) VALUES('publication-test','P2','test',1,?,'SYNTHETIC','RUNNING')",new Object[]{now+600000});return 0;});
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_PUBLICATION_SCHEMA",w->{RuntimeSchemaR26.ensure(w);R31FixtureSchemaOwners.installSu1WithinWriterR31(w);StrategySchemaSU2.ensure(w);
+                SchemaR27.ensure(w);
+                HypothesisStoreR31.installWithinMigrationR31(w);
+                long now=System.currentTimeMillis();
+                String boot=IssueTimelineWriterR30.bootId();
+                w.execSQL("INSERT INTO r26_session VALUES('SYNTHETIC',1,?,'RUNNING',?,0)",new Object[]{boot,now});
+                w.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,fence,lease_until,owner,status) VALUES('publication-test','P2','test',1,?,'SYNTHETIC','RUNNING')",new Object[]{now+600000});
+                w.execSQL("INSERT INTO r31_task_lease VALUES('publication-test','SYNTHETIC',1,?,?,0)",
+                    new Object[]{boot,android.os.SystemClock.elapsedRealtime()+600000L});
+                RuntimeCoordinatorR26.requireFence(w,claim);
+                return 0;});
             }
             List<Models.Draw> history=new ArrayList<>();for(int i=0;i<count;i++)history.add(draw(i,System.currentTimeMillis()-(count-i+1L)*60000));assertEquals(count,store.saveDraws(history));
         }
