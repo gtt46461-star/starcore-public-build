@@ -629,14 +629,17 @@ public final class R27QualityTest {
         // Audit the actual typed admission hook as well. Native lock/transaction behavior is separately
         // exercised by R31WriteProtocolHost; these JVM checks do not claim Android latency or OS fairness.
         String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java").toPath()), "UTF-8").replaceAll("\\s+", "");
-        int gate = src.indexOf("if(background&&!reentrant&&criticalBusinessWaitersR914.get()>0&&(!serviceSlot||FREEZE_WAITERS_R31.get()>0))");
+        int writer = src.indexOf("runWrite(WriteContextcontext,WriteCallable<T>task,Tfallback)");
+        int gate = src.indexOf("if(background&&!reentrant&&criticalBusinessWaitersR914.get()>0&&(!serviceSlot||FREEZE_WAITERS_R31.get()>0))", writer);
         int lock = src.indexOf("if(writeLock.tryLock(", gate);
-        int deadline = src.lastIndexOf("if(left<=0)thrownewIllegalStateException(\"CP3_DB_BUSY_DEADLINE\");", gate);
-        assertTrue("critical admission and expiry checks precede the sole writer lock", deadline >= 0 && gate > deadline && lock > gate);
+        int deadline = src.indexOf("if(left<=0)budget.beforeStatement(\"WAIT\",TimeSourceR811.monoNowMs());", writer);
+        assertTrue("critical admission and expiry checks precede the sole writer lock", writer >= 0 && deadline > writer && gate > deadline && lock > gate);
+        int researchGate = src.indexOf("elseif(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0", writer);
+        int researchSlot = src.indexOf("serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);", researchGate);
+        int freezeRecheck = src.indexOf("if(background&&!reentrant&&FREEZE_WAITERS_R31.get()>0){writeLock.unlock();continue;}", lock);
         assertTrue("an aged research slot cannot preempt a freeze",
-                src.contains("elseif(research&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
-                        + "&&now-LAST_RESEARCH_SERVICE_R31.get()>=5000L)"
-                        + "serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);"));
+                researchGate > writer && researchSlot > researchGate && researchSlot < deadline && freezeRecheck > lock
+                        && src.substring(researchGate, researchSlot).contains("DATASET_SERVICE_R341.isTurn(context.readyDataset,now)"));
         assertTrue("a fault drain has its own bounded slot and cannot preempt a freeze",
                 src.contains("if(faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
                         + "&&now-LAST_FAULT_SERVICE_R33.get()>=1000L)"
