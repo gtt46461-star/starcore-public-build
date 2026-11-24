@@ -386,6 +386,9 @@ public final class AutoFetchService extends Service {
     private Handler analysisHandler;
     private final Object analysisWorkerRepairLockR811 = new Object();
 
+    private HandlerThread deferredThreadR341;
+    private volatile Handler deferredHandlerR341;
+    private final Runnable deferredWakeR341 = this::scheduleDeferredDrainR36;
     private HandlerThread backfillThread;
     private Handler backfillHandler;
 
@@ -1027,6 +1030,7 @@ public final class AutoFetchService extends Service {
         countdownWorkPostedR964.set(false);
         clearHandlerCallbacksR363(analysisHandler);
         clearHandlerCallbacksR363(learningHandler);
+        clearHandlerCallbacksR363(deferredHandlerR341);
         clearHandlerCallbacksR363(settlementRecoveryHandlerR908);
         clearHandlerCallbacksR363(researchHandlerR908);
         clearHandlerCallbacksR363(microHandler);
@@ -1036,6 +1040,7 @@ public final class AutoFetchService extends Service {
         quitThread(livenessThreadR817);
         quitThread(analysisWatchdogThread);
         quitThread(analysisThread);
+        quitThread(deferredThreadR341);
         quitThread(backfillThread);
         quitThread(backtestThread);
         quitThread(learningThread);
@@ -1043,6 +1048,8 @@ public final class AutoFetchService extends Service {
         quitThread(countdownThreadR973);
         quitThread(researchThreadR908);
         quitThread(microThread);
+        deferredThreadR341 = null;
+        deferredHandlerR341 = null;
         fetchThread = null;
         fetchHandler = null;
         runtimeGuardThread = null;
@@ -1525,6 +1532,9 @@ public final class AutoFetchService extends Service {
             microHandler = new Handler(microThread.getLooper());
             backfillHandler = learningHandler;
             backtestHandler = learningHandler;
+            deferredThreadR341 = new HandlerThread("starcore-r341-deferred-evidence", Process.THREAD_PRIORITY_BACKGROUND);
+            deferredThreadR341.start();
+            deferredHandlerR341 = new Handler(deferredThreadR341.getLooper());
 
             if ((AppConfig.ENABLE_V50_PRIME || AppConfig.ENABLE_V49_FULL_MOE)
                     && learningHandler != null) {
@@ -1932,7 +1942,7 @@ public final class AutoFetchService extends Service {
         realtimeReadExecutorR341.shutdown();
         if(faultMaintenanceR335!=null)faultMaintenanceR335.close();
         teardownThreadsR82 = new Thread[] { startupInitThread,fetchThread,runtimeGuardThread,writerFaultThreadR334,
-                livenessThreadR817,analysisWatchdogThread,analysisThread,backfillThread,backtestThread,
+                livenessThreadR817,analysisWatchdogThread,analysisThread,deferredThreadR341,backfillThread,backtestThread,
                 learningThread,settlementRecoveryThreadR908,countdownThreadR973,researchThreadR908,microThread };
         try {
         cancelExitedAnalysisReleasesR77();
@@ -1971,6 +1981,7 @@ public final class AutoFetchService extends Service {
         quitThread(livenessThreadR817);
         quitThread(analysisWatchdogThread);
         quitThread(analysisThread);
+        quitThread(deferredThreadR341);
         quitThread(backfillThread);
         quitThread(backtestThread);
         quitThread(learningThread);
@@ -2756,6 +2767,7 @@ public final class AutoFetchService extends Service {
         reservedTeacherSlicePostedV8 = false;
         realtimeHistory100Posted = false;
         deferredDrainPostedR367.set(false);
+        clearHandlerCallbacksR363(deferredHandlerR341);
         settlementMaintenancePostedR817.set(false);
         currentExactSettlementPendingR908.set(false);
         currentExactSettlementIssueR908 = "";
@@ -3880,8 +3892,12 @@ public final class AutoFetchService extends Service {
             RuntimeResourceAuditR927.stageEnd("PRE_HISTORY_METADATA",TimeSourceR811.monoNowMs()-preparationStartedR959,true);
             RuntimeResourceAuditR927.stageBegin("HISTORY");
             long historyStartedR927 = TimeSourceR811.monoNowMs();
-            List<Models.Draw> analysisHistory =
-                    prepareAnalysisHistoryR364(request, requests, lease);
+            AnalysisInputEnvelopeR341 envelope = requests.readBoundInput(claimed);
+            if (envelope == null) {
+                List<Models.Draw> analysisHistory = prepareAnalysisHistoryR364(request);
+                envelope = AnalysisInputEnvelopeR341.create(analysisHistory, claimed, lease.ownerId,
+                        RuntimeObservationScopeR341.databaseIdentity(store.readable()));
+            }
             RuntimeResourceAuditR927.stageEnd("HISTORY", TimeSourceR811.monoNowMs()-historyStartedR927, true);
             renewAnalysisLeaseOrThrowR365(requests, request, lease, "HISTORY_PREPARE_DONE");
             final long inputStartedR959=TimeSourceR811.monoNowMs();
@@ -3889,10 +3905,9 @@ public final class AutoFetchService extends Service {
             try (PredrawWakeLeaseR81 predrawWakeR81 =
                     PredrawWakeLeaseR81.acquire(this, claimed.deadlineMonoAt)) {
             RuntimeResourceAuditR927.stageBegin("PIT_FREEZE_AND_BIND");
-            V51RuntimeInputR36 input =
-                    V51RuntimeInputR36.freeze(analysisHistory, claimed);
+            V51RuntimeInputR36 input = envelope.input;
+            claimed = requests.bindHistoryHash(claimed, envelope, lease.ownerId);
             RuntimeEventHooksR926.frozen(store, claimed, input);
-            claimed = requests.bindHistoryHash(claimed, input.historyHash, lease.ownerId);
             setAnalysisState("RUNNING", 35, "R3.6计算号码100与正式动作1200：" + request.targetIssue);
             RuntimeResourceAuditR927.stageEnd("PIT_FREEZE_AND_BIND",TimeSourceR811.monoNowMs()-inputStartedR959,true);
             lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.INFER,3000L);
@@ -4143,16 +4158,12 @@ public final class AutoFetchService extends Service {
     }
 
     /**
-     * A fresh installation receives only five rows from fetchLatest(). Bootstrap the history
-     * endpoint on the sole analysis HandlerThread before freezing B04 input. The 240-row value is
-     * only an upper bound; it is never a prediction gate.
+     * Use the issued target as the database read boundary. Incomplete history requests an
+     * independent background backfill before this attempt can bind its input.
      */
-    private List<Models.Draw> prepareAnalysisHistoryR364(
-            AnalysisSingleFlightR36.Request request,
-            AnalysisRequestStoreR36 requests,
-            AnalysisSingleFlightR36.Lease lease) {
-        List<Models.Draw> history =
-                store.getRecentDraws(R36AnalysisHistoryPolicyR364.MAX_FROZEN_HISTORY);
+    private List<Models.Draw> prepareAnalysisHistoryR364(AnalysisSingleFlightR36.Request request) {
+        List<Models.Draw> history = store.getDrawsBeforeIssue(request.targetIssue,
+                R36AnalysisHistoryPolicyR364.MAX_FROZEN_HISTORY);
         int before = R36AnalysisHistoryPolicyR364.validCount(history);
         int suffixBefore =
                 R36AnalysisHistoryPolicyR364.contiguousSuffixCount(
@@ -4410,13 +4421,16 @@ public final class AutoFetchService extends Service {
     }
 
     private void scheduleDeferredDrainR36() {
-        final Handler h = backfillHandler != null ? backfillHandler : analysisHandler;
+        final Handler h = deferredHandlerR341;
         if (h == null || store == null || !running
                 || !deferredDrainPostedR367.compareAndSet(false, true)) return;
+        final long generation = fetchGenerationR31;
+        h.removeCallbacks(deferredWakeR341);
         boolean posted = h.post(
                 new Runnable() {
                     @Override
                     public void run() {
+                        if (generation != fetchGenerationR31) return;
                         if (!running || store == null) {
                             deferredDrainPostedR367.set(false);
                             return;
@@ -4495,25 +4509,19 @@ public final class AutoFetchService extends Service {
                             store.setState(
                                     "r817_deferred_headroom_bytes",
                                     String.valueOf(memory.headroomBytes));
-                        } catch (Throwable e) {
+                        } catch (RuntimeException e) {
                             lastError = safeError(e);
                         } finally {
-                            deferredDrainPostedR367.set(false);
+                            if (generation == fetchGenerationR31) deferredDrainPostedR367.set(false);
                         }
-                        if (DeferredEvidenceWriterR36.shouldContinueDrain(running, pending)) {
+                        if (generation == fetchGenerationR31 && DeferredEvidenceWriterR36.shouldContinueDrain(running, pending)) {
                             final long delay =
                                     DeferredEvidenceWriterR36.continuationDelayMs(pending,
                                             analysisBusy
                                                     || hasRealtimeAnalysisNeed()
                                                     || RealtimePressureGateR811.hasActiveCriticalWork());
-                            h.postDelayed(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            scheduleDeferredDrainR36();
-                                        }
-                                    },
-                                    delay);
+                            h.removeCallbacks(deferredWakeR341);
+                            h.postDelayed(deferredWakeR341, delay);
                         }
                     }
                 });

@@ -72,7 +72,9 @@ public final class DeferredEvidenceWriterR36 {
         int attempted = 0, completed = 0, failed = 0;
         String last = "NO_PENDING";
         int bound = Math.max(1, Math.min(16, maxJobs));
+        long deadline = TimeSourceR811.monoNowMs() + 600L;
         for (int i = 0; i < bound; i++) {
+            if (TimeSourceR811.monoNowMs() >= deadline) { last = "YIELD_DEFERRED_SLICE_TIME"; break; }
             if (RealtimePressureGateR811.hasActiveCriticalWork()) {
                 last = "YIELD_REALTIME";
                 break;
@@ -122,7 +124,9 @@ public final class DeferredEvidenceWriterR36 {
         int attempted = 0, completed = 0, failed = 0;
         String last = "NO_SETTLED_PENDING";
         int bound = Math.max(1, Math.min(4, maxSlices));
+        long deadline = TimeSourceR811.monoNowMs() + 600L;
         for (int i = 0; i < bound; i++) {
+            if (TimeSourceR811.monoNowMs() >= deadline) { last = "YIELD_DEFERRED_SLICE_TIME"; break; }
             if (AnalysisSingleFlightR36.shared().activeCount() > 0) {
                 last = "YIELD_ACTIVE_ANALYSIS";
                 break;
@@ -181,8 +185,15 @@ public final class DeferredEvidenceWriterR36 {
                 throw new IllegalStateException("CURSOR_RANGE_" + claim.nextActionOrdinal);
             if (claim.nextActionOrdinal < 1200) {
                 int from = claim.nextActionOrdinal;
-                int to =
-                        Math.min(1200, from + AppConfig.R36_DEFERRED_ACTION_CHUNK);
+                int to = from;
+                long bytes = 2048L; // The cursor and its audit receipt are part of the same commit.
+                while (to < Math.min(1200, from + WriteBudgetR341.MAX_ROWS - 2)) {
+                    long rowBytes = actionBindBytes(snapshot.actions.get(to));
+                    if (bytes + rowBytes > WriteBudgetR341.MAX_BIND_BYTES) break;
+                    bytes += rowBytes;
+                    to++;
+                }
+                if (to == from) throw new IllegalStateException("DEFERRED_INTEGRITY_ACTION_ROW_BIND_BOUND:" + from);
                 int advanced = materializeActionChunk(
                         store,
                         snapshot,
@@ -190,7 +201,7 @@ public final class DeferredEvidenceWriterR36 {
                         leaseOwner,
                         from,
                         to,
-                        from / AppConfig.R36_DEFERRED_ACTION_CHUNK);
+                        bytes);
                 return new WriteResult(true, target, "ACTION_SLICE_" + from + '_' + advanced, 100, advanced);
             }
             complete(store, snapshot, claim.snapshotHash, leaseOwner, started);
@@ -199,6 +210,8 @@ public final class DeferredEvidenceWriterR36 {
             failOrRetry(store, target, leaseOwner, claim.attempts, "OOM_CAUGHT", started);
             return new WriteResult(false, target, "OOM_CAUGHT", 0, 0);
         } catch (Throwable e) {
+            Error fatal = com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);
+            if (fatal != null) throw fatal;
             String code=DatabaseCoordinator.describeCauseChain(e,700);
             // Contention is a durable retry outcome, not a process crash. Keep its cause
             // in the job's last_error; corruption and unexpected failures remain crashes.
@@ -208,6 +221,13 @@ public final class DeferredEvidenceWriterR36 {
             return new WriteResult(false, target, trim(code, 180), 0, 0);
         }
     }
+
+    private static long actionBindBytes(DeferredEvidenceSnapshotR36.ActionRow row) {
+        return 256L + utf8Length(row.metaBlob) + utf8Length(row.fingerprint)
+                + utf8Length(row.actionHash) + utf8Length(row.recordHash);
+    }
+
+    private static int utf8Length(String text) { return text == null ? 0 : text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length; }
 
     private static Claim claim(
             final DbStore store, final String target, final String owner, final long now) {
@@ -280,12 +300,14 @@ public final class DeferredEvidenceWriterR36 {
             final String owner, final int from) {
         final int total = 121 + s.spans.size();
         if(from<0 || from>=total)throw new IllegalStateException("CORE_CURSOR_RANGE_"+from);
+        final int limit = Math.min(total, from + 16);
         final int[] advanced = new int[]{from};
         DatabaseCoordinator.TransactionResult<Boolean> out =
                 store.coordinatorR36()
                         .runDeferredTransactionR36(
                                 s.targetIssue,
                                 snapshotHash + "|R927|CORE|FROM|" + from,
+                                limit - from + 2, WriteBudgetR341.MAX_BIND_BYTES,
                                 new DatabaseCoordinator.TransactionCallable<Boolean>() {
                                     @Override
                                     public Boolean call(
@@ -293,7 +315,7 @@ public final class DeferredEvidenceWriterR36 {
                                             DatabaseCoordinator.TransactionContext tx) {
                                         long sliceStarted=TimeSourceR811.monoNowMs();
                                         int cursor=from;
-                                        while(cursor<total) {
+                                        while(cursor<limit) {
                                             if(cursor<100)insertNumber(db,s,s.numbers.get(cursor));
                                             else if(cursor==100)insertPermutation(db,s);
                                             else if(cursor<121) {
@@ -336,7 +358,7 @@ public final class DeferredEvidenceWriterR36 {
                                 },
                                 Boolean.FALSE);
         if (!out.success) throw new IllegalStateException("DEFERRED_CORE_TX:" + out.code,out.failureCause);
-        return advanced[0];
+        return out.replay ? readCommittedSliceCursor(store, s.targetIssue, snapshotHash, from, true) : advanced[0];
     }
 
     private static int materializeActionChunk(
@@ -346,13 +368,14 @@ public final class DeferredEvidenceWriterR36 {
             final String owner,
             final int from,
             final int to,
-            final int chunk) {
+            final long bytes) {
         final int[] advanced = new int[]{from};
         DatabaseCoordinator.TransactionResult<Boolean> out =
                 store.coordinatorR36()
                         .runDeferredTransactionR36(
                                 s.targetIssue,
                                 snapshotHash + "|R927|ACTION|FROM|" + from,
+                                to - from + 2, bytes,
                                 new DatabaseCoordinator.TransactionCallable<Boolean>() {
                                     @Override
                                     public Boolean call(
@@ -402,8 +425,17 @@ public final class DeferredEvidenceWriterR36 {
                                 },
                                 Boolean.FALSE);
         if (!out.success)
-            throw new IllegalStateException("DEFERRED_ACTION_TX_" + chunk + ':' + out.code,out.failureCause);
-        return advanced[0];
+            throw new IllegalStateException("DEFERRED_ACTION_TX_" + from + ':' + out.code,out.failureCause);
+        return out.replay ? readCommittedSliceCursor(store, s.targetIssue, snapshotHash, from, false) : advanced[0];
+    }
+
+    private static int readCommittedSliceCursor(DbStore store, String target, String hash, int before, boolean core) {
+        String column = core ? "core_next_ordinal" : "next_action_ordinal";
+        try (Cursor row = store.readable().rawQuery("SELECT " + column + " FROM " + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
+                + " WHERE target_issue=? AND snapshot_hash=? AND cursor_version=1", new String[]{target, hash})) {
+            if (!row.moveToFirst() || row.getInt(0) <= before) throw new IllegalStateException("DEFERRED_INTEGRITY_COMMIT_CURSOR_MISSING");
+            return row.getInt(0);
+        }
     }
 
     static boolean shouldYieldSlice(int written, long elapsedMs, boolean realtime) {
@@ -889,8 +921,8 @@ public final class DeferredEvidenceWriterR36 {
                                             + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
                                             + " WHERE ((status IN ('PENDING','RETRY_WAIT') AND"
                                             + " next_attempt_at<=?) OR (status='RUNNING' AND"
-                                            + " lease_until<?)) ORDER BY core_materialized DESC,"
-                                            + " next_action_ordinal DESC,target_issue DESC,"
+                                            + " lease_until<?)) ORDER BY target_issue ASC,core_materialized DESC,"
+                                            + " next_action_ordinal DESC,"
                                             + " updated_at ASC LIMIT 1",
                                     new String[] {String.valueOf(now), String.valueOf(now)});
             return c.moveToFirst() ? safe(c.getString(0)) : "";

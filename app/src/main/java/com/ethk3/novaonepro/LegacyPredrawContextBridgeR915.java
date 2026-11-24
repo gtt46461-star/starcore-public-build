@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 public final class LegacyPredrawContextBridgeR915 {
     public static final String TABLE = "v57_legacy_predraw_context_r915";
     public static final String POST_TABLE = "v57_legacy_postsettlement_context_r919";
+    public static final String POST_STATUS_INDEX = "idx_r919_legacy_post_status";
+    private static final String SCHEMA_READY_KEY = "R341_CRITICAL_LEGACY_PREDRAW";
     public static final String NAMESPACE = "LEGACY_FIXED_ASSETS";
 
     public static final class Row {
@@ -45,7 +47,7 @@ public final class LegacyPredrawContextBridgeR915 {
         if (db == null || !db.inTransaction() || result == null || result.selected == null
                 || result.selected.action == null || result.context == null)
             throw new IllegalStateException("R915_LEGACY_CONTEXT_TX_INPUT_INVALID");
-        ensureSchema(db);
+        requireReady(db);
         V51Models.PositionAction action = result.selected.action;
         int p = action.position - 1;
         V51Models.StateTrajectorySnapshot state = result.states != null
@@ -126,9 +128,8 @@ public final class LegacyPredrawContextBridgeR915 {
 
     public static Row read(SQLiteDatabase db, String target) {
         if (db == null || safe(target).length() == 0) return null;
-        // Read paths are deliberately DDL-free.  The table is created by the canonical writer;
-        // attempting CREATE TABLE from a UI/read transaction can upgrade its lock and briefly
-        // block the per-minute settlement writer on older SQLite builds.
+        // The critical schema owner has already installed this table.
+        // A report may still open a historical snapshot from before that migration.
         Cursor c = null;
         try {
             c = db.rawQuery("SELECT teacher_summary,reasoning_summary,reverse_summary,"
@@ -176,9 +177,13 @@ public final class LegacyPredrawContextBridgeR915 {
     public static int settleDraw(final DbStore store,final Models.Draw sourceDraw) {
         if(store==null||sourceDraw==null||!sourceDraw.isValid())return 0;
         final Models.Draw draw=sourceDraw.copy();
-        final SettlementInput input=settlementInput(store.readable(),draw);
+        SQLiteDatabase read = store.readable();
+        requireReady(read);
+        final String drawHash = DrawHashR36.sha256V2(draw);
+        requireAuthoritativeDraw(store, draw.issue, drawHash);
+        final SettlementInput input=settlementInput(read,draw);
         if(input==null)return Integer.valueOf(0);
-        final Row predraw=read(store.readable(),draw.issue);
+        final Row predraw=read(read,draw.issue);
         String status=predraw==null?"NO_PREDRAW_CONTEXT":"ATTRIBUTED_EXACT_DRAW";
         String predrawHash=predraw==null?"":predraw.recordHash;
         String attribution;
@@ -201,14 +206,14 @@ public final class LegacyPredrawContextBridgeR915 {
             feedback="教师反哺=未中样本进入下一期失败向量；审计Teacher反证、第三边界、"
                     +"熵风险、动作稳定性、窗口共识和跨位支持，只允许影响t+1以后学习状态";
         }
-        String drawHash=DrawHashR36.sha256V2(draw);
         String record=V51ChecksumEngine.sha256("R919_LEGACY_POST|"+draw.issue+'|'
                 +predrawHash+'|'+drawHash+'|'+input.actual+'|'+input.hit+'|'
                 +status+'|'+attribution+'|'+feedback);
-        Integer changed=store.coordinatorR36().runWrite("R919_LEGACY_CONTEXT_SETTLEMENT",
+        Integer changed=store.coordinatorR36().runAtomicWriteOrThrowF01("R919_LEGACY_CONTEXT_SETTLEMENT",
                 new DatabaseCoordinator.WriteCallable<Integer>() {
                     @Override public Integer call(SQLiteDatabase db) {
-                        ensureSchema(db);
+                        requireReady(db);
+                        requireAuthoritativeDraw(store, draw.issue, drawHash);
                         SettlementInput current=settlementInput(db,draw);
                         if(current==null||current.position!=input.position||current.actual!=input.actual||current.hit!=input.hit||!current.k3.equals(input.k3)||!current.quantitative.equals(input.quantitative))
                             throw new IllegalStateException("R919_EXPLANATION_SOURCE_CHANGED");
@@ -230,7 +235,7 @@ public final class LegacyPredrawContextBridgeR915 {
                         long id=db.insertWithOnConflict(POST_TABLE,null,cv,SQLiteDatabase.CONFLICT_ABORT);
                         return Integer.valueOf(id>0?1:0);
                     }
-                },Integer.valueOf(0));
+                });
         int rows=changed==null?0:changed.intValue();try{
             store.setState("r919_legacy_postsettlement_issue",draw.issue);
             store.setState("r919_legacy_postsettlement_rows",String.valueOf(rows));
@@ -238,35 +243,68 @@ public final class LegacyPredrawContextBridgeR915 {
         }catch(Throwable ignored){}return rows;
     }
 
-    /** Read-only scan predicate for a settlement task aliased as t.
-     * The optional legacy writer creates its table lazily. Before that first write,
-     * every otherwise eligible task lacks a post row; a missing table must not
-     * prevent the writer from ever being reached. Schema/read errors still escape.
-     */
+    private static void requireAuthoritativeDraw(DbStore store, String target, String hash) {
+        Models.Draw current = store.getDrawByIssue(target);
+        if (current == null || current.dirty != 0 || !current.isValid() || !hash.equals(DrawHashR36.sha256V2(current)))
+            throw new IllegalStateException("R919_EXPLANATION_AUTHORITATIVE_DRAW_CHANGED:" + target);
+    }
+
+    /** Read-only scan predicate for the already-migrated settlement task relation. */
     static String missingPostRowPredicate(SQLiteDatabase db) {
-        try (Cursor c = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
-                new String[]{POST_TABLE})) {
-            if (!c.moveToFirst()) return "1=1";
-        }
+        requireReady(db);
         return "NOT EXISTS(SELECT 1 FROM " + POST_TABLE
                 + " p WHERE p.target_issue=t.target_issue)";
     }
 
-    public static void ensureSchema(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE + " ("
+    private static final String[] DDL = {
+        "CREATE TABLE IF NOT EXISTS " + TABLE + " ("
                 + "target_issue TEXT PRIMARY KEY,position INTEGER NOT NULL,"
                 + "teacher_summary TEXT NOT NULL,reasoning_summary TEXT NOT NULL,"
                 + "reverse_summary TEXT NOT NULL,causal_summary TEXT NOT NULL,"
                 + "feedback_contract TEXT NOT NULL,trend_summary TEXT NOT NULL,"
                 + "shape_summary TEXT NOT NULL,relation_summary TEXT NOT NULL,"
-                + "namespace TEXT NOT NULL,frozen_at INTEGER NOT NULL,record_hash TEXT NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS "+POST_TABLE+" ("
+                + "namespace TEXT NOT NULL,frozen_at INTEGER NOT NULL,record_hash TEXT NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS "+POST_TABLE+" ("
                 +"target_issue TEXT PRIMARY KEY,status TEXT NOT NULL,actual_number INTEGER NOT NULL,"
                 +"hit_label INTEGER NOT NULL,attribution_summary TEXT NOT NULL,feedback_summary TEXT NOT NULL,"
                 +"predraw_record_hash TEXT NOT NULL,draw_hash TEXT NOT NULL,settled_at INTEGER NOT NULL,"
-                +"record_hash TEXT NOT NULL UNIQUE)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_r919_legacy_post_status ON "+POST_TABLE
-                +"(status,settled_at DESC,target_issue DESC)");
+                +"record_hash TEXT NOT NULL UNIQUE)",
+        "CREATE INDEX IF NOT EXISTS idx_r919_legacy_post_status ON "+POST_TABLE
+                +"(status,settled_at DESC,target_issue DESC)",
+    };
+    private static final String[] OBJECTS = { TABLE, POST_TABLE, POST_STATUS_INDEX };
+
+    public static void ensureSchema(SQLiteDatabase db) {
+        // Verify all present definitions before installing a missing object.
+        boolean[] present = schemaPresence(db);
+        for (int i = 0; i < present.length; i++) if (!present[i]) db.execSQL(DDL[i]);
+        requireReady(db);
+    }
+
+    public static void requireReady(SQLiteDatabase db) {
+        if (TransactionSchemaCacheR941.readyCommitted(db, SCHEMA_READY_KEY)) return;
+        boolean[] present = schemaPresence(db);
+        for (int i = 0; i < present.length; i++) {
+            if (!present[i]) throw new DatabaseCoordinator.SchemaPendingR31(SCHEMA_READY_KEY, "MISSING_OBJECT:" + OBJECTS[i]);
+        }
+        TransactionSchemaCacheR941.markCommitted(db, SCHEMA_READY_KEY);
+    }
+
+    private static boolean[] schemaPresence(SQLiteDatabase db) {
+        boolean[] present = new boolean[OBJECTS.length];
+        try (Cursor rows = db.rawQuery("SELECT name,type,sql FROM sqlite_master WHERE name IN (?,?,?)", OBJECTS)) {
+            while (rows.moveToNext()) {
+                String name = rows.getString(0);
+                int index = java.util.Arrays.asList(OBJECTS).indexOf(name);
+                String type = index == 2 ? "index" : "table";
+                if (index < 0 || !type.equals(rows.getString(1))
+                        || !LifecycleSchemaR31.canonical(DDL[index]).equals(LifecycleSchemaR31.canonical(rows.getString(2)))) {
+                    throw new IllegalStateException("R341_INTEGRITY_MIGRATION_CONFLICT:LEGACY_PREDRAW:" + name);
+                }
+                present[index] = true;
+            }
+        }
+        return present;
     }
 
     private static SettlementInput settlementInput(SQLiteDatabase db,Models.Draw draw) {

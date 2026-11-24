@@ -7372,6 +7372,7 @@ public final class DbHelper extends SQLiteOpenHelper {
         ControlledCandidateOpportunityAuditR922.ensureSchema(db);
         ResearchMainlineContributionAuditR922.ensureSchema(db);
         migrateSelectedEvidenceSchemaR911(db);
+        ensureLegacyPredrawCriticalSchemaR341(db);
         requireSchemaObjectR906(db, "table", TABLE_R906_ISSUE_CLOSURE);
         requireSchemaObjectR906(db, "table", TABLE_R906_SETTLEMENT_OUTBOX);
         requireSchemaObjectR906(db, "table", TABLE_R906_SELECTED_EVIDENCE);
@@ -7381,6 +7382,10 @@ public final class DbHelper extends SQLiteOpenHelper {
         requireSchemaObjectR906(db, "index", "idx_r906_closure_status");
         requireSchemaObjectR906(db, "index", "idx_r906_outbox_runnable");
         writeSchemaStateR906(db, "r906_schema_critical_ready", "1", now);
+    }
+
+    static void ensureLegacyPredrawCriticalSchemaR341(SQLiteDatabase db) {
+        LegacyPredrawContextBridgeR915.ensureSchema(db);
     }
 
     private static final String[] R908_GENOME_COLUMNS = {
@@ -7493,7 +7498,7 @@ public final class DbHelper extends SQLiteOpenHelper {
                     + TABLE_R908_ALGORITHM_GENOME
                     + "(status,future_wilson_lower DESC,future_n DESC,updated_at)");
             if (!stagedRegistries) AssetGenesisEngineR915.ensureSchema(db, false);
-            LegacyPredrawContextBridgeR915.ensureSchema(db);
+            LegacyPredrawContextBridgeR915.requireReady(db);
             requireSchemaObjectR906(db, "table", TABLE_R906_RESEARCH_ASSET);
             requireSchemaObjectR906(db, "table", TABLE_R906_RESEARCH_EVAL_COVERAGE);
             requireSchemaObjectR906(db, "table", TABLE_R906_RESEARCH_COMPACT_LABEL);
@@ -7509,9 +7514,6 @@ public final class DbHelper extends SQLiteOpenHelper {
             requireSchemaObjectR906(db, "table", AssetGenesisEngineR915.TABLE_ASSET_CERTIFICATE);
             requireSchemaObjectR906(db, "table", AssetGenesisEngineR915.TABLE_EVOLUTION_EVENT);
             requireSchemaObjectR906(db, "table", CertifiedResearchMixerR915.TABLE_CONTRIBUTION);
-            requireSchemaObjectR906(db, "table", LegacyPredrawContextBridgeR915.TABLE);
-            requireSchemaObjectR906(db, "table", LegacyPredrawContextBridgeR915.POST_TABLE);
-            requireSchemaObjectR906(db, "index", "idx_r919_legacy_post_status");
             requireSchemaObjectR906(db, "index", "idx_r906_asset_tier");
             requireSchemaObjectR906(db, "index", "idx_r906_asset_signature");
             requireSchemaObjectR906(db, "index", "idx_r906_compact_label_issue");

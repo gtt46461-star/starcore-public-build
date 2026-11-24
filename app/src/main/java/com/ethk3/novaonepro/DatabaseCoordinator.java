@@ -621,11 +621,14 @@ public final class DatabaseCoordinator {
                             "CP12_CRITICAL_CANONICAL_REASON_V1",
                             x -> com.ethk3.novaonepro.r952.CanonicalSchemaCP12.installReasons(x));
                 }
+                criticalSchemaStage = SchemaDomainCoordinatorR926.LEGACY_PREDRAW_CRITICAL_STEP_R341;
+                SchemaDomainCoordinatorR926.migrateLegacyPredrawCriticalFromVerifiedStampR341(existingDb);
                 criticalStampReason = SchemaDomainCoordinatorR926.matchReason(existingDb, critical);
                 if (criticalStampReason.startsWith("MATCH")) {
                     verifyCriticalTables(existingDb);
                     SchemaDomainCoordinatorR926.migrateR31TransportTiming(existingDb);
                     SchemaDomainCoordinatorR926.migrateR341ObservationScope(existingDb);
+                    SchemaDomainCoordinatorR926.migrateR341AnalysisInput(existingDb);
                     if (initializer != null) initializer.run(existingDb);
                     // Initializers run before re-stamping: if one changed the schema, the
                     // second compatibility check below refuses to certify unknown drift.
@@ -679,6 +682,8 @@ public final class DatabaseCoordinator {
                         new SchemaDomainCoordinatorR926.Step() {
                             public void run(SQLiteDatabase x) { DbHelper.ensureR906CriticalSchema(x); }
                         });
+                SchemaDomainCoordinatorR926.runStep(db, critical, SchemaDomainCoordinatorR926.LEGACY_PREDRAW_CRITICAL_STEP_R341,
+                        DbHelper::ensureLegacyPredrawCriticalSchemaR341);
                 criticalSchemaStage = "V51_RUNTIME_SCHEMA";
                 SchemaDomainCoordinatorR926.runStep(db, critical, "V51_RUNTIME_SCHEMA",
                         new SchemaDomainCoordinatorR926.Step() {
@@ -713,6 +718,7 @@ public final class DatabaseCoordinator {
                 SchemaDomainCoordinatorR926.verifyAndStamp(db, critical);
                 SchemaDomainCoordinatorR926.migrateR31TransportTiming(db);
                 SchemaDomainCoordinatorR926.migrateR341ObservationScope(db);
+                SchemaDomainCoordinatorR926.migrateR341AnalysisInput(db);
 
                 criticalSchemaReady.set(true);
                 criticalSchemaStage = "READY";
@@ -863,6 +869,7 @@ public final class DatabaseCoordinator {
 
     private static void verifyCriticalTables(SQLiteDatabase db) {
         SchemaDomainCoordinatorR926.verifyObjects(db, SchemaDomainCoordinatorR926.criticalContract());
+        LegacyPredrawContextBridgeR915.requireReady(db);
         try (Cursor c = db.rawQuery("SELECT canonical_reason_json,canonical_reason_hash FROM "
                 + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " LIMIT 0", null)) {
             if (c.getColumnCount() != 2) throw new IllegalStateException("CRITICAL_CANONICAL_REASON_SCHEMA");
@@ -1644,6 +1651,11 @@ public final class DatabaseCoordinator {
 
     public <T> TransactionResult<T> runDeferredTransactionR36(
             String targetIssue, String stageKey, TransactionCallable<T> task, T fallback) {
+        return runDeferredTransactionR36(targetIssue, stageKey, 0, 0L, task, fallback);
+    }
+
+    public <T> TransactionResult<T> runDeferredTransactionR36(
+            String targetIssue, String stageKey, int rows, long bytes, TransactionCallable<T> task, T fallback) {
         String key =
                 V51ChecksumEngine.sha256(
                         "R36_DEFERRED|"
@@ -1652,7 +1664,9 @@ public final class DatabaseCoordinator {
                                 + safe(targetIssue)
                                 + '|'
                                 + safe(stageKey));
-        return runR36Transaction("R36_DEFERRED", targetIssue, key, task, fallback);
+        WriteContext deferred = WriteContext.of(WriteClass.RESEARCH_DATA, "R36_DEFERRED")
+                .withWorkload(rows, bytes, rows + 2, 0, true);
+        return runR36Transaction(deferred, targetIssue, key, task, fallback);
     }
 
     /**
@@ -1665,21 +1679,43 @@ public final class DatabaseCoordinator {
             final String idempotencyKey,
             final TransactionCallable<T> task,
             final T fallback) {
+        return runR36Transaction(WriteContext.legacy(operation), targetIssue, idempotencyKey, task, fallback);
+    }
+
+    private <T> TransactionResult<T> runR36Transaction(WriteContext context, String targetIssue,
+            String idempotencyKey, TransactionCallable<T> task, T fallback) {
         if (task == null) return TransactionResult.fail(fallback, "TASK_NULL", "", 0L);
         final TransactionContext tx =
-                new TransactionContext(operation, targetIssue, idempotencyKey);
+                new TransactionContext(context.operation, targetIssue, idempotencyKey);
         if (!tx.valid())
             return TransactionResult.fail(fallback, "TX_CONTEXT_INVALID", tx.transactionHash, 0L);
         try {
-            return runWriteOrThrowF01(operation,new WriteCallable<TransactionResult<T>>() {
+            return runWriteOrThrowF01(context,new WriteCallable<TransactionResult<T>>() {
                 @Override public TransactionResult<T> call(SQLiteDatabase db) {
                     return runExistingR36Transaction(db,tx,task,fallback);
                 }
             });
         } catch(RuntimeException writeFailure) {
             rethrowProcessFatalR31(writeFailure);
+            if (writeFailure instanceof WriteRejectedR31 && ((WriteRejectedR31) writeFailure).commitOutcome == CommitOutcome.UNKNOWN
+                    && resolveR36AuditCommit(idempotencyKey)) {
+                return TransactionResult.ok(fallback, true, tx.transactionHash, 0L);
+            }
             return TransactionResult.fail(fallback,"WRITE_COORDINATION_FAILED:"+safeError(writeFailure),
                     tx.transactionHash,0L,writeFailure);
+        }
+    }
+
+    private boolean resolveR36AuditCommit(String idempotencyKey) {
+        try {
+            if (helper.getWritableDatabase().inTransaction()) return false;
+            try (SQLiteDatabase read = SQLiteDatabase.openDatabase(app.getDatabasePath(AppConfig.DB_NAME).getPath(), null,
+                    SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
+                return alreadyCommitted(read, idempotencyKey);
+            }
+        } catch (RuntimeException unobserved) {
+            rethrowProcessFatalR31(unobserved);
+            return false;
         }
     }
 

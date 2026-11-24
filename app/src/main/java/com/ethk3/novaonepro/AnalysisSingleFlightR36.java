@@ -41,6 +41,8 @@ public final class AnalysisSingleFlightR36 {
     public SubmitResult submit(Request request) {
         if (request == null || !request.valid())
             throw new IllegalArgumentException("R36_REQUEST_INVALID");
+        if (request.deadlineMonoAt <= monotonicNowMs())
+            throw new IllegalStateException("F01_TARGET_DEADLINE_EXPIRED");
         synchronized (lock) {
             if (owner == null) {
                 owner = Lease.acquire(request);
@@ -51,14 +53,20 @@ public final class AnalysisSingleFlightR36 {
                 if (active != 1) throw new IllegalStateException("R36_ACTIVE_NE_1");
                 return SubmitResult.start(owner);
             }
-            if (!owner.targetIssue.equals(request.targetIssue)
+            boolean replacesSameTarget = owner.targetIssue.equals(request.targetIssue)
+                    && request.generation > owner.request.generation;
+            if ((!owner.targetIssue.equals(request.targetIssue) || replacesSameTarget)
                     && (latestPending == null
                             || TargetIssueResolver.compare(
                                             request.targetIssue, latestPending.targetIssue)
-                                    > 0)) {
+                                    > 0
+                            || (request.targetIssue.equals(latestPending.targetIssue)
+                                && request.generation > latestPending.generation))) {
                 latestPending = request;
             }
-            if (TargetIssueResolver.compare(request.targetIssue, owner.targetIssue) > 0) {
+            boolean oldAlreadyOpened = TargetIssueResolver.compare(request.baseIssue, owner.targetIssue) >= 0;
+            if (TargetIssueResolver.compare(request.targetIssue, owner.targetIssue) > 0
+                    && (oldAlreadyOpened || owner.request.deadlineMonoAt <= monotonicNowMs())) {
                 owner.token.requestCancelOnce("NEWER_TARGET:" + request.targetIssue);
             }
             return SubmitResult.queued(

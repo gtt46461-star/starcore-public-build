@@ -68,8 +68,6 @@ public final class AnalysisRequestStoreR36 {
                                         AnalysisSingleFlightR36.Request replay =
                                                 read(db, targetIssue);
                                         if (replay != null) return replay;
-                                        expireSupersededPendingWithinTransaction(
-                                                db, targetIssue, now);
                                         long generation =
                                                 scalarLong(
                                                         db,
@@ -88,6 +86,7 @@ public final class AnalysisRequestStoreR36 {
                                                                 + generation
                                                                 + '|'
                                                                 + now);
+                                        expireSupersededPendingWithinTransaction(db, targetIssue, generation, requestHash, now);
                                         ContentValues cv = new ContentValues();
                                         cv.put("target_issue", targetIssue);
                                         cv.put("base_issue", baseIssue);
@@ -731,69 +730,80 @@ public final class AnalysisRequestStoreR36 {
         return updated.booleanValue();
     }
 
+    AnalysisInputEnvelopeR341 readBoundInput(AnalysisSingleFlightR36.Request request) {
+        SQLiteDatabase db = store.readable();
+        try (Cursor row = db.rawQuery("SELECT history_hash,encoded_hash,body FROM " + AnalysisInputEnvelopeR341.TABLE
+                + " WHERE target_issue=? AND generation=? AND request_hash=?", inputKey(request))) {
+            if (!row.moveToFirst()) return null;
+            byte[] encoded = row.getBlob(2);
+            if (!row.getString(1).equals(DeferredEvidenceSnapshotR36.sha256(encoded)))
+                throw new IllegalStateException("R341_INTEGRITY_ANALYSIS_INPUT_PAYLOAD");
+            AnalysisInputEnvelopeR341 loaded = AnalysisInputEnvelopeR341.decode(encoded, request, RuntimeObservationScopeR341.databaseIdentity(db));
+            if (!row.getString(0).equals(loaded.input.historyHash))
+                throw new IllegalStateException("R341_INTEGRITY_ANALYSIS_INPUT_HISTORY_HASH");
+            return loaded;
+        }
+    }
+
     public AnalysisSingleFlightR36.Request bindHistoryHash(
-            final AnalysisSingleFlightR36.Request request,
-            final String historyHash,
-            final String owner) {
-        if (request == null
-                || !request.valid()
-                || historyHash == null
-                || historyHash.length() != 64)
+            AnalysisSingleFlightR36.Request request, String historyHash, String owner) {
+        return bindHistory(request, historyHash, owner, null);
+    }
+
+    AnalysisSingleFlightR36.Request bindHistoryHash(AnalysisSingleFlightR36.Request request, AnalysisInputEnvelopeR341 envelope, String owner) {
+        return bindHistory(request, envelope.input.historyHash, owner, envelope);
+    }
+
+    private AnalysisSingleFlightR36.Request bindHistory(AnalysisSingleFlightR36.Request request, String historyHash,
+                                                        String owner, AnalysisInputEnvelopeR341 envelope) {
+        if (request == null || !request.valid() || historyHash == null || !historyHash.matches("[a-f0-9]{64}") || safe(owner).isEmpty())
             throw new IllegalArgumentException("R36_HISTORY_BIND_INVALID");
-        Boolean ok =
-                store.coordinatorR36()
-                        .runAtomicWriteOrThrowF01(
-                                "R36_ANALYSIS_HISTORY_BIND",
-                                new DatabaseCoordinator.WriteCallable<Boolean>() {
-                                    @Override
-                                    public Boolean call(SQLiteDatabase db) {
-                                        Cursor c = null;
-                                        try {
-                                            c =
-                                                    db.rawQuery(
-                                                            "SELECT history_hash FROM "
-                                                                    + DbHelper
-                                                                            .TABLE_R36_ANALYSIS_REQUEST
-                                                                    + " WHERE target_issue=? AND generation=?"
-                                                                    + " AND request_hash=? AND status=?"
-                                                                    + " AND lease_owner=? LIMIT 1",
-                                                            new String[] {
-                                                                request.targetIssue,
-                                                                String.valueOf(request.generation),
-                                                                request.requestHash,
-                                                                RUNNING,
-                                                                safe(owner)
-                                                            });
-                                            if (!c.moveToFirst()) return Boolean.FALSE;
-                                            String old = safe(c.getString(0));
-                                            if (old.length() > 0 && !historyHash.equals(old))
-                                                throw new IllegalStateException(
-                                                        "R36_HISTORY_HASH_CONFLICT");
-                                        } finally {
-                                            if (c != null) c.close();
-                                        }
-                                        ContentValues cv = new ContentValues();
-                                        cv.put("history_hash", historyHash);
-                                        cv.put("last_stage", "HISTORY_FROZEN");
-                                        boolean bound = db.update(
-                                                                DbHelper.TABLE_R36_ANALYSIS_REQUEST,
-                                                                cv,
-                                                                "target_issue=? AND generation=?"
-                                                                        + " AND request_hash=? AND status=?"
-                                                                        + " AND lease_owner=?",
-                                                                new String[] {
-                                                                    request.targetIssue,
-                                                                    String.valueOf(request.generation),
-                                                                    request.requestHash,
-                                                                    RUNNING,
-                                                                    safe(owner)
-                                                                }) == 1;
-                                        if (bound) RuntimeEventHooksR926.historyBoundWithinTransaction(db, request, historyHash);
-                                        return bound;
-                                    }
-                                });
-        if (!ok.booleanValue()) throw new IllegalStateException("R36_HISTORY_BIND_FAILED");
+        final byte[] encoded = envelope == null ? null : envelope.encode();
+        final String encodedHash = encoded == null ? "" : DeferredEvidenceSnapshotR36.sha256(encoded);
+        final String selection = "target_issue=? AND generation=? AND request_hash=? AND status=? AND lease_owner=?";
+        final String[] scope = {request.targetIssue, Long.toString(request.generation), request.requestHash, RUNNING, owner};
+        DatabaseCoordinator.WriteContext write = DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.LIVE_FREEZE,
+                "R36_ANALYSIS_HISTORY_BIND");
+        if (request.deadlineMonoAt > 0L) write = write.withDeadlineMonoMs(request.deadlineMonoAt);
+        boolean bound = store.coordinatorR36().runAtomicWriteOrThrowF01(write, db -> {
+            final String old;
+            try (Cursor row = db.rawQuery("SELECT history_hash FROM " + DbHelper.TABLE_R36_ANALYSIS_REQUEST + " WHERE " + selection, scope)) {
+                if (!row.moveToFirst()) return false;
+                old = safe(row.getString(0));
+            }
+            if (!old.isEmpty() && !historyHash.equals(old))
+                throw new IllegalStateException("R36_HISTORY_HASH_CONFLICT|PIT_INPUT_CONFLICT|old=" + old + "|incoming=" + historyHash);
+            if (encoded != null) {
+                envelope.verify(request, RuntimeObservationScopeR341.databaseIdentity(db));
+                if (request.deadlineAt <= System.currentTimeMillis())
+                    throw new IllegalStateException("F01_TARGET_DEADLINE_EXPIRED");
+                try (Cursor opened = db.rawQuery("SELECT 1 FROM " + DrawDependencyInputCP12.SOURCE
+                        + " WHERE issue=? AND dirty=0", new String[]{request.targetIssue})) {
+                    if (opened.moveToFirst()) throw new IllegalStateException("F01_TARGET_ALREADY_OPEN");
+                }
+                db.execSQL("INSERT OR IGNORE INTO " + AnalysisInputEnvelopeR341.TABLE + " VALUES(?,?,?,?,?,?)",
+                        new Object[]{request.targetIssue, request.generation, request.requestHash, historyHash, encodedHash, encoded});
+                try (Cursor saved = db.rawQuery("SELECT encoded_hash,history_hash FROM " + AnalysisInputEnvelopeR341.TABLE
+                        + " WHERE target_issue=? AND generation=? AND request_hash=?", inputKey(request))) {
+                    if (!saved.moveToFirst() || !encodedHash.equals(saved.getString(0)) || !historyHash.equals(saved.getString(1)))
+                        throw new IllegalStateException("R341_PIT_ANALYSIS_INPUT_BIND_CONFLICT");
+                }
+            }
+            if (!old.isEmpty()) return true;
+            ContentValues values = new ContentValues();
+            values.put("history_hash", historyHash);
+            values.put("last_stage", "HISTORY_FROZEN");
+            if (db.update(DbHelper.TABLE_R36_ANALYSIS_REQUEST, values, selection, scope) != 1)
+                throw new IllegalStateException("R341_ANALYSIS_INPUT_LEASE_CAS_LOST");
+            RuntimeEventHooksR926.historyBoundWithinTransaction(db, request, historyHash);
+            return true;
+        });
+        if (!bound) throw new IllegalStateException("R36_HISTORY_BIND_FAILED");
         return request.withHistoryHash(historyHash);
+    }
+
+    private static String[] inputKey(AnalysisSingleFlightR36.Request request) {
+        return new String[]{request.targetIssue, Long.toString(request.generation), request.requestHash};
     }
 
     public TransitionResult markRetry(
@@ -922,7 +932,7 @@ public final class AnalysisRequestStoreR36 {
      * terminalized by Service.
      */
     private static void expireSupersededPendingWithinTransaction(
-            SQLiteDatabase db, String latestTarget, long now) {
+            SQLiteDatabase db, String latestTarget, long successorGeneration, String successorHash, long now) {
         if (db == null || !db.inTransaction())
             throw new IllegalStateException("R36_REQUEST_TX_REQUIRED");
         ContentValues cv = new ContentValues();
@@ -932,14 +942,16 @@ public final class AnalysisRequestStoreR36 {
         cv.put("lease_until", 0L);
         cv.put("next_attempt_at", 0L);
         cv.put("last_stage", EXPIRED);
-        cv.put("error_code", "SUPERSEDED_BY:" + latestTarget);
+        cv.put("error_code", "SUPERSEDED_BY:" + latestTarget + "|generation=" + successorGeneration + "|request=" + successorHash);
         cv.put("repair_version", R36AnalysisLeasePolicyR365.REPAIR_VERSION);
         cv.put("last_transition_at", now);
         db.update(
                 DbHelper.TABLE_R36_ANALYSIS_REQUEST,
                 cv,
-                "target_issue<? AND (status IN (?,?) OR (status=? AND lease_until<?))",
-                new String[] {latestTarget, REQUESTED, RETRY_WAIT, RUNNING, String.valueOf(now)});
+                "target_issue<? AND (status IN (?,?) OR (status=? AND lease_until<?))"
+                        + " AND (deadline_at<=? OR EXISTS(SELECT 1 FROM " + DrawDependencyInputCP12.SOURCE
+                        + " d WHERE d.issue=" + DbHelper.TABLE_R36_ANALYSIS_REQUEST + ".target_issue AND d.dirty=0))",
+                new String[] {latestTarget, REQUESTED, RETRY_WAIT, RUNNING, String.valueOf(now), String.valueOf(now)});
     }
 
     static void markCanonicalCommittedWithinTransaction(

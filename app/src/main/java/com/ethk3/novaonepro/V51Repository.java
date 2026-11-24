@@ -427,6 +427,7 @@ public final class V51Repository {
         final CanonicalObservationWriterR36.CanonicalRecord canonical =
                 CanonicalObservationWriterR36.fromRuntime(
                         request, result, snapshot, snapshotHash, commitAt);
+        final SelectedEvidenceSnapshotR906 selectedEvidence = SelectedEvidenceSnapshotR906.freeze(result, snapshot, commitAt);
         DatabaseCoordinator.TransactionResult<CanonicalCommitResult> outcome =
                 store.coordinatorR36()
                         .runCanonicalTransactionR36(
@@ -456,9 +457,7 @@ public final class V51Repository {
                                         // probability, action stability and number risk are part of
                                         // the immutable pre-draw decision.  They must commit with the
                                         // canonical observation, never in a lossy best-effort task.
-                                        SelectedEvidenceSnapshotR906
-                                                .freeze(result, snapshot, commitAt)
-                                                .insertWithinTransaction(db);
+                                        selectedEvidence.insertWithinTransaction(db);
                                         LegacyPredrawContextBridgeR915.freezeWithinTransaction(
                                                 db, result, commitAt);
                                         insertAuthorizationCoreR36(db, result, snapshot, commitAt);
@@ -549,7 +548,8 @@ public final class V51Repository {
                     CanonicalObservationWriterR36.readView(store, request.targetIssue);
             if (view != null
                     && snapshotHash.equals(view.snapshotHash)
-                    && snapshot.actionSpaceHash.equals(view.actionSpaceHash))
+                    && snapshot.actionSpaceHash.equals(view.actionSpaceHash)
+                    && canonicalBundleMatchesR341(store.readable(), request, result, snapshot, snapshotHash, view.recordHash))
                 return new CanonicalCommitResult(
                         true,
                         true,
@@ -562,6 +562,44 @@ public final class V51Repository {
                         "AUDIT_REPLAY");
         }
         throw new IllegalStateException("R36_CANONICAL_COMMIT_FAILED:" + outcome.code, outcome.failureCause);
+    }
+
+    private static boolean canonicalBundleMatchesR341(SQLiteDatabase db, AnalysisSingleFlightR36.Request request,
+            V51RuntimeResult result, DeferredEvidenceSnapshotR36.Header snapshot, String encodedHash, String canonicalHash) {
+        String issue = request.targetIssue;
+        String sql = "SELECT i.record_hash,i.history_hash,c.action_hash,s.record_hash,s.authorization_hash,a.authorization_hash,"
+                + "l.record_hash,e.action_hash,o.record_hash,m.record_hash,j.snapshot_hash,r.canonical_hash,r.status"
+                + " FROM " + ISSUE + " i JOIN " + CHAMPION + " c USING(target_issue) JOIN " + SELECTED + " s USING(target_issue)"
+                + " JOIN " + AUTH + " a USING(target_issue) JOIN " + LegacyPredrawContextBridgeR915.TABLE + " l USING(target_issue)"
+                + " JOIN " + DbHelper.TABLE_R906_SELECTED_EVIDENCE + " e USING(target_issue)"
+                + " JOIN " + ControlledCandidateOpportunityAuditR922.TABLE + " o USING(target_issue)"
+                + " JOIN " + ResearchMainlineContributionAuditR922.TABLE + " m USING(target_issue)"
+                + " JOIN " + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB + " j USING(target_issue)"
+                + " JOIN " + DbHelper.TABLE_R36_ANALYSIS_REQUEST + " r USING(target_issue)"
+                + " WHERE i.target_issue=? AND a.decision_id=? AND r.request_hash=? AND r.generation=?";
+        try (Cursor rows = db.rawQuery(sql, new String[]{issue, result.authorized.decisionId,
+                request.requestHash, Long.toString(request.generation)})) {
+            if (!rows.moveToFirst() || !snapshot.recordHash.equals(rows.getString(0))
+                    || !snapshot.historyHash.equals(rows.getString(1))
+                    || !result.selected.action.checksum.equals(rows.getString(2))
+                    || !snapshot.recordHash.equals(rows.getString(3))
+                    || !result.authorized.authorizationHash.equals(rows.getString(4))
+                    || !result.authorized.authorizationHash.equals(rows.getString(5))
+                    || !safe(rows.getString(6)).matches("[a-f0-9]{64}")
+                    || !result.selected.action.checksum.equals(rows.getString(7))
+                    || !result.opportunityAuditR922.recordHash.equals(rows.getString(8))
+                    || !result.contributionAuditR922.recordHash.equals(rows.getString(9))
+                    || !encodedHash.equals(rows.getString(10)) || !canonicalHash.equals(rows.getString(11))
+                    || !AnalysisRequestStoreR36.CANONICAL_COMMITTED.equals(rows.getString(12)) || rows.moveToNext()) return false;
+        }
+        try (Cursor real = db.rawQuery("SELECT position,n1,n2,n3,authorization_id FROM " + DbHelper.TABLE_TRADES
+                + " WHERE target_issue=? AND (action='BET' OR stat_scope='REAL_TRADE') LIMIT 2", new String[]{issue})) {
+            if (result.authorized.action != V51Enums.DecisionAction.BET) return !real.moveToFirst();
+            V51Models.PositionAction action = result.selected.action;
+            return real.moveToFirst() && action.position == real.getInt(0) && action.n1 == real.getInt(1)
+                    && action.n2 == real.getInt(2) && action.n3 == real.getInt(3)
+                    && result.authorized.authorizationHash.equals(real.getString(4)) && !real.moveToNext();
+        }
     }
 
     private static void validateCanonicalInputR36(
@@ -616,7 +654,7 @@ public final class V51Repository {
         if (intScalar(
                         db,
                         "SELECT COUNT(1) FROM "
-                                + DbHelper.TABLE_DRAWS
+                                + DrawDependencyInputCP12.SOURCE
                                 + " WHERE issue=? AND dirty=0",
                         new String[] {request.targetIssue})
                 != 0)

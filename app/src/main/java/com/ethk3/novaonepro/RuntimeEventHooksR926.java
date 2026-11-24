@@ -116,6 +116,10 @@ public final class RuntimeEventHooksR926 {
                         "settlement_hash=" + safe(settlementHash) + "|draw_hash=" + safe(drawHash),
                         "SettlementEngine",
                         "SETTLED|" + safe(issue) + '|' + safe(drawHash)));
+        if (!SettlementTaskStoreR36.COMPLETED.equals(status)) {
+            Batch34RuntimeRepositoryR930.recordSettlementWithinTransaction(db, issue, settlementHash, status, drawHash);
+            return;
+        }
         String identity = Batch2ContractCoreR926.learningKey(
                 ReleaseManifestR926.GAME_CODE,
                 issue,

@@ -130,7 +130,6 @@ public final class FetchLedgerR925 {
         final String body = raw == null || raw.body == null ? "" : raw.body;
         final long receivedAt = raw!=null&&raw.bodyCompleteWallMs>0?raw.bodyCompleteWallMs:TimeSourceR811.wallNowMs();
         final long receivedMono=raw!=null&&raw.bodyCompleteMonoMs>0?raw.bodyCompleteMonoMs:android.os.SystemClock.elapsedRealtime();final String receivedBoot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
-        observeTransportR31(store,id,raw);
         final String payloadHash = RawHttpIdentityR34.payloadSha256(body);
         String rawReason = raw == null ? "TRANSPORT_NULL_RESULT" : safe(raw.errorMessage);
         if (rawReason.length() == 0) {
@@ -144,7 +143,19 @@ public final class FetchLedgerR925 {
                 ? ""
                 : status + (transportReason.length() == 0 ? "" : ":" + trim(transportReason, 160));
         final PendingResponseR31 response=new PendingResponseR31(id,payloadHash,status,error,receivedBoot,receivedAt,receivedMono,Math.max(0,elapsed),httpCode);
-        synchronized(PENDING_RESPONSE_R31){PENDING_RESPONSE_R31.put(id,response);while(PENDING_RESPONSE_R31.size()>128){PENDING_RESPONSE_R31.remove(PENDING_RESPONSE_R31.keySet().iterator().next());requestReceiptDropsR31.incrementAndGet();}}
+        synchronized (PENDING_RESPONSE_R31) {
+            PendingResponseR31 first = PENDING_RESPONSE_R31.get(id);
+            if (first != null && (!first.hash.equals(payloadHash) || first.code != httpCode || !first.status.equals(status))) {
+                lastWriteError = "COMPLETE:HTTP_PENDING_RESPONSE_IDENTITY_CONFLICT:" + id;
+                return;
+            }
+            if (first == null) PENDING_RESPONSE_R31.put(id, response);
+            while (PENDING_RESPONSE_R31.size() > 128) {
+                PENDING_RESPONSE_R31.remove(PENDING_RESPONSE_R31.keySet().iterator().next());
+                requestReceiptDropsR31.incrementAndGet();
+            }
+        }
+        observeTransportR31(store,id,raw);
         try{
             boolean saved=store.coordinatorR36().runAtomicWrite("R925_FETCH_COMPLETE",db->ensureReceiptWithinR31(db,id));
             if(saved){receiptDurableR31(id);lastWriteError="";}
@@ -414,17 +425,36 @@ public final class FetchLedgerR925 {
     }
     /** Only the exact successful raw transport object supplies its request identity. */
     static void bindRawResultR82(Models.ApiResult raw,String request) {
-        if(raw!=null&&request!=null)RAW_R82.put(raw,new RawBindingR82(request,RawHttpIdentityR34.payloadSha256(raw.rawJson)));
+        if (raw == null || safe(request).isEmpty()) return;
+        String hash = RawHttpIdentityR34.payloadSha256(raw.rawJson);
+        synchronized (RAW_R82) {
+            RawBindingR82 first = RAW_R82.get(raw);
+            if (first == null) RAW_R82.put(raw, new RawBindingR82(request, hash));
+            else if (!first.request.equals(request) || !first.payload.equals(hash))
+                throw new IllegalStateException("HTTP_RAW_REQUEST_IDENTITY_CONFLICT");
+        }
     }
     /** No SQL and no lookup by issue: bind the actual objects returned by ApiParser. */
     static void bindParsedResultR82(Models.ApiResult raw,Models.ApiResult parsed) {
         RawBindingR82 b=RAW_R82.get(raw);if(b==null||parsed==null)return;
-        observeStageR31(null,b.request,parsed.latestDraw==null?"":parsed.latestDraw.issue,false,true);
         if(!b.payload.equals(RawHttpIdentityR34.payloadSha256(raw.rawJson)))throw new IllegalStateException("HTTP_RAW_BINDING_MUTATED");
         java.util.Set<Models.Draw> seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Models.Draw,Boolean>());
         if(parsed.latestDraw!=null)seen.add(parsed.latestDraw);
         if(parsed.history!=null)seen.addAll(parsed.history);if(parsed.draws!=null)seen.addAll(parsed.draws);
-        for(Models.Draw draw:seen)if(draw!=null&&draw.isValid())DRAW_R82.put(draw,new DrawBindingR82(b.request,b.payload,draw,V51ChecksumEngine.sha256(safe(draw.rawJson)),false));
+        java.util.Map<Models.Draw, DrawBindingR82> prepared = new java.util.IdentityHashMap<>();
+        for (Models.Draw draw : seen) if (draw != null && draw.isValid())
+            prepared.put(draw, new DrawBindingR82(b.request,b.payload,draw,V51ChecksumEngine.sha256(safe(draw.rawJson)),false));
+        synchronized (DRAW_R82) {
+            for (java.util.Map.Entry<Models.Draw, DrawBindingR82> item : prepared.entrySet()) {
+                DrawBindingR82 first = DRAW_R82.get(item.getKey());
+                DrawBindingR82 next = item.getValue();
+                if (first != null && (!first.request.equals(next.request) || !first.payload.equals(next.payload)
+                        || !first.fingerprint.equals(next.fingerprint)))
+                    throw new IllegalStateException("HTTP_PARSED_DRAW_IDENTITY_CONFLICT");
+            }
+            prepared.forEach((draw, binding) -> DRAW_R82.putIfAbsent(draw, binding));
+        }
+        observeStageR31(null,b.request,parsed.latestDraw==null?"":parsed.latestDraw.issue,false,true);
     }
     public static boolean hasDrawBindingR82(Models.Draw draw){return draw!=null&&DRAW_R82.containsKey(draw);}
     public static String canonicalBindingSummaryR82(Models.Draw draw) {

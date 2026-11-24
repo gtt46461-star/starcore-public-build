@@ -1108,6 +1108,19 @@ public final class SchemaDomainCoordinatorR926 {
         }
     }
 
+    static void migrateR341AnalysisInput(SQLiteDatabase db) throws Exception {
+        Contract contract = new Contract("R341_ANALYSIS_INPUT", 1,
+                new String[]{AnalysisInputEnvelopeR341.TABLE, "r341_analysis_input_no_update"});
+        if (matches(db, contract)) return;
+        db.beginTransaction();
+        try {
+            prepareRepairIfDrift(db, contract);
+            runStep(db, contract, "R341_ANALYSIS_INPUT_V1", AnalysisInputEnvelopeR341::ensureSchema);
+            verifyAndStamp(db, contract);
+            db.setTransactionSuccessful();
+        } finally { db.endTransaction(); }
+    }
+
     /** One original Legacy DDL statement, its exact before/after proof and the
      * Critical stamp share a commit. Never authenticate an already drifted
      * layout: only the production owner's declared object may change. */
@@ -1140,7 +1153,45 @@ public final class SchemaDomainCoordinatorR926 {
         finally{if(own&&db.inTransaction())db.endTransaction();}
     }
 
+    static final String LEGACY_PREDRAW_CRITICAL_STEP_R341 = "R341_LEGACY_PREDRAW_CRITICAL_V1";
+
     public static Contract criticalContract() {
+        List<String> objects = new ArrayList<>(Arrays.asList(previousCriticalContractR341().objects));
+        objects.add(LegacyPredrawContextBridgeR915.TABLE);
+        objects.add(LegacyPredrawContextBridgeR915.POST_TABLE);
+        objects.add(LegacyPredrawContextBridgeR915.POST_STATUS_INDEX);
+        return new Contract(DOMAIN_CRITICAL, ReleaseManifestR926.CRITICAL_DOMAIN_REVISION,
+                objects.toArray(new String[0]));
+    }
+
+    /** Recognizes the immediately preceding complete stamp. The stamp and new step commit together. */
+    static void migrateLegacyPredrawCriticalFromVerifiedStampR341(SQLiteDatabase db) throws Exception {
+        Contract current = criticalContract();
+        String currentReason = matchReason(db, current);
+        if (currentReason.startsWith("MATCH")) return;
+        Contract previous = previousCriticalContractR341();
+        String previousReason = matchReason(db, previous);
+        if (!previousReason.startsWith("MATCH")) {
+            if ("FINGERPRINT_MISMATCH".equals(previousReason) || "FINGERPRINT_MISMATCH".equals(currentReason)
+                    || ("CONTRACT_MISMATCH".equals(previousReason) && "CONTRACT_MISMATCH".equals(currentReason))) {
+                throw new IllegalStateException("R341_INTEGRITY_UNRECOGNIZED_CRITICAL_STAMP:"
+                        + previousReason + "|" + currentReason);
+            }
+            return;
+        }
+        db.beginTransaction();
+        try {
+            final String before = fingerprint(db, previous);
+            runStep(db, current, LEGACY_PREDRAW_CRITICAL_STEP_R341, DbHelper::ensureLegacyPredrawCriticalSchemaR341);
+            LegacyPredrawContextBridgeR915.requireReady(db);
+            if (!before.equals(fingerprint(db, previous)))
+                throw new IllegalStateException("R341_INTEGRITY_CRITICAL_PREVIOUS_OBJECT_CHANGED");
+            verifyAndStamp(db, current);
+            db.setTransactionSuccessful();
+        } finally { db.endTransaction(); }
+    }
+
+    static Contract previousCriticalContractR341() {
         return new Contract(
                 DOMAIN_CRITICAL,
                 ReleaseManifestR926.CRITICAL_DOMAIN_REVISION,

@@ -6,8 +6,8 @@ import java.util.List;
  * R3.6.4 live-analysis history policy.
  *
  * <p>The 240-row value is a frozen upper bound, never a warm-up threshold. A fresh install first
- * receives only five rows from the latest endpoint, so the sole analysis owner must bootstrap the
- * history endpoint before entering B04. All decisions remain pre-draw and SHADOW-only.
+ * receives only five rows from the latest endpoint. The history owner supplies the missing
+ * contiguous suffix before the analysis owner can freeze its input.
  */
 public final class R36AnalysisHistoryPolicyR364 {
     public static final int MIN_LIVE_HISTORY = 12;
@@ -34,7 +34,7 @@ public final class R36AnalysisHistoryPolicyR364 {
         if (page == null || !TargetIssueResolver.isValid(base)) return java.util.Collections.emptyList();
         java.util.ArrayList<Models.Draw> window = new java.util.ArrayList<>();
         for (Models.Draw draw : page) {
-            if (draw == null || !draw.isValid() || !TargetIssueResolver.isValid(draw.issue)) continue;
+            if (draw == null || draw.dirty != 0 || !draw.isValid() || !TargetIssueResolver.isValid(draw.issue)) continue;
             int distance = TargetIssueResolver.distance(draw.issue, base);
             if (distance >= 0 && distance < MIN_LIVE_HISTORY) window.add(draw);
         }
@@ -56,6 +56,7 @@ public final class R36AnalysisHistoryPolicyR364 {
             for (int i = 0; i < history.size(); i++) {
                 Models.Draw draw = history.get(i);
                 if (draw != null
+                        && draw.dirty == 0
                         && draw.isValid()
                         && TargetIssueResolver.isValid(draw.issue)
                         && !TargetIssueResolver.isAfter(draw.issue, baseIssue)) {

@@ -87,21 +87,30 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "8ad7be8025fe60a06d2cf3183bf54310bd1520997d2118d604ca2c9204ce2a65",
-      "before_role": "NUMERIC",
-      "before_sha256": "f7b1da0722b62dee468382820396ba4c4e359bdddd10d2e0636a77b4c3f62f36",
-      "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
-      "rationale": "Bind an immutable phase observation to the existing guarded history update transaction and original deadlines.",
-      "reviewer": "Codex R341 B01 source review"
+      "after_sha256": "285cf0271ddadd60664ad00b190a22dc11661a974e6a91f953a317f36ab4a8ff",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisInputEnvelopeR341.java",
+      "rationale": "Persist the exact immutable PIT history of a leased attempt while keeping the inherited numerical feature hash compatible.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "4bd66084cd9b81a49a4d5579e8c56b20b75d51b3d65ad15fef77c1eb3786b59f",
+      "after_sha256": "d530e049523e7c9b50b3a51e448fd4f74678def669093d538ed62dec76aab68d",
+      "before_role": "NUMERIC",
+      "before_sha256": "f7b1da0722b62dee468382820396ba4c4e359bdddd10d2e0636a77b4c3f62f36",
+      "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+      "rationale": "Bind the frozen PIT envelope and its history hash in the same original lease CAS. Preserve prior identity and only supersede targets with evidence of expiry or draw.",
+      "reviewer": "R34.1 B04 implementation review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "ecdf12c667c45ace66a772e12289f4e09080b744ccf0e797f9edd6c03783460f",
       "before_role": "NUMERIC",
       "before_sha256": "e3bcb8709e3f7541ea7a5de63f1bd9baea21a3cf681ef1834ec7f0d097b068b1",
       "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
-      "rationale": "Reuse the original per-target elapsed deadline mapping for nonblocking control reads without changing the freeze deadline algorithm.",
-      "reviewer": "R34.1 B02 implementation review"
+      "rationale": "Reject elapsed deadlines and keep the single active owner. Supersession requires an authoritative successor base or an expired original deadline.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -141,12 +150,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "a02601b1de1e1c9f88577f26a7a44e061d6ec9a11676bd0e4ed4991eb5723d95",
+      "after_sha256": "a197866e0f55335c152498e3119aca2d72a141a4745ff10c570979f5614c230b",
       "before_role": "NUMERIC",
       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
-      "rationale": "Read a scoped committed draw and decision snapshot instead of synchronously acquiring SQLite from realtime-pressure checks. Dispatch one off-thread history reconciliation.",
-      "reviewer": "R34.1 B02 implementation review"
+      "rationale": "Reuse the durable PIT envelope in the production inference and isolate deferred materialization from analysis and history IO.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -231,12 +240,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "75bb8de541d26dfc2de52e423f79cb1cf1e8e5a98b2b4b036df6bcf40f425b73",
+      "after_sha256": "f63d1f383936b9f215a97c8ec335b1800246609d2d31798f02300d81adef422d",
       "before_role": "NUMERIC",
       "before_sha256": "cfceaf1ae257d90de6668a3855c7f95ac9b373e7935438aeca8c36116e6d8a19",
       "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Verify base, authorized identity and the actual frozen bit during duplicate canonical receipt replay.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -357,12 +366,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "9eca180b446eb22c93354faa25065497e5e5ebff87bf3fd7537ac37f783b548e",
+      "after_sha256": "7fd502ef5230c184cdfbae7dd921c85432e7a64beee04cf53630ad9b41dcbfd7",
       "before_role": "NUMERIC",
       "before_sha256": "25f82b067254b385d620c052ae628df9c11d55c900f7a2cc60377ae11d162f6a",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "Measure acquisition, owned transaction and diagnostics, carry the fixed canonical deadline, arbitrate the dataset turn by its pending input, and retain rollback or ambiguous commit ownership.",
-      "reviewer": "R34.1 B02 implementation review"
+      "rationale": "Migrate only known Critical schema edges and require receipt resolution for ambiguous deferred or canonical commits. Measured deferred writes share the existing writer.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -384,12 +393,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "228e218a392ebec6b604465fe7c14de5bced4a66e6a87fc6e2e151e76663f0af",
+      "after_sha256": "b198b0c464656bb9b06e037bf0e75f821da67fe6a64d5c39fe274b4b7ae68054",
       "before_role": "NUMERIC",
       "before_sha256": "754c01343d9fe165c24869495a07190878fb0d4e68012a4ebe92b550423c8382",
       "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
-      "rationale": "Record the true initial catalog in a durable R906 journal start. On the next writer callback fence the original attempt, validate both manifests, preserve rollback and store the verified target and completion seal atomically. Stamp resumable progress after each durable preparation unit.",
-      "reviewer": "Codex R33.5 vivo field repair"
+      "rationale": "Install the original LegacyPredraw tables in Critical and let Research only verify their exact definitions.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -438,12 +447,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "7c6cc48eef434d6aa6eed13f8f816fd44794148252d81413030add1760facded",
+      "after_sha256": "a2836d1aead1ffffb434cbd513b706b2e21780fd122b5829bff5eb561c8df392",
       "before_role": "NUMERIC",
       "before_sha256": "c1177009f6aca1fffb3deb93027884cca67468c636b6bc974171f7308de3e46e",
       "path": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
-      "rationale": "A known pre-admission deferral waits for resources and preserves its attempt budget and payload.",
-      "reviewer": "R34 B01"
+      "rationale": "Bound actual existing deferred slices by rows, bytes and elapsed time. Read back the durable cursor and prioritize the oldest runnable target.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -573,12 +582,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "8a819d7d7779245bac476c6901e0f4750617f7719b3ccd927733053729f6cc74",
+      "after_sha256": "953b4de28f06d300b81604e7f13398dbec08838e4fc8a4d99dc9fbd8d6a884b3",
       "before_role": "NUMERIC",
       "before_sha256": "a295f734ff385166ea91e75bc4e0aefcacdbd977722e63343d8ef3a7dddd0f37",
       "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
-      "rationale": "Durably bind the exact response to the original request, preserve finalized status, and retry only if original evidence can still be read.",
-      "reviewer": "R34 B02"
+      "rationale": "Preserve the first raw and parsed receipt binding for each request. A conflicting second result cannot replace the pending first response.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -699,12 +708,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "1974e07a968267077da3a1375c176f0ef364cda333b637fcbf1f6c3f6263dd67",
+      "after_sha256": "b2b176e37db2b11cf60274495455547d29b43060235ec7bb90607993be9f7008",
       "before_role": "NUMERIC",
       "before_sha256": "0f321dfaee7243dce171cf948099c6d2c84762023b8a4cde541092b998a54eee",
       "path": "app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Remove DDL from both pre-draw and post-settlement instances, preserve all schema definitions and revalidate the authoritative draw before attribution.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -924,12 +933,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "d36cd492599209112d5cda850ea0c0d0e2cc52f6bdf67efcc86f2e1bba2e5877",
+      "after_sha256": "2163d6a76b0c6eb9d9e713daa3874d2ddc96825bd614ccf65c6fae8610c66e83",
       "before_role": "NUMERIC",
       "before_sha256": "2e4c2b92ae244e5ed3e358b54e69735a47818cadfb371b6feb459cc03adceba9",
       "path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
-      "rationale": "调整尾段恢复策略与正常分析历史入口一致；保留窗口和因果边界，既有未来标签隔离规则继续生效。 本次审阅不授予旧数值规则、历史证书或自然未来成绩继承；原R967/R82判定器与政策保持。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+      "rationale": "Exclude dirty draws from the exact continuous PIT suffix and keep the original twelve-row legal minimum.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -1401,12 +1410,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "0564f5feb0630ba887b7abbd471975fbb2839f75e4e92611f4c006b55b23861e",
+      "after_sha256": "0a6f7f6d03d9c88755ff61c29aa17dabd4f517691ad6311a7065ea8097ebd6f7",
       "before_role": "NUMERIC",
       "before_sha256": "80f44f57d23d3363c9c1c78ad829bc152efad4cbce4727d63b288f81c5b55b63",
       "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java",
-      "rationale": "Bind reportable request input and history proof to the original generation and transaction without widening the production deadline.",
-      "reviewer": "Codex R341 B01 source review"
+      "rationale": "Persist excluded settlement evidence without scheduling an ineligible learning effect. Actual exact successful settlement keeps the same learning identity.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -1509,12 +1518,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "3e22e58555d82cc5d509631baaadc02caeb095280f776f16cdd5acc961e8122d",
+      "after_sha256": "4d27c07e9f3310ee6c3e0860630c3bd655dbabab760fb11eadb0ef766be729d7",
       "before_role": "NUMERIC",
       "before_sha256": "1fe1ae6ad5ec799cea0900ebb828b1dc36cfbcf1c4b12761d753ec91dfcc237c",
       "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
-      "rationale": "Install and certify a dedicated additive scope domain without changing the existing critical and research contracts.",
-      "reviewer": "Codex R341 B01 source review"
+      "rationale": "Allow only the precisely declared Critical addition from the preceding authenticated stamp and preserve unknown drift during startup.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -1878,12 +1887,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "0fae2f8ac9640022d554487e2f5973a9ff4a3d9f44b89704686cf4558e163426",
+      "after_sha256": "79ed2215980bee921ee16c2adf864ab5e74ab0cf1117796c54dd40e4731278bc",
       "before_role": "NUMERIC",
       "before_sha256": "a18823975447bf4615c8e2b73330c7d7a912eac278be4ccb23494e0127d35951",
       "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
-      "rationale": "Pass the existing request deadline to the original canonical transaction without changing prediction numerical inputs or qualification rules.",
-      "reviewer": "R34.1 B02 implementation review"
+      "rationale": "Prepare selected evidence outside the writer and verify the associated canonical bundle and real authorization on audit replay.",
+      "reviewer": "R34.1 B04 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -6278,7 +6287,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "934033b626be8ce4fef50b050ecbbbc9c97cb852e07d4a05b205580cb122a71d",
+  "current_controlled_roles_sha256": "7b68a3985f3030eb2acba9799eedd960977afa7b14382f739b4f3b6f1f226485",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -6310,6 +6319,12 @@
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
       "role": "BUILD_CONTRACT"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisInputEnvelopeR341.java",
+      "rationale": "Persist the exact immutable PIT history of a leased attempt while keeping the inherited numerical feature hash compatible.",
+      "reviewer": "R34.1 B04 implementation review",
+      "role": "NUMERIC"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
@@ -9614,7 +9629,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "9af275a0c2dcbd191c535c164f6ae8c24d59e72c5da5cba560665be96b9695ff",
+  "reviewed_input_provenance_sha256": "e89b256ad2ca26b6ee7eaeaf9b1e2179d1db0827ec76cf34dbbf9d5f60afe1c6",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

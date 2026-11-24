@@ -17,7 +17,7 @@ public final class CanonicalObservationWriterR36 {
         try {
             c =
                     db.rawQuery(
-                            "SELECT record_hash,history_hash,snapshot_hash,action_space_hash FROM "
+                            "SELECT record_hash,history_hash,snapshot_hash,action_space_hash,base_issue,authorization_hash,pre_draw_frozen FROM "
                                     + DbHelper.TABLE_R35_SHADOW_OBSERVATION
                                     + " WHERE target_issue=? LIMIT 1",
                             new String[] {record.targetIssue});
@@ -26,7 +26,9 @@ public final class CanonicalObservationWriterR36 {
                         record.recordHash.equals(safe(c.getString(0)))
                                 && record.historyHash.equals(safe(c.getString(1)))
                                 && record.snapshotHash.equals(safe(c.getString(2)))
-                                && record.actionSpaceHash.equals(safe(c.getString(3)));
+                                && record.actionSpaceHash.equals(safe(c.getString(3)))
+                                && record.baseIssue.equals(safe(c.getString(4)))
+                                && record.authorizationHash.equals(safe(c.getString(5))) && c.getInt(6) == 1;
                 if (!exact) throw new IllegalStateException("R36_CANONICAL_INTEGRITY_CONFLICT");
                 return new WriteResult(
                         true,
