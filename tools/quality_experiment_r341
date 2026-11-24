@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo=$(cd -- "$(dirname -- "$0")/.." && pwd)
+if [ "$#" -ne 2 ]; then
+    echo 'Usage: tools/quality_experiment_r341 OUTPUT_DIRECTORY MAX_STEPS' >&2
+    exit 64
+fi
+source_commit=$(git -C "$repo" rev-parse HEAD)
+if ! git -C "$repo" diff --quiet || ! git -C "$repo" diff --cached --quiet; then
+    echo 'Commit the exact source before running the registered synthetic experiment.' >&2
+    exit 65
+fi
+: "${ANDROID_HOME:?Set ANDROID_HOME to the installed Android SDK}"
+classes="$repo/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+if [ ! -d "$classes" ]; then
+    echo 'Run :app:compileDebugJavaWithJavac from this commit first.' >&2
+    exit 66
+fi
+exec "${JAVA_HOME:+$JAVA_HOME/bin/}java" -Xmx1536m -cp "$classes:$ANDROID_HOME/platforms/android-36/android.jar" \
+    com.ethk3.novaonepro.strategyv2.QualityExperimentR341 "$source_commit" "$1" "$2"

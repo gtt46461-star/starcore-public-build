@@ -38,6 +38,12 @@ public final class SequentialQualificationR27 {
             this.targetActRate = targetActRate;
         }
         public double threshold() { return Math.log(1 / alpha); }
+        String observeContiguousR341(long ordinal,long registeredNext,boolean act,boolean hit){
+            if(ordinal<=lastOrdinal)return state;
+            if(ordinal!=registeredNext||lastOrdinal>=0&&ordinal-lastOrdinal!=1)
+                throw new IllegalArgumentException("R341_QUALIFICATION_CALENDAR_GAP");
+            return observe(ordinal,act,hit);
+        }
         double mean() { return sumU / (n + 1.0); }
         double var() { return Math.max(1e-4, (PRIOR_VAR + sumU2 - sumU * sumU / (n + 1.0)) / (n + 1.0)); }
 

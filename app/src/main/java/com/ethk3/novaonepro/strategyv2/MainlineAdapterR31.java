@@ -13,9 +13,10 @@ public final class MainlineAdapterR31 {
         Prepared(MainlineFreezeProofR31.Authority authority,V51Models.PositionAction[] actions,V51Models.PositionAction head){this.authority=authority;this.actions=actions;rankOne=head;recipe=authority.recipe;}
     }
     public static Prepared prepare(DbStore store,V51Models.PredictionContext context,V51Models.PositionAction[] actions,String candidate,String certificate){
-        if(store==null||context==null||!MainlineFreezeProofR31.candidate(candidate))return null;
+        if(store==null||context==null||!MainlineFreezeProofR31.candidate(candidate)
+                ||!TargetIssueResolver.isValid(context.targetIssue)||!TargetIssueResolver.exact(context.baseIssue,context.targetIssue).valid)return null;
         MainlineFreezeProofR31.Authority proof=MainlineFreezeProofR31.read(store.readable(),TargetIssueResolver.sequenceOrdinalSU1(context.targetIssue),System.currentTimeMillis());
-        if(proof==null||!proof.candidate.equals(candidate)||!proof.certificate.equals(certificate)||!MainlineFreezeProofR31.allows(store,proof,context.targetIssue,proof.deadlineAt)||!TargetIssueResolver.exact(context.baseIssue,context.targetIssue).valid)return null;
+        if(proof==null||!proof.candidate.equals(candidate)||!proof.certificate.equals(certificate)||!MainlineFreezeProofR31.allows(store,proof,context.targetIssue,proof.deadlineAt))return null;
         return rank(proof,actions);
     }
     static Prepared rank(MainlineFreezeProofR31.Authority proof,V51Models.PositionAction[] actions){
@@ -31,7 +32,7 @@ public final class MainlineAdapterR31 {
         K3ActionSpaceEngine.validateOrThrow(out);return new Prepared(proof,out,out[chosen]);
     }
     public static boolean verifyFrozen(DbStore store,CertifiedPredictionR974.Proof proof,V51Models.PositionAction action){
-        if(proof==null||!MainlineFreezeProofR31.candidate(proof.candidate))return false;
+        if(store==null||proof==null||!MainlineFreezeProofR31.candidate(proof.candidate)||!TargetIssueResolver.isValid(proof.target))return false;
         MainlineFreezeProofR31.Authority current=MainlineFreezeProofR31.read(store.readable(),TargetIssueResolver.sequenceOrdinalSU1(proof.target),System.currentTimeMillis());
         if(current==null||!MainlineFreezeProofR31.allows(store,current,proof.target,proof.deadlineAt)||!current.candidate.equals(proof.candidate)||!current.policy.equals(proof.structure)||!current.certificate.equals(proof.certificate)||!current.proofHash.equals(proof.evidence)||!current.modelHash.equals(proof.modelHash)||!current.recipe.equals(proof.recipe)||!MainlineFreezeProofR31.SELECTOR.equals(proof.selectionHash)||!current.calibrationHash.equals(proof.calibrationHash)||Double.compare(current.selectedHitP,proof.selectedHitP)!=0)return false;
         return action==null||action.position==current.position&&action.n1==current.n1&&action.n2==current.n2&&action.n3==current.n3&&action.rank==1;

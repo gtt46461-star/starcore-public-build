@@ -78,7 +78,7 @@ public final class GateV2R29 {
     public static final class Evidence {
         public String policyHash, sequentialState; public long registeredOrdinal = -1, latestOrdinal = -1, opportunities, frozen, actDecisions, settledActs, pendingActs, hits;
         public double[] p = new double[0]; public int[] y = new int[0]; public long[] actOrdinal = new long[0];
-        public String inputHash,registrationOrigin;public long qualificationPrefix=-1,rawSettledActs,rawHits;
+        public String inputHash,registrationOrigin;public long qualificationPrefix=-1,rawSettledActs,rawHits,missingFrozen,lateFrozen;
         public double pairedLcbVsI00 = Double.NaN, pairedLcbVsNull = Double.NaN; public boolean deployed;
     }
     public static final class Verdict { public boolean wouldIssue; public final List<String> failing = new ArrayList<>(); public final Map<String, Object> sections = new LinkedHashMap<>(); }
@@ -124,6 +124,7 @@ public final class GateV2R29 {
         Map<String, Object> fr = new LinkedHashMap<>();
         double futureRate = e.opportunities == 0 ? Double.NaN : e.actDecisions / (double) e.opportunities;
         fr.put("futureActDecisions", e.actDecisions); fr.put("scheduledOpportunities", e.opportunities); fr.put("frozenOpportunities", e.frozen);
+        fr.put("missingFrozenOpportunities",e.missingFrozen);fr.put("lateFrozenOpportunities",e.lateFrozen);
         fr.put("FUTURE_ACT_RATE", fin(futureRate)); fr.put("target", TARGET_ACT_RATE); fr.put("targetMet", Double.isFinite(futureRate) && futureRate >= TARGET_ACT_RATE);
         fr.put("Q02", e.deployed ? "MEASURED_FROM_REAL" : "NOT_DEPLOYED"); fr.put("quota", "never forced");
         v.sections.put("frequency", fr);
@@ -159,17 +160,27 @@ public final class GateV2R29 {
     public static Evidence evidence(SQLiteDatabase ro, String id, long latestOrdinal) {
         Evidence e = new Evidence(); e.policyHash = id; e.latestOrdinal = latestOrdinal;
         try (Cursor c = ro.rawQuery("SELECT state,last_ordinal FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) { if (c.moveToFirst()){e.sequentialState=c.getString(0);e.qualificationPrefix=c.getLong(1);} }
-        try (Cursor c = ro.rawQuery("SELECT min(target_ordinal),sum(CASE WHEN status='FROZEN' THEN 1 ELSE 0 END),sum(CASE WHEN status='FROZEN' AND act=1 THEN 1 ELSE 0 END),"
-                + "sum(CASE WHEN status='FROZEN' AND act=1 AND hit<0 THEN 1 ELSE 0 END) FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal<=?", new String[] {id, String.valueOf(latestOrdinal)})) {
-            if (c.moveToFirst() && !c.isNull(0)) { e.registeredOrdinal = c.getLong(0); e.frozen = c.getLong(1); e.actDecisions = c.getLong(2); e.pendingActs = c.getLong(3); e.opportunities = latestOrdinal - e.registeredOrdinal + 1; }
-        }
         long registered = QualificationInboxR29.calendarStart(ro, id);
         if (registered >= 0) { e.registeredOrdinal = registered; e.opportunities = Math.max(0, latestOrdinal - registered + 1); }
         e.registrationOrigin=QualificationGapRepairR30R1.text(ro,"SELECT origin FROM r29_qual_calendar WHERE experiment_id=?",id);
+        if(registered>=0){
+            String timely="(frozen_at>0 AND deadline_at-frozen_at>="+LiveShadowsR27.FREEZE_MARGIN_MS+")";
+            String freeze="(status IN ('FROZEN','ABSTAIN_SET_SUPPORT') AND "+timely+")";
+            String act="(status='FROZEN' AND act=1 AND "+timely+")";
+            try(Cursor c=ro.rawQuery("SELECT SUM(CASE WHEN "+freeze+" THEN 1 ELSE 0 END),"
+                    +"SUM(CASE WHEN "+act+" THEN 1 ELSE 0 END),SUM(CASE WHEN "+act+" AND hit<0 THEN 1 ELSE 0 END),"
+                    +"SUM(CASE WHEN status='DEADLINE_MISSED' OR (status IN ('FROZEN','ABSTAIN_SET_SUPPORT') AND NOT "+timely+") THEN 1 ELSE 0 END)"
+                    +" FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal>=? AND target_ordinal<=?",
+                    new String[]{id,Long.toString(registered),Long.toString(latestOrdinal)})){
+                if(c.moveToFirst()){e.frozen=c.getLong(0);e.actDecisions=c.getLong(1);e.pendingActs=c.getLong(2);e.lateFrozen=c.getLong(3);}
+            }
+            e.missingFrozen=Math.max(0,e.opportunities-e.frozen-e.lateFrozen);
+        }
         try(Cursor c=ro.rawQuery("SELECT count(*),coalesce(sum(hit),0) FROM r27_live_frozen WHERE policy_hash=? AND status='FROZEN' AND act=1 AND hit IN(0,1) AND target_ordinal<=?",new String[]{id,String.valueOf(latestOrdinal)})){if(c.moveToFirst()){e.rawSettledActs=c.getLong(0);e.rawHits=c.getLong(1);}}
-        StringBuilder input=new StringBuilder(POLICY).append('|').append(id).append('|').append(e.registeredOrdinal).append('|').append(latestOrdinal).append('|').append(e.qualificationPrefix).append('|').append(e.opportunities).append('|').append(e.registrationOrigin);
+        StringBuilder input=new StringBuilder(POLICY).append('|').append(id).append('|').append(e.registeredOrdinal).append('|').append(latestOrdinal).append('|').append(e.qualificationPrefix).append('|').append(e.opportunities).append('|').append(e.registrationOrigin)
+                .append('|').append(e.frozen).append('|').append(e.missingFrozen).append('|').append(e.lateFrozen);
         List<double[]> rows = new ArrayList<>();
-        try (Cursor c = ro.rawQuery("SELECT r.target_ordinal,f.probabilities,f.n1,f.n2,f.n3,r.hit,r.digest FROM r29_qual_receipt r LEFT JOIN r27_live_frozen f ON f.policy_hash=r.experiment_id AND f.target_ordinal=r.target_ordinal AND f.status='FROZEN' AND f.act=1 WHERE r.experiment_id=? AND r.act=1 AND r.target_ordinal<=? ORDER BY r.target_ordinal", new String[] {id, String.valueOf(e.qualificationPrefix)})) {
+        try (Cursor c = ro.rawQuery("SELECT r.target_ordinal,f.probabilities,f.n1,f.n2,f.n3,r.hit,r.digest FROM r29_qual_receipt r LEFT JOIN r27_live_frozen f ON f.policy_hash=r.experiment_id AND f.target_ordinal=r.target_ordinal AND f.status='FROZEN' AND f.act=1 WHERE r.experiment_id=? AND r.act=1 AND r.target_ordinal>=? AND r.target_ordinal<=? ORDER BY r.target_ordinal", new String[] {id,String.valueOf(registered<0?Long.MAX_VALUE:registered),String.valueOf(Math.min(latestOrdinal,e.qualificationPrefix))})) {
             while (c.moveToNext()) {
                 byte[] frozen=c.getBlob(1);double[] pr=frozen==null||frozen.length!=80?new double[0]:StoreR27.unpack(frozen);double p=Double.NaN;
                 input.append('|').append(c.getLong(0)).append(':').append(c.getString(6)).append(':').append(frozen==null?"MISSING_ORIGINAL":StatsR27.sha256(frozen));

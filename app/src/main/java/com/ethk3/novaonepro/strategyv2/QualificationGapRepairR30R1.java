@@ -78,8 +78,9 @@ public final class QualificationGapRepairR30R1 {
     static boolean legalOriginal(Cursor c){return legalOriginal(values(c));}
     static boolean legalOriginal(Object[] row){
         if(!"BEFORE_ORIGINAL_DELETE".equals(row[15])||!com.ethk3.novaonepro.TargetIssueResolver.isValid((String)row[3])||com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1((String)row[3])!=number(row[2]))return false;
-        String status=(String)row[10];if(!status.equals("FROZEN"))return (status.equals("DEADLINE_MISSED")||status.equals("SKIPPED_GAP")||status.equals("ABSTAIN_SET_SUPPORT"))&&number(row[9])==0;
         if(number(row[11])<=0||number(row[12])-number(row[11])<LiveShadowsR27.FREEZE_MARGIN_MS||number(row[4])<1||number(row[4])>10||row[5]==null||((byte[])row[5]).length!=80)return false;
+        String status=(String)row[10];
+        if(!"FROZEN".equals(status))return "ABSTAIN_SET_SUPPORT".equals(status)&&number(row[9])==0;
         int a=(int)number(row[6]),b=(int)number(row[7]),d=(int)number(row[8]);if(a<1||b<1||d<1||a>10||b>10||d>10||a==b||a==d||b==d||number(row[9])<0||number(row[9])>1)return false;
         double sum=0;for(double p:StoreR27.unpack((byte[])row[5])){if(!Double.isFinite(p)||p<0||p>1)return false;sum+=p;}return Math.abs(sum-1)<=1e-9;
     }

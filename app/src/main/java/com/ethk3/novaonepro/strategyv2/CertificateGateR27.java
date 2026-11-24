@@ -44,7 +44,9 @@ public final class CertificateGateR27 {
         return new Verdict(fail.isEmpty(), g, fail);
     }
     static void gate(Map<String, Object> g, List<String> fail, String name, boolean ok, Object value) {
-        Map<String, Object> x = new LinkedHashMap<>(); x.put("pass", ok); x.put("value", value instanceof Double && !Double.isFinite((Double) value) ? null : value); g.put(name, x);
+        Map<String,Object> x=new LinkedHashMap<>();
+        Object observed=value instanceof Double&&!Double.isFinite((Double)value)?null:value;
+        x.put("pass",ok);x.put("value",observed);x.put("state",observed==null?"UNKNOWN":ok?"PASS":"FAIL");g.put(name,x);
         if (!ok) fail.add(name);
     }
 
@@ -54,7 +56,7 @@ public final class CertificateGateR27 {
         double rate=valid?acts/(double)opportunities:Double.NaN;
         double hitRate=valid&&acts>0?hits/(double)acts:Double.NaN;
         double win=com.ethk3.novaonepro.AppConfig.WIN_NET_PROFIT,miss=com.ethk3.novaonepro.AppConfig.MISS_LOSS;
-        double profit=valid?hits*win-(acts-hits)*miss:Double.NaN;
+        double profit=valid&&acts>0?hits*win-(acts-hits)*miss:Double.NaN;
         Map<String,Object> out=new LinkedHashMap<>();
         out.put("opportunities",opportunities);out.put("acts",acts);out.put("hits",hits);out.put("settledActs",acts);
         out.put("coverage",Double.isFinite(rate)?rate:null);out.put("minimumCoverage",.15);out.put("targetCoverage",.30);

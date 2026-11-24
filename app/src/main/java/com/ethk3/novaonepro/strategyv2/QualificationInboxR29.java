@@ -89,6 +89,7 @@ public final class QualificationInboxR29 {
 
     public static final String BLOCK_NONE = "NONE", BLOCK_ACT_PENDING_DRAW = "ACT_PENDING_DRAW", BLOCK_ACT_PENDING_SETTLE = "ACT_PENDING_SETTLE",
             BLOCK_CONFLICT = "CONFLICT", BLOCK_NOT_DUE = "NOT_DUE", BLOCK_MISSING_OPPORTUNITY = "MISSING_OPPORTUNITY";
+    public static final String BLOCK_LATE_FREEZE="FROZEN_LATE", BLOCK_INVALID_FREEZE="PREDRAW_INPUT_UNVERIFIED";
 
     /** R30-B07-01: membership comes from durable FUTURE registrations, never the current H_SELECT rank.
      * Unknown nonterminal states stay protected; controls have no positive, eligible registration here.
@@ -105,9 +106,14 @@ public final class QualificationInboxR29 {
     /** One registered opportunity of an experiment as stored (status/act/numbers frozen before the deadline). */
     public static final class Row {
         public final long ordinal; public final String issue, status; public final int act, n1, n2, n3, hit, actual;
+        final boolean originalTimely;
         /** @param hit stored settlement (-2/-1 = not settled), @param actual drawn number at the frozen position, &lt;1 = no clean draw */
         public Row(long ordinal, String issue, String status, int act, int n1, int n2, int n3, int hit, int actual) {
+            this(ordinal,issue,status,act,n1,n2,n3,hit,actual,true);
+        }
+        Row(long ordinal,String issue,String status,int act,int n1,int n2,int n3,int hit,int actual,boolean originalTimely) {
             this.ordinal = ordinal; this.issue = issue; this.status = status; this.act = act; this.n1 = n1; this.n2 = n2; this.n3 = n3; this.hit = hit; this.actual = actual;
+            this.originalTimely=originalTimely;
         }
         public boolean registeredAct() { return "FROZEN".equals(status) && act == 1; }
     }
@@ -145,6 +151,13 @@ public final class QualificationInboxR29 {
                 p.block = BLOCK_MISSING_OPPORTUNITY; p.blockedOrdinal = expected; break;
             }
             if (r.ordinal > latestOrdinal) { p.block = BLOCK_NOT_DUE; p.blockedOrdinal = r.ordinal; break; }
+            if("DEADLINE_MISSED".equals(r.status)||!r.originalTimely){p.block=BLOCK_LATE_FREEZE;p.blockedOrdinal=r.ordinal;break;}
+            boolean declaredHold="ABSTAIN_SET_SUPPORT".equals(r.status)&&r.act==0;
+            if(!declaredHold&&(!"FROZEN".equals(r.status)||(r.act!=0&&r.act!=1)
+                    ||r.n1<1||r.n1>10||r.n2<1||r.n2>10||r.n3<1||r.n3>10
+                    ||r.n1==r.n2||r.n1==r.n3||r.n2==r.n3)) {
+                p.block=BLOCK_INVALID_FREEZE;p.blockedOrdinal=r.ordinal;break;
+            }
             boolean act = r.registeredAct(), hit = false;
             if (act) {
                 if (r.hit < 0) { p.block = r.actual < 1 ? BLOCK_ACT_PENDING_DRAW : BLOCK_ACT_PENDING_SETTLE; p.blockedOrdinal = r.ordinal; break; }
@@ -157,7 +170,7 @@ public final class QualificationInboxR29 {
                 hit = r.hit == 1;
             }
             double u = act ? (hit ? 1 : 0) - StatsR27.BASE : 0;
-            String after = s.observe(r.ordinal, act, hit);
+            String after = s.observeContiguousR341(r.ordinal, expected<0?r.ordinal:expected, act, hit);
             p.consumed.add(new Consumed(r, act, hit, u, digest(s.policyHash, r), after));
             expected = r.ordinal + 1;
         }
@@ -171,13 +184,17 @@ public final class QualificationInboxR29 {
     public interface Commit { boolean commit(String operation, ResearchWriteQueueR27.Batch batch) throws Exception; }
 
     static final String ROWS = "SELECT f.target_ordinal,f.target_issue,f.status,f.act,f.n1,f.n2,f.n3,f.hit,"
-            + "(SELECT CASE f.position WHEN 1 THEN d.n1 WHEN 2 THEN d.n2 WHEN 3 THEN d.n3 WHEN 4 THEN d.n4 WHEN 5 THEN d.n5 WHEN 6 THEN d.n6 WHEN 7 THEN d.n7 WHEN 8 THEN d.n8 WHEN 9 THEN d.n9 WHEN 10 THEN d.n10 END FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1)"
+            + "(SELECT CASE f.position WHEN 1 THEN d.n1 WHEN 2 THEN d.n2 WHEN 3 THEN d.n3 WHEN 4 THEN d.n4 WHEN 5 THEN d.n5 WHEN 6 THEN d.n6 WHEN 7 THEN d.n7 WHEN 8 THEN d.n8 WHEN 9 THEN d.n9 WHEN 10 THEN d.n10 END FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1),f.frozen_at,f.deadline_at"
             + " FROM r27_live_frozen f WHERE f.policy_hash=? AND f.target_ordinal>? ORDER BY f.target_ordinal LIMIT ";
 
     public static List<Row> rows(SQLiteDatabase ro, String experiment, long after, int limit) {
         List<Row> out = new ArrayList<>();
         try (Cursor c = ro.rawQuery(ROWS + limit, new String[] {experiment, String.valueOf(after)})) {
-            while (c.moveToNext()) out.add(new Row(c.getLong(0), c.getString(1), c.getString(2), c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.isNull(8) ? -1 : c.getInt(8)));
+            while(c.moveToNext()){
+                long frozen=c.getLong(9),deadline=c.getLong(10);
+                out.add(new Row(c.getLong(0),c.getString(1),c.getString(2),c.getInt(3),c.getInt(4),c.getInt(5),
+                    c.getInt(6),c.getInt(7),c.isNull(8)?-1:c.getInt(8),frozen>0&&deadline-frozen>=LiveShadowsR27.FREEZE_MARGIN_MS));
+            }
         }
         return out;
     }

@@ -217,8 +217,13 @@ public final class LiveShadowsR27 {
                     List<String> violations = PitGuardR30.check(f);
                     if (!violations.isEmpty()) { pitViolationsR30(b, s.id, target, violations, "LIVE");ModelSurfaceStoreR30.calls(b,s.id,s.spec,target,cache,modelPrepared,false,"POLICY_PIT:"+String.join(",",violations));continue; }
                 }
+                String status=ok?"FROZEN":"SKIPPED_GAP";
+                if(!ok&&SetIntersectionPolicyR30.exact(s.spec)){
+                    Object support=SetIntersectionPolicyR30.support(s.spec,cache,cache.data.size()-1).get("status");
+                    if("ABSTAIN_INTERSECTION_LT3".equals(support)||"ABSTAIN_CONDITION".equals(support))status="ABSTAIN_SET_SUPPORT";
+                }
                 b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER),?)",
-                        s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : SetIntersectionPolicyR30.exact(s.spec)?"ABSTAIN_SET_SUPPORT":"SKIPPED_GAP", deadline);
+                        s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, status, deadline);
                 ModelSurfaceStoreR30.calls(b,s.id,s.spec,target,cache,modelPrepared,ok,"POLICY_PREDICTION_UNAVAILABLE");
                 if (ok) frozen++; acted += act;
             }
@@ -302,9 +307,11 @@ public final class LiveShadowsR27 {
             double[] blocks = blocks(w.ro, s.id); e.worstBlock = blocks[0]; e.maxLosingStreak = (int) blocks[1];
             e.pairedLcbVsI00 = paired(w.ro, s.id, i00); e.pairedLcbVsNull = paired(w.ro, s.id, nul);
             CertificateGateR27.Verdict v = CertificateGateR27.evaluate(e);
+            GateV2R29.Evidence v2=GateV2R29.evidence(w.ro,s.id,latestOrd);
+            v2.pairedLcbVsI00=e.pairedLcbVsI00;v2.pairedLcbVsNull=e.pairedLcbVsNull;v2.deployed=s.id.equals(deployed);
             // R29-035: an isolated result conflict blocks the certificate until it is resolved (never overwritten).
             List<String> failing = new ArrayList<>(v.failing); boolean issued = v.active;
-            Map<String,Object> future=CertificateGateR27.futureSummary(st.n,st.acts,st.hits);
+            Map<String,Object> future=CertificateGateR27.futureSummary(v2.opportunities,st.acts,st.hits);
             if(!Boolean.TRUE.equals(future.get("coveragePass"))){issued=false;failing.add("FUTURE_COVERAGE_BELOW_15_PERCENT");}
             if(!Boolean.TRUE.equals(future.get("expectedPayoffPositive"))){issued=false;failing.add("FUTURE_PAYOFF_NOT_POSITIVE");}
             RuntimeR27.AtomPublicationR30 modelPublication=rt.atomPublicationR30;
@@ -313,13 +320,14 @@ public final class LiveShadowsR27 {
             if(!"BOUND".equals(calibrationBinding.get("state"))){issued=false;failing.add("CALIBRATION_BINDING_REQUIRED");}
             boolean sourceRevoked=CertificateRevocationR30.blockedPolicy(w.ro,"R27",s.id);
             if(sourceRevoked){issued=false;failing.add("SOURCE_REVISION_REQUIRES_NEW_FUTURE_BINDING");}
-            if (QualificationInboxR29.blockedForCertificate(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_GAP_OR_CONFLICT"); }
+            boolean prefixBlocked=QualificationInboxR29.blockedForCertificate(w.ro,s.id);
+            if(prefixBlocked){issued=false;failing.add("QUALIFICATION_GAP_OR_CONFLICT");}
             if(!"BOUND".equals(qualificationBinding.get("state"))){issued=false;failing.add("QUALIFICATION_ORIGINALS_BINDING_REQUIRED");}
             Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("gateVersion",CertificateGateR27.GATE_VERSION); g.put("failing", new ArrayList<Object>(failing));
             g.put("modelStateBindingR31",modelBinding);g.put("registeredFutureR34",future);
             g.put("gateEvidenceR31",MainlineFreezeProofR31.gateEvidence(e));g.put("calibrationBindingR31",calibrationBinding);
             g.put("qualificationBindingR31",qualificationBinding);
-            GateV2R29.Evidence v2=GateV2R29.evidence(w.ro,s.id,latestOrd);v2.pairedLcbVsI00=e.pairedLcbVsI00;v2.pairedLcbVsNull=e.pairedLcbVsNull;v2.deployed=s.id.equals(deployed);
+            g.put("assetQualityR341",AssetQualityVerdictR341.evaluate(v,v2,st,prefixBlocked,issued));
             g.put("authority",CertificateGateR27.GATE_VERSION);g.put("semanticAbi",s.semanticAbi);g.put("throughOrdinal",latestOrd);g.put("qualificationPrefix",st.lastOrdinal);g.put("canonicalPrefixInputHash",v2.inputHash);g.put("sourceRevision",sourceRevision);g.put("thresholdContractHash",CertificateGateR27.contract().get("contractHash"));
             String digest=StatsR27.sha256(JsonR27.write(g));g.put("inputHash",digest);g.put("evaluatedAt",now);
             final long expectedN=st.n,expectedLast=st.lastOrdinal;final String experiment=s.id;
