@@ -274,7 +274,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             parentPrograms.put(m.hash(),m.spec);
             existingShapes.add(FormulaIdentityR341.structure(m.spec));
         }
-        for (Member m : archive.members()) parentPrograms.putIfAbsent(m.hash(),m.spec);
+        for (PolicySpecR27 member : archive.members()) parentPrograms.putIfAbsent(member.policyHash(),member);
         Set<String> seenThisGen = new HashSet<>();
         Set<String> executableThisGen = new HashSet<>();
         List<Map<String,Object>> formulaEvidence = new ArrayList<>();

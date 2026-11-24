@@ -236,11 +236,15 @@ public final class FoundryCampaignR26 {
     }
     private static void pruneFinishedR31(DbStore store,RuntimeCoordinatorR26.Claim claim){
         ColdRebirthSchemaR34.require(store.readable());
+        final boolean confirmationInstalled;
+        try(Cursor table=store.readable().rawQuery("SELECT 1 FROM sqlite_master WHERE name='r30_frozen_confirm' AND type='table'", null)) {
+            confirmationInstalled=table.moveToFirst();
+        }
         List<String[]> rows=new ArrayList<>();String old="campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status<>'RUNNING' ORDER BY created_at DESC LIMIT -1 OFFSET 2) AND NOT "+ColdRebirthContractR34.protectZeroCandidateSql("r26_candidate")
                 +" AND NOT EXISTS(SELECT 1 FROM r26_candidate active WHERE active.parent=r26_candidate.policy_hash AND active.status='READY')"
                 +" AND NOT EXISTS(SELECT 1 FROM r26_live_model live WHERE live.policy_hash=r26_candidate.policy_hash AND live.status='ACTIVE')"
                 +" AND NOT EXISTS(SELECT 1 FROM r34_cold_rebirth born WHERE born.source_kind='CANDIDATE' AND born.source_campaign=r26_candidate.campaign_id AND born.source_id=r26_candidate.policy_hash)"
-                +" AND NOT EXISTS(SELECT 1 FROM r30_frozen_confirm pending WHERE pending.policy_hash=r26_candidate.policy_hash AND pending.state='PENDING')";
+                +(confirmationInstalled?" AND NOT EXISTS(SELECT 1 FROM r30_frozen_confirm pending WHERE pending.policy_hash=r26_candidate.policy_hash AND pending.state='PENDING')":"");
         try(Cursor c=store.readable().rawQuery("SELECT campaign_id,policy_hash FROM r26_candidate WHERE "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)) ORDER BY campaign_id,policy_hash LIMIT 8",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1)});}
         if(rows.isEmpty())return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_FOUNDRY_RETENTION_SLICE",db->{
             RuntimeCoordinatorR26.requireFence(db,claim);

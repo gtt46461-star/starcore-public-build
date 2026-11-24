@@ -25,8 +25,29 @@ public final class ExpertWorkshopR26 {
         }
         final String id=experiment;
         if(snapshot==null||snapshot.length==0){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_EXPERT_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_expert_experiment SET status='EXPIRED_SOURCE_RETENTION' WHERE experiment_id=?",new Object[]{id});ExpertContinuationR26.preserveExpired(db);return 0;});return 1;}
-        state=CheckpointArtifactsR26.resolve(store,state);if(!LiveStateR26.hash(snapshot).equals(hash)||!LiveStateR26.hash(state).equals(expected))throw new IOException("R26_EXPERT_SOURCE_OR_STATE_HASH");
-        FoundryCampaignR26.Snapshot source=FoundryCampaignR26.Snapshot.decode(snapshot);try(ExpertExperimentR26.Pair pair=ExpertExperimentR26.Pair.decode(state)){
+        final FoundryCampaignR26.Snapshot source;
+        final ExpertExperimentR26.Pair restored;
+        try {
+            state=CheckpointArtifactsR26.resolve(store,state);
+            if(!LiveStateR26.hash(snapshot).equals(hash)||!LiveStateR26.hash(state).equals(expected))
+                throw new IOException("R26_EXPERT_SOURCE_OR_STATE_HASH");
+            source=FoundryCampaignR26.Snapshot.decode(snapshot);
+            restored=ExpertExperimentR26.Pair.decode(state);
+        } catch(IOException|IllegalArgumentException invalid) {
+            final String prior=parent;
+            final String reason=invalid.getMessage()==null?"R26_EXPERT_CHECKPOINT_INVALID":invalid.getMessage();
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_EXPERT_EXPIRE",db->{
+                RuntimeCoordinatorR26.requireFence(db,claims.get());
+                db.execSQL("UPDATE r26_expert_experiment SET status='BLOCKED_ORIGINAL_CHECKPOINT_PRESERVED' "
+                        +"WHERE experiment_id=? AND checkpoint_hash=? AND status='RUNNING'",new Object[]{id,prior});
+                db.execSQL("UPDATE r26_capability SET reason=? WHERE mechanism=?",
+                        new Object[]{"EXPERT_ORIGINAL_CHECKPOINT_PRESERVED:"+id+':'+reason,expert});
+                return 0;
+            });
+            claims.get().reason("EXPERT_OBJECT_ISOLATED:"+id+':'+reason);
+            return 0;
+        }
+        try(ExpertExperimentR26.Pair pair=restored){
         if(pair.cursor!=before||!pair.spec.id.equals(expert))throw new IOException("R26_EXPERT_CURSOR_OR_OWNER_CAS");pair.requireSource(hash,source.ordinal[0],source.through);
         // First service is a completed numerical pair, followed by normal full batches.
         int sampleLimit=8;if(before==0)try(Cursor served=store.readable().rawQuery("SELECT last_progress FROM r26_capability WHERE mechanism=?",new String[]{expert})){if(served.moveToFirst()&&served.getLong(0)==0)sampleLimit=1;}
