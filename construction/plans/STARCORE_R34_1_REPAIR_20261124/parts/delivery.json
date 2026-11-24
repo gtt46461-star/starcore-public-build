@@ -97,6 +97,22 @@
               "changes": [
                 "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。实际清理计划按注册表归类；保护对象不可按缓存删除"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/RetentionWorkingStorageQuotaCP12.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。受限工作区可增量提交；过预算保留既有唯一依据"
+              ]
             }
           ],
           "implementation_steps": [
@@ -117,6 +133,16 @@
               "required_review_ids": [
                 "REV-B10-02",
                 "F3-B10-01"
+              ],
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+                "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+                "app/src/main/java/com/ethk3/novaonepro/RetentionWorkingStorageQuotaCP12.java",
+                "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+                "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+                "app/src/main/java/com/ethk3/novaonepro/StoragePolicyR341.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java"
               ]
             },
             {
@@ -256,6 +282,14 @@
               "changes": [
                 "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。读取匹配快照并可重建缓存；失效缓存不充当唯一原件"
+              ]
             }
           ],
           "implementation_steps": [
@@ -272,7 +306,14 @@
               "scenario": "9份报告，其中一份唯一故障证据、一份共享、一份哈希等价副本",
               "expected": "仅核验副本可自动回收；唯一原件和共享报告保留，空间不足给出保护原因。",
               "evidence": "回收dry-run与实际回执、保留对象hash列表",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+                "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java"
+              ]
             },
             {
               "id": "A-B10-02b",
@@ -384,6 +425,22 @@
               "changes": [
                 "输入原件对象hash、既有恢复request、核验结果；输出状态/隔离原因，不授予资格。由CheckpointRecoveryR335.finish和报告适配层调用；按objectHash+attemptId去重。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。从有效归档恢复受保护对象；错摘要或唯一副本保持保护"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointServiceR31.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。服务响应对应实际保存或恢复；进程死亡后不把请求当成功"
+              ]
             }
           ],
           "implementation_steps": [
@@ -398,7 +455,16 @@
               "scenario": "有匹配备份/哈希不符备份/确无原件各一个",
               "expected": "匹配恢复一次；不符隔离；无源保持可解释缺失；统计分母与各状态加总一致。",
               "evidence": "recovery-ledger.jsonl、流式hash回执、恢复前后引用快照",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+                "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+                "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointServiceR31.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcReachabilityR324.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/RecoveryLedgerR341.java"
+              ]
             },
             {
               "id": "A-B10-03b",
@@ -503,7 +569,12 @@
               "scenario": "5000行但中间断10期；全部连续；跨日边界三组",
               "expected": "分别精确输出缺口/连续；合法期号后继按现有TargetIssueResolver计算，不用整数+1。",
               "evidence": "连续性清单、权威来源hash、epoch提交回执",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+                "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleSummaryR80.java",
+                "app/src/main/java/com/ethk3/novaonepro/r952/LongSummaryBindingsR80.java"
+              ]
             },
             {
               "id": "A-B10-04b",
@@ -588,7 +659,11 @@
               "scenario": "空间不够/已有唯一backup/持有读pin",
               "expected": "安全延后并保留原件；无需Activity重开才能继续重试；不持有大写锁等条件。",
               "evidence": "维护准入回执、reservation、锁等待时间",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+                "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java"
+              ]
             },
             {
               "id": "A-B10-05b",
@@ -760,7 +835,18 @@
               "scenario": "缺表3个、其他查询成功、schemaPending=null",
               "expected": "顶层明确至少3个来源不可用；未知仍null/未知；evidenceComplete可true但健康不PASS。",
               "evidence": "machine-report.json、UI文本快照、96项状态分布核对",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportSourceStateR341.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java"
+              ]
             },
             {
               "id": "A-B11-01b",
@@ -793,7 +879,8 @@
             "report:source-manifest.json",
             "report:runtime-observation-crashSummary.txt",
             "specs/review/charts.md [REV-B11-02]",
-            "specs/field3/runtime.md F3-B11-01"
+            "specs/field3/runtime.md F3-B11-01",
+            "specs/field4/gate.md F4-B11-01"
           ],
           "evidence_status": "OBSERVED_AND_SOURCE_VERIFIED",
           "diagnosis": "当前122启动10:11:43，运行采样约10:17:04；报告facts获取更晚而冻结SQL最新137。历史crash2次最后03:05:56早于当前进程；当前13个LEARNED来自旧FTRL处理历史标签。主路132–137仅133一个canonical，影子133–138有独立记录。成功延迟P95=1370ms只来自2成功事件，不包含超时/丢失机会。",
@@ -901,6 +988,30 @@
               "changes": [
                 "F3-B11-01 修复R923结算分子分母跨历史范围。按 specs/field3/runtime.md 和 A-B11-02b 的正反例实施复验。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F4-B11-01 逐期列示自然获证资产为何使用、未用及已用未结算。见 specs/field4/gate.md"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F4-B11-01 逐期列示自然获证资产为何使用、未用及已用未结算。见 specs/field4/gate.md"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F4-B11-01 逐期列示自然获证资产为何使用、未用及已用未结算。见 specs/field4/gate.md"
+              ]
             }
           ],
           "implementation_steps": [
@@ -909,7 +1020,8 @@
             "按B04已登记的目标机会生成实时服务分母，报告一并显示成功延迟和所有失败类别；maintenance/等待不默默剔除。",
             "用现场旧crash、13LEARNED、主1/6与影5已结算构成反串扰回归。",
             "REV-B11-02 ChartRegistryR31.R83_VISIBLE 配合 ChartsRepositoryR83.loadPanel/actionCandles/hitTrend 和 ReportObjectIndexR30.build，role 依正常SQL来源确定。探索模拟K线和两张R35预测趋势带SHADOW，不进入REAL、也不计为原始开奖；主链通过唯一决策和实际结算单列。",
-            "F3-B11-01 统一 coverage 与 coverageSnapshotCP4 的机会集、游戏、决策角色、版本和时间窗。先按同一集合的合法赛前R35与权威开奖构造eligible，再在集合内关联已结算及严格标签；保留已移出热历史的历史标签与无冻结目标的独立计数。两条入口对读取错误和零分母使用有原因的未知。"
+            "F3-B11-01 统一 coverage 与 coverageSnapshotCP4 的机会集、游戏、决策角色、版本和时间窗。先按同一集合的合法赛前R35与权威开奖构造eligible，再在集合内关联已结算及严格标签；保留已移出热历史的历史标签与无冻结目标的独立计数。两条入口对读取错误和零分母使用有原因的未知。",
+            "F4-B11-01 从完整机会日历按目标重建候选资格、ACT、有效开关、实际最终选择及截止、唯一授权、交易、结算。明确自然证书零与有当用未用目标的两种不同状态，定位最早缺失的原件。"
           ],
           "acceptance": [
             {
@@ -917,17 +1029,26 @@
               "scenario": "新安装读到旧crash/旧Q08 120计划0完成/旧FTRL学习",
               "expected": "当前进程不背旧crash；旧数据可见且明确历史，Q08仍UNKNOWN_STALE_SYNTHETIC_SOURCE，当前训练不虚增。",
               "evidence": "scope连接校验、报告与UI同值对照",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java",
+                "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+                "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+                "app/src/main/java/com/ethk3/novaonepro/SettlementCoverageTruthR906.java"
+              ]
             },
             {
               "id": "A-B11-02b",
               "scenario": "2成功、3超时、1未启动，混入shadow成功",
-              "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。 F3-B11-01 构造热 draws 仅一条有效赛前预测、两个历史已结算标签留存及一个无冻结开奖，旧查询能得3/1。新热集必须1/1；历史两条、无冻结一条各有独立归属。再覆盖无标签、无分母、同一期异角色、缺表；在线与导出同原件同结果，禁止截成100%或把异常记零。",
+              "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。 F3-B11-01 构造热 draws 仅一条有效赛前预测、两个历史已结算标签留存及一个无冻结开奖，旧查询能得3/1。新热集必须1/1；历史两条、无冻结一条各有独立归属。再覆盖无标签、无分母、同一期异角色、缺表；在线与导出同原件同结果，禁止截成100%或把异常记零。 F4-B11-01 正例：工程构造无资格、弃权、未被选中、合法胜者已出手、已出手待结算及应出手却漏用各一类；每个目标都能回读原因并与真实账和唯一选中者对齐。自然首次出现时复用相同对账。 反例：移去或换目标的 trade/receipt，加入正权重研发行、资格或 R35 普通影子行，不能抬高 REAL 计数；无合法机会时部署效果为待观察。",
               "evidence": "事件夹具、指标分母明细、逐期timeline",
               "level": "ENGINEERING",
               "required_review_ids": [
                 "REV-B11-02",
-                "F3-B11-01"
+                "F3-B11-01",
+                "F4-B11-01"
               ]
             }
           ],
@@ -940,7 +1061,8 @@
           ],
           "required_review_ids": [
             "REV-B11-02",
-            "F3-B11-01"
+            "F3-B11-01",
+            "F4-B11-01"
           ]
         },
         {
@@ -1066,6 +1188,14 @@
               "changes": [
                 "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。诊断读回同范围原件；不同水位或缺源不能拼成成功"
+              ]
             }
           ],
           "implementation_steps": [
@@ -1082,7 +1212,16 @@
               "scenario": "旧LIVE/7229 refs与当前缺表/0当前帧同时存在",
               "expected": "旧内容可追溯但不当当前成果；当前缺表给真实R341票和初始化证据链，不能靠旧计数消警。",
               "evidence": "诊断diff、finding/issue映射及链接校验",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+                "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+                "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+                "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java"
+              ]
             },
             {
               "id": "A-B11-03b",
@@ -1208,6 +1347,14 @@
                 "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。",
                 "REV-B11-04 将分页负例改为真实可达的数据库状态。实施入口与反例见 specs/review/charts.md / A-B11-04b。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。仓储读取已发布图帧并在页面回读；缺源保留未知或错误"
+              ]
             }
           ],
           "implementation_steps": [
@@ -1227,6 +1374,17 @@
               "level": "ENGINEERING",
               "required_review_ids": [
                 "REV-B11-03"
+              ],
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/ChartPageReadR34.java",
+                "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+                "app/src/main/java/com/ethk3/novaonepro/MainActivityTruthPresenterR926.java",
+                "app/src/main/java/com/ethk3/novaonepro/ResearchVisualDataR82.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+                "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+                "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+                "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java"
               ]
             },
             {
@@ -1364,6 +1522,11 @@
               "level": "ENGINEERING",
               "required_review_ids": [
                 "REV-B11-07"
+              ],
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java"
               ]
             },
             {
@@ -1468,6 +1631,14 @@
               "changes": [
                 "REV-B11-05 报告与赛前服务并行，并验手机端持久保存。实施入口与反例见 specs/review/storage.md / A-B11-06b。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。导出读回当前业务证据的来源；缺原件不能标完整"
+              ]
             }
           ],
           "implementation_steps": [
@@ -1483,7 +1654,12 @@
               "scenario": "DIAGNOSTIC缺DB/APK/模型但96检查有状态",
               "expected": "语义范围完整可true；字节全量false，明确不能独立复算所有模型；健康仍按失败项。",
               "evidence": "实际ZIP枚举、范围声明、首页快照",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+                "app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java"
+              ]
             },
             {
               "id": "A-B11-06b",
@@ -1583,6 +1759,14 @@
                 "读取B01新增release/r341_plan_binding.json与其build identity输出，并核对R33/R34历史封印，输出只读校验回执。",
                 "sourceBaseline必须5562f9b19aa09f9f7d9e69ca085db56c537967fc；planCommit固定真实已提交的方案commit；从clean HEAD推导sourceCommit，输出回执不写回源树。"
               ]
+            },
+            {
+              "path": "release/release_manifest.json",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。发布清单与构建物匹配；其他提交清单不可签收"
+              ]
             }
           ],
           "implementation_steps": [
@@ -1597,7 +1781,11 @@
               "scenario": "正确封印及三种篡改输入",
               "expected": "正确通过；每种篡改拒绝；B01起始APK与B12最终APK身份可关联同一计划版本。",
               "evidence": "identity-verification.json、负例日志、三层封印hash",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "release/release_manifest.json",
+                "tools/r341/verify_delivery_identity.py"
+              ]
             },
             {
               "id": "A-B12-01b",
@@ -1693,7 +1881,10 @@
               "scenario": "更高安装版本/缺设备/缺签名/签名不符",
               "expected": "版本按真实上限递增；缺设备仅FIELD_PENDING；缺签名BUILD_BLOCKED；签名不符拒绝封包，绝不清库卸载。",
               "evidence": "环境检查回执、版本journal、明确状态原因",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "tools/r341/verify_upgrade_install.py"
+              ]
             }
           ],
           "rollback": "不能依赖Android低版本降级；准备同签名更高versionCode的向前修复包。数据格式保留迁移兼容和恢复原件；不以卸载重装作为回滚。",
@@ -1711,7 +1902,8 @@
           "evidence_refs": [
             "report:R30_REPORT.json",
             "report:UPGRADE_DIAGNOSIS.json",
-            "specs/field3/chain.md F3-B12-01"
+            "specs/field3/chain.md F3-B12-01",
+            "specs/field4/continuity.md F4-B12-02"
           ],
           "evidence_status": "ACCEPTANCE_DESIGN_NEW",
           "diagnosis": "此前发布B12并不代表自然资格、后台长运行或全工程验收已通过。新计划每批必须能独立证明本批工程，不能把全部问题延期到“后续观察”，也不能只给一个最终APK不提供各票实施与验证状态。",
@@ -1746,7 +1938,56 @@
               "action": "NEW",
               "changes": [
                 "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。",
-                "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。"
+                "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。",
+                "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md"
+              ]
+            },
+            {
+              "path": "CURRENT_FINAL_PLAN.md",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。构建任务从根入口读取本次方案身份；错封印指向旧目录时拒收"
+              ]
+            },
+            {
+              "path": "tools/r34/check_acceptance.py",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。现用回执校验入口查到测量；无真实证据拒收"
+              ]
+            },
+            {
+              "path": "tools/r34/test_plan_guards.py",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。替代的回执反例套件可运行并拒绝篡改输入"
+              ]
+            },
+            {
+              "path": "tools/r34/verify_period_trace.py",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。替代的联调工具经过服务路径取原件；事后补冻反例应失败"
+              ]
+            },
+            {
+              "path": "tools/r34/verify_plan.py",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。现用结构校验核对当前封印；篡改受保护成员时拒收"
+              ]
+            },
+            {
+              "path": "tools/r341/fixtures/continuity_b12.json",
+              "methods": [],
+              "action": "NEW",
+              "changes": [
+                "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md"
               ]
             }
           ],
@@ -1755,7 +1996,8 @@
             "执行全部授权工程批次，遇到可解决编译/测试/集成失败继续修复；不可停在方案或B01，不能以未自然合格为借口不做后续工程。",
             "最终集成既有122画像迁移/缺表/写阻塞/无学生/缺历史/无证书场景，必须能明确推进或产生准确等待原因；研究仅有调用不算实际产出/消费。",
             "验证台账引用的文件可读、hash一致、日志退出码与状态匹配；未执行场景显式NOT_RUN，现场/自然单列而非自动签收。",
-            "F3-B12-01 按 specs/field3/chain.md 从隔离安装和服务入口采集三轮 train/publish/freeze/settle/feedback/research 与两次真实 birth，保留变异、双亲融合和下游实训。把已有生产收据按目标和状态摘要联结，调用本方案 tools/verify_learning_trace.py 并保存原件验证结果；同一轮只有影子权限。"
+            "F3-B12-01 按 specs/field3/chain.md 从隔离安装和服务入口采集三轮 train/publish/freeze/settle/feedback/research 与两次真实 birth，保留变异、双亲融合和下游实训。把已有生产收据按目标和状态摘要联结，调用本方案 tools/verify_learning_trace.py 并保存原件验证结果；同一轮只有影子权限。",
+            "F4-B12-02 在正常服务工程入口持续供给可区分的任务；冻结日历、工作预算、九类工作以及跨进程重启时段，逐项核对提交、积压和真实业务内容，首个超期阶段输出确切键。"
           ],
           "acceptance": [
             {
@@ -1763,17 +2005,32 @@
               "scenario": "完整12批账本；漏一票/无log/仅脚本存在三种负例",
               "expected": "完整工程实测覆盖才ENGINEERING_COMPLETE；负例拒绝，FIELD_PENDING不自动使已验工程退回未实施。",
               "evidence": "全工单JSON/MD台账、validator结果、每批证据目录",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "CURRENT_FINAL_PLAN.md",
+                "release/r341_batch_ledger.schema.json",
+                "tools/r34/check_acceptance.py",
+                "tools/r34/test_plan_guards.py",
+                "tools/r34/verify_period_trace.py",
+                "tools/r34/verify_plan.py",
+                "tools/r341/verify_batch_ledger.py"
+              ]
             },
             {
               "id": "A-B12-03b",
               "scenario": "无自然合格资产但受控端到端夹具可走完整工程链",
-              "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。",
+              "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。 F4-B12-02 正例：前后各两个完整调度周期；重启携带待办，已提交消息重投只读回一次；新的生产结果继续被消费。 反例：输入充分却每期WAIT、重用旧权重或公式、跳过期号、丢弃重启前积压、靠Activity唤醒或换源均须显式失败。",
               "evidence": "SYNTHETIC链hash、数值变化diff、producer-consumer匹配、生产资格状态",
               "level": "ENGINEERING",
               "required_review_ids": [
-                "F3-B12-01"
-              ]
+                "F3-B12-01",
+                "F4-B12-02"
+              ],
+              "file_probe_keys": [
+                "tools/r341/verify_integrated_chain.py",
+                "tools/r341/fixtures/continuity_b12.json"
+              ],
+              "continuity_index_required": true
             }
           ],
           "rollback": "集成失败回到具体票追加修复commit与新版本APK；保留各批旧回执和失败原因。不要篡改旧成功记录使最终台账表面全绿。",
@@ -1784,7 +2041,8 @@
             "把合成场景包装成自然累计成绩"
           ],
           "required_review_ids": [
-            "F3-B12-01"
+            "F3-B12-01",
+            "F4-B12-02"
           ]
         },
         {
@@ -1793,7 +2051,8 @@
           "evidence_refs": [
             "report:runtime-observation-backgroundRuntimeCapabilityR31.txt",
             "report:runtime-observation.json",
-            "report:R30_REPORT.json"
+            "report:R30_REPORT.json",
+            "specs/field4/flow.md F4-B12-01"
           ],
           "evidence_status": "OBSERVED_NOT_RUN_ACCEPTANCE_REQUIRED",
           "diagnosis": "现场continuous24h/72h均NOT_RUN；服务活着、电池豁免YES、采样Doze NO不能证明后台持续算号。当前部分请求超时、只有打开页面恢复的现象需要独立设备持续运行证据，无法压缩为几分钟截图。",
@@ -1805,11 +2064,13 @@
                 "NEW sample(Campaign): SampleReceipt",
                 "NEW finish(Campaign,OpportunityLedger): CampaignReceipt"
               ],
-              "action": "NEW",
+              "action": "MODIFY",
               "changes": [
                 "24h和72hcampaign以真实单调时钟/bootId记录，覆盖home/锁屏/息屏/Doze/断网重连/进程回收/重启/系统限制；状态不能通过时间mock加速。",
                 "观测通过只读后台接口/adb dump/log拉取，不定时打开Activity来喂活；每次外部干预入账。",
-                "所有预登记目标机会按B04规范分到成功、等待资格、deadline_miss、服务不可用、网络未到/未知，延迟统计另列成功子集。"
+                "所有预登记目标机会按B04规范分到成功、等待资格、deadline_miss、服务不可用、网络未到/未知，延迟统计另列成功子集。",
+                "F4-B12-01 由设备观察流、完整期历和 72 小时期末事件重算无人干预。见 specs/field4/flow.md",
+                "B05 已交付同一采集器与结构，本批增补最终 Android 包的长测、导出和故障回归。"
               ]
             },
             {
@@ -1817,9 +2078,11 @@
               "methods": [
                 "NEW CampaignSpec and CampaignReceipt schema"
               ],
-              "action": "NEW",
+              "action": "MODIFY",
               "changes": [
-                "记录设备型号/API/OEM、权限/电池策略、安装来源、进程epoch、基线/最终hash、开始结束真实时间、expected/observed/missing机会、输入可用性与操作明细；个人设备ID只保留可区分的哈希。"
+                "记录设备型号/API/OEM、权限/电池策略、安装来源、进程epoch、基线/最终hash、开始结束真实时间、expected/observed/missing机会、输入可用性与操作明细；个人设备ID只保留可区分的哈希。",
+                "F4-B12-01 由设备观察流、完整期历和 72 小时期末事件重算无人干预。见 specs/field4/flow.md",
+                "B05 已交付同一采集器与结构，本批增补最终 Android 包的长测、导出和故障回归。"
               ]
             }
           ],
@@ -1828,7 +2091,8 @@
             "屏灭/后台阶段不打开软件；定时只读采样真实progress、目标请求/开始/终态、训练/研究公平调度；采样中断标缺口不补造。",
             "重启/进程杀死/系统明确force-stop分别记录。force-stop按系统限制如实标USER_STOPPED并测用户允许重启后的恢复，不许承诺强制停止后仍自行运行；普通后台进程回收应自动恢复。",
             "明确资格不足时主路WAITING_QUALIFIED_ASSET是业务状态而非后台死锁；S0影子计算/结算与基础定时证明后台活跃，但不可代替主路自然资格。",
-            "有设备即持续到真实窗口完成；没有设备/服务授权时保留FIELD_PENDING、提供一条可运行采集命令和全部已完成工程/APK，不虚报24/72h。"
+            "有设备即持续到真实窗口完成；没有设备/服务授权时保留FIELD_PENDING、提供一条可运行采集命令和全部已完成工程/APK，不虚报24/72h。",
+            "F4-B12-01 B12 工程验证采集器，B05/B12 DEVICE 使用同一套上线校验；读取每个 boot 与实际干预，按真实完整期历从原件独立重建 24h/72h 结果和健康期的预测影子链。"
           ],
           "acceptance": [
             {
@@ -1841,9 +2105,12 @@
             {
               "id": "A-B12-04b",
               "scenario": "受控回放夹具验证采样缺失、墙钟调整、跨boot、force-stop与无设备分支（不计真实运行时长）",
-              "expected": "缺失可见，跨boot不把单调时间相减；force-stop独列；无设备NOT_RUN/FIELD_PENDING。",
+              "expected": "缺失可见，跨boot不把单调时间相减；force-stop独列；无设备NOT_RUN/FIELD_PENDING。 F4-B12-01 正例：覆盖锁屏、网络恢复及正常系统重启；同机连续窗内按期回放无人工启动、真实服务赛前冻结及权威结算。 反例：拒绝空 boot、隐藏打开页面/force-stop、观察缺口、截去第二天期段、跨启动假时钟、只有终态或由 S0 代替缺失的预测影子。",
               "evidence": "时间锚点、操作日志、状态分母一致性验证",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "required_review_ids": [
+                "F4-B12-01"
+              ]
             }
           ],
           "rollback": "出现异常停止活动campaign并保留原件，安装向前修复包后新开campaign；不能拼接不同APK/策略版本的时段当同一72h通过。",
@@ -1853,6 +2120,9 @@
             "定时打开Activity再称后台独立",
             "把掉期/缺观察从分母删去",
             "将未获证资产的等待当成程序根本未运行"
+          ],
+          "required_review_ids": [
+            "F4-B12-01"
           ]
         },
         {
@@ -1900,7 +2170,11 @@
               "scenario": "工程全部通过但自然样本不足/无优势",
               "expected": "ENGINEERING_COMPLETE成立，natural分别PENDING/REJECTED；主路资格门控正确，产品不宣传已有高胜率。",
               "evidence": "工程台账、冻结协议、未来观察台账、资格检查回执",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "release/r341_natural_handoff.schema.json",
+                "tools/r341/verify_natural_delivery.py"
+              ]
             },
             {
               "id": "A-B12-05b",
@@ -1965,6 +2239,14 @@
                 "产物清单先列成员sha，外层bundle sha在包外最后写；本清单不包含自己的最终sha，下载回执独立文件。",
                 "REV-B12-01 从施工交付地址独立取回产物并绑定实际安装身份。实施入口与反例见 specs/review/build.md / A-B12-06b。"
               ]
+            },
+            {
+              "path": "tools/r31/package_release.py",
+              "methods": [],
+              "action": "VERIFY_ONLY",
+              "changes": [
+                "复核原文件的有效入口及下游消费。打出的包可恢复与下载核对；缺必需载荷或错摘要失败"
+              ]
             }
           ],
           "implementation_steps": [
@@ -1980,7 +2262,11 @@
               "scenario": "从空目录下载最终包并恢复source bundle",
               "expected": "APK hash/签名/版本与清单一致；源码tree/HEAD与嵌入身份一致；全部工单证据能定位。",
               "evidence": "download-receipt.json、apksigner/badging、bundle verify、ledger validator",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "file_probe_keys": [
+                "tools/r31/package_release.py",
+                "tools/r341/publish_delivery_manifest.py"
+              ]
             },
             {
               "id": "A-B12-06b",

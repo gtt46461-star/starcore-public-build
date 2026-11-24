@@ -908,8 +908,235 @@
       "implementation": "按 specs/field3/chain.md 从隔离安装和服务入口采集三轮 train/publish/freeze/settle/feedback/research 与两次真实 birth，保留变异、双亲融合和下游实训。把已有生产收据按目标和状态摘要联结，调用本方案 tools/verify_learning_trace.py 并保存原件验证结果；同一轮只有影子权限。",
       "acceptance": "正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。",
       "report_job": "4bef989d7e71259a0793ffc8f51871d62b808d770b4aeb834ca065c788c984eb"
+    },
+    {
+      "id": "F4-B05-01",
+      "batch": "B05",
+      "issue": "R341-B05-01",
+      "case": "R341-B05-01-T02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+      ],
+      "spec": "specs/field4/flow.md",
+      "title": "首个启动回调被拒或被取消后仍可无界面启动",
+      "implementation": "修复 AutoFetchService.startWork 中置标志后未处理 Handler.post(false) 以及已受理后取消的启动遗漏，按服务代际和投递令牌释放、有限恢复。",
+      "acceptance": "正例：服务入口 post(false) 后恢复投递并重复 START；保留一次实际启动和由服务独立提交的正常目标原件。 反例：已接收后撤销、旧代回调晚到、用户关闭后重排；旧任务不能清新令牌，也不能新建第二套执行者。"
+    },
+    {
+      "id": "F4-B01-01",
+      "batch": "B01",
+      "issue": "R341-B01-04",
+      "case": "R341-B01-04-T01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+      ],
+      "spec": "specs/field4/flow.md",
+      "title": "维护回顾完成不得刷新出生、训练或研究水位",
+      "implementation": "追到 AutoFetchService.postAutonomousResearchTickR908 如何使用 R912 Result.success；分别保存维护回顾、实训、研究、出生各自 owner 的持久证据和水位。",
+      "acceptance": "正例：22 路回顾后保持零训练，报告如实显示；新增实际可比的已提交产物才更新相应阶段，重复同一原件幂等。 反例：REVIEW_ONLY / WAIT_FORMAL_FUTURE、仅更新心跳或 R26 健康未采样都不能制造训练、出生或恢复成功。"
+    },
+    {
+      "id": "F4-B12-01",
+      "batch": "B12",
+      "issue": "R341-B12-04",
+      "case": "A-B12-04b",
+      "files": [
+        "tools/r341/device_campaign.py",
+        "release/r341_device_campaign.schema.json",
+        "tools/r341/test_b12_contracts.py"
+      ],
+      "spec": "specs/field4/flow.md",
+      "title": "由设备观察流、完整期历和 72 小时期末事件重算无人干预",
+      "implementation": "B12 工程验证采集器，B05/B12 DEVICE 使用同一套上线校验；读取每个 boot 与实际干预，按真实完整期历从原件独立重建 24h/72h 结果和健康期的预测影子链。",
+      "acceptance": "正例：覆盖锁屏、网络恢复及正常系统重启；同机连续窗内按期回放无人工启动、真实服务赛前冻结及权威结算。 反例：拒绝空 boot、隐藏打开页面/force-stop、观察缺口、截去第二天期段、跨启动假时钟、只有终态或由 S0 代替缺失的预测影子。"
+    },
+    {
+      "id": "F4-B05-02",
+      "batch": "B05",
+      "issue": "R341-B05-03",
+      "case": "R341-B05-03-T01",
+      "files": [
+        "tools/r341/device_campaign.py",
+        "release/r341_device_campaign.schema.json",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+      ],
+      "spec": "specs/field4/flow.md",
+      "title": "在 B05 自身交付后台取证器，B12 从最终 APK 重新取证",
+      "implementation": "将同机机会日历、业务事件、生命周期和独立观察器的采集、导出与回读前移至 B05；B12 在同一工具上补最终整机验收并用最终 APK 重新运行。",
+      "acceptance": "正例：仅有 B01–B05 的工程工作树和本批 APK 即能启动采集、结束后导出两个时长的统一结构，独立读取已开奖期和服务生命周期。 反例：B12 尚未开工时 B05 不得依赖其新建工具；B12 复验换最终 APK 后混用先前 APK 采样必须拒绝。"
+    },
+    {
+      "id": "F4-B06-01",
+      "batch": "B06",
+      "issue": "R341-B06-01",
+      "case": "R341-B06-01-A03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java"
+      ],
+      "spec": "specs/field4/birth.md",
+      "title": "把新工厂的基础种子与坏历史父代、失败研究输入隔离",
+      "implementation": "FoundryCampaignR26.step/savedParents 和 FailureDirectedResearchR26.select 的单对象解析及恢复按来源分别处理；页内损坏记录按原摘要隔离，保留可重入游标和失败证据。基础家族继续发布、实训，写入的假设及父子关系仅对应已提交对象。",
+      "acceptance": "正例：无 RUNNING 工厂，合法种子、合法历史父代和一份可定位的损坏旧文本/旧 proposal_json 并存，生产工厂成功发布，合法候选取得首个训练 checkpoint，读回原父与故障证据。 反例：损坏父代不静默丢失；源修订、fence、取消及存储不可用须中止相关事务；同输入重试和进程重启不重生或推进被隔离游标。"
+    },
+    {
+      "id": "F4-B06-02",
+      "batch": "B06",
+      "issue": "R341-B06-01",
+      "case": "R341-B06-01-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthContractR34.java"
+      ],
+      "spec": "specs/field4/birth.md",
+      "title": "稀疏历史仍用真实可训练尾段完成冷启动",
+      "implementation": "FoundryCampaignR26.capture/step、ColdRebirthR34.prepare 与 ColdRebirthContractR34.requireSnapshot 在出生前共用可复演的输入窗口条件；按真实期号跨度、可见性、缺口、原曝光与最少样本选合法尾段并固定其原件。",
+      "acceptance": "正例：最新期10000，旧段跨5000、水位前有256条连续合法样本且父代曝光可核，生产入口完成一次出生和首次训练提交，重启读取相同窗口及状态。 反例：测跨度4999/5000、不足64条、违反曝光或模型预热要求和源修订；不得填造相邻样本、冒认首训，或创建已确定会立即过期的工厂。"
+    },
+    {
+      "id": "F4-B06-03",
+      "batch": "B06",
+      "issue": "R341-B06-03",
+      "case": "R341-B06-03-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java"
+      ],
+      "spec": "specs/field4/birth.md",
+      "title": "同一公式的历史拒绝与已成功出生分别处理",
+      "implementation": "StoreR27.recordedPolicies、EvolutionSink.preparePublicationR31 写前 guard、policy 和 EvolutionLoopR27.revalidateResearchAdmissions/stepGate 同时处理既有规范身份、拒绝所用开发原件及后续出生转换，保全原判断。按已变且可验的输入触发重评并保证首个成功出生唯一。",
+      "acceptance": "正例：可解析的同一公式在 A 因 AVAILABLE_ROWS 不足被真实 gate 拒绝；预定开发 B 具备合法输入后同一个 hash 完成首次出生并重放，保留两份不同作用域的记录。 反例：同 A 重试、已出生对象、语法无效、换名、两个工人同时处理 B、提交后被杀和非法未来输入均不得让出生、行为创新或资格重复/越权计数。"
+    },
+    {
+      "id": "F4-B09-01",
+      "batch": "B09",
+      "issue": "R341-B09-04",
+      "case": "R341-B09-04-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "spec": "specs/field4/gate.md",
+      "title": "有资格后在首次和连续两个合法赛前目标进入真实决策",
+      "implementation": "在现有后台调度和 R932 选取入口区分当期证书对应 ACT 证明待提交与最终空选择。以同一目标有界续排，在截止预算内作一次不可变最终选择，保留跨引擎优先级、用户授权开关和同一目标一次 REAL。",
+      "acceptance": "正例：隔离库从后台入口使证书在先、ACT 证明与 R932 选择器交换两种到达顺序；预算内两条路径均取得可复算的同一个赢家；连续两期合法 ACT 各有一次受控授权 BET、交易及结算。 反例：证明过晚、空结果已封、开关关闭、策略弃权、证书撤销或更高优先候选当选，分别回读具体原因与赢家；不得覆盖既有选择或放宽全局锁。"
+    },
+    {
+      "id": "F4-B04-01",
+      "batch": "B04",
+      "issue": "R341-B04-04",
+      "case": "R341-B04-04-T01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51Repository.java"
+      ],
+      "spec": "specs/field4/gate.md",
+      "title": "已存在交易的重放核查原始收据、概率和授权身份",
+      "implementation": "在 canonical 写者和既有交易重放边界按该版本协议核对真实决策、交易、精确收据、概率原件、模型和授权一致性；对缺失原件的老库保全、定位、区分可复算投影及缺失的事实。",
+      "acceptance": "正例：完整同目标、同授权的 REAL 提交成功后丢回调，再次处理只返回原交易；相同合同下只存在同一套 canonical、trade、exact receipt 和 probability。 反例：旧库的交易存在但其应有收据缺失或属于另一模型；拒绝宣称完整重放，不生第二笔交易，不用后来的开奖生成缺失事实；旧合同样本带版本归属。"
+    },
+    {
+      "id": "F4-B09-02",
+      "batch": "B09",
+      "issue": "R341-B09-04",
+      "case": "R341-B09-04-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+      ],
+      "spec": "specs/field4/gate.md",
+      "title": "核验授权与撤销交错时唯一交易和唯一结算",
+      "implementation": "从真实 V51 编译、唯一决策和 canonical 持久化入口运行同一期授权、撤销、重启和开奖的交错，核对源证书、冻结动作、tradeId、授权摘要和原结算。",
+      "acceptance": "正例：先提交合法交易，后撤销再开奖，原位置及 K3 的输赢仍精确结算一次；重放开奖和恢复回调数值不变，后续新请求按撤销状态处理。 反例：撤销先于交易提交、同目标完整原件冲突或换证换模，拒绝新 REAL 并留原始依据；无 REAL 时任何影子统计不能混入真实账。"
+    },
+    {
+      "id": "F4-B11-01",
+      "batch": "B11",
+      "issue": "R341-B11-02",
+      "case": "A-B11-02b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "spec": "specs/field4/gate.md",
+      "title": "逐期列示自然获证资产为何使用、未用及已用未结算",
+      "implementation": "从完整机会日历按目标重建候选资格、ACT、有效开关、实际最终选择及截止、唯一授权、交易、结算。明确自然证书零与有当用未用目标的两种不同状态，定位最早缺失的原件。",
+      "acceptance": "正例：工程构造无资格、弃权、未被选中、合法胜者已出手、已出手待结算及应出手却漏用各一类；每个目标都能回读原因并与真实账和唯一选中者对齐。自然首次出现时复用相同对账。 反例：移去或换目标的 trade/receipt，加入正权重研发行、资格或 R35 普通影子行，不能抬高 REAL 计数；无合法机会时部署效果为待观察。"
+    },
+    {
+      "id": "F4-B09-03",
+      "batch": "B09",
+      "issue": "R341-B09-05",
+      "case": "R341-B09-05-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualityExperimentR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java"
+      ],
+      "spec": "specs/field4/quality.md",
+      "title": "将三个零假设臂的名义60次与20个共同种子组分别复算",
+      "implementation": "QualityExperimentR341.run/summarize 在真实工厂输入边界导出三零臂开奖原件；按固定生成器重算各arm/seed摘要、原60名义指标、逐臂结果及同seed任一误检的20组区间；保留旧门的阈值和原始判定，将跨臂依赖写入解释。",
+      "acceptance": "正例：同seed的NULL_UNIFORM与SIGNAL_DISABLED逐期相同，打乱臂与原登记一致。三臂同一seed各误检一次，得到每臂1/20、原名义3/60、按组1/20，单侧95%上界0.2161061642。 反例：缺任何原件或键、异seed错置、同流冒充60条独立试验、按组事件报3或把名义上界充作分组上界，正式回执拒收。"
+    },
+    {
+      "id": "F4-B09-04",
+      "batch": "B09",
+      "issue": "R341-B09-05",
+      "case": "R341-B09-05-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualityExperimentR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java"
+      ],
+      "spec": "specs/field4/quality.md",
+      "title": "分出序贯检出力与完整工厂从创建到通过证书数学门的检出能力",
+      "implementation": "同一次受控运行分别报告 powerTrial 固定index=1全ACT的34/37/40%结果，以及完整工厂 finish 各stage实测分母、缺冠军、确认失败、证书门拒绝与DETECTED；同seed中断恢复应留同一路径。各项只按自己的试验和分母使用。",
+      "acceptance": "正例：控制同一统计命中输入，在工厂无可用冠军或独立确认失败时，序贯可测且工厂相应阶段未通过；用可发现的受控植入数据沿原工厂保留出生/选择/确认/未来判定原件，计数守恒，并保留未获证的合法末态。 反例：仅传入预制命中序列便宣称创造/实盘获证，拿30%复写强度充当生成资产命中率，或新子代以旧globalIndex=1冒用自然预算，均不得签收相应结论。"
+    },
+    {
+      "id": "F4-B09-05",
+      "batch": "B09",
+      "issue": "R341-B09-03",
+      "case": "R341-B09-03-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualityExperimentR341.java"
+      ],
+      "spec": "specs/field4/q06.md",
+      "title": "从同机会独立原件重算父子增益下界",
+      "implementation": "在已有质量评估中登记父代、子代、全机会及计分规则。将双方实际预测、弃权和对应开奖与同一预注册日历核对，复算单侧下界，零支持和缺项留待观察。",
+      "acceptance": "正例：用隔离正例复算每个同目标父子差值、样本方差与预注册下界；独立未来回执按同一合同复算。 反例：同一策略换名、错父代、跨窗口拼接、遗漏弃权或自报正下界不签收。"
+    },
+    {
+      "id": "F4-B12-02",
+      "batch": "B12",
+      "issue": "R341-B12-03",
+      "case": "A-B12-03b",
+      "files": [
+        "tools/r341/verify_integrated_chain.py",
+        "tools/r341/fixtures/continuity_b12.json"
+      ],
+      "spec": "specs/field4/continuity.md",
+      "title": "按固定输入和预登记周期验证跨重启持续生产",
+      "implementation": "在正常服务工程入口持续供给可区分的任务；冻结日历、工作预算、九类工作以及跨进程重启时段，逐项核对提交、积压和真实业务内容，首个超期阶段输出确切键。",
+      "acceptance": "正例：前后各两个完整调度周期；重启携带待办，已提交消息重投只读回一次；新的生产结果继续被消费。 反例：输入充分却每期WAIT、重用旧权重或公式、跳过期号、丢弃重启前积压、靠Activity唤醒或换源均须显式失败。"
     }
   ],
   "field3_report_sha256": "fb499fc609435be82591ea015239fbee2b7da5c0dba772dd028d1417f1b8784c",
-  "field3_reviewed_plan_commit": "0f81953d7175652dc6695a542257750290bf8c8f"
+  "field3_reviewed_plan_commit": "0f81953d7175652dc6695a542257750290bf8c8f",
+  "field4_reviewed_plan_commit": "5d51341d2f5c292683e5d8aaee4714dfd175cbd2"
 }

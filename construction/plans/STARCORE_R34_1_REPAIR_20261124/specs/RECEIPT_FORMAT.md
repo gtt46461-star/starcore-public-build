@@ -82,7 +82,7 @@ python3 tools/verify_receipt.py --plan . --receipt "$receipt" \
 | Q03、Q04 | Q03 用合规原序贯状态、预分配的 `allocated_alpha` 和实测 `log_e_up` 复查 logE≥log(1/α)。Q04 的 `window_rule_hash` 与事前登记匹配，同时报告原固定720块、最差块及最长连错和漂移。V1 的最差块≥26%、最大连败≤6在证书核验中继续生效。 |
 | Q05 | 提交 `CalibrationRowsR27.fitRolling` 的逐期 `samples`，保留 `Evaluation.json()` 的 ordinal、position、原概率与校准概率、标签、fitHash、fitRows、fitThroughOrdinal、supportLo/Hi、supported、fitRole、evaluationRole。按 ordinal/position 原顺序处理同分预测，使用120条先前拟合记录、1期 embargo 与 FUTURE_READ_ONLY。逐行用自身拟合区间判支持。N≥200（滚动上限5000）、十等质量箱加权 ECE≤0.04、受支持样本占比≥90%才签 Q05。按校准概率稳定排序，前9箱每箱 floor(N/10)，末箱收余数。另列十等宽箱 ECE、Brier、常数0.30同标签 baselineBrier、BSS、逐行支持范围与固定64期块的 BSS 区间。少于4个完整块时区间如实为空。`values` 的字段是 `support/eceEqualMass/eceEqualWidth/brier/baselineBrier/bss/supportCoverage`，区间在 `calibratedBssBlockInterval95`。等宽 ECE 和 BSS 属于并列诊断，不能替换等质量 ECE 或设置新的 V1 门槛。 |
 | Q06、Q07 | Q06 以同机会父子收益配对的单侧95%下界>0判为验证改善，其他对照原件按各自协议保存。Q07 独立核查资产的 Q01/03/04/05 与原 V1、有效证书，再计 `independently_qualified_assets` 和 `qualified_candidate_hashes`；一次报告至少检查1份资产是观测支持，单独 ACTIVE 行数仍待验证。主链消费另查真实决策原件。 |
-| Q08 | `factory` 取原 `R31_FULL_FACTORY_EXPERIMENT_2_FIXED_FUTURE` 快照，预注册的 `factory_protocol_hash` 与原字段完整摘要、每条原件和当前源码相符。NULL_UNIFORM、NULL_TIME_SHUFFLED、SIGNAL、SIGNAL_DISABLED、DRIFT、GAPS 各20个 seed（710000–710019），120条一一齐备、无失败或重复。每臂复算双侧 Wilson 95% 区间；合并两种NULL与SIGNAL_DISABLED的60份，Clopper–Pearson 单侧95%误授上限≤.15；SIGNAL 的20份单侧95%检出下限≥.70。另附同版 `NullPipelineSimulationR30` 的 `power_trials`、`power_intervals`、`power_source_commit`，在真实植入概率34/37/40%下各20次、至多5000期，依据每次原记录复算各强度检出率和Wilson区间。这60条另计，不能替代120个工厂试验。其他研究协议单独登记，禁止冒用这份注册的签收。 |
+| Q08 | `factory` 取原 `R31_FULL_FACTORY_EXPERIMENT_2_FIXED_FUTURE` 快照，预注册的 `factory_protocol_hash` 与原字段完整摘要、每条原件和当前源码相符。NULL_UNIFORM、NULL_TIME_SHUFFLED、SIGNAL、SIGNAL_DISABLED、DRIFT、GAPS 各20个 seed（710000–710019），120条一一齐备、无失败或重复。每臂复算双侧 Wilson 95% 区间；旧协议合并两种NULL与SIGNAL_DISABLED的60个名义试验（同seed有相同流，分组误报另按本版复算），Clopper–Pearson 单侧95%误授上限≤.15；SIGNAL 的20份单侧95%检出下限≥.70。另附同版 `NullPipelineSimulationR30` 的 `power_trials`、`power_intervals`、`power_source_commit`，在真实植入概率34/37/40%下各20次、至多5000期，依据每次原记录复算各强度检出率和Wilson区间。这60条另计，不能替代120个工厂试验。其他研究协议单独登记，禁止冒用这份注册的签收。 |
 
 持续保存各项目原始数据、水位、配置与可复算的输出。质量观察尚不足时，合法证书仍按原发行路径处理。
 
@@ -93,3 +93,11 @@ python3 tools/verify_receipt.py --plan . --receipt "$receipt" \
 ## B12 三个连续公式的工程回执
 
 第 3 版的 A-B12-03b 在执行原件中增加 `learning_trace_index_artifact`。索引、三轮训练到研究的原件、两次出生、父子公式、模型状态、权重字节和同一构建的 APK 均加入回执的 `artifacts`。正式回执校验器在核对源码提交、方案摘要及 APK 后复算这条链。字段、采集顺序与独立复算方法见[三代连续运行实例](field3/chain.md)。
+
+## 第 4 版新增必验原件
+
+- 按每个工程用例的 `inherited_path_probes` 提供源码和实际载荷能对上的生产者、消费者及正反测量。[字段和适用范围](field4/owners.md)
+- B12-03b 的 `continuity_index_artifact` 与既有三代索引同 APK、同提交，并从源码中的固定场景重算连续运行。[持续生产及复验](field4/continuity.md)
+- B09-04-A01 读取 `mainline_campaign`，用受控授权证明正常选择到实盘交易账和结算全过程。[主链收据与用例](field4/gate.md)
+- B05/B12 的 DEVICE 背景观察同时提交期历、业务账、boot、干预、观察器及原事件。[后台验收](field4/flow.md)
+- B09-05-A02 增加 `q08_component_artifact`。第 4 版自然质量投影 PASS 时还会从原件复算 Q06 与 Q08。[父子独立配对](field4/q06.md) · [按同种子校验误报](field4/quality.md)

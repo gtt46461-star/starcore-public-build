@@ -60,6 +60,7 @@ class MeasuredAssertionGuards(unittest.TestCase):
 
     def test_version_and_tests_alone_are_not_product_implementation(self):
         self.assertFalse(product_paths({"release/release_manifest.json",
+                                       "tools/r341/fixtures/continuity_b12.json",
             "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
             "app/src/androidTest/java/com/ethk3/novaonepro/Test.java", "tools/r341/test_identity.py"}))
 

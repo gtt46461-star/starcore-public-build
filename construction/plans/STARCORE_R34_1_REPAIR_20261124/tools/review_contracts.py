@@ -64,4 +64,5 @@ def verify(root):
             and scope["method_contracts"] == len(read(root / "evidence/SOURCE_ANCHORS.json")["anchors"]),
             "Published scope counts disagree")
     from field_direction_routes import check_field3
-    return dict(totals, **check_field3(root))
+    from scope4 import verify as verify_field4
+    return dict(totals, **check_field3(root), **verify_field4(root))

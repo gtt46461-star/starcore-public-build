@@ -1,8 +1,10 @@
 # STARCORE 最终施工入口
 
+[持续创造、堵点与合格资产真实出手的施工和验收](construction/plans/STARCORE_R34_1_REPAIR_20261124/FIELD4.md) · [全部文件的实际调用与验收](construction/plans/STARCORE_R34_1_REPAIR_20261124/FILE_WIRING.md)。
+
 [报告提出的升级方向逐条施工表](construction/plans/STARCORE_R34_1_REPAIR_20261124/UPGRADE_ACTIONS.md)。
 
-**当前为 R34.1 第 3 版，适用 577311122。** [本次新报告与逐批施工变更](construction/plans/STARCORE_R34_1_REPAIR_20261124/FIELD3.md) · [完整施工任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)。
+**当前为 R34.1 第 4 版，适用 577311122。** [本次新报告与逐批施工变更](construction/plans/STARCORE_R34_1_REPAIR_20261124/FIELD3.md) · [完整施工任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)。
 
 执行 **R34.1：122版返修后的完整施工方案**。
 

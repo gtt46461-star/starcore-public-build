@@ -1,0 +1,2551 @@
+{
+  "schema": "R341_WIRING_4",
+  "parent_plan": "5d51341d2f5c292683e5d8aaee4714dfd175cbd2",
+  "previous_unmapped_count": 73,
+  "probes": [
+    {
+      "case": "A-B12-03a",
+      "issue": "R341-B12-03",
+      "original_gap": true,
+      "key": "CURRENT_FINAL_PLAN.md",
+      "effective_path": "CURRENT_FINAL_PLAN.md",
+      "probe": "构建任务从根入口读取本次方案身份；错封印指向旧目录时拒收",
+      "contract_sha256": "7002221b72ca2ba7d53e955d7cb651d78dc6275d84e9bf5d4a5c0347750ce1e1"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "app/build.gradle",
+      "effective_path": "app/build.gradle",
+      "probe": "保留 R31/R33.5 封印校验和原 assets；增加 r341 identity asset 的生成及最终输入一致性校验，禁止用 R34.1 目录冒充 R33.5 root。；REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。",
+      "contract_sha256": "d93cb1341198b2788b3171c590243645a941fec1328bb89cf5f5dd6fdbe116aa"
+    },
+    {
+      "case": "R341-B05-03-T01",
+      "issue": "R341-B05-03",
+      "original_gap": false,
+      "key": "app/src/main/AndroidManifest.xml",
+      "effective_path": "app/src/main/AndroidManifest.xml",
+      "probe": "核对现有前台服务与receiver声明、stopWithTask=false；只有实机证实需要且符合目标API约束才修改，不以提升targetSdk替代本轮修复。",
+      "contract_sha256": "b6a319064769d58cb66c9afed1968700c340aa3b63b33541b9adc4cd7d304db6"
+    },
+    {
+      "case": "R341-B04-02-T01",
+      "issue": "R341-B04-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/AnalysisInputEnvelopeR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/AnalysisInputEnvelopeR341.java",
+      "probe": "NEW：包含base/target、ordered history+draw revisions、historyHash、requestHash、generation/fence、input schema、固定deadline及source scope；只允许不可变值。",
+      "contract_sha256": "2f8f8ef4e750e8899f7e7514edacc6949f6a49d9594bc43895975f03bf96e5a8"
+    },
+    {
+      "case": "R341-B01-05-T01",
+      "issue": "R341-B01-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+      "probe": "只追加phase和reason诊断引用，现有PIT身份/固定deadline保持不变。",
+      "contract_sha256": "b5ceb71e9af46a1cb282880a8eba88fcff3c915e8a7ab05b9aa7bf92b1c1af76"
+    },
+    {
+      "case": "R341-B01-05-T01",
+      "issue": "R341-B01-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+      "probe": "记录owner/fence和claim/release关联；真实方法签名以基线为准，不改变租约协议。",
+      "contract_sha256": "67657f398e3c2bcedf3d36a732ad6a110c5afe96a3c2dac3029f6df05b6ab27c"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/AppConfig.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/AppConfig.java",
+      "probe": "合法单位置三个号码传入决策门；重复号码或非法位置被拒",
+      "contract_sha256": "2f83adb0eef3fd01d1ee8e3650ec981b360a8021f16bae8bb2998755c7951821"
+    },
+    {
+      "case": "R341-B01-03-T01",
+      "issue": "R341-B01-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "probe": "启动 owner 前后记录 ownerGeneration、thread state 和重试due；记录服务未创建/被取消路径。",
+      "contract_sha256": "d201601660a9d888327956b869a2e3cea7335fec0dd64c8bd378add309d5ee0c"
+    },
+    {
+      "case": "R341-B05-02-T01",
+      "issue": "R341-B05-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+      "probe": "服务观察反映下一业务提交；仅通知或心跳存在不算恢复",
+      "contract_sha256": "614362a8032d0cb8b7887b66780ff948598b1610deab8540d4b1966f8295e902"
+    },
+    {
+      "case": "R341-B05-01-T01",
+      "issue": "R341-B05-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+      "probe": "外部恢复只递交幂等start intent并尊重userEnabled；不会作为正常每期分析唯一触发。",
+      "contract_sha256": "8b2fd44140a7d04658fa603e66d4a46d9cc7f01e503bbfa876a422b1924bb109"
+    },
+    {
+      "case": "A-B11-02a",
+      "issue": "R341-B11-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java",
+      "probe": "报告scope只接受已通过当前build identity核对的installed/source/plan；身份无法核对时具体为UNVERIFIED_IDENTITY，不默认当前源码等于安装。",
+      "contract_sha256": "cb4c6bc159ff6ad3a346862070283d4fe830b55772168ec5adc2f2b17fa1315a"
+    },
+    {
+      "case": "R341-B04-03-T01",
+      "issue": "R341-B04-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+      "probe": "原有事务内插入入口继续校验canonical identity；deadline/owner前检在V51Repository.commitCanonicalBundleVerifiedR368与DatabaseCoordinator.runCanonicalTransactionR36完成，不能越过durability边界。",
+      "contract_sha256": "cfb593ef9c8c6fd2953f461a6c3347b2ef4e2e0a7f4cfa09a14e723134706f04"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "probe": "读取有来源的候选预测并核对身份；缺或失效证明只读其原因，研发继续",
+      "contract_sha256": "3649a6c404f805e744a73076c026997b0b384a902e1e2a96b537e76dd195f878"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ChartPageReadR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ChartPageReadR34.java",
+      "probe": "保留逐图deadline与页面取消；timeout回值必须UNAVAILABLE/TIMED_OUT并附sourceScope，不画默认0系列。；REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。",
+      "contract_sha256": "3c497deb30e2744d38c986b315578064687844c8bf8d3f3705e397345b88eda3"
+    },
+    {
+      "case": "A-B11-02a",
+      "issue": "R341-B11-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+      "probe": "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。",
+      "contract_sha256": "a5245a1a62a30fb91defde601109f29f9cb900e166907e79eb1de159afa40793"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "probe": "仓储读取已发布图帧并在页面回读；缺源保留未知或错误",
+      "contract_sha256": "7785d0070cf201c0da9b2b80b5b998750766ec09431bd8de263f5ea09bc8b5ba"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+      "probe": "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。",
+      "contract_sha256": "fceb9f8b07224b41807b7a02fe4a0eaccbcb2d4ae8b56e5c240f757c7b8e76b2"
+    },
+    {
+      "case": "A-B10-03a",
+      "issue": "R341-B10-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "probe": "输出byteBudget、visited/unvisited、missing/unverified独立计数与coverage；不把审计截断解读为不存在。",
+      "contract_sha256": "0d0d8a89edda3689cbeddddd5f1730f5c5c2875aac760e04f72533b932e66b0d"
+    },
+    {
+      "case": "A-B10-02a",
+      "issue": "R341-B10-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+      "probe": "writer_hold等原始审计尾部先按既有归档协议封存/哈希/可读验证，再分页裁剪SQL热集；不得把聚合计数当原始事件替代。；REV-B10-01 满容量取证热表持续接纳新请求。实施入口与反例见 specs/review/runtime.md / A-B10-02c。",
+      "contract_sha256": "a629ec665e439ff600226181a74206de8a2a337a0f99ed415a1bc70e65318480"
+    },
+    {
+      "case": "R341-B01-04-T01",
+      "issue": "R341-B01-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "probe": "导出 COMMITTED/ROLLED_BACK/UNKNOWN 与实际commit id；不可因诊断写失败把已提交业务重做。",
+      "contract_sha256": "8b5e6eae4eeb28f3593af234ccaed79cab7d00e36c263fdc4067d6ab7d0a5c3f"
+    },
+    {
+      "case": "R341-B04-01-T01",
+      "issue": "R341-B04-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "probe": "两张最小实时依赖表及idx_r919_legacy_post_status划归critical installer；research owner改为只读核验这些已安装对象，消除双owner。",
+      "contract_sha256": "7e28c1c88bcf39e7d668dd7b9f368015b9269fdc77096212fdfa3706f13240bb"
+    },
+    {
+      "case": "R341-B04-04-T01",
+      "issue": "R341-B04-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "probe": "F4-B04-01 已存在交易的重放核查原始收据、概率和授权身份。见 specs/field4/gate.md",
+      "contract_sha256": "8af31e69067cdc0cccb3807c4b597a62ee2ae797dd2b6bf45810f66c4e62b73d"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "probe": "主包：沿B04已有唯一owner验证该proof及时间；无证书走明确HOLD/既定fallback，任何备用不得冒称R27授证出号。；F4-B09-01 有资格后在首次和连续两个合法赛前目标进入真实决策。见 specs/field4/gate.md",
+      "contract_sha256": "eebd935d73c779454ee347324d53fdf49b37d3114be212c440800b5c9556413a"
+    },
+    {
+      "case": "R341-B04-05-T01",
+      "issue": "R341-B04-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "probe": "沿用已有lease/cursor/hash；slice按B02行/字节/时限预算动态截断，先最老可执行项，坏payload隔离为明确终态。；F3-B04-02 验证运行时新增量超过排水量的延后证据队列。按 specs/field3/runtime.md 和 R341-B04-05-T01 的正反例实施复验。",
+      "contract_sha256": "206598b37ab5f4d908fb719492bd0625fc75e35f375b57c0060cc66a52942152"
+    },
+    {
+      "case": "R341-B02-02-T01",
+      "issue": "R341-B02-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java",
+      "probe": "可重试写者拥塞回到续排；永久错误不能冒充暂缓",
+      "contract_sha256": "059fa62208ce7f24afe0ea99bf50a771c658f102cb940d6252b6adeca3a1739f"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DirectedResearchCreationR932.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DirectedResearchCreationR932.java",
+      "probe": "追到研究创建候选及其后续用途；只有建议或重复登记不计出生",
+      "contract_sha256": "f10862cc72d0559c145ffcdac9443d534019098956923eaf5ee888ee115fe02c"
+    },
+    {
+      "case": "R341-B01-05-T01",
+      "issue": "R341-B01-05",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+      "probe": "保存同一目标输入依赖；错水位或遗漏开奖保持缺口",
+      "contract_sha256": "0a941f4a01c066992e8caf0dced14e6b35a83e6d63f7027d35941b8a526a397e"
+    },
+    {
+      "case": "R341-B09-02-A01",
+      "issue": "R341-B09-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+      "probe": "启用时段写入且参与机会分母；晚启用不能补记赛前",
+      "contract_sha256": "bbe2bcbf1a7453caf246bb81255e6f05e8c333926427041c6dd443c027e30f3c"
+    },
+    {
+      "case": "R341-B07-04-A01",
+      "issue": "R341-B07-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+      "probe": "主包：结算后仅投递事实，不在实时事务内做重训练；失败独立重试且不会拖延下一期冻结。；F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。",
+      "contract_sha256": "54697f18745238bc776038524dc475eca14fd0262dc5208895a1447f4c99128e"
+    },
+    {
+      "case": "R341-B04-06-T01",
+      "issue": "R341-B04-06",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+      "probe": "复验pending/raw/parsed绑定同request/hash；缺收据、未知请求、payload冲突各有状态，writer故障后仅凭原件恢复。；REV-B04-02 满表后的来源与事务返回证据。实施入口与反例见 specs/review/runtime.md / R341-B04-06-T02。",
+      "contract_sha256": "97858e995b1a3d005f92e58e0abe7f9516f8cc48e46d56b59d7a2a280845e8e4"
+    },
+    {
+      "case": "R341-B04-01-T01",
+      "issue": "R341-B04-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java",
+      "probe": "保留ensureSchema作为迁移安装器，移除freeze与settle两处调用；用无DDL ready guard，未就绪返回明确DEPENDENCY，不能在临近开奖自修。",
+      "contract_sha256": "f8e143fb7f0d4db0f6815f3cacd053a639f0cebe119d73c9210e2838a0d585ed"
+    },
+    {
+      "case": "R341-B06-02-A01",
+      "issue": "R341-B06-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/LegacyTeacherOwnerR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/LegacyTeacherOwnerR26.java",
+      "probe": "提供有合法用途的实际教师或准确报告隔离；错来源不进入训练",
+      "contract_sha256": "3acfb7ef719fd241318ed8ca55129bd2801422c1beae07212ebf8b9fa9899ea9"
+    },
+    {
+      "case": "R341-B05-03-T01",
+      "issue": "R341-B05-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/LifecycleHealthR963.java",
+      "probe": "记录前后台/息屏/移除任务/系统退出原因同一scope，区分主动退出与系统异常。",
+      "contract_sha256": "b65735cabddd6959e841b9ca26431ead80dab3cbab0d4a3fc46dd42ddce30427"
+    },
+    {
+      "case": "R341-B03-02-T01",
+      "issue": "R341-B03-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+      "probe": "列出每个需要的对象name/type/DDL hash/owner；单对象推进并验证sqlite_master及必需列/索引，不仅检查table exists。；REV-B03-01 在 B03 验证迁移边界和当前会话可见性。实施入口与反例见 specs/review/build.md / R341-B03-02-T02。",
+      "contract_sha256": "8bee3c9a5cfd1ec919d2060b098b003472f238c196336c53e301f58552c46f0e"
+    },
+    {
+      "case": "R341-B02-04-T01",
+      "issue": "R341-B02-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+      "probe": "每类最多一个在途read，页面销毁取消回调；旧缓存保留stale标识；DB忙不清成空图。",
+      "contract_sha256": "658251e85753502b154e443b7872292b51f5afd57a271b22e9e4118cef99ded7"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/MainActivityTruthPresenterR926.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/MainActivityTruthPresenterR926.java",
+      "probe": "只呈现同一只读snapshot的当前运行事实，不因打开页面补造计算/训练；后台通知与详情引用同scopeId。",
+      "contract_sha256": "d5d1037bd710dfca110d568aa80e663c448288356d5b59c30dbf444b76f1bf1d"
+    },
+    {
+      "case": "R341-B04-04-T01",
+      "issue": "R341-B04-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "probe": "原赛前记录收到开奖后生成匹配标签；缺原件不补造预测",
+      "contract_sha256": "18c6345074009c3a0ce38ebb4402908607d2c88872bb0fcae7e226eb210ec2ac"
+    },
+    {
+      "case": "R341-B04-02-T01",
+      "issue": "R341-B04-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+      "probe": "同一规范输入编码解码后身份相符；篡改一字段失效",
+      "contract_sha256": "be802b4c9fb0f257be9411550ea35387497011905b4e7fbbeeda850352d936a8"
+    },
+    {
+      "case": "R341-B04-03-T01",
+      "issue": "R341-B04-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+      "probe": "对应准备结果由本目标实际消费；过时或别期结果不提交",
+      "contract_sha256": "580291860ba744139605a7e36c5a0f54cf95fab51a868a9fc12b80a2c7586ef5"
+    },
+    {
+      "case": "R341-B04-02-T01",
+      "issue": "R341-B04-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/R36AnalysisHistoryPolicyR364.java",
+      "probe": "保留base边界、连续suffix、最小样本检查；明确canonical排序/编码和draw correction版本。",
+      "contract_sha256": "60a11d1d9c2dbd89b5d21bfa259198ee307cc49d92e335c160b7ba8df3c187fc"
+    },
+    {
+      "case": "R341-B04-06-T01",
+      "issue": "R341-B04-06",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RawHttpIdentityR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RawHttpIdentityR34.java",
+      "probe": "VERIFY_ONLY：原始body身份不可trim/归一化或覆盖；字符解码与原字节身份区分，不修改现有合法hash。",
+      "contract_sha256": "8d5ec0debfc35a84114aa7ed74df567d41ab75e59ee969cb8b64acedb7b9dfa4"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+      "probe": "真实构建读取版本身份；旧清单与 APK 不一致时被发现",
+      "contract_sha256": "6ed1e8dae611aaa1199567b2b64f1d237b3c763999323ab65d3ee122c288e907"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+      "probe": "分别汇总检查是否执行、源是否可读、业务是否通过；96项已覆盖可为true，同时health FAIL/UNKNOWN不可被覆盖。",
+      "contract_sha256": "ede1cdafa2ea8093d8beb450ddc9c04a68c9d2a20255be06dd6dd1b7dc9ad3cc"
+    },
+    {
+      "case": "A-B10-02a",
+      "issue": "R341-B10-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+      "probe": "按原件保护分类和实际清理字节出回执；清理失败保持已发布状态独立，不把报告成功改为失败。；REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。",
+      "contract_sha256": "f32094a097683a75f6d344953c4d33cd1a4cae2f82a3e3ec712b6780a9a2dd38"
+    },
+    {
+      "case": "A-B11-06a",
+      "issue": "R341-B11-06",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+      "probe": "导出读回当前业务证据的来源；缺原件不能标完整",
+      "contract_sha256": "6e914fefc61523fca8a0f46ea73e7d2de74350f09d1d78cf43271d1a90a8ae7a"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "probe": "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。；F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。",
+      "contract_sha256": "114de004ffa018e3209b6ff88e773b463e9f9ef3a48012a0d34048a79758a7af"
+    },
+    {
+      "case": "A-B11-06a",
+      "issue": "R341-B11-06",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "probe": "REV-B11-05 报告与赛前服务并行，并验手机端持久保存。实施入口与反例见 specs/review/storage.md / A-B11-06b。",
+      "contract_sha256": "4dc024ca3fa943b0428a5cbe182ce14a2f8380049d4a7614c43b4c4556b408cd"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "probe": "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。",
+      "contract_sha256": "647446fff62a9134722c144a21e1042e1847903f4f31f85a252aab564a8c3c16"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+      "probe": "维护既有严格null/type/shape校验，新增有界只读错误注册接口供适配器归并；不得改scalar返回默认0。",
+      "contract_sha256": "48f337a50269ec7e4930bf382d2146fc793a5f62367c5794bafdef9c58df4a88"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "probe": "结构完整验收之外增加sourceHealth摘要一致性约束；内层source failure未计入总览即校验失败，不重定义历史96项编号。",
+      "contract_sha256": "267615e058d145bc50465bd9247eca713ca9059f774d1349b464c1ce93fe3dd8"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportSourceStateR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportSourceStateR341.java",
+      "probe": "输入结构化子源结果；输出SOURCE_OK/EMPTY/UNAVAILABLE及reason枚举和原始细分state，UNKNOWN数值为null；FieldFollowup、图表适配、总览共用，无业务写入口。",
+      "contract_sha256": "f23736e1987a218d85c4bb653f9d796e685d161f1f9e82ddd83d5bb7688f66a6"
+    },
+    {
+      "case": "R341-B07-04-A01",
+      "issue": "R341-B07-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+      "probe": "主包：以权威 settled decisionId+target+model+feedback schema 为事件键；记录真实误差/残差/支持域，ACK 与下游 outbox/effect 引用同事务。；F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。",
+      "contract_sha256": "c45c20d7cd7bc217d83a80469267e69f875fa2eed76f1fefebf7fc175a71ac59"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+      "probe": "读回研究贡献与真实决策身份；影子贡献不能计为真实应用",
+      "contract_sha256": "e7493639cda86c9ee9f5e3efc547cae87d5bf280b4cbc294ebb291974b061b53"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ResearchVisualDataR82.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ResearchVisualDataR82.java",
+      "probe": "扩展不可变展示payload：displayState=HAS_DATA/EMPTY/UNAVAILABLE，reasonCode单独保存WAITING_SOURCE/WAITING_RUN/SOURCE_ERROR/TIMED_OUT/STALE/PARTIAL；UNKNOWN数值仍NaN/null。",
+      "contract_sha256": "65e1a353c160c085d05918263139a68dd2d90628f168469c6a2ec45ef9cbc86b"
+    },
+    {
+      "case": "A-B10-03a",
+      "issue": "R341-B10-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+      "probe": "从有效归档恢复受保护对象；错摘要或唯一副本保持保护",
+      "contract_sha256": "640237fcf388acf4ab17178161a5c278d8ff2f559699f2f648b0a259e479b58c"
+    },
+    {
+      "case": "A-B10-02a",
+      "issue": "R341-B10-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+      "probe": "读取匹配快照并可重建缓存；失效缓存不充当唯一原件",
+      "contract_sha256": "169f6dd5470e6a297f4e15379e5ba36f3528af20922957c9d087b0acd54da6dc"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+      "probe": "实际清理计划按注册表归类；保护对象不可按缓存删除",
+      "contract_sha256": "66604e318b5ef05919f45a2c4865b72aad78624559978378ace8e57b8cdc10bb"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RetentionWorkingStorageQuotaCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RetentionWorkingStorageQuotaCP12.java",
+      "probe": "受限工作区可增量提交；过预算保留既有唯一依据",
+      "contract_sha256": "f5609c42294669c0bd23620259a1296d5b221855a57979442359d3d9748aec48"
+    },
+    {
+      "case": "R341-B01-04-T01",
+      "issue": "R341-B01-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java",
+      "probe": "成功证据只从已提交事件或commit receipt解析；UNKNOWN不给成功。",
+      "contract_sha256": "4a31ced43623a288b7cfc6c8250f1fe86161cab2abc1d070e17b3e9bd7cde310"
+    },
+    {
+      "case": "R341-B01-02-T01",
+      "issue": "R341-B01-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+      "probe": "每条新事件带明确 scope；旧行缺字段投影为 LEGACY_UNSCOPED，不能默认加入当前窗口。",
+      "contract_sha256": "e69d5f7653d7c55a4dc6155eca31a5a3a8ec028b99407b261db899b87abb17b2"
+    },
+    {
+      "case": "R341-B01-02-T01",
+      "issue": "R341-B01-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+      "probe": "NEW：只读不可变 Scope 对象；采集 wallAt/monoAt/SQL snapshot watermark；连接观测只允许同 databaseIdentity 和明确兼容 scope，返回 mismatch reason。",
+      "contract_sha256": "a843f8344fdf8b09cdeaf8b4d227785123e79cefd093ed00ebc911b2cb3da039"
+    },
+    {
+      "case": "R341-B02-04-T01",
+      "issue": "R341-B02-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RuntimeReadSnapshotR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeReadSnapshotR341.java",
+      "probe": "NEW：versioned immutable snapshot，含scope/sourceCommitAt/expiresAt/readStatus；singleflight刷新+有界队列，SQLite Cursor生命周期在工作线程内关闭。",
+      "contract_sha256": "7c6f82ca2a6f6524134718179729c6bc2c7a9e511e3395ca92ed71b54da6f436"
+    },
+    {
+      "case": "R341-B05-02-T01",
+      "issue": "R341-B05-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RuntimeRecoveryCoordinatorR926.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeRecoveryCoordinatorR926.java",
+      "probe": "将恢复控制记录关联recoveryId与progress receipt；保留原合法性保护和报告接口。",
+      "contract_sha256": "f374ec7c037cf0f2c84cfea0f8193961127c08fea4aa3fd395be6704c4739c93"
+    },
+    {
+      "case": "R341-B01-05-T01",
+      "issue": "R341-B01-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RuntimeScenarioRecorderR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeScenarioRecorderR341.java",
+      "probe": "NEW：有界保存base/target、原开奖时间、history rows/hash、固定deadline、generation/fence、phase时间；仅供离线重放，不能导回生产预测表。",
+      "contract_sha256": "3b2a9853c2bf7c7ee30bee3eb67d27087019473c8380af9c67af53f8cb53ed87"
+    },
+    {
+      "case": "R341-B04-01-T01",
+      "issue": "R341-B04-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "probe": "将两表/索引及定义指纹加入critical contract；version/contract revision变更由唯一schema owner提交并形成迁移receipt。",
+      "contract_sha256": "f35d57594141c89cad4649577b06de9119b7751f84a2909756bd41598e758da5"
+    },
+    {
+      "case": "R341-B01-02-T01",
+      "issue": "R341-B01-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "probe": "记录 releaseId、processEpoch、bootId、databaseIdentity；保留 lifetime 与 currentEpoch 两套字段，不覆盖历史。",
+      "contract_sha256": "623004fb43721287b667ae7c6fb4640a81090d1c2d1eee26c03c89df351823e4"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "probe": "主包：沿B04权威冻结/decisionId/target结算，R27资格账消费结果不能自建第二笔trade。；F4-B09-02 核验授权与撤销交错时唯一交易和唯一结算。见 specs/field4/gate.md",
+      "contract_sha256": "7f28b70ab8e61f2afb2d557f123eee2aeb4cd906009d44a59bf01b9e4052b26e"
+    },
+    {
+      "case": "R341-B04-05-T01",
+      "issue": "R341-B04-05",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "probe": "入队开奖在重启后同键结算一次；重复及缺冻结保持各自终态",
+      "contract_sha256": "fa80257eccc03843b2890f6b335f82f98e6f622461f5211ceb6cb1f561da42ca"
+    },
+    {
+      "case": "R341-B01-02-T01",
+      "issue": "R341-B01-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/SourceManifestR815.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/SourceManifestR815.java",
+      "probe": "沿用生成源身份，禁止手填源码 commit；新增运行证据 envelope 消费该身份。",
+      "contract_sha256": "7d05ee301dbe113529cf61dfb6c58096aebe69692ee89c3e0160d8ae8489237d"
+    },
+    {
+      "case": "R341-B01-03-T01",
+      "issue": "R341-B01-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+      "probe": "NEW：应用私有目录有界 framed journal，CRC+序号+强制落盘；不引用 DbStore/SQLite/DatabaseCoordinator；首个失败与未闭合阶段受保护。",
+      "contract_sha256": "6d18691a546af898af31f82270c09d9ecfc37454f0b753af2365b9d354c217a6"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "probe": "引入版本化分类增量策略；现有受保护字节记protectedDebtBytes，不能作为可删预算；以完整实际总量检查物理空闲，按分类工作集和未落盘reservation检查增量。；普通最低空闲保留256MiB；关键结算/事实写入的应急区为另行预留的64MiB有界空间，耗尽输出STORAGE_CRITICAL，禁止无限豁免。",
+      "contract_sha256": "6f9085d4da22a55b1e65cc1eb036d9f0b0b475ed3182dfa1f47644cbcee08be0"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+      "probe": "分别公布logical/allocated、完整目录范围、dbstat截断和采样时间；分类不重叠；未知allocated不回填logical冒充。；F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。",
+      "contract_sha256": "3f2b370e2241c3482733e809e03606dbec8f33fe547f1bc6cff32dd99843d246"
+    },
+    {
+      "case": "A-B10-03a",
+      "issue": "R341-B10-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointServiceR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointServiceR31.java",
+      "probe": "服务响应对应实际保存或恢复；进程死亡后不把请求当成功",
+      "contract_sha256": "b3c41944ebb8d8e898f3ebdcde1a2394487f589e7498079cd8d124d1ec77cd60"
+    },
+    {
+      "case": "A-B10-05a",
+      "issue": "R341-B10-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
+      "probe": "写前按源+candidate+WAL+已有backup峰值预约；不允许覆盖尚未处置的旧backup。；遵守已有journal→fsync→关闭句柄→原子swap→重开integrity/表计数/关键hash验证→结束回执；失败按journal恢复原库。",
+      "contract_sha256": "7281e62f9c680323095adc8afdce4a1c3a7988e551bb9d7761fd7ec7173f5156"
+    },
+    {
+      "case": "A-B10-05a",
+      "issue": "R341-B10-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+      "probe": "进入显式维护窗口前检查无在途关键写/冻结读/报告pin，持有维护租约并发布原因与进度；临近目标期或空间预约失败则延后。；复用现有恢复证明与托管服务；当前旧备份保持保护，不因压缩完成自动删。",
+      "contract_sha256": "866be955003b8a5597c6b337546d83bbc7a0e809ac0b90b0ca1f2280e4ef9e47"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/StoragePolicyR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/StoragePolicyR341.java",
+      "probe": "输入category、criticality、maxGrowth、protectionClass、censusHash；输出ALLOW/DEFER/REJECT、remainingGrowth、reason、policyHash；由StorageBudgetR31.reserveOnceR31及ensureAdditionalOnceR31调用，无独立写库入口。；初始受控工作集上限1.5GiB：可重算图表128MiB、临时报表256MiB、未发布模型512MiB、诊断索引256MiB、其他工作集384MiB；唯一原件单列，不强行纳入缓存驱逐。单次可选报表增量上限128MiB，超出改用流式/分卷/明确拒绝。调整须版本化记录。",
+      "contract_sha256": "72c89f61edef68f29827e3448184d4e10ae41b81ab373fb7facca7e635370ea2"
+    },
+    {
+      "case": "R341-B05-03-T01",
+      "issue": "R341-B05-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+      "probe": "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。",
+      "contract_sha256": "e4690c4545efd168a761af9fe05493324e3fdbd02ba1f38259f3e985c5931e3f"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "probe": "研究选择在截止前冻结并由合法通道消费；错代错目标不得串用",
+      "contract_sha256": "a05bfbbcf896ed641d1be4568795322f4a7cffa6b4c81a7fb112c46587da9dd5"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java",
+      "probe": "签收已构建产物实际身份；旧清单单独不能赋予出手资格",
+      "contract_sha256": "027358469abf6ac894e4e5bbebb74b4909171d20db1745c73151b1d9b5588d4e"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/V51DecisionGateCore.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/V51DecisionGateCore.java",
+      "probe": "兼容门的真实调用者和输出可追溯；其正值不能独立生成第二份决定",
+      "contract_sha256": "dfe66be674e0a33a38ad729bb8152c5e43abaf0c5b9f4dee4c74b5d09a34b9f6"
+    },
+    {
+      "case": "R341-B04-04-T01",
+      "issue": "R341-B04-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+      "probe": "保留核心bundle原子性、PIT和授权门；只把可派生大对象准备移到锁外，不能拆出会造成半canonical的写。；F3-B04-01 同一期分开判断S0、PIT投影、正式冻结及结算。按 specs/field3/runtime.md 和 R341-B04-04-T02 的正反例实施复验。",
+      "contract_sha256": "3824ccd0bba96f9fd45be90d73e9cc636473206ef7ea07986a44f24ea399ce62"
+    },
+    {
+      "case": "R341-B04-04-T01",
+      "issue": "R341-B04-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+      "probe": "同目标编排交付唯一规范结果；重试和迟到不得二次结算",
+      "contract_sha256": "96559bd5cbfccd65bd8b2b1fb09af048c043b902739891c401937e6f6b2d0e2c"
+    },
+    {
+      "case": "R341-B02-01-T01",
+      "issue": "R341-B02-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+      "probe": "NEW：输入lane/deadlineMono/rows/bytes/statements与等待开始；返回permit或RESOURCE_WAIT及nextDue，不能跨线程强行结束事务。；REV-B02-01 在 B10 存储策略交付前独立签收写入期限。实施入口与反例见 specs/review/build.md / R341-B02-01-T02。",
+      "contract_sha256": "ec21fe4e330a74d014af81387350921f33ac62af9c721408ee505c677dabed69"
+    },
+    {
+      "case": "A-B10-04a",
+      "issue": "R341-B10-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+      "probe": "只输出有序缺口与补取任务，无直接编造draw写入；调用LongScaleSummaryR80.prepare和既有归档/事实入口，由B04唯一事实owner接纳权威来源。记录来源hash、receivedAt、acceptedAt和修复epoch。",
+      "contract_sha256": "4425c1fdd4940a32e44a2543ce0ba04aa31f95bc8b5a426221caf0b89619d533"
+    },
+    {
+      "case": "A-B10-04a",
+      "issue": "R341-B10-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleSummaryR80.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleSummaryR80.java",
+      "probe": "将缺口诊断固定到epoch/generation/through/nextExpected/nextObserved，恢复后生成新epoch或证明连续补齐，CAS提交不污染旧冻结源。；所有新补取/重新构建的可用时间按真实返回/发布时间记录RECOVERED_AVAILABLE_NOW；原epoch、原始INVALID_SOURCE与修复关联均保留。",
+      "contract_sha256": "14ceabcb1e2a8d9507bf0daf690b1568e076db17aa92aab5bf8f36d3b2f3f8dd"
+    },
+    {
+      "case": "A-B10-04a",
+      "issue": "R341-B10-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/r952/LongSummaryBindingsR80.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/r952/LongSummaryBindingsR80.java",
+      "probe": "当前源使用新有效epoch；历史源继续检查available<drawAt及严格目标前驱，不因修复成功放宽PIT。；旧冻结spec依赖仍绑定原epoch；不静默重指向新数据，用新候选/新frozen身份重新研究。",
+      "contract_sha256": "9e9a6039a53a4c93ce7708d386b7e7e512bc0a64c20b4b95b8b62f57f65b2f1e"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "probe": "从实际捕获追到候选和训练游标；固定旧候选的反复预测不计新生",
+      "contract_sha256": "af551dec2427fe30cf5bf2bacaa2ea446cfa4a38e6fc69b6c7fa1993139c7197"
+    },
+    {
+      "case": "R341-B09-03-A01",
+      "issue": "R341-B09-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AssetQualityVerdictR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AssetQualityVerdictR341.java",
+      "probe": "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。",
+      "contract_sha256": "d04be8d3066f90f9f6b8b97ddb452e8ea7bc841380d309cba8e7010a64d33005"
+    },
+    {
+      "case": "R341-B07-02-A01",
+      "issue": "R341-B07-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "probe": "提交 guard 拒绝 stale old-state hash，stage/commit 的幂等键使用 optimizer epoch/step 和 owner fence。",
+      "contract_sha256": "cd64e169f9d3ead113bdcd2e3af56c92ad06ff4b2b04d062743a6663927282b2"
+    },
+    {
+      "case": "R341-B07-01-A01",
+      "issue": "R341-B07-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "probe": "用 B03 已安装 r34 缺标签/optimizer 表；按 issue+position+featureABI+source revision 幂等准备样本，标签只在权威结算可见后允许用于开发训练。；REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。",
+      "contract_sha256": "48f425f2dd2649f3cc92100dab40d6655d749afd30456b3da8e449a4706f0848"
+    },
+    {
+      "case": "R341-B07-05-A01",
+      "issue": "R341-B07-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.java",
+      "probe": "每对象重试、退避、失败隔离；原件仍热可读时不阻训练；容量已到硬限才回报明确 CAPACITY_WAIT，不能无限增长。",
+      "contract_sha256": "6ea35c9f5fc5d029f22f3de7d1059e114764b82468b66ad33246415a52099edf"
+    },
+    {
+      "case": "R341-B07-01-A01",
+      "issue": "R341-B07-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+      "probe": "同 epoch 十位置一致；partialIssue 非空不可发布；缺位置保持部分状态，不写“完整轮”；恢复继续缺项。；REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。",
+      "contract_sha256": "b6e9db0018de612617a0f5d59ca4e7adc2849991263496dcca1a7ef9009d98d9"
+    },
+    {
+      "case": "R341-B07-02-A01",
+      "issue": "R341-B07-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+      "probe": "训练状态写入后原模型恢复并继续；错检查点不出替代模型",
+      "contract_sha256": "256b12127a7ed684e6499bb4f8a756e7ee793ce910b97640dcca3fa5807e0a60"
+    },
+    {
+      "case": "R341-B07-01-A01",
+      "issue": "R341-B07-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+      "probe": "REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。",
+      "contract_sha256": "6afd356a6a7adb0d850727f05f84fe2e3f4ee56979818c916af8add7f6656c67"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+      "probe": "规范 AST hash 精确去重，冻结 TRAIN 探针上的动作/概率指纹近重复筛选；不同机制保留单独候选，不能借未见评估选择探针。；F3-B06-02 21个思路族的可执行公式与报告处方逐一对照。按 specs/field3/learning.md 和 R341-B06-03-A01 的正反例实施复验。",
+      "contract_sha256": "be3da0105680bcbffced7c0a8286c2b86b0c94f1034b9cb3f38ae009b8e237e8"
+    },
+    {
+      "case": "R341-B09-03-A01",
+      "issue": "R341-B09-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "probe": "REV-B09-04 选择后校准与模型/策略独立取证。实施入口与反例见 specs/review/report.md / R341-B09-03-A01。",
+      "contract_sha256": "f1121baadbae9d31078190949c8d70c16cae8befd63e111cf806f42235a3337a"
+    },
+    {
+      "case": "A-B11-03a",
+      "issue": "R341-B11-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+      "probe": "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。",
+      "contract_sha256": "33777a2570d1a6075b3c67d23cc96e5d93a43969995dcac2cda91b63cc6b1a95"
+    },
+    {
+      "case": "A-B11-03a",
+      "issue": "R341-B11-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+      "probe": "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。",
+      "contract_sha256": "cd1cc62811b1d5f7a634e2a7b1e2b5d6f04a8ae2c54422caa8e20405100ca151"
+    },
+    {
+      "case": "R341-B09-02-A01",
+      "issue": "R341-B09-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "probe": "REV-B09-02 同一期分批冻结、重试和超时后机会总数守恒。实施入口与反例见 specs/review/algorithm.md / R341-B09-02-A01。",
+      "contract_sha256": "208e38270fa1b0c6b9cbd02eca938c386da6a807996b26ed7286c68db2dd9808"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+      "probe": "语义/模型/校准失效、证书到期、原件冲突按原合同撤销；撤销与阻断选择同事务。；F4-B09-02 核验授权与撤销交错时唯一交易和唯一结算。见 specs/field4/gate.md",
+      "contract_sha256": "142e6b306231c223366a997d41da3096c25eecca4e1a810c809eeca357f325ac"
+    },
+    {
+      "case": "R341-B03-04-T01",
+      "issue": "R341-B03-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java",
+      "probe": "活候选引用完整闭包；缺原件隔离该对象且独立对象继续",
+      "contract_sha256": "f324d17ec643f2b7f43be752de5ff08c2bba4b8ea80db5e32f742dbf595121c7"
+    },
+    {
+      "case": "R341-B03-04-T01",
+      "issue": "R341-B03-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointDependencyR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointDependencyR341.java",
+      "probe": "NEW：只读依赖映射，输入受保护source引用与task manifest；输出 READY/WAIT_SOURCE/UNVERIFIED/CONFLICT 和证据引用，不生成替代权重。",
+      "contract_sha256": "1c96bdbf40622d72cba8be0815ef6094bdb8871ac9cfbe09d27bcef7c4e1314a"
+    },
+    {
+      "case": "A-B10-03a",
+      "issue": "R341-B10-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcReachabilityR324.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcReachabilityR324.java",
+      "probe": "按局部闭合分量证明GC，不因别处缺失阻塞已闭合无根副本，也不因全局统计看似零引用跳过闭包。删除前复验引用、pin和文件身份，删除后独立回执。",
+      "contract_sha256": "49045d4f741df8e1d28347b36d85d05738486a0f900d4d15d45e8b7e07e3e208"
+    },
+    {
+      "case": "A-B10-03a",
+      "issue": "R341-B10-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointGcStoreR31.java",
+      "probe": "恢复登记与引用状态CAS一致；未知原件不得被新候选继承为验证祖先。",
+      "contract_sha256": "120a61c26f649fddf7892b5657442af01d9f1a4d935a20b794ef3e64ff7a7a8e"
+    },
+    {
+      "case": "A-B10-03a",
+      "issue": "R341-B10-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+      "probe": "逐对象记录MISSING/AVAILABLE_UNVERIFIED/VERIFIED/MISMATCH/UNRECOVERABLE，保存探测位置、hash、字节数、最后尝试、下一次退避、owner lineage。；恢复仅从已授权备份/intake读取，流式拷入temp→hash校验→fsync→atomic publish→短事务注册；同objectHash幂等，冲突原件隔离不覆盖。",
+      "contract_sha256": "60c842d14182cae8219f9657f8efb802267fd6f59b7525585d39254dcb998305"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthContractR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthContractR34.java",
+      "probe": "沿已有 sourceKey/campaign 身份与 requireFreshCounts 零继承断言补齐字段核验；保留原身份版本，不新增并行身份规则。；REV-B06-01 旧父代遇到空 ABI 时可计数、可恢复。实施入口与反例见 specs/review/algorithm.md / R341-B06-01-A03。",
+      "contract_sha256": "9f87ea62338c1ed65e55c40462e45932f1ad6692b412252953f87c9474e662c2"
+    },
+    {
+      "case": "R341-B03-03-T01",
+      "issue": "R341-B03-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+      "probe": "只在实际schema-ready并拿到当前fence后执行；缺source、缺父对象返回准确dependency，不伪造candidate。",
+      "contract_sha256": "5178209e14281544cf24aa7fcad7934587a5b9f6d1910c722964288fbdc70895"
+    },
+    {
+      "case": "R341-B03-02-T01",
+      "issue": "R341-B03-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+      "probe": "DDL常量为现有权威定义，安装后逐对象验证；保留已存在行及schema版本。",
+      "contract_sha256": "eb8437cc469b4f2215322b9605e8b685d509d9896b7e23cb27bb990d8bad3fcc"
+    },
+    {
+      "case": "R341-B08-07-A01",
+      "issue": "R341-B08-07",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+      "probe": "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。",
+      "contract_sha256": "b97cac40be9e43a2e65cb1b6ccf7c9decca2c65f24d20d40546e9137e8a00191"
+    },
+    {
+      "case": "R341-B08-05-A01",
+      "issue": "R341-B08-05",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+      "probe": "实际被选择的派生原子进入子代；未来泄漏或没有行为差的分支留痕",
+      "contract_sha256": "3ec18ea859e754eac271bb40e3ad928a01fb6cab611d7f1a81448f0367cd8659"
+    },
+    {
+      "case": "A-B11-03a",
+      "issue": "R341-B11-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+      "probe": "诊断读回同范围原件；不同水位或缺源不能拼成成功",
+      "contract_sha256": "01bda72413434e842cbf6600bd1815a44d88c0269cc0714183476cf61f253700"
+    },
+    {
+      "case": "R341-B08-05-A01",
+      "issue": "R341-B08-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+      "probe": "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。",
+      "contract_sha256": "51ec981597ded7038c10ca48ce1b9451c47de4299e5aabdb17b62e070eac404c"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "probe": "F3-B06-02 21个思路族的可执行公式与报告处方逐一对照。按 specs/field3/learning.md 和 R341-B06-03-A01 的正反例实施复验。；F4-B06-03 同一公式的历史拒绝与已成功出生分别处理。见 specs/field4/birth.md",
+      "contract_sha256": "59609110cb915e9e6e5ee7d62522c2bac0fe49b29d933fc4e1f342608e656497"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.java",
+      "probe": "真实发布批按期望绑定值读取；SQL参数或声明不匹配被拒",
+      "contract_sha256": "301baa6af91c7ed3e260b0949085a89155dfee98f9c419a5cddb732f23d8f500"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java",
+      "probe": "出生相关发布事务可回读且重试幂等；半提交对消费方不可见",
+      "contract_sha256": "478166cfb6d91d553f5fc3ad57fab91121b2048386f229969fdfbe7f401b9d79"
+    },
+    {
+      "case": "R341-B06-04-A01",
+      "issue": "R341-B06-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertContinuationR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertContinuationR26.java",
+      "probe": "可执行专家续算消费自己的父态；审计专家或无效父态不冒领训练",
+      "contract_sha256": "0ffe50c259fd51897198445aeb6b390d808ac865081d0cb6918164b543e8ed5a"
+    },
+    {
+      "case": "R341-B06-04-A01",
+      "issue": "R341-B06-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertExperimentR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertExperimentR26.java",
+      "probe": "Pair 状态可恢复；源角色/目标改变则新实验身份，保全原实验；缺组件只阻塞该专家。",
+      "contract_sha256": "21b1042688ec1df0620729016ef42d8e8b7321c658c5be842262fb189b2566f1"
+    },
+    {
+      "case": "R341-B06-04-A01",
+      "issue": "R341-B06-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+      "probe": "处方包含具体 AST 操作、父策略、来源 measure/run、预期检验，非可执行文本标 AUDIT_ONLY。",
+      "contract_sha256": "0b8aa247f6f04551d083033eaf2304e61cb747ec15fd1dec5db8bd47ef5c9b0e"
+    },
+    {
+      "case": "R341-B06-04-A01",
+      "issue": "R341-B06-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+      "probe": "实验输出必须绑定 Pair 的两个合法组件、目标、角色、输入摘要、真实 child AST；审计输出 audit receipt 不冒充出生。",
+      "contract_sha256": "d06dea4880b3f2791a50d5668359d2c7ee9e9b318e37334365b3e0608694e163"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+      "probe": "F4-B06-01 把新工厂的基础种子与坏历史父代、失败研究输入隔离。见 specs/field4/birth.md",
+      "contract_sha256": "c47a8943a08c7a2469f76f052c0bb53da60f428a2a7a5a534710c4042ba80db5"
+    },
+    {
+      "case": "R341-B02-01-T01",
+      "issue": "R341-B02-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "probe": "写入失败被分类并走正确的重试或上报；永久失败不循环占写者",
+      "contract_sha256": "f0be691bc2c7eacdd25341f55ea3ba7588ef8f0f2ab97606cd4ddfbf9998a50b"
+    },
+    {
+      "case": "R341-B08-05-A01",
+      "issue": "R341-B08-05",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureProfileR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureProfileR30.java",
+      "probe": "同范围失败画像改变一个可观察的变异选择；错父代画像不能套用",
+      "contract_sha256": "7614789fb7e6775c766ab898330cb9e7e446c45fec87dbf4111db312601b3989"
+    },
+    {
+      "case": "R341-B06-02-A01",
+      "issue": "R341-B06-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+      "probe": "F3-B06-01 24个模型家族逐一执行检测报告指定的机制对照。按 specs/field3/learning.md 和 R341-B06-02-A01 的正反例实施复验。",
+      "contract_sha256": "82aa80e64fd78a52631a32f9ea094c56307c6a13c6b106467df9e4ce2d3fc059"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+      "probe": "每个source projection输出typed state、scope、reasonCode、errorRef、rowsReturned、totalRowsKnown、sourceQueryStatus；缺表显式SOURCE_UNAVAILABLE。；按所有子查询结构聚合sourceErrors，不只捕捉顶层异常；max32页显示不当作全量行数。",
+      "contract_sha256": "e7ab28a74296a30fa71777b18ec3c9f9c015fb2134cd2e12e63df5fc88609c9e"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java",
+      "probe": "NEW 接口 canonical(Node,Abi)->bytes、fingerprint(Node,Probe)->Behavior、diff(parent,child)->NodeEdits；仅规范等价序列化和交换律安全节点，禁止浮点结合律重排。由 StructuralProposalR26.add 与 BirthGateR27.checkCandidate 调用。",
+      "contract_sha256": "24ec93902d48402b4b75fc636548c87742d76f715ecffce8acad90017c6d4e33"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "probe": "F4-B06-01 把新工厂的基础种子与坏历史父代、失败研究输入隔离。见 specs/field4/birth.md；F4-B06-02 稀疏历史仍用真实可训练尾段完成冷启动。见 specs/field4/birth.md",
+      "contract_sha256": "1ca79b73d1381ed9000b6f16420a469b8aad24468d2c4c2ec2dddb44d066573e"
+    },
+    {
+      "case": "R341-B09-01-A01",
+      "issue": "R341-B09-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "probe": "冻结child/parent/control、AST/model/feature ABI、role边界、calendar、规则、seed、统计计划；评分不得再选阈值或窗口。",
+      "contract_sha256": "8fdd6f69683ff26de08662c5345974cb604b227e555b3fe7a9a9751bd1a4846c"
+    },
+    {
+      "case": "R341-B09-01-A01",
+      "issue": "R341-B09-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+      "probe": "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。；REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。",
+      "contract_sha256": "811b50573c34ec21d89605714a4f91d5c8c7b87e8bf6b0585c6d0c8f53956e1d"
+    },
+    {
+      "case": "R341-B08-06-A01",
+      "issue": "R341-B08-06",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+      "probe": "只合并同position/target语义、角色与pin相容的两亲；融合权重只在TRAIN拟合，SELECT选方案；新策略独立hash/lineage。；F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。",
+      "contract_sha256": "b32695feae3f5dec743ea98bc9b19f58a6977c29f4abb304993fc1b383bc3df7"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FutureModelRegistrationR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FutureModelRegistrationR34.java",
+      "probe": "未来注册固定 publication/weights/feature ABI；注册时点之后模型更新不改变已注册实验；改变模型须新实验与独立证据。",
+      "contract_sha256": "838a7427e91c43a4cc0d67de58999739225476f0464291888389c19e1cfe3822"
+    },
+    {
+      "case": "R341-B01-04-T01",
+      "issue": "R341-B01-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
+      "probe": "进程内观测待刷与DB实际提交分开；重启缺进程缓存不能倒推失败或成功。",
+      "contract_sha256": "5c40c9eeb5ef6786e7f4980dadae0019291753f1f6102ca2323a477be95a792b"
+    },
+    {
+      "case": "R341-B09-01-A01",
+      "issue": "R341-B09-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "probe": "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。；F3-B09-01 将I13单独选择时机的价值与只挑高分时段的效果分开。按 specs/field3/research.md 和 R341-B09-01-A01 的正反例实施复验。",
+      "contract_sha256": "ab97ee07829e63ce77422a03cdc7fe9f1a46af12471479029078d3a39ac12e6c"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStateR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStateR26.java",
+      "probe": "恢复出的状态能够预测并继续学习；损坏旧状态不计新版本出生",
+      "contract_sha256": "ec1659984b6c60e7bf9d4cb2187e37d6702b2b8b03d63bfaca2c2ef0c665e33e"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "probe": "直接适配原冻结position/K3；不得再次预测、挑新位置或补号。；F4-B09-02 核验授权与撤销交错时唯一交易和唯一结算。见 specs/field4/gate.md",
+      "contract_sha256": "20d810775b06e3bd4f885d492fda70f157b9403c64685371da7fe3e28b142fd2"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceSU1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceSU1.java",
+      "probe": "查明当前版本选取或回退的权威消费者；旧选择不可成为独立出手门",
+      "contract_sha256": "9b04859505050fbfac22d50b739716528ac1a67db1230aecb81638dc6e043252"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+      "probe": "有效选择可以读回，撤销后下一次选择不复用；已冻结期保持原件",
+      "contract_sha256": "1bae73a65f2d7ab1bd6f4a6d6f8ee87c3f9b1a25852323173f213c3ce8860e07"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "probe": "核验证书gateVersion/有效期/撤销、policy/model/calibration/qualification不可变绑定与同目标；冻结时CAS source revision。",
+      "contract_sha256": "da55692fff73b00c2331619ec072a24377825802c4a36998282ce83d2b131486"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+      "probe": "冻结使用资格注册模型身份，拒绝当前latest替代已认证模型；记录实际model call来源。",
+      "contract_sha256": "01228b10718d5484caadaa0db56500b9ca77102a177b2539035702b03b9065e6"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+      "probe": "按实际各kind shape/axis/support生产；EVIDENCE_TEACHER可用同位置原归档策略作研究教师，明确不得替代F23原VM；RESOURCE_EFFICIENCY未测memory/queue列维持缺失。；REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。",
+      "contract_sha256": "f75fd0a274dd9a8b048e7fc46b31b4e106d101b5d16e84c446f59cbcd009a2da"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+      "probe": "分别导出legacy algorithmConsumer与实际typedConsumers；前者PERSISTENCE_AND_DIAGNOSTICS不意味着后者缺失。",
+      "contract_sha256": "5b6c70681adc34321f4c747232096fb7cd6e7606949593d93cc98c87b48beee2"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+      "probe": "每对象输出 role、target、knownAt、shape、axis labels、mask、support、artifactHash、消费引用与状态；20对象包含独立 SU2 teacher checkpoint，不能漏掉。",
+      "contract_sha256": "d073543b17619e8be0268b19a2c5ad50e2c0650305ef1011e50e66cfb6ba5cde"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+      "probe": "维持 source-only 优先和每kind隔离；19 R930 kinds按各自产物原件生产，COUNTERFACTUAL 原有专属来源单独接入，不绕过其精确组件移除合同。；REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。",
+      "contract_sha256": "03a8db37c26f35c769643fb01e142efe7895228d6b33a7a8c7c8beb173224e11"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+      "probe": "20项之一为SU2 factor/teacher bundle；每factor10位置权重与原stream codec校验，保留原owner可见时间。",
+      "contract_sha256": "c0bdf17bca605cb39516d70032c5469029d55ff62ee3d0caa8760a68e7647819"
+    },
+    {
+      "case": "A-B11-02a",
+      "issue": "R341-B11-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+      "probe": "统一metric scopeId：installedVersion/sourceCommit/processEpoch/snapshotAt/role/targetFromThrough；当前与累计分开，不混读LIVE及旧合成数据。；延迟保留成功样本分布并并列全目标机会数、请求/成功/超时/未启动/被取代/缺失分子；无成功样本时P95=null。",
+      "contract_sha256": "00e667a38482299c606651b2b4fe9d15b041be8617350f350441c7bd29baa2c3"
+    },
+    {
+      "case": "R341-B06-02-A01",
+      "issue": "R341-B06-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+      "probe": "工厂任务切片产生可复现的状态推进；仅轮询running不计训练",
+      "contract_sha256": "81d1950e6c24e13c80c6b023441200815933e87ad44d3105ba164a01b3cef726"
+    },
+    {
+      "case": "R341-B06-04-A01",
+      "issue": "R341-B06-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+      "probe": "绑定批准的回放和合法角色或记录缺依赖；错模型样本不进入学习",
+      "contract_sha256": "38011fbab0cf8e4adc7ba61f4259738e8a0db0ef74d1c536d551af3fd709650d"
+    },
+    {
+      "case": "R341-B07-04-A01",
+      "issue": "R341-B07-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+      "probe": "F3-B07-02 按R15把没有回放、固定回放、候选回放分开比较。按 specs/field3/research.md 和 R341-B07-04-A03 的正反例实施复验。",
+      "contract_sha256": "b59fc64b1269d3eb2e9d797c4180fad3bd2dd9286cd26b420620714bc2c6cce7"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
+      "probe": "校验 position、target、featureThrough、historyHash、prepared/frozen/deadline 与 published modelHash；不得内部取 latest 替换已绑定模型。；F3-B07-01 区分深度网络两个输出头及各自被哪种动作消费。按 specs/field3/learning.md 和 R341-B07-03-A02 的正反例实施复验。",
+      "contract_sha256": "7bb21d79a7dfe00d508a49eb0d94874ab6bd345d562919ae7b14a032938e9343"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+      "probe": "保存概率面十维值/shape、modelCall 的 publication/model/feature/hash；源丢失为 UNAVAILABLE，不回填均匀面伪作模型输出。",
+      "contract_sha256": "462419d93fd5f72d654b13001f92a72e93abd9fcc61a5434670c6ae47ec63474"
+    },
+    {
+      "case": "R341-B08-05-A01",
+      "issue": "R341-B08-05",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+      "probe": "选定算子实改可执行结构并评测；不可用变异有明确拒因",
+      "contract_sha256": "c16eddd661b5cad60a56cdf3f9d3d096f63c745feaf827472acb67f630e41a15"
+    },
+    {
+      "case": "R341-B09-05-A01",
+      "issue": "R341-B09-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java",
+      "probe": "保留CONTROL_MUST_NEVER_PROMOTE与holdout保护；完整保存搜索池/算子/预算/RNG/alpha索引，崩溃恢复同一路径。",
+      "contract_sha256": "e250e4fea09c3ec5f94e6921e28a741915e3948f1d6474afc5d7875c9059670e"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+      "probe": "保持原 AST 语法、因果约束及资源上限；非法类型/未来访问/非有限值给出节点路径。",
+      "contract_sha256": "67c6c0e6c86ac3bc75eb9600a48d8486ce36758ca51235118d025ac230153c71"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR30.java",
+      "probe": "固定目标位置 1..10、单位置三个不同号码、≤64 节点≤8 深度；随机控制不能申请实盘。",
+      "contract_sha256": "c5c959f424bf491efd2b2d5b8a775ae75b3032a5964b239f81dec8121df2849a"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+      "probe": "规范公式可解析再执行，语义哈希可复算；改名不算新公式",
+      "contract_sha256": "54c589d84b6eb19abed4fcbb7c3f0f14ab4044aefa7cfeb331af02913e27b679"
+    },
+    {
+      "case": "R341-B09-02-A01",
+      "issue": "R341-B09-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+      "probe": "仅用原事前hash、时间证据与权威开奖修复投影；缺原件保持缺口，不发明事前预测。",
+      "contract_sha256": "b40f652c76050c9b831068e8187fcfa76ed0ede028839eaf5c2c04cbc71f856e"
+    },
+    {
+      "case": "R341-B09-01-A01",
+      "issue": "R341-B09-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "probe": "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。",
+      "contract_sha256": "9c8367d7e49b0e0f94e1a9e886e708940a00731f4f389dee8c5fe4497175ecdb"
+    },
+    {
+      "case": "R341-B09-03-A01",
+      "issue": "R341-B09-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualityExperimentR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualityExperimentR341.java",
+      "probe": "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md",
+      "contract_sha256": "416e12dbe5901f78ca52959e27699014a9f1790f6a8157a1860fa9402fb1c037"
+    },
+    {
+      "case": "A-B10-03a",
+      "issue": "R341-B10-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RecoveryLedgerR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RecoveryLedgerR341.java",
+      "probe": "输入原件对象hash、既有恢复request、核验结果；输出状态/隔离原因，不授予资格。由CheckpointRecoveryR335.finish和报告适配层调用；按objectHash+attemptId去重。",
+      "contract_sha256": "64f8cc574d6a1fc88dfa703c118da758f90d7200464d19e12db10aff5ec78fe5"
+    },
+    {
+      "case": "A-B11-02a",
+      "issue": "R341-B11-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+      "probe": "时间/版本/角色不兼容时输出STALE_SCOPE或CROSS_SCOPE，不把旧crash、旧refit、影子命中转成当前主路成果。",
+      "contract_sha256": "ded5e232afc92dde12485281241611da6deb03971118f8b5f0126b00aabdf646"
+    },
+    {
+      "case": "A-B11-05a",
+      "issue": "R341-B11-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+      "probe": "输入只接受验证build identity及生产事件ref；不允许报告渲染者自行把工单PASS。由B01安装身份owner调用recordInstall，现有任务owner提交observation，FieldFollowup只读。；幂等键issueId+sourceCommit+processEpoch+scenarioId+evidenceHash；失败追加不可变观察，不能覆盖失败历史；短事务、有限页返回。",
+      "contract_sha256": "e3e180eef0555fbcbd275fb385287c2c9932a84fd0b396d1accd304707859def"
+    },
+    {
+      "case": "R341-B07-01-A01",
+      "issue": "R341-B07-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+      "probe": "样本记录原开奖可见时间、feature through、源提交及连续区间，拒绝把导入时间伪作历史赛前可见时间。",
+      "contract_sha256": "95faf31c072e1b479db4670387ddf31141a0e10bbab7e3acfadefc6217d5bfd7"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "probe": "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。",
+      "contract_sha256": "fa641c912d6077ba2ff01c26090e528f8403bfb231c0de63d7f72d3dbc894037"
+    },
+    {
+      "case": "A-B11-03a",
+      "issue": "R341-B11-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+      "probe": "当前问题、历史负债、未知证明和实际已完成工程分别输出；引用R341 issue ledger状态并给验证查询。",
+      "contract_sha256": "ca1090f02f4b1968060e479e25a6ce55ec8b5ba61e85a85e2558a1917f7af237"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "probe": "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。",
+      "contract_sha256": "c7e685422a7e11c486fc33accdda7f8708374b80b1617bf1fcd54568108dca04"
+    },
+    {
+      "case": "R341-B06-05-A01",
+      "issue": "R341-B06-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+      "probe": "B06 仅用固定先验和开发负证据；B08 再接实际反馈。设正探索下限，负记忆按机制+dataset revision 精确作用，保护活跃资产。",
+      "contract_sha256": "e4940750c24aa7bad8a497f2aa71b4940caa4f15c95f065e4d7b195d0f03cdef"
+    },
+    {
+      "case": "R341-B08-02-A01",
+      "issue": "R341-B08-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
+      "probe": "将既有动作说明与可执行 actionKind/source contract 对齐；说明文本不能替代真实动作与回执。",
+      "contract_sha256": "644b9b225045f07be619b5e9754c2a4e90185756ab6c4852ea96df70aca4546f"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "probe": "BORN child、lineage、proposal consumed receipt 同一事务；非出生动作必须有实际 before/after状态及提交事务，不能借一个文字ACK。；REV-B08-05 把视图产品消费定位到同源实际动作。实施入口与反例见 specs/review/charts.md / R341-B08-04-A01。",
+      "contract_sha256": "686fa9d871fbec4b02704aa3d3202afed37d4a2d0dea07eda23234fc3edb342a"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "probe": "复用原typed消费者，校验input pin/axis/role/support；use/annotate/stage必须绑定实际child或预算回执；没有可用信号时不假记消费。",
+      "contract_sha256": "c648cc894192d4eff2c0f37b055f53c8fd678205aed068ab24a5fcacb2b2f9b2"
+    },
+    {
+      "case": "R341-B08-02-A01",
+      "issue": "R341-B08-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+      "probe": "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。；F3-B08-05 R04按实际提示窗口核算两个来源、交集及弃权代价。按 specs/field3/research.md 和 R341-B08-02-A01 的正反例实施复验。",
+      "contract_sha256": "33e72d4c1aa9af00a481b46c5b66f67b7bccd67ac6595683e7816a8d35c286bf"
+    },
+    {
+      "case": "R341-B08-01-A01",
+      "issue": "R341-B08-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+      "probe": "事务外有界读；SOURCE_ONLY 不请求学生；释放资源必须 finally；pin 与计算预算同时获得后才开始。",
+      "contract_sha256": "8db1e7baa8de902fb18a8b8927f0e9c332244bab2f26f97f9cdf387704072b23"
+    },
+    {
+      "case": "R341-B08-01-A01",
+      "issue": "R341-B08-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "probe": "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。；REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。",
+      "contract_sha256": "5b9edd1d6a21b3c077f76e6e45a703978b73c307cbb3f5e8d5ecd68fa6ed91d1"
+    },
+    {
+      "case": "R341-B08-02-A01",
+      "issue": "R341-B08-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+      "probe": "按 appendix 中 R01–R18 合同执行；一图一有界切片，错误/等待后轮转；frame 必含点值/support/单位/role/sourceHash。；R11/R14/R18 是正式链只读证据图，缺自然证据显示未观察；R08 固定 TRAIN 探针；其余研究测量用 SELECT/允许的 ONLINE_RESEARCH。",
+      "contract_sha256": "30d3558d33eac5b889812a5474803e3e922ceef599c7c332fb57bf67d5ace8f8"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "probe": "RESOURCE_EFFICIENCY消费既有预算入口，记录实际发放与使用，不以声明budget冒充已分配。",
+      "contract_sha256": "71a7d6eeec9182793f61eba968b811d4628b5c407ca497198ee271e6098e906b"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "probe": "研究结果通过正确类型消费检查；只读或错身份结果不准生子",
+      "contract_sha256": "2ca137c3a8f2462e1023a46b76008c2e065c677190e5f4e812a4f5815a98023d"
+    },
+    {
+      "case": "R341-B06-05-A01",
+      "issue": "R341-B06-05",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+      "probe": "已退役且可恢复内容可回收；活孩子引用的父证据保留",
+      "contract_sha256": "b7e81234f0cba93e587f58618f312a625fce5408a357f3b41ddf6ba4ba475aa9"
+    },
+    {
+      "case": "R341-B03-01-T01",
+      "issue": "R341-B03-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+      "probe": "迁移内仅提交已验证的引用；迁移后保留source与checkpoint证据，实际调用点RuntimeCoordinatorR26.prepareStartupSchemaR34。",
+      "contract_sha256": "b515d04054eab912a7b14a48efeed8ae6fd06515d13db68cc9b478e9831166aa"
+    },
+    {
+      "case": "R341-B08-03-A01",
+      "issue": "R341-B08-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+      "probe": "COUNTERFACTUAL复用paired的1×blockCount专属生产与exact measured child，不塞入通用轮转制造假对照。",
+      "contract_sha256": "8d6b2f813c7efbc7e33cf0a74618ad53773a696803c102798a532e0b0db0c313"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+      "probe": "明确pageRows、pageOffset、filterHash、totalKnown/totalRows；无全量COUNT证明时totalRows=null；现有displayIsFullDenominator=false保持。；REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。",
+      "contract_sha256": "736b30ac47e859bcbf09d202ce607f67acd725cd8da450a192a83c0c65cb648a"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAuditR32.java",
+      "probe": "页内空/过期/混合窗口审计只对页范围结论；sourceVersion不可得继续UNKNOWN。",
+      "contract_sha256": "71f8568c72b1a2dce664df255c6fb39664df4eea087df13baafd6142f4e01728"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
+      "probe": "当前会话可定位生产任务及后续状态；旧注册表行不能代签运行",
+      "contract_sha256": "bc29f8f9eb09ac195570d1a5af282214f700cc1e2f219cc85667eadb51b2bdd1"
+    },
+    {
+      "case": "R341-B02-01-T01",
+      "issue": "R341-B02-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "probe": "队列的具体操作真实提交，提交未知能重试；入队计数不代签落库",
+      "contract_sha256": "e5eb4ec4042c8dcf155fb27ec5bd3ffd9a3d60910c77aed716a531a4f8c0b5fa"
+    },
+    {
+      "case": "R341-B01-03-T01",
+      "issue": "R341-B01-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
+      "probe": "写阶段摘要与精确unit/fence/phase引用；输入hash、已提交cursor和UNKNOWN解析结果关联同一次attempt，禁止每条SQL泛滥日志。",
+      "contract_sha256": "ad6ca4dfc98a3a645846797f8be6c1f1121c03b35049326f741162f134ac4174"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
+      "probe": "长算任务保留可解码的进度重启继续；唯一来源不误清除",
+      "contract_sha256": "1a64115383c5be2248f3385ad779b700dde74ec62442ca604feffc763d8a309b"
+    },
+    {
+      "case": "R341-B01-03-T01",
+      "issue": "R341-B01-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "probe": "在真实调用边界写 begin/end；捕获 WAIT_DEPENDENCY、WAIT_RESOURCE、MISSING_SOURCE、BUG、FATAL；不得把所有 WAIT 抛成致命失败。",
+      "contract_sha256": "93cfed2f5c156593994d88ac4652b256be5bf43e3284863adeb230d46cc2352e"
+    },
+    {
+      "case": "R341-B01-04-T01",
+      "issue": "R341-B01-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeDiagnosticLinksR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeDiagnosticLinksR31.java",
+      "probe": "诊断链接回到业务进度证据；不同进程的事实不得相互作证",
+      "contract_sha256": "759314eb3053501e65839d93fe59fbdfe89d4d3332f66afeda9d5af2718630de"
+    },
+    {
+      "case": "R341-B02-02-T01",
+      "issue": "R341-B02-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
+      "probe": "实际失败落到有界可读证据；上报通道被占用时业务能继续或恢复",
+      "contract_sha256": "c2baeca0ce02f873312166c71b27fb5090c42c3dea3b92b228c819e772e8ed00"
+    },
+    {
+      "case": "R341-B03-03-T01",
+      "issue": "R341-B03-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "probe": "仅在R26初始化完成后启动当前R27 owner；退出和重启保持session代际一致。",
+      "contract_sha256": "0341ab0b05e46688d5eb599305f3ff8cefa0bd408378e2edc4481984792f7804"
+    },
+    {
+      "case": "R341-B03-02-T01",
+      "issue": "R341-B03-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+      "probe": "启动后验证反馈结构可读写；部分表结构或同名错列停在迁移",
+      "contract_sha256": "9c405602aa81d7c3a57328b9a6ff8a21f141a2513dac0246562e632cad90d386"
+    },
+    {
+      "case": "R341-B03-02-T01",
+      "issue": "R341-B03-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "probe": "数据库就绪后观察和写入合同可用；原有不完整结构须被识别",
+      "contract_sha256": "d75f2ddfe5be92dc2cfd34909f573e236b08eba1eebefe45bb86e17c8f57b13e"
+    },
+    {
+      "case": "R341-B03-02-T01",
+      "issue": "R341-B03-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaUnitPlanR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaUnitPlanR34.java",
+      "probe": "校验保留迁移的现有unit预算、fence与UNKNOWN解析契约；生命周期DDL仍用LifecycleSchemaR31.advance自己的单对象owner，不创建第二个DDL安装器。；REV-B03-01 在 B03 验证迁移边界和当前会话可见性。实施入口与反例见 specs/review/build.md / R341-B03-02-T02。",
+      "contract_sha256": "0de5ed3784f3563122650ba936f66f25647190af9533b204472ccdc0ed66b3c1"
+    },
+    {
+      "case": "R341-B09-02-A01",
+      "issue": "R341-B09-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "probe": "仅由按序、已settled、合法独立的账本输入；重复不得累计；缺口处理使用原合同，不把未知变miss或HOLD偷改统计。",
+      "contract_sha256": "ad98510a2ea9f946584d6a3fe7e93ef03dfb9ca461e3e2dfe5af891e5e81e9a9"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ShadowAdmissionR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ShadowAdmissionR26.java",
+      "probe": "合规候选准入影子，其角色沿用到冻结；影子准入不算主链获证",
+      "contract_sha256": "4dcad79365a54625182bfef42b9ac3a031a7b8a5a720f6fbd6db028226981864"
+    },
+    {
+      "case": "R341-B03-01-T01",
+      "issue": "R341-B03-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+      "probe": "保留迁移前原件身份与准确失败原因；准备IO在写锁外。",
+      "contract_sha256": "cbc208e0ba6f2cb447b4176a024ac5374235347e804714b14b4f9cc240ac7eef"
+    },
+    {
+      "case": "R341-B09-03-A01",
+      "issue": "R341-B09-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatisticalTrainingDiagnosticsR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatisticalTrainingDiagnosticsR26.java",
+      "probe": "由真实训练诊断消费该定义并产生可复算字段；未知样本禁止判合格",
+      "contract_sha256": "a82251d4238f1858a538fe1438b5473aad1b59929ded6ddb6eb1d32c8968f166"
+    },
+    {
+      "case": "R341-B09-03-A01",
+      "issue": "R341-B09-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+      "probe": "统计值能从同窗口输入复算；样本不足保留所定义的边界状态",
+      "contract_sha256": "be06e4840beebe293128316c1469402f255dfa8bd4752503ed880e4e78443be4"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyFoundrySU1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyFoundrySU1.java",
+      "probe": "从实际研究调用测生成或读取的候选及谱系；旧冠军重列不计创造",
+      "contract_sha256": "185c96d9b1a69786065fb862299fe02a23c50ce1867d282dc10d685c2584cf45"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "probe": "每次变异附操作、父节点路径、替换子树、seed、before/after canonical hash；NO_OP/PARAMETER_VARIANT/STRUCTURAL 分开计数。",
+      "contract_sha256": "02c3ef6fd460c3ebd00ab7b3f5125ae719a24d68dfdcf2848c3483102bde8a80"
+    },
+    {
+      "case": "R341-B06-02-A01",
+      "issue": "R341-B06-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SymbolicFamilyR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SymbolicFamilyR26.java",
+      "probe": "记录真实数值步与损失；合法零梯度标 ZERO_GRADIENT 而非伪造参数变化；F13/F14 的更新与 state codec 共用版本。",
+      "contract_sha256": "c5b05ba8c161e4026904cd39cce45d4d9e7f9663d81ee2ddef1a0f1107966bdc"
+    },
+    {
+      "case": "R341-B02-03-T01",
+      "issue": "R341-B02-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+      "probe": "切片续算游标递增且能重启；反复释放再申请不计有效进展",
+      "contract_sha256": "d991c4dea9e2e8fe62afb6f9636e53807d1e7e0a824d085d2cfcaa73cee56e14"
+    },
+    {
+      "case": "R341-B01-04-T01",
+      "issue": "R341-B01-04",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java",
+      "probe": "停住的热线程报告无业务推进；真实提交与其水位匹配",
+      "contract_sha256": "baeee5512a533c60e5bd7ec0eddd21ebab2c002bcb61dd173cdcb312e3682eed"
+    },
+    {
+      "case": "R341-B07-02-A01",
+      "issue": "R341-B07-02",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingCheckpointSU1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingCheckpointSU1.java",
+      "probe": "合规快照恢复后下一步数值等价；损坏或错形状不能继续当旧父代",
+      "contract_sha256": "8f1f613e39e13879ff6e54644f5c5b70ae949f3701d489364c6c259b44112278"
+    },
+    {
+      "case": "R341-B09-03-A01",
+      "issue": "R341-B09-03",
+      "original_gap": true,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingDiagnosticsR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingDiagnosticsR26.java",
+      "probe": "诊断字段跟随真实源或显式缺失；不能把字段存在或空计数当优势",
+      "contract_sha256": "e920a8e38e584dddfd7b1fb229a5ef1b6b2e56e75dbf077297e81b3fdb7e0fa7"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+      "probe": "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。",
+      "contract_sha256": "7a24121f9b1932ef46316e7a1a40d64487025ead78a356d56bd91b9684688ece"
+    },
+    {
+      "case": "R341-B06-01-A01",
+      "issue": "R341-B06-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+      "probe": "区分数值 ABI 不兼容、缺源和已损坏；保存原件状态不得覆盖为 READY。",
+      "contract_sha256": "f034614d3d433d9dc2cafe6689ebe8ec48ea37d714e3feae9e976cc55b82f523"
+    },
+    {
+      "case": "R341-B02-02-T01",
+      "issue": "R341-B02-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "probe": "持久化失败分类、最老年龄、丢失计数和retry due显式；排除fault-drain诊断再次递归生产同类hold故障。",
+      "contract_sha256": "e4e1fa031afdd6f2192d0f5c110470b4872b68fc2912ea15d28aedf93f108d92"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": true,
+      "key": "release/r33_plan_binding.json",
+      "effective_path": "release/r33_plan_binding.json",
+      "probe": "历史方案绑定用于兼容验证；不得把当前方案识别为旧方案",
+      "contract_sha256": "983360bde3c6eb8bbcaa3dae007a79cff8477e0be532b4d490d5cefdb2b99a77"
+    },
+    {
+      "case": "A-B12-03a",
+      "issue": "R341-B12-03",
+      "original_gap": false,
+      "key": "release/r341_batch_ledger.schema.json",
+      "effective_path": "release/r341_batch_ledger.schema.json",
+      "probe": "每批batchId、baseCommit、commit、changedFiles、issues、localTests、hostIntegration、apk、field、natural、rollbackArtifact与remainingRisks；每张票工单ID和scenarioId一一可查。",
+      "contract_sha256": "8a40f18b73f9f1bc01d9dc183e875cc6673f0c48c075d481e38a51726634ca38"
+    },
+    {
+      "case": "R341-B05-03-T01",
+      "issue": "R341-B05-03",
+      "original_gap": false,
+      "key": "release/r341_device_campaign.schema.json",
+      "effective_path": "release/r341_device_campaign.schema.json",
+      "probe": "F4-B05-02 在 B05 自身交付后台取证器，B12 从最终 APK 重新取证。见 specs/field4/flow.md",
+      "contract_sha256": "9b3be718e345a9dff4c181bd79dca8d0bd1a205b2eabe15284d6568e6242531a"
+    },
+    {
+      "case": "A-B12-05a",
+      "issue": "R341-B12-05",
+      "original_gap": false,
+      "key": "release/r341_natural_handoff.schema.json",
+      "effective_path": "release/r341_natural_handoff.schema.json",
+      "probe": "列candidate/artifact/model hash、protocolHash、freezeAt、independentFutureStart、最低样本/观察天数、当前有效样本、预算/停止规则、下一验收时间和资格状态；不包含保证盈利字段。",
+      "contract_sha256": "77468302174c5d20d7ee2cf0d56fa524d5e84087c420845de9e2663ed02e6ded"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "release/r341_plan_binding.json",
+      "effective_path": "release/r341_plan_binding.json",
+      "probe": "NEW：封存方案上传后由真实 planCommit/planSha256/sourceBaseline/sourceApkEvidenceRef 生成；不填写猜测的 SHA，不修改旧 r33/r34 binding。",
+      "contract_sha256": "e492b983b3d34cd04539d1749fcad9e112e847910384782f9f372418fbcf9525"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": true,
+      "key": "release/r82_training_invalidation.json",
+      "effective_path": "release/r82_training_invalidation.json",
+      "probe": "复核发布与数值失效规则及影响范围；更改旧依赖不得静默复用权重",
+      "contract_sha256": "f0bfcb168249295347386d01776dbba1b82dd655ae52fb5d37b62c90ff2dd200"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": true,
+      "key": "release/release_identity.properties",
+      "effective_path": "release/release_identity.properties",
+      "probe": "实际构建读取一致的版本身份；故意错码应被识别",
+      "contract_sha256": "ca6ca53c2e16a7eea6645fde10db5e7e9593ffd040a33dd90b2764857eb93cdc"
+    },
+    {
+      "case": "A-B12-01a",
+      "issue": "R341-B12-01",
+      "original_gap": true,
+      "key": "release/release_manifest.json",
+      "effective_path": "release/release_manifest.json",
+      "probe": "发布清单与构建物匹配；其他提交清单不可签收",
+      "contract_sha256": "a4f483b755a2308f6fc6bc7c06be7fffce4b4538b096babc779f162319b7fc90"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": true,
+      "key": "release/research_dependencies_r967.json",
+      "effective_path": "release/research_dependencies_r967.json",
+      "probe": "核对模型和实际依赖图；替换一个生效依赖须使旧身份失效",
+      "contract_sha256": "4769e12a0dea207633c52dcdef2c35df302bc9b0d45a5cef05ab352b8b662db4"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": true,
+      "key": "scripts/r967_semantic_identity.py",
+      "effective_path": "scripts/r967_semantic_identity.py",
+      "probe": "运行真实语义身份生成器并与应用产物核对；错依赖须改变结果",
+      "contract_sha256": "aa6a0f0ed9e289ea387bfbd5499938a7009818306560baf0684ba2471083154f"
+    },
+    {
+      "case": "R341-B09-05-A01",
+      "issue": "R341-B09-05",
+      "original_gap": false,
+      "key": "tools/quality_experiment_r341",
+      "effective_path": "tools/quality_experiment_r341",
+      "probe": "离线命令解析固定spec/checkpoint/output参数并调用QualityExperimentR341；强制ENGINEERING_ONLY store、不可连接生产库；非完成返回非零状态。",
+      "contract_sha256": "edf539852ae2e35d19b042e134a9172e11927fdd45c675df55dce198da4562b7"
+    },
+    {
+      "case": "A-B12-06a",
+      "issue": "R341-B12-06",
+      "original_gap": true,
+      "key": "tools/r31/package_release.py",
+      "effective_path": "tools/r31/package_release.py",
+      "probe": "打出的包可恢复与下载核对；缺必需载荷或错摘要失败",
+      "contract_sha256": "28c64ca1865df68d12daa574ceda9d8b1e0f74a04d4f49e917920c9827294d2f"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": true,
+      "key": "tools/r31/verify_baseline.py",
+      "effective_path": "tools/r31/verify_baseline.py",
+      "probe": "对正确底座可复验；混入其他版本拒绝开工",
+      "contract_sha256": "e13d132c443a6d1165ed7becd323be5ef0a400a44bb1a1874b5734813798b1a3"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "tools/r33/advance_release_version.py",
+      "effective_path": "tools/r33/advance_release_version.py",
+      "probe": "加入 R34.1 与 B01–B12，保留原 series 的 stage 约束；versionCode=max(577311122,现场读值,发布索引读值,manifest值)+1，沿用已有锁与四文件原子 journal。",
+      "contract_sha256": "a613060c3a1aebb1137b9e2bd365c52b039dae26fca8949de09f7c3ccefd20fe"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "tools/r33/package_ci_candidate.py",
+      "effective_path": "tools/r33/package_ci_candidate.py",
+      "probe": "旧033祖先核验保留；增加 currentInstalledBaseline 的真实122 APK/设备拉取哈希和签名/包名/版本检查；嵌入及封包名分派 R341，缺现场APK则标 COVER_INSTALL_UNVERIFIED，不生成可覆盖声明。",
+      "contract_sha256": "2802ee55e8ff783ce95d071aa3e0398c67007ad7c5e044142dd8861f5450b113"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "tools/r33/run_release_build.py",
+      "effective_path": "tools/r33/run_release_build.py",
+      "probe": "显式传递并验证 R33、R34、R341 三个封存根；缺任何实际要求的封存根即返回确定的构建前置错误。；REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。",
+      "contract_sha256": "d2c2ce6f352c44f184f4b0019319d145c59adfd268bbc85c4c1f2828a7bd5d5d"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "tools/r33/verify_plan_binding.py",
+      "effective_path": "tools/r33/verify_plan_binding.py",
+      "probe": "按 release.versionName 严格分派 R33.5/R34/R34.1；旧 r34 binding 的存在仅触发旧封印验证，不能强制对新版本运行旧版本正则。；REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。",
+      "contract_sha256": "4159f51a8651df31ea7d1be841b71963073c61b3655280d90416db19c1c2e13d"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "tools/r34/build_identity.py",
+      "effective_path": "tools/r34/build_identity.py",
+      "probe": "提取只验证旧 binding/成员/祖先链的 verify_seal(repo,head)；identity 再额外校验 R34 版本，原 R34 行为保持一致。",
+      "contract_sha256": "6c6b5ad7ea9d0d810fba60afcf04d1a83070e60db9f0c3b7831510351e77d54e"
+    },
+    {
+      "case": "A-B12-03a",
+      "issue": "R341-B12-03",
+      "original_gap": true,
+      "key": "tools/r34/check_acceptance.py",
+      "effective_path": "construction/plans/STARCORE_R34_1_REPAIR_20261124/tools/verify_receipt.py",
+      "probe": "现用回执校验入口查到测量；无真实证据拒收",
+      "contract_sha256": "dafd5b0166b1a10c1ec53f92e840912b35f61df71cd658a5208d64b6a71d259c"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": true,
+      "key": "tools/r34/test_legacy_r335.py",
+      "effective_path": "tools/r34/test_legacy_r335.py",
+      "probe": "历史兼容夹具对正确身份通过，破坏既有封印时拒收",
+      "contract_sha256": "0ff27040020de51ace87610771aa1504be1e559bc9b7d87571476d2e43a58c25"
+    },
+    {
+      "case": "A-B12-03a",
+      "issue": "R341-B12-03",
+      "original_gap": true,
+      "key": "tools/r34/test_plan_guards.py",
+      "effective_path": "construction/plans/STARCORE_R34_1_REPAIR_20261124/tools/test_receipt_guards.py",
+      "probe": "替代的回执反例套件可运行并拒绝篡改输入",
+      "contract_sha256": "734c33aaa4f36eb10d48ea158867f84ce738d31614699b5ce0b017bc0877cdd5"
+    },
+    {
+      "case": "A-B12-03a",
+      "issue": "R341-B12-03",
+      "original_gap": true,
+      "key": "tools/r34/verify_period_trace.py",
+      "effective_path": "tools/r341/verify_integrated_chain.py",
+      "probe": "替代的联调工具经过服务路径取原件；事后补冻反例应失败",
+      "contract_sha256": "f29b97f5d8d4534c8589926372fb6e919f0453b37731a45adaec672f25209d42"
+    },
+    {
+      "case": "A-B12-03a",
+      "issue": "R341-B12-03",
+      "original_gap": true,
+      "key": "tools/r34/verify_plan.py",
+      "effective_path": "construction/plans/STARCORE_R34_1_REPAIR_20261124/tools/verify_plan.py",
+      "probe": "现用结构校验核对当前封印；篡改受保护成员时拒收",
+      "contract_sha256": "9523c2a6f775c0ad369a4ba4f5acce44c5a8235bc3433b85a251a4c1e9096a38"
+    },
+    {
+      "case": "R341-B01-01-T01",
+      "issue": "R341-B01-01",
+      "original_gap": false,
+      "key": "tools/r341/build_identity.py",
+      "effective_path": "tools/r341/build_identity.py",
+      "probe": "NEW：读取 release/r341_plan_binding.json 和 STARCORE_R341_PLAN_ROOT；校验精确文件集合、每成员哈希、应用底座祖先关系、新版本批次、plan commit 与新 plan seal。返回 STARCORE_R341_BUILD_IDENTITY_1。",
+      "contract_sha256": "f73df330b00d787a802b84d741460140bdedd7e27d8f772423e45e5f590943f9"
+    },
+    {
+      "case": "R341-B05-03-T01",
+      "issue": "R341-B05-03",
+      "original_gap": false,
+      "key": "tools/r341/device_campaign.py",
+      "effective_path": "tools/r341/device_campaign.py",
+      "probe": "F4-B05-02 在 B05 自身交付后台取证器，B12 从最终 APK 重新取证。见 specs/field4/flow.md",
+      "contract_sha256": "f26acd2b878fdbc60fc525fc7bab995bd52332c73835814e3d509b932a95a7c2"
+    },
+    {
+      "case": "A-B12-06a",
+      "issue": "R341-B12-06",
+      "original_gap": false,
+      "key": "tools/r341/publish_delivery_manifest.py",
+      "effective_path": "tools/r341/publish_delivery_manifest.py",
+      "probe": "生成外置DELIVERY_R341.json，列APK、source.zip、source.bundle、plan、批次台账、原始日志、现场/自然状态和SHA256；仅在仓库/已授权发布端写入。；实际HTTP/平台下载最终公开文件后重新算hash、枚举ZIP、复验签名/身份；仅得到页面链接不足以PASS。",
+      "contract_sha256": "2d82495de977ce7f534f47ca3cc3bf122abf1b0b92d555e466b145bfe9168056"
+    },
+    {
+      "case": "A-B12-03a",
+      "issue": "R341-B12-03",
+      "original_gap": false,
+      "key": "tools/r341/verify_batch_ledger.py",
+      "effective_path": "tools/r341/verify_batch_ledger.py",
+      "probe": "输入全部R341工单、文件变更、场景结果与证据文件；检查12批/全部工单覆盖、依赖顺序、缺省状态、源码commit及artifact hash。；输出ENGINEERING_COMPLETE/INCOMPLETE、FIELD_PENDING条目、NATURAL_PENDING条目，分别计算，不将自然未合格作为工程未做。",
+      "contract_sha256": "6b9e6fdd1152202a4abe94d2c0770f7cde294de320e1342eca0ca8223d16930e"
+    },
+    {
+      "case": "A-B12-01a",
+      "issue": "R341-B12-01",
+      "original_gap": false,
+      "key": "tools/r341/verify_delivery_identity.py",
+      "effective_path": "tools/r341/verify_delivery_identity.py",
+      "probe": "读取B01新增release/r341_plan_binding.json与其build identity输出，并核对R33/R34历史封印，输出只读校验回执。；sourceBaseline必须5562f9b19aa09f9f7d9e69ca085db56c537967fc；planCommit固定真实已提交的方案commit；从clean HEAD推导sourceCommit，输出回执不写回源树。",
+      "contract_sha256": "68bc0f120610c0b9f2f67c64390d19f5b05c17cdf98ecf2c045a72750534c1d0"
+    },
+    {
+      "case": "A-B12-03b",
+      "issue": "R341-B12-03",
+      "original_gap": false,
+      "key": "tools/r341/verify_integrated_chain.py",
+      "effective_path": "tools/r341/verify_integrated_chain.py",
+      "probe": "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。；F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。",
+      "contract_sha256": "0b7c457ef0dc9528d566a9211209c0ece32b97e7f55612b9b0998c3f2e726b99"
+    },
+    {
+      "case": "A-B12-05a",
+      "issue": "R341-B12-05",
+      "original_gap": false,
+      "key": "tools/r341/verify_natural_delivery.py",
+      "effective_path": "tools/r341/verify_natural_delivery.py",
+      "probe": "严格复用B09定义的资格协议/门限，不另造宽松规则；冻结时间、输入可用时间、未来样本、真实成本、对照、多重比较控制、置信下界、漂移/连败均须可回放。；输出NATURAL_PENDING/QUALIFIED/REJECTED/REVOKED与证据缺口；资格不由APK封包器赋予。",
+      "contract_sha256": "9e1915834cb762d08d89170fe391b5568180a7a80e498085026eddf882f86317"
+    },
+    {
+      "case": "A-B12-02b",
+      "issue": "R341-B12-02",
+      "original_gap": false,
+      "key": "tools/r341/verify_upgrade_install.py",
+      "effective_path": "tools/r341/verify_upgrade_install.py",
+      "probe": "通过adb读取指定设备包名/版本/签名，pm path并pull实际已安装base.apk计算sha；只对明确选定设备安装。；执行adb install -r，安装后再次读取包名/版本/签名及数据迁移/原件hash；不卸载、不clear data、不-d降级。输出deviceId哈希化标识、前后版本、apkSHA及失败原因。",
+      "contract_sha256": "77c5d3ad944ba3c21f9420f5343ad85d2a6c219e2644aa702b3ddd440d4048bd"
+    },
+    {
+      "case": "R341-B05-01-T01",
+      "issue": "R341-B05-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+      "probe": "REV-B05-01 服务单次预约与持久开奖重派。实施入口与反例见 specs/review/runtime.md / R341-B05-01-T01。",
+      "contract_sha256": "78308f647de7f22fe892aa7ff1c48e64873cafa476e48f55dac5482dd65ead17"
+    },
+    {
+      "case": "R341-B05-02-T01",
+      "issue": "R341-B05-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RecoveryCoordinatorR815.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RecoveryCoordinatorR815.java",
+      "probe": "REV-B05-02 恢复真实所有者与投递失败重试。实施入口与反例见 specs/review/runtime.md / R341-B05-02-T02。",
+      "contract_sha256": "74342707ce1acbeb7acf32068cae893f618f786c66d5d400882519d5bd86fbf7"
+    },
+    {
+      "case": "R341-B05-02-T01",
+      "issue": "R341-B05-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java",
+      "probe": "REV-B05-02 恢复真实所有者与投递失败重试。实施入口与反例见 specs/review/runtime.md / R341-B05-02-T02。",
+      "contract_sha256": "25546f657c410b8833ce3d5f96e964381db3017180b388f1f17a30226cad78b3"
+    },
+    {
+      "case": "R341-B05-02-T01",
+      "issue": "R341-B05-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java",
+      "probe": "REV-B05-02 恢复真实所有者与投递失败重试。实施入口与反例见 specs/review/runtime.md / R341-B05-02-T02。",
+      "contract_sha256": "920de7d6f3153167a4575df984ef9eaf1cbdd0be69540060c66cb3e4f8467beb"
+    },
+    {
+      "case": "R341-B04-04-T01",
+      "issue": "R341-B04-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/BaselineShadowR34.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/BaselineShadowR34.java",
+      "probe": "REV-B04-01 S0 双事务赛前证据与逐期失败归属。实施入口与反例见 specs/review/runtime.md / R341-B04-04-T02。；F3-B04-01 同一期分开判断S0、PIT投影、正式冻结及结算。按 specs/field3/runtime.md 和 R341-B04-04-T02 的正反例实施复验。",
+      "contract_sha256": "c5816c498383447b38b0904ec2d40db6b8675ad6f32e71f1875976d01ed74da3"
+    },
+    {
+      "case": "R341-B08-01-A01",
+      "issue": "R341-B08-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "probe": "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。",
+      "contract_sha256": "cde499f749979c334f325d5229805fc47982ff4938bdc2bbebbb40186b85820e"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+      "probe": "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。",
+      "contract_sha256": "a12c3c2de901fcf2ad42d153a2f4164d0fdb14c8c983ab67f1a647e8270d4338"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+      "probe": "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。",
+      "contract_sha256": "abe0a4d33de2d47ec94f3b3e10a5802b5e2bf7d251bf7f208f5d4fb156c604f1"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+      "probe": "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。",
+      "contract_sha256": "0dc2d4646852508fec0391fc8f527b59b9a3b148ec797499694c51aa477b95e4"
+    },
+    {
+      "case": "R341-B08-02-A01",
+      "issue": "R341-B08-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+      "probe": "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。",
+      "contract_sha256": "088ac57d7bb93b4840bc691b9cb55e3bcd1aa9518a18e47236865e0423fdce09"
+    },
+    {
+      "case": "A-B11-01a",
+      "issue": "R341-B11-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+      "probe": "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。",
+      "contract_sha256": "adbf08efcfc43a9df64545db7fa1362fc3427c71dec1d2805204d6181a1cf87f"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+      "probe": "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。",
+      "contract_sha256": "0e0f858017ad9858f79d33af9b819255010ec4c7db8615a50d711b2fd71c8da0"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+      "probe": "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。",
+      "contract_sha256": "5e097a5d2965fc3975e546d5e2af49f3888b489ec15d9d04cbd5f2771babb512"
+    },
+    {
+      "case": "A-B11-04a",
+      "issue": "R341-B11-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "probe": "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。；REV-B11-04 将分页负例改为真实可达的数据库状态。实施入口与反例见 specs/review/charts.md / A-B11-04b。",
+      "contract_sha256": "06b6863a6e87c75095fc5596a6fdbb6fd6af3746f4272ac45d0b39043b713578"
+    },
+    {
+      "case": "A-B10-01a",
+      "issue": "R341-B10-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+      "probe": "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。",
+      "contract_sha256": "094db7f2fc20d4585966a8f9d5fdba4453fa037eab7afb77d4f3ae2652ad30d0"
+    },
+    {
+      "case": "A-B10-02a",
+      "issue": "R341-B10-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "probe": "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。",
+      "contract_sha256": "27b29bdb9b696b81f74f47c09debd8b8908cc56f90b03bf93d50b1f18067bd3b"
+    },
+    {
+      "case": "A-B10-02a",
+      "issue": "R341-B10-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+      "probe": "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。",
+      "contract_sha256": "e85f9eb6b9b2d0037187d32e089ad5724a6a2dbdf7f561d8bae87e89526ea159"
+    },
+    {
+      "case": "A-B11-06a",
+      "issue": "R341-B11-06",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java",
+      "probe": "REV-B11-05 报告与赛前服务并行，并验手机端持久保存。实施入口与反例见 specs/review/storage.md / A-B11-06b。",
+      "contract_sha256": "96c8fdfe25b99ce01ce2174fbbe63fa08a40426eb2284e59cdad2568f0c85ed0"
+    },
+    {
+      "case": "A-B11-03a",
+      "issue": "R341-B11-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+      "probe": "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。",
+      "contract_sha256": "a464fc84f25e0afc41e99483a41c92548a4a7338ee495ddd86be573c0999a1b4"
+    },
+    {
+      "case": "A-B11-03a",
+      "issue": "R341-B11-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+      "probe": "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。",
+      "contract_sha256": "c4dc2d3a446f57f2669b26b48278d16caec6c61c5861f6e2ca24962df1369599"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "probe": "REV-B07-02 十位置概率面与同目标1200个动作排序建立可复算关系。实施入口与反例见 specs/review/report.md / R341-B07-03-A01。",
+      "contract_sha256": "78c5c69306430587c7f19ab3796d2d6422d61b08e8dadd451cdbff128e79e90f"
+    },
+    {
+      "case": "A-B11-03a",
+      "issue": "R341-B11-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+      "probe": "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。",
+      "contract_sha256": "100d756df406b27c459660e11b7fa2116735fdcf1a819f1a8c8e37042832d8f0"
+    },
+    {
+      "case": "A-B11-02a",
+      "issue": "R341-B11-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "probe": "F3-B11-01 修复R923结算分子分母跨历史范围。按 specs/field3/runtime.md 和 A-B11-02b 的正反例实施复验。",
+      "contract_sha256": "4c5ea1f5969cacfd02ef120420c6f391d660072561b43ad7b3638bd0a8febda6"
+    },
+    {
+      "case": "A-B11-02a",
+      "issue": "R341-B11-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/SettlementCoverageTruthR906.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/SettlementCoverageTruthR906.java",
+      "probe": "F3-B11-01 修复R923结算分子分母跨历史范围。按 specs/field3/runtime.md 和 A-B11-02b 的正反例实施复验。",
+      "contract_sha256": "db981e254545b96dbe8e9804af5622c8f89dc48c157bec26512dd1152f97ddf0"
+    },
+    {
+      "case": "A-B11-05a",
+      "issue": "R341-B11-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+      "probe": "F3-B11-02 将每条升级方向接到施工回执、研究执行或只读复验，再由下一次诊断核对。按 specs/field3/directions.md 和 A-B11-05b 的正反例实施复验。",
+      "contract_sha256": "f0412438ea8a5d346cfdf710a471e4cf0b6c94a66b1a2b1267d07d35006dc3e4"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+      "probe": "F3-B06-02 21个思路族的可执行公式与报告处方逐一对照。按 specs/field3/learning.md 和 R341-B06-03-A01 的正反例实施复验。",
+      "contract_sha256": "e4772ba4f9fa2918d8fa55c730c13836536ba2a6c0a82a386f60fa25b5595073"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+      "probe": "F3-B07-01 区分深度网络两个输出头及各自被哪种动作消费。按 specs/field3/learning.md 和 R341-B07-03-A02 的正反例实施复验。",
+      "contract_sha256": "a3573dd0456bedeaa3fd90cfcb251c03f77af1c27bf63ceacf8d5eb950eb041f"
+    },
+    {
+      "case": "R341-B07-03-A01",
+      "issue": "R341-B07-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+      "probe": "F3-B07-01 区分深度网络两个输出头及各自被哪种动作消费。按 specs/field3/learning.md 和 R341-B07-03-A02 的正反例实施复验。",
+      "contract_sha256": "d798eea215f8415fbb16227690dfffc3193a50dec778bd22497350555f44654a"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "probe": "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。",
+      "contract_sha256": "fbb6e4597111252249147ec2099a5441421ff835998752f09474f711cec53ae2"
+    },
+    {
+      "case": "R341-B08-04-A01",
+      "issue": "R341-B08-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+      "probe": "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。",
+      "contract_sha256": "6de33efb7ae85b5c6cbf0123828b81d28ab956ec66c277032598154b66ffa7a6"
+    },
+    {
+      "case": "R341-B08-06-A01",
+      "issue": "R341-B08-06",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionStudyR30R1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionStudyR30R1.java",
+      "probe": "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。",
+      "contract_sha256": "e8705f798ae5c7b2d0463a565d27a3285c29ce6170a4815a38aa5b5fa59e7b2a"
+    },
+    {
+      "case": "R341-B08-02-A01",
+      "issue": "R341-B08-02",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+      "probe": "F3-B08-05 R04按实际提示窗口核算两个来源、交集及弃权代价。按 specs/field3/research.md 和 R341-B08-02-A01 的正反例实施复验。",
+      "contract_sha256": "ee1e9326fadeb993fd4560ed4652e80fa16aa9569104af239c3086de9f3b262e"
+    },
+    {
+      "case": "R341-B08-07-A01",
+      "issue": "R341-B08-07",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+      "probe": "F3-B08-07 把家族开发信用限制在当前可比实验，将分配追到下一轮实际投递。按 specs/field3/research.md 和 R341-B08-07-A03 的正反例实施复验。",
+      "contract_sha256": "1949a94a2e9824677e151fa88c85ac620463ad7e73d9d4839725956a94980063"
+    },
+    {
+      "case": "R341-B09-01-A01",
+      "issue": "R341-B09-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java",
+      "probe": "F3-B09-01 将I13单独选择时机的价值与只挑高分时段的效果分开。按 specs/field3/research.md 和 R341-B09-01-A01 的正反例实施复验。",
+      "contract_sha256": "c989b44b37beefc04a0ee680e9fa803f21bb8b26a7e2f9c0a9e57b2753d4e011"
+    },
+    {
+      "case": "R341-B04-05-T01",
+      "issue": "R341-B04-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+      "probe": "F3-B04-03 为多步长探针留下每个应到锚点的可核对终态。按 specs/field3/extended.md 和 R341-B04-05-T02 的正反例实施复验。",
+      "contract_sha256": "33006d808e0729160fe85e31aa223d3f0efe093f77c4356d1e6dd39cfc04ef43"
+    },
+    {
+      "case": "R341-B05-03-T01",
+      "issue": "R341-B05-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
+      "probe": "F3-B05-03 同时验收开奖后五秒内出号与距离目标截止至少五秒。按 specs/field3/extended.md 和 R341-B05-03-T01 的正反例实施复验。",
+      "contract_sha256": "bec692c37e904ba6631916954ce7f562f5fd885c59b60c4236f168645f19b52c"
+    },
+    {
+      "case": "R341-B08-07-A01",
+      "issue": "R341-B08-07",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelAblationStoreSU1.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelAblationStoreSU1.java",
+      "probe": "F3-B08-08 策略节点消融与模型核消融分别接入下一轮研究预算。按 specs/field3/extended.md 和 R341-B08-07-A01 的正反例实施复验。",
+      "contract_sha256": "d0dda49ddf05953f4a3dea28e5bdd666311e3781e341b81fbe2fa92427698796"
+    },
+    {
+      "case": "R341-B08-07-A01",
+      "issue": "R341-B08-07",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "probe": "F3-B08-08 策略节点消融与模型核消融分别接入下一轮研究预算。按 specs/field3/extended.md 和 R341-B08-07-A01 的正反例实施复验。",
+      "contract_sha256": "5589a21d44bfa081c5d79c62da020cd5f119ec2ff588fb92e0435ef6abc5b7ea"
+    },
+    {
+      "case": "R341-B09-04-A01",
+      "issue": "R341-B09-04",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+      "probe": "F3-B09-02 把报告 R29F-GATEV2-NOT-RUN 的分支查到实际评估回执。按 specs/field3/extended.md 和 R341-B09-04-A01 的正反例实施复验。",
+      "contract_sha256": "7e9c2a257f45cb4eb2d37a860cdec6f2b2198ed16315d6116ba21672cf471e88"
+    },
+    {
+      "case": "A-B11-05a",
+      "issue": "R341-B11-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
+      "probe": "F3-B11-04 让报告提出的根因、采集动作和反证回查到真实运行。按 specs/field3/extended.md 和 A-B11-05b 的正反例实施复验。",
+      "contract_sha256": "3d2cd340e0594c675866d0cdd142419d28f53561b763afa01ddd670aec8fae8f"
+    },
+    {
+      "case": "R341-B06-03-A01",
+      "issue": "R341-B06-03",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+      "probe": "F4-B06-03 同一公式的历史拒绝与已成功出生分别处理。见 specs/field4/birth.md",
+      "contract_sha256": "d6a1c9ff57cb629ba5c94c95b91574fe97202a4cc7317244b6fe82f1b248b2fd"
+    },
+    {
+      "case": "R341-B09-05-A01",
+      "issue": "R341-B09-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "probe": "F4-B09-03 将三个零假设臂的名义60次与20个共同种子组分别复算。见 specs/field4/quality.md；F4-B09-04 分出序贯检出力与完整工厂从创建到通过证书数学门的检出能力。见 specs/field4/quality.md",
+      "contract_sha256": "1e14b3858a1e569fea510a82d6fcc05a1bcb3f2015c46e4a9dd3673599e9e087"
+    },
+    {
+      "case": "R341-B09-05-A01",
+      "issue": "R341-B09-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java",
+      "probe": "F4-B09-03 将三个零假设臂的名义60次与20个共同种子组分别复算。见 specs/field4/quality.md",
+      "contract_sha256": "8d09b270130c273f4b294e45a8c8a836940769bdf64462d8c3862ddbd702f8e6"
+    },
+    {
+      "case": "R341-B09-05-A01",
+      "issue": "R341-B09-05",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
+      "probe": "F4-B09-04 分出序贯检出力与完整工厂从创建到通过证书数学门的检出能力。见 specs/field4/quality.md",
+      "contract_sha256": "461703c69145726dba9a69786dac0ac48daaf325a7204cd7ed034365c6314ffa"
+    },
+    {
+      "case": "A-B12-03b",
+      "issue": "R341-B12-03",
+      "original_gap": false,
+      "key": "tools/r341/fixtures/continuity_b12.json",
+      "effective_path": "tools/r341/fixtures/continuity_b12.json",
+      "probe": "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md",
+      "contract_sha256": "5afc0d8ebbdfd1bcec516cb4302f1b94ebaf0c4cd9495ec949ef91438ffbc21f"
+    }
+  ],
+  "harnesses": [
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+    "tools/r341/test_b01_contracts.py",
+    "tools/r341/test_b12_contracts.py"
+  ]
+}

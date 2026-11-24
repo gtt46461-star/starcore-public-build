@@ -1,11 +1,12 @@
 {
-  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_3",
+  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_4",
   "performed_at_local_date": "2026-11-24",
   "timezone": "Asia/Shanghai",
-  "reviewed_parent": "0f81953d7175652dc6695a542257750290bf8c8f",
-  "parent_plan_files_matching_repository": 70,
-  "application_source_git_blob_checks": 244,
-  "application_source_with_content_hash": 181,
+  "reviewed_parent": "5d51341d2f5c292683e5d8aaee4714dfd175cbd2",
+  "parent_plan_files_matching_repository": 92,
+  "application_source_git_blob_checks": 248,
+  "application_source_with_content_hash": 248,
+  "application_content_bytes_independently_hashed_this_review": 248,
   "checks": [
     {
       "command": [
@@ -118,6 +119,110 @@
           "R919_AUDITED_NO_IMMUTABLE_PREDRAW": 21
         },
         "r35_hits": 127
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/baseline4.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>",
+        "--check",
+        "evidence/production-baseline.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "PASS_FIELD_ASSET_INVENTORY"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_baseline4.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "PASS_SOURCE_ROLE_AND_WRONG_SNAPSHOT_PROBES"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_mainline4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 2,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_owner_receipt4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 7,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_continuity4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 4,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_background4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 6,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_q06_receipt.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_q08_receipt.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
       }
     },
     {

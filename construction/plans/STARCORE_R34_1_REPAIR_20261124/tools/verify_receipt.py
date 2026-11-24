@@ -12,6 +12,12 @@ from pathlib import Path
 from verify_plan import verify_seal
 from verify_learning_trace import verify as verify_learning_trace
 from direction_receipt import verify_direction_measurements
+from owner_receipt4 import check_owner_probes
+from continuity4 import check_continuity_receipt
+from mainline4 import check_mainline_receipt
+from background4 import check_background4
+from q06_receipt import verify_q06
+from q08_receipt import check_q08_dependencies
 
 
 def need(value, message):
@@ -121,7 +127,7 @@ def assert_measured(row):
 
 def product_paths(paths):
     return {p for p in paths if p.startswith(("app/", "tools/", "scripts/", "gradle/"))
-            and not p.startswith(("app/src/test/", "app/src/androidTest/", "app/build/"))
+            and not p.startswith(("app/src/test/", "app/src/androidTest/", "app/build/", "tools/r341/fixtures/"))
             and not p.endswith("/ReleaseManifestR926.java") and not Path(p).name.startswith("test_")}
 
 
@@ -297,6 +303,14 @@ def check_result(result, case, receipt, originals, repo, owners):
     verify_direction_measurements(case, run, observations, originals)
     if case_id == "A-B12-03b" and "F3-B12-01" in expected_review:
         check_learning_trace_receipt(run, receipt, originals)
+    check_owner_probes(case, run, observations, originals, repo)
+    if case.get("continuity_index_required"):
+        check_continuity_receipt(run, receipt, originals, repo)
+    if case_id == "R341-B09-04-A01" and any(k.startswith("F4-") for k in expected_review):
+        check_mainline_receipt(run, receipt, originals, repo)
+    if case_id == "R341-B09-05-A02" and any(k.startswith("F4-") for k in expected_review):
+        src = originals.json(run["q08_component_artifact"])
+        check_q08_dependencies(src, {"source_commit": receipt["source_after"]}, originals)
 
 
 def campaign(receipt, originals):
@@ -566,7 +580,7 @@ def factory_quality(src, pre, result):
         verify_wilson(group["detectionProbabilityInterval95"], sum(r["detected"] for r in cases),20)
 
 
-def quality_projection(pre, result, originals, n, hits, opportunities):
+def quality_projection(pre, result, originals, n, hits, opportunities, *, receipt=None, calendar=None):
     status = result["quality_projection_status"]
     need(status in {"PASS", "FAIL", "NOT_OBSERVED", "INSUFFICIENT", "PENDING", "BLOCKED"}, "Unknown quality projection status")
     if status != "PASS":
@@ -606,10 +620,13 @@ def quality_projection(pre, result, originals, n, hits, opportunities):
     need(vals["Q07"]["independently_qualified_assets"] >= 1 and
          result["candidate_hash"] in docs["Q07"]["qualified_candidate_hashes"], "Q07 lacks independently audited active asset")
     factory_quality(docs["Q08"],pre,result)
+    if receipt is not None:
+        verify_q06(pre, calendar, receipt, result, docs["Q06"], originals)
+        check_q08_dependencies(docs["Q08"], result, originals)
     return status
 
 
-def natural(receipt, originals):
+def natural(receipt, originals, *, revision=3):
     fields = ("preregistration_artifact", "future_calendar_artifact", "natural_evaluator_artifact")
     names = [receipt[k] for k in fields]
     need(len(set(names)) == 3, "Natural evidence inputs alias each other")
@@ -684,7 +701,7 @@ def natural(receipt, originals):
         need(start <= issued <= evaluated < expires and evaluated <= end
              and (expires - issued).total_seconds() <= 86400, "Certificate outside validity window")
     # A research-quality projection and post-deployment ACT may still be unavailable at first issuance.
-    quality = quality_projection(pre, result, originals, n, hits, len(keys))
+    quality = quality_projection(pre, result, originals, n, hits, len(keys), receipt=receipt if revision >= 4 else None, calendar=calendar)
     return {"verdict": verdict, "future_act_count": n, "math_verdict": math_verdict,
             "issuance_status": issuance_status, "quality_projection_status": quality}
 
@@ -752,7 +769,9 @@ def validate(plan, receipt, evidence_root, repo, level, revalidating=False):
         check_result(result, case, receipt, originals, repo, owners[case["issue_id"]])
     if level == "DEVICE" and cases.keys() & {"A-B12-04a", "R341-B05-03-T02"}:
         campaign(receipt, originals)
-    outcome = natural(receipt, originals) if level == "NATURAL" else None
+        if ident["document_revision"] >= 4:
+            check_background4(receipt, originals)
+    outcome = natural(receipt, originals, revision=ident["document_revision"]) if level == "NATURAL" else None
     status = natural_status(batch["id"], outcome["verdict"], outcome["future_act_count"]) if outcome else "PASS_RECEIPT_STRUCTURE_AND_DIGESTS"
     return {"status": status, "batch": batch["id"], "level": level,
             "cases": len(cases), "natural_evaluator_outcome": outcome,
