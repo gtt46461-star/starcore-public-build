@@ -18,8 +18,8 @@ jobs:
       matrix:
         include:
           - stage: B12
-            source: f67ff18d379f4baf5438282442e07c365aca0ab2
-            version: '577311143'
+            source: 39be327ffe32d338558fa89a2dc5645c73e6058c
+            version: '577311144'
     env:
       SOURCE: ${{ matrix.source }}
       STAGE: ${{ matrix.stage }}
@@ -161,6 +161,8 @@ jobs:
           set -euo pipefail
           sha256sum -c SHA256SUMS.txt
           (cd "$RUNNER_TEMP" && zip -qr "$RUNNER_TEMP/candidate/engineering-originals.zip" engineering)
+          python3 -B "$GITHUB_WORKSPACE/dispatch/.github/r341-field-release/bind_release_evidence.py" "$PWD"
+          sha256sum -c SHA256SUMS.txt
           sha256sum engineering-originals.zip > engineering-originals.sha256
           tag="r34.1-${STAGE}-${SOURCE:0:12}"
           gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$SOURCE" --title "STARCORE R34.1 $STAGE · $VERSION" --notes "Configuration and tests are tied to $SOURCE. Candidate signed with the original certificate. See the exact engineering receipt, physical and natural acceptance states." --latest=false --draft

@@ -62,6 +62,35 @@ def case_run(case):
     save()
     return result.returncode==0 and bool(junit) and len(logs.splitlines())==2
 
+def run_full_report_readback():
+    dest=output/'production-report-service'
+    dest.mkdir()
+    results_path=repo/'app/build/outputs/androidTest-results/connected'
+    if results_path.is_dir():
+        shutil.rmtree(results_path)
+    argv=['./gradlew',':app:connectedDebugAndroidTest','-Pr30Instrumentation=true',
+          '-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.R31QDeliveryInstrumentedTest#fullReportReachesPublishedZipAndProviderReadback',
+          '-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=R341_B12_FULL_REPORT_NATIVE',
+          '-Pandroid.testInstrumentationRunnerArguments.r31qRealService=true',
+          '-Pandroid.testInstrumentationRunnerArguments.r341IncludeRaw=true']
+    (dest/'argv.json').write_text(json.dumps(argv,indent=2)+'\n')
+    with (dest/'gradle-case.log').open('w') as log:
+        result=subprocess.run(argv,cwd=repo,stdout=log,stderr=subprocess.STDOUT,timeout=900)
+    logs=run(['adb','logcat','-d','-v','brief','STARCORE_R341:I','*:S']).stdout
+    marker=[line for line in logs.splitlines() if re.search(r'FULL_REPORT_PROVIDER_READBACK\|[0-9a-f]{64}\|bytes=[1-9][0-9]*$',line)]
+    (dest/'android-observation.log').write_text(''.join(line+'\n' for line in marker))
+    junit=[]
+    for j,xml in enumerate(sorted(results_path.rglob('*.xml'))):
+        copied=dest/f'native-result-{j}.xml'
+        shutil.copyfile(xml,copied)
+        junit.append(dict(name=copied.name,sha256=sha(copied)))
+    receipt['reportExport']={'scope':'DISPOSABLE_API34_ANDROID_DEBUG_DIAGNOSTICS_PROCESS',
+        'includesRequestedRawDatabase':result.returncode==0 and len(marker)==1,
+        'exitCode':result.returncode,'deviceMarkerCount':len(marker),'junit':junit,
+        'deviceLogSha256':sha(dest/'android-observation.log')}
+    save()
+    return result.returncode==0 and bool(junit) and len(marker)==1
+
 try:
     receipt['deviceSerial']=adb('get-serialno')
     receipt['api']=int(adb('shell','getprop','ro.build.version.sdk'))
@@ -80,10 +109,14 @@ try:
         # three-generation or physical-device witness.
         replay=['R341-B06-02-A01','R341-B07-02-A01','R341-B08-01-A03',
                 'R341-B09-02-A02','A-B10-02b','A-B10-05b','A-B11-04b','A-B11-06b']
+        if version>=577311144:
+            replay+=['R341-B01-04-T01','A-B11-02a']
         available={case['id']:case for case in json.loads((plan/'ACCEPTANCE_MATRIX.json').read_bytes())['cases']}
         cases=[available[ident] for ident in replay]
         receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_EMULATOR_SMOKE'
     outcomes=[case_run(c) for c in cases]
+    if stage=='B12' and version>=577311144:
+        outcomes.append(run_full_report_readback())
     assert all(outcomes),'REGISTERED_ANDROID_PROBES_NOT_ALL_PASSED'
 except Exception as error:
     receipt['failureType']=type(error).__name__
