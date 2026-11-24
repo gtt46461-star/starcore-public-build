@@ -137,7 +137,15 @@ public final class BirthGateR27 {
     }
     public void unregister(String policyHash) { signatures.remove(policyHash);positions.remove(policyHash);scopes.remove(policyHash);programs.values().removeIf(policyHash::equals); }
     public int registered() { return signatures.size(); }
-    void copyValidatedRegistrationsR30(BirthGateR27 source){for(Map.Entry<String,int[]> e:source.signatures.entrySet()){register(e.getKey(),e.getValue().clone(),source.positions.getOrDefault(e.getKey(),0));scopes.put(e.getKey(),source.scopes.getOrDefault(e.getKey(),source.scopeR31));}}
+    void copyValidatedRegistrationsR30(BirthGateR27 source){
+        for(Map.Entry<String,int[]> entry:source.signatures.entrySet()){
+            String hash=entry.getKey();
+            register(hash,entry.getValue().clone(),source.positions.getOrDefault(hash,0));
+            scopes.put(hash,source.scopes.getOrDefault(hash,source.scopeR31));
+        }
+        for(Map.Entry<String,String> entry:source.programs.entrySet())
+            if(sameEvidenceScopeR31(entry.getValue()))programs.putIfAbsent(entry.getKey(),entry.getValue());
+    }
     public int[] signatureOf(String policyHash) { return signatures.get(policyHash); }
 
     /** Sorted (row, K3) codes for acting rows in the probe. */

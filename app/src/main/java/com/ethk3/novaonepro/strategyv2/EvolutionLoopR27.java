@@ -370,7 +370,12 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         genStats.put("parentCohortHashes",new ArrayList<>(parents));
         genStats.put("researchInfluencedBirths", (long) researchInfluencedR31); researchInfluencedR31 = 0;
         genStats.put("formulaBirthProbe",formulaEvidence);
-        count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", behavioral);
+        genStats.put("probeActingDistinctBirths",(long)behavioral);
+        genStats.put("probeAbstainingDistinctBirths",(long)(bornThisGeneration.size()-behavioral));
+        count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural);
+        // The serialized historical counter includes the one distinct all-HOLD signature.
+        // Evidence of actionable discovery is reported separately and attached to each birth.
+        count("behaviorNovel",bornThisGeneration.size());
         genStats.put("rejected", (long) rejected); genStats.put("noOp", (long) noop); genStats.put("duplicates", (long) dup); genStats.put("rejectReasons", new LinkedHashMap<String, Object>(reasons));genStats.put("sameGenerationBehaviorDuplicates",localBehaviorDuplicates);genStats.put("sameGenerationBehaviorDuplicatesTotal",localBehaviorDuplicatesTotal);genStats.put("sameGenerationBehaviorDuplicatesOmitted",Math.max(0,localBehaviorDuplicatesTotal-localBehaviorDuplicates.size()));
     }
 
