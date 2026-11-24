@@ -194,7 +194,7 @@ def inspect(apk,aapt,apksigner):
                 signatureVerified=True,sha256=sha(apk),bytes=apk.stat().st_size),signature,badging
 
 
-def validate_pair(manifest,old,new):
+def validate_pair(manifest, old, new, *, current_installed=None, expected_installed=None):
     require(type(manifest.get('versionCode')) is int,'RELEASE_VERSION_INTEGER_REQUIRED')
     require(manifest.get('applicationId')==old['package']==new['package']==PACKAGE,'RELEASE_PACKAGE_MISMATCH')
     require(old['sha256']==BASE_APK and old['versionCode']==577311033,'EXACT_033_BASELINE_REQUIRED')
@@ -202,14 +202,31 @@ def validate_pair(manifest,old,new):
     require(new['versionName']==manifest.get('versionName') and new['versionName']!=old['versionName'],'RELEASE_NAME_MISMATCH')
     require(new['certificateSha256']==old['certificateSha256']==CERT,'SIGNER_CHANGED')
 
+    if expected_installed is None:
+        require(current_installed is None, 'CURRENT_BASELINE_REQUIRES_BOUND_SERIES')
+        return None
+    if current_installed is None:
+        return 'COVER_INSTALL_UNVERIFIED'
+    require(current_installed['package'] == PACKAGE, 'CURRENT_BASELINE_PACKAGE_MISMATCH')
+    require(current_installed['versionCode'] == expected_installed['versionCode']
+            and current_installed['sha256'] == expected_installed['sha256'], 'EXACT_122_BASELINE_REQUIRED')
+    require(current_installed['signatureVerified'] is True
+            and current_installed['certificateSha256'] == new['certificateSha256'] == CERT,
+            'CURRENT_BASELINE_SIGNER_CHANGED')
+    require(current_installed['versionCode'] < new['versionCode'], 'CURRENT_BASELINE_NOT_OLDER')
+    return 'APKS_COMPATIBLE_COVER_INSTALL_NOT_MEASURED'
+
 
 def embedded(apk,identity):
     with zipfile.ZipFile(apk) as z:
         old=json.loads(z.read('assets/diagnostics/build-identity-r31.json'))
         current=json.loads(z.read('assets/diagnostics/build-identity-r334.json'))
-        if 'r34' in identity:
-            require(json.loads(z.read('assets/diagnostics/build-identity-r34.json')) == identity['r34'],
-                    'R34_EMBEDDED_OWNER_OR_PLAN_MISMATCH')
+        for series in ('r34', 'r341'):
+            name = f'assets/diagnostics/build-identity-{series}.json'
+            require((name in z.namelist()) == (series in identity), f'{series.upper()}_EMBEDDED_ASSET_SET_MISMATCH')
+            if series in identity:
+                require(json.loads(z.read(name)) == identity[series],
+                        f'{series.upper()}_EMBEDDED_OWNER_OR_PLAN_MISMATCH')
     require(old.get('source_commit')==identity['source_commit'] and old.get('source_tree')==identity['source_tree']
             and old.get('source_dirty') is False,'EMBEDDED_R31_SOURCE_IDENTITY_MISMATCH')
     require(current==identity,'EMBEDDED_R334_PLAN_OR_SOURCE_MISMATCH')
@@ -220,7 +237,11 @@ def main():
     parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--plan',type=Path,default=os.environ.get('STARCORE_R33_PLAN_ROOT'))
-    parser.add_argument('--baseline-apk',type=Path,required=True)
+    parser.add_argument('--r34-plan',type=Path,help='Sealed R34 root, defaults to STARCORE_R34_PLAN_ROOT')
+    parser.add_argument('--r341-plan',type=Path,help='Sealed R34.1 root, defaults to STARCORE_R341_PLAN_ROOT')
+    parser.add_argument('--baseline-apk',type=Path,required=True,help='Formal signed 033 ancestor APK')
+    parser.add_argument('--current-installed-apk',type=Path,
+                        help='Exact original-signed 122 package for the R34.1 cover compatibility check')
     parser.add_argument('--apk',type=Path)
     parser.add_argument('--aapt',type=Path,required=True);parser.add_argument('--apksigner',type=Path,required=True)
     parser.add_argument('--build-log',type=Path,required=True)
@@ -230,13 +251,20 @@ def main():
     require(not out.is_relative_to(repo),'OUTPUT_MUST_BE_OUTSIDE_SOURCE_CHECKOUT')
     require(not out.exists(),'FRESH_OUTPUT_DIRECTORY_REQUIRED')
     require(args.build_log.is_file() and args.build_log.stat().st_size>0,'ORIGINAL_GRADLE_LOG_REQUIRED')
-    identity=binding.identity(repo,args.plan,repo/'release/r33_plan_binding.json',True)
+    identity=binding.identity(repo,args.plan,repo/'release/r33_plan_binding.json',True,
+                              r34_plan=args.r34_plan,r341_plan=args.r341_plan)
     manifest=binding.read(repo/'release/release_manifest.json')
     choices=sorted((repo/'app/build/outputs/apk/release').glob('*.apk')) if args.apk is None else [args.apk]
     require(len(choices)==1,'EXACTLY_ONE_RELEASE_APK_REQUIRED');apk=choices[0]
     new,signature,badging=inspect(apk,args.aapt,args.apksigner)
     old,old_signature,old_badging=inspect(args.baseline_apk,args.aapt,args.apksigner)
-    validate_pair(manifest,old,new);embedded(apk,identity)
+    expected_installed = None
+    if 'r341' in identity:
+        expected_installed = binding.read(repo/'release/r341_plan_binding.json')['sourceApkEvidenceRef']
+    installed = inspect(args.current_installed_apk,args.aapt,args.apksigner) if args.current_installed_apk else None
+    cover = validate_pair(manifest,old,new,current_installed=installed[0] if installed else None,
+                          expected_installed=expected_installed)
+    embedded(apk,identity)
     build=binding.read(args.build_receipt)
     require(build.get('schema')=='STARCORE_R33_4_RELEASE_BUILD_1' and build.get('gradleRelease')=='PASS'
             and type(build.get('exitCode')) is int and build['exitCode']==0
@@ -245,13 +273,21 @@ def main():
             and build.get('apkSha256')==new['sha256'] and build.get('planManifestSha256')==identity['plan_manifest_sha256']
             and build.get('gradleLogSha256')==sha(args.build_log)
             and ':app:assembleRelease' in build.get('command',[]),'ACTUAL_BUILD_RECEIPT_MISMATCH')
+    if 'r341' in identity:
+        current = identity['r341']
+        require(build.get('r341PlanManifestSha256') == current['planSha256']
+                and build.get('r341PlanCommit') == current['planCommit']
+                and build.get('r341Batch') == current['batch'], 'R341_BUILD_RECEIPT_PLAN_MISMATCH')
     out.mkdir(parents=True,exist_ok=False)
-    series = 'R34' if 'r34' in identity else 'R33'
+    series = 'R341' if 'r341' in identity else 'R34' if 'r34' in identity else 'R33'
     stem=f"STARCORE-{series}-{new['versionCode']}-{identity['source_commit'][:12]}"
     copied=out/(stem+'-release.apk');shutil.copy2(apk,copied)
     require(sha(copied)==new['sha256'],'COPIED_APK_MISMATCH')
     (out/'public-certificate.txt').write_text(signature);(out/'badging.txt').write_text(badging)
     (out/'baseline033-certificate.txt').write_text(old_signature);(out/'baseline033-badging.txt').write_text(old_badging)
+    if installed:
+        (out/'baseline122-certificate.txt').write_text(installed[1])
+        (out/'baseline122-badging.txt').write_text(installed[2])
     shutil.copy2(args.build_log,out/'gradle-build.log')
     shutil.copy2(args.build_receipt,out/'CI_BUILD_RECEIPT.json')
     binding.write_json(out/'build-identity-r334.json',identity)
@@ -278,6 +314,9 @@ def main():
              'engineeringAcceptance':'SEPARATE_32_GROUP_LEDGER_REQUIRED','physical24h':'NOT_RUN_BY_PACKAGER',
              'physical72h':'NOT_RUN_BY_PACKAGER','naturalQuality':'NOT_PROVEN_BY_PACKAGING',
              'realSwitchChangedByPackager':False,'ciRun':os.environ.get('GITHUB_RUN_ID')}
+    if 'r341' in identity:
+        receipt.update(r341=identity['r341'], currentInstalledBaseline=installed[0] if installed else None,
+                       coverCompatibility=cover)
     binding.write_json(out/'DELIVERY.json',receipt)
     members=sorted(p for p in out.iterdir() if p.is_file())
     inner={p.name:sha(p) for p in members}

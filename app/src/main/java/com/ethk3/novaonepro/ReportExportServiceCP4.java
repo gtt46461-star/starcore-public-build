@@ -109,6 +109,14 @@ public final class ReportExportServiceCP4 extends Service {
             ServiceHeartbeatStore heartbeat=new ServiceHeartbeatStore(app);
             observation.put("servicePrefsReadStartedWallMs",System.currentTimeMillis()).put("servicePrefsReadStartedElapsedMs",SystemClock.elapsedRealtime()).put("servicePrefsObserverPid",android.os.Process.myPid());
             ReportJobJournalCP12.collectObservation(root,id,observation,"heartbeatSummary",heartbeat::detailedSummary);
+            ReportJobJournalCP12.collectObservation(root,id,observation,"r341ProcessStartScope",heartbeat::processStartScopeR341);
+            ReportJobJournalCP12.collectObservation(root,id,observation,"r341BusinessScope",()->heartbeat.readBusinessTruth().observationScope);
+            ReportJobJournalCP12.collectObservation(root,id,observation,"r341MaintenanceOnly",heartbeat::maintenanceProgressR341);
+            ReportJobJournalCP12.collectObservation(root,id,observation,"r341ServiceStartupJournal",
+                    ()->com.ethk3.novaonepro.strategyv2.JsonR27.write(StartupStageJournalR341.snapshot(app,"service")));
+            ReportJobJournalCP12.collectObservation(root,id,observation,"r341ResearchStartupJournal",
+                    ()->com.ethk3.novaonepro.strategyv2.JsonR27.write(StartupStageJournalR341.snapshot(app,"research")));
+
             ReportJobJournalCP12.collectObservation(root,id,observation,"fetchCadenceR31",heartbeat::fetchCadenceJsonR31);
             observation.put("servicePrefsReadFinishedWallMs",System.currentTimeMillis()).put("servicePrefsReadFinishedElapsedMs",SystemClock.elapsedRealtime())
                     .put("servicePrefsEvidenceScope","PROCESS_LOCAL_SHARED_PREFERENCES_OBSERVATION; CROSS_PID_VISIBILITY_NOT_ATOMIC; NOT_SQL_SNAPSHOT_WATERMARK");

@@ -43,6 +43,15 @@ public final class ReportAttachmentClosureCP12 {
         File attachments=new File(job,"attachments");if(!attachments.isDirectory()&&!attachments.mkdir())throw new IOException("REPORT_ATTACHMENT_DIRECTORY");
         File plans=new File(job,"attachments-plan-"+UUID.randomUUID().toString().replace("-","")+".jsonl");
         JSONObject frozenObservation=requestObservationR31(request);
+        try {
+            RuntimeObservationScopeR341 scope = RuntimeObservationScopeR341.capture(app,
+                    RuntimeObservationScopeR341.databaseIdentity(copy), snapshotHash, RuntimeObservationScopeR341.SYSTEM);
+            frozenObservation.put("r341SqlObservationScope", new JSONObject(scope.exportEnvelope()));
+            frozenObservation.put("r341RuntimeCohort", new JSONObject(RuntimeScenarioRecorderR341.exportFixture(copy, scope)));
+        } catch (android.database.sqlite.SQLiteException unavailable) {
+            frozenObservation.put("r341SqlObservationScopeState", "RESOURCE_WAIT");
+        }
+
         File observation=new File(job,"runtime-observation.json");ReportJobJournalCP12.writeAtomic(observation,frozenObservation.toString());
         ReportMemberPlanCP12.append(members,"runtime-observation.json",observation.getName(),ReportArchiveCP4.hash(observation,control),observation.length());
         String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);source.put("sourceTreeSha256",SourceManifestR815.SOURCE_TREE_SHA256);source.put("generatedRuleSha256",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);

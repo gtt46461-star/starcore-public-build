@@ -53,6 +53,7 @@ public final class RuntimeEventLedgerR926 {
         public final int rank;
         public final long createdAt;
         private final String storedEventId;
+        private RuntimeObservationScopeR341 origin;
 
         private Event(
                 String issue,
@@ -91,7 +92,7 @@ public final class RuntimeEventLedgerR926 {
                 String payloadText,
                 String source,
                 String dedupKey) {
-            return new Event(
+            Event event = new Event(
                     issue,
                     epoch,
                     attempt,
@@ -103,6 +104,8 @@ public final class RuntimeEventLedgerR926 {
                     dedupKey,
                     System.currentTimeMillis(),
                     "");
+            event.origin = RuntimeObservationScopeR341.capture(null, null, RuntimeObservationScopeR341.SYSTEM);
+            return event;
         }
 
         static Event replay(
@@ -343,6 +346,7 @@ public final class RuntimeEventLedgerR926 {
         long row = db.insertWithOnConflict(TABLE_EVENT, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
         if (row < 0L) return false;
         applyProjection(db, event, row, event.eventId());
+        persistEventScope(db, event);
         return true;
     }
 
@@ -360,6 +364,21 @@ public final class RuntimeEventLedgerR926 {
                                     }
                                 });
         return ok && inserted[0];
+    }
+
+    private static void persistEventScope(SQLiteDatabase db, Event event) {
+        RuntimeObservationScopeR341 origin = event.origin;
+        if (origin == null) return;
+        try {
+            String database = RuntimeObservationScopeR341.databaseIdentity(db);
+            if (RuntimeObservationScopeR341.UNRESOLVED.equals(database)) return;
+            db.execSQL("INSERT OR IGNORE INTO " + RuntimeObservationScopeR341.EVENT_SCOPE
+                            + " VALUES(?,?,?,?,?,?,?,?)",
+                    new Object[]{event.eventId(), origin.releaseId, origin.sourceCommit, origin.processEpoch,
+                            origin.bootId, database, origin.sampleMonoAt, origin.sampleWallAt});
+        } catch (android.database.sqlite.SQLiteException unavailable) {
+            android.util.Log.w("STARCORE_R341", "Runtime event scope unavailable", unavailable);
+        }
     }
 
     /** External/non-transactional producer durable handoff. */
@@ -381,7 +400,9 @@ public final class RuntimeEventLedgerR926 {
         cv.put("status", "PENDING");
         cv.put("created_at", event.createdAt);
         cv.put("updated_at", event.createdAt);
-        db.insertWithOnConflict(TABLE_OUTBOX, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+        if (db.insertWithOnConflict(TABLE_OUTBOX, null, cv, SQLiteDatabase.CONFLICT_IGNORE) >= 0L) {
+            persistEventScope(db, event);
+        }
     }
 
     /** Flushes durable external events into the immutable ledger using one local transaction each. */

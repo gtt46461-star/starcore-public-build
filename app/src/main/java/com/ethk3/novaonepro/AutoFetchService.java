@@ -1249,11 +1249,28 @@ public final class AutoFetchService extends Service {
     private void initializeRuntimeAfterForegroundR32() {
         if (finishCancelledRuntimeInitializationR94()) return;
         CrashRecorder.setRuntimeContext("", "SERVICE_HEAVY_INIT_BACKGROUND_R32");
+        StartupStageJournalR341 startup = StartupStageJournalR341.open(getApplicationContext(), "service");
+        startup.recoverOpenAttempts(com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId(),
+                ProcessBootIdentityR906.id());
+        String startupAttempt = java.util.UUID.randomUUID().toString();
+        StartupStageJournalR341.Token serviceToken = startup.begin("service", startupAttempt,
+                StartupStageJournalR341.Stage.SERVICE_INITIALIZE, null);
         try {
             heartbeatStateV8().markInitStage("DB_CRITICAL_OPEN", "R35_R36_V51_B03");
-            store = new DbStore(getApplicationContext());
+            StartupStageJournalR341.Token critical = startup.begin("service", startupAttempt,
+                    StartupStageJournalR341.Stage.CRITICAL_OPEN, null);
+            try {
+                store = new DbStore(getApplicationContext());
+                startup.end(critical, StartupStageJournalR341.Outcome.VERIFIED, "OPEN_RETURNED", 0L);
+            } catch (RuntimeException | Error failure) {
+                startup.recordUncaught(critical, failure);
+                throw failure;
+            }
             faultMaintenanceR335 = new RuntimeFaultMaintenanceR335();
-            if (finishCancelledRuntimeInitializationR94()) return;
+            if (finishCancelledRuntimeInitializationR94()) {
+                startup.end(serviceToken, StartupStageJournalR341.Outcome.STOPPED, "CANCELLED", 0L);
+                return;
+            }
             heartbeatStateV8()
                     .markInitStage("DB_CRITICAL_READY", store.startupSchemaSummaryR363());
 
@@ -1661,7 +1678,10 @@ public final class AutoFetchService extends Service {
                             postCountdownWorkR964(countdownMs);
                         }
                     });
-            if (finishCancelledRuntimeInitializationR94()) return;
+            if (finishCancelledRuntimeInitializationR94()) {
+                startup.end(serviceToken, StartupStageJournalR341.Outcome.STOPPED, "CANCELLED", 0L);
+                return;
+            }
             runtimeInitialized = true;
             runtimeInitializationRunning = false;
             runtimeInitializationError = "";
@@ -1688,7 +1708,9 @@ public final class AutoFetchService extends Service {
             } else {
                 replayPendingStartAfterInitR32();
             }
+            startup.end(serviceToken, StartupStageJournalR341.Outcome.VERIFIED, "R32_RUNTIME_INITIALIZED", 0L);
         } catch (Throwable initError) {
+            startup.recordUncaught(serviceToken, initError);
             runtimeInitializationRunning = false;
             runtimeInitialized = false;
             runtimeInitializationError =
@@ -2444,8 +2466,13 @@ public final class AutoFetchService extends Service {
     }
 
     private synchronized void ensureContinuousRuntimeR26() {
-        if (store != null && (continuousRuntimeR26 == null || "TERMINATED".equals(continuousRuntimeR26.stopStateR31())))
-            continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store);
+        if (store == null || (continuousRuntimeR26 != null && !"TERMINATED".equals(continuousRuntimeR26.stopStateR31()))) return;
+        StartupStageJournalR341 startup = StartupStageJournalR341.open(getApplicationContext(), "research");
+        if (startup.hasDeterministicFailureLimit()) {
+            heartbeatStateV8().markLearningAttempt("R341_RESEARCH_OWNER_BROKEN", "THREE_MATCHING_STARTUP_FAILURES");
+            return;
+        }
+        continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store);
     }
     // Dedicated Looper. SQL is still serialized by the original global writer.
     private void drainWriterFaultControlR334() {
@@ -5418,8 +5445,14 @@ public final class AutoFetchService extends Service {
                     ResearchLearningContinuityR912.Result continuity=ResearchLearningContinuityR912.pulse(store,1000L);
                     store.setState("r908_research_tick_status",continuity.status);
                     store.setState("r908_research_predraw_settle",continuity.status);
-                    if(continuity.success)heartbeatStateV8().markLearningPump("R959_PERIOD_PROGRESS",continuity.status);
-                    else heartbeatStateV8().markLearningAttempt("R959_PERIOD_PENDING",continuity.status);
+                    if (continuity.completedLanes > 0) {
+                        heartbeatStateV8().markMaintenanceProgressR341(continuity.status);
+                    }
+                    if (continuity.deepUpdates > 0) {
+                        heartbeatStateV8().markLearningPump("R959_COMMITTED_NUMERICAL_UPDATE", continuity.status);
+                    } else {
+                        heartbeatStateV8().markLearningAttempt("R959_NO_NUMERICAL_UPDATE", continuity.status);
+                    }
                     if(!ResearchLearningContinuityR912.needsContinuation(store)
                             && continuity.status.startsWith("PERIOD_COMPLETE")
                             && continuity.completedLanes>0) {
@@ -16267,7 +16300,8 @@ public final class AutoFetchService extends Service {
                 hb.writeBusinessTruth(
                         RuntimeHealthLedgerR36.businessTruth(store),
                         teacherMatrixBusy || backgroundEvidencePumpPostedV6 ? "RUNNING" : "IDLE",
-                        learningBusy || learningPostPending ? "RUNNING" : "IDLE");
+                        learningBusy || learningPostPending ? "RUNNING" : "IDLE",
+                        RuntimeObservationScopeR341.databaseIdentity(store.readable()));
             }
             if (store != null)
                 store.setState("always_on_loop_repair", reason + "|" + now + "|" + stale);

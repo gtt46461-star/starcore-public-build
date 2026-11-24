@@ -228,23 +228,45 @@ public final class RetentionMigrationR34 {
         }
     }
 
-    static void prepare(DbStore store,String ownerEpoch,java.util.function.BooleanSupplier cancelled,Runnable yield) {
+    static void prepare(DbStore store, String ownerEpoch, java.util.function.BooleanSupplier cancelled, Runnable yield,
+            com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt) {
         DatabaseCoordinator owner=store.coordinatorForResearchR952();
         try(SQLiteDatabase read=SQLiteDatabase.openDatabase(store.readable().getPath(),null,
                 SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
             Writer writer=(context,task)->owner.runAtomicWriteOrThrowF01(context,db->{task.run(db);return 0;});
             Session session=null;
+            long nextJournalSample = 0L;
             while(!cancelled.getAsBoolean()){
+                long now = android.os.SystemClock.elapsedRealtime();
+                com.ethk3.novaonepro.StartupStageJournalR341.Token unit = null;
+                if (now >= nextJournalSample) {
+                    nextJournalSample = now + 1000L;
+                    unit = journal.begin(ownerEpoch, attempt,
+                            com.ethk3.novaonepro.StartupStageJournalR341.Stage.RETENTION_UNIT,
+                            session == null || session.plan == null ? null : session.plan.planHash);
+                }
                 try{
                     // Bootstrap can miss the writer just like an individual unit. Keep an
                     // already completed base migration and this read connection across retries.
                     if(session==null)session=new Session(read,writer,ownerEpoch);
-                    if(session.step())return;
+                    boolean done = session.step();
+                    if (unit != null) {
+                        SchemaUnitPlanR34.Cursor current = session.plan == null || session.runAdmissionPending
+                                ? null : cursor(read, session.plan);
+                        String evidence = current == null ? "NO_DURABLE_UNIT_OBSERVED"
+                                : current.phase.name() + "/" + current.nextIndex + "/fence/" + current.fence;
+                        journal.end(unit, com.ethk3.novaonepro.StartupStageJournalR341.Outcome.VERIFIED, evidence, 0L);
+                    }
+                    if (done) return;
                 }catch(DatabaseCoordinator.WriteRejectedR31 failure){
+                    if (unit != null) journal.recordUncaught(unit, failure);
                     if(!ResearchPoolR27.retryRolledBackLock(failure)
                             && !(failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK
                             && failure.getCause() instanceof DatabaseCoordinator.SchemaPendingR31
                             && "SCHEMA_PENDING:R34_RETENTION:WAIT_PREPARED_PROOF".equals(failure.getCause().getMessage())))throw failure;
+                } catch (RuntimeException | Error failure) {
+                    if (unit != null) journal.recordUncaught(unit, failure);
+                    throw failure;
                 }
                 yield.run();
             }

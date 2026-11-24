@@ -88,6 +88,14 @@ public final class TargetIssueResolver {
                 true, baseIssue, target, V50Enums.FailureCode.NONE, "V50_TARGET_ISSUE_OK");
     }
 
+    static String previous(String issue) {
+        ParsedIssue parsed = parse(issue);
+        if (parsed == null) return null;
+        if (parsed.sequence > 1) return parsed.date + sequenceTextCP12(parsed.sequence - 1);
+        String priorDate = addDays(parsed.date, -1);
+        return validDate(priorDate) ? priorDate + sequenceTextCP12(ISSUES_PER_DAY) : null;
+    }
+
     /** One-minute current-game deadline from the durable source draw, never now+55s.
      * Different game identities require their own verified period contract. */
     public static long predrawDeadlineWallR20261008(Models.Draw draw) {

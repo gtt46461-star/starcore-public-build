@@ -45,6 +45,12 @@ public final class SourceManifestR815 {
                 + "|artifact-fingerprints=runtime|detached-release-manifest=true";
     }
 
+    public static String observationSourceCommit() {
+        String commit = BuildConfig.SOURCE_COMMIT_R26;
+        return commit != null && commit.matches("[a-f0-9]{40}") && !allZero(commit)
+                ? commit : RuntimeObservationScopeR341.UNRESOLVED;
+    }
+
     private static boolean hash(String value) {
         if (value == null || value.length() != 64) return false;
         for (int i = 0; i < value.length(); i++) {

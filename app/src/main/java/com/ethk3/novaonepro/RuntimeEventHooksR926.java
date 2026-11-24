@@ -11,9 +11,21 @@ public final class RuntimeEventHooksR926 {
 
     public static boolean requested(DbStore store, AnalysisSingleFlightR36.Request r) {
         return append(store, r, "REQUESTED", "REQUESTED", RuntimeEventLedgerR926.RANK_REQUESTED,
-                "base=" + r.baseIssue + "|reason=" + safe(r.reason) + "|deadline=" + r.deadlineAt
+                com.ethk3.novaonepro.strategyv2.JsonR27.write(RuntimeScenarioRecorderR341.captureInputEnvelope(r))
+                        + "|reason_code=" + RuntimeScenarioRecorderR341.redact(r.reason)
                         + "|request_budget_ms=" + Batch2ContractCoreR926.REQUEST_TO_DURABLE_BUDGET_MS,
                 "AutoFetchService", "REQUESTED");
+    }
+
+    static void historyBoundWithinTransaction(SQLiteDatabase db, AnalysisSingleFlightR36.Request request,
+            String historyHash) {
+        if (!db.inTransaction()) throw new IllegalStateException("R341_HISTORY_RECEIPT_TRANSACTION_REQUIRED");
+        RuntimeEventLedgerR926.appendWithinTransaction(db, RuntimeEventLedgerR926.Event.of(
+                request.targetIssue, Long.toString(request.generation), request.attemptId(), "HISTORY_BOUND",
+                "HISTORY_FROZEN", RuntimeEventLedgerR926.RANK_STARTED,
+                "request_hash=" + request.requestHash + "|history_hash=" + historyHash
+                        + "|deadline=" + request.deadlineAt,
+                "AnalysisRequestStoreR36", key(request, "HISTORY_BOUND")));
     }
 
     public static boolean queued(DbStore store, AnalysisSingleFlightR36.Request r, String ownerTarget) {

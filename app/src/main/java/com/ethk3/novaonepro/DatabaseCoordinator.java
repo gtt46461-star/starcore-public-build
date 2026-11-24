@@ -183,11 +183,24 @@ public final class DatabaseCoordinator {
         Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
         if(fatal!=null)throw fatal;
     }
+    private static volatile Map<String, Object> lastReceiptResolutionR341 = Collections.emptyMap();
+
+    private static CommitOutcome observeReceiptResolutionR341(CommitIdentityR31 identity, CommitOutcome outcome) {
+        Map<String, Object> value = new LinkedHashMap<>();
+        value.put("commitId", identity.commitKey);
+        value.put("outcome", outcome.name());
+        value.put("observedElapsed", TimeSourceR811.monoNowMs());
+        value.put("processEpoch", ProcessBootIdentityR906.id());
+        lastReceiptResolutionR341 = Collections.unmodifiableMap(value);
+        return outcome;
+    }
+
     public static Map<String,Object> writeProtocolSnapshotR31() {
         Map<String,Object> snapshot=new LinkedHashMap<>();snapshot.put("scope","CURRENT_PROCESS_ONLY_OUTSIDE_DATABASE_WATERMARK");snapshot.put("unknownPriorityCount",UNKNOWN_PRIORITY_R31.get());
         snapshot.put("lastUnknownPriority",lastUnknownPriorityR31);snapshot.put("diagnosticFailures",DIAGNOSTIC_FAILURES_R31.get());
         snapshot.put("lastDiagnosticFailure",lastDiagnosticR31);snapshot.put("unknownCommitCount",UNKNOWN_COMMITS_R31.get());
         snapshot.put("lastResearchDataServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());snapshot.put("lastResearchControlServiceMonoMs",LAST_RESEARCH_CONTROL_R335.get());snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
+        snapshot.put("lastReceiptResolutionR341", lastReceiptResolutionR341);
         snapshot.put("writerHoldFaultReceipts",com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.snapshot());
         snapshot.put("postCanonicalObservationR33",PostCanonicalObservationR33.snapshot());
         return Collections.unmodifiableMap(snapshot);
@@ -567,6 +580,7 @@ public final class DatabaseCoordinator {
                 if (criticalStampReason.startsWith("MATCH")) {
                     verifyCriticalTables(existingDb);
                     SchemaDomainCoordinatorR926.migrateR31TransportTiming(existingDb);
+                    SchemaDomainCoordinatorR926.migrateR341ObservationScope(existingDb);
                     if (initializer != null) initializer.run(existingDb);
                     // Initializers run before re-stamping: if one changed the schema, the
                     // second compatibility check below refuses to certify unknown drift.
@@ -653,6 +667,7 @@ public final class DatabaseCoordinator {
                 SchemaDomainCoordinatorR926.requireExistingResearchCriticalGuardsR31(db);
                 SchemaDomainCoordinatorR926.verifyAndStamp(db, critical);
                 SchemaDomainCoordinatorR926.migrateR31TransportTiming(db);
+                SchemaDomainCoordinatorR926.migrateR341ObservationScope(db);
 
                 criticalSchemaReady.set(true);
                 criticalSchemaStage = "READY";
@@ -1154,17 +1169,17 @@ public final class DatabaseCoordinator {
     /** Independent read-only pool. Absence is conclusive only once the original transaction has exited. */
     public CommitOutcome resolveCommitReceiptR31(CommitIdentityR31 identity) {
         try {
-            if(helper.getWritableDatabase().inTransaction())return CommitOutcome.UNKNOWN;
+            if(helper.getWritableDatabase().inTransaction())return observeReceiptResolutionR341(identity, CommitOutcome.UNKNOWN);
             try(SQLiteDatabase fresh=SQLiteDatabase.openDatabase(app.getDatabasePath(AppConfig.DB_NAME).getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
                 String payload=receiptPayloadR31(fresh,identity.commitKey);
-                if(payload!=null){requireReceiptPayloadR31(payload,identity.payloadHash);return CommitOutcome.COMMITTED;}
-                return CommitOutcome.ROLLED_BACK;
+                if(payload!=null){requireReceiptPayloadR31(payload,identity.payloadHash);return observeReceiptResolutionR341(identity, CommitOutcome.COMMITTED);}
+                return observeReceiptResolutionR341(identity, CommitOutcome.ROLLED_BACK);
             }
         } catch(VirtualMachineError|ThreadDeath|LinkageError fatal){throw fatal;}
         catch(RuntimeException unavailable) {
             rethrowProcessFatalR31(unavailable);
             if("INTEGRITY".equals(failureCategoryR31(unavailable)))throw new WriteRejectedR31("INTEGRITY","R31_RECEIPT_READBACK","READBACK",CommitOutcome.UNKNOWN,unavailable);
-            diagnosticR31(ATTEMPT_R31.get(),"RECEIPT_READBACK",()->{throw unavailable;});return CommitOutcome.UNKNOWN;
+            diagnosticR31(ATTEMPT_R31.get(),"RECEIPT_READBACK",()->{throw unavailable;});return observeReceiptResolutionR341(identity, CommitOutcome.UNKNOWN);
         }
     }
 

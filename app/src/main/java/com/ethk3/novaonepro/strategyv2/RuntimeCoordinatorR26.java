@@ -419,25 +419,48 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             for(String r27Task:new String[]{"r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
                 db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{r27Task,r27Task,now});
     }
+    private StartupStageJournalR341 startupJournal;
+    private String startupAttempt;
+
+    private <T> T startupStage(StartupStageJournalR341.Stage stage, java.util.function.Supplier<T> operation) {
+        StartupStageJournalR341.Token phase = startupJournal.begin(owner, startupAttempt, stage, null);
+        try {
+            T result = operation.get();
+            startupJournal.end(phase, StartupStageJournalR341.Outcome.VERIFIED, stage.name() + "_RETURNED", 0L);
+            return result;
+        } catch (RuntimeException | Error failure) {
+            startupJournal.recordUncaught(phase, failure);
+            throw failure;
+        }
+    }
+
     private void prepareStartupSchemaR34() {
-        StartupCheckpointIdentityR31.Prepared checkpoint=prepareStartupCheckpointR31(store);
-        if(checkpoint!=null)store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
-            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R34_STARTUP_CHECKPOINT"),db->{
-                ResearchRetentionStoreR30.preservePreparedStartupCheckpoint(db,checkpoint);return 0;});
-        // Base schema keeps its existing authenticated migration owners. Retention units
-        // then enter the same serialized writer separately before session registration.
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
-            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R34_RUNTIME_BASE"),db->{
-                if(!RetentionMigrationR34.runtimeBaseCurrent(db)){
+        StartupCheckpointIdentityR31.Prepared checkpoint = startupStage(StartupStageJournalR341.Stage.CHECKPOINT_PREPARE,
+                () -> prepareStartupCheckpointR31(store));
+        if (checkpoint != null) {
+            startupStage(StartupStageJournalR341.Stage.CHECKPOINT_PRESERVE, () ->
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R34_STARTUP_CHECKPOINT"),
+                db -> { ResearchRetentionStoreR30.preservePreparedStartupCheckpoint(db, checkpoint); return 0; }));
+        }
+        startupStage(StartupStageJournalR341.Stage.RUNTIME_BASE, () ->
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R34_RUNTIME_BASE"), db -> {
+                if (!RetentionMigrationR34.runtimeBaseCurrent(db)) {
                     RuntimeSchemaR26.ensure(db);
                     SchemaR27.ensure(db);
                 }
-                return 0;});
-        RetentionMigrationR34.prepare(store,owner,()->cancelled,()->await(20));
-        if(cancelled)throw new IllegalStateException("R34_STARTUP_CANCELLED");
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
-            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R34_STARTUP_CHECKPOINT_READY"),db->{
-                ResearchRetentionStoreR30.preserveAfterMigrationR34(db);return 0;});
+                return 0;
+            }));
+        startupStage(StartupStageJournalR341.Stage.RETENTION_PLAN, () -> {
+            RetentionMigrationR34.prepare(store, owner, () -> cancelled, () -> await(20), startupJournal, startupAttempt);
+            if (cancelled) throw new IllegalStateException("R34_STARTUP_CANCELLED");
+            return null;
+        });
+        startupStage(StartupStageJournalR341.Stage.CHECKPOINT_POST_MIGRATION, () ->
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+            DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R34_STARTUP_CHECKPOINT_READY"),
+            db -> { ResearchRetentionStoreR30.preserveAfterMigrationR34(db); return 0; }));
     }
     private void initialize(){
         // The live Context is an explicit authority for this private directory.
@@ -459,12 +482,28 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 registerSessionR34(db,owner);
                 RetentionMigrationR34.sealRuntimeBase(db);
             },original.cleanup);
+        StartupStageJournalR341.Token upgrade = startupJournal.begin(owner, startupAttempt,
+                StartupStageJournalR341.Stage.UPGRADE_TRANSFORM, original.contractHash);
         SchemaDomainCoordinatorR926.UpgradeOutcomeR31 upgradedR31;
         try{upgradedR31=SchemaDomainCoordinatorR926.runUpgradeR31(null,(label,body)->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
                 DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,label),db->{body.run(db);return 0;}),upgradeR31);}
-        catch(RuntimeException failure){throw failure;}
-        catch(Exception failure){throw new IllegalStateException("R31_UPGRADE_FAILED:"+failure.getMessage(),failure);}
-        if("BLOCKED_LOW_DISK".equals(upgradedR31.state))throw new IllegalStateException("R31_UPGRADE_BLOCKED_LOW_DISK:DEPENDENCY");
+        catch (RuntimeException | Error failure) { startupJournal.recordUncaught(upgrade, failure); throw failure; }
+        catch (Exception failure) {
+            startupJournal.recordUncaught(upgrade, failure);
+            throw new IllegalStateException("R31_UPGRADE_FAILED", failure);
+        }
+        if ("BLOCKED_LOW_DISK".equals(upgradedR31.state)) {
+            startupJournal.end(upgrade, StartupStageJournalR341.Outcome.WAIT_RESOURCE, "BLOCKED_LOW_DISK", 0L);
+            throw new IllegalStateException("R31_UPGRADE_BLOCKED_LOW_DISK:DEPENDENCY");
+        }
+        startupJournal.end(upgrade, StartupStageJournalR341.Outcome.VERIFIED, upgradedR31.state, 0L);
+        startupStage(StartupStageJournalR341.Stage.SESSION_REGISTER, () -> {
+            try (Cursor receipt = store.readable().rawQuery("SELECT session_id FROM r26_session WHERE session_id=?",
+                    new String[]{owner})) {
+                if (!receipt.moveToFirst()) throw new IllegalStateException("DEPENDENCY:R341_SESSION_NOT_DURABLE");
+            }
+            return null;
+        });
         retentionProtectionReadyR31=true;
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
@@ -546,10 +585,35 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         try{
             ServiceHeartbeatStore user=new ServiceHeartbeatStore(store.contextForR26());if(!user.isUserEnabled()){cancelled=true;return;}
             powerLease=new RuntimePowerLeaseR26(store.contextForR26(),owner);powerLease.keepAlive();
-            boolean initialized=false;
-            while(!cancelled&&!initialized){if(!user.isUserEnabled()){cancelled=true;break;}powerLease.keepAlive();try{initialize();initialized=true;}catch(RuntimeException retry){FailureDispositionR31.Decision disposition=FailureDispositionR31.classify(retry);if(disposition.disposition==FailureDispositionR31.Disposition.FAULT||disposition.disposition==FailureDispositionR31.Disposition.FATAL)throw retry;android.util.Log.w("STARCORE_R26","initialization dependency wait",retry);await(500);}}
+            startupJournal = StartupStageJournalR341.open(store.contextForR26(), "research");
+            startupJournal.recoverOpenAttempts(IssueTimelineWriterR30.bootId(), ProcessBootIdentityR906.id());
+            boolean initialized = false;
+            while (!cancelled && !initialized) {
+                if (!user.isUserEnabled()) { cancelled = true; break; }
+                powerLease.keepAlive();
+                startupAttempt = java.util.UUID.randomUUID().toString();
+                StartupStageJournalR341.Token attempt = startupJournal.begin(owner, startupAttempt,
+                        StartupStageJournalR341.Stage.OWNER_BEGIN, null);
+                try {
+                    initialize();
+                    startupJournal.end(attempt, StartupStageJournalR341.Outcome.VERIFIED, "SESSION_READ_BACK", 0L);
+                    initialized = true;
+                } catch (RuntimeException | Error retry) {
+                    startupJournal.recordUncaught(attempt, retry);
+                    FailureDispositionR31.Decision disposition = FailureDispositionR31.classify(retry);
+                    if (disposition.disposition == FailureDispositionR31.Disposition.FAULT ||
+                            disposition.disposition == FailureDispositionR31.Disposition.FATAL) throw retry;
+                    android.util.Log.w("STARCORE_R26", "initialization dependency wait", retry);
+                    await(500);
+                }
+            }
             // R27-003/009: DbStore → P0 (service) → research scheduler. The R27 pool owns the R27 tasks.
-            if(!cancelled){RuntimeR27 runtime=new RuntimeR27(store,owner);r27=runtime;runtime.start();}
+            if (!cancelled) startupStage(StartupStageJournalR341.Stage.OWNER_READY, () -> {
+                RuntimeR27 runtime = new RuntimeR27(store, owner);
+                r27 = runtime;
+                runtime.start();
+                return null;
+            });
             while(!cancelled){
             if(!user.isUserEnabled()){cancelled=true;break;}powerLease.keepAlive();
             resources();if(SystemClock.elapsedRealtime()-lastOwnerHealthRequestR31>=5000){lastOwnerHealthRequestR31=SystemClock.elapsedRealtime();reconcileResearchHealthR31("OWNER_FIVE_SECOND_CONTROL_TICK");}CooperativeContinuationR26.reapTerminated();ResearchPoolR27.recoverOneR31(store,owner);

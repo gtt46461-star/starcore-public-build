@@ -383,10 +383,16 @@ public final class ServiceHeartbeatStore {
             RuntimeHealthLedgerR36.BusinessTruth truth,
             String teacherState,
             String learningState) {
+        writeBusinessTruth(truth, teacherState, learningState, RuntimeObservationScopeR341.UNRESOLVED);
+    }
+
+    void writeBusinessTruth(RuntimeHealthLedgerR36.BusinessTruth truth, String teacherState,
+            String learningState, String databaseIdentity) {
         if (truth == null) return;
         RuntimePatch p = new RuntimePatch();
         long now = System.currentTimeMillis();
         p.putLong("business_truth_at", now);
+        p.putString("r341_business_scope", observationScope(databaseIdentity));
         p.putString("business_truth_status", safe(truth.status));
         p.putString("business_truth_root_cause", safe(truth.rootCause));
         p.putString("business_latest_draw_issue", safe(truth.latestDrawIssue));
@@ -418,7 +424,27 @@ public final class ServiceHeartbeatStore {
                 getLong("business_analysis_p95_ms", -1L),
                 getString("teacher_module_state", "UNKNOWN"),
                 getString("learning_module_state", "UNKNOWN"),
-                getLong("business_truth_at", 0L));
+                getLong("business_truth_at", 0L),
+                getString("r341_business_scope", ""));
+    }
+
+    private String observationScope(String databaseIdentity) {
+        return new org.json.JSONObject(RuntimeObservationScopeR341.capture(app, databaseIdentity,
+                null, RuntimeObservationScopeR341.SYSTEM).exportEnvelope()).toString();
+    }
+
+    String processStartScopeR341() {
+        return getString("r341_process_start_scope", "");
+    }
+
+    String maintenanceProgressR341() {
+        return getString("r341_maintenance_progress", "");
+    }
+
+    void markMaintenanceProgressR341(String committedCursor) {
+        RuntimePatch patch = new RuntimePatch();
+        patch.putString("r341_maintenance_progress", safe(committedCursor));
+        applyTelemetryPatchR76(patch);
     }
 
     private static String normalizeModuleState(String state) {
@@ -434,6 +460,7 @@ public final class ServiceHeartbeatStore {
                 latestOos, teacher, learning;
         public final int drawCanonicalLag, drawSettledLag, settledOosLag, deferredPending;
         public final long analysisP95Ms, updatedAt;
+        public final String observationScope;
 
         public boolean currentClosureR71(String current,String target,long now) {
             return "HEALTHY".equals(status)&&TargetIssueResolver.exact(current,target).valid
@@ -456,7 +483,7 @@ public final class ServiceHeartbeatStore {
                 long analysisP95Ms,
                 String teacher,
                 String learning,
-                long updatedAt) {
+                long updatedAt, String observationScope) {
             this.status = safe(status);
             this.rootCause = safe(rootCause);
             this.latestDraw = safe(latestDraw);
@@ -471,6 +498,7 @@ public final class ServiceHeartbeatStore {
             this.teacher = safe(teacher);
             this.learning = safe(learning);
             this.updatedAt = updatedAt;
+            this.observationScope = safe(observationScope);
         }
     }
 
@@ -581,6 +609,7 @@ public final class ServiceHeartbeatStore {
             p.putInt("actual_process_start_count", actual);
             p.putLong("actual_process_start_at", System.currentTimeMillis());
             p.putString("actual_process_start_reason", safe(reason));
+            p.putString("r341_process_start_scope", observationScope(RuntimeObservationScopeR341.UNRESOLVED));
             p.putString("runtime_version", VERSION);
             commitPatchLocked(p);
         }

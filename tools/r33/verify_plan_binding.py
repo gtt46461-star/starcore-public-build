@@ -203,7 +203,15 @@ def verify_plan(plan, binding):
             'scenario_registry_sha256':binding['scenarioRegistrySha256'],'plan_member_count':len(members)}
 
 
-def identity(repo, plan, binding_file, require_clean=False):
+def release_owner(repo, directory):
+    from importlib.util import module_from_spec, spec_from_file_location
+    spec = spec_from_file_location(directory + '_build_identity', repo/'tools'/directory/'build_identity.py')
+    owner = module_from_spec(spec)
+    spec.loader.exec_module(owner)
+    return owner
+
+
+def identity(repo, plan, binding_file, require_clean=False, *, r34_plan=None, r341_plan=None):
     repo=Path(repo).resolve();binding=read(binding_file)
     result=verify_plan(plan,binding)
     require(Path(git(repo,'rev-parse','--show-toplevel').decode().strip()).resolve()==repo,'ACTUAL_REPOSITORY_ROOT_REQUIRED')
@@ -219,12 +227,19 @@ def identity(repo, plan, binding_file, require_clean=False):
                   checkoutBytes=checkout,
                   engineeringAcceptance='NOT_INFERRED',deviceAcceptance='NOT_INFERRED',naturalQuality='NOT_INFERRED')
     release = read(repo/'release/release_manifest.json')
-    if (repo/'release/r34_plan_binding.json').exists() or release['versionName'].startswith('R34-'):
-        from importlib.util import module_from_spec, spec_from_file_location
-        spec = spec_from_file_location('r34_build_identity', repo/'tools/r34/build_identity.py')
-        owner = module_from_spec(spec)
-        spec.loader.exec_module(owner)
-        result['r34'] = owner.identity(repo, head, result['source_tree'], release)
+    version_name = release['versionName']
+    has_prior_binding = (repo/'release/r34_plan_binding.json').exists()
+    if version_name.startswith('R34.1-'):
+        prior = release_owner(repo, 'r34').verify_seal(repo, head, r34_plan)
+        result['r341'] = release_owner(repo, 'r341').identity(
+            repo, head, result['source_tree'], release, r341_plan,
+            legacy_plan_seals={'r33_5': dict(planRevision=result['planRevision'],
+                                            planSha256=result['plan_manifest_sha256']),
+                               'r34': prior})
+    elif version_name.startswith('R34-') or has_prior_binding:
+        result['r34'] = release_owner(repo, 'r34').identity(repo, head, result['source_tree'], release, r34_plan)
+    require(not (repo/'release/r341_plan_binding.json').exists() or 'r341' in result,
+            'R341_BOUND_SOURCE_REQUIRES_RELEASE_SERIES')
     return result
 
 
@@ -240,6 +255,8 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
     parser.add_argument('--plan',type=Path,default=os.environ.get('STARCORE_R33_PLAN_ROOT'))
+    parser.add_argument('--r34-plan',type=Path,help='Sealed R34 directory, defaults to STARCORE_R34_PLAN_ROOT')
+    parser.add_argument('--r341-plan',type=Path,help='Sealed R34.1 directory, defaults to STARCORE_R341_PLAN_ROOT')
     parser.add_argument('--binding',type=Path)
     parser.add_argument('--init-binding',action='store_true',help='Write a new, reviewable pin from an already validated sealed plan; never overwrite.')
     parser.add_argument('--require-clean',action='store_true')
@@ -255,7 +272,7 @@ def main():
         binding.parent.mkdir(parents=True,exist_ok=True)
         with binding.open('x',encoding='utf-8') as f:json.dump(value,f,indent=2,sort_keys=True);f.write('\n')
         print(json.dumps({'status':'NEW_REVIEWABLE_PIN_CREATED','file':str(binding),'sha256':sha(binding)}));return
-    result=identity(args.repo,args.plan,binding,args.require_clean)
+    result=identity(args.repo,args.plan,binding,args.require_clean,r34_plan=args.r34_plan,r341_plan=args.r341_plan)
     if args.out:write_json(args.out,result)
     else:print(json.dumps(result,ensure_ascii=False,indent=2))
 

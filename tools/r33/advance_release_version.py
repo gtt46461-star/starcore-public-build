@@ -63,18 +63,26 @@ def atomic(path,data):
     finally:temp.unlink(missing_ok=True)
 
 
-def prepare(repo,journal,installed_version,stage,day,series='R33.5'):
+def prepare(repo,journal,installed_version,stage,day,series='R33.5', published_version=None):
     repo=Path(repo).resolve();journal=Path(journal).absolute()
     require(type(installed_version) is int and installed_version>0,'POSITIVE_INSTALLED_VERSION_REQUIRED')
-    require(series in ('R33.5','R34'),'KNOWN_RELEASE_SERIES_REQUIRED')
-    stages = STAGES if series == 'R33.5' else tuple(f'B{i:02d}' for i in range(13))
+    require(series in ('R33.5','R34','R34.1'),'KNOWN_RELEASE_SERIES_REQUIRED')
+    if series == 'R34.1':
+        require(type(published_version) is int and published_version >= 577311122,
+                'R341_PUBLISHED_VERSION_LOWER_BOUND_REQUIRED')
+    else:
+        require(published_version is None or (type(published_version) is int and published_version > 0),
+                'POSITIVE_PUBLISHED_VERSION_REQUIRED')
+    first = 1 if series == 'R34.1' else 0
+    stages = STAGES if series == 'R33.5' else tuple(f'B{i:02d}' for i in range(first, 13))
     require(stage in stages,'KNOWN_STAGE_REQUIRED')
     datetime.date.fromisoformat(day)
     require(not journal.exists() and not journal.is_symlink() and not journal.resolve().is_relative_to(repo),
             'FRESH_EXTERNAL_VERSION_JOURNAL_REQUIRED')
     gen=generator(repo);current=gen.load()
     require(type(current['versionCode']) is int,'INTEGER_CURRENT_VERSION_REQUIRED')
-    version=max(current['versionCode'],installed_version,577311033)+1
+    version=max(current['versionCode'],installed_version,published_version or 0,
+                577311122 if series == 'R34.1' else 577311033)+1
     require(version<=2100000000,'ANDROID_VERSION_CODE_LIMIT')
     new=json.loads(json.dumps(current));new['versionCode']=version
     new['versionName']=f'{series}-{stage}-{day}-{version}'
@@ -93,6 +101,7 @@ def prepare(repo,journal,installed_version,stage,day,series='R33.5'):
              'installedVersionObserved':installed_version,'previousVersionCode':current['versionCode'],
              'versionCode':version,'versionName':new['versionName'],'files':rows,
              'scope':'VERSION_IDENTITY_ONLY_NOT_BUILD_OR_ACCEPTANCE'}
+    if published_version is not None: receipt['publishedVersionObserved'] = published_version
     atomic(journal/'JOURNAL.json',(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n').encode())
     return receipt
 
@@ -154,8 +163,9 @@ def main():
     parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
     parser.add_argument('--journal',type=Path,required=True)
     parser.add_argument('--stage')
-    parser.add_argument('--series',choices=['R33.5','R34'],default='R33.5')
+    parser.add_argument('--series',choices=['R33.5','R34','R34.1'],default='R33.5')
     parser.add_argument('--installed-version',type=int)
+    parser.add_argument('--published-version',type=int,help='Highest observed published version, required for R34.1')
     parser.add_argument('--date',default=datetime.datetime.now(ZoneInfo('Asia/Shanghai')).date().isoformat())
     parser.add_argument('--apply',action='store_true')
     parser.add_argument('--resume',action='store_true')
@@ -165,7 +175,7 @@ def main():
         result=apply(args.repo,args.journal)
     else:
         require(args.stage is not None and args.installed_version is not None,'STAGE_AND_INSTALLED_VERSION_REQUIRED')
-        result=prepare(args.repo,args.journal,args.installed_version,args.stage,args.date,args.series)
+        result=prepare(args.repo,args.journal,args.installed_version,args.stage,args.date,args.series,args.published_version)
         if args.apply:result=apply(args.repo,args.journal)
     print(json.dumps(result,ensure_ascii=False,indent=2))
 

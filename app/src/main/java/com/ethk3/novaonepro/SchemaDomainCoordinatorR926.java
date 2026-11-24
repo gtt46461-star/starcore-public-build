@@ -1093,6 +1093,21 @@ public final class SchemaDomainCoordinatorR926 {
         }
     }
 
+    static void migrateR341ObservationScope(SQLiteDatabase db) throws Exception {
+        Contract contract = new Contract("R341_OBSERVATION_SCOPE", 1,
+                new String[]{RuntimeObservationScopeR341.DATABASE, RuntimeObservationScopeR341.EVENT_SCOPE,
+                        "r341_observation_release"});
+        db.beginTransaction();
+        try {
+            prepareRepairIfDrift(db, contract);
+            runStep(db, contract, "R341_OBSERVATION_SCOPE_V1", RuntimeObservationScopeR341::installWithinTransaction);
+            verifyAndStamp(db, contract);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     /** One original Legacy DDL statement, its exact before/after proof and the
      * Critical stamp share a commit. Never authenticate an already drifted
      * layout: only the production owner's declared object may change. */

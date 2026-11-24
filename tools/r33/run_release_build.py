@@ -13,13 +13,18 @@ import verify_plan_binding as binding
 EXPECTED_CERT = 'd8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
 
 
-def build_environment(plan, inherited=None):
+def build_environment(plan, inherited=None, *, r34_plan=None, r341_plan=None):
     """Inject the public identity required by CP12 without reading or printing private inputs."""
     env = dict(os.environ if inherited is None else inherited)
     supplied = env.get('R13_EXPECTED_CERT_SHA256', EXPECTED_CERT).lower()
     binding.require(supplied == EXPECTED_CERT, 'R13_PUBLIC_CERTIFICATE_PIN_CONFLICT')
     env['R13_EXPECTED_CERT_SHA256'] = EXPECTED_CERT
     env['STARCORE_R33_PLAN_ROOT'] = str(Path(plan).resolve())
+    for key, configured in (('STARCORE_R34_PLAN_ROOT', r34_plan),
+                            ('STARCORE_R341_PLAN_ROOT', r341_plan)):
+        location = configured or env.get(key)
+        if location:
+            env[key] = str(Path(location).resolve())
     return env
 
 
@@ -35,16 +40,19 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
     p.add_argument('--plan',type=Path,default=os.environ.get('STARCORE_R33_PLAN_ROOT'))
+    p.add_argument('--r34-plan',type=Path,help='Sealed R34 root, defaults to STARCORE_R34_PLAN_ROOT')
+    p.add_argument('--r341-plan',type=Path,help='Sealed R34.1 root, defaults to STARCORE_R341_PLAN_ROOT')
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args();repo=a.repo.resolve();out=a.out.resolve()
     binding.require(a.plan is not None,'STARCORE_R33_PLAN_ROOT_REQUIRED')
     binding.require(not out.is_relative_to(repo) and not out.exists(),'FRESH_EXTERNAL_BUILD_OUTPUT_REQUIRED')
-    before=binding.identity(repo,a.plan,repo/'release/r33_plan_binding.json',True)
+    roots = dict(r34_plan=a.r34_plan, r341_plan=a.r341_plan)
+    before=binding.identity(repo,a.plan,repo/'release/r33_plan_binding.json',True,**roots)
     out.mkdir(parents=True,exist_ok=False);log=out/'gradle-build.log'
     command=[str(repo/'gradlew'),'--no-daemon','--max-workers=4','-Pr30Instrumentation=true',
              ':app:assembleRelease',':app:assembleDebug',':app:assembleDebugAndroidTest']
     start=time.monotonic_ns()
-    env=build_environment(a.plan)
+    env=build_environment(a.plan, **roots)
     launch_error=None
     with log.open('xb') as f:
         try:
@@ -57,7 +65,7 @@ def main():
     after=None
     identity_error=None
     try:
-        after=binding.identity(repo,a.plan,repo/'release/r33_plan_binding.json',True)
+        after=binding.identity(repo,a.plan,repo/'release/r33_plan_binding.json',True,**roots)
     except Exception as error:
         # This boundary must preserve the original build result and a FAIL
         # receipt for every ordinary identity failure, including path errors.
@@ -77,6 +85,10 @@ def main():
              'sourceUnchangedDuringBuild':unchanged,'identityError':identity_error,'buildLaunchError':launch_error,
              'ciRun':os.environ.get('GITHUB_RUN_ID'),
              'deviceAcceptance':'NOT_INFERRED','naturalQuality':'NOT_INFERRED'}
+    current = before.get('r341')
+    if current:
+        receipt.update(r341PlanManifestSha256=current['planSha256'], r341PlanCommit=current['planCommit'],
+                       r341Batch=current['batch'])
     binding.write_json(out/'CI_BUILD_RECEIPT.json',receipt)
     print(json.dumps({'gradleRelease':receipt['gradleRelease'],'receipt':str(out/'CI_BUILD_RECEIPT.json'),
                       'log':str(log)},ensure_ascii=False))

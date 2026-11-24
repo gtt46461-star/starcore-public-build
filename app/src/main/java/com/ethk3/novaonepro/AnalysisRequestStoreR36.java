@@ -742,7 +742,7 @@ public final class AnalysisRequestStoreR36 {
             throw new IllegalArgumentException("R36_HISTORY_BIND_INVALID");
         Boolean ok =
                 store.coordinatorR36()
-                        .runWriteOrThrowF01(
+                        .runAtomicWriteOrThrowF01(
                                 "R36_ANALYSIS_HISTORY_BIND",
                                 new DatabaseCoordinator.WriteCallable<Boolean>() {
                                     @Override
@@ -775,8 +775,7 @@ public final class AnalysisRequestStoreR36 {
                                         ContentValues cv = new ContentValues();
                                         cv.put("history_hash", historyHash);
                                         cv.put("last_stage", "HISTORY_FROZEN");
-                                        return Boolean.valueOf(
-                                                db.update(
+                                        boolean bound = db.update(
                                                                 DbHelper.TABLE_R36_ANALYSIS_REQUEST,
                                                                 cv,
                                                                 "target_issue=? AND generation=?"
@@ -788,8 +787,9 @@ public final class AnalysisRequestStoreR36 {
                                                                     request.requestHash,
                                                                     RUNNING,
                                                                     safe(owner)
-                                                                })
-                                                        == 1);
+                                                                }) == 1;
+                                        if (bound) RuntimeEventHooksR926.historyBoundWithinTransaction(db, request, historyHash);
+                                        return bound;
                                     }
                                 });
         if (!ok.booleanValue()) throw new IllegalStateException("R36_HISTORY_BIND_FAILED");
