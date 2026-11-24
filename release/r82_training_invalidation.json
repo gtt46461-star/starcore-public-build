@@ -5676,12 +5676,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "95d15313b91c448e049b748680bda1b9773bbbb3855b9cf1822e6a548a56b112",
+      "after_sha256": "8d9ec59ce7c96bea800661a116fb27b9412387fbdf6f675088fdafeecb7557fe",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
-      "rationale": "Check historical roots only when live incoming checkpoint data actually requires a typed comparison, report precise unavoidable missing references and preserve conflicts.",
-      "reviewer": "R34.1 B03 implementation review"
+      "rationale": "Rename the CAS location local to avoid a Java name clash with the original per-column source flag. The read-only equality comparison remains unchanged.",
+      "reviewer": "R34.1 B03 Android compile repair"
     },
     {
       "after_role": "NUMERIC",
@@ -9614,7 +9614,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "518a0979571a0f922dd3d9b99ef0fb900c029f765c8388763dabb5e178a4b7db",
+  "reviewed_input_provenance_sha256": "9af275a0c2dcbd191c535c164f6ae8c24d59e72c5da5cba560665be96b9695ff",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

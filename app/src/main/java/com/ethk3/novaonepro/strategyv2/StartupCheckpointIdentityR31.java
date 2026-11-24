@@ -115,10 +115,10 @@ public final class StartupCheckpointIdentityR31 {
         return new Prepared(database,revision,version,contract,matches,owners.size(),examined,totalBytes);
     }
     private static String compare(SQLiteDatabase read,File root,Match original,Set<String> names,Set<String> owners,Set<String> found,BudgetTokenSU1 budget)throws IOException{
-        CheckpointDependencyR341.Source source = CheckpointDependencyR341.resolve(root, original.hash, original.bytes);
-        if (source.file == null || source.state == CheckpointDependencyR341.State.CONFLICT)
-            throw new CheckpointDependencyR341.SourceWait(source.state, original.hash, source.detail);
-        File file = source.file;
+        CheckpointDependencyR341.Source location = CheckpointDependencyR341.resolve(root, original.hash, original.bytes);
+        if (location.file == null || location.state == CheckpointDependencyR341.State.CONFLICT)
+            throw new CheckpointDependencyR341.SourceWait(location.state, original.hash, location.detail);
+        File file = location.file;
         MessageDigest digest;try{digest=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
         String owner=null;boolean equal=true;Set<String> fields=new HashSet<>();byte[] buffer=new byte[CHUNK];
         try(DataInputStream in=new DataInputStream(new BufferedInputStream(new DigestInputStream(new FileInputStream(file),digest),CHUNK))){
