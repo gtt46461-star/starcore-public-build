@@ -354,7 +354,7 @@ public final class StartupStageJournalR341 {
             }
             if (!part.renameTo(data)) throw new IOException("R341_JOURNAL_REPLACE");
             try {
-                FileDescriptor parent = Os.open(data.getParent(), OsConstants.O_RDONLY | OsConstants.O_DIRECTORY, 0);
+                FileDescriptor parent = Os.open(data.getParent(), OsConstants.O_RDONLY, 0);
                 try { Os.fsync(parent); } finally { Os.close(parent); }
             } catch (android.system.ErrnoException unavailable) {
                 throw new IOException("R341_JOURNAL_DIRECTORY_FORCE", unavailable);
