@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
 import org.json.JSONObject;
 
 public final class R341StorageTestCases {
@@ -190,11 +189,10 @@ public final class R341StorageTestCases {
     }
 
     private static void restoreOriginalFixture(File file) throws IOException {
-        // The fixture was written with auto_vacuum=NONE and 129 free pages.
+        // Android's asset merger expands the committed .gz before packaging.
         // Keep those original bytes until the real Android rebuild opens the source.
-        try(InputStream asset=InstrumentationRegistry.getInstrumentation().getContext().getAssets()
-                .open("r341/fragmented-original.db.gz");
-                GZIPInputStream original=new GZIPInputStream(asset);
+        try(InputStream original=InstrumentationRegistry.getInstrumentation().getContext().getAssets()
+                .open("r341/fragmented-original.db");
                 FileOutputStream output=new FileOutputStream(file)){
             byte[] buffer=new byte[32768];
             for(int count;(count=original.read(buffer))!=-1;)output.write(buffer,0,count);
