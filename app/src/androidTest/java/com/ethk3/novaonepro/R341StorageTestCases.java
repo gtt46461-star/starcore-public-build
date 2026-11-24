@@ -200,9 +200,17 @@ public final class R341StorageTestCases {
     public static void offlineSwapRecoveryR341(Context app) throws Exception {
         System.loadLibrary("starcore_report_cp4");
         for(boolean candidateInstalled:new boolean[]{false,true}){
-            File root=fixture(app), live=new File(root,"live.db"), copy=new File(root,"live.db.r82-rebuilt");
-            File backup=new File(root,"live.db.r82-original-backup"), journal=new File(root,"live.db.r82-maintenance-journal");
-            File receiptFile=new File(root,"live.db.r82-backup-receipt");
+            File sandbox=fixture(app);
+            try(SourceReadLeaseR82 ignored=SourceReadLeaseR82.exclusive(new File(sandbox,"untrusted.db"))){
+                fail("Offline recovery took a lease outside a database directory");
+            }catch(IOException refused){assertEquals("untrusted source database path",refused.getMessage());}
+            File databases=new File(new File(sandbox,ReleaseManifestR926.APPLICATION_ID),"databases");
+            assertTrue(databases.mkdirs());
+            File live=new File(databases,AppConfig.DB_NAME);
+            File copy=new File(databases,AppConfig.DB_NAME+".r82-rebuilt");
+            File backup=new File(databases,AppConfig.DB_NAME+".r82-original-backup");
+            File journal=new File(databases,AppConfig.DB_NAME+".r82-maintenance-journal");
+            File receiptFile=new File(databases,AppConfig.DB_NAME+".r82-backup-receipt");
             createOriginalDatabase(live);
             String original=StorageMaintenanceFileR82.sha256(live);
             StorageMaintenanceFileR82.Receipt rebuiltReceipt;
