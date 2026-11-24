@@ -28,6 +28,7 @@ public final class AtomNetSessionR30 {
     int[] order;
     byte[] bestNet;
     StatsR27.Moments loss = new StatsR27.Moments(); double brier;
+    StatsR27.Moments hitHeadGainR341=new StatsR27.Moments();
     public final List<AtomNetTrainerR27.Epoch> receipts = new ArrayList<>();
     public boolean legacyValidationOriginUnknown,needsValidationRoleMigration;
 
@@ -69,8 +70,12 @@ public final class AtomNetSessionR30 {
             if(phase.contains("DEVELOPMENT_VALIDATION")){from=trainCount;count=selectCount;}
             n=Math.min(64,count-offset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+offset+k;samples.prefetch(indices);
             for(int k=0;k<n;k++) {
-                AtomNetTrainerR27.Sample s=samples.get(from+offset+k);double p=trainer.net.predict(s.x);
+                AtomNetTrainerR27.Sample s=samples.get(from+offset+k);double p=trainer.net.validationHitR341(s.x);
                 loss.add(-Math.log(Math.max(1e-12,s.y==1?p:1-p)));brier+=(p-s.y)*(p-s.y);
+                if(phase.endsWith("DEVELOPMENT_VALIDATION")){
+                    double reference=StatsR27.BASE-s.y,error=p-s.y;
+                    hitHeadGainR341.add(reference*reference-error*error);
+                }
             }
             offset+=n;
             if(offset==count) finishEvaluation();
@@ -102,14 +107,15 @@ public final class AtomNetSessionR30 {
         } else if("EVAL_ONLINE_DEVELOPMENT_VALIDATION".equals(phase)) {
             boolean degrade=Double.isFinite(trainer.lastCheckLogloss)&&mean>trainer.lastCheckLogloss+2*Math.max(loss.se(),trainer.lastCheckSe);
             if(degrade){trainer.net=AtomNetR27.decode(trainer.checkpoint);trainer.onlineLr*=.5;}
-            else{trainer.lastCheckLogloss=mean;trainer.lastCheckSe=loss.se();trainer.checkpoint=trainer.net.encode();}
+            else{trainer.net.bindHitReadoutR341(hitHeadGainR341);trainer.lastCheckLogloss=mean;trainer.lastCheckSe=loss.se();trainer.checkpoint=trainer.net.encode();}
             trainer.sinceCheck=0;transition("ONLINE");
         } else {
             trainer.lastCheckLogloss=mean;trainer.lastCheckSe=loss.se();trainer.sinceCheck=0;
+            trainer.net.bindHitReadoutR341(hitHeadGainR341);trainer.checkpoint=trainer.net.encode();
             transition("FILL");
         }
     }
-    private void transition(String next){phase=next;offset=0;loss=new StatsR27.Moments();brier=0;}
+    private void transition(String next){phase=next;offset=0;loss=new StatsR27.Moments();hitHeadGainR341=new StatsR27.Moments();brier=0;}
 
     /** Exactly one new position plus the original 63 replay samples. Base issue and position cursor commit together. */
     public void online(AtomNetTrainerR27.Sample sample,String issue,long ordinal,int position) {
@@ -165,6 +171,7 @@ public final class AtomNetSessionR30 {
         r.put("inputBoundary",observedThrough);r.put("legacyTrainedThroughIsInputBoundary",completeIssue.isEmpty());
         r.put("weightsTrainedThrough",ready()?trainedThrough():null);
         r.put("weightsTrainedThroughOrdinal",ready()?trainedThroughOrdinal():null);
+        r.put("hitHeadReadout",trainer.net.referenceHitReadoutR341()?"REFERENCE_0_30_NO_SUPPORTED_DEVELOPMENT_BRIER_GAIN":"TRAINED_K3_HIT_HEAD");
         // R31-B06-C03: complete watermark advances only after position 10; partial positions are observed, not consumable.
         r.put("completeTrainedThroughIssue",ready()?completeIssue:null);
         r.put("completeTrainedThroughOrdinal",ready()?(partialIssue.isEmpty()?Long.valueOf(trainedThroughOrdinal()):completeIssue.isEmpty()?null:Long.valueOf(com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(completeIssue))):null);
@@ -201,7 +208,7 @@ public final class AtomNetSessionR30 {
     public byte[] encode(){
         try{
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream o=new DataOutputStream(bytes);
-            o.writeInt(0x30A70004);o.writeUTF(ABI);o.writeUTF(datasetHash);o.writeUTF(observedThrough);o.writeLong(observedThroughOrdinal);
+            o.writeInt(0x30A70005);o.writeUTF(ABI);o.writeUTF(datasetHash);o.writeUTF(observedThrough);o.writeLong(observedThroughOrdinal);
             for(int v:new int[]{input,trainCount,selectCount,holdoutCount,cachePeriod,epoch,offset,step,bad,fillOffset,nextPosition})o.writeInt(v);
             o.writeUTF(phase);o.writeUTF(completeIssue);o.writeUTF(partialIssue);
             for(long v:new long[]{onlineObservedOrdinal,pretrainSamples,materializedSamples,materializeMs,trainingMs,units,loss.n})o.writeLong(v);
@@ -210,13 +217,14 @@ public final class AtomNetSessionR30 {
             ModelArtifactR29.blob(o,bestNet);ModelArtifactR29.blob(o,new ModelArtifactR29(trainer,ftrl,datasetHash,completeIssue.isEmpty()?observedThrough:trainedThrough()).encode());
             o.writeBoolean(legacyValidationOriginUnknown);o.writeBoolean(needsValidationRoleMigration);o.writeUTF(LEARNING_PROTOCOL);o.writeUTF(replayPolicy);o.writeUTF(replayEvidenceRun);o.writeLong(replayPolicyChanges);
             o.writeBoolean(replayRolesBoundR341);o.writeUTF(partialInputHashR341);
+            o.writeLong(hitHeadGainR341.n);o.writeDouble(hitHeadGainR341.mean);o.writeDouble(hitHeadGainR341.m2);
             o.close();return bytes.toByteArray();
         }catch(IOException e){throw new IllegalStateException("R30_MODEL_ENCODE",e);}
     }
     public static AtomNetSessionR30 decode(byte[] bytes,String hash){
         if(bytes==null||bytes.length>64<<20||!StatsR27.sha256(bytes).equals(hash))throw new IllegalArgumentException("R30_MODEL_CHECKSUM");
         try{
-            DataInputStream d=new DataInputStream(new ByteArrayInputStream(bytes));int format=d.readInt();if(format<0x30A70001||format>0x30A70004||!ABI.equals(d.readUTF()))throw new IOException("ABI");
+            DataInputStream d=new DataInputStream(new ByteArrayInputStream(bytes));int format=d.readInt();if(format<0x30A70001||format>0x30A70005||!ABI.equals(d.readUTF()))throw new IOException("ABI");
             String ds=d.readUTF(),through=d.readUTF();long ordinal=d.readLong();int[] v=new int[11];for(int i=0;i<v.length;i++)v[i]=d.readInt();
             if(v[0]<11||v[0]>4096||v[1]<=0||v[1]>1_000_000||v[2]<=0||v[2]>1_000_000||v[3]<0||v[3]>1_000_000)throw new IOException("shape");
             AtomNetSessionR30 s=new AtomNetSessionR30(ds,through,ordinal,v[0],v[1],v[2],v[3]);
@@ -228,8 +236,14 @@ public final class AtomNetSessionR30 {
             s.bestNet=ModelArtifactR29.blob(d);byte[] inner=ModelArtifactR29.blob(d);ModelArtifactR29 a=ModelArtifactR29.decode(inner,StatsR27.sha256(inner));if(a.receiptCursorRequiresPersistenceRecovery)throw new IOException("INNER_LEGACY_RECEIPT_CURSOR_REQUIRES_DB_RECOVERY");s.trainer=a.trainer;s.ftrl=a.ftrl;
             if(format>=0x30A70002){s.legacyValidationOriginUnknown=d.readBoolean();s.needsValidationRoleMigration=d.readBoolean();}else{s.legacyValidationOriginUnknown=true;s.needsValidationRoleMigration=true;}
             if(format>=0x30A70003){if(!(format==0x30A70003?LEGACY_LEARNING_PROTOCOL:LEARNING_PROTOCOL).equals(d.readUTF()))throw new IOException("learning protocol");s.replayPolicy=d.readUTF();s.replayEvidenceRun=d.readUTF();s.replayPolicyChanges=d.readLong();if(!Arrays.asList("UNIFORM_63","OLD48_RECENT15").contains(s.replayPolicy)||s.replayPolicyChanges<0||(!s.replayEvidenceRun.isEmpty()&&!s.replayEvidenceRun.matches("[0-9a-f]{64}"))||!s.replayPolicy.equals("UNIFORM_63")&&s.replayEvidenceRun.isEmpty())throw new IOException("replay policy");}
-            s.replayRolesBoundR341=format==0x30A70004&&d.readBoolean();
-            if(format==0x30A70004)s.partialInputHashR341=d.readUTF();
+            s.replayRolesBoundR341=format>=0x30A70004&&d.readBoolean();
+            if(format>=0x30A70004)s.partialInputHashR341=d.readUTF();
+            if(format==0x30A70005){
+                s.hitHeadGainR341.n=d.readLong();s.hitHeadGainR341.mean=d.readDouble();s.hitHeadGainR341.m2=d.readDouble();
+                if(s.hitHeadGainR341.n<0||s.hitHeadGainR341.n>s.offset||!Double.isFinite(s.hitHeadGainR341.mean)
+                        ||!Double.isFinite(s.hitHeadGainR341.m2)||s.hitHeadGainR341.m2<0)throw new IOException("hit readout validation");
+            }
+            else if(s.phase.endsWith("DEVELOPMENT_VALIDATION"))s.transition(s.phase);
             if(!s.partialInputHashR341.isEmpty()&&(!s.partialInputHashR341.matches("[0-9a-f]{64}")||s.partialIssue.isEmpty()))throw new IOException("partial input identity");
             if(d.available()!=0||s.trainer.net.in!=s.input||s.nextPosition<1||s.nextPosition>10||s.offset<0||s.epoch<0||s.epoch>20||!Arrays.asList("TRAIN","EVAL_TRAIN","EVAL_SELECT","EVAL_HOLD","EVAL_ONLINE_HOLD","EVAL_DEVELOPMENT_VALIDATION","EVAL_ONLINE_DEVELOPMENT_VALIDATION","FILL","ONLINE").contains(s.phase))throw new IOException("cursor");
             s.validateCheckpointR335();

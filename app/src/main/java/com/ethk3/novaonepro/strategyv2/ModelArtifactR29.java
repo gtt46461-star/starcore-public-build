@@ -95,7 +95,8 @@ public final class ModelArtifactR29 {
 
     static AtomNetR27 network(byte[] bytes) throws IOException {
         DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
-        if (in.readInt() != 0x27A70001) throw new IOException("network ABI");
+        int version=in.readInt();
+        if(version!=0x27A70001&&version!=0x27A70002)throw new IOException("network ABI");
         bounded(in.readInt(), 1, MAX_INPUT);
         if (in.readLong() < 0) throw new IOException("optimizer step");
         while (in.available() >= 8) finite(in.readDouble());
