@@ -1,7 +1,7 @@
 {
   "schema": "STARCORE_R341_FILE_CARDS_1",
   "base": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
-  "file_count": 271,
+  "file_count": 289,
   "inherited_file_count": 152,
   "files": [
     {
@@ -1449,6 +1449,7 @@
         "R341-B05-01",
         "R341-B05-02",
         "R341-B05-03",
+        "R341-B05-04",
         "R341-B09-02",
         "R341-B10-04",
         "R341-B11-02",
@@ -1564,7 +1565,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "移除同步DB实时需求读；不fallback到analysis handler执行大deferred工作；独立有界worker与due调度，资源恢复自动继续。"
+            "移除同步DB实时需求读；不fallback到analysis handler执行大deferred工作；独立有界worker与due调度，资源恢复自动继续。",
+            "F3-B04-02 验证运行时新增量超过排水量的延后证据队列。按 specs/field3/runtime.md 和 R341-B04-05-T01 的正反例实施复验。"
           ]
         },
         {
@@ -1626,12 +1628,30 @@
             "runFetchChannelOnce",
             "startWorkR3610OffMain",
             "next",
-            "max"
+            "max",
+            "drain",
+            "stage"
           ],
           "action": "MODIFY",
           "changes": [
             "网络退避有上限并对新合法周期重排；异常不阻断控制scheduler；wall/mono分工明确。",
-            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。"
+            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。",
+            "F3-B05-01 256项提交返回队列饱和时仍能衡量逐期时限。按 specs/field3/runtime.md 和 R341-B05-03-T01 的正反例实施复验。"
+          ]
+        },
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "handleLatestDrawAfterSave",
+            "postAnalysisForLatest",
+            "broadcastSettlementUpdated",
+            "broadcastSimpleStateLimited"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B05-02 取数线程发布UI通知时隔离同步数据库读取。按 specs/field3/runtime.md 和 R341-B05-04-T01 的正反例实施复验。"
           ]
         }
       ],
@@ -2244,7 +2264,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "每片cursor和对应rows同事务；UNKNOWN恢复读回，取消不提前前移。"
+            "每片cursor和对应rows同事务；UNKNOWN恢复读回，取消不提前前移。",
+            "F3-B04-02 验证运行时新增量超过排水量的延后证据队列。按 specs/field3/runtime.md 和 R341-B04-05-T01 的正反例实施复验。"
           ]
         }
       ],
@@ -2427,7 +2448,9 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "沿用已有lease/cursor/hash；slice按B02行/字节/时限预算动态截断，先最老可执行项，坏payload隔离为明确终态。"
+            "沿用已有lease/cursor/hash；slice按B02行/字节/时限预算动态截断，先最老可执行项，坏payload隔离为明确终态。",
+            "F3-B04-02 验证运行时新增量超过排水量的延后证据队列。按 specs/field3/runtime.md 和 R341-B04-05-T01 的正反例实施复验。",
+            "F3-B04-03 为多步长探针留下每个应到锚点的可核对终态。按 specs/field3/extended.md 和 R341-B04-05-T02 的正反例实施复验。"
           ]
         }
       ],
@@ -2580,7 +2603,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "主包：结算后仅投递事实，不在实时事务内做重训练；失败独立重试且不会拖延下一期冻结。"
+            "主包：结算后仅投递事实，不在实时事务内做重训练；失败独立重试且不会拖延下一期冻结。",
+            "F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -2888,7 +2912,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "保留合法幂等reconcile，去除任何只有UI触发才更新的业务due依赖；轻重读复用B02singleflight和stale状态。"
+            "保留合法幂等reconcile，去除任何只有UI触发才更新的业务due依赖；轻重读复用B02singleflight和stale状态。",
+            "F3-B05-02 取数线程发布UI通知时隔离同步数据库读取。按 specs/field3/runtime.md 和 R341-B05-04-T01 的正反例实施复验。"
           ]
         }
       ],
@@ -3264,7 +3289,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。",
+            "F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。"
           ]
         },
         {
@@ -3569,7 +3595,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "主包：以权威 settled decisionId+target+model+feedback schema 为事件键；记录真实误差/残差/支持域，ACK 与下游 outbox/effect 引用同事务。"
+            "主包：以权威 settled decisionId+target+model+feedback schema 为事件键；记录真实误差/残差/支持域，ACK 与下游 outbox/effect 引用同事务。",
+            "F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -3809,7 +3836,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "核心事实与对应ledger/outbox同事务，派发失败使用outbox重试不回滚已提交事实。"
+            "核心事实与对应ledger/outbox同事务，派发失败使用outbox重试不回滚已提交事实。",
+            "F3-B04-01 同一期分开判断S0、PIT投影、正式冻结及结算。按 specs/field3/runtime.md 和 R341-B04-04-T02 的正反例实施复验。"
           ]
         }
       ],
@@ -4339,7 +4367,8 @@
             "引入版本化分类增量策略；现有受保护字节记protectedDebtBytes，不能作为可删预算；以完整实际总量检查物理空闲，按分类工作集和未落盘reservation检查增量。",
             "普通最低空闲保留256MiB；关键结算/事实写入的应急区为另行预留的64MiB有界空间，耗尽输出STORAGE_CRITICAL，禁止无限豁免。",
             "继续OS租约和原子预约；取消/失败退还未写增量；重启只回收已死亡所有者预约，既有文件一律不随预约回收删除。",
-            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。",
+            "F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。"
           ]
         },
         {
@@ -4405,7 +4434,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "分别公布logical/allocated、完整目录范围、dbstat截断和采样时间；分类不重叠；未知allocated不回填logical冒充。"
+            "分别公布logical/allocated、完整目录范围、dbstat截断和采样时间；分类不重叠；未知allocated不回填logical冒充。",
+            "F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。"
           ]
         }
       ],
@@ -4732,7 +4762,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "保留核心bundle原子性、PIT和授权门；只把可派生大对象准备移到锁外，不能拆出会造成半canonical的写。"
+            "保留核心bundle原子性、PIT和授权门；只把可派生大对象准备移到锁外，不能拆出会造成半canonical的写。",
+            "F3-B04-01 同一期分开判断S0、PIT投影、正式冻结及结算。按 specs/field3/runtime.md 和 R341-B04-04-T02 的正反例实施复验。"
           ]
         }
       ],
@@ -5115,11 +5146,15 @@
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
           "methods": [
             "forecastModelR32",
-            "forecast"
+            "forecast",
+            "build",
+            "forward",
+            "predict"
           ],
           "action": "MODIFY",
           "changes": [
-            "forecast 读取已提交版本；将真实 call 与待冻结策略引用关联；本批用 ENGINEERING_ONLY 的影子消费验证，不授证。"
+            "forecast 读取已提交版本；将真实 call 与待冻结策略引用关联；本批用 ENGINEERING_ONLY 的影子消费验证，不授证。",
+            "F3-B07-01 区分深度网络两个输出头及各自被哪种动作消费。按 specs/field3/learning.md 和 R341-B07-03-A02 的正反例实施复验。"
           ]
         },
         {
@@ -5194,7 +5229,8 @@
       ],
       "issue_ids": [
         "R341-B07-01",
-        "R341-B07-02"
+        "R341-B07-02",
+        "R341-B07-04"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
@@ -5232,6 +5268,16 @@
           "action": "MODIFY",
           "changes": [
             "完整 checkpoint 含权重、Adam moments/step、LR schedule、RNG、回放键、position cursor、split hash、feature ABI 和源状态；恢复后验证每字段。"
+          ]
+        },
+        {
+          "batch": "B07",
+          "issue_id": "R341-B07-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B07-02 按R15把没有回放、固定回放、候选回放分开比较。按 specs/field3/research.md 和 R341-B07-04-A03 的正反例实施复验。"
           ]
         }
       ],
@@ -5324,7 +5370,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "反馈仅按允许角色进入 optimizer；正式确认/未来结果不得回流同一密封实验；已结算公开事实若驱动后续开发，须新ONLINE_RESEARCH快照、selectionBoundary与新子代，旧证据不继承。"
+            "反馈仅按允许角色进入 optimizer；正式确认/未来结果不得回流同一密封实验；已结算公开事实若驱动后续开发，须新ONLINE_RESEARCH快照、selectionBoundary与新子代，旧证据不继承。",
+            "F3-B07-02 按R15把没有回放、固定回放、候选回放分开比较。按 specs/field3/research.md 和 R341-B07-04-A03 的正反例实施复验。"
           ]
         }
       ],
@@ -5356,7 +5403,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "4da4916c2ea44c4b87e1166a46740e5cf277a618",
       "before_sha256": "191ca88a8fc5e3aae729a4d4c6754383cd4190067044be348592481663f486a0",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B06",
@@ -5369,7 +5416,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "规范 AST hash 精确去重，冻结 TRAIN 探针上的动作/概率指纹近重复筛选；不同机制保留单独候选，不能借未见评估选择探针。"
+            "规范 AST hash 精确去重，冻结 TRAIN 探针上的动作/概率指纹近重复筛选；不同机制保留单独候选，不能借未见评估选择探针。",
+            "F3-B06-02 21个思路族的可执行公式与报告处方逐一对照。按 specs/field3/learning.md 和 R341-B06-03-A01 的正反例实施复验。"
           ]
         },
         {
@@ -5458,14 +5506,26 @@
       "issue_ids": [
         "R341-B01-04",
         "R341-B11-01",
-        "R341-B11-02"
+        "R341-B11-02",
+        "R341-B11-03"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "31dafe3a43cd5d2a52fe95b7e260a63b97e7f793",
       "before_sha256": null,
       "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F060",
       "inherited_r34_issue_ids": [
         "R34-B11-04"
@@ -5492,7 +5552,18 @@
       "before_git_blob_sha": "855b12c0c3c3e6b3471d282dcb6b54ddf454a89d",
       "before_sha256": null,
       "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F061",
       "inherited_r34_issue_ids": [
         "R34-B11-05"
@@ -5930,17 +6001,32 @@
       "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
       "primary_owner_batch": "B06",
       "ordered_batches": [
-        "B06"
+        "B06",
+        "B08"
       ],
       "issue_ids": [
-        "R341-B06-05"
+        "R341-B06-05",
+        "R341-B08-07"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "7690af5bcce595f31f599082563c72b5f33634ef",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "1ed06713f39ab0e17721dbf042db884d6ed6993a4bbeae6b9d745f5b81bfc127",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+          "methods": [
+            "allocate"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F068",
       "inherited_r34_issue_ids": [
         "R34-B06-03"
@@ -6010,14 +6096,27 @@
         "B08"
       ],
       "issue_ids": [
+        "R341-B08-05",
         "R341-B08-06"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "f702bb34541cafdbf88551ac0b16cc9d22d61189",
       "before_sha256": "af00206255681bc16a5143dab622a4bac887cfde7d4a7adf1902aa1ef222e909",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-05",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+          "methods": [
+            "materialize"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。"
+          ]
+        },
         {
           "batch": "B08",
           "issue_id": "R341-B08-06",
@@ -6051,25 +6150,43 @@
         "R341-B06-03",
         "R341-B08-04",
         "R341-B08-05",
+        "R341-B08-06",
         "R341-B08-07"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "bf600e99c1ca894401eb7d777984dff7e277fb8d",
       "before_sha256": "2651d24ecbccd5e15e13ac29bf8745c06a9aad593b544c5b7366f2385c3aa8ad",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B06",
+          "issue_id": "R341-B06-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "methods": [
+            "propose",
+            "stepBirth"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B06-02 21个思路族的可执行公式与报告处方逐一对照。按 specs/field3/learning.md 和 R341-B06-03-A01 的正反例实施复验。"
+          ]
+        },
         {
           "batch": "B08",
           "issue_id": "R341-B08-04",
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
           "methods": [
             "stepInsideEvolution",
-            "stepSwitchR31"
+            "stepSwitchR31",
+            "run",
+            "revision",
+            "generation"
           ],
           "action": "MODIFY",
           "changes": [
-            "proposal 状态 READY→CLAIMED(fence)→APPLIED/REJECTED/RETRY；结果由同 sourceHash+actionKey 幂等，消费的源产物不可先归档删除。"
+            "proposal 状态 READY→CLAIMED(fence)→APPLIED/REJECTED/RETRY；结果由同 sourceHash+actionKey 幂等，消费的源产物不可先归档删除。",
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
           ]
         },
         {
@@ -6087,7 +6204,22 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "generation manifest冻结seed、预算、父池、input pin、提案集合；每提案产生terminal outcome后才 ENGINEERING_GENERATION_COMPLETE，独立verified字段由B09证据决定。"
+            "generation manifest冻结seed、预算、父池、input pin、提案集合；每提案产生terminal outcome后才 ENGINEERING_GENERATION_COMPLETE，独立verified字段由B09证据决定。",
+            "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-06",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "methods": [
+            "fuse",
+            "weighted",
+            "compare"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。"
           ]
         },
         {
@@ -6096,11 +6228,17 @@
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
           "methods": [
             "stepInsideEvolution",
-            "stepSwitchR31"
+            "stepSwitchR31",
+            "stepBirth",
+            "allocate",
+            "familyBudgetR335",
+            "stepPromote"
           ],
           "action": "MODIFY",
           "changes": [
-            "下一轮读取已提交allocation，不能只改报告副本；预算耗尽回WAITING_BUDGET而不忙轮询。"
+            "下一轮读取已提交allocation，不能只改报告副本；预算耗尽回WAITING_BUDGET而不忙轮询。",
+            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。",
+            "F3-B08-08 策略节点消融与模型核消融分别接入下一轮研究预算。按 specs/field3/extended.md 和 R341-B08-07-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -6329,7 +6467,8 @@
       ],
       "issue_ids": [
         "R341-B07-04",
-        "R341-B08-05"
+        "R341-B08-05",
+        "R341-B08-07"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
@@ -6367,7 +6506,21 @@
           "action": "MODIFY",
           "changes": [
             "失败簇使用开发角色的真实error/support/context；每假设指定父机制、待改节点、反证条件，信用由实际后续配对回执归因。",
-            "REV-B08-06 RSEC-066 六个窗口、归因与边界子试验回到真实消费者。实施入口与反例见 specs/review/report.md / R341-B08-05-A01。"
+            "REV-B08-06 RSEC-066 六个窗口、归因与边界子试验回到真实消费者。实施入口与反例见 specs/review/report.md / R341-B08-05-A01。",
+            "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+          "methods": [
+            "creditR31",
+            "select"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-07 把家族开发信用限制在当前可比实验，将分配追到下一轮实际投递。按 specs/field3/research.md 和 R341-B08-07-A03 的正反例实施复验。"
           ]
         }
       ],
@@ -6445,8 +6598,20 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "14a2ebf27071b712ee4ac87be98d3575728f1646",
       "before_sha256": "cdeb4d130e40fb26d448ad5b7a980ed07215876d33e5c6d344cef4de0a371eeb",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B06",
+          "issue_id": "R341-B06-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+          "methods": [
+            "acceptR31"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B06-01 24个模型家族逐一执行检测报告指定的机制对照。按 specs/field3/learning.md 和 R341-B06-02-A01 的正反例实施复验。"
+          ]
+        },
         {
           "batch": "B06",
           "issue_id": "R341-B06-04",
@@ -6528,7 +6693,9 @@
           "action": "MODIFY",
           "changes": [
             "读取统一工单生效账本：修复commit、apkSha、installedVersion、effectStartProcess/issue、观察范围与新旧计数；当前修复后的观测必须比effectStart新。",
-            "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。"
+            "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。",
+            "F3-B11-02 将每条升级方向接到施工回执、研究执行或只读复验，再由下一次诊断核对。按 specs/field3/directions.md 和 A-B11-05b 的正反例实施复验。",
+            "F3-B11-04 让报告提出的根因、采集动作和反证回查到真实运行。按 specs/field3/extended.md 和 A-B11-05b 的正反例实施复验。"
           ]
         }
       ],
@@ -6592,7 +6759,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "f0c52d6d27c574713c37b05018c5ac478e5dd826",
       "before_sha256": "5e23c55ce72e09074b05867e954f32c8bbe23f073e17a3b99f37ac4d6a35aff4",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B06",
@@ -6608,7 +6775,8 @@
           "action": "MODIFY",
           "changes": [
             "每个训练切片绑定 candidate、datasetHash、role、input-through、ABI、before/after state hash、更新计数及 owner/fence；通过 B02 有界写入发布。",
-            "分别计 born/trained/developmentEvaluated/awaitingConfirmation，出生不算合格；将本次进度与历史最后进度分开。"
+            "分别计 born/trained/developmentEvaluated/awaitingConfirmation，出生不算合格；将本次进度与历史最后进度分开。",
+            "F3-B06-01 24个模型家族逐一执行检测报告指定的机制对照。按 specs/field3/learning.md 和 R341-B06-02-A01 的正反例实施复验。"
           ]
         },
         {
@@ -6710,7 +6878,8 @@
           "action": "MODIFY",
           "changes": [
             "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。",
-            "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
+            "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。",
+            "F3-B09-01 将I13单独选择时机的价值与只挑高分时段的效果分开。按 specs/field3/research.md 和 R341-B09-01-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -6734,7 +6903,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "7c4f7470f528508119560c3f134326a8a23ae171",
       "before_sha256": "a0be7faaf821069764078e8af583e5448553efda94addfc7a1e9a281ea9c28de",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B08",
@@ -6742,11 +6911,13 @@
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
           "methods": [
             "fuse",
-            "weighted"
+            "weighted",
+            "compare"
           ],
           "action": "MODIFY",
           "changes": [
-            "只合并同position/target语义、角色与pin相容的两亲；融合权重只在TRAIN拟合，SELECT选方案；新策略独立hash/lineage。"
+            "只合并同position/target语义、角色与pin相容的两亲；融合权重只在TRAIN拟合，SELECT选方案；新策略独立hash/lineage。",
+            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。"
           ]
         }
       ],
@@ -6864,10 +7035,16 @@
           "batch": "B05",
           "issue_id": "R341-B05-03",
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
-          "methods": [],
+          "methods": [
+            "committedAt",
+            "flushCommitted",
+            "commitObservationState"
+          ],
           "action": "MODIFY",
           "changes": [
-            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。"
+            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。",
+            "F3-B05-01 256项提交返回队列饱和时仍能衡量逐期时限。按 specs/field3/runtime.md 和 R341-B05-03-T01 的正反例实施复验。",
+            "F3-B05-03 同时验收开奖后五秒内出号与距离目标截止至少五秒。按 specs/field3/extended.md 和 R341-B05-03-T01 的正反例实施复验。"
           ]
         }
       ],
@@ -6887,7 +7064,8 @@
       "issue_ids": [
         "R341-B09-01",
         "R341-B09-02",
-        "R341-B09-03"
+        "R341-B09-03",
+        "R341-B09-04"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
@@ -6905,7 +7083,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
+            "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。",
+            "F3-B09-01 将I13单独选择时机的价值与只挑高分时段的效果分开。按 specs/field3/research.md 和 R341-B09-01-A01 的正反例实施复验。"
           ]
         },
         {
@@ -6936,6 +7115,21 @@
           "action": "MODIFY",
           "changes": [
             "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。"
+          ]
+        },
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+          "methods": [
+            "certify",
+            "evidence",
+            "evaluate",
+            "record"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B09-02 把报告 R29F-GATEV2-NOT-RUN 的分支查到实际评估回执。按 specs/field3/extended.md 和 R341-B09-04-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -7462,6 +7656,7 @@
       ],
       "issue_ids": [
         "R341-B07-01",
+        "R341-B07-04",
         "R341-B08-01",
         "R341-B09-01",
         "R341-B09-03"
@@ -7469,9 +7664,24 @@
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "8a3940311e154c079aac836cfa5f0f7ed530b594",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "6980d1267e17b7b537f2617509ec4246ce3ea52bf07c02001d11fe3060ca3294",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B07",
+          "issue_id": "R341-B07-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+          "methods": [
+            "freeze",
+            "settle",
+            "replayPolicy"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B07-02 按R15把没有回放、固定回放、候选回放分开比较。按 specs/field3/research.md 和 R341-B07-04-A03 的正反例实施复验。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F096",
       "inherited_r34_issue_ids": [
         "R34-B07-04",
@@ -7495,7 +7705,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "b8a860ba56fdbb98cee5bdcc1e914ef3fa75aa0b",
       "before_sha256": "0a6f0215c82a5311c708c0355492951e62c3cf8579c3d829d3ebdeee3bc221d9",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B07",
@@ -7508,7 +7718,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "校验 position、target、featureThrough、historyHash、prepared/frozen/deadline 与 published modelHash；不得内部取 latest 替换已绑定模型。"
+            "校验 position、target、featureThrough、historyHash、prepared/frozen/deadline 与 published modelHash；不得内部取 latest 替换已绑定模型。",
+            "F3-B07-01 区分深度网络两个输出头及各自被哪种动作消费。按 specs/field3/learning.md 和 R341-B07-03-A02 的正反例实施复验。"
           ]
         }
       ],
@@ -7973,17 +8184,21 @@
           "action": "MODIFY",
           "changes": [
             "每条finding带statusAtInstall、firstSeen/lastSeen/resolvedAt、scopeId、evidenceRefs、confidence和R341工单ID；历史LIVE改为STALE_UNRECHECKED视图标识，保留原始文字。",
-            "当前根因分级CONFIRMED/PROBABLE/UNKNOWN；有DDL源码但运行缺表只能定位初始化链证据缺口，不能直接断言没建表代码。"
+            "当前根因分级CONFIRMED/PROBABLE/UNKNOWN；有DDL源码但运行缺表只能定位初始化链证据缺口，不能直接断言没建表代码。",
+            "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。"
           ]
         },
         {
           "batch": "B11",
           "issue_id": "R341-B11-05",
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
-          "methods": [],
+          "methods": [
+            "capture"
+          ],
           "action": "MODIFY",
           "changes": [
-            "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。"
+            "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。",
+            "F3-B11-02 将每条升级方向接到施工回执、研究执行或只读复验，再由下一次诊断核对。按 specs/field3/directions.md 和 A-B11-05b 的正反例实施复验。"
           ]
         }
       ],
@@ -8284,7 +8499,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "9316fe62d23b3788d41074af3b8fb1edf6ed9692",
       "before_sha256": "f9703b24e1ed665d7ed7717803f42fe5db6eb8e7465d8f24d658a8d5ab9f8ed3",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B06",
@@ -8336,7 +8551,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "固定prior+去重effect、成本和不确定性更新权重，保持非零探索；同source/effect只能计一次；正式FUTURE/CONFIRM图只读不进入同实验预算；后续开发投影必须另立暴露边界，预算只能使用该新开发角色已可见的事实。"
+            "固定prior+去重effect、成本和不确定性更新权重，保持非零探索；同source/effect只能计一次；正式FUTURE/CONFIRM图只读不进入同实验预算；后续开发投影必须另立暴露边界，预算只能使用该新开发角色已可见的事实。",
+            "F3-B08-07 把家族开发信用限制在当前可比实验，将分配追到下一轮实际投递。按 specs/field3/research.md 和 R341-B08-07-A03 的正反例实施复验。"
           ]
         }
       ],
@@ -8426,7 +8642,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "每轮保存allocationBefore/After、configHash、receipt集合及实际dispatch；可做关闭反馈的固定预算同资源对照。"
+            "每轮保存allocationBefore/After、configHash、receipt集合及实际dispatch；可做关闭反馈的固定预算同资源对照。",
+            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -8445,13 +8662,14 @@
       ],
       "issue_ids": [
         "R341-B08-03",
-        "R341-B08-06"
+        "R341-B08-06",
+        "R341-B08-07"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "d41951bba574cc1b137ef96d7de30a251d147735",
       "before_sha256": "f497bbcf0cc20611700ad00c8096472dd87daad024977e02b039d1ce13eea7a7",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B08",
@@ -8475,6 +8693,18 @@
           "action": "MODIFY",
           "changes": [
             "复用原typed消费者，校验input pin/axis/role/support；use/annotate/stage必须绑定实际child或预算回执；没有可用信号时不假记消费。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "methods": [
+            "familyBudgetR335"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -8509,7 +8739,8 @@
           "methods": [],
           "action": "MODIFY",
           "changes": [
-            "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
+            "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。",
+            "F3-B08-05 R04按实际提示窗口核算两个来源、交集及弃权代价。按 specs/field3/research.md 和 R341-B08-02-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -8659,7 +8890,8 @@
           "changes": [
             "按 appendix 中 R01–R18 合同执行；一图一有界切片，错误/等待后轮转；frame 必含点值/support/单位/role/sourceHash。",
             "R11/R14/R18 是正式链只读证据图，缺自然证据显示未观察；R08 固定 TRAIN 探针；其余研究测量用 SELECT/允许的 ONLINE_RESEARCH。",
-            "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
+            "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。",
+            "F3-B08-05 R04按实际提示窗口核算两个来源、交集及弃权代价。按 specs/field3/research.md 和 R341-B08-02-A01 的正反例实施复验。"
           ]
         }
       ],
@@ -9307,7 +9539,8 @@
         "R341-B04-05",
         "R341-B07-01",
         "R341-B07-04",
-        "R341-B08-01"
+        "R341-B08-01",
+        "R341-B08-04"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
@@ -9341,6 +9574,19 @@
           "changes": [
             "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。",
             "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "methods": [
+            "dataset",
+            "revision"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
           ]
         }
       ],
@@ -9887,6 +10133,7 @@
       ],
       "issue_ids": [
         "R341-B08-04",
+        "R341-B08-07",
         "R341-B11-03"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
@@ -9906,6 +10153,20 @@
           "action": "MODIFY",
           "changes": [
             "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+          "methods": [
+            "capabilityRows",
+            "prescKind",
+            "shadowOutcome"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-01 逐项兑现 P50 动态处方，保留观测、人工、自动调整和影子效果的不同边界。按 specs/field3/directions.md 和 R341-B08-07-A02 的正反例实施复验。"
           ]
         },
         {
@@ -11259,7 +11520,8 @@
           "action": "NEW",
           "changes": [
             "输入全部R341工单、文件变更、场景结果与证据文件；检查12批/全部工单覆盖、依赖顺序、缺省状态、源码commit及artifact hash。",
-            "输出ENGINEERING_COMPLETE/INCOMPLETE、FIELD_PENDING条目、NATURAL_PENDING条目，分别计算，不将自然未合格作为工程未做。"
+            "输出ENGINEERING_COMPLETE/INCOMPLETE、FIELD_PENDING条目、NATURAL_PENDING条目，分别计算，不将自然未合格作为工程未做。",
+            "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。"
           ]
         }
       ],
@@ -11330,7 +11592,8 @@
           ],
           "action": "NEW",
           "changes": [
-            "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。"
+            "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。",
+            "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。"
           ]
         }
       ],
@@ -11584,7 +11847,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "REV-B04-01 S0 双事务赛前证据与逐期失败归属。实施入口与反例见 specs/review/runtime.md / R341-B04-04-T02。"
+            "REV-B04-01 S0 双事务赛前证据与逐期失败归属。实施入口与反例见 specs/review/runtime.md / R341-B04-04-T02。",
+            "F3-B04-01 同一期分开判断S0、PIT投影、正式冻结及结算。按 specs/field3/runtime.md 和 R341-B04-04-T02 的正反例实施复验。"
           ]
         }
       ],
@@ -11671,7 +11935,8 @@
         "B08"
       ],
       "issue_ids": [
-        "R341-B08-04"
+        "R341-B08-04",
+        "R341-B08-07"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
@@ -11693,6 +11958,19 @@
           "action": "MODIFY",
           "changes": [
             "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "methods": [
+            "maintain",
+            "snapshot"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-01 逐项兑现 P50 动态处方，保留观测、人工、自动调整和影子效果的不同边界。按 specs/field3/directions.md 和 R341-B08-07-A02 的正反例实施复验。"
           ]
         }
       ],
@@ -12208,6 +12486,690 @@
           "action": "MODIFY",
           "changes": [
             "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F272",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "322eb344bf1dbd43c25eb77b7ae09e40b7c6ca70",
+      "before_sha256": "69e6f615b4683a0eb0d6e4074b8ca675847f48d6ca4be02663cc0ffd0ba68ed9",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+          "methods": [
+            "coverage",
+            "coverageSnapshotCP4"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B11-01 修复R923结算分子分母跨历史范围。按 specs/field3/runtime.md 和 A-B11-02b 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F273",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/SettlementCoverageTruthR906.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "ae4775d279e3ede06b2a31017815386b6350d5c2",
+      "before_sha256": "31bf110956af9eb4f0c78bde91dc617a4400c4fa307bb57c6aaf31f972d8f11b",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/SettlementCoverageTruthR906.java",
+          "methods": [
+            "coverage"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B11-01 修复R923结算分子分母跨历史范围。按 specs/field3/runtime.md 和 A-B11-02b 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F274",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-05"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "007a126b33ee3817cc9501b19e5f418e3b07e817",
+      "before_sha256": "f19d00bb128706ed046b9fe10d5757590c0e4fc4fcb178d040d9ab0fc0bcf990",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-05",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+          "methods": [
+            "capture"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B11-02 将每条升级方向接到施工回执、研究执行或只读复验，再由下一次诊断核对。按 specs/field3/directions.md 和 A-B11-05b 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F275",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+      "primary_owner_batch": "B06",
+      "ordered_batches": [
+        "B06",
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B06-03",
+        "R341-B08-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "2e8d84cc5695efdf014adb036d4e1ec024ad7103",
+      "before_sha256": "154a206d6bacfcaef127de70b50282b0ab62dbf216bb5f82958f7661d682ee98",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B06",
+          "issue_id": "R341-B06-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+          "methods": [
+            "propose"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B06-02 21个思路族的可执行公式与报告处方逐一对照。按 specs/field3/learning.md 和 R341-B06-03-A01 的正反例实施复验。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F276",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+      "primary_owner_batch": "B07",
+      "ordered_batches": [
+        "B07"
+      ],
+      "issue_ids": [
+        "R341-B07-03"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "8af6c81ddcd554a7a350224885df799f0420059b",
+      "before_sha256": "85eb4d05ca6ecac79a2d67267649446e6f48fb3d3195941cde6f9d1870c863b8",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B07",
+          "issue_id": "R341-B07-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+          "methods": [
+            "build"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B07-01 区分深度网络两个输出头及各自被哪种动作消费。按 specs/field3/learning.md 和 R341-B07-03-A02 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F277",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+      "primary_owner_batch": "B07",
+      "ordered_batches": [
+        "B07"
+      ],
+      "issue_ids": [
+        "R341-B07-03"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "70cfb515fd4afb99b907f1f81f8c580f14e3fd27",
+      "before_sha256": "094964faffb4a1bc8195a6f266f8771097348fae1f208c588d801960fc42e58a",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B07",
+          "issue_id": "R341-B07-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+          "methods": [
+            "forward",
+            "trainBatch",
+            "predict"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B07-01 区分深度网络两个输出头及各自被哪种动作消费。按 specs/field3/learning.md 和 R341-B07-03-A02 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F278",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "c42bde0b2b90dc831845c49520c32581ff798662",
+      "before_sha256": "98044489b94cd3b214dc14e54b06e1863712e922d53d45024f36b352023fdf5c",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+          "methods": [
+            "restoreCompleteR31",
+            "molecules",
+            "activeStates",
+            "activeMolecules",
+            "revision",
+            "derived"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F279",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "7b337df12d0d837ba84665e587314cf53640c67f",
+      "before_sha256": "ce7508a6cc676240bf845b0a5a0a653ec2cdf34bb10653c670dc219b5de4efa5",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+          "methods": [
+            "activeStates",
+            "activeMolecules"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F280",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionStudyR30R1.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-06"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "36b4bdb93c460ae1209f9a7e0a3839a009a6fb81",
+      "before_sha256": "e972ab48c19f4c4f087caaaaf54c137fc3a0c419323876179318932798c9139a",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-06",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionStudyR30R1.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F281",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "cf5205db6d41e29a2638130d89c1a86fb0872876",
+      "before_sha256": "07fff0058670dde229c8f91e621bbb88d7b02c3595d90bf469bca88e462de2a2",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java",
+          "methods": [
+            "generate",
+            "support"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-05 R04按实际提示窗口核算两个来源、交集及弃权代价。按 specs/field3/research.md 和 R341-B08-02-A01 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F282",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-07"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "aba1788d76d8494f1367fecb4097f063afee1752",
+      "before_sha256": "f9623b74d75cc34967595aa5dd3c2893a8d457a6a4338f7f650eb23974cf4253",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HypothesisStoreR31.java",
+          "methods": [
+            "creditR31"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-07 把家族开发信用限制在当前可比实验，将分配追到下一轮实际投递。按 specs/field3/research.md 和 R341-B08-07-A03 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F283",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java",
+      "primary_owner_batch": "B09",
+      "ordered_batches": [
+        "B09"
+      ],
+      "issue_ids": [
+        "R341-B09-01"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "f66eecb31a7c89aea690f89110b5bbc5ed5f101f",
+      "before_sha256": "1283377ba351c4ef598547c36a81b82f6241eee39654226dd94efa856bfdfe53",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B09-01 将I13单独选择时机的价值与只挑高分时段的效果分开。按 specs/field3/research.md 和 R341-B09-01-A01 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F284",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+      "primary_owner_batch": "B04",
+      "ordered_batches": [
+        "B04"
+      ],
+      "issue_ids": [
+        "R341-B04-05"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "df1a7029a7f99dc112a36346664b342aabc34d73",
+      "before_sha256": "fa1ff15b306379c1ad3c9c8be3bd66a7d83c90e843b8e1607599314790eb7b2b",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B04",
+          "issue_id": "R341-B04-05",
+          "path": "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+          "methods": [
+            "captureOptional",
+            "recordNotRun",
+            "commit",
+            "settle",
+            "reportJson"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B04-03 为多步长探针留下每个应到锚点的可核对终态。按 specs/field3/extended.md 和 R341-B04-05-T02 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F285",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
+      "primary_owner_batch": "B05",
+      "ordered_batches": [
+        "B05"
+      ],
+      "issue_ids": [
+        "R341-B05-03"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "bb35502819fbb66543fb53ba1fef25f23788a641",
+      "before_sha256": "b8f8af7d8593be71c5291fa4db8161254551e7298d90f7e210632548bd3075ba",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
+          "methods": [
+            "summarize"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B05-03 同时验收开奖后五秒内出号与距离目标截止至少五秒。按 specs/field3/extended.md 和 R341-B05-03-T01 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F286",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelAblationStoreSU1.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-07"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "d74ae0f92e2646623b8d05aa657950a35dbbe957",
+      "before_sha256": "e6b19a64db67a85e64cd73f67cbfd66adbe5feff01807e31bb52c64d6700dea6",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelAblationStoreSU1.java",
+          "methods": [
+            "advanceOne",
+            "checkpoint"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-08 策略节点消融与模型核消融分别接入下一轮研究预算。按 specs/field3/extended.md 和 R341-B08-07-A01 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F287",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08",
+        "B09",
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B08-07",
+        "R341-B09-04",
+        "R341-B11-05"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "9c32e35a8004a158f1a9de466c48dc03b9f8a517",
+      "before_sha256": "80776ee0fc18c2cfab97b7565941301860fbba4395b607f3502b2301720bcb47",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-07",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+          "methods": [
+            "chapters"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B08-08 策略节点消融与模型核消融分别接入下一轮研究预算。按 specs/field3/extended.md 和 R341-B08-07-A01 的正反例实施复验。"
+          ]
+        },
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+          "methods": [
+            "evaluate"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B09-02 把报告 R29F-GATEV2-NOT-RUN 的分支查到实际评估回执。按 specs/field3/extended.md 和 R341-B09-04-A01 的正反例实施复验。"
+          ]
+        },
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-05",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+          "methods": [
+            "evaluate"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B11-04 让报告提出的根因、采集动作和反证回查到真实运行。按 specs/field3/extended.md 和 A-B11-05b 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F288",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+      "primary_owner_batch": "B09",
+      "ordered_batches": [
+        "B09"
+      ],
+      "issue_ids": [
+        "R341-B09-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "a855351a9ecc2b1f35da0c404fd14175cd1ab49d",
+      "before_sha256": "29d3650434d9cec975d57666f7330e373d2cc2227fac3869977f750d5d86e29a",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GateV2R29.java",
+          "methods": [
+            "evidence",
+            "evaluate",
+            "record",
+            "r29_gate_v2"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B09-02 把报告 R29F-GATEV2-NOT-RUN 的分支查到实际评估回执。按 specs/field3/extended.md 和 R341-B09-04-A01 的正反例实施复验。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F289",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-05"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "6dc97437be9de4e00903344294f3714e0cb09e19",
+      "before_sha256": "4cc5ba5d17774f6cfb84c83fd150735455f360a6d771a540afa4115dd1843a8d",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-05",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
+          "methods": [
+            "evaluate"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "F3-B11-04 让报告提出的根因、采集动作和反证回查到真实运行。按 specs/field3/extended.md 和 A-B11-05b 的正反例实施复验。"
           ]
         }
       ],

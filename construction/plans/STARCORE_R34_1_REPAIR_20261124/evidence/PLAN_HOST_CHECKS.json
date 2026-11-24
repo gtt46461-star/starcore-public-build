@@ -1,23 +1,190 @@
 {
-  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_2",
+  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_3",
   "performed_at_local_date": "2026-11-24",
   "timezone": "Asia/Shanghai",
-  "reviewed_plan_commit": "00d53219ce7047c4abb5b55320ae140247cb5f87",
-  "reviewed_plan_files_matching_repository": 57,
+  "reviewed_parent": "0f81953d7175652dc6695a542257750290bf8c8f",
+  "parent_plan_files_matching_repository": 70,
+  "application_source_git_blob_checks": 244,
+  "application_source_with_content_hash": 181,
   "checks": [
     {
-      "name": "exact_report_facts",
+      "command": [
+        "python3",
+        "-B",
+        "tools/field_report_v3.py",
+        "--input",
+        "<SECOND_REPORT_ZIP>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "result": "PASS_FIELD_REPORT_IDENTITY",
+        "job_id": "4bef989d7e71259a0793ffc8f51871d62b808d770b4aeb834ca065c788c984eb",
+        "members": 57,
+        "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+        "outer_sha256": "fb499fc609435be82591ea015239fbee2b7da5c0dba772dd028d1417f1b8784c",
+        "snapshot_sha256": "fc884706d620e5c8058fbef68948a1972ecd076b6402ea82c1616390f137bd14",
+        "report_all_checks_passed": false
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_field_report_v3.py",
+        "--input",
+        "<SECOND_REPORT_ZIP>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "result": "PASS_FIELD_REPORT_GUARDS",
+        "rejections": 6,
+        "extracted_member_checks": 57
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/directions.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>",
+        "--plan",
+        ".",
+        "--check",
+        "evidence/field3/directions.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "PASS: 165 objects, 8 needs, 12 stored capability rows, 9 probe rows, 1 stored finding, 3 operating prescriptions"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/extended.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>",
+        "--plan",
+        ".",
+        "--check",
+        "evidence/field3/extended.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "r30_sections": 9,
+        "source_projections": 9,
+        "rules": 16,
+        "metric_triggers": 44,
+        "chapter_actions": 12,
+        "embedded_actions": 7,
+        "r26_sections": 45,
+        "r26_finding_actions": 1,
+        "report_text_sources": 19
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/runtime_opportunities.py",
+        "--previous",
+        "<FIRST_REPORT_ZIP>",
+        "--current",
+        "<SECOND_REPORT_ZIP>",
+        "--rows"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "previous_job": "9325298a3e033715226cf1126404c5a5273a6928f882babf8a0f14ece352aa4e",
+        "current_job": "4bef989d7e71259a0793ffc8f51871d62b808d770b4aeb834ca065c788c984eb",
+        "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+        "after_exclusive": "202611240137",
+        "through_inclusive": "202611240604",
+        "draw_targets": 467,
+        "r35": {
+          "R35_ROW_FROZEN_AND_SETTLED": 372,
+          "MISSING_R35": 95
+        },
+        "settlement_tasks": {
+          "COMPLETED": 372,
+          "NO_PREDRAW_CANONICAL_TERMINAL": 95
+        },
+        "missing_r35_terminal": {
+          "FROZEN_OBSERVATION_MISSING": 74,
+          "R919_AUDITED_NO_IMMUTABLE_PREDRAW": 21
+        },
+        "r35_hits": 127
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_direction_receipt.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 8,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_learning_trace.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 6,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_receipt_guards.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 30,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_prepare_worktree.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
       "command": [
         "python3",
         "-B",
         "tools/audit_report.py",
         "--input",
-        "<ORIGINAL_REPORT_ZIP>",
+        "<FIRST_REPORT_ZIP>",
         "--compare",
         "evidence/BASELINE_FACTS.json"
       ],
+      "status": "PASS",
       "exit_code": 0,
-      "result": {
+      "observed": {
         "status": "PASS_REPORT_EXTRACTION",
         "members": 53,
         "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
@@ -26,7 +193,6 @@
       }
     },
     {
-      "name": "whole_report_crosswalk",
       "command": [
         "python3",
         "-B",
@@ -34,12 +200,13 @@
         "--plan",
         ".",
         "--input",
-        "<ORIGINAL_REPORT_ZIP>",
+        "<FIRST_REPORT_ZIP>",
         "--coverage",
         "evidence/REPORT_COVERAGE.json"
       ],
+      "status": "PASS",
       "exit_code": 0,
-      "result": {
+      "observed": {
         "application_validation": "NOT_RUN",
         "counts": {
           "checks": 96,
@@ -55,7 +222,6 @@
       }
     },
     {
-      "name": "corrupted_report_rows_are_rejected",
       "command": [
         "python3",
         "-B",
@@ -63,10 +229,11 @@
         "--plan",
         ".",
         "--input",
-        "<ORIGINAL_REPORT_ZIP>"
+        "<FIRST_REPORT_ZIP>"
       ],
+      "status": "PASS",
       "exit_code": 0,
-      "result": {
+      "observed": {
         "status": "PASS_REPORT_CROSSWALK_REJECTIONS",
         "verified_rejections": [
           "promoted_health",
@@ -77,38 +244,7 @@
           "orphan_requirement"
         ]
       }
-    },
-    {
-      "name": "receipt_acceptance_and_rejections",
-      "command": [
-        "python3",
-        "-B",
-        "tools/test_receipt_guards.py"
-      ],
-      "exit_code": 0,
-      "result": "OK",
-      "tests_run": 30,
-      "failures": 0
-    },
-    {
-      "name": "git_plan_import_retries",
-      "command": [
-        "python3",
-        "-B",
-        "tools/test_prepare_worktree.py"
-      ],
-      "exit_code": 0,
-      "result": "OK",
-      "tests_run": 3,
-      "failures": 0
-    },
-    {
-      "name": "installed_source_tree_crosscheck",
-      "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
-      "checked_file_paths_and_blob_ids": 226,
-      "method": "Git trees at pinned application commit against evidence/SOURCE_MANIFEST.json",
-      "result": "MATCH"
     }
   ],
-  "boundary": "Design and host tests. No Android implementation, signed APK, device campaign or independent natural result is attested."
+  "scope": "Plan integrity, extraction, projection, local reference checkers and fixtures. Android implementation/build/device/natural not run."
 }

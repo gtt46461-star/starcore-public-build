@@ -85,3 +85,11 @@ python3 tools/verify_receipt.py --plan . --receipt "$receipt" \
 | Q08 | `factory` 取原 `R31_FULL_FACTORY_EXPERIMENT_2_FIXED_FUTURE` 快照，预注册的 `factory_protocol_hash` 与原字段完整摘要、每条原件和当前源码相符。NULL_UNIFORM、NULL_TIME_SHUFFLED、SIGNAL、SIGNAL_DISABLED、DRIFT、GAPS 各20个 seed（710000–710019），120条一一齐备、无失败或重复。每臂复算双侧 Wilson 95% 区间；合并两种NULL与SIGNAL_DISABLED的60份，Clopper–Pearson 单侧95%误授上限≤.15；SIGNAL 的20份单侧95%检出下限≥.70。另附同版 `NullPipelineSimulationR30` 的 `power_trials`、`power_intervals`、`power_source_commit`，在真实植入概率34/37/40%下各20次、至多5000期，依据每次原记录复算各强度检出率和Wilson区间。这60条另计，不能替代120个工厂试验。其他研究协议单独登记，禁止冒用这份注册的签收。 |
 
 持续保存各项目原始数据、水位、配置与可复算的输出。质量观察尚不足时，合法证书仍按原发行路径处理。
+
+## 逐对象方向的回执
+
+读取封印矩阵的 `field3_directions`。同一工程用例内每个方向提交两个来自实际生产路径的观测，一份有效输入与一份错源、缺证、反例或对照。合法拒绝和无改善均可按原场景判定。将 `direction_results` 放在 run 执行原件，每行含 `key, contract_sha256, positive_metric, negative_metric`。两项名称引用本次提交中已按源码 oracle 验证的 assertions。每项 JSON 指针指向业务测量字段，其父记录带 `direction_key, contract_sha256, polarity, case_id, source_commit`。两个 polarity 用 `positive`、`negative`。一份日志可包含多条不同对象记录，每个对象都需保存自己的输入、输出和失败测量。用例无法复现时写待办与缺项。
+
+## B12 三个连续公式的工程回执
+
+第 3 版的 A-B12-03b 在执行原件中增加 `learning_trace_index_artifact`。索引、三轮训练到研究的原件、两次出生、父子公式、模型状态、权重字节和同一构建的 APK 均加入回执的 `artifacts`。正式回执校验器在核对源码提交、方案摘要及 APK 后复算这条链。字段、采集顺序与独立复算方法见[三代连续运行实例](field3/chain.md)。

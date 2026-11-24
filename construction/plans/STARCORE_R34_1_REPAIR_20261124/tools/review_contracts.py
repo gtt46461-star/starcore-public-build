@@ -63,4 +63,5 @@ def verify(root):
     require(all(scope[k] == v for k, v in totals.items()) and scope["file_cards"] == len(cards)
             and scope["method_contracts"] == len(read(root / "evidence/SOURCE_ANCHORS.json")["anchors"]),
             "Published scope counts disagree")
-    return totals
+    from field_direction_routes import check_field3
+    return dict(totals, **check_field3(root))

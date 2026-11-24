@@ -10,6 +10,8 @@ import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from verify_plan import verify_seal
+from verify_learning_trace import verify as verify_learning_trace
+from direction_receipt import verify_direction_measurements
 
 
 def need(value, message):
@@ -166,6 +168,58 @@ def oracle_rules(source, case_id):
     return predicates
 
 
+def apk_build_identity(originals, apk, member):
+    member = safe_name(member)
+    need(member.startswith("assets/"), "Build identity must reside in APK assets")
+    with zipfile.ZipFile(originals.files[apk]) as package:
+        entries = package.namelist()
+        need("AndroidManifest.xml" in entries and "classes.dex" in entries and entries.count(member) == 1,
+             "APK lacks Android program or uniquely identified build asset")
+        return decode(package.read(member))
+
+
+def check_learning_trace_receipt(run, receipt, originals):
+    name = safe_name(run.get("learning_trace_index_artifact"))
+    index = originals.json(name)
+    need(index["source_commit"] == receipt["source_after"], "Learning trace source differs from receipt")
+    def declared(field):
+        batch_value, run_value = receipt.get(field), run.get(field)
+        if batch_value is not None and run_value is not None:
+            need(batch_value == run_value, "Conflicting learning APK identity: " + field)
+        return batch_value if batch_value is not None else run_value
+
+    apk = declared("apk_artifact")
+    member = declared("apk_identity_member")
+    apk_hash = declared("apk_sha256")
+    need(apk in originals.files and originals.hashes[apk] == index["apk_sha256"] and
+         (apk_hash is None or apk_hash == index["apk_sha256"]), "Learning trace APK differs from declared original")
+    identity = apk_build_identity(originals, apk, member)
+    need(identity["sourceCommit"] == receipt["source_after"] and
+         identity["planSha256"] == receipt["plan_manifest_sha256"], "Learning APK build identity differs")
+
+    # Trace references are index-relative. Bind every consumed record and binary payload
+    # to the checked receipt inventory, including when the index lives in a subdirectory.
+    prefix = Path(name).parent
+    def registered(ref):
+        path = str(prefix / safe_name(ref["path"]))
+        need(path in originals.hashes and originals.hashes[path] == ref["sha256"],
+             "Undeclared or changed learning trace original: " + path)
+        return path
+
+    for cycle in index["cycles"]:
+        for stage in ("train", "publish", "freeze", "settle", "feedback", "research"):
+            originals.json(registered(cycle[stage]))
+        train = originals.json(registered(cycle["train"]))
+        originals.json(registered(train["formula_original"]))
+        state = originals.json(registered(train["state_original"]))
+        registered(state["weights_original"])
+    for ref in index["births"]:
+        birth = originals.json(registered(ref))
+        for formula in [*birth["parent_originals"], birth["child_original"]]:
+            originals.json(registered(formula))
+    verify_learning_trace(index, originals.files[name].parent)
+
+
 def check_result(result, case, receipt, originals, repo, owners):
     case_id = case["id"]
     need(result["status"] == "PASS" and type(result["exit_code"]) is int and result["exit_code"] == 0,
@@ -240,6 +294,9 @@ def check_result(result, case, receipt, originals, repo, owners):
             actual_review.add(obs["review_id"])
     need(metrics == rules.keys(), "Missing or surplus committed measurement for " + case_id)
     need(expected_review == actual_review, "Review obligations differ for " + case_id)
+    verify_direction_measurements(case, run, observations, originals)
+    if case_id == "A-B12-03b" and "F3-B12-01" in expected_review:
+        check_learning_trace_receipt(run, receipt, originals)
 
 
 def campaign(receipt, originals):
@@ -684,13 +741,7 @@ def validate(plan, receipt, evidence_root, repo, level, revalidating=False):
              type(receipt["installed_version_code"]) is int and
              receipt["installed_version_code"] > ident["application_baseline_version_code"]
              and receipt["fixture"] is False, "Field evidence lacks installed identity or contains a fixture")
-        member = safe_name(receipt["apk_identity_member"])
-        need(member.startswith("assets/"), "Build identity must reside in APK assets")
-        with zipfile.ZipFile(originals.files[apk]) as package:
-            entries = package.namelist()
-            need("AndroidManifest.xml" in entries and "classes.dex" in entries and entries.count(member) == 1,
-                 "APK lacks Android program or uniquely identified build asset")
-            identity = decode(package.read(member))
+        identity = apk_build_identity(originals, apk, receipt["apk_identity_member"])
         need(identity["sourceCommit"] == after and identity["planSha256"] == receipt["plan_manifest_sha256"]
              and type(identity["versionCode"]) is int and identity["versionCode"] == receipt["installed_version_code"],
              "Embedded APK identity differs from observed installation")

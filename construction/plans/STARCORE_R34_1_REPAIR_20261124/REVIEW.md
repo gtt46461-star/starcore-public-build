@@ -1,5 +1,7 @@
 # R34.1 第 2 版施工索引
 
+本页保留第 2 版修订历史。继续施工请读 [当前第 3 版](FIELD3.md)。
+
 本次使用安装版本 577311122 的检测原包，逐项核对固定源码 `5562f9b19aa09f9f7d9e69ca085db56c537967fc` 和上一版方案 `00d53219ce7047c4abb5b55320ae140247cb5f87`。下列 32 项为现有工单新增的实施与测量要求。
 
 [构建、迁移与交付](specs/review/build.md) · [后台、冻结与结算](specs/review/runtime.md) · [创造、训练、进化与资格](specs/review/algorithm.md) · [图表、缓存与页面](specs/review/charts.md) · [存储、导出与恢复](specs/review/storage.md) · [原报告与九层诊断](specs/review/report.md)

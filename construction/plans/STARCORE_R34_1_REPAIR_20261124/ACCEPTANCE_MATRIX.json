@@ -349,7 +349,13 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "need/PERSISTED_FAULT_TRACE",
+          "contract_sha256": "7a8cca8d010869349cf6a0dd84fc90bf708e57ab0d29e0aac0cd726abaccd714"
+        }
+      ]
     },
     {
       "scenario": "虚拟时钟产生正常实时负载、失败且过期实时目标、持续合理实时峰值三场景。",
@@ -836,7 +842,7 @@
     },
     {
       "scenario": "有predraw、无predraw、S0 shadow、等待开奖、draw correction、deferred尚未完成六种情况。",
-      "expected": "已有predraw正常核心结算；无predraw被排除；shadow不计REAL；未开奖不提前结算；延后证据不改变原动作/截止期。 REV-B04-01：handler拒绝，首次写与第二次写之间杀进程，重复合法请求、迟到标签与跨日轮转。唯一原件、可追踪每个目标；返回不可证的原件无有效命中，不补造赛前时间。",
+      "expected": "已有predraw正常核心结算；无predraw被排除；shadow不计REAL；未开奖不提前结算；延后证据不改变原动作/截止期。 REV-B04-01：handler拒绝，首次写与第二次写之间杀进程，重复合法请求、迟到标签与跨日轮转。唯一原件、可追踪每个目标；返回不可证的原件无有效命中，不补造赛前时间。 F3-B04-01 重放603结构：S0有已结算原件、投影frozen_seen=1/canonical_seen=0、R35缺失且R36已审计排除。该期只能计S0与正式缺期；604两角色分别计数。注入重复事件或打开页面重扫都不能增加冻结数。",
       "evidence": "ENGINEERING：结算资格矩阵；不要求未来样本产生。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -858,12 +864,19 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B04-01"
+        "REV-B04-01",
+        "F3-B04-01"
+      ],
+      "field3_directions": [
+        {
+          "key": "need/DECISION_SETTLEMENT",
+          "contract_sha256": "4773745923fc5ae7a1897f413dabcc559655d621aeb3900dc000b66cc99b3981"
+        }
       ]
     },
     {
       "scenario": "789项结构fixture，含已结算/未开奖、内存受限、坏payload、重复claim和中途死亡。",
-      "expected": "合法项持续推进，坏项有明确隔离且计入未完成；无重复动作/漏ordinal；重启从已提交cursor续跑，FULL只在完整校验后出现。",
+      "expected": "合法项持续推进，坏项有明确隔离且计入未完成；无重复动作/漏ordinal；重启从已提交cursor续跑，FULL只在完整校验后出现。 F3-B04-02 加入789→1115的净增326模式，持续有新任务和一个坏旧任务；逐窗验证入队与完成而非仅游标变化。未满足实时预算时保留原因，恢复后最老合法项能完成；坏项独立隔离，当前期核心冻结、结算和不依赖FULL的训练继续。",
       "evidence": "ENGINEERING：每target cursor/hash、背压/吞吐时间线；fixture不进入生产统计。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -883,11 +896,14 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B04-02"
+      ]
     },
     {
       "scenario": "控制handler DB读阻塞与analysis实时忙时持续drain；释放内存后不打开UI。",
-      "expected": "控制tick不阻塞，deferred使用自己的worker，遵守实时预算；资源恢复能自动续排；主canonical结果不变。",
+      "expected": "控制tick不阻塞，deferred使用自己的worker，遵守实时预算；资源恢复能自动续排；主canonical结果不变。 F3-B04-03 按原 h=1/2/4/8 轮流注入让行、原时钟过期、历史不足、写入失败、加入时间跨过开奖及重启。每个计划锚点保持一种可解释结果；晚到只记缺口，重复结算幂等。同目标的多个步长和共识不增加独立期数，不产生训练、校准或 REAL 授权。",
       "evidence": "ENGINEERING：线程trace、真实事务预算和complete receipt。DEVICE吞吐须单列实测。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -907,7 +923,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B04-03"
+      ]
     },
     {
       "scenario": "首尾空格/换行/Unicode/空body，原文重复绑定、改一字、伪造trim后hash。",
@@ -1088,7 +1107,7 @@
     },
     {
       "scenario": "无Activity工程harness覆盖网络、时钟和进程场景；保留关闭开关与force-stop反例。",
-      "expected": "无越期canonical、无新窗口续命；恢复只在授权/OS允许下进行；所有预期目标有明确结果与原因。 REV-B05-03：999/1000/1001ms 与 4999/5000/5001ms、没有源发布时间、跨 boot、服务整段未运行、最后目标待开奖。逐项正确过界，未知不能判通过，打开页面不改变基线；同一规则用于无人干预 24h/72h 的 B05-03-T02。",
+      "expected": "无越期canonical、无新窗口续命；恢复只在授权/OS允许下进行；所有预期目标有明确结果与原因。 REV-B05-03：999/1000/1001ms 与 4999/5000/5001ms、没有源发布时间、跨 boot、服务整段未运行、最后目标待开奖。逐项正确过界，未知不能判通过，打开页面不改变基线；同一规则用于无人干预 24h/72h 的 B05-03-T02。 F3-B05-01 关闭Activity，依次注入超过256个不同事件、写者繁忙、原件暂不可见、恢复及进程死亡。实际返回原件每项只计一次；没有原返回时钟的目标仍入分母并为未测。报告同时给所有目标、可测返回及未测数，限流和诊断争用不能阻塞下一个真实请求。 F3-B05-03 构造出号耗时4999ms但截止余量4999ms，以及耗时5001ms但余量5000ms；两种判定应相反。各加入一个无截止、无冻结、断网和跨boot不可比的期。按不同分母复算，非健康和未知仍留在全日历，不能靠删期达到报告的健康子集≥99.5%目标。",
       "evidence": "ENGINEERING：确定性场景脚本、period denominator、事件/commit输出。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -1110,7 +1129,9 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B05-03"
+        "REV-B05-03",
+        "F3-B05-01",
+        "F3-B05-03"
       ]
     },
     {
@@ -1132,7 +1153,7 @@
     },
     {
       "scenario": "同seed/input分别service-only与Activity打开关闭100次，包含UI read异常。",
-      "expected": "业务输出hash集合一致、请求无重复；UI退出不停止授权服务；读失败显示明确状态，主线程不执行DB/迁移/训练。",
+      "expected": "业务输出hash集合一致、请求无重复；UI退出不停止授权服务；读失败显示明确状态，主线程不执行DB/迁移/训练。 F3-B05-02 在UI快照查询、广播接收和刷新通知分别注入超时/旧epoch，以关闭页面、反复开关页面两个相同目标流比较请求/冻结/结算的唯一键与时限。UI失败可显式显示旧值年龄或待刷新，不能阻塞下期调度，也不由重开UI补写业务。",
       "evidence": "ENGINEERING：双实验差异、lifecycle trace、线程断言。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -1152,7 +1173,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B05-02"
+      ]
     },
     {
       "scenario": "用户关闭后台开关、库identity切换、服务等待资源、进程重启。",
@@ -1248,13 +1272,23 @@
       },
       "required_review_ids": [
         "REV-B06-01"
+      ],
+      "field3_directions": [
+        {
+          "key": "need/TRAINING_FAMILY_EXECUTION",
+          "contract_sha256": "aa77fbcb7c261e88653cd44de043efc4b321b6766d83197edbd5cdad005cfef3"
+        },
+        {
+          "key": "operating/foundryRepair",
+          "contract_sha256": "5db69c7e2a0d06cde12585d3a43d4d536eb5147b16f2bb64eb0462d596e81382"
+        }
       ]
     },
     {
       "id": "R341-B06-02-A01",
       "level": "ENGINEERING",
       "scenario": "固定可学习样例、连续与中断恢复",
-      "expected": "输入/更新次数相同；参数与预测在已声明容差内相同；有正梯度样例参数确变",
+      "expected": "输入/更新次数相同；参数与预测在已声明容差内相同；有正梯度样例参数确变 F3-B06-01 覆盖24个家族ID，不允许以一个通用数值测试批量签24个处方。例：F02 保留一元项切相邻因子，F19 分别切位置/状态模式并恢复 AdaGrad，F24 比 F01/F09/F11 单体、等权和已学路由。恢复后与连续跑同期逐行对账；无差别可记录无观察增益，未执行留待完成。",
       "evidence": "codec bytes、step JSON、数值差报告；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B06-02",
       "batch": "B06",
@@ -1271,7 +1305,108 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B06-01"
+      ],
+      "field3_directions": [
+        {
+          "key": "object/capabilities:F01",
+          "contract_sha256": "9cba1923264d81adc54d8324a6de8ef66be7ae7e786a094c8c900aa393a2e455"
+        },
+        {
+          "key": "object/capabilities:F02",
+          "contract_sha256": "97df644c1a3d83d6f0ba19e1d77df92146026b77d6cbe5b0c320efb11cdf3ff9"
+        },
+        {
+          "key": "object/capabilities:F03",
+          "contract_sha256": "ae2b1dd9ce57cc42d81855ff5a0e918e7528d21dcb2fb094e64e5c16abb0d96e"
+        },
+        {
+          "key": "object/capabilities:F04",
+          "contract_sha256": "c46934519b0c67b830c179da1bd0a4a28e38cc8237cc7dbdcfe57b80bfe07eb3"
+        },
+        {
+          "key": "object/capabilities:F05",
+          "contract_sha256": "d95d7526640ba4f2a652fe41c1f073d338381cba74f1da2d2386b79486d678a2"
+        },
+        {
+          "key": "object/capabilities:F06",
+          "contract_sha256": "af3734d846eff9f00a01c0da4b9ced26a4ba8a44a987c6c0543705f96931e213"
+        },
+        {
+          "key": "object/capabilities:F07",
+          "contract_sha256": "cc23130b68348dc7ec530b779a566f7aeb55bfd4c5f4603d5a13ec03603dbf03"
+        },
+        {
+          "key": "object/capabilities:F08",
+          "contract_sha256": "60f1b22d64873b235b9602fc3cabe7de2e4397c4dd881f634a09deb24beca34b"
+        },
+        {
+          "key": "object/capabilities:F09",
+          "contract_sha256": "7a920fce2849420c6d1dfc1a434dafb707776aade1644c43213c355af8eda030"
+        },
+        {
+          "key": "object/capabilities:F10",
+          "contract_sha256": "e6715190630b8546affdd04f6b5ae2bda234c700a79b028e6d45e8f72afc17e6"
+        },
+        {
+          "key": "object/capabilities:F11",
+          "contract_sha256": "3128c0e237fe5ed9386b2674ff13a2d91cd39ee25a56af8d007766ff8cc030e3"
+        },
+        {
+          "key": "object/capabilities:F12",
+          "contract_sha256": "ec1c651c57f7af095fd2d9713f1134660245b95ae480dd04f616f6e59a020b21"
+        },
+        {
+          "key": "object/capabilities:F13",
+          "contract_sha256": "a51f855c4182b1dcb6275d4adc20ed59a16a39b56401f89c1bb5a24c3846a987"
+        },
+        {
+          "key": "object/capabilities:F14",
+          "contract_sha256": "93d37d35d73cd05a473eb5c7818e303a997cdfd654fcd81595c936f5bdde44dd"
+        },
+        {
+          "key": "object/capabilities:F15",
+          "contract_sha256": "d086b7e02f56dfe33d13271568ef5a33342782e28fd594e0acec467c3c39cd11"
+        },
+        {
+          "key": "object/capabilities:F16",
+          "contract_sha256": "1c2ebbbe791b54b2d03a1bd162d9db3e0b65e8b2dc47a1a99c1062bd16d42daa"
+        },
+        {
+          "key": "object/capabilities:F17",
+          "contract_sha256": "4c0b2fce8a4f3008de347abc1665d0577e3f11f369a6ee30ae9057ae0dd5b592"
+        },
+        {
+          "key": "object/capabilities:F18",
+          "contract_sha256": "fbf3258e8c6efb587e276c22dbd9038e05f77fea176e71f1d3e65c5ca34bd964"
+        },
+        {
+          "key": "object/capabilities:F19",
+          "contract_sha256": "566c8578cd0c88e2186c4137ad2bd2bf3ef8e5a19401b40605428c8e8e05bcad"
+        },
+        {
+          "key": "object/capabilities:F20",
+          "contract_sha256": "ffd39a4c6bd286466c4e88dcabdfd7d55aea97d361f301c332cc3fa4fb897c9a"
+        },
+        {
+          "key": "object/capabilities:F21",
+          "contract_sha256": "0b494230fea0268556640964051c7701934f2301ff659db45ce7549edb7d353f"
+        },
+        {
+          "key": "object/capabilities:F22",
+          "contract_sha256": "08756611dd874acd1bcc7768e18b862cebcd81e709a0100148c78c1a47d9c1ce"
+        },
+        {
+          "key": "object/capabilities:F23",
+          "contract_sha256": "ed26afb37b1f433f8edf9f7a1f8ca448c5842bd3f67a42e7774059ba8d5f13b7"
+        },
+        {
+          "key": "object/capabilities:F24",
+          "contract_sha256": "ec7c4460f89931f0fb55bf67787ff07a61112305921afe419e170e27b2715281"
+        }
+      ]
     },
     {
       "id": "R341-B06-02-A02",
@@ -1323,7 +1458,7 @@
       "id": "R341-B06-03-A01",
       "level": "ENGINEERING",
       "scenario": "合法公式、类型错误、未来引用、深树及常量公式集合",
-      "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码",
+      "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码 F3-B06-02 21个ID逐行读回。对 I14 构造来源重叠及等大小不相交两例，对 I20 加入开奖后才出现的条件，对 I08 换错 ABI 权重，结果分别回到合法目标K3/预先约定的HOLD/拒绝。等价AST在出生门去重，失败对照不占创新数。",
       "evidence": "节点级审计与 golden 输出；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B06-03",
       "batch": "B06",
@@ -1340,7 +1475,92 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B06-02"
+      ],
+      "field3_directions": [
+        {
+          "key": "object/capabilities:I01",
+          "contract_sha256": "f9868f8a0c89ec3b6930c6f2450eef0bb57958a6c6c778af2ad6d6d6fabd73e7"
+        },
+        {
+          "key": "object/capabilities:I02",
+          "contract_sha256": "cc15d75f7cc83b79e8bb70bbc0d3efc4c5cec1a88e12d893afe61c436103515b"
+        },
+        {
+          "key": "object/capabilities:I03",
+          "contract_sha256": "d8fd50a1e2f62c84050212413f65ce4a97ea7a2452d5116025a72d32bf98e849"
+        },
+        {
+          "key": "object/capabilities:I04",
+          "contract_sha256": "bbd5f2c469e11d55e95d7d006321b42271f4170702398b9ec9042e614f9ddba0"
+        },
+        {
+          "key": "object/capabilities:I05",
+          "contract_sha256": "4c19b60b423b2479ad69818b3858f5387d63a45ad958eb56884ebd7eaa42594d"
+        },
+        {
+          "key": "object/capabilities:I06",
+          "contract_sha256": "9762fc934d565e61410873ad65c45b882ad5f72ef198542cbe6e2f2f72ed629c"
+        },
+        {
+          "key": "object/capabilities:I07",
+          "contract_sha256": "ceb2ade70659a6e002cb76b10fd666b3ab0bf02bc47c695da8b1e4cf26559555"
+        },
+        {
+          "key": "object/capabilities:I08",
+          "contract_sha256": "5d0b7883f5cf520ce8d602bd7d605413b666f03ce2b7056e08bc98bffa980a0c"
+        },
+        {
+          "key": "object/capabilities:I09",
+          "contract_sha256": "4f258b13e6d09376971e8361593503a5855160e09b17dd659035ca16a049d8a1"
+        },
+        {
+          "key": "object/capabilities:I10",
+          "contract_sha256": "07e7bfbc94067666d28d4ece623f9f51593a02a203aa8c8adba42a3154343bfc"
+        },
+        {
+          "key": "object/capabilities:I11",
+          "contract_sha256": "f5b35f79c507b8743f515ca49b6e6a83cd1fb6bf2c7bcb369d9b84c048153050"
+        },
+        {
+          "key": "object/capabilities:I12",
+          "contract_sha256": "b334d895e24873e0f0b3ca070ea14e38dbea8a9cf8eb5fcc01534b2a873fcdf2"
+        },
+        {
+          "key": "object/capabilities:I13",
+          "contract_sha256": "de08aa2bb92faba798cb052e4fb305774219c1b6a2fc98c065702451b1cd2770"
+        },
+        {
+          "key": "object/capabilities:I14",
+          "contract_sha256": "4b0e0b65c2fdcf05579b66057fe2a573e5334be9844da492fbe65b29aedcfe63"
+        },
+        {
+          "key": "object/capabilities:I15",
+          "contract_sha256": "66e4882d41184e13faafeb2e52d1960ada4c67123d307e5f21e339ee1b86e001"
+        },
+        {
+          "key": "object/capabilities:I16",
+          "contract_sha256": "abf59e4810cfa3363ad7f407b88e06fee00882bf6bb08f612fd28fc801c5dbc2"
+        },
+        {
+          "key": "object/capabilities:I17",
+          "contract_sha256": "35ca5ef706955e6ae0ba625925b79f44978311eb4ec9a3ccf992893d705e4f8d"
+        },
+        {
+          "key": "object/capabilities:I18",
+          "contract_sha256": "8bce5fbbf8093433e511f7d3500f057ffb69a06ca54555d7af27e6eb987fb4d3"
+        },
+        {
+          "key": "object/capabilities:I19",
+          "contract_sha256": "71ae122759397d11403ac29d8bc472c239345e86736897eb60a7d878d5a14fb3"
+        },
+        {
+          "key": "object/capabilities:I20",
+          "contract_sha256": "69728a81e761a532c64e761d34c4c3b7a0f2647bfb214a080cf1f951f6657954"
+        }
+      ]
     },
     {
       "id": "R341-B06-03-A02",
@@ -1409,7 +1629,73 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "object/capabilities:E01",
+          "contract_sha256": "1cbcb7df0d81fba853ae04d4720cdd57a27b68a815d72f9947958fcdc3fc0b71"
+        },
+        {
+          "key": "object/capabilities:E02",
+          "contract_sha256": "d92ccd53ac73c1d0dedc6a07f7d6da3ed218f13a753935f686aad065f02af13a"
+        },
+        {
+          "key": "object/capabilities:E03",
+          "contract_sha256": "7a2e4378f1c1e4175b863a0ed63ff94fec84cd7ee9ad45f4a7657b0ef4c3d864"
+        },
+        {
+          "key": "object/capabilities:E04",
+          "contract_sha256": "c8666ca9714e7b0db42d6d231a0266b719bd43a8a486b980d37f8b9f7479ab06"
+        },
+        {
+          "key": "object/capabilities:E05",
+          "contract_sha256": "920498f5e154a1d20f8f54142ba05973f5dd362fd0d0d43075ef41fd1b882286"
+        },
+        {
+          "key": "object/capabilities:E06",
+          "contract_sha256": "eff99db0445921b3105420743f10b50a1061c6ec3206194e5d530091c9272d86"
+        },
+        {
+          "key": "object/capabilities:E07",
+          "contract_sha256": "d8b99e9e69ac70c45e263de15a652ee885ccdb8af44192bcc570401b7865a0d8"
+        },
+        {
+          "key": "object/capabilities:E08",
+          "contract_sha256": "78f7cbeee2e6bcf555aeee59e5e2e262cbb8952352972ee39526f1a694e994dd"
+        },
+        {
+          "key": "object/capabilities:E09",
+          "contract_sha256": "4a7efa589394e0e25f2a967eb92b983705039ba67edaa334fc64a0277b6d7d6b"
+        },
+        {
+          "key": "object/capabilities:E10",
+          "contract_sha256": "2fe1c5ceb57a653677adeeadd5bd6a9e499ebdec95956c48edc507f64e23f0b3"
+        },
+        {
+          "key": "object/capabilities:E11",
+          "contract_sha256": "6df10891c1e73eefcb8e5c1c2e4fa2135831007b14463b805faba2ea17361b28"
+        },
+        {
+          "key": "object/capabilities:E12",
+          "contract_sha256": "3a630b9ddb49ddd9be9da18d980f74054b5dab9290fabd23901838e769571dc3"
+        },
+        {
+          "key": "object/capabilities:E13",
+          "contract_sha256": "a8372d9ee4d592a16739e5d36b0e3182b1163f5e079365b20dfc42d6a7f4bb8d"
+        },
+        {
+          "key": "object/capabilities:E14",
+          "contract_sha256": "54ae865cec3ba62842aea62e483add8ea19b148350aa5a2c4c8c561766b74b53"
+        },
+        {
+          "key": "object/capabilities:E15",
+          "contract_sha256": "e2af10d381c37c2d250553f721d9a307c992908c632d59108adc858f1c2e6697"
+        },
+        {
+          "key": "object/capabilities:E16",
+          "contract_sha256": "181a6f3296ae7f0eca5171dc39c4e296b7604c9b0bd4a8c4afeaf6e3713f4e17"
+        }
+      ]
     },
     {
       "id": "R341-B06-04-A02",
@@ -1455,7 +1741,13 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "p50/教师矩阵与原子蒸馏（P45/P47）",
+          "contract_sha256": "ec48dd5e3b087a93fe73be997b481f9d55ab7044ae54272cc617c52b6c46c066"
+        }
+      ]
     },
     {
       "id": "R341-B06-05-A01",
@@ -1547,7 +1839,13 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "need/TEN_POSITION_TRAINING_SURFACE",
+          "contract_sha256": "f532b8969dc5cc4e0c9a1d866addde994d547d063f46d1a0f858545c15762cca"
+        }
+      ]
     },
     {
       "id": "R341-B07-01-A02",
@@ -1619,7 +1917,13 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "object/capabilities:ATOMNET",
+          "contract_sha256": "8741b85fa3c7140d04201b26391a70bc37aa47da984a6d826b378d05a24cc4fa"
+        }
+      ]
     },
     {
       "id": "R341-B07-02-A02",
@@ -1697,7 +2001,7 @@
       "id": "R341-B07-03-A02",
       "level": "ENGINEERING",
       "scenario": "错 position/featureABI/target 或部分 epoch",
-      "expected": "全部拒绝并保留正确版本；无空模型成功回执",
+      "expected": "全部拒绝并保留正确版本；无空模型成功回执 F3-B07-01 固定同一位置与十分类面，使历史特征规则K3与当前候选K3不同并令开奖号码仅命中其中一组。两个事件各自重算，不得互换所选命中概率、命中标签、ECE或 REAL 计数。扰动当期未来开奖不改变先前两头输出；回读同哈希 checkpoint 后推理关闭 dropout、各位置十类概率合法。",
       "evidence": "identity 负例清单；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B07-03",
       "batch": "B07",
@@ -1714,7 +2018,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B07-01"
+      ]
     },
     {
       "id": "R341-B07-03-A03",
@@ -1743,7 +2050,7 @@
       "id": "R341-B07-04-A01",
       "level": "ENGINEERING",
       "scenario": "同结算事件投递三次，中途重启",
-      "expected": "模型至多训练一次；只有一个 effect 引用；后续事件继续",
+      "expected": "模型至多训练一次；只有一个 effect 引用；后续事件继续 F3-B07-03 当10个连续已开奖目标里故意漏掉中间一期，或成功反馈仅写计数而下轮读旧输入时须定位该期；补齐合法输入并重启后恰好消费一次。无合法赛前证据者保留在机会分母并说明排除，严禁事后生成赛前预测。",
       "evidence": "事件/outbox/step 对账；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B07-04",
       "batch": "B07",
@@ -1760,7 +2067,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B07-03"
+      ]
     },
     {
       "id": "R341-B07-04-A02",
@@ -1789,7 +2099,7 @@
       "id": "R341-B07-04-A03",
       "level": "ENGINEERING",
       "scenario": "正式 FUTURE 反馈",
-      "expected": "原实验只更新资格账、冻结模型不变；后续研究须新边界/新身份且从零未来证据",
+      "expected": "原实验只更新资格账、冻结模型不变；后续研究须新边界/新身份且从零未来证据 F3-B07-02 从相同 checkpoint/seed 开启可重放三臂并杀进程续算，要求每臂能独立重现自己的更新次序；旧/新模型损失差相同而回放对照无增益时只允许既定研究触发，不宣称回放已改善。注入缺旧模型、缺一个臂、错误角色、支持不足、训练碰到保留评估键或重复结算，均不能产生正开发效果。",
       "evidence": "角色/身份隔离查询；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B07-04",
       "batch": "B07",
@@ -1806,7 +2116,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B07-02"
+      ]
     },
     {
       "id": "R341-B07-05-A01",
@@ -1829,7 +2142,13 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "operating/atomNetArchiveMaintenance",
+          "contract_sha256": "97630218d830b61901a349c4b1e99fed177586f872af6810a2fa8764c9337d3a"
+        }
+      ]
     },
     {
       "id": "R341-B07-05-A02",
@@ -1901,6 +2220,48 @@
       },
       "required_review_ids": [
         "REV-B08-01"
+      ],
+      "field3_directions": [
+        {
+          "key": "p50/信息探针（P50）",
+          "contract_sha256": "ca9355ee58ff60cb719227766d66e951a713278de3328dc160cd22a796147555"
+        },
+        {
+          "key": "probe/MSDIR",
+          "contract_sha256": "bb33a974cb40dfc2a055cdb91782cd520276127e6319e45dd3df25db38bc95f7"
+        },
+        {
+          "key": "probe/BOCPD",
+          "contract_sha256": "527202b999aba76bc7b03f42916c376ba4930aa8334a457f441615c8465a3e2e"
+        },
+        {
+          "key": "probe/HMM",
+          "contract_sha256": "061e3cd18a78de5f61aede7f678ad6093d7f2f2ffba21fcb42116f2990e8d741"
+        },
+        {
+          "key": "probe/LOGLIN",
+          "contract_sha256": "528f44e5846ab75d97942d96b6d42d2995dcd291a01ea3a74465d5aa66354145"
+        },
+        {
+          "key": "probe/RELBAYES",
+          "contract_sha256": "2139da5822d6bed7a8e855176e1ba54541eaa5ee51a0ff21b37f7dde169f42d6"
+        },
+        {
+          "key": "probe/KALMAN",
+          "contract_sha256": "730d1c66461bdaba138d70ef61645cdd08262fbc6187aa3a8374f0530afdc77b"
+        },
+        {
+          "key": "probe/REGMEM",
+          "contract_sha256": "36941e32857d6bb729e745d1048e83abcdbde6026dcce485ae31a2c40e7981ff"
+        },
+        {
+          "key": "probe/RELMEM",
+          "contract_sha256": "a4d26c231a7cc8e368f01287a35430a67ab6d02c3f781b8487551319934ad4ec"
+        },
+        {
+          "key": "probe/CONTMAT",
+          "contract_sha256": "d318bb5ed11c730e5fc3c3732e4be70046c9e18eeb1a8182dc5a8d51d3dc17a3"
+        }
       ]
     },
     {
@@ -1924,7 +2285,17 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "p50/阶段层（P49）",
+          "contract_sha256": "a7d38b31ce4923841bb967fbad660a6fad57a52ae89571236c764f40eab319ab"
+        },
+        {
+          "key": "p50/区制记忆（P48）",
+          "contract_sha256": "1b71f4adcf365a33bdc2e3f5e6698a3af158d9208ddc31aacb70761cd8fbb166"
+        }
+      ]
     },
     {
       "id": "R341-B08-01-A03",
@@ -1953,7 +2324,7 @@
       "id": "R341-B08-02-A01",
       "level": "ENGINEERING",
       "scenario": "18图逐项完整及缺项夹具",
-      "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图 REV-B08-04：逐一跑 R01–R18。有值、全null、旧版以及篡改原件各一份。R06 校验自身配对字段，R11/R14/R18 无资料为待观测且消费不适用；真实零+正support仍可显示。",
+      "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图 REV-B08-04：逐一跑 R01–R18。有值、全null、旧版以及篡改原件各一份。R06 校验自身配对字段，R11/R14/R18 无资料为待观测且消费不适用；真实零+正support仍可显示。 F3-B08-05 让研究提示的合法 sw/lw 与备用抽样窗口不同，按实际 AST 复算两种单来源、交集和每期投入；九种扰动包括未来标签、目标位置、断档、过期原件及交集0、1、2、3个数、条件迟到。保留每臂日历及三号码，I14只在共同三号码时可ACT；条件/支持不足分别计数。",
       "evidence": "18项运行矩阵与可复算数据；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-02",
       "batch": "B08",
@@ -1972,7 +2343,74 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B08-04"
+        "REV-B08-04",
+        "F3-B08-05"
+      ],
+      "field3_directions": [
+        {
+          "key": "object/researchCharts:R01",
+          "contract_sha256": "c2301a652d9decf58003e6b746aa9bd03a86cb9e5081be859fd5402d11f4d273"
+        },
+        {
+          "key": "object/researchCharts:R02",
+          "contract_sha256": "ef8f0c63583eae61cbe9f8e0140beda2f5a838a470aef8b664fd2036a1259533"
+        },
+        {
+          "key": "object/researchCharts:R03",
+          "contract_sha256": "11f96e2d64713f6b1fba7449e9cbff990be95e26dc587db5f93cfdd84a60c81f"
+        },
+        {
+          "key": "object/researchCharts:R04",
+          "contract_sha256": "2cc6c6ddf2c00155ac51e69f1aa8172184eea8440326d7c887fda7a137a9a5d4"
+        },
+        {
+          "key": "object/researchCharts:R05",
+          "contract_sha256": "6c375f50a4ba8973dabc5dbe5be01618267bcf145ad9e62e531c115390e06f4c"
+        },
+        {
+          "key": "object/researchCharts:R06",
+          "contract_sha256": "7bd3a807b4ea889335f4a212d69dc06e4c908a8ea1b89680cd608dd07c36de0a"
+        },
+        {
+          "key": "object/researchCharts:R07",
+          "contract_sha256": "374ea532bb1ba5965a73999740489daf26f14b0e9f7a85cbd4fdb3eaacc4184d"
+        },
+        {
+          "key": "object/researchCharts:R08",
+          "contract_sha256": "1ce154ef53b4aefe5c6e3d7147923f7ee1d8206c68420b7a154e577cfb552aa4"
+        },
+        {
+          "key": "object/researchCharts:R09",
+          "contract_sha256": "02cc175a37467f82cf8bb2fdcb111b0f86ce8cf3c0324ab2d720f1dd35b7f51a"
+        },
+        {
+          "key": "object/researchCharts:R10",
+          "contract_sha256": "83b10099255d09e2743f30756047d56389e803d69a48a0fb451b3ce07a58d1c4"
+        },
+        {
+          "key": "object/researchCharts:R12",
+          "contract_sha256": "2f4bd3432f44336eb79da0743cfdd3303056fa163fefc0d0d081b75541620e80"
+        },
+        {
+          "key": "object/researchCharts:R13",
+          "contract_sha256": "af01bb3a541dfd8655b3c44d874609c87bde71a1a4aad758bfae4ccfec9bcf31"
+        },
+        {
+          "key": "object/researchCharts:R15",
+          "contract_sha256": "34b45f0e47ab17ccc919391e110fa021c5ee14f3262a11a1a37b6bdcbe89cbd8"
+        },
+        {
+          "key": "object/researchCharts:R16",
+          "contract_sha256": "0a4663666e439a59046432412b917ab4907231e7f6adb3a6086023122c9beec6"
+        },
+        {
+          "key": "object/researchCharts:R17",
+          "contract_sha256": "3ccbedcaa452010d0481a1bb3bd2fc1f65081edd895cd5ad662c7d87a3cbf838"
+        },
+        {
+          "key": "need/RESEARCH_ACTION_CONSUMPTION",
+          "contract_sha256": "7f09f9bd34eca31e307e1d404fc344b5be38d68a04c3b89242c2a6b5154b61d7"
+        }
       ]
     },
     {
@@ -2019,7 +2457,21 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "object/researchCharts:R11",
+          "contract_sha256": "9527da584c29901df21ffb3f53d36285825b1dbc798461a42c1d0c5efbea075b"
+        },
+        {
+          "key": "object/researchCharts:R14",
+          "contract_sha256": "7747c71be78a33e4ecb7f930e7e08b487460244036c75c1061c2d1beddb90193"
+        },
+        {
+          "key": "object/researchCharts:R18",
+          "contract_sha256": "fbaf35df2a752cc4006b45ef97034ba512c85469dc0935419ce31f685b103590"
+        }
+      ]
     },
     {
       "id": "R341-B08-03-A01",
@@ -2068,6 +2520,168 @@
       },
       "required_review_ids": [
         "REV-B08-02"
+      ],
+      "field3_directions": [
+        {
+          "key": "object/capabilities:MATRIX:R930:EVIDENCE_TEACHER",
+          "contract_sha256": "214a75429b154717c45ae3282b92f269e69dcf546429331c4e5b6707d36d74cb"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:STUDENT_ERROR",
+          "contract_sha256": "713a8e72a3ce50e80be383c61546c04885ec6d0ee7adf265e5dbec618640e7fc"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:FORWARD_REASONING",
+          "contract_sha256": "7b4ef8ae64bd0b8c94495e741fc2f488fa23b4805e355cd00615472b866ee900"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:REVERSE_REASONING",
+          "contract_sha256": "ac0c56f56ce8a1962f3f65759aa147b6c20d549476a2063ba84f64634a4a9e68"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:COUNTERFACTUAL",
+          "contract_sha256": "c862b14ff28c4a7c7a3b76b95b1b327b6ee1fdf8ba5d31c463706676a96c1924"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:FEEDBACK",
+          "contract_sha256": "c271faab021c193894a729fb79252ccefe304b6a61f3a852b741a0a5dc162852"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:CONTRADICTION",
+          "contract_sha256": "fb2f9a57d10dc8d36bb54451f68c125b2cc3f7fb20c88564bf96a040be1231be"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:TEACHER_DIVERSITY",
+          "contract_sha256": "d49d1f23b89278e585f18fb9ae2396ce997083380fd33cdeec5be77004854775"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:TEMPORAL_PRECEDENCE",
+          "contract_sha256": "c8a2da0d77bc5fc22b675ca62a34ef2ce4bf700fcbe5b61b172147e675d5f022"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:INVARIANCE",
+          "contract_sha256": "fae225ff65c6bc6e74633634f0838132fa6cb881223667c4928a5af92ac0fc36"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:CAUSAL_SUPPORT",
+          "contract_sha256": "a76a7fddfaec7c0543640b67b45fad8ade9004434e9fe13f2c333d29ce562285"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:COUNTER_EVIDENCE",
+          "contract_sha256": "37c2979fb79cd8821e720b223c8d182cce2655ee3d8467d57b6f4545fb8d9c6c"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:RESIDUAL_MECHANISM",
+          "contract_sha256": "2d53506e9984d823b636ca5b024835142144743c827008e05f16f34f06b0b59b"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:NUMBER_POSITION_COMPATIBILITY",
+          "contract_sha256": "55932bc7435e307896078d845362d534000c1acd79a3d2feb19fdf68cd31dd46"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:CROSS_POSITION_FLOW",
+          "contract_sha256": "980a8b97e69a1b9d70f7deba85c40e85a2dde05e8ae39dc201758c76979d7483"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:ACTION_UTILITY",
+          "contract_sha256": "432ea89aa269c4cdcbb1af290fe3e9b34e13a41a687a78b4c645ac45bb581eed"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:ALGORITHM_COMPLEMENTARITY",
+          "contract_sha256": "b3115dbf433553e58845dd3424767404a270ae1d594ea465137ae4a16e167ea7"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:EVOLUTION_CREDIT",
+          "contract_sha256": "65fc00c0edcdfb922dcc7545d0ee4c51862e0d104443a8dca0386cdae0c6643f"
+        },
+        {
+          "key": "object/capabilities:MATRIX:R930:RESOURCE_EFFICIENCY",
+          "contract_sha256": "d0f9a92cad648e94e4da5cc0817e9de985c38d144a38f15b0a56968b9f1c64cd"
+        },
+        {
+          "key": "object/capabilities:MATRIX:SU2:LEARNED_FACTOR_TEACHER_CHECKPOINT",
+          "contract_sha256": "c8654abca2e1704243ac5252de7cca22c39afd9f968f1c7f0d01b8e084822548"
+        },
+        {
+          "key": "object/matrices:R930:EVIDENCE_TEACHER",
+          "contract_sha256": "5c2cfddd6751221ea28589506504cc8c59ccfde0f1ccb345ba5fa4c17fae54fb"
+        },
+        {
+          "key": "object/matrices:R930:STUDENT_ERROR",
+          "contract_sha256": "a2041cc57a21cf0838106f0fa2aa3f18a722a9a5d6baf4767366179791bfb97b"
+        },
+        {
+          "key": "object/matrices:R930:FORWARD_REASONING",
+          "contract_sha256": "b8abe34dbe17af89f80b9f3472d8b8301b5f9dab9d9bfe45d8e7f3521e5ee614"
+        },
+        {
+          "key": "object/matrices:R930:REVERSE_REASONING",
+          "contract_sha256": "1dea3734a1948ed0ac5dd3dc8769166819aa2c8a43992dc94af22371bed9211c"
+        },
+        {
+          "key": "object/matrices:R930:COUNTERFACTUAL",
+          "contract_sha256": "3b4016e54e48e70b1a6841849c939e77a5c1486c759a1af9234af2685697196b"
+        },
+        {
+          "key": "object/matrices:R930:FEEDBACK",
+          "contract_sha256": "131cb425b47362432d0f9e191e5b217889f4023b01984ad777477f24cabfaadc"
+        },
+        {
+          "key": "object/matrices:R930:CONTRADICTION",
+          "contract_sha256": "f46baed6a7b98cd21243280d9e46bdd988d5f193bfcd76706b02b3b6d6516f93"
+        },
+        {
+          "key": "object/matrices:R930:TEACHER_DIVERSITY",
+          "contract_sha256": "4e5101d85fa7a9437998a7848eb29d143226c15677b1b31c0704e71080485e12"
+        },
+        {
+          "key": "object/matrices:R930:TEMPORAL_PRECEDENCE",
+          "contract_sha256": "4a4dad7621555c17e958eafe4016ff2ddd2728725ce815f68596bd8bfce1918c"
+        },
+        {
+          "key": "object/matrices:R930:INVARIANCE",
+          "contract_sha256": "846f0b49f978f4b3b2f23d3c13a0c00e54cf39ad653e1700b2c63ec69ac0effc"
+        },
+        {
+          "key": "object/matrices:R930:CAUSAL_SUPPORT",
+          "contract_sha256": "14a780848154322d8d4da84f6e30b492623d4f46174a203bc2e93b63f620f7f4"
+        },
+        {
+          "key": "object/matrices:R930:COUNTER_EVIDENCE",
+          "contract_sha256": "3aeb975239e224edf2e7ec400091c14f1af7eeb65974a416c81dcfe7f9d460d6"
+        },
+        {
+          "key": "object/matrices:R930:RESIDUAL_MECHANISM",
+          "contract_sha256": "c7e04c73aa7c828dd66fb566fb0cf2ac577e8063e6340981933b51c60af0e485"
+        },
+        {
+          "key": "object/matrices:R930:NUMBER_POSITION_COMPATIBILITY",
+          "contract_sha256": "28690d39a4241789573ab16d6ff06fe23f54b26a53f734a03ec33b59d0689fc1"
+        },
+        {
+          "key": "object/matrices:R930:CROSS_POSITION_FLOW",
+          "contract_sha256": "fe0e0e196ce6229c49a0d0a4ce82035def0cad2755986fdeb9b4879030c0ba3e"
+        },
+        {
+          "key": "object/matrices:R930:ACTION_UTILITY",
+          "contract_sha256": "39dee144a5819a46c40e1d2ee0b12f80cce657e389417b7753e2b8e6b7924336"
+        },
+        {
+          "key": "object/matrices:R930:ALGORITHM_COMPLEMENTARITY",
+          "contract_sha256": "ba74b1fb5466ac5ba2824795a3ca9d0fd026cdd251344c551266aeb168b5d068"
+        },
+        {
+          "key": "object/matrices:R930:EVOLUTION_CREDIT",
+          "contract_sha256": "09d4f1e3fd96f24068b2b2ec1efd7c1e7e53841719dec1f431d6e65c79b18e4d"
+        },
+        {
+          "key": "object/matrices:R930:RESOURCE_EFFICIENCY",
+          "contract_sha256": "205c54f16521a7d771a5a88b2458d88d27ad2513b22739d56d0a8f4935d85855"
+        },
+        {
+          "key": "object/matrices:SU2:LEARNED_FACTOR_TEACHER_CHECKPOINT",
+          "contract_sha256": "8ffdf1755c0a70a9aaa3aaff422ffee965959805cdc16492ac2a4e118026bc41"
+        }
       ]
     },
     {
@@ -2118,13 +2732,27 @@
       "required_review_ids": [
         "REV-B08-03",
         "REV-B08-05"
+      ],
+      "field3_directions": [
+        {
+          "key": "p50/延续/转向矩阵（P49）",
+          "contract_sha256": "d8e654fe1d5375dfb132c947689fcbba7c1cd8c8faac2cb26b55adb79f5daf86"
+        },
+        {
+          "key": "p50/研究记忆与原子（P44/P43）",
+          "contract_sha256": "189b5a4cdf742274e027cded5717fbc933afc4df30c80d14afc954d683019bcc"
+        },
+        {
+          "key": "finding/S4",
+          "contract_sha256": "79c0c87a4e7c5a28831ca738f554ad47e2b5661f9420653f5ead4b46ce713447"
+        }
       ]
     },
     {
       "id": "R341-B08-04-A02",
       "level": "ENGINEERING",
       "scenario": "commit前后杀进程并重投",
-      "expected": "至多一次动作；无孤儿child、无假consumption",
+      "expected": "至多一次动作；无孤儿child、无假consumption F3-B08-02 同代依次发布 A(两个可用分子)、B(零幸存)、C(新revision,一个分子)，夹入读头与读行之间的切换、kill 和恢复；正常进化入口回读当前集合，B 不得再生带A来源的子代，独立派生原子仍可用，C可重新调度。只可追到叶权重但未真正采用时计数为0；无原件记录未知。",
       "evidence": "故障点DB差；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-04",
       "batch": "B08",
@@ -2141,7 +2769,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B08-02"
+      ]
     },
     {
       "id": "R341-B08-04-A03",
@@ -2170,7 +2801,7 @@
       "id": "R341-B08-05-A01",
       "level": "ENGINEERING",
       "scenario": "固定失败夹具运行两代并中途恢复",
-      "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果 REV-B08-06：复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。",
+      "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果 REV-B08-06：复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。 F3-B08-06 注入合法跨位对照、只有全策略失败的假设、错组件 hash、同父已测反事实。仅具备合法执行材料的两项可进入各自原生产路径一次；其余返回具体原因，后续补件唤醒。重启后去重。核实 R26 F15 未代替 I14、开发子代的未来计数为0、PRUNE 的子代就是测量过的结构。",
       "evidence": "generation与lineage清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-05",
       "batch": "B08",
@@ -2189,7 +2820,14 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B08-06"
+        "REV-B08-06",
+        "F3-B08-06"
+      ],
+      "field3_directions": [
+        {
+          "key": "p50/进化与算子（P21/P41）",
+          "contract_sha256": "f99243827729a02ec8253df31da0c859792e33cf5ed9af338d694fb055bb9e1a"
+        }
       ]
     },
     {
@@ -2265,7 +2903,7 @@
       "id": "R341-B08-06-A02",
       "level": "ENGINEERING",
       "scenario": "有互补和无互补的确定夹具",
-      "expected": "均有完整对照；无互补可拒绝，不能强制正增益",
+      "expected": "均有完整对照；无互补可拒绝，不能强制正增益 F3-B08-03 构造三亲门控、三亲中一项权重为零、全部为零和合法双亲互补四种候选。追踪出生、谱系、消融和下一轮预算；未嵌入者仅可做参考对照，无独立贡献计数。同位置、同层级、同机会留证，负结果如实进入淘汰。",
       "evidence": "同机会A/B/A+B/equal输出；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-06",
       "batch": "B08",
@@ -2282,7 +2920,16 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B08-03"
+      ],
+      "field3_directions": [
+        {
+          "key": "p50/委员会冠军（P37）",
+          "contract_sha256": "f15402b42c9bdca3d0c896ca05d19d98e2615f680aa6fe580bf4a0b0753e8e49"
+        }
+      ]
     },
     {
       "id": "R341-B08-06-A03",
@@ -2311,7 +2958,7 @@
       "id": "R341-B08-07-A01",
       "level": "ENGINEERING",
       "scenario": "两个算子不同开发效用/成本，多次重复回执",
-      "expected": "下一轮分配有可解释变化；重复不叠乘；各合法探索算子仍有机会",
+      "expected": "下一轮分配有可解释变化；重复不叠乘；各合法探索算子仍有机会 F3-B08-04 相邻两代前后额度本来就不同且当前研究输入对结果无影响时，不给该图/矩阵改进记功；当同代开关确实改变分配时只记一次。进入下一代前杀进程、重放同一消费无重复，预算紧张时公布延期对象和重试水位。零增益进入去重/降权，保留最低探索与唯一原件。 F3-B08-08 在同一隔离工厂先只做策略消融，再只做模型消融，另一栏保持无测量。注入同名异数据集、跨kernel重启、只写DONE而缺report_hash、差下界非正；拒绝取样替换或提升预算。合法重跑能读回原结果一次；下一轮预算变更明确指向实际配对，不向自然层复制开发结果。",
       "evidence": "allocation与dispatch对账；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-07",
       "batch": "B08",
@@ -2328,13 +2975,17 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B08-04",
+        "F3-B08-08"
+      ]
     },
     {
       "id": "R341-B08-07-A02",
       "level": "ENGINEERING",
       "scenario": "所有成效未知或全负",
-      "expected": "缩回先验/保留探索；不制造正信用",
+      "expected": "缩回先验/保留探索；不制造正信用 F3-B08-01 四段中一段缺失或下界≤0均继续观察，四段有序且各下界>0才能记录对应研究验证。让不同版本的 REGMEM 或重复期混入四段必须拒绝。影子 599 次、600 次但无对照、600 次且有合格对照分别调用真实 shadowOutcome；实际上下文分开记录 EFFECTIVE、NO_EFFECT、HARMFUL、PENDING。AUTO无执行差、MANUAL未施工和既无原报告动作又无源的情况均不得记作已改进。",
       "evidence": "budget state；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-07",
       "batch": "B08",
@@ -2351,13 +3002,16 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B08-01"
+      ]
     },
     {
       "id": "R341-B08-07-A03",
       "level": "ENGINEERING",
       "scenario": "未来数据/旧revision负例",
-      "expected": "拒绝越界信用；旧负记忆不永久封新机制",
+      "expected": "拒绝越界信用；旧负记忆不永久封新机制 F3-B08-07 放入同家族的大量旧正收益、当前同一合同的负收益、缺配对与未达支持的结果。只用适用分层生成分配，交换旧数据不应改变当前次序。重复提交和重启不重复记功；全负或缺证仍有合规探索位。检查真实入队或预算投递以及下一期消费者。",
       "evidence": "role/revision负例；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-07",
       "batch": "B08",
@@ -2374,13 +3028,16 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B08-07"
+      ]
     },
     {
       "id": "R341-B09-01-A01",
       "level": "ENGINEERING",
       "scenario": "正常注册、重复、模型替换、重命名",
-      "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移 REV-B09-01：A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。",
+      "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移 REV-B09-01：A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。 F3-B09-01 同一预测器两阈值构成 100 个已知开发机会，固定规则ACT40命中14，专攻规则ACT5命中3；在候选5次为前者子集时，共同ACT=5，并集=40，专攻率虽60%但覆盖5%。另用试验覆盖率15%和30%的独立夹具检查分母与展示，禁止将该例计生产资格；换阈值、换位置及开奖后补填选择各自引发隔离/新注册，0次ACT的命中率为空。",
       "evidence": "registration manifest及唯一键；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-01",
       "batch": "B09",
@@ -2399,7 +3056,8 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B09-01"
+        "REV-B09-01",
+        "F3-B09-01"
       ]
     },
     {
@@ -2423,7 +3081,17 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "need/INDEPENDENT_QUALIFICATION",
+          "contract_sha256": "31c06bc3509819d6820dcc4a559b8b43f893c8b24c46a408ce2d078dbae096f2"
+        },
+        {
+          "key": "p50/裁判与选择（P38/P40）",
+          "contract_sha256": "6c3d9702748306c9fab686b754bd196bd4f9219fdcece2622b9fb56c97dbec7b"
+        }
+      ]
     },
     {
       "id": "R341-B09-01-A03",
@@ -2495,7 +3163,13 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "operating/qualityCheck",
+          "contract_sha256": "a548c7b8110e82b67043ea1b749483b67cf83de078daf51529f5202003f60129"
+        }
+      ]
     },
     {
       "id": "R341-B09-02-A03",
@@ -2544,6 +3218,12 @@
       },
       "required_review_ids": [
         "REV-B09-04"
+      ],
+      "field3_directions": [
+        {
+          "key": "p50/在线校准（P36）",
+          "contract_sha256": "38d83956129669fe43e343ef5dbe393cf3c9a449b517c2808e09851dc4c108e8"
+        }
       ]
     },
     {
@@ -2615,7 +3295,7 @@
       "id": "R341-B09-04-A01",
       "level": "ENGINEERING",
       "scenario": "隔离有效/过期/撤销/错模型/错K3证明",
-      "expected": "只有正确证明通过同一决策owner；任何错项拒绝",
+      "expected": "只有正确证明通过同一决策owner；任何错项拒绝 F3-B09-02 同一数据集依次跑无合法影子、有影子但不足支持、V2 wouldIssue=true、过期及撤销四种路径，调用前后逐真实键核对两套记录。夹具不能令 V2 启用、签发、撤销或触发一次真实动作；下一期重新评估留下可关联的输入摘要，生产没有合法影子则保留等待状态。",
       "evidence": "authority负例表；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-04",
       "batch": "B09",
@@ -2632,7 +3312,16 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B09-02"
+      ],
+      "field3_directions": [
+        {
+          "key": "p50/主链 IPM（P30/P03）",
+          "contract_sha256": "ab920026b470f065689c941c3ffccc2cbaf7e319129e7eb6b0511d75ab93bd10"
+        }
+      ]
     },
     {
       "id": "R341-B09-04-A02",
@@ -2717,7 +3406,13 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "field3_directions": [
+        {
+          "key": "object/capabilities:I00",
+          "contract_sha256": "0a56ec700c98c53e4ea245f693b2c0d9eca272c0f822e4181a881f707efcdea3"
+        }
+      ]
     },
     {
       "id": "R341-B09-05-A03",
@@ -2745,7 +3440,7 @@
     {
       "id": "A-B10-01a",
       "scenario": "已有4.34GB且有充足物理空闲，工作集超额",
-      "expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。 REV-B10-02：从实际有分配页的 1,427,210,240 B 级现场规模库请求诊断/FULL_RAW，各自完成发布读回。另跑空间不足、并发、复制中进程死亡和复用坏快照，验证关键结算与预约守恒。",
+      "expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。 REV-B10-02：从实际有分配页的 1,427,210,240 B 级现场规模库请求诊断/FULL_RAW，各自完成发布读回。另跑空间不足、并发、复制中进程死亡和复用坏快照，验证关键结算与预约守恒。 F3-B10-01 同一覆盖安装下复现1,427,210,240与1,892,921,344字节级快照，采样前/中/后分别记录同卷并存峰值、可用空间和释放情况；与主库增长分开，阈值/预约错误不能饿死结算。保留旧备份不变、dbstat截断、故障原件增至2952的反例。",
       "evidence": "budget-migration.json、分类前后清单、准入/拒绝回执",
       "level": "ENGINEERING",
       "issue_id": "R341-B10-01",
@@ -2765,7 +3460,14 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B10-02"
+        "REV-B10-02",
+        "F3-B10-01"
+      ],
+      "field3_directions": [
+        {
+          "key": "p50/存储与内存（P31–P34/P50）",
+          "contract_sha256": "2d70aeea7f18bd1fb95e4f7eebf9f621cb66242d80a89174c1f1bd61c343a132"
+        }
       ]
     },
     {
@@ -3074,6 +3776,128 @@
       },
       "required_review_ids": [
         "REV-B11-01"
+      ],
+      "field3_directions": [
+        {
+          "key": "object/legacyCharts:status",
+          "contract_sha256": "a6714fd8cd40f1612009396be78a3fb4dae6ab2bcf7b8e294fbac9680cd0fa77"
+        },
+        {
+          "key": "object/legacyCharts:p01_three_scores",
+          "contract_sha256": "4e7af23ff7b65121537a0ef8368cc9f8f50d7bc5a114ff1a81d9d3423d20d626"
+        },
+        {
+          "key": "object/legacyCharts:p02_generation_holdout",
+          "contract_sha256": "de1ea729f7d0ec54f9ad7fa6a19f6deb124c9441d60c230e4f4e55b5b0a27205"
+        },
+        {
+          "key": "object/legacyCharts:p03_evolution_events",
+          "contract_sha256": "a717923656def43871f9af34a720b5b52f7baaeb6817775e732f7a4b9437fae6"
+        },
+        {
+          "key": "object/legacyCharts:p04_seven_counters",
+          "contract_sha256": "646f7c7f6b479e1a866f59cb005a6586f82eec03c69dede8dc17ec07da4e3a38"
+        },
+        {
+          "key": "object/legacyCharts:p05_lineage",
+          "contract_sha256": "e6332a0b0905e09a501a12526a6f2bf7a651631cf936c45b779e271f02d50e2c"
+        },
+        {
+          "key": "object/legacyCharts:p06_idea_survival",
+          "contract_sha256": "24c1c6ef15bb0afe854865c985f891b933b31f7cfeae87d8d78e5207c8f72faa"
+        },
+        {
+          "key": "object/legacyCharts:p07_funnel",
+          "contract_sha256": "15c07a4ea11358eb6504c7814aa32003d83e225e464c8d55e14db856311c7c75"
+        },
+        {
+          "key": "object/legacyCharts:p08_bss",
+          "contract_sha256": "2998d2f31d4614e99ef5f0b76bb202b1c9fcd1f3da737992452a0377bb5b703c"
+        },
+        {
+          "key": "object/legacyCharts:p09_rolling200",
+          "contract_sha256": "2d692b9acff86e8af7f0ce5293909186665b862a27263eb246a5636b09e8fa82"
+        },
+        {
+          "key": "object/legacyCharts:p10_train_holdout_loss",
+          "contract_sha256": "af5fe48983e0165002a9f6f394408eefb4a0b57f634f9453975ca562824967c2"
+        },
+        {
+          "key": "object/legacyCharts:p11_eprocess",
+          "contract_sha256": "90ebafbecdd78ef9a247733977beffcb8fde93f98f9bbc468ed6fad71878e41f"
+        },
+        {
+          "key": "object/legacyCharts:p12_mainline_weight",
+          "contract_sha256": "89c437c9b18e459abf42c9b7c7d6a2a5aba4a3985ebdab8c1b6b2a94ee3c78ae"
+        },
+        {
+          "key": "object/legacyCharts:p13_runtime_health",
+          "contract_sha256": "6ea6608d3b70c157e6a00f96b88844fa5977a51f5cd80ebbf23e32dda354909f"
+        },
+        {
+          "key": "object/legacyCharts:p14_atom_scores",
+          "contract_sha256": "00120c05787af64f6a3a00df5abb5e8f4c512377a8631e0c2d53b8012be254a4"
+        },
+        {
+          "key": "object/legacyCharts:p15_paired_improvement_r30",
+          "contract_sha256": "b4018df7a5c8a7b3182be108ac9d056877e323aa9521389447e13b357a48ff82"
+        },
+        {
+          "key": "object/legacyCharts:p16_capability_coverage_r30",
+          "contract_sha256": "e5d1ad74889b2f99e46d900d2c81538ac2358697c01158a59e63a7c43c7ae1dd"
+        },
+        {
+          "key": "object/legacyCharts:r83_algorithm_all",
+          "contract_sha256": "87cc92dae8d83f718c79190c96511f534cfc526ed0d482b40c1fb4f5444483ee"
+        },
+        {
+          "key": "object/legacyCharts:r83_algorithm_rank",
+          "contract_sha256": "0c503c6624de42896d787f9b0f6ffe82e8e315ea2252a58685e39c8cd4b71b5b"
+        },
+        {
+          "key": "object/legacyCharts:r83_best_curve",
+          "contract_sha256": "a02aced43f0d4f8854bb75c0c59a8de3d2b40f9f9f14d77460166ccc0c356d9c"
+        },
+        {
+          "key": "object/legacyCharts:r83_action_candles",
+          "contract_sha256": "d6b68bb42b561370a57449722d7c2ffe2df45076b4ea66ee0b769c96ee5f63ad"
+        },
+        {
+          "key": "object/legacyCharts:r83_all_hit",
+          "contract_sha256": "56a861a188cc47bfb13e63814617d2aa7da44fc5f799a41bbfd253e7ade620ac"
+        },
+        {
+          "key": "object/legacyCharts:r83_act_hit",
+          "contract_sha256": "9e5c32551ceff580e2203c10a71bbe26b032316379d714329490260162efe316"
+        },
+        {
+          "key": "object/legacyCharts:r83_number_candles",
+          "contract_sha256": "89bd362393e5c91b567260078436bbd1ac90224e079720f647e59d04bc3691f8"
+        },
+        {
+          "key": "object/legacyCharts:r83_number_line",
+          "contract_sha256": "8d0b4a6d7fdc5d21ec3ae3e420d84081fd8edba4ac8b64769f26a28788d8682f"
+        },
+        {
+          "key": "object/legacyCharts:r83_omission_heat",
+          "contract_sha256": "9f78f998f6222a816b1bc57e16a577cd40bc74a369dd8838dc6029d26514f209"
+        },
+        {
+          "key": "object/legacyCharts:r83_hot_cold",
+          "contract_sha256": "a6ebe109657732b2ae13d1ebcd74aa2559ae5b314b31a8a5d44b77a297bb5a8b"
+        },
+        {
+          "key": "object/legacyCharts:r83_calibration",
+          "contract_sha256": "32cafdc587b0573d59c8c659ca5de47a12b7c70a9258a86d6f1c7835836a2dc4"
+        },
+        {
+          "key": "object/legacyCharts:r83_brier20",
+          "contract_sha256": "75516104684e38003a90b5cd04b5fc646937cef8c1a0aa5662843d711511415b"
+        },
+        {
+          "key": "need/TABLE_SOURCE_AUDIT",
+          "contract_sha256": "006ea01d79f09cd8cff4cec2c20e39083dbf53c049bd969e0e55c2a298d28f75"
+        }
       ]
     },
     {
@@ -3102,7 +3926,7 @@
     {
       "id": "A-B11-02b",
       "scenario": "2成功、3超时、1未启动，混入shadow成功",
-      "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。",
+      "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。 F3-B11-01 构造热 draws 仅一条有效赛前预测、两个历史已结算标签留存及一个无冻结开奖，旧查询能得3/1。新热集必须1/1；历史两条、无冻结一条各有独立归属。再覆盖无标签、无分母、同一期异角色、缺表；在线与导出同原件同结果，禁止截成100%或把异常记零。",
       "evidence": "事件夹具、指标分母明细、逐期timeline",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-02",
@@ -3122,7 +3946,8 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B11-02"
+        "REV-B11-02",
+        "F3-B11-01"
       ]
     },
     {
@@ -3151,7 +3976,7 @@
     {
       "id": "A-B11-03b",
       "scenario": "165对象共享多个根因且部分可读性未知",
-      "expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。 REV-B11-06：以旧 V51 全 UNTRAINED 和新模型回执并存构造期级对照；新模型不得覆盖旧模型证明。依次替换为错 target /错模型/跨窗/任意非空文本/缺原件/结构化有效真零；实时与冻结报告对同输入给相同层级，report 缺输入仍可出报告；完全通过夹具也不改变主链门。",
+      "expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。 REV-B11-06：以旧 V51 全 UNTRAINED 和新模型回执并存构造期级对照；新模型不得覆盖旧模型证明。依次替换为错 target /错模型/跨窗/任意非空文本/缺原件/结构化有效真零；实时与冻结报告对同输入给相同层级，report 缺输入仍可出报告；完全通过夹具也不改变主链门。 F3-B11-03 对同一 need 分别提供全缺且范围完整、只缺一项、仅声明、显式阻塞和不可读取的 owner；再给重复对象、错误构建身份、伪造消费及成功的实际权重/消费回执。分类、相应施工路由、悬而未决证据逐项吻合；八项原登记仍逐项可查，未知与部分缺项不能自动生成新能力或通过自然资格。",
       "evidence": "对象→工单关系表、真实回读场景",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-03",
@@ -3171,7 +3996,14 @@
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
       },
       "required_review_ids": [
-        "REV-B11-06"
+        "REV-B11-06",
+        "F3-B11-03"
+      ],
+      "field3_directions": [
+        {
+          "key": "need/CAPABILITY_NEED_DISCOVERY",
+          "contract_sha256": "1ed272127603f23c9ef1fc0914aae315c84a1bf1a1600329bf88cdc2da602a8b"
+        }
       ]
     },
     {
@@ -3198,6 +4030,72 @@
       },
       "required_review_ids": [
         "REV-B11-03"
+      ],
+      "field3_directions": [
+        {
+          "key": "object/logicalTables:T01",
+          "contract_sha256": "8539e6f4ead1d2fdfe70748efcede1d245b215ce04550e0d8539daac7092d066"
+        },
+        {
+          "key": "object/logicalTables:T02",
+          "contract_sha256": "bbe75389833fbea8ac7130601a3b03d989d2720f88c6270fa8e88fb198837c41"
+        },
+        {
+          "key": "object/logicalTables:T03",
+          "contract_sha256": "a348e524dd380beb96f0488308e688b9db8df8587d42eccce709612b52a7451f"
+        },
+        {
+          "key": "object/logicalTables:T04",
+          "contract_sha256": "dbc3b5903e0ab07120a52308466ae1f2d173d8480c97534233f91e19cc8851ff"
+        },
+        {
+          "key": "object/logicalTables:T05",
+          "contract_sha256": "c3839ab324ae0bf9d7c2c37dd99d4d553e82adf62679939a8afbfad51602e8e8"
+        },
+        {
+          "key": "object/logicalTables:T06",
+          "contract_sha256": "007be5f6d2cac6386078c90ed233150bcf4741d9f11e857a5e29ad29d5b43f60"
+        },
+        {
+          "key": "object/logicalTables:T07",
+          "contract_sha256": "8ba42ad453de541ef4c08e1e264890be56cb4554f62df11aff9b1d08bb14661f"
+        },
+        {
+          "key": "object/logicalTables:T08",
+          "contract_sha256": "4c17741552855ce65099a4e7f9d431996add42dee90c216103689a8c88582932"
+        },
+        {
+          "key": "object/logicalTables:T09",
+          "contract_sha256": "dadd0615271b9e5dbf6c88003b5f24838257ac43dfaf513901fbad03b145834a"
+        },
+        {
+          "key": "object/logicalTables:T10",
+          "contract_sha256": "089af7e729479dff51e8c1c0f6a2a0085f6dbe08ca47c222baf2b56ae1654fb7"
+        },
+        {
+          "key": "object/logicalTables:T11",
+          "contract_sha256": "34503eadfb37e1f5c3824eaa0f1e7de1461152941611a5b91014275f0319e3f5"
+        },
+        {
+          "key": "object/logicalTables:T12",
+          "contract_sha256": "32c4fdff8213578561b96742bf081efc290277f6bfa0f2983a0182f13d355f2b"
+        },
+        {
+          "key": "object/logicalTables:T13",
+          "contract_sha256": "41554d73a5c865c927c6725f2944dd194f275f5fce093c6dfe123472eab3b61c"
+        },
+        {
+          "key": "object/logicalTables:T14",
+          "contract_sha256": "444b28643e776bd8b491e726bd6ee742f80136a48c9a0d5913cbc5fa79d03479"
+        },
+        {
+          "key": "object/logicalTables:T15",
+          "contract_sha256": "2d1bc633d896c0551d3fa8898e68e90641a269a52740d3f67750bf9f0c4c8e18"
+        },
+        {
+          "key": "object/logicalTables:T16",
+          "contract_sha256": "fa9c243498a895556d3eccdaaad62323471a033e36518983a1ce20423f1aeaed"
+        }
       ]
     },
     {
@@ -3255,7 +4153,7 @@
     {
       "id": "A-B11-05b",
       "scenario": "源码+单测齐全但无设备；设备有实际producer/consumer回执",
-      "expected": "前者ENGINEERING_VERIFIED/FIELD_PENDING；后者仅对应现场场景FIELD_VERIFIED，自然状态不自动变化。",
+      "expected": "前者ENGINEERING_VERIFIED/FIELD_PENDING；后者仅对应现场场景FIELD_VERIFIED，自然状态不自动变化。 F3-B11-02 让同一对象出现两次并改变水位、让矩阵的能力别名与矩阵本体指向同一产物、重启后重试已消费提案、提交未调用的文本处方，再替换角色和模型hash。逐项验证两个观察、一次业务动作、对应工程原件与自然待观测状态，核验只读、审计、负控制三类不获得研究或REAL授权；缺任何对象的实测记录要列出该键。 F3-B11-04 保留一次 DETECTED、一次 UNKNOWN、一次 INSUFFICIENT 和一次 CLEAR_IN_CAPTURED_SCOPE，逐条回查原规则动作。删除原始字段、移入另一个源码/窗口或把历史工单文字伪装成本次测量时不确认修复。真实可比较的新报告给出具体变化、原件定位及下一次条件；两份成功报告本身不增加自然机会。",
       "evidence": "工程与现场分栏台账、生产/消费关联hash",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-05",
@@ -3273,7 +4171,253 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B11-02",
+        "F3-B11-04"
+      ],
+      "field3_directions": [
+        {
+          "key": "rule/WRITER_HARD",
+          "contract_sha256": "df038c4ec4280154c2bf94b620274c79d08bdb2f815145033466b179361d7d2d"
+        },
+        {
+          "key": "rule/TASK_STALLED",
+          "contract_sha256": "925296dbc84267eecd69e66907ad001df7625840db7cccb421dbb3be5c25f7a4"
+        },
+        {
+          "key": "rule/RECEIPT_STATE",
+          "contract_sha256": "2b39ef30dd056327552eff61a7df82911e91d439fff1119cf9a97c3c153cb5ee"
+        },
+        {
+          "key": "rule/QUAL_CONFLICT",
+          "contract_sha256": "cd0ae2c23e491ffdcb10193102baf4f631991735cd39274e968c228541770010"
+        },
+        {
+          "key": "rule/UNSAFE_DECISION",
+          "contract_sha256": "cc92f029f80eb48a7fafb3ce0b12653f87171ef888d0936a2d6336307ca854a6"
+        },
+        {
+          "key": "rule/PIT_REJECTIONS",
+          "contract_sha256": "6c026053639d5113880dc4083d5e49502dac646b8bbd52b3ec1e5eb68b2d8ceb"
+        },
+        {
+          "key": "rule/CONFIRM_EVIDENCE",
+          "contract_sha256": "1466dae5f456e5c569b19b8de9f40cccc178936b531cf37241bc006bbbec4abc"
+        },
+        {
+          "key": "rule/MODEL_STATE",
+          "contract_sha256": "ef0959f51a717371f389bf2000a156b47e1e8b8c8361538c2527582c76a3d66a"
+        },
+        {
+          "key": "rule/MODEL_CONSUMER",
+          "contract_sha256": "741f43dd6a1657ebcbdbee44ded4c8e501f37167a335ef57d51d8c83633d6293"
+        },
+        {
+          "key": "rule/CALIBRATION",
+          "contract_sha256": "382bde79a326bd374d95c220e8a62bb4b89c442d77a76a253f51b972b4dcc9ed"
+        },
+        {
+          "key": "rule/NATIVE_MATRIX",
+          "contract_sha256": "6ee41d6f2a27ce100c75cac6cc6f2822003caa81e36bfad3ffc53d58dffc57b6"
+        },
+        {
+          "key": "rule/SU2_MATRIX",
+          "contract_sha256": "8cc3f45e45e74f0dee9d30efa6dd9f5a6f99b9fdb2b8e5324feea7251c55ab7a"
+        },
+        {
+          "key": "rule/ABI_CONTINUITY",
+          "contract_sha256": "dc1bfc41a8f7178b31bd9b5ec3f62251d3fe1fc85f43b7768ecb1287e0ed2e07"
+        },
+        {
+          "key": "rule/ABLATION",
+          "contract_sha256": "9703040c4bf5c58ada8e8b9920144a19d1aa258701cfcce5c54ffc60f3ae6a56"
+        },
+        {
+          "key": "rule/NATURAL_SAMPLE",
+          "contract_sha256": "16a656ea5c040da795cf17e4b03adeb4ad35c11ef6b00ca09b3d3c29b66e84e7"
+        },
+        {
+          "key": "rule/SNAPSHOT_CAPTURE",
+          "contract_sha256": "465eb63f558c0d7bc3546b98429e6465af331a5045b74d4a214255fe06002a26"
+        },
+        {
+          "key": "trigger/M01",
+          "contract_sha256": "fc171af1b42c53f610a71d96414b755f0eab1607b5bb3acd9f2023a448c3b246"
+        },
+        {
+          "key": "trigger/M02",
+          "contract_sha256": "0855dd96cb00bc8c110e1716eacf8e3e17b7bfbea5d80640e3d3e21f185891ab"
+        },
+        {
+          "key": "trigger/M03",
+          "contract_sha256": "ff17e400b82afccb5ac85869d5bd3a3a8ab8e144dac16472e4287a69d6982e92"
+        },
+        {
+          "key": "trigger/M04",
+          "contract_sha256": "b9ffc3fe86bdb596dbdc4349232721d845d766282c174ff9e26797de8d2da4d9"
+        },
+        {
+          "key": "trigger/M05",
+          "contract_sha256": "d3d0da32c8da316f61563bb0c27271d5a7024c336b293039cc95148f36fe5abe"
+        },
+        {
+          "key": "trigger/M06",
+          "contract_sha256": "a1026bead2f13f1982a1c5ebc677c757d6ccb22dde333f4abcd61003fc358c5b"
+        },
+        {
+          "key": "trigger/M07",
+          "contract_sha256": "7e48775f5c255b9c5b6822770e2f05cd2af5d0c6ce5964e9106a903f4a69dd8d"
+        },
+        {
+          "key": "trigger/M08",
+          "contract_sha256": "64627af7dde86e22310ad5646a2e00c255fffb64bd7e6cebcd04a09f58a08e26"
+        },
+        {
+          "key": "trigger/M09",
+          "contract_sha256": "8fc744a2fa37e2473f91caf9ee96bd9b7961500ea528ba747266e4089626b4a0"
+        },
+        {
+          "key": "trigger/M10",
+          "contract_sha256": "105ee14469f4880aa7332d7491af3f0ea00087c84ba54e1b3dfc4e5e5c6b0bca"
+        },
+        {
+          "key": "trigger/M11",
+          "contract_sha256": "74dc9135e776a66633780aa721c9443b7f48dd9170275fd6a74fcce0798918c7"
+        },
+        {
+          "key": "trigger/M12",
+          "contract_sha256": "562bb559aceec2fe04189a318ed4398e069292ffab30dd47a20a97bf65413a98"
+        },
+        {
+          "key": "trigger/M13",
+          "contract_sha256": "b9e896a0ac62c76e7c49614ee328cd52e0d2d469d60b979d09f5444516f0f60b"
+        },
+        {
+          "key": "trigger/M14",
+          "contract_sha256": "7bf965a7eb54ad11d09bf1db739ad63074aa6a434e4e8d978e1a8c8ce4a44c67"
+        },
+        {
+          "key": "trigger/M15",
+          "contract_sha256": "4645f86956ebb7891bb6989383e2776fc7af030c89a751a3edcce10bdc6af79a"
+        },
+        {
+          "key": "trigger/M16",
+          "contract_sha256": "34eb951181a431603bc9ac3f52eb221e60677e067d8e1ba45fd5072ffd250f3e"
+        },
+        {
+          "key": "trigger/M17",
+          "contract_sha256": "8a27ee9dbf1c21a607c79e10163ad15761273dceb3fecf41087de9fe70f2f2f6"
+        },
+        {
+          "key": "trigger/M18",
+          "contract_sha256": "3b26eee48ef4b5a99921aa013608aaae0d1dc56c03c934b371d82c20beb0fcc7"
+        },
+        {
+          "key": "trigger/M19",
+          "contract_sha256": "bcf6e2fbcfe53dcb74086ebf18316171a9e03489f6fa4ed19cf35a2943ee7a1d"
+        },
+        {
+          "key": "trigger/M20",
+          "contract_sha256": "b2dd7df4272daeeb38128ca02435bf272c90ebce6d071508c856408ebe431c80"
+        },
+        {
+          "key": "trigger/M21",
+          "contract_sha256": "c6be84907f38ad253e81f618d5e1f255c729128f4255080108918daaf0a1f16a"
+        },
+        {
+          "key": "trigger/M22",
+          "contract_sha256": "0c900ca5a6badbfdb9b5847295476b61a39c403f0dc9a5d5f7f1e6d3f701ba47"
+        },
+        {
+          "key": "trigger/M23",
+          "contract_sha256": "d589b8ce17d0fb4dad2141101a9dd4cd2cf9afcdcbaba011688d4d16b69b1c19"
+        },
+        {
+          "key": "trigger/M24",
+          "contract_sha256": "d6c7e7319e2f420d40939f0bc09c8d9c884919b3eb91dc9d8a56dab0b1e408a0"
+        },
+        {
+          "key": "trigger/M25",
+          "contract_sha256": "b2ed8e940423e68ad670a87acbef3b76ed0777a98f41e055931796266cfc8b82"
+        },
+        {
+          "key": "trigger/M26",
+          "contract_sha256": "52b314f0be62bbc5f5579c26240ed7b58954ff9df5ad721a904048f300cb77ef"
+        },
+        {
+          "key": "trigger/M27",
+          "contract_sha256": "37a229c2991326aec69361c8e96201d31b2809bfab3b4f81f6bc6e140d5d69e1"
+        },
+        {
+          "key": "trigger/M28",
+          "contract_sha256": "2d1106cb8e533b4fa59dd4f109d23cde7cbae752f482a022b15d5b11862fcd39"
+        },
+        {
+          "key": "trigger/M29",
+          "contract_sha256": "69afddbd674141aa949686c05331bfffe6d4e6a3db4b320d65f19fcc7cec7068"
+        },
+        {
+          "key": "trigger/M30",
+          "contract_sha256": "94e22f2168407f4e5dbe6bea1749c114385fd8e4942471825792853b5076e2e3"
+        },
+        {
+          "key": "trigger/M31",
+          "contract_sha256": "1d099b48dcdc804d6a6429bfeb5b25ee4ad9d4853cacefa22a0dd460648d2e8a"
+        },
+        {
+          "key": "trigger/M32",
+          "contract_sha256": "8f503b257e95d364c76fb12fb7d596a86995a2945b135b7603dd3b00b3d9db6d"
+        },
+        {
+          "key": "trigger/M33",
+          "contract_sha256": "118f96869f22d729c377cea6e293d000e04804b150f883bd482194d4acc15458"
+        },
+        {
+          "key": "trigger/M34",
+          "contract_sha256": "5716728ddb075039bfad84cbc8a28c229151bdf75f7f00b2f525abd001c6155b"
+        },
+        {
+          "key": "trigger/M35",
+          "contract_sha256": "32522029562ff7a930c795b7dc046b1b98a13832ca11ae97ca40d085c97ae451"
+        },
+        {
+          "key": "trigger/M36",
+          "contract_sha256": "637d1eefd78d2281d00c83993f1b88b0ed799970dfd1d75fcda70e7c2327442d"
+        },
+        {
+          "key": "trigger/Q01",
+          "contract_sha256": "173adfd112ffc853e0dcaa37b5bab7d9c2f3b9d2add12156551ed6c214effaff"
+        },
+        {
+          "key": "trigger/Q02",
+          "contract_sha256": "483483a9615de183e79a2f7ab2079ab73f2ff675e6399162db0c9c0254f7077d"
+        },
+        {
+          "key": "trigger/Q03",
+          "contract_sha256": "57cb25d40514e89ecd15997bed159c2ab08fcb2b829964ed051bead0dca1cf79"
+        },
+        {
+          "key": "trigger/Q04",
+          "contract_sha256": "78d0cd017653dcc32847f8b7839e9f3164f75fae47e84c15566241861a72a947"
+        },
+        {
+          "key": "trigger/Q05",
+          "contract_sha256": "77f39a4fa26c91235b7c4b563700a50f3b086b0eaa320d3f69401009242a3002"
+        },
+        {
+          "key": "trigger/Q06",
+          "contract_sha256": "af595312c6c1ff073cdfb2bc381f4b75370ea1fbb0f4e5655e53b4e6c09f546c"
+        },
+        {
+          "key": "trigger/Q07",
+          "contract_sha256": "d40de180a15932eee2557843eae53c8358efa8a0f15fe0529136fe060e515fb5"
+        },
+        {
+          "key": "trigger/Q08",
+          "contract_sha256": "5899249242e4a56a2b1109d067a0d2f9f5dc9800804e660d53ab0175861a36a1"
+        }
+      ]
     },
     {
       "id": "A-B11-06a",
@@ -3451,7 +4595,7 @@
     {
       "id": "A-B12-03b",
       "scenario": "无自然合格资产但受控端到端夹具可走完整工程链",
-      "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。",
+      "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。",
       "evidence": "SYNTHETIC链hash、数值变化diff、producer-consumer匹配、生产资格状态",
       "level": "ENGINEERING",
       "issue_id": "R341-B12-03",
@@ -3473,7 +4617,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "F3-B12-01"
+      ]
     },
     {
       "id": "A-B12-04a",

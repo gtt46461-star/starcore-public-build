@@ -75,7 +75,28 @@
       "window_start",
       "window_end",
       "fixture"
-    ]
+    ],
+    "field3_direction_cases": {
+      "when": "case.field3_directions 非空时，执行原件中每个绑定方向提交一行",
+      "direction_results": [
+        {
+          "key": "EXACT_DIRECTION_KEY",
+          "contract_sha256": "SEALED_DIRECTION_DIGEST",
+          "positive_metric": "MEASURED_POSITIVE",
+          "negative_metric": "MEASURED_NEGATIVE"
+        }
+      ],
+      "details": "specs/RECEIPT_FORMAT.md"
+    },
+    "field3_learning_case": {
+      "when": "A-B12-03b 含 F3-B12-01",
+      "execution_artifact_fields": [
+        "learning_trace_index_artifact"
+      ],
+      "apk_identity": "在回执或执行原件中声明 apk_artifact、apk_identity_member，校验真实 APK 字节并核对构建身份。",
+      "originals": "索引、所有阶段记录、公式、模型状态和实际数值权重都在 artifacts 声明。",
+      "details": "specs/field3/chain.md"
+    }
   },
   "reason": null,
   "apk_artifact": null,

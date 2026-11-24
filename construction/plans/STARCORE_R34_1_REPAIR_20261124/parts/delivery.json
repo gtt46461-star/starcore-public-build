@@ -20,7 +20,8 @@
             "report:STORAGE_CENSUS.txt",
             "report:source-manifest.json#storageCensus",
             "source:5562f9b19aa09f9f7d9e69ca085db56c537967fc:app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java#Config.production",
-            "specs/review/storage.md [REV-B10-02]"
+            "specs/review/storage.md [REV-B10-02]",
+            "specs/field3/runtime.md F3-B10-01"
           ],
           "evidence_status": "OBSERVED_AND_SOURCE_VERIFIED",
           "diagnosis": "现场普通文件合计4,344,863,006字节：DATABASE 2,769,021,715、REPORTS 1,506,770,160；数据库项已包含1,336,406,139字节旧备份，不可二次相加。源码production的capacityDriven=true，使20/30GiB常量并不构成生产总量上限，主要按可用空间准入。直接切换小总预算会把现有4.34GB安装整体卡死；必须区分保护原件历史负担与可重算工作集，对新增增长实施约束。",
@@ -39,7 +40,8 @@
                 "引入版本化分类增量策略；现有受保护字节记protectedDebtBytes，不能作为可删预算；以完整实际总量检查物理空闲，按分类工作集和未落盘reservation检查增量。",
                 "普通最低空闲保留256MiB；关键结算/事实写入的应急区为另行预留的64MiB有界空间，耗尽输出STORAGE_CRITICAL，禁止无限豁免。",
                 "继续OS租约和原子预约；取消/失败退还未写增量；重启只回收已死亡所有者预约，既有文件一律不随预约回收删除。",
-                "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+                "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。",
+                "F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。"
               ]
             },
             {
@@ -52,7 +54,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "分别公布logical/allocated、完整目录范围、dbstat截断和采样时间；分类不重叠；未知allocated不回填logical冒充。"
+                "分别公布logical/allocated、完整目录范围、dbstat截断和采样时间；分类不重叠；未知allocated不回填logical冒充。",
+                "F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。"
               ]
             },
             {
@@ -75,7 +78,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+                "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。",
+                "F3-B10-01 把双快照磁盘增量按实际物理类别对账。按 specs/field3/runtime.md 和 A-B10-01a 的正反例实施复验。"
               ]
             },
             {
@@ -100,17 +104,19 @@
             "在既有reserve→beforeChunk→reconcile统一入口套用策略，所有有文件增长能力的报告、模型、压缩、恢复任务登记reservation；单次估计不足必须追加批准后才能再写。",
             "预算不足时停可选研究/重复报表，继续有界关键结算和错误记录；每类给出具体受阻任务、可释放工作集与受保护字节，定时重新评估不热循环。",
             "用已测4.34GB安装画像、并发两个报表和ENOSPC注入，验证不会越过预约，也不把保护负担当成新写入。",
-            "REV-B10-02 修改 reserveDisk、reserveOnceR31、ensureAdditionalOnceR31。128 MiB 只限普通派生数据单次增量，256 MiB 只限并存可重算普通工作集。为本地一致性快照发唯一临时租约，按 DB+WAL+开销、可用空间、活动预约与结算余量准入，按实际块数核销。归档、ZIP、分卷并存峰值逐阶段登记。失败不额外创建快照。"
+            "REV-B10-02 修改 reserveDisk、reserveOnceR31、ensureAdditionalOnceR31。128 MiB 只限普通派生数据单次增量，256 MiB 只限并存可重算普通工作集。为本地一致性快照发唯一临时租约，按 DB+WAL+开销、可用空间、活动预约与结算余量准入，按实际块数核销。归档、ZIP、分卷并存峰值逐阶段登记。失败不额外创建快照。",
+            "F3-B10-01 将前后同角色census、报告快照租约、主库及并存报告的物理类别对账，logical/allocated分别取数；旧备份单列不重复加，截断的dbstat表只说明可见部分。对活跃故障原件索引持续增长制定批量归档与可恢复读回，保留唯一原件。"
           ],
           "acceptance": [
             {
               "id": "A-B10-01a",
               "scenario": "已有4.34GB且有充足物理空闲，工作集超额",
-              "expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。 REV-B10-02：从实际有分配页的 1,427,210,240 B 级现场规模库请求诊断/FULL_RAW，各自完成发布读回。另跑空间不足、并发、复制中进程死亡和复用坏快照，验证关键结算与预约守恒。",
+              "expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。 REV-B10-02：从实际有分配页的 1,427,210,240 B 级现场规模库请求诊断/FULL_RAW，各自完成发布读回。另跑空间不足、并发、复制中进程死亡和复用坏快照，验证关键结算与预约守恒。 F3-B10-01 同一覆盖安装下复现1,427,210,240与1,892,921,344字节级快照，采样前/中/后分别记录同卷并存峰值、可用空间和释放情况；与主库增长分开，阈值/预约错误不能饿死结算。保留旧备份不变、dbstat截断、故障原件增至2952的反例。",
               "evidence": "budget-migration.json、分类前后清单、准入/拒绝回执",
               "level": "ENGINEERING",
               "required_review_ids": [
-                "REV-B10-02"
+                "REV-B10-02",
+                "F3-B10-01"
               ]
             },
             {
@@ -129,7 +135,8 @@
             "仅统计最终ZIP而漏算工作目录、WAL和预约"
           ],
           "required_review_ids": [
-            "REV-B10-02"
+            "REV-B10-02",
+            "F3-B10-01"
           ]
         },
         {
@@ -785,7 +792,8 @@
             "report:R30_REPORT.json",
             "report:source-manifest.json",
             "report:runtime-observation-crashSummary.txt",
-            "specs/review/charts.md [REV-B11-02]"
+            "specs/review/charts.md [REV-B11-02]",
+            "specs/field3/runtime.md F3-B11-01"
           ],
           "evidence_status": "OBSERVED_AND_SOURCE_VERIFIED",
           "diagnosis": "当前122启动10:11:43，运行采样约10:17:04；报告facts获取更晚而冻结SQL最新137。历史crash2次最后03:05:56早于当前进程；当前13个LEARNED来自旧FTRL处理历史标签。主路132–137仅133一个canonical，影子133–138有独立记录。成功延迟P95=1370ms只来自2成功事件，不包含超时/丢失机会。",
@@ -872,6 +880,27 @@
               "changes": [
                 "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+              "methods": [
+                "coverage",
+                "coverageSnapshotCP4"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F3-B11-01 修复R923结算分子分母跨历史范围。按 specs/field3/runtime.md 和 A-B11-02b 的正反例实施复验。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/SettlementCoverageTruthR906.java",
+              "methods": [
+                "coverage"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F3-B11-01 修复R923结算分子分母跨历史范围。按 specs/field3/runtime.md 和 A-B11-02b 的正反例实施复验。"
+              ]
             }
           ],
           "implementation_steps": [
@@ -879,7 +908,8 @@
             "同一图表/指标允许CURRENT_PROCESS、CURRENT_INSTALL、HISTORICAL、SYNTHETIC四视图，默认当前安装；role固定MAIN_CANONICAL/SHADOW/REPLAY。",
             "按B04已登记的目标机会生成实时服务分母，报告一并显示成功延迟和所有失败类别；maintenance/等待不默默剔除。",
             "用现场旧crash、13LEARNED、主1/6与影5已结算构成反串扰回归。",
-            "REV-B11-02 ChartRegistryR31.R83_VISIBLE 配合 ChartsRepositoryR83.loadPanel/actionCandles/hitTrend 和 ReportObjectIndexR30.build，role 依正常SQL来源确定。探索模拟K线和两张R35预测趋势带SHADOW，不进入REAL、也不计为原始开奖；主链通过唯一决策和实际结算单列。"
+            "REV-B11-02 ChartRegistryR31.R83_VISIBLE 配合 ChartsRepositoryR83.loadPanel/actionCandles/hitTrend 和 ReportObjectIndexR30.build，role 依正常SQL来源确定。探索模拟K线和两张R35预测趋势带SHADOW，不进入REAL、也不计为原始开奖；主链通过唯一决策和实际结算单列。",
+            "F3-B11-01 统一 coverage 与 coverageSnapshotCP4 的机会集、游戏、决策角色、版本和时间窗。先按同一集合的合法赛前R35与权威开奖构造eligible，再在集合内关联已结算及严格标签；保留已移出热历史的历史标签与无冻结目标的独立计数。两条入口对读取错误和零分母使用有原因的未知。"
           ],
           "acceptance": [
             {
@@ -892,11 +922,12 @@
             {
               "id": "A-B11-02b",
               "scenario": "2成功、3超时、1未启动，混入shadow成功",
-              "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。",
+              "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。 F3-B11-01 构造热 draws 仅一条有效赛前预测、两个历史已结算标签留存及一个无冻结开奖，旧查询能得3/1。新热集必须1/1；历史两条、无冻结一条各有独立归属。再覆盖无标签、无分母、同一期异角色、缺表；在线与导出同原件同结果，禁止截成100%或把异常记零。",
               "evidence": "事件夹具、指标分母明细、逐期timeline",
               "level": "ENGINEERING",
               "required_review_ids": [
-                "REV-B11-02"
+                "REV-B11-02",
+                "F3-B11-01"
               ]
             }
           ],
@@ -908,7 +939,8 @@
             "将报告生成时间冒充所有源冻结时间"
           ],
           "required_review_ids": [
-            "REV-B11-02"
+            "REV-B11-02",
+            "F3-B11-01"
           ]
         },
         {
@@ -919,7 +951,8 @@
             "report:UPGRADE_DIAGNOSIS.md",
             "report:R30_REPORT.json",
             "report:source-manifest.json",
-            "specs/review/report.md [REV-B11-06]"
+            "specs/review/report.md [REV-B11-06]",
+            "specs/field3/directions.md F3-B11-03"
           ],
           "evidence_status": "OBSERVED_AND_SOURCE_VERIFIED",
           "diagnosis": "旧诊断3616141之后仍标LIVE、历史7229 refits在原件不可证时仍易被当成成果；当前96项状态混合、36工程指标35未证明和M23失败，不意味着每个函数从未执行。165索引对象也有重叠，不能当165个独立故障。",
@@ -938,7 +971,8 @@
               "action": "MODIFY",
               "changes": [
                 "每条finding带statusAtInstall、firstSeen/lastSeen/resolvedAt、scopeId、evidenceRefs、confidence和R341工单ID；历史LIVE改为STALE_UNRECHECKED视图标识，保留原始文字。",
-                "当前根因分级CONFIRMED/PROBABLE/UNKNOWN；有DDL源码但运行缺表只能定位初始化链证据缺口，不能直接断言没建表代码。"
+                "当前根因分级CONFIRMED/PROBABLE/UNKNOWN；有DDL源码但运行缺表只能定位初始化链证据缺口，不能直接断言没建表代码。",
+                "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。"
               ]
             },
             {
@@ -1016,6 +1050,22 @@
               "changes": [
                 "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F3-B11-03 八项能力需求逐生产入口和实际消费者验真，保留缺能力提案分流。按 specs/field3/directions.md 和 A-B11-03b 的正反例实施复验。"
+              ]
             }
           ],
           "implementation_steps": [
@@ -1023,7 +1073,8 @@
             "建立finding→rootCauseGroup→issueId→验证场景→回执的链，资产/训练/矩阵/后台问题复用正确上游根因。",
             "将直接证据、代码推断、未证实三档呈现在报告；每条建议写下要改的生产者/消费者和怎样证明生效。",
             "在生成环节检查工单不存在、失效源码版本、空验证入口，拒绝以模糊“继续观察/优化参数”作为唯一施工动作。",
-            "REV-B11-06 K3FailureDiagnosisEngine.diagnose/diagnoseSnapshotCP4 与 FormulaAlgorithmAuditEngine.audit/auditSnapshotCP4、LiveResearchDiagnosisOrchestrator.collectRanker 及对应快照分支、CodeOwnershipCompletenessAuditEngine.audit及快照分支引用同一只读评估。保留 V51 旧模型原身份和 UNTRAINED 状态；分别按所评模型的 schema、参数/特征/策略/数据 hash、当前消费记录及严格同模型 OOS 明示静态、开发、自然三个角色。六个 stateLayer 要取目标期、指标版本、样本与分母、来源哈希、时间窗口、可用性和计算结果。缺失、旧字串或未识别值只能输出相应缺证状态，切断字符串不含异常即 HEALTHY 的分支。详见本次报告覆盖索引 k3_layers。"
+            "REV-B11-06 K3FailureDiagnosisEngine.diagnose/diagnoseSnapshotCP4 与 FormulaAlgorithmAuditEngine.audit/auditSnapshotCP4、LiveResearchDiagnosisOrchestrator.collectRanker 及对应快照分支、CodeOwnershipCompletenessAuditEngine.audit及快照分支引用同一只读评估。保留 V51 旧模型原身份和 UNTRAINED 状态；分别按所评模型的 schema、参数/特征/策略/数据 hash、当前消费记录及严格同模型 OOS 明示静态、开发、自然三个角色。六个 stateLayer 要取目标期、指标版本、样本与分母、来源哈希、时间窗口、可用性和计算结果。缺失、旧字串或未识别值只能输出相应缺证状态，切断字符串不含异常即 HEALTHY 的分支。详见本次报告覆盖索引 k3_layers。",
+            "F3-B11-03 保留 assess/inspect 对精确方法签名及来源版本的判断，独立输出每项所需输入、producerPurpose、consumerPurpose、生产与消费的最新同源原件、工程正反例及实际责任工单。把专门的八需求正反例送到对应业务 owner 执行；完整签名不能代替运行验收。发现新缺口时登记版本化需求、调用者、独立正反例与去重键，先核现有所有约定 owner 再决定补绑定或提新能力。新增研究能力先走工程与影子回读。"
           ],
           "acceptance": [
             {
@@ -1036,11 +1087,12 @@
             {
               "id": "A-B11-03b",
               "scenario": "165对象共享多个根因且部分可读性未知",
-              "expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。 REV-B11-06：以旧 V51 全 UNTRAINED 和新模型回执并存构造期级对照；新模型不得覆盖旧模型证明。依次替换为错 target /错模型/跨窗/任意非空文本/缺原件/结构化有效真零；实时与冻结报告对同输入给相同层级，report 缺输入仍可出报告；完全通过夹具也不改变主链门。",
+              "expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。 REV-B11-06：以旧 V51 全 UNTRAINED 和新模型回执并存构造期级对照；新模型不得覆盖旧模型证明。依次替换为错 target /错模型/跨窗/任意非空文本/缺原件/结构化有效真零；实时与冻结报告对同输入给相同层级，report 缺输入仍可出报告；完全通过夹具也不改变主链门。 F3-B11-03 对同一 need 分别提供全缺且范围完整、只缺一项、仅声明、显式阻塞和不可读取的 owner；再给重复对象、错误构建身份、伪造消费及成功的实际权重/消费回执。分类、相应施工路由、悬而未决证据逐项吻合；八项原登记仍逐项可查，未知与部分缺项不能自动生成新能力或通过自然资格。",
               "evidence": "对象→工单关系表、真实回读场景",
               "level": "ENGINEERING",
               "required_review_ids": [
-                "REV-B11-06"
+                "REV-B11-06",
+                "F3-B11-03"
               ]
             }
           ],
@@ -1052,7 +1104,8 @@
             "凭对象数量制造故障数量"
           ],
           "required_review_ids": [
-            "REV-B11-06"
+            "REV-B11-06",
+            "F3-B11-03"
           ]
         },
         {
@@ -1206,7 +1259,9 @@
             "report:UPGRADE_DIAGNOSIS.json",
             "report:source-manifest.json",
             "report:R30_REPORT.json",
-            "specs/review/report.md [REV-B11-07]"
+            "specs/review/report.md [REV-B11-07]",
+            "specs/field3/directions.md F3-B11-02",
+            "specs/field3/extended.md F3-B11-04"
           ],
           "evidence_status": "OBSERVED_AND_SOURCE_VERIFIED",
           "diagnosis": "“有代码/有注册/测试通过/现场生效/自然合格”现在容易被同一完成标签混用。工单应将源变更与运行读回绑定；没有源码/安装匹配、对象生产或消费者实际使用，就不能凭静态映射关闭现场故障。",
@@ -1220,7 +1275,9 @@
               "action": "MODIFY",
               "changes": [
                 "读取统一工单生效账本：修复commit、apkSha、installedVersion、effectStartProcess/issue、观察范围与新旧计数；当前修复后的观测必须比effectStart新。",
-                "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。"
+                "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。",
+                "F3-B11-02 将每条升级方向接到施工回执、研究执行或只读复验，再由下一次诊断核对。按 specs/field3/directions.md 和 A-B11-05b 的正反例实施复验。",
+                "F3-B11-04 让报告提出的根因、采集动作和反证回查到真实运行。按 specs/field3/extended.md 和 A-B11-05b 的正反例实施复验。"
               ]
             },
             {
@@ -1249,10 +1306,43 @@
             },
             {
               "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
-              "methods": [],
+              "methods": [
+                "capture"
+              ],
               "action": "MODIFY",
               "changes": [
-                "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。"
+                "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。",
+                "F3-B11-02 将每条升级方向接到施工回执、研究执行或只读复验，再由下一次诊断核对。按 specs/field3/directions.md 和 A-B11-05b 的正反例实施复验。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportRepairCaseIndexR335.java",
+              "methods": [
+                "capture"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F3-B11-02 将每条升级方向接到施工回执、研究执行或只读复验，再由下一次诊断核对。按 specs/field3/directions.md 和 A-B11-05b 的正反例实施复验。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
+              "methods": [
+                "evaluate"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F3-B11-04 让报告提出的根因、采集动作和反证回查到真实运行。按 specs/field3/extended.md 和 A-B11-05b 的正反例实施复验。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+              "methods": [
+                "evaluate"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F3-B11-04 让报告提出的根因、采集动作和反证回查到真实运行。按 specs/field3/extended.md 和 A-B11-05b 的正反例实施复验。"
               ]
             }
           ],
@@ -1261,7 +1351,9 @@
             "现场生产者事件必须有输入hash/输出hash/owner/purpose/role；训练更新、研究快照、consumer使用和后续反馈分步骤回查。",
             "建立effectStart后查询模板，原始累计值同时展示但不计作新成果；缺权限/设备时状态FIELD_PENDING并说明缺哪份证据。",
             "报告给每票“本次验证了什么/仍未知什么/下一真实触发是什么”，允许工程完成而自然资格继续等待。",
-            "REV-B11-07 每次回查读取同作业 R31_SEMANTIC_RECEIPT 与 catalog-*.jsonl 的真实 ID，并与报告相应单项比较；将输出关联原检查、对应工单、修复安装身份、有效范围、下一次触发和原件。资格门、期级闭环、只读观察、复合章节分别出状态。改进案例以 (group,id,caseKey,occurrenceId,sourceCommit,snapshot) 归档，新版本按业务键和可比窗口回查，重复报告或来源改变不增加独立时段。"
+            "REV-B11-07 每次回查读取同作业 R31_SEMANTIC_RECEIPT 与 catalog-*.jsonl 的真实 ID，并与报告相应单项比较；将输出关联原检查、对应工单、修复安装身份、有效范围、下一次触发和原件。资格门、期级闭环、只读观察、复合章节分别出状态。改进案例以 (group,id,caseKey,occurrenceId,sourceCommit,snapshot) 归档，新版本按业务键和可比窗口回查，重复报告或来源改变不增加独立时段。",
+            "F3-B11-02 保留 ReportRepairCaseIndexR335.capture 的只读对象登记语义。用 caseKey 跟踪跨报告的稳定对象，occurrenceId 标记本次快照；另建带对象/处方版本/实验角色的执行关联，只有执行 owner 提交过的原件才登记试验产物。报告查询显示处方、前置、首缺键、适用消费者、实际动作/未执行原因、后续独立观测、可恢复条件。相同业务动作跨报告重复出现，只更新观察记录。165个对象在各自负责批次参数化测量，B11读回同批或前批工程证据。",
+            "F3-B11-04 复用 DiagnosisRulesR30.evaluate 的16项原规则，将 condition、已知/未知来源、action.file/method/instruction/verification、refutedBy 及44指标 nextTrigger 按固定语义键联到本批责任工单和下一个报告。来源仅清除某次捕获中的异常时保留有效范围；在运行实例有对应 producer、consumer、目标/实验与前后原件后才签为已生效。"
           ],
           "acceptance": [
             {
@@ -1277,9 +1369,13 @@
             {
               "id": "A-B11-05b",
               "scenario": "源码+单测齐全但无设备；设备有实际producer/consumer回执",
-              "expected": "前者ENGINEERING_VERIFIED/FIELD_PENDING；后者仅对应现场场景FIELD_VERIFIED，自然状态不自动变化。",
+              "expected": "前者ENGINEERING_VERIFIED/FIELD_PENDING；后者仅对应现场场景FIELD_VERIFIED，自然状态不自动变化。 F3-B11-02 让同一对象出现两次并改变水位、让矩阵的能力别名与矩阵本体指向同一产物、重启后重试已消费提案、提交未调用的文本处方，再替换角色和模型hash。逐项验证两个观察、一次业务动作、对应工程原件与自然待观测状态，核验只读、审计、负控制三类不获得研究或REAL授权；缺任何对象的实测记录要列出该键。 F3-B11-04 保留一次 DETECTED、一次 UNKNOWN、一次 INSUFFICIENT 和一次 CLEAR_IN_CAPTURED_SCOPE，逐条回查原规则动作。删除原始字段、移入另一个源码/窗口或把历史工单文字伪装成本次测量时不确认修复。真实可比较的新报告给出具体变化、原件定位及下一次条件；两份成功报告本身不增加自然机会。",
               "evidence": "工程与现场分栏台账、生产/消费关联hash",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "required_review_ids": [
+                "F3-B11-02",
+                "F3-B11-04"
+              ]
             }
           ],
           "rollback": "台账追加式保留；旧版本忽略未知字段时不删除新记录。撤销错误PASS通过追加REVOKED原因，不重写原始证据。",
@@ -1290,7 +1386,9 @@
             "用旧计数满足effectStart后的验收"
           ],
           "required_review_ids": [
-            "REV-B11-07"
+            "REV-B11-07",
+            "F3-B11-02",
+            "F3-B11-04"
           ]
         },
         {
@@ -1612,7 +1710,8 @@
           "title": "逐批工程签收和最终集成使用同一完整台账",
           "evidence_refs": [
             "report:R30_REPORT.json",
-            "report:UPGRADE_DIAGNOSIS.json"
+            "report:UPGRADE_DIAGNOSIS.json",
+            "specs/field3/chain.md F3-B12-01"
           ],
           "evidence_status": "ACCEPTANCE_DESIGN_NEW",
           "diagnosis": "此前发布B12并不代表自然资格、后台长运行或全工程验收已通过。新计划每批必须能独立证明本批工程，不能把全部问题延期到“后续观察”，也不能只给一个最终APK不提供各票实施与验证状态。",
@@ -1625,7 +1724,8 @@
               "action": "NEW",
               "changes": [
                 "输入全部R341工单、文件变更、场景结果与证据文件；检查12批/全部工单覆盖、依赖顺序、缺省状态、源码commit及artifact hash。",
-                "输出ENGINEERING_COMPLETE/INCOMPLETE、FIELD_PENDING条目、NATURAL_PENDING条目，分别计算，不将自然未合格作为工程未做。"
+                "输出ENGINEERING_COMPLETE/INCOMPLETE、FIELD_PENDING条目、NATURAL_PENDING条目，分别计算，不将自然未合格作为工程未做。",
+                "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。"
               ]
             },
             {
@@ -1645,7 +1745,8 @@
               ],
               "action": "NEW",
               "changes": [
-                "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。"
+                "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。",
+                "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。"
               ]
             }
           ],
@@ -1653,7 +1754,8 @@
             "B01起按commit提交+本批最小充分场景+可安装签名APK逐批登记；本批无需未来批才能证明自己修复的接口/状态机，后批集成另加回执。",
             "执行全部授权工程批次，遇到可解决编译/测试/集成失败继续修复；不可停在方案或B01，不能以未自然合格为借口不做后续工程。",
             "最终集成既有122画像迁移/缺表/写阻塞/无学生/缺历史/无证书场景，必须能明确推进或产生准确等待原因；研究仅有调用不算实际产出/消费。",
-            "验证台账引用的文件可读、hash一致、日志退出码与状态匹配；未执行场景显式NOT_RUN，现场/自然单列而非自动签收。"
+            "验证台账引用的文件可读、hash一致、日志退出码与状态匹配；未执行场景显式NOT_RUN，现场/自然单列而非自动签收。",
+            "F3-B12-01 按 specs/field3/chain.md 从隔离安装和服务入口采集三轮 train/publish/freeze/settle/feedback/research 与两次真实 birth，保留变异、双亲融合和下游实训。把已有生产收据按目标和状态摘要联结，调用本方案 tools/verify_learning_trace.py 并保存原件验证结果；同一轮只有影子权限。"
           ],
           "acceptance": [
             {
@@ -1666,9 +1768,12 @@
             {
               "id": "A-B12-03b",
               "scenario": "无自然合格资产但受控端到端夹具可走完整工程链",
-              "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。",
+              "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。",
               "evidence": "SYNTHETIC链hash、数值变化diff、producer-consumer匹配、生产资格状态",
-              "level": "ENGINEERING"
+              "level": "ENGINEERING",
+              "required_review_ids": [
+                "F3-B12-01"
+              ]
             }
           ],
           "rollback": "集成失败回到具体票追加修复commit与新版本APK；保留各批旧回执和失败原因。不要篡改旧成功记录使最终台账表面全绿。",
@@ -1677,6 +1782,9 @@
             "留大量未实现项仅写后续观察",
             "用一张汇总PASS代替逐票证据",
             "把合成场景包装成自然累计成绩"
+          ],
+          "required_review_ids": [
+            "F3-B12-01"
           ]
         },
         {

@@ -1,6 +1,8 @@
 # STARCORE R34.1：122版返修后的完整施工方案
 
-**本次复核为 R34.1 第 2 版。** 仍按 12 批、62 个工单、152 个原验收入口施工。本次在 28 个工单的 31 个验收入口内加入 **32 项必测条件**，文件卡由 249 份更新为 271 份。工单、逐批说明、文件卡和回执校验均使用相同复核编号。
+**当前为 R34.1 第 3 版，适用安装版 577311122。** [新报告与逐批施工变更](FIELD3.md) · [检测报告升级方向逐条施工表](UPGRADE_ACTIONS.md) · [施工任务书](CODEX_EXECUTE.md)。
+
+**前次复核记录（R34.1 第 2 版）。** 仍按 12 批、62 个工单、152 个原验收入口施工。第 2 版在 28 个工单的 31 个验收入口内加入 **32 项必测条件**，文件卡由 249 份更新为 271 份。工单、逐批说明、文件卡和回执校验均使用相同复核编号。
 
 [构建、迁移与交付](specs/review/build.md) · [后台、冻结与结算](specs/review/runtime.md) · [创造、训练、进化与资格](specs/review/algorithm.md) · [图表、缓存与页面](specs/review/charts.md) · [存储、导出与恢复](specs/review/storage.md) · [原报告与九层诊断](specs/review/report.md)
 
@@ -29,9 +31,9 @@
 
 施工时固定“承载本方案的精确 Git 提交”，不能长期依赖移动的 `main`。`tools/prepare_worktree.py` 只从该提交导入本方案、原报告证据和两份根入口，从122源码创建隔离工作树。既有施工进度先核对回执再续工，不重置、不整树覆盖。
 
-## 二、这次返修究竟要解决什么
+## 二、第一份现场报告定位的断点
 
-下表中的事实来自本次原报告和精确122源码，详细定位见 [FIELD_FINDINGS.md](evidence/FIELD_FINDINGS.md)、[BASELINE_FACTS.json](evidence/BASELINE_FACTS.json) 及各工单的 `evidence_refs`。这些观测跨不同时间窗口，不能混成同一时期的成绩。
+下表保留第一份报告观察时点与 122 源码的定位。第二份报告新增的 467 期逐期证据、研究处方和施工调整见[第 3 版现场复核](FIELD3.md)。第一份报告详细定位见 [FIELD_FINDINGS.md](evidence/FIELD_FINDINGS.md)、[BASELINE_FACTS.json](evidence/BASELINE_FACTS.json) 及各工单的 `evidence_refs`。这些观测跨不同时间窗口，不能混成同一时期的成绩。
 
 | 用户现象 | 当前能确认的断点 | 施工处理 | 生效证据 |
 |---|---|---|---|
