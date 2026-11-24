@@ -99,8 +99,18 @@ public final class ReportR29 {
                 if(observation instanceof Map)sources.add((Map<?,?>)observation);
             }
             Object watermark=last.get("snapshotWatermark");
-            if(watermark instanceof Map){Object manifest=((Map<?,?>)watermark).get("sourceManifest");
-                if(manifest instanceof Map)addSourceObservationsR341(sources,((Map<?,?>)manifest).get("catalogSourceFailuresR341"));}
+            if(watermark instanceof Map){
+                Object manifest=((Map<?,?>)watermark).get("sourceManifest");
+                if(manifest instanceof Map){
+                    Map<?,?> reportSource=(Map<?,?>)manifest;
+                    addSourceObservationsR341(sources,reportSource.get("catalogSourceFailuresR341"));
+                    Object faults=reportSource.get("runtimeFaultHotColdR335");
+                    if(faults instanceof Map){
+                        Object faultSource=((Map<?,?>)faults).get("sourceObservationR341");
+                        if(faultSource instanceof Map)sources.add((Map<?,?>)faultSource);
+                    }
+                }
+            }
             Object captureErrors=last.get("sourceErrors");
             if(captureErrors instanceof List){int i=0;for(Object error:(List<?>)captureErrors)
                 sources.add(com.ethk3.novaonepro.ReportSourceStateR341.observation("CAPTURE:"+(++i),"REPORT_SNAPSHOT","SOURCE_UNAVAILABLE",String.valueOf(error),null,null));}

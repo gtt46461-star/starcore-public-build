@@ -79,7 +79,11 @@ public final class ReportSnapshotR30 {
             data.put("capabilityRuntimeEvidenceR33",CapabilityRuntimeEvidenceR33.captured(values,watermark));
             data.put("capturedFaultSourcesR335",DiagnosisTraceReaderR33.captureSingleSelect(watermark,data,cancellation));
             Object hotCold=source==null?null:source.get("runtimeFaultHotColdR335");
-            if(hotCold instanceof Map&&((Map<?,?>)hotCold).get("rows") instanceof List){data.put("r31RuntimeFaults",((Map<?,?>)hotCold).get("rows"));data.put("runtimeFaultOriginalCoverageR335",hotCold);}
+            if(hotCold instanceof Map){
+                data.put("runtimeFaultOriginalCoverageR335",hotCold);
+                Object originals=((Map<?,?>)hotCold).get("rows");
+                if(originals instanceof List)data.put("r31RuntimeFaults",originals);
+            }
             else {Map<String,Object> gap=new LinkedHashMap<>();gap.put("scope","HOT_SAMPLE_ONLY; COLD_ORIGINAL_SAMPLE_NOT_SUPPLIED");gap.put("coldOriginalIndex","r335FaultOriginals");data.put("runtimeFaultOriginalCoverageR335",gap);}
             cachedViews(data);
             collectCrossSourceR31(facts,watermark,data);

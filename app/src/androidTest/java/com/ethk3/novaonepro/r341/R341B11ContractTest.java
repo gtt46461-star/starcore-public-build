@@ -48,7 +48,10 @@ public final class R341B11ContractTest {
     }
 
     @Test public void test_a_b11_01b() throws Exception {
-        execute("A-B11-01b", "test_a_b11_01b", R341ReportTestCases::sourceReasonsStayDistinct);
+        execute("A-B11-01b", "test_a_b11_01b", app -> {
+            R341ReportTestCases.sourceReasonsStayDistinct(app);
+            R341ReportTestCases.missingFaultSourceRemainsVisibleInReport(app);
+        });
     }
 
     @Test public void test_a_b11_02a() throws Exception {

@@ -189,6 +189,9 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
     public static Map<String,Object> readHotCold(SQLiteDatabase db,File files,String event)throws IOException {
         byte[] hot=hot(db,event);
         if(!ready(db))return hot==null?null:FaultOriginalCodecR335.values(hot);
+        return readWithColdLocator(db,files,event,hot);
+    }
+    private static Map<String,Object> readWithColdLocator(SQLiteDatabase db,File files,String event,byte[] hot)throws IOException {
         try(Cursor c=db.rawQuery("SELECT original_hash,original_bytes,receipt_key FROM r335_fault_original WHERE event_id=?",new String[]{event})){
             if(!c.moveToFirst())return hot==null?null:FaultOriginalCodecR335.values(hot);String hash=c.getString(0);long bytes=c.getLong(1);String key=c.getString(2);
             requireLocatorReceipt(db,event,hash,bytes,key);byte[] cold=readFile(files,hash,bytes);
@@ -197,23 +200,68 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
             if(!event.equals(out.get("event_id")))throw new IOException("R335_FAULT_ORIGINAL_EVENT_ID");return out;
         }
     }
+    private static boolean hasTable(SQLiteDatabase db,String table){
+        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{table})){
+            return c.moveToFirst();
+        }
+    }
+
     /** A bounded display sample from one read-only report snapshot. The exported index remains the denominator. */
     public static Map<String,Object> reportSample(SQLiteDatabase db,File files)throws IOException {
         if(!db.isReadOnly()||!ReportInputsLeaseCP12.currentThreadHoldsInput(files))throw new IOException("R335_FAULT_REPORT_SNAPSHOT_AND_PIN_REQUIRED");
-        boolean cold=ready(db);String union="SELECT event_id,last_wall_ms FROM r31_runtime_fault"+(cold?" UNION SELECT event_id,last_wall_ms FROM r335_fault_original":"");
-        Map<String,Object> out=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();int bytes=0,omitted=0,unavailable=0;
-        long total=scalar(db,"SELECT count(*) FROM (SELECT event_id FROM ("+union+") GROUP BY event_id)");
-        try(Cursor c=db.rawQuery("SELECT event_id,max(last_wall_ms) FROM ("+union+") GROUP BY event_id ORDER BY max(last_wall_ms) DESC,event_id LIMIT 20",null)){
-            while(c.moveToNext()){
-                String event=c.getString(0);Map<String,Object> row;
-                try{row=readHotCold(db,files,event);if(row==null)throw new IOException("R335_FAULT_REPORT_ORIGINAL_DISAPPEARED");}
-                catch(IOException missing){row=new LinkedHashMap<>();row.put("event_id",event);row.put("readState","ORIGINAL_UNAVAILABLE_PRESERVED_LOCATOR");row.put("error",missing.getMessage());unavailable++;}
-                int length=JsonR27.write(row).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
-                if(length>16384-bytes){omitted++;continue;}bytes+=length;rows.add(row);
-            }
+        boolean hotSource=hasTable(db,"r31_runtime_fault");
+        boolean coldLocator=hasTable(db,"r335_fault_original"),commitSource=hasTable(db,"r31_commit_receipt");
+        boolean coldSource=coldLocator&&commitSource;
+        List<String> missing=new ArrayList<>();
+        if(!hotSource)missing.add("r31_runtime_fault");
+        if(!coldLocator)missing.add("r335_fault_original");
+        if(!commitSource)missing.add("r31_commit_receipt");
+        Map<String,Object> out=new LinkedHashMap<>();
+        out.put("scope","EXACT_READ_ONLY_REPORT_SNAPSHOT; MAX_20_ROWS_16_KIB");
+        out.put("hotSchemaReady",hotSource);out.put("coldSchemaReady",coldSource);out.put("missingSourceTables",missing);
+        out.put("rows",null);out.put("totalOriginals",null);out.put("observedOriginals",null);
+        if(!hotSource&&!coldSource){
+            out.put("sourceObservationR341",ReportSourceStateR341.observation("R335_RUNTIME_FAULT_ORIGINALS",
+                    "IMMUTABLE_REPORT_COPY","WAITING_SOURCE","MISSING_SCHEMA:"+String.join(",",missing),null,null));
+            return out;
         }
-        out.put("rows",rows);out.put("totalOriginals",total);out.put("shown",rows.size());out.put("omitted",Math.max(0,total-rows.size()));out.put("byteOmittedAmongFirst20",omitted);out.put("unavailableAmongFirst20",unavailable);out.put("coldSchemaReady",cold);
-        out.put("scope","EXACT_SNAPSHOT_HOT_COLD_UNION; MAX_20_ROWS_16_KIB; ORIGINALS_IN_SNAPSHOT_AND_R335_FAULT_ATTACHMENT_INDEX");return out;
+        StringJoiner sources=new StringJoiner(" UNION ");
+        if(hotSource)sources.add("SELECT event_id,last_wall_ms FROM r31_runtime_fault");
+        if(coldSource)sources.add("SELECT event_id,last_wall_ms FROM r335_fault_original");
+        String union=sources.toString();
+        List<Object> rows=new ArrayList<>();int bytes=0,omitted=0,unavailable=0;
+        try {
+            long total=scalar(db,"SELECT count(*) FROM (SELECT event_id FROM ("+union+") GROUP BY event_id)");
+            try(Cursor c=db.rawQuery("SELECT event_id,max(last_wall_ms) FROM ("+union+") GROUP BY event_id ORDER BY max(last_wall_ms) DESC,event_id LIMIT 20",null)){
+                while(c.moveToNext()){
+                    String event=c.getString(0);Map<String,Object> row;
+                    try{
+                        byte[] current=hotSource?hot(db,event):null;
+                        row=coldSource?readWithColdLocator(db,files,event,current):current==null?null:FaultOriginalCodecR335.values(current);
+                        if(row==null)throw new IOException("R335_FAULT_REPORT_ORIGINAL_DISAPPEARED");
+                    }catch(IOException unreadable){
+                        row=new LinkedHashMap<>();row.put("event_id",event);
+                        row.put("readState","ORIGINAL_UNAVAILABLE_PRESERVED_LOCATOR");
+                        row.put("error",unreadable.getMessage());unavailable++;
+                    }
+                    int length=JsonR27.write(row).getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+                    if(length>16384-bytes){omitted++;continue;}bytes+=length;rows.add(row);
+                }
+            }
+            Long knownTotal=missing.isEmpty()?total:null;
+            String state=!missing.isEmpty()?"PARTIAL":unavailable>0?"READ_ERROR":total==0?"OBSERVED_EMPTY":"READ_OK";
+            String reason=!missing.isEmpty()?"MISSING_SCHEMA:"+String.join(",",missing):unavailable>0?"ORIGINAL_UNAVAILABLE_PRESERVED_LOCATOR":"";
+            out.put("rows",rows);out.put("totalOriginals",knownTotal);out.put("observedOriginals",total);
+            out.put("shown",rows.size());out.put("omitted",knownTotal==null?null:Math.max(0,total-rows.size()));
+            out.put("omittedFromAvailableSources",Math.max(0,total-rows.size()));
+            out.put("byteOmittedAmongFirst20",omitted);out.put("unavailableAmongFirst20",unavailable);
+            out.put("sourceObservationR341",ReportSourceStateR341.observation("R335_RUNTIME_FAULT_ORIGINALS",
+                    "IMMUTABLE_REPORT_COPY",state,reason,rows.size(),knownTotal));
+        }catch(android.database.sqlite.SQLiteException failure){
+            out.put("sourceObservationR341",ReportSourceStateR341.observation("R335_RUNTIME_FAULT_ORIGINALS",
+                    "IMMUTABLE_REPORT_COPY","READ_ERROR",RuntimeFaultEvidenceR31.clean(failure.getMessage(),240),null,null));
+        }
+        return out;
     }
     public static Map<String,Object> report(SQLiteDatabase db){
         Map<String,Object> out=new LinkedHashMap<>();out.put("schemaReady",ready(db));out.put("scope","INDEPENDENT_IMMUTABLE_WRITER_HOLD_ONLY; MUTABLE_TASK_FAULTS_RETAINED_HOT");

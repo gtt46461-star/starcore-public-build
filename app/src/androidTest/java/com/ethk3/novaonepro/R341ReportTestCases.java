@@ -5,7 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.strategyv2.RepairEffectLedgerR341;
+import com.ethk3.novaonepro.strategyv2.ReportR29;
 import com.ethk3.novaonepro.strategyv2.ResearchTableAdaptersR30R1;
+import com.ethk3.novaonepro.strategyv2.SchemaR27;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,6 +41,48 @@ public final class R341ReportTestCases {
         assertEquals("PARTIAL",ReportSourceStateR341.reason("truncated"));
         assertEquals("OBSERVED_EMPTY",ReportSourceStateR341.reason("OBSERVED_EMPTY"));
         assertEquals("",ReportSourceStateR341.reason("READ_OK"));
+    }
+
+    public static void missingFaultSourceRemainsVisibleInReport(Context app) throws Exception {
+        File snapshot=Files.createTempFile(app.getCacheDir().toPath(),"r341-fault-snapshot-",".db").toFile();
+        try(SQLiteDatabase writer=SQLiteDatabase.openOrCreateDatabase(snapshot,null)){
+            writer.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY)");
+        }
+        try(ReportInputsLeaseCP12 ignored=ReportInputsLeaseCP12.acquire(app.getFilesDir())){
+            Map<String,Object> missing;
+            try(SQLiteDatabase copy=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READONLY)){
+                missing=RuntimeFaultOriginalStoreR335.reportSample(copy,app.getFilesDir());
+                assertNull(missing.get("rows"));
+                assertNull(missing.get("totalOriginals"));
+                assertTrue(((List<?>)missing.get("missingSourceTables")).contains("r31_runtime_fault"));
+                try(Cursor c=copy.rawQuery("SELECT 1 FROM sqlite_master WHERE name='r31_runtime_fault'",null)){
+                    assertFalse(c.moveToFirst());
+                }
+            }
+            Map<String,Object> chapter=Map.of("snapshotWatermark",Map.of("sourceManifest",Map.of("runtimeFaultHotColdR335",missing)));
+            Map<String,Object> health=ReportR29.sourceHealthR341(java.util.Collections.nCopies(12,chapter));
+            assertEquals("UNKNOWN_SOURCE_UNAVAILABLE",health.get("health"));
+            Map<?,?> source=(Map<?,?>)((List<?>)health.get("sources")).get(0);
+            assertEquals("R335_RUNTIME_FAULT_ORIGINALS",source.get("sourceId"));
+            assertEquals("WAITING_SOURCE",source.get("reasonCode"));
+            assertTrue(String.valueOf(source.get("reason")).contains("r31_runtime_fault"));
+
+            try(SQLiteDatabase writer=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READWRITE)){
+                writer.beginTransaction();
+                try{
+                    SchemaR27.ensureR31Observations(writer);
+                    writer.setTransactionSuccessful();
+                }finally{writer.endTransaction();}
+            }
+            try(SQLiteDatabase copy=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READONLY)){
+                Map<String,Object> partial=RuntimeFaultOriginalStoreR335.reportSample(copy,app.getFilesDir());
+                assertEquals(true,partial.get("hotSchemaReady"));
+                assertEquals(List.of(),partial.get("rows"));
+                assertEquals(0L,partial.get("observedOriginals"));
+                assertNull(partial.get("totalOriginals"));
+                assertEquals("PARTIAL",((Map<?,?>)partial.get("sourceObservationR341")).get("sourceQueryStatus"));
+            }
+        }
     }
 
     public static void coverageUsesSameSqlWindow(Context app) {
