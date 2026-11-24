@@ -162,8 +162,8 @@ public final class BootReceiver extends BroadcastReceiver {
             return true;
         }
         if (!state.tryAcquireRecoveryLease(reason)) {
-            state.markRecoveryResult("startAutoFetchService", true, "SKIP_RECOVERY_LEASE_ACTIVE");
-            return true;
+            state.markRecoveryResult("startAutoFetchService", !forceBusinessReconcile, "SKIP_RECOVERY_LEASE_ACTIVE");
+            return !forceBusinessReconcile;
         }
         long age = state.getHeartbeatAgeMs();
         try {

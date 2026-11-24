@@ -55,10 +55,9 @@ public final class LifecycleHealthR963 {
             if(now-lastRecovery<1500L)return;lastRecovery=now;
             try{
                 ServiceHeartbeatStore hb=new ServiceHeartbeatStore(app);
-                if(hb.isUserEnabled()){
+                if(hb.isUserEnabled() && !AutoFetchService.isLifecycleActiveR82()){
                     BootReceiver.scheduleAllRecovery(app,"ui_"+reason);
-                    boolean reconciled=BootReceiver.reconcileAutoFetchService(app,"ui_"+reason+"_keep_alive_r922");
-                    hb.markBusinessStage("UI_EXIT_FORCE_RECONCILE_R922",reason+"|requested="+(reconciled?1:0)+"|offMain=1");
+                    BootReceiver.reconcileAutoFetchService(app,"ui_"+reason+"_keep_alive_r922");
                 }
             }catch(Exception e){prefs(app).edit().putString("recovery_error",e.getClass().getSimpleName()+":"+e.getMessage()).apply();}
         }});

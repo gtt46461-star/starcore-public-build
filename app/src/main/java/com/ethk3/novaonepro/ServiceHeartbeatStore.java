@@ -1030,24 +1030,55 @@ public final class ServiceHeartbeatStore {
         p.putString("r31_research_snapshot_json",com.ethk3.novaonepro.strategyv2.JsonR27.write(snapshot.asMap()));
         String baseline=getString("r31_recovery_baseline_artifact","");long ordinal=getLong("r31_recovery_baseline_ordinal",-1);
         String observedOwner=getString("r31_recovery_observed_owner","");
-        boolean advanced=snapshot.lastArtifactOrdinal!=null&&snapshot.lastArtifactOrdinal>=ordinal&&!safe(snapshot.lastArtifactHash).isEmpty()&&!safe(snapshot.lastArtifactHash).equals(baseline);
-        if(!snapshot.ownerEpoch.equals(observedOwner)){
+        String observedBoot=getString("r341_recovery_research_boot","");
+        long baselineSample=getLong("r341_recovery_research_elapsed",-1L);
+        boolean sameScope=snapshot.ownerEpoch.equals(observedOwner)&&snapshot.bootId.equals(observedBoot);
+        boolean advanced=snapshot.lastArtifactOrdinal!=null&&snapshot.lastArtifactOrdinal>ordinal
+                && snapshot.sampleElapsedMs>baselineSample&&!safe(snapshot.lastArtifactHash).isEmpty()
+                &&!safe(snapshot.lastArtifactHash).equals(baseline);
+        if(!sameScope){
             // The first persisted checkpoint observed in this owner may predate this process.
             // Establish a baseline; only a later independently observed artifact proves recovery.
-            p.putString("r31_recovery_observed_owner",snapshot.ownerEpoch);p.putString("r31_recovery_baseline_artifact",safe(snapshot.lastArtifactHash));p.putLong("r31_recovery_baseline_ordinal",snapshot.lastArtifactOrdinal==null?-1:snapshot.lastArtifactOrdinal);
+            p.putString("r31_recovery_observed_owner",snapshot.ownerEpoch);
+            p.putString("r341_recovery_research_boot",snapshot.bootId);
+            p.putLong("r341_recovery_research_elapsed",snapshot.sampleElapsedMs);
+            p.putString("r31_recovery_baseline_artifact",safe(snapshot.lastArtifactHash));
+            p.putLong("r31_recovery_baseline_ordinal",Math.max(ordinal,snapshot.lastArtifactOrdinal==null?-1:snapshot.lastArtifactOrdinal));
         }else if(advanced&&(getString("r31_recovery_state","").equals("STARTED_AWAITING_PROGRESS")||getString("r31_recovery_state","").equals("CONTROL_REQUESTED_AWAITING_PROGRESS"))){
             p.putString("r31_recovery_state","RECOVERED_ARTIFACT_CONFIRMED");p.putString("last_recovery_result","RECOVERED_ARTIFACT_CONFIRMED");p.putLong("r31_recovery_first_progress_at",snapshot.sampleWallMs);
+            p.putString("r341_recovery_research_commit",snapshot.lastArtifactHash);
+            p.putLong("r341_recovery_research_commit_ordinal",snapshot.lastArtifactOrdinal);
         }
         applyTelemetryPatchR76(p);
     }
     public void noteResearchRecoveryRequestR31(com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.RuntimeHealthSnapshot snapshot,String reason){
         if(snapshot==null||researchProgressAcceptableR31(snapshot.researchHealth))return;
-        if(snapshot.ownerEpoch.equals(getString("r31_recovery_observed_owner",""))&&getString("r31_recovery_state","").equals("CONTROL_REQUESTED_AWAITING_PROGRESS"))return;
-        RuntimePatch p=new RuntimePatch();p.putString("r31_recovery_state","CONTROL_REQUESTED_AWAITING_PROGRESS");p.putString("r31_recovery_observed_owner",snapshot.ownerEpoch);p.putString("r31_recovery_baseline_artifact",safe(snapshot.lastArtifactHash));p.putLong("r31_recovery_baseline_ordinal",snapshot.lastArtifactOrdinal==null?-1:snapshot.lastArtifactOrdinal);p.putString("r31_recovery_request_id",java.util.UUID.randomUUID().toString());p.putLong("r31_recovery_control_requested_at",System.currentTimeMillis());p.putString("last_recovery_result","CONTROL_REQUESTED_AWAITING_PROGRESS");p.putString("last_recovery_detail",safe(reason));applyTelemetryPatchR76(p);
+        if(snapshot.bootId.equals(getString("r341_recovery_research_boot",""))
+                &&getString("r31_recovery_state","").equals("CONTROL_REQUESTED_AWAITING_PROGRESS"))return;
+        RuntimePatch p=new RuntimePatch();p.putString("r31_recovery_state","CONTROL_REQUESTED_AWAITING_PROGRESS");p.putString("r31_recovery_observed_owner",snapshot.ownerEpoch);p.putString("r31_recovery_baseline_artifact",safe(snapshot.lastArtifactHash));p.putLong("r31_recovery_baseline_ordinal",snapshot.lastArtifactOrdinal==null?-1:snapshot.lastArtifactOrdinal);p.putString("r31_recovery_request_id",java.util.UUID.randomUUID().toString());p.putLong("r31_recovery_control_requested_at",System.currentTimeMillis());p.putString("last_recovery_result","CONTROL_REQUESTED_AWAITING_PROGRESS");p.putString("last_recovery_detail",safe(reason));
+        p.putString("r341_recovery_research_boot",snapshot.bootId);
+        p.putLong("r341_recovery_research_elapsed",TimeSourceR811.monoNowMs());
+        applyTelemetryPatchR76(p);
     }
     public String researchHealthJsonR31(){return getString("r31_research_snapshot_json","{\"researchHealth\":\"UNKNOWN\"}");}
     static boolean researchProgressAcceptableR31(String state){return "IDLE_WAITING_INPUT".equals(state)||"PROGRESS_PENDING".equals(state)||"HEALTHY".equals(state)||"IDLE".equals(state);}
     public void markFetchCadenceR31(java.util.Map<String,Object> cadence){RuntimePatch p=new RuntimePatch();p.putString("r31_fetch_cadence_json",com.ethk3.novaonepro.strategyv2.JsonR27.write(cadence));applyTelemetryPatchR76(p);}
+    void markServiceLoopsR341(String fetch, String watchdog, String settlement, String research) {
+        RuntimePatch patch = new RuntimePatch();
+        patch.putLong("r341_service_loops_sample_elapsed", TimeSourceR811.monoNowMs());
+        patch.putString("r341_service_loops_boot", com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId());
+        patch.putString("r341_service_loops", "fetch=" + fetch + "|watchdog=" + watchdog
+                + "|settlement=" + settlement + "|research=" + research);
+        applyTelemetryPatchR76(patch);
+    }
+    void markStartOriginR341(long generation, String source, int startId) {
+        RuntimePatch patch = new RuntimePatch();
+        patch.putLong("r341_service_command_generation", generation);
+        patch.putLong("r341_service_command_elapsed", TimeSourceR811.monoNowMs());
+        patch.putInt("r341_service_android_start_id", startId);
+        patch.putString("r341_service_start_source", source == null ? "APP_INTENT" : safe(source));
+        applyTelemetryPatchR76(patch);
+    }
     public String fetchCadenceJsonR31(){return getString("r31_fetch_cadence_json","{\"status\":\"NOT_SAMPLED\"}");}
 
     public long getLoopRepairAt() {

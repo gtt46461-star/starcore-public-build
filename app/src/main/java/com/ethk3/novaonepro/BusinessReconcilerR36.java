@@ -1,5 +1,7 @@
 package com.ethk3.novaonepro;
 
+import com.ethk3.novaonepro.strategyv2.FailureDispositionR31;
+
 /** Durable next-issue request first; exact settlement and historical catch-up retain their existing owners. */
 public final class BusinessReconcilerR36 {
     public interface AnalysisRequester { void request(AnalysisSingleFlightR36.Request request); }
@@ -33,7 +35,20 @@ public final class BusinessReconcilerR36 {
                         && deadline<=System.currentTimeMillis()) requestInTime=false;
                 else throw expired;
             }
-            if (pending != null && requester != null) requester.request(pending);
+            if (pending != null && requester != null) {
+                try {
+                    requester.request(pending);
+                } catch (IllegalStateException submission) {
+                    if ("F01_TARGET_DEADLINE_EXPIRED".equals(submission.getMessage())
+                            && pending.deadlineMonoAt <= TimeSourceR811.monoNowMs()) {
+                        requestInTime = false;
+                    } else if (retryableRequestContention(submission)) {
+                        requestDeferred = true;
+                    } else {
+                        throw submission;
+                    }
+                }
+            }
         }
 
         boolean previousBusinessClosed=SettlementCoreTruthR909.businessClosed(store,latest.issue);
@@ -42,8 +57,9 @@ public final class BusinessReconcilerR36 {
         // R915 separates the durable settlement lane from the next pre-draw analysis lane in every
         // release mode.  Synchronously spinning on a locked/late settlement used to consume the
         // only analysis window and caused both missing settlements and missing next predictions.
-        boolean exactQueued=SettlementCoordinatorR815.queueCurrentExactR914(
-                store,latest,SettlementCoordinatorR815.Reason.RECONCILER);
+        // This lane already attempted the next request. Queue the exact draw without a second
+        // request write that could wait on the same busy writer and delay settlement again.
+        boolean exactQueued=SettlementTaskStoreR36.handoffCurrentExactR914(store,latest);
         SettlementTaskStoreR36.Terminal terminal=SettlementTaskStoreR36.terminal(store,latest.issue);
         boolean businessClosed=SettlementCoreTruthR909.businessClosed(store,latest.issue);
         boolean settledPrediction=SettlementCoreTruthR909.settledPrediction(store,latest.issue);
@@ -95,10 +111,8 @@ public final class BusinessReconcilerR36 {
     }
 
     static boolean retryableRequestContention(IllegalStateException error) {
-        String message=safe(error.getMessage());
-        if(!message.startsWith("R36_REQUEST_PERSIST_FAILED:"))return false;
-        return message.contains("CP3_DB_BUSY_DEADLINE")
-                ||message.contains("CP3_DB_BUSY_LOCK_TIMEOUT");
+        FailureDispositionR31.Decision disposition = FailureDispositionR31.classify(error);
+        return disposition.disposition == FailureDispositionR31.Disposition.RETRY_LATER;
     }
 
     public static final class ReconcileResult {

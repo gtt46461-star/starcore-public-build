@@ -17,9 +17,12 @@ public final class RuntimeRecoveryCoordinatorR926 {
         public final boolean stateWritten;
         public final boolean eventWritten;
         public final String secondaryError;
+        public final long recoveryId;
+        public final String observedCommit;
 
         Record(String code, String issue, String detail, long at,
-               boolean stateWritten, boolean eventWritten, String secondaryError) {
+               boolean stateWritten, boolean eventWritten, String secondaryError,
+               long recoveryId, String observedCommit) {
             this.code = safe(code);
             this.issue = safe(issue);
             this.detail = safe(detail);
@@ -27,12 +30,16 @@ public final class RuntimeRecoveryCoordinatorR926 {
             this.stateWritten = stateWritten;
             this.eventWritten = eventWritten;
             this.secondaryError = safe(secondaryError);
+            this.recoveryId = recoveryId;
+            this.observedCommit = safe(observedCommit);
         }
 
         public String canonical() {
             return code + "|issue=" + issue + "|at=" + at
                     + "|state=" + (stateWritten ? 1 : 0)
                     + "|event=" + (eventWritten ? 1 : 0)
+                    + "|recovery_id=" + recoveryId
+                    + (observedCommit.isEmpty() ? "" : "|observed_commit=" + observedCommit)
                     + "|detail=" + detail
                     + (secondaryError.length() == 0 ? "" : "|secondary=" + secondaryError);
         }
@@ -66,7 +73,9 @@ public final class RuntimeRecoveryCoordinatorR926 {
         } else {
             secondary.append("STORE_NULL");
         }
-        return new Record(code, issue, detail, now, stateWritten, eventWritten, secondary.toString());
+        RecoveryCoordinatorR815.Evidence recovery = RecoveryCoordinatorR815.evidence(store == null ? null : store.contextForR26());
+        return new Record(code, issue, detail, now, stateWritten, eventWritten, secondary.toString(),
+                recovery.generation, recovery.businessActuallyRestored() ? recovery.businessDetail : "");
     }
 
     public static Record recordMessage(DbStore store, String stage, String issue, String detail) {

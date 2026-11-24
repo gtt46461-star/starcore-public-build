@@ -24,8 +24,10 @@ public final class ServiceWatchdogJobService extends JobService {
             if(cancelled.get())return;
             RecoveryCoordinatorR815.Result result=RecoveryCoordinatorR815.request(
                     getApplicationContext(),"CP4_JOB_KICK",0L);
-            retry.set(!result.accepted);
-            state.markJobFinished(result.status);
+            retry.set(!result.accepted && result.nextDueElapsedMs == 0L
+                    && "RECOVERY_LEDGER_UNAVAILABLE".equals(result.status));
+            if (!result.accepted) RecoveryCoordinatorR815.scheduleRetry(getApplicationContext(), result);
+            state.markJobFinished(result.summary());
         },()->{
             if(active.remove(params,cancelled)&&!cancelled.get())jobFinished(params,retry.get());
         },Math.min(8000L,AppConfig.B07_JOB_WORK_TIMEOUT_MS));

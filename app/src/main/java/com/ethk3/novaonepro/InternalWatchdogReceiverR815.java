@@ -39,8 +39,10 @@ public final class InternalWatchdogReceiverR815 extends BroadcastReceiver {
             heartbeat.markRecoveryTrigger("alarm:" + (reason == null ? "" : reason));
             RecoveryCoordinatorR815.Result result =
                     RecoveryCoordinatorR815.request(context, reason, generation);
-            if (!result.accepted)
-                record(context, "WATCHDOG_RECOVERY_REJECTED", "", null, true);
+            if (!result.accepted) {
+                record(context, result.summary(), "", null, result.nextDueElapsedMs > 0L);
+                RecoveryCoordinatorR815.scheduleRetry(app, result);
+            }
         } catch (RuntimeException failure) {
             record(context, "WATCHDOG_RECEIVE_FAILED", "", failure, true);
         }

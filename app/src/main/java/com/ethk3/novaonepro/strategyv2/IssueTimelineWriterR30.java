@@ -27,6 +27,9 @@ public final class IssueTimelineWriterR30 {
     private static volatile String committedFlushReasonR31="NOT_SAMPLED";
     private static volatile int committedPreparedOpsR31;
     private static volatile long committedPreparedBytesR31;
+    private static volatile long drainScheduledR341;
+    private static volatile long drainStartedR341;
+    private static volatile long drainConfirmedR341;
     static final class Committed {final String event,clock;final IssueTimelineR30.Stage stage;final long wall,mono;Committed(String event,IssueTimelineR30.Stage stage,long wall,long mono,String clock){this.event=event;this.stage=stage;this.wall=wall;this.mono=mono;this.clock=clock;}}
     private static final class PreparedCommittedR31 {
         final java.util.List<Committed> observations;final HoldLedgerFlushR30.ChunkR31 chunk;
@@ -40,16 +43,24 @@ public final class IssueTimelineWriterR30 {
     }
     /** Called only after the caller observes a successful transaction return, after COMMIT and writer release. */
     public static void committed(String event,IssueTimelineR30.Stage stage){try{committedAt(event,stage,System.currentTimeMillis(),SystemClock.elapsedRealtime(),BOOT_ID);}catch(RuntimeException unavailable){diagnosticFailure(unavailable);}}
+    public static void observeDrawCommitReturnR341(String issue, String fetchId, String drawHash, long wall, long elapsed) {
+        if (issue == null || fetchId == null || drawHash == null || elapsed <= 0L || wall <= 0L) return;
+        committedAt(eventId(issue, IssueTimelineR30.EventKind.DRAW, fetchId, drawHash),
+                IssueTimelineR30.Stage.DRAW_COMMITTED, wall, elapsed, BOOT_ID);
+    }
+    public static void noteDrainScheduledR341() { drainScheduledR341 = SystemClock.elapsedRealtime(); }
     static void committedAt(String event,IssueTimelineR30.Stage stage,long wall,long mono,String clock){
-        if(event==null||stage!=IssueTimelineR30.Stage.SETTLED&&stage!=IssueTimelineR30.Stage.NEXT_FROZEN)return;
+        if(event==null||stage!=IssueTimelineR30.Stage.SETTLED&&stage!=IssueTimelineR30.Stage.NEXT_FROZEN
+                &&stage!=IssueTimelineR30.Stage.DRAW_COMMITTED)return;
         try{String key=event+"|"+stage;if(COMMITTED.containsKey(key))return;if(COMMITTED_SIZE.incrementAndGet()>256){COMMITTED_SIZE.decrementAndGet();OMITTED_COMMITTED.incrementAndGet();return;}if(COMMITTED.putIfAbsent(key,new Committed(event,stage,wall,mono,clock))!=null)COMMITTED_SIZE.decrementAndGet();}catch(RuntimeException ignored){}
     }
     /** Historical transaction-local test API. The production flush below prepares outside the writer. */
     @Deprecated static void flushCommittedWithin(SQLiteDatabase db,java.util.List<Committed> receipts){
-        for(Committed receipt:receipts){java.util.Map<String,Object> row=readEvent(db,receipt.event);if(row==null||row.get("durable_mono")!=null)continue;row.put("durable_wall",receipt.wall);row.put("durable_mono",receipt.mono);row.put("durable_boot",receipt.clock);row.put("durable_stage",receipt.stage.name());row.put("timing_boundary","CALLER_OBSERVED_SUCCESS_AFTER_SQLITE_COMMIT");saveEvent(db,row);}
+        for(Committed receipt:receipts){java.util.Map<String,Object> row=readEvent(db,receipt.event);if(row==null||row.get(durablePrefix(receipt)+"mono")!=null)continue;addDurableReceipt(row,receipt);saveEvent(db,row);}
     }
     public static void flushCommitted(com.ethk3.novaonepro.DbStore store){
         if(COMMITTED.isEmpty()||!FLUSHING_COMMITTED.compareAndSet(false,true))return;
+        drainStartedR341 = SystemClock.elapsedRealtime();
         try {
             HoldLedgerFlushR30.requireReadyR31(store.readable(),false);
             if(preparedCommittedR31==null)preparedCommittedR31=prepareCommittedR31(store.readable());
@@ -57,6 +68,7 @@ public final class IssueTimelineWriterR30 {
             committedPreparedOpsR31=prepared.chunk.ops+HoldLedgerFlushR30.PROTOCOL_OPS_R31;
             committedPreparedBytesR31=prepared.chunk.bytes+HoldLedgerFlushR30.protocolBindBytesR31();
             committedFlushReasonR31=HoldLedgerFlushR30.commitR31(store,"R30_TIMELINE_COMMIT_OBSERVATIONS",false,prepared.chunk).outcome.name();
+            drainConfirmedR341 = SystemClock.elapsedRealtime();
             for(Committed receipt:prepared.observations)if(COMMITTED.remove(receipt.event+"|"+receipt.stage,receipt))COMMITTED_SIZE.decrementAndGet();
             preparedCommittedR31=null;
         }catch(RuntimeException unavailable) {
@@ -94,12 +106,12 @@ public final class IssueTimelineWriterR30 {
             if(!receipt.event.equals(row.get("event_id"))||!"ISSUE_EVENT_R30_REPAIR_1".equals(row.get("version")))throw new IllegalStateException("R30_TIMELINE_EVENT_IDENTITY_UNREADABLE");
             String unique=" AND 1=(SELECT count(*) FROM r27_chart_cache WHERE key=? AND panel_id IN (?,?,?))";
             HoldLedgerFlushR30.PreparedRowR31 prepared;
-            if(row.get("durable_mono")!=null) {
+            if(row.get(durablePrefix(receipt)+"mono")!=null) {
                 // Preserve an earlier committed observation, even when this later receipt carries another clock.
                 prepared=new HoldLedgerFlushR30.PreparedRowR31(null,new Object[0],"SELECT 1 FROM r27_chart_cache WHERE panel_id=? AND key=? AND payload_json=?"+unique,
                         new String[]{panel,receipt.event,original,receipt.event,IssueTimelineR30.EVENT_DRAW_PANEL,IssueTimelineR30.EVENT_PRED_PANEL,IssueTimelineR30.EVENT_RAW_PANEL});
             } else {
-                row.put("durable_wall",receipt.wall);row.put("durable_mono",receipt.mono);row.put("durable_boot",receipt.clock);row.put("durable_stage",receipt.stage.name());row.put("timing_boundary","CALLER_OBSERVED_SUCCESS_AFTER_SQLITE_COMMIT");
+                addDurableReceipt(row, receipt);
                 String payload=JsonR27.write(row);
                 prepared=new HoldLedgerFlushR30.PreparedRowR31("UPDATE r27_chart_cache SET payload_json=? WHERE panel_id=? AND key=? AND payload_json=?"+unique,
                         new Object[]{payload,panel,receipt.event,original,receipt.event,IssueTimelineR30.EVENT_DRAW_PANEL,IssueTimelineR30.EVENT_PRED_PANEL,IssueTimelineR30.EVENT_RAW_PANEL},
@@ -112,7 +124,30 @@ public final class IssueTimelineWriterR30 {
         if(rows.isEmpty()){if(!deferred)committedFlushReasonR31="NO_PENDING_ORIGINAL_EVENT";return null;}
         return new PreparedCommittedR31(observations,rows);
     }
-    public static java.util.Map<String,Object> commitObservationState(){java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("scope","CURRENT_PROCESS_PENDING_RECEIPTS; unflushed commit instants UNKNOWN after process death");out.put("pending",COMMITTED_SIZE.get());out.put("omittedDueToBound",OMITTED_COMMITTED.get());out.put("diagnosticFailures",DIAGNOSTIC_FAILURES.get());out.put("clockScope",BOOT_ID.startsWith("KERNEL_BOOT:")?"KERNEL_BOOT":"PROCESS_ONLY_CONSERVATIVE");out.put("flushReason",committedFlushReasonR31);out.put("lastPreparedOpsIncludingAllowance",committedPreparedOpsR31);out.put("lastPreparedBindBytesIncludingAllowance",committedPreparedBytesR31);out.put("bindCap",HoldLedgerFlushR30.bindCapR31());return out;}
+    private static String durablePrefix(Committed receipt) {
+        return receipt.stage == IssueTimelineR30.Stage.DRAW_COMMITTED ? "draw_durable_" : "durable_";
+    }
+    private static void addDurableReceipt(java.util.Map<String,Object> row, Committed receipt) {
+        String prefix = durablePrefix(receipt);
+        row.put(prefix + "wall", receipt.wall);
+        row.put(prefix + "mono", receipt.mono);
+        row.put(prefix + "boot", receipt.clock);
+        row.put(prefix + "stage", receipt.stage.name());
+        row.put(prefix.equals("durable_") ? "timing_boundary" : "draw_timing_boundary",
+                "CALLER_OBSERVED_SUCCESS_AFTER_SQLITE_COMMIT");
+    }
+    public static java.util.Map<String,Object> commitObservationState(){
+        java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();
+        out.put("scope","CURRENT_PROCESS_PENDING_RECEIPTS; unflushed commit instants UNKNOWN after process death");
+        out.put("pending",COMMITTED_SIZE.get());out.put("omittedDueToBound",OMITTED_COMMITTED.get());out.put("diagnosticFailures",DIAGNOSTIC_FAILURES.get());
+        out.put("clockScope",BOOT_ID.startsWith("KERNEL_BOOT:")?"KERNEL_BOOT":"PROCESS_ONLY_CONSERVATIVE");out.put("flushReason",committedFlushReasonR31);
+        out.put("lastPreparedOpsIncludingAllowance",committedPreparedOpsR31);out.put("lastPreparedBindBytesIncludingAllowance",committedPreparedBytesR31);out.put("bindCap",HoldLedgerFlushR30.bindCapR31());
+        long oldest=Long.MAX_VALUE;for(Committed receipt:COMMITTED.values())oldest=Math.min(oldest,receipt.mono);
+        out.put("oldestPendingAgeMs",oldest==Long.MAX_VALUE?null:Math.max(0L,SystemClock.elapsedRealtime()-oldest));
+        out.put("lastDrainReservationElapsedMs",drainScheduledR341);out.put("lastDrainStartElapsedMs",drainStartedR341);
+        out.put("lastDrainConfirmedElapsedMs",drainConfirmedR341);
+        return out;
+    }
     private static String realBootOrConservativeProcessScope(){
         try(java.io.BufferedReader reader=new java.io.BufferedReader(new java.io.FileReader("/proc/sys/kernel/random/boot_id"))){String value=reader.readLine();if(value!=null&&value.matches("[0-9a-fA-F-]{36}"))return "KERNEL_BOOT:"+value.toLowerCase(java.util.Locale.ROOT);}
         catch(java.io.IOException|SecurityException unavailable){}

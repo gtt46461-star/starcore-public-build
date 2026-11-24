@@ -150,12 +150,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "a197866e0f55335c152498e3119aca2d72a141a4745ff10c570979f5614c230b",
+      "after_sha256": "34475942e9b549d9c34fb00da28b6e41029c714e103ae51a5e5a49fbc996ab69",
       "before_role": "NUMERIC",
       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
-      "rationale": "Reuse the durable PIT envelope in the production inference and isolate deferred materialization from analysis and history IO.",
-      "reviewer": "R34.1 B04 implementation review"
+      "rationale": "Fence each service callback with one generation and preserve the earliest due; submit a bounded durable reconciliation and isolate display reads.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -195,12 +195,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "31894b0ac375ce6e1b7c2281e57d2077d2ff5908b29838232225623653a947d7",
+      "after_sha256": "9fa0d80ecded9aeaeb378237e64dd95195f7c55a43c22202e0a8228a1032ec02",
       "before_role": "NUMERIC",
       "before_sha256": "e8187a4b3fe214aafd76e6c4a7fa979c898e05f7f72321a4ccd7631a7a9223ab",
       "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Distinguish a recovery lease held by another request from actual delivery; preserve the original explicit user-enabled gate.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "PRESENTATION",
@@ -210,6 +210,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/BusinessFunnelCP12.java",
       "rationale": "R34-B10 require the real authorization envelope to match both trade and canonical BET, including authorized envelopes longer than SHA-256",
       "reviewer": "R34 B10"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "4991a0ac8f4161a51b27ce248c63aefad87b4de41043c489125bfa0e2b4d444c",
+      "before_role": "NUMERIC",
+      "before_sha256": "4ce6fef13c1df306b01aeee4757de1c423c71d87ba4ec3fc206b14d29cf7ada1",
+      "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+      "rationale": "Keep the committed draw on its durable settlement lane after a next-target timeout, and classify typed single-writer contention without renewing deadlines.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -582,12 +591,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "953b4de28f06d300b81604e7f13398dbec08838e4fc8a4d99dc9fbd8d6a884b3",
+      "after_sha256": "6a3697cbbce708dc3660b4baa54b1662b369175f7b893882c97cc4f8980d1a78",
       "before_role": "NUMERIC",
       "before_sha256": "a295f734ff385166ea91e75bc4e0aefcacdbd977722e63343d8ef3a7dddd0f37",
       "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
-      "rationale": "Preserve the first raw and parsed receipt binding for each request. A conflicting second result cannot replace the pending first response.",
-      "reviewer": "R34.1 B04 implementation review"
+      "rationale": "Observe the original HTTP request and exact first durable draw return with native wall and elapsed times, without replacing transport identity.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -660,6 +669,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/HotHistoryWindowR335.java",
       "rationale": "Measure consecutive missing intervals within the actual 5,000-issue calendar and point date recovery to those intervals.",
       "reviewer": "R34 B02"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "9b8e91148343df83f2afce9c7cc89b9fd2bbe26b09e54e0a434c704c13d28b32",
+      "before_role": "NUMERIC",
+      "before_sha256": "703065e09ec00ec7760941b742a416a8aa9cd8e09fba4f8eeb2b09a60ebaeb09",
+      "path": "app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java",
+      "rationale": "Record actual recovery delivery status and next due while preserving all explicit alarm package, action, and component validation.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -789,12 +807,12 @@
     },
     {
       "after_role": "PRESENTATION",
-      "after_sha256": "90b302eb4ef26b9748ec33eef4bb1801e35ff44cbb6bcc1ae2738dc779dbe859",
+      "after_sha256": "e48a745fdca2c538f68f924bef67f210d2d109b6c91a3f2219201323c314846a",
       "before_role": "PRESENTATION",
       "before_sha256": "f2adb8ba66500c3f014210bc8eaa1341f66104ebaf8af1e0d4635f97ba3f9941",
       "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
-      "rationale": "Retain the last successful render while reads are blocked, and discard results and diagnostics belonging to an older store identity or activity.",
-      "reviewer": "R34.1 B02 implementation review"
+      "rationale": "Move service availability observation off the main looper and avoid making UI launch a normal trigger for analytical work.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "PRESENTATION",
@@ -966,6 +984,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/RealtimeContractR33.java",
       "rationale": "R335 B02 精确源码复核：RealtimeContractR33.java。该完整后态为固定施工批次已审源代码；用于原登记能力的真实生产/消费与失败恢复接线，前后完整文件及方法差异列在该批源码卡，不把类型编译或宿主样本升级为自然资格。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。",
       "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "380433a0ad4b0dc2b3eb336b4f8da917226f95a5b5edea49794d5cd9a9f407d5",
+      "before_role": "NUMERIC",
+      "before_sha256": "7d8f3ac10539aa49642b459a6ac7fb415a4c5e2c870219247bef03dda80a2a46",
+      "path": "app/src/main/java/com/ethk3/novaonepro/RecoveryCoordinatorR815.java",
+      "rationale": "Respect boot-scoped elapsed recovery windows, reject failed dispatches, and close a recovery only on a later immutable SQL event linked to the current source and database.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -1499,6 +1526,15 @@
       "reviewer": "R34.1 B02 implementation review"
     },
     {
+      "after_role": "NUMERIC",
+      "after_sha256": "d5a44a18e7c011233cc4f5e71bc0350ec48afe0a9ef9167ccea04b175d536b3b",
+      "before_role": "NUMERIC",
+      "before_sha256": "dfe3d0b8a556872e7de67f003beb24e8d4fbd2dd20b834204ea3e6c43dc28627",
+      "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeRecoveryCoordinatorR926.java",
+      "rationale": "Bind an existing diagnostic record to the recovery request and its confirmed commit if both share the current observation scope.",
+      "reviewer": "R34.1 B05 implementation review"
+    },
+    {
       "after_role": "PRESENTATION",
       "after_sha256": "3510546b06191f6346adde6d36105efec9194a10b47f0d400b3e371317681ead",
       "before_role": "",
@@ -1554,12 +1590,30 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "6f0aac554da02afdbc7a98d1b5ee8579e441e96f615c7a989e9459298a9372d4",
+      "after_sha256": "a4e94e5b3ed02580abb7ac92032f501f2665b42f8f121d4c74be5798626536e6",
       "before_role": "NUMERIC",
       "before_sha256": "5df02033dc65ea99cca42e45a59cbdc3840dc3326bc9246fbda309b46778655f",
       "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
-      "rationale": "Persist identifiable startup and business observations separately from historical summaries and maintenance.",
-      "reviewer": "Codex R341 B01 source review"
+      "rationale": "Preserve legacy heartbeat getters; scope future service due and research recovery observations and require an advancing artifact ordinal after the recovery baseline.",
+      "reviewer": "R34.1 B05 implementation review"
+    },
+    {
+      "after_role": "POLICY",
+      "after_sha256": "db0ba48ac819cdb35f537d96e3c32e8c17660e24f98fa7e2a3b07210abe5dd2e",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ServiceLoopTicketR341.java",
+      "rationale": "Own one callback per service lane and generation, preserve its earliest actual due, and safely handle rejected delivery and stale callbacks.",
+      "reviewer": "R34.1 B05 implementation review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "b8bfae97bdcbb4a8ffc65d607d432c6f08c3a7d80be2ec9bf8516cd11d68f983",
+      "before_role": "NUMERIC",
+      "before_sha256": "d169f474f5decfae0ad5be76a58385095a66bac2c2c2b02a4e0e06b33f5689d1",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java",
+      "rationale": "Report distinct rejected and coalesced decisions without a second framework retry competing with the existing alarm deadline.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -3741,21 +3795,21 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "b8f8af7d8593be71c5291fa4db8161254551e7298d90f7e210632548bd3075ba",
+      "after_sha256": "7f387a30cad55ddda4217ac9bbddf056d1fc48cc53906e3b6f88a0c771f74288",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Preserve the conditional historical metric and separately compute timed successes, missing input, and unknown observations over declared contiguous opportunities.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "31476d4cee77f827ce9c0217f42c95bf1ad419ebbe5c0cb7c8e986221d658f37",
+      "after_sha256": "a48b3a2478114dba515cfdd630a3a0f2feef92450fe0d8d8675c42b87607cb4b",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Retain original commit-return timestamps for each stage, record the bounded drain schedule, and report unknown observations without inventing endpoints.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -5010,12 +5064,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "3c3ed705d339e5c77b126717e3690935151853668715e54f798d70dff3cbbfe3",
+      "after_sha256": "a4d39d2164031335cf666a17ad7d3134ee5a66d1e180ad41bd36221a13537ae7",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-      "rationale": "R34-B11 capture bounded current proof from the exported SQLite copy",
-      "reviewer": "R34 B11"
+      "rationale": "Join existing source events and first commit-return measurements on issue and source hash; leave missing or conflicting opportunities in the measured window.",
+      "reviewer": "R34.1 B05 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -6287,7 +6341,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "7b68a3985f3030eb2acba9799eedd960977afa7b14382f739b4f3b6f1f226485",
+  "current_controlled_roles_sha256": "d49227e6bcefdd69e62e0052e09ed574f130dc60696675008514f847ae9be5e4",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -6745,6 +6799,12 @@
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ServiceLoopTicketR341.java",
+      "rationale": "Own one callback per service lane and generation, preserve its earliest actual due, and safely handle rejected delivery and stale callbacks.",
+      "reviewer": "R34.1 B05 implementation review",
+      "role": "POLICY"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
@@ -9629,7 +9689,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "e89b256ad2ca26b6ee7eaeaf9b1e2179d1db0827ec76cf34dbbf9d5f60afe1c6",
+  "reviewed_input_provenance_sha256": "9a4f7bc0e1556a3f5d808ea72c1f751748fc6ec9f6982ad4e3c004afad2a6409",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

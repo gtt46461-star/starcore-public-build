@@ -388,12 +388,23 @@ public final class ReportSnapshotR30 {
     static void timelineViewsR30(Map<String,Object> data){
         Object raw=data.get("timelineEventRows");if(!(raw instanceof List))return;data.put("legacyTimeline",data.get("timeline"));
         List<Object> current=new ArrayList<>();Map<String,List<Map<String,Object>>> parents=new LinkedHashMap<>();
+        String firstBase=null;
         for(Object x:(List<?>)raw){Map<String,Object> stored=MetricEvaluatorR29.map(x);Map<String,Object> row;
             if(stored.containsKey("payload_json")){try{if(!(stored.get("payload_json") instanceof String))throw new IllegalStateException("R30_TIMELINE_BOUNDED_PAYLOAD_UNAVAILABLE");row=new LinkedHashMap<>(MetricEvaluatorR29.map(JsonR27.parse((String)stored.get("payload_json"))));row.put("sourceTable",stored.get("sourceTable"));row.put("cachePanel",stored.get("panel_id"));row.put("cacheKey",stored.get("key"));}catch(RuntimeException invalid){row=new LinkedHashMap<>();row.put("event_role","UNKNOWN");row.put("event_kind","UNKNOWN");row.put("outcome","UNKNOWN_TIMELINE_PAYLOAD");row.put("failureType",invalid.getClass().getSimpleName());current.add(row);continue;}}
             else row=new LinkedHashMap<>(stored);String kind=String.valueOf(row.get("event_kind"));String stage=kind.equals("DRAW")?"settled":"next_frozen";
             row.put("precommit_wall_"+stage,row.get("wall_"+stage));row.put("precommit_mono_"+stage,row.get("mono_"+stage));
             boolean known=numberValueR30(row.get("durable_mono"))!=null&&row.get("durable_boot") instanceof String&&"CALLER_OBSERVED_SUCCESS_AFTER_SQLITE_COMMIT".equals(row.get("timing_boundary"))&&stage.toUpperCase(Locale.ROOT).equals(row.get("durable_stage"));
             row.put("wall_"+stage,known?row.get("durable_wall"):null);row.put("mono_"+stage,known?row.get("durable_mono"):null);row.put("boot_"+stage,known?row.get("durable_boot"):null);row.put("durableObservationState",known?"SUCCESS_OBSERVED_AFTER_COMMIT_UPPER_BOUND":"UNKNOWN_NO_PERSISTED_POSTCOMMIT_OBSERVATION");current.add(row);
+            if(kind.equals("DRAW")) {
+                if(!"CALLER_OBSERVED_SUCCESS_AFTER_SQLITE_COMMIT".equals(row.get("draw_timing_boundary"))) {
+                    row.remove("draw_durable_mono");row.remove("draw_durable_boot");row.remove("draw_durable_wall");
+                }
+                String issue=String.valueOf(row.get("issue"));
+                if("LIVE".equals(row.get("event_role"))&&Boolean.TRUE.equals(row.get("canonical_draw_head"))
+                        &&!"EVENT_IDENTITY_CONFLICT".equals(row.get("outcome"))
+                        && com.ethk3.novaonepro.TargetIssueResolver.isValid(issue)
+                        && (firstBase==null||issue.compareTo(firstBase)<0)) firstBase=issue;
+            }
             if(kind.equals("DRAW")&&"LIVE".equals(row.get("event_role"))&&!"EVENT_IDENTITY_CONFLICT".equals(row.get("outcome"))&&row.get("wall_draw_committed")!=null&&row.get("mono_settled")!=null)parents.computeIfAbsent(row.get("issue")+"|"+row.get("draw_hash"),key->new ArrayList<>()).add(row);
         }
         for(Object x:current){Map<String,Object> row=MetricEvaluatorR29.map(x);if(!"PREDICTION".equals(row.get("event_kind")))continue;List<Map<String,Object>> candidates=parents.get(row.get("source_issue")+"|"+row.get("source_draw_hash"));
@@ -401,6 +412,12 @@ public final class ReportSnapshotR30 {
             else {row.put("wall_settled",null);row.put("mono_settled",null);row.put("boot_settled",null);row.put("sourceSettlementState","UNKNOWN_EXACT_BASE_DRAW_AND_COMMIT_OBSERVATION_REQUIRED");}
         }
         data.put("timeline",current);data.put("timelineSemantics","DRAW=request+exact drawHash; PREDICTION=attempt, base issue+drawHash. Durations end at persisted caller observation after successful COMMIT, an upper bound. Missing postcommit receipts remain UNKNOWN after process death. Original per-issue rows retained under legacyTimeline.");
+        Object lastOpened=data.get("latestIssue");
+        Map<String,Object> timing=IssueTimelineR30.closedOpportunityTiming(firstBase,
+                lastOpened instanceof String?(String)lastOpened:null,current);
+        timing.put("scope","CALENDAR_BETWEEN_FIRST_CAPTURED_LIVE_BASE_AND_SNAPSHOT_DRAW_HEAD");
+        timing.put("externalPreregisteredWindow",false);
+        data.put("closedOpportunityTimingR341",timing);
     }
     static void confirmationViewsR30(Map<String,Object> data){Object source=data.get("confirmation");if(!(source instanceof List))return;List<Object> views=new ArrayList<>();for(Object value:(List<?>)source){Map<String,Object> row=new LinkedHashMap<>(MetricEvaluatorR29.map(value));Map<String,Object> result=new LinkedHashMap<>();try{if(row.get("result_json") instanceof String)result=MetricEvaluatorR29.map(JsonR27.parse((String)row.get("result_json")));}catch(RuntimeException malformed){row.put("resultReadFailure",malformed.getClass().getSimpleName());}row.put("confirmationState",ConfirmationViewR30R1.state(String.valueOf(row.get("state")),String.valueOf(result.get("status")),longValue(row.get("verified"))==1,longValue(row.get("registered_at"))));row.put("originalResult",result);row.put("role","CONFIRM_READ_ONLY_NOT_OPTIMIZER_REWARD");views.add(row);}data.put("confirmationViews",views);}
     static Number numberValueR30(Object value){return MetricEvaluatorR29.number(value);}

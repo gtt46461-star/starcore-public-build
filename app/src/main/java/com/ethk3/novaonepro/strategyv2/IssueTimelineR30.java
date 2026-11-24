@@ -1,5 +1,6 @@
 package com.ethk3.novaonepro.strategyv2;
 
+import com.ethk3.novaonepro.TargetIssueResolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -141,6 +142,144 @@ public final class IssueTimelineR30 {
         m05.put("coverage", withDeadline == 0 ? null : (Object) (onTime / (double) withDeadline));
         out.put("M05", m05);
         return out;
+    }
+
+    /** Reporting view over every closed target between two independently supplied calendar anchors. */
+    static Map<String, Object> closedOpportunityTiming(String firstBase, String lastOpened, List<Object> events) {
+        Map<String, Object> out = new LinkedHashMap<>();
+        int count = TargetIssueResolver.distance(firstBase, lastOpened);
+        out.put("anchorBase", firstBase);
+        out.put("lastOpened", lastOpened);
+        if (count < 0 || count > 5000) {
+            out.put("status", "NOT_MEASURABLE_CALENDAR_BOUNDS");
+            return out;
+        }
+        Map<String, Map<String, Object>> draws = new LinkedHashMap<>();
+        Map<String, List<Map<String, Object>>> freezes = new LinkedHashMap<>();
+        for (Object value : events) {
+            Map<String, Object> row = MetricEvaluatorR29.map(value);
+            if (!"LIVE".equals(row.get("event_role")) || "EVENT_IDENTITY_CONFLICT".equals(row.get("outcome"))) continue;
+            String issue = String.valueOf(row.get("issue"));
+            if (!TargetIssueResolver.isValid(issue)) continue;
+            if ("DRAW".equals(row.get("event_kind")) && Boolean.TRUE.equals(row.get("canonical_draw_head"))) {
+                draws.putIfAbsent(issue, row);
+            } else if ("PREDICTION".equals(row.get("event_kind"))) {
+                freezes.computeIfAbsent(issue, ignored -> new ArrayList<>()).add(row);
+            }
+        }
+        List<Object> rows = new ArrayList<>();
+        TimingCounts firstToSettle = new TimingCounts(1000L);
+        TimingCounts committedToFreeze = new TimingCounts(5000L);
+        TimingCounts publicationToSettle = new TimingCounts(1000L);
+        TimingCounts publicationToFreeze = new TimingCounts(5000L);
+        List<Long> margins = new ArrayList<>();
+        int marginPass = 0;
+        String base = firstBase;
+        for (int i = 0; i < count; i++) {
+            String target = TargetIssueResolver.next(base).targetIssue;
+            Map<String, Object> previous = draws.getOrDefault(base, java.util.Collections.emptyMap());
+            Map<String, Object> draw = draws.getOrDefault(target, java.util.Collections.emptyMap());
+            Map<String, Object> freeze = sameSourceFreeze(freezes.get(target), previous, base);
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("base", base);
+            row.put("target", target);
+            row.put("drawEvent", draw.get("event_id"));
+            row.put("freezeEvent", freeze.get("event_id"));
+            row.put("drawCommitToFreezeMs", committedToFreeze.record(elapsed(previous, "draw_durable_mono",
+                    "draw_durable_boot", freeze, "mono_next_frozen", "boot_next_frozen")));
+            row.put("receivedToSettleMs", firstToSettle.record(elapsed(draw, "mono_first_observed",
+                    "boot_first_observed", draw, "mono_settled", "boot_settled")));
+            row.put("publicationToFreezeMs", publicationToFreeze.record(sincePublished(previous, freeze, "next_frozen")));
+            row.put("publicationToSettleMs", publicationToSettle.record(sincePublished(draw, draw, "settled")));
+            Long deadline = numeric(freeze, "wall_next_deadline"), frozen = numeric(freeze, "wall_next_frozen");
+            Long margin = deadline == null || frozen == null ? null : deadline - frozen;
+            if (margin != null) {
+                margins.add(margin);
+                if (margin >= 5000L) marginPass++;
+            }
+            row.put("deadlineMarginMs", margin);
+            row.put("freezeState", frozen != null ? "RETURN_OBSERVED"
+                    : freeze.isEmpty() ? "MISSING_UNIQUE_FREEZE_FROM_EXACT_BASE" : "UNKNOWN_NO_COMMIT_RETURN");
+            rows.add(row);
+            base = target;
+        }
+        out.put("status", "MEASURED_WITH_EXPLICIT_UNKNOWN_ROWS");
+        out.put("opportunities", count);
+        out.put("nextPendingTarget", TargetIssueResolver.next(lastOpened).targetIssue);
+        out.put("coverageFrozenAtLeast5sBefore", count == 0 ? null : marginPass / (double) count);
+        out.put("marginMeasurable", margins.size());
+        out.put("marginAtLeast5s", marginPass);
+        out.put("marginMissing", count - margins.size());
+        out.put("drawCommitToFreeze", committedToFreeze.summary(count));
+        out.put("receivedToSettlement", firstToSettle.summary(count));
+        out.put("publicationToFreeze", publicationToFreeze.summary(count));
+        out.put("publicationToSettlement", publicationToSettle.summary(count));
+        out.put("rows", rows);
+        return out;
+    }
+
+    private static Map<String, Object> sameSourceFreeze(List<Map<String, Object>> candidates,
+            Map<String, Object> previousDraw, String base) {
+        Object hash = previousDraw.get("draw_hash");
+        Map<String, Object> found = java.util.Collections.emptyMap();
+        if (candidates == null || hash == null) return found;
+        for (Map<String, Object> candidate : candidates) {
+            if (!hash.equals(candidate.get("source_draw_hash")) || !base.equals(candidate.get("source_issue"))) continue;
+            if (numeric(candidate, "precommit_wall_next_frozen") == null) continue;
+            if (!found.isEmpty() && !java.util.Objects.equals(found.get("event_id"), candidate.get("event_id"))) {
+                return java.util.Collections.emptyMap();
+            }
+            found = candidate;
+        }
+        return found;
+    }
+
+    private static Long numeric(Map<String, Object> row, String column) {
+        Object value = row.get(column);
+        return value instanceof Number ? ((Number) value).longValue() : null;
+    }
+
+    private static Long elapsed(Map<String, Object> first, String from, String fromBoot,
+            Map<String, Object> last, String to, String toBoot) {
+        Long a = numeric(first, from), b = numeric(last, to);
+        Object boot = first.get(fromBoot);
+        return a == null || b == null || a < 0 || b < a || boot == null || !boot.equals(last.get(toBoot)) ? null : b - a;
+    }
+
+    private static Long sincePublished(Map<String, Object> draw, Map<String, Object> end, String stage) {
+        Long source = numeric(draw, "wall_source_published"), receiveWall = numeric(draw, "wall_first_observed");
+        Long localElapsed = elapsed(draw, "mono_first_observed", "boot_first_observed", end,
+                "mono_" + stage, "boot_" + stage);
+        if (source == null || receiveWall == null || localElapsed == null || source <= 0L || receiveWall < source) return null;
+        return receiveWall - source + localElapsed;
+    }
+
+    private static final class TimingCounts {
+        private final long limit;
+        private final List<Long> measures = new ArrayList<>();
+        private int passed;
+
+        TimingCounts(long limit) { this.limit = limit; }
+
+        Long record(Long value) {
+            if (value != null) {
+                measures.add(value);
+                if (value <= limit) passed++;
+            }
+            return value;
+        }
+
+        Map<String, Object> summary(int count) {
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("limitMs", limit);
+            result.put("passed", passed);
+            result.put("overLimit", measures.size() - passed);
+            result.put("notMeasurable", count - measures.size());
+            result.put("p50", pct(measures, .50));
+            result.put("p95", pct(measures, .95));
+            result.put("max", measures.isEmpty() ? null : java.util.Collections.max(measures));
+            return result;
+        }
     }
 
     /** 最近秩分位数（nearest-rank）；空集合返回 null。 */

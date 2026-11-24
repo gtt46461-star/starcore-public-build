@@ -457,6 +457,13 @@ public final class FetchLedgerR925 {
         observeStageR31(null,b.request,parsed.latestDraw==null?"":parsed.latestDraw.issue,false,true);
     }
     public static boolean hasDrawBindingR82(Models.Draw draw){return draw!=null&&DRAW_R82.containsKey(draw);}
+
+    static void observeDrawCommitReturnR341(Models.Draw draw, long wall, long elapsed) {
+        DrawBindingR82 binding = DRAW_R82.get(draw);
+        if (binding == null) return;
+        com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.observeDrawCommitReturnR341(
+                binding.issue, binding.request, binding.drawHash, wall, elapsed);
+    }
     public static String canonicalBindingSummaryR82(Models.Draw draw) {
         DrawBindingR82 b=DRAW_R82.get(draw);
         return b==null?"http_request_scope=LEGACY_UNKNOWN|request_id=LEGACY_UNKNOWN|http_payload_sha256=LEGACY_UNKNOWN":

@@ -2,6 +2,11 @@ package com.ethk3.novaonepro;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
+import android.provider.Settings;
+import com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30;
 
 /**
  * Coalesces recovery requests by generation and persists the complete B07 recovery proof.
@@ -16,6 +21,12 @@ public final class RecoveryCoordinatorR815 {
     private static final String KEY_GENERATION = "generation";
     private static final String KEY_STATE = "state";
     private static final String KEY_WINDOW_START = "window_start";
+    private static final String KEY_BOOT_SCOPE = "r341_boot_scope";
+    private static final String KEY_REQUEST_MONO = "r341_request_elapsed";
+    private static final String KEY_NEXT_DUE = "r341_next_due_elapsed";
+    private static final String KEY_ACCEPTED_MONO = "r341_accepted_elapsed";
+    private static final String KEY_STARTED_MONO = "r341_started_elapsed";
+    private static final String KEY_PROGRESS_MONO = "r341_progress_elapsed";
     private static final String KEY_ATTEMPTS = "attempts";
     private static final String KEY_LAST_DETAIL = "last_detail";
     private static final String KEY_REQUEST_AT = "request_at";
@@ -26,6 +37,7 @@ public final class RecoveryCoordinatorR815 {
     private static final String KEY_BUSINESS_DETAIL = "business_detail";
     private static final String KEY_REJECT_REASON = "reject_reason";
     private static final long WINDOW_MS = 10L * 60L * 1000L;
+    private static final long COOLDOWN_MS = 30_000L;
     private static final int MAX_ATTEMPTS = 3;
     private static final Object LOCK = new Object();
 
@@ -43,13 +55,19 @@ public final class RecoveryCoordinatorR815 {
         public final State state;
         public final int attempts;
         public final String status;
+        public final long nextDueElapsedMs;
 
         Result(boolean accepted, long generation, State state, int attempts, String status) {
+            this(accepted, generation, state, attempts, status, 0L);
+        }
+
+        Result(boolean accepted, long generation, State state, int attempts, String status, long nextDue) {
             this.accepted = accepted;
             this.generation = Math.max(0L, generation);
             this.state = state == null ? State.IDLE : state;
             this.attempts = Math.max(0, attempts);
             this.status = safe(status);
+            nextDueElapsedMs = Math.max(0L, nextDue);
         }
 
         public String summary() {
@@ -61,7 +79,7 @@ public final class RecoveryCoordinatorR815 {
                     + "|attempts="
                     + attempts
                     + "|accepted="
-                    + (accepted ? 1 : 0);
+                    + (accepted ? 1 : 0) + "|next_due_elapsed=" + nextDueElapsedMs;
         }
     }
 
@@ -71,6 +89,8 @@ public final class RecoveryCoordinatorR815 {
         public final int attempts;
         public final long requestAt, acceptedAt, serviceStartedAt, businessRestoredAt;
         public final String requestReason, businessDetail, rejectReason;
+        public final String clockScope;
+        private final long requestedElapsed, acceptedElapsed, startedElapsed, progressElapsed;
 
         Evidence(
                 long generation,
@@ -82,7 +102,8 @@ public final class RecoveryCoordinatorR815 {
                 long businessRestoredAt,
                 String requestReason,
                 String businessDetail,
-                String rejectReason) {
+                String rejectReason, String clockScope, long requestedElapsed, long acceptedElapsed,
+                long startedElapsed, long progressElapsed) {
             this.generation = Math.max(0L, generation);
             this.state = state == null ? State.IDLE : state;
             this.attempts = Math.max(0, attempts);
@@ -93,18 +114,23 @@ public final class RecoveryCoordinatorR815 {
             this.requestReason = safe(requestReason);
             this.businessDetail = safe(businessDetail);
             this.rejectReason = safe(rejectReason);
+            this.clockScope = safe(clockScope);
+            this.requestedElapsed = requestedElapsed;
+            this.acceptedElapsed = acceptedElapsed;
+            this.startedElapsed = startedElapsed;
+            this.progressElapsed = progressElapsed;
         }
 
         public boolean requestAccepted() {
-            return requestAt > 0L && acceptedAt >= requestAt;
+            return requestedElapsed >= 0L && acceptedElapsed >= requestedElapsed;
         }
 
         public boolean serviceActuallyStarted() {
-            return requestAccepted() && serviceStartedAt >= acceptedAt;
+            return requestAccepted() && startedElapsed >= acceptedElapsed;
         }
 
         public boolean businessActuallyRestored() {
-            return serviceActuallyStarted() && businessRestoredAt >= serviceStartedAt;
+            return serviceActuallyStarted() && progressElapsed >= startedElapsed;
         }
 
         public String summary() {
@@ -128,6 +154,7 @@ public final class RecoveryCoordinatorR815 {
                     + (serviceActuallyStarted() ? 1 : 0)
                     + "|business_restored="
                     + (businessActuallyRestored() ? 1 : 0)
+                    + "|clock_scope=" + clockScope
                     + "|reason="
                     + bounded(requestReason, 96)
                     + "|business="
@@ -139,94 +166,111 @@ public final class RecoveryCoordinatorR815 {
 
     private RecoveryCoordinatorR815() {}
 
+    interface Delivery { boolean request(Context context, String reason); }
+
     public static Result request(Context context, String reason, long requestedGeneration) {
         if (context == null) return new Result(false, 0L, State.IDLE, 0, "CONTEXT_NULL");
+        return request(context, reason, requestedGeneration, TimeSourceR811.monoNowMs(),
+                bootScope(context), BootReceiver::reconcileAutoFetchService);
+    }
+
+    static Result request(Context context, String reason, long requestedGeneration, long elapsed,
+            String boot, Delivery delivery) {
         Context app = app(context);
         synchronized (LOCK) {
             SharedPreferences preferences = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             ServiceHeartbeatStore heartbeat = new ServiceHeartbeatStore(app);
-            long now = System.currentTimeMillis();
             long current = preferences.getLong(KEY_GENERATION, 0L);
             int attempts = preferences.getInt(KEY_ATTEMPTS, 0);
             State prior = parse(preferences.getString(KEY_STATE, State.IDLE.name()));
-
             if (!heartbeat.isUserEnabled()) {
-                preferences.edit()
-                        .putString(KEY_STATE, State.IDLE.name())
+                preferences.edit().putString(KEY_STATE, State.IDLE.name())
                         .putString(KEY_REJECT_REASON, "USER_DISABLED_FAIL_CLOSED")
-                        .putString(KEY_LAST_DETAIL, "USER_DISABLED_FAIL_CLOSED")
-                        .commit();
-                heartbeat.markRecoveryEvaluation(
-                        "r815", false, "USER_DISABLED_FAIL_CLOSED_NO_RESTART");
+                        .putString(KEY_LAST_DETAIL, "USER_DISABLED_FAIL_CLOSED").commit();
+                heartbeat.markRecoveryEvaluation("r815", false, "USER_DISABLED_FAIL_CLOSED_NO_RESTART");
                 return new Result(false, current, State.IDLE, attempts, "USER_DISABLED_FAIL_CLOSED");
             }
-
-            long generation = requestedGeneration > 0L ? requestedGeneration : current + 1L;
-            long window = preferences.getLong(KEY_WINDOW_START, 0L);
-            if (generation < current)
+            if (requestedGeneration > 0L && requestedGeneration < current)
                 return new Result(false, current, prior, attempts, "STALE_GENERATION_REJECTED");
-            if (generation == current
-                    && preferences.getLong(KEY_ACCEPTED_AT, 0L) > 0L
-                    && now - preferences.getLong(KEY_REQUEST_AT, 0L) >= 0L
-                    && now - preferences.getLong(KEY_REQUEST_AT, 0L) < 15000L
-                    && (prior == State.REQUESTED
-                            || prior == State.RUNNING
-                            || prior == State.FETCH_SETTLEMENT_ONLY)) {
-                return new Result(true, current, prior, attempts, "COALESCED_SAME_GENERATION");
+
+            long window = preferences.getLong(KEY_WINDOW_START, -1L);
+            boolean sameWindow = boot.equals(preferences.getString(KEY_BOOT_SCOPE, ""))
+                    && window >= 0L && elapsed >= window && elapsed - window < WINDOW_MS;
+            boolean continuing = sameWindow && (prior == State.REQUESTED || prior == State.RUNNING
+                    || prior == State.FETCH_SETTLEMENT_ONLY);
+            long due = preferences.getLong(KEY_NEXT_DUE, 0L);
+            if (continuing && elapsed < due) {
+                boolean accepted = preferences.getLong(KEY_ACCEPTED_MONO, -1L) >= window
+                        && !"START_DEFERRED_OR_FAILED".equals(preferences.getString(KEY_REJECT_REASON, ""));
+                return new Result(accepted, current, prior, attempts,
+                        accepted ? "COALESCED_AWAITING_PROGRESS" : "DELIVERY_RETRY_PENDING", due);
             }
-            if (window <= 0L || now - window > WINDOW_MS) {
-                window = now;
-                attempts = 0;
-            }
-            if (attempts >= MAX_ATTEMPTS) {
+            if (continuing && attempts >= MAX_ATTEMPTS) {
+                long nextWindow = window + WINDOW_MS;
                 preferences.edit().putString(KEY_STATE, State.FETCH_SETTLEMENT_ONLY.name())
-                        .putString(KEY_REJECT_REASON, "RECOVERY_RATE_LIMITED").commit();
-                return new Result(false, current, State.FETCH_SETTLEMENT_ONLY, attempts, "RECOVERY_RATE_LIMITED");
+                        .putString(KEY_REJECT_REASON, "RECOVERY_NEEDS_DIAGNOSIS")
+                        .putLong(KEY_NEXT_DUE, nextWindow).commit();
+                return new Result(false, current, State.FETCH_SETTLEMENT_ONLY, attempts,
+                        "RECOVERY_RATE_LIMITED", nextWindow);
+            }
+
+            long generation = continuing ? current : Math.max(current + 1L, requestedGeneration);
+            long now = System.currentTimeMillis();
+            SharedPreferences.Editor update = preferences.edit();
+            if (!continuing) {
+                attempts = 0;
+                window = elapsed;
+                update.putLong(KEY_GENERATION, generation).putLong(KEY_WINDOW_START, window)
+                        .putString(KEY_BOOT_SCOPE, boot).putLong(KEY_REQUEST_MONO, elapsed)
+                        .putLong(KEY_REQUEST_AT, now).putLong(KEY_ACCEPTED_AT, 0L)
+                        .putLong(KEY_ACCEPTED_MONO, -1L).putLong(KEY_SERVICE_STARTED_AT, 0L)
+                        .putLong(KEY_STARTED_MONO, -1L).putLong(KEY_BUSINESS_RESTORED_AT, 0L)
+                        .putLong(KEY_PROGRESS_MONO, -1L).putString(KEY_REQUEST_REASON, bounded(reason, 192))
+                        .putString(KEY_BUSINESS_DETAIL, "");
             }
             attempts++;
             State next = attempts >= MAX_ATTEMPTS ? State.FETCH_SETTLEMENT_ONLY : State.REQUESTED;
-            preferences.edit()
-                    .putLong(KEY_GENERATION, generation)
-                    .putLong(KEY_WINDOW_START, window)
-                    .putInt(KEY_ATTEMPTS, attempts)
-                    .putString(KEY_STATE, next.name())
-                    .putString(KEY_LAST_DETAIL, bounded(reason, 192))
-                    .putLong(KEY_REQUEST_AT, now)
-                    .putLong(KEY_ACCEPTED_AT, 0L)
-                    .putLong(KEY_SERVICE_STARTED_AT, 0L)
-                    .putLong(KEY_BUSINESS_RESTORED_AT, 0L)
-                    .putString(KEY_REQUEST_REASON, bounded(reason, 192))
-                    .putString(KEY_BUSINESS_DETAIL, "")
-                    .putString(KEY_REJECT_REASON, "")
-                    .commit();
+            due = elapsed + COOLDOWN_MS;
+            if (!update.putInt(KEY_ATTEMPTS, attempts).putLong(KEY_NEXT_DUE, due)
+                    .putString(KEY_STATE, next.name()).putString(KEY_LAST_DETAIL, bounded(reason, 192))
+                    .putString(KEY_REJECT_REASON, "").commit()) {
+                return new Result(false, generation, next, attempts, "RECOVERY_LEDGER_UNAVAILABLE", due);
+            }
+
             heartbeat.markRecoveryTrigger("r815:" + bounded(reason, 128));
             heartbeat.markBusinessStage("B07_RECOVERY_REQUESTED", evidence(app).summary());
-            if (next == State.FETCH_SETTLEMENT_ONLY)
-                heartbeat.markBusinessStage("R815_SAFE_DEGRADED", "FETCH_SETTLEMENT_ONLY");
-
-            boolean started =
-                    BootReceiver.reconcileAutoFetchService(app, "r815:" + bounded(reason, 128));
-            if (started) {
-                preferences.edit()
-                        .putLong(KEY_ACCEPTED_AT, System.currentTimeMillis())
-                        .putString(KEY_LAST_DETAIL, "START_OR_RECONCILE_REQUEST_ACCEPTED")
-                        .commit();
-                heartbeat.markBusinessStage("B07_RECOVERY_ACCEPTED", evidence(app).summary());
-            } else {
-                preferences.edit()
-                        .putString(KEY_REJECT_REASON, "START_DEFERRED_OR_FAILED")
-                        .putString(KEY_LAST_DETAIL, "START_DEFERRED_OR_FAILED")
-                        .commit();
+            boolean delivered = delivery.request(app, "r815:" + bounded(reason, 128));
+            if (!delivered) {
+                preferences.edit().putString(KEY_REJECT_REASON, "START_DEFERRED_OR_FAILED")
+                        .putString(KEY_LAST_DETAIL, "START_DEFERRED_OR_FAILED").commit();
+                return new Result(false, generation, next, attempts, "START_DEFERRED_OR_FAILED", due);
             }
-            if (!started && next != State.FETCH_SETTLEMENT_ONLY)
-                return new Result(false, generation, next, attempts, "START_DEFERRED_OR_FAILED");
-            return new Result(
-                    true,
-                    generation,
-                    next,
-                    attempts,
-                    started ? "START_OR_RECONCILE_REQUESTED" : "SAFE_DEGRADED");
+            SharedPreferences.Editor accepted = preferences.edit()
+                    .putString(KEY_LAST_DETAIL, "START_OR_RECONCILE_REQUEST_ACCEPTED");
+            if (preferences.getLong(KEY_ACCEPTED_MONO, -1L) < window) {
+                accepted.putLong(KEY_ACCEPTED_MONO, elapsed).putLong(KEY_ACCEPTED_AT, System.currentTimeMillis());
+            }
+            accepted.commit();
+            heartbeat.markBusinessStage("B07_RECOVERY_ACCEPTED", evidence(app).summary());
+            return new Result(true, generation, next, attempts, "START_OR_RECONCILE_REQUESTED", due);
         }
+    }
+
+    private static String bootScope(Context context) {
+        String boot = IssueTimelineWriterR30.bootId();
+        if (boot.startsWith("KERNEL_BOOT:") || Build.VERSION.SDK_INT < 24) return boot;
+        try {
+            int count = Settings.Global.getInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, -1);
+            return count >= 0 ? "ANDROID_BOOT_COUNT:" + count : boot;
+        } catch (SecurityException unavailable) {
+            return boot;
+        }
+    }
+
+    static void scheduleRetry(Context context, Result result) {
+        if (result.nextDueElapsedMs <= 0L || result.accepted) return;
+        long delay = Math.max(1000L, result.nextDueElapsedMs - TimeSourceR811.monoNowMs());
+        BootReceiver.scheduleWatchdog(context, "r815:" + result.status, delay);
     }
 
     /** Called by the existing AutoFetchService onCreate path for a newly-created service instance. */
@@ -245,12 +289,15 @@ public final class RecoveryCoordinatorR815 {
                 BootReceiver.cancelAllRecovery(app, "b07:user_disabled_service_start");
                 return;
             }
-            long accepted = p.getLong(KEY_ACCEPTED_AT, 0L);
-            long request = p.getLong(KEY_REQUEST_AT, 0L);
+            long accepted = p.getLong(KEY_ACCEPTED_MONO, -1L);
+            long mono = TimeSourceR811.monoNowMs();
             SharedPreferences.Editor e = p.edit();
-            if (request > 0L && accepted >= request) {
-                e.putString(KEY_STATE, State.RUNNING.name())
-                        .putLong(KEY_SERVICE_STARTED_AT, System.currentTimeMillis())
+            if (accepted >= 0L && mono >= accepted && bootScope(app).equals(p.getString(KEY_BOOT_SCOPE, ""))
+                    && !State.COMPLETED.name().equals(p.getString(KEY_STATE, ""))) {
+                if (!State.FETCH_SETTLEMENT_ONLY.name().equals(p.getString(KEY_STATE, ""))) {
+                    e.putString(KEY_STATE, State.RUNNING.name());
+                }
+                e.putLong(KEY_SERVICE_STARTED_AT, System.currentTimeMillis()).putLong(KEY_STARTED_MONO, mono)
                         .putString(KEY_LAST_DETAIL, "SERVICE_CREATED_AFTER_RECOVERY_ACCEPT");
             } else {
                 e.putString(KEY_LAST_DETAIL, "SERVICE_CREATED_WITHOUT_ACTIVE_RECOVERY");
@@ -260,50 +307,56 @@ public final class RecoveryCoordinatorR815 {
         }
     }
 
-    /**
-     * Called only from an independent watchdog observation that already proved V57 business truth
-     * healthy and the runtime lease fresh. If reconcile targeted an already-running service, Android
-     * legitimately skips onCreate; in that case this independent healthy observation is the proof
-     * that the accepted reconcile reached a live runtime. startService()/reconcile return alone is
-     * never treated as recovery success.
-     */
-    public static void markBusinessRestored(Context context, String detail) {
-        if (context == null) return;
+    /** Reads the existing committed runtime event and its exact database identity. */
+    static void observeBusinessCommit(Context context, DbStore store, String issue, boolean settlement) {
+        if (context == null || store == null || !TargetIssueResolver.isValid(issue)) return;
         Context app = app(context);
+        SharedPreferences p = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        long recovery = p.getLong(KEY_GENERATION, 0L);
+        long accepted = p.getLong(KEY_ACCEPTED_MONO, -1L);
+        if (recovery <= 0L || accepted < 0L || p.getLong(KEY_PROGRESS_MONO, -1L) >= 0L
+                || !bootScope(app).equals(p.getString(KEY_BOOT_SCOPE, ""))) return;
+        String type = settlement ? "SETTLED" : "CANONICAL";
+        String stage = settlement ? SettlementTaskStoreR36.COMPLETED : "CANONICAL_COMMITTED";
+        SQLiteDatabase db = store.readable();
+        String database = RuntimeObservationScopeR341.databaseIdentity(db);
+        if (RuntimeObservationScopeR341.UNRESOLVED.equals(database)) return;
+        try (Cursor row = db.rawQuery("SELECT e.event_id,s.sample_mono_at FROM " + RuntimeEventLedgerR926.TABLE_EVENT
+                + " e JOIN " + RuntimeObservationScopeR341.EVENT_SCOPE + " s ON s.event_id=e.event_id"
+                + " WHERE e.target_issue=? AND e.event_type=? AND e.stage=? AND s.database_identity=?"
+                + " AND s.release_id=? AND s.source_commit=? AND s.process_epoch=? AND s.boot_id=?"
+                + " AND s.sample_mono_at>? ORDER BY s.sample_mono_at LIMIT 1",
+                new String[]{issue, type, stage, database, ReleaseManifestR926.MANIFEST_SHA256,
+                    SourceManifestR815.observationSourceCommit(), ProcessBootIdentityR906.id(),
+                    IssueTimelineWriterR30.bootId(), Long.toString(accepted)})) {
+            if (row.moveToFirst()) markBusinessRestored(app, recovery, row.getLong(1),
+                    type + "|issue=" + issue + "|event=" + row.getString(0));
+        }
+    }
+
+    private static void markBusinessRestored(Context app, long recovery, long commitElapsed, String detail) {
         synchronized (LOCK) {
             ServiceHeartbeatStore heartbeat = new ServiceHeartbeatStore(app);
             if (!heartbeat.isUserEnabled()) return;
             SharedPreferences p = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-            long request = p.getLong(KEY_REQUEST_AT, 0L);
-            long accepted = p.getLong(KEY_ACCEPTED_AT, 0L);
-            long started = p.getLong(KEY_SERVICE_STARTED_AT, 0L);
-            long restored = p.getLong(KEY_BUSINESS_RESTORED_AT, 0L);
-            if (request <= 0L || accepted < request) return;
+            long accepted = p.getLong(KEY_ACCEPTED_MONO, -1L);
+            long started = p.getLong(KEY_STARTED_MONO, -1L);
+            if (p.getLong(KEY_GENERATION, 0L) != recovery || accepted < 0L || commitElapsed <= accepted
+                    || commitElapsed < started || p.getLong(KEY_PROGRESS_MONO, -1L) >= 0L
+                    || !bootScope(app).equals(p.getString(KEY_BOOT_SCOPE, ""))) return;
 
             long now = System.currentTimeMillis();
-            boolean inferredAlreadyRunning = started < accepted;
-            if (inferredAlreadyRunning) started = now;
-            if (restored >= started) return;
-
-            SharedPreferences.Editor e = p.edit();
-            if (inferredAlreadyRunning) {
-                e.putLong(KEY_SERVICE_STARTED_AT, started)
-                        .putString(KEY_LAST_DETAIL, "LIVE_SERVICE_OBSERVED_BY_HEALTHY_WATCHDOG");
+            SharedPreferences.Editor update = p.edit();
+            if (started < accepted) {
+                update.putLong(KEY_SERVICE_STARTED_AT, now).putLong(KEY_STARTED_MONO, commitElapsed);
             }
-            e.putString(KEY_STATE, State.COMPLETED.name())
-                    .putLong(KEY_BUSINESS_RESTORED_AT, now)
-                    .putString(
-                            KEY_BUSINESS_DETAIL,
-                            bounded(
-                                    (inferredAlreadyRunning
-                                                    ? "ALREADY_RUNNING_RECONCILE|"
-                                                    : "NEW_SERVICE_START|")
-                                            + safe(detail),
-                                    320))
-                    .putString(KEY_LAST_DETAIL, "BUSINESS_TRUTH_RESTORED")
-                    .putString(KEY_REJECT_REASON, "")
-                    .commit();
-            heartbeat.markBusinessStage("B07_BUSINESS_RESTORED", evidence(app).summary());
+            if (update.putString(KEY_STATE, State.COMPLETED.name())
+                    .putLong(KEY_BUSINESS_RESTORED_AT, now).putLong(KEY_PROGRESS_MONO, commitElapsed)
+                    .putString(KEY_BUSINESS_DETAIL, bounded("recovery=" + recovery + '|' + detail, 320))
+                    .putString(KEY_LAST_DETAIL, "BUSINESS_COMMIT_OBSERVED").putString(KEY_REJECT_REASON, "")
+                    .commit()) {
+                heartbeat.markBusinessStage("B07_BUSINESS_RESTORED", evidence(app).summary());
+            }
         }
     }
 
@@ -344,7 +397,8 @@ public final class RecoveryCoordinatorR815 {
 
     public static Evidence evidence(Context context) {
         if (context == null)
-            return new Evidence(0L, State.IDLE, 0, 0L, 0L, 0L, 0L, "", "", "CONTEXT_NULL");
+            return new Evidence(0L, State.IDLE, 0, 0L, 0L, 0L, 0L, "", "", "CONTEXT_NULL",
+                    RuntimeObservationScopeR341.LEGACY_UNSCOPED, -1L, -1L, -1L, -1L);
         SharedPreferences p = app(context).getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         return new Evidence(
                 p.getLong(KEY_GENERATION, 0L),
@@ -356,7 +410,10 @@ public final class RecoveryCoordinatorR815 {
                 p.getLong(KEY_BUSINESS_RESTORED_AT, 0L),
                 p.getString(KEY_REQUEST_REASON, ""),
                 p.getString(KEY_BUSINESS_DETAIL, ""),
-                p.getString(KEY_REJECT_REASON, ""));
+                p.getString(KEY_REJECT_REASON, ""),
+                p.getString(KEY_BOOT_SCOPE, RuntimeObservationScopeR341.LEGACY_UNSCOPED),
+                p.getLong(KEY_REQUEST_MONO, -1L), p.getLong(KEY_ACCEPTED_MONO, -1L),
+                p.getLong(KEY_STARTED_MONO, -1L), p.getLong(KEY_PROGRESS_MONO, -1L));
     }
 
     public static long currentGeneration(Context context) {

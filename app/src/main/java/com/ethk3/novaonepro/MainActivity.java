@@ -648,23 +648,7 @@ public final class MainActivity extends Activity {
                             return;
                         }
                         requestNotificationPermissionIfNeeded();
-                        try {
-                            ServiceHeartbeatStore hb =
-                                    new ServiceHeartbeatStore(getApplicationContext());
-                            if (hb.isUserEnabled()) {
-                                hb.markBusinessStage(
-                                        "UI_FIRST_FRAME_STABLE_R3610", AppConfig.B07R32_VERSION);
-                                // A persisted fresh heartbeat can belong to a process Android
-                                // just killed. Deliver an idempotent START to the service owner
-                                // on every new Activity launch instead of skipping "healthy"
-                                // historical state. The user-enabled guard above remains intact.
-                                BootReceiver.reconcileAutoFetchService(
-                                        getApplicationContext(), "ui_first_frame_stable_r13");
-                            }
-                        } catch (Throwable e) {
-                            CrashRecorder.recordCaught(
-                                    getApplicationContext(), e, "UI_DELAYED_SERVICE_ARM_R3610");
-                        }
+                        LifecycleHealthR963.keepService(getApplicationContext(), "first_frame_stable_r13");
                     }
                 },
                 attempt == 0 ? 1800L : 650L);

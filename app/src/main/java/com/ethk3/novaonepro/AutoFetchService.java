@@ -8,7 +8,10 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -135,7 +138,16 @@ public final class AutoFetchService extends Service {
     private volatile long lastRuntimeGuardAtB07;
     private volatile boolean b07StartupBackfillPosted;
     private volatile int runtimeInitRetryCountR323;
-    private volatile boolean startWorkDispatchQueuedR3610;
+    private final Object serviceLoopsLockR341 = new Object();
+    private final ServiceLoopTicketR341 startTicketR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private final ServiceLoopTicketR341 startRetryR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private final ServiceLoopTicketR341 fetchTicketR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private final ServiceLoopTicketR341 watchdogTicketR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private final ServiceLoopTicketR341 settlementTicketR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private final ServiceLoopTicketR341 researchTicketR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private final ServiceLoopTicketR341 stateBroadcastTicketR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private final ServiceLoopTicketR341 notificationTicketR341 = new ServiceLoopTicketR341(TimeSourceR811::monoNowMs);
+    private ConnectivityManager.NetworkCallback networkCallbackR341;
     private volatile Thread serviceMainThreadR3610;
     private volatile long analysisOomBackoffUntilR3610;
     private Handler startupHeartbeatHandlerR323;
@@ -580,7 +592,7 @@ public final class AutoFetchService extends Service {
     private long lastForcedBackfill100At;
     private long lastQuickHistorySyncAt;
     private long lastStaleLatestHistoryRecoveryAt;
-    private long lastSimpleStateBroadcastAt;
+    private volatile long lastSimpleStateBroadcastAt;
     private long lastRuntimeStateWriteAt;
     private long lastTickBroadcastAt;
     private String lastTickTargetR72="";
@@ -660,8 +672,9 @@ public final class AutoFetchService extends Service {
                     if (!running) {
                         return;
                     }
-                    fetchCadenceR31.wake(android.os.SystemClock.elapsedRealtime());
+                    long generation = fetchGenerationR31;
                     try {
+                        fetchCadenceR31.wake(android.os.SystemClock.elapsedRealtime());
                         runFetchChannelOnce();
                     } catch (Throwable e) {
                         if (isOomR3610(e)) {
@@ -673,7 +686,7 @@ public final class AutoFetchService extends Service {
                     } finally {
                         // Error reporting can itself fail during a busy DB interval.
                         // Always retain the existing serial fetch worker's next wake-up.
-                        scheduleNextFetchLoop();
+                        if (generation == fetchGenerationR31) scheduleNextFetchLoop();
                     }
                 }
             };
@@ -708,13 +721,13 @@ public final class AutoFetchService extends Service {
                         return;
                     }
 
+                    long generation = fetchGenerationR31;
                     try {
                         runAnalysisWatchdogOnce();
-                    } catch (Throwable e) {
-                    }
-
-                    if (running && analysisWatchdogHandler != null) {
-                        analysisWatchdogHandler.postDelayed(this, ANALYSIS_WATCHDOG_INTERVAL_MS);
+                    } catch (RuntimeException failure) {
+                        android.util.Log.w("AutoFetchService", "Analysis watchdog will retry", failure);
+                    } finally {
+                        if (generation == fetchGenerationR31) ensureAnalysisWatchdog();
                     }
                 }
             };
@@ -914,8 +927,12 @@ public final class AutoFetchService extends Service {
                     try {
                         // SQLite contention on the analysis watchdog must not lose the
                         // research wake-up. This only posts to the existing single owner.
+                        repairDeadAnalysisWatchdogR341();
+                        reconcileLoopsR341(fetchGenerationR31, false);
                         postAutonomousResearchTickR908("R66_INDEPENDENT_RESEARCH_REARM");
                         heartbeatStateV8().writeHeartbeat("AutoFetchService:R817_LIVENESS_PULSE");
+                        heartbeatStateV8().markServiceLoopsR341(fetchTicketR341.snapshot(), watchdogTicketR341.snapshot(),
+                                settlementTicketR341.snapshot(), researchTicketR341.snapshot());
                         long now = System.currentTimeMillis();
                         if (now - lastB13ServicePulseAtR817 >= 30000L) {
                             lastB13ServicePulseAtR817 = now;
@@ -1827,6 +1844,8 @@ public final class AutoFetchService extends Service {
         }
         try {
             heartbeatStateV8().markOnStartCommand(action);
+            heartbeatStateV8().markStartOriginR341(fetchGenerationR31,
+                    intent == null ? "ANDROID_STICKY_REDELIVERY" : intent.getStringExtra("start_reason"), startId);
         } catch (Throwable ignore) {
         }
         if (AppConfig.ACTION_SERVICE_STOP.equals(action) && !runtimeInitialized) {
@@ -2321,6 +2340,7 @@ public final class AutoFetchService extends Service {
     private final Runnable settlementRecoveryLoopR908 = new Runnable() {
         @Override public void run() {
             if (!running || store == null || settlementRecoveryHandlerR908 == null) return;
+            long generation = fetchGenerationR31;
             try {
                 boolean exactPending = currentExactSettlementPendingR908.get();
                 // Current exact remains the highest-priority task in the durable queue.  A small
@@ -2348,8 +2368,9 @@ public final class AutoFetchService extends Service {
                 try { heartbeatStateV8().markTeacherPump("V51_OWNER_ERROR", safeError(e)); }
                 catch (Throwable ignore) {}
             } finally {
-                if (running && settlementRecoveryHandlerR908 != null)
-                    settlementRecoveryHandlerR908.postDelayed(this, R908_SETTLEMENT_PULSE_MS);
+                if (running && generation == fetchGenerationR31)
+                    settlementTicketR341.request(generation, settlementRecoveryHandlerR908,
+                            R908_SETTLEMENT_PULSE_MS, true, this);
             }
         }
     };
@@ -2360,10 +2381,13 @@ public final class AutoFetchService extends Service {
     private final Runnable researchSelfLoopR908 = new Runnable() {
         @Override public void run() {
             if (!running || researchHandlerR908 == null) return;
+            long generation = fetchGenerationR31;
             try { postAutonomousResearchTickR908("R908_SELF_HEARTBEAT"); }
-            catch (Throwable ignore) {}
-            if (running && researchHandlerR908 != null)
-                researchHandlerR908.postDelayed(this, R908_RESEARCH_SELF_PULSE_MS);
+            finally {
+                if (running && generation == fetchGenerationR31)
+                    researchTicketR341.request(generation, researchHandlerR908,
+                            R908_RESEARCH_SELF_PULSE_MS, true, this);
+            }
         }
     };
 
@@ -2465,25 +2489,19 @@ public final class AutoFetchService extends Service {
     }
 
     private void startWork() {
-        if (Thread.currentThread() == serviceMainThreadR3610) {
-            final Handler owner = runtimeGuardHandler != null ? runtimeGuardHandler : startupInitHandler;
-            if (owner != null) {
-                synchronized (this) {
-                    if (startWorkDispatchQueuedR3610) return;
-                    startWorkDispatchQueuedR3610 = true;
-                }
-                owner.post(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                startWorkDispatchQueuedR3610 = false;
-                                startWorkR3610OffMain();
-                            }
-                        });
-                return;
-            }
+        if (Thread.currentThread() != serviceMainThreadR3610) {
+            startWorkR3610OffMain();
+            return;
         }
-        startWorkR3610OffMain();
+        long generation = fetchGenerationR31;
+        ServiceLoopTicketR341.Result result = startTicketR341.request(generation, runtimeGuardHandler,
+                0L, false, this::startWorkR3610OffMain);
+        if (result != ServiceLoopTicketR341.Result.REJECTED) return;
+        ServiceLoopTicketR341.Result retry = startRetryR341.request(generation, startupInitHandler,
+                250L, false, this::startWorkR3610OffMain);
+        if (retry == ServiceLoopTicketR341.Result.REJECTED && !userRequestedStopV5) {
+            BootReceiver.scheduleWatchdog(getApplicationContext(), "service_start_owner_rejected", 2000L);
+        }
     }
 
     private synchronized void ensureContinuousRuntimeR26() {
@@ -2581,27 +2599,30 @@ public final class AutoFetchService extends Service {
     }
 
     private void startWorkR3610OffMain() {
-        if (userRequestedStopV5 || !heartbeatStateV8().isUserEnabled()) {
+        if (runtimeInitializationCancelled || userRequestedStopV5 || !heartbeatStateV8().isUserEnabled()) {
             stopSelf();
             return;
         }
+        final boolean firstStart;
+        final long generation;
+        synchronized (serviceLoopsLockR341) {
+            if (runtimeInitializationCancelled || userRequestedStopV5) return;
+            firstStart = !running;
+            if (firstStart) {
+                resetServiceLoopsR341(fetchGenerationR31 + 1L);
+                fetchCadenceR31.beginSession(TimeSourceR811.monoNowMs());
+                offlineStreakR31 = 0;
+                running = true;
+            }
+            generation = fetchGenerationR31;
+        }
+        reconcileLoopsR341(generation, firstStart);
         // Research initialization is owned by the posted control task; it cannot gate live startup.
-        if (running) {
+        if (!firstStart) {
             postResearchControlR31();
-            refreshBuildIdentityAndModuleState("startWork_running");
-            forceRefresh = true;
-            ensureRuntimeLoopsAliveV17("startWork_running");
-            postFetchNow();
-            postAnalysisForLatest("服务已运行，优先最新目标期", true);
-            if (!AppConfig.ENABLE_V51_TIANSHU)
-                postMicroWalkForward("startWork_running", true, 1200L);
-            ensureAnalysisWatchdog();
-            ensureR908BackgroundLoops();
             return;
         }
-        fetchGenerationR31++;
-        fetchCadenceR31.beginSession(android.os.SystemClock.elapsedRealtime());offlineStreakR31=0;
-        running = true;
+        registerNetworkWakeR341(generation);
         if(writerFaultControlR334!=null)writerFaultControlR334.start();
         forceRefresh = true;
         startLightweightHeartbeatR817();
@@ -2639,11 +2660,9 @@ public final class AutoFetchService extends Service {
         setFullDiagnosisLoopState("IDLE", "等待诊断闭环刷新");
         updateRuntimeState(AppConfig.SERVICE_STATUS_RUNNING, "");
         RealtimePressureGateR811.pulseLiveRequest();
-        postFetchNow();
         // Historical settlement seeding/diagnostic baseline are intentionally deferred to the
         // existing serial background owner; cold-start must never block the Android main thread.
         scheduleDeferredDrainR36();
-        postAnalysisForLatest("R35_STARTUP_RECONCILE", true);
         postB07StartupBackfill();
         if (!AppConfig.ENABLE_V51_TIANSHU) {
             postBackgroundEvidencePumpV6(1800L, "startWork_low_priority");
@@ -2654,27 +2673,85 @@ public final class AutoFetchService extends Service {
         postRealBetDiagnosisRefresh("启动后延迟诊断", AppConfig.DIAGNOSIS_INTERVAL_MS, false);
         postFullDiagnosisRefresh(
                 "R923启动冻结快照与满级诊断", FULL_DIAG_LOOP_STARTUP_DELAY_MS, false);
-        ensureRuntimeLoopsAliveV17("startWork_new");
-        ensureAnalysisWatchdog();
-        ensureR908BackgroundLoops();
     }
 
     private void ensureR908BackgroundLoops() {
-        if (!running) return;
-        if (settlementRecoveryHandlerR908 != null) {
-            settlementRecoveryHandlerR908.removeCallbacks(settlementRecoveryLoopR908);
-            settlementRecoveryHandlerR908.post(settlementRecoveryLoopR908);
-        }
-        if (researchHandlerR908 != null) {
-            researchHandlerR908.removeCallbacks(researchSelfLoopR908);
-            researchHandlerR908.postDelayed(researchSelfLoopR908, 1200L);
-        }
-        try {
-            if (store != null) {
-                store.setState("r908_background_loops", "ARMED");
-                store.setState("r908_background_loops_at", String.valueOf(System.currentTimeMillis()));
+        if (!running || userRequestedStopV5) return;
+        long generation = fetchGenerationR31;
+        settlementTicketR341.request(generation, settlementRecoveryHandlerR908, 0L, false,
+                settlementRecoveryLoopR908);
+        researchTicketR341.request(generation, researchHandlerR908, 1200L, false, researchSelfLoopR908);
+    }
+
+    private void reconcileLoopsR341(long generation, boolean firstStart) {
+        if (!running || userRequestedStopV5 || generation != fetchGenerationR31) return;
+        fetchTicketR341.request(generation, fetchHandler, 0L, false, fetchLoop);
+        scheduleAnalysisWatchdogR341(firstStart ? 0L : ANALYSIS_WATCHDOG_INTERVAL_MS);
+        ensureR908BackgroundLoops();
+    }
+
+    private void resetServiceLoopsR341(long generation) {
+        fetchGenerationR31 = generation;
+        startTicketR341.reset(generation);
+        startRetryR341.reset(generation);
+        fetchTicketR341.reset(generation);
+        watchdogTicketR341.reset(generation);
+        settlementTicketR341.reset(generation);
+        researchTicketR341.reset(generation);
+        stateBroadcastTicketR341.reset(generation);
+        notificationTicketR341.reset(generation);
+    }
+
+    private void registerNetworkWakeR341(long generation) {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (manager == null) return;
+        synchronized (serviceLoopsLockR341) {
+            if (!running || userRequestedStopV5 || generation != fetchGenerationR31
+                    || networkCallbackR341 != null) return;
+            ConnectivityManager.NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
+                private Network validated;
+
+                @Override public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+                    boolean online = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                            && (Build.VERSION.SDK_INT < 23
+                                || capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED));
+                    if (online && !network.equals(validated)) {
+                        validated = network;
+                        if (running && !userRequestedStopV5 && generation == fetchGenerationR31) {
+                            offlineStreakR31 = 0;
+                            fetchTicketR341.request(generation, fetchHandler, 0L, true, fetchLoop);
+                        }
+                    } else if (!online && network.equals(validated)) {
+                        validated = null;
+                    }
+                }
+
+                @Override public void onLost(Network network) {
+                    if (network.equals(validated)) validated = null;
+                }
+            };
+            try {
+                if (Build.VERSION.SDK_INT >= 24) manager.registerDefaultNetworkCallback(callback);
+                else manager.registerNetworkCallback(new NetworkRequest.Builder()
+                        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), callback);
+                networkCallbackR341 = callback;
+            } catch (RuntimeException unavailable) {
+                android.util.Log.w("AutoFetchService", "Network wake unavailable; timed fetch remains armed", unavailable);
             }
-        } catch (Throwable ignore) {}
+        }
+    }
+
+    private void unregisterNetworkWakeR341() {
+        ConnectivityManager.NetworkCallback callback = networkCallbackR341;
+        networkCallbackR341 = null;
+        if (callback == null) return;
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (manager != null) {
+            try { manager.unregisterNetworkCallback(callback); }
+            catch (IllegalArgumentException alreadyUnregistered) {
+                android.util.Log.d("AutoFetchService", "Network wake already unregistered");
+            }
+        }
     }
 
     private static boolean isOomR3610(Throwable error) {
@@ -2727,9 +2804,14 @@ public final class AutoFetchService extends Service {
     }
 
     private void stopWork() {
+        synchronized (serviceLoopsLockR341) {
+            running = false;
+            resetServiceLoopsR341(fetchGenerationR31 + 1L);
+            unregisterNetworkWakeR341();
+        }
         if(writerFaultControlR334!=null)writerFaultControlR334.stop();
         if(runtimeGuardHandler!=null)runtimeGuardHandler.removeCallbacks(researchControlLoopR31);
-        researchControlPostedR31.set(false);fetchGenerationR31++;running=false;
+        researchControlPostedR31.set(false);
         realtimeReadR341.invalidate();
         Runnable tail = tailRecoveryR341.getAndSet(null);
         if (tail != null && backfillHandler != null) backfillHandler.removeCallbacks(tail);
@@ -2834,20 +2916,29 @@ public final class AutoFetchService extends Service {
     }
 
     private void ensureAnalysisWatchdog() {
-        if (!running || analysisWatchdogHandler == null) {
-            return;
+        scheduleAnalysisWatchdogR341(ANALYSIS_WATCHDOG_INTERVAL_MS);
+    }
+
+    private void scheduleAnalysisWatchdogR341(long delayMs) {
+        if (!running || userRequestedStopV5) return;
+        watchdogTicketR341.request(fetchGenerationR31, analysisWatchdogHandler, delayMs, true,
+                analysisWatchdogLoop);
+    }
+
+    private void repairDeadAnalysisWatchdogR341() {
+        synchronized (serviceLoopsLockR341) {
+            if (!running || userRequestedStopV5 || runtimeInitializationCancelled
+                    || (analysisWatchdogThread != null && analysisWatchdogThread.isAlive())) return;
+            analysisWatchdogThread = new HandlerThread("starcore_b07_analysis_watchdog", Process.THREAD_PRIORITY_BACKGROUND);
+            analysisWatchdogThread.start();
+            analysisWatchdogHandler = new Handler(analysisWatchdogThread.getLooper());
+            countdownWorkPostedR964.set(false);
         }
-        analysisWatchdogHandler.removeCallbacks(analysisWatchdogLoop);
-        analysisWatchdogHandler.postDelayed(analysisWatchdogLoop, ANALYSIS_WATCHDOG_INTERVAL_MS);
     }
 
     private void postFetchNow() {
-        if (!running || fetchHandler == null) {
-            return;
-        }
-
-        fetchHandler.removeCallbacks(fetchLoop);
-        fetchHandler.post(fetchLoop);
+        if (!running || userRequestedStopV5) return;
+        fetchTicketR341.request(fetchGenerationR31, fetchHandler, 0L, true, fetchLoop);
     }
 
     private void scheduleNextFetchLoop() {
@@ -2862,9 +2953,11 @@ public final class AutoFetchService extends Service {
         String reason=FETCH_R30.consecutiveFailures()>0?"HTTP_FAILURE_OR_429_BACKOFF":"NORMAL_OR_PREVIOUS_WORK_OVERRUN";
         if(offlineStreakR31>0){backoffR30=Math.max(backoffR30,Math.min(15000L,1000L<<Math.min(4,offlineStreakR31-1)));reason="NETWORK_UNAVAILABLE_BACKOFF";}
         long delay=fetchCadenceR31.nextDelay(android.os.SystemClock.elapsedRealtime(),backoffR30,reason,1L);
-        heartbeatStateV8().markFetchCadenceR31(fetchCadenceR31.snapshot());
-        fetchHandler.removeCallbacks(fetchLoop);
-        fetchHandler.postDelayed(fetchLoop, delay);
+        fetchTicketR341.request(fetchGenerationR31, fetchHandler, delay, true, fetchLoop);
+        try { heartbeatStateV8().markFetchCadenceR31(fetchCadenceR31.snapshot()); }
+        catch (RuntimeException unavailable) {
+            android.util.Log.w("AutoFetchService", "Fetch cadence telemetry unavailable", unavailable);
+        }
     }
 
     private void runFetchChannelOnce() {
@@ -3329,6 +3422,10 @@ public final class AutoFetchService extends Service {
                     getAuthoritativeLatest(result.latestDraw); // exact pending state + existing retention owner
                     throw new IllegalStateException("R50_LATEST_DRAW_NOT_DURABLE|issue=" + result.latestDraw.issue);
                 }
+                if (!historyPage && previous == null && latestCommitReturnElapsed > 0L) {
+                    FetchLedgerR925.observeDrawCommitReturnR341(result.latestDraw, latestCommitReturnWall,
+                            latestCommitReturnElapsed);
+                }
                 if (row > 0L) inserted++;
                 if (durableLatestConsumerR57 != null) durableLatestConsumerR57.run();
             }
@@ -3397,6 +3494,10 @@ public final class AutoFetchService extends Service {
         if (store == null) {
             return;
         }
+        if (android.os.Looper.myLooper() == getMainLooper()) {
+            scheduleAnalysisWatchdogR341(0L);
+            return;
+        }
         long nowR3610 = System.currentTimeMillis();
         final boolean oomBackoffR947 = analysisOomBackoffUntilR3610 > nowR3610;
         if (useR36Runtime()) {
@@ -3407,6 +3508,8 @@ public final class AutoFetchService extends Service {
                             ProviderFreshnessGateR3611.evaluate(latest,
                                     AppConfig.nextIssueText(latest.issue), System.currentTimeMillis());
                     if (!historyFreshnessR46.accepted) {
+                        SettlementTaskStoreR36.handoffCurrentExactR914(store, latest);
+                        scheduleSettlementBacklogMaintenanceR817("R341_RECONCILE_OBSERVED_DRAW", 0L);
                         setAnalysisState("WAITING", 0,
                                 "历史待同步，禁止对旧目标期补写预测：" + historyFreshnessR46.compact());
                         postAutonomousResearchTickR908("R46_HISTORY_TAIL_RECOVERY");
@@ -3435,6 +3538,12 @@ public final class AutoFetchService extends Service {
                                             });
                     if (r.settlementTerminalizedCount > 0) {
                         broadcastSettlementUpdated();
+                    }
+                    try {
+                        RecoveryCoordinatorR815.observeBusinessCommit(getApplicationContext(), store, r.targetIssue, false);
+                        RecoveryCoordinatorR815.observeBusinessCommit(getApplicationContext(), store, r.baseIssue, true);
+                    } catch (RuntimeException evidenceUnavailable) {
+                        android.util.Log.w("AutoFetchService", "Recovery evidence read will retry", evidenceUnavailable);
                     }
                     try {
                         heartbeatStateV8()
@@ -4426,6 +4535,7 @@ public final class AutoFetchService extends Service {
                 || !deferredDrainPostedR367.compareAndSet(false, true)) return;
         final long generation = fetchGenerationR31;
         h.removeCallbacks(deferredWakeR341);
+        com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.noteDrainScheduledR341();
         boolean posted = h.post(
                 new Runnable() {
                     @Override
@@ -4445,6 +4555,9 @@ public final class AutoFetchService extends Service {
                             boolean liveNeed = hasRealtimeAnalysisNeed();
                             boolean activeAnalysis =
                                     AnalysisSingleFlightR36.shared().activeCount() > 0;
+                            if (!activeAnalysis && !RealtimePressureGateR811.hasActiveCriticalWork()) {
+                                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.flushCommitted(store);
+                            }
                             if (!analysisBusy && !activeAnalysis) {
                                 DeferredEvidenceWriterR36.recoverResourceFailures(store);
                                 EssentialSettlementFeedbackR923.Result feedback =
@@ -5325,14 +5438,15 @@ public final class AutoFetchService extends Service {
     }
 
     private void runAnalysisWatchdogR36() {
-        long now = System.currentTimeMillis();
+        long now = TimeSourceR811.monoNowMs();
         if (!running || userRequestedStopV5 || store == null) return;
         try {
             repairDeadAnalysisWorkerR811("R924_ANALYSIS_WATCHDOG");
             AnalysisSingleFlightR36.shared().cancelIfNoProgress(now);
             // Always reconcile the latest draw before considering a stale durable request.
             // Reconcile is idempotent and the sole analysis owner cancels a superseded target.
-            if (now - lastAnalysisReconcileAtR816 >= R816_ANALYSIS_RECONCILE_INTERVAL_MS) {
+            if (lastAnalysisReconcileAtR816 == 0L
+                    || now - lastAnalysisReconcileAtR816 >= R816_ANALYSIS_RECONCILE_INTERVAL_MS) {
                 lastAnalysisReconcileAtR816 = now;
                 postAnalysisForLatest("R924_LATEST_FIRST_WATCHDOG", false);
             }
@@ -16131,59 +16245,11 @@ public final class AutoFetchService extends Service {
     }
 
     private void broadcastSettlementUpdated() {
-        try {
-            Intent intent = new Intent(AppConfig.ACTION_STATE_CHANGED);
-            intent.setPackage(getPackageName());
-            intent.putExtra(AppConfig.EXTRA_STATUS, AppConfig.SERVICE_STATUS_SETTLING);
-            intent.putExtra(
-                    AppConfig.EXTRA_COUNTDOWN_MS,
-                    countdownClock == null ? 0L : countdownClock.getCountdownMs());
-
-            if (store != null) {
-                Models.Draw latest = store.getLatestDraw();
-                if (latest != null && latest.isValid()) {
-                    String issue = latest.issue == null ? "" : latest.issue;
-                    intent.putExtra(AppConfig.EXTRA_CURRENT_ISSUE, issue);
-                    if (dataGuard != null) {
-                        intent.putExtra(
-                                AppConfig.EXTRA_TARGET_ISSUE, dataGuard.buildNextIssue(issue));
-                    }
-                }
-            }
-
-            sendBroadcast(intent);
-        } catch (Throwable e) {
-        }
-
         broadcastSimpleStateLimited(true);
         refreshNotificationNow();
     }
 
     private void broadcastDrawsUpdated(boolean force) {
-        try {
-            Intent intent = new Intent(AppConfig.ACTION_STATE_CHANGED);
-            intent.setPackage(getPackageName());
-
-            if (store != null) {
-                Models.Draw latest = store.getLatestDraw();
-                if (latest != null && latest.isValid()) {
-                    String issue = latest.issue == null ? "" : latest.issue;
-                    intent.putExtra(AppConfig.EXTRA_CURRENT_ISSUE, issue);
-                    if (dataGuard != null) {
-                        intent.putExtra(
-                                AppConfig.EXTRA_TARGET_ISSUE, dataGuard.buildNextIssue(issue));
-                    }
-                }
-            }
-
-            intent.putExtra(AppConfig.EXTRA_STATUS, lastStatus == null ? "" : lastStatus);
-            intent.putExtra(
-                    AppConfig.EXTRA_COUNTDOWN_MS,
-                    countdownClock == null ? 0L : countdownClock.getCountdownMs());
-            sendBroadcast(intent);
-        } catch (Throwable e) {
-        }
-
         broadcastSimpleStateLimited(force);
     }
 
@@ -16220,31 +16286,33 @@ public final class AutoFetchService extends Service {
     }
 
     private void broadcastSimpleStateLimited(boolean force) {
-        long now = System.currentTimeMillis();
-
-        if (!force
-                && lastSimpleStateBroadcastAt > 0L
-                && now - lastSimpleStateBroadcastAt < STATE_BROADCAST_MIN_INTERVAL_MS) {
-            return;
-        }
-
-        lastSimpleStateBroadcastAt = now;
-
-        try {
-            Models.AppRuntimeState state = store == null ? null : store.getRuntimeState();
-            broadcastState(state);
-        } catch (Throwable e) {
-        }
+        final long generation = fetchGenerationR31;
+        long now = TimeSourceR811.monoNowMs();
+        long delay = force ? 0L : Math.max(0L, lastSimpleStateBroadcastAt + STATE_BROADCAST_MIN_INTERVAL_MS - now);
+        stateBroadcastTicketR341.request(generation, backtestHandler, delay, true, () -> {
+            try {
+                Models.AppRuntimeState state = store == null ? null : store.getRuntimeState();
+                if (generation == fetchGenerationR31) {
+                    lastSimpleStateBroadcastAt = TimeSourceR811.monoNowMs();
+                    broadcastState(state);
+                }
+            } catch (RuntimeException unavailable) {
+                if (generation == fetchGenerationR31) broadcastState(null);
+            }
+        });
     }
 
     private void broadcastState(Models.AppRuntimeState state) {
         try {
             Intent intent = new Intent(AppConfig.ACTION_STATE_CHANGED);
             intent.setPackage(getPackageName());
-            intent.putExtra(AppConfig.EXTRA_STATUS, state == null ? "" : state.serviceStatus);
-            intent.putExtra(AppConfig.EXTRA_CURRENT_ISSUE, state == null ? "" : state.currentIssue);
-            intent.putExtra(AppConfig.EXTRA_TARGET_ISSUE, state == null ? "" : state.targetIssue);
-            intent.putExtra(AppConfig.EXTRA_COUNTDOWN_MS, state == null ? 0L : state.countdownMs);
+            intent.putExtra(AppConfig.EXTRA_STATUS, state == null ? safe(lastStatus) : state.serviceStatus);
+            if (state != null) {
+                intent.putExtra(AppConfig.EXTRA_CURRENT_ISSUE, state.currentIssue);
+                intent.putExtra(AppConfig.EXTRA_TARGET_ISSUE, state.targetIssue);
+            }
+            intent.putExtra(AppConfig.EXTRA_COUNTDOWN_MS, state == null
+                    ? (countdownClock == null ? 0L : countdownClock.getCountdownMs()) : state.countdownMs);
             sendBroadcast(intent);
         } catch (Throwable e) {
         }
@@ -16335,8 +16403,7 @@ public final class AutoFetchService extends Service {
                             safe(reason) + "|age=" + health.analysisAge + "|at=" + now);
                 }
                 if (!health.settlementAlive && analysisWatchdogHandler != null) {
-                    analysisWatchdogHandler.removeCallbacks(analysisWatchdogLoop);
-                    analysisWatchdogHandler.post(analysisWatchdogLoop);
+                    scheduleAnalysisWatchdogR341(0L);
                     store.setState(
                             "r811_settlement_stale_repost",
                             safe(reason) + "|age=" + health.settlementAge + "|at=" + now);
@@ -16524,6 +16591,13 @@ public final class AutoFetchService extends Service {
     }
 
     private void refreshNotificationNow() {
+        long generation = fetchGenerationR31;
+        notificationTicketR341.request(generation, backtestHandler, 0L, false,
+                () -> refreshNotificationFromReadLaneR341(generation));
+    }
+
+    private void refreshNotificationFromReadLaneR341(long generation) {
+        if (!running || generation != fetchGenerationR31) return;
         try {
             lastNotificationAt = System.currentTimeMillis();
 
@@ -16592,7 +16666,8 @@ public final class AutoFetchService extends Service {
                 text = text.substring(0, 180);
             }
 
-            nm.notify(AppConfig.NOTIFICATION_ID, buildNotification(title, text));
+            if (running && generation == fetchGenerationR31)
+                nm.notify(AppConfig.NOTIFICATION_ID, buildNotification(title, text));
         } catch (Throwable e) {
         }
     }
