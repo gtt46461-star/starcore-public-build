@@ -55,7 +55,13 @@ public final class ReportAttachmentClosureCP12 {
         File observation=new File(job,"runtime-observation.json");ReportJobJournalCP12.writeAtomic(observation,frozenObservation.toString());
         ReportMemberPlanCP12.append(members,"runtime-observation.json",observation.getName(),ReportArchiveCP4.hash(observation,control),observation.length());
         String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);source.put("sourceTreeSha256",SourceManifestR815.SOURCE_TREE_SHA256);source.put("generatedRuleSha256",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
-        BuildProvenanceR815.Snapshot runtimeIdentity=BuildProvenanceR815.lastSnapshot();if(runtimeIdentity!=null&&runtimeIdentity.valid&&apkBefore.equals(runtimeIdentity.apkSha256))source.put("signingCertificateSha256",runtimeIdentity.certSha256);else source.put("signingCertificateState","MATCHED_RUNTIME_FINGERPRINT_UNAVAILABLE");
+        BuildProvenanceR815.Snapshot runtimeIdentity=BuildProvenanceR815.lastSnapshot();
+        if(!runtimeIdentity.valid||!apkBefore.equals(runtimeIdentity.apkSha256))runtimeIdentity=BuildProvenanceR815.verifyRuntime(app);
+        source.put("verifiedInstallationR341",new JSONObject(BuildIdentity.observedReportIdentityR341(runtimeIdentity,apkBefore)));
+        source.put("runtimeObservedAt",frozenObservation.has("sampleWallMs")?frozenObservation.opt("sampleWallMs"):JSONObject.NULL);
+        JSONObject startedScope=frozenObservation.optJSONObject("r341ProcessStartScope");
+        if(startedScope!=null)source.put("runtimeProcessEpochR341",startedScope.opt("processEpoch"));
+        if(runtimeIdentity.valid&&apkBefore.equals(runtimeIdentity.apkSha256))source.put("signingCertificateSha256",runtimeIdentity.certSha256);else source.put("signingCertificateState","MATCHED_RUNTIME_FINGERPRINT_UNAVAILABLE");
         JSONObject registries=new JSONObject();
         for(String table:new String[]{ResearchPlatformStoreR929.TABLE_BUNDLE,"research_evidence_archive_v2","research_training_input_v2","research_training_attachment_cp12","r335_fault_original"})
             registries.put(table,hasTable(copy,table)?"PRESENT":"MISSING_SCHEMA");

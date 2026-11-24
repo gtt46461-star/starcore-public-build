@@ -1095,13 +1095,17 @@ public final class SchemaDomainCoordinatorR926 {
     }
 
     static void migrateR341ObservationScope(SQLiteDatabase db) throws Exception {
-        Contract contract = new Contract("R341_OBSERVATION_SCOPE", 1,
+        Contract contract = new Contract("R341_OBSERVATION_SCOPE", 2,
                 new String[]{RuntimeObservationScopeR341.DATABASE, RuntimeObservationScopeR341.EVENT_SCOPE,
-                        "r341_observation_release"});
+                        "r341_observation_release",com.ethk3.novaonepro.strategyv2.RepairEffectLedgerR341.INSTALL,
+                        com.ethk3.novaonepro.strategyv2.RepairEffectLedgerR341.EFFECT});
         db.beginTransaction();
         try {
             prepareRepairIfDrift(db, contract);
-            runStep(db, contract, "R341_OBSERVATION_SCOPE_V1", RuntimeObservationScopeR341::installWithinTransaction);
+            runStep(db, contract, "R341_OBSERVATION_SCOPE_WITH_REPAIR_V2", tx->{
+                RuntimeObservationScopeR341.installWithinTransaction(tx);
+                com.ethk3.novaonepro.strategyv2.RepairEffectLedgerR341.installWithin(tx);
+            });
             verifyAndStamp(db, contract);
             db.setTransactionSuccessful();
         } finally {

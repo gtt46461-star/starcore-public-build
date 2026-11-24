@@ -36,6 +36,7 @@ public final class ResearchVisualDataR82 {
     }
     public static final class Panel {
         public final String page,title,kind,source,window,note,status;
+        public final String displayState,reasonCode,sourceScope;
         public final List<String> matrixRows,matrixColumns;
         public final List<Point> points;
         public final List<Edge> edges;
@@ -46,17 +47,29 @@ public final class ResearchVisualDataR82 {
             this.page=safe(page);this.title=safe(title);this.kind=safe(kind);this.source=safe(source);
             this.window=safe(window);this.note=safe(note);this.status=safe(status);
             this.points=bounded(points,MAX_POINTS);this.edges=bounded(edges,MAX_EDGES);this.refs=bounded(refs,8);this.series=bounded(series,12);
+            String reason=ReportSourceStateR341.reason(this.status);
+            boolean data=hasMeasurements(this.points,this.edges)&&!java.util.Arrays.asList("STALE","SOURCE_ERROR",
+                    "WAITING_SOURCE","CANCELLED","TIMED_OUT","PERMISSION_DENIED").contains(reason);
+            displayState=data?"HAS_DATA":reason.isEmpty()||"OBSERVED_EMPTY".equals(reason)?"EMPTY":"UNAVAILABLE";
+            reasonCode=data&&reason.isEmpty()?"":reason.isEmpty()?"OBSERVED_EMPTY":reason;
+            sourceScope=this.source+"|"+this.window;
         }
         public Panel(String page,String title,String kind,String source,String window,long ignoredN,String note,String status,List<Point> points,List<Edge> edges) {
             this(page,title,kind,source,window,note,status,points,edges);
         }
         public Panel(String page,String title,String kind,String source,String window,String note,String status,List<Point> points,List<Edge> edges) {
-            matrixRows=Collections.emptyList();matrixColumns=Collections.emptyList();
-            this.page=safe(page);this.title=safe(title);this.kind=safe(kind);this.source=safe(source);
-            this.window=safe(window);this.note=safe(note);this.status=safe(status);
-            this.points=bounded(points,MAX_POINTS);this.edges=bounded(edges,MAX_EDGES);this.refs=Collections.emptyList();this.series=Collections.emptyList();
+            this(page,title,kind,source,window,note,status,points,edges,null,null);
         }
-        public Panel(Panel p,List<String> rows,List<String> columns){this.page=p.page;this.title=p.title;this.kind=p.kind;this.source=p.source;this.window=p.window;this.note=p.note;this.status=p.status;this.points=p.points;this.edges=p.edges;this.refs=p.refs;this.series=p.series;this.matrixRows=bounded(rows,120);this.matrixColumns=bounded(columns,120);if(!matrixRows.isEmpty()&&!matrixColumns.isEmpty()&&matrixRows.size()*matrixColumns.size()!=points.size())throw new IllegalArgumentException("MATRIX_AXIS_CELL_SHAPE");}
+        public Panel(Panel p,List<String> rows,List<String> columns){this.page=p.page;this.title=p.title;this.kind=p.kind;this.source=p.source;this.window=p.window;this.note=p.note;this.status=p.status;this.displayState=p.displayState;this.reasonCode=p.reasonCode;this.sourceScope=p.sourceScope;this.points=p.points;this.edges=p.edges;this.refs=p.refs;this.series=p.series;this.matrixRows=bounded(rows,120);this.matrixColumns=bounded(columns,120);if(!matrixRows.isEmpty()&&!matrixColumns.isEmpty()&&matrixRows.size()*matrixColumns.size()!=points.size())throw new IllegalArgumentException("MATRIX_AXIS_CELL_SHAPE");}
+
+        private static boolean hasMeasurements(List<Point> points,List<Edge> edges){
+            if(!edges.isEmpty())return true;
+            for(Point point:points){
+                if(Double.isFinite(point.value)||Double.isFinite(point.lower)||Double.isFinite(point.upper)||Double.isFinite(point.open))return true;
+                if(point.stack!=null)for(double value:point.stack)if(Double.isFinite(value))return true;
+            }
+            return false;
+        }
     }
     public static final class Dashboard {
         public final String page,status,asOfIssue,exactCandidate,candidateKey,dataVersion,sourceVersion,note,snapshotId;

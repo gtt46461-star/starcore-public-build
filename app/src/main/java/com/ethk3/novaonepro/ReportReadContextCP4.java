@@ -10,6 +10,21 @@ import org.json.*;
 public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextCP12.Context {
  private final java.util.Set<ReportTextCP12> renderers=new java.util.HashSet<>();
  private final java.util.Map<String,Object> memo=new java.util.HashMap<>();
+ private final Map<String,Map<String,Object>> sourceReadFailuresR341=new LinkedHashMap<>();
+ private int omittedFailuresR341;
+ public void recordSourceFailureR341(String id,String reason){
+  if(sourceReadFailuresR341.containsKey(id))return;
+  if(sourceReadFailuresR341.size()>=128){omittedFailuresR341++;return;}
+  String detail=reason==null?"UNKNOWN":reason.substring(0,Math.min(reason.length(),220));
+  sourceReadFailuresR341.put(id,ReportSourceStateR341.observation(id,"PINNED_REPORT:"+snapshotSha,
+      "SOURCE_UNAVAILABLE",detail,null,null));
+ }
+ public List<Map<String,Object>> sourceFailuresR341(){
+  List<Map<String,Object>> out=new ArrayList<>(sourceReadFailuresR341.values());
+  if(omittedFailuresR341>0)out.add(ReportSourceStateR341.observation("REPORT_SOURCE_FAILURES_OVERFLOW",
+      "PINNED_REPORT:"+snapshotSha,"TRUNCATED",Integer.toString(omittedFailuresR341),null,null));
+  return Collections.unmodifiableList(out);
+ }
  private java.io.Writer artifactManifest;private java.io.FileOutputStream artifactFd;
  private final SQLiteDatabase snapshot;private final String snapshotId,snapshotSha;private final long snapshotAt;private final CancellationSignal cancellation;private final java.io.File snapshotDirectoryR31;
  public final RuntimeObservationCP4 runtime;public final SourceManifestCP4 source;private boolean closed;
@@ -22,8 +37,8 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
   snapshotDirectoryR31=openedSnapshotDirectoryR31(snapshot.getPath());
  }
  public String observationString(String key){try{Object value=new JSONObject(runtime.json).get(key);if(!(value instanceof String))throw new ReportReadFailureCP4("OBSERVATION_TYPE");return (String)value;}catch(JSONException missing){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",missing);}}
- public long observationLong(String key){try{Object value=new JSONObject(runtime.json).get(key);if(!(value instanceof Number))throw new ReportReadFailureCP4("OBSERVATION_TYPE");return ((Number)value).longValue();}catch(JSONException missing){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",missing);}}
- public boolean observationBoolean(String key){try{Object value=new JSONObject(runtime.json).get(key);if(!(value instanceof Boolean))throw new ReportReadFailureCP4("OBSERVATION_TYPE");return (Boolean)value;}catch(JSONException missing){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",missing);}}
+ public long observationLong(String key){try{Object value=new JSONObject(runtime.json).get(key);if(!(value instanceof Number))throw new ReportReadFailureCP4("OBSERVATION_TYPE");return ((Number)value).longValue();}catch(JSONException missing){recordSourceFailureR341("RUNTIME_OBSERVATION:"+key,"OBSERVATION_UNAVAILABLE");throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",missing);}catch(ReportReadFailureCP4 invalid){recordSourceFailureR341("RUNTIME_OBSERVATION:"+key,invalid.code);throw invalid;}}
+ public boolean observationBoolean(String key){try{Object value=new JSONObject(runtime.json).get(key);if(!(value instanceof Boolean))throw new ReportReadFailureCP4("OBSERVATION_TYPE");return (Boolean)value;}catch(JSONException missing){recordSourceFailureR341("RUNTIME_OBSERVATION:"+key,"OBSERVATION_UNAVAILABLE");throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",missing);}catch(ReportReadFailureCP4 invalid){recordSourceFailureR341("RUNTIME_OBSERVATION:"+key,invalid.code);throw invalid;}}
  public static final String COMPLETE_DIAGNOSTIC_PROFILE_R68="COMPLETE_DIAGNOSTIC_R68";
  public static final String LEGACY_DIAGNOSTIC_PROFILE_R64="COMPACT_DIAGNOSTIC_R64";
  public static final String RAW_EVIDENCE_PROFILE="FULL_RAW_EVIDENCE";
@@ -93,8 +108,8 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
  }
  public String startupSchemaSummaryR363(){try{return new JSONObject(runtime.json).getString("schemaStartupSummary");}catch(Exception error){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",error);}}
  public Cursor select(String sql,String[] args){checkpoint();if(sql==null||!sql.trim().toUpperCase(java.util.Locale.ROOT).matches("^(SELECT|WITH|PRAGMA)\\b.*")||sql.indexOf(';')>=0)throw new ReportReadFailureCP4("REPORT_SELECT_REQUIRED");return snapshot.rawQuery(sql,args,cancellation);}
- public long scalarLong(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst()||c.getColumnCount()!=1||c.isNull(0)||c.getType(0)!=Cursor.FIELD_TYPE_INTEGER)throw new ReportReadFailureCP4("REPORT_SCALAR_UNKNOWN");long v=c.getLong(0);if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}}
- public Double scalarDouble(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst())return null;if(c.getColumnCount()!=1)throw new ReportReadFailureCP4("REPORT_SCALAR_SHAPE");Double v=c.isNull(0)?null:c.getDouble(0);if(v!=null&&!Double.isFinite(v))throw new ReportReadFailureCP4("REPORT_NON_FINITE");if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}}
+ public long scalarLong(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst()||c.getColumnCount()!=1||c.isNull(0)||c.getType(0)!=Cursor.FIELD_TYPE_INTEGER)throw new ReportReadFailureCP4("REPORT_SCALAR_UNKNOWN");long v=c.getLong(0);if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}catch(RuntimeException failure){if(!(failure instanceof android.os.OperationCanceledException))recordSourceFailureR341("SQL_INTEGER:"+V51ChecksumEngine.sha256(sql==null?"":sql),failure.getMessage());throw failure;}}
+ public Double scalarDouble(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst())return null;if(c.getColumnCount()!=1)throw new ReportReadFailureCP4("REPORT_SCALAR_SHAPE");int type=c.getType(0);if(type!=Cursor.FIELD_TYPE_NULL&&type!=Cursor.FIELD_TYPE_FLOAT&&type!=Cursor.FIELD_TYPE_INTEGER)throw new ReportReadFailureCP4("REPORT_SCALAR_UNKNOWN");Double v=c.isNull(0)?null:c.getDouble(0);if(v!=null&&!Double.isFinite(v))throw new ReportReadFailureCP4("REPORT_NON_FINITE");if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}catch(RuntimeException failure){if(!(failure instanceof android.os.OperationCanceledException))recordSourceFailureR341("SQL_REAL:"+V51ChecksumEngine.sha256(sql==null?"":sql),failure.getMessage());throw failure;}}
  public interface Factory<T>{T create();}
  public <T> T memo(String key,Factory<T> factory){checkpoint();Object value=memo.get(key);if(value==null){if(memo.size()>=32)throw new ReportReadFailureCP4("REPORT_MEMO_LIMIT");value=java.util.Objects.requireNonNull(factory.create());memo.put(key,value);}return (T)value;}
  /** Normalize the already opened read-only snapshot's owner, including Android's

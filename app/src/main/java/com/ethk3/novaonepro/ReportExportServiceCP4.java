@@ -363,10 +363,12 @@ public final class ReportExportServiceCP4 extends Service {
                         ReportAttachmentClosureCP12.capture(this,copy,directory,frozenRequest,active,members,job.snapshotSha,job.snapshotBytes);
                     }
                     android.os.CancellationSignal cancellation=new android.os.CancellationSignal();
+                    java.util.List<java.util.Map<String,Object>> catalogSourceFailures;
                     try(ReportReadContextCP4 ctx=new ReportReadContextCP4(copy,job.jobId,job.snapshotSha,job.snapshotWallMs,
                             new ReportReadContextCP4.RuntimeObservationCP4(ReportJobJournalCP12.readAtomic(new File(directory,"runtime-observation.json"),65536)),
                             new ReportReadContextCP4.SourceManifestCP4(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),cancellation,3*MiB)) {
                         catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->active.checkpoint());ctx.finishArtifacts();
+                        catalogSourceFailures=ctx.sourceFailuresR341();
                         File readable=ReportCatalogCP4.writeReadableSummary(directory,catalog,active);ReportMemberPlanCP12.append(members,readable.getName(),readable.getName(),ReportArchiveCP4.hash(readable,active),readable.length());
                     }
                     if(request.optBoolean("includeRawEvidence", false)) {
@@ -400,6 +402,11 @@ public final class ReportExportServiceCP4 extends Service {
                     // R30 primary report: capture once, then serialize the identical twelve chapters twice.
                     java.util.Map<String,Object> r30Source=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536));
                     r30Source.put("reportJobId",job.jobId);r30Source.put("snapshotSha256",job.snapshotSha);
+                    r30Source.put("catalogSourceFailuresR341",catalogSourceFailures);
+                    java.util.Map<String,Object> performedChecks=new java.util.LinkedHashMap<>();
+                    performedChecks.put("recorded",catalog.checks);performedChecks.put("executionComplete",catalog.checksComplete);
+                    performedChecks.put("catalogComplete",catalog.evidenceCatalogComplete);performedChecks.put("allPassed",catalog.allChecksPassed);
+                    performedChecks.put("queryErrors",catalog.queryErrors);r30Source.put("checksR341",performedChecks);
                     r30Source.put("resourceObservationB01",ReportResourceObservationB01.readForReport(journal.root(),job));
                     r30Source.put("runtimeFaultHotColdR335",RuntimeFaultOriginalStoreR335.reportSample(copy,getFilesDir()));
                     r30Source.put("checkpointCasSource",checkpointSource.observation());
@@ -739,6 +746,9 @@ public final class ReportExportServiceCP4 extends Service {
     private final class ActiveControl implements ReportNativeCP4.Control {
         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;volatile long deadline=Long.MAX_VALUE,lastRead;private long stageStarted;
         private String progressStageR31="CLAIMED";
+        private final Thread executingOwnerR341=Thread.currentThread();
+        private volatile long realtimeQuietAfterR341;
+        private volatile long stageParkedMsR341;
         private final long[] nextProgressR31=new long[2],progressFailuresR31=new long[2];
         private final Throwable[] firstProgressFailureR31=new Throwable[2];
         synchronized void stopR31(String reason,Throwable cause){if(stopReason.isEmpty()){stopReason=reason;stopCauseR31=cause;}else if(cause!=null&&stopCauseR31!=null&&cause!=stopCauseR31&&stopCauseR31.getSuppressed().length<8)stopCauseR31.addSuppressed(cause);}
@@ -766,7 +776,7 @@ public final class ReportExportServiceCP4 extends Service {
             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind kind=backup?com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP:codec?com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER:com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.RESEARCH;
             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Admission admitted=budget.tryAcquire("report:"+job.jobId,job.revision,kind,backup?SQLITE_BACKUP_BUDGET:codec?NATIVE_BUDGET:8*MiB,()->cancel.get()||destroyed.get());
             if(!admitted.acquired())throw new IOException("REPORT_MEMORY_BUDGET_WAIT:"+admitted.reason);phaseMemoryR31=admitted.lease;
-            try{sampleR31(0,new JSONObject().put("stage",stage).put("startedWallMs",System.currentTimeMillis()),stageStarted,true);}
+            try{sampleR31(0,new JSONObject().put("stage",stage).put("startedWallMs",System.currentTimeMillis()).put("cumulativeRealtimeParkedMs",stageParkedMsR341),stageStarted,true);}
             catch(org.json.JSONException error){throw new IOException("REPORT_STAGE_SAMPLE_FORMAT",error);}}
         @Override public synchronized void onBackupProgress(long totalPages,long remainingPages,int nativeCode){
             // SQLite has already returned this error before reconciliation.
@@ -833,17 +843,39 @@ public final class ReportExportServiceCP4 extends Service {
             if(reserved!=null)reserved.close();
         }
         void releaseResourcesR31(){closePhaseR31();StorageBudgetR31.Reservation reserved=storageReservationR31;storageReservationR31=null;if(reserved!=null)try{reserved.close();}catch(IOException release){android.util.Log.w("ReportExportCP12","Disk reservation release needs recovery",release);}}
-        public synchronized boolean shouldContinue(){if(!stopReason.isEmpty())return false;if(cancel.get()){stopReason="REPORT_USER_CANCEL";return false;}if(destroyed.get()){stopReason="REPORT_PROCESS_SHUTDOWN";return false;}if(Thread.currentThread().isInterrupted()){stopReason="REPORT_WORKER_INTERRUPTED";return false;}
+        public boolean shouldContinue(){
+            if(!probeControlR341())return false;
+            if(!"FULL_REPORT".equals(job.mode)||Thread.currentThread()!=executingOwnerR341)return true;
+            long started=SystemClock.elapsedRealtime(), boundedUntil=Math.min(realtimeQuietAfterR341,started+2000L);
+            if(boundedUntil<=started)return true;
+            while(SystemClock.elapsedRealtime()<boundedUntil){
+                if(!probeControlR341())return false;
+                long left=Math.min(boundedUntil,realtimeQuietAfterR341)-SystemClock.elapsedRealtime();
+                if(left<=0)break;
+                java.util.concurrent.locks.LockSupport.parkNanos(java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(Math.min(50L,left)));
+            }
+            stageParkedMsR341+=SystemClock.elapsedRealtime()-started;
+            return probeControlR341();
+        }
+        private synchronized boolean probeControlR341(){if(!stopReason.isEmpty())return false;if(cancel.get()){stopReason="REPORT_USER_CANCEL";return false;}if(destroyed.get()){stopReason="REPORT_PROCESS_SHUTDOWN";return false;}if(Thread.currentThread().isInterrupted()){stopReason="REPORT_WORKER_INTERRUPTED";return false;}
             long now=SystemClock.elapsedRealtime();if(now>=deadline){stopReason="REPORT_STAGE_TIMEOUT";return false;}
             if(now-lastRead>=ReportTaskControlR69.CHECKPOINT_MS_R30){lastRead=now;try{
                 if(ReportTaskControlR69.cancelled(root,job.requestId,cancelKey)){cancel.set(true);stopReason="REPORT_USER_CANCEL";return false;}
                 if(job.mode.equals("RETENTION_PAGE")&&(ReportRequestQueueCP12.hasInteractive(root)||ReportTaskControlR69.hasPending(root))){stopReason="REPORT_REALTIME_PREEMPT";return false;}
                 if(ReportJobJournalCP12.isCancellationRequested(root,cancelKey)){cancel.set(true);stopReason="REPORT_USER_CANCEL";return false;}
                 File pressure=new File(root,"realtime-pressure.json"),session=new File(root,"runtime-session.json");
-                if(!job.mode.equals("FULL_REPORT")&&pressure.exists()&&session.exists()){
-                    JSONObject json=new JSONObject(ReportJobJournalCP12.readAtomic(pressure,4096)),owner=new JSONObject(ReportJobJournalCP12.readAtomic(session,4096));
-                    long sampled=json.getLong("elapsedRealtimeMs"),valid=json.getLong("validUntilElapsedMs");
-                    if(json.getString("session").equals(owner.getString("session"))&&sampled>=owner.getLong("startElapsed")&&sampled<=now&&valid>now&&valid-sampled<=2000&&json.getLong("leaseGeneration")>0){stopReason="REPORT_REALTIME_PREEMPT";return false;}
+                if(pressure.exists()&&session.exists()){
+                    try{
+                        JSONObject json=new JSONObject(ReportJobJournalCP12.readAtomic(pressure,4096)),owner=new JSONObject(ReportJobJournalCP12.readAtomic(session,4096));
+                        long sampled=json.getLong("elapsedRealtimeMs"),valid=json.getLong("validUntilElapsedMs");
+                        if(json.getString("session").equals(owner.getString("session"))&&sampled>=owner.getLong("startElapsed")&&sampled<=now&&valid>now&&valid-sampled<=2000&&json.getLong("leaseGeneration")>0){
+                            if(!job.mode.equals("FULL_REPORT")){stopReason="REPORT_REALTIME_PREEMPT";return false;}
+                            realtimeQuietAfterR341=valid;
+                        }else realtimeQuietAfterR341=0L;
+                    }catch(Exception optionalSample){
+                        if(!job.mode.equals("FULL_REPORT"))throw optionalSample;
+                        realtimeQuietAfterR341=0L;
+                    }
                 }
                 if(new StatFs(getFilesDir().getPath()).getAvailableBytes()<32*MiB){stopReason="REPORT_DISK_BUDGET";return false;}
             }catch(ReportJobJournalCP12.CancellationLockBusyR334 busy){stopR31("REPORT_RESOURCE_WAIT|CANCEL_COMMAND_LOCK_BUSY",busy);return false;}

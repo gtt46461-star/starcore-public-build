@@ -419,6 +419,9 @@ public final class RepairDiagnosisR32 {
             Map<?,?> original = map(entry);
             String code = small(original.get("code"));
             Map<String,Object> row = fields(original, "code", "scope", "severity", "value", "prescription");
+            row.put("statusAtInstall","STALE_UNRECHECKED");
+            row.put("originalFindingRef",StatsR27.sha256(JsonR27.write(original)));
+            row.put("observationConfidence","HISTORICAL_ORIGINAL_REQUIRES_CURRENT_READBACK");
             if ("S4".equals(code)) {
                 row.put("meaning", DiagnosisTextSU2.T.get("F.S4.title"));
                 row.put("nextAction", DiagnosisTextSU2.T.get("F.S4.action"));
@@ -455,6 +458,8 @@ public final class RepairDiagnosisR32 {
                     finding.put(String.valueOf(e.getKey()), e.getValue());
                 }
                 Map<String,Object> explanation = explanations.get(position++);
+                finding.put("currentAssessment",explanation.get("statusAtInstall"));
+                finding.put("originalFindingRef",explanation.get("originalFindingRef"));
                 if (small(finding.get("prescription")).isEmpty()) {
                     finding.put("originalPrescription", finding.get("prescription"));
                     finding.put("prescription", explanation.get("nextAction"));

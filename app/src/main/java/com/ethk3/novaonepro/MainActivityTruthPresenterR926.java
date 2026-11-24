@@ -23,7 +23,11 @@ public final class MainActivityTruthPresenterR926 {
 
     public static RenderedDetail render(DbStore store, int kind) {
         RuntimeReadOnlyRepositoryR926 repository = new RuntimeReadOnlyRepositoryR926(store);
-        if(kind==3||kind==9){RuntimeTruthSnapshotR906 truth=HomeTruthRepositoryR906.capture(store);return new RenderedDetail("业务漏斗14阶段完整明细",truth.businessFunnel==null?"READ_ERROR|"+truth.readError:truth.businessFunnel.detail(),false);}
+        if(kind==3||kind==9){
+            RuntimeTruthSnapshotR906 truth=HomeTruthRepositoryR906.capture(store);
+            String body=truth.businessFunnel==null?"READ_ERROR|"+truth.readError:truth.businessFunnel.detail();
+            return new RenderedDetail("业务漏斗14阶段完整明细",body+"\n快照 "+truth.snapshotId+"\n"+truth.coverage.canonical(),false);
+        }
         if (kind >= 1 && kind <= 4) {
             int section = kind - 1;
             return new RenderedDetail(

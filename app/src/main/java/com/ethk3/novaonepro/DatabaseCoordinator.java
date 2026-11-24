@@ -1250,7 +1250,9 @@ public final class DatabaseCoordinator {
         }
     }
 
-    private static void observeResearchCommitR341(WriteContext context, CommitIdentityR31 identity) {
+    private void observeResearchCommitR341(WriteContext context, CommitIdentityR31 identity) {
+        try{com.ethk3.novaonepro.strategyv2.RepairEffectLedgerR341.appendObservation(this,context.operation,identity);}
+        catch(RuntimeException unobservable){android.util.Log.w("STARCORE_R341","Repair effect observation deferred",unobservable);}
         if (context.writeClass != WriteClass.RESEARCH_DATA) return;
         long now = TimeSourceR811.monoNowMs();
         LAST_RESEARCH_SERVICE_R31.accumulateAndGet(now, Math::max);

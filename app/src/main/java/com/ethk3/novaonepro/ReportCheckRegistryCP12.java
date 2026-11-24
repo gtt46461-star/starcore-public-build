@@ -108,6 +108,10 @@ public final class ReportCheckRegistryCP12 {
  private static LiveResearchDiagnosisOrchestrator.DiagnosisBundle bundle(ReportReadContextCP4 c){return c.memo("diagnosis-bundle",()->new LiveResearchDiagnosisOrchestrator().diagnosisSnapshotCP12(c));}
  private static ReportCatalogCP4.CheckResult result(String outcome,String health,String body){return new ReportCatalogCP4.CheckResult("EXECUTED",outcome,health,"EXACT_SOURCE_SNAPSHOT_EVALUATOR",body);}
  /** Exact source outcomes remain in domainOutcome. These documented severity projections never manufacture PASS. */
+ static boolean sourceReadFailedR341(ReportCatalogCP4.CheckResult result){
+  return "READ_ERROR".equals(result.executionState)||"READ_ERROR".equals(result.domainOutcome)
+      ||"SOURCE_UNAVAILABLE".equals(result.domainOutcome)||"SCHEMA_PENDING".equals(result.domainOutcome);
+ }
  public static String health(String domain){switch(domain){
  case "PASS":case "HEALTHY":case "ENGINEERING_AND_MODEL_CHAIN_HEALTHY":return "PASS";case "OBSERVED":case "AVAILABLE":case "OK":case "READ_OK":return "OBSERVED";
  case "FAIL":case "HARD_BLOCK":case "BLOCKED":case "BLOCKED_UPSTREAM":case "CRITICAL":return "FAIL";

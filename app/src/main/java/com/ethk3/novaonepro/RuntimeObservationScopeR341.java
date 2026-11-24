@@ -71,7 +71,7 @@ public final class RuntimeObservationScopeR341 {
         return value == null || value.isEmpty() ? UNRESOLVED : value;
     }
 
-    private boolean identified() {
+    public boolean identified() {
         return sourceCommit != null && sourceCommit.matches("[a-f0-9]{40}")
                 && releaseId != null && releaseId.matches("[a-f0-9]{64}")
                 && !unknown(databaseIdentity) && !unknown(bootId) && !unknown(processEpoch)
@@ -126,7 +126,7 @@ public final class RuntimeObservationScopeR341 {
     }
 
     /** Live handles can be reused; a report's independently opened immutable handle reads its own identity. */
-    static String databaseIdentity(SQLiteDatabase db) {
+    public static String databaseIdentity(SQLiteDatabase db) {
         if (db == null) return UNRESOLVED;
         synchronized (KNOWN_DATABASES) {
             String cached = KNOWN_DATABASES.get(db);

@@ -47,7 +47,7 @@ public final class RuntimeTruthSnapshotR906 {
         businessFunnel=funnel; snapshotId=safe(id);this.hash=safe(hash);this.status=explicit(status,"AVAILABLE");readError=safe(error);generatedAt=at;dbDataVersion=version;
         targetIssue=safe(target);latestDrawIssue=safe(draw);latestCanonicalIssue=safe(canonical);latestClosureIssue=safe(closure);latestOosIssue=safe(oos);
         whyCards=cards==null?new TruthCard[0]:cards;stateBoxes=boxes==null?new StateBox[0]:boxes;
-        this.coverage=coverage==null?new SettlementCoverageTruthR906(0,0,0,0,0):coverage;
+        this.coverage=coverage==null?SettlementCoverageTruthR906.unavailable("NO_COVERAGE_SOURCE"):coverage;
         this.pipelineSummary=explicit(pipelineSummary,"运行闭环不可用｜原因=NO_DATA");
         this.pipelineDetail=explicit(pipelineDetail,this.pipelineSummary);
         this.shadowSummary=explicit(shadowSummary,"影子结算不可用｜原因=NO_DATA");
@@ -159,7 +159,7 @@ public final class RuntimeTruthSnapshotR906 {
         String hash=V51ChecksumEngine.sha256("R906_ERROR|"+r+'|'+now);
         String failure="READ_ERROR:"+r;
         return new RuntimeTruthSnapshotR906("R922-READ-ERROR-"+shortHash(hash),hash,"READ_ERROR",r,
-                now,0L,"","","","","",cards,boxes,new SettlementCoverageTruthR906(0,0,0,0,0),
+                now,0L,"","","","","",cards,boxes,SettlementCoverageTruthR906.unavailable("NO_COVERAGE_SOURCE"),
                 "运行闭环｜"+failure,failure,"影子结算｜"+failure,failure,
                 "Research｜"+failure,failure,"真实出手硬门｜"+failure,failure,null);
     }
@@ -675,9 +675,10 @@ public final class RuntimeTruthSnapshotR906 {
         RuntimeHealthLedgerR36.Metrics m=RuntimeHealthLedgerR36.metrics(store,RuntimeHealthLedgerR36.DURABLE_RETURN_EVENT_R923,96);
         return "R923运行闭环｜开奖="+explicit(d.latestDraw,"N/A")+"｜预测="+explicit(d.latestCanonical,"N/A")
                 +"｜结算="+explicit(d.latestSettled,"N/A")+"｜严格OOS="+explicit(d.latestOos,"N/A")
-                +"\n开奖任务终态="+cov.drawTaskTerminal+'/'+cov.drawTaskTotal+"｜开放="+cov.drawTaskOpen
-                +"｜预测结算="+cov.settledPredictions+'/'+cov.predictedEligible+"｜无赛前预测排除="+cov.excludedNoPredraw
-                +"｜阻断="+cov.blocked+"｜延后证据="+d.deferredPending
+                +("READ_OK".equals(cov.sourceStatus)?"\n开奖任务终态="+cov.drawTaskTerminal+'/'+cov.drawTaskTotal+"｜开放="+cov.drawTaskOpen
+                +"｜预测结算="+cov.settledPredictions+'/'+cov.predictedEligible+"｜无赛前预测排除="+cov.excludedNoPredraw+"｜阻断="+cov.blocked
+                :"\n结算范围="+cov.sourceStatus+"/"+cov.sourceReason)
+                +"｜延后证据="+d.deferredPending
                 +"｜分析并发="+AnalysisSingleFlightR36.shared().activeCount()
                 +"｜请求至事务返回P95(最近96)="+(m==null||m.sample<=0||m.p95Ms<0?"N/A":m.p95Ms+"ms")
                 +"｜实时压力="+(d.realtimePressure?"YES":"NO");
@@ -822,23 +823,35 @@ public final class RuntimeTruthSnapshotR906 {
         return b.length()==0?"NO_SAMPLE:NO_SETTLEMENT_TASK":b.toString();
     }
 
-    private static SettlementCoverageTruthR906 coverage(SQLiteDatabase db){
-        Cursor c=null;try{
-            // R912 denominator truth: every frozen canonical prediction whose exact draw exists
-            // is eligible, whether or not its task has managed to complete yet. R906 previously
-            // counted COMPLETED tasks as the denominator, making a badly stuck queue look healthy.
-            c=db.rawQuery("SELECT "+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s WHERE s.pre_draw_frozen=1 AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.issue=s.target_issue AND d.dirty=0)),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s WHERE s.pre_draw_frozen=1 AND s.settled=1 AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_R35_OOS_LABEL+" l WHERE l.target_issue=s.target_issue AND l.strict_oos=1)),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE t.status='NO_PREDRAW_CANONICAL_TERMINAL'),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE t.status IN ('FAILED_TERMINAL','INVALID_DRAW_TERMINAL')),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.issue=t.target_issue AND d.dirty=0)),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE t.status IN ('COMPLETED','NO_PREDRAW_CANONICAL_TERMINAL','FAILED_TERMINAL','INVALID_DRAW_TERMINAL') AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.issue=t.target_issue AND d.dirty=0))",null);
-            if(!c.moveToFirst())return new SettlementCoverageTruthR906(0,0,0,0,0);
-            int eligible=c.getInt(0),settled=c.getInt(1),excluded=c.getInt(2),blocked=c.getInt(3),tasks=c.getInt(4),terminal=c.getInt(5);
-            return new SettlementCoverageTruthR906(eligible,settled,excluded,blocked,Math.max(0,eligible-settled),tasks,terminal,Math.max(0,tasks-terminal));
-        }catch(Throwable e){return new SettlementCoverageTruthR906(0,0,0,0,0);}
-        finally{if(c!=null)c.close();}
+    private static final String COVERAGE_R341 = "WITH hot AS (SELECT issue FROM "+DbHelper.TABLE_DRAWS
+            +" WHERE dirty=0), eligible AS (SELECT s.target_issue,s.settled FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION
+            +" s JOIN hot h ON h.issue=s.target_issue WHERE s.pre_draw_frozen=1), task AS (SELECT t.status FROM "
+            +DbHelper.TABLE_R36_SETTLEMENT_TASK+" t JOIN hot h ON h.issue=t.target_issue) SELECT "
+            +"(SELECT count(*) FROM eligible),"
+            +"(SELECT count(*) FROM eligible e WHERE e.settled=1 AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_R35_OOS_LABEL
+            +" l WHERE l.target_issue=e.target_issue AND l.strict_oos=1)),"
+            +"(SELECT count(*) FROM task WHERE status='NO_PREDRAW_CANONICAL_TERMINAL'),"
+            +"(SELECT count(*) FROM task WHERE status IN ('FAILED_TERMINAL','INVALID_DRAW_TERMINAL')),"
+            +"(SELECT count(*) FROM task),"
+            +"(SELECT count(*) FROM task WHERE status IN ('COMPLETED','NO_PREDRAW_CANONICAL_TERMINAL','FAILED_TERMINAL','INVALID_DRAW_TERMINAL')),"
+            +"(SELECT min(issue) FROM hot),(SELECT max(issue) FROM hot),"
+            +"(SELECT count(*) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION
+            +" s WHERE s.pre_draw_frozen=1 AND s.settled=1 AND NOT EXISTS(SELECT 1 FROM hot h WHERE h.issue=s.target_issue)"
+            +" AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_R35_OOS_LABEL+" l WHERE l.target_issue=s.target_issue AND l.strict_oos=1))";
+
+    private static SettlementCoverageTruthR906 readCoverageR341(Cursor c){
+        if(!c.moveToFirst())return SettlementCoverageTruthR906.unavailable("NO_COVERAGE_RESULT");
+        int eligible=c.getInt(0),settled=c.getInt(1),tasks=c.getInt(4),terminal=c.getInt(5);
+        return new SettlementCoverageTruthR906(eligible,settled,c.getInt(2),c.getInt(3),eligible-settled,
+                tasks,terminal,tasks-terminal,c.getString(6),c.getString(7),c.getInt(8),"");
+    }
+
+    static SettlementCoverageTruthR906 coverage(SQLiteDatabase db){
+        try(Cursor c=db.rawQuery(COVERAGE_R341,null)){
+            return readCoverageR341(c);
+        }catch(RuntimeException failure){
+            return SettlementCoverageTruthR906.unavailable(failure.getClass().getSimpleName());
+        }
     }
 
     private static TruthRow latestSettled(SQLiteDatabase db,int hit){return truthRow(db," WHERE o.pre_draw_frozen=1 AND o.settled=1 AND o.hit_label="+hit+" ORDER BY o.settled_at DESC,o.target_issue DESC LIMIT 1",null);}
@@ -1437,7 +1450,7 @@ public static RuntimeTruthSnapshotR906 errorSnapshotCP4(ReportReadContextCP4 rep
         String hash=com.ethk3.novaonepro.ReportTextCP12.sha256(report, "R906_ERROR|"+r+'|'+now);
         String failure="READ_ERROR:"+r;
         return new RuntimeTruthSnapshotR906("R922-READ-ERROR-"+shortHashSnapshotCP4(report, hash),hash,"READ_ERROR",r,
-                now,0L,"","","","","",cards,boxes,new SettlementCoverageTruthR906(0,0,0,0,0),
+                now,0L,"","","","","",cards,boxes,SettlementCoverageTruthR906.unavailable("NO_COVERAGE_SOURCE"),
                 "运行闭环｜"+failure,failure,"影子结算｜"+failure,failure,
                 "Research｜"+failure,failure,"真实出手硬门｜"+failure,failure,null);
     }
@@ -1671,22 +1684,11 @@ public static String realGateSummarySnapshotCP4(ReportReadContextCP4 report, Rep
     }
 
 public static SettlementCoverageTruthR906 coverageSnapshotCP4(ReportReadContextCP4 report, SQLiteDatabase db){
-        Cursor c=null;try{
-            // R912 denominator truth: every frozen canonical prediction whose exact draw exists
-            // is eligible, whether or not its task has managed to complete yet. R906 previously
-            // counted COMPLETED tasks as the denominator, making a badly stuck queue look healthy.
-            c=report.select("SELECT "+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s WHERE s.pre_draw_frozen=1 AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.issue=s.target_issue AND d.dirty=0)),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s WHERE s.pre_draw_frozen=1 AND s.settled=1 AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_R35_OOS_LABEL+" l WHERE l.target_issue=s.target_issue AND l.strict_oos=1)),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE t.status='NO_PREDRAW_CANONICAL_TERMINAL'),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE t.status IN ('FAILED_TERMINAL','INVALID_DRAW_TERMINAL')),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.issue=t.target_issue AND d.dirty=0)),"+
-                    "(SELECT COUNT(1) FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t WHERE t.status IN ('COMPLETED','NO_PREDRAW_CANONICAL_TERMINAL','FAILED_TERMINAL','INVALID_DRAW_TERMINAL') AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.issue=t.target_issue AND d.dirty=0))",null);
-            if(!c.moveToFirst())return new SettlementCoverageTruthR906(0,0,0,0,0);
-            int eligible=c.getInt(0),settled=c.getInt(1),excluded=c.getInt(2),blocked=c.getInt(3),tasks=c.getInt(4),terminal=c.getInt(5);
-            return new SettlementCoverageTruthR906(eligible,settled,excluded,blocked,Math.max(0,eligible-settled),tasks,terminal,Math.max(0,tasks-terminal));
-        }catch(Throwable e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
-        finally{if(c!=null)c.close();}
+        try(Cursor c=report.select(COVERAGE_R341,null)){
+            return readCoverageR341(c);
+        }catch(RuntimeException failure){
+            throw new ReportReadContextCP4.ReportReadFailureCP4("REPORT_SETTLEMENT_COVERAGE_SOURCE_UNAVAILABLE",failure);
+        }
     }
 
 public static TruthRow settledForSnapshotCP4(ReportReadContextCP4 report, SQLiteDatabase db,String issue){return truthRowSnapshotCP4(report, db," WHERE o.pre_draw_frozen=1 AND o.settled=1 AND o.target_issue=? LIMIT 1",new String[]{issue});}

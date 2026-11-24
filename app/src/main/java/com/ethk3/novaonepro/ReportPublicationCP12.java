@@ -71,6 +71,12 @@ public final class ReportPublicationCP12 {
    checkR30(control);if(!file.getAbsoluteFile().equals(file.getCanonicalFile())||!file.isFile()||!file.delete())throw new IOException("R30_OLD_ZIP_PART_CLEANUP");
   }
   index.put("defaultZipLimitBytes",ZIP_LIMIT_R30).put("partBytes",partBytes);
+  File semanticsFile=new File(job,ReportSemanticVerifierR31.RECEIPT);
+  if(semanticsFile.isFile()){
+   JSONObject semantics=new JSONObject(ReportJobJournalCP12.readAtomic(semanticsFile,128*1024));
+   JSONObject coverage=semantics.optJSONObject("rawPayloadCoverageR341");
+   if(coverage!=null)index.put("rawPayloadCoverageR341",coverage);
+  }
   if(size<=ZIP_LIMIT_R30){index.put("expectedVolumes",1).put("exportedVolumes",1).put("omittedVolumes",0);ReportJobJournalCP12.writeAtomic(indexFile,index.toString());return size+indexFile.length();}
   JSONArray rows=new JSONArray();java.security.MessageDigest all=java.security.MessageDigest.getInstance("SHA-256");long copied=0;
   try(InputStream input=new BufferedInputStream(new FileInputStream(zip),32768)){
@@ -267,7 +273,7 @@ public final class ReportPublicationCP12 {
       ()->!Thread.currentThread().isInterrupted(),null).evidenceComplete)
      throw new IOException("REPORT_LEGACY_REPLACEMENT_INCOMPLETE");
    }
-   cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","published.json","delivery","share.lock","share-until.json","R30_SUCCESSFUL_SUMMARY_CANDIDATE.json",ReportSemanticVerifierR31.RECEIPT,"cleanup-r31.json",archive)));
+   cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","published.json","delivery","share.lock","share-until.json","R30_SUCCESSFUL_SUMMARY_CANDIDATE.json",ReportSemanticVerifierR31.RECEIPT,"attachments.jsonl","source-manifest.json","cleanup-r31.json",archive)));
   }catch(IOException error){throw error;}catch(Exception error){throw new IOException("REPORT_CLEANUP_VERIFICATION_FAILED",error);}
  }
  /** FULL_RAW can retire its private DB only when the verified archive actually contains that exact DB. */

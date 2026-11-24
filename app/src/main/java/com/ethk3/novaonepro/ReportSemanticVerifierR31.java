@@ -40,6 +40,10 @@ public final class ReportSemanticVerifierR31 {
         require(job.snapshotSha.equals(map(watermark.get("sourceManifest")).get("snapshotSha256")),"SNAPSHOT_ID");
         Set<String> chapters=new HashSet<>();for(int i=1;i<=12;i++)chapters.add(String.format(Locale.ROOT,"R30_%02d",i));
         exactIds(document.get("chapters"),"sectionId",chapters,"CHAPTER");
+        if(document.containsKey("sourceHealthR341")){
+            List<Map<?,?>> rows=new ArrayList<>();for(Object item:list(document.get("chapters")))rows.add(map(item));
+            require(com.ethk3.novaonepro.strategyv2.ReportR29.sourceHealthR341(rows).equals(document.get("sourceHealthR341")),"SOURCE_HEALTH_ROLLUP");
+        }else if(map(watermark.get("sourceManifest")).containsKey("checksR341"))throw new IOException("REPORT_SEMANTIC_SOURCE_HEALTH_REQUIRED");
         Set<String> metrics=new HashSet<>();for(Object raw:list(document.get("metricResults"))) {
             Map<?,?> metric=map(raw);String id=String.valueOf(metric.get("metricId"));
             require(metrics.add(id),"DUPLICATE_METRIC");require(metric.get("r31Definition") instanceof Map&&metric.get("r31Evaluation") instanceof Map,"UNWIRED_METRIC:"+id);
@@ -95,8 +99,49 @@ public final class ReportSemanticVerifierR31 {
         Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("format","R31_REPORT_SEMANTICS_V1");receipt.put("jobId",job.jobId);receipt.put("snapshotSha256",job.snapshotSha);
         receipt.put("sourceCommit",map(document.get("snapshotWatermark")).get("sourceCommit"));receipt.put("reportSha256",ReportArchiveCP4.hash(new File(directory,"R30_REPORT.json"),control));
         receipt.put("chapters",12);receipt.put("metrics",44);receipt.put("checks",checks);receipt.put("catalogPages",pages);receipt.put("catalogHashXor",ReportArchiveCP4.hex(catalogDigest));receipt.put("rawEvidence",raw);
+        if(document.get("sourceHealthR341") instanceof Map){
+            Map<?,?> health=(Map<?,?>)document.get("sourceHealthR341");
+            Map<String,Object> overview=new LinkedHashMap<>();
+            for(String key:new String[]{"health","sourceCount","ok","empty","unavailable"})overview.put(key,health.get(key));
+            overview.put("observationsSha256",V51ChecksumEngine.sha256(JsonR27.write(health)));
+            receipt.put("sourceHealthR341",overview);
+        }
+        File frozenAttachments=new File(directory,"attachments.jsonl");
+        if(frozenAttachments.isFile()){
+            Map<String,Object> coverage=new LinkedHashMap<>();coverage.put("mode",raw?"FULL_RAW":"DIAGNOSTIC");
+            coverage.put("snapshotSha256",job.snapshotSha);coverage.put("snapshotCapturedAt",job.snapshotWallMs);
+            coverage.put("attachmentDescriptorSha256",ReportArchiveCP4.hash(frozenAttachments,control));
+            coverage.put("excludedKinds",raw?Collections.emptyList():Arrays.asList("DATABASE_SNAPSHOT","INSTALLED_APK","MODEL_AND_TRAINING_ORIGINALS"));
+            coverage.put("allRequestedRawPayload",raw);
+            receipt.put("rawPayloadCoverageR341",coverage);
+        }
         receipt.put("scope","DOCUMENT_IDENTITY_OBJECT_AND_CHECK_COVERAGE_NOT_BUSINESS_HEALTH_OR_NATURAL_QUALITY");
         File file=new File(directory,RECEIPT);ReportJobJournalCP12.writeAtomic(file,JsonR27.write(receipt));return file;
+    }
+    private static final class FrozenAttachment {
+        final long bytes;final String hash;
+        FrozenAttachment(long bytes,String hash){this.bytes=bytes;this.hash=hash;}
+    }
+    private static Map<String,FrozenAttachment> expectedAttachmentsR341(File directory,JSONObject receipt,
+            ReportNativeCP4.Control control)throws Exception {
+        Map<String,FrozenAttachment> expected=new HashMap<>();
+        JSONObject coverage=receipt.optJSONObject("rawPayloadCoverageR341");
+        if(coverage==null)return expected;
+        File manifest=ReportArchiveVerifierCP12.inside(directory,"attachments.jsonl");
+        String hash=coverage.getString("attachmentDescriptorSha256");
+        require(manifest.isFile()&&hash.equals(ReportArchiveCP4.hash(manifest,control)),"RAW_ATTACHMENT_DESCRIPTOR_HASH");
+        expected.put("attachments.jsonl",new FrozenAttachment(manifest.length(),hash));
+        try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(manifest),8192)){
+            byte[] line;while((line=rows.next())!=null){
+                checkpoint(control);
+                JSONObject entry=new JSONObject(new String(line,StandardCharsets.UTF_8));
+                String name=entry.getString("logicalName"), digest=entry.getString("sha256");long bytes=entry.getLong("bytes");
+                require(expected.size()<200000&&bytes>=0&&digest.matches("[0-9a-f]{64}")&&"FIXED_VERIFIED".equals(entry.optString("state")),"RAW_ATTACHMENT_DESCRIPTOR");
+                require(expected.put(name,new FrozenAttachment(bytes,digest))==null,"RAW_ATTACHMENT_DUPLICATE");
+            }
+        }
+        require(!receipt.getBoolean("rawEvidence")||expected.containsKey("installed-app.apk"),"FULL_RAW_INSTALLED_APK_MISSING");
+        return expected;
     }
     private static final class Parts extends InputStream {
         final List<File> files;int at;InputStream current;
@@ -118,6 +163,7 @@ public final class ReportSemanticVerifierR31 {
         JSONArray rows=index.getJSONArray("files");require(rows.length()>0&&rows.length()<=128,"DELIVERY_COUNT");List<File> files=new ArrayList<>();
         for(int i=0;i<rows.length();i++){JSONObject row=rows.getJSONObject(i);File file=ReportArchiveVerifierCP12.inside(directory,row.getString("path"));require(file.length()==row.getLong("bytes")&&ReportArchiveCP4.hash(file,control).equals(row.getString("sha256")),"DELIVERY_FILE_HASH");files.add(file);}
         Set<String> required=new HashSet<>(Arrays.asList("R30_REPORT.json","R30_REPORT.md",RECEIPT,"REPORT_DETAILS.txt","R26_REPORT.json","R27_REPORT.md","R26_POLICY_IDENTITIES.jsonl","R26_FROZEN_SURFACE.json","STORAGE_CENSUS.txt",receipt.getBoolean("rawEvidence")?"snapshot.db":"DIAGNOSTIC_SCOPE.json"));
+        Map<String,FrozenAttachment> attachments=expectedAttachmentsR341(directory,receipt,control);
         byte[] catalogDigest=new byte[32];int pages=0;String reportHash=null,receiptHash=null;Set<String> names=new HashSet<>();
         try(ZipInputStream zip=new ZipInputStream(new BufferedInputStream(new Parts(files),32768))) {
             ZipEntry entry;byte[] buffer=new byte[32768];while((entry=zip.getNextEntry())!=null) {
@@ -125,6 +171,8 @@ public final class ReportSemanticVerifierR31 {
                 require(names.size()<200000&&names.add(name),"ZIP_DUPLICATE_OR_EXCESS_MEMBERS");
                 MessageDigest digest=MessageDigest.getInstance("SHA-256");int n;long count=0;while((n=zip.read(buffer))!=-1){checkpoint(control);digest.update(buffer,0,n);count=Math.addExact(count,n);}zip.closeEntry(); // CRC is checked by ZipInputStream.
                 String hash=ReportArchiveCP4.hex(digest.digest());required.remove(name);
+                FrozenAttachment expected=attachments.remove(name);
+                if(expected!=null)require(expected.bytes==count&&expected.hash.equals(hash),"ZIP_FROZEN_ATTACHMENT_HASH:"+name);
                 if(name.equals("snapshot.db"))require(job.snapshotSha.equals(hash)&&job.snapshotBytes==count,"ZIP_SNAPSHOT_HASH");
                 if(name.equals("R30_REPORT.json"))reportHash=hash;if(name.equals(RECEIPT))receiptHash=hash;
                 // The existing archive protocol names catalog pages at its root;
@@ -133,6 +181,7 @@ public final class ReportSemanticVerifierR31 {
             }
         }
         require(required.isEmpty(),"ZIP_MISSING_MEMBERS:"+required);
+        require(attachments.isEmpty(),"ZIP_MISSING_FROZEN_ATTACHMENT_COUNT:"+attachments.size());
         require(receipt.getString("reportSha256").equals(reportHash)&&ReportArchiveCP4.hash(receiptFile,control).equals(receiptHash),"ZIP_DOCUMENT_OR_RECEIPT_HASH");
         require(pages==receipt.getInt("catalogPages")&&ReportArchiveCP4.hex(catalogDigest).equals(receipt.getString("catalogHashXor")),"ZIP_CHECK_EVIDENCE_CLOSURE");
     }

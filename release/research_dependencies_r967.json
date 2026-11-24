@@ -965,7 +965,7 @@
       "role": "NUMERIC"
     },
     {
-      "dynamic_review_sha256": "a00a3103128f2cc359d06953bfa161918b40eec03d5b10d495033a965be8e6dc",
+      "dynamic_review_sha256": "05ea02426d47876f6e1568d72bbeaa13637728aa1dfee89a2e72093829ddd160",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "rationale": "Retain the audited original fault-versus-research release branch while giving the separately acquired migration slot its own release path and preserving freeze precedence.",
       "role": "NUMERIC"
@@ -2205,6 +2205,11 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
       "rationale": "UF08/10/11: require all twelve same-snapshot chapters, 44 current metrics, complete object registry and 96 actual check-result receipts; stream the actual delivered ZIP and split ZIP for CRC, content hash, snapshot and catalog closure before READY. Explicit legacy boundary, no health or natural-quality claim.",
       "role": "PRESENTATION"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportSourceStateR341.java",
+      "rationale": "Preserve structured source reasons and aggregate scoped outcomes used consistently by report, chart and page readers.",
+      "role": "NUMERIC"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
@@ -5849,6 +5854,11 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
       "rationale": "P2 新增对象级归档隔离后，旧摘要仅展示原 capacity 对象，缺少明确的维护退化处方与独立任务对照，容易把归档失败误读成全部训练失败。；实际独立UPGRADE出口中29个legacyCharts对象sourceFile/sourceMethod为空，原源定位不完整。；展示 r27-atomnet 与 r27-atomnet-archive 两个任务；从 archiveMaintenance 原字段映射 DEGRADED_ARCHIVE_ONLY 与对象计数，CLAIMED不冒报故障；保留最多16条原失败例与 attempts/nextAttemptAt，并给出按 publicationId 修复和重试核验步骤。；由真实ChartRegistryR31的四类legacy group固定定位已有生产者与消费者文件方法，保留原状态并明确位置不等于运行；JSON/Markdown两出口均展示source及consumer。；保留数据角色、独立未来资格和原审批门，不继承旧证书。",
       "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+      "rationale": "Bind exact producer commit receipts to a verified current installation and leave field and natural acceptance pending.",
+      "role": "PRESENTATION"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java",

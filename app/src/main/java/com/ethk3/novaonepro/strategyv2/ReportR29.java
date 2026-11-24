@@ -68,6 +68,7 @@ public final class ReportR29 {
         chapters.get(11).put("lifecycleEvidenceR31",input.data.get("lifecycleEvidenceR31"));
         chapters.get(11).put("previousReportComparison",ReportDataR27.compareSuccessfulR30(input));
         chapters.get(11).put("successfulSummaryCandidate",ReportDataR27.successfulSummaryR30(input));
+        chapters.get(11).put("sourceHealthR341",sourceHealthR341(chapters));
         return chapters;
     }
     /** JSON and Markdown receive this same chapter list, never independently reload their metrics. */
@@ -78,12 +79,36 @@ public final class ReportR29 {
         out.put("metricRegistryVersion",MetricDefinitionsR29.R31_VERSION);out.put("metricResults",chapters.size()<12?null:chapters.get(11).get("allMetricResults"));
         out.put("objectIndex",chapters.size()<12?null:chapters.get(11).get("objectIndex"));out.put("previousReportComparison",chapters.size()<12?null:chapters.get(11).get("previousReportComparison"));
         out.put("researchTables",chapters.size()<12?null:chapters.get(11).get("researchTables"));
+        out.put("sourceHealthR341",sourceHealthR341(chapters));
         out.put("lifecycleEvidenceR31",chapters.size()<12?null:chapters.get(11).get("lifecycleEvidenceR31"));
         out.put("capabilityRepairPath","chapters[11].capabilityRepairR32");
         out.put("completeEvidencePath","chapters[11].completeSnapshotEvidenceR31");
         out.put("referenceFormat",ReportEvidenceProjectionR33.FORMAT);
         java.util.Map<String,Object> assessment=ReportAssessmentR33.evaluate(out.get("metricResults"),chapters.isEmpty()?null:chapters.get(0).get("sourceErrors"));
         out.put("evidenceAssessmentR33",assessment);out.put("overallAcceptance",assessment.get("overallAcceptance"));out.put("naturalQuality",((java.util.Map<?,?>)assessment.get("naturalQuality")).get("status"));out.put("physicalDevice",((java.util.Map<?,?>)assessment.get("physicalDevice")).get("status"));out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
+    }
+    public static Map<String,Object> sourceHealthR341(List<? extends Map<?,?>> chapters){
+        List<Map<?,?>> sources=new ArrayList<>();
+        if(chapters.size()==12){
+            Map<?,?> last=chapters.get(11);
+            Object followup=last.get("fieldFollowupR34");
+            if(followup instanceof Map)addSourceObservationsR341(sources,((Map<?,?>)followup).get("sources"));
+            Object tables=last.get("researchTables");
+            if(tables instanceof List)for(Object page:(List<?>)tables)if(page instanceof Map){
+                Object observation=((Map<?,?>)page).get("sourceObservationR341");
+                if(observation instanceof Map)sources.add((Map<?,?>)observation);
+            }
+            Object watermark=last.get("snapshotWatermark");
+            if(watermark instanceof Map){Object manifest=((Map<?,?>)watermark).get("sourceManifest");
+                if(manifest instanceof Map)addSourceObservationsR341(sources,((Map<?,?>)manifest).get("catalogSourceFailuresR341"));}
+            Object captureErrors=last.get("sourceErrors");
+            if(captureErrors instanceof List){int i=0;for(Object error:(List<?>)captureErrors)
+                sources.add(com.ethk3.novaonepro.ReportSourceStateR341.observation("CAPTURE:"+(++i),"REPORT_SNAPSHOT","SOURCE_UNAVAILABLE",String.valueOf(error),null,null));}
+        }
+        return com.ethk3.novaonepro.ReportSourceStateR341.merge(sources);
+    }
+    private static void addSourceObservationsR341(List<Map<?,?>> output,Object observations){
+        if(observations instanceof List)for(Object row:(List<?>)observations)if(row instanceof Map)output.add((Map<?,?>)row);
     }
     public static Map<String,Object> chapter(SQLiteDatabase db) {
         Map<String,Object> out=new LinkedHashMap<>(), snapshot=new LinkedHashMap<>();

@@ -186,8 +186,8 @@ public final class ChartsActivityR83 extends Activity {
             TextView head = text(panel.title, 16, ink);
             head.setTypeface(null, Typeface.BOLD);
             card.addView(head);
-            card.addView(text(panel.window + (panel.status.equals("READY") ? "" : "｜" + statusText(panel.status)), 12, muted));
-            if (!"STATUS".equals(panel.kind)) card.addView(new ResearchChartViewR82(this, panel));
+            card.addView(text(panel.window + (panel.reasonCode.isEmpty()?"":"｜"+statusText(panel.status)+" · "+panel.reasonCode), 12, muted));
+            if (!"STATUS".equals(panel.kind)&&"HAS_DATA".equals(panel.displayState)) card.addView(new ResearchChartViewR82(this, panel));
             card.addView(text("怎么看：" + panel.note, 12, muted));
             charts.addView(card, params);
         }

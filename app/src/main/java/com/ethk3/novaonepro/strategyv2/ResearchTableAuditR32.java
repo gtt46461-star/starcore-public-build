@@ -161,6 +161,8 @@ public final class ResearchTableAuditR32 {
         Map<String,Object> out=new LinkedHashMap<>();
         out.put("version","R32_RESEARCH_TABLE_PAGE_AUDIT_2");out.put("id",id);out.put("readStatus",page.get("status"));
         out.put("scope","EXPORTED_PAGE_ONLY_NOT_FULL_SOURCE_OR_QUALIFICATION");out.put("denominator",scan.rows);
+        out.put("filterHash",page.get("filterHash"));out.put("sourceVersion",page.get("readSourceVersion"));
+        out.put("sourceObservationR341",page.get("sourceObservationR341"));
         out.put("providedRows",value instanceof List?rows.size():null);out.put("auditLimit",200);
         out.put("rowsNotInspected",value instanceof List?Math.max(0L,rows.size()-scan.rows):null);
         out.put("sourcePageReceiptSha256",page.get("receiptSha256"));out.put("sourcePageOffset",page.get("offset"));

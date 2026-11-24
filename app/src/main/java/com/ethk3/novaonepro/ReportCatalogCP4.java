@@ -283,6 +283,7 @@ public final class ReportCatalogCP4 {
                     CheckResult result=check.runner.run(input);
                     if(result==null)throw new IllegalStateException("NULL_CHECK_RESULT");
                     boolean complete=hasCompleteResult(check,result);
+                    if(ReportCheckRegistryCP12.sourceReadFailedR341(result))context.recordSourceFailureR341("CHECK:"+check.id,result.domainOutcome+"|"+result.reason);
                     if(check.required){if(!complete)checksOK=false;if(!isHealthy(check,result))allPassed=false;}
                     out.line(obj("kind","check_result","id",check.id,"execution_state",result.executionState,"domain_outcome",result.domainOutcome,"health",result.health,"state",result.state,"reason",result.reason,"evidence",result.evidence,"completes_contract",complete));
                 } catch(InterruptedException stop) {
@@ -291,6 +292,7 @@ public final class ReportCatalogCP4 {
                 } catch(Exception failure) {
                     if(Thread.currentThread().isInterrupted()||(ACTIVE_CANCEL.get()!=null&&ACTIVE_CANCEL.get().isCanceled()))throw new InterruptedIOException("REPORT_CHECK_CANCELLED");
                     errors++;if(check.required){checksOK=false;allPassed=false;}
+                    context.recordSourceFailureR341("CHECK:"+check.id,boundedFailure(failure));
                     out.line(obj("kind","check_result","id",check.id,"execution_state","READ_ERROR","domain_outcome","READ_ERROR","health","UNKNOWN","state","READ_ERROR","reason",boundedFailure(failure),"error_detail",fullFailure(context,failure),"evidence_member",context.evidenceMemberR64(),"completes_contract",false));
                 }
             }

@@ -36,7 +36,8 @@ final class ChartPageReadR34 {
             return read(page, timer, timeoutMs, reader);
         } catch (OperationCanceledException stopped) {
             page.throwIfCanceled();
-            return timedOut;
+            return new ResearchVisualDataR82.Panel(timedOut.page,timedOut.title,timedOut.kind,
+                    timedOut.source,timedOut.window,timedOut.note,"READ_TIMEOUT",null,null);
         }
     }
 }

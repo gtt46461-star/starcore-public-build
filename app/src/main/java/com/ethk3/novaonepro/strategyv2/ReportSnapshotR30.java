@@ -114,7 +114,7 @@ public final class ReportSnapshotR30 {
             lifecycle.put("replayKnowledgeR31",lifecycleReadR31(()->ReplayKnowledgeStoreR31.report(db),lifecyclePinnedRead));
             lifecycle.put("startupCheckpointR31",lifecycleReadR31(()->StartupCheckpointIdentityR31.report(db),lifecyclePinnedRead));
             data.put("lifecycleEvidenceR31",lifecycle);
-            data.put("fieldFollowupR34",FieldFollowupR34.capture(db,cancellation));
+            data.put("fieldFollowupR34",FieldFollowupR34.capture(db,cancellation,source));
             Q08EvidenceReaderR325.capture(db,data,lifecyclePinnedRead,cancellation);
 
             // Explicitly outside the SQL watermark: process counters are diagnostic observations.

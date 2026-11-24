@@ -113,11 +113,17 @@ public final class ResearchTableAdaptersR30R1 {
     out.put("blockedOffset",offset);
    }
   }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
-   catch(RuntimeException error){out.put("status","READ_ERROR");out.put("reason",error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage()));}
+   catch(RuntimeException error){out.put("status","READ_ERROR");out.put("reason",error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage()));out.put("totalMatchingRows",null);out.put("totalMatchingRowsScope","SOURCE_UNAVAILABLE");}
   // A capacity error keeps its exact source offset. The next UI action moves
   // past that one unreadable original only when the cursor saw a following row.
   long nextOffset=Math.addExact(offset,blockedAtStart?1L:rows.size());
-  out.put("paginationConsistency","LIVE_OFFSET_PAGES_REFRESH_ON_SOURCE_CHANGE; NO_CROSS_REQUEST_SNAPSHOT_CLAIM");out.put("nextOffset",nextOffset);out.put("rows",rows);out.put("shown",rows.size());out.put("hasMore",more);out.put("bytes",bytes);out.put("readFinishedAt",System.currentTimeMillis());out.put("receiptSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
+  out.put("paginationConsistency","LIVE_OFFSET_PAGES_REFRESH_ON_SOURCE_CHANGE; NO_CROSS_REQUEST_SNAPSHOT_CLAIM");out.put("nextOffset",nextOffset);out.put("rows",rows);out.put("shown",rows.size());out.put("hasMore",more);out.put("bytes",bytes);out.put("readFinishedAt",System.currentTimeMillis());
+  out.put("filterHash",StatsR27.sha256(JsonR27.write(filters==null?Collections.emptyMap():new TreeMap<>(filters))));
+  out.put("pageRows",rows.size());out.put("pageOffset",offset);out.put("totalKnown",out.get("totalMatchingRows") instanceof Number);
+  out.put("totalRows",out.get("totalMatchingRows"));out.put("displayIsFullDenominator",false);
+  String detail=String.valueOf(out.getOrDefault("reason",out.getOrDefault("truncatedReason","")));
+  out.put("sourceObservationR341",com.ethk3.novaonepro.ReportSourceStateR341.observation(id,"PAGED_SQLITE_STATEMENT",String.valueOf(out.get("status")),detail,rows.size(),out.get("totalMatchingRows") instanceof Number?((Number)out.get("totalMatchingRows")).longValue():null));
+  out.put("receiptSha256",StatsR27.sha256(JsonR27.write(out)));return Collections.unmodifiableMap(out);
  }
  private static void projectMeasure(Map<String,Object> row) {
   String kind=(String)row.get("kind");

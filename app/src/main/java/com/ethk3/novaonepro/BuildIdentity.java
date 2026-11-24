@@ -426,11 +426,30 @@ public final class BuildIdentity {
                 store.setState(STATE_CODE_FINGERPRINT, report.fingerprint);
                 store.registerModuleBuildV20(
                         "BuildIdentity", V51BuildManifest.STRATEGY_VERSION, status);
+                if(STATUS_OK.equals(status)){
+                    BuildProvenanceR815.Snapshot binary=BuildProvenanceR815.lastSnapshot();
+                    if(!binary.valid)binary=BuildProvenanceR815.verifyRuntime(context);
+                    com.ethk3.novaonepro.strategyv2.RepairEffectLedgerR341.recordInstall(store.coordinatorForResearchR952(),observedReportIdentityR341(binary,binary.apkSha256));
+                }
             } catch (Throwable error) {
                 status = "BUILD_IDENTITY_ERROR:" + error.getClass().getSimpleName();
             }
         }
         return status;
+    }
+
+    public static java.util.Map<String,Object> observedReportIdentityR341(
+            BuildProvenanceR815.Snapshot runtime,String observedApkSha) {
+        java.util.Map<String,Object> identity=new java.util.LinkedHashMap<>();
+        boolean bound=runtime!=null&&runtime.valid&&runtime.apkSha256.equals(observedApkSha)
+                &&BuildConfig.SOURCE_COMMIT_R26.matches("[0-9a-f]{40}");
+        identity.put("state",bound?"VERIFIED_INSTALLATION":"UNVERIFIED_IDENTITY");
+        identity.put("sourceCommit",bound?BuildConfig.SOURCE_COMMIT_R26:null);
+        identity.put("installedVersionCode",bound?runtime.versionCode:null);
+        identity.put("apkSha256",observedApkSha);
+        identity.put("certificateSha256",bound?runtime.certSha256:null);
+        identity.put("releaseManifestSha256",bound?ReleaseManifestR926.MANIFEST_SHA256:null);
+        return identity;
     }
 
     private static String actualVersion(Context context, String packageName) {

@@ -79,8 +79,8 @@ public final class ResearchWorkbenchActivityR30R1 extends Activity {
         card.setOrientation(LinearLayout.VERTICAL);
         card.setTag(panel.title.substring(0, 3));
         card.addView(text(panel.title, 17));
-        card.addView(text(stateText(panel.status) + "\n" + panel.window, 12));
-        if (!"STATUS".equals(panel.kind)) card.addView(new ResearchChartViewR82(this, panel));
+        card.addView(text(stateText(panel.status) + (panel.reasonCode.isEmpty()?"":" · "+panel.reasonCode) + "\n" + panel.window, 12));
+        if (!"STATUS".equals(panel.kind)&&"HAS_DATA".equals(panel.displayState)) card.addView(new ResearchChartViewR82(this, panel));
         Button source = new Button(this);
         source.setText("查看来源与分析口径");
         source.setOnClickListener(v -> showDetails(panel));
