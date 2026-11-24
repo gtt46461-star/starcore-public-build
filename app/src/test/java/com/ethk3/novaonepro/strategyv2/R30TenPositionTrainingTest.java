@@ -34,7 +34,8 @@ public class R30TenPositionTrainingTest {
             assertArrayEquals(a.trainer.net.encode(),b.trainer.net.encode());assertEquals(a.phase,b.phase);assertEquals(a.offset,b.offset);
             assertTrue(++units<1000);
         }
-        assertFalse(Arrays.equals(initial,a.trainer.net.encode()));assertEquals(120,a.trainer.buffer.size());
+        assertFalse(Arrays.equals(initial,a.trainer.net.encode()));assertEquals(a.trainCount,a.trainer.buffer.size());
+        for(int i=0;i<a.trainCount;i++)assertEquals(sample(i).issue,a.trainer.buffer.get(i).issue);
         for(int p=1;p<=10;p++){
             AtomNetTrainerR27.Sample s=new AtomNetTrainerR27.Sample(AtomNetR27.positionedInput(new double[]{.2,.7},p),p%3==0?1:0,p-1,AtomNetSessionR30.eventKey("000000001000",p));
             a.online(s,"000000001000",1000,p);b.online(s,"000000001000",1000,p);b=copy(b);

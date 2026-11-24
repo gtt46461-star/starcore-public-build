@@ -75,10 +75,12 @@ public final class AtomNetSessionR30 {
             offset+=n;
             if(offset==count) finishEvaluation();
         } else if("FILL".equals(phase)) {
-            int from=Math.max(0,trainCount-AtomNetTrainerR27.REPLAY);
-            n=Math.min(64,trainCount-from-fillOffset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+fillOffset+k;samples.prefetch(indices);
-            for(int k=0;k<n;k++)trainer.remember(samples.get(from+fillOffset+k));fillOffset+=n;
-            if(from+fillOffset==trainCount){
+            int seedCount=Math.min(trainCount,AtomNetTrainerR27.REPLAY);
+            n=Math.min(64,seedCount-fillOffset);int[] indices=new int[n];
+            for(int k=0;k<n;k++)indices[k]=AtomNetTrainerR27.replaySeedIndexR341(fillOffset+k,trainCount,seedCount);
+            samples.prefetch(indices);
+            for(int index:indices)trainer.remember(samples.get(index));fillOffset+=n;
+            if(fillOffset==seedCount){
                 phase="ONLINE";
                 if(completeIssue.isEmpty()){completeIssue=observedThrough;onlineObservedOrdinal=observedThroughOrdinal;}
             }

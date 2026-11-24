@@ -2310,12 +2310,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "7411892a6abcf5a836fb846eba3f4a0008bcb508f30160cb4afda7e06068a57a",
+      "after_sha256": "5af1927985821670bc2d9f6fa09debca32dcc16bb4aa4f711f2784216dca08d5",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
-      "rationale": "Version persisted partial input hash and enforce train-only replay initialization without inventing former sample provenance.",
-      "reviewer": "R34.1 B07 original optimizer and feedback path review"
+      "rationale": "Use the same chronological sampling schedule and resumable bounded seed cursor in the actual ten-position learner.",
+      "reviewer": "R34.1 B07 replay coverage and legal sample regression replay"
     },
     {
       "after_role": "NUMERIC",
@@ -2328,12 +2328,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "1ffacb2437051583cfc2bf185c08771e39fa3f22368fe4d9e93c50601b8c22f8",
+      "after_sha256": "6b4489a2087aa871d05c469ec1db86e663058b9e97a3cabe8b0f571c8c1fe4d6",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
-      "rationale": "Keep validation samples out of the initial replay buffer and capture real sampled keys in their original optimizer order.",
-      "reviewer": "R34.1 B07 original optimizer and feedback path review"
+      "rationale": "Seed the rolling replay buffer across the original locked training window after removing the forbidden development validation rows.",
+      "reviewer": "R34.1 B07 replay coverage and legal sample regression replay"
     },
     {
       "after_role": "NUMERIC",
@@ -9704,7 +9704,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "e9dbe8daad6c2ad1ef51583b1a1dbc7c177dad89c4b6ae334b4f970c6d7295ac",
+  "reviewed_input_provenance_sha256": "eb186b074ee97efe7da9dee61cd306c2995ca0414b6159b082a7b2a517d74467",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

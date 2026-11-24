@@ -48,10 +48,17 @@ public final class AtomNetTrainerR27 {
             if (se[0] < best - 1e-6) { best = se[0]; bad = 0; bestNet = net.encode(); } else if (++bad >= PATIENCE) { e++; break; }
         }
         net = AtomNetR27.decode(bestNet); onlineLr = lr * 0.1; checkpoint = net.encode();
-        buffer.clear(); buffer.addAll(train.subList(Math.max(0, train.size() - REPLAY), train.size()));
+        buffer.clear();
+        int replaySeeds=Math.min(REPLAY,train.size());
+        for(int slot=0;slot<replaySeeds;slot++)buffer.add(train.get(replaySeedIndexR341(slot,train.size(),replaySeeds)));
         events.add("PRETRAINED epochs=" + e + " bestSelectLogloss=" + best + " onlineLr=" + onlineLr);
         nextEpochReceipt = epochs.size();
         return e;
+    }
+
+    /** Cover the entire eligible TRAIN window when seeding the rolling online buffer. */
+    static int replaySeedIndexR341(int slot,int trainCount,int seedCount){
+        return seedCount==1?trainCount-1:(int)((long)slot*(trainCount-1)/(seedCount-1));
     }
 
     /** {log-loss of the hit head, Brier of the hit head, standard error of log-loss}. */
