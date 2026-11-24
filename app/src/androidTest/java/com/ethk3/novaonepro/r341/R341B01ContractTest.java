@@ -57,6 +57,7 @@ public final class R341B01ContractTest {
 
     @Test public void test_r341_b01_04_t01() throws Exception {
         execute("0401", ctx -> {
+            R341ObservationTestCases.canonicalObservationDoesNotRefreshWithoutNewCommit(ctx);
             Map<?, ?> counts = (Map<?, ?>) R341ObservationTestCases.runCohort(ctx, false).get("releaseProgress");
             assertEquals(1L, counts.get("confirmedLearningEvents"));
             assertEquals(2L, counts.get("canonicalCommits"));

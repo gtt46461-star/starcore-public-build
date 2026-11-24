@@ -4051,17 +4051,15 @@ public final class AutoFetchService extends Service {
                             + outcome.commit.requestToCommitMs
                             + "ms；1200证据可恢复补写中");
             try {
-                heartbeatStateV8()
-                        .markAnalysisCanonicalCommitted(
-                                request.targetIssue, outcome.commit.commitAt);
+                if (canonicalCommitted && heartbeatStateV8().markAnalysisCanonicalCommitted(
+                        request.targetIssue, outcome.commit.commitAt)) {
+                    b13RecordBusinessBeat(store, "ANALYSIS_CANONICAL_COMMITTED", request.targetIssue);
+                    writeBusinessHeartbeatState("last_analysis_success_at", request.targetIssue,
+                            "ANALYSIS_CANONICAL_COMMITTED");
+                }
             } catch (Throwable ignore) {
                 recordCriticalCatchR926("HEARTBEAT_CANONICAL_COMMITTED", request.targetIssue, ignore);
             }
-            b13RecordBusinessBeat(store, "ANALYSIS_CANONICAL_COMMITTED", request.targetIssue);
-            writeBusinessHeartbeatState(
-                    "last_analysis_success_at",
-                    request.targetIssue,
-                    "ANALYSIS_CANONICAL_COMMITTED");
             Models.Decision view = CanonicalDecisionViewAdapterR36.read(store, request.targetIssue);
             if (view != null) broadcastDecision(view);
             // R907: only after Decision is visible do we enqueue Research. It runs on the low

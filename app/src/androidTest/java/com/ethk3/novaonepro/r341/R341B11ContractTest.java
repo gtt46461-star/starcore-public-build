@@ -52,7 +52,11 @@ public final class R341B11ContractTest {
     }
 
     @Test public void test_a_b11_02a() throws Exception {
-        execute("A-B11-02a", "test_a_b11_02a", app -> new R26ReportDeviceTest().allRequiredReportMetricsHaveEvidenceOrExplicitMissingStateAndBoundIdentity());
+        execute("A-B11-02a", "test_a_b11_02a", app -> {
+            R26ReportDeviceTest report=new R26ReportDeviceTest();
+            report.allRequiredReportMetricsHaveEvidenceOrExplicitMissingStateAndBoundIdentity();
+            report.oldFactoryRegistrationRemainsVisibleWithoutCreditingTheCurrentSource();
+        });
     }
 
     @Test public void test_a_b11_02b() throws Exception {

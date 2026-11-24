@@ -146,10 +146,11 @@ public final class R31QDeliveryInstrumentedTest {
     }
     @Test public void fullReportReachesPublishedZipAndProviderReadback()throws Exception{
         Context app=app();DbStore store=new DbStore(app());ready(store);
+        boolean includeRaw="true".equals(InstrumentationRegistry.getArguments().getString("r341IncludeRaw"));
         new ServiceHeartbeatStore(app).setUserEnabled(false);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(()->app.startActivity(new Intent(app,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
         Thread.sleep(1000);
-        String request=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,false);
+        String request=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,includeRaw);
         File ack=new File(app.getFilesDir(),"r981_reports/requests/"+request+".ack.json");
         JSONObject state=null;long until=SystemClock.elapsedRealtime()+360000L;
         do{
@@ -165,6 +166,14 @@ public final class R31QDeliveryInstrumentedTest {
         assertTrue("published ZIP invalid",ReportPublicationCP12.verifyPublishedZip(job,()->true));
         readyUiSurvivesBusyLeaseR31(app,job,request);
         JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());
+        if(includeRaw){
+            JSONObject semantic=new JSONObject(ReportJobJournalCP12.readAtomic(
+                    new File(job,ReportSemanticVerifierR31.RECEIPT),65536));
+            assertTrue("published report is missing the requested database original",semantic.getBoolean("rawEvidence"));
+            ReportJobJournalCP12.Job complete=ReportJobJournalCP12.Job.parse(
+                    ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));
+            ReportSemanticVerifierR31.verifyDelivery(job,complete,()->true);
+        }
         JSONArray files=index.getJSONArray("files");assertTrue(files.length()>0);
         long bytes=0;byte[] buffer=new byte[32768];
         for(int i=0;i<files.length();i++){
@@ -176,6 +185,7 @@ public final class R31QDeliveryInstrumentedTest {
             assertEquals(member.getLong("bytes"),read);assertEquals(member.getString("sha256"),ReportArchiveCP4.hex(sha.digest()));bytes+=read;
         }
         System.out.println("R31Q_ANDROID|FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS|BYTES="+bytes+"|CHECKS_COMPLETE="+index.optBoolean("checksComplete")+"|HEALTH="+index.optBoolean("allChecksPassed")+"|NO_QUALITY_CLAIM|PASS");
+        if(includeRaw)android.util.Log.i("STARCORE_R341","FULL_REPORT_PROVIDER_READBACK|"+jobId+"|bytes="+bytes);
         store.close();
     }
 

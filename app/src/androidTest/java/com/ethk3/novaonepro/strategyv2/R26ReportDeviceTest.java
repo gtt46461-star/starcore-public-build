@@ -2,6 +2,10 @@ package com.ethk3.novaonepro.strategyv2;
 import android.database.sqlite.SQLiteDatabase;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.json.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,10 +23,68 @@ public final class R26ReportDeviceTest {
         }
     }
     @Test public void allRequiredReportMetricsHaveEvidenceOrExplicitMissingStateAndBoundIdentity()throws Exception {
-        try(SQLiteDatabase db=SQLiteDatabase.create(null)){schema(db);String sha=PolicyIdentityR26.sha256("SYNTHETIC_SNAPSHOT"),commit="0123456789012345678901234567890123456789";JSONObject source=new JSONObject().put("sourceCommit",commit).put("snapshotSha256",sha).put("apkSha256",sha).put("sourceTreeSha256",sha).put("generatedRuleSha256",sha);
-            JSONObject report=new JSONObject(RuntimeReportR26.json(db,source));assertEquals("INCOMPLETE",report.getString("overallAcceptance"));assertEquals(40,report.getJSONArray("sections").length());assertEquals(16,section(report,"EXPERTS").getInt("missingInventoryRows"));assertEquals(0,section(report,"EXPERTS").getInt("omittedRows"));assertFalse(section(report,"EXPERTS").getBoolean("truncated"));
-            for(int i=0;i<40;i++){JSONObject section=report.getJSONArray("sections").getJSONObject(i);assertEquals(commit,section.getString("sourceCommit"));assertEquals(sha,section.getString("apkHash"));assertEquals(sha,section.getString("sourceSnapshotId"));JSONObject metrics=section.getJSONObject("metricResults");JSONArray required=section.getJSONArray("requiredMetrics");for(int m=0;m<required.length();m++){JSONObject metric=metrics.getJSONObject(required.getString(m));assertTrue(metric.has("value"));assertTrue(metric.has("definition"));assertTrue(metric.has("evidenceRef"));if(metric.isNull("value"))assertTrue(metric.has("reason"));}}
+        try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+            schema(db);
+            String snapshot=PolicyIdentityR26.sha256("SYNTHETIC_SNAPSHOT");
+            String apk=PolicyIdentityR26.sha256("SYNTHETIC_APK");
+            String commit="0123456789012345678901234567890123456789";
+            JSONObject source=new JSONObject().put("sourceCommit",commit).put("snapshotSha256",snapshot)
+                    .put("apkSha256",apk).put("sourceTreeSha256",snapshot).put("generatedRuleSha256",snapshot);
+            JSONObject report=new JSONObject(RuntimeReportR26.json(db,source));
+            assertEquals("INCOMPLETE",report.getString("overallAcceptance"));
+            JSONArray sections=report.getJSONArray("sections");
+            assertEquals(44,sections.length());
+            assertEquals(16,section(report,"EXPERTS").getInt("missingInventoryRows"));
+            assertEquals(0,section(report,"EXPERTS").getInt("omittedRows"));
+            assertFalse(section(report,"EXPERTS").getBoolean("truncated"));
+            Set<String> absentR27=new HashSet<>(List.of("R27_01_WIN_RATE_TRUTH","R27_02_EVOLUTION_TRUTH",
+                    "R27_03_CONTINUOUS_RUNTIME","R27_04_UPGRADE_CONTINUITY"));
+            Set<String> seen=new HashSet<>();
+            int metricChapters=0;
+            for(int i=0;i<sections.length();i++){
+                JSONObject chapter=sections.getJSONObject(i);
+                String id=chapter.getString("sectionId");
+                assertTrue(id,seen.add(id));
+                assertEquals(commit,chapter.getString("sourceCommit"));
+                assertEquals(apk,chapter.getString("apkHash"));
+                assertEquals(snapshot,chapter.getString("sourceSnapshotId"));
+                if(absentR27.remove(id)){
+                    assertEquals("INSUFFICIENT",chapter.getString("status"));
+                    assertTrue(chapter.getString("reason").contains("R27 schema"));
+                    continue;
+                }
+                assertEquals("R26_REPORT_2",chapter.getString("schemaVersion"));
+                JSONObject metrics=chapter.getJSONObject("metricResults");
+                JSONArray required=chapter.getJSONArray("requiredMetrics");
+                for(int m=0;m<required.length();m++){
+                    JSONObject metric=metrics.getJSONObject(required.getString(m));
+                    assertTrue(metric.has("value"));
+                    assertTrue(metric.has("definition"));
+                    assertTrue(metric.has("evidenceRef"));
+                    if(metric.isNull("value"))assertTrue(metric.has("reason"));
+                }
+                metricChapters++;
+            }
+            assertEquals(40,metricChapters);
+            assertTrue(absentR27.isEmpty());
         }
+    }
+
+    @Test public void oldFactoryRegistrationRemainsVisibleWithoutCreditingTheCurrentSource(){
+        String current="0123456789012345678901234567890123456789";
+        String old="fedcba9876543210fedcba9876543210fedcba98";
+        Map<String,Object> previous=Map.of("sourceCommit",old,"plannedTrials",120L,"completedOriginalTrials",0L);
+        Map<String,Object> registry=Map.of("status","READ_OK_NOT_A_HEALTH_VERDICT","readOnly",true,"value",previous);
+        ReportR27.R30Input capture=new ReportR27.R30Input(Map.of(),Map.of("sourceCommit",current),
+                Map.of("lifecycleEvidenceR31",Map.of("evidenceContractR31",registry)),List.of());
+        Map<String,Object> result=capture.metricResults.stream().filter(row->"Q08".equals(row.get("metricId")))
+                .findFirst().orElseThrow(AssertionError::new);
+        assertEquals("UNKNOWN_STALE_SYNTHETIC_SOURCE",result.get("status"));
+        assertEquals("SYNTHETIC",result.get("role"));
+        assertEquals(false,result.get("realPermission"));
+        assertNull(result.get("sampleCount"));
+        Map<?,?> observations=(Map<?,?>)result.get("observations");
+        assertEquals(registry,observations.get("registeredFactoryValidation"));
     }
     @Test public void repeatedExpertHistoryCannotHideAnUnservedRegisteredExpert()throws Exception {
         try(SQLiteDatabase db=SQLiteDatabase.create(null)){schema(db);db.beginTransaction();try{

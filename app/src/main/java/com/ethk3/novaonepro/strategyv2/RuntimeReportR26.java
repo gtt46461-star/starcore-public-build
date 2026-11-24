@@ -6,7 +6,7 @@ import com.ethk3.novaonepro.ReleaseManifestR926;
 import org.json.*;
 import java.util.*;
 
-/** Forty explicit result envelopes from the frozen report DB; missing evidence is never PASS. */
+/** Forty R26 result envelopes and the later chapters from the same frozen report DB. */
 public final class RuntimeReportR26 {
     private RuntimeReportR26() {}
     private static final String[][] SECTIONS={
@@ -51,6 +51,42 @@ public final class RuntimeReportR26 {
         {"FAIR_CAPABILITY_SERVICE","全家族专家防饥饿"},
         {"LOSSLESS_IDENTITY","无损身份与缺陷回归"}
     };
+    private static final String[][] R27_SECTIONS={
+        {"R27_01_WIN_RATE_TRUTH","胜率真相与差距"},
+        {"R27_02_EVOLUTION_TRUTH","进化真实性"},
+        {"R27_03_CONTINUOUS_RUNTIME","持续运行与饥饿"},
+        {"R27_04_UPGRADE_CONTINUITY","升级连续性"}
+    };
+
+    private static JSONObject bindSnapshot(JSONObject chapter,JSONObject source)throws JSONException {
+        chapter.put("sourceSnapshotId",source.opt("snapshotSha256")==null?JSONObject.NULL:source.get("snapshotSha256"));
+        chapter.put("sourceCommit",source.opt("sourceCommit")==null?JSONObject.NULL:source.get("sourceCommit"));
+        chapter.put("apkHash",source.opt("apkSha256")==null?JSONObject.NULL:source.get("apkSha256"));
+        return chapter;
+    }
+
+    private static JSONArray subsequentChapters(SQLiteDatabase db,JSONObject source,JSONObject report)throws JSONException {
+        JSONArray chapters=new JSONArray();
+        String state="INSUFFICIENT",reason="R27 schema not initialised in this capture";
+        if(SchemaR27.ready(db)){
+            try{
+                for(Map<String,Object> chapter:ReportDataR27.chapters(db)){
+                    chapters.put(bindSnapshot(new JSONObject(JsonR27.write(chapter)),source));
+                }
+                return chapters;
+            }catch(Exception error){
+                report.put("r27ChaptersError",error.toString());
+                state="ERROR";
+                reason="R27 capture failed; see r27ChaptersError";
+                chapters=new JSONArray();
+            }
+        }
+        for(String[] spec:R27_SECTIONS){
+            chapters.put(bindSnapshot(new JSONObject().put("sectionId",spec[0]).put("title",spec[1])
+                    .put("status",state).put("reason",reason),source));
+        }
+        return chapters;
+    }
     private static JSONArray rows(SQLiteDatabase db,String sql)throws JSONException {
         JSONArray out=new JSONArray();try(Cursor c=db.rawQuery(sql,null)){while(out.length()<64&&c.moveToNext()){
             if(Thread.currentThread().isInterrupted())throw new IllegalStateException("REPORT_CANCELLED");
@@ -106,12 +142,11 @@ public final class RuntimeReportR26 {
         JSONObject facts=new JSONObject();try{facts=facts(db);}catch(Exception error){root.put("captureFactsError",error.toString());}
         if(RuntimeSchemaR26.ready(db))try{root.put("strategyAssessment",StrategyAssessmentR26.snapshot(db));}catch(Exception error){root.put("strategyAssessmentError",error.toString());}
         if(facts.has("serviceTotals"))root.put("committedResearchService",facts.get("serviceTotals"));
-        // R27-051/052: four automatic chapters, inserted right after the first chapter.
-        JSONArray r27Chapters=new JSONArray();JSONObject r27Truth=null;
-        if(SchemaR27.ready(db))try{for(Map<String,Object> chapter:ReportDataR27.chapters(db)){JSONObject x=new JSONObject(JsonR27.write(chapter));if(r27Truth==null)r27Truth=x;r27Chapters.put(x);}}catch(Exception error){root.put("r27ChaptersError",error.toString());}
-        else{for(String[] r27:new String[][]{{"R27_01_WIN_RATE_TRUTH","胜率真相与差距"},{"R27_02_EVOLUTION_TRUTH","进化真实性"},{"R27_03_CONTINUOUS_RUNTIME","持续运行与饥饿"},{"R27_04_UPGRADE_CONTINUITY","升级连续性"}})r27Chapters.put(new JSONObject().put("sectionId",r27[0]).put("title",r27[1]).put("status","INSUFFICIENT").put("reason","R27 schema not initialised in this capture"));}
+        JSONArray r27Chapters=subsequentChapters(db,source,root);
+        JSONObject r27Truth=r27Chapters.optJSONObject(0);
+        if(r27Truth!=null&&!r27Truth.has("conclusionTemplate"))r27Truth=null;
         root.put("r27Schema",ReportR27.SCHEMA);
-        for(String[] spec:SECTIONS){long chapterStart=System.nanoTime();JSONObject s=new JSONObject();s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_2");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("sourceSnapshotId",source.opt("snapshotSha256")==null?JSONObject.NULL:source.get("snapshotSha256"));s.put("sourceCommit",source.opt("sourceCommit")==null?JSONObject.NULL:source.get("sourceCommit"));s.put("apkHash",source.opt("apkSha256")==null?JSONObject.NULL:source.get("apkSha256"));s.put("asOfIssue",facts.opt("asOfIssue")==null?JSONObject.NULL:facts.get("asOfIssue"));s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
+        for(String[] spec:SECTIONS){long chapterStart=System.nanoTime();JSONObject s=bindSnapshot(new JSONObject(),source);s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_2");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("asOfIssue",facts.opt("asOfIssue")==null?JSONObject.NULL:facts.get("asOfIssue"));s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
             String sql=query(spec[0]);boolean r27Source=sql==null&&ReportDataR27.query(spec[0])!=null&&SchemaR27.ready(db);if(r27Source)sql=ReportDataR27.query(spec[0]);
             JSONArray data=new JSONArray();long expectedRows=0;String status="NOT_RUN",reason="Full chapter acceptance evidence has not been collected; existing report catalog is retained";
             if(spec[0].equals("DEVICE"))reason=ReportDataR27.DEVICE_REASON;

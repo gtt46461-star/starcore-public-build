@@ -502,19 +502,26 @@ public final class ServiceHeartbeatStore {
         }
     }
 
-    /** SUCCESS means the canonical transaction committed, never merely requested. */
-    public void markAnalysisCanonicalCommitted(String target, long commitAt) {
-        RuntimePatch p = new RuntimePatch();
-        long at = commitAt > 0L ? commitAt : System.currentTimeMillis();
-        p.putLong("last_analysis_success_at", at);
-        p.putString("last_analysis_issue", safe(target));
-        p.putString("analysis_stage_state", "CANONICAL_COMMITTED");
-        p.putString("analysis_stage_issue", safe(target));
-        p.putLong("analysis_stage_at", at);
-        p.putString("analysis_progress_status", "OK");
-        p.putInt("analysis_progress_percent", 100);
-        p.putLong("analysis_progress_at", at);
-        applyTelemetryPatchR76(p);
+    /** Projects a confirmed canonical commit once into the service progress indicators. */
+    public boolean markAnalysisCanonicalCommitted(String target, long commitAt) {
+        if (app == null || commitAt <= 0L || !TargetIssueResolver.isValid(target)) return false;
+        synchronized (LOCK) {
+            String previous = getString("r341_canonical_progress_issue", "");
+            if (TargetIssueResolver.isValid(previous) && TargetIssueResolver.compare(target, previous) <= 0)
+                return false;
+            RuntimePatch p = new RuntimePatch();
+            p.putString("r341_canonical_progress_issue", target);
+            p.putLong("last_analysis_success_at", commitAt);
+            p.putString("last_analysis_issue", target);
+            p.putString("analysis_stage_state", "CANONICAL_COMMITTED");
+            p.putString("analysis_stage_issue", target);
+            p.putLong("analysis_stage_at", commitAt);
+            p.putString("analysis_progress_status", "OK");
+            p.putInt("analysis_progress_percent", 100);
+            p.putLong("analysis_progress_at", commitAt);
+            applyTelemetryPatchR76(p);
+            return true;
+        }
     }
 
     public void markSettlementTerminal(

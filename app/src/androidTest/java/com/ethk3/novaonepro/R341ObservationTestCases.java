@@ -33,6 +33,24 @@ public final class R341ObservationTestCases {
         assertEquals("IDENTITY_UNAVAILABLE", source.validateJoin(unknown));
     }
 
+    public static void canonicalObservationDoesNotRefreshWithoutNewCommit(Context context) {
+        ServiceHeartbeatStore heartbeat = new ServiceHeartbeatStore(context);
+        long before = heartbeat.getLastAnalysisSuccessAt();
+        assertFalse(heartbeat.markAnalysisCanonicalCommitted(target(134), 0L));
+        assertEquals(before, heartbeat.getLastAnalysisSuccessAt());
+        assertTrue(heartbeat.markAnalysisCanonicalCommitted(target(134), 10_000L));
+        heartbeat.writeHeartbeat("fixture-liveness");
+        heartbeat.markMaintenanceProgressR341("REVIEW_ONLY_WAIT_FORMAL_FUTURE");
+        heartbeat.markRecoveryResult("fixture-control", true, "request accepted");
+        assertFalse(heartbeat.markAnalysisCanonicalCommitted(target(134), 20_000L));
+        assertFalse(heartbeat.markAnalysisCanonicalCommitted(target(133), 21_000L));
+        assertEquals(10_000L, heartbeat.getLastAnalysisSuccessAt());
+        assertEquals(target(134), heartbeat.getLastAnalysisIssue());
+        assertTrue(heartbeat.markAnalysisCanonicalCommitted(target(135), 22_000L));
+        assertEquals(target(135), heartbeat.getLastAnalysisIssue());
+        assertEquals(22_000L, heartbeat.getLastAnalysisSuccessAt());
+    }
+
     public static Map<String, Object> runCohort(Context context, boolean addUnrequested) {
         File file = new File(context.getDatabasePath("cohort.sqlite").getParentFile(),
                 java.util.UUID.randomUUID() + ".sqlite");
