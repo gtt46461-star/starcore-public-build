@@ -432,6 +432,7 @@ public final class V51Repository {
                         .runCanonicalTransactionR36(
                                 request.targetIssue,
                                 request.attemptId(),
+                                request.deadlineMonoAt,
                                 new DatabaseCoordinator.TransactionCallable<
                                         CanonicalCommitResult>() {
                                     @Override

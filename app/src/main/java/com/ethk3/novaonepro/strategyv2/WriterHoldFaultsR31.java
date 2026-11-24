@@ -20,6 +20,11 @@ public final class WriterHoldFaultsR31 {
     private static final ArrayDeque<Event> PENDING = new ArrayDeque<>();
     private static final AtomicBoolean DRAINING = new AtomicBoolean();
     private static long observed, persisted, capacityLoss, drainFailures;
+    private static long firstDroppedSequence, lastDroppedSequence, nextDrainElapsed;
+    private static int consecutiveDrainFailures;
+    private static String drainStatus = "IDLE";
+    private static java.util.List<Event> retryBatch;
+    private static boolean resolveBeforeRetry;
     private static int admitting;
     private static long lastDrainWallR33,lastDrainMsR33;
     private static String lastFailure = "", lastOutcome = "NOT_RUN";
@@ -74,11 +79,11 @@ public final class WriterHoldFaultsR31 {
     /** Called after unlocking. No SQL, executor, nested transaction or task-fault-budget update. */
     public static void observe(String operation, boolean critical, long wait, long hold,
                                             boolean failed, DatabaseCoordinator.CommitOutcome outcome) {
-        if (hold <= 200) return;
+        if (hold <= 200 || "R31_WRITER_HOLD_FAULT".equals(operation)) return;
         final long sequence;
         synchronized (WriterHoldFaultsR31.class) {
             sequence = ++observed;
-            if (PENDING.size() + admitting >= MAX_PENDING) { capacityLoss++; lastFailure = "QUEUE_CAPACITY_LOSS"; return; }
+            if (PENDING.size() + admitting >= MAX_PENDING) { recordDrop(sequence); lastFailure = "QUEUE_CAPACITY_LOSS"; return; }
             admitting++;
         }
         MemoryBudgetR31.Lease memory = null;
@@ -95,9 +100,15 @@ public final class WriterHoldFaultsR31 {
             synchronized (WriterHoldFaultsR31.class) { PENDING.addLast(event); }
             retained = true;
         } finally {
-            synchronized (WriterHoldFaultsR31.class) { admitting--; if (!retained) capacityLoss++; }
+            synchronized (WriterHoldFaultsR31.class) { admitting--; if (!retained) recordDrop(sequence); }
             if (!retained && memory != null) memory.close();
         }
+    }
+
+    private static void recordDrop(long sequence) {
+        if (capacityLoss++ == 0) firstDroppedSequence = sequence;
+        firstDroppedSequence = Math.min(firstDroppedSequence, sequence);
+        lastDroppedSequence = Math.max(lastDroppedSequence, sequence);
     }
 
     private static void requireReady(SQLiteDatabase db) {
@@ -144,7 +155,13 @@ public final class WriterHoldFaultsR31 {
         final long started=android.os.SystemClock.elapsedRealtime();
         try {
             final java.util.ArrayList<Event> batch=new java.util.ArrayList<>();
-            synchronized(WriterHoldFaultsR31.class){for(Event e:PENDING){batch.add(e);if(batch.size()>=maximum)break;}}
+            synchronized(WriterHoldFaultsR31.class){
+                if(started<nextDrainElapsed)return 0;
+                if (retryBatch != null) batch.addAll(retryBatch);
+                else for(Event e:PENDING){batch.add(e);if(batch.size()>=maximum)break;}
+                if(!batch.isEmpty())drainStatus="VERIFY_SCHEMA";
+                else drainStatus="IDLE";
+            }
             if(batch.isEmpty())return 0;
             SQLiteDatabase read=store.readable();
             if(read.inTransaction())throw new IllegalStateException("R31_WRITER_HOLD_FAULT_DRAIN_REQUIRES_SEPARATE_TRANSACTION");
@@ -152,10 +169,11 @@ public final class WriterHoldFaultsR31 {
             StringBuilder identities=new StringBuilder(),payloads=new StringBuilder();
             long bindBytes=4096;
             for(Event event:batch){identities.append(event.id);payloads.append(event.payload);bindBytes+=HoldLedgerFlushR30.bindBytesR31(event.row());}
-            while(bindBytes>HoldLedgerFlushR30.bindCapR31()&&batch.size()>1){
+            long bindLimit=Math.min(HoldLedgerFlushR30.bindCapR31(),com.ethk3.novaonepro.WriteBudgetR341.MAX_BIND_BYTES);
+            while(bindBytes>bindLimit&&batch.size()>1){
                 Event removed=batch.remove(batch.size()-1);bindBytes-=HoldLedgerFlushR30.bindBytesR31(removed.row());
             }
-            if(bindBytes>HoldLedgerFlushR30.bindCapR31())throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_BIND_CAPACITY)");
+            if(bindBytes>bindLimit)throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_BIND_CAPACITY)");
             identities.setLength(0);payloads.setLength(0);
             for(Event event:batch){identities.append(event.id);payloads.append(event.payload);}
             String batchId=StatsR27.sha256(identities.toString()),batchPayload=StatsR27.sha256(payloads.toString());
@@ -163,8 +181,18 @@ public final class WriterHoldFaultsR31 {
                 "R33_WRITER_HOLD_BATCH:"+batchId,batchPayload,"writer-hold-fault-evidence",WriterHoldLedgerR30.PROCESS_SESSION,
                 0,batchId,0,"R33_WRITER_HOLD_BATCH_V1");
             DatabaseCoordinator.WriteContext context=DatabaseCoordinator.WriteContext.of(
-                DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_WRITER_HOLD_FAULT");
-            DatabaseCoordinator.CommitResultR31<Integer> result=store.coordinatorForResearchR952().runIdempotentAtomicWriteR31(
+                DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_WRITER_HOLD_FAULT")
+                    .withWorkload(batch.size(),bindBytes,batch.size()+1,0,true);
+            synchronized (WriterHoldFaultsR31.class) {
+                retryBatch = new java.util.ArrayList<>(batch);
+                drainStatus = resolveBeforeRetry ? "RESOLVE_RECEIPT" : "WRITE_RECEIPT";
+            }
+            DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
+            DatabaseCoordinator.CommitOutcome outcome = resolveBeforeRetry ? coordinator.resolveCommitReceiptR31(identity)
+                    : DatabaseCoordinator.CommitOutcome.ROLLED_BACK;
+            if (outcome == DatabaseCoordinator.CommitOutcome.UNKNOWN)
+                throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
+            if (outcome == DatabaseCoordinator.CommitOutcome.ROLLED_BACK) outcome=coordinator.runIdempotentAtomicWriteR31(
                 context,identity,db->{
                     for(Event event:batch){
                         requireQuota(db,event);
@@ -172,27 +200,55 @@ public final class WriterHoldFaultsR31 {
                         if(!present(db,event))throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_MISSING");
                     }
                     return batch.size();
-                },batch.size());
-            if(result.outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED&&result.outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED)
+                },batch.size()).outcome;
+            if(outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED&&outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED)
                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
+            synchronized (WriterHoldFaultsR31.class) { resolveBeforeRetry = true; }
             for(Event event:batch)if(!present(read,event))throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_RECEIPT_WITHOUT_EVENT");
             synchronized(WriterHoldFaultsR31.class){
                 for(Event event:batch){if(PENDING.peekFirst()!=event)throw new IllegalStateException("R31_WRITER_HOLD_FAULT_QUEUE_IDENTITY");PENDING.removeFirst();persisted++;}
-                lastOutcome=result.outcome.name();lastFailure="";
+                lastOutcome=outcome.name();lastFailure="";
+                drainStatus="COMMITTED_READ_BACK";nextDrainElapsed=0;consecutiveDrainFailures=0;
+                retryBatch = null; resolveBeforeRetry = false;
             }
             for(Event event:batch)event.memory.close();
             return batch.size();
         }catch(RuntimeException unavailable){
             Error fatal=FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;
             String detail=RuntimeFaultEvidenceR31.clean(unavailable.getClass().getName()+":"+unavailable.getMessage(),512);
-            synchronized(WriterHoldFaultsR31.class){drainFailures++;lastFailure=detail;}
-            if(com.ethk3.novaonepro.RuntimeFaultArchiveB01.isProtectedDebt(unavailable))
+            boolean protectedDebt = com.ethk3.novaonepro.RuntimeFaultArchiveB01.isProtectedDebt(unavailable);
+            synchronized(WriterHoldFaultsR31.class){
+                drainFailures++;lastFailure=detail;
+                drainStatus = retryStatus(unavailable, protectedDebt);
+                if ("COMMIT_UNKNOWN_REQUIRES_RECEIPT".equals(drainStatus)) resolveBeforeRetry = true;
+                long delay = 250L << Math.min(3, consecutiveDrainFailures++);
+                long jitter = java.util.concurrent.ThreadLocalRandom.current().nextLong(101L);
+                nextDrainElapsed = android.os.SystemClock.elapsedRealtime() + Math.min(5000L, delay + jitter);
+            }
+            if (protectedDebt)
                 com.ethk3.novaonepro.RuntimeFaultArchiveB01.request(store,"r31_runtime_fault",detail);
             return 0;
         }finally{
             synchronized(WriterHoldFaultsR31.class){lastDrainWallR33=System.currentTimeMillis();lastDrainMsR33=android.os.SystemClock.elapsedRealtime()-started;}
             DRAINING.set(false);
         }
+    }
+
+    private static String retryStatus(RuntimeException error, boolean protectedDebt) {
+        if (protectedDebt) return "BLOCKED_STORAGE";
+        if (error instanceof DatabaseCoordinator.WriteRejectedR31 &&
+                ((DatabaseCoordinator.WriteRejectedR31) error).commitOutcome == DatabaseCoordinator.CommitOutcome.UNKNOWN)
+            return "COMMIT_UNKNOWN_REQUIRES_RECEIPT";
+        String category = FailureDispositionR31.classify(error).category;
+        if ("DISK_FULL".equals(category)) return "BLOCKED_STORAGE";
+        if ("LOCK_BUSY".equals(category) || "TEMP_TIMEOUT".equals(category)) return "WAIT_LOCK";
+        for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+            if (cause instanceof DatabaseCoordinator.SchemaPendingR31) return "MIGRATION_REQUIRED";
+            String message = String.valueOf(cause.getMessage());
+            if (message.contains("BIND_CAPACITY")) return "BLOCKED_STORAGE";
+            if (message.contains("COMMIT_UNKNOWN")) return "COMMIT_UNKNOWN_REQUIRES_RECEIPT";
+        }
+        return category;
     }
 
     // Single primary process. A committed event stays pinned through the live read-back.
@@ -216,6 +272,9 @@ public final class WriterHoldFaultsR31 {
         out.put("observationWallMs",System.currentTimeMillis());
         out.put("lastDrainWallMs",lastDrainWallR33);out.put("lastDrainMs",lastDrainMsR33);
         out.put("oldestPendingWallMs",PENDING.isEmpty()?null:PENDING.peekFirst().wall);
+        out.put("oldestPendingAgeMs",PENDING.isEmpty()?0L:android.os.SystemClock.elapsedRealtime()-PENDING.peekFirst().elapsed);
+        out.put("drainStatus",drainStatus); out.put("nextDrainElapsedMs",nextDrainElapsed);
+        out.put("droppedFirstSequence",firstDroppedSequence); out.put("droppedLastSequence",lastDroppedSequence);
         out.put("observedOver200ms", observed); out.put("pending", PENDING.size()); out.put("persistedFaultReceipts", persisted);
         out.put("capacityLoss", capacityLoss); out.put("drainFailures", drainFailures); out.put("lastDrainFailure", lastFailure);
         out.put("lastDrainCommitOutcome", lastOutcome); out.put("maxPending", MAX_PENDING);

@@ -206,9 +206,9 @@ public final class RuntimeR27 implements AutoCloseable {
             // Same process gate as the writer. Avoid re-decoding a 1MiB pinned
             // original while its metadata commit is known to be inadmissible.
             // The actual writer still rechecks, so a race remains fail-closed.
-            if(WriterHoldFaultsR31.deferResearch() && !com.ethk3.novaonepro.DatabaseCoordinator.researchDataDueR335())
-                return ResearchPoolR27.Outcome.idle("DEPENDENCY(WRITER_HOLD_FAULT_BACKLOG)",0,-1);
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
+            if(WriterHoldFaultsR31.deferResearch() && !com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetDueR341(latest))
+                return ResearchPoolR27.Outcome.idle("DEPENDENCY(WRITER_HOLD_FAULT_BACKLOG)",0,-1);
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
             ReplayDatasetR27 cur = pendingData != null ? pendingData : evoData;
             if(cur==null){
@@ -223,6 +223,7 @@ public final class RuntimeR27 implements AutoCloseable {
                             ModelSurfaceStoreR30.bindHistorical(w.ro, recovered);
                             publishRecoveredReplayKnowledgeR31(w, pin, "RECOVERED_COMMITTED_PIN");
                             publishDatasetInputR335(recovered);
+                            com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetUnavailableR341(latest);
                             published = true;
                             return ResearchPoolR27.Outcome.progress(1, pin.data.ordinals[pin.data.size() - 1]);
                         } finally {
@@ -234,13 +235,19 @@ public final class RuntimeR27 implements AutoCloseable {
 
             // A previously published larger pin remains available to its unfinished generation.
             // Prepare its bounded successor even when the newest issue has not changed.
-            if (cur != null && cur.size() <= DATASET_ROWS && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
+            if (cur != null && cur.size() <= DATASET_ROWS && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) {
+                com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetUnavailableR341(latest);
+                return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
+            }
             long t0 = System.currentTimeMillis();
             final ResearchSourceJournalR31.DatasetRead captured=ResearchSourceJournalR31.DatasetRead.capture(w.ro);
             final long capturedRevision=captured.revision;
             ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
             if(d.size()>0 && !captured.valid(w.ro,d.ordinals[0],d.ordinals[d.size()-1]))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
-            if (d.size() < 3 * SplitR27.BLOCK) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
+            if (d.size() < 3 * SplitR27.BLOCK) {
+                com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetUnavailableR341(latest);
+                return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
+            }
             FeatureCacheR27 c = featureCacheR31(d,48);boolean published=false;
             try{
                 ModelSurfaceStoreR30.bindHistorical(w.ro,c);
@@ -262,6 +269,7 @@ public final class RuntimeR27 implements AutoCloseable {
                     if(ResearchInputPinR30R1.invalid(w.ro,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
                     publishRecoveredReplayKnowledgeR31(w,pinned,"RESTORED_PUBLISHED_DATASET");
                     publishDatasetInputR335(c);
+                    com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetUnavailableR341(latest);
                     published=true;
                     return ResearchPoolR27.Outcome.progress(1,d.ordinals[d.size()-1]);
                 }

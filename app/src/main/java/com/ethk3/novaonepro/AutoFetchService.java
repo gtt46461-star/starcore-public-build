@@ -349,6 +349,14 @@ public final class AutoFetchService extends Service {
     private final Object fetchWorkerRepairLockR811 = new Object();
 
     /* B07 guard is independent from fetch/SQLite work so a blocked fetch cannot hide liveness. */
+    private final RuntimeReadSnapshotR341 realtimeReadR341 = new RuntimeReadSnapshotR341();
+    private final java.util.concurrent.ExecutorService realtimeReadExecutorR341 =
+            java.util.concurrent.Executors.newSingleThreadExecutor(task -> {
+                Thread thread = new Thread(task, "starcore-r341-realtime-read");
+                thread.setPriority(Thread.NORM_PRIORITY - 1);
+                return thread;
+            });
+    private final java.util.concurrent.atomic.AtomicReference<Runnable> tailRecoveryR341 = new java.util.concurrent.atomic.AtomicReference<>();
     private HandlerThread runtimeGuardThread;
     private Handler runtimeGuardHandler;
     private HandlerThread writerFaultThreadR334;
@@ -1920,6 +1928,8 @@ public final class AutoFetchService extends Service {
 
     @Override
     public void onDestroy() {
+        realtimeReadR341.invalidate();
+        realtimeReadExecutorR341.shutdown();
         if(faultMaintenanceR335!=null)faultMaintenanceR335.close();
         teardownThreadsR82 = new Thread[] { startupInitThread,fetchThread,runtimeGuardThread,writerFaultThreadR334,
                 livenessThreadR817,analysisWatchdogThread,analysisThread,backfillThread,backtestThread,
@@ -2511,9 +2521,22 @@ public final class AutoFetchService extends Service {
         if(!running||userRequestedStopV5||store==null||!isServiceUserEnabledV5())return;
         if(faultMaintenanceR335!=null)faultMaintenanceR335.signal(store);
         long mono=android.os.SystemClock.elapsedRealtime();if(mono-lastResearchControlElapsedR31<5000L)return;lastResearchControlElapsedR31=mono;
-        // Recovery derives its merged target from committed draws on every tick.
-        // It must run even when migration/research initialization later fails.
-        reconcilePredrawTailRecoveryR32();
+        // Tail reconciliation uses the existing background read owner; a busy pool cannot pin this control tick.
+        Handler readOwner = backfillHandler;
+        if (readOwner != null) {
+            final DbStore active = store;
+            Runnable read = new Runnable() {
+                @Override public void run() {
+                    try {
+                        if (!running || userRequestedStopV5 || store != active || tailRecoveryR341.get() != this) return;
+                        reconcilePredrawTailRecoveryR32(active);
+                        try { heartbeatStateV8().setPendingSettlementCount(SettlementTaskStoreR36.pendingCountR31(active)); }
+                        catch (RuntimeException unavailable) { heartbeatStateV8().setPendingSettlementCount(-1); }
+                    } finally { tailRecoveryR341.compareAndSet(this, null); }
+                }
+            };
+            if (tailRecoveryR341.compareAndSet(null, read) && !readOwner.post(read)) tailRecoveryR341.compareAndSet(read, null);
+        }
         // This existing off-main control lane runs while R26/R27 are still
         // initializing. Fault delivery cannot depend on the research pool whose
         // writes are waiting for these exact durable receipts.
@@ -2526,21 +2549,19 @@ public final class AutoFetchService extends Service {
             heartbeatStateV8().noteResearchRecoveryRequestR31(before,reason);
             heartbeatStateV8().markResearchHealthR31(owner.reconcileResearchHealthR31(reason));
         }
-        try{heartbeatStateV8().setPendingSettlementCount(SettlementTaskStoreR36.pendingCountR31(store));}
-        catch(RuntimeException unknown){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(unknown);if(fatal!=null)throw fatal;heartbeatStateV8().setPendingSettlementCount(-1);}
     }
 
     /** Independent of a successful latest callback. The DB head is the durable
      * intent, so a restart cannot lose it and a newer issue supersedes an old
      * target without racing two stored task records. Existing backfill CAS and
      * cooldown coalesce requests; this controller never performs network IO. */
-    private void reconcilePredrawTailRecoveryR32() {
+    private void reconcilePredrawTailRecoveryR32(DbStore active) {
         try {
-            Models.Draw head = store.getLatestDraw();
+            Models.Draw head = active.getLatestDraw();
             PredrawTailRecoveryR32.Intent recovery = PredrawTailRecoveryR32.reconstruct(
                     head, head == null ? java.util.Collections.<Models.Draw>emptyList()
-                            : store.getRecentDraws(R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY));
-            if (recovery.requestHistory) scheduleQuickHistorySyncR71(recovery.reason);
+                            : active.getRecentDraws(R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY));
+            if (running && store == active && recovery.requestHistory) scheduleQuickHistorySyncR71(recovery.reason);
         } catch (RuntimeException failure) {
             Error fatal = com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
             if (fatal != null) throw fatal;
@@ -2698,6 +2719,9 @@ public final class AutoFetchService extends Service {
         if(writerFaultControlR334!=null)writerFaultControlR334.stop();
         if(runtimeGuardHandler!=null)runtimeGuardHandler.removeCallbacks(researchControlLoopR31);
         researchControlPostedR31.set(false);fetchGenerationR31++;running=false;
+        realtimeReadR341.invalidate();
+        Runnable tail = tailRecoveryR341.getAndSet(null);
+        if (tail != null && backfillHandler != null) backfillHandler.removeCallbacks(tail);
         fetchCadenceR31.endSession(android.os.SystemClock.elapsedRealtime());
         if(apiClient!=null)apiClient.cancelInFlightR31();
         if (continuousRuntimeR26 != null) continuousRuntimeR26.close();
@@ -3015,6 +3039,9 @@ public final class AutoFetchService extends Service {
             updateRuntimeState(AppConfig.SERVICE_STATUS_API_ERROR,lastError);return;
         }
 
+        if (running && store != null && TargetIssueResolver.isValid(authoritativeLatest.issue)) {
+            realtimeReadR341.publishAfterCommit(realtimeReadForDrawR341(store, authoritativeLatest));
+        }
         // The draw is durable already. Deliver the clock before best-effort DB telemetry,
         // which may be waiting behind a research commit on a large device database.
         boolean isNew = dataGuard.isNewDraw(authoritativeLatest, oldLatest);
@@ -3040,7 +3067,7 @@ public final class AutoFetchService extends Service {
                 if(running&&!userRequestedStopV5)queueConfirmedSettlementR57(authoritativeLatest);
             });
             try {
-                postAnalysisForLatest("R71_DURABLE_DRAW_IMMEDIATE_ANALYSIS", true);
+                postAnalysisForIssue(authoritativeLatest.issue, "R71_DURABLE_DRAW_IMMEDIATE_ANALYSIS", true);
             } finally {
                 if(!posted)queueConfirmedSettlementR57(authoritativeLatest);
             }
@@ -3886,6 +3913,8 @@ public final class AutoFetchService extends Service {
             }
             canonicalCommitted = lease.token.isCanonicalCommitted();
             durableOwned = !canonicalCommitted;
+            if (canonicalCommitted && running) realtimeReadR341.freezeCommitted(store, request.baseIssue,
+                    request.targetIssue, outcome.commit.commitAt, TimeSourceR811.monoNowMs());
             store.setState(
                     "r811_runtime_memory_after_commit",
                     RuntimeMemoryGuardR811.snapshot("AFTER_COMMIT").canonical());
@@ -5367,7 +5396,11 @@ public final class AutoFetchService extends Service {
                 boolean maintenanceTurnR75 = false;
                 try {
                     if (!running || store == null) return;
-                    if (RealtimePressureGateR811.hasActiveCriticalWork()) {
+                    RealtimePressureGateR811.Snapshot pressure = RealtimePressureGateR811.snapshot();
+                    RuntimeReadSnapshotR341.Status realtimeStatus = realtimeReadR341.read(store, started);
+                    if (pressure.settlementDepth > 0 || (pressure.analysisDepth > 0
+                            && realtimeStatus != RuntimeReadSnapshotR341.Status.EXPIRED
+                            && realtimeStatus != RuntimeReadSnapshotR341.Status.FROZEN)) {
                         store.setState("r908_research_tick_status", "YIELD_P0_PRESSURE");
                         heartbeatStateV8().markLearningAttempt(
                                 "V51_OWNER_YIELD", "P0_PRESSURE|" + safe(reason));
@@ -12560,34 +12593,41 @@ public final class AutoFetchService extends Service {
     }
 
     private boolean hasRealtimeAnalysisNeed() {
-        if (store == null || dataGuard == null) {
-            return false;
+        DbStore active = store;
+        if (!running || active == null || dataGuard == null) return false;
+        RuntimeReadSnapshotR341.Status status = realtimeReadR341.read(active, TimeSourceR811.monoNowMs());
+        if (status == RuntimeReadSnapshotR341.Status.UNKNOWN_NEEDS_REFRESH) {
+            realtimeReadR341.refreshAsync(active, realtimeReadExecutorR341, () -> loadRealtimeReadR341(active));
         }
+        return status == RuntimeReadSnapshotR341.Status.NEEDS_FREEZE;
+    }
 
-        try {
-            Models.Draw latest = store.getLatestDraw();
+    private RuntimeReadSnapshotR341.Snapshot loadRealtimeReadR341(DbStore active) {
+        Models.Draw latest = active.getLatestDraw();
+        RuntimeReadSnapshotR341.Snapshot snapshot = realtimeReadForDrawR341(active, latest);
+        if (snapshot.status != RuntimeReadSnapshotR341.Status.NEEDS_FREEZE) return snapshot;
+        Models.Decision decision = active.getDecisionByTargetIssue(snapshot.target);
+        if (decision == null || isWeakPlaceholderDecision(decision) || !sameText(decision.baseIssue, snapshot.base))
+            return snapshot;
+        return new RuntimeReadSnapshotR341.Snapshot(active, snapshot.base, snapshot.target,
+                snapshot.sourceCommitAt, snapshot.deadlineElapsed, TimeSourceR811.monoNowMs() + 5000L,
+                RuntimeReadSnapshotR341.Status.FROZEN);
+    }
 
-            if (latest == null || !latest.isValid()) {
-                return false;
-            }
-
-            String baseIssue = latest.issue == null ? "" : latest.issue;
-            String targetIssue = dataGuard.buildNextIssue(baseIssue);
-
-            if (targetIssue == null || targetIssue.length() == 0) {
-                return false;
-            }
-
-            Models.Decision d = store.getDecisionByTargetIssue(targetIssue);
-
-            if (d != null && !isWeakPlaceholderDecision(d) && sameText(d.baseIssue, baseIssue)) {
-                return false;
-            }
-
-            return true;
-        } catch (Throwable e) {
-            return false;
-        }
+    private RuntimeReadSnapshotR341.Snapshot realtimeReadForDrawR341(DbStore active, Models.Draw draw) {
+        long mono = TimeSourceR811.monoNowMs(), wall = System.currentTimeMillis();
+        if (draw == null || !draw.isValid() || draw.openTime <= 0L || !TargetIssueResolver.isValid(draw.issue))
+            return new RuntimeReadSnapshotR341.Snapshot(active, "", "", 0L, 0L, mono + 2000L,
+                    RuntimeReadSnapshotR341.Status.NO_DRAW);
+        TargetIssueResolver.Resolution target = TargetIssueResolver.next(draw.issue);
+        if (!target.valid) return new RuntimeReadSnapshotR341.Snapshot(active, "", "", 0L, 0L, mono + 2000L,
+                RuntimeReadSnapshotR341.Status.NO_DRAW);
+        long fixed = TargetIssueResolver.predrawDeadlineWallR20261008(draw);
+        long deadline = AnalysisSingleFlightR36.Request.freezeDeadlineMonoF01(draw.issue, target.targetIssue, fixed,
+                mono + Math.max(0L, fixed - wall));
+        return new RuntimeReadSnapshotR341.Snapshot(active, draw.issue, target.targetIssue,
+                wall, deadline, mono + 5000L, deadline <= mono ? RuntimeReadSnapshotR341.Status.EXPIRED
+                        : RuntimeReadSnapshotR341.Status.NEEDS_FREEZE);
     }
 
     private boolean shouldDeferHeavyBackgroundNow() {
@@ -12613,11 +12653,7 @@ public final class AutoFetchService extends Service {
             if (countdownClock != null) {
                 long left = countdownClock.getCountdownMs();
 
-                if (left <= 0L) {
-                    return true;
-                }
-
-                if (left <= AppConfig.BACKGROUND_REALTIME_GUARD_MS) {
+                if (left > 0L && left <= AppConfig.BACKGROUND_REALTIME_GUARD_MS) {
                     return true;
                 }
                 /* Decision已完成且距离下期仍有安全窗口时，允许短后台切片，避免永久饥饿。 */
@@ -12650,6 +12686,10 @@ public final class AutoFetchService extends Service {
         }
 
         realtimePriorityUntilAt = 0L;
+        if (running && store != null && TargetIssueResolver.exact(decision.baseIssue, decision.targetIssue).valid) {
+            realtimeReadR341.freezeCommitted(store, decision.baseIssue, decision.targetIssue,
+                    System.currentTimeMillis(), TimeSourceR811.monoNowMs());
+        }
 
         try {
             if (store != null) {

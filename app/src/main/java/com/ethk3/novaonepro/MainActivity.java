@@ -603,6 +603,11 @@ public final class MainActivity extends Activity {
                                             }
                                             return;
                                         }
+                                        if (readScopeR341() != result) {
+                                            lastLightSnapshot = null;
+                                            diagnosticSnapshotR71 = null;
+                                            uiRevision.incrementAndGet();
+                                        }
                                         store = result;
                                         readStore = result;
                                         startupDbReady = result != null;
@@ -1488,133 +1493,99 @@ public final class MainActivity extends Activity {
         requestHeavyRefreshDelayed(900L);
     }
 
+    private static final long UI_READ_NOTICE_MS_R341 = 1000L;
+    private static final long HEAVY_RETRY_MS_R341 = 5000L;
+
+    private DbStore readScopeR341() { return readStore == null ? store : readStore; }
+
+    private void markUiReadDelayedR341(boolean cached) {
+        setText(txtRuntimeStatus, cached ? "STALE｜正在显示上次读回的数据，数据库仍在读取"
+                : "RESOURCE_WAIT｜数据读取尚未返回");
+        // Allow the next successful runtime render to replace this advisory status.
+        lastRuntimeRenderKey = "";
+    }
+
     private void refreshLightOnly() {
-        if (destroyed) {
-            return;
-        }
-
-        if (lightReadRunning) {
-            lightReadDirty = true;
-            return;
-        }
-
-        if (uiReadHandler == null) {
-            return;
-        }
-
-        // Coalesced invalidations request the next read without revoking this one.
+        if (destroyed || uiReadHandler == null || uiHandler == null) return;
+        if (lightReadRunning) { lightReadDirty = true; return; }
+        final DbStore scope = readScopeR341();
+        if (scope == null) return;
         final long requestedRevision = uiRevision.incrementAndGet();
+        final Handler render = uiHandler;
         lightReadRunning = true;
         lightReadDirty = false;
-
-        uiReadHandler.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final LightSnapshot snapshot = loadLightSnapshotSafely();
-                        snapshot.uiRevision = requestedRevision;
-
-                        if (uiHandler == null || destroyed) {
-                            lightReadRunning = false;
-                            return;
-                        }
-
-                        uiHandler.post(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        lightReadRunning = false;
-
-                                        if (destroyed) {
-                                            return;
-                                        }
-
-                                        renderLightSnapshot(snapshot);
-
-                                        if (lightReadDirty) {
-                                            lightReadDirty = false;
-                                            requestLightRefreshSoon(false);
-                                        }
-                                    }
-                                });
-                    }
-                });
+        final Runnable delayed = () -> {
+            if (!destroyed && lightReadRunning && scope == readScopeR341() && requestedRevision == uiRevision.get())
+                markUiReadDelayedR341(lastLightSnapshot != null);
+        };
+        render.postDelayed(delayed, UI_READ_NOTICE_MS_R341);
+        if (!uiReadHandler.post(() -> {
+            final LightSnapshot snapshot = loadLightSnapshotSafely(scope, false);
+            snapshot.uiRevision = requestedRevision;
+            if (!render.post(() -> {
+                render.removeCallbacks(delayed);
+                lightReadRunning = false;
+                if (destroyed || scope != readScopeR341()) return;
+                renderLightSnapshot(snapshot);
+                if (lightReadDirty) {
+                    lightReadDirty = false;
+                    requestLightRefreshSoon(false);
+                }
+            })) {
+                render.removeCallbacks(delayed);
+                lightReadRunning = false;
+            }
+        })) {
+            render.removeCallbacks(delayed);
+            lightReadRunning = false;
+        }
     }
 
     private void refreshHeavyOnly() {
-        if (destroyed) {
-            return;
-        }
-
-        if (!forceHeavyRenderOnce && isUserScrollingNow()) {
-            pendingHeavyRefresh = true;
-            return;
-        }
-
-        if (heavyReadRunning) {
-            heavyReadDirty = true;
-            return;
-        }
-
-        if (uiDetailReadHandlerR71 == null) {
-            return;
-        }
-
+        if (destroyed || uiDetailReadHandlerR71 == null || uiHandler == null) return;
+        if (!forceHeavyRenderOnce && isUserScrollingNow()) { pendingHeavyRefresh = true; return; }
+        if (heavyReadRunning) { heavyReadDirty = true; return; }
+        final DbStore scope = readScopeR341();
+        if (scope == null) return;
+        final Handler render = uiHandler;
         heavyReadRunning = true;
         heavyReadDirty = false;
-
-        uiDetailReadHandlerR71.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        final HeavySnapshot snapshot = loadHeavySnapshotSafely();
-
-                        if (uiHandler == null || destroyed) {
-                            heavyReadRunning = false;
-                            return;
-                        }
-
-                        uiHandler.post(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        heavyReadRunning = false;
-
-                                        if (destroyed) {
-                                            return;
-                                        }
-
-                                        if (!forceHeavyRenderOnce && isUserScrollingNow()) {
-                                            pendingHeavyRefresh = true;
-                                            return;
-                                        }
-
-                                        renderHeavySnapshot(snapshot);
-                                        requestLightRefreshSoon(false);
-                                        forceHeavyRenderOnce = false;
-
-                                        if (heavyReadDirty) {
-                                            heavyReadDirty = false;
-                                            requestHeavyRefreshSoon();
-                                        }
-                                    }
-                                });
-                    }
-                });
+        final Runnable delayed = () -> {
+            if (!destroyed && heavyReadRunning && scope == readScopeR341())
+                markUiReadDelayedR341(diagnosticSnapshotR71 != null);
+        };
+        render.postDelayed(delayed, UI_READ_NOTICE_MS_R341);
+        if (!uiDetailReadHandlerR71.post(() -> {
+            final HeavySnapshot snapshot = loadHeavySnapshotSafely(scope);
+            if (!render.post(() -> {
+                render.removeCallbacks(delayed);
+                heavyReadRunning = false;
+                if (destroyed || scope != readScopeR341()) return;
+                if (!forceHeavyRenderOnce && isUserScrollingNow()) { pendingHeavyRefresh = true; return; }
+                boolean stable = snapshot.error == null || snapshot.error.isEmpty();
+                if (stable) diagnosticSnapshotR71 = snapshot.light;
+                renderHeavySnapshot(snapshot);
+                forceHeavyRenderOnce = false;
+                if (stable) requestLightRefreshSoon(false);
+                if (heavyReadDirty) {
+                    heavyReadDirty = false;
+                    if (stable) requestHeavyRefreshSoon();
+                    else render.postDelayed(heavyRefreshRunnable, HEAVY_RETRY_MS_R341);
+                }
+            })) {
+                render.removeCallbacks(delayed);
+                heavyReadRunning = false;
+            }
+        })) {
+            render.removeCallbacks(delayed);
+            heavyReadRunning = false;
+        }
     }
 
-    private LightSnapshot loadLightSnapshotSafely() { return loadLightSnapshotSafely(false); }
-
-    private LightSnapshot loadLightSnapshotSafely(boolean includeDiagnostics) {
+    private LightSnapshot loadLightSnapshotSafely(DbStore db, boolean includeDiagnostics) {
         LightSnapshot s = new LightSnapshot();
         s.loadedAt = System.currentTimeMillis();
         s.loadedElapsedAtR971 = android.os.SystemClock.elapsedRealtime();
-
-        DbStore db = readStore == null ? store : readStore;
-
-        if (db == null) {
-            return s;
-        }
 
         try {
             LightSnapshot diagnosticsR71=diagnosticSnapshotR71;
@@ -1694,7 +1665,7 @@ public final class MainActivity extends Activity {
             s.drawDataProgressText = includeDiagnostics ? db.getDrawDataProgressText() : diagnosticsR71==null ? "历史统计读取中" : diagnosticsR71.drawDataProgressText;
             s.backfillStatusText = db.getBackfillStatusText();
         } catch (Throwable e) {
-            s.error = "界面读取状态异常：" + limitText(e.toString(), 120);
+            s.error = "RESOURCE_WAIT｜界面读取状态异常：" + limitText(e.toString(), 120);
         }
 
         return s;
@@ -1712,14 +1683,12 @@ public final class MainActivity extends Activity {
         return fresh;
     }
 
-    private HeavySnapshot loadHeavySnapshotSafely() {
+    private HeavySnapshot loadHeavySnapshotSafely(DbStore db) {
         HeavySnapshot h = new HeavySnapshot();
         h.loadedAt = System.currentTimeMillis();
-        h.light = loadLightSnapshotSafely(true);
-
-        DbStore db = readStore == null ? store : readStore;
-
-        if (db == null) {
+        h.light = loadLightSnapshotSafely(db, true);
+        if (!h.light.error.isEmpty()) {
+            h.error = h.light.error;
             return h;
         }
 
@@ -1773,11 +1742,8 @@ public final class MainActivity extends Activity {
                 }
             }
         } catch (Throwable e) {
-            h.error = "界面读取历史异常：" + limitText(e.toString(), 120);
+            h.error = "RESOURCE_WAIT｜界面读取历史异常：" + limitText(e.toString(), 120);
         }
-
-        // Publish only after every diagnostic map write; live reader receives a stable snapshot.
-        diagnosticSnapshotR71=h.light;
         return h;
     }
 
@@ -3378,7 +3344,8 @@ public final class MainActivity extends Activity {
         lastUiRefreshAt = lastLightRefreshAt;
 
         if (snapshot.error != null && snapshot.error.length() > 0) {
-            setText(txtRuntimeStatus, snapshot.error);
+            setText(txtRuntimeStatus, (previousStableSnapshot != null ? "STALE｜" : "") + snapshot.error);
+            lastRuntimeRenderKey = "";
             return;
         }
 

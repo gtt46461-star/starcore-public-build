@@ -163,7 +163,7 @@ public final class AnalysisSingleFlightR36 {
 
         private static final java.util.LinkedHashMap<String,Long> DEADLINE_MONO_F01 =
                 new java.util.LinkedHashMap<String,Long>();
-        private static synchronized long freezeDeadlineMonoF01(String base,String target,long wall,long candidate) {
+        static synchronized long freezeDeadlineMonoF01(String base,String target,long wall,long candidate) {
             String key=base+"|"+target+"|"+wall;
             Long previous=DEADLINE_MONO_F01.get(key);
             long fixed=previous==null?candidate:Math.min(previous.longValue(),candidate);

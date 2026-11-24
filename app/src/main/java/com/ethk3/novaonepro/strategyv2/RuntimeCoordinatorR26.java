@@ -552,6 +552,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         }return null;
     }
     private long stallRoundR30,stallFactsCheckedR30;private boolean stallFactsR30;
+    private volatile long nextClaimEligibleR341;
+    private volatile String claimWaitR341 = "";
     /** R30-B01-06: STALLED = pending>0 and >=5 draws since the task's last commit (TaskLivenessR30). Without the
      * pending/last_committed_seq facts every task is UNKNOWN, so nothing is boosted (no guessed stall). */
     private Claim claimStalledR30(){
@@ -620,8 +622,22 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             RuntimeR27 pool=r27;if(pool!=null)pool.pool().setResource(resourceBlocked);
             if(preempt()){try{sessionBlocked(resourceBlocked==null?"STOPPING":resourceBlocked);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","blocked receipt retry",busy);}await(250);continue;}
             try{sessionBlocked(null);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","session status retry",busy);}
+            long remainingClaimWait = nextClaimEligibleR341 - SystemClock.elapsedRealtime();
+            if (remainingClaimWait > 0L) { await(Math.min(250L, remainingClaimWait)); continue; }
             Claim claim;
-            try{claim=claim();}catch(RuntimeException failure){FailureDispositionR31.Decision disposition=FailureDispositionR31.classify(failure);if(disposition.disposition==FailureDispositionR31.Disposition.FAULT||disposition.disposition==FailureDispositionR31.Disposition.FATAL)throw failure;android.util.Log.w("STARCORE_R26","dispatch waiting "+disposition.category);await(250);continue;}
+            try {
+                claim = claim();
+                claimWaitR341 = "";
+                nextClaimEligibleR341 = 0L;
+            } catch (RuntimeException failure) {
+                FailureDispositionR31.Decision disposition = FailureDispositionR31.classify(failure);
+                if (disposition.disposition == FailureDispositionR31.Disposition.FAULT
+                        || disposition.disposition == FailureDispositionR31.Disposition.FATAL) throw failure;
+                claimWaitR341 = disposition.category;
+                nextClaimEligibleR341 = SystemClock.elapsedRealtime() + 250L;
+                android.util.Log.w("STARCORE_R26", "dispatch waiting " + claimWaitR341);
+                continue;
+            }
             if(claim==null){await(250);continue;}long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();long delta=0;String reason=null;Throwable failed=null;
             try{executingClaimR31=claim;WRITING_CLAIM.set(claim);BudgetTokenSU1 budget=new BudgetTokenSU1((int)CooperativeContinuationR26.SLICE_MS,3000000,this::preempt);ExecutionBudgetR26.enter(budget);delta=execute(claim,budget);reason=claim.reason;}
             catch(BudgetTokenSU1.Yield yield){reason=resourceBlocked!=null?resourceBlocked:"SLICE_BUDGET";}

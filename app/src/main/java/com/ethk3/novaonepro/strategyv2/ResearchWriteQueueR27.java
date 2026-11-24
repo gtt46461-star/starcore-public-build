@@ -159,8 +159,17 @@ public final class ResearchWriteQueueR27 {
         return submitAttemptR31(cancelled,freezeWrite,"HISTORY_IMPORT_R31".equals(operation),()->{
             if(store==null)throw new IllegalStateException("R31_DURABLE_BATCH_REQUIRES_DATABASE");
             DatabaseCoordinator.WriteClass kind=freezeWrite?DatabaseCoordinator.WriteClass.LIVE_FREEZE:DatabaseCoordinator.WriteClass.RESEARCH_DATA;
-            store.coordinatorForResearchR952().runIdempotentAtomicWriteR31(DatabaseCoordinator.WriteContext.of(kind,"R27_"+operation),batch.identityR31,
-                    db->{execute(db,batch,operation);return 0;},0);
+            DatabaseCoordinator.WriteContext context = DatabaseCoordinator.WriteContext.of(kind,"R27_"+operation)
+                    .withWorkload(batch.opCount,batch.bindBytes,batch.opCount,0,false);
+            String input = "REPLAY_DATASET".equals(operation) && !freezeWrite ? batch.identityR31.inputSnapshot : "";
+            if (!input.isEmpty()) {
+                DatabaseCoordinator.prepareReplayDatasetR341(input);
+                context = context.withReadyDataset(input);
+            }
+            try {
+                store.coordinatorForResearchR952().runIdempotentAtomicWriteR31(context,batch.identityR31,
+                        db->{execute(db,batch,operation);return 0;},0);
+            } finally { if (!input.isEmpty()) DatabaseCoordinator.releaseReplayDatasetR341(input); }
         });
     }
     /** Bounded view scheduling metadata shares the existing deadline and cancellation gate. */
