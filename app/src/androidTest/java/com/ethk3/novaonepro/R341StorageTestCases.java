@@ -4,10 +4,12 @@ import static org.junit.Assert.*;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import androidx.test.platform.app.InstrumentationRegistry;
 import com.ethk3.novaonepro.r952.HistoryContinuityR341;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 import org.json.JSONObject;
 
 public final class R341StorageTestCases {
@@ -186,14 +189,16 @@ public final class R341StorageTestCases {
         assertNotEquals(early,HistoryContinuityR341.inspect(List.of(first,second)).sourceHash);
     }
 
-    private static void createOriginalDatabase(File file) {
-        try(SQLiteDatabase db=SQLiteDatabase.openOrCreateDatabase(file,null)){
-            db.execSQL("CREATE TABLE draws(issue INTEGER PRIMARY KEY,number INTEGER NOT NULL)");
-            db.execSQL("WITH RECURSIVE calendar(n) AS (VALUES(1) UNION ALL SELECT n+1 FROM calendar WHERE n<5000)"
-                    +" INSERT INTO draws SELECT n,n%10+1 FROM calendar");
-            db.execSQL("CREATE TABLE scratch(body BLOB)");
-            db.execSQL("INSERT INTO scratch VALUES(zeroblob(524288))");
-            db.execSQL("DROP TABLE scratch");
+    private static void restoreOriginalFixture(File file) throws IOException {
+        // The fixture was written with auto_vacuum=NONE and 129 free pages.
+        // Keep those original bytes until the real Android rebuild opens the source.
+        try(InputStream asset=InstrumentationRegistry.getInstrumentation().getContext().getAssets()
+                .open("r341/fragmented-original.db.gz");
+                GZIPInputStream original=new GZIPInputStream(asset);
+                FileOutputStream output=new FileOutputStream(file)){
+            byte[] buffer=new byte[32768];
+            for(int count;(count=original.read(buffer))!=-1;)output.write(buffer,0,count);
+            output.getFD().sync();
         }
     }
 
@@ -211,8 +216,10 @@ public final class R341StorageTestCases {
             File backup=new File(databases,AppConfig.DB_NAME+".r82-original-backup");
             File journal=new File(databases,AppConfig.DB_NAME+".r82-maintenance-journal");
             File receiptFile=new File(databases,AppConfig.DB_NAME+".r82-backup-receipt");
-            createOriginalDatabase(live);
+            restoreOriginalFixture(live);
             String original=StorageMaintenanceFileR82.sha256(live);
+            assertEquals("af8fd88c5ecd3fccfa539e002547ae8316e7017c39d344b4bb73cf54e41e6055",original);
+            assertEquals(593920L,live.length());
             StorageMaintenanceFileR82.Receipt rebuiltReceipt;
             try(SourceReadLeaseR82 lease=SourceReadLeaseR82.exclusive(live)){
                 rebuiltReceipt=StorageMaintenanceFileR82.rebuildAndSwap(live);
@@ -220,7 +227,7 @@ public final class R341StorageTestCases {
             String rebuilt=rebuiltReceipt.activeSha256;
             assertEquals(original,rebuiltReceipt.sourceSha256);
             assertNotEquals(original,rebuilt);
-            assertTrue(rebuiltReceipt.activeBytes<rebuiltReceipt.originalBytes);
+            assertTrue(rebuiltReceipt.summary(),rebuiltReceipt.activeBytes<rebuiltReceipt.originalBytes);
             assertEquals(original,StorageMaintenanceFileR82.sha256(backup));
             Properties state=StorageMaintenanceFileR82.read(receiptFile);
             state.setProperty("state",candidateInstalled?"INSTALLED":"ORIGINAL_RENAMED");
@@ -242,7 +249,15 @@ public final class R341StorageTestCases {
                 try(Cursor c=db.rawQuery("SELECT count(*),sum(number) FROM draws",null)){
                     assertTrue(c.moveToFirst());assertEquals(5000,c.getInt(0));assertEquals(27500,c.getInt(1));
                 }
+                try(Cursor c=db.rawQuery("SELECT payload FROM protected_original WHERE identity='original'",null)){
+                    assertTrue(c.moveToFirst());assertArrayEquals(new byte[]{0,1,127,(byte)128,(byte)254,(byte)255},c.getBlob(0));
+                    assertFalse(c.moveToNext());
+                }
             }
+            String scope=InstrumentationRegistry.getArguments().getString("r30Sandbox");
+            android.util.Log.i("STARCORE_R341","R341_STORAGE_RECOVERY scope="+scope+" candidateInstalled="+candidateInstalled
+                    +" rows=5000 protectedOriginals=1 activeBytes="+rebuiltReceipt.activeBytes
+                    +" originalBytes="+rebuiltReceipt.originalBytes+" original="+original+" rebuilt="+rebuilt);
         }
     }
 }
