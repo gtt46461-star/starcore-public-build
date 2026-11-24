@@ -27,6 +27,14 @@ public final class LifecycleSchemaR31 {
     private static final Pattern DECLARATION=Pattern.compile(
             "(?is)^\\s*CREATE\\s+(?:UNIQUE\\s+)?(TABLE|INDEX|TRIGGER)\\s+IF\\s+NOT\\s+EXISTS\\s+[\\\"`\\[]?([A-Za-z_][A-Za-z0-9_]*)");
     private static final int MAX_OBJECTS=256;
+    public static final class MigrationConflict extends IllegalStateException
+            implements com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure {
+        MigrationConflict(String object) { super("MIGRATION_CONFLICT:" + DOMAIN + ":" + object); }
+        public String failureCategory() { return "INTEGRITY"; }
+        public String operation() { return DOMAIN; }
+        public String phase() { return "DEFINITION_CHECK"; }
+        public String commitOutcomeName() { return "NOT_SUBMITTED"; }
+    }
     public static final class Result {
         public final boolean ready,committedUnit;
         public final String object;
@@ -46,14 +54,14 @@ public final class LifecycleSchemaR31 {
             try(Cursor c=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{name})){
                 if(!c.moveToFirst())return false;
                 if(!kind.equals(c.getString(0))||!canonical(sql).equals(canonical(c.getString(1))))
-                    throw new DatabaseCoordinator.SchemaPendingR31(DOMAIN,"UNKNOWN_DEFINITION:"+name);
+                    throw new MigrationConflict("UNKNOWN_DEFINITION:" + name);
                 return true;
             }
         }
     }
     /** Only unquoted SQL layout is ignored. Quoted identifiers and literal bytes
      * remain exact, including doubled quotes and words such as IF NOT EXISTS. */
-    static String canonical(String sql){
+    public static String canonical(String sql){
         if(sql==null)return "";
         String value=sql.trim();if(value.endsWith(";"))value=value.substring(0,value.length()-1);
         StringBuilder out=new StringBuilder();char quote=0;
@@ -88,6 +96,30 @@ public final class LifecycleSchemaR31 {
         for(String statement:sql){Definition d=new Definition(statement);if(!names.add(d.name))throw new IllegalArgumentException("R31_LIFECYCLE_DUPLICATE_OBJECT");out.add(d);}
         return out;
     }
+
+    public static List<Map<String, String>> expectedObjects(SQLiteDatabase db) {
+        List<Map<String, String>> objects = new ArrayList<>();
+        for (Definition definition : definitions(db)) {
+            Map<String, String> row = new LinkedHashMap<>();
+            row.put("name", definition.name);
+            row.put("kind", definition.kind);
+            row.put("ddlSha256", V51ChecksumEngine.sha256(canonical(definition.sql)));
+            row.put("owner", DOMAIN);
+            objects.add(Collections.unmodifiableMap(row));
+        }
+        return Collections.unmodifiableList(objects);
+    }
+
+    public static void requireDefinitions(SQLiteDatabase db, String[] declared, String owner) {
+        for (Definition definition : definitions(declared)) {
+            if (!definition.present(db)) throw new DatabaseCoordinator.SchemaPendingR31(owner, "MISSING_OBJECT:" + definition.name);
+        }
+    }
+
+    /** The pre-training checkpoint reader may need its own guards before the rest of research can register. */
+    public static Result advanceStartupCheckpointWithinMigration(SQLiteDatabase db) throws Exception {
+        return advance(db, definitions(StartupCheckpointIdentityR31.ddlR31()), StartupCheckpointIdentityR31::seedWithinMigrationR31);
+    }
     private static void requireDeclaredAttachments(SQLiteDatabase db,List<Definition> all){
         Set<String> declared=new HashSet<>();for(Definition d:all)declared.add(d.name);
         int seen=0;
@@ -98,7 +130,7 @@ public final class LifecycleSchemaR31 {
                     String name=c.getString(0);
                     if(declared.contains(name))continue;
                     if("index".equals(c.getString(1))&&name.startsWith("sqlite_autoindex_")&&c.isNull(2))continue;
-                    throw new DatabaseCoordinator.SchemaPendingR31(DOMAIN,"UNKNOWN_ATTACHMENT:"+table.name);
+                    throw new MigrationConflict("UNKNOWN_ATTACHMENT:" + table.name + ":" + name);
                 }
             }
         }
@@ -121,7 +153,7 @@ public final class LifecycleSchemaR31 {
             if(startupSourcePresentR31(db)&&!StartupCheckpointIdentityR31.ready(db))return false;
             if(!ImprovementStoreR31.ready(db))return false;
             return SchemaDomainCoordinatorR926.matches(db,contract(all));
-        }catch(DatabaseCoordinator.SchemaPendingR31 dependency){return false;}
+        }catch(DatabaseCoordinator.SchemaPendingR31 | MigrationConflict dependency){return false;}
     }
     /** Called only by the explicit lifecycle-schema MIGRATION task. */
     public static Result advanceWithinMigration(SQLiteDatabase db)throws Exception{

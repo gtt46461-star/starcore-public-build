@@ -19,6 +19,10 @@ public final class RuntimeR27 implements AutoCloseable {
     public static final String LOOP = "MAIN_REPAIR1"; // MAIN stays readable by the pre-repair APK
     final DbStore store; final ResearchPoolR27 pool;
     private final HealthTask healthTaskR31;
+    private final String enclosingSession;
+    private final java.util.Set<String> registeredTasksR341 = new java.util.LinkedHashSet<>();
+    private final java.util.concurrent.atomic.AtomicBoolean startInitiatedR341 = new java.util.concurrent.atomic.AtomicBoolean();
+    private volatile boolean stoppedR341;
     private boolean resourceCachesClosedR31;
     // Evolution dataset snapshot (rebound only between generations).
     volatile ReplayDatasetR27 evoData; volatile FeatureCacheR27 evoCache; volatile ReplayDatasetR27 pendingData; volatile FeatureCacheR27 pendingCache;
@@ -82,19 +86,46 @@ public final class RuntimeR27 implements AutoCloseable {
     private static volatile RuntimeR27 active;
     public static RuntimeR27 active() { return active; }
 
+    static List<String> taskIdsR341() {
+        return java.util.Arrays.asList("r27-replay-dataset", "r27-live", "r27-evolution", "r27-abi", "r27-atoms",
+                "r27-atomnet", "r27-atomnet-archive", "r27-calibration", "r27-chart-cache", "r27-observatory-r1",
+                "r27-study-r1", "r27-matrices-r1", "r27-legacy-export", "r27-health");
+    }
+
+    private void register(ResearchPoolR27.Task task) {
+        if (!registeredTasksR341.add(task.id())) throw new IllegalArgumentException("R341_DUPLICATE_R27_TASK:" + task.id());
+        pool.register(task);
+    }
+
     public RuntimeR27(DbStore store, String session) {
         this.store = store;
+        enclosingSession = session;
         CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
-        pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
-        pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new AtomNetArchiveTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
+        register(new DatasetTask()); register(new LiveTask()); register(new EvolutionTask()); register(new AbiTask());
+        register(new AtomsTask()); register(new AtomNetTask()); register(new AtomNetArchiveTask()); register(new CalibrationTask()); register(new ChartTask());
         healthTaskR31=new HealthTask();
-        pool.register(new ObservatoryTask()); pool.register(new ResearchStudyTask()); pool.register(new MatrixProductionTask()); pool.register(new LegacyExportTask()); pool.register(healthTaskR31);
-        active = this;
+        register(new ObservatoryTask()); register(new ResearchStudyTask()); register(new MatrixProductionTask()); register(new LegacyExportTask()); register(healthTaskR31);
     }
-    public void start() { pool.start(); }
+    public void start() {
+        if (stoppedR341 || !startInitiatedR341.compareAndSet(false, true)) return;
+        try {
+            if (!registeredTasksR341.equals(new java.util.LinkedHashSet<>(taskIdsR341())))
+                throw new IllegalStateException("R341_INTEGRITY_R27_REGISTRATION_DECLARATION_CHANGED");
+            RuntimeCoordinatorR26.requireRegistrationR341(store.readable(), enclosingSession);
+            pool.start();
+            synchronized (RuntimeR27.class) { if (!stoppedR341) active = this; }
+        } catch (RuntimeException | Error failure) {
+            close();
+            throw failure;
+        }
+    }
     public ResearchPoolR27 pool() { return pool; }
-    @Override public void close() { pool.close(); if (active == this) active = null; }
+    @Override public void close() {
+        stoppedR341 = true;
+        synchronized (RuntimeR27.class) { if (active == this) active = null; }
+        pool.close();
+    }
 
     /** The coordinator calls this only after its own worker/probe and this entire pool have exited.
      * Closing a session requests cancellation; it must not recycle shared cache storage while used. */

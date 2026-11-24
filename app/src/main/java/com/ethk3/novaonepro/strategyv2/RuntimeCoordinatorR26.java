@@ -299,7 +299,12 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             }
             healthControlRunsR31++;lastHealthControlFailureR31=null;
             if(!cancelled){try{ResearchPoolR27.recoverOneR31(store,owner);synchronized(signal){signal.notifyAll();}reconcileStalledTasksR31(observed);}catch(RuntimeException controlFailure){lastHealthControlFailureR31=RuntimeFaultEvidenceR31.capture(controlFailure,"HEALTH_CONTROL").category;}}
-            java.util.Map<String,Object> control=new java.util.LinkedHashMap<>();synchronized(signal){control.put("requestCount",healthControlRequestsR31);}control.put("observedControlRuns",healthControlRunsR31);control.put("taskRevocations",healthTaskRevokesR31);control.put("pendingActualDrains",drainingTasksR31.size());control.put("requestReason",lastHealthControlReasonR31);control.put("controlFailure",lastHealthControlFailureR31);control.put("memory",memoryBudgetR31.snapshot());appendMemoryControlFactsR31(control,memoryObservationR31);control.put("executor",healthControlExecutorR31().snapshot());control.put("workingEstimateBasis","128_BOUNDED_ROWS_WITH_CAPPED_TEXT_AND_MAP_ALLOWANCE_NOT_MEASURED_PEAK_OR_SQLITE_NATIVE");control.put("result","OBSERVATION_AND_CONTROL_REQUESTS_ONLY_NOT_RECOVERED_UNTIL_NEW_DURABLE_ARTIFACT");healthSnapshotR31=observed.withControl(control);
+            java.util.Map<String,Object> control=new java.util.LinkedHashMap<>();synchronized(signal){control.put("requestCount",healthControlRequestsR31);}control.put("observedControlRuns",healthControlRunsR31);control.put("taskRevocations",healthTaskRevokesR31);control.put("pendingActualDrains",drainingTasksR31.size());control.put("requestReason",lastHealthControlReasonR31);control.put("controlFailure",lastHealthControlFailureR31);
+            control.put("currentRegistrationVerifiedR341", registrationVerifiedR341);
+            control.put("currentResearchWorkersReadyR341", researchWorkersReadyR341 && !cancelled);
+            control.put("nextClaimEligibleElapsedR341", nextClaimEligibleR341);
+            control.put("claimWaitR341", claimWaitR341);
+            control.put("memory",memoryBudgetR31.snapshot());appendMemoryControlFactsR31(control,memoryObservationR31);control.put("executor",healthControlExecutorR31().snapshot());control.put("workingEstimateBasis","128_BOUNDED_ROWS_WITH_CAPPED_TEXT_AND_MAP_ALLOWANCE_NOT_MEASURED_PEAK_OR_SQLITE_NATIVE");control.put("result","OBSERVATION_AND_CONTROL_REQUESTS_ONLY_NOT_RECOVERED_UNTIL_NEW_DURABLE_ARTIFACT");healthSnapshotR31=observed.withControl(control);
         }catch(RuntimeException sourceFailure){healthSnapshotR31=new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED","UNKNOWN","HEALTH_SOURCE_UNAVAILABLE:"+sourceFailure.getClass().getSimpleName(),null,null,null,0,0,0,ResearchTaskRegistryR30R1.all().size(),0,java.util.Collections.emptyList());
         }catch(Error fatal){lastHealthControlFailureR31="HEALTH_CONTROL_FATAL:"+fatal.getClass().getSimpleName();healthSnapshotR31=new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED","UNKNOWN",lastHealthControlFailureR31,null,null,null,0,0,0,ResearchTaskRegistryR30R1.all().size(),0,java.util.Collections.emptyList());throw fatal;
         }finally{healthProbePendingR31.set(false);}return null;});}catch(java.util.concurrent.RejectedExecutionException capacity){lastHealthControlFailureR31=RuntimeFaultEvidenceR31.clean(capacity.getMessage(),128);healthProbePendingR31.set(false);}
@@ -385,6 +390,11 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(!KeepArchiveRetirementR31.MODE.equals(KeepArchiveRetirementR31.mode(read,StartupCheckpointIdentityR31.SOURCE)))return null;
         if(!StartupCheckpointIdentityR31.ready(read))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","DECLARED_SOURCE_IDENTITY_NOT_READY");
         try{return StartupCheckpointIdentityR31.prepare(read,new java.io.File(store.contextForR26().getFilesDir(),"r31-keep"));}
+        catch(CheckpointDependencyR341.SourceWait missing) {
+            if (missing.state == CheckpointDependencyR341.State.CONFLICT)
+                throw new IllegalStateException("R341_INTEGRITY_CHECKPOINT_SOURCE:" + missing.getMessage(), missing);
+            throw new IllegalStateException("DEPENDENCY:R341_STARTUP_CHECKPOINT_SOURCE:" + missing.getMessage(), missing);
+        }
         catch(java.io.IOException unavailable){throw new IllegalStateException("DEPENDENCY:R31_STARTUP_CHECKPOINT_ORIGINAL_COMPARISON",unavailable);}
     }
     public static SchemaDomainCoordinatorR926.UpgradeSpecR31 startupUpgradeSpecR31(String owner){return startupUpgradeSpecR31(owner,null);}
@@ -402,22 +412,86 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 BuildConfig.SOURCE_COMMIT_R26+"|"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,SchemaDomainCoordinatorR926.PROTECTED_ROOTS_R31,
                 SchemaDomainCoordinatorR926.UPGRADE_MIN_FREE_BYTES_R31,null,startupSchemaR31,null);
     }
-    private static void registerSessionR34(SQLiteDatabase db,String owner) {
+    private static final Map<String, String> EXPECTED_TASKS_R341 = expectedTasksR341();
+    private static final String REGISTRATION_R341 = "r341_current_task_registration";
+    private volatile boolean registrationVerifiedR341;
+    private volatile boolean researchWorkersReadyR341;
+
+    private static Map<String, String> expectedTasksR341() {
+        Map<String, String> tasks = new LinkedHashMap<>();
+        for (String id : new String[]{"schema", "schema-base", "lifecycle-schema", "kernel", "shadow-recover", "evidence-recover", "evidence-quality", "sealed-planner", "su1-certificate", "su2-mainline", "su2-certificate", "qualification", "aggregate-evidence", "feedback", "seed-incumbent", "incumbent-forecast"}) tasks.put(id, "P1");
+        for (String id : new String[]{"calibration", "legacy-generation", "legacy-replay", "warm-candidates", ColdRebirthR34.TASK, "publish-models", "live-model-training", "live-forecast-preparation", "foundry-su2", "foundry-su1", "ablation", "campaign-audit"}) tasks.put(id, "P2");
+        for (String id : new String[]{"artifact-retention", "archive", "retention", "diagnosis", "daily-close"}) tasks.put(id, "P3");
+        for (int i = 1; i <= 16; i++) tasks.put(String.format(Locale.ROOT, "expert-E%02d", i), "P2");
+        for (String id : RuntimeR27.taskIdsR341()) tasks.put(id, "R27");
+        return Collections.unmodifiableMap(tasks);
+    }
+
+    static boolean declaresTaskR341(String task) { return EXPECTED_TASKS_R341.containsKey(task); }
+
+    private static String registrationManifestR341() {
+        Map<String, Object> manifest = new LinkedHashMap<>();
+        for (Map.Entry<String, String> task : EXPECTED_TASKS_R341.entrySet()) {
+            String id = task.getKey(), lane = task.getValue();
+            String schema = "R27".equals(lane) ? "R27_BASE" : "schema".equals(id) ? "R26_RUNTIME_BASE" : "STRATEGY_STORAGE";
+            if (ColdRebirthR34.TASK.equals(id)) schema = "COLD_REBIRTH_SCHEMA";
+            if ("r27-atomnet-archive".equals(id)) schema = "ATOMNET_ARCHIVE_SCHEMA";
+            String input = ColdRebirthR34.TASK.equals(id) ? "PRESERVED_PARENT_WITH_PIT_HISTORY"
+                    : "r27-atomnet".equals(id) ? "PINNED_DATASET_AND_CHECKPOINT"
+                    : "r27-replay-dataset".equals(id) ? "CANONICAL_DRAW_HISTORY" : "TASK_SPECIFIC";
+            manifest.put(id, Arrays.asList(lane, schema, input));
+        }
+        return JsonR27.write(manifest);
+    }
+
+    static void requireRegistrationR341(SQLiteDatabase db, String owner) {
+        if (!SchemaR27.tableExists(db, REGISTRATION_R341))
+            throw new DatabaseCoordinator.SchemaPendingR31("R341_SESSION", "REGISTRATION_RECEIPT_MISSING");
+        try (Cursor status = db.rawQuery("SELECT r.manifest_hash,r.expected_count,s.user_enabled,s.state"
+                + " FROM " + REGISTRATION_R341 + " r JOIN r26_session s ON s.session_id=r.session_id"
+                + " WHERE r.session_id=?", new String[]{owner})) {
+            if (!status.moveToFirst() || !StatsR27.sha256(registrationManifestR341()).equals(status.getString(0))
+                    || status.getInt(1) != EXPECTED_TASKS_R341.size() || status.getInt(2) != 1 || !"RUNNING".equals(status.getString(3)))
+                throw new DatabaseCoordinator.SchemaPendingR31("R341_SESSION", "REGISTRATION_INCOMPLETE:" + owner);
+        }
+        Map<String, String> missing = new LinkedHashMap<>(EXPECTED_TASKS_R341);
+        String slots = String.join(",", Collections.nCopies(missing.size(), "?"));
+        try (Cursor rows = db.rawQuery("SELECT task_id,lane FROM r26_task WHERE registered_at>0 AND task_id IN ("+slots+")",
+                missing.keySet().toArray(new String[0]))) {
+            while (rows.moveToNext()) {
+                if (!rows.getString(1).equals(missing.remove(rows.getString(0))))
+                    throw new IllegalStateException("R341_INTEGRITY_TASK_OWNER_MISMATCH:" + rows.getString(0));
+            }
+        }
+        if (!missing.isEmpty()) throw new DatabaseCoordinator.SchemaPendingR31("R341_SESSION", "REGISTRATION_INCOMPLETE:" + missing.keySet());
+    }
+
+    static void registerSessionR34(SQLiteDatabase db,String owner) {
             RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
             java.util.List<Object> interrupted=new java.util.ArrayList<>();
-            try(Cursor previous=db.rawQuery("SELECT session_id,heartbeat,state FROM r26_session WHERE user_enabled=1 ORDER BY heartbeat DESC LIMIT 16",null)){while(previous.moveToNext()){java.util.Map<String,Object> gap=new java.util.LinkedHashMap<>();gap.put("sessionId",previous.getString(0));gap.put("lastPersistedHeartbeat",previous.getLong(1));gap.put("previousState",previous.getString(2));gap.put("recoveredAt",now);gap.put("unobservedIntervalMs",Math.max(0,now-previous.getLong(1)));gap.put("cause","UNKNOWN_PROCESS_OR_SERVICE_GAP_NOT_PROVEN_CONTINUOUS");interrupted.add(gap);}}
+            try(Cursor previous=db.rawQuery("SELECT session_id,heartbeat,state FROM r26_session WHERE user_enabled=1 AND session_id<>? ORDER BY heartbeat DESC LIMIT 16",new String[]{owner})){while(previous.moveToNext()){java.util.Map<String,Object> gap=new java.util.LinkedHashMap<>();gap.put("sessionId",previous.getString(0));gap.put("lastPersistedHeartbeat",previous.getLong(1));gap.put("previousState",previous.getString(2));gap.put("recoveredAt",now);gap.put("unobservedIntervalMs",Math.max(0,now-previous.getLong(1)));gap.put("cause","UNKNOWN_PROCESS_OR_SERVICE_GAP_NOT_PROVEN_CONTINUOUS");interrupted.add(gap);}}
             java.util.Map<String,Object> recovery=new java.util.LinkedHashMap<>();recovery.put("version","R30_REPAIR_LIFECYCLE_1");recovery.put("newSession",owner);recovery.put("recoveredAt",now);recovery.put("interruptedSessions",interrupted);recovery.put("scope","Observed persisted gaps only. OEM force stop and killed-process time are not service uptime; resume uses durable artifacts and invalidates prior leases.");
             db.execSQL("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30-lifecycle','last-recovery',?,?)",new Object[]{JsonR27.write(recovery),now});
-            db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE user_enabled=1");
-            db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status IN ('RUNNING','CANCELLING')");
-            db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
-            add(db,"schema","P1");add(db,"schema-base","P1");add(db,"lifecycle-schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");add(db,"incumbent-forecast","P1");
-            add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"warm-candidates","P2");add(db,ColdRebirthR34.TASK,"P2");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"live-forecast-preparation","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
-            for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}
-            db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27' AND status NOT IN ('QUARANTINED','NEEDS_FIX')");
-            for(String r27Task:new String[]{"r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
-                db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{r27Task,r27Task,now});
+            db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE user_enabled=1 AND session_id<>?", new Object[]{owner});
+            db.execSQL("UPDATE r31_task_lease SET deadline_elapsed_ms=0,next_elapsed_ms=0 WHERE owner_epoch<>? AND EXISTS("
+                    + "SELECT 1 FROM r26_task t WHERE t.task_id=r31_task_lease.task_id AND t.owner=r31_task_lease.owner_epoch"
+                    + " AND t.fence=r31_task_lease.fence AND t.status IN ('RUNNING','CANCELLING'))", new Object[]{owner});
+            db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status IN ('RUNNING','CANCELLING') AND owner IS NOT ?", new Object[]{owner});
+            db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,IssueTimelineWriterR30.bootId(),now,owner});
+            for (Map.Entry<String, String> task : EXPECTED_TASKS_R341.entrySet()) {
+                db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,registered_at) VALUES(?,?,?,?)",
+                        new Object[]{task.getKey(),task.getValue(),task.getKey(),now});
+                db.execSQL("UPDATE r26_task SET registered_at=? WHERE task_id=? AND registered_at=0",
+                        new Object[]{now,task.getKey()});
+            }
+            for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");
+            for(int i=1;i<=16;i++)registerCapability(db,String.format(Locale.ROOT,"E%02d",i),"EXPERT");
+            db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27' AND status NOT IN ('QUARANTINED','NEEDS_FIX','RUNNING','CANCELLING')");
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + REGISTRATION_R341
+                    + "(session_id TEXT PRIMARY KEY,manifest_hash TEXT NOT NULL,expected_count INTEGER NOT NULL,registered_at INTEGER NOT NULL)");
+            db.execSQL("INSERT OR REPLACE INTO " + REGISTRATION_R341 + " VALUES(?,?,?,?)",
+                    new Object[]{owner,StatsR27.sha256(registrationManifestR341()),EXPECTED_TASKS_R341.size(),now});
     }
     private StartupStageJournalR341 startupJournal;
     private String startupAttempt;
@@ -434,9 +508,31 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         }
     }
 
-    private void prepareStartupSchemaR34() {
+    private void installCheckpointReaderPrerequisitesR341() {
+        SQLiteDatabase db = store.readable();
+        if (!KeepArchiveRetirementR31.MODE.equals(KeepArchiveRetirementR31.mode(db, StartupCheckpointIdentityR31.SOURCE))) return;
+        if (!SchemaR27.tableExists(db, StartupCheckpointIdentityR31.SOURCE))
+            throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT", "PROTECTED_SOURCE_TABLE_MISSING");
+        for (int step = 0; step <= StartupCheckpointIdentityR31.ddlR31().length + 1; step++) {
+            if (cancelled) throw new IllegalStateException("R34_STARTUP_CANCELLED");
+            try { if (StartupCheckpointIdentityR31.ready(db)) return; }
+            catch (DatabaseCoordinator.SchemaPendingR31 incomplete) { /* The schema owner compares the actual definition below. */ }
+            LifecycleSchemaR31.Result result = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                    DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R341_STARTUP_CHECKPOINT_GUARD")
+                            .withWorkload(0, 0L, 1, 1, true),
+                    LifecycleSchemaR31::advanceStartupCheckpointWithinMigration);
+            if (result.ready && StartupCheckpointIdentityR31.ready(db)) return;
+            await(20L);
+        }
+        throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT", "SOURCE_GUARD_UNFINISHED");
+    }
+
+    private String prepareStartupSchemaR34() {
         StartupCheckpointIdentityR31.Prepared checkpoint = startupStage(StartupStageJournalR341.Stage.CHECKPOINT_PREPARE,
-                () -> prepareStartupCheckpointR31(store));
+                () -> {
+                    installCheckpointReaderPrerequisitesR341();
+                    return prepareStartupCheckpointR31(store);
+                });
         if (checkpoint != null) {
             startupStage(StartupStageJournalR341.Stage.CHECKPOINT_PRESERVE, () ->
                 store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
@@ -452,15 +548,16 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 }
                 return 0;
             }));
-        startupStage(StartupStageJournalR341.Stage.RETENTION_PLAN, () -> {
-            RetentionMigrationR34.prepare(store, owner, () -> cancelled, () -> await(20), startupJournal, startupAttempt);
-            if (cancelled) throw new IllegalStateException("R34_STARTUP_CANCELLED");
-            return null;
+        String retentionPlan = startupStage(StartupStageJournalR341.Stage.RETENTION_PLAN, () -> {
+            String audited = RetentionMigrationR34.prepare(store, owner, () -> cancelled, () -> await(20), startupJournal, startupAttempt);
+            if (cancelled || audited == null) throw new IllegalStateException("R34_STARTUP_CANCELLED");
+            return audited;
         });
         startupStage(StartupStageJournalR341.Stage.CHECKPOINT_POST_MIGRATION, () ->
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
             DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R34_STARTUP_CHECKPOINT_READY"),
             db -> { ResearchRetentionStoreR30.preserveAfterMigrationR34(db); return 0; }));
+        return retentionPlan;
     }
     private void initialize(){
         // The live Context is an explicit authority for this private directory.
@@ -472,7 +569,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
         catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        prepareStartupSchemaR34();
+        String retentionPlan = prepareStartupSchemaR34();
         SchemaDomainCoordinatorR926.UpgradeSpecR31 original=startupUpgradeSpecR31(owner,null);
         SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=new SchemaDomainCoordinatorR926.UpgradeSpecR31(
             original.id,original.revision,original.contractHash,original.roots,original.requiredFreeBytes,
@@ -480,7 +577,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 if(!RetentionMigrationR34.runtimeBaseCurrent(db))
                     SchemaDomainCoordinatorR926.migrateR31WarmPublication(db);
                 registerSessionR34(db,owner);
-                RetentionMigrationR34.sealRuntimeBase(db);
+                RetentionMigrationR34.sealRuntimeBase(db, retentionPlan);
             },original.cleanup);
         StartupStageJournalR341.Token upgrade = startupJournal.begin(owner, startupAttempt,
                 StartupStageJournalR341.Stage.UPGRADE_TRANSFORM, original.contractHash);
@@ -498,16 +595,13 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         }
         startupJournal.end(upgrade, StartupStageJournalR341.Outcome.VERIFIED, upgradedR31.state, 0L);
         startupStage(StartupStageJournalR341.Stage.SESSION_REGISTER, () -> {
-            try (Cursor receipt = store.readable().rawQuery("SELECT session_id FROM r26_session WHERE session_id=?",
-                    new String[]{owner})) {
-                if (!receipt.moveToFirst()) throw new IllegalStateException("DEPENDENCY:R341_SESSION_NOT_DURABLE");
-            }
+            requireRegistrationR341(store.readable(), owner);
+            registrationVerifiedR341 = true;
             return null;
         });
         retentionProtectionReadyR31=true;
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
-    private static void add(SQLiteDatabase db,String id,String lane){db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism) VALUES(?,?,?)",new Object[]{id,lane,id});}
     private static void registerCapability(SQLiteDatabase db,String id,String kind){
         String implementation=kind.equals("EXPERT")?ExpertWorkshopR26.implementation(id):FamilyRegistryR26.implementation(id);String state=implementation.isEmpty()?"BLOCKED":"EXECUTABLE";
         String reason=kind.equals("EXPERT")&&!implementation.isEmpty()?"Concrete resumable paired experiment or evidence audit; full proposal and expert acceptance pending":implementation.isEmpty()?"Full R26 mechanism integration and decisive experiments pending; no fallback substituted":"Concrete numerical kernel registered; complete family experiments and natural quality pending";
@@ -614,6 +708,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 RuntimeR27 runtime = new RuntimeR27(store, owner);
                 r27 = runtime;
                 runtime.start();
+                researchWorkersReadyR341 = RuntimeR27.active() == runtime;
                 return null;
             });
             while(!cancelled){
@@ -745,7 +840,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 try { budget.checkpointOrYield(); }
                 catch (BudgetTokenSU1.Yield pause) { if (units == 0) throw pause; break; }
                 result = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
-                        DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_LIFECYCLE_SCHEMA_UNIT"), db -> {
+                    DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_LIFECYCLE_SCHEMA_UNIT")
+                            .withWorkload(0, 0L, 1, 1, true), db -> {
                             requireFence(db,c);
                             return LifecycleSchemaR31.advanceWithinMigration(db);
                         });
@@ -757,7 +853,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             if (units == 0) c.reason("WAITING_NEW_LIFECYCLE_SCHEMA_OBJECTS");
             return units;
         }
-        ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;
+        ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();
+        if(latest==null||!TargetIssueResolver.isValid(latest.issue)) { c.reason("WAITING_CANONICAL_DRAW_HISTORY"); return 0; }
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
         if(c.task.startsWith("expert-"))return TaskContinuationR26.step(store,c,budget,seq+1);
         switch(c.task){

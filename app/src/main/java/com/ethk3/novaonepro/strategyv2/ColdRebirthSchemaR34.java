@@ -1,8 +1,8 @@
 package com.ethk3.novaonepro.strategyv2;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.DatabaseCoordinator;
+import com.ethk3.novaonepro.LifecycleSchemaR31;
 
 /** Installed only by LifecycleSchemaR31's existing MIGRATION owner. */
 public final class ColdRebirthSchemaR34 {
@@ -27,12 +27,6 @@ public final class ColdRebirthSchemaR34 {
             {"r34_cold_rebirth_retry","source_kind,source_campaign,source_id,target_abi,attempts,next_at,reason,updated_at"}
         },new String[][]{{"trigger","r34_cold_rebirth_immutable_insert"},{"trigger","r34_cold_rebirth_immutable_update"},{"trigger","r34_cold_rebirth_immutable_delete"},
             {"index","r34_cold_candidate_lookup"},{"index","r34_cold_expert_lookup"}});
-        for (String ddl : DDL) {
-            String[] tokens = ddl.split(" "); String name = tokens[5].split("\\(",2)[0];
-            try (Cursor c = db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{name})) {
-                if (!c.moveToFirst() || !ddl.replace("IF NOT EXISTS ","").equals(c.getString(0).replace("IF NOT EXISTS ","")))
-                    throw new DatabaseCoordinator.SchemaPendingR31("R34_COLD_REBIRTH","EXACT_OBJECT:" + name);
-            }
-        }
+        LifecycleSchemaR31.requireDefinitions(db, DDL, "R34_COLD_REBIRTH");
     }
 }

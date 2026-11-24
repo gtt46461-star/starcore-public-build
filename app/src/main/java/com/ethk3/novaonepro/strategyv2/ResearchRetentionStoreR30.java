@@ -202,7 +202,23 @@ public final class ResearchRetentionStoreR30 {
     static void verifyProtectionUnitR34(SQLiteDatabase db,String source) {
         if(exists(db,source)) requireKeepMigrationSourceR31(db,"r30_keep_"+source);
     }
-    static void preserveAfterMigrationR34(SQLiteDatabase db) {preserveStartupCheckpoint(db,null);}
+    static void preserveAfterMigrationR34(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R34_CHECKPOINT_EXISTING_WRITER_REQUIRED");
+        if (!exists(db, StartupCheckpointIdentityR31.SOURCE)) return;
+        if (exists(db, StartupCheckpointIdentityR31.ARCHIVE)) {
+            requireKeepMigrationSourceR31(db, StartupCheckpointIdentityR31.ARCHIVE);
+            preserveStartupCheckpoint(db, null);
+            try (Cursor receipt = db.rawQuery("SELECT retained_rows FROM r30_retention_boot_checkpoint WHERE process_nonce=?",
+                    new String[]{PROCESS_CHECKPOINT_SNAPSHOT})) {
+                if (!receipt.moveToFirst() || receipt.getLong(0) < 0L)
+                    throw new DatabaseCoordinator.SchemaPendingR31("R34_STARTUP_CHECKPOINT", "PRESERVATION_RECEIPT_MISSING");
+            }
+        } else {
+            try (Cursor payload = db.rawQuery("SELECT 1 FROM r29_model_checkpoint WHERE length(artifact)>0 LIMIT 1", null)) {
+                if (payload.moveToFirst()) throw new DatabaseCoordinator.SchemaPendingR31("R34_STARTUP_CHECKPOINT", "PROTECTED_ARCHIVE_MISSING");
+            }
+        }
+    }
     /** Preserve the incoming version's complete checkpoint before ordinary training replaces it.
      * The marker commits with the archive: a failed startup can retry, while repeated schema/retention
      * checks in this process never copy every intermediate training checkpoint. */

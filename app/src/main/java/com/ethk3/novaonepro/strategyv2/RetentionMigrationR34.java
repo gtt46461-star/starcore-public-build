@@ -48,21 +48,43 @@ public final class RetentionMigrationR34 {
         db.execSQL("CREATE TABLE IF NOT EXISTS r34_database_identity(singleton INTEGER PRIMARY KEY CHECK(singleton=1),database_id TEXT NOT NULL)");
         db.execSQL("INSERT OR IGNORE INTO r34_database_identity VALUES(1,?)",new Object[]{UUID.randomUUID().toString()});
         for(String sql:DDL)db.execSQL(sql);
+        db.execSQL("CREATE TABLE IF NOT EXISTS r341_runtime_base_seal(source_commit TEXT PRIMARY KEY,"
+                + "database_id TEXT NOT NULL,plan_hash TEXT NOT NULL,audit_round INTEGER NOT NULL,schema_cookie INTEGER NOT NULL)");
         ResearchRetentionStoreR30.initializeProtectionMetadataR34(db);
     }
     static boolean runtimeBaseCurrent(SQLiteDatabase db) {
-        if(!ResearchRetentionStoreR30.exists(db,"r34_runtime_startup_seal"))return false;
-        try(Cursor c=db.rawQuery("SELECT schema_cookie FROM r34_runtime_startup_seal WHERE source_commit=?",
+        if (!ResearchRetentionStoreR30.exists(db,"r341_runtime_base_seal")
+                || !ResearchRetentionStoreR30.exists(db,"r34_database_identity")
+                || !ResearchRetentionStoreR30.exists(db,"r34_schema_unit_run")
+                || !ResearchRetentionStoreR30.exists(db,"r34_schema_unit_receipt")) return false;
+        try(Cursor c=db.rawQuery("SELECT database_id,plan_hash,audit_round,schema_cookie FROM r341_runtime_base_seal WHERE source_commit=?",
                 new String[]{BuildConfig.SOURCE_COMMIT_R26})) {
-            return c.moveToFirst() && c.getLong(0)==cookie(db);
+            return c.moveToFirst() && c.getLong(3) == cookie(db) && c.getString(0).equals(databaseId(db))
+                    && verifiedRun(db, c.getString(1), c.getLong(2));
         }
     }
 
-    static void sealRuntimeBase(SQLiteDatabase db) {
+    private static boolean verifiedRun(SQLiteDatabase db, String planHash, long round) {
+        int units = SchemaUnitPlanR34.PROTECTED_TABLES_095.size();
+        return scalar(db, "SELECT count(*) FROM r34_schema_unit_run WHERE plan_hash=? AND database_id=?"
+                + " AND definition_revision=? AND phase='DONE' AND next_index=? AND audit_round=?"
+                + " AND table_count=? AND (SELECT count(*) FROM r34_schema_unit_receipt r"
+                + " WHERE r.run_id=r34_schema_unit_run.run_id AND r.plan_hash=r34_schema_unit_run.plan_hash"
+                + " AND r.phase='VERIFY' AND r.audit_round=r34_schema_unit_run.audit_round)=?",
+                planHash, databaseId(db), REVISION, Integer.toString(units), Long.toString(round),
+                Integer.toString(units), Integer.toString(units)) == 1L;
+    }
+
+    static void sealRuntimeBase(SQLiteDatabase db, String planHash) {
         if(!db.inTransaction())throw new IllegalStateException("R34_RUNTIME_SEAL_OWNER");
+        long round = scalar(db, "SELECT audit_round FROM r34_schema_unit_run WHERE plan_hash=?", planHash);
+        if (!verifiedRun(db, planHash, round) || !plan(db).planHash.equals(planHash))
+            throw new DatabaseCoordinator.SchemaPendingR31("R34_RUNTIME_BASE", "RETENTION_PROOF_INCOMPLETE");
         db.execSQL("CREATE TABLE IF NOT EXISTS r34_runtime_startup_seal(source_commit TEXT PRIMARY KEY,schema_cookie INTEGER NOT NULL)");
         db.execSQL("INSERT OR REPLACE INTO r34_runtime_startup_seal VALUES(?,?)",
             new Object[]{BuildConfig.SOURCE_COMMIT_R26,cookie(db)});
+        db.execSQL("INSERT OR REPLACE INTO r341_runtime_base_seal VALUES(?,?,?,?,?)",
+                new Object[]{BuildConfig.SOURCE_COMMIT_R26,databaseId(db),planHash,round,cookie(db)});
     }
     private static SchemaUnitPlanR34.Plan plan(SQLiteDatabase db) {
         LinkedHashMap<String,SchemaUnitPlanR34.Definition> definitions=new LinkedHashMap<>();
@@ -127,6 +149,7 @@ public final class RetentionMigrationR34 {
         private SchemaUnitPlanR34.Plan plan;
         private long planCookie = -1;
         private boolean runAdmissionPending;
+        private String lastObservation = "NO_DURABLE_UNIT_OBSERVED";
 
         Session(SQLiteDatabase read,Writer writer,String ownerEpoch) {
             this.read=read;
@@ -137,6 +160,7 @@ public final class RetentionMigrationR34 {
 
         /** One call commits one protection step or observes the existing DONE certificate. */
         boolean step() {
+            lastObservation = "WAIT_PREPARED_PROOF";
             long schemaCookie=cookie(read);
             if(plan==null || planCookie!=schemaCookie) {
                 SchemaUnitPlanR34.Plan preparedPlan=plan(read);
@@ -157,10 +181,14 @@ public final class RetentionMigrationR34 {
             }
             SchemaUnitPlanR34.Cursor before=cursor(read,plan);
             if(!before.ownerEpoch.equals(ownerEpoch))throw new IllegalStateException("R34_STALE_MIGRATION_OWNER");
-            if(before.phase==SchemaUnitPlanR34.Phase.DONE && SchemaUnitPlanR34.certificateCurrent(plan,before,plan.databaseId,1,REVISION,cookie(read)))return true;
+            if(before.phase==SchemaUnitPlanR34.Phase.DONE && SchemaUnitPlanR34.certificateCurrent(plan,before,plan.databaseId,1,REVISION,cookie(read))) {
+                lastObservation = "OBSERVED_DURABLE_DONE";
+                return true;
+            }
             if(before.phase!=SchemaUnitPlanR34.Phase.INSTALL && before.auditSchemaCookie>=0 && before.auditSchemaCookie!=cookie(read)) {
                 SchemaUnitPlanR34.Cursor restarted=SchemaUnitPlanR34.restartVerification(plan,before);
                 writer.write(migration("R34_RETENTION_REVERIFY"),db->advance(db,before,restarted,""));
+                lastObservation = "VERIFICATION_CURSOR_REARMED";
                 return false;
             }
             String source=plan.units.get(before.nextIndex).source;
@@ -215,7 +243,13 @@ public final class RetentionMigrationR34 {
                             || "REPREPARE_ORIGINAL_INPUT".equals(code)) return false;
                 }
                 if(payload[0]==null || failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK)throw failure;
-                SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.UNKNOWN,readBack(read,plan,ticket.commitKey));
+                SchemaUnitPlanR34.Ack resolved = SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.UNKNOWN,readBack(read,plan,ticket.commitKey));
+                if (resolved.resolution == SchemaUnitPlanR34.Resolution.ACKNOWLEDGED) {
+                    planCookie = payload[0].schemaCookieAfter;
+                    lastObservation = "UNIT_COMMIT_RESOLVED:" + ticket.commitKey;
+                    return resolved.cursor.phase == SchemaUnitPlanR34.Phase.DONE;
+                }
+                lastObservation = "WAIT_DURABLE_RECEIPT:" + ticket.commitKey;
                 return false;
             }
             if(payload[0]==null)throw new IllegalStateException("R34_SCHEMA_RECEIPT_NOT_PRODUCED");
@@ -224,11 +258,12 @@ public final class RetentionMigrationR34 {
             // This owner only installed the derived archive, its guards and its journal.
             // External DDL still changes the cookie and forces a complete plan comparison.
             planCookie=payload[0].schemaCookieAfter;
+            lastObservation = "UNIT_COMMITTED:" + ticket.commitKey;
             return ack.cursor.phase==SchemaUnitPlanR34.Phase.DONE;
         }
     }
 
-    static void prepare(DbStore store, String ownerEpoch, java.util.function.BooleanSupplier cancelled, Runnable yield,
+    static String prepare(DbStore store, String ownerEpoch, java.util.function.BooleanSupplier cancelled, Runnable yield,
             com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt) {
         DatabaseCoordinator owner=store.coordinatorForResearchR952();
         try(SQLiteDatabase read=SQLiteDatabase.openDatabase(store.readable().getPath(),null,
@@ -236,6 +271,7 @@ public final class RetentionMigrationR34 {
             Writer writer=(context,task)->owner.runAtomicWriteOrThrowF01(context,db->{task.run(db);return 0;});
             Session session=null;
             long nextJournalSample = 0L;
+            int resourceWaits = 0;
             while(!cancelled.getAsBoolean()){
                 long now = android.os.SystemClock.elapsedRealtime();
                 com.ethk3.novaonepro.StartupStageJournalR341.Token unit = null;
@@ -255,15 +291,23 @@ public final class RetentionMigrationR34 {
                                 ? null : cursor(read, session.plan);
                         String evidence = current == null ? "NO_DURABLE_UNIT_OBSERVED"
                                 : current.phase.name() + "/" + current.nextIndex + "/fence/" + current.fence;
-                        journal.end(unit, com.ethk3.novaonepro.StartupStageJournalR341.Outcome.VERIFIED, evidence, 0L);
+                        boolean waiting = session.lastObservation.startsWith("WAIT_");
+                        journal.end(unit, waiting ? com.ethk3.novaonepro.StartupStageJournalR341.Outcome.WAIT_RESOURCE
+                                : com.ethk3.novaonepro.StartupStageJournalR341.Outcome.VERIFIED,
+                                session.lastObservation + "|" + evidence, waiting ? now + 20L : 0L);
                     }
-                    if (done) return;
+                    if (done) return session.plan.planHash;
+                    resourceWaits = 0;
                 }catch(DatabaseCoordinator.WriteRejectedR31 failure){
                     if (unit != null) journal.recordUncaught(unit, failure);
                     if(!ResearchPoolR27.retryRolledBackLock(failure)
                             && !(failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK
                             && failure.getCause() instanceof DatabaseCoordinator.SchemaPendingR31
                             && "SCHEMA_PENDING:R34_RETENTION:WAIT_PREPARED_PROOF".equals(failure.getCause().getMessage())))throw failure;
+                    long due = SystemClock.elapsedRealtime() + SchemaUnitPlanR34.retryDelayMs(
+                            ResearchPoolR27.retryRolledBackLock(failure) ? SchemaUnitPlanR34.Wait.WRITER_BUSY : SchemaUnitPlanR34.Wait.INPUT_CHANGED,
+                            resourceWaits++);
+                    while (!cancelled.getAsBoolean() && SystemClock.elapsedRealtime() < due) yield.run();
                 } catch (RuntimeException | Error failure) {
                     if (unit != null) journal.recordUncaught(unit, failure);
                     throw failure;
@@ -271,5 +315,6 @@ public final class RetentionMigrationR34 {
                 yield.run();
             }
         }
+        return null;
     }
 }

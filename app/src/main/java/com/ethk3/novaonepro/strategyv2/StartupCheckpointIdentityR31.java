@@ -86,6 +86,7 @@ public final class StartupCheckpointIdentityR31 {
      * Missing/new schema never becomes zero or a whole-application PASS. */
     public static Map<String,Object> report(SQLiteDatabase db){
         Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","LAST_16_REAL_PROCESS_STARTUP_CHECKPOINT_RECEIPTS");out.put("readOnly",true);out.put("naturalQuality","NOT_PROVEN");
+        out.put("checkpointDependenciesR341", CheckpointDependencyR341.export(db, null));
         if(!exists(db,"r31_startup_checkpoint_receipt")){out.put("status","NOT_READY_STARTUP_CHECKPOINT_RECEIPTS");out.put("receipts",null);return out;}
         List<Object> rows=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT process_nonce,source_generation,source_schema_version,column_contract_hash,source_rows,cas_matched_rows,actual_new_archive_rows,compared_original_rows,compared_original_bytes,committed_at FROM r31_startup_checkpoint_receipt ORDER BY committed_at DESC,process_nonce LIMIT 16",null)){while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();for(int i=0;i<c.getColumnCount();i++)row.put(c.getColumnName(i),i==0||i==3?c.getString(i):c.getLong(i));rows.add(row);}}
         out.put("status",rows.isEmpty()?"NO_COMMITTED_CAS_AWARE_STARTUP_OBSERVED":"ACTUAL_COMMITTED_STARTUP_CONSUMPTION");out.put("receipts",rows);return out;
@@ -94,9 +95,10 @@ public final class StartupCheckpointIdentityR31 {
     public static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot,BudgetTokenSU1 budget)throws IOException{
         if(read.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_PREPARE_OUTSIDE_WRITER");if(!ready(read))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","SOURCE_GUARD_NOT_READY");
         String database=identity(read);long version=schema(read),revision=generation(read);LinkedHashMap<String,String> contract=columns(read);LinkedHashSet<String> names=new LinkedHashSet<>(contract.keySet());names.remove("\u0000CREATE_SQL");
-        if(!exists(read,"r31_keep_original"))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","CAS_METADATA_NOT_READY");
         LinkedHashSet<String> owners=new LinkedHashSet<>();try(Cursor c=read.rawQuery("SELECT typeof(owner),owner FROM r29_model_checkpoint WHERE length(artifact)>0 ORDER BY owner LIMIT 65",null)){while(c.moveToNext()){if(!"text".equals(c.getString(0))||c.getString(1)==null||c.getString(1).length()>4096)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_STORAGE_CLASS_OR_BOUND");owners.add(c.getString(1));if(owners.size()>MAX_OWNERS)throw new IOException("R31_STARTUP_CHECKPOINT_SOURCE_ROW_BOUND");}}
-        File root=verifiedCasRoot.getCanonicalFile();if(!root.isDirectory())throw new IOException("R31_STARTUP_CHECKPOINT_CAS_ROOT_UNAVAILABLE");
+        if (!owners.isEmpty() && !exists(read,"r31_keep_original"))
+            throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","CAS_METADATA_NOT_READY");
+        File root = verifiedCasRoot;
         List<Match> matches=new ArrayList<>();Set<String> found=new HashSet<>();long after=0,totalBytes=0;int examined=0;
         MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("startup-checkpoint-typed-compare",MemoryBudgetR31.Kind.CHECKPOINT,1L<<20,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);
         try(MemoryBudgetR31.Lease memory=admission.lease){
@@ -113,7 +115,10 @@ public final class StartupCheckpointIdentityR31 {
         return new Prepared(database,revision,version,contract,matches,owners.size(),examined,totalBytes);
     }
     private static String compare(SQLiteDatabase read,File root,Match original,Set<String> names,Set<String> owners,Set<String> found,BudgetTokenSU1 budget)throws IOException{
-        File file=new File(root,original.hash+".row");if(!file.getAbsoluteFile().equals(file.getCanonicalFile())||!file.isFile()||file.length()!=original.bytes)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_FILE_IDENTITY");
+        CheckpointDependencyR341.Source source = CheckpointDependencyR341.resolve(root, original.hash, original.bytes);
+        if (source.file == null || source.state == CheckpointDependencyR341.State.CONFLICT)
+            throw new CheckpointDependencyR341.SourceWait(source.state, original.hash, source.detail);
+        File file = source.file;
         MessageDigest digest;try{digest=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
         String owner=null;boolean equal=true;Set<String> fields=new HashSet<>();byte[] buffer=new byte[CHUNK];
         try(DataInputStream in=new DataInputStream(new BufferedInputStream(new DigestInputStream(new FileInputStream(file),digest),CHUNK))){
@@ -137,7 +142,7 @@ public final class StartupCheckpointIdentityR31 {
             }
             if(in.read()!=-1)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_TRAILING_BYTES");
         }
-        StringBuilder hash=new StringBuilder();for(byte value:digest.digest())hash.append(String.format(Locale.ROOT,"%02x",value&255));if(!original.hash.equals(hash.toString()))throw new IOException("R31_STARTUP_CHECKPOINT_CAS_HASH");
+        StringBuilder hash=new StringBuilder();for(byte value:digest.digest())hash.append(String.format(Locale.ROOT,"%02x",value&255));if(!original.hash.equals(hash.toString()))throw new CheckpointDependencyR341.SourceWait(CheckpointDependencyR341.State.CONFLICT, original.hash, "CAS_ROW_SHA256");
         Set<String> expected=new HashSet<>(names);expected.addAll(Arrays.asList("__r30_id","__r30_at","__r30_reason"));return equal&&owner!=null&&fields.equals(expected)?owner:null;
     }
 }

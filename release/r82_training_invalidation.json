@@ -762,12 +762,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "5b349deeaf1cc1aa1847deeb1c95d62095ac200c478ed3c4190c4f324079bfb3",
+      "after_sha256": "3b9706c9e879599e3814f4a89d27341d53d04d3d072e9148c4d97f75cf28ed9b",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
-      "rationale": "R34-B06 install and verify cold birth objects only at the migration entry",
-      "reviewer": "R34 B06"
+      "rationale": "Replay one exact lifecycle object and its signed DDL receipt, exposing conflict rather than completing a mismatched definition or copying contested objects.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -2598,6 +2598,15 @@
     },
     {
       "after_role": "NUMERIC",
+      "after_sha256": "41bd2adcfbaa42acbbc0f7e2b3a1d7edb27e8d440ba2320937674eff877fa1c5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointDependencyR341.java",
+      "rationale": "Probe only declared checkpoint objects and file identities. Unknown historic references grant no permission to treat a live original as replaced or restored.",
+      "reviewer": "R34.1 B03 implementation review"
+    },
+    {
+      "after_role": "NUMERIC",
       "after_sha256": "918ad68cf470de8fbab6808dc23f6aae467c4bf0ca593f3004f293ec1d03f96b",
       "before_role": "",
       "before_sha256": "",
@@ -2697,21 +2706,21 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "b5863ab2000b50f16615792d2988016aa2e1b7606cd7d41336b04e969b360415",
+      "after_sha256": "ee075d5faa796147c4f745b0f3a322c90350a0988222c614335735dde4a93308",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
-      "rationale": "R34-B06 publish at most one guarded child with verified source and production Foundry or Expert consumer",
-      "reviewer": "R34 B06"
+      "rationale": "Gate reads on the current fenced ColdRebirth claim and the actual parent inputs. No changes to the numerical mechanism or qualification and no synthetic births.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "27478bc39dc92c3f8f0657b6ea4c1226e040825636714dc0605df9ef75589145",
+      "after_sha256": "a22040c1e22b456f80618672aecb2761c9ba4797f9d06b6cd45d240ed8207d79",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
-      "rationale": "R34-B06 register immutable cold birth and retry tables under the existing migration owner",
-      "reviewer": "R34 B06"
+      "rationale": "Reuse lifecycle DDL canonicalization and verify exact declared tables, columns, immutable triggers and indexes before executing this owner.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -5253,12 +5262,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "d12799e63523dc2b0bf1fd6f1d5c445381da8bcb89bf61edbacaf51dac546f31",
+      "after_sha256": "b573a8d026c011de0926c9c8a381f62f8c8ba164d02c414e816a04a4101ddaf2",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
-      "rationale": "Reuse exact archive and guard definitions one source at a time and preserve the original incoming checkpoint.",
-      "reviewer": "R34 B01"
+      "rationale": "Verify guarded checkpoint archive and the committed boot receipt on the original protected-preservation path without clearing old payloads.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -5361,12 +5370,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "50e6356788215ccaf6683cadc68c828f16ad7aee1b64306777b8c58bf9f0753a",
+      "after_sha256": "9e02aaef9fd6ed876403a281ad1a623bf9bbc58ae790450c35eb572e0c16d723",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
-      "rationale": "Record coalesced startup cursor, persisted fence and actual failure outcomes outside of the schema transaction.",
-      "reviewer": "Codex R341 B01 source review"
+      "rationale": "Bind runtime readiness to an audited per-source plan, database identity and scoped durable cursors, and retain exact proven receipts across transient waits.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -5379,12 +5388,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "5de5298a5c84f040c2423a78d22c3789736092670c7147137e364af8f948f176",
+      "after_sha256": "66808ea0e65ab2b00a38bed8952e92d611a8a0adce8227034643d2da761a0bbe",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
-      "rationale": "Keep the scheduler eligibility monotonic after resource waits without aging business receipts on rejected claims or changing evaluation policy.",
-      "reviewer": "R34.1 B02 implementation review"
+      "rationale": "Install startup checkpoint guard units before original proof consumption, then register and independently verify the current task manifest and fence the previous live session.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -5415,12 +5424,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "73c8343228ab14beb655beccbf454fbd1f35fe799eb6f8e10c99ec0b2e057886",
+      "after_sha256": "32c6a755c3478b1190d2760759fdd23b30e77b1edaead5da4eddc138068f0fc6",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-      "rationale": "Service the pending dataset independently of unrelated successful research and clear stale readiness after a real no-work or restored observation.",
-      "reviewer": "R34.1 B02 implementation review"
+      "rationale": "Only make a pool active after current registration has been reopened and all declared workers are wired, with explicit cleanup if the old session stops.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -5667,12 +5676,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "62b0a3ed3e3808b74c8e7f08a433eea164a622c599e77c57b2e2d7dffcd5c681",
+      "after_sha256": "95d15313b91c448e049b748680bda1b9773bbbb3855b9cf1822e6a548a56b112",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
-      "rationale": "Treat a changed checkpoint input as a fresh preparation, preserving incompatible synthetic or shadowed objects as failures.",
-      "reviewer": "R34 B01"
+      "rationale": "Check historical roots only when live incoming checkpoint data actually requires a typed comparison, report precise unavoidable missing references and preserve conflicts.",
+      "reviewer": "R34.1 B03 implementation review"
     },
     {
       "after_role": "NUMERIC",
@@ -6269,7 +6278,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "c30b4ad5552016b0520a441e7e076adbfb1ac316dac58b4c83d184599e6c807a",
+  "current_controlled_roles_sha256": "934033b626be8ce4fef50b050ecbbbc9c97cb852e07d4a05b205580cb122a71d",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -7164,6 +7173,12 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java",
       "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
       "reviewer": "Codex P2 physical-budget lint review",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointDependencyR341.java",
+      "rationale": "Probe only declared checkpoint objects and file identities. Unknown historic references grant no permission to treat a live original as replaced or restored.",
+      "reviewer": "R34.1 B03 implementation review",
       "role": "NUMERIC"
     },
     {
@@ -9599,7 +9614,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "90206114cf0d630fd7b071e930ffe3df542f6a6a0800f3457d206285e595dca9",
+  "reviewed_input_provenance_sha256": "518a0979571a0f922dd3d9b99ef0fb900c029f765c8388763dabb5e178a4b7db",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

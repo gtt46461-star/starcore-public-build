@@ -195,6 +195,9 @@ public final class ColdRebirthR34 {
         if(WriterHoldFaultsR31.deferResearch() && !com.ethk3.novaonepro.DatabaseCoordinator.researchDataDueR335())
             throw new ModelPublicationR31.PublicationDependencyR31("R33_WAIT_WRITER_HOLD_FAULT_BACKLOG");
         SQLiteDatabase db=store.readable();ColdRebirthSchemaR34.require(db);
+        RuntimeCoordinatorR26.Claim current = claims.get();
+        if (current == null || !TASK.equals(current.task)) throw new IllegalStateException("R26_STALE_FENCE_OR_LEASE_OR_SESSION");
+        RuntimeCoordinatorR26.requireFence(db, current);
         if(!ResearchStoreR30R1.ready(db))throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31("R34_COLD_REBIRTH","TYPED_PROGRESS_OWNER");
         if(pending(db)>=ColdRebirthContractR34.MAX_PENDING){claims.get().reason("R34_COLD_WAIT_ACTUAL_TRAINING_CAPACITY");return 0;}
         String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,first="CANDIDATE";
@@ -203,7 +206,7 @@ public final class ColdRebirthR34 {
         }
         long now=System.currentTimeMillis();Parent parent=pick(db,first,abi,now);
         if(parent==null)parent=pick(db,first.equals("CANDIDATE")?"EXPERT":"CANDIDATE",abi,now);
-        if(parent==null){claims.get().reason("R34_COLD_NO_DUE_PRESERVED_PARENT");return 0;}
+        if(parent==null){current.reason("DEPENDENCY(R34_COLD_NO_DUE_PRESERVED_PARENT)");return 0;}
         // Expert encode can hold the bounded 8 MiB result and two temporary copies.
         long workspaceBytes=parent.kind.equals("EXPERT")?32L<<20:2L<<20;
         MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire(TASK,MemoryBudgetR31.Kind.CHECKPOINT,workspaceBytes,()->Thread.currentThread().isInterrupted());
@@ -212,7 +215,7 @@ public final class ColdRebirthR34 {
             Prepared p;
             try {p=prepare(store,parent,abi,budget);}
             catch(IOException|IllegalArgumentException failure){retry(store,claims,parent,abi,failure);return 0;}
-            if(p==null){claims.get().reason("R34_COLD_WAIT_64_RETAINED_LABELS");return 0;}
+            if(p==null){current.reason("DEPENDENCY(R34_COLD_WAIT_64_RETAINED_LABELS):"+parent.key);return 0;}
             long changed;
             if(p.initial==null)changed=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_R34_COLD_REBIRTH",tx->{RuntimeCoordinatorR26.requireFence(tx,claims.get());long n=publish(tx,p,null,claims.get());RuntimeCoordinatorR26.requireFence(tx,claims.get());return n;});
             else try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.prepareLease(store,p.initial)) {
