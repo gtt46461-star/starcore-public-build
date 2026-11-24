@@ -3,6 +3,8 @@ package com.ethk3.novaonepro.strategyv2;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.BuildConfig;
+import com.ethk3.novaonepro.DbHelper;
+import com.ethk3.novaonepro.SettlementTaskStoreR36;
 import com.ethk3.novaonepro.TargetIssueResolver;
 import java.util.*;
 
@@ -25,14 +27,30 @@ public final class OnlineResearchWindowR30R1 {
         final String issue;
         final long open,seen;
         final Window window;
-        Label(String issue,long open,long seen,Window window){
+        final String drawHash,settlementHash,settlementStatus;
+        final long settledAt;
+        Label(String issue,long open,long seen,Window window,String drawHash,String settlementHash,long settledAt,String settlementStatus){
             this.issue=issue;this.open=open;this.seen=seen;this.window=window;
+            this.drawHash=drawHash;this.settlementHash=settlementHash;this.settledAt=settledAt;this.settlementStatus=settlementStatus;
+        }
+        boolean authoritative() {
+            return SettlementTaskStoreR36.COMPLETED.equals(settlementStatus)&&hasTerminalProof();
+        }
+        boolean excludedNoPredraw() {
+            return SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL.equals(settlementStatus)&&hasTerminalProof();
+        }
+        private boolean hasTerminalProof() {
+            return drawHash!=null&&drawHash.matches("[0-9a-f]{64}")&&settlementHash!=null
+                    &&settlementHash.matches("[0-9a-f]{64}")&&settledAt>=seen&&seen>=open;
         }
     }
     static Label nextLabel(SQLiteDatabase db,String dataset,String completeIssue,String partialIssue){
         String ordinal=ResearchInputPinR30R1.ordinal("d");
-        String sql="SELECT d.issue,d.open_time,d.first_seen_at,r.run_id,r.from_ordinal,r.through_ordinal,r.recorded_at"
+        String sql="SELECT d.issue,d.open_time,d.first_seen_at,r.run_id,r.from_ordinal,r.through_ordinal,r.recorded_at,"
+            +"d.draw_hash_v2,s.settlement_hash,s.completed_at,s.status"
             +" FROM draws d JOIN r30r1_analysis_run r ON "+ordinal+" BETWEEN r.from_ordinal AND r.through_ordinal"
+            +" LEFT JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" s ON s.target_issue=d.issue AND s.draw_issue=d.issue"
+            +" AND s.draw_hash=d.draw_hash_v2"
             +" WHERE d.dirty=0 AND d.issue"+(partialIssue.isEmpty()?">?":"=?")
             +" AND d.open_time>0 AND d.first_seen_at>r.recorded_at AND r.dataset_hash=? AND r.policy_hash=?"
             +" AND r.role='ONLINE_RESEARCH' AND r.status=?"
@@ -42,7 +60,19 @@ public final class OnlineResearchWindowR30R1 {
                 HashingSU1.text(AtomNetSessionR30.OWNER),STATUS})){
             if(!c.moveToFirst())return null;
             return new Label(c.getString(0),c.getLong(1),c.getLong(2),
-                new Window(c.getString(3),c.getLong(4),c.getLong(5),c.getLong(6)));
+                new Window(c.getString(3),c.getLong(4),c.getLong(5),c.getLong(6)),c.getString(7),c.getString(8),c.getLong(9),c.getString(10));
+        }
+    }
+
+    static boolean matchesSettledLabel(SQLiteDatabase db, Label label) {
+        if(!label.authoritative()&&!label.excludedNoPredraw())return false;
+        try(Cursor c=db.rawQuery("SELECT 1 FROM draws d JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK
+                +" s ON s.target_issue=d.issue AND s.draw_issue=d.issue AND s.draw_hash=d.draw_hash_v2"
+                +" WHERE d.issue=? AND d.dirty=0 AND d.draw_hash_v2=? AND d.open_time=? AND d.first_seen_at=?"
+                +" AND s.status=? AND s.settlement_hash=? AND s.completed_at=?",
+                new String[]{label.issue,label.drawHash,Long.toString(label.open),Long.toString(label.seen),
+                    label.settlementStatus,label.settlementHash,Long.toString(label.settledAt)})) {
+            return c.moveToFirst();
         }
     }
     /** Register before collection, with one issue excluded for an in-flight HTTP request. */

@@ -47,8 +47,7 @@ public final class AtomReplayR27 {
         List<ReplayDatasetR27.Row> rows=new ArrayList<>(HISTORY+1);
         long expected=data.ordinals[target]-1,lastKnown=0;
         for(int i=target-1;i>=0&&rows.size()<HISTORY;i--,expected--){
-            if(data.ordinals[i]!=expected||data.knownAtR31[i]<=0||data.knownAtR31[i]>cutoff
-                    ||data.openTimeR31[i]<=0||data.openTimeR31[i]>cutoff)break;
+            if(data.ordinals[i]!=expected||!data.recordedDrawKnownByR341(i,cutoff))break;
             lastKnown=Math.max(lastKnown,data.knownAtR31[i]);
             rows.add(new ReplayDatasetR27.Row(data.issues[i],data.ordinals[i],data.draws[i],
                 data.openTimeR31[i],data.knownAtR31[i],data.readerAbiR31[i],data.knowledgeScopeR31[i]));

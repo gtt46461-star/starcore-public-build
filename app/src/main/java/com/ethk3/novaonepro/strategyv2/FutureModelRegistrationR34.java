@@ -20,8 +20,14 @@ final class FutureModelRegistrationR34 {
 
     static boolean register(SQLiteDatabase db,String experiment,ModelSurfaceProviderR30.FrozenModelRef model,long now){
         if(model==null)return false;
+        try(Cursor existing=open(db,experiment)){
+            if(existing.moveToFirst())return model.modelHash.equals(existing.getString(2))
+                    &&model.weightsHash.equals(existing.getString(3))&&model.trainedThroughOrdinal==existing.getLong(4)
+                    &&model.availableAt==existing.getLong(5);
+        }
         try(Cursor c=db.rawQuery("SELECT publication_id FROM r31_atomnet_publication WHERE model_hash=? AND weights_hash=?"
-            +" AND through_ordinal=? AND model_available_at=? AND status='PUBLISHED' AND published_at<=? ORDER BY published_at,publication_id LIMIT 1",
+            +" AND through_ordinal=? AND model_available_at=? AND status='PUBLISHED' AND model_available_at<=published_at"
+            +" AND published_at<=? ORDER BY published_at,publication_id LIMIT 1",
             new String[]{model.modelHash,model.weightsHash,Long.toString(model.trainedThroughOrdinal),
                 Long.toString(model.availableAt),Long.toString(now)})){
             if(!c.moveToFirst())return false;

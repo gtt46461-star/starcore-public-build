@@ -168,18 +168,37 @@ public final class AtomNetSampleArchiveR324 {
     /** All matching segments participate, even when a hot copy was already
      * read, so conflicting evidence cannot be hidden by a cache hit. */
     static void read(SQLiteDatabase db,String dataset,Set<Integer> requested,Consumer consumer){
+        read(db,dataset,requested,Collections.emptySet(),consumer);
+    }
+    static void read(SQLiteDatabase db,String dataset,Set<Integer> requested,Set<Integer> verifiedHot,Consumer consumer){
         if(requested.isEmpty())return;requireReady(db);int low=Collections.min(requested),high=Collections.max(requested),segments=0;
         try(Cursor c=db.rawQuery("SELECT a.publication_id,a.archive_ref,a.payload_hash,a.row_count,a.first_sample,a.sample_digest,p.state_hash,p.operator_version,p.sample_bytes FROM r324_atomnet_sample_archive a JOIN r31_atomnet_publication p ON p.publication_id=a.publication_id WHERE p.dataset_hash=? AND p.status='PUBLISHED' AND a.first_sample<=? AND a.first_sample+a.row_count>CAST(? AS INTEGER) ORDER BY a.first_sample,a.publication_id",new String[]{dataset,Integer.toString(high),Integer.toString(low)})){
             while(c.moveToNext()){
                 // A wide prefetch can span many intervals; skip non-requested intervals
                 // before loading bytes. At most 128 overlapping sources are admitted.
-                int first=c.getInt(4),count=c.getInt(3);boolean needed=false;for(int index:requested)if(index>=first&&(long)index<((long)first+count)){needed=true;break;}if(!needed)continue;if(++segments>128)throw new IllegalStateException("R324_SAMPLE_ARCHIVE_OVERLAPPING_SOURCE_BOUND");
-                long reserved=c.getLong(8);if(reserved<1||reserved>MAX_BYTES)throw new IOException("R324_SAMPLE_ARCHIVE_RESERVATION");
-                try(MemoryBudgetR31.Lease memory=CheckpointArtifactsR26.readReservationR31("sample-archive-read",4L*reserved+65536)){
-                byte[] bytes=CheckpointArtifactsR26.resolveSerializedR31(db,c.getBlob(1));if(bytes.length>reserved+65536||!StatsR27.sha256(bytes).equals(c.getString(2)))throw new IOException("R324_SAMPLE_ARCHIVE_CHECKSUM_OR_BOUND");Segment segment=decode(bytes);
-                if(!segment.publication.equals(c.getString(0))||!segment.dataset.equals(dataset)||!segment.state.equals(c.getString(6))||!segment.operator.equals(c.getString(7))||segment.first!=first||segment.rows.size()!=count||!segment.digest.equals(c.getString(5)))throw new IOException("R324_SAMPLE_ARCHIVE_PUBLICATION_BINDING");
-                for(Row row:segment.rows)if(requested.contains(row.index))consumer.accept(row);
+                int first=c.getInt(4),count=c.getInt(3);boolean needed=false,covered=true;
+                for(int index:requested)if(index>=first&&(long)index<((long)first+count)){
+                    needed=true;covered&=verifiedHot.contains(index);
                 }
+                if(!needed)continue;
+                if(++segments>128)throw new IllegalStateException("R324_SAMPLE_ARCHIVE_OVERLAPPING_SOURCE_BOUND");
+                Segment segment;
+                try {
+                    long reserved=c.getLong(8);
+                    if(reserved<1||reserved>MAX_BYTES)throw new IOException("R324_SAMPLE_ARCHIVE_RESERVATION");
+                    try(MemoryBudgetR31.Lease memory=CheckpointArtifactsR26.readReservationR31("sample-archive-read",4L*reserved+65536)){
+                        byte[] bytes=CheckpointArtifactsR26.resolveSerializedR31(db,c.getBlob(1));
+                        if(bytes==null||bytes.length>reserved+65536||!StatsR27.sha256(bytes).equals(c.getString(2)))
+                            throw new IOException("R324_SAMPLE_ARCHIVE_CHECKSUM_OR_BOUND");
+                        segment=decode(bytes);
+                    }
+                    if(!segment.publication.equals(c.getString(0))||!segment.dataset.equals(dataset)||!segment.state.equals(c.getString(6))||!segment.operator.equals(c.getString(7))||segment.first!=first||segment.rows.size()!=count||!segment.digest.equals(c.getString(5)))
+                        throw new IOException("R324_SAMPLE_ARCHIVE_PUBLICATION_BINDING");
+                }catch(IOException|CheckpointArtifactsR26.ArtifactReadR31 unavailable){
+                    if(!covered)throw unavailable;
+                    continue;
+                }
+                for(Row row:segment.rows)if(requested.contains(row.index))consumer.accept(row);
             }
         }catch(IOException invalid){throw new IllegalStateException("R324_SAMPLE_ARCHIVE_READ_FAILED",invalid);}
     }

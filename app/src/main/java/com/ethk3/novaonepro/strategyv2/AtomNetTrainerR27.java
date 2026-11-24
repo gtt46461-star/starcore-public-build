@@ -22,6 +22,8 @@ public final class AtomNetTrainerR27 {
     int nextEpochReceipt;
     // Package access for the versioned full-state codec, not just a weights checkpoint.
     final List<Sample> buffer = new ArrayList<>(); final StatsR27.SplitMix rng;
+    private List<Sample> lastOnlineInputs = java.util.Collections.emptyList();
+    List<Sample> lastOnlineInputsR341() { return lastOnlineInputs; }
 
     public AtomNetTrainerR27(int in, long seed) { net = new AtomNetR27(in, seed); rng = new StatsR27.SplitMix(seed ^ 0x5EEDL); }
 
@@ -47,7 +49,6 @@ public final class AtomNetTrainerR27 {
         }
         net = AtomNetR27.decode(bestNet); onlineLr = lr * 0.1; checkpoint = net.encode();
         buffer.clear(); buffer.addAll(train.subList(Math.max(0, train.size() - REPLAY), train.size()));
-        for (Sample s : select) remember(s);
         events.add("PRETRAINED epochs=" + e + " bestSelectLogloss=" + best + " onlineLr=" + onlineLr);
         nextEpochReceipt = epochs.size();
         return e;
@@ -70,9 +71,21 @@ public final class AtomNetTrainerR27 {
         if (s.issue != null) for (Sample q : buffer) if (s.issue.equals(q.issue)) throw new IllegalStateException("R30_DUPLICATE_LEARNING:" + s.issue);
         int extra = Math.min(BATCH - 1, buffer.size());
         double[][] xs = new double[extra + 1][]; int[] y = new int[extra + 1], c = new int[extra + 1];
+        List<Sample> ordered=new ArrayList<>(extra+1);
+        ordered.add(s);
         xs[0] = s.x; y[0] = s.y; c[0] = s.cls;
-        for (int k = 1; k <= extra; k++) { int at;if(preserveOlderReplay&&buffer.size()>1){int split=buffer.size()/2;at=k<=Math.min(extra-1,extra*48/63)?rng.nextInt(split):split+rng.nextInt(buffer.size()-split);}else at=rng.nextInt(buffer.size());Sample q = buffer.get(at); xs[k] = q.x; y[k] = q.y; c[k] = q.cls; }
+        for (int k = 1; k <= extra; k++) {
+            int at;
+            if(preserveOlderReplay&&buffer.size()>1){
+                int split=buffer.size()/2;
+                at=k<=Math.min(extra-1,extra*48/63)?rng.nextInt(split):split+rng.nextInt(buffer.size()-split);
+            }else at=rng.nextInt(buffer.size());
+            Sample q=buffer.get(at);
+            ordered.add(q);
+            xs[k]=q.x;y[k]=q.y;c[k]=q.cls;
+        }
         double loss = net.trainBatch(xs, y, c, onlineLr, rng);
+        lastOnlineInputs=java.util.Collections.unmodifiableList(ordered);
         remember(s); onlineSteps++; sinceCheck++;
         return loss;
     }

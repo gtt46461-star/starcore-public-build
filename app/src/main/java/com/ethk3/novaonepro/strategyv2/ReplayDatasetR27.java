@@ -125,6 +125,10 @@ public final class ReplayDatasetR27 {
     public Row rowR31(int index){return new Row(issues[index],ordinals[index],draws[index].clone(),openTimeR31[index],knownAtR31[index],readerAbiR31[index],knowledgeScopeR31[index],provenanceRecordedR31[index]);}
     /** Past availability check; UNKNOWN never becomes a positive PIT proof. */
     public boolean knownBeforeR31(int index,long decisionTime){return provenanceRecordedR31[index]&&knownAtR31[index]>0&&knownAtR31[index]<decisionTime&&(!"DRAW_FIRST_SEEN".equals(knowledgeScopeR31[index])||(openTimeR31[index]>0&&knownAtR31[index]>=openTimeR31[index]));}
+    public boolean recordedDrawKnownByR341(int index,long cutoff) {
+        return provenanceRecordedR31[index]&&"DRAW_FIRST_SEEN".equals(knowledgeScopeR31[index])
+                &&openTimeR31[index]>0&&knownAtR31[index]>=openTimeR31[index]&&knownAtR31[index]<=cutoff;
+    }
     public java.util.Map<String,Object> provenanceR31(){
         java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();int known=0,invalidChronology=0;java.util.Set<String> readers=new java.util.TreeSet<>(),scopes=new java.util.TreeSet<>();
         for(int i=0;i<size();i++){if((i&63)==0)ExecutionBudgetR26.poll();if(provenanceRecordedR31[i]&&knownAtR31[i]>0){known++;if("DRAW_FIRST_SEEN".equals(knowledgeScopeR31[i])&&(openTimeR31[i]<=0||knownAtR31[i]<openTimeR31[i]))invalidChronology++;}readers.add(readerAbiR31[i]);scopes.add(knowledgeScopeR31[i]);}

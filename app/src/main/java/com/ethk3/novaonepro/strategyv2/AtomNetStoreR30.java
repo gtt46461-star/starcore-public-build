@@ -51,8 +51,15 @@ public final class AtomNetStoreR30 {
                 StringBuilder sql=new StringBuilder("SELECT sample_index,issue,position,features,hit,number_class,NULL FROM r30_atomnet_sample WHERE dataset_hash=? AND sample_index IN (");
                 boolean publishedSource=publicationSchemaPresentR31(ro);String[] args=new String[(publishedSource?2:1)*(unique.size()+1)];args[0]=session.datasetHash;int at=1;
                 for(int i:unique){if(at>1)sql.append(',');sql.append('?');args[at++]=Integer.toString(i);}sql.append(')');if(publishedSource){sql.append(" UNION ALL SELECT s.sample_index,s.issue,s.position,s.features,s.hit,s.number_class,s.payload_hash FROM r31_atomnet_sample_stage s JOIN r31_atomnet_publication p ON p.publication_id=s.publication_id WHERE p.dataset_hash=? AND p.status='PUBLISHED' AND s.sample_index IN (").append(slots).append(')');args[at++]=session.datasetHash;for(int i:unique)args[at++]=Integer.toString(i);}
-                try(Cursor c=ro.rawQuery(sql.toString(),args)){while(c.moveToNext())put(c.getInt(0),decode(c));}
-                if(publishedSource)AtomNetSampleArchiveR324.read(ro,session.datasetHash,unique,row->put(row.index,decode(row.index,row.issue,row.position,row.features,row.hit,row.number,row.hash)));
+                Set<Integer> verified=new HashSet<>();
+                try(Cursor c=ro.rawQuery(sql.toString(),args)){
+                    while(c.moveToNext()){
+                        int index=c.getInt(0);
+                        put(index,decode(c));
+                        if(!c.isNull(6))verified.add(index);
+                    }
+                }
+                if(publishedSource)AtomNetSampleArchiveR324.read(ro,session.datasetHash,unique,verified,row->put(row.index,decode(row.index,row.issue,row.position,row.features,row.hit,row.number,row.hash)));
                 if(prepared.size()!=unique.size())throw new IllegalStateException("R30_TRAIN_SAMPLE_MISSING_IN_PREFETCH");
             }
             void put(int index,AtomNetTrainerR27.Sample decoded){AtomNetTrainerR27.Sample old=prepared.putIfAbsent(index,decoded);if(old!=null&&(!old.issue.equals(decoded.issue)||old.y!=decoded.y||old.cls!=decoded.cls||!Arrays.equals(old.x,decoded.x)))throw new IllegalStateException("R31_ATOM_SAMPLE_PUBLICATION_CONFLICT");}
@@ -76,6 +83,32 @@ public final class AtomNetStoreR30 {
             AtomNetSessionR30 state=AtomNetSessionR30.decode(ro,c.getBlob(2),c.getString(1));
             if(!state.datasetHash.equals(c.getString(3))||!(state.completeIssue.isEmpty()?state.observedThrough:state.trainedThrough()).equals(c.getString(4)))throw new IllegalStateException("R30_TRAIN_CHECKPOINT_CURSOR");return state;
         }
+    }
+    static AtomNetSessionR30 legacyPartialBaseR341(SQLiteDatabase db,AtomNetSessionR30 partial,String head){
+        if(partial.partialIssue.isEmpty()||!partial.partialInputHashR341.isEmpty())
+            throw new IllegalArgumentException("R341_LEGACY_PARTIAL_REQUIRED");
+        String hash=head;
+        int positions=partial.nextPosition-1;
+        for(int remaining=positions;remaining>=0;remaining--){
+            try(Cursor c=db.rawQuery("SELECT previous_state_hash,state_ref FROM r31_atomnet_publication WHERE owner=?"
+                    +" AND dataset_hash=? AND state_hash=? AND status='PUBLISHED' ORDER BY published_at DESC LIMIT 2",
+                    new String[]{AtomNetSessionR30.OWNER,partial.datasetHash,hash})){
+                if(!c.moveToFirst())return null;
+                String parent=c.getString(0);
+                if(remaining==0){
+                    AtomNetSessionR30 base=AtomNetSessionR30.decode(db,c.getBlob(1),hash);
+                    if(c.moveToNext()||!base.consumableR31()||!base.datasetHash.equals(partial.datasetHash)
+                            ||!base.completeIssue.equals(partial.completeIssue)
+                            ||base.trainer.onlineSteps!=partial.trainer.onlineSteps-positions
+                            ||base.materializedSamples!=partial.materializedSamples||base.pretrainSamples!=partial.pretrainSamples)
+                        return null;
+                    return base;
+                }
+                if(c.moveToNext()||!parent.matches("[0-9a-f]{64}")||hash.equals(parent))return null;
+                hash=parent;
+            }
+        }
+        return null;
     }
     /** Recover the last verified complete inference publication independently of the
      * latest optimizer checkpoint. A restart may occur during positions 1..9 or

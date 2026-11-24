@@ -10,9 +10,29 @@ final class ResearchProvenanceGraphR30R1 {
  @SuppressWarnings("unchecked") static void edge(Map<String,Object> f,String a,String b,String proof){Map<String,Object> e=new LinkedHashMap<>();e.put("from",a);e.put("to",b);e.put("label",proof);((List<Object>)f.get("edges")).add(e);}
  static String shortId(String s){return s==null?"缺证":s.substring(0,Math.min(10,s.length()));}
  static void gradient(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 s,String checkpoint,long now){
-  if(!s.ready())return;String weights=StatsR27.sha256(s.trainer.net.encode()),run=StatsR27.sha256("GRADIENT_PUBLICATION1|"+checkpoint+"|"+BuildConfig.SOURCE_COMMIT_R26);Map<String,Object> p=new LinkedHashMap<>();p.put("checkpointHash",checkpoint);p.put("weightsHash",weights);p.put("gradientPrimarySamplesCommitted",s.pretrainSamples+s.trainer.onlineSteps);p.put("throughOrdinal",s.trainedThroughOrdinal());p.put("featureAbi",AtomNetSessionR30.ABI);p.put("learningProtocol",AtomNetSessionR30.LEARNING_PROTOCOL);p.put("publication","ORIGINAL_IMMUTABLE_MODEL_AFTER_THIS_TRANSACTION_COMMITS");p.put("publicationAvailableAt",null);p.put("naturalQuality","NOT_PROVEN");String payload=JsonR27.write(p);String role=s.trainer.onlineSteps==0?"SELECT":"ONLINE_RESEARCH";
+  if(!s.consumableR31())return;String weights=StatsR27.sha256(s.trainer.net.encode()),run=StatsR27.sha256("GRADIENT_PUBLICATION1|"+checkpoint+"|"+BuildConfig.SOURCE_COMMIT_R26);Map<String,Object> p=new LinkedHashMap<>();p.put("checkpointHash",checkpoint);p.put("weightsHash",weights);p.put("gradientPrimarySamplesCommitted",s.pretrainSamples+s.trainer.onlineSteps);p.put("throughOrdinal",s.trainedThroughOrdinal());p.put("featureAbi",AtomNetSessionR30.ABI);p.put("learningProtocol",AtomNetSessionR30.LEARNING_PROTOCOL);p.put("publication","ORIGINAL_IMMUTABLE_MODEL_AFTER_THIS_TRANSACTION_COMMITS");p.put("publicationAvailableAt",null);p.put("naturalQuality","NOT_PROVEN");String payload=JsonR27.write(p);String role=s.trainer.onlineSteps==0?"SELECT":"ONLINE_RESEARCH";
   b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,s.datasetHash,weights,role,BuildConfig.SOURCE_COMMIT_R26,-1,s.trainedThroughOrdinal(),s.trainedThroughOrdinal(),StatsR27.sha256(payload),"COMMITTED",payload,now);
   b.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,weights,"NEURAL_GRADIENT_PUBLICATION",checkpoint,"ORIGINAL_CHECKPOINT_SAME_COMMIT_WEIGHTS_HASH",s.trainedThroughOrdinal(),s.trainedThroughOrdinal(),0,null,null,null,payload);
+ }
+ static void onlineInputsR341(ResearchWriteQueueR27.Batch batch,AtomNetSessionR30 state,String publication,
+         String stateHash,String labelPin,String trainingKey,String optimizerInput,long now){
+  List<Object> ordered=new ArrayList<>();
+  for(AtomNetTrainerR27.Sample sample:state.trainer.lastOnlineInputsR341()){
+   String key=sample.issue;
+   if(key==null||!key.matches("[0-9]{12}@P(0[1-9]|10)"))throw new IllegalStateException("R341_ONLINE_SAMPLE_KEY");
+   String issue=key.substring(0,12);
+   String role=issue.compareTo(state.observedThrough)<=0?SplitR27.TRAIN:"ONLINE_RESEARCH";
+   String digest=HashingSU1.fields(key,StatsR27.sha256(AtomNetStoreR30.features(sample.x)),Integer.toString(sample.y),Integer.toString(sample.cls));
+   ordered.add(Arrays.asList(key,role,digest));
+  }
+  if(ordered.isEmpty()||ordered.size()>64)throw new IllegalStateException("R341_ONLINE_INPUT_COUNT");
+  Map<String,Object> proof=new LinkedHashMap<>();
+  proof.put("publication",publication);proof.put("stateHash",stateHash);proof.put("dataset",state.datasetHash);
+  proof.put("labelPin",labelPin);proof.put("optimizerInputHash",optimizerInput);proof.put("orderedSampleKeysRolesAndDigests",ordered);
+  String json=JsonR27.write(proof),hash=StatsR27.sha256(json),run=HashingSU1.fields("R341_ATOMNET_REPLAY_MANIFEST",publication);
+  long ordinal=state.trainedThroughOrdinal();
+  batch.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,state.datasetHash,publication,"ONLINE_RESEARCH",BuildConfig.SOURCE_COMMIT_R26,-1,ordinal,ordinal,hash,"COMMITTED_REPLAY_INPUTS",json,now);
+  batch.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,trainingKey,"NEURAL_REPLAY_ORDER",publication,"EXACT_SAMPLE_KEYS_AND_OPTIMIZER_PUBLICATION",ordinal,ordinal,1,null,null,null,json);
  }
  @SuppressWarnings("unchecked") static void project(String view,Map<String,Object> f,SQLiteDatabase db){
   if(!Arrays.asList("R05","R14","R18").contains(view))return;

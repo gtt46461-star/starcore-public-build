@@ -129,7 +129,12 @@ public final class AtomNetPublicationR31 {
         private final byte[] stateRef,modelRef,datasetRef;private final String datasetPayloadHash,sampleDigest;private final long now,sampleBytes,through,materialized;
         private final int first;private final List<SampleRow> samples;private boolean closed;
         private Prepared(DbStore store,SQLiteDatabase ro,ResearchWriteQueueR27.Batch control,AtomNetSessionR30 state,long now,String expectedState)throws IOException{
-            if(ro.inTransaction()&&!ro.isReadOnly())throw new IllegalStateException("R31_ATOM_PREPARE_OUTSIDE_WRITER_REQUIRED");requireReady(ro);if(expectedState==null||!expectedState.isEmpty()&&!expectedState.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R31_ATOM_EXPECTED_PARENT");datasetHash=state.datasetHash;previousStateHash=expectedState;through=state.trainedThroughOrdinal();materialized=state.materializedSamples;
+            if(ro.inTransaction()&&!ro.isReadOnly())throw new IllegalStateException("R31_ATOM_PREPARE_OUTSIDE_WRITER_REQUIRED");
+            requireReady(ro);
+            if(expectedState==null||!expectedState.isEmpty()&&!expectedState.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R31_ATOM_EXPECTED_PARENT");
+            if(!currentStateHash(ro).equals(expectedState))throw new Dependency("PARENT_CHANGED_BEFORE_PREPARATION");
+            state.validateCheckpointR335();
+            datasetHash=state.datasetHash;previousStateHash=expectedState;through=state.trainedThroughOrdinal();materialized=state.materializedSamples;
             List<SampleRow> extracted=new ArrayList<>();ResearchWriteQueueR27.Op dataset=null;
             for(Iterator<ResearchWriteQueueR27.Op> i=control.ops.iterator();i.hasNext();){ResearchWriteQueueR27.Op op=i.next();if(op.sql.equals("INSERT OR IGNORE INTO r30_atomnet_sample VALUES(?,?,?,?,?,?,?)")){extracted.add(new SampleRow(op,state));i.remove();}else if(op.sql.equals("INSERT OR IGNORE INTO r30_atomnet_dataset VALUES(?,?,?,?)")){if(dataset!=null)throw new IllegalArgumentException("R31_ATOM_DUPLICATE_DATASET");dataset=op;i.remove();}}
             if(state.materializedSamples<0||state.materializedSamples>(long)state.trainCount+state.selectCount+state.holdoutCount)throw new IllegalArgumentException("R31_ATOM_MATERIALIZED_BOUND");

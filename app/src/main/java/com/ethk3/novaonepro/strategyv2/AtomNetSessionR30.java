@@ -8,7 +8,8 @@ import java.util.*;
  * The R29 codec is an inner optimizer container only; this outer ABI/owner never overwrites a legacy model. */
 public final class AtomNetSessionR30 {
     public static final String ABI = AtomNetR27.POSITION_INPUT_ABI, LEGACY_OWNER="ATOMNET_TEN_R30", OWNER = "ATOMNET_TEN_R30_REPAIR1";
-    public static final String LEARNING_PROTOCOL="R30_REPAIR_REPLAY_RULE1_UNIFORM63_OR_OLD48_RECENT15_FROM_PREREGISTERED_ONLINE_NEGATIVE_FIXED64_BLOCKS";
+    static final String LEGACY_LEARNING_PROTOCOL="R30_REPAIR_REPLAY_RULE1_UNIFORM63_OR_OLD48_RECENT15_FROM_PREREGISTERED_ONLINE_NEGATIVE_FIXED64_BLOCKS";
+    public static final String LEARNING_PROTOCOL="R341_TRAIN_AND_PREREGISTERED_SETTLED_ONLINE_RESEARCH_REPLAY_1";
     public String replayPolicy="UNIFORM_63",replayEvidenceRun="";public long replayPolicyChanges;
     public interface Samples { AtomNetTrainerR27.Sample get(int sample); default void prefetch(int[] indices) { } }
     public final String datasetHash;
@@ -18,6 +19,8 @@ public final class AtomNetSessionR30 {
     public AtomNetTrainerR27 trainer;
     public FtrlR27 ftrl;
     public String phase = "TRAIN", completeIssue = "", partialIssue = "";
+    String partialInputHashR341 = "";
+    boolean replayRolesBoundR341 = true;
     public int nextPosition = 1, epoch, offset, step, bad, fillOffset;
     public long onlineObservedOrdinal, pretrainSamples, materializedSamples, materializeMs, trainingMs, units;
     public int cachePeriod = 24;
@@ -67,16 +70,18 @@ public final class AtomNetSessionR30 {
             n=Math.min(64,count-offset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+offset+k;samples.prefetch(indices);
             for(int k=0;k<n;k++) {
                 AtomNetTrainerR27.Sample s=samples.get(from+offset+k);double p=trainer.net.predict(s.x);
-                if("EVAL_SELECT".equals(phase)&&epoch==0)ftrl.update(Arrays.copyOf(s.x,7),s.y);
                 loss.add(-Math.log(Math.max(1e-12,s.y==1?p:1-p)));brier+=(p-s.y)*(p-s.y);
             }
             offset+=n;
             if(offset==count) finishEvaluation();
         } else if("FILL".equals(phase)) {
-            int from=Math.max(0,trainCount+selectCount-AtomNetTrainerR27.REPLAY);
-            n=Math.min(64,trainCount+selectCount-from-fillOffset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+fillOffset+k;samples.prefetch(indices);
+            int from=Math.max(0,trainCount-AtomNetTrainerR27.REPLAY);
+            n=Math.min(64,trainCount-from-fillOffset);int[] indices=new int[n];for(int k=0;k<n;k++)indices[k]=from+fillOffset+k;samples.prefetch(indices);
             for(int k=0;k<n;k++)trainer.remember(samples.get(from+fillOffset+k));fillOffset+=n;
-            if(from+fillOffset==trainCount+selectCount){phase="ONLINE";completeIssue=observedThrough;onlineObservedOrdinal=observedThroughOrdinal;}
+            if(from+fillOffset==trainCount){
+                phase="ONLINE";
+                if(completeIssue.isEmpty()){completeIssue=observedThrough;onlineObservedOrdinal=observedThroughOrdinal;}
+            }
         }
         trainingMs+=(System.nanoTime()-start)/1_000_000L;units++;return n;
     }
@@ -106,13 +111,32 @@ public final class AtomNetSessionR30 {
 
     /** Exactly one new position plus the original 63 replay samples. Base issue and position cursor commit together. */
     public void online(AtomNetTrainerR27.Sample sample,String issue,long ordinal,int position) {
+        online(sample,issue,ordinal,position,HashingSU1.fields("ENGINEERING_COMPATIBLE_SESSION_INPUT",datasetHash,issue));
+    }
+
+    void online(AtomNetTrainerR27.Sample sample,String issue,long ordinal,int position,String inputHash) {
         if(!"ONLINE".equals(phase)||position!=nextPosition||position<1||position>10
                 ||(!partialIssue.isEmpty()&&!partialIssue.equals(issue))||issue.compareTo(completeIssue)<=0
                 ||!sample.issue.equals(eventKey(issue,position)))throw new IllegalStateException("R30_POSITION_CURSOR");
+        if(inputHash==null||!inputHash.matches("[0-9a-f]{64}")
+                ||(!partialIssue.isEmpty()&&!inputHash.equals(partialInputHashR341))) {
+            throw new IllegalStateException("R341_ATOMNET_TEN_POSITION_INPUT_MISMATCH");
+        }
         trainer.online(sample,"OLD48_RECENT15".equals(replayPolicy));ftrl.update(Arrays.copyOf(sample.x,7),sample.y);
-        partialIssue=issue;onlineObservedOrdinal=ordinal;nextPosition++;
-        if(nextPosition==11){completeIssue=issue;partialIssue="";nextPosition=1;
+        partialIssue=issue;partialInputHashR341=inputHash;onlineObservedOrdinal=ordinal;nextPosition++;
+        if(nextPosition==11){completeIssue=issue;partialIssue="";partialInputHashR341="";nextPosition=1;
             if(trainer.sinceCheck>=10L*AtomNetTrainerR27.CHECK_EVERY)transition("EVAL_ONLINE_DEVELOPMENT_VALIDATION");
+        }
+    }
+
+    void bindReplayRolesR341() {
+        if(replayRolesBoundR341||!partialIssue.isEmpty())return;
+        legacyValidationOriginUnknown|=trainer.onlineSteps>0;
+        replayRolesBoundR341=true;
+        trainer.buffer.clear();
+        if("FILL".equals(phase)||"ONLINE".equals(phase)) {
+            phase="FILL";
+            fillOffset=0;
         }
     }
     public static String eventKey(String issue,int position){return issue+"@P"+(position<10?"0":"")+position;}
@@ -143,6 +167,8 @@ public final class AtomNetSessionR30 {
         r.put("completeTrainedThroughIssue",ready()?completeIssue:null);
         r.put("completeTrainedThroughOrdinal",ready()?(partialIssue.isEmpty()?Long.valueOf(trainedThroughOrdinal()):completeIssue.isEmpty()?null:Long.valueOf(com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(completeIssue))):null);
         r.put("partialObservedIssue",partialIssue.isEmpty()?null:partialIssue);
+        r.put("partialInputSha256",partialInputHashR341.isEmpty()?null:partialInputHashR341);
+        r.put("replayRoleBinding",replayRolesBoundR341?"TRAIN_THEN_COMMITTED_ONLINE_RESEARCH":"LEGACY_UNSCOPED");
         r.put("partialPositionsCommitted",partialIssue.isEmpty()?0L:(long)(nextPosition-1));
         r.put("consumerModelScope","SHARED_TEN_POSITION_COMPLETE_ISSUE_ONLY");
         r.put("consumable",consumableR31());
@@ -173,7 +199,7 @@ public final class AtomNetSessionR30 {
     public byte[] encode(){
         try{
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream o=new DataOutputStream(bytes);
-            o.writeInt(0x30A70003);o.writeUTF(ABI);o.writeUTF(datasetHash);o.writeUTF(observedThrough);o.writeLong(observedThroughOrdinal);
+            o.writeInt(0x30A70004);o.writeUTF(ABI);o.writeUTF(datasetHash);o.writeUTF(observedThrough);o.writeLong(observedThroughOrdinal);
             for(int v:new int[]{input,trainCount,selectCount,holdoutCount,cachePeriod,epoch,offset,step,bad,fillOffset,nextPosition})o.writeInt(v);
             o.writeUTF(phase);o.writeUTF(completeIssue);o.writeUTF(partialIssue);
             for(long v:new long[]{onlineObservedOrdinal,pretrainSamples,materializedSamples,materializeMs,trainingMs,units,loss.n})o.writeLong(v);
@@ -181,13 +207,14 @@ public final class AtomNetSessionR30 {
             o.writeInt(order==null?0:order.length);if(order!=null)for(int v:order)o.writeInt(v);
             ModelArtifactR29.blob(o,bestNet);ModelArtifactR29.blob(o,new ModelArtifactR29(trainer,ftrl,datasetHash,completeIssue.isEmpty()?observedThrough:trainedThrough()).encode());
             o.writeBoolean(legacyValidationOriginUnknown);o.writeBoolean(needsValidationRoleMigration);o.writeUTF(LEARNING_PROTOCOL);o.writeUTF(replayPolicy);o.writeUTF(replayEvidenceRun);o.writeLong(replayPolicyChanges);
+            o.writeBoolean(replayRolesBoundR341);o.writeUTF(partialInputHashR341);
             o.close();return bytes.toByteArray();
         }catch(IOException e){throw new IllegalStateException("R30_MODEL_ENCODE",e);}
     }
     public static AtomNetSessionR30 decode(byte[] bytes,String hash){
         if(bytes==null||bytes.length>64<<20||!StatsR27.sha256(bytes).equals(hash))throw new IllegalArgumentException("R30_MODEL_CHECKSUM");
         try{
-            DataInputStream d=new DataInputStream(new ByteArrayInputStream(bytes));int format=d.readInt();if((format!=0x30A70001&&format!=0x30A70002&&format!=0x30A70003)||!ABI.equals(d.readUTF()))throw new IOException("ABI");
+            DataInputStream d=new DataInputStream(new ByteArrayInputStream(bytes));int format=d.readInt();if(format<0x30A70001||format>0x30A70004||!ABI.equals(d.readUTF()))throw new IOException("ABI");
             String ds=d.readUTF(),through=d.readUTF();long ordinal=d.readLong();int[] v=new int[11];for(int i=0;i<v.length;i++)v[i]=d.readInt();
             if(v[0]<11||v[0]>4096||v[1]<=0||v[1]>1_000_000||v[2]<=0||v[2]>1_000_000||v[3]<0||v[3]>1_000_000)throw new IOException("shape");
             AtomNetSessionR30 s=new AtomNetSessionR30(ds,through,ordinal,v[0],v[1],v[2],v[3]);
@@ -197,8 +224,11 @@ public final class AtomNetSessionR30 {
             s.best=d.readDouble();s.lastLr=d.readDouble();s.loss.mean=d.readDouble();s.loss.m2=d.readDouble();s.brier=d.readDouble();
             int n=d.readInt();if(n!=0&&n!=s.trainCount)throw new IOException("shuffle");if(n>0){s.order=new int[n];boolean[] seen=new boolean[n];for(int i=0;i<n;i++){int x=d.readInt();if(x<0||x>=n||seen[x])throw new IOException("shuffle index");seen[x]=true;s.order[i]=x;}}
             s.bestNet=ModelArtifactR29.blob(d);byte[] inner=ModelArtifactR29.blob(d);ModelArtifactR29 a=ModelArtifactR29.decode(inner,StatsR27.sha256(inner));if(a.receiptCursorRequiresPersistenceRecovery)throw new IOException("INNER_LEGACY_RECEIPT_CURSOR_REQUIRES_DB_RECOVERY");s.trainer=a.trainer;s.ftrl=a.ftrl;
-            if(format==0x30A70002||format==0x30A70003){s.legacyValidationOriginUnknown=d.readBoolean();s.needsValidationRoleMigration=d.readBoolean();}else{s.legacyValidationOriginUnknown=true;s.needsValidationRoleMigration=true;}
-            if(format==0x30A70003){if(!LEARNING_PROTOCOL.equals(d.readUTF()))throw new IOException("learning protocol");s.replayPolicy=d.readUTF();s.replayEvidenceRun=d.readUTF();s.replayPolicyChanges=d.readLong();if(!Arrays.asList("UNIFORM_63","OLD48_RECENT15").contains(s.replayPolicy)||s.replayPolicyChanges<0||(!s.replayEvidenceRun.isEmpty()&&!s.replayEvidenceRun.matches("[0-9a-f]{64}"))||!s.replayPolicy.equals("UNIFORM_63")&&s.replayEvidenceRun.isEmpty())throw new IOException("replay policy");}
+            if(format>=0x30A70002){s.legacyValidationOriginUnknown=d.readBoolean();s.needsValidationRoleMigration=d.readBoolean();}else{s.legacyValidationOriginUnknown=true;s.needsValidationRoleMigration=true;}
+            if(format>=0x30A70003){if(!(format==0x30A70003?LEGACY_LEARNING_PROTOCOL:LEARNING_PROTOCOL).equals(d.readUTF()))throw new IOException("learning protocol");s.replayPolicy=d.readUTF();s.replayEvidenceRun=d.readUTF();s.replayPolicyChanges=d.readLong();if(!Arrays.asList("UNIFORM_63","OLD48_RECENT15").contains(s.replayPolicy)||s.replayPolicyChanges<0||(!s.replayEvidenceRun.isEmpty()&&!s.replayEvidenceRun.matches("[0-9a-f]{64}"))||!s.replayPolicy.equals("UNIFORM_63")&&s.replayEvidenceRun.isEmpty())throw new IOException("replay policy");}
+            s.replayRolesBoundR341=format==0x30A70004&&d.readBoolean();
+            if(format==0x30A70004)s.partialInputHashR341=d.readUTF();
+            if(!s.partialInputHashR341.isEmpty()&&(!s.partialInputHashR341.matches("[0-9a-f]{64}")||s.partialIssue.isEmpty()))throw new IOException("partial input identity");
             if(d.available()!=0||s.trainer.net.in!=s.input||s.nextPosition<1||s.nextPosition>10||s.offset<0||s.epoch<0||s.epoch>20||!Arrays.asList("TRAIN","EVAL_TRAIN","EVAL_SELECT","EVAL_HOLD","EVAL_ONLINE_HOLD","EVAL_DEVELOPMENT_VALIDATION","EVAL_ONLINE_DEVELOPMENT_VALIDATION","FILL","ONLINE").contains(s.phase))throw new IOException("cursor");
             s.validateCheckpointR335();
             return s;

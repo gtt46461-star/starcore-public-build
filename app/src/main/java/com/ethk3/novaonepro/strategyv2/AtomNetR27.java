@@ -74,10 +74,18 @@ public final class AtomNetR27 {
     /** One Adam step on a mini-batch. y = K3 hit (0/1), cls = number at the position (0..9, or −1 when unknown).
      * Returns the batch loss before the step. */
     public double trainBatch(double[][] xs, int[] y, int[] cls, double lr, StatsR27.SplitMix rng) {
+        int n=xs.length;
+        if(n<1||y.length!=n||cls.length!=n||adamT==Long.MAX_VALUE||!Double.isFinite(lr)||lr<0)
+            throw new IllegalArgumentException("R34_ATOMNET_STEP_INPUT");
+        for(int b=0;b<n;b++){
+            if(xs[b]==null||xs[b].length!=in||y[b]<0||y[b]>1||cls[b]<-1||cls[b]>9)
+                throw new IllegalArgumentException("R34_ATOMNET_STEP_INPUT");
+            for(double feature:xs[b])if(!Double.isFinite(feature))throw new IllegalArgumentException("R34_ATOMNET_NONFINITE_FEATURE");
+        }
+        long rngBefore=rng==null?0:rng.state;
         double[][] p = params(); double[][] g = new double[p.length][];
         for (int i = 0; i < p.length; i++) g[i] = new double[p[i].length];
-        double loss = 0; int n = xs.length;
-        if(n<1||adamT==Long.MAX_VALUE)throw new IllegalArgumentException("R34_ATOMNET_STEP_INPUT");
+        double loss = 0;
         for (int b = 0; b < n; b++) {
             double[] x = xs[b]; Out o = forward(x, rng);
             loss -= y[b] == 1 ? Math.log(Math.max(1e-12, o.pHit)) : Math.log(Math.max(1e-12, 1 - o.pHit));
@@ -103,19 +111,33 @@ public final class AtomNetR27 {
             }
         }
         double gradientNormSquared=0,parameterChangeSquared=0;
-        adamT++; double b1c = 1 - Math.pow(0.9, adamT), b2c = 1 - Math.pow(0.999, adamT);
-        for (int i = 0; i < p.length; i++) for (int k = 0; k < p[i].length; k++) {
-            double gr = g[i][k] / n + ((i % 2 == 0) ? L2 * p[i][k] : 0);
-            m[i][k] = 0.9 * m[i][k] + 0.1 * gr; v[i][k] = 0.999 * v[i][k] + 0.001 * gr * gr;
-            double before=p[i][k];
-            p[i][k] -= lr * (m[i][k] / b1c) / (Math.sqrt(v[i][k] / b2c) + 1e-8);
-            double change=p[i][k]-before;
-            gradientNormSquared+=gr*gr;
-            parameterChangeSquared+=change*change;
+        long nextStep=adamT+1;
+        double b1c = 1 - Math.pow(0.9, nextStep), b2c = 1 - Math.pow(0.999, nextStep);
+        double[][] nextM=new double[p.length][],nextV=new double[p.length][];
+        for(int i=0;i<p.length;i++){
+            nextM[i]=new double[p[i].length];nextV[i]=new double[p[i].length];
+            for(int k=0;k<p[i].length;k++){
+                double gr=g[i][k]/n+((i%2==0)?L2*p[i][k]:0);
+                nextM[i][k]=0.9*m[i][k]+0.1*gr;
+                nextV[i][k]=0.999*v[i][k]+0.001*gr*gr;
+                double before=p[i][k];
+                g[i][k]=before-lr*(nextM[i][k]/b1c)/(Math.sqrt(nextV[i][k]/b2c)+1e-8);
+                double change=g[i][k]-before;
+                gradientNormSquared+=gr*gr;
+                parameterChangeSquared+=change*change;
+            }
         }
-        if(!Double.isFinite(loss)||!Double.isFinite(gradientNormSquared)||!Double.isFinite(parameterChangeSquared))
+        if(!Double.isFinite(loss)||!Double.isFinite(gradientNormSquared)||!Double.isFinite(parameterChangeSquared)){
+            if(rng!=null)rng.state=rngBefore;
             throw new IllegalStateException("R34_ATOMNET_NONFINITE_OPTIMIZER");
-        lastStep=new OptimizerStep(adamT,n,batchHash(xs,y,cls),Math.sqrt(gradientNormSquared),Math.sqrt(parameterChangeSquared),loss/n);
+        }
+        String inputHash=batchHash(xs,y,cls);
+        for(int i=0;i<p.length;i++){
+            System.arraycopy(g[i],0,p[i],0,p[i].length);
+            m[i]=nextM[i];v[i]=nextV[i];
+        }
+        adamT=nextStep;
+        lastStep=new OptimizerStep(adamT,n,inputHash,Math.sqrt(gradientNormSquared),Math.sqrt(parameterChangeSquared),loss/n);
         return lastStep.batchLoss;
     }
 

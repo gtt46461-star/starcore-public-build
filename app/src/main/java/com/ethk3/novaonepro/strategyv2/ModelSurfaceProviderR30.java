@@ -13,9 +13,16 @@ public final class ModelSurfaceProviderR30 {
         public FrozenModelRef(byte[] weights,long through,long available){this(weights,through,available,null);}
         private FrozenModelRef(byte[] weights,long through,long available,String original){
             this.weights=weights.clone();weightsHash=StatsR27.sha256(this.weights);trainedThroughOrdinal=through;availableAt=available;
-            String descriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_2",weightsHash,AtomNetSessionR30.ABI,AtomNetSessionR30.LEARNING_PROTOCOL,Long.toString(through),Long.toString(available));String priorDescriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_1",weightsHash,AtomNetSessionR30.ABI,Long.toString(through),Long.toString(available));
-            legacyWeightsOnlyIdentity=original!=null&&original.equals(weightsHash);learningProtocol=legacyWeightsOnlyIdentity?"LEGACY_WEIGHTS_ONLY_ORIGIN_UNKNOWN":original!=null&&original.equals(priorDescriptor)?"LEGACY_UNIFORM_63":AtomNetSessionR30.LEARNING_PROTOCOL;modelHash=original==null?descriptor:original;
-            if(original!=null&&!original.equals(descriptor)&&!original.equals(priorDescriptor)&&!legacyWeightsOnlyIdentity)throw new Blocked("ARTIFACT_IDENTITY_MISMATCH");
+            String descriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_2",weightsHash,AtomNetSessionR30.ABI,AtomNetSessionR30.LEARNING_PROTOCOL,Long.toString(through),Long.toString(available));
+            String priorReplay=HashingSU1.fields("R30_REPAIR_MODEL_REF_2",weightsHash,AtomNetSessionR30.ABI,AtomNetSessionR30.LEGACY_LEARNING_PROTOCOL,Long.toString(through),Long.toString(available));
+            String priorDescriptor=HashingSU1.fields("R30_REPAIR_MODEL_REF_1",weightsHash,AtomNetSessionR30.ABI,Long.toString(through),Long.toString(available));
+            legacyWeightsOnlyIdentity=weightsHash.equals(original);
+            if(legacyWeightsOnlyIdentity)learningProtocol="LEGACY_WEIGHTS_ONLY_ORIGIN_UNKNOWN";
+            else if(priorDescriptor.equals(original))learningProtocol="LEGACY_UNIFORM_63";
+            else if(priorReplay.equals(original))learningProtocol=AtomNetSessionR30.LEGACY_LEARNING_PROTOCOL;
+            else if(original==null||descriptor.equals(original))learningProtocol=AtomNetSessionR30.LEARNING_PROTOCOL;
+            else throw new Blocked("ARTIFACT_IDENTITY_MISMATCH");
+            modelHash=original==null?descriptor:original;
             try{ModelArtifactR29.network(this.weights);}catch(java.io.IOException invalid){throw new Blocked("INVALID_MODEL_ARTIFACT");}if(available<=0||through<0)throw new IllegalArgumentException("MODEL_AVAILABILITY_UNKNOWN");
         }
         static FrozenModelRef archived(String hash,byte[] bytes,long through,long available){return new FrozenModelRef(bytes,through,available,hash);}
@@ -52,7 +59,14 @@ public final class ModelSurfaceProviderR30 {
     public static Surface predict(Pit pit,FrozenModelRef model){
         if(pit==null||model==null)throw new Blocked("NO_FROZEN_MODEL");
         AtomNetR27 net=AtomNetR27.decode(model.weights);
-        if(pit.inputs.length!=net.in)throw new Blocked("FEATURE_ABI_MISMATCH");
+        if(pit.inputs.length!=net.in||net.in<11)throw new Blocked("FEATURE_ABI_MISMATCH");
+        if(pit.position<1||pit.position>10)throw new Blocked("FEATURE_POSITION_MISMATCH");
+        for(int i=0;i<pit.inputs.length;i++){
+            double value=pit.inputs[i];
+            if(!Double.isFinite(value))throw new Blocked("FEATURE_INPUT_NONFINITE");
+            if(i>=net.in-10&&value!=(i-(net.in-10)==pit.position-1?1:0))
+                throw new Blocked("FEATURE_POSITION_MISMATCH");
+        }
         double[] p=NumberRankerAdapterR30.probabilities(net,pit.inputs);
         return new Surface(model.modelHash,pit.historyHash,p,pit.targetOrdinal,model.trainedThroughOrdinal,model.availableAt,pit.featureThroughOrdinal,pit.featureAvailableAt,pit.position,pit.preparedAt,pit.frozenAt,pit.deadlineAt);
     }
