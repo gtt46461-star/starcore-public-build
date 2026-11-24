@@ -79,7 +79,7 @@ try:
         # are prior Android cases and are never reported as the missing B12
         # three-generation or physical-device witness.
         replay=['R341-B06-02-A01','R341-B07-02-A01','R341-B08-01-A03',
-                'R341-B09-02-A02','A-B10-02b','A-B11-04b']
+                'R341-B09-02-A02','A-B10-02b','A-B10-05b','A-B11-04b','A-B11-06b']
         available={case['id']:case for case in json.loads((plan/'ACCEPTANCE_MATRIX.json').read_bytes())['cases']}
         cases=[available[ident] for ident in replay]
         receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_EMULATOR_SMOKE'
