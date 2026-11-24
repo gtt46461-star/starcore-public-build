@@ -89,11 +89,12 @@ public final class R341FoundryTestCases {
             List<ReplayDatasetR27.Row> source=new ArrayList<>();
             for(int i=0;i<120;i++){
                 Models.Draw d=draw(5000L+i,300000L+i*60000L);
+                d.numbers=new int[]{i%3+1,(i+1)%3+1,4,5,6,7,8,9,10,(i+2)%3+1};
                 source.add(new ReplayDatasetR27.Row(d.issue,5000L+i,d.numbers));
             }
             ReplayDatasetR27 longData=ReplayDatasetR27.of(source);
             ReplayDatasetR27 shortData=ReplayDatasetR27.of(source.subList(0,4));
-            PolicySpecR27 spec=SetIntersectionPolicyR30.spec(1,8,16,
+            PolicySpecR27 spec=SetIntersectionPolicyR30.spec(1,8,32,
                     IdeaFamilyR27.meta("I14","ENGINEERING_REPLAY",1,1,"Exact intersection requires its full PIT lookback"));
             try(FeatureCacheR27 shortCache=new FeatureCacheR27(shortData);FeatureCacheR27 longCache=new FeatureCacheR27(longData)) {
                 BirthGateR27.Verdict missing=new BirthGateR27(shortCache,4).checkCandidate(spec);
@@ -106,6 +107,8 @@ public final class R341FoundryTestCases {
                 assertFalse(StoreR27.recordedPolicies(db,Collections.singleton(spec.policyHash()),longData.datasetHash).contains(spec.policyHash()));
                 BirthGateR27.Verdict ready=new BirthGateR27(longCache,120).checkCandidate(spec);
                 assertTrue(ready.detail,ready.ok);
+                assertTrue("The recovered history must produce an actual K3 surface",ready.signature.length>0);
+                assertEquals("SUPPORTED_K3",SetIntersectionPolicyR30.support(spec,longCache,119).get("status"));
                 StoreR27.EvolutionSink born=new StoreR27.EvolutionSink("MAIN",longData.issues[119]);
                 born.admitted(spec,"ENGINEERING_INPUT_READY",2,longData.datasetHash,"ROOT_PROPOSAL_AWAITING_FIRST_EVALUATION",ready.signature.length>0);
                 apply(db,born.batch);

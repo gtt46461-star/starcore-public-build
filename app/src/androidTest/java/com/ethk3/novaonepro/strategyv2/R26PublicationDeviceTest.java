@@ -65,7 +65,23 @@ public final class R26PublicationDeviceTest {
         for(String excluded:new String[]{"PASS","CALENDAR_INCOMPLETE","ACTS_LT_600"}){db.execSQL("UPDATE r26_qualification_result SET reason=?",new Object[]{excluded});assertTrue(FailureDirectedResearchR26.select(db,snapshot,source.through).isEmpty());}try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_CHANGED_FAILURE_EVIDENCE",w->{FailureDirectedResearchR26.recordWithin(w,"SYNTHETIC_UNBORN",batches);return 0;});fail("Changed failure evidence registered children");}catch(IllegalStateException expected){Throwable cause=expected;while(cause.getCause()!=null&&cause.getCause()!=cause)cause=cause.getCause();assertEquals("R26_FAILURE_EVIDENCE_CHANGED",cause.getMessage());}db.execSQL("UPDATE r26_qualification_result SET reason='HELD_LATER_ECE_GT_004'");
         RuntimeCoordinatorR26.Claim stale=new RuntimeCoordinatorR26.Claim(claim.task,claim.owner,0,0);try{FoundryCampaignR26.step(store,()->stale,new BudgetTokenSU1(30000,100000000,()->false));fail("Stale owner created research");}catch(IllegalStateException expected){}assertEquals(0,scalar(db,"SELECT count(*) FROM r26_foundry"));
         db.execSQL("CREATE TRIGGER synthetic_abort_failure_cursor BEFORE INSERT ON r26_failure_research_cursor BEGIN SELECT RAISE(ABORT,'SYNTHETIC_FAILURE_CURSOR_ABORT'); END");try{FoundryCampaignR26.step(store,()->claim,new BudgetTokenSU1(30000,100000000,()->false));fail("Failed cursor left a campaign");}catch(RuntimeException expected){}db.execSQL("DROP TRIGGER synthetic_abort_failure_cursor");assertEquals(0,scalar(db,"SELECT count(*) FROM r26_foundry"));assertEquals(0,scalar(db,"SELECT count(*) FROM r26_candidate"));assertEquals(0,scalar(db,"SELECT count(*) FROM r26_evolution"));assertEquals(0,scalar(db,"SELECT count(*) FROM r26_failure_research_cursor"));
-        assertEquals(0,FoundryCampaignR26.step(store,()->claim,new BudgetTokenSU1(30000,100000000,()->false)));assertEquals(1,scalar(db,"SELECT count(*) FROM r26_failure_research_cursor"));assertEquals(2,scalar(db,"SELECT count(*) FROM r26_evolution WHERE parent='"+parent.key()+"' AND operation LIKE 'FAILURE_GUIDED_V1:%'"));assertTrue(FailureDirectedResearchR26.select(db,snapshot,source.through).isEmpty());String campaign;try(Cursor c=db.rawQuery("SELECT campaign_id,proposal_json FROM r26_failure_research_cursor",null)){assertTrue(c.moveToFirst());campaign=c.getString(0);org.json.JSONObject meta=new org.json.JSONObject(c.getString(1));assertEquals(digest,meta.getString("failureEvidenceDigest"));assertEquals(3,meta.getJSONArray("children").length());assertTrue(meta.getString("evidenceScope").contains("RESEARCH_INPUT_ONLY"));}
+        assertEquals(0,FoundryCampaignR26.step(store,()->claim,new BudgetTokenSU1(30000,100000000,()->false)));assertEquals(1,scalar(db,"SELECT count(*) FROM r26_failure_research_cursor"));assertEquals(2,scalar(db,"SELECT count(*) FROM r26_evolution WHERE parent='"+parent.key()+"' AND operation LIKE 'FAILURE_GUIDED_V1:%'"));assertTrue(FailureDirectedResearchR26.select(db,snapshot,source.through).isEmpty());
+        String campaign;
+        try(Cursor c=db.rawQuery("SELECT campaign_id,proposal_json FROM r26_failure_research_cursor",null)){
+            assertTrue(c.moveToFirst());campaign=c.getString(0);
+            org.json.JSONObject meta=new org.json.JSONObject(c.getString(1));
+            assertEquals(digest,meta.getString("failureEvidenceDigest"));
+            org.json.JSONArray children=meta.getJSONArray("children");
+            assertEquals(batch.proposals.size(),children.length());
+            for(int i=0;i<children.length();i++){
+                StructuralProposalR26.Proposal proposal=batch.proposals.get(i);
+                org.json.JSONObject registered=children.getJSONObject(i);
+                assertEquals(proposal.genome.key(),registered.getString("policy"));
+                assertEquals(proposal.category,registered.getString("category"));
+                assertFalse(registered.getString("operator").isEmpty());
+            }
+            assertTrue(meta.getString("evidenceScope").contains("RESEARCH_INPUT_ONLY"));
+        }
         final String id=campaign;try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_DUPLICATE_FAILURE_CURSOR",w->{FailureDirectedResearchR26.recordWithin(w,id,batches);return 0;});fail("Old selection consumed twice");}catch(IllegalStateException expected){}
         String child=batch.proposals.get(1).genome.key();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_SERVE_FAILURE_CHILD",w->{w.execSQL("UPDATE r26_candidate SET status='DONE' WHERE policy_hash<>?",new Object[]{child});return 0;});assertTrue(FoundryCampaignR26.step(store,()->claim,new BudgetTokenSU1(30000,100000000,()->false))>0);assertTrue(scalar(db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+child+"'")>0);assertTrue(scalar(db,"SELECT count(*) FROM r26_training_step WHERE policy_hash='"+child+"'")>0);assertTrue(TrainingStepStoreR26.verify(db));assertEquals(1,scalar(db,"SELECT count(*) FROM r26_cohort"));assertEquals(0,scalar(db,"SELECT count(*) FROM su2_certificate"));assertEquals(0,scalar(db,"SELECT sum(prospective_qualified+verified_improvement) FROM r26_evolution"));org.json.JSONObject research=StrategyAssessmentR26.snapshot(db).getJSONObject("failureDirectedResearch");assertEquals(1,research.getLong("totalBatches"));org.json.JSONObject reportBatch=research.getJSONArray("batches").getJSONObject(0);assertEquals("OBSERVED_RECORDS",reportBatch.getString("status"));assertEquals(digest,reportBatch.getJSONObject("birthRecord").getString("failureEvidenceDigest"));boolean trained=false;org.json.JSONArray childStates=reportBatch.getJSONArray("currentChildren");for(int i=0;i<childStates.length();i++)if(childStates.getJSONObject(i).getString("policy").equals(child)){assertTrue(childStates.getJSONObject(i).getLong("labelsConsumed")>0);assertTrue(childStates.getJSONObject(i).getLong("retainedMeasuredUpdates")>0);trained=true;}assertTrue(trained);assertFalse(reportBatch.getBoolean("authorityGranted"));
     }
@@ -236,6 +252,13 @@ public final class R26PublicationDeviceTest {
     }
 
     private static void laterWindow(Fixture f,int first)throws Exception{
+        f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"SYNTHETIC_RAW_SOURCE_CUSTODY"),w->{
+                    ResearchRetentionStoreR30.ensureProtected(w);
+                    SchemaDomainCoordinatorR926.migrateR31ModelPublication(w);
+                    SchemaDomainCoordinatorR926.migrateR31WarmPublication(w);
+                    return 0;
+                });
         List<Models.Draw> draws=new ArrayList<>();for(int i=0;i<128;i++)draws.add(f.draw(first+i,System.currentTimeMillis()-(129-i)*60000L));assertEquals(128,f.store.saveDraws(draws));
         f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_RAW_SOURCE_EXPIRY",w->{RetentionR26.prune(w,f.first+first+128);return 0;});
     }
