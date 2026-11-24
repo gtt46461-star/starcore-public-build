@@ -8,7 +8,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.ethk3.novaonepro.BuildConfig;
 import com.ethk3.novaonepro.R341StorageTestCases;
 import com.ethk3.novaonepro.R31StorageProtocolInstrumentedTest;
-import com.ethk3.novaonepro.ReportJoinedZipR34Test;
 import com.ethk3.novaonepro.ReleaseManifestR926;
 import com.ethk3.novaonepro.strategyv2.JsonR27;
 import java.util.LinkedHashMap;
@@ -86,6 +85,6 @@ public final class R341B10ContractTest {
     }
 
     @Test public void test_a_b10_05b() throws Exception {
-        execute("A-B10-05b", "test_a_b10_05b", app -> new ReportJoinedZipR34Test().partsSaveAsOneReopenableZipAndRejectDamagedSourcesAndDestinations());
+        execute("A-B10-05b", "test_a_b10_05b", R341StorageTestCases::offlineSwapRecoveryR341);
     }
 }

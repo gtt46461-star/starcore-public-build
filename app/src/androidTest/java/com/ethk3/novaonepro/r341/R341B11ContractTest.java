@@ -88,6 +88,9 @@ public final class R341B11ContractTest {
     }
 
     @Test public void test_a_b11_06b() throws Exception {
-        execute("A-B11-06b", "test_a_b11_06b", app -> new ReportJoinedZipR34Test().partsSaveAsOneReopenableZipAndRejectDamagedSourcesAndDestinations());
+        execute("A-B11-06b", "test_a_b11_06b", app -> {
+            R341ReportTestCases.fullRawMustContainExactSnapshot(app);
+            ReportJoinedZipR34Test.runPartsFixture(java.nio.file.Files.createTempDirectory(app.getCacheDir().toPath(),"r341-zip-readback-").toFile());
+        });
     }
 }

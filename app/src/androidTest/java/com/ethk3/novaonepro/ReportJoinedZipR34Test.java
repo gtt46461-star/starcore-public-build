@@ -16,9 +16,14 @@ public class ReportJoinedZipR34Test {
     @Rule public TemporaryFolder temporary=new TemporaryFolder();
 
     @Test public void partsSaveAsOneReopenableZipAndRejectDamagedSourcesAndDestinations() throws Exception {
-        File job=temporary.newFolder("job"), delivery=new File(job,"delivery");
+        runPartsFixture(temporary.getRoot());
+    }
+
+    public static void runPartsFixture(File root) throws Exception {
+        File job=new File(root,"job"), delivery=new File(job,"delivery");
+        assertTrue(job.mkdir());
         assertTrue(delivery.mkdir());
-        File original=temporary.newFile("original.zip"), saved=temporary.newFile("saved.zip");
+        File original=new File(root,"original.zip"), saved=new File(root,"saved.zip");
         byte[] buffer=new byte[32768];
         long limit=ReportPublicationCP12.ZIP_LIMIT_R30;
         try(ZipOutputStream zip=new ZipOutputStream(new FileOutputStream(original))){

@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import org.json.JSONObject;
 
@@ -183,5 +184,40 @@ public final class R341StorageTestCases {
         String early=HistoryContinuityR341.inspect(List.of(first,second)).sourceHash;
         second.fetchTime=360;
         assertNotEquals(early,HistoryContinuityR341.inspect(List.of(first,second)).sourceHash);
+    }
+
+    private static void createOriginalDatabase(File file, int pageSize) {
+        try(SQLiteDatabase db=SQLiteDatabase.openOrCreateDatabase(file,null)){
+            db.execSQL("PRAGMA page_size="+pageSize);
+            db.execSQL("CREATE TABLE draws(issue INTEGER PRIMARY KEY,number INTEGER NOT NULL)");
+            db.execSQL("WITH RECURSIVE calendar(n) AS (VALUES(1) UNION ALL SELECT n+1 FROM calendar WHERE n<5000)"
+                    +" INSERT INTO draws SELECT n,n%10+1 FROM calendar");
+        }
+    }
+
+    public static void offlineSwapRecoveryR341(Context app) throws Exception {
+        for(boolean candidateInstalled:new boolean[]{false,true}){
+            File root=fixture(app), live=new File(root,"live.db"), copy=new File(root,"live.db.r82-rebuilt");
+            File backup=new File(root,"live.db.r82-original-backup"), journal=new File(root,"live.db.r82-maintenance-journal");
+            createOriginalDatabase(live,4096);createOriginalDatabase(copy,8192);
+            String original=StorageMaintenanceFileR82.sha256(live), rebuilt=StorageMaintenanceFileR82.sha256(copy);
+            assertNotEquals(original,rebuilt);
+            Properties state=new Properties();state.setProperty("database",live.getCanonicalPath());
+            state.setProperty("source_sha256",original);state.setProperty("candidate_sha256",rebuilt);
+            state.setProperty("state",candidateInstalled?"INSTALLED":"ORIGINAL_RENAMED");
+            try(FileOutputStream output=new FileOutputStream(journal)){state.store(output,"interrupted Android fixture");output.getFD().sync();}
+            Files.move(live.toPath(),backup.toPath());
+            if(candidateInstalled)Files.move(copy.toPath(),live.toPath());
+            StorageMaintenanceFileR82.recoverIfNeeded(live);
+            assertEquals(candidateInstalled?rebuilt:original,StorageMaintenanceFileR82.sha256(live));
+            if(candidateInstalled)assertEquals(original,StorageMaintenanceFileR82.sha256(backup));
+            assertFalse(journal.exists());
+            try(SQLiteDatabase db=SQLiteDatabase.openDatabase(live.getPath(),null,SQLiteDatabase.OPEN_READONLY)){
+                try(Cursor c=db.rawQuery("PRAGMA integrity_check",null)){assertTrue(c.moveToFirst());assertEquals("ok",c.getString(0));}
+                try(Cursor c=db.rawQuery("SELECT count(*),sum(number) FROM draws",null)){
+                    assertTrue(c.moveToFirst());assertEquals(5000,c.getInt(0));assertEquals(27500,c.getInt(1));
+                }
+            }
+        }
     }
 }

@@ -6,9 +6,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.strategyv2.RepairEffectLedgerR341;
 import com.ethk3.novaonepro.strategyv2.ResearchTableAdaptersR30R1;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public final class R341ReportTestCases {
     public static void missingSourcesReachOverview(Context app) {
@@ -96,6 +106,45 @@ public final class R341ReportTestCases {
                 }
                 db.setTransactionSuccessful();
             }finally{db.endTransaction();}
+        }
+    }
+
+    public static void fullRawMustContainExactSnapshot(Context app) throws Exception {
+        File job=Files.createTempDirectory(app.getCacheDir().toPath(),"r341-full-raw-").toFile();
+        File delivery=new File(job,"delivery");assertTrue(delivery.mkdir());
+        byte[] exact={1,2,3,4};
+        File original=new File(job,"snapshot.db");Files.write(original.toPath(),exact);
+        ReportJobJournalCP12.Job state=new ReportJobJournalCP12.Job("1".repeat(64),"1".repeat(64),
+                ReleaseManifestR926.MANIFEST_SHA256,"FULL_REPORT",System.currentTimeMillis());
+        state.snapshotSha=StorageBudgetR31.sha(exact);state.snapshotBytes=exact.length;
+        byte[] document="{}".getBytes(StandardCharsets.UTF_8);
+        byte[] receipt=new JSONObject().put("jobId",state.jobId).put("snapshotSha256",state.snapshotSha)
+                .put("rawEvidence",true).put("reportSha256",StorageBudgetR31.sha(document))
+                .put("catalogPages",0).put("catalogHashXor","0".repeat(64)).toString().getBytes(StandardCharsets.UTF_8);
+        Files.write(new File(job,ReportSemanticVerifierR31.RECEIPT).toPath(),receipt);
+        File zip=new File(delivery,"STARCORE_FULL_REPORT.zip");
+        for(int sample=0;sample<3;sample++){
+            try(ZipOutputStream out=new ZipOutputStream(new FileOutputStream(zip))){
+                for(String name:Arrays.asList("R30_REPORT.json","R30_REPORT.md",ReportSemanticVerifierR31.RECEIPT,
+                        "REPORT_DETAILS.txt","R26_REPORT.json","R27_REPORT.md","R26_POLICY_IDENTITIES.jsonl",
+                        "R26_FROZEN_SURFACE.json","STORAGE_CENSUS.txt")){
+                    out.putNextEntry(new ZipEntry(name));out.write(name.equals(ReportSemanticVerifierR31.RECEIPT)?receipt:document);out.closeEntry();
+                }
+                if(sample!=1){out.putNextEntry(new ZipEntry("snapshot.db"));out.write(sample==0?exact:new byte[]{5,6,7,8});out.closeEntry();}
+            }
+            JSONObject member=new JSONObject().put("path","delivery/STARCORE_FULL_REPORT.zip")
+                    .put("bytes",zip.length()).put("sha256",ReportArchiveCP4.hash(zip,()->true));
+            JSONObject index=new JSONObject().put("jobId",state.jobId).put("format","SCREPORT_SINGLE_ZIP_R992")
+                    .put("files",new JSONArray().put(member));
+            Files.write(new File(delivery,"index.json").toPath(),index.toString().getBytes(StandardCharsets.UTF_8));
+            try{
+                ReportSemanticVerifierR31.verifyDelivery(job,state,()->true);
+                assertEquals("A delivery with missing or changed raw input passed",0,sample);
+            }catch(IOException invalid){
+                if(sample==0)throw invalid;
+                assertTrue(invalid.getMessage(),invalid.getMessage().contains(sample==1?"ZIP_MISSING_MEMBERS":"ZIP_SNAPSHOT_HASH"));
+            }
+            assertArrayEquals(exact,Files.readAllBytes(original.toPath()));
         }
     }
 }
