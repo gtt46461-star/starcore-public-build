@@ -25,6 +25,43 @@ public final class FrozenConfirmationStoreR30 {
     };
     public interface Writer { void commit(String operation, ResearchWriteQueueR27.Batch batch); }
 
+    static final class InvalidPacket extends IllegalStateException {
+        final String key, original, digest;
+        InvalidPacket(String key,String original,String code) {
+            super(code);
+            this.key=key;this.original=original;this.digest=StatsR27.sha256(original);
+        }
+    }
+
+    private static final String PACKET_COLUMNS = "task_key,policy_hash,dataset_hash,block_id,generation,packet_json";
+
+    private static FrozenConfirmationR30.Task exactPacket(Cursor row) {
+        String key=row.getString(0),original=row.getString(5);
+        FrozenConfirmationR30.Task task;
+        try { task=FrozenConfirmationR30.Task.parse(original); }
+        catch (IllegalArgumentException|ClassCastException|NullPointerException malformed) {
+            throw new InvalidPacket(key,original,"R341_CONFIRM_PACKET_UNPARSEABLE");
+        }
+        if (!key.equals(task.key)||!row.getString(1).equals(task.champion.policyHash)
+                ||!row.getString(2).equals(task.datasetHash)||row.getLong(3)!=task.block||row.getInt(4)!=task.generation) {
+            throw new InvalidPacket(key,original,"R341_CONFIRM_PACKET_IDENTITY_MISMATCH");
+        }
+        return task;
+    }
+
+    static ResearchWriteQueueR27.Batch quarantine(InvalidPacket invalid) {
+        Map<String,Object> receipt=new LinkedHashMap<>();
+        receipt.put("status","QUARANTINED_ORIGINAL_PACKET");receipt.put("taskKey",invalid.key);
+        receipt.put("packetSha256",invalid.digest);receipt.put("reason",invalid.getMessage());
+        receipt.put("verified",false);
+        ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
+        batch.add("UPDATE r30_frozen_confirm SET state='QUARANTINED_ORIGINAL_PACKET',registration_state='QUARANTINED_ORIGINAL_PACKET',"
+                +"result_json=coalesce(result_json,?),completed_at=coalesce(completed_at,?) "
+                +"WHERE task_key=? AND packet_json=? AND state='PENDING'",JsonR27.write(receipt),
+                System.currentTimeMillis(),invalid.key,invalid.original);
+        return batch;
+    }
+
     public static void freeze(ResearchWriteQueueR27.Batch batch, FrozenConfirmationR30.Task task, ReplayDatasetR27 data) {
         if (task == null) return;
         if (!task.datasetHash.equals(data.datasetHash)) throw new IllegalArgumentException("R30_FROZEN_DATASET_MISMATCH");
@@ -35,8 +72,8 @@ public final class FrozenConfirmationStoreR30 {
         ImprovementStoreR31.appendRegistration(batch,task);
     }
     public static FrozenConfirmationR30.Task nextPending(SQLiteDatabase ro) {
-        try (Cursor c = ro.rawQuery("SELECT packet_json FROM r30_frozen_confirm WHERE state='PENDING' ORDER BY created_at,task_key LIMIT 1",null)) {
-            return c.moveToFirst() ? FrozenConfirmationR30.Task.parse(c.getString(0)) : null;
+        try (Cursor c = ro.rawQuery("SELECT "+PACKET_COLUMNS+" FROM r30_frozen_confirm WHERE state='PENDING' ORDER BY created_at,task_key LIMIT 1",null)) {
+            return c.moveToFirst() ? exactPacket(c) : null;
         }
     }
     /** A process may restart after draws have advanced. Confirmation uses the exact committed snapshot. */
@@ -74,10 +111,9 @@ public final class FrozenConfirmationStoreR30 {
     }
     /** The first committed packet wins; a later generation cannot substitute controls or a new readout. */
     public static FrozenConfirmationR30.Task task(SQLiteDatabase ro, String key) {
-        try (Cursor c = ro.rawQuery("SELECT packet_json FROM r30_frozen_confirm WHERE task_key=?",new String[]{key})) {
+        try (Cursor c = ro.rawQuery("SELECT "+PACKET_COLUMNS+" FROM r30_frozen_confirm WHERE task_key=?",new String[]{key})) {
             if (!c.moveToFirst()) throw new IllegalStateException("R30_CONFIRM_PACKET_NOT_COMMITTED");
-            FrozenConfirmationR30.Task task = FrozenConfirmationR30.Task.parse(c.getString(0));
-            if (!key.equals(task.key)) throw new IllegalStateException("R30_CONFIRM_PACKET_IDENTITY_MISMATCH"); return task;
+            return exactPacket(c);
         }
     }
     public static FrozenConfirmationR30.Result result(SQLiteDatabase ro, String key) {
@@ -125,7 +161,8 @@ public final class FrozenConfirmationStoreR30 {
         batch.add("UPDATE r30_frozen_confirm SET state='DONE',result_json=?,verified=?,completed_at=? WHERE task_key=? AND state='PENDING'",
                 result.json(),result.verified ? 1 : 0,System.currentTimeMillis(),task.key);
         if (result.verified) {
-            batch.add(StoreR27.R26_EVOLUTION_VERIFIED,"R27:" + RuntimeR27.LOOP + ":" + task.champion.policyHash);
+            batch.add(StoreR27.R26_EVOLUTION_VERIFIED,"R27:" + RuntimeR27.LOOP + ":BORN:" + task.champion.policyHash);
+            batch.add(StoreR27.R26_EVOLUTION_VERIFIED+" AND behavior_novel=1","R27:" + RuntimeR27.LOOP + ":" + task.champion.policyHash);
             if (task.previous != null && !task.previous.policyHash.equals(task.champion.policyHash)) batch.add(
                     "INSERT OR IGNORE INTO r27_lineage(child_hash,parent_hash,role,operator,generation,created_at,origin) VALUES(?,?,'CHAMPION_VERIFIED','SUCCESSION',?,?,?)",
                     task.champion.policyHash,task.previous.policyHash,task.generation,System.currentTimeMillis(),RuntimeR27.LOOP);

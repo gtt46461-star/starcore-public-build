@@ -21,6 +21,7 @@ public final class ColdRebirthR34 {
     private ColdRebirthR34() {}
     private static final class Parent {
         String kind,campaign,id,text,expert,stateHash,checkpoint,abi,status,key;
+        byte[] stateReference;
         long cursor,exposure; boolean expiredUntrained;
     }
     private static final class Prepared {
@@ -39,11 +40,15 @@ public final class ColdRebirthR34 {
         return "(SELECT born."+column+" FROM r34_cold_rebirth born WHERE born.source_kind='"+kind+"' AND born.child_campaign=p.campaign_id AND born.child_id="+id+" LIMIT 1)";
     }
     private static String ownerAbi(String kind,String id) {
-        return kind.equals("CANDIDATE")?"coalesce(f.numerical_abi,"+birthColumn(kind,id,"target_abi")+")":"p.numerical_abi";
+        String stored = kind.equals("CANDIDATE") ? "f.numerical_abi" : "p.numerical_abi";
+        return "coalesce(nullif("+stored+",''),"+birthColumn(kind,id,"target_abi")+",'')";
     }
     private static String recoverZero(String kind) {
         String zero=kind.equals("CANDIDATE")?ColdRebirthContractR34.protectZeroCandidateSql("p"):ColdRebirthContractR34.protectZeroExpertSql("p");
         return "("+zero+" AND p.status<>'COLD_UNTRAINED_SUPERSEDED' AND (f.campaign_id IS NULL OR length(f.snapshot)=0 OR f.status IN ('EXPIRED_RETENTION','ABANDONED_NUMERICAL_ABI') OR "+ownerAbi(kind,kind.equals("CANDIDATE")?"p.policy_hash":"p.experiment_id")+"<>?))";
+    }
+    private static String preservedOrExpired(String kind, String id) {
+        return "((p.status=? AND "+ownerAbi(kind,id)+"<>?) OR "+recoverZero(kind)+")";
     }
     private static Parent pick(SQLiteDatabase db,String kind,String abi,long now) {
         String table=kind.equals("CANDIDATE")?"r26_candidate":"r26_expert_experiment";
@@ -51,15 +56,16 @@ public final class ColdRebirthR34 {
         String wanted=kind.equals("CANDIDATE")?"BLOCKED_WARM_NUMERICAL_ABI_PRESERVED":"BLOCKED_EXPERT_ABI_PRESERVED";
         String zero=kind.equals("CANDIDATE")?ColdRebirthContractR34.protectZeroCandidateSql("p"):ColdRebirthContractR34.protectZeroExpertSql("p");
         String columns=kind.equals("CANDIDATE")?"p.campaign_id,p.policy_hash,p.canonical_text,'',":"p.campaign_id,p.experiment_id,'',p.expert_id,";
-        columns+="p.state_hash,p.checkpoint_hash,p.cursor,"+ownerAbi(kind,id)+",coalesce(f.source_through,"+birthColumn(kind,id,"source_through")+",-1),p.status,"+zero;
-        String sql="SELECT "+columns+" FROM "+table+" p LEFT JOIN r26_foundry f ON f.campaign_id=p.campaign_id WHERE ((p.status=? AND "+ownerAbi(kind,id)+"<>?) OR "+recoverZero(kind)+")"
+        columns+="p.state_hash,p.checkpoint_hash,p.cursor,"+ownerAbi(kind,id)+",coalesce(f.source_through,"+birthColumn(kind,id,"source_through")+",-1),p.status,"+zero+",p.state";
+        String sql="SELECT "+columns+" FROM "+table+" p LEFT JOIN r26_foundry f ON f.campaign_id=p.campaign_id WHERE "+preservedOrExpired(kind,id)
             +" AND NOT EXISTS(SELECT 1 FROM r34_cold_rebirth b WHERE b.source_kind=? AND b.source_campaign=p.campaign_id AND b.source_id="+id+" AND b.target_abi=?)"
             +" AND NOT EXISTS(SELECT 1 FROM r34_cold_rebirth_retry b WHERE b.source_kind=? AND b.source_campaign=p.campaign_id AND b.source_id="+id+" AND b.target_abi=? AND b.next_at>?)"
-            +" ORDER BY p.campaign_id,"+id+" LIMIT 1";
+            +" ORDER BY CASE WHEN "+ownerAbi(kind,id)+"='' THEN 1 ELSE 0 END,p.campaign_id,"+id+" LIMIT 1";
         try(Cursor c=db.rawQuery(sql,new String[]{wanted,abi,abi,kind,abi,kind,abi,Long.toString(now)})) {
             if(!c.moveToFirst())return null;Parent p=new Parent();p.kind=kind;p.campaign=c.getString(0);p.id=c.getString(1);
             p.text=c.getString(2);p.expert=c.getString(3);p.stateHash=c.getString(4);p.checkpoint=c.getString(5);
             p.cursor=c.getLong(6);p.abi=c.getString(7);p.exposure=c.getLong(8);p.status=c.getString(9);p.expiredUntrained=c.getInt(10)==1;
+            p.stateReference=c.isNull(11)?null:c.getBlob(11);
             p.key=ColdRebirthContractR34.sourceKey(kind,p.campaign,p.id);return p;
         }
     }
@@ -70,7 +76,7 @@ public final class ColdRebirthR34 {
         for(String kind:new String[]{"CANDIDATE","EXPERT"}) {
             String table=kind.equals("CANDIDATE")?"r26_candidate":"r26_expert_experiment",id=kind.equals("CANDIDATE")?"p.policy_hash":"p.experiment_id";
             String status=kind.equals("CANDIDATE")?"BLOCKED_WARM_NUMERICAL_ABI_PRESERVED":"BLOCKED_EXPERT_ABI_PRESERVED";
-            total+=scalar(db,"SELECT count(*) FROM "+table+" p LEFT JOIN r26_foundry f ON f.campaign_id=p.campaign_id WHERE ((p.status=? AND "+ownerAbi(kind,id)+"<>?) OR "+recoverZero(kind)+") AND NOT EXISTS(SELECT 1 FROM r34_cold_rebirth b WHERE b.source_kind=? AND b.source_campaign=p.campaign_id AND b.source_id="+id+" AND b.target_abi=?)",status,abi,abi,kind,abi);
+            total+=scalar(db,"SELECT count(*) FROM "+table+" p LEFT JOIN r26_foundry f ON f.campaign_id=p.campaign_id WHERE "+preservedOrExpired(kind,id)+" AND NOT EXISTS(SELECT 1 FROM r34_cold_rebirth b WHERE b.source_kind=? AND b.source_campaign=p.campaign_id AND b.source_id="+id+" AND b.target_abi=?)",status,abi,abi,kind,abi);
         }
         return total;
     }
@@ -95,7 +101,17 @@ public final class ColdRebirthR34 {
     }
     private static Prepared prepare(DbStore store,Parent parent,String abi,BudgetTokenSU1 budget)throws Exception {
         Prepared p=new Prepared();p.parent=parent;p.targetAbi=abi;p.now=System.currentTimeMillis();
-        if(parent.exposure<0)throw new IllegalArgumentException("R34_COLD_PARENT_SOURCE_EXPOSURE_MISSING");
+        ColdRebirthContractR34.requireParentIdentity(parent.abi,parent.exposure,parent.cursor,parent.stateHash,parent.checkpoint);
+        if (parent.cursor > 0L || (parent.stateReference != null && parent.stateReference.length > 0)) {
+            if (parent.stateReference == null || parent.stateReference.length == 0) {
+                throw new IOException("R34_COLD_PARENT_ORIGINAL_STATE_MISSING");
+            }
+            byte[] original = CheckpointArtifactsR26.resolve(store,parent.stateReference);
+            String observed = parent.kind.equals("CANDIDATE")
+                    ? PolicyIdentityR26.sha256(java.util.Base64.getEncoder().encodeToString(original))
+                    : LiveStateR26.hash(original);
+            if (!observed.equals(parent.stateHash)) throw new IOException("R34_COLD_PARENT_ORIGINAL_STATE_HASH_MISMATCH");
+        }
         p.generation=EventFrameBuilderSU1.generation(store.readable());budget.checkpointOrYield();
         FoundryCampaignR26.Snapshot source=FoundryCampaignR26.capture(store);if(source==null)return null;
         p.snapshot=source.encode();p.first=source.ordinal[0];p.through=source.through;
@@ -215,7 +231,7 @@ public final class ColdRebirthR34 {
             Prepared p;
             try {p=prepare(store,parent,abi,budget);}
             catch(IOException|IllegalArgumentException failure){retry(store,claims,parent,abi,failure);return 0;}
-            if(p==null){current.reason("DEPENDENCY(R34_COLD_WAIT_64_RETAINED_LABELS):"+parent.key);return 0;}
+            if(p==null){retry(store,claims,parent,abi,new IOException("R34_COLD_WAIT_64_RETAINED_CONTIGUOUS_LABELS"));return 0;}
             long changed;
             if(p.initial==null)changed=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_R34_COLD_REBIRTH",tx->{RuntimeCoordinatorR26.requireFence(tx,claims.get());long n=publish(tx,p,null,claims.get());RuntimeCoordinatorR26.requireFence(tx,claims.get());return n;});
             else try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.prepareLease(store,p.initial)) {

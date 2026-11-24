@@ -19,11 +19,85 @@ public final class FoundryCampaignR26 {
         byte[] encode()throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();try(DataOutputStream o=new DataOutputStream(new CooperativeOutputStreamR26(b))){o.writeInt(MAGIC);o.writeInt(draws.length);for(int i=0;i<draws.length;i++){o.writeLong(ordinal[i]);o.writeLong(issues[i]);o.writeLong(opened[i]);o.writeLong(available[i]);for(int x:draws[i])o.writeByte(x);}}return b.toByteArray();}
         static Snapshot decode(byte[] b)throws IOException{Snapshot s=new Snapshot();try(DataInputStream in=new DataInputStream(new CooperativeInputStreamR26(new ByteArrayInputStream(b)))){int header=in.readInt();boolean complete=header==MAGIC;int n=complete?in.readInt():header;if(n<32||n>5000)throw new IOException("R26_SNAPSHOT_SIZE");s.ordinal=new long[n];s.issues=new long[n];s.opened=new long[n];s.available=new long[n];s.draws=new int[n][10];for(int i=0;i<n;i++){s.ordinal[i]=in.readLong();if(complete){s.issues[i]=in.readLong();s.opened[i]=in.readLong();s.available[i]=in.readLong();}if(i>0&&s.ordinal[i]<=s.ordinal[i-1])throw new IOException("R26_SNAPSHOT_ORDER");for(int p=0;p<10;p++)s.draws[i][p]=in.readUnsignedByte();OnlineModelsSU2.requireDraw(s.draws[i]);}if(in.read()!=-1)throw new IOException("R26_SNAPSHOT_TRAILING");}s.through=s.ordinal[s.ordinal.length-1];return s;}
     }
-    static Snapshot capture(DbStore store){List<Models.Draw> ds=store.getRecentDraws(4096);if(ds.size()<64)return null;Snapshot s=new Snapshot();s.ordinal=new long[ds.size()];s.issues=new long[ds.size()];s.opened=new long[ds.size()];s.available=new long[ds.size()];s.draws=new int[ds.size()][10];for(int i=0;i<ds.size();i++){ExecutionBudgetR26.poll();Models.Draw d=ds.get(i);if(!d.isValid())throw new IllegalStateException("R26_BAD_SOURCE");s.ordinal[i]=TargetIssueResolver.sequenceOrdinalSU1(d.issue);s.issues[i]=Long.parseLong(d.issue);s.opened[i]=d.openTime;s.available[i]=d.fetchTime;for(int p=0;p<10;p++)s.draws[i][p]=d.getNumberAtPosition(p+1);}s.through=s.ordinal[ds.size()-1];return s;}
+    static Snapshot capture(DbStore store) {
+        return retainedTrainingTail(store.getRecentDraws(4096), System.currentTimeMillis());
+    }
+
+    static Snapshot retainedTrainingTail(List<Models.Draw> rows, long capturedAt) {
+        if (rows.size() < 64) return null;
+        int end = rows.size() - 1;
+        Models.Draw latest = rows.get(end);
+        if (!eligibleTrainingSource(latest, capturedAt)) return null;
+        long through = TargetIssueResolver.sequenceOrdinalSU1(latest.issue);
+        long expected = through;
+        int first = end;
+        for (int i = end; i >= Math.max(0, end - 4095); i--) {
+            ExecutionBudgetR26.poll();
+            Models.Draw draw = rows.get(i);
+            if (!eligibleTrainingSource(draw, capturedAt)) break;
+            long ordinal = TargetIssueResolver.sequenceOrdinalSU1(draw.issue);
+            if (ordinal != expected || through - ordinal >= 5000
+                    || (i < end && draw.openTime >= rows.get(i + 1).openTime)) break;
+            first = i;
+            expected--;
+        }
+        int size = end - first + 1;
+        if (size < 64) return null;
+        Snapshot snapshot = new Snapshot();
+        snapshot.ordinal = new long[size];
+        snapshot.issues = new long[size];
+        snapshot.opened = new long[size];
+        snapshot.available = new long[size];
+        snapshot.draws = new int[size][];
+        snapshot.through = through;
+        for (int i = 0; i < size; i++) {
+            ExecutionBudgetR26.poll();
+            Models.Draw draw = rows.get(first + i);
+            snapshot.ordinal[i] = through - size + i + 1L;
+            snapshot.issues[i] = Long.parseLong(draw.issue);
+            snapshot.opened[i] = draw.openTime;
+            snapshot.available[i] = draw.fetchTime;
+            snapshot.draws[i] = draw.numbers.clone();
+        }
+        return snapshot;
+    }
+
+    private static boolean eligibleTrainingSource(Models.Draw draw, long capturedAt) {
+        return draw != null && draw.isValid() && draw.dirty == 0 && TargetIssueResolver.isValid(draw.issue)
+                && draw.openTime > 0L && draw.fetchTime >= draw.openTime && draw.fetchTime <= capturedAt;
+    }
+
+    static final class RejectedSource {
+        final String identity, digest, reason;
+
+        RejectedSource(String identity, String original, String reason) {
+            this.identity = identity;
+            digest = StatsR27.sha256(original == null ? "" : original);
+            this.reason = reason;
+        }
+    }
+
     static List<ModelGenomeSU2> savedParents(SQLiteDatabase db){
+        return savedParents(db, new ArrayList<>());
+    }
+
+    private static List<ModelGenomeSU2> savedParents(SQLiteDatabase db, List<RejectedSource> rejected){
         List<ModelGenomeSU2> parents=new ArrayList<>();
         // The protected XI method has its own wire, not a mutable ModelGenomeSU2 program.
-        try(Cursor c=db.rawQuery("SELECT canonical_text FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME') AND origin_op<>'INCUMBENT' AND substr(canonical_text,1,4)='SU2|' AND instr(canonical_text,'_warm_kernel=')=0 ORDER BY coalesce(val_fitness,-1) DESC,genome_key LIMIT 3",null)){while(c.moveToNext())parents.add(ModelGenomeSU2.parse(c.getString(0)));}return parents;
+        try(Cursor c=db.rawQuery("SELECT genome_key,canonical_text FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME') AND origin_op<>'INCUMBENT' AND substr(canonical_text,1,4)='SU2|' AND instr(canonical_text,'_warm_kernel=')=0 ORDER BY coalesce(val_fitness,-1) DESC,genome_key LIMIT 16",null)){
+            while(parents.size()<3 && c.moveToNext()) {
+                ExecutionBudgetR26.poll();
+                String key=c.getString(0), text=c.getString(1);
+                try {
+                    ModelGenomeSU2 parent=ModelGenomeSU2.parse(text);
+                    if(!parent.key().equals(key)) throw new IllegalArgumentException("PARENT_IDENTITY_MISMATCH");
+                    parents.add(parent);
+                } catch(IllegalArgumentException malformed) {
+                    rejected.add(new RejectedSource(key,text,"SAVED_PARENT_PROGRAM_INVALID"));
+                }
+            }
+        }
+        return parents;
     }
     /** No model training is executed inside the writer. Returns a count of committed samples. */
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
@@ -50,11 +124,20 @@ public final class FoundryCampaignR26 {
             // The exact unary matching head is a real trainable candidate, not a renamed fallback.
             seeds.add(new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("MATCHING",Collections.singletonMap("lr","0.02"),1)),"STATIC",false,"MASS",0.15,0.2,false));
             List<StructuralProposalR26.Proposal> proposals=new ArrayList<>();
-            for(ModelGenomeSU2 seed:seeds){ModelGenomeSU2 bound=seed.bindBirth(hash,through);proposals.add(new StructuralProposalR26.Proposal(bound,"","REGISTERED_SEED","REGISTERED_SEED"));List<StructuralProposalR26.Proposal> graphChildren=StructuralProposalR26.mechanismChildren(bound);if(!graphChildren.isEmpty()){proposals.add(graphChildren.get(0));if(bound.members.get(0).kind.equals("R26F20"))proposals.addAll(graphChildren.subList(1,graphChildren.size()));if(bound.members.size()==1&&(bound.members.get(0).kind.equals("R26F01")||bound.members.get(0).kind.equals("R26F02")||bound.members.get(0).kind.equals("R26F08")))proposals.add(graphChildren.get(1));}}
+            for(ModelGenomeSU2 seed:seeds){
+                ModelGenomeSU2 bound=seed.bindBirth(hash,through);
+                proposals.add(new StructuralProposalR26.Proposal(bound,"","REGISTERED_SEED","REGISTERED_SEED"));
+                List<StructuralProposalR26.Proposal> children=StructuralProposalR26.mechanismChildren(bound);
+                if(children.isEmpty()) continue;
+                if(Arrays.asList("R26F01","R26F02","R26F08","R26F13","R26F14","R26F20").contains(bound.members.get(0).kind))
+                    proposals.addAll(children);
+                else proposals.add(children.get(0));
+            }
             // Preserve actual saved parents; do not inherit their hits or qualification.
-            List<ModelGenomeSU2> parents=savedParents(r);
+            List<RejectedSource> rejectedSources=new ArrayList<>();
+            List<ModelGenomeSU2> parents=savedParents(r,rejectedSources);
             for(int i=0;i<parents.size();i++)for(StructuralProposalR26.Proposal proposal:StructuralProposalR26.from(parents.get(i),StructuralProposalR26.complementR32(parents.get(i), seeds, through, i)))proposals.add(new StructuralProposalR26.Proposal(proposal.genome.bindBirth(hash,through),proposal.parent,proposal.operation,proposal.category));
-            final List<FailureDirectedResearchR26.Batch> failureResearch;try{failureResearch=FailureDirectedResearchR26.select(r,hash,through,s.draws.length);}catch(org.json.JSONException malformed){throw new IOException("R26_FAILURE_RESEARCH_METADATA",malformed);}for(FailureDirectedResearchR26.Batch batch:failureResearch)proposals.addAll(batch.proposals);
+            final List<FailureDirectedResearchR26.Batch> failureResearch;try{failureResearch=FailureDirectedResearchR26.select(r,hash,through,s.draws.length,rejectedSources);}catch(org.json.JSONException malformed){throw new IOException("R26_FAILURE_RESEARCH_METADATA",malformed);}for(FailureDirectedResearchR26.Batch batch:failureResearch)proposals.addAll(batch.proposals);
             final String id=campaign;final byte[] frozen=snapshotBytes;final long source=through;
             if(EventFrameBuilderSU1.generation(r)!=snapshotGeneration)throw new IOException("R31_FOUNDRY_SOURCE_CHANGED_DURING_PREPARE");
             String publicationId="FOUNDRY_BIRTH:"+id;ModelPublicationR31.Plan plan=ModelPublicationR31.existing(r,publicationId);
@@ -62,6 +145,11 @@ public final class FoundryCampaignR26 {
                 List<Long> selectOrdinals=new ArrayList<>();for(int sample=s.draws.length*3/5;sample<s.draws.length;sample++)selectOrdinals.add(s.ordinal[sample]);
                 plan.put("FOUNDRY_ROOT",id,id,hash,source,raw,"RUNNING",plan.now,numericalAbi,s.ordinal[0],frozen.length,s.draws.length,StatsR27.sha256(JsonR27.write(selectOrdinals)));
                 int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ExecutionBudgetR26.poll();ModelGenomeSU2 g=proposal.genome;ModelStoreSU2.prepareIdentityR31(plan,g.text(),g.key());if(plan.item("CANDIDATE",g.key())==null)plan.put("CANDIDATE",g.key(),id,g.key(),g.text(),proposal.parent,proposal.operation);plan.put("ATTEMPT",id+":"+index,id+":"+(index++),id,g.key(),proposal.parent,proposal.operation,proposal.category,StructuralProposalR26.structure(g));}
+                for(RejectedSource rejected:rejectedSources) {
+                    String rejection=id+":SOURCE:"+rejected.digest+":"+rejected.identity;
+                    if(plan.item("ATTEMPT",rejection)==null) plan.put("ATTEMPT",rejection,rejection,id,rejected.identity,
+                            rejected.identity,rejected.reason,"SOURCE_QUARANTINED_NO_BIRTH",rejected.digest);
+                }
                 for(FailureDirectedResearchR26.Batch batch:failureResearch)plan.put("FAILURE_CURSOR",batch.parent,batch.parent,batch.oldDigest,batch.oldEnd,batch.digest,batch.windowEnd,batch.payload,batch.reason,batch.text);
             }
             ModelPublicationR31.stageAndPublish(store,claims.get(),plan);
@@ -148,7 +236,11 @@ public final class FoundryCampaignR26 {
     }
     private static void pruneFinishedR31(DbStore store,RuntimeCoordinatorR26.Claim claim){
         ColdRebirthSchemaR34.require(store.readable());
-        List<String[]> rows=new ArrayList<>();String old="campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status<>'RUNNING' ORDER BY created_at DESC LIMIT -1 OFFSET 2) AND NOT "+ColdRebirthContractR34.protectZeroCandidateSql("r26_candidate");
+        List<String[]> rows=new ArrayList<>();String old="campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status<>'RUNNING' ORDER BY created_at DESC LIMIT -1 OFFSET 2) AND NOT "+ColdRebirthContractR34.protectZeroCandidateSql("r26_candidate")
+                +" AND NOT EXISTS(SELECT 1 FROM r26_candidate active WHERE active.parent=r26_candidate.policy_hash AND active.status='READY')"
+                +" AND NOT EXISTS(SELECT 1 FROM r26_live_model live WHERE live.policy_hash=r26_candidate.policy_hash AND live.status='ACTIVE')"
+                +" AND NOT EXISTS(SELECT 1 FROM r34_cold_rebirth born WHERE born.source_kind='CANDIDATE' AND born.source_campaign=r26_candidate.campaign_id AND born.source_id=r26_candidate.policy_hash)"
+                +" AND NOT EXISTS(SELECT 1 FROM r30_frozen_confirm pending WHERE pending.policy_hash=r26_candidate.policy_hash AND pending.state='PENDING')";
         try(Cursor c=store.readable().rawQuery("SELECT campaign_id,policy_hash FROM r26_candidate WHERE "+old+" AND (state IS NULL OR length(state)=0 OR EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=r26_candidate.policy_hash)) ORDER BY campaign_id,policy_hash LIMIT 8",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1)});}
         if(rows.isEmpty())return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R31_FOUNDRY_RETENTION_SLICE",db->{
             RuntimeCoordinatorR26.requireFence(db,claim);

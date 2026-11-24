@@ -36,6 +36,10 @@ public final class EvolutionLoopR27 implements AutoCloseable {
      * call is keyed (policy hash / edge key / generation) so a repeated step cannot duplicate a record. */
     public interface Sink {
         void policy(PolicySpecR27 spec, String state, String reason, int generation, String datasetHash);
+        default void admitted(PolicySpecR27 spec, String reason, int generation, String datasetHash,
+                String category, boolean behaviorNovel) {
+            policy(spec,"BORN",reason,generation,datasetHash);
+        }
         void lineage(String child, String parent, String role, String operator, int generation);
         void score(String policyHash, String datasetHash, ReplayScoreR27 score);
         void generation(Map<String, Object> record);
@@ -90,7 +94,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         for (Pending candidate : pending) {
             if (BirthGateR27.candidateContract(candidate.spec).ok) candidates.add(candidate.spec.policyHash());
         }
-        recordedBirthCandidates = StoreR27.recordedPolicies(db, candidates);
+        recordedBirthCandidates = StoreR27.recordedPolicies(db, candidates, ctx.data.datasetHash);
         for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||ResearchInputPinR30R1.invalid(db,ctx.data.datasetHash)||ResearchInputPinR30R1.revision(db,ctx.data.datasetHash)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
     void stageResearchHypotheses(ResearchWriteQueueR27.Batch b,long now){if(researchContext==null)return;researchContext.appendBudgetReceipt(b,generation,ctx.data.ordinals[ctx.split.selectFrom],ctx.data.ordinals[ctx.split.selectTo-1]);for(Pending p:pending)if(p.researchProposal==null)p.researchProposal=researchContext.stageBoundR31(b,p.spec,ctx,creation.sliceCostUnits,now);}
     void commitResearchAdmissions(ResearchWriteQueueR27.Batch batch,long now){for(Pending p:pending)if(p.researchProposal!=null){
@@ -130,7 +134,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     private void bind(FeatureCacheR27 cache) {
         SplitR27 split = SplitR27.of(cache.data, ledger.degradedBlocks());
         EvalContextR27 next=new EvalContextR27(cache,split,null);BirthGateR27 nextGate;
-        try{nextGate=new BirthGateR27(cache,split.trainTo);nextGate.setMaxDepth(gateMaxDepth);for(Member m:population)if(m.sig!=null)nextGate.register(m.hash(),m.sig,m.spec.position);}
+        try{nextGate=new BirthGateR27(cache,split.trainTo);nextGate.setMaxDepth(gateMaxDepth);for(Member m:population)if(m.sig!=null)nextGate.register(m.spec,m.sig);}
         catch(RuntimeException|Error failed){next.close();throw failed;}
         EvalContextR27 previous=ctx;ctx=next;gate=nextGate;if(previous!=null)previous.close();
     }
@@ -262,10 +266,20 @@ public final class EvolutionLoopR27 implements AutoCloseable {
     }
 
     void stepGate() {
-        Set<String> existing = new HashSet<>(); for (Member m : population) existing.add(m.hash());
+        Set<String> existing = new HashSet<>();
+        Map<String,PolicySpecR27> parentPrograms = new HashMap<>();
+        Set<String> existingShapes = new HashSet<>();
+        for (Member m : population) {
+            existing.add(m.hash());
+            parentPrograms.put(m.hash(),m.spec);
+            existingShapes.add(FormulaIdentityR341.structure(m.spec));
+        }
+        for (Member m : archive.members()) parentPrograms.putIfAbsent(m.hash(),m.spec);
         Set<String> seenThisGen = new HashSet<>();
+        Set<String> executableThisGen = new HashSet<>();
+        List<Map<String,Object>> formulaEvidence = new ArrayList<>();
         List<Pending> bornThisGeneration=new ArrayList<>();List<Object> localBehaviorDuplicates=new ArrayList<>();int localBehaviorDuplicatesTotal=0;
-        int rejected = 0, noop = 0, dup = 0, structural = 0, valid=0; Map<String, Integer> reasons = new LinkedHashMap<>(); researchInfluencedR31 = 0;
+        int rejected = 0, noop = 0, dup = 0, structural = 0, valid=0, behavioral=0; Map<String, Integer> reasons = new LinkedHashMap<>(); researchInfluencedR31 = 0;
         for (Pending p : pending) {
             if("RESEARCH_STALE".equals(p.state)||"SKIPPED_REFUTED".equals(p.state)){rejected++;continue;}
             BirthGateR27.Verdict contract = BirthGateR27.candidateContract(p.spec);
@@ -285,7 +299,16 @@ public final class EvolutionLoopR27 implements AutoCloseable {
                 continue;
             }
             if (existing.contains(h) || !seenThisGen.add(h)) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "SAME_POLICY_HASH"; dup++; creation.record(familyR31, "duplicate", 1); continue; }
-            BirthGateR27.Verdict v = gate.check(p.spec);
+            String executable=FormulaIdentityR341.normalizedPolicy(p.spec);
+            if(executableThisGen.contains(executable)) {
+                p.state="DUPLICATE_BEHAVIOR";p.reason="EXECUTABLE_EQUIVALENT_IN_GENERATION";
+                dup++;creation.record(familyR31,"duplicate",1);continue;
+            }
+            BirthGateR27.Verdict v = gate.checkCandidate(p.spec);
+            if (!v.ok && v.reason == BirthGateR27.Reason.DUPLICATE) {
+                p.state="DUPLICATE_BEHAVIOR";p.reason=v.detail;
+                dup++;creation.record(familyR31,"duplicate",1);continue;
+            }
             if (!v.ok) { p.state = "REJECTED"; p.reason = v.reason + ":" + v.detail; rejected++; reasons.merge(v.reason.name(), 1, Integer::sum); sink.policy(p.spec, "REJECTED", "BIRTH_REJECTED(" + v.reason + "):" + v.detail, generation, ctx.data.datasetHash); continue; }
             p.sig = v.signature;
             if (p.spec.meta != null && p.spec.meta.parents.size() == 1 && !"LEGACY_SEED".equals(p.spec.meta.operator)) {
@@ -296,10 +319,43 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             if(d==null)for(Pending sibling:bornThisGeneration)if(sibling.spec.position==p.spec.position||sibling.sig.length==0&&v.signature.length==0){double similarity=BirthGateR27.jaccard(sibling.sig,v.signature);if(similarity>=BirthGateR27.DUPLICATE_JACCARD){d=sibling.spec.policyHash();localSimilarity=similarity;break;}}
             if (d != null) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "JACCARD>=0.95:" + d; dup++; creation.record(familyR31, "duplicate", 1);
                 if(Double.isFinite(localSimilarity))localBehaviorDuplicatesTotal++;if(Double.isFinite(localSimilarity)&&localBehaviorDuplicates.size()<256){Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("keptPolicy",d);receipt.put("droppedPolicy",h);receipt.put("similarity",localSimilarity);receipt.put("droppedPosition",p.spec.position);receipt.put("stage","BIRTH_SAME_GENERATION");receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("probeScope","ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT");receipt.put("signatureHash",StatsR27.sha256(Arrays.toString(v.signature)));localBehaviorDuplicates.add(receipt);}continue; }
-            p.state = "BORN";bornThisGeneration.add(p); if (p.structural) structural++; creation.record(familyR31, "unique", 1);
+            p.state = "BORN";
+            bornThisGeneration.add(p);
+            executableThisGen.add(executable);
+            String shape=FormulaIdentityR341.structure(p.spec);
+            String category=FormulaIdentityR341.origin(p.spec);
+            List<Object> parentEdits=new ArrayList<>();
+            List<String> parentsInFormula=p.spec.meta==null?Collections.emptyList():p.spec.meta.parents;
+            boolean allParentsKnown=true, knownChange=false;
+            for(String parentHash:parentsInFormula){
+                PolicySpecR27 parent=parentPrograms.get(parentHash);
+                if(parent==null){allParentsKnown=false;continue;}
+                Map<String,Object> change=new LinkedHashMap<>();
+                change.put("parent",parentHash);
+                List<Object> edits=new ArrayList<>();
+                for(FormulaIdentityR341.NodeEdit edit:FormulaIdentityR341.diff(parent.ast,p.spec.ast)) edits.add(edit.fields());
+                change.put("edits",edits);
+                change.put("parentStructure",FormulaIdentityR341.structure(parent));
+                parentEdits.add(change);
+                knownChange|=!shape.equals(FormulaIdentityR341.structure(parent));
+            }
+            if(!parentsInFormula.isEmpty()) category=!allParentsKnown?"PARENT_PROGRAM_UNAVAILABLE"
+                    :knownChange?"STRUCTURAL_PROPOSAL_AWAITING_PAIRED_ABLATION":"PARAMETER_VARIANT";
+            boolean supportedBehavior=v.behavior.supported>0 && p.sig.length>0;
+            p.structural=(category.startsWith("ROOT_PROPOSAL")||category.startsWith("STRUCTURAL_PROPOSAL"))
+                    && supportedBehavior && existingShapes.add(shape);
+            if(p.structural)structural++;
+            if(supportedBehavior)behavioral++;
+            Map<String,Object> evidence=new LinkedHashMap<>();
+            evidence.put("policy",h);evidence.put("executable",executable);evidence.put("structure",shape);
+            evidence.put("probeScope",gate.evidenceScopeR31());evidence.put("probeSupport",v.behavior.supported);
+            evidence.put("probabilityHash",v.behavior.probabilitySha256);evidence.put("decisionHash",v.behavior.decisionSha256);
+            evidence.put("origin",category);evidence.put("parentEdits",parentEdits);
+            formulaEvidence.add(evidence);
+            creation.record(familyR31, "unique", 1);
             // R31-B08-C02: influenced = born with a research reference AND different from every parent (an unchanged child is no consumption).
             if (!ResearchContextR30R1.references(p.spec).isEmpty() && (p.spec.meta == null || !p.spec.meta.parents.contains(h))) researchInfluencedR31++;
-            sink.policy(p.spec, "BORN", p.spec.meta == null ? "" : p.spec.meta.reason, generation, ctx.data.datasetHash);
+            sink.admitted(p.spec,p.spec.meta==null?"":p.spec.meta.reason,generation,ctx.data.datasetHash,category,supportedBehavior);
             if (p.spec.meta != null) for (String parent : p.spec.meta.parents) sink.lineage(h, parent, role(p.spec.meta.operator), p.spec.meta.operator, generation);
         }
         List<String> children=new ArrayList<>(bornThisGeneration.size());
@@ -313,7 +369,8 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         genStats.put("birthPolicyHashes",children);
         genStats.put("parentCohortHashes",new ArrayList<>(parents));
         genStats.put("researchInfluencedBirths", (long) researchInfluencedR31); researchInfluencedR31 = 0;
-        count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", bornThisGeneration.size());
+        genStats.put("formulaBirthProbe",formulaEvidence);
+        count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", behavioral);
         genStats.put("rejected", (long) rejected); genStats.put("noOp", (long) noop); genStats.put("duplicates", (long) dup); genStats.put("rejectReasons", new LinkedHashMap<String, Object>(reasons));genStats.put("sameGenerationBehaviorDuplicates",localBehaviorDuplicates);genStats.put("sameGenerationBehaviorDuplicatesTotal",localBehaviorDuplicatesTotal);genStats.put("sameGenerationBehaviorDuplicatesOmitted",Math.max(0,localBehaviorDuplicatesTotal-localBehaviorDuplicates.size()));
     }
 
@@ -476,7 +533,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
                     }
                 }
             }
-            population.add(m); gate.register(m.hash(), m.sig,m.spec.position);
+            population.add(m); gate.register(m.spec,m.sig);
             sink.policy(c.spec, "ACTIVE", "SURVIVED_R0_R1_R2", generation, ctx.data.datasetHash); sink.score(m.hash(), ctx.data.datasetHash, c.select);
             famSurv.merge(m.island, 1, Integer::sum);
         }
@@ -771,7 +828,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             // Behavior signatures are not persisted (size); they are recomputed deterministically on restore.
             if(validated==null){BirthGateR27.Verdict v = l.gate.check(m.spec); m.sig = v.ok ? v.signature : new int[0];}
             else {Member original=null;for(Member candidate:validated.population)if(candidate.hash().equals(m.hash())){original=candidate;break;}if(original==null)throw new IllegalStateException("R30_PRIVATE_FORK_IDENTITY");m.sig=original.sig==null?null:original.sig.clone();m.u=original.u;m.lcb=original.lcb;m.hr=original.hr;m.actRate=original.actRate;m.brier=original.brier;m.cell=original.cell;m.trace=original.trace;}
-            l.population.add(m); if(m.sig!=null)l.gate.register(m.hash(), m.sig,m.spec.position);
+            l.population.add(m); if(m.sig!=null)l.gate.register(m.spec,m.sig);
         }
         if(validated==null)for (Member m : l.population) l.refresh(m);
         for (Object o : (List<Object>) s.get("archive")) { Map<String, Object> x = (Map<String, Object>) o; l.archive.put((int) JsonR27.num(x.get("cell")), new EliteArchiveR27.Elite(spec(x.get("spec")), JsonR27.num(x.get("u")), JsonR27.num(x.get("tau")))); }

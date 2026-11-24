@@ -143,6 +143,10 @@ public final class ModelReplaySU2 {
             return new FamilyF20KernelR26(Integer.parseInt(p.get("slots")),FamilyF20KernelR26.Retrieval.valueOf(p.get("retrieval")));
         }
         if(kind.matches("R26F0[3-7]")&&p.containsKey("graph")){if(!"1".equals(p.get("abi"))||p.size()!=2||!p.get("graph").matches("[0-2]"))throw new IllegalArgumentException("R26_NEURAL_GRAPH_PARAMETERS");return new NeuralFamilyR26(kind.substring(3),Integer.parseInt(p.get("graph")));}
+        if((kind.equals("R26F13")||kind.equals("R26F14"))&&p.containsKey("formula")){
+            if(!"1".equals(p.get("abi"))||p.size()!=2)throw new IllegalArgumentException("R26_SYMBOLIC_FORMULA_ABI");
+            return new SymbolicFamilyR26(kind.substring(3),Integer.parseInt(p.get("formula")));
+        }
         if(kind.startsWith("R26")){if(!"1".equals(p.get("abi"))||p.size()!=1)throw new IllegalArgumentException("R26_FAMILY_ABI");return FamilyRegistryR26.build(kind.substring(3));}
         switch (kind) {
             case "MATCHING": return new PermutationModelR26(d(p,"lr"));

@@ -130,7 +130,12 @@ public final class PolicyAstR27 {
     // ------------------------------------------------------------------ checks
     /** Static type. Throws IllegalArgumentException("TYPE:...") on an illegal combination. */
     public static Type type(Node n) {
-        if (n.op.equals("c")) return Type.CONST;
+        if (n.op.equals("c")) {
+            if (n.kids.length != 0 || n.ints.length != 0 || !Double.isFinite(n.param)) {
+                throw new IllegalArgumentException("TYPE:CONSTANT_SHAPE");
+            }
+            return Type.CONST;
+        }
         Object[] lf = LEAVES.get(n.op);
         if (lf != null) { if (n.kids.length != 0 || n.ints.length != (Integer) lf[0]) throw new IllegalArgumentException("TYPE:LEAF_SHAPE:" + n.op); return (Type) lf[1]; }
         Integer arity = ARITY.get(n.op);

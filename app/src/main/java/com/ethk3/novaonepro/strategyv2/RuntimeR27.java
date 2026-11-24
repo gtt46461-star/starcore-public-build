@@ -431,13 +431,25 @@ public final class RuntimeR27 implements AutoCloseable {
             ConfirmReadStoreR30.bind(w, loop.ledger());
             int stepBefore = loop.step, genBefore = loop.generation;
             // A separate phase on this same worker: confirmation cannot run inside EvolutionLoop.step().
-            FrozenConfirmationR30.Task queued = FrozenConfirmationStoreR30.nextPending(w.ro);
-            if (queued != null) confirmFrozen(w,loop,queued); // at most one durable packet per worker slice, including orphaned cursors
+            for(int scanned=0;scanned<2;scanned++) {
+                try {
+                    FrozenConfirmationR30.Task queued = FrozenConfirmationStoreR30.nextPending(w.ro);
+                    if(queued!=null)confirmFrozen(w,loop,queued);
+                    break;
+                } catch (FrozenConfirmationStoreR30.InvalidPacket invalid) {
+                    // Preserve the packet and its reserved exposure. Other development work can proceed.
+                    submit(w,"CONFIRM_RESULT",FrozenConfirmationStoreR30.quarantine(invalid));
+                }
+            }
             FrozenConfirmationR30.Task confirmTask = null;
             FrozenConfirmationR30.Result confirmResult = null;
             if (stepBefore == 9 && loop.confirmationDispatched && loop.pendingConfirmation != null) {
-                confirmTask = FrozenConfirmationStoreR30.task(w.ro,loop.pendingConfirmation.key);
-                confirmResult = FrozenConfirmationStoreR30.result(w.ro,confirmTask.key);
+                try {
+                    confirmTask = FrozenConfirmationStoreR30.task(w.ro,loop.pendingConfirmation.key);
+                    confirmResult = FrozenConfirmationStoreR30.result(w.ro,confirmTask.key);
+                } catch (FrozenConfirmationStoreR30.InvalidPacket invalid) {
+                    submit(w,"CONFIRM_RESULT",FrozenConfirmationStoreR30.quarantine(invalid));
+                }
             }
             if(stepBefore==2){loop.directedResearch=ResearchStoreR30R1.ready(w.ro,loop.context(),loop.generation,4);loop.researchContext=ResearchContextR30R1.read(w.ro,loop.context());}
             if(stepBefore==3)loop.revalidateResearchAdmissions(w.ro);

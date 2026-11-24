@@ -16,7 +16,11 @@ public final class BirthGateR27 {
 
     public static final class Verdict {
         public final boolean ok; public final Reason reason; public final String detail; public final int[] signature;
-        Verdict(boolean ok, Reason r, String detail, int[] sig) { this.ok = ok; this.reason = r; this.detail = detail; this.signature = sig; }
+        public final FormulaIdentityR341.Behavior behavior;
+        Verdict(boolean ok, Reason r, String detail, int[] sig) { this(ok,r,detail,sig,null); }
+        Verdict(boolean ok, Reason r, String detail, int[] sig, FormulaIdentityR341.Behavior behavior) {
+            this.ok = ok; this.reason = r; this.detail = detail; this.signature = sig; this.behavior = behavior;
+        }
         public String code() { return ok ? "ACCEPTED" : "BIRTH_REJECTED(" + reason + ")"; }
     }
 
@@ -29,11 +33,12 @@ public final class BirthGateR27 {
     /** R31-B07-C02#A3: the evidence scope of each registration (probe input hash, probe window, role). Behavior from a
      * different input or role is never the same evidence, even with an identical signature. */
     private final Map<String,String> scopes=new HashMap<>();
+    private final Map<String,String> programs = new HashMap<>();
     private final String scopeR31;
 
     public BirthGateR27(FeatureCacheR27 cache, int probeEnd) {
         this.cache = cache; this.probeTo = Math.max(1, Math.min(probeEnd, cache.data.size())); this.probeFrom = Math.max(0, probeTo - PROBE);
-        this.scopeR31 = cache.data.datasetHash + "|PROBE_ROWS_" + probeFrom + "_" + probeTo + "|ROLE_SELECT_PROBE";
+        this.scopeR31 = cache.data.datasetHash + "|PROBE_ROWS_" + probeFrom + "_" + probeTo + "|ROLE_TRAIN_PROBE";
     }
     public String evidenceScopeR31() { return scopeR31; }
     public boolean sameEvidenceScopeR31(String hash) { return scopeR31.equals(scopes.get(hash)); }
@@ -57,7 +62,10 @@ public final class BirthGateR27 {
 
     public Verdict checkCandidate(PolicySpecR27 spec) {
         Verdict contract = candidateContract(spec);
-        return contract.ok ? check(spec) : contract;
+        if (!contract.ok) return contract;
+        String same = programs.get(FormulaIdentityR341.normalizedPolicy(spec));
+        if (same != null && !same.equals(spec.policyHash())) return reject(Reason.DUPLICATE, "EXECUTABLE_EQUIVALENT:" + same);
+        return check(spec);
     }
 
     public Verdict check(PolicySpecR27 spec) {
@@ -85,7 +93,7 @@ public final class BirthGateR27 {
         long finished = budget == null ? System.nanoTime() : budget.activeNanos();
         double perPeriodMs = (finished - started) / 1e6 / Math.max(1, cache.data.size());
         if (perPeriodMs > costLimitMs) return reject(Reason.COST, "predictMsPerPeriod=" + perPeriodMs);
-        ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.runScopedR31(spec, s, cache.data, cache.data.draws, spec.temperature, probeFrom, probeTo);
+        ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.runBirthProbeR341(spec, s, cache.data, probeFrom, probeTo);
         int available = 0; double[] z = new double[10], p = new double[10];
         for (int t = probeFrom; t < probeTo; t++) {
             if (tr.skipped[t]) {
@@ -104,9 +112,10 @@ public final class BirthGateR27 {
             int a = tr.k3[t * 3], b = tr.k3[t * 3 + 1], c = tr.k3[t * 3 + 2];
             if (a == b || b == c || a == c || a < 0 || c > 9) return reject(Reason.OUTPUT, "K3_NOT_DISTINCT@" + t);
         }
-        if (available < (probeTo - probeFrom) / 2) return reject(Reason.OUTPUT, "AVAILABLE_ROWS=" + available);
+        if (available == 0 || available < (probeTo - probeFrom) / 2) return reject(Reason.OUTPUT, "AVAILABLE_ROWS=" + available);
         int[] sig = signature(tr);
-        return new Verdict(true, null, "predictMsPerPeriod=" + String.format(java.util.Locale.ROOT, "%.4f", perPeriodMs), sig);
+        return new Verdict(true, null, "predictMsPerPeriod=" + String.format(java.util.Locale.ROOT, "%.4f", perPeriodMs), sig,
+                FormulaIdentityR341.fingerprint(tr, cache.data, probeFrom, probeTo));
         }
     }
 
@@ -122,7 +131,11 @@ public final class BirthGateR27 {
     }
     public void register(String policyHash,int[] sig){register(policyHash,sig,0);}
     public void register(String policyHash,int[] sig,int position) { positions.put(policyHash,position);signatures.put(policyHash, sig);scopes.put(policyHash,scopeR31); exact.put(Arrays.hashCode(sig) * 31L + sig.length, policyHash); }
-    public void unregister(String policyHash) { signatures.remove(policyHash);positions.remove(policyHash);scopes.remove(policyHash); }
+    void register(PolicySpecR27 spec, int[] sig) {
+        register(spec.policyHash(), sig, spec.position);
+        programs.putIfAbsent(FormulaIdentityR341.normalizedPolicy(spec), spec.policyHash());
+    }
+    public void unregister(String policyHash) { signatures.remove(policyHash);positions.remove(policyHash);scopes.remove(policyHash);programs.values().removeIf(policyHash::equals); }
     public int registered() { return signatures.size(); }
     void copyValidatedRegistrationsR30(BirthGateR27 source){for(Map.Entry<String,int[]> e:source.signatures.entrySet()){register(e.getKey(),e.getValue().clone(),source.positions.getOrDefault(e.getKey(),0));scopes.put(e.getKey(),source.scopes.getOrDefault(e.getKey(),source.scopeR31));}}
     public int[] signatureOf(String policyHash) { return signatures.get(policyHash); }

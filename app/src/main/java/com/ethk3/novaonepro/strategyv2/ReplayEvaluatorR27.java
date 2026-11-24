@@ -149,6 +149,10 @@ public final class ReplayEvaluatorR27 {
         try(PolicyAstR27.ScopedScoresR31 input=PolicyAstR27.ScopedScoresR31.legacy(scores)){return runInputR31(spec,input,data,labels,temperature,from,to,capture);}
     }
     static Trace runScopedR31(PolicySpecR27 spec,PolicyAstR27.ScoreInputR31 scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to){return runInputR31(spec,scores,data,labels,temperature,from,to,false);}
+    static Trace runBirthProbeR341(PolicySpecR27 spec, PolicyAstR27.ScoreInputR31 scores,
+            ReplayDatasetR27 data, int from, int to) {
+        return runInputR31(spec, scores, data, data.draws, spec.temperature, from, to, true);
+    }
     /** Same causal selector in ordinary replay and resumable component studies. */
     static final class SelectorStateR31 {
         final PolicySpecR27 spec;final double[] ring=new double[QUANTILE_WINDOW];int filled,head;

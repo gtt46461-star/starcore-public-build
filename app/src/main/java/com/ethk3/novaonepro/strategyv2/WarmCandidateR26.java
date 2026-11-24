@@ -26,10 +26,12 @@ public final class WarmCandidateR26 {
         try {
             long version = scalar(read, "PRAGMA schema_version");
             List<String[]> rows = new ArrayList<>();
-            try (Cursor c = read.rawQuery("SELECT campaign_id,numerical_abi,snapshot_hash,source_through,length(snapshot) FROM r26_foundry WHERE status='RUNNING' AND numerical_abi<>? ORDER BY created_at,campaign_id LIMIT 4", new String[]{currentAbi})) {
+            try (Cursor c = read.rawQuery("SELECT campaign_id,coalesce(numerical_abi,''),snapshot_hash,source_through,length(snapshot) FROM r26_foundry WHERE status='RUNNING' AND coalesce(numerical_abi,'')<>? ORDER BY created_at,campaign_id LIMIT 4", new String[]{currentAbi})) {
                 while (c.moveToNext()) {
-                    if (c.getLong(4) > 524288) throw new ModelPublicationR31.PublicationDependencyR31("WARM_OLD_SNAPSHOT_OUTSIDE_VALID_BOUND");
-                    rows.add(new String[]{c.getString(0),c.getString(1),c.getString(2),c.getString(3)});
+                    String abi=c.getString(1);
+                    String status=!abi.matches("[0-9a-f]{64}")?"BLOCKED_ABI_OWNER_UNKNOWN"
+                            :c.getLong(4)>524288?"BLOCKED_ABI_ORIGINAL_OUTSIDE_BOUND":"ABANDONED_NUMERICAL_ABI";
+                    rows.add(new String[]{c.getString(0),abi,c.getString(2),c.getString(3),status});
                 }
             }
             if (!rows.isEmpty()) WarmPublicationR31.requireFoundryArchiveR31(read);
@@ -43,7 +45,11 @@ public final class WarmCandidateR26 {
     }
     public static void applyPreparedAbiR31(SQLiteDatabase db,PreparedAbiR31 prepared){
         if(!db.inTransaction()||prepared==null||prepared.lease==null)throw new IllegalStateException("R31_WARM_PREPARED_ABI_WRITER_REQUIRED");if(scalar(db,"PRAGMA schema_version")!=prepared.version)throw new DatabaseCoordinator.SchemaPendingR31("R31_WARM_ABI","SCHEMA_CHANGED_AFTER_PREPARE");
-        for(String[] row:prepared.rows)db.execSQL("UPDATE r26_foundry SET status='ABANDONED_NUMERICAL_ABI',snapshot=X'' WHERE campaign_id=? AND status='RUNNING' AND numerical_abi=? AND snapshot_hash=? AND source_through=?",new Object[]{row[0],row[1],row[2],Long.parseLong(row[3])});
+        for(String[] row:prepared.rows) {
+            db.execSQL("UPDATE r26_foundry SET status=?,snapshot=CASE WHEN ?='ABANDONED_NUMERICAL_ABI' THEN X'' ELSE snapshot END"
+                    +" WHERE campaign_id=? AND status='RUNNING' AND coalesce(numerical_abi,'')=? AND snapshot_hash=? AND source_through=?",
+                    new Object[]{row[4],row[4],row[0],row[1],row[2],Long.parseLong(row[3])});
+        }
     }
     public static final class PreparedPreservationR31 implements AutoCloseable {
         private final List<String[]> rows;public final boolean more;private final long schemaVersion;private MemoryBudgetR31.Lease lease;

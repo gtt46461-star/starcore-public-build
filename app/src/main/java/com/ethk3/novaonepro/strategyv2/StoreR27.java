@@ -22,7 +22,7 @@ public final class StoreR27 {
     public static final String R26_EVOLUTION_INSERT = "INSERT OR IGNORE INTO r26_evolution(attempt_id,campaign_id,policy_hash,parent,operation,category,structure_hash,behavior_novel) VALUES(?,?,?,?,?,?,?,?)";
     public static final String R26_EVOLUTION_ACCEPTED = "UPDATE r26_evolution SET research_accepted=1 WHERE attempt_id=?";
     public static final String R26_EVOLUTION_VERIFIED = "UPDATE r26_evolution SET verified_improvement=1 WHERE attempt_id=?";
-    public static final String R26_EVOLUTION_QUALIFIED = "UPDATE r26_evolution SET prospective_qualified=1 WHERE policy_hash=? AND attempt_id LIKE 'R27:%'";
+    public static final String R26_EVOLUTION_QUALIFIED = "UPDATE r26_evolution SET prospective_qualified=1 WHERE policy_hash=? AND (attempt_id LIKE 'R27:%:BORN:%' OR (attempt_id LIKE 'R27:%' AND behavior_novel=1))";
 
     /** Newest `limit` clean draws, ascending, with SU1 sequence ordinals (gaps preserved). */
     /** R30-B03-02 (M15): the hot draws table holds at most this many rows (AppConfig.MAX_LOCAL_HISTORY_SAVE, enforced by
@@ -80,14 +80,25 @@ public final class StoreR27 {
     public static double[] unpack(byte[] b) { ByteBuffer x = ByteBuffer.wrap(b); double[] v = new double[b.length / 8]; for (int i = 0; i < v.length; i++) v[i] = x.getDouble(); return v; }
 
     /** Only the proposed identities are queried, regardless of the number of previous generations. */
-    static Set<String> recordedPolicies(SQLiteDatabase db, Collection<String> candidates) {
+    private static final String RETRYABLE_INPUT_REJECTION = "state='REJECTED' "
+            + "AND length(dataset_hash)=64 AND dataset_hash<>? "
+            + "AND state_reason GLOB 'BIRTH_REJECTED(OUTPUT):AVAILABLE_ROWS=[0-9]*'";
+
+    static Set<String> recordedPolicies(SQLiteDatabase db, Collection<String> candidates, String datasetHash) {
         List<String> hashes = new ArrayList<>(candidates);
         Set<String> recorded = new HashSet<>();
         for (int start = 0; start < hashes.size(); start += 128) {
             List<String> page = hashes.subList(start, Math.min(start + 128, hashes.size()));
             String parameters = String.join(",", Collections.nCopies(page.size(), "?"));
             String sql = "SELECT policy_hash FROM r27_policy WHERE policy_hash IN (" + parameters + ")";
-            try (Cursor rows = db.rawQuery(sql, page.toArray(new String[0]))) {
+            List<String> arguments = new ArrayList<>(page);
+            if (datasetHash != null && datasetHash.matches("[0-9a-f]{64}")) {
+                sql += " AND (NOT (" + RETRYABLE_INPUT_REJECTION + ") OR EXISTS(SELECT 1 FROM r26_evolution e"
+                        + " WHERE e.attempt_id='R27:REJECTED:'||r27_policy.policy_hash||':'||?))";
+                arguments.add(datasetHash);
+                arguments.add(datasetHash);
+            }
+            try (Cursor rows = db.rawQuery(sql, arguments.toArray(new String[0]))) {
                 while (rows.moveToNext()) recorded.add(rows.getString(0));
             }
         }
@@ -98,34 +109,67 @@ public final class StoreR27 {
     public static final class EvolutionSink implements EvolutionLoopR27.Sink {
         public final ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch(); private final String loop, birthIssue;
         private final Set<String> births = new HashSet<>();
+        private String birthDataset;
         public final List<Object[]> promotions = new ArrayList<>(); public final List<String[]> demotions = new ArrayList<>();
         public EvolutionSink(String loop, String birthIssue) { this.loop = loop; this.birthIssue = birthIssue == null ? "" : birthIssue; }
         /** Freeze the complete owner batch, including its original admission guards and cursor. */
         public EvolutionPublicationStoreR31.Prepared preparePublicationR31(SQLiteDatabase read, RuntimeCoordinatorR26.Claim claim, String sourceCommit, EvolutionPublicationStoreR31.CursorState expectedCursor) {
             if (!births.isEmpty()) {
                 batch.guardBefore(writer -> {
-                    if (!recordedPolicies(writer, births).isEmpty()) throw new ResearchStoreR30R1.StaleResearch();
+                    if (!recordedPolicies(writer, births, birthDataset).isEmpty()) throw new ResearchStoreR30R1.StaleResearch();
                     return 0;
                 });
             }
             return EvolutionPublicationStoreR31.prepare(read,loop,claim,sourceCommit,expectedCursor,batch,promotions.size());
         }
         public void policy(PolicySpecR27 spec, String state, String reason, int generation, String datasetHash) {
+            recordPolicy(spec,state,reason,generation,datasetHash,FormulaIdentityR341.origin(spec),false);
+        }
+
+        @Override public void admitted(PolicySpecR27 spec,String reason,int generation,String datasetHash,
+                String category,boolean behaviorNovel) {
+            recordPolicy(spec,"BORN",reason,generation,datasetHash,category,behaviorNovel);
+        }
+
+        private void recordPolicy(PolicySpecR27 spec,String state,String reason,int generation,String datasetHash,
+                String category,boolean behaviorNovel) {
             long now = System.currentTimeMillis(); String idea = spec.meta == null ? "" : spec.meta.idea;
+            String policy = spec.policyHash();
+            String acceptedAttempt = "R27:" + loop + ":BORN:" + policy;
+            String legacyAttempt = "R27:" + loop + ':' + policy;
+            boolean born = "BORN".equals(state);
+            if (born) {
+                if (datasetHash == null || !datasetHash.matches("[0-9a-f]{64}")
+                        || (birthDataset != null && !birthDataset.equals(datasetHash))) {
+                    throw new IllegalStateException("R341_BIRTH_DATASET_SCOPE_MISMATCH");
+                }
+                birthDataset = datasetHash;
+                batch.add("INSERT OR IGNORE INTO r26_evolution(attempt_id,campaign_id,policy_hash,operation,category,structure_hash) "
+                        + "SELECT 'R27:REJECTED:'||policy_hash||':'||dataset_hash,'R27_'||?,policy_hash,state_reason,"
+                        + "'ORIGINAL_INPUT_REJECTION',? FROM r27_policy WHERE policy_hash=? AND " + RETRYABLE_INPUT_REJECTION,
+                        loop, FormulaIdentityR341.structure(spec), policy, datasetHash);
+                batch.add("UPDATE r27_policy SET spec_json=?,idea_family=?,birth_generation=?,birth_issue=?,"
+                        + "dataset_hash=?,state='BORN',state_reason=?,updated_at=? WHERE policy_hash=? AND " + RETRYABLE_INPUT_REJECTION,
+                        spec.fullJson(), idea, generation, birthIssue, datasetHash, trim(reason), now, policy, datasetHash);
+                births.add(policy);
+            }
             batch.add("INSERT OR IGNORE INTO r27_policy(policy_hash,spec_json,idea_family,birth_generation,birth_issue,dataset_hash,state,state_reason,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
-                    spec.policyHash(), spec.fullJson(), idea, generation, birthIssue, datasetHash, state, trim(reason), now, now);
-            if ("BORN".equals(state)) births.add(spec.policyHash());
+                    policy, spec.fullJson(), idea, generation, birthIssue, datasetHash, state, trim(reason), now, now);
             if (!"BORN".equals(state) && !"REJECTED".equals(state)) {
                 batch.add("UPDATE r27_policy SET state=?,state_reason=?,updated_at=? WHERE policy_hash=? AND state NOT IN ('LIVE')", state, trim(reason), now, spec.policyHash());
             }
             // R27-031: the R26 seven-counter ledger (r26_evolution) is fed by the R27 loop, one keyed row per attempt.
-            String attempt = "R27:" + loop + ":" + spec.policyHash();
-            if (state.equals("BORN") || state.equals("REJECTED")) {
+            if (born || state.equals("REJECTED")) {
                 String op = spec.meta == null || spec.meta.operator == null ? "SEED" : spec.meta.operator;
+                String attempt = born ? acceptedAttempt : "R27:REJECTED:" + policy + ':' + datasetHash;
                 batch.add(R26_EVOLUTION_INSERT,
-                        attempt, "R27_" + loop + "_G" + generation, spec.policyHash(), spec.meta == null || spec.meta.parents.isEmpty() ? null : spec.meta.parents.get(0), op,
-                        MutationOpsR27.structural(op) ? "STRUCTURAL_CANDIDATE" : "PARAMETER_CANDIDATE", StatsR27.sha256(spec.ast.toString()), state.equals("BORN") ? 1 : 0);
-            } else if (state.equals("ACTIVE")) batch.add(R26_EVOLUTION_ACCEPTED, attempt);
+                        attempt, "R27_" + loop + "_G" + generation, policy, spec.meta == null || spec.meta.parents.isEmpty() ? null : spec.meta.parents.get(0),
+                        born ? op : trim(reason), born ? category : "BIRTH_REJECTION",
+                        FormulaIdentityR341.structure(spec), behaviorNovel ? 1 : 0);
+            } else if (state.equals("ACTIVE")) {
+                batch.add(R26_EVOLUTION_ACCEPTED, acceptedAttempt);
+                batch.add(R26_EVOLUTION_ACCEPTED + " AND behavior_novel=1", legacyAttempt);
+            }
         }
         public void lineage(String child, String parent, String role, String operator, int generation) {
             batch.add("INSERT OR IGNORE INTO r27_lineage(child_hash,parent_hash,role,operator,generation,created_at,origin) VALUES(?,?,?,?,?,?,?)", child, parent, role, operator == null ? "" : operator, generation, System.currentTimeMillis(), loop);
@@ -148,7 +192,8 @@ public final class StoreR27 {
         }
         public void promote(PolicySpecR27 spec, double tau, int generation, String reason) {
             promotions.add(new Object[] {spec, tau, generation, reason});
-            batch.add(R26_EVOLUTION_VERIFIED, "R27:" + loop + ":" + spec.policyHash());
+            batch.add(R26_EVOLUTION_VERIFIED, "R27:" + loop + ":BORN:" + spec.policyHash());
+            batch.add(R26_EVOLUTION_VERIFIED + " AND behavior_novel=1", "R27:" + loop + ":" + spec.policyHash());
         }
         public void demote(String hash, String reason) { demotions.add(new String[] {hash, reason}); batch.add("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason=?,updated_at=? WHERE policy_hash=? AND status IN ('ACTIVE','ACTIVE_REPAIR1')", reason, System.currentTimeMillis(), hash); }
         public void expert(ExpertProposalsR27.Proposal p, int generation) {

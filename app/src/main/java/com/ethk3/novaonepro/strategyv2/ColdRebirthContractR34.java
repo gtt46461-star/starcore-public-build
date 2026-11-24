@@ -99,8 +99,19 @@ public final class ColdRebirthContractR34 {
 
     public static void requireSnapshot(int samples,int bytes,long first,long through,long parentExposure) {
         if (samples < 64 || samples > 4096 || bytes <= 0 || bytes > MAX_SNAPSHOT_BYTES
-                || first < 0 || through < first || through - first >= 5000 || through < parentExposure)
+                || first < 0 || through < first || through - first >= 5000
+                || parentExposure < 0 || through < parentExposure)
             throw new IllegalArgumentException("R34_COLD_SOURCE_BOUND_OR_ORDER");
+    }
+
+    static void requireParentIdentity(String abi, long exposure, long cursor, String stateHash, String checkpointHash) {
+        if (abi == null || abi.isEmpty()) throw new IllegalArgumentException("R34_COLD_PARENT_ABI_OWNER_MISSING");
+        hex(abi);
+        if (exposure < 0L) throw new IllegalArgumentException("R34_COLD_PARENT_SOURCE_EXPOSURE_MISSING");
+        if (cursor > 0L) {
+            hex(stateHash);
+            hex(checkpointHash);
+        }
     }
 
     public static void requireFreshCounts(long cursor,long train,long confirm,long future,long certificates) {
