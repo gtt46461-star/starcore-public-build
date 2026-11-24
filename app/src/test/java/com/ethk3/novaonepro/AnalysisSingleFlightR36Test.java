@@ -81,11 +81,26 @@ public final class AnalysisSingleFlightR36Test {
         flight.releaseAndTakeNext(owner.lease);
     }
 
+    @Test public void expiredRequestCannotQueueOrCancelTheCurrentOwner() {
+        AnalysisSingleFlightR36.SubmitResult current = flight.submit(request(1));
+        AnalysisSingleFlightR36.Request next = request(2);
+        AnalysisSingleFlightR36.Request expired = next.withDeadlineAtF01(System.currentTimeMillis() - 1L);
+        try {
+            flight.submit(expired);
+            fail("expired request entered the live analysis queue");
+        } catch (IllegalStateException expected) {
+            assertEquals("F01_TARGET_DEADLINE_EXPIRED", expected.getMessage());
+        }
+        assertSame(current.lease, flight.currentLease());
+        assertEquals("", current.lease.token.cancelReason());
+        assertNull(flight.releaseAndTakeNext(current.lease));
+    }
+
     private static AnalysisSingleFlightR36.Request request(int sequence){
         String base="20260810"+four(sequence-1==0?1440:sequence-1);
         if(sequence==1)base="202608090001";
         String target=sequence==1?"202608090002":"20260810"+four(sequence);
-        long now=1700000000000L+sequence;
+        long now=System.currentTimeMillis();
         return new AnalysisSingleFlightR36.Request(base,target,sequence,now,now+60000L,
                 "TEST",V51ChecksumEngine.sha256("REQ|"+sequence),"");
     }
