@@ -50,17 +50,24 @@ def case_run(case):
     started=int(adb('shell','date','+%s'))
     with (dst/'gradle-case.log').open('w') as log:
         result=subprocess.run(argv,cwd=repo,stdout=log,stderr=subprocess.STDOUT,timeout=1200)
-    logs=run(['adb','logcat','-d','-v','brief','STARCORE_R341:I','*:S']).stdout
-    logs=''.join(line+'\n' for line in logs.splitlines() if 'R341_INSTRUMENTATION ' in line and scope in line)
+    device_log=run(['adb','logcat','-d','-v','brief','STARCORE_R341:I','*:S']).stdout
+    logs=''.join(line+'\n' for line in device_log.splitlines() if 'R341_INSTRUMENTATION ' in line and scope in line)
     (dst/'android-observation.log').write_text(logs)
+    if ident=='A-B10-05b' and version>=577311148:
+        states=''.join(line+'\n' for line in device_log.splitlines() if 'R341_STORAGE_RECOVERY ' in line and scope in line)
+        (dst/'storage-recovery.log').write_text(states)
     junit=[]
     for j,xml in enumerate(sorted(results_path.rglob('*.xml'))):
         target=dst/f'native-result-{j}.xml'
         shutil.copyfile(xml,target);junit.append(dict(name=target.name,sha256=sha(target)))
-    receipt['cases'].append(dict(id=ident,exitCode=result.returncode,scope=scope,junit=junit,
-         deviceLogSha256=sha(dst/'android-observation.log'),observedMarkers=len(logs.splitlines()),beganOnGuest=started))
+    observed=dict(id=ident,exitCode=result.returncode,scope=scope,junit=junit,
+         deviceLogSha256=sha(dst/'android-observation.log'),observedMarkers=len(logs.splitlines()),beganOnGuest=started)
+    if ident=='A-B10-05b' and version>=577311148:
+        observed.update(storageRecoverySha256=sha(dst/'storage-recovery.log'),observedStorageBoundaries=len(states.splitlines()))
+    receipt['cases'].append(observed)
     save()
-    return result.returncode==0 and bool(junit) and len(logs.splitlines())==2
+    verified=result.returncode==0 and bool(junit) and len(logs.splitlines())==2
+    return verified and (ident!='A-B10-05b' or version<577311148 or len(states.splitlines())==2)
 
 def run_full_report_readback():
     dest=output/'production-report-service'
