@@ -17,9 +17,9 @@ jobs:
       max-parallel: 2
       matrix:
         include:
-          - stage: B06
-            source: 18f4622f74630d08a982c08ab3a7ab4c51ef4385
-            version: '577311140'
+          - stage: B12
+            source: 90e3621f42dd729e974726e203f2162aafebad42
+            version: '577311142'
     env:
       SOURCE: ${{ matrix.source }}
       STAGE: ${{ matrix.stage }}
@@ -132,6 +132,13 @@ jobs:
           mkdir -p "$RUNNER_TEMP/engineering"
           ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:testDebugUnitTest > "$RUNNER_TEMP/engineering/host-regressions.log" 2>&1
           cp -r app/build/test-results/testDebugUnitTest "$RUNNER_TEMP/engineering/host-junit"
+      - name: Execute sealed B12 identity and delivery negative probes
+        working-directory: app-source
+        run: |
+          set -euo pipefail
+          for case in A-B12-01a A-B12-01b A-B12-05b A-B12-06b; do
+            python3 -B tools/r341/test_b12_contracts.py --case "$case" --repo "$PWD" --out "$RUNNER_TEMP/engineering/$case.json"
+          done
       - name: Allow Android API 34 emulator to use KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

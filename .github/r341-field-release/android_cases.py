@@ -74,6 +74,15 @@ try:
            if c['batch']==stage and c['level']=='ENGINEERING' and c['test_contract'].get('android_scope_contract')]
     if stage=='B01':
         assert len(cases)==8
+    if stage=='B12':
+        # Cumulative smoke proofs on the exact final candidate source. These
+        # are prior Android cases and are never reported as the missing B12
+        # three-generation or physical-device witness.
+        replay=['R341-B06-02-A01','R341-B07-02-A01','R341-B08-01-A03',
+                'R341-B09-02-A02','A-B10-02b','A-B11-04b']
+        available={case['id']:case for case in json.loads((plan/'ACCEPTANCE_MATRIX.json').read_bytes())['cases']}
+        cases=[available[ident] for ident in replay]
+        receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_EMULATOR_SMOKE'
     outcomes=[case_run(c) for c in cases]
     assert all(outcomes),'REGISTERED_ANDROID_PROBES_NOT_ALL_PASSED'
 except Exception as error:
