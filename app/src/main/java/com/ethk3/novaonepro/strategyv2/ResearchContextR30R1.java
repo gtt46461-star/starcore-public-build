@@ -33,7 +33,41 @@ public final class ResearchContextR30R1 {
   List<Object> ablations=new ArrayList<>();Map<String,Object> recipe=ablationRecipesR31.get(child.policyHash());if(recipe!=null)ablations.add(ResearchConsumptionStoreR31.ablation(child,recipe,ctx,budget));action.put("ablations",ablations);action.put("ablationState",recipe==null?"UNSUPPORTED_SOURCE_REPLAY_ADAPTER_OR_ROUND_BUDGET":"RECORDED_SELECT_COUNTERFACTUAL");
   return stage(batch,child,datasetHash,revision,now,action);
  }
- @SuppressWarnings("unchecked") public static ResearchContextR30R1 read(SQLiteDatabase db,EvalContextR27 c){long revision=ResearchInputPinR30R1.revision(db,c.data.datasetHash);ResearchContextR30R1 out=new ResearchContextR30R1(c.data.datasetHash,revision);out.actionOrdinalR335=Math.addExact(c.data.ordinals[c.data.size()-1],1);try(Cursor q=db.rawQuery("SELECT m.measure_key,m.payload_json,r.run_id,r.summary_json,r.contract_hash FROM r30r1_research_measure m JOIN r30r1_analysis_run r ON r.run_id=m.run_id WHERE (r.role='SELECT' OR (r.role='TRAIN' AND m.measure_key='R08' AND m.kind='BEHAVIOR_DIVERSITY')) AND r.status='COMMITTED' AND r.dataset_hash=? AND r.source_revision=? AND r.source_commit=? AND (m.kind IN ('STRUCTURE_STATE','STRUCTURE_FORECAST_ERROR','POSITION_COMPATIBILITY','MOLECULE_SYNERGY','DRIFT_REPLAY_VALUE','OPERATOR_GAIN_COST','SET_INTERSECTION_SUPPORT','FAILURE_PRESCRIPTION','FUSION_COMPLEMENTARITY','CALIBRATION_SUPPORT','EXPERT_EXECUTABLE_CREDIT','RESEARCH_BUDGET','FAILED_MECHANISM_MEMORY','BEHAVIOR_DIVERSITY') OR m.kind LIKE 'MATRIX_%') AND r.run_id=(SELECT nr.run_id FROM r30r1_research_measure nm JOIN r30r1_analysis_run nr ON nr.run_id=nm.run_id WHERE nm.measure_key=m.measure_key AND nr.dataset_hash=r.dataset_hash AND nr.source_revision=r.source_revision AND nr.source_commit=r.source_commit AND nr.role=r.role AND nr.status='COMMITTED' ORDER BY nr.recorded_at DESC,nr.run_id DESC LIMIT 1) ORDER BY r.recorded_at DESC,r.run_id LIMIT 64",new String[]{c.data.datasetHash,String.valueOf(revision),BuildConfig.SOURCE_COMMIT_R26})){while(q.moveToNext()){if(out.frames.containsKey(q.getString(0))||!ResearchStoreR30R1.currentSource(BuildConfig.SOURCE_COMMIT_R26,q.getString(3)))continue;Map<String,Object> source=(Map<String,Object>)JsonR27.parse(q.getString(1));if(!(source.get("frame") instanceof Map)||!q.getString(1).equals(q.getString(3))||!StatsR27.sha256(JsonR27.write(source.get("frame"))).equals(q.getString(4)))throw new IllegalStateException("ORIGINAL_RESEARCH_MEASURE_HASH");Map<String,Object> frame=(Map<String,Object>)source.get("frame");if(!("R08".equals(q.getString(0))?"TRAIN":"SELECT").equals(frame.get("role"))||!c.data.datasetHash.equals(frame.get("datasetHash")))continue;out.frames.put(q.getString(0),frame);out.runs.put(q.getString(0),q.getString(2));out.sourceHashesR31.put(q.getString(2),StatsR27.sha256(q.getString(1)));out.sourceContractsR31.put(q.getString(2),new LinkedHashMap<>((Map<String,Object>)source.get("sourceContract")));out.sourceInputsR31.put(q.getString(2),String.valueOf(source.get("inputHash")));}}return out;}
+ @SuppressWarnings("unchecked") public static ResearchContextR30R1 read(SQLiteDatabase db,EvalContextR27 context){
+  long revision=ResearchInputPinR30R1.revision(db,context.data.datasetHash);
+  ResearchContextR30R1 result=new ResearchContextR30R1(context.data.datasetHash,revision);
+  result.actionOrdinalR335=Math.addExact(context.data.ordinals[context.data.size()-1],1);
+  String sql="SELECT m.measure_key,m.payload_json,r.run_id,r.summary_json,r.contract_hash FROM r30r1_research_measure m JOIN r30r1_analysis_run r ON r.run_id=m.run_id WHERE (r.role='SELECT' OR (r.role='TRAIN' AND m.measure_key='R08' AND m.kind='BEHAVIOR_DIVERSITY')) AND r.status='COMMITTED' AND r.dataset_hash=? AND r.source_revision=? AND r.source_commit=? AND ("+ResearchInputPinR30R1.validRunSql("r")+") AND (m.kind IN ('STRUCTURE_STATE','STRUCTURE_FORECAST_ERROR','POSITION_COMPATIBILITY','MOLECULE_SYNERGY','DRIFT_REPLAY_VALUE','OPERATOR_GAIN_COST','SET_INTERSECTION_SUPPORT','FAILURE_PRESCRIPTION','FUSION_COMPLEMENTARITY','CALIBRATION_SUPPORT','EXPERT_EXECUTABLE_CREDIT','RESEARCH_BUDGET','FAILED_MECHANISM_MEMORY','BEHAVIOR_DIVERSITY') OR m.kind LIKE 'MATRIX_%') AND r.run_id=(SELECT nr.run_id FROM r30r1_research_measure nm JOIN r30r1_analysis_run nr ON nr.run_id=nm.run_id WHERE nm.measure_key=m.measure_key AND nr.dataset_hash=r.dataset_hash AND nr.source_revision=r.source_revision AND nr.source_commit=r.source_commit AND nr.role=r.role AND nr.status='COMMITTED' ORDER BY nr.recorded_at DESC,nr.run_id DESC LIMIT 1) ORDER BY r.recorded_at DESC,r.run_id LIMIT 64";
+  try(Cursor rows=db.rawQuery(sql,new String[]{context.data.datasetHash,Long.toString(revision),BuildConfig.SOURCE_COMMIT_R26})){
+   while(rows.moveToNext()){
+    String view=rows.getString(0),original=rows.getString(1),run=rows.getString(2);
+    if(result.frames.containsKey(view)||ResearchActionPolicyR33.READ_ONLY.contains(view))continue;
+    try{
+     if(!ResearchStoreR30R1.currentSource(BuildConfig.SOURCE_COMMIT_R26,rows.getString(3)))continue;
+     Object parsed=JsonR27.parse(original);
+     if(!(parsed instanceof Map))throw new IllegalArgumentException("ORIGINAL_RESEARCH_MEASURE_TYPE");
+     Map<String,Object> source=(Map<String,Object>)parsed;
+     Object body=source.get("frame"),contract=source.get("sourceContract");
+     if(!(body instanceof Map)||!(contract instanceof Map)||!original.equals(rows.getString(3))
+        ||!StatsR27.sha256(JsonR27.write(body)).equals(rows.getString(4)))
+      throw new IllegalArgumentException("ORIGINAL_RESEARCH_MEASURE_HASH");
+     Map<String,Object> frame=(Map<String,Object>)body;
+     if(!("R08".equals(view)?"TRAIN":"SELECT").equals(frame.get("role"))||!context.data.datasetHash.equals(frame.get("datasetHash")))continue;
+     if(Boolean.FALSE.equals(frame.get("usableResearchProduct")))continue;
+     result.frames.put(view,frame);result.runs.put(view,run);
+     result.sourceHashesR31.put(run,StatsR27.sha256(original));
+     result.sourceContractsR31.put(run,new LinkedHashMap<>((Map<String,Object>)contract));
+     result.sourceInputsR31.put(run,String.valueOf(source.get("inputHash")));
+    }catch(IllegalArgumentException invalid){
+     result.isolatedSourcesR341.put(view,run+":"+invalid.getMessage());
+    }
+   }
+  }
+  return result;
+ }
+ private final Map<String,String> isolatedSourcesR341=new LinkedHashMap<>();
+ Map<String,String> isolatedSourcesR341(){return Collections.unmodifiableMap(isolatedSourcesR341);}
+
  public void begin(){used.clear();}void use(String view){String run=runs.get(view);if(run!=null)used.add(run);}
  @SuppressWarnings("unchecked") public int window(StatsR27.SplitMix r,int fallback){
   if(r.chance(.25))return fallback;

@@ -39,6 +39,14 @@ public final class ResearchInputPinR30R1 {
     }
     private static boolean originalRecoveryValid(SQLiteDatabase db,String run,String contract){if(PinSnapshotProofR31.known(db,run,contract))return true;if(db.inTransaction())throw new com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31("RESEARCH_INPUT_PIN","PIN_ORIGINAL_RECOVERY_VERIFY");try(Cursor q=db.rawQuery("SELECT dataset_hash,source_revision,summary_json,contract_hash,recorded_at FROM r30r1_analysis_run WHERE run_id=? AND status=?",new String[]{run,STATUS})){if(!q.moveToFirst()||!contract.equals(q.getString(3)))return false;decode(q.getString(0),q.getLong(1),q.getString(2),contract,q.getLong(4));PinSnapshotProofR31.verified(db,run,contract);return true;}catch(RuntimeException broken){if(broken instanceof BudgetTokenSU1.Yield||broken instanceof java.util.concurrent.CancellationException)throw broken;Error fatal=FailureDispositionR31.processFatalCause(broken);if(fatal!=null)throw fatal;return false;}}
     public static Pin loadCurrent(SQLiteDatabase db,String hash){Pin pin=load(db,hash);if(pin==null||invalid(db,hash))return null;try{require(db,hash,pin.revision);}catch(ResearchStoreR30R1.StaleResearch changed){return null;}return pin;}
+    static long admittedRevisionR341(SQLiteDatabase db,String dataset){
+        requireReady(db);
+        try(Cursor c=db.rawQuery("SELECT run_id,source_revision FROM r30r1_analysis_run WHERE dataset_hash=? AND status=?"
+                +" ORDER BY source_revision DESC,run_id DESC LIMIT 1",new String[]{dataset,STATUS})){
+            if(c.moveToFirst()&&runValid(db,c.getString(0)))return c.getLong(1);
+        }
+        throw new ResearchStoreR30R1.StaleResearch();
+    }
     /** Legacy evidence without a pin retains its original conservative global-revision guard. New runtime always pins. */
     public static long revision(SQLiteDatabase db,String dataset){try(Cursor c=db.rawQuery("SELECT source_revision FROM r30r1_analysis_run WHERE dataset_hash=? AND status=? ORDER BY source_revision DESC LIMIT 1",new String[]{dataset,STATUS})){if(c.moveToFirst()){if(invalid(db,dataset)||!triggersValid(db))throw new ResearchStoreR30R1.StaleResearch();return c.getLong(0);}}return SchemaR27.liveSourceRevision(db);}
     public static void require(SQLiteDatabase db,String dataset,long revision){if(!SchemaR27.liveSourceTriggersValid(db)||revision(db,dataset)!=revision)throw new ResearchStoreR30R1.StaleResearch();}

@@ -28,52 +28,81 @@ public final class FusionOpsR27 {
             if (ok) members.add(c);
         }
         if (members.size() < 2) return null;
-        List<String> parents = new ArrayList<>(); for (PolicySpecR27 m : members) parents.add(m.policyHash());
-        double mode = r.nextDouble(); PolicyAstR27.Node ast; String how;
-        if (mode < 0.5) {
-            double[] w = new double[members.size()]; java.util.Arrays.fill(w, 1);
-            // coordinate search of weights on H_TRAIN log-loss
-            for (int sweep = 0; sweep < 2; sweep++) for (int i = 0; i < w.length; i++) {
-                double best = w[i], bestLoss = Double.POSITIVE_INFINITY;
-                for (double g : WEIGHT_GRID) { w[i] = g; double l = ctx.trainLogLoss(weighted(members, w, first), 1.0); if (l < bestLoss) { bestLoss = l; best = g; } }
-                w[i] = best;
+        List<String> nominated=new ArrayList<>(),parents=new ArrayList<>();
+        java.util.Map<String,String> excluded=new java.util.LinkedHashMap<>();
+        for(PolicySpecR27 member:members)nominated.add(member.policyHash());
+        double mode=r.nextDouble();
+        double[] weights=null;
+        String how;
+        if(mode<0.5){
+            weights=new double[members.size()];java.util.Arrays.fill(weights,1);
+            for(int sweep=0;sweep<2;sweep++)for(int i=0;i<weights.length;i++){
+                double best=weights[i],bestLoss=Double.POSITIVE_INFINITY;
+                for(double candidate:WEIGHT_GRID){
+                    weights[i]=candidate;
+                    double loss=ctx.trainLogLoss(weighted(members,weights,first),1.0);
+                    if(loss<bestLoss){bestLoss=loss;best=candidate;}
+                }
+                weights[i]=best;
             }
-            ast = weighted(members, w, first).ast; how = "对数几率加权(权重在H_TRAIN拟合" + java.util.Arrays.toString(w) + ")";
-        } else if (mode < 0.75) {
-            ast = PolicyAstR27.op("if", PolicyAstR27.leaf("regime", 128), PolicyAstR27.constant(0.1), PolicyAstR27.op("zscore", members.get(0).ast), PolicyAstR27.op("zscore", members.get(1).ast));
-            how = "状态门控(重复体制决定用哪个成员)";
-        } else {
-            PolicyAstR27.Node sum = PolicyAstR27.op("rank", members.get(0).ast);
-            for (int i = 1; i < members.size(); i++) sum = PolicyAstR27.op("add", sum, PolicyAstR27.op("rank", members.get(i).ast));
-            ast = sum; how = "投票+校准(温度在H_TRAIN拟合)";
-        }
-        String reason = "融合" + members.size() + "个低相关成员：" + how + "；" + profile.reason();
-        // Prefer inserting the complementary program at a failed input leaf. If that would exceed the existing
-        // type/size/depth contract, try the original whole-program fusion, then decline the proposal.
-        if (profile.ready()) {
-            List<PolicyAstR27.Node> nodes = PolicyAstR27.nodes(first.ast);
-            List<Integer> leaves = profile.prioritize(nodes,MutationOpsR27.indices(nodes,n -> n.leaf() && !"c".equals(n.op)));
-            for (int at : leaves) {
-                PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=" + at);
-                PolicySpecR27 child = new PolicySpecR27(PolicyAstR27.replace(first.ast,at,ast),tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-                PolicySpecR27 accepted=compare(child,members,ctx,research);
-                if(accepted!=null)return accepted;
+            List<PolicySpecR27> retained=new ArrayList<>();double[] active=new double[weights.length];
+            for(int i=0;i<weights.length;i++){
+                PolicySpecR27 member=members.get(i);
+                if(weights[i]==0){excluded.put(member.policyHash(),"FITTED_ZERO_WEIGHT");continue;}
+                active[retained.size()]=weights[i];retained.add(member);
             }
-        }
-        PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=WHOLE_PROGRAM");
-        PolicySpecR27 child = new PolicySpecR27(ast,tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
-        return compare(child,members,ctx,research);
-    }
-
-    private static PolicySpecR27 compare(PolicySpecR27 child,List<PolicySpecR27> parents,EvalContextR27 ctx,
-            ResearchContextR30R1 research){
+            members=retained;weights=java.util.Arrays.copyOf(active,members.size());
+            how="TRAIN_WEIGHTED_ZSCORE";
+        }else if(mode<0.75){
+            for(int i=2;i<members.size();i++)excluded.put(members.get(i).policyHash(),"OUTSIDE_TWO_BRANCH_PROGRAM");
+            members=new ArrayList<>(members.subList(0,2));how="REGIME_TWO_BRANCH";
+        }else how="RANK_VOTE";
+        if(members.size()<2)return null;
+        for(PolicySpecR27 member:members)parents.add(member.policyHash());
+        PolicyAstR27.Node ast=combineR341(members,weights,how,first);
+        PolicySpecR27.Meta meta=new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,how+" | "+profile.reason());
+        PolicySpecR27 child=versionR341(first,ast,meta);
         if(!FailureProfileR30.legal(child))return null;
-        java.util.Map<String,Object> evidence=FusionStudyR30R1.comparison(parents,child,ctx);
+        java.util.Map<String,Object> evidence=FusionStudyR30R1.comparison(members,child,ctx);
         if(evidence==null)return null;
-        PolicySpecR27.Meta meta=child.meta;
+        List<Object> ablation=new ArrayList<>();
+        for(int i=0;i<members.size();i++){
+            List<PolicySpecR27> subset=new ArrayList<>(members);
+            String removed=subset.remove(i).policyHash();
+            double[] remaining=null;
+            if(weights!=null){
+                remaining=new double[weights.length-1];
+                System.arraycopy(weights,0,remaining,0,i);
+                System.arraycopy(weights,i+1,remaining,i,remaining.length-i);
+            }
+            PolicySpecR27 without=versionR341(child,combineR341(subset,remaining,how,first),null);
+            java.util.Map<String,Object> effect=FusionStudyR30R1.componentAblationR341(child,without,ctx);
+            if(((Number)effect.get("selectionChanges")).intValue()==0)return null;
+            effect.put("removedParent",removed);ablation.add(effect);
+        }
+        evidence.put("nominatedParents",nominated);evidence.put("executableParents",parents);
+        evidence.put("excludedParents",excluded);evidence.put("fitWeights",weights);
+        evidence.put("pairedComponentRemovals",ablation);
         PolicySpecR27 accepted=child.withMeta(new PolicySpecR27.Meta(meta.idea,meta.operator,meta.parents,meta.generation,
             meta.seed,meta.reason+" PAIRED_SELECT_R34="+JsonR27.write(evidence)));
         return research==null?accepted:research.annotate(accepted);
+    }
+
+    private static PolicySpecR27 versionR341(PolicySpecR27 basis,PolicyAstR27.Node program,PolicySpecR27.Meta meta){
+        return new PolicySpecR27(program,basis.position,basis.rule,basis.threshold,basis.rate,1.0,true,basis.lr,basis.forget,meta);
+    }
+
+    private static PolicyAstR27.Node combineR341(List<PolicySpecR27> members,double[] weights,String how,PolicySpecR27 first){
+        if(weights!=null)return weighted(members,weights,first).ast;
+        if("REGIME_TWO_BRANCH".equals(how)){
+            PolicyAstR27.Node left=PolicyAstR27.op("zscore",members.get(0).ast);
+            if(members.size()==1)return left;
+            return PolicyAstR27.op("if",PolicyAstR27.leaf("regime",128),PolicyAstR27.constant(0.1),left,
+                    PolicyAstR27.op("zscore",members.get(1).ast));
+        }
+        PolicyAstR27.Node sum=PolicyAstR27.op("rank",members.get(0).ast);
+        for(int i=1;i<members.size();i++)sum=PolicyAstR27.op("add",sum,PolicyAstR27.op("rank",members.get(i).ast));
+        return sum;
     }
 
     static PolicySpecR27 weighted(List<PolicySpecR27> members, double[] w, PolicySpecR27 first) {

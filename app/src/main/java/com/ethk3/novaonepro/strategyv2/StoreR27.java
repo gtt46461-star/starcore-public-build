@@ -29,14 +29,17 @@ public final class StoreR27 {
      * the CP12 retention tail); older replay rows come only from verified imported history (r27_history_import). */
     public static final int HOT_DRAWS_LIMIT_R30 = com.ethk3.novaonepro.AppConfig.MAX_LOCAL_HISTORY_SAVE;
     public static ReplayDatasetR27 loadDataset(SQLiteDatabase ro,int limit) {
-        return loadDataset(ro,limit,null);
+        return loadDataset(ro,limit,null,null,null,true);
     }
     /** For online learning the exact label anchors a bounded read of canonical hot rows. */
     static ReplayDatasetR27 loadDatasetThrough(SQLiteDatabase ro,int limit,String issue) {
         if(!TargetIssueResolver.isValid(issue))throw new IllegalArgumentException("R34_ATOMNET_LABEL_ISSUE");
-        return loadDataset(ro,limit,issue);
+        return loadDataset(ro,limit,issue,null,null,false);
     }
-    private static ReplayDatasetR27 loadDataset(SQLiteDatabase ro,int limit,String through) {
+    static ReplayDatasetR27 loadDatasetPageR341(SQLiteDatabase ro,int limit,String high,String low,String after) {
+        return loadDataset(ro,limit,high,low,after,false);
+    }
+    private static ReplayDatasetR27 loadDataset(SQLiteDatabase ro,int limit,String through,String from,String after,boolean includeImports) {
         int hotLimit = Math.min(limit, HOT_DRAWS_LIMIT_R30);
         List<ReplayDatasetR27.Row> rows = new ArrayList<>(hotLimit);
         final class RawDrawR33 { final String issue; final int[] numbers; final long opened,known;
@@ -46,7 +49,13 @@ public final class StoreR27 {
         List<RawDrawR33> rawR33=new ArrayList<>(hotLimit);
         java.util.Set<String> sourceColumns=new java.util.HashSet<>();try(Cursor schema=ro.rawQuery("PRAGMA table_info(draws)",null)){while(schema.moveToNext())sourceColumns.add(schema.getString(1));}
         String opened=sourceColumns.contains("open_time")?"open_time":"NULL",known=sourceColumns.contains("first_seen_at")?"first_seen_at":"NULL";
-        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,"+opened+","+known+" FROM draws WHERE dirty=0"+(through==null?"":" AND issue<=?")+" ORDER BY issue DESC LIMIT "+hotLimit,through==null?null:new String[]{through})) {
+        List<String> bindings=new ArrayList<>(3);
+        String filter="";
+        if(through!=null){filter+=" AND issue<=?";bindings.add(through);}
+        if(from!=null){filter+=" AND issue>=?";bindings.add(from);}
+        if(after!=null&&!after.isEmpty()){filter+=" AND issue<?";bindings.add(after);}
+        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,"+opened+","+known
+                +" FROM draws WHERE dirty=0"+filter+" ORDER BY issue DESC LIMIT "+hotLimit,bindings.toArray(new String[0]))) {
             while (c.moveToNext()) {
                 String issue = c.getString(0);
                 int[] p = new int[10]; for (int i = 0; i < 10; i++) p[i] = c.getInt(i + 1);
@@ -62,7 +71,7 @@ public final class StoreR27 {
         // Short consumers keep their original CSV cutoff. The combined active replay, including
         // verified older imports, must still fit the same rolling history as the live reader.
         int remaining = HOT_DRAWS_LIMIT_R30 - rows.size();
-        if (through==null && !rows.isEmpty() && remaining > 0)
+        if (includeImports && !rows.isEmpty() && remaining > 0)
             HistoryImportR27.appendOlder(ro, rows, rows.get(rows.size() - 1).issue, remaining);
         return ReplayDatasetR27.of(rows);
     }

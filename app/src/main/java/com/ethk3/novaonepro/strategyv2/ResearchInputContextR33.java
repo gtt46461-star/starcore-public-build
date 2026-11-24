@@ -15,9 +15,10 @@ public final class ResearchInputContextR33 implements AutoCloseable {
  }
  static ResearchInputContextR33 acquire(RuntimeR27 rt,ResearchPoolR27.Worker w){return acquire(rt,w,"SHARED",true);}
  static ResearchInputContextR33 acquire(RuntimeR27 rt,ResearchPoolR27.Worker w,String scope,boolean needStudents) {
-  ReplayDatasetR27 data=rt.evoData;if(data==null)throw new IllegalStateException("R33_RESEARCH_WAITING_IMMUTABLE_REPLAY_DATASET");
-  if(ResearchInputPinR30R1.invalid(w.ro,data.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
-  long revision=ResearchInputPinR30R1.revision(w.ro,data.datasetHash);if(revision<0)throw new IllegalStateException("R33_RESEARCH_SOURCE_REVISION_MISSING");
+  ReplayDatasetR27 pending=rt.pendingData;
+  ReplayDatasetR27 data=!needStudents&&pending!=null?pending:rt.evoData;
+  if(data==null)throw new IllegalStateException("R33_RESEARCH_WAITING_IMMUTABLE_REPLAY_DATASET");
+  long revision=ResearchInputPinR30R1.admittedRevisionR341(w.ro,data.datasetHash);
   List<PolicySpecR27> policies=new ArrayList<>();List<Map<String,Object>> rejected=new ArrayList<>();int generation=0,examined=0;String after="",last="";
   String scanKey=scope;String identity=data.datasetHash+"|"+revision;
   if(needStudents){

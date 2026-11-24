@@ -271,12 +271,32 @@ public final class RuntimeR27 implements AutoCloseable {
                 return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
             }
             long t0 = System.currentTimeMillis();
-            final ResearchSourceJournalR31.DatasetRead captured=ResearchSourceJournalR31.DatasetRead.capture(w.ro);
+            ReplayDatasetBuildR341 prepared=ReplayDatasetBuildR341.read(w.ro);
+            if(prepared==null)prepared=ReplayDatasetBuildR341.start(w.ro,latest);
+            if(prepared==null)return ResearchPoolR27.Outcome.idle("WAITING_CLEAN_REPLAY_INPUT",0,-1);
+            final ReplayDatasetBuildR341 build=prepared;
+            if(!build.currentSource(w.ro)){
+                ResearchWriteQueueR27.Batch reset=new ResearchWriteQueueR27.Batch();
+                build.reset(reset,"CAPTURED_SOURCE_CHANGED_BEFORE_PUBLICATION",t0);
+                submit(w,"REPLAY_DATASET_STAGE_RESET",reset,false,HashingSU1.fields("REPLAY_SOURCE_CHANGED",String.valueOf(build.raw),latest));
+                return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
+            }
+            if(!build.complete()){
+                ResearchWriteQueueR27.Batch staging=new ResearchWriteQueueR27.Batch();
+                int staged=build.preparePage(w.ro,staging,t0);
+                submit(w,"REPLAY_DATASET_STAGE_PAGE",staging,false,HashingSU1.fields("REPLAY_PAGE",build.first,build.last,
+                    Long.toString(build.source.event),build.cursor,build.phase,Integer.toString(build.pages)));
+                return ResearchPoolR27.Outcome.progress(1,build.rows+staged);
+            }
+            final ResearchSourceJournalR31.DatasetRead captured=build.source;
             final long capturedRevision=captured.revision;
-            ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
-            if(d.size()>0 && !captured.valid(w.ro,d.ordinals[0],d.ordinals[d.size()-1]))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
+            ReplayDatasetR27 d=build.assemble(w.ro);
             if (d.size() < 3 * SplitR27.BLOCK) {
                 com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetUnavailableR341(latest);
+                if(!latest.equals(build.last)){
+                    ResearchWriteQueueR27.Batch retired=new ResearchWriteQueueR27.Batch();build.retire(retired);
+                    submit(w,"REPLAY_DATASET_INSUFFICIENT_REFRESH",retired,false,HashingSU1.text(build.raw));
+                }
                 return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
             }
             FeatureCacheR27 c = featureCacheR31(d,48);boolean published=false;
@@ -299,12 +319,15 @@ public final class RuntimeR27 implements AutoCloseable {
                     RuntimeCoordinatorR26.requireFence(w.ro,current);
                     if(ResearchInputPinR30R1.invalid(w.ro,d.datasetHash))throw new ResearchStoreR30R1.StaleResearch();
                     publishRecoveredReplayKnowledgeR31(w,pinned,"RESTORED_PUBLISHED_DATASET");
+                    ResearchWriteQueueR27.Batch retired=new ResearchWriteQueueR27.Batch();build.retire(retired);
+                    submit(w,"REPLAY_DATASET_ALREADY_PUBLISHED",retired,false,HashingSU1.text(build.raw));
                     publishDatasetInputR335(c);
                     com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetUnavailableR341(latest);
                     published=true;
                     return ResearchPoolR27.Outcome.progress(1,d.ordinals[d.size()-1]);
                 }
                 ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+                build.retire(b);
                 b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
                         d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
                 try(PinPublicationR31.Scope pin=ResearchInputPinR30R1.appendAdmitted(b,w.ro,store.researchInputRootCP11().getParentFile(),d,capturedRevision,System.currentTimeMillis(),captured)){

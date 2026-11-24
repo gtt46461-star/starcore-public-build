@@ -342,6 +342,21 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             if(!parentsInFormula.isEmpty()) category=!allParentsKnown?"PARENT_PROGRAM_UNAVAILABLE"
                     :knownChange?"STRUCTURAL_PROPOSAL_AWAITING_PAIRED_ABLATION":"PARAMETER_VARIANT";
             boolean supportedBehavior=v.behavior.supported>0 && p.sig.length>0;
+            Map<String,Object> ablation=null;
+            if(allParentsKnown&&knownChange&&supportedBehavior&&parentsInFormula.size()==1
+                    &&!SetIntersectionPolicyR30.exact(p.spec)){
+                PolicySpecR27 parent=parentPrograms.get(parentsInFormula.get(0));
+                if(parent.position==p.spec.position){
+                    PolicyAstR27.Node reverted=FormulaIdentityR341.revertSingleEditR341(parent.ast,p.spec.ast);
+                    if(reverted!=null){
+                        PolicySpecR27 control=p.spec.withAst(reverted,p.spec.meta);
+                        if(FailureProfileR30.legal(control)){
+                            ablation=FusionStudyR30R1.componentAblationR341(p.spec,control,ctx);
+                            if(((Number)ablation.get("selectionChanges")).intValue()>0)category="STRUCTURAL_PROPOSAL_WITH_PAIRED_ABLATION";
+                        }
+                    }
+                }
+            }
             p.structural=(category.startsWith("ROOT_PROPOSAL")||category.startsWith("STRUCTURAL_PROPOSAL"))
                     && supportedBehavior && existingShapes.add(shape);
             if(p.structural)structural++;
@@ -351,6 +366,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
             evidence.put("probeScope",gate.evidenceScopeR31());evidence.put("probeSupport",v.behavior.supported);
             evidence.put("probabilityHash",v.behavior.probabilitySha256);evidence.put("decisionHash",v.behavior.decisionSha256);
             evidence.put("origin",category);evidence.put("parentEdits",parentEdits);
+            if(ablation!=null)evidence.put("sameInputUndoEdit",ablation);
             formulaEvidence.add(evidence);
             creation.record(familyR31, "unique", 1);
             // R31-B08-C02: influenced = born with a research reference AND different from every parent (an unchanged child is no consumption).
@@ -370,6 +386,7 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         genStats.put("parentCohortHashes",new ArrayList<>(parents));
         genStats.put("researchInfluencedBirths", (long) researchInfluencedR31); researchInfluencedR31 = 0;
         genStats.put("formulaBirthProbe",formulaEvidence);
+        if(researchContext!=null)genStats.put("isolatedResearchSources",researchContext.isolatedSourcesR341());
         genStats.put("probeActingDistinctBirths",(long)behavioral);
         genStats.put("probeAbstainingDistinctBirths",(long)(bornThisGeneration.size()-behavioral));
         count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural);

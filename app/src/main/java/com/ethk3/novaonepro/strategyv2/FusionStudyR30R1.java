@@ -47,7 +47,7 @@ public final class FusionStudyR30R1 {
     public static Pair pair(PolicySpecR27 left,PolicySpecR27 right,EvalContextR27 context){
         requireTarget(left,right,context);
         ReplayEvaluatorR27.Trace x=trace(left,context),y=trace(right,context);
-        double dot=0,xx=0,yy=0;
+        double dot=0,xx=0,yy=0,sx=0,sy=0;
         int paired=0,both=0,either=0,leftOnly=0,rightOnly=0;
         long expected=context.split.selectFrom<context.split.selectTo
             ?context.data.ordinals[context.split.selectTo-1]-context.data.ordinals[context.split.selectFrom]+1:0;
@@ -56,18 +56,53 @@ public final class FusionStudyR30R1 {
             int actual=context.data.draws[row][left.position-1]-1;
             double[] p=x.probabilityRows[row],q=y.probabilityRows[row];
             if(x.skipped[row]||y.skipped[row]||!Double.isFinite(loss(p,actual+1))||!Double.isFinite(loss(q,actual+1)))continue;
+            double u=x.pHit[row]-x.hit[row],v=y.pHit[row]-y.hit[row];
             paired++;
-            for(int k=0;k<10;k++){
-                double u=p[k]-(k==actual?1:0),v=q[k]-(k==actual?1:0);
-                dot+=u*v;xx+=u*u;yy+=v*v;
-            }
+            dot+=u*v;xx+=u*u;yy+=v*v;sx+=u;sy+=v;
             boolean leftMiss=x.hit[row]==0,rightMiss=y.hit[row]==0;
             if(leftMiss&&rightMiss)both++;
             if(leftMiss||rightMiss)either++;
             if(!leftMiss&&rightMiss)leftOnly++;
             if(leftMiss&&!rightMiss)rightOnly++;
         }
-        return new Pair(paired,expected,both,either,leftOnly,rightOnly,xx>0&&yy>0?dot/Math.sqrt(xx*yy):Double.NaN);
+        double correlation=Double.NaN;
+        if(paired>0){
+            double vx=xx-sx*sx/paired,vy=yy-sy*sy/paired;
+            if(left.policyHash().equals(right.policyHash()))correlation=1;
+            else if(vx>0&&vy>0)correlation=Math.max(-1,Math.min(1,(dot-sx*sy/paired)/Math.sqrt(vx*vy)));
+        }
+        return new Pair(paired,expected,both,either,leftOnly,rightOnly,correlation);
+    }
+
+    static Map<String,Object> componentAblationR341(PolicySpecR27 full,PolicySpecR27 reduced,EvalContextR27 context){
+        requireTarget(full,reduced,context);
+        double temperature=context.temperature(full);
+        ReplayEvaluatorR27.Trace observed=ReplayEvaluatorR27.selectTraceWithProbabilities(full,context,temperature);
+        ReplayEvaluatorR27.Trace counter=ReplayEvaluatorR27.selectTraceWithProbabilities(reduced,context,temperature);
+        int shared=0,selectionChanges=0,actionChanges=0;
+        String first=null;
+        StringBuilder measurements=new StringBuilder("R341_FUSION_COMPONENT_REMOVAL|"+context.data.datasetHash);
+        for(int row=context.split.selectFrom;row<context.split.selectTo;row++){
+            if((row&31)==0)CooperativeContinuationR26.poll();
+            if(observed.skipped[row]||counter.skipped[row])continue;
+            shared++;
+            int a=0,b=0;
+            for(int digit=0;digit<3;digit++){
+                a|=1<<observed.k3[row*3+digit];
+                b|=1<<counter.k3[row*3+digit];
+            }
+            boolean changed=a!=b&&(observed.act[row]||counter.act[row]);
+            if(observed.act[row]!=counter.act[row])actionChanges++;
+            if(changed){selectionChanges++;if(first==null)first=context.data.issues[row];}
+            measurements.append('|').append(context.data.ordinals[row]).append(':').append(a).append(':').append(b)
+                    .append(':').append(observed.act[row]).append(':').append(counter.act[row]);
+        }
+        Map<String,Object> evidence=new LinkedHashMap<>();
+        evidence.put("remainingExecutable",reduced.policyHash());evidence.put("temperature",temperature);
+        evidence.put("sameValidOpportunities",shared);evidence.put("selectionChanges",selectionChanges);
+        evidence.put("actionChanges",actionChanges);evidence.put("firstChangedIssue",first);
+        evidence.put("orderedK3AndActionHash",StatsR27.sha256(measurements.toString()));
+        return evidence;
     }
 
     private static void requireTarget(PolicySpecR27 a,PolicySpecR27 b,EvalContextR27 c){

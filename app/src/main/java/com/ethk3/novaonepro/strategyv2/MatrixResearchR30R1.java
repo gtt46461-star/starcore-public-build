@@ -55,8 +55,23 @@ public final class MatrixResearchR30R1 {
             return new OutcomeR31(StatusR31.INVALID,null,invalid.getClass().getSimpleName()+":"+m);
         }
         if(t==null)return new OutcomeR31(StatusR31.WAITING_SOURCE,null,dependency(kind));
+        if(!kind.equals(t.kind))return new OutcomeR31(StatusR31.INVALID,null,"MATRIX_PRODUCER_KIND_MISMATCH");
         if(!t.datasetHash.equals(datasetHash)||t.revision!=revision)return new OutcomeR31(StatusR31.INVALID,null,"MATRIX_SOURCE_IDENTITY_CHANGED");
         if(!("TEMPORAL_PRECEDENCE".equals(kind)?"ONLINE_RESEARCH":"SELECT").equals(t.role))return new OutcomeR31(StatusR31.INVALID,null,"MATRIX_ROLE_KIND_MISMATCH");
+        int rowCount=0,columnCount=0;
+        switch(kind){
+            case "NUMBER_POSITION_COMPATIBILITY":rowCount=10;columnCount=10;break;
+            case "CROSS_POSITION_FLOW":rowCount=10;columnCount=40;break;
+            case "STUDENT_ERROR":rowCount=1;columnCount=3;break;
+            case "FEEDBACK":rowCount=3;columnCount=2;break;
+            case "RESIDUAL_MECHANISM":rowCount=3;columnCount=10;break;
+            default:break;
+        }
+        if(rowCount>0){
+            Map<?,?> body=(Map<?,?>)JsonR27.parse(t.payload);
+            if(((List<?>)body.get("rows")).size()!=rowCount||((List<?>)body.get("columns")).size()!=columnCount)
+                return new OutcomeR31(StatusR31.INVALID,null,"MATRIX_REGISTERED_SHAPE_MISMATCH");
+        }
         if(t.presentCells==0)return new OutcomeR31(StatusR31.INSUFFICIENT,null,"MATRIX_NO_SUPPORTED_CELL");
         return new OutcomeR31(StatusR31.PRODUCED,t,"");
     }
@@ -69,6 +84,13 @@ public final class MatrixResearchR30R1 {
         Object lastValid=o.tensor!=null?o.tensor.hash:previous==null?null:previous.get("matrixHash")!=null?previous.get("matrixHash"):previous.get("lastValidMatrixHash");
         Object lastValidRevision=o.tensor!=null?(Object)revision:previous==null?null:previous.get("matrixHash")!=null?previous.get("sourceRevision"):previous.get("lastValidSourceRevision");
         r.put("lastValidMatrixHash",lastValid);r.put("lastValidSourceRevision",lastValidRevision);r.put("lastValidIsStale",o.tensor==null&&lastValid!=null);
+        if(o.tensor!=null){
+            Map<?,?> body=(Map<?,?>)JsonR27.parse(o.tensor.payload);
+            r.put("targetIssue",o.tensor.targetIssue);r.put("throughIssue",o.tensor.throughIssue);
+            r.put("axisRows",body.get("rows"));r.put("axisColumns",body.get("columns"));
+            r.put("presentCells",o.tensor.presentCells);r.put("totalCells",o.tensor.cells);
+            r.put("originalResearchRun",MatrixTensorR30R1.researchRun(o.tensor));
+        }
         r.put("costNs",costNs);r.put("qualityEffective",null);return r;
     }
     /** True when this kind was already decided for the same dependency key (no repeated waiting job). */
@@ -137,7 +159,11 @@ public final class MatrixResearchR30R1 {
             long measured=Arrays.asList("CAUSAL_SUPPORT","COUNTER_EVIDENCE","EVOLUTION_CREDIT","TEMPORAL_PRECEDENCE").contains(def.kind)?measuredVersion:def.kind.equals("RESOURCE_EFFICIENCY")?ResearchStoreR30R1.calendar(w.ro):0;
             String input=dependencyKeyR31(ctx.data.datasetHash,revision,def.kind,sourceOnly?"SOURCE_ONLY":StatsR27.sha256(policyIdentity.toString()),measured,com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);
             Map<?,?> previous=null;
-            try(Cursor c=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,def.kind})){if(c.moveToFirst()){Object saved=JsonR27.parse(c.getString(0));if(saved instanceof Map)previous=(Map<?,?>)saved;}}
+            try(Cursor c=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,def.kind})){
+                if(c.moveToFirst())try{
+                    Object saved=JsonR27.parse(c.getString(0));if(saved instanceof Map)previous=(Map<?,?>)saved;
+                }catch(IllegalArgumentException malformedHint){previous=null;}
+            }
             if(decidedR31(previous,input)){
                 cursor.scan(w,owned,(index+1)%definitions.size(),null,null);
                 return ResearchPoolR27.Outcome.idle("WAITING_NEW_MATRIX_SOURCE_PAGE",0,-1);
@@ -155,6 +181,12 @@ public final class MatrixResearchR30R1 {
             // A non-produced kind records its state and lets the round continue with the next kind on the next slice.
             return tensor==null?ResearchPoolR27.Outcome.idle("MATRIX:"+def.kind+":"+outcome.status,0,-1)
                     :ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
+            }catch(RuntimeException failure){
+                String reason=ResearchObservatoryR30R1.localFailureR341(failure);
+                if(reason==null)throw failure;
+                String label="MATRIX:"+def.kind;
+                cursor.scan(w,null,(index+1)%definitions.size(),label,ResearchObservatoryR30R1.viewFailureR341(label,reason));
+                return ResearchPoolR27.Outcome.idle("DEPENDENCY(MATRIX_SOURCE:"+def.kind+")",0,-1);
             }
         }
         return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_INPUT",0,-1);

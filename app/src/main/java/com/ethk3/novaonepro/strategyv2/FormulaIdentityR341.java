@@ -152,6 +152,21 @@ public final class FormulaIdentityR341 {
         return Collections.unmodifiableList(changes);
     }
 
+    static PolicyAstR27.Node revertSingleEditR341(PolicyAstR27.Node parent,PolicyAstR27.Node child){
+        List<NodeEdit> edits=new ArrayList<>();
+        diff(parent,child,"root",edits);
+        if(edits.size()!=1)return null;
+        return restoreSubtreeR341(parent,child,edits.get(0).path.split("/"),1);
+    }
+
+    private static PolicyAstR27.Node restoreSubtreeR341(PolicyAstR27.Node parent,PolicyAstR27.Node child,String[] path,int depth){
+        if(depth==path.length)return parent;
+        int branch=Integer.parseInt(path[depth]);
+        PolicyAstR27.Node[] children=child.kids.clone();
+        children[branch]=restoreSubtreeR341(parent.kids[branch],children[branch],path,depth+1);
+        return new PolicyAstR27.Node(child.op,child.ints,child.param,children);
+    }
+
     private static void diff(PolicyAstR27.Node prior, PolicyAstR27.Node next, String path, List<NodeEdit> edits) {
         if (prior.toString().equals(next.toString())) return;
         if (!prior.op.equals(next.op) || prior.kids.length != next.kids.length

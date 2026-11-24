@@ -184,7 +184,10 @@ public final class ResearchObservatoryR30R1 {
   Object raw=frame.get("points");if(raw instanceof List)for(Object o:(List<?>)raw)if(o instanceof Map){Map<?,?> p=(Map<?,?>)o;Object v=p.get("value"),n=p.get("n");boolean finite=v instanceof Number&&Double.isFinite(((Number)v).doubleValue());if(p.get("stack") instanceof List)for(Object cell:(List<?>)p.get("stack"))finite|=cell instanceof Number&&Double.isFinite(((Number)cell).doubleValue());if(finite&&n instanceof Number&&((Number)n).longValue()>0)usable++;}
   if("R16".equals(frame.get("viewId"))&&frame.get("actualTaskCpu") instanceof List)for(Object value:(List<?>)frame.get("actualTaskCpu"))if(value instanceof Map){Object cpu=((Map<?,?>)value).get("actualContinuationCpuNs");if(cpu instanceof Number&&Double.isFinite(((Number)cpu).doubleValue())&&((Number)cpu).doubleValue()>0)usable++;}
   frame.put("validPointCount",usable);frame.put("diagnosticFrameRecorded",true);frame.put("usableResearchProduct",!formal&&usable>0&&!"BLOCKED_DEPENDENCY".equals(frame.get("status")));
-  if(!formal&&usable==0&&!"BLOCKED_DEPENDENCY".equals(frame.get("status"))){frame.put("status","INSUFFICIENT");frame.put("reason","NO_SUPPORTED_NUMERICAL_POINT");}
+  if(!formal&&usable==0&&!"BLOCKED_DEPENDENCY".equals(frame.get("status"))){
+   frame.put("status","INSUFFICIENT");
+   if(!(frame.get("reason") instanceof String)||((String)frame.get("reason")).isEmpty())frame.put("reason","NO_SUPPORTED_NUMERICAL_POINT");
+  }
  }
  static void appendHeadR335(ResearchWriteQueueR27.Batch b,String view,String dependency,Map<String,Object> frame,long now){
   String status=Boolean.TRUE.equals(frame.get("formalReadOnly"))?"FORMAL_READ_ONLY":Boolean.TRUE.equals(frame.get("usableResearchProduct"))?"PRODUCED":String.valueOf(frame.get("reason")).contains("PARENT")||String.valueOf(frame.get("reason")).contains("STUDENT")?"WAITING_STUDENT":"BLOCKED_DEPENDENCY".equals(frame.get("status"))?"WAITING_SOURCE":"INSUFFICIENT";
@@ -205,8 +208,15 @@ public final class ResearchObservatoryR30R1 {
  }
  static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
   if(rt.nextModelStudyTurnR335() || rt.evoData==null){
-   if(ModelReplayStudyR30R1.settle(w))return ResearchPoolR27.Outcome.progress(1,0);
-   if(rt.atomSessionR30!=null&&ModelReplayStudyR30R1.bindSelectRequestR335(rt,w,rt.atomSessionR30))return ResearchPoolR27.Outcome.progress(1,0);
+   try{
+    if(ModelReplayStudyR30R1.settle(w))return ResearchPoolR27.Outcome.progress(1,0);
+    if(rt.atomSessionR30!=null&&ModelReplayStudyR30R1.bindSelectRequestR335(rt,w,rt.atomSessionR30))return ResearchPoolR27.Outcome.progress(1,0);
+   }catch(RuntimeException fault){
+    String reason=localFailureR341(fault);
+    if(reason==null)throw fault;
+    ViewCursor study=ViewCursor.read(w.ro,"MODEL_STUDY",1);
+    study.scan(w,null,0,"MODEL_STUDY",viewFailureR341("MODEL_STUDY",reason));
+   }
   }
   if(rt.evoData==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(IMMUTABLE_REPLAY_DATASET)",0,-1);
   int count=ResearchGraphSpecsR30R1.ALL.size();
@@ -233,16 +243,29 @@ public final class ResearchObservatoryR30R1 {
     ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(c.split.selectTo,c.split.selectTo,0L,null,c.data.ordinals[c.split.selectTo-1],StatsR27.sha256(identity+"|"+spec.id)));
     try{RuntimeR27.submit(w,"RESEARCH_OBSERVATORY_"+spec.id,b,false,cursor.snapshot(identity));}catch(RuntimeException failure){if(ResearchStoreR30R1.stale(failure))return ResearchPoolR27.Outcome.idle("DEPENDENCY(OBSERVATORY_INPUT_CHANGED)",0,-1);throw failure;}
     return ResearchPoolR27.Outcome.progress(1,c.split.selectTo);
-   }catch(android.database.sqlite.SQLiteException fault){
-    String reason=fault.getMessage();
-    if(reason==null || !(reason.contains("no such table") || reason.contains("no such column")))throw fault;
-    // Keep the source error and visit the remaining views. The next rotation retries this view.
-    Map<String,Object> failure=map();failure.put("viewId",spec.id);failure.put("source",BuildConfig.SOURCE_COMMIT_R26);
-    failure.put("reason",RuntimeFaultEvidenceR31.clean(reason,256));
-    cursor.scan(w,null,(index+1)%count,spec.id,JsonR27.write(failure));
+   }catch(RuntimeException fault){
+    String reason=localFailureR341(fault);
+    if(reason==null)throw fault;
+    cursor.scan(w,null,(index+1)%count,spec.id,viewFailureR341(spec.id,reason));
     return ResearchPoolR27.Outcome.idle("DEPENDENCY(OBSERVATORY_SOURCE:"+spec.id+")",0,-1);
    }
   }
   return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_POPULATION_OR_INPUT",0,-1);
+ }
+ static String localFailureR341(RuntimeException fault){
+  Error fatal=FailureDispositionR31.processFatalCause(fault);if(fatal!=null)throw fatal;
+  String message=String.valueOf(fault.getMessage());
+  if(fault instanceof android.database.sqlite.SQLiteException)
+   return message.contains("no such table")||message.contains("no such column")?message:null;
+  if(MatrixResearchR30R1.isStorageFaultR31(fault))return null;
+  if((fault instanceof IllegalArgumentException||fault instanceof ArithmeticException||fault instanceof IndexOutOfBoundsException)
+          &&FailureDispositionR31.classify(fault).disposition==FailureDispositionR31.Disposition.FAULT)
+   return fault.getClass().getSimpleName()+":"+message;
+  return null;
+ }
+ static String viewFailureR341(String view,String reason){
+  Map<String,Object> failure=map();failure.put("viewId",view);failure.put("source",BuildConfig.SOURCE_COMMIT_R26);
+  failure.put("reason",RuntimeFaultEvidenceR31.clean(reason,256));
+  return JsonR27.write(failure);
  }
 }
