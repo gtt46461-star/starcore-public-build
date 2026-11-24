@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.TargetIssueResolver;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -83,7 +84,14 @@ public final class R341ResearchTestCases {
     }
 
     private static EvalContextR27 fixture(){
-        ReplayDatasetR27 data=ReplayDatasetR27.synthetic(1800,341,null);
+        ReplayDatasetR27 sample=ReplayDatasetR27.synthetic(1800,341,null);
+        List<ReplayDatasetR27.Row> rows=new ArrayList<>();
+        for(int i=0;i<sample.size();i++){
+            long ordinal=FIRST+i, opened=1795478400000L+60000L*i;
+            rows.add(new ReplayDatasetR27.Row(TargetIssueResolver.fromSequenceOrdinalSU1(ordinal),ordinal,
+                    sample.draws[i],opened,opened+100,"R341_ANDROID_REGRESSION","SYNTHETIC_ENGINEERING_ONLY"));
+        }
+        ReplayDatasetR27 data=ReplayDatasetR27.of(rows);
         return new EvalContextR27(new FeatureCacheR27(data),SplitR27.of(data,null),null);
     }
 
@@ -92,7 +100,7 @@ public final class R341ResearchTestCases {
             for(String kind:MatrixResearchR30R1.SOURCE_ONLY_KINDS_R31){
                 MatrixResearchR30R1.OutcomeR31 outcome=MatrixResearchR30R1.produceR31(kind,false,c.data.datasetHash,3,
                     ()->MatrixResearchR30R1.build(kind,c,null,3));
-                assertEquals(MatrixResearchR30R1.StatusR31.PRODUCED,outcome.status);
+                assertEquals(kind+":"+outcome.reason,MatrixResearchR30R1.StatusR31.PRODUCED,outcome.status);
                 assertTrue(outcome.tensor.presentCells>0);
                 Map<String,Object> envelope=MatrixResearchR30R1.receiptR31("R930:"+kind,"source",c.data.datasetHash,3,outcome,null,10);
                 assertEquals(outcome.tensor.hash,envelope.get("matrixHash"));
