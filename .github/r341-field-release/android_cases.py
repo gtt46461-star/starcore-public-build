@@ -111,6 +111,8 @@ try:
                 'R341-B09-02-A02','A-B10-02b','A-B10-05b','A-B11-04b','A-B11-06b']
         if version>=577311144:
             replay+=['R341-B01-04-T01','A-B11-02a']
+        if version>=577311145:
+            replay+=['R341-B06-01-A01','R341-B06-03-A02','R341-B06-05-A02']
         available={case['id']:case for case in json.loads((plan/'ACCEPTANCE_MATRIX.json').read_bytes())['cases']}
         cases=[available[ident] for ident in replay]
         receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_EMULATOR_SMOKE'
