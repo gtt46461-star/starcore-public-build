@@ -1,5 +1,7 @@
 # R34.1批次索引
 
+[第 6 版 12 项条件](FIELD6.md)分别在 [B06](batches/B06.md)、[B07](batches/B07.md)、[B08](batches/B08.md)、[B09](batches/B09.md)、[B11](batches/B11.md)、[B12](batches/B12.md) 的“第 6 版专项施工”下实施。
+
 [第 5 版已修正的开工条件、10 项工单补充与逐批 APK 验收](FIELD5.md)。
 
 [第 4 版新增的施工项目与签收顺序](FIELD4.md)。

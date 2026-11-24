@@ -1,0 +1,14 @@
+# B12 同一后台服务中的多起源与有效双亲
+
+此为 R341-B12-03 的工程用例 A-B12-03b。先由原校验器复核已提交 APK、冻结在该源码的场景、无界面服务、进程重启、三代训练发布冻结结算和 20 条阶段联结，再由本版验收器读取相同原件。每轮生产按可用预算排程，单个场景可预留更多目标期。四个工程周期分别在重启前后至少各有两个。[已有同进程谱系合同](../field5/trace.md)
+
+## 实施者要导出的字段
+
+1. 在施工提交的 `tools/r341/fixtures/continuity_b12.json` 中增加 `mechanism_probe6`。对象包含 `role="TRAIN", first_ordinal, draws, probe_from_index, target_position, root_slots, fixed_seed_asts`。draws 是连续有序的 PK10 十号码排列，末期早于服务日历第一期。warmup 至少 8 行，随后全取 32–500 个工程目标，整段≤5000。root_slots 是每个已登记周期内一个服务日历的零基下标。生产代码读取正常输入。场景只给刺激、预算及基线种子列表。A-B12-03b 开工时以真实生成器种子、冷启动目录和隔离安装的初始查询复核 fixed_seed_asts 完整性，保留原查询及版本。场景只列能在受控语法中表示的种子，其余通过完整工厂的去重合同核查。ledger.mechanism_seed_snapshot 引用与索引同域的初始查询原件，含 source_query、registry_version、observed_ms、existing_born_keys、fixed_seed_asts。在隔离测试作用域内首次出生前查得已出生名册为空，实际注册可用种子须与已冻结的清单一致。后续注册一组新输入和种子重演，防止实现按期号输出样例。
+2. 运行原件在已有 `continuity_index_artifact, learning_trace_index_artifact` 之外增加 `mechanism6_index_artifact`。新索引带相同 `scope, run_id, source_commit, apk_sha256, time_scope, case_id, database_instance, scenario_sha256`。其 `formulas` 数组每项含 `canonical, scores` 引用，各用 `{path,sha256}` 相对于本索引定位，列入总回执。canonical 保存 **PolicySpecR27.canonical() 原始 UTF-8 字节**，摘要必须等于实际 policyHash。三代学习记录中的 formula_original.program 为这些字节解码出的完整 executable 对象。v5 的规范序列化产物链接继续保留。数值或序列化身份迁移须留旧身份及 ABI 证据。
+3. scores 原件带上述九个身份字段、`role="TRAIN", policy_hash, score_rows`。同一位置对每个测试公式执行 **实际 PolicyAstR27.evalScopedR31**，在事前固定的整段历史按行输出十个原始分数，特征只看 t 之前的开奖。宿主从独立实现逐格复算（相对容差 1e-10，绝对容差 1e-12），共同以相同读出选 K3，两分相同时取较小号码。这里抽离可学习权重与出手阈值，专测结构。原服务仍须对实际策略完成带优化器、逐期 ACT/HOLD 的训练和事前消费。把原始概率/单一摘要误填成 AST 原始分数会失败。
+4. 在预登记 root_slots 的 `create/COMMIT` 记录保留当前服务的真实源表/键、时间、数据库实例、`policy_hash, mechanism_parents=[], origin_kind="GENERATED_ROOT", generator_method`。effect 的字节引用该 executable。核对正常工厂调度、生成种子、语法编辑轨迹及初始归档。每个受测根选取其后同实例日历内的 `train/COMMIT`，`policy_hash` 相同，before_state 与 effect 都指向实际更新前后的权重或优化器原始字节。有四个有效受测根，至少三类单机制，重启后至少一个由两类以上组件组成、去参数结构也未在预置种子中的新根。根之间逐对检查结构，并用逐期 K3 的交并比拒收 ≥0.95 的近重复。第一条受测谱系必须从其中一个根真实开始，融合供体须在调用前已出生且已训练。可安排其他相邻目标来训练并行分支。
+5. B12 选用 122 已有的秩投票模式取得可独立复算的具体证例。设 P 是父 AST、D 是含另一类输入的组件。变异生成 `(add (rank P) (rank D))`，保留原 P。移除 D 的原始逐号码输出放入子代的 `drop_graft`。让这个子代与另一条有独立来源、已训练的策略 Q 组成 `(add (rank 子代) (rank Q))`（两项顺序可互换）。融合前两亲身份、结构、探针行为分别不同。融合子的 `drop_parent` 以被移除的父 policyHash 为键，值为只剩另一条 rank 分支时生产执行器的逐号码输出。宿主重算两个消融。完整子代对每个移除版本都要有可分辨的 K3 变化。原研究门的同机会互补和开发增益另验。该场景额外校验公式结构，所有生产路线的签收范围仍由各批次定义。
+6. 此小型对照解释器支持 `freq/gap/cross/repeat/trans1/trans2` 与 `rank/zscore/add/sub/mul/mix/c` 的受控组合。手算行、当前期开奖置换、窗口改变、伪造逐号数、零权父代、调换原件以及复用旧模板均有宿主测试。研究端可生成涉及检索、矩阵、神经表征、条件路由及其他注册原语的公式，按 B06–B09 对应的生产执行器、干预和逐对象合同验收。对 v5 历史回执保留原封印。新封印内本用例缺新索引即不能通过。
+
+运行验收器自测使用 `python3 -B -m unittest discover -s tools -p 'test_diversity6.py'`（在方案根执行）。施工后用原 `tools/verify_receipt.py ... --level ENGINEERING` 接入真实服务回执。测试文件提供完整工程数据格式样例并标记隔离作用域。宿主合成轨迹不能签收 Android、自然质量或真实出手。

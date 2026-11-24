@@ -132,8 +132,35 @@ def validate_structure(root):
                   field5_android_argv_count=review_counts['android_scoped_cases'])
     scope = read(root / 'control/SCOPE_COUNTS.json')
     need(all(scope[k] == v for k,v in field5.items()), 'Current receipt and published v5 scope differ')
-    need(ident['document_revision'] == 5 and ident['reviewed_plan_commit'] ==
-         read(root/'control/REVIEW_CONTRACTS.json')['field5_reviewed_plan_commit'], 'Wrong v5 parent identity')
+    reviews = read(root/'control/REVIEW_CONTRACTS.json')
+    need(ident['document_revision'] == 6 and ident['plan_repository_parent'] == ident['reviewed_plan_commit'] ==
+         reviews['field6_reviewed_plan_commit'], 'Wrong v6 parent identity')
+    changes = [r for r in reviews['checks'] if r['id'].startswith('F6-')]
+    current = dict(field6_work_items=len(changes), field6_affected_issues=len({r['issue'] for r in changes}),
+                   field6_affected_cases=len({r['case'] for r in changes}), field6_affected_batches=len({r['batch'] for r in changes}),
+                   field6_target_files=len({p for r in changes for p in r['files']}))
+    need(current['field6_work_items'] == 12 and all(scope[k] == v for k,v in current.items()),
+         'Incorrect v6 scope or missing construction obligation')
+    need({r['batch'] for r in changes} == {'B06','B07','B08','B09','B11','B12'} and
+         allcases['A-B12-03b'].get('mechanism_diversity_required') is True and
+         allcases['R341-B08-04-A01'].get('generator_induction_required') is True, 'Missing production mechanism or rule verification')
+    for name in ('runtime','learning','delivery'):
+        mirror = read(root/'parts'/(name+'.json'))
+        for part_batch in mirror['batches']:
+            for part in part_batch['issues']:
+                main = next(i for b in batches for i in b['issues'] if i['id'] == part['id'])
+                selected = [r for r in changes if r['issue'] == part['id']]
+                if selected:
+                    need(part['files'] == [f for f in main['files'] if f.get('kind') != 'ACCEPTANCE_HARNESS_CONTRACT'],
+                         'Inconsistent production file changes in '+part['id'])
+                    for key in ('implementation_steps', 'acceptance'):
+                        need(part[key] == main[key], 'Partial copy of v6 order: '+part['id']+'/'+key)
+    for row in changes:
+        for path in row['files']:
+            edits = [r for r in cf[path]['changes_in_order'] if r['issue_id'] == row['issue']]
+            need(len(edits) == 1 and any(row['id'] in v for v in edits[0]['changes']),
+                 'File card lost v6 method change '+path)
+    review_counts.update(current)
     need(allcases['A-B12-03b'].get('joined_lineage_required') is True and
          allcases['A-B12-03b'].get('continuity_index_required') is True, 'Incomplete integrated service contract')
     review_counts.update(field5)

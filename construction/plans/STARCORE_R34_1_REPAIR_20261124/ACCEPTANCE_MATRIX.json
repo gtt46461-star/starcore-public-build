@@ -2539,7 +2539,7 @@
       "id": "R341-B06-03-A02",
       "level": "ENGINEERING",
       "scenario": "换名字/冗余节点/交换输入重试",
-      "expected": "等价不重复出生；安全归一化不改变逐位数值 F4-B06-03 正例：可解析的同一公式在 A 因 AVAILABLE_ROWS 不足被真实 gate 拒绝；预定开发 B 具备合法输入后同一个 hash 完成首次出生并重放，保留两份不同作用域的记录。 反例：同 A 重试、已出生对象、语法无效、换名、两个工人同时处理 B、提交后被杀和非法未来输入均不得让出生、行为创新或资格重复/越权计数。",
+      "expected": "等价不重复出生；安全归一化不改变逐位数值 F4-B06-03 正例：可解析的同一公式在 A 因 AVAILABLE_ROWS 不足被真实 gate 拒绝；预定开发 B 具备合法输入后同一个 hash 完成首次出生并重放，保留两份不同作用域的记录。 反例：同 A 重试、已出生对象、语法无效、换名、两个工人同时处理 B、提交后被杀和非法未来输入均不得让出生、行为创新或资格重复/越权计数。 F6-B06-01 同一公式调窗口、阈值或学习率，包括 K3 确实改变的例子，新增结构数为 0。新增可执行跨来源边并改变共同探针的决策才计结构和行为新颖。交换等价输入、只改操作名、缺父原件和改变互不相干的两项数值均不能冒领。",
       "evidence": "canonical/probe/dedup receipt；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B06-03",
       "batch": "B06",
@@ -2560,7 +2560,8 @@
         "android_scope_contract": 1
       },
       "required_review_ids": [
-        "F4-B06-03"
+        "F4-B06-03",
+        "F6-B06-01"
       ]
     },
     {
@@ -2778,7 +2779,7 @@
       "id": "R341-B06-05-A01",
       "level": "ENGINEERING",
       "scenario": "大量重复候选+少数新机制，有限内存预算",
-      "expected": "不 OOM；新机制取得非零计算预算；重复不虚增有效出生",
+      "expected": "不 OOM；新机制取得非零计算预算；重复不虚增有效出生 F6-B06-02 热门父本产生大量调参变体时，在预登记有算力的窗口，另一机制仍能被执行并首次训练/回放。以已有输入重试、重启均不重复出生。受资源限制时游标可续，已引用的原件完整。",
       "evidence": "预算发放/耗用和去重清单；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B06-05",
       "batch": "B06",
@@ -2815,6 +2816,9 @@
       "file_probe_keys": [
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java"
+      ],
+      "required_review_ids": [
+        "F6-B06-02"
       ]
     },
     {
@@ -3294,7 +3298,7 @@
       "id": "R341-B07-04-A02",
       "level": "ENGINEERING",
       "scenario": "固定失败开发样例",
-      "expected": "下一轮指定父节点/预算或合法在线参数确变，能追回原反馈",
+      "expected": "下一轮指定父节点/预算或合法在线参数确变，能追回原反馈 F6-B07-01 同一期两条不同策略各有冻结，开奖号码只到一次。分别核对两份标签、两条不同的下游输入与更新前后证据。重复事件只消费一次。把 A 的反馈、权重或结果归给 B 必须失败。",
       "evidence": "before/after effect hashes；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B07-04",
       "batch": "B07",
@@ -3313,7 +3317,10 @@
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。",
         "android_scope_contract": 1
-      }
+      },
+      "required_review_ids": [
+        "F6-B07-01"
+      ]
     },
     {
       "id": "R341-B07-04-A03",
@@ -3800,7 +3807,7 @@
       "id": "R341-B08-03-A01",
       "level": "ENGINEERING",
       "scenario": "无学生且合法数据",
-      "expected": "两个source-only矩阵产出；学生矩阵 WAITING_STUDENT，不阻其他kind",
+      "expected": "两个source-only矩阵产出；学生矩阵 WAITING_STUDENT，不阻其他kind F6-B08-01 固定其余因素，在 source-only 跨位流或其他已有算法消费者中屏蔽关键单元，观察到具体输入边、后续选取及非平凡输出的预期变化。缺学生的矩阵等待，独立源矩阵仍继续。只换 matrixId 或截图无效。",
       "evidence": "逐kind状态/shape/hash；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-03",
       "batch": "B08",
@@ -3879,6 +3886,9 @@
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java"
+      ],
+      "required_review_ids": [
+        "F6-B08-01"
       ]
     },
     {
@@ -4100,7 +4110,7 @@
       "id": "R341-B08-04-A01",
       "level": "ENGINEERING",
       "scenario": "提案正例、只读图、角色不符、源失效",
-      "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留 REV-B08-03：隔离环境注入方向相反、每半199支持、单位置只过全局阈值及同向达标样例。前三者不开 S5；达标且上下游就绪的例子恰有一个影子；落盘前后重启、槽满后重试不重复，不产生生产证书或 REAL。 REV-B08-05：给同一 viewId 写旧版动作、重复消费、仅文字提案、当期有 before/after 变化且原件可复算的非出生动作，当前真实消费只有最后一笔。只读图不取得优化授权。",
+      "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留 REV-B08-03：隔离环境注入方向相反、每半199支持、单位置只过全局阈值及同向达标样例。前三者不开 S5；达标且上下游就绪的例子恰有一个影子；落盘前后重启、槽满后重试不重复，不产生生产证书或 REAL。 REV-B08-05：给同一 viewId 写旧版动作、重复消费、仅文字提案、当期有 before/after 变化且原件可复算的非出生动作，当前真实消费只有最后一笔。只读图不取得优化授权。 F6-B08-02 在发现时未使用的开发片段生成两棵去参数后不同、可执行且实际被训练/重放的树。重启后同规则再消费一次。删除原子、替换规则、退化为同模板调参、只写登记记录或复用未知旧 ABI 均不能计新思路族。",
       "evidence": "proposal→child/effect→receipt joins；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-04",
       "batch": "B08",
@@ -4122,7 +4132,8 @@
       },
       "required_review_ids": [
         "REV-B08-03",
-        "REV-B08-05"
+        "REV-B08-05",
+        "F6-B08-02"
       ],
       "field3_directions": [
         {
@@ -4218,7 +4229,8 @@
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java"
-      ]
+      ],
+      "generator_induction_required": true
     },
     {
       "id": "R341-B08-04-A02",
@@ -4277,7 +4289,7 @@
       "id": "R341-B08-05-A01",
       "level": "ENGINEERING",
       "scenario": "固定失败夹具运行两代并中途恢复",
-      "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果 REV-B08-06：复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。 F3-B08-06 注入合法跨位对照、只有全策略失败的假设、错组件 hash、同父已测反事实。仅具备合法执行材料的两项可进入各自原生产路径一次；其余返回具体原因，后续补件唤醒。重启后去重。核实 R26 F15 未代替 I14、开发子代的未来计数为0、PRUNE 的子代就是测量过的结构。",
+      "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果 REV-B08-06：复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。 F3-B08-06 注入合法跨位对照、只有全策略失败的假设、错组件 hash、同父已测反事实。仅具备合法执行材料的两项可进入各自原生产路径一次；其余返回具体原因，后续补件唤醒。重启后去重。核实 R26 F15 未代替 I14、开发子代的未来计数为0、PRUNE 的子代就是测量过的结构。 F6-B08-03 同一刺激下比较父本、仅调参、结构编辑、撤销这处编辑和等预算随机编辑。只有实改且干预引起行为差的后代才能进入行为新颖统计。消融无效、输入错域和重试不重复记。",
       "evidence": "generation与lineage清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-05",
       "batch": "B08",
@@ -4299,7 +4311,8 @@
       },
       "required_review_ids": [
         "REV-B08-06",
-        "F3-B08-06"
+        "F3-B08-06",
+        "F6-B08-03"
       ],
       "field3_directions": [
         {
@@ -4394,7 +4407,7 @@
       "id": "R341-B08-06-A01",
       "level": "ENGINEERING",
       "scenario": "合法双亲、不同目标、自融合、缺组件",
-      "expected": "仅合法pair可生新identity；无输入明确等待",
+      "expected": "仅合法pair可生新identity；无输入明确等待 F6-B08-04 对两父及三父的权重、条件路由和秩投票分别验收。零权父、状态门从未到达的父、仅使用头两个成员时的第三父、同机制克隆不得充作有效贡献。两真父的逐亲移除应各有差异。无协同或开发变差留真实负例。",
       "evidence": "pair manifest、AST diff；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-06",
       "batch": "B08",
@@ -4431,6 +4444,9 @@
       "file_probe_keys": [
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionStudyR30R1.java"
+      ],
+      "required_review_ids": [
+        "F6-B08-04"
       ]
     },
     {
@@ -4557,7 +4573,7 @@
       "id": "R341-B08-07-A02",
       "level": "ENGINEERING",
       "scenario": "所有成效未知或全负",
-      "expected": "缩回先验/保留探索；不制造正信用 F3-B08-01 四段中一段缺失或下界≤0均继续观察，四段有序且各下界>0才能记录对应研究验证。让不同版本的 REGMEM 或重复期混入四段必须拒绝。影子 599 次、600 次但无对照、600 次且有合格对照分别调用真实 shadowOutcome；实际上下文分开记录 EFFECTIVE、NO_EFFECT、HARMFUL、PENDING。AUTO无执行差、MANUAL未施工和既无原报告动作又无源的情况均不得记作已改进。",
+      "expected": "缩回先验/保留探索；不制造正信用 F3-B08-01 四段中一段缺失或下界≤0均继续观察，四段有序且各下界>0才能记录对应研究验证。让不同版本的 REGMEM 或重复期混入四段必须拒绝。影子 599 次、600 次但无对照、600 次且有合格对照分别调用真实 shadowOutcome；实际上下文分开记录 EFFECTIVE、NO_EFFECT、HARMFUL、PENDING。AUTO无执行差、MANUAL未施工和既无原报告动作又无源的情况均不得记作已改进。 F6-B08-05 等预算对照下，含热门重复、低支持新路及全负轮次。下轮有新的派发及拒绝/留存原因。计时器代号递增、反复运行同一公式、拟定预算而从未调度均不能计已完成进化或改善。",
       "evidence": "budget state；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-07",
       "batch": "B08",
@@ -4578,7 +4594,8 @@
         "android_scope_contract": 1
       },
       "required_review_ids": [
-        "F3-B08-01"
+        "F3-B08-01",
+        "F6-B08-05"
       ]
     },
     {
@@ -4613,7 +4630,7 @@
       "id": "R341-B09-01-A01",
       "level": "ENGINEERING",
       "scenario": "正常注册、重复、模型替换、重命名",
-      "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移 REV-B09-01：A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。 F3-B09-01 同一预测器两阈值构成 100 个已知开发机会，固定规则ACT40命中14，专攻规则ACT5命中3；在候选5次为前者子集时，共同ACT=5，并集=40，专攻率虽60%但覆盖5%。另用试验覆盖率15%和30%的独立夹具检查分母与展示，禁止将该例计生产资格；换阈值、换位置及开奖后补填选择各自引发隔离/新注册，0次ACT的命中率为空。",
+      "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移 REV-B09-01：A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。 F3-B09-01 同一预测器两阈值构成 100 个已知开发机会，固定规则ACT40命中14，专攻规则ACT5命中3；在候选5次为前者子集时，共同ACT=5，并集=40，专攻率虽60%但覆盖5%。另用试验覆盖率15%和30%的独立夹具检查分母与展示，禁止将该例计生产资格；换阈值、换位置及开奖后补填选择各自引发隔离/新注册，0次ACT的命中率为空。 F6-B09-01 两个不同机制及一个调参版本各走自己的合法注册路径。同键重试不重复分配。父证直接借用、换族名重置 alpha、训练命中混入未来、子代沿用父代已开奖目标均拒收。",
       "evidence": "registration manifest及唯一键；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-01",
       "batch": "B09",
@@ -4635,7 +4652,8 @@
       },
       "required_review_ids": [
         "REV-B09-01",
-        "F3-B09-01"
+        "F3-B09-01",
+        "F6-B09-01"
       ],
       "inherited_path_probes": [
         {
@@ -4939,7 +4957,7 @@
       "id": "R341-B09-03-A02",
       "level": "ENGINEERING",
       "scenario": "数学裁决通过，分别构造未来 ACT 为250、机会为1667与1666的边界",
-      "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。 F5-B09-02 正例：250个部署机会中当前候选38笔真实交易并结算，另一个候选同时有自己的真实交易；实测得到38/250，已结算与命中按自己记录独立对账。无部署史时原门可以首次发证；1个真实机会可立即留下已应用记录。 反例：38个布尔真没有trades、篡改原生交易、错证书、撤销后授权、影子冒领、把另一个候选的真实交易记录移给本候选、漏期或Q07用一个身份报99个资产均拒收。",
+      "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。 F5-B09-02 正例：250个部署机会中当前候选38笔真实交易并结算，另一个候选同时有自己的真实交易；实测得到38/250，已结算与命中按自己记录独立对账。无部署史时原门可以首次发证；1个真实机会可立即留下已应用记录。 反例：38个布尔真没有trades、篡改原生交易、错证书、撤销后授权、影子冒领、把另一个候选的真实交易记录移给本候选、漏期或Q07用一个身份报99个资产均拒收。 F6-B09-02 两个不同合格机制、一个合格调参版、一个撤销及一个不足样本的隔离样例，逐项与逐对对账。重复证书、挪用分母、只靠不同哈希、没有共同日历仍报互补均拒收。首次合法应用沿原门，不以已有多资产或部署后频率为前置。",
       "evidence": "数学裁决、实发决定、质量投影三份原件；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-03",
       "batch": "B09",
@@ -4961,7 +4979,8 @@
       },
       "required_review_ids": [
         "REV-B09-03",
-        "F5-B09-02"
+        "F5-B09-02",
+        "F6-B09-02"
       ]
     },
     {
@@ -6132,7 +6151,7 @@
     {
       "id": "A-B11-02b",
       "scenario": "2成功、3超时、1未启动，混入shadow成功",
-      "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。 F3-B11-01 构造热 draws 仅一条有效赛前预测、两个历史已结算标签留存及一个无冻结开奖，旧查询能得3/1。新热集必须1/1；历史两条、无冻结一条各有独立归属。再覆盖无标签、无分母、同一期异角色、缺表；在线与导出同原件同结果，禁止截成100%或把异常记零。 F4-B11-01 正例：工程构造无资格、弃权、未被选中、合法胜者已出手、已出手待结算及应出手却漏用各一类；每个目标都能回读原因并与真实账和唯一选中者对齐。自然首次出现时复用相同对账。 反例：移去或换目标的 trade/receipt，加入正权重研发行、资格或 R35 普通影子行，不能抬高 REAL 计数；无合法机会时部署效果为待观察。",
+      "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。 F3-B11-01 构造热 draws 仅一条有效赛前预测、两个历史已结算标签留存及一个无冻结开奖，旧查询能得3/1。新热集必须1/1；历史两条、无冻结一条各有独立归属。再覆盖无标签、无分母、同一期异角色、缺表；在线与导出同原件同结果，禁止截成100%或把异常记零。 F4-B11-01 正例：工程构造无资格、弃权、未被选中、合法胜者已出手、已出手待结算及应出手却漏用各一类；每个目标都能回读原因并与真实账和唯一选中者对齐。自然首次出现时复用相同对账。 反例：移去或换目标的 trade/receipt，加入正权重研发行、资格或 R35 普通影子行，不能抬高 REAL 计数；无合法机会时部署效果为待观察。 F6-B11-01 同一观察窗同时放入一个无支持候选、一个已训练参数版和两个独立结构。报告/UI各项逐键回算，失败/试验中/撤销/合格/已使用明确。不能把基础影子、其他资产或未知值并入。",
       "evidence": "事件夹具、指标分母明细、逐期timeline",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-02",
@@ -6156,7 +6175,8 @@
       "required_review_ids": [
         "REV-B11-02",
         "F3-B11-01",
-        "F4-B11-01"
+        "F4-B11-01",
+        "F6-B11-01"
       ]
     },
     {
@@ -7072,7 +7092,7 @@
     {
       "id": "A-B12-03b",
       "scenario": "无自然合格资产但受控端到端夹具可走完整工程链",
-      "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。 F4-B12-02 正例：前后各两个完整调度周期；重启携带待办，已提交消息重投只读回一次；新的生产结果继续被消费。 反例：输入充分却每期WAIT、重用旧权重或公式、跳过期号、丢弃重启前积压、靠Activity唤醒或换源均须显式失败。 F5-B12-02 正例：在重启两侧的同一机会日历复算训练、发布、候选冻结、结算、反馈、研究及两次出生共20个不同提交，第三代在重启后的服务进程消费并结算。 反例：同APK但另一次运行、只替换数值权重、跨进程或目标、基础影子代替候选、漏掉候选结算等情况即使两个旧检查分别通过，也不能签收组合用例。",
+      "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。 F4-B12-02 正例：前后各两个完整调度周期；重启携带待办，已提交消息重投只读回一次；新的生产结果继续被消费。 反例：输入充分却每期WAIT、重用旧权重或公式、跳过期号、丢弃重启前积压、靠Activity唤醒或换源均须显式失败。 F5-B12-02 正例：在重启两侧的同一机会日历复算训练、发布、候选冻结、结算、反馈、研究及两次出生共20个不同提交，第三代在重启后的服务进程消费并结算。 反例：同APK但另一次运行、只替换数值权重、跨进程或目标、基础影子代替候选、漏掉候选结算等情况即使两个旧检查分别通过，也不能签收组合用例。 F6-B12-01 在四个完整调度周期至少生成并训练四个结构/行为互异的根，含三种单机制与重启后新组合。实际变异引入新的有效输入，实际融合删去任一父都改变 K3。首个根和独立供体已训练。纯调参、无效父、伪造分数、重发模板、错实例和漏日历均拒收。",
       "evidence": "SYNTHETIC链hash、数值变化diff、producer-consumer匹配、生产资格状态",
       "level": "ENGINEERING",
       "issue_id": "R341-B12-03",
@@ -7098,7 +7118,8 @@
       "required_review_ids": [
         "F3-B12-01",
         "F4-B12-02",
-        "F5-B12-02"
+        "F5-B12-02",
+        "F6-B12-01"
       ],
       "inherited_path_probes": [
         {
@@ -7119,7 +7140,8 @@
         "tools/r341/fixtures/continuity_b12.json"
       ],
       "continuity_index_required": true,
-      "joined_lineage_required": true
+      "joined_lineage_required": true,
+      "mechanism_diversity_required": true
     },
     {
       "id": "A-B12-04a",

@@ -1274,10 +1274,196 @@
       "title": "自然发证后的真实出手率从全期交易复算",
       "implementation": "以已核验的自然证书、独立部署期历、同一 SQLite 一致快照取出区间内所有实际交易，联结真实主链选择、PIT授权、冻结K3、R974/F05、权威开奖及结算。按当前资产重算Q02与已选未成交、已提交待结算，并从当前实际核验的资产复算Q07。",
       "acceptance": "正例：250个部署机会中当前候选38笔真实交易并结算，另一个候选同时有自己的真实交易；实测得到38/250，已结算与命中按自己记录独立对账。无部署史时原门可以首次发证；1个真实机会可立即留下已应用记录。 反例：38个布尔真没有trades、篡改原生交易、错证书、撤销后授权、影子冒领、把另一个候选的真实交易记录移给本候选、漏期或Q07用一个身份报99个资产均拒收。"
+    },
+    {
+      "id": "F6-B06-01",
+      "batch": "B06",
+      "issue": "R341-B06-03",
+      "case": "R341-B06-03-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "从可执行图识别调参、等价程序与结构创造",
+      "implementation": "保持原 policyHash 和 ABI。在真实出生事务里从可执行程序提取结构、输入角色、状态边和节点路径。对 R26 基因组展开实际成员，对 R27 展开 AST。标签与数值版本单独计，实际行为再从同一冻结探针比较。",
+      "acceptance": "同一公式调窗口、阈值或学习率，包括 K3 确实改变的例子，新增结构数为 0。新增可执行跨来源边并改变共同探针的决策才计结构和行为新颖。交换等价输入、只改操作名、缺父原件和改变互不相干的两项数值均不能冒领。"
+    },
+    {
+      "id": "F6-B06-02",
+      "batch": "B06",
+      "issue": "R341-B06-05",
+      "case": "R341-B06-05-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "保留无父本的探索，并控制近重复候选占用",
+      "implementation": "给新根的实际派发保留可测服务机会，已占名额按结构、共同探针、支持、成本合并。不达标释放活跃位，历史已有身份和引用继续可查。",
+      "acceptance": "热门父本产生大量调参变体时，在预登记有算力的窗口，另一机制仍能被执行并首次训练/回放。以已有输入重试、重启均不重复出生。受资源限制时游标可续，已引用的原件完整。"
+    },
+    {
+      "id": "F6-B07-01",
+      "batch": "B07",
+      "issue": "R341-B07-04",
+      "case": "R341-B07-04-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "让同一期的多个资产各自取得反馈和下一次学习",
+      "implementation": "按候选+版本+目标+角色联结冻结、权威结果和反馈，区分数值训练、固定规则的支持更新以及研究消费。调度恢复后续接同一键。",
+      "acceptance": "同一期两条不同策略各有冻结，开奖号码只到一次。分别核对两份标签、两条不同的下游输入与更新前后证据。重复事件只消费一次。把 A 的反馈、权重或结果归给 B 必须失败。"
+    },
+    {
+      "id": "F6-B08-01",
+      "batch": "B08",
+      "issue": "R341-B08-03",
+      "case": "R341-B08-03-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "验证矩阵数值实际改变生成步骤",
+      "implementation": "从矩阵的轴、非空支持、mask、输入身份和角色取可解释的候选边或互补父本，记录读取的单元、提案及真实下游动作。保持现有只读对象语义。",
+      "acceptance": "固定其余因素，在 source-only 跨位流或其他已有算法消费者中屏蔽关键单元，观察到具体输入边、后续选取及非平凡输出的预期变化。缺学生的矩阵等待，独立源矩阵仍继续。只换 matrixId 或截图无效。"
+    },
+    {
+      "id": "F6-B08-02",
+      "batch": "B08",
+      "issue": "R341-B08-04",
+      "case": "R341-B08-04-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "把原子和分子归纳为可复用的新生成规则",
+      "implementation": "从两条以上既有公式的可执行子树及配对消融提炼保留结构和类型槽，以现有研究产物和提案消费者持久化规则。按规则生成的程序展开回原 ABI，保存使用该规则的出生与首次评价。",
+      "acceptance": "在发现时未使用的开发片段生成两棵去参数后不同、可执行且实际被训练/重放的树。重启后同规则再消费一次。删除原子、替换规则、退化为同模板调参、只写登记记录或复用未知旧 ABI 均不能计新思路族。"
+    },
+    {
+      "id": "F6-B08-03",
+      "batch": "B08",
+      "issue": "R341-B08-05",
+      "case": "R341-B08-05-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "变异按实际结构编辑和撤销编辑的效果确认",
+      "implementation": "固定错误样本、父本和输入，优先定位有证据的子图。保留替换前后节点、来源/状态边及配对数值。允许新增另一类信息支路，并在原门内重放。无支持的归因回测量队列。",
+      "acceptance": "同一刺激下比较父本、仅调参、结构编辑、撤销这处编辑和等预算随机编辑。只有实改且干预引起行为差的后代才能进入行为新颖统计。消融无效、输入错域和重试不重复记。"
+    },
+    {
+      "id": "F6-B08-04",
+      "batch": "B08",
+      "issue": "R341-B08-06",
+      "case": "R341-B08-06-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionStudyR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "按程序中有效的父组件登记融合",
+      "implementation": "逐项记录提名父、编译时保留父、各条件下实际激活父和移除父的结果。两父及多父均用相同目标、可见输入和发布身份核验。已有互补及增益门继续运行。",
+      "acceptance": "对两父及三父的权重、条件路由和秩投票分别验收。零权父、状态门从未到达的父、仅使用头两个成员时的第三父、同机制克隆不得充作有效贡献。两真父的逐亲移除应各有差异。无协同或开发变差留真实负例。"
+    },
+    {
+      "id": "F6-B08-05",
+      "batch": "B08",
+      "issue": "R341-B08-07",
+      "case": "R341-B08-07-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java"
+      ],
+      "spec": "specs/field6/foundry.md",
+      "title": "让留存淘汰结果改变下一轮的实际搜索",
+      "implementation": "按可比开发效应、覆盖、成本和证据不确定性给机制分配下一轮切片。记录尝试→消费→评价→选择→后续实际开始。保留未探索机制的可运行最低份额及重启游标。",
+      "acceptance": "等预算对照下，含热门重复、低支持新路及全负轮次。下轮有新的派发及拒绝/留存原因。计时器代号递增、反复运行同一公式、拟定预算而从未调度均不能计已完成进化或改善。"
+    },
+    {
+      "id": "F6-B09-01",
+      "batch": "B09",
+      "issue": "R341-B09-01",
+      "case": "R341-B09-01-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FutureModelRegistrationR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java"
+      ],
+      "spec": "specs/field6/quality.md",
+      "title": "给每个待确认的公式独立登记版本、对照和试验额度",
+      "implementation": "资格实验绑定不可变执行程序、参数/模型版本、独立未来起点与永久试验序号。用完整台账保留所有已尝试、被拒和撤回记录，候选池持久探索不重置统计预算。",
+      "acceptance": "两个不同机制及一个调参版本各走自己的合法注册路径。同键重试不重复分配。父证直接借用、换族名重置 alpha、训练命中混入未来、子代沿用父代已开奖目标均拒收。"
+    },
+    {
+      "id": "F6-B09-02",
+      "batch": "B09",
+      "issue": "R341-B09-03",
+      "case": "R341-B09-03-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AssetQualityVerdictR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java"
+      ],
+      "spec": "specs/field6/quality.md",
+      "title": "逐资产复算高质量，并核对不同机制的代表名单",
+      "implementation": "先独立复验每份候选的原 V1、Q01–Q08、当前使用与撤销记录，再以同域结构与冻结行为的逐对证据计算互异的机制下界。未达共同样本要求时逐对记未知。",
+      "acceptance": "两个不同合格机制、一个合格调参版、一个撤销及一个不足样本的隔离样例，逐项与逐对对账。重复证书、挪用分母、只靠不同哈希、没有共同日历仍报互补均拒收。首次合法应用沿原门，不以已有多资产或部署后频率为前置。"
+    },
+    {
+      "id": "F6-B11-01",
+      "batch": "B11",
+      "issue": "R341-B11-02",
+      "case": "A-B11-02b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java"
+      ],
+      "spec": "specs/field6/quality.md",
+      "title": "从界面和检测报告回读每条机制的公式、证据与去向",
+      "implementation": "沿现有算法排行、谱系和研究图，在同一水位显示参数迭代、去重新根、已消费结构变异、有效融合、完成代、独立合格及产生真实交易的不同分母。点击查看逐期原件和源版本。",
+      "acceptance": "同一观察窗同时放入一个无支持候选、一个已训练参数版和两个独立结构。报告/UI各项逐键回算，失败/试验中/撤销/合格/已使用明确。不能把基础影子、其他资产或未知值并入。"
+    },
+    {
+      "id": "F6-B12-01",
+      "batch": "B12",
+      "issue": "R341-B12-03",
+      "case": "A-B12-03b",
+      "files": [
+        "tools/r341/verify_integrated_chain.py",
+        "tools/r341/fixtures/continuity_b12.json",
+        "tools/r341/verify_batch_ledger.py"
+      ],
+      "spec": "specs/field6/witness.md",
+      "title": "同一后台跨重启验证多根、结构编辑及双亲逐项贡献",
+      "implementation": "复用原服务三代和持续运行索引，把每个预登记周期的根出生、实训、已用父本、原始 executable 和去参探针输出按生产业务键连接。运行第6版逐号码复算。",
+      "acceptance": "在四个完整调度周期至少生成并训练四个结构/行为互异的根，含三种单机制与重启后新组合。实际变异引入新的有效输入，实际融合删去任一父都改变 K3。首个根和独立供体已训练。纯调参、无效父、伪造分数、重发模板、错实例和漏日历均拒收。"
     }
   ],
   "field3_report_sha256": "fb499fc609435be82591ea015239fbee2b7da5c0dba772dd028d1417f1b8784c",
   "field3_reviewed_plan_commit": "0f81953d7175652dc6695a542257750290bf8c8f",
   "field4_reviewed_plan_commit": "5d51341d2f5c292683e5d8aaee4714dfd175cbd2",
-  "field5_reviewed_plan_commit": "cf764e34da7397077892634da525f8b0a274e477"
+  "field5_reviewed_plan_commit": "cf764e34da7397077892634da525f8b0a274e477",
+  "field6_reviewed_plan_commit": "46377348cd5ee9c6c0279d7f67e69a628eac1b21"
 }

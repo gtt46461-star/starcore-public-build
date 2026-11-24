@@ -31,7 +31,7 @@ def get(base, ref):
     return json.loads((base/ref["path"]).read_bytes())
 
 
-def make(base, fault=None):
+def make(base, fault=None, witness=None):
     s, l = base/"stream", base/"learning"
     s.mkdir()
     l.mkdir()
@@ -39,8 +39,10 @@ def make(base, fault=None):
     if fault != "old_separate_runs":
         identity = {k:ci[k] for k in IDENTITY}
         spec, ledger, restart = (get(s,ci[k]) for k in ("scenario","ledger","restart"))
-        planned = [1000,1002,1004]
+        planned = [1000,1002,1004] if witness is None else [1000,1004,1006]
         spec["lineage_target_ordinals"] = planned if fault != "changed_targets" else [1001,1002,1004]
+        if witness is not None:
+            spec["mechanism_probe6"] = witness.panel
         ci["scenario"] = put(s,"scenario",spec)
         for doc in (ledger,restart):
             doc["scenario_sha256"]=ci["scenario"]["sha256"]
@@ -65,6 +67,8 @@ def make(base, fault=None):
             source_by_sha[old_sha[f.name]]=f.name
             doc.update(identity)
             trace_docs[f.name]=doc
+        if witness is not None:
+            witness.bind_programs(trace_docs)
         pairs=[]
         for i,target in enumerate(planned):
             slot=spec["slots"][target-1000]
@@ -126,6 +130,8 @@ def make(base, fault=None):
                 if fault=="wrong_key" and i==2 and stage=="feedback":obs["durable_key"]="other"
                 if fault=="no_candidate_settle" and i==2 and stage=="settle":continue
                 ledger["rows"][ordinal]["lineage_candidate_rows"].append(put(s,key+".candidate",obs))
+        if witness is not None:
+            witness.bind_service(base, ci, ledger, stream_rows)
         refs={}
         for i,row in enumerate(ledger["rows"]):
             for ev in row["events"]:

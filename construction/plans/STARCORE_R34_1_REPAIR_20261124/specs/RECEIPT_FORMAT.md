@@ -1,5 +1,7 @@
 # 实际执行回执和72小时原件格式
 
+第 6 版 R341-B08-04-A01 增加 rule6_index_artifact，格式见[新规则复算](field6/foundry.md)。A-B12-03b 增加 `mechanism6_index_artifact` 和同次运行的实际原件。[完整格式](field6/witness.md)
+
 空模板在 `control/RECEIPT_TEMPLATE.json`。字段名是 `tools/verify_receipt.py` 的真实接口；本文件说明如何形成可核验的输入，不提供虚构的通过记录。
 
 ## 普通批次回执

@@ -2121,7 +2121,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。"
+            "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。",
+            "F6-B11-01 loadPanel 对齐排行、覆盖、独立/真实分母及可回查的键。"
           ]
         }
       ],
@@ -2779,7 +2780,8 @@
           "action": "MODIFY",
           "changes": [
             "主包：结算后仅投递事实，不在实时事务内做重训练；失败独立重试且不会拖延下一期冻结。",
-            "F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。"
+            "F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。",
+            "F6-B07-01 settleNow / drain 从同一次权威开奖查各自原冻结。"
           ]
         }
       ],
@@ -3837,7 +3839,8 @@
           "action": "MODIFY",
           "changes": [
             "主包：以权威 settled decisionId+target+model+feedback schema 为事件键；记录真实误差/残差/支持域，ACK 与下游 outbox/effect 引用同事务。",
-            "F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。"
+            "F3-B07-03 逐期交代训练机会，并绑定下次可用输入。按 specs/field3/chain.md 和 R341-B07-04-A01 的正反例实施复验。",
+            "F6-B07-01 drainOne / commitFinding 保留资产级学习消费者与去重键。"
           ]
         }
       ],
@@ -5459,7 +5462,8 @@
           "action": "NEW",
           "changes": [
             "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。",
-            "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。"
+            "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。",
+            "F6-B09-02 evaluate / serialize 每个候选给独立结论，同一机制的多个版本单列。"
           ]
         }
       ],
@@ -5892,7 +5896,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "保留结构与行为双索引；淘汰产生 reason/source/comparison receipt；删除热索引与销毁历史原件分离。"
+            "保留结构与行为双索引；淘汰产生 reason/source/comparison receipt；删除热索引与销毁历史原件分离。",
+            "F6-B06-02 duplicateOf / register 在相同目标与有效探针作用域比较近重复。"
           ]
         },
         {
@@ -6499,7 +6504,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。"
+            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。",
+            "F6-B08-05 allocate 记录各机制份额、实际已用单位和继续游标。"
           ]
         }
       ],
@@ -6536,7 +6542,8 @@
           "methods": [],
           "action": "VERIFY_ONLY",
           "changes": [
-            "复核原文件的有效入口及下游消费。实际被选择的派生原子进入子代；未来泄漏或没有行为差的分支留痕"
+            "复核原文件的有效入口及下游消费。实际被选择的派生原子进入子代；未来泄漏或没有行为差的分支留痕",
+            "F6-B08-03 pairedContribution 核对派生子树移除引起的同目标变化。"
           ]
         }
       ],
@@ -6612,7 +6619,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。"
+            "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。",
+            "F6-B08-03 materialize 只物化已核对节点、输入和原件的新程序。"
           ]
         },
         {
@@ -6672,7 +6680,8 @@
           "action": "MODIFY",
           "changes": [
             "F3-B06-02 21个思路族的可执行公式与报告处方逐一对照。按 specs/field3/learning.md 和 R341-B06-03-A01 的正反例实施复验。",
-            "F4-B06-03 同一公式的历史拒绝与已成功出生分别处理。见 specs/field4/birth.md"
+            "F4-B06-03 同一公式的历史拒绝与已成功出生分别处理。见 specs/field4/birth.md",
+            "F6-B06-01 stepBirth / stepGate 在出生提交时从差异分类，attempts、参数版本、有效结构和行为各自计数。"
           ]
         },
         {
@@ -6689,7 +6698,8 @@
           "action": "MODIFY",
           "changes": [
             "proposal 状态 READY→CLAIMED(fence)→APPLIED/REJECTED/RETRY；结果由同 sourceHash+actionKey 幂等，消费的源产物不可先归档删除。",
-            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。",
+            "F6-B08-02 在现有出生路径消费规则、提交轨迹并在后代首次评价时对账。"
           ]
         },
         {
@@ -6708,7 +6718,8 @@
           "action": "MODIFY",
           "changes": [
             "generation manifest冻结seed、预算、父池、input pin、提案集合；每提案产生terminal outcome后才 ENGINEERING_GENERATION_COMPLETE，独立verified字段由B09证据决定。",
-            "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。"
+            "F3-B08-06 让跨位或组件负贡献的失败假设到达兼容的真实实验。按 specs/field3/research.md 和 R341-B08-05-A01 的正反例实施复验。",
+            "F6-B08-03 stepGate 与真实重放回填分类、成本和训练结果。"
           ]
         },
         {
@@ -6722,7 +6733,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。"
+            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。",
+            "F6-B08-04 出生时对实际执行的父边写谱系，尝试和淘汰另记。"
           ]
         },
         {
@@ -6741,7 +6753,8 @@
           "changes": [
             "下一轮读取已提交allocation，不能只改报告副本；预算耗尽回WAITING_BUDGET而不忙轮询。",
             "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。",
-            "F3-B08-08 策略节点消融与模型核消融分别接入下一轮研究预算。按 specs/field3/extended.md 和 R341-B08-07-A01 的正反例实施复验。"
+            "F3-B08-08 策略节点消融与模型核消融分别接入下一轮研究预算。按 specs/field3/extended.md 和 R341-B08-07-A01 的正反例实施复验。",
+            "F6-B08-05 stepBirth 记录服务预算实际消费、选择结果和被保留的探索工作。"
           ]
         }
       ],
@@ -7038,7 +7051,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "消费开发角色反馈形成父节点+失败簇+可检验假设；在下一轮计划记录选中反馈键及预算/候选变化。"
+            "消费开发角色反馈形成父节点+失败簇+可检验假设；在下一轮计划记录选中反馈键及预算/候选变化。",
+            "F6-B07-01 select / routeR31 将有证据的失败定位到本候选组件。"
           ]
         },
         {
@@ -7251,7 +7265,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "删除当前scope中硬编码旧273641及旧reportkey假设，改读已验证BuildIdentity与固定snapshot元信息；旧基线作为historicalBaseline明确另列。"
+            "删除当前scope中硬编码旧273641及旧reportkey假设，改读已验证BuildIdentity与固定snapshot元信息；旧基线作为historicalBaseline明确另列。",
+            "F6-B11-01 capture / projection 回查公式、下一轮任务和真实应用。"
           ]
         },
         {
@@ -7304,7 +7319,8 @@
           ],
           "action": "NEW",
           "changes": [
-            "NEW 接口 canonical(Node,Abi)->bytes、fingerprint(Node,Probe)->Behavior、diff(parent,child)->NodeEdits；仅规范等价序列化和交换律安全节点，禁止浮点结合律重排。由 StructuralProposalR26.add 与 BirthGateR27.checkCandidate 调用。"
+            "NEW 接口 canonical(Node,Abi)->bytes、fingerprint(Node,Probe)->Behavior、diff(parent,child)->NodeEdits；仅规范等价序列化和交换律安全节点，禁止浮点结合律重排。由 StructuralProposalR26.add 与 BirthGateR27.checkCandidate 调用。",
+            "F6-B06-01 canonical / fingerprint / diff 分别产出可执行身份、结构及同域行为证据。"
           ]
         }
       ],
@@ -7378,7 +7394,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "活跃槽按机制、目标位置和研发阶段分层，预算耗尽正常结束切片；引用中的父代/证书对象不得 prune。"
+            "活跃槽按机制、目标位置和研发阶段分层，预算耗尽正常结束切片；引用中的父代/证书对象不得 prune。",
+            "F6-B06-02 step / savedParents 给不同起源分配到真实训练任务，记录就绪年龄和成功提交。"
           ]
         }
       ],
@@ -7423,7 +7440,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "冻结child/parent/control、AST/model/feature ABI、role边界、calendar、规则、seed、统计计划；评分不得再选阈值或窗口。"
+            "冻结child/parent/control、AST/model/feature ABI、role边界、calendar、规则、seed、统计计划；评分不得再选阈值或窗口。",
+            "F6-B09-01 freeze 固定程序、协议、父/控制及开发截止。"
           ]
         }
       ],
@@ -7481,7 +7499,8 @@
           "changes": [
             "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。",
             "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。",
-            "F3-B09-01 将I13单独选择时机的价值与只挑高分时段的效果分开。按 specs/field3/research.md 和 R341-B09-01-A01 的正反例实施复验。"
+            "F3-B09-01 将I13单独选择时机的价值与只挑高分时段的效果分开。按 specs/field3/research.md 和 R341-B09-01-A01 的正反例实施复验。",
+            "F6-B09-01 freeze / complete 保留去重、来源及原有待决实验。"
           ]
         }
       ],
@@ -7519,7 +7538,8 @@
           "action": "MODIFY",
           "changes": [
             "只合并同position/target语义、角色与pin相容的两亲；融合权重只在TRAIN拟合，SELECT选方案；新策略独立hash/lineage。",
-            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。"
+            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。",
+            "F6-B08-04 fuse / weighted / compare 从最终子树回溯有效成员，保留被剔除名单与原因。"
           ]
         }
       ],
@@ -7576,7 +7596,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "绑定注册前已提交模型/权重/特征 ABI与暴露上界；当前source已不存在则WAITING，不能用latest凑。"
+            "绑定注册前已提交模型/权重/特征 ABI与暴露上界；当前source已不存在则WAITING，不能用latest凑。",
+            "F6-B09-01 register / fillBinding 记录真实版本与首次独立机会。"
           ]
         }
       ],
@@ -7719,7 +7740,8 @@
           "changes": [
             "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。",
             "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md",
-            "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。"
+            "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。",
+            "F6-B09-02 evaluate / certify 提供每个身份的独立有效期与冻结原件。"
           ]
         },
         {
@@ -8021,7 +8043,8 @@
           "action": "MODIFY",
           "changes": [
             "按实际各kind shape/axis/support生产；EVIDENCE_TEACHER可用同位置原归档策略作研究教师，明确不得替代F23原VM；RESOURCE_EFFICIENCY未测memory/queue列维持缺失。",
-            "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
+            "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。",
+            "F6-B08-01 compute / stored 保留数值原件和相同输入的反事实读取。"
           ]
         }
       ],
@@ -8145,7 +8168,8 @@
           "action": "MODIFY",
           "changes": [
             "维持 source-only 优先和每kind隔离；19 R930 kinds按各自产物原件生产，COUNTERFACTUAL 原有专属来源单独接入，不绕过其精确组件移除合同。",
-            "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
+            "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。",
+            "F6-B08-01 build / produceR31 暴露有支持的坐标、轴和输入身份。"
           ]
         }
       ],
@@ -8225,7 +8249,8 @@
           "action": "MODIFY",
           "changes": [
             "统一metric scopeId：installedVersion/sourceCommit/processEpoch/snapshotAt/role/targetFromThrough；当前与累计分开，不混读LIVE及旧合成数据。",
-            "延迟保留成功样本分布并并列全目标机会数、请求/成功/超时/未启动/被取代/缺失分子；无成功样本时P95=null。"
+            "延迟保留成功样本分布并并列全目标机会数、请求/成功/超时/未启动/被取代/缺失分子；无成功样本时P95=null。",
+            "F6-B11-01 evaluateCurrentR31 按真实来源与观察窗计算分类和质量指标。"
           ]
         }
       ],
@@ -8455,7 +8480,8 @@
           "methods": [],
           "action": "VERIFY_ONLY",
           "changes": [
-            "复核原文件的有效入口及下游消费。选定算子实改可执行结构并评测；不可用变异有明确拒因"
+            "复核原文件的有效入口及下游消费。选定算子实改可执行结构并评测；不可用变异有明确拒因",
+            "F6-B08-03 mutate 记录编辑路径并可在贡献有据时将有类型的新组件接入父树。"
           ]
         }
       ],
@@ -8613,7 +8639,8 @@
           "methods": [],
           "action": "VERIFY_ONLY",
           "changes": [
-            "复核原文件的有效入口及下游消费。规范公式可解析再执行，语义哈希可复算；改名不算新公式"
+            "复核原文件的有效入口及下游消费。规范公式可解析再执行，语义哈希可复算；改名不算新公式",
+            "F6-B06-01 executable / canonical 导出可重放原字节。保持旧 policyHash。"
           ]
         }
       ],
@@ -9064,7 +9091,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。"
+            "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。",
+            "F6-B11-01 build 保留可下载原件与界面逐行对账键。"
           ]
         }
       ],
@@ -9327,7 +9355,8 @@
           "action": "MODIFY",
           "changes": [
             "BORN child、lineage、proposal consumed receipt 同一事务；非出生动作必须有实际 before/after状态及提交事务，不能借一个文字ACK。",
-            "REV-B08-05 把视图产品消费定位到同源实际动作。实施入口与反例见 specs/review/charts.md / R341-B08-04-A01。"
+            "REV-B08-05 把视图产品消费定位到同源实际动作。实施入口与反例见 specs/review/charts.md / R341-B08-04-A01。",
+            "F6-B08-02 completeWithin 将规则版本、子代与实际消费收据一并提交。"
           ]
         },
         {
@@ -9390,7 +9419,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "复用原typed消费者，校验input pin/axis/role/support；use/annotate/stage必须绑定实际child或预算回执；没有可用信号时不假记消费。"
+            "复用原typed消费者，校验input pin/axis/role/support；use/annotate/stage必须绑定实际child或预算回执；没有可用信号时不假记消费。",
+            "F6-B08-01 cross / position / fusionParents 把实际读取的单元绑定到本次生成。"
           ]
         },
         {
@@ -9402,7 +9432,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。"
+            "F3-B08-04 用同一代的有无研究输入分配对照回查矩阵与研究成效。按 specs/field3/learning.md 和 R341-B08-07-A01 的正反例实施复验。",
+            "F6-B08-05 familyBudgetR335 对照计划额度和下轮已派发任务。"
           ]
         }
       ],
@@ -9724,7 +9755,8 @@
           "methods": [],
           "action": "VERIFY_ONLY",
           "changes": [
-            "复核原文件的有效入口及下游消费。已退役且可恢复内容可回收；活孩子引用的父证据保留"
+            "复核原文件的有效入口及下游消费。已退役且可恢复内容可回收；活孩子引用的父证据保留",
+            "F6-B06-02 回收低价值活跃槽，保留依赖与淘汰原因，分别计版本数与机制数。"
           ]
         }
       ],
@@ -10583,7 +10615,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "保留永久全局index与可预测betting系数；固定目标act rate，不用同一未来数据重新调threshold。"
+            "保留永久全局index与可预测betting系数；固定目标act rate，不用同一未来数据重新调threshold。",
+            "F6-B09-02 alpha / observe 复查每个候选的实际额度、机会与状态。"
           ]
         },
         {
@@ -10846,7 +10879,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "每次变异附操作、父节点路径、替换子树、seed、before/after canonical hash；NO_OP/PARAMETER_VARIANT/STRUCTURAL 分开计数。"
+            "每次变异附操作、父节点路径、替换子树、seed、before/after canonical hash；NO_OP/PARAMETER_VARIANT/STRUCTURAL 分开计数。",
+            "F6-B06-01 structure / add 解析实际生效的图，保留数值版与机制版。"
           ]
         },
         {
@@ -12639,7 +12673,8 @@
           "changes": [
             "输入全部R341工单、文件变更、场景结果与证据文件；检查12批/全部工单覆盖、依赖顺序、缺省状态、源码commit及artifact hash。",
             "输出ENGINEERING_COMPLETE/INCOMPLETE、FIELD_PENDING条目、NATURAL_PENDING条目，分别计算，不将自然未合格作为工程未做。",
-            "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。"
+            "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。",
+            "F6-B12-01 核对同一 APK/服务实例、三代和多机制原件的联合签收。"
           ]
         }
       ],
@@ -12713,7 +12748,8 @@
             "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。",
             "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。",
             "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md",
-            "F5-B12-02 在同一服务中证明连续运行实际消费三代资产。详见 specs/field5/trace.md。"
+            "F5-B12-02 在同一服务中证明连续运行实际消费三代资产。详见 specs/field5/trace.md。",
+            "F6-B12-01 采集正常服务根出生、原权重、已执行公式及成对消融，调用既有流水线。"
           ]
         }
       ],
@@ -13758,7 +13794,8 @@
           "methods": [],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。",
+            "F6-B08-02 propose 以已有生成接口实例化有类型的新规则，保留规则来源。"
           ]
         }
       ],
@@ -13870,7 +13907,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。",
+            "F6-B08-02 molecules / restoreCompleteR31 导出原子组成、版本、激活条件及展开树。"
           ]
         }
       ],
@@ -13906,7 +13944,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。"
+            "F3-B08-02 原子评分、派生原子及分子切换后，真实出生不沿用旧叶。按 specs/field3/learning.md 和 R341-B08-04-A02 的正反例实施复验。",
+            "F6-B08-02 通过 activeMolecules 等现有发布接口回读规则依赖和过期状态。"
           ]
         }
       ],
@@ -13939,7 +13978,8 @@
           "methods": [],
           "action": "MODIFY",
           "changes": [
-            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。"
+            "F3-B08-03 融合只给真正进入子代且获得实测贡献的父代记功。按 specs/field3/learning.md 和 R341-B08-06-A02 的正反例实施复验。",
+            "F6-B08-04 pair / comparison 在完整配对机会比较完整组合、单亲、逐亲摘除及等权。"
           ]
         }
       ],
@@ -14468,7 +14508,8 @@
           "action": "NEW",
           "changes": [
             "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md",
-            "F5-B12-02 在同一服务中证明连续运行实际消费三代资产。详见 specs/field5/trace.md。"
+            "F5-B12-02 在同一服务中证明连续运行实际消费三代资产。详见 specs/field5/trace.md。",
+            "F6-B12-01 预注册含重启和并行根的机会、可见 TRAIN 历史与受控种子目录。"
           ]
         }
       ],

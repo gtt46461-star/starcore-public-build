@@ -21,6 +21,8 @@ from q06_receipt import verify_q06
 from stability5 import verify_stability
 from real_application5 import verify_deployment, verify_q02_q07
 from joined_lineage5 import check_joined_lineage
+from diversity6 import check_diversity
+from rule_induction6 import check_induction
 from q08_receipt import check_q08_dependencies
 
 
@@ -306,6 +308,9 @@ def check_result(result, case, receipt, originals, repo, owners):
             actual_review.add(obs["review_id"])
     need(metrics == rules.keys(), "Missing or surplus committed measurement for " + case_id)
     need(expected_review == actual_review, "Review obligations differ for " + case_id)
+    if case.get("generator_induction_required"):
+        harness_source = git(repo, "show", receipt["source_after"] + ":" + safe_name(run["runner_path"]))
+        check_induction(run, receipt, originals, harness_source)
     verify_direction_measurements(case, run, observations, originals)
     if case_id == "A-B12-03b" and "F3-B12-01" in expected_review:
         check_learning_trace_receipt(run, receipt, originals)
@@ -314,6 +319,8 @@ def check_result(result, case, receipt, originals, repo, owners):
         check_continuity_receipt(run, receipt, originals, repo)
         if case.get("joined_lineage_required"):
             check_joined_lineage(run, receipt, originals)
+            if case.get("mechanism_diversity_required"):
+                check_diversity(run, receipt, originals)
     if case_id == "R341-B09-04-A01" and any(k.startswith("F4-") for k in expected_review):
         check_mainline_receipt(run, receipt, originals, repo)
     if case_id == "R341-B09-05-A02" and any(k.startswith("F4-") for k in expected_review):
