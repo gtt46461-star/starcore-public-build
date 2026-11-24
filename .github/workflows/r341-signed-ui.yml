@@ -1,0 +1,97 @@
+name: STARCORE R34.1 exact signed UI reports
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r341-signed-ui.yml']
+permissions: {}
+jobs:
+  signed-ui:
+    if: github.repository == 'gtt46461-star/starcore-public-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    permissions:
+      contents: read
+    env:
+      R341_SOURCE: '6a44cbbba962cf1f56a3cf59774a0601bb26465c'
+      R341_VERSION: '577311150'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/r341-signed-ui
+            .github/r34-report-readback
+          persist-credentials: false
+      - name: Pin the original and repaired APKs and check the original certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://github.com/${GITHUB_REPOSITORY}/releases/download"
+          curl -fsSL --retry 3 "$base/r34-B12-5562f9b19aa0/STARCORE-R34-577311122-5562f9b19aa0-release.apk" -o "$RUNNER_TEMP/baseline122.apk"
+          curl -fsSL --retry 3 "$base/r34.1-B12-${R341_SOURCE:0:12}/STARCORE-R341-$R341_VERSION-${R341_SOURCE:0:12}-release.apk" -o "$RUNNER_TEMP/candidate.apk"
+          curl -fsSL --retry 3 "$base/r34.1-B12-${R341_SOURCE:0:12}/DELIVERY.json" -o "$RUNNER_TEMP/received-delivery.json"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;36.0.0'
+          for apk in baseline122 candidate; do
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/$apk.apk" | grep -F 'certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+          done
+      - name: Allow the API 34 guest to use KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 8G
+          heap-size: 512M
+          ram-size: 4096M
+          script: python3 -uB .github/r341-signed-ui/android.py > "$RUNNER_TEMP/guest-private.log" 2>&1
+      - name: Encrypt report originals and UI capture for the workspace recipient
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="$RUNNER_TEMP/encrypted"
+          mkdir -p "$target" "$RUNNER_TEMP/test-documents"
+          cert="$GITHUB_WORKSPACE/.github/r341-signed-ui/public-report-recipient.crt.txt"
+          cd "$RUNNER_TEMP"
+          touch guest-private.log
+          tar --exclude='*.zip' -czf observation.tar.gz test-documents guest-private.log
+          openssl cms -encrypt -binary -aes-256-gcm -outform DER -in observation.tar.gz -out "$target/observation.cms" "$cert"
+          shopt -s nullglob
+          for item in test-documents/*.zip; do
+            name=$(basename "$item" .zip)
+            openssl cms -encrypt -binary -aes-256-gcm -outform DER -in "$item" -out "$target/$name.cms" "$cert"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R341-150-signed-ui-observation
+          path: ${{ runner.temp }}/encrypted/observation.cms
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R341-150-signed-ui-baseline-report
+          path: ${{ runner.temp }}/encrypted/baseline-1.cms
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R341-150-signed-ui-report-1
+          path: ${{ runner.temp }}/encrypted/candidate-1.cms
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R341-150-signed-ui-report-2
+          path: ${{ runner.temp }}/encrypted/candidate-2.cms
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R341-150-signed-ui-report-3
+          path: ${{ runner.temp }}/encrypted/candidate-3.cms
+          if-no-files-found: ignore
