@@ -93,7 +93,8 @@ public final class R341FoundryTestCases {
             }
             ReplayDatasetR27 longData=ReplayDatasetR27.of(source);
             ReplayDatasetR27 shortData=ReplayDatasetR27.of(source.subList(0,4));
-            PolicySpecR27 spec=policy("(zscore (freq 1 8))").withMeta(IdeaFamilyR27.meta("I02","ENGINEERING_REPLAY",1,1,"Short checkpoint coverage probe"));
+            PolicySpecR27 spec=SetIntersectionPolicyR30.spec(1,8,16,
+                    IdeaFamilyR27.meta("I14","ENGINEERING_REPLAY",1,1,"Exact intersection requires its full PIT lookback"));
             try(FeatureCacheR27 shortCache=new FeatureCacheR27(shortData);FeatureCacheR27 longCache=new FeatureCacheR27(longData)) {
                 BirthGateR27.Verdict missing=new BirthGateR27(shortCache,4).checkCandidate(spec);
                 assertFalse(missing.ok);
