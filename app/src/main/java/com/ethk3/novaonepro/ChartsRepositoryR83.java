@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.CancellationSignal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,6 +22,8 @@ final class ChartsRepositoryR83 {
     static final String PAGE = "charts";
     static final double BASELINE = 0.30;
     static final double BREAK_EVEN = AppConfig.MISS_LOSS / (AppConfig.WIN_NET_PROFIT + AppConfig.MISS_LOSS);
+    private static final String SHADOW = DbHelper.TABLE_R35_SHADOW_OBSERVATION;
+    private static final String EXPLORATION = ExplorationLaneR83.TABLE;
     private ChartsRepositoryR83() {}
 
     /** R31-B09-C01/C02: shared inputs of one page read; a failed draw read fails only the panels that use draws. */
@@ -48,9 +51,12 @@ final class ChartsRepositoryR83 {
                     DbHelper.TABLE_R908_ALGORITHM_PREDRAW,DbHelper.TABLE_R908_ALGORITHM_GENOME);
             case "r83_best_curve": return archivedPanel(db,cancel,"事后最佳累计命中率",() -> bestAlgorithmCurve(db,cancel),
                     DbHelper.TABLE_R908_ALGORITHM_PREDRAW,DbHelper.TABLE_R908_ALGORITHM_GENOME);
-            case "r83_action_candles": return safe("出手资金K线", () -> actionCandles(db, cancel));
-            case "r83_all_hit": return safe("全部预测命中率走势", () -> hitTrend(db, cancel, false));
-            case "r83_act_hit": return safe("出手命中率走势", () -> hitTrend(db, cancel, true));
+            case "r83_action_candles": return archivedPanel(db, cancel, "探索影子模拟资金K线",
+                    () -> actionCandles(db, cancel), EXPLORATION, SHADOW);
+            case "r83_all_hit": return archivedPanel(db, cancel, "全部影子预测命中率走势",
+                    () -> hitTrend(db, cancel, false), SHADOW);
+            case "r83_act_hit": return archivedPanel(db, cancel, "探索影子命中率走势",
+                    () -> hitTrend(db, cancel, true), EXPLORATION, SHADOW);
             case "r83_number_candles": return safe("第" + position + "位置号码K线", () -> numberCandles(ctx.draws, ctx.drawIssues, position));
             case "r83_number_line": return safe("第" + position + "位置号码轨迹", () -> numberLine(ctx.draws, ctx.drawIssues, position));
             case "r83_omission_heat": return safe("号码遗漏热力图", () -> omissionHeat(ctx.draws));
@@ -85,7 +91,7 @@ final class ChartsRepositoryR83 {
 
     private static Panel archivedPanel(SQLiteDatabase db, CancellationSignal cancel, String title,
                                        Builder reader, String... sources) {
-        return safe(title, () -> {
+        return safe(title, String.join(" + ", sources), () -> {
             List<String> missing = new ArrayList<>();
             for (String table : sources) {
                 try (Cursor c = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type IN ('table','view') AND name=?",
@@ -95,17 +101,21 @@ final class ChartsRepositoryR83 {
             }
             if (missing.isEmpty()) return reader.build();
             String absent = missing.toString();
-            return new Panel(PAGE,title,"STATUS",absent,"","等待历史原表 " + absent,"SOURCE_NOT_PRESENT",null,null);
+            return new Panel(PAGE,title,"STATUS",absent,"","缺少原始数据表 " + absent,"SOURCE_NOT_PRESENT",null,null);
         });
     }
 
     private static Panel safe(String title, Builder builder) {
+        return safe(title, "", builder);
+    }
+
+    private static Panel safe(String title, String source, Builder builder) {
         try {
             return builder.build();
         } catch (android.os.OperationCanceledException canceled) {
             throw canceled;
         } catch (RuntimeException failure) {
-            return new Panel(PAGE, title, "STATUS", "", "", "读取失败：" + failure.getClass().getSimpleName() + "；不按0处理。",
+            return new Panel(PAGE, title, "STATUS", source, "", "读取失败：" + failure.getClass().getSimpleName() + "；不按0处理。",
                     "READ_ERROR", null, null);
         }
     }
@@ -135,57 +145,76 @@ final class ChartsRepositoryR83 {
         return rows;
     }
 
-    private static Panel actionCandles(SQLiteDatabase db, CancellationSignal cancel) {
-        List<Double> pnl = new ArrayList<>();
-        List<String> issues = new ArrayList<>();
-        try (Cursor c = db.rawQuery("SELECT e.target_issue,o.hit_label FROM " + ExplorationLaneR83.TABLE + " e JOIN "
-                + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o ON o.target_issue=e.target_issue WHERE e.action<>'NONE'"
-                + " AND o.settled=1 AND o.hit_label>=0 ORDER BY e.target_issue DESC LIMIT 600", null, cancel)) {
-            while (c.moveToNext()) {
-                issues.add(0, c.getString(0));
-                pnl.add(0, c.getInt(1) == 1 ? AppConfig.WIN_NET_PROFIT : -AppConfig.MISS_LOSS);
-            }
-        } catch (android.database.sqlite.SQLiteException noTableYet) {
-            // The exploration table is created with the first frozen observation.
+    private static final class ShadowSettlements {
+        final List<String> issues = new ArrayList<>();
+        final List<Integer> hits = new ArrayList<>();
+        int rejectedPairs;
+
+        String status(List<Point> points, String empty) {
+            if (rejectedPairs != 0) return "PARTIAL_SHADOW_PAIRING";
+            return points.isEmpty() ? empty : "READY";
         }
+
+        String scope() {
+            return "最近" + hits.size() + "次已结算影子；重复或不匹配的期数 " + rejectedPairs;
+        }
+    }
+
+    private static ShadowSettlements shadowSettlements(SQLiteDatabase db, CancellationSignal cancel,
+            boolean explorationOnly, int limit) {
+        String join = explorationOnly ? " JOIN " + EXPLORATION + " e ON e.target_issue=o.target_issue" : "";
+        String paired = explorationOnly
+                ? "sum(CASE WHEN e.position=o.position AND e.n1=o.n1 AND e.n2=o.n2 AND e.n3=o.n3 THEN 1 ELSE 0 END)"
+                : "count(*)";
+        String action = explorationOnly ? " AND e.action='EXPLORE'" : "";
+        String sql = "SELECT o.target_issue,min(o.hit_label),count(*)," + paired + " FROM " + SHADOW + " o" + join
+                + " WHERE o.pre_draw_frozen=1 AND o.settled=1 AND o.hit_label IN (0,1)" + action
+                + " GROUP BY o.target_issue ORDER BY o.target_issue DESC LIMIT ?";
+        ShadowSettlements result = new ShadowSettlements();
+        try (Cursor cursor = db.rawQuery(sql, new String[]{Integer.toString(limit)}, cancel)) {
+            while (cursor.moveToNext()) {
+                if (cursor.getInt(2) != 1 || cursor.getInt(3) != 1) {
+                    result.rejectedPairs++;
+                    continue;
+                }
+                result.issues.add(cursor.getString(0));
+                result.hits.add(cursor.getInt(1));
+            }
+        }
+        Collections.reverse(result.issues);
+        Collections.reverse(result.hits);
+        return result;
+    }
+
+    private static Panel actionCandles(SQLiteDatabase db, CancellationSignal cancel) {
+        ShadowSettlements data = shadowSettlements(db, cancel, true, 600);
         List<Point> points = new ArrayList<>();
-        int per = Math.max(1, (pnl.size() + MAX_POINTS - 1) / MAX_POINTS);
-        per = Math.max(per, 5);
+        int per = Math.max(5, (data.hits.size() + MAX_POINTS - 1) / MAX_POINTS);
         double equity = 0;
-        for (int i = 0; i < pnl.size(); i += per) {
+        for (int i = 0; i < data.hits.size(); i += per) {
             double open = equity, high = equity, low = equity;
-            int end = Math.min(pnl.size(), i + per), wins = 0;
+            int end = Math.min(data.hits.size(), i + per), wins = 0;
             for (int j = i; j < end; j++) {
-                equity += pnl.get(j);
+                boolean hit = data.hits.get(j) == 1;
+                equity += hit ? AppConfig.WIN_NET_PROFIT : -AppConfig.MISS_LOSS;
                 high = Math.max(high, equity);
                 low = Math.min(low, equity);
-                if (pnl.get(j) > 0) wins++;
+                if (hit) wins++;
             }
-            points.add(new Point(issues.get(end - 1), equity, low, high, end - i,
-                    issues.get(i) + "—" + issues.get(end - 1) + "：" + (end - i) + "次出手，中" + wins + "，本根盈亏 "
+            points.add(new Point(data.issues.get(end - 1), equity, low, high, end - i,
+                    data.issues.get(i) + "—" + data.issues.get(end - 1) + "：" + (end - i) + "次出手，中" + wins + "，本根盈亏 "
                             + fmt(equity - open) + "，累计 " + fmt(equity), open));
         }
-        return new Panel(PAGE, "影子模拟资金K线（每" + per + "次出手一根）", "CANDLE", ExplorationLaneR83.TABLE, "最近" + pnl.size() + "次已结算探索影子；非REAL",
-                "探索影子按固定单注模拟，未联结唯一REAL结算，不能代表真实账户资金。命中+" + AppConfig.WIN_NET_PROFIT + " / 未中-" + AppConfig.MISS_LOSS + " 累计。K线持续走低说明当前出手在亏钱，应少跟或不跟；"
-                        + "持续走高且样本够多才有参考价值。累计 " + fmt(equity) + "。", points.isEmpty() ? "EMPTY_NEEDS_SETTLED_ACTIONS" : "READY", points, null);
+        return new Panel(PAGE, "探索影子模拟资金K线（每" + per + "次出手一根）", "CANDLE",
+                EXPLORATION + " + " + SHADOW, data.scope(),
+                "探索影子按固定单注模拟。命中+" + AppConfig.WIN_NET_PROFIT + " / 未中-" + AppConfig.MISS_LOSS
+                        + "，累计 " + fmt(equity) + "。", data.status(points, "EMPTY_NEEDS_SETTLED_ACTIONS"), points, null);
     }
 
     private static Panel hitTrend(SQLiteDatabase db, CancellationSignal cancel, boolean actionsOnly) {
-        String sql = actionsOnly
-                ? "SELECT o.target_issue,o.hit_label FROM " + ExplorationLaneR83.TABLE + " e JOIN " + DbHelper.TABLE_R35_SHADOW_OBSERVATION
-                        + " o ON o.target_issue=e.target_issue WHERE e.action<>'NONE' AND o.settled=1 AND o.hit_label>=0 ORDER BY o.target_issue DESC LIMIT 139"
-                : "SELECT target_issue,hit_label FROM " + DbHelper.TABLE_R35_SHADOW_OBSERVATION
-                        + " WHERE settled=1 AND hit_label>=0 ORDER BY target_issue DESC LIMIT 139";
-        List<String> issues = new ArrayList<>();
-        List<Integer> hits = new ArrayList<>();
-        try (Cursor c = db.rawQuery(sql, null, cancel)) {
-            while (c.moveToNext()) {
-                issues.add(0, c.getString(0));
-                hits.add(0, c.getInt(1) == 1 ? 1 : 0);
-            }
-        } catch (android.database.sqlite.SQLiteException noTableYet) {
-            // Empty until the first exploration decision.
-        }
+        ShadowSettlements data = shadowSettlements(db, cancel, actionsOnly, 139);
+        List<String> issues = data.issues;
+        List<Integer> hits = data.hits;
         int window = 20, total = 0;
         for (int h : hits) total += h;
         List<Point> points = new ArrayList<>();
@@ -197,10 +226,10 @@ final class ChartsRepositoryR83 {
                     "截至" + issues.get(i) + "近" + window + "次命中" + k + "；随机基线30%"));
         }
         String overall = hits.isEmpty() ? "无" : String.format(Locale.ROOT, "%.1f%%（%d/%d）", 100.0 * total / hits.size(), total, hits.size());
-        return new Panel(PAGE, (actionsOnly ? "出手命中率走势" : "全部预测命中率走势") + "（滚动20次，基线30%）", "LINE",
-                DbHelper.TABLE_R35_SHADOW_OBSERVATION, "最近" + hits.size() + "次已结算",
-                "竖线是95%置信区间。只有曲线和区间下沿长期高于30%，才说明算法真的比随机强；在30%上下波动就等于随机。整体命中 " + overall + "。",
-                points.isEmpty() ? "EMPTY_NEEDS_20_SETTLED" : "READY", points, null);
+        return new Panel(PAGE, (actionsOnly ? "探索影子命中率走势" : "全部影子预测命中率走势") + "（滚动20次，基线30%）", "LINE",
+                actionsOnly ? EXPLORATION + " + " + SHADOW : SHADOW, data.scope(),
+                "竖线为95%命中率置信区间。该区间使用图表窗口中的影子样本。整体命中 " + overall + "。",
+                data.status(points, "EMPTY_NEEDS_20_SETTLED"), points, null);
     }
 
     private static Panel numberCandles(List<int[]> draws, List<String> issues, int position) {

@@ -41,8 +41,29 @@ public final class ChartRegistryR31 {
         for (String id : com.ethk3.novaonepro.strategyv2.ReportChartsR30.IDS)
             out.add(new Entry(id, Group.LEGACY_SNAPSHOT, "ReportChartsR30", "RESEARCH_DISPLAY", "SAME_SOURCE_AS_REPORT", "DIAGNOSTIC", "NO_REPORT_SNAPSHOT_MISSING_DATA_IS_NOT_ZERO", 0, 256 << 10, 1024));
         for (String id : R83_VISIBLE) {
-            String role = id.equals("r83_action_candles") ? "REAL_DECISION_AND_SETTLEMENT_ONLY" : id.equals("r83_calibration") || id.equals("r83_brier20") ? "PROBABILITY_DIAGNOSTIC" : id.startsWith("r83_algorithm") || id.equals("r83_best_curve") ? "SHADOW_AND_RESEARCH_BOARD" : "DRAW_HISTORY";
-            out.add(new Entry(id, Group.LEGACY_R83, "ChartsRepositoryR83", role, R83_DRAW_INPUT.contains(id) ? "DRAWS_SHARED_INPUT" : "OWN_QUERY", "DIAGNOSTIC", "NO_ROWS_FOR_THIS_PANEL", 0, 256 << 10, 4096));
+            String role = "DRAW_HISTORY";
+            String scope = R83_DRAW_INPUT.contains(id) ? "DRAWS_SHARED_INPUT" : "OWN_QUERY";
+            switch (id) {
+                case "r83_action_candles":
+                case "r83_act_hit":
+                    role = "SHADOW";
+                    scope = "SETTLED_EXPLORATION_SUBSET";
+                    break;
+                case "r83_all_hit":
+                    role = "SHADOW";
+                    scope = "ALL_SETTLED_SHADOW_PREDICTIONS";
+                    break;
+                case "r83_calibration":
+                case "r83_brier20":
+                    role = "PROBABILITY_DIAGNOSTIC";
+                    break;
+                case "r83_algorithm_all":
+                case "r83_algorithm_rank":
+                case "r83_best_curve":
+                    role = "SHADOW_AND_RESEARCH_BOARD";
+                    break;
+            }
+            out.add(new Entry(id, Group.LEGACY_R83, "ChartsRepositoryR83", role, scope, "DIAGNOSTIC", "NO_ROWS_FOR_THIS_PANEL", 0, 256 << 10, 4096));
         }
         for (com.ethk3.novaonepro.strategyv2.ResearchGraphSpecsR30R1.Spec s : com.ethk3.novaonepro.strategyv2.ResearchGraphSpecsR30R1.ALL)
             out.add(new Entry(s.id, Group.RESEARCH, "ResearchObservatoryR30R1:" + s.measure, s.role, "RESEARCH_" + s.role, s.consumerKind.name(), "NO_PRODUCT_OR_NO_INPUT_FOR_THIS_VIEW", s.group, 256 << 10, 512));

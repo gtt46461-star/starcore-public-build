@@ -63,7 +63,10 @@ public final class R341B11ContractTest {
     }
 
     @Test public void test_a_b11_02b() throws Exception {
-        execute("A-B11-02b", "test_a_b11_02b", R341ReportTestCases::coverageUsesSameSqlWindow);
+        execute("A-B11-02b", "test_a_b11_02b", app -> {
+            R341ReportTestCases.coverageUsesSameSqlWindow(app);
+            R341ReportTestCases.shadowChartsExcludeRealAndReportSourceFailures(app);
+        });
     }
 
     @Test public void test_a_b11_03a() throws Exception {

@@ -49,6 +49,22 @@ public final class R31ChartRegistryTest {
         }
         try { new ChartRegistryR31.PanelLoader(3); fail("more than two UI reads"); } catch (IllegalArgumentException e) { assertEquals("R31_PANEL_LOADER_CONCURRENCY", e.getMessage()); }
     }
+
+    @Test public void shadowSettlementPanelsShareTheSameRoleWithTheReport() {
+        Map<String,Object> index = com.ethk3.novaonepro.strategyv2.ReportObjectIndexR30.build(
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        List<?> reports = (List<?>) ((Map<?,?>) index.get("legacyCharts")).get("objects");
+        for (String id : Arrays.asList("r83_action_candles", "r83_all_hit", "r83_act_hit")) {
+            ChartRegistryR31.Entry entry = ChartRegistryR31.find(id);
+            assertEquals(id, "SHADOW", entry.role);
+            assertEquals(id, "SHADOW", entry.json().get("role"));
+            Map<?,?> row = reports.stream().map(Map.class::cast)
+                    .filter(item -> id.equals(item.get("objectId"))).findFirst().orElseThrow(AssertionError::new);
+            assertEquals(id, entry.role, row.get("role"));
+            assertEquals(id, entry.scope, row.get("sourceScope"));
+        }
+        assertEquals("DRAW_HISTORY", ChartRegistryR31.find("r83_number_line").role);
+    }
     @Test public void oneHundredSwitchesNeverDeliverAnOldEpochAndThreadsReturnToBaseline() throws Exception {
         Set<Thread> before = new HashSet<>(Thread.getAllStackTraces().keySet());
         ChartRegistryR31.PanelLoader loader = new ChartRegistryR31.PanelLoader(2); int staleDelivered = 0;

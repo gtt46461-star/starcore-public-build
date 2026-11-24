@@ -12,7 +12,8 @@ public final class ReportSourceStateR341 {
     public static String reason(String original) {
         String code=original==null?"":original.toUpperCase(Locale.ROOT);
         if(code.contains("NO SUCH TABLE")||code.contains("NO SUCH COLUMN")||code.contains("MISSING_SCHEMA")
-                ||code.contains("WAITING_SOURCE")||code.contains("SOURCE_MISSING"))return "WAITING_SOURCE";
+                ||code.contains("WAITING_SOURCE")||code.contains("SOURCE_MISSING")
+                ||code.contains("SOURCE_NOT_PRESENT"))return "WAITING_SOURCE";
         if(code.contains("CANCEL"))return "CANCELLED";
         if(code.contains("TIMED_OUT")||code.contains("TIMEOUT"))return "TIMED_OUT";
         if(code.contains("PERMISSION")||code.contains("NOT AUTHORIZED"))return "PERMISSION_DENIED";

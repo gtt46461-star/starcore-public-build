@@ -106,6 +106,74 @@ public final class R341ReportTestCases {
         }
     }
 
+    public static void shadowChartsExcludeRealAndReportSourceFailures(Context app) {
+        try(SQLiteDatabase db=SQLiteDatabase.create(null)) {
+            ResearchVisualDataR82.Panel missing=shadowPanel(db,"r83_action_candles");
+            assertEquals("UNAVAILABLE",missing.displayState);
+            assertEquals("WAITING_SOURCE",missing.reasonCode);
+            assertTrue(missing.source.contains(ExplorationLaneR83.TABLE));
+            DbHelper.ensureR35Schema(db);
+            ExplorationLaneR83.ensure(db);
+            ResearchVisualDataR82.Panel empty=shadowPanel(db,"r83_action_candles");
+            assertEquals("EMPTY",empty.displayState);
+            assertEquals("OBSERVED_EMPTY",empty.reasonCode);
+
+            insertShadowSample(db,1,"EXPLORE",1,1);
+            insertShadowSample(db,2,"REAL",1,0);
+            ResearchVisualDataR82.Panel candle=shadowPanel(db,"r83_action_candles");
+            assertEquals("READY",candle.status);
+            assertEquals(1,candle.points.size());
+            assertEquals(1L,candle.points.get(0).n);
+            assertEquals(AppConfig.WIN_NET_PROFIT,candle.points.get(0).value,0.0);
+            try(Cursor real=db.rawQuery("SELECT count(*) FROM "+ExplorationLaneR83.TABLE+" WHERE action='REAL'",null)){
+                assertTrue(real.moveToFirst());assertEquals(1L,real.getLong(0));
+            }
+            for(int draw=3;draw<=21;draw++)insertShadowSample(db,draw,"EXPLORE",1,1);
+            insertShadowSample(db,22,"EXPLORE",2,0);
+            ResearchVisualDataR82.Panel subset=shadowPanel(db,"r83_act_hit");
+            assertEquals("PARTIAL",subset.reasonCode);
+            assertEquals("HAS_DATA",subset.displayState);
+            assertEquals(1,subset.points.size());
+            assertEquals(20L,subset.points.get(0).n);
+            assertEquals(1.0,subset.points.get(0).value,0.0);
+            assertTrue(subset.window.endsWith("不匹配的期数 1"));
+            ResearchVisualDataR82.Panel all=shadowPanel(db,"r83_all_hit");
+            assertEquals("READY",all.status);
+            assertEquals(3,all.points.size());
+            assertEquals(.95,all.points.get(2).value,1e-12);
+
+            String shadow=DbHelper.TABLE_R35_SHADOW_OBSERVATION;
+            db.execSQL("CREATE TABLE duplicate_originals AS SELECT * FROM "+shadow);
+            db.execSQL("INSERT INTO duplicate_originals SELECT * FROM "+shadow+" WHERE target_issue='202611240022'");
+            db.execSQL("DROP TABLE "+shadow);
+            db.execSQL("ALTER TABLE duplicate_originals RENAME TO "+shadow);
+            all=shadowPanel(db,"r83_all_hit");
+            assertEquals("PARTIAL",all.reasonCode);
+            assertEquals(2,all.points.size());
+            assertTrue(all.window.endsWith("不匹配的期数 1"));
+            db.execSQL("ALTER TABLE "+shadow+" RENAME COLUMN hit_label TO broken_label");
+            ResearchVisualDataR82.Panel broken=shadowPanel(db,"r83_all_hit");
+            assertEquals("UNAVAILABLE",broken.displayState);
+            assertEquals("SOURCE_ERROR",broken.reasonCode);
+            assertEquals(shadow,broken.source);
+        }
+    }
+
+    private static ResearchVisualDataR82.Panel shadowPanel(SQLiteDatabase db,String id) {
+        return new ChartsRepositoryR27.Page(db).read(id,null);
+    }
+
+    private static void insertShadowSample(SQLiteDatabase db,int draw,String action,int position,int hit) {
+        String issue=String.format(java.util.Locale.ROOT,"20261124%04d",draw);
+        db.execSQL("INSERT INTO "+DbHelper.TABLE_R35_SHADOW_OBSERVATION
+                +"(target_issue,game_code,base_issue,position,n1,n2,n3,lane,decision_action,reject_code,bundle_hash,"
+                +"contract_hash,authorization_hash,record_hash,created_at,settled,actual_number,hit_label)"
+                +" VALUES(?,'Binance1-PK10','202611230900',1,1,2,3,'SHADOW','HOLD','','','','',?,1,1,?,?)",
+                new Object[]{issue,"ENGINEERING_"+issue,hit==1?1:4,hit});
+        db.execSQL("INSERT INTO "+ExplorationLaneR83.TABLE+" VALUES(?,?,1,2,3,.4,.3,20,.3,?,'ENGINEERING',1)",
+                new Object[]{issue,position,action});
+    }
+
     private static ResearchVisualDataR82.Panel panel(String state,List<ResearchVisualDataR82.Point> points) {
         return new ResearchVisualDataR82.Panel("research","C01","LINE","actual_table","current","fixture",state,points,List.of());
     }

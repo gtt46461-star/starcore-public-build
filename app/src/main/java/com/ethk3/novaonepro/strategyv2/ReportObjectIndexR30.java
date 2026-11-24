@@ -1,4 +1,5 @@
 package com.ethk3.novaonepro.strategyv2;
+import com.ethk3.novaonepro.ChartRegistryR31;
 import java.util.*;
 /** Complete metadata indexes. Static bindings, runtime production, consumption and effect are independent. */
 public final class ReportObjectIndexR30 {
@@ -18,7 +19,10 @@ public final class ReportObjectIndexR30 {
         Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion",SCHEMA);out.put("sourceSnapshot",watermark.get("factsReadAt"));out.put("sourceCommit",watermark.get("sourceCommit"));
         Map<String,Map<String,Object>> caches=new LinkedHashMap<>();for(Object x:list(data.get("chartObjectIndex"))){Map<String,Object> r=map(x);caches.put(String.valueOf(r.get("panel_id")),r);}
         List<Object> old=new ArrayList<>();for(Object x:list(JsonR27.parse(OLD_CHARTS))){Map<String,Object> d=map(x);String id=String.valueOf(d.get("id"));Map<String,Object> stored=caches.get(id);boolean direct=id.equals("status")||Arrays.asList(ReportChartsR30.IDS).contains(id);
-            Map<String,Object> r=state(id,"LEGACY_CHART",d,true,null,direct?Boolean.TRUE:null,stored==null?null:Boolean.TRUE);r.put("runtimeReference",stored);r.put("lifecycleVerification","NOT_RUN_CURRENT_REPAIR_ANDROID");old.add(r);}
+            Map<String,Object> r=state(id,"LEGACY_CHART",d,true,null,direct?Boolean.TRUE:null,stored==null?null:Boolean.TRUE);
+            ChartRegistryR31.Entry chart=ChartRegistryR31.find(id);
+            r.put("role",chart.role);r.put("sourceScope",chart.scope);r.put("sourceOwner",chart.sourceOwner);
+            r.put("runtimeReference",stored);r.put("lifecycleVerification","NOT_RUN_CURRENT_REPAIR_ANDROID");old.add(r);}
         out.put("legacyCharts",category(29,old));
         Map<String,Map<String,Object>> frames=new LinkedHashMap<>();for(Object x:list(data.get("repairFrameIndex"))){Map<String,Object> row=map(x);frames.put(String.valueOf(row.get("view_id")),row);}
         List<Object> research=new ArrayList<>();for(Object x:list(JsonR27.parse(RESEARCH_CHARTS))){Map<String,Object> d=map(x);String id=String.valueOf(d.get("id"));Map<String,Object> frame=frames.get(id);boolean bound=MatrixRegistryR30.declared("com.ethk3.novaonepro.strategyv2.ResearchGraphSpecsR30R1","group");
