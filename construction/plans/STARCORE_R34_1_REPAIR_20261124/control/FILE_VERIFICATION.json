@@ -2531,6 +2531,15 @@
       "effective_path": "tools/r341/fixtures/continuity_b12.json",
       "probe": "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md",
       "contract_sha256": "5afc0d8ebbdfd1bcec516cb4302f1b94ebaf0c4cd9495ec949ef91438ffbc21f"
+    },
+    {
+      "case": "R341-B08-01-A01",
+      "issue": "R341-B08-01",
+      "original_gap": false,
+      "key": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+      "effective_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+      "probe": "RuntimeR27.DatasetTask.step/publishRecoveredReplayKnowledgeR31、ResearchInputPinR30R1.loadCurrent/require、ReplayKnowledgeStoreR31.isPublishedR31 区分已匹配的投影、需重新物化的投影以及失效的原输入；保持 owner、pin、资格与实时截止的原条件。",
+      "contract_sha256": "8b22fa773b1f68b1e65d9100c8d4d47722346cb206ac032bb6a864ab573a4107"
     }
   ],
   "harnesses": [

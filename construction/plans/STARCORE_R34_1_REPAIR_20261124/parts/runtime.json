@@ -15,7 +15,9 @@
             "SOURCE@5562f9b19aa09f9f7d9e69ca085db56c537967fc:tools/r34/build_identity.py#identity",
             "SOURCE@5562f9b19aa09f9f7d9e69ca085db56c537967fc:tools/r33/package_ci_candidate.py#validate_pair",
             "REPORT:source-manifest.json; REPORT_DETAILS.txt#RSEC-027",
-            "specs/review/build.md [REV-B01-01]"
+            "specs/review/build.md [REV-B01-01]",
+            "specs/field5/build.md F5-B01-01",
+            "specs/field5/apk.md F5-B01-03"
           ],
           "evidence_status": "VERIFIED_SOURCE_AND_FIELD_IDENTITY",
           "diagnosis": "精确应用底座是 construction/r34-20261123@5562f9b1；main@4e1606e9 是既有方案提交。当前 Gradle 仍校验 R33.5 descriptor，r33 verifier 因 r34 binding 存在无条件调用只识别 R34- 的版本正则，版本推进器仅允许 R33.5/R34；直接把版本改为 R34.1 会在首批构建即失败。validate_pair 只对 577311033 校验，不足以证明覆盖现场 577311122。此工单是所有施工批次可构建的前置能力。",
@@ -61,7 +63,8 @@
               ],
               "action": "NEW",
               "changes": [
-                "NEW：读取 release/r341_plan_binding.json 和 STARCORE_R341_PLAN_ROOT；校验精确文件集合、每成员哈希、应用底座祖先关系、新版本批次、plan commit 与新 plan seal。返回 STARCORE_R341_BUILD_IDENTITY_1。"
+                "NEW：读取 release/r341_plan_binding.json 和 STARCORE_R341_PLAN_ROOT；校验精确文件集合、每成员哈希、应用底座祖先关系、新版本批次、plan commit 与新 plan seal。返回 STARCORE_R341_BUILD_IDENTITY_1。",
+                "F5-B01-01 按精确提交及封印开工，升级保留已有施工成果。详见 specs/field5/build.md。"
               ]
             },
             {
@@ -93,7 +96,8 @@
               "action": "MODIFY",
               "changes": [
                 "显式传递并验证 R33、R34、R341 三个封存根；缺任何实际要求的封存根即返回确定的构建前置错误。",
-                "REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。"
+                "REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。",
+                "F5-B01-03 首批即能核对工程源码、独立构建与实际 APK。详见 specs/field5/apk.md。"
               ]
             },
             {
@@ -105,7 +109,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "旧033祖先核验保留；增加 currentInstalledBaseline 的真实122 APK/设备拉取哈希和签名/包名/版本检查；嵌入及封包名分派 R341，缺现场APK则标 COVER_INSTALL_UNVERIFIED，不生成可覆盖声明。"
+                "旧033祖先核验保留；增加 currentInstalledBaseline 的真实122 APK/设备拉取哈希和签名/包名/版本检查；嵌入及封包名分派 R341，缺现场APK则标 COVER_INSTALL_UNVERIFIED，不生成可覆盖声明。",
+                "F5-B01-03 首批即能核对工程源码、独立构建与实际 APK。详见 specs/field5/apk.md。"
               ]
             },
             {
@@ -163,18 +168,21 @@
             "版本器先 prepare journal，再持锁 compare-before/apply 四个原身份文件：release_manifest.json、release_identity.properties、ReleaseManifestR926.java、verification/r36-stubs/.../BuildConfig.java。掉电后只能完整恢复旧组或完整落新组，不混用。最终 release 构建要求 clean HEAD；不在本次方案交付中伪造新 APK。",
             "调用既有构建命令时 R13_SIGNING_P12、PASSWORD、DUOQU_API_KEY 仅从已授权秘密环境注入；公共签名指纹与旧原件核对。对实际安装 APK 的检查放在 validate_pair 的独立参数分支，旧033只是祖先证据，122才是本轮覆盖基线。",
             "新方案descriptor固定为control/PLAN_IDENTITY.json，schema=STARCORE_R341_PLAN_DESCRIPTOR_1、planRevision=R34.1、application_baseline_commit=5562f9b19aa09f9f7d9e69ca085db56c537967fc、application_baseline_branch=construction/r34-20261123、repository=gtt46461-star/starcore-public-build、prior_plan_revision=R34、prior_plan_commit=4e1606e9c20c5f01a82cf495b8d39b2630c766f0。manifest_sha256由control/PLAN_SEAL.json持有；manifest排除自身、seal、SELF_CHECK和ZIP，按封印脚本的实际集合验证，避免自引用。verify_seal为本批拟从旧identity提取的新函数，非已存在入口。",
-            "REV-B01-01 沿用 run_release_build.py 的真实 Gradle 任务与发布前后 identity 守卫；给 R34.1 增加独立回执字段，将新封印和源提交与签名 APK 内身份逐项回读。保留原 R33.5 摘要字段。prepare_worktree 新增中文路径、精确导入、旧工作树续工测试。"
+            "REV-B01-01 沿用 run_release_build.py 的真实 Gradle 任务与发布前后 identity 守卫；给 R34.1 增加独立回执字段，将新封印和源提交与签名 APK 内身份逐项回读。保留原 R33.5 摘要字段。prepare_worktree 新增中文路径、精确导入、旧工作树续工测试。",
+            "F5-B01-01 导入前核对方案及首份原报告的字节，从两次发布间由方案所有的路径计算差量；检测本地同名冲突。",
+            "F5-B01-03 原发布脚本保留旧身份字段并另记本次方案封印、提交和批次。使用当前前缀签收器读取准确源码、构建日志和 APK 的内嵌身份。"
           ],
           "acceptance": [
             {
               "scenario": "R33.5、R34 既有封印 fixtures 加 R34.1-B01…B12 新 fixtures，各修改一个成员/版本/祖先关系。",
-              "expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。 REV-B01-01：以同一122源码祖先、两份不同 R34.1 封印构建测试输入，替换新封印或放入旧 APK 时，封包拒绝；R33.5 摘要相同不能掩盖交换。编译 androidTest APK 只记编译完成，须另取实际运行输出签场景。",
+              "expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。 REV-B01-01：以同一122源码祖先、两份不同 R34.1 封印构建测试输入，替换新封印或放入旧 APK 时，封包拒绝；R33.5 摘要相同不能掩盖交换。编译 androidTest APK 只记编译完成，须另取实际运行输出签场景。 F5-B01-01 正例：新工作树、已完成批次和新增仅施工证据可独立续工。 反例：错封印、缺报告或同名 ignored 文件在导入前有明确结果，已有证据不被覆盖。",
               "evidence": "ENGINEERING：Python/Gradle identity 测试、输入 manifest、stdout 脱敏日志；Android 编译单独 NOT_RUN 或附真实日志。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
               "id": "R341-B01-01-T01",
               "required_review_ids": [
-                "REV-B01-01"
+                "REV-B01-01",
+                "F5-B01-01"
               ],
               "file_probe_keys": [
                 "app/build.gradle",
@@ -195,11 +203,14 @@
             },
             {
               "scenario": "版本四文件写到中途故障后恢复；传033、122、签名不匹配、缺真实122 APK四种封包输入。",
-              "expected": "四文件原子恢复；033通过不产生122覆盖证明；签名不匹配阻断交付；缺122证据只允许候选，明确 COVER_INSTALL_UNVERIFIED。",
+              "expected": "四文件原子恢复；033通过不产生122覆盖证明；签名不匹配阻断交付；缺122证据只允许候选，明确 COVER_INSTALL_UNVERIFIED。 F5-B01-03 正例：只有 B01 时可验本批；SDK 验签原件及下载回读在各自具备条件时追加。 反例：沿用旧包、错源码、错封印、非本批版本或原件摘要不符不能签过对应层。",
               "evidence": "ENGINEERING：故障注入 journal diff；DEVICE：本批若具备设备可实测122覆盖，否则 NOT_RUN，由B12复验，不阻塞身份桥单元验收。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
-              "id": "R341-B01-01-T02"
+              "id": "R341-B01-01-T02",
+              "required_review_ids": [
+                "F5-B01-03"
+              ]
             }
           ],
           "rollback": "回退本工单代码与新 r341 binding；已发布 versionCode 不复用、不降低。旧 r33/r34 封印及原 APK/证书证据全程只读保留。应用数据不迁移。",
@@ -210,7 +221,9 @@
             "不得在本批身份校验通过后宣称完整应用或自然质量通过。"
           ],
           "required_review_ids": [
-            "REV-B01-01"
+            "REV-B01-01",
+            "F5-B01-01",
+            "F5-B01-03"
           ]
         },
         {
@@ -221,7 +234,8 @@
             "REPORT:runtime-observation.json",
             "REPORT:runtime-observation-heartbeatSummary.txt",
             "REPORT:DIAGNOSTIC_SCOPE.json#recentEvidence",
-            "REPORT:REPORT_DETAILS.txt#RSEC-027,RSEC-030,RSEC-033,RSEC-052"
+            "REPORT:REPORT_DETAILS.txt#RSEC-027,RSEC-030,RSEC-033,RSEC-052",
+            "specs/field5/dispatch.md F5-B01-02"
           ],
           "evidence_status": "VERIFIED_MIXED_WATERMARKS",
           "diagnosis": "现场进程从10:11:43至10:17:04约5.5分钟；心跳、SQL快照及10:26补充读取不同水位。最近30期1/30和恢复56/25/0含旧版本；当前122的请求132–138共7个、已开奖132–137只有133有canonical。缺少统一边界会让每批验收重复出现成功样本美化、旧故障归新包。",
@@ -273,18 +287,27 @@
               "changes": [
                 "NEW：只读不可变 Scope 对象；采集 wallAt/monoAt/SQL snapshot watermark；连接观测只允许同 databaseIdentity 和明确兼容 scope，返回 mismatch reason。"
               ]
+            },
+            {
+              "path": "app/build.gradle",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B01-02 Android 测试可按真实入口启动并证明命中了指定用例。详见 specs/field5/dispatch.md。"
+              ]
             }
           ],
           "implementation_steps": [
             "RuntimeObservationScopeR341.capture(context,dbSnapshotRef,clock) 返回 {release,sourceCommit,processEpoch,bootId,databaseIdentity,sampleWallAt,sampleMonoAt,sqlWatermark,scopeKind}。UI/runtime 采样 sqlWatermark=null、scopeKind=PROCESS_SAMPLE；不伪装事务快照。",
             "按 request/target 与开奖时间进行 current-release cohort 归属；查询窗口同时输出 requestedTargets、drawnEligibleTargets、futurePendingTargets、canonicalSuccesses、failureReasons。当前例得到7/6/1/2，但赛前已开奖覆盖为1/6。所有旧30/120期窗口明确 retained-history。",
             "实现只读导出到本批 observation-scope.json；原始事件不重写，SQL缺权限/锁超时输出 RESOURCE_WAIT 而不是0。数据库重建或导入换 identity，保留 lineage，禁止不同库计数直接相减。",
-            "继承原R34-B02-05观测字段：sourcePublishedAt、receivedWall、receivedElapsed、commitElapsed和bootId；无可信源发布时间时“开奖后1秒”必须NOT_MEASURABLE，不能用本机回调时间冒充源发布时间。"
+            "继承原R34-B02-05观测字段：sourcePublishedAt、receivedWall、receivedElapsed、commitElapsed和bootId；无可信源发布时间时“开奖后1秒”必须NOT_MEASURABLE，不能用本机回调时间冒充源发布时间。",
+            "F5-B01-02 134 个工程命令传入各次独立的 r30Sandbox；在正常构建脚本及 Android 测试中保留启动、选例、上下文和 JUnit 原件，按源日志回读。"
           ],
           "acceptance": [
             {
               "scenario": "装入现场水位和跨进程混合 fixture；晚于心跳的138成功与早心跳136/133并存。",
-              "expected": "无矛盾告警；报告显示时间差，122已开奖覆盖1/6、未开奖138不入分母，跨版本30期1/30单列。",
+              "expected": "无矛盾告警；报告显示时间差，122已开奖覆盖1/6、未开奖138不入分母，跨版本30期1/30单列。 F5-B01-02 正例：精确选择指定 debug 用例，实例实际进入并完成，读到相同数据目录和令牌。 反例：漏参、错目录、零用例、重用旧日志或未运行的成功命令均拒收。",
               "evidence": "ENGINEERING：可重放 JSON fixtures、cohort查询及输出。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
@@ -294,6 +317,9 @@
                 "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
                 "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
                 "app/src/main/java/com/ethk3/novaonepro/SourceManifestR815.java"
+              ],
+              "required_review_ids": [
+                "F5-B01-02"
               ]
             },
             {
@@ -310,6 +336,9 @@
             "不能把恢复请求数当恢复成功数。",
             "不能用成功2次的P95代替7个请求的全分母。",
             "不能把122安装前03:05崩溃算作122当前崩溃。"
+          ],
+          "required_review_ids": [
+            "F5-B01-02"
           ]
         },
         {
@@ -871,7 +900,8 @@
           "evidence_refs": [
             "SOURCE@5562f9b19aa09f9f7d9e69ca085db56c537967fc:app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java#researchDataDueR335,runWrite",
             "REPORT:DIAGNOSTIC_SCOPE.json#researchSchedulerState",
-            "REPORT:runtime-observation-ftrlWritePhases.txt"
+            "REPORT:runtime-observation-ftrlWritePhases.txt",
+            "specs/field5/unblock.md F5-B02-01"
           ],
           "evidence_status": "EXISTING_FAIR_SLOTS_VERIFIED; FIELD_PROGRESS_INSUFFICIENT",
           "diagnosis": "源码有研究/控制5秒和故障/迁移1秒的保留尝试，现场仍REALTIME_PREEMPTED且旧FTRL385两次未提交。频繁失败实时需求或只按尝试重置年龄，会让小切片永远没机会；需要在可用窗口证明服务，而不是空加线程。",
@@ -885,7 +915,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "按最老已就绪工作年龄和已提交cursor更新lastServiced；保留slot未执行或rollback不得当服务成功；release/cancel确保所有slot CAS复位。"
+                "按最老已就绪工作年龄和已提交cursor更新lastServiced；保留slot未执行或rollback不得当服务成功；release/cancel确保所有slot CAS复位。",
+                "F5-B02-01 同一研究数据通道内按已就绪工作服务，防止可用窗口长期被别的任务占满。详见 specs/field5/unblock.md。"
               ]
             },
             {
@@ -917,24 +948,40 @@
               "changes": [
                 "复核原文件的有效入口及下游消费。切片续算游标递增且能重启；反复释放再申请不计有效进展"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+              "methods": [
+                "researchDataDueR335",
+                "step",
+                "dataset"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B02-01 同一研究数据通道内按已就绪工作服务，防止可用窗口长期被别的任务占满。详见 specs/field5/unblock.md。"
+              ]
             }
           ],
           "implementation_steps": [
             "设计优先级为有固定剩余窗口的live freeze优先；draw/settlement按真实due；fault/migration/research-control/research-data采用已有轮次加age。admission读取的实时deadline必须带target/fence和expiresAt，过期pressure不可续占优先级。",
             "每个lane记录eligibleSince、lastAttemptAt、lastCommittedAt、oldestUnit、nextDue、blockedReason。保证仅在存在可用事务预算且无临近真实freeze的条件下服务：工程模拟目标为30秒内至少一片有提交的ready研究工作；无可用窗口时明确SATURATED和实时占用量，不承诺无条件公平。",
             "连续等待10秒发可读starvation诊断；超过30秒且实时占用不足解释时触发调度缺陷而不是继续RUNNING。迁移和fault同样可观察。实际阈值为首轮工程起点，需要设备负载证据调整，不属于自然质量指标。",
-            "任何task只拿到lease、写heartbeat、重复cursor都不满足service；按B01 ProgressReceipt独立对账。slot释放放finally，线程异常/取消/UNKNOWN都不能永久占slot。"
+            "任何task只拿到lease、写heartbeat、重复cursor都不满足service；按B01 ProgressReceipt独立对账。slot释放放finally，线程异常/取消/UNKNOWN都不能永久占slot。",
+            "F5-B02-01 DatabaseCoordinator.researchDataDueR335/runWrite 与 RuntimeR27.DatasetTask.step 的廉价准入绑定等待中的任务和输入，不让全局其他研究提交覆盖 dataset 的就绪年龄，按真实窗口留轮次和提交原件。"
           ],
           "acceptance": [
             {
               "scenario": "虚拟时钟产生正常实时负载、失败且过期实时目标、持续合理实时峰值三场景。",
-              "expected": "正常/过期场景ready研究在30秒可用窗口提交至少一片；持续饱和明确SATURATED和全分母，不伪报研究服务。所有slot最终释放。",
+              "expected": "正常/过期场景ready研究在30秒可用窗口提交至少一片；持续饱和明确SATURATED和全分母，不伪报研究服务。所有slot最终释放。 F5-B02-01 正例：持续故障背压、无临近冻结，在多个可用窗口总让另一个合法研究任务先提交。修复后两种已就绪研究在原单 writer、预登记预算内各有实际提交。 反例：每轮仅有其他任务成功或本项取消、回滚不能代签；真正的实时拥塞须保留饱和时间和对应目标。",
               "evidence": "ENGINEERING：确定性调度seed、每lane eligible/service时间线、最大等待断言。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
               "id": "R341-B02-03-T01",
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java"
+              ],
+              "required_review_ids": [
+                "F5-B02-01"
               ]
             },
             {
@@ -951,6 +998,9 @@
             "禁止为了让研究有数而延长赛前截止期。",
             "禁止把attempt算service。",
             "禁止用维护heartbeat声称candidate训练已推进。"
+          ],
+          "required_review_ids": [
+            "F5-B02-01"
           ]
         },
         {

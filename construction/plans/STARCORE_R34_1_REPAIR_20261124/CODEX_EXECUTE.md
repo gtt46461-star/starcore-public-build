@@ -2,7 +2,7 @@
 
 从实际 122 底座开工。按 B01–B12 顺序真实修改生产源码、运行所属用例、构建每批 APK 并记录提交。先从服务取到逐期业务推进，再从工厂取到第一个有公式和首次实训的出生，随后追到跨重启的连续几轮和合格时的唯一主链交易。每批对照 FILE_VERIFICATION 的本批条目，可由同一次生产执行导出多行独立证据。历史资产质量不足时继续施工研发与隔离工程正例。
 
-本次执行 R34.1 第 4 版。先读[持续创造和真实采用的施工要求](FIELD4.md)、[逐文件施工与验收](FILE_WIRING.md)，再读第 3 版的 [本次施工变更和命令](FIELD3.md)、[升级方向逐条施工表](UPGRADE_ACTIONS.md) 和 [两代联调](specs/field3/chain.md)，再逐批执行含复核编号的工单。旧封印回执保留原版本身份；当前封印按各用例绑定方向重新审核，每个对象保留正、反观测原件。若此前尚未开工，从 B01 开始。
+本次执行 R34.1 第 5 版。先读[第 5 版施工变更](FIELD5.md)，再读第 4 版的[持续创造和真实采用的施工要求](FIELD4.md)、[逐文件施工与验收](FILE_WIRING.md)，再读第 3 版的 [本次施工变更和命令](FIELD3.md)、[升级方向逐条施工表](UPGRADE_ACTIONS.md) 和 [两代联调](specs/field3/chain.md)，再逐批执行含复核编号的工单。旧封印回执保留原版本身份；当前封印按各用例绑定方向重新审核，每个对象保留正、反观测原件。若此前尚未开工，从 B01 开始。
 
 以下内容是可直接执行的施工任务。先读取全部入口和相关工单，再逐批修改真正应用源码。当前任务完成标准是实际工程交付；不能仅复述方案、创建空类、改状态或再写一份方案后停止。
 
@@ -15,15 +15,19 @@
 - `main`是方案交付分支，不是122应用工作树。创建新的施工分支时从精确应用底座开始，只导入新方案、对应证据和两份入口，禁止整树合并main的旧应用目录。
 - 已有R34.1施工工作树时，先核对真实提交、未提交用户修改和已签收回执，再从首个未完成批次续工；不reset、清库、覆盖前批、重做已验证工作。
 
-已有完整本地仓库且已取得精确方案提交后，可以使用随方案提供的工具。下面环境变量均由执行者根据实际绝对路径设置，不包含密钥：
+从仓库获取上述精确提交。开工器核对选定 Git 对象中的方案成员和原报告。已有本地施工分支时，预检它的来源与本机改动；发生同名冲突时保留原件，读出冲突路径再合并。以下命令在实施者已设置的本地路径上运行。[开工及无损续工](specs/field5/build.md)。
 
 ```bash
-python3 "$PLAN_ROOT/tools/verify_plan.py" --plan "$PLAN_ROOT"
-python3 "$PLAN_ROOT/tools/prepare_worktree.py" --repo "$REPO_ROOT" --plan-ref "$PLAN_COMMIT" --worktree "$R341_WORKTREE"
-python3 "$PLAN_ROOT/tools/prepare_worktree.py" --repo "$REPO_ROOT" --plan-ref "$PLAN_COMMIT" --worktree "$R341_WORKTREE" --create
+p=construction/plans/STARCORE_R34_1_REPAIR_20261124
+python3 -B "$PLAN_ROOT/tools/verify_plan.py" --plan "$PLAN_ROOT"
+plan_manifest_sha=$(python3 -c 'import hashlib,pathlib,sys; print(hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest())' "$PLAN_ROOT/MANIFEST_SHA256.json")
+python3 -B "$PLAN_ROOT/tools/prepare_worktree.py" --repo "$REPO_ROOT" --plan-ref "$PLAN_COMMIT" --expected-manifest-sha256 "$plan_manifest_sha" --worktree "$R341_WORKTREE"
+python3 -B "$PLAN_ROOT/tools/prepare_worktree.py" --repo "$REPO_ROOT" --plan-ref "$PLAN_COMMIT" --expected-manifest-sha256 "$plan_manifest_sha" --worktree "$R341_WORKTREE" --create
+python3 -B "$R341_WORKTREE/$p/tools/verify_plan.py" --plan "$R341_WORKTREE/$p"
+git -C "$R341_WORKTREE" diff --cached --name-status
 ```
 
-默认第一条worktree命令只预检；`--create`明确创建隔离工作树和暂存资料导入。检查只修改允许路径后提交该资料导入，再做B01。工具不会替你获取丢失的Git祖先；缺祖先应从真实仓库补全，不伪造.git。
+首次资料暂存后核对并提交资料导入，已导入同一版本则核验当前工作树并从相应批次继续。方案校验工具在每个开工节点只使用选定提交的封印。
 
 ## 2. 首批先解决可构建前置
 
@@ -52,6 +56,10 @@ B01实现R34.1身份桥、版本系列分派及当前122覆盖基线取证接口
 9. 继续下一批，不因一项没有设备或自然样本而放弃其余已授权工程；明确保留受影响的DEVICE/NATURAL未完成项。
 
 共享文件须顺序编辑，不得把旧方案整文件“后态”覆盖当前代码。新增影响文件先登记工单与回归，不得偷偷撤销前批约束。本方案附带的候选patch若存在，仅可作为经过指定范围核验的起点，仍必须联合适配前批和完成Android验收；没有参考patch的工单按方法合同实现。
+
+Android 工程用例使用矩阵中修正后的运行器命令。先用 `python3 -B "$PLAN_ROOT/tools/dispatch5.py" --plan "$PLAN_ROOT" --case R341-B01-02-T01` 生成一次带独立沙箱的 argv，由当前施工工作树执行。每个用例保存运行器进入和测量完成的日志、设备信息及 JUnit 原件。B05 的进程死亡用例先由外部宿主独立观察同一工作键在正常服务重启后的唯一提交，再运行 JUnit 核验采集结果。[Android 启动与隔离](specs/field5/dispatch.md)。
+
+每批工程回执通过后，在同一施工提交构建本批 APK，按[逐批构建和交付](specs/field5/apk.md)核验到当前批的前缀。B01 无需等待 B12。B12 对每批原件、原签名与最终下载字节复核。工程通过但装配、签名、下载待核对的项目单列在台账。
 
 ## 4. 不可削弱的功能边界
 

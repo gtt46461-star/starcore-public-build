@@ -20,7 +20,9 @@
             "SOURCE@5562f9b19aa09f9f7d9e69ca085db56c537967fc:tools/r34/build_identity.py#identity",
             "SOURCE@5562f9b19aa09f9f7d9e69ca085db56c537967fc:tools/r33/package_ci_candidate.py#validate_pair",
             "REPORT:source-manifest.json; REPORT_DETAILS.txt#RSEC-027",
-            "specs/review/build.md [REV-B01-01]"
+            "specs/review/build.md [REV-B01-01]",
+            "specs/field5/build.md F5-B01-01",
+            "specs/field5/apk.md F5-B01-03"
           ],
           "evidence_status": "VERIFIED_SOURCE_AND_FIELD_IDENTITY",
           "diagnosis": "精确应用底座是 construction/r34-20261123@5562f9b1；main@4e1606e9 是既有方案提交。当前 Gradle 仍校验 R33.5 descriptor，r33 verifier 因 r34 binding 存在无条件调用只识别 R34- 的版本正则，版本推进器仅允许 R33.5/R34；直接把版本改为 R34.1 会在首批构建即失败。validate_pair 只对 577311033 校验，不足以证明覆盖现场 577311122。此工单是所有施工批次可构建的前置能力。",
@@ -66,7 +68,8 @@
               ],
               "action": "NEW",
               "changes": [
-                "NEW：读取 release/r341_plan_binding.json 和 STARCORE_R341_PLAN_ROOT；校验精确文件集合、每成员哈希、应用底座祖先关系、新版本批次、plan commit 与新 plan seal。返回 STARCORE_R341_BUILD_IDENTITY_1。"
+                "NEW：读取 release/r341_plan_binding.json 和 STARCORE_R341_PLAN_ROOT；校验精确文件集合、每成员哈希、应用底座祖先关系、新版本批次、plan commit 与新 plan seal。返回 STARCORE_R341_BUILD_IDENTITY_1。",
+                "F5-B01-01 按精确提交及封印开工，升级保留已有施工成果。详见 specs/field5/build.md。"
               ]
             },
             {
@@ -98,7 +101,8 @@
               "action": "MODIFY",
               "changes": [
                 "显式传递并验证 R33、R34、R341 三个封存根；缺任何实际要求的封存根即返回确定的构建前置错误。",
-                "REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。"
+                "REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。",
+                "F5-B01-03 首批即能核对工程源码、独立构建与实际 APK。详见 specs/field5/apk.md。"
               ]
             },
             {
@@ -110,7 +114,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "旧033祖先核验保留；增加 currentInstalledBaseline 的真实122 APK/设备拉取哈希和签名/包名/版本检查；嵌入及封包名分派 R341，缺现场APK则标 COVER_INSTALL_UNVERIFIED，不生成可覆盖声明。"
+                "旧033祖先核验保留；增加 currentInstalledBaseline 的真实122 APK/设备拉取哈希和签名/包名/版本检查；嵌入及封包名分派 R341，缺现场APK则标 COVER_INSTALL_UNVERIFIED，不生成可覆盖声明。",
+                "F5-B01-03 首批即能核对工程源码、独立构建与实际 APK。详见 specs/field5/apk.md。"
               ]
             },
             {
@@ -180,18 +185,21 @@
             "版本器先 prepare journal，再持锁 compare-before/apply 四个原身份文件：release_manifest.json、release_identity.properties、ReleaseManifestR926.java、verification/r36-stubs/.../BuildConfig.java。掉电后只能完整恢复旧组或完整落新组，不混用。最终 release 构建要求 clean HEAD；不在本次方案交付中伪造新 APK。",
             "调用既有构建命令时 R13_SIGNING_P12、PASSWORD、DUOQU_API_KEY 仅从已授权秘密环境注入；公共签名指纹与旧原件核对。对实际安装 APK 的检查放在 validate_pair 的独立参数分支，旧033只是祖先证据，122才是本轮覆盖基线。",
             "新方案descriptor固定为control/PLAN_IDENTITY.json，schema=STARCORE_R341_PLAN_DESCRIPTOR_1、planRevision=R34.1、application_baseline_commit=5562f9b19aa09f9f7d9e69ca085db56c537967fc、application_baseline_branch=construction/r34-20261123、repository=gtt46461-star/starcore-public-build、prior_plan_revision=R34、prior_plan_commit=4e1606e9c20c5f01a82cf495b8d39b2630c766f0。manifest_sha256由control/PLAN_SEAL.json持有；manifest排除自身、seal、SELF_CHECK和ZIP，按封印脚本的实际集合验证，避免自引用。verify_seal为本批拟从旧identity提取的新函数，非已存在入口。",
-            "REV-B01-01 沿用 run_release_build.py 的真实 Gradle 任务与发布前后 identity 守卫；给 R34.1 增加独立回执字段，将新封印和源提交与签名 APK 内身份逐项回读。保留原 R33.5 摘要字段。prepare_worktree 新增中文路径、精确导入、旧工作树续工测试。"
+            "REV-B01-01 沿用 run_release_build.py 的真实 Gradle 任务与发布前后 identity 守卫；给 R34.1 增加独立回执字段，将新封印和源提交与签名 APK 内身份逐项回读。保留原 R33.5 摘要字段。prepare_worktree 新增中文路径、精确导入、旧工作树续工测试。",
+            "F5-B01-01 导入前核对方案及首份原报告的字节，从两次发布间由方案所有的路径计算差量；检测本地同名冲突。",
+            "F5-B01-03 原发布脚本保留旧身份字段并另记本次方案封印、提交和批次。使用当前前缀签收器读取准确源码、构建日志和 APK 的内嵌身份。"
           ],
           "acceptance": [
             {
               "scenario": "R33.5、R34 既有封印 fixtures 加 R34.1-B01…B12 新 fixtures，各修改一个成员/版本/祖先关系。",
-              "expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。 REV-B01-01：以同一122源码祖先、两份不同 R34.1 封印构建测试输入，替换新封印或放入旧 APK 时，封包拒绝；R33.5 摘要相同不能掩盖交换。编译 androidTest APK 只记编译完成，须另取实际运行输出签场景。",
+              "expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。 REV-B01-01：以同一122源码祖先、两份不同 R34.1 封印构建测试输入，替换新封印或放入旧 APK 时，封包拒绝；R33.5 摘要相同不能掩盖交换。编译 androidTest APK 只记编译完成，须另取实际运行输出签场景。 F5-B01-01 正例：新工作树、已完成批次和新增仅施工证据可独立续工。 反例：错封印、缺报告或同名 ignored 文件在导入前有明确结果，已有证据不被覆盖。",
               "evidence": "ENGINEERING：Python/Gradle identity 测试、输入 manifest、stdout 脱敏日志；Android 编译单独 NOT_RUN 或附真实日志。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
               "id": "R341-B01-01-T01",
               "required_review_ids": [
-                "REV-B01-01"
+                "REV-B01-01",
+                "F5-B01-01"
               ],
               "file_probe_keys": [
                 "app/build.gradle",
@@ -212,11 +220,14 @@
             },
             {
               "scenario": "版本四文件写到中途故障后恢复；传033、122、签名不匹配、缺真实122 APK四种封包输入。",
-              "expected": "四文件原子恢复；033通过不产生122覆盖证明；签名不匹配阻断交付；缺122证据只允许候选，明确 COVER_INSTALL_UNVERIFIED。",
+              "expected": "四文件原子恢复；033通过不产生122覆盖证明；签名不匹配阻断交付；缺122证据只允许候选，明确 COVER_INSTALL_UNVERIFIED。 F5-B01-03 正例：只有 B01 时可验本批；SDK 验签原件及下载回读在各自具备条件时追加。 反例：沿用旧包、错源码、错封印、非本批版本或原件摘要不符不能签过对应层。",
               "evidence": "ENGINEERING：故障注入 journal diff；DEVICE：本批若具备设备可实测122覆盖，否则 NOT_RUN，由B12复验，不阻塞身份桥单元验收。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
-              "id": "R341-B01-01-T02"
+              "id": "R341-B01-01-T02",
+              "required_review_ids": [
+                "F5-B01-03"
+              ]
             }
           ],
           "rollback": "回退本工单代码与新 r341 binding；已发布 versionCode 不复用、不降低。旧 r33/r34 封印及原 APK/证书证据全程只读保留。应用数据不迁移。",
@@ -237,7 +248,9 @@
           "application_status": "TODO",
           "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION",
           "required_review_ids": [
-            "REV-B01-01"
+            "REV-B01-01",
+            "F5-B01-01",
+            "F5-B01-03"
           ]
         },
         {
@@ -248,7 +261,8 @@
             "REPORT:runtime-observation.json",
             "REPORT:runtime-observation-heartbeatSummary.txt",
             "REPORT:DIAGNOSTIC_SCOPE.json#recentEvidence",
-            "REPORT:REPORT_DETAILS.txt#RSEC-027,RSEC-030,RSEC-033,RSEC-052"
+            "REPORT:REPORT_DETAILS.txt#RSEC-027,RSEC-030,RSEC-033,RSEC-052",
+            "specs/field5/dispatch.md F5-B01-02"
           ],
           "evidence_status": "VERIFIED_MIXED_WATERMARKS",
           "diagnosis": "现场进程从10:11:43至10:17:04约5.5分钟；心跳、SQL快照及10:26补充读取不同水位。最近30期1/30和恢复56/25/0含旧版本；当前122的请求132–138共7个、已开奖132–137只有133有canonical。缺少统一边界会让每批验收重复出现成功样本美化、旧故障归新包。",
@@ -309,21 +323,31 @@
                 "NEW test_r341_b01_02_t02"
               ],
               "changes": [
-                "实现本工单工程验收正例和关键拒例，输出原始观测与断言；测试隔离且调用当前生产实现。"
+                "实现本工单工程验收正例和关键拒例，输出原始观测与断言；测试隔离且调用当前生产实现。",
+                "F5-B01-02 Android 测试可按真实入口启动并证明命中了指定用例。详见 specs/field5/dispatch.md。"
               ],
               "kind": "ACCEPTANCE_HARNESS_CONTRACT"
+            },
+            {
+              "path": "app/build.gradle",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B01-02 Android 测试可按真实入口启动并证明命中了指定用例。详见 specs/field5/dispatch.md。"
+              ]
             }
           ],
           "implementation_steps": [
             "RuntimeObservationScopeR341.capture(context,dbSnapshotRef,clock) 返回 {release,sourceCommit,processEpoch,bootId,databaseIdentity,sampleWallAt,sampleMonoAt,sqlWatermark,scopeKind}。UI/runtime 采样 sqlWatermark=null、scopeKind=PROCESS_SAMPLE；不伪装事务快照。",
             "按 request/target 与开奖时间进行 current-release cohort 归属；查询窗口同时输出 requestedTargets、drawnEligibleTargets、futurePendingTargets、canonicalSuccesses、failureReasons。当前例得到7/6/1/2，但赛前已开奖覆盖为1/6。所有旧30/120期窗口明确 retained-history。",
             "实现只读导出到本批 observation-scope.json；原始事件不重写，SQL缺权限/锁超时输出 RESOURCE_WAIT 而不是0。数据库重建或导入换 identity，保留 lineage，禁止不同库计数直接相减。",
-            "继承原R34-B02-05观测字段：sourcePublishedAt、receivedWall、receivedElapsed、commitElapsed和bootId；无可信源发布时间时“开奖后1秒”必须NOT_MEASURABLE，不能用本机回调时间冒充源发布时间。"
+            "继承原R34-B02-05观测字段：sourcePublishedAt、receivedWall、receivedElapsed、commitElapsed和bootId；无可信源发布时间时“开奖后1秒”必须NOT_MEASURABLE，不能用本机回调时间冒充源发布时间。",
+            "F5-B01-02 134 个工程命令传入各次独立的 r30Sandbox；在正常构建脚本及 Android 测试中保留启动、选例、上下文和 JUnit 原件，按源日志回读。"
           ],
           "acceptance": [
             {
               "scenario": "装入现场水位和跨进程混合 fixture；晚于心跳的138成功与早心跳136/133并存。",
-              "expected": "无矛盾告警；报告显示时间差，122已开奖覆盖1/6、未开奖138不入分母，跨版本30期1/30单列。",
+              "expected": "无矛盾告警；报告显示时间差，122已开奖覆盖1/6、未开奖138不入分母，跨版本30期1/30单列。 F5-B01-02 正例：精确选择指定 debug 用例，实例实际进入并完成，读到相同数据目录和令牌。 反例：漏参、错目录、零用例、重用旧日志或未运行的成功命令均拒收。",
               "evidence": "ENGINEERING：可重放 JSON fixtures、cohort查询及输出。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
@@ -333,6 +357,9 @@
                 "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
                 "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
                 "app/src/main/java/com/ethk3/novaonepro/SourceManifestR815.java"
+              ],
+              "required_review_ids": [
+                "F5-B01-02"
               ]
             },
             {
@@ -356,7 +383,10 @@
           ],
           "batch": "B01",
           "application_status": "TODO",
-          "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION"
+          "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION",
+          "required_review_ids": [
+            "F5-B01-02"
+          ]
         },
         {
           "id": "R341-B01-03",
@@ -425,7 +455,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b01_03_t01",
                 "NEW test_r341_b01_03_t02"
@@ -545,7 +575,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b01_04_t01",
                 "NEW test_r341_b01_04_t02"
@@ -693,7 +723,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b01_05_t01",
                 "NEW test_r341_b01_05_t02"
@@ -940,7 +970,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b02_02_t01",
                 "NEW test_r341_b02_02_t02"
@@ -1015,7 +1045,8 @@
           "evidence_refs": [
             "SOURCE@5562f9b19aa09f9f7d9e69ca085db56c537967fc:app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java#researchDataDueR335,runWrite",
             "REPORT:DIAGNOSTIC_SCOPE.json#researchSchedulerState",
-            "REPORT:runtime-observation-ftrlWritePhases.txt"
+            "REPORT:runtime-observation-ftrlWritePhases.txt",
+            "specs/field5/unblock.md F5-B02-01"
           ],
           "evidence_status": "EXISTING_FAIR_SLOTS_VERIFIED; FIELD_PROGRESS_INSUFFICIENT",
           "diagnosis": "源码有研究/控制5秒和故障/迁移1秒的保留尝试，现场仍REALTIME_PREEMPTED且旧FTRL385两次未提交。频繁失败实时需求或只按尝试重置年龄，会让小切片永远没机会；需要在可用窗口证明服务，而不是空加线程。",
@@ -1029,7 +1060,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "按最老已就绪工作年龄和已提交cursor更新lastServiced；保留slot未执行或rollback不得当服务成功；release/cancel确保所有slot CAS复位。"
+                "按最老已就绪工作年龄和已提交cursor更新lastServiced；保留slot未执行或rollback不得当服务成功；release/cancel确保所有slot CAS复位。",
+                "F5-B02-01 同一研究数据通道内按已就绪工作服务，防止可用窗口长期被别的任务占满。详见 specs/field5/unblock.md。"
               ]
             },
             {
@@ -1056,7 +1088,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b02_03_t01",
                 "NEW test_r341_b02_03_t02"
@@ -1073,24 +1105,40 @@
               "changes": [
                 "复核原文件的有效入口及下游消费。切片续算游标递增且能重启；反复释放再申请不计有效进展"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+              "methods": [
+                "researchDataDueR335",
+                "step",
+                "dataset"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B02-01 同一研究数据通道内按已就绪工作服务，防止可用窗口长期被别的任务占满。详见 specs/field5/unblock.md。"
+              ]
             }
           ],
           "implementation_steps": [
             "设计优先级为有固定剩余窗口的live freeze优先；draw/settlement按真实due；fault/migration/research-control/research-data采用已有轮次加age。admission读取的实时deadline必须带target/fence和expiresAt，过期pressure不可续占优先级。",
             "每个lane记录eligibleSince、lastAttemptAt、lastCommittedAt、oldestUnit、nextDue、blockedReason。保证仅在存在可用事务预算且无临近真实freeze的条件下服务：工程模拟目标为30秒内至少一片有提交的ready研究工作；无可用窗口时明确SATURATED和实时占用量，不承诺无条件公平。",
             "连续等待10秒发可读starvation诊断；超过30秒且实时占用不足解释时触发调度缺陷而不是继续RUNNING。迁移和fault同样可观察。实际阈值为首轮工程起点，需要设备负载证据调整，不属于自然质量指标。",
-            "任何task只拿到lease、写heartbeat、重复cursor都不满足service；按B01 ProgressReceipt独立对账。slot释放放finally，线程异常/取消/UNKNOWN都不能永久占slot。"
+            "任何task只拿到lease、写heartbeat、重复cursor都不满足service；按B01 ProgressReceipt独立对账。slot释放放finally，线程异常/取消/UNKNOWN都不能永久占slot。",
+            "F5-B02-01 DatabaseCoordinator.researchDataDueR335/runWrite 与 RuntimeR27.DatasetTask.step 的廉价准入绑定等待中的任务和输入，不让全局其他研究提交覆盖 dataset 的就绪年龄，按真实窗口留轮次和提交原件。"
           ],
           "acceptance": [
             {
               "scenario": "虚拟时钟产生正常实时负载、失败且过期实时目标、持续合理实时峰值三场景。",
-              "expected": "正常/过期场景ready研究在30秒可用窗口提交至少一片；持续饱和明确SATURATED和全分母，不伪报研究服务。所有slot最终释放。",
+              "expected": "正常/过期场景ready研究在30秒可用窗口提交至少一片；持续饱和明确SATURATED和全分母，不伪报研究服务。所有slot最终释放。 F5-B02-01 正例：持续故障背压、无临近冻结，在多个可用窗口总让另一个合法研究任务先提交。修复后两种已就绪研究在原单 writer、预登记预算内各有实际提交。 反例：每轮仅有其他任务成功或本项取消、回滚不能代签；真正的实时拥塞须保留饱和时间和对应目标。",
               "evidence": "ENGINEERING：确定性调度seed、每lane eligible/service时间线、最大等待断言。",
               "level": "ENGINEERING",
               "execution_status": "NOT_RUN",
               "id": "R341-B02-03-T01",
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java"
+              ],
+              "required_review_ids": [
+                "F5-B02-01"
               ]
             },
             {
@@ -1114,7 +1162,10 @@
           ],
           "batch": "B02",
           "application_status": "TODO",
-          "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION"
+          "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION",
+          "required_review_ids": [
+            "F5-B02-01"
+          ]
         },
         {
           "id": "R341-B02-04",
@@ -1166,7 +1217,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b02_04_t01",
                 "NEW test_r341_b02_04_t02"
@@ -1413,7 +1464,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b03_02_t01",
                 "NEW test_r341_b03_02_t02"
@@ -1540,7 +1591,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b03_03_t01",
                 "NEW test_r341_b03_03_t02"
@@ -1644,7 +1695,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b03_04_t01",
                 "NEW test_r341_b03_04_t02"
@@ -1897,7 +1948,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b04_02_t01",
                 "NEW test_r341_b04_02_t02"
@@ -2018,7 +2069,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b04_03_t01",
                 "NEW test_r341_b04_03_t02"
@@ -2147,7 +2198,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b04_04_t01",
                 "NEW test_r341_b04_04_t02"
@@ -2328,7 +2379,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b04_05_t01",
                 "NEW test_r341_b04_05_t02"
@@ -2504,7 +2555,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b04_06_t01",
                 "NEW test_r341_b04_06_t02",
@@ -2801,7 +2852,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b05_02_t01",
                 "NEW test_r341_b05_02_t02"
@@ -2977,7 +3028,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b05_03_t01"
               ],
@@ -3164,7 +3215,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b05_04_t01",
                 "NEW test_r341_b05_04_t02"
@@ -3502,7 +3553,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b06_02_a01",
                 "NEW test_r341_b06_02_a02",
@@ -3602,7 +3653,8 @@
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=capabilities,id=F13]",
             "PolicyAstR27.java#parse,type,rangeAndCausality",
             "specs/field3/learning.md F3-B06-02",
-            "specs/field4/birth.md F4-B06-03"
+            "specs/field4/birth.md F4-B06-03",
+            "specs/field5/unblock.md F5-B06-01"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "50 次尝试中有 10 个结构候选，却没有行为新颖/研究接纳/独立改进。名字变更与模板枚举不等于新的可执行机制。",
@@ -3675,7 +3727,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b06_03_a01",
                 "NEW test_r341_b06_03_a02",
@@ -3755,6 +3807,28 @@
               "changes": [
                 "F4-B06-03 同一公式的历史拒绝与已成功出生分别处理。见 specs/field4/birth.md"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+              "methods": [
+                "nextPending",
+                "step",
+                "confirmFrozen"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B06-01 历史确认队头隔离，独立公式仍能出生和首轮重放。详见 specs/field5/unblock.md。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+              "methods": [
+                "nextPending"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B06-01 历史确认队头隔离，独立公式仍能出生和首轮重放。详见 specs/field5/unblock.md。"
+              ]
             }
           ],
           "implementation_steps": [
@@ -3762,17 +3836,19 @@
             "出生输出 canonical_ast、parameter_blob、model ABI、probe hash、lineage、op diff；生成后无行为差异要记录原因，不计有效结构创新。",
             "公式可执行后在同目标开发切片做移除子树对照，保存 A/B/无组件输出与成本；此结果只决定继续研究。",
             "F3-B06-02 在 IdeaFamilyR27.propose → EvolutionLoopR27.stepBirth → BirthGateR27 的真实提案/出生入口，绑定思路ID、AST、位置、来源、独立尝试号、合法动作或拒绝原因。按 I00–I20 原 nextAction 运行相应对照。I00 保持预登记负对照；I14/I20 将来源、真实集合交集、截点和不足HOLD写为独立可复算字段。研发持续生子，资格独立积累。",
-            "F4-B06-03 StoreR27.recordedPolicies、EvolutionSink.preparePublicationR31 写前 guard、policy 和 EvolutionLoopR27.revalidateResearchAdmissions/stepGate 同时处理既有规范身份、拒绝所用开发原件及后续出生转换，保全原判断。按已变且可验的输入触发重评并保证首个成功出生唯一。"
+            "F4-B06-03 StoreR27.recordedPolicies、EvolutionSink.preparePublicationR31 写前 guard、policy 和 EvolutionLoopR27.revalidateResearchAdmissions/stepGate 同时处理既有规范身份、拒绝所用开发原件及后续出生转换，保全原判断。按已变且可验的输入触发重评并保证首个成功出生唯一。",
+            "F5-B06-01 FrozenConfirmationStoreR30.nextPending 与 RuntimeR27.EvolutionTask.step/confirmFrozen 联合回读行键、包身份和原摘要；坏行独立持久化隔离，按有限工作量继续无关的合法任务。"
           ],
           "acceptance": [
             {
               "id": "R341-B06-03-A01",
               "level": "ENGINEERING",
               "scenario": "合法公式、类型错误、未来引用、深树及常量公式集合",
-              "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码 F3-B06-02 21个ID逐行读回。对 I14 构造来源重叠及等大小不相交两例，对 I20 加入开奖后才出现的条件，对 I08 换错 ABI 权重，结果分别回到合法目标K3/预先约定的HOLD/拒绝。等价AST在出生门去重，失败对照不占创新数。",
+              "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码 F3-B06-02 21个ID逐行读回。对 I14 构造来源重叠及等大小不相交两例，对 I20 加入开奖后才出现的条件，对 I08 换错 ABI 权重，结果分别回到合法目标K3/预先约定的HOLD/拒绝。等价AST在出生门去重，失败对照不占创新数。 F5-B06-01 正例：最老不可解析 PENDING、第二个合法确认和一个可出生公式并存，读回坏行原件及原因、合法包处理记录、独立策略 BORN/谱系/首次重放，杀进程再投仍幂等。 反例：存储键A却装入合法包B、当前代正依赖坏包、确认曝光已耗、数据库暂忙、提交未知分别有终态或可重试原件；错包不确认，不借用结果，不重新开放已消费的样本。",
               "evidence": "节点级审计与 golden 输出；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
-                "F3-B06-02"
+                "F3-B06-02",
+                "F5-B06-01"
               ],
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
@@ -3824,7 +3900,8 @@
           "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION",
           "required_review_ids": [
             "F3-B06-02",
-            "F4-B06-03"
+            "F4-B06-03",
+            "F5-B06-01"
           ]
         },
         {
@@ -3893,7 +3970,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b06_04_a01",
                 "NEW test_r341_b06_04_a02",
@@ -4018,7 +4095,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b06_05_a01",
                 "NEW test_r341_b06_05_a02",
@@ -4287,7 +4364,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b07_02_a01",
                 "NEW test_r341_b07_02_a02",
@@ -4443,7 +4520,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b07_03_a01",
                 "NEW test_r341_b07_03_a02",
@@ -4643,7 +4720,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b07_04_a01",
                 "NEW test_r341_b07_04_a02",
@@ -4785,7 +4862,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b07_05_a01",
                 "NEW test_r341_b07_05_a02",
@@ -4857,7 +4934,8 @@
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/tasks[taskId=r27-replay-dataset]",
             "R30_REPORT.json#/objectIndex/boundedPayloads/researchMeasures",
             "ResearchObservatoryR30R1.java#step",
-            "specs/review/algorithm.md [REV-B08-01]"
+            "specs/review/algorithm.md [REV-B08-01]",
+            "specs/field5/unblock.md F5-B08-01"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "观测器共同停在 IMMUTABLE_REPLAY_DATASET，538 measures 中517为 INPUT_INVALIDATION；没有稳定输入就不能把缺图简单归因于绘制层。",
@@ -4891,7 +4969,8 @@
               "action": "MODIFY",
               "changes": [
                 "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。",
-                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
+                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。",
+                "F5-B08-01 已验证输入在重启后按原件恢复，防止重复诊断写挡住首个进化切片。详见 specs/field5/unblock.md。"
               ]
             },
             {
@@ -4910,12 +4989,17 @@
               "methods": [
                 "step",
                 "publishDatasetInputR335",
-                "recoverCommittedEvolutionInputR335"
+                "recoverCommittedEvolutionInputR335",
+                "publishRecoveredReplayKnowledgeR31",
+                "loadCurrent",
+                "require",
+                "isPublishedR31"
               ],
               "action": "MODIFY",
               "changes": [
                 "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。",
-                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
+                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。",
+                "F5-B08-01 已验证输入在重启后按原件恢复，防止重复诊断写挡住首个进化切片。详见 specs/field5/unblock.md。"
               ]
             },
             {
@@ -4938,28 +5022,41 @@
               "changes": [
                 "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+              "methods": [
+                "isPublishedR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B08-01 已验证输入在重启后按原件恢复，防止重复诊断写挡住首个进化切片。详见 specs/field5/unblock.md。"
+              ]
             }
           ],
           "implementation_steps": [
             "按原数据 owner 的分页游标构造 staging segments；每页提交有摘要、行数、first/last ordinal 与可见时间。",
             "只有完整 manifest 可发布为 immutable；重启从已提交页续建；已注册实验的旧 pin 保持可读。",
             "输入重复读不重复 invalidation；被源修正影响的具体 run 失效，有原因和新 revision；不把所有历史一刀切删除。",
-            "REV-B08-01 RuntimeR27.publishDatasetInputR335、recoverCommittedEvolutionInputR335 和 EvolutionTask.step 统一当前、待用及选中缓存的所有权。在临界区更换指针并登记引用；最后一个读者退出后释放已被取代的 FeatureCacheR27。取消或提交失败不改变已提交代的输入，老 pin 保留可回读。"
+            "REV-B08-01 RuntimeR27.publishDatasetInputR335、recoverCommittedEvolutionInputR335 和 EvolutionTask.step 统一当前、待用及选中缓存的所有权。在临界区更换指针并登记引用；最后一个读者退出后释放已被取代的 FeatureCacheR27。取消或提交失败不改变已提交代的输入，老 pin 保留可回读。",
+            "F5-B08-01 RuntimeR27.DatasetTask.step/publishRecoveredReplayKnowledgeR31、ResearchInputPinR30R1.loadCurrent/require、ReplayKnowledgeStoreR31.isPublishedR31 区分已匹配的投影、需重新物化的投影以及失效的原输入；保持 owner、pin、资格与实时截止的原条件。"
           ],
           "acceptance": [
             {
               "id": "R341-B08-01-A01",
               "level": "ENGINEERING",
               "scenario": "构建中断、重复页、源修正",
-              "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因 REV-B08-01：代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。",
+              "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因 REV-B08-01：代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。 F5-B08-01 正例：恢复已有同身份 pin、游标及匹配恢复投影；阻挡冗余投影写仍能把相同输入交给下一进化切片。另测投影缺失后有界补写、重启回读，合法受控输入最终走到真实出生与首个开发重放。 反例：只有3条表头、pin字节或修订错误、fence被替代、取消、读预算不足及不合法历史均不能发布成功。",
               "evidence": "segment/manifest/pin 对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
-                "REV-B08-01"
+                "REV-B08-01",
+                "F5-B08-01"
               ],
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
-                "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java"
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java"
               ]
             },
             {
@@ -4991,7 +5088,8 @@
           "application_status": "TODO",
           "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION",
           "required_review_ids": [
-            "REV-B08-01"
+            "REV-B08-01",
+            "F5-B08-01"
           ]
         },
         {
@@ -5050,7 +5148,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b08_02_a01",
                 "NEW test_r341_b08_02_a02",
@@ -5274,7 +5372,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b08_03_a01",
                 "NEW test_r341_b08_03_a02",
@@ -5413,7 +5511,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b08_04_a01",
                 "NEW test_r341_b08_04_a02",
@@ -5683,7 +5781,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b08_05_a01",
                 "NEW test_r341_b08_05_a02",
@@ -5848,7 +5946,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b08_06_a01",
                 "NEW test_r341_b08_06_a02",
@@ -5990,7 +6088,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b08_07_a01",
                 "NEW test_r341_b08_07_a02",
@@ -6379,7 +6477,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b09_02_a01",
                 "NEW test_r341_b09_02_a02",
@@ -6488,7 +6586,9 @@
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture",
             "specs/review/algorithm.md [REV-B09-03]",
             "specs/review/report.md [REV-B09-04]",
-            "specs/field4/q06.md F4-B09-05"
+            "specs/field4/q06.md F4-B09-05",
+            "specs/field5/stability.md F5-B09-01",
+            "specs/field5/real.md F5-B09-02"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "用户要求的高胜率/稳定/品质必须分项测量。当前V1证书门槛与报告Q02覆盖要求并非同一字段，不能把futureSummary覆盖通过自动说成evaluate已检查。",
@@ -6531,12 +6631,13 @@
               ],
               "action": "NEW",
               "changes": [
-                "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。"
+                "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。",
+                "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。"
               ]
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b09_03_a01",
                 "NEW test_r341_b09_03_a02",
@@ -6552,12 +6653,14 @@
               "methods": [
                 "evaluate",
                 "certify",
-                "commit"
+                "commit",
+                "blocks"
               ],
               "action": "MODIFY",
               "changes": [
                 "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。",
-                "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md"
+                "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md",
+                "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。"
               ]
             },
             {
@@ -6610,6 +6713,30 @@
               "changes": [
                 "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B09-02 自然发证后的真实出手率从全期交易复算。详见 specs/field5/real.md。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B09-02 自然发证后的真实出手率从全期交易复算。详见 specs/field5/real.md。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B09-02 自然发证后的真实出手率从全期交易复算。详见 specs/field5/real.md。"
+              ]
             }
           ],
           "implementation_steps": [
@@ -6618,18 +6745,21 @@
             "对原MAX_LOSS_STREAK=6做iid敏感性与联合功效报告；若质量目标需变更，另建新统计合同并前瞻注册，不以“优化”绕现合同。",
             "REV-B09-03 保留 CertificateGateR27.evaluate 的数学裁决；用 LiveShadowsR27.certify 的实际 issued/failing/commit 及产物报告实发裁决。122已要求独立未来覆盖≥15%、记录净收益>0、合法模型/校准/资格原件、无资格冲突与撤销。部署后 REAL 频率及额外质量指标另列，不能成为首次发证或首用的循环前置。",
             "REV-B09-04 在固定选择策略与预注册分箱后比较同一预测期的赛前选择概率和自然标签；保留原始分子/分母、分组与空桶、ECE/Brier/Wilson及配对覆盖。完整校准 artifact 必须带模型 hash、feature schema、selectionPolicyHash 和有效窗口。窗口内重新选择/拟合只进开发记录，旧 V51SelectedCalibrationArtifact 的 support=0 不得替代在线模型资格。",
-            "F4-B09-05 在已有质量评估中登记父代、子代、全机会及计分规则。将双方实际预测、弃权和对应开奖与同一预注册日历核对，复算单侧下界，零支持和缺项留待观察。"
+            "F4-B09-05 在已有质量评估中登记父代、子代、全机会及计分规则。将双方实际预测、弃权和对应开奖与同一预注册日历核对，复算单侧下界，零支持和缺项留待观察。",
+            "F5-B09-01 固定 LiveShadowsR27.blocks 的分块和尾段规则，由已核验的自然冻结、开奖与结算重建最差块命中及最长连败。",
+            "F5-B09-02 以已核验的自然证书、独立部署期历、同一 SQLite 一致快照取出区间内所有实际交易，联结真实主链选择、PIT授权、冻结K3、R974/F05、权威开奖及结算。按当前资产重算Q02与已选未成交、已提交待结算，并从当前实际核验的资产复算Q07。"
           ],
           "acceptance": [
             {
               "id": "R341-B09-03-A01",
               "level": "ENGINEERING",
               "scenario": "逐一单门槛失败/缺证据/全门槛通过的隔离fixture",
-              "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算 REV-B09-04：有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。 F4-B09-05 正例：用隔离正例复算每个同目标父子差值、样本方差与预注册下界；独立未来回执按同一合同复算。 反例：同一策略换名、错父代、跨窗口拼接、遗漏弃权或自报正下界不签收。",
+              "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算 REV-B09-04：有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。 F4-B09-05 正例：用隔离正例复算每个同目标父子差值、样本方差与预注册下界；独立未来回执按同一合同复算。 反例：同一策略换名、错父代、跨窗口拼接、遗漏弃权或自报正下界不签收。 F5-B09-01 正例：同一命中率但不同先后分布产生不同连败；测试 19/20 次支持和跨块边界。 反例：自报通过但存在超限连败、错窗口、无足量块或重复期均不得签收对应 Q04 优势。",
               "evidence": "gate boundary table；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
                 "REV-B09-04",
-                "F4-B09-05"
+                "F4-B09-05",
+                "F5-B09-01"
               ],
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/AssetQualityVerdictR341.java",
@@ -6644,10 +6774,11 @@
               "id": "R341-B09-03-A02",
               "level": "ENGINEERING",
               "scenario": "数学裁决通过，分别构造未来 ACT 为250、机会为1667与1666的边界",
-              "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。",
+              "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。 F5-B09-02 正例：250个部署机会中当前候选38笔真实交易并结算，另一个候选同时有自己的真实交易；实测得到38/250，已结算与命中按自己记录独立对账。无部署史时原门可以首次发证；1个真实机会可立即留下已应用记录。 反例：38个布尔真没有trades、篡改原生交易、错证书、撤销后授权、影子冒领、把另一个候选的真实交易记录移给本候选、漏期或Q07用一个身份报99个资产均拒收。",
               "evidence": "数学裁决、实发决定、质量投影三份原件；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
-                "REV-B09-03"
+                "REV-B09-03",
+                "F5-B09-02"
               ]
             },
             {
@@ -6684,7 +6815,9 @@
           "required_review_ids": [
             "REV-B09-03",
             "REV-B09-04",
-            "F4-B09-05"
+            "F4-B09-05",
+            "F5-B09-01",
+            "F5-B09-02"
           ]
         },
         {
@@ -6778,7 +6911,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b09_04_a01",
                 "NEW test_r341_b09_04_a02"
@@ -7021,7 +7154,7 @@
                 "resume",
                 "summarize"
               ],
-              "action": "NEW",
+              "action": "MODIFY",
               "changes": [
                 "NEW 离线runner接口 run(Spec,Seed)->Trial，resume(Checkpoint)->Trial；调用原EvolutionLoop/NullEvolution/门槛而非另写简化赢家；输出code/config hash、搜索数量、全部trial状态、误报/功效区间与成本。入口为 tools/quality_experiment_r341 而非设备主线程。",
                 "F4-B09-03 将三个零假设臂的名义60次与20个共同种子组分别复算。见 specs/field4/quality.md",
@@ -7040,7 +7173,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_r341_b09_05_a01",
                 "NEW test_r341_b09_05_a02",
@@ -7427,7 +7560,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b10_02a",
                 "NEW test_a_b10_02b",
@@ -7632,7 +7765,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b10_03a",
                 "NEW test_a_b10_03b",
@@ -7784,7 +7917,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b10_04a",
                 "NEW test_a_b10_04b"
@@ -7893,7 +8026,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b10_05a",
                 "NEW test_a_b10_05b"
@@ -8222,7 +8355,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b11_02a",
                 "NEW test_a_b11_02b"
@@ -8431,7 +8564,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b11_03a",
                 "NEW test_a_b11_03b"
@@ -8641,7 +8774,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b11_04a",
                 "NEW test_a_b11_04b"
@@ -8804,7 +8937,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b11_05a",
                 "NEW test_a_b11_05b"
@@ -8976,7 +9109,7 @@
             },
             {
               "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b11_06a",
                 "NEW test_a_b11_06b"
@@ -9262,7 +9395,7 @@
             },
             {
               "path": "tools/r341/test_b12_contracts.py",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b12_02b"
               ],
@@ -9321,7 +9454,8 @@
             "report:R30_REPORT.json",
             "report:UPGRADE_DIAGNOSIS.json",
             "specs/field3/chain.md F3-B12-01",
-            "specs/field4/continuity.md F4-B12-02"
+            "specs/field4/continuity.md F4-B12-02",
+            "specs/field5/trace.md F5-B12-02"
           ],
           "evidence_status": "ACCEPTANCE_DESIGN_NEW",
           "diagnosis": "此前发布B12并不代表自然资格、后台长运行或全工程验收已通过。新计划每批必须能独立证明本批工程，不能把全部问题延期到“后续观察”，也不能只给一个最终APK不提供各票实施与验证状态。",
@@ -9357,12 +9491,13 @@
               "changes": [
                 "输入旧库/故障夹具和封装生产入口，输出创建→训练真实数值变更→发布→PIT→canonical/等待→结算反馈→研究帧/矩阵→action→消费的事件hash链；仿真scope固定SYNTHETIC，不授予自然资格。",
                 "F3-B12-01 无自然证书时跑通两个连续出生与第三代实际消费。按 specs/field3/chain.md 和 A-B12-03b 的正反例实施复验。",
-                "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md"
+                "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md",
+                "F5-B12-02 在同一服务中证明连续运行实际消费三代资产。详见 specs/field5/trace.md。"
               ]
             },
             {
               "path": "tools/r341/test_b12_contracts.py",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b12_03a",
                 "NEW test_a_b12_03b"
@@ -9417,7 +9552,8 @@
               "methods": [],
               "action": "NEW",
               "changes": [
-                "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md"
+                "F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md",
+                "F5-B12-02 在同一服务中证明连续运行实际消费三代资产。详见 specs/field5/trace.md。"
               ]
             }
           ],
@@ -9427,7 +9563,8 @@
             "最终集成既有122画像迁移/缺表/写阻塞/无学生/缺历史/无证书场景，必须能明确推进或产生准确等待原因；研究仅有调用不算实际产出/消费。",
             "验证台账引用的文件可读、hash一致、日志退出码与状态匹配；未执行场景显式NOT_RUN，现场/自然单列而非自动签收。",
             "F3-B12-01 按 specs/field3/chain.md 从隔离安装和服务入口采集三轮 train/publish/freeze/settle/feedback/research 与两次真实 birth，保留变异、双亲融合和下游实训。把已有生产收据按目标和状态摘要联结，调用本方案 tools/verify_learning_trace.py 并保存原件验证结果；同一轮只有影子权限。",
-            "F4-B12-02 在正常服务工程入口持续供给可区分的任务；冻结日历、工作预算、九类工作以及跨进程重启时段，逐项核对提交、积压和真实业务内容，首个超期阶段输出确切键。"
+            "F4-B12-02 在正常服务工程入口持续供给可区分的任务；冻结日历、工作预算、九类工作以及跨进程重启时段，逐项核对提交、积压和真实业务内容，首个超期阶段输出确切键。",
+            "F5-B12-02 在真实Android工程服务同一次运行预登记跨重启的三个目标，同时提取服务工作账和两次出生的三代索引，按提交身份、数据库、时钟、持久键与实际业务载荷逐阶段连接；候选影子与基础预测各自保留可复验原件。"
           ],
           "acceptance": [
             {
@@ -9449,18 +9586,20 @@
             {
               "id": "A-B12-03b",
               "scenario": "无自然合格资产但受控端到端夹具可走完整工程链",
-              "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。 F4-B12-02 正例：前后各两个完整调度周期；重启携带待办，已提交消息重投只读回一次；新的生产结果继续被消费。 反例：输入充分却每期WAIT、重用旧权重或公式、跳过期号、丢弃重启前积压、靠Activity唤醒或换源均须显式失败。",
+              "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。 F4-B12-02 正例：前后各两个完整调度周期；重启携带待办，已提交消息重投只读回一次；新的生产结果继续被消费。 反例：输入充分却每期WAIT、重用旧权重或公式、跳过期号、丢弃重启前积压、靠Activity唤醒或换源均须显式失败。 F5-B12-02 正例：在重启两侧的同一机会日历复算训练、发布、候选冻结、结算、反馈、研究及两次出生共20个不同提交，第三代在重启后的服务进程消费并结算。 反例：同APK但另一次运行、只替换数值权重、跨进程或目标、基础影子代替候选、漏掉候选结算等情况即使两个旧检查分别通过，也不能签收组合用例。",
               "evidence": "SYNTHETIC链hash、数值变化diff、producer-consumer匹配、生产资格状态",
               "level": "ENGINEERING",
               "required_review_ids": [
                 "F3-B12-01",
-                "F4-B12-02"
+                "F4-B12-02",
+                "F5-B12-02"
               ],
               "file_probe_keys": [
                 "tools/r341/verify_integrated_chain.py",
                 "tools/r341/fixtures/continuity_b12.json"
               ],
-              "continuity_index_required": true
+              "continuity_index_required": true,
+              "joined_lineage_required": true
             }
           ],
           "rollback": "集成失败回到具体票追加修复commit与新版本APK；保留各批旧回执和失败原因。不要篡改旧成功记录使最终台账表面全绿。",
@@ -9480,7 +9619,8 @@
           "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION",
           "required_review_ids": [
             "F3-B12-01",
-            "F4-B12-02"
+            "F4-B12-02",
+            "F5-B12-02"
           ]
         },
         {
@@ -9525,7 +9665,7 @@
             },
             {
               "path": "tools/r341/test_b12_contracts.py",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b12_04b"
               ],
@@ -9615,7 +9755,7 @@
             },
             {
               "path": "tools/r341/test_b12_contracts.py",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b12_05a",
                 "NEW test_a_b12_05b"
@@ -9682,7 +9822,8 @@
             "report:ARCHIVE_MANIFEST.jsonl",
             "source:5562f9b19aa09f9f7d9e69ca085db56c537967fc:tools/r33/package_ci_candidate.py#write_source_archive",
             "source:5562f9b19aa09f9f7d9e69ca085db56c537967fc:tools/r33/package_ci_candidate.py#write_source_bundle",
-            "specs/review/build.md [REV-B12-01]"
+            "specs/review/build.md [REV-B12-01]",
+            "specs/field5/apk.md F5-B12-01"
           ],
           "evidence_status": "DELIVERY_REQUIREMENT_NEW",
           "diagnosis": "最终成果必须能下载、安装、回溯和继续施工；仓库里只有方案、构建日志或“成功”标签不等于用户拿到软件。源码ZIP还不足以满足祖先门禁，因此保留精确Git blob源码ZIP与可在空库恢复的history bundle。当前本轮仅交付施工方案，这些是后续Codex工程执行必须产出的验收件。",
@@ -9712,12 +9853,13 @@
                 "生成外置DELIVERY_R341.json，列APK、source.zip、source.bundle、plan、批次台账、原始日志、现场/自然状态和SHA256；仅在仓库/已授权发布端写入。",
                 "实际HTTP/平台下载最终公开文件后重新算hash、枚举ZIP、复验签名/身份；仅得到页面链接不足以PASS。",
                 "产物清单先列成员sha，外层bundle sha在包外最后写；本清单不包含自己的最终sha，下载回执独立文件。",
-                "REV-B12-01 从施工交付地址独立取回产物并绑定实际安装身份。实施入口与反例见 specs/review/build.md / A-B12-06b。"
+                "REV-B12-01 从施工交付地址独立取回产物并绑定实际安装身份。实施入口与反例见 specs/review/build.md / A-B12-06b。",
+                "F5-B12-01 整套发布从第一批逐包追到最终可下载字节。详见 specs/field5/apk.md。"
               ]
             },
             {
               "path": "tools/r341/test_b12_contracts.py",
-              "action": "NEW",
+              "action": "MODIFY",
               "methods": [
                 "NEW test_a_b12_06a",
                 "NEW test_a_b12_06b"
@@ -9741,18 +9883,22 @@
             "打包精确源码ZIP、standalone Git bundle、三层计划封印、全工单台账、构建与安装原始日志、field/natural待办；过滤私钥/口令/令牌及未授权个人数据。",
             "上传到用户已授权仓库或release附件，写清commit/branch/tag与可直接下载的URL；对最终URL实际下载验证大小/hash与APK证书。",
             "发交付说明列已实现、验证范围、真实122覆盖结果、24/72h状态、自然资格进展、历史缺失债务和向前修复路径；环境缺设备不阻止可核验工程APK交付，缺签名则不得假造可安装release。",
-            "REV-B12-01 publish_delivery_manifest.py 在空目录从工程发布地址重新取得签名 APK、源码包/可恢复 bundle 和证据索引；校验 bytes/hash，对 APK 执行签名与 manifest/内嵌源身份读取，对 bundle 在隔离库展开并验证提交及祖先。每一批记载其实际构建身份，最终可安装包绑定最终源树。"
+            "REV-B12-01 publish_delivery_manifest.py 在空目录从工程发布地址重新取得签名 APK、源码包/可恢复 bundle 和证据索引；校验 bytes/hash，对 APK 执行签名与 manifest/内嵌源身份读取，对 bundle 在隔离库展开并验证提交及祖先。每一批记载其实际构建身份，最终可安装包绑定最终源树。",
+            "F5-B12-01 对 B01 至 B12 的各次源码、工程票、构建和发布原件逐项回读。链接发布后重新下载并核对直接APK或ZIP内指定成员。"
           ],
           "acceptance": [
             {
               "id": "A-B12-06a",
               "scenario": "从空目录下载最终包并恢复source bundle",
-              "expected": "APK hash/签名/版本与清单一致；源码tree/HEAD与嵌入身份一致；全部工单证据能定位。",
+              "expected": "APK hash/签名/版本与清单一致；源码tree/HEAD与嵌入身份一致；全部工单证据能定位。 F5-B12-01 正例：前缀连续、版本逐批递增、源码和原签名匹配的交付可复验。 反例：中间缺一批或最终下载内容不同不得计为全部发布。",
               "evidence": "download-receipt.json、apksigner/badging、bundle verify、ledger validator",
               "level": "ENGINEERING",
               "file_probe_keys": [
                 "tools/r31/package_release.py",
                 "tools/r341/publish_delivery_manifest.py"
+              ],
+              "required_review_ids": [
+                "F5-B12-01"
               ]
             },
             {
@@ -9784,7 +9930,8 @@
           "application_status": "TODO",
           "code_material": "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION",
           "required_review_ids": [
-            "REV-B12-01"
+            "REV-B12-01",
+            "F5-B12-01"
           ]
         }
       ],

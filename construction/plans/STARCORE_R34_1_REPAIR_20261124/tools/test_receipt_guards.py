@@ -291,8 +291,10 @@ class FieldGuards(unittest.TestCase):
                 digests = {k: ReceiptIntegration.save(root/k, v) for k,v in values.items()}
                 result.update(preregistration_sha256=digests["pre"], calendar_sha256=digests["cal"])
                 digests["eval"] = ReceiptIntegration.save(root/"eval", result)
-                return natural(receipt, Originals(root, [{"path": k, "sha256": v} for k,v in digests.items()]))
-            self.assertEqual(check()["verdict"], "QUALIFIED")
+                return natural(receipt, Originals(root, [{"path": k, "sha256": v} for k,v in digests.items()]), revision=5)
+            first = check()
+            self.assertEqual(first["verdict"], "QUALIFIED")
+            self.assertIsNone(first["deployment_summary"])
             for collection, row_key, key, value in [
                     ("pred","predictions","target_key","not-registered"), ("labels","draws","target_key","wrong-draw"),
                     ("pred","predictions","freeze_return_at",t2), ("labels","draws","draw_at",t1),

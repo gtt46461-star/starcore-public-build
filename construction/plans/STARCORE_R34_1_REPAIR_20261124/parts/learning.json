@@ -333,7 +333,8 @@
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=capabilities,id=F13]",
             "PolicyAstR27.java#parse,type,rangeAndCausality",
             "specs/field3/learning.md F3-B06-02",
-            "specs/field4/birth.md F4-B06-03"
+            "specs/field4/birth.md F4-B06-03",
+            "specs/field5/unblock.md F5-B06-01"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "50 次尝试中有 10 个结构候选，却没有行为新颖/研究接纳/独立改进。名字变更与模板枚举不等于新的可执行机制。",
@@ -473,6 +474,28 @@
               "changes": [
                 "F4-B06-03 同一公式的历史拒绝与已成功出生分别处理。见 specs/field4/birth.md"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+              "methods": [
+                "nextPending",
+                "step",
+                "confirmFrozen"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B06-01 历史确认队头隔离，独立公式仍能出生和首轮重放。详见 specs/field5/unblock.md。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+              "methods": [
+                "nextPending"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B06-01 历史确认队头隔离，独立公式仍能出生和首轮重放。详见 specs/field5/unblock.md。"
+              ]
             }
           ],
           "implementation_steps": [
@@ -480,17 +503,19 @@
             "出生输出 canonical_ast、parameter_blob、model ABI、probe hash、lineage、op diff；生成后无行为差异要记录原因，不计有效结构创新。",
             "公式可执行后在同目标开发切片做移除子树对照，保存 A/B/无组件输出与成本；此结果只决定继续研究。",
             "F3-B06-02 在 IdeaFamilyR27.propose → EvolutionLoopR27.stepBirth → BirthGateR27 的真实提案/出生入口，绑定思路ID、AST、位置、来源、独立尝试号、合法动作或拒绝原因。按 I00–I20 原 nextAction 运行相应对照。I00 保持预登记负对照；I14/I20 将来源、真实集合交集、截点和不足HOLD写为独立可复算字段。研发持续生子，资格独立积累。",
-            "F4-B06-03 StoreR27.recordedPolicies、EvolutionSink.preparePublicationR31 写前 guard、policy 和 EvolutionLoopR27.revalidateResearchAdmissions/stepGate 同时处理既有规范身份、拒绝所用开发原件及后续出生转换，保全原判断。按已变且可验的输入触发重评并保证首个成功出生唯一。"
+            "F4-B06-03 StoreR27.recordedPolicies、EvolutionSink.preparePublicationR31 写前 guard、policy 和 EvolutionLoopR27.revalidateResearchAdmissions/stepGate 同时处理既有规范身份、拒绝所用开发原件及后续出生转换，保全原判断。按已变且可验的输入触发重评并保证首个成功出生唯一。",
+            "F5-B06-01 FrozenConfirmationStoreR30.nextPending 与 RuntimeR27.EvolutionTask.step/confirmFrozen 联合回读行键、包身份和原摘要；坏行独立持久化隔离，按有限工作量继续无关的合法任务。"
           ],
           "acceptance": [
             {
               "id": "R341-B06-03-A01",
               "level": "ENGINEERING",
               "scenario": "合法公式、类型错误、未来引用、深树及常量公式集合",
-              "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码 F3-B06-02 21个ID逐行读回。对 I14 构造来源重叠及等大小不相交两例，对 I20 加入开奖后才出现的条件，对 I08 换错 ABI 权重，结果分别回到合法目标K3/预先约定的HOLD/拒绝。等价AST在出生门去重，失败对照不占创新数。",
+              "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码 F3-B06-02 21个ID逐行读回。对 I14 构造来源重叠及等大小不相交两例，对 I20 加入开奖后才出现的条件，对 I08 换错 ABI 权重，结果分别回到合法目标K3/预先约定的HOLD/拒绝。等价AST在出生门去重，失败对照不占创新数。 F5-B06-01 正例：最老不可解析 PENDING、第二个合法确认和一个可出生公式并存，读回坏行原件及原因、合法包处理记录、独立策略 BORN/谱系/首次重放，杀进程再投仍幂等。 反例：存储键A却装入合法包B、当前代正依赖坏包、确认曝光已耗、数据库暂忙、提交未知分别有终态或可重试原件；错包不确认，不借用结果，不重新开放已消费的样本。",
               "evidence": "节点级审计与 golden 输出；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
-                "F3-B06-02"
+                "F3-B06-02",
+                "F5-B06-01"
               ],
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
@@ -533,7 +558,8 @@
           ],
           "required_review_ids": [
             "F3-B06-02",
-            "F4-B06-03"
+            "F4-B06-03",
+            "F5-B06-01"
           ]
         },
         {
@@ -1428,7 +1454,8 @@
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/tasks[taskId=r27-replay-dataset]",
             "R30_REPORT.json#/objectIndex/boundedPayloads/researchMeasures",
             "ResearchObservatoryR30R1.java#step",
-            "specs/review/algorithm.md [REV-B08-01]"
+            "specs/review/algorithm.md [REV-B08-01]",
+            "specs/field5/unblock.md F5-B08-01"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "观测器共同停在 IMMUTABLE_REPLAY_DATASET，538 measures 中517为 INPUT_INVALIDATION；没有稳定输入就不能把缺图简单归因于绘制层。",
@@ -1462,7 +1489,8 @@
               "action": "MODIFY",
               "changes": [
                 "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。",
-                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
+                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。",
+                "F5-B08-01 已验证输入在重启后按原件恢复，防止重复诊断写挡住首个进化切片。详见 specs/field5/unblock.md。"
               ]
             },
             {
@@ -1481,12 +1509,17 @@
               "methods": [
                 "step",
                 "publishDatasetInputR335",
-                "recoverCommittedEvolutionInputR335"
+                "recoverCommittedEvolutionInputR335",
+                "publishRecoveredReplayKnowledgeR31",
+                "loadCurrent",
+                "require",
+                "isPublishedR31"
               ],
               "action": "MODIFY",
               "changes": [
                 "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。",
-                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
+                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。",
+                "F5-B08-01 已验证输入在重启后按原件恢复，防止重复诊断写挡住首个进化切片。详见 specs/field5/unblock.md。"
               ]
             },
             {
@@ -1496,28 +1529,41 @@
               "changes": [
                 "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+              "methods": [
+                "isPublishedR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B08-01 已验证输入在重启后按原件恢复，防止重复诊断写挡住首个进化切片。详见 specs/field5/unblock.md。"
+              ]
             }
           ],
           "implementation_steps": [
             "按原数据 owner 的分页游标构造 staging segments；每页提交有摘要、行数、first/last ordinal 与可见时间。",
             "只有完整 manifest 可发布为 immutable；重启从已提交页续建；已注册实验的旧 pin 保持可读。",
             "输入重复读不重复 invalidation；被源修正影响的具体 run 失效，有原因和新 revision；不把所有历史一刀切删除。",
-            "REV-B08-01 RuntimeR27.publishDatasetInputR335、recoverCommittedEvolutionInputR335 和 EvolutionTask.step 统一当前、待用及选中缓存的所有权。在临界区更换指针并登记引用；最后一个读者退出后释放已被取代的 FeatureCacheR27。取消或提交失败不改变已提交代的输入，老 pin 保留可回读。"
+            "REV-B08-01 RuntimeR27.publishDatasetInputR335、recoverCommittedEvolutionInputR335 和 EvolutionTask.step 统一当前、待用及选中缓存的所有权。在临界区更换指针并登记引用；最后一个读者退出后释放已被取代的 FeatureCacheR27。取消或提交失败不改变已提交代的输入，老 pin 保留可回读。",
+            "F5-B08-01 RuntimeR27.DatasetTask.step/publishRecoveredReplayKnowledgeR31、ResearchInputPinR30R1.loadCurrent/require、ReplayKnowledgeStoreR31.isPublishedR31 区分已匹配的投影、需重新物化的投影以及失效的原输入；保持 owner、pin、资格与实时截止的原条件。"
           ],
           "acceptance": [
             {
               "id": "R341-B08-01-A01",
               "level": "ENGINEERING",
               "scenario": "构建中断、重复页、源修正",
-              "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因 REV-B08-01：代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。",
+              "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因 REV-B08-01：代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。 F5-B08-01 正例：恢复已有同身份 pin、游标及匹配恢复投影；阻挡冗余投影写仍能把相同输入交给下一进化切片。另测投影缺失后有界补写、重启回读，合法受控输入最终走到真实出生与首个开发重放。 反例：只有3条表头、pin字节或修订错误、fence被替代、取消、读预算不足及不合法历史均不能发布成功。",
               "evidence": "segment/manifest/pin 对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
-                "REV-B08-01"
+                "REV-B08-01",
+                "F5-B08-01"
               ],
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
-                "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java"
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+                "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java"
               ]
             },
             {
@@ -1542,7 +1588,8 @@
             "一次锁全历史数据堵实时写入"
           ],
           "required_review_ids": [
-            "REV-B08-01"
+            "REV-B08-01",
+            "F5-B08-01"
           ]
         },
         {
@@ -2873,7 +2920,9 @@
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture",
             "specs/review/algorithm.md [REV-B09-03]",
             "specs/review/report.md [REV-B09-04]",
-            "specs/field4/q06.md F4-B09-05"
+            "specs/field4/q06.md F4-B09-05",
+            "specs/field5/stability.md F5-B09-01",
+            "specs/field5/real.md F5-B09-02"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "用户要求的高胜率/稳定/品质必须分项测量。当前V1证书门槛与报告Q02覆盖要求并非同一字段，不能把futureSummary覆盖通过自动说成evaluate已检查。",
@@ -2916,7 +2965,8 @@
               ],
               "action": "NEW",
               "changes": [
-                "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。"
+                "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。",
+                "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。"
               ]
             },
             {
@@ -2924,12 +2974,14 @@
               "methods": [
                 "evaluate",
                 "certify",
-                "commit"
+                "commit",
+                "blocks"
               ],
               "action": "MODIFY",
               "changes": [
                 "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。",
-                "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md"
+                "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md",
+                "F5-B09-01 从独立未来的逐期 ACT 原件复算稳定性。详见 specs/field5/stability.md。"
               ]
             },
             {
@@ -2982,6 +3034,30 @@
               "changes": [
                 "F4-B09-05 从同机会独立原件重算父子增益下界。见 specs/field4/q06.md"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B09-02 自然发证后的真实出手率从全期交易复算。详见 specs/field5/real.md。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B09-02 自然发证后的真实出手率从全期交易复算。详见 specs/field5/real.md。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "F5-B09-02 自然发证后的真实出手率从全期交易复算。详见 specs/field5/real.md。"
+              ]
             }
           ],
           "implementation_steps": [
@@ -2990,18 +3066,21 @@
             "对原MAX_LOSS_STREAK=6做iid敏感性与联合功效报告；若质量目标需变更，另建新统计合同并前瞻注册，不以“优化”绕现合同。",
             "REV-B09-03 保留 CertificateGateR27.evaluate 的数学裁决；用 LiveShadowsR27.certify 的实际 issued/failing/commit 及产物报告实发裁决。122已要求独立未来覆盖≥15%、记录净收益>0、合法模型/校准/资格原件、无资格冲突与撤销。部署后 REAL 频率及额外质量指标另列，不能成为首次发证或首用的循环前置。",
             "REV-B09-04 在固定选择策略与预注册分箱后比较同一预测期的赛前选择概率和自然标签；保留原始分子/分母、分组与空桶、ECE/Brier/Wilson及配对覆盖。完整校准 artifact 必须带模型 hash、feature schema、selectionPolicyHash 和有效窗口。窗口内重新选择/拟合只进开发记录，旧 V51SelectedCalibrationArtifact 的 support=0 不得替代在线模型资格。",
-            "F4-B09-05 在已有质量评估中登记父代、子代、全机会及计分规则。将双方实际预测、弃权和对应开奖与同一预注册日历核对，复算单侧下界，零支持和缺项留待观察。"
+            "F4-B09-05 在已有质量评估中登记父代、子代、全机会及计分规则。将双方实际预测、弃权和对应开奖与同一预注册日历核对，复算单侧下界，零支持和缺项留待观察。",
+            "F5-B09-01 固定 LiveShadowsR27.blocks 的分块和尾段规则，由已核验的自然冻结、开奖与结算重建最差块命中及最长连败。",
+            "F5-B09-02 以已核验的自然证书、独立部署期历、同一 SQLite 一致快照取出区间内所有实际交易，联结真实主链选择、PIT授权、冻结K3、R974/F05、权威开奖及结算。按当前资产重算Q02与已选未成交、已提交待结算，并从当前实际核验的资产复算Q07。"
           ],
           "acceptance": [
             {
               "id": "R341-B09-03-A01",
               "level": "ENGINEERING",
               "scenario": "逐一单门槛失败/缺证据/全门槛通过的隔离fixture",
-              "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算 REV-B09-04：有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。 F4-B09-05 正例：用隔离正例复算每个同目标父子差值、样本方差与预注册下界；独立未来回执按同一合同复算。 反例：同一策略换名、错父代、跨窗口拼接、遗漏弃权或自报正下界不签收。",
+              "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算 REV-B09-04：有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。 F4-B09-05 正例：用隔离正例复算每个同目标父子差值、样本方差与预注册下界；独立未来回执按同一合同复算。 反例：同一策略换名、错父代、跨窗口拼接、遗漏弃权或自报正下界不签收。 F5-B09-01 正例：同一命中率但不同先后分布产生不同连败；测试 19/20 次支持和跨块边界。 反例：自报通过但存在超限连败、错窗口、无足量块或重复期均不得签收对应 Q04 优势。",
               "evidence": "gate boundary table；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
                 "REV-B09-04",
-                "F4-B09-05"
+                "F4-B09-05",
+                "F5-B09-01"
               ],
               "file_probe_keys": [
                 "app/src/main/java/com/ethk3/novaonepro/strategyv2/AssetQualityVerdictR341.java",
@@ -3016,10 +3095,11 @@
               "id": "R341-B09-03-A02",
               "level": "ENGINEERING",
               "scenario": "数学裁决通过，分别构造未来 ACT 为250、机会为1667与1666的边界",
-              "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。",
+              "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。 F5-B09-02 正例：250个部署机会中当前候选38笔真实交易并结算，另一个候选同时有自己的真实交易；实测得到38/250，已结算与命中按自己记录独立对账。无部署史时原门可以首次发证；1个真实机会可立即留下已应用记录。 反例：38个布尔真没有trades、篡改原生交易、错证书、撤销后授权、影子冒领、把另一个候选的真实交易记录移给本候选、漏期或Q07用一个身份报99个资产均拒收。",
               "evidence": "数学裁决、实发决定、质量投影三份原件；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
               "required_review_ids": [
-                "REV-B09-03"
+                "REV-B09-03",
+                "F5-B09-02"
               ]
             },
             {
@@ -3046,7 +3126,9 @@
           "required_review_ids": [
             "REV-B09-03",
             "REV-B09-04",
-            "F4-B09-05"
+            "F4-B09-05",
+            "F5-B09-01",
+            "F5-B09-02"
           ]
         },
         {
@@ -3359,7 +3441,7 @@
                 "resume",
                 "summarize"
               ],
-              "action": "NEW",
+              "action": "MODIFY",
               "changes": [
                 "NEW 离线runner接口 run(Spec,Seed)->Trial，resume(Checkpoint)->Trial；调用原EvolutionLoop/NullEvolution/门槛而非另写简化赢家；输出code/config hash、搜索数量、全部trial状态、误报/功效区间与成本。入口为 tools/quality_experiment_r341 而非设备主线程。",
                 "F4-B09-03 将三个零假设臂的名义60次与20个共同种子组分别复算。见 specs/field4/quality.md",

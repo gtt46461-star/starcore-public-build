@@ -101,3 +101,10 @@ python3 tools/verify_receipt.py --plan . --receipt "$receipt" \
 - B09-04-A01 读取 `mainline_campaign`，用受控授权证明正常选择到实盘交易账和结算全过程。[主链收据与用例](field4/gate.md)
 - B05/B12 的 DEVICE 背景观察同时提交期历、业务账、boot、干预、观察器及原事件。[后台验收](field4/flow.md)
 - B09-05-A02 增加 `q08_component_artifact`。第 4 版自然质量投影 PASS 时还会从原件复算 Q06 与 Q08。[父子独立配对](field4/q06.md) · [按同种子校验误报](field4/quality.md)
+
+## 第 5 版新增字段
+
+- Android 工程用例提交当次有界沙箱、运行器参数、实际进入与结束日志及 JUnit 原件。[Android 回执](field5/dispatch.md)
+- B12 的 `continuity_index_artifact` 与 `learning_trace_index_artifact` 来自同一次运行。联合核对注册的三代目标、实际事务和跨进程消费。[联合验收](field5/trace.md)
+- 自然质量 PASS 时，Q04 的 `window_rule_hash` 和预登记值按既有分块公式确定，由当期独立 ACT 结算原件重算。Q02、Q07 在宣称实际应用时从正式交易与结算快照回读。未部署或观察不足的状态保留，首次合法发证走原 V1 门。[稳定性](field5/stability.md) · [正式交易核对](field5/real.md)
+- APK 前缀回执索引及命令见[逐批交付](field5/apk.md)。B01 即记录旧方案与当前方案各自的构建字段。

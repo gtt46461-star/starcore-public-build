@@ -10,6 +10,7 @@ import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from verify_plan import verify_seal
+from dispatch5 import checked_android_command
 from verify_learning_trace import verify as verify_learning_trace
 from direction_receipt import verify_direction_measurements
 from owner_receipt4 import check_owner_probes
@@ -17,6 +18,9 @@ from continuity4 import check_continuity_receipt
 from mainline4 import check_mainline_receipt
 from background4 import check_background4
 from q06_receipt import verify_q06
+from stability5 import verify_stability
+from real_application5 import verify_deployment, verify_q02_q07
+from joined_lineage5 import check_joined_lineage
 from q08_receipt import check_q08_dependencies
 
 
@@ -261,6 +265,8 @@ def check_result(result, case, receipt, originals, repo, owners):
         need(run["runner_path"] == path and run["runner_method"] == method and
              run["runner_blob_sha"] == blob and git(repo, "cat-file", "-t", blob) == "blob",
              "Harness source identity mismatch")
+    if case["test_contract"].get("android_scope_contract"):
+        command = checked_android_command(case, run, originals, command)
     check_command(result["command"], command)
     need(isinstance(run.get("owner_paths"), list) and set(run["owner_paths"]).intersection(owners),
          "Run lacks a production owner declared on its issue")
@@ -306,6 +312,8 @@ def check_result(result, case, receipt, originals, repo, owners):
     check_owner_probes(case, run, observations, originals, repo)
     if case.get("continuity_index_required"):
         check_continuity_receipt(run, receipt, originals, repo)
+        if case.get("joined_lineage_required"):
+            check_joined_lineage(run, receipt, originals)
     if case_id == "R341-B09-04-A01" and any(k.startswith("F4-") for k in expected_review):
         check_mainline_receipt(run, receipt, originals, repo)
     if case_id == "R341-B09-05-A02" and any(k.startswith("F4-") for k in expected_review):
@@ -580,7 +588,7 @@ def factory_quality(src, pre, result):
         verify_wilson(group["detectionProbabilityInterval95"], sum(r["detected"] for r in cases),20)
 
 
-def quality_projection(pre, result, originals, n, hits, opportunities, *, receipt=None, calendar=None):
+def quality_projection(pre, result, originals, n, hits, opportunities, *, receipt=None, calendar=None, deployment=None, revision=3):
     status = result["quality_projection_status"]
     need(status in {"PASS", "FAIL", "NOT_OBSERVED", "INSUFFICIENT", "PENDING", "BLOCKED"}, "Unknown quality projection status")
     if status != "PASS":
@@ -623,6 +631,9 @@ def quality_projection(pre, result, originals, n, hits, opportunities, *, receip
     if receipt is not None:
         verify_q06(pre, calendar, receipt, result, docs["Q06"], originals)
         check_q08_dependencies(docs["Q08"], result, originals)
+        if revision >= 5:
+            verify_stability(pre, result, docs["Q04"], originals)
+            verify_q02_q07(result, docs["Q02"], docs["Q07"], deployment)
     return status
 
 
@@ -701,9 +712,15 @@ def natural(receipt, originals, *, revision=3):
         need(start <= issued <= evaluated < expires and evaluated <= end
              and (expires - issued).total_seconds() <= 86400, "Certificate outside validity window")
     # A research-quality projection and post-deployment ACT may still be unavailable at first issuance.
-    quality = quality_projection(pre, result, originals, n, hits, len(keys), receipt=receipt if revision >= 4 else None, calendar=calendar)
-    return {"verdict": verdict, "future_act_count": n, "math_verdict": math_verdict,
-            "issuance_status": issuance_status, "quality_projection_status": quality}
+    deployment = verify_deployment(receipt, result, originals) if revision >= 5 else None
+    quality = quality_projection(pre, result, originals, n, hits, len(keys), receipt=receipt if revision >= 4 else None,
+                                 calendar=calendar, deployment=deployment, revision=revision)
+    outcome = {"verdict": verdict, "future_act_count": n, "math_verdict": math_verdict,
+               "issuance_status": issuance_status, "quality_projection_status": quality}
+    if revision >= 5:
+        outcome["deployment_summary"] = (None if deployment is None else
+                                         {k: v for k, v in deployment.items() if k != "rows"})
+    return outcome
 
 
 def validate(plan, receipt, evidence_root, repo, level, revalidating=False):

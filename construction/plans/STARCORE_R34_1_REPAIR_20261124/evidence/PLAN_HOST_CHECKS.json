@@ -1,12 +1,12 @@
 {
-  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_4",
+  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_5",
   "performed_at_local_date": "2026-11-24",
   "timezone": "Asia/Shanghai",
-  "reviewed_parent": "5d51341d2f5c292683e5d8aaee4714dfd175cbd2",
-  "parent_plan_files_matching_repository": 92,
-  "application_source_git_blob_checks": 248,
-  "application_source_with_content_hash": 248,
-  "application_content_bytes_independently_hashed_this_review": 248,
+  "reviewed_parent": "cf764e34da7397077892634da525f8b0a274e477",
+  "parent_plan_files_matching_repository": 119,
+  "application_source_git_blob_checks": 249,
+  "application_source_with_content_hash": 249,
+  "application_content_bytes_independently_hashed_this_review": 249,
   "checks": [
     {
       "command": [
@@ -151,6 +151,85 @@
       "command": [
         "python3",
         "-B",
+        "tools/reproduce_unblock.py",
+        "--first",
+        "<FIRST_REPORT_MEMBERS>",
+        "--second",
+        "<VERIFIED_PRIVATE_MEMBERS>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "{\n  \"reports\": [\n    {\n      \"snapshot\": \"81ecacff7de4bc34cf760ccc6750d761876a5fb6bbc029ccd4d390071f8fad76\",\n      \"counts\": {\n        \"r27_replay_dataset\": 3,\n        \"r27_evolution_cursor\": 1,\n        \"r27_policy\": 0,\n        \"r27_lineage\": 0,\n        \"r27_replay_score\": 0,\n        \"r27_generation\": 0,\n        \"r27_live_shadow\": 0,\n        \"r30_frozen_confirm\": 0\n      },\n      \"steps\": {\n        \"r27-evolution\": 4,\n        \"r27-replay-dataset\": 3\n      }\n    },\n    {\n      \"snapshot\": \"fc884706d620e5c8058fbef68948a1972ecd076b6402ea82c1616390f137bd14\",\n      \"counts\": {\n        \"r27_replay_dataset\": 3,\n        \"r27_evolution_cursor\": 1,\n        \"r27_policy\": 0,\n        \"r27_lineage\": 0,\n        \"r27_replay_score\": 0,\n        \"r27_generation\": 0,\n        \"r27_live_shadow\": 0,\n        \"r30_frozen_confirm\": 0\n      },\n      \"steps\": {\n        \"r27-evolution\": 4,\n        \"r27-replay-dataset\": 3\n      }\n    }\n  ],\n  \"controls\": {\n    \"model_competitor_commits\": 10,\n    \"model_dataset_admissions\": 0,\n    \"sqlite_retries_selecting_same_invalid_json\": 3,\n    \"boundary\": \"Bounded counterexamples, no Android execution or natural quality evidence.\"\n  }\n}"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_dispatch5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 5,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_joined_lineage5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_real_application5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 4,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_stability5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_batch_builds.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 5,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
         "tools/test_mainline4.py"
       ],
       "status": "PASS",
@@ -273,7 +352,7 @@
       "status": "PASS",
       "exit_code": 0,
       "observed": {
-        "tests": 3,
+        "tests": 10,
         "result": "OK"
       }
     },
@@ -351,5 +430,12 @@
       }
     }
   ],
+  "stability_reference": {
+    "java_method": "LiveShadowsR27.blocks",
+    "baseline_blob": "7707209418d8639ef9ae8f678b39e81d92fe90a6",
+    "matched_test_vectors": 40,
+    "runtime": "Java source and isolated cursor adapter"
+  },
+  "android_runner_host_probe": "evidence/ANDROID_RUNNER_PREFLIGHT.json",
   "scope": "Plan integrity, extraction, projection, local reference checkers and fixtures. Android implementation/build/device/natural not run."
 }

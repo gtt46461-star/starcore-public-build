@@ -285,6 +285,7 @@
 | `app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCapabilityExperimentR31.java` | 同左 | `R341-B09-05-A01` | F4-B09-03 将三个零假设臂的名义60次与20个共同种子组分别复算。见 specs/field4/quality.md |
 | `app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java` | 同左 | `R341-B09-05-A01` | F4-B09-04 分出序贯检出力与完整工厂从创建到通过证书数学门的检出能力。见 specs/field4/quality.md |
 | `tools/r341/fixtures/continuity_b12.json` | 同左 | `A-B12-03b` | F4-B12-02 按固定输入和预登记周期验证跨重启持续生产。见 specs/field4/continuity.md |
+| `app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java` | 同左 | `R341-B08-01-A01` | RuntimeR27.DatasetTask.step/publishRecoveredReplayKnowledgeR31、ResearchInputPinR30R1.loadCurrent/require、ReplayKnowledgeStoreR31.isPublishedR31 区分已匹配的投影、需重新物化的投影以及失效的原输入；保持 owner、pin、资格与实时截止的原条件。 |
 
 ## 测试入口自身的源码
 

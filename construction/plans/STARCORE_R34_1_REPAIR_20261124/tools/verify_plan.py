@@ -124,6 +124,19 @@ def validate_structure(root):
              'Research object has no valid work-order owner '+row['key'])
     from review_contracts import verify as verify_review_contracts
     review_counts = verify_review_contracts(root)
+    from dispatch5 import check_construction_order
+    review_counts.update(check_construction_order(root))
+    updates = [r for r in read(root / 'control/REVIEW_CONTRACTS.json')['checks'] if r['id'].startswith('F5-')]
+    field5 = dict(field5_work_items=len(updates), field5_affected_cases=len({r['case'] for r in updates}),
+                  field5_affected_issues=len({r['issue'] for r in updates}),
+                  field5_android_argv_count=review_counts['android_scoped_cases'])
+    scope = read(root / 'control/SCOPE_COUNTS.json')
+    need(all(scope[k] == v for k,v in field5.items()), 'Current receipt and published v5 scope differ')
+    need(ident['document_revision'] == 5 and ident['reviewed_plan_commit'] ==
+         read(root/'control/REVIEW_CONTRACTS.json')['field5_reviewed_plan_commit'], 'Wrong v5 parent identity')
+    need(allcases['A-B12-03b'].get('joined_lineage_required') is True and
+         allcases['A-B12-03b'].get('continuity_index_required') is True, 'Incomplete integrated service contract')
+    review_counts.update(field5)
     return {**review_counts, 'batches':len(batches),'issues':len(ids),'files':len(cf),'acceptance_cases':len(allcases),
             'acceptance_by_level':dict(collections.Counter(x['level'] for x in allcases.values())),
             'r34_requirements':len(cross),'r34_files':len(oc),'r335_requirements':len(chain),

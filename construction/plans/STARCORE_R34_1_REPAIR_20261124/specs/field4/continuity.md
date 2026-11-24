@@ -1,5 +1,7 @@
 # 持续生产与重启后的积压对账
 
+[第 5 版 B12 同次服务运行联合验收](../field5/trace.md)。以下第 4 版独立子测试继续作为阶段回归；组合签收按第 5 版把两份索引联到同一次服务事务。
+
 第 3 版三代联调能检查单条公式的训练、赛前读取和两次出生。本条补测另一个故障：这条链曾经通了一次，调度器随后仍有心跳，却始终消费同一旧产物，或每轮只登记等待。
 
 B12 使用既有 Android 隔离工程入口启动生产服务。开跑前将受控源流、权威期序、每一目标的相对开奖与截段时刻、工作的最晚时隙、调度周期边界和重启边界写入测试源码内版本化的 JSON 场景。整个窗口由同一设备、同一 boot 的外部单调时钟原点定标，包括进程退出的间隔，各期号与业务 ordinal 一一对应。每个完整周期预置可区分的公式、训练样本和研究刺激，选取能覆盖全部九条工作通道的周期。重启前和重启后各覆盖至少两个完整调度周期。周期按实际最慢的受测计划及其资源预算确定。这些频次和产物差异只用于持续供给输入的工程正例。
@@ -14,7 +16,7 @@ B12 使用既有 Android 隔离工程入口启动生产服务。开跑前将受�
 
 ## B12 工程回执与复算
 
-在 A-B12-03b 的执行原件加入 `continuity_index_artifact`。在固定 `source_after` 的工程源码中跟踪固定测试原件 `tools/r341/fixtures/continuity_b12.json`，将其路径填入 `scenario_source_path`。源码内的场景文件字节须与索引 `scenario` 的 SHA-256 一致。索引带 `scope=ENGINEERING_FIXTURE`、`source_commit`、`apk_sha256`、`run_id` 和 `time_scope`。与三代联调用同一施工 APK；若采用不同隔离运行，每个运行保留自己的 run_id 和时基。执行器保存 Android 采集器、校时锚点及其原件。工程通过的含义是给定受控流可以持续处理。实际优劣由 B09 独立前瞻实验判断。
+在 A-B12-03b 的执行原件加入 `continuity_index_artifact`。在固定 `source_after` 的工程源码中跟踪固定测试原件 `tools/r341/fixtures/continuity_b12.json`，将其路径填入 `scenario_source_path`。源码内的场景文件字节须与索引 `scenario` 的 SHA-256 一致。索引带 `scope=ENGINEERING_FIXTURE`、`source_commit`、`apk_sha256`、`run_id` 和 `time_scope`。与三代联调用同一施工 APK；第 4 版独立子测若采用不同隔离运行，每个运行保留自己的 run_id 和时基。执行器保存 Android 采集器、校时锚点及其原件。工程通过的含义是给定受控流可以持续处理。实际优劣由 B09 独立前瞻实验判断。
 
 `scenario`、`ledger`、`restart` 均为相对索引目录的 `{path, sha256}`。场景 `slots` 逐行登记 `issue, ordinal, draw_ms, close_ms, work_due, input_sha256, draw_numbers`，`work_due[stage]` 为该工作的最晚零基时隙。九个阶段为 create、train、publish、freeze、settle、feedback、research、mutation、fusion。预置受控输入单独保存 `input_original`，各工作绑定该期输入摘要。预期开奖号码只交给隔离测试驱动；开奖之前不得让引擎读取未来标签、预置答案或完整测试剧本。周期末时隙列于 `cycle_ends`，`restart_after` 指定一个存在未完成工作的周期结束点。ledger 保存完整生命周期观测及逐期 `draw_original, events, pending_after`。每个 COMMIT 引用正规化业务原件及 `effect` 字节，REPLAY 引用已完成的原件。restart 保留外部观察器记录的进程事件、重启前后的真实待办。待办键按“阶段、工作期号”排序。字段实例见 `tools/test_continuity4.py`。
 
