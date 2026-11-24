@@ -1,0 +1,3561 @@
+{
+  "schema": "STARCORE_R341_ACCEPTANCE_MATRIX_1",
+  "cases": [
+    {
+      "scenario": "R33.5、R34 既有封印 fixtures 加 R34.1-B01…B12 新 fixtures，各修改一个成员/版本/祖先关系。",
+      "expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。",
+      "evidence": "ENGINEERING：Python/Gradle identity 测试、输入 manifest、stdout 脱敏日志；Android 编译单独 NOT_RUN 或附真实日志。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-01-T01",
+      "issue_id": "R341-B01-01",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b01_contracts.py",
+        "method": "test_r341_b01_01_t01",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b01_contracts.py",
+          "--case",
+          "R341-B01-01-T01",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "版本四文件写到中途故障后恢复；传033、122、签名不匹配、缺真实122 APK四种封包输入。",
+      "expected": "四文件原子恢复；033通过不产生122覆盖证明；签名不匹配阻断交付；缺122证据只允许候选，明确 COVER_INSTALL_UNVERIFIED。",
+      "evidence": "ENGINEERING：故障注入 journal diff；DEVICE：本批若具备设备可实测122覆盖，否则 NOT_RUN，由B12复验，不阻塞身份桥单元验收。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-01-T02",
+      "issue_id": "R341-B01-01",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b01_contracts.py",
+        "method": "test_r341_b01_01_t02",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b01_contracts.py",
+          "--case",
+          "R341-B01-01-T02",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "装入现场水位和跨进程混合 fixture；晚于心跳的138成功与早心跳136/133并存。",
+      "expected": "无矛盾告警；报告显示时间差，122已开奖覆盖1/6、未开奖138不入分母，跨版本30期1/30单列。",
+      "evidence": "ENGINEERING：可重放 JSON fixtures、cohort查询及输出。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-02-T01",
+      "issue_id": "R341-B01-02",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_02_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_02_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "数据库切换、设备重启/时钟回拨、缺sourceCommit、只读库忙。",
+      "expected": "拒绝错误join；mono仅同boot可比较；缺失身份或读取失败保持 UNKNOWN/RESOURCE_WAIT，不造数值零。",
+      "evidence": "ENGINEERING：错误输入断言及导出 envelope。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-02-T02",
+      "issue_id": "R341-B01-02",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_02_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_02_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "在每个初始化阶段前后杀进程；让SQLite写锁长期占用；故意令sqlite不可打开。",
+      "expected": "独立spool仍可导出最后BEGIN与首个失败；不会依赖数据库修复才知道停点。正常重启保留旧attempt，未闭合转INTERRUPTED。",
+      "evidence": "ENGINEERING：进程故障注入脚本、原始framed文件、CRC校验与解析JSON。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-03-T01",
+      "issue_id": "R341-B01-03",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_03_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_03_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "模拟partial帧、磁盘满、WAIT锁、source缺失、重复确定性异常。",
+      "expected": "截断尾帧不损前帧；首错仍可见；WAIT不计BUG，缺源不伪装锁等待；同故障熔断仅相关owner，不停实时抓取。",
+      "evidence": "ENGINEERING：文件系统故障fixture与分支覆盖。DEVICE：现场原包复制环境复现首停点，未执行标NOT_RUN。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-03-T02",
+      "issue_id": "R341-B01-03",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_03_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_03_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "心跳连续、同一个cursor重复写、提交成功但诊断刷写失败、UNKNOWN最终回读成功/失败。",
+      "expected": "前两者进度增量为0；COMMITTED_DIAGNOSTIC_FAILED业务只算一次；UNKNOWN解析前不算，解析后一次性补真实状态。",
+      "evidence": "ENGINEERING：receipt状态机fixture与持久行对账。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-04-T01",
+      "issue_id": "R341-B01-04",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_04_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_04_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "发三次恢复但无canonical，再提交下个canonical；独立提交maintenance与FTRL。",
+      "expected": "前三次恢复不算成功，真正新commit关闭正确recovery；maintenance和learner计数分列。",
+      "evidence": "ENGINEERING：恢复因果链和lane计数导出。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-04-T02",
+      "issue_id": "R341-B01-04",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_04_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_04_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "重放7目标矩阵，加一个从未产生request的应算目标，生成同事件两次。",
+      "expected": "分母保持完整；重复事件不翻倍；2成功不覆盖失败；138等待开奖；缺原始DB输入的案例标STRUCTURAL_RECONSTRUCTION而非现场复现。",
+      "evidence": "ENGINEERING：period matrix.json、事件重复幂等断言、原件/重建标记。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-05-T01",
+      "issue_id": "R341-B01-05",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_05_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_05_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "离线重放路径意外配置生产库、试图把模拟canonical标REAL。",
+      "expected": "输入边界立即拒绝；simulate结果带fixtureId与SIMULATION，无法获得生产发布/未来样本资格。",
+      "evidence": "ENGINEERING：边界拒绝用例，不要求真实未来样本。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B01-05-T02",
+      "issue_id": "R341-B01-05",
+      "batch": "B01",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+        "method": "test_r341_b01_05_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_05_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "一写者故意持锁超过deadline，其余各lane排队；释放后重试并模拟commit确认丢失。",
+      "expected": "所有等候返回有限 RESOURCE_WAIT/DEADLINE；无双重writer、无越期新canonical、无不明事务后重复提交；receipt可恢复已提交结果。",
+      "evidence": "ENGINEERING：并发时间线、事务行数/hash、writer释放断言。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-01-T01",
+      "issue_id": "R341-B02-01",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_01_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_01_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "研究10000行、fault24条、迁移多DDL输入；中间slice被取消或进程死亡。",
+      "expected": "所有已提交slice保留、未提交slice不前移；单片边界可观察；恢复从已提交cursor续跑。任何超限单SQL另列待修，不把平均值掩盖最大值。",
+      "evidence": "ENGINEERING：预算histogram及逐slice commit receipts，实体机耗时另列DEVICE未测。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-01-T02",
+      "issue_id": "R341-B02-01",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_01_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_01_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "填满32故障，普通研究被挡；独立控制tick在UI关闭、R26未初始化状态运行。",
+      "expected": "已提交drain持续减少队列，只有验证成功后出队；最终低于backpressure，研究可重新admit；没有新的递归fault风暴。",
+      "evidence": "ENGINEERING：队列序列/commit receipts/控制tick trace。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-02-T01",
+      "issue_id": "R341-B02-02",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_02_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_02_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "drain在commit后崩溃、quota不足、schema缺失及SQL锁死到预算到期。",
+      "expected": "重启/重试不双计、不丢原fault；分别UNKNOWN可解析、BLOCKED_STORAGE、MIGRATION_REQUIRED、WAIT_LOCK，不统称网络异常。",
+      "evidence": "ENGINEERING：四坏路径注入与恢复对账。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-02-T02",
+      "issue_id": "R341-B02-02",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_02_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_02_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "虚拟时钟产生正常实时负载、失败且过期实时目标、持续合理实时峰值三场景。",
+      "expected": "正常/过期场景ready研究在30秒可用窗口提交至少一片；持续饱和明确SATURATED和全分母，不伪报研究服务。所有slot最终释放。",
+      "evidence": "ENGINEERING：确定性调度seed、每lane eligible/service时间线、最大等待断言。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-03-T01",
+      "issue_id": "R341-B02-03",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_03_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_03_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "研究获取保留slot但rollback，随后同cursor重复提交；加入取消、异常、UNKNOWN。",
+      "expected": "失败/重复不刷新业务年龄；只有真实新commit刷新；UNKNOWN待解析期间不会平行重复执行。",
+      "evidence": "ENGINEERING：调度状态与数据库cursor对账。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-03-T02",
+      "issue_id": "R341-B02-03",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_03_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_03_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "阻塞getLatestDraw/一个UI read两秒，持续驱动控制tick、取消和fault drain。",
+      "expected": "控制tick仍运行且队列有界；UI明确STALE/RESOURCE_WAIT；阻塞读回调不会覆盖新版本snapshot或重复发analysis。",
+      "evidence": "ENGINEERING：线程归属、最大队列长度、stale cache渲染数据。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-04-T01",
+      "issue_id": "R341-B02-04",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_04_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_04_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "Activity快速打开关闭100次、库identity切换、报表游标中途异常。",
+      "expected": "无泄漏Cursor/失效Activity回调、无指数读放大；新identity只接收同scope结果。",
+      "evidence": "ENGINEERING：可重复生命周期/游标资源测试；无需B11图表改造。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B02-04-T02",
+      "issue_id": "R341-B02-04",
+      "batch": "B02",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+        "method": "test_r341_b02_04_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_04_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "针对启动链每一步注入锁、进程死亡、UNKNOWN、取消、无关表持续写入、真正源hash变化。",
+      "expected": "重启从最后提交unit续跑，无双重owner/重复保护；无关写入不导致无穷从头，真正源变化明确重验/阻断。每步均有BEGIN/END。",
+      "evidence": "ENGINEERING：stage coverage、迁移receipt和源hash前后对账。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-01-T01",
+      "issue_id": "R341-B03-01",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_01_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_01_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "fresh库与含现场同类旧schema/保护定义的升级fixture执行initialize至session注册；真实现场输入不可得。",
+      "expected": "可用依赖全部闭合且返回ready；缺源fixture保留对象级DEPENDENCY；现场根因状态保持UNCONFIRMED，不因模拟通过改成已解决。",
+      "evidence": "ENGINEERING：两类可重建输入及输出；DEVICE：复制设备场景需另附真实收据。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-01-T02",
+      "issue_id": "R341-B03-01",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_01_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_01_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "fresh、部分DDL安装、字段不匹配、已完整安装四种fixture运行migration。",
+      "expected": "前两者安装完整且重复执行幂等；错列明确阻断而保留数据；完整库无业务运行DDL；四张现场缺失表及所有依赖对象均可PRAGMA与hash核对。",
+      "evidence": "ENGINEERING：expected-vs-actual manifest、migration receipts、行数/hash保全。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-02-T01",
+      "issue_id": "R341-B03-02",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_02_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_02_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "持续实时任务夹入lifecycle-schema安装并在任一对象后死亡。",
+      "expected": "遵守B02迁移片预算，重启续装，ready不提前；本批只验结构与调度，不要求未来候选产生。",
+      "evidence": "ENGINEERING：逐对象故障注入和ready断言。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-02-T02",
+      "issue_id": "R341-B03-02",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_02_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_02_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "双owner同时初始化、注册事务前后崩溃、旧线程晚提交、缺一任务后重试。",
+      "expected": "只有一个current session生效；manifest齐全无重复task；旧fence拒绝，补注册幂等；cold任务存在并有实际依赖状态。",
+      "evidence": "ENGINEERING：task/session/fence表断言及竞态trace。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-03-T01",
+      "issue_id": "R341-B03-03",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_03_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_03_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "具备schema但无source，与具备最小合法fixture两种输入。",
+      "expected": "前者WAIT_INPUT可诊断无伪产物，后者成功claim一片并写真实ProgressReceipt；本批无需未来训练/证书批才能验调度闭合。",
+      "evidence": "ENGINEERING：最小任务输入、claim/commit/lease释放记录。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-03-T02",
+      "issue_id": "R341-B03-03",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_03_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_03_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "独立task A有已验证source，task B缺source，迁移C有强保护依赖三种组合。",
+      "expected": "A正常claim，B WAIT_SOURCE，C保留硬阻断并精确指出所需原件；没有全局误放行或无关全局停摆。",
+      "evidence": "ENGINEERING：依赖graph fixtures、影响集合和任务状态。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-04-T01",
+      "issue_id": "R341-B03-04",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_04_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_04_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "缺文件恢复后hash一致/不一致、同名目录被替换、低空间。",
+      "expected": "一致可解除依赖，冲突保留原指纹并拒绝；空间不够不删除原件；恢复操作有新证据不伪造过去已存在。",
+      "evidence": "ENGINEERING：源身份验证与保护前后摘要；现场修复另列DEVICE。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B03-04-T02",
+      "issue_id": "R341-B03-04",
+      "batch": "B03",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+        "method": "test_r341_b03_04_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_04_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "fresh库、原research已建库、仅predraw存在的部分升级库、错列库四种输入；分别运行服务冷启动。",
+      "expected": "前三者完成结构闭合且旧行/hash不变；错列返回MIGRATION_CONFLICT保全。ready之前不能freeze；ready后两条热路径零DDL。",
+      "evidence": "ENGINEERING：migration receipt、sqlite_master diff、SQL trace、行摘要。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-01-T01",
+      "issue_id": "R341-B04-01",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_01_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_01_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "critical安装中进程死亡/rollback/UNKNOWN，再重启并重复canonical和settle。",
+      "expected": "幂等续装，无双owner/重复row；成功ready后可在无需R26启动情况下冻结/结算。业务commit仍遵守PIT和固定deadline。",
+      "evidence": "ENGINEERING：中断点覆盖及事务一致性。DEVICE：现场连接池阻塞改善需负载日志，不预填PASS。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-01-T02",
+      "issue_id": "R341-B04-01",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_01_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_01_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "原critical stamp显示MATCH、旧R906_SCHEMA step为COMPLETED但LegacyPredraw缺一表；另造一个未知critical列漂移；迁移中断后重启。",
+      "expected": "已知仅LegacyPredraw差异通过新受控step装齐并正确重签当前契约，不能被旧COMPLETED跳过；未知漂移仍拒绝，不自动信任；安装前后旧业务行hash不变。",
+      "evidence": "ENGINEERING：matchReason/runStep/prepareRepairIfDrift真实SQLite调用链回归；Android迁移与设备验证未做则NOT_RUN。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-01-T03",
+      "issue_id": "R341-B04-01",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_01_t03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_01_t03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "相同history不同SQL返回顺序，补历史增加、draw correction、目标开奖后更新、旧fence晚绑。",
+      "expected": "同数据hash一致；真实变化需要新合法attempt；已开奖/过deadline不再创建；旧fence失败，原hash/canonical保持。",
+      "evidence": "ENGINEERING：canonical bytes golden fixtures、CAS并发、PIT边界测试。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-02-T01",
+      "issue_id": "R341-B04-02",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_02_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_02_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "MIN-1/MIN/超过MAX、缺中间期、包含target或未来期、同issue多revision。",
+      "expected": "合法suffix按现有规则构建，非法输入明确reason；不泄露未来数据、不随机选择revision；无原始132输入时不宣称现场132已精确复现。",
+      "evidence": "ENGINEERING：隔离数据库输入/输出hash，原件与结构fixture分栏。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-02-T02",
+      "issue_id": "R341-B04-02",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_02_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_02_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "复现134→135、136→137到达顺序；注入长prepare、writer wait、commit未知。",
+      "expected": "所有目标均有唯一终态或合法pending；supersede引用清晰；固定deadline从未延长，过期目标无canonical；UNKNOWN期间无双owner。",
+      "evidence": "ENGINEERING：虚拟时钟+singleflight竞态trace、全目标矩阵。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-03-T01",
+      "issue_id": "R341-B04-03",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_03_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_03_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "旧任务失败、异常、cancel后不打开Activity，加入新的合法目标。",
+      "expected": "下一合法任务自动被claim；不会因先前失败永久保持inFlight；重复post只生成同request一次。",
+      "evidence": "ENGINEERING：服务独立调度测试与请求表去重。DEVICE：真实期长负载另测。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-03-T02",
+      "issue_id": "R341-B04-03",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_03_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_03_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "在核心bundle每个写点故障/崩溃，随后重试同identity与异payload。",
+      "expected": "没有半canonical被读取为成功；同payload至多一份完整bundle，异payload冲突；全部失败请求留终态。",
+      "evidence": "ENGINEERING：事务故障注入、required-set完整性SQL、commit receipt。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-04-T01",
+      "issue_id": "R341-B04-04",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_04_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_04_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "有predraw、无predraw、S0 shadow、等待开奖、draw correction、deferred尚未完成六种情况。",
+      "expected": "已有predraw正常核心结算；无predraw被排除；shadow不计REAL；未开奖不提前结算；延后证据不改变原动作/截止期。",
+      "evidence": "ENGINEERING：结算资格矩阵；不要求未来样本产生。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-04-T02",
+      "issue_id": "R341-B04-04",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_04_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_04_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "789项结构fixture，含已结算/未开奖、内存受限、坏payload、重复claim和中途死亡。",
+      "expected": "合法项持续推进，坏项有明确隔离且计入未完成；无重复动作/漏ordinal；重启从已提交cursor续跑，FULL只在完整校验后出现。",
+      "evidence": "ENGINEERING：每target cursor/hash、背压/吞吐时间线；fixture不进入生产统计。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-05-T01",
+      "issue_id": "R341-B04-05",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_05_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_05_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "控制handler DB读阻塞与analysis实时忙时持续drain；释放内存后不打开UI。",
+      "expected": "控制tick不阻塞，deferred使用自己的worker，遵守实时预算；资源恢复能自动续排；主canonical结果不变。",
+      "evidence": "ENGINEERING：线程trace、真实事务预算和complete receipt。DEVICE吞吐须单列实测。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-05-T02",
+      "issue_id": "R341-B04-05",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_05_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_05_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "首尾空格/换行/Unicode/空body，原文重复绑定、改一字、伪造trim后hash。",
+      "expected": "原解码字符串身份稳定且不归一化；有效字符或空白改变即对应不同原件hash；bytes hash与body hash不同域不互当；禁止overwrite。",
+      "evidence": "ENGINEERING：调用真实RawHttpIdentityR34/FetchLedger owner的正反例，禁止仅搜索源码字符串。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-06-T01",
+      "issue_id": "R341-B04-06",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_06_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_06_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "complete写BUSY后回读缺行；有完整pending原件与完全无原件两类重试。",
+      "expected": "前者同writer幂等恢复正确收据；后者WAIT_DURABLE_BINDING；真正body篡改仍HASH_CONFLICT不被恢复机制放行。",
+      "evidence": "ENGINEERING：真实SQLite故障/receipt/hash对账。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-06-T02",
+      "issue_id": "R341-B04-06",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_06_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_06_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "重复100次、逆序/迟到、同键异排列、跨日/休市以及历史缺一段。",
+      "expected": "去重和冲突隔离正确；最新摄取不被旧gap阻断；short-window合法则继续，long-window明确WAIT；补历史不得获得自然future资格。",
+      "evidence": "ENGINEERING：实际saveDraw/TargetIssueResolver与PIT政策回归，数据标隔离fixture。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B04-06-T03",
+      "issue_id": "R341-B04-06",
+      "batch": "B04",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+        "method": "test_r341_b04_06_t03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_06_t03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "service-only环境运行合法连续目标，注入抓取失败、DB等待、analysis失败、deferred等待，然后恢复。",
+      "expected": "无需Activity触发即可再次抓取、请求、提交/结算；每个失效loop在有资源后恢复；无双executor/双request；失败仍进全分母。",
+      "evidence": "ENGINEERING：无Activity lifecycle记录、逐目标矩阵、nextDue/workerState快照。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-01-T01",
+      "issue_id": "R341-B05-01",
+      "batch": "B05",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+        "method": "test_r341_b05_01_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_01_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "短时间重复START100次、服务进程重建、用户主动关闭开关。",
+      "expected": "重复START幂等；重建恢复durable pending；userEnabled=false后不自行重启、不偷算；恢复开关才重新启动合法工作。",
+      "evidence": "ENGINEERING：service generation/lease去重与停止语义测试；实机后台需DEVICE证据。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-01-T02",
+      "issue_id": "R341-B05-01",
+      "batch": "B05",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+        "method": "test_r341_b05_01_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_01_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "heartbeat活但writer锁住、无新draw、worker崩溃、service不存在四场景。",
+      "expected": "分别资源等待、合法等待、worker恢复、service重启；不把所有场景都重启；无业务进展都不记RECOVERED。",
+      "evidence": "ENGINEERING：动作决策矩阵与recovery ledger。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-02-T01",
+      "issue_id": "R341-B05-02",
+      "batch": "B05",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+        "method": "test_r341_b05_02_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_02_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "连续无进展触发10次，随后资源解锁并真实commit；设备重启使旧mono失效。",
+      "expected": "启动次数受冷却限制；原cause年龄不重置；真正commit关联旧recovery闭合一次；旧boot lease安全回收。",
+      "evidence": "ENGINEERING：虚拟时钟、lease故障、commit因果链；无需自然胜率验收。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-02-T02",
+      "issue_id": "R341-B05-02",
+      "batch": "B05",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+        "method": "test_r341_b05_02_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_02_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "无Activity工程harness覆盖网络、时钟和进程场景；保留关闭开关与force-stop反例。",
+      "expected": "无越期canonical、无新窗口续命；恢复只在授权/OS允许下进行；所有预期目标有明确结果与原因。",
+      "evidence": "ENGINEERING：确定性场景脚本、period denominator、事件/commit输出。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-03-T01",
+      "issue_id": "R341-B05-03",
+      "batch": "B05",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+        "method": "test_r341_b05_03_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_03_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "在一台声明完整配置的真机上进行每个场景、连续24h及72h。",
+      "expected": "逐项给真实PASS/FAIL/NOT_RUN；本次只有方案所以均NOT_RUN。capabilities ready不能自动转为soak PASS；每次人工开Activity都记录并使无人干预连续性判据失败。",
+      "evidence": "DEVICE：原始adb/logcat/exit reason、scope、场景事件、SQL快照/业务commit，隐私字段脱敏；NATURAL另表。",
+      "level": "DEVICE",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-03-T02",
+      "issue_id": "R341-B05-03",
+      "batch": "B05",
+      "test_contract": {
+        "status": "DEVICE_EXECUTION_REQUIRED",
+        "path": null,
+        "command_argv": null,
+        "harness": "ACTUAL_INSTALLED_APK_DEVICE_CAMPAIGN",
+        "boundary": "真实设备/同一APK/完整机会和原始事件；B12复核全窗口。宿主与fixture不能代签。"
+      }
+    },
+    {
+      "scenario": "同seed/input分别service-only与Activity打开关闭100次，包含UI read异常。",
+      "expected": "业务输出hash集合一致、请求无重复；UI退出不停止授权服务；读失败显示明确状态，主线程不执行DB/迁移/训练。",
+      "evidence": "ENGINEERING：双实验差异、lifecycle trace、线程断言。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-04-T01",
+      "issue_id": "R341-B05-04",
+      "batch": "B05",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+        "method": "test_r341_b05_04_t01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_04_t01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "scenario": "用户关闭后台开关、库identity切换、服务等待资源、进程重启。",
+      "expected": "界面准确显示STOPPED/INVALIDATED/WAIT/STARTING并最终按真实commit更新；不能把旧snapshot显示为新进展。",
+      "evidence": "ENGINEERING：scope与状态投影断言；DEVICE可用性场景另附原件。",
+      "level": "ENGINEERING",
+      "execution_status": "NOT_RUN",
+      "id": "R341-B05-04-T02",
+      "issue_id": "R341-B05-04",
+      "batch": "B05",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+        "method": "test_r341_b05_04_t02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_04_t02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-01-A01",
+      "level": "ENGINEERING",
+      "scenario": "候选/专家各一例旧 ABI，重启两次",
+      "expected": "各一个新身份；父字节及旧证据不变；新未来计数为零",
+      "evidence": "parent/child manifests、交易回执、hash 比较；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-01",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_01_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_01_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-01-A02",
+      "level": "ENGINEERING",
+      "scenario": "提交前/提交后杀进程，两个 worker 抢同父代",
+      "expected": "恰好一子代；过期 fence 不可写；无孤儿 checkpoint",
+      "evidence": "崩溃点日志、唯一键查询；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-01",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_01_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_01_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-01-A03",
+      "level": "ENGINEERING",
+      "scenario": "坏父代与合法父代混合",
+      "expected": "坏对象隔离，合法对象继续；不会要求等 B09 自然样本",
+      "evidence": "每对象 retry/state 与本次提交水位；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-01",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_01_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_01_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-02-A01",
+      "level": "ENGINEERING",
+      "scenario": "固定可学习样例、连续与中断恢复",
+      "expected": "输入/更新次数相同；参数与预测在已声明容差内相同；有正梯度样例参数确变",
+      "evidence": "codec bytes、step JSON、数值差报告；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-02",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_02_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_02_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-02-A02",
+      "level": "ENGINEERING",
+      "scenario": "改变目标及其未来标签",
+      "expected": "当期输入和预测不变，只有合法后续训练状态变化",
+      "evidence": "PIT 变形测试；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-02",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_02_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_02_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-02-A03",
+      "level": "ENGINEERING",
+      "scenario": "损坏一个 checkpoint",
+      "expected": "对象隔离；其余家族在本轮有提交或明确依赖状态",
+      "evidence": "逐家族状态清单；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-02",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_02_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_02_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-03-A01",
+      "level": "ENGINEERING",
+      "scenario": "合法公式、类型错误、未来引用、深树及常量公式集合",
+      "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码",
+      "evidence": "节点级审计与 golden 输出；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-03",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_03_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_03_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-03-A02",
+      "level": "ENGINEERING",
+      "scenario": "换名字/冗余节点/交换输入重试",
+      "expected": "等价不重复出生；安全归一化不改变逐位数值",
+      "evidence": "canonical/probe/dedup receipt；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-03",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_03_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_03_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-03-A03",
+      "level": "ENGINEERING",
+      "scenario": "指定非平凡变异",
+      "expected": "结构 diff 非空且开发探针有真实差异；无差异可被正常淘汰",
+      "evidence": "父子 AST 与动作差记录；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-03",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_03_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_03_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-04-A01",
+      "level": "ENGINEERING",
+      "scenario": "12 实验+4 审计的固定输入集",
+      "expected": "实验逐项得到子代或精确 WAITING/REJECTED；审计有回执且出生数不增加",
+      "evidence": "逐专家结果矩阵；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-04",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_04_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_04_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-04-A02",
+      "level": "ENGINEERING",
+      "scenario": "报告进程无静态绑定，运行 owner 有合法绑定",
+      "expected": "显示 owner 已绑定，F23 可用性由实际 owner 验证",
+      "evidence": "binding receipt 与进程身份；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-04",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_04_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_04_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-04-A03",
+      "level": "ENGINEERING",
+      "scenario": "错目标/错 ABI 教师",
+      "expected": "拒绝本对象并保持其他任务前进",
+      "evidence": "教师负例和轮转水位；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-04",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_04_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_04_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-05-A01",
+      "level": "ENGINEERING",
+      "scenario": "大量重复候选+少数新机制，有限内存预算",
+      "expected": "不 OOM；新机制取得非零计算预算；重复不虚增有效出生",
+      "evidence": "预算发放/耗用和去重清单；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-05",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_05_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_05_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-05-A02",
+      "level": "ENGINEERING",
+      "scenario": "父代被候选/证书/未决确认引用",
+      "expected": "不能 prune；释放引用后只按保留合同归档",
+      "evidence": "引用检查与淘汰回执；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-05",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_05_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_05_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B06-05-A03",
+      "level": "ENGINEERING",
+      "scenario": "全部候选无增益",
+      "expected": "正常完成一轮并保留负结果，合格数可以为零",
+      "evidence": "轮次完成清单；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B06-05",
+      "batch": "B06",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+        "method": "test_r341_b06_05_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_05_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-01-A01",
+      "level": "ENGINEERING",
+      "scenario": "十位置完整/缺一位置/重复标签/乱序输入",
+      "expected": "完整组可消费；缺项组不可发布；重复不增加步数；恢复后只补缺项",
+      "evidence": "epoch position manifest、训练键查询；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-01",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_01_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_01_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-01-A02",
+      "level": "ENGINEERING",
+      "scenario": "扰动当期与未来开奖",
+      "expected": "当期特征、预报和已冻结概率不变",
+      "evidence": "PIT hash 对比；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-01",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_01_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_01_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-01-A03",
+      "level": "ENGINEERING",
+      "scenario": "将 FUTURE 或 synthetic 送训练",
+      "expected": "类型拒绝且模型、cursor、buffer 不变",
+      "evidence": "负例事务状态对照；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-01",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_01_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_01_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-02-A01",
+      "level": "ENGINEERING",
+      "scenario": "连续 N 步与 N/2 杀进程恢复",
+      "expected": "相同数值 ABI 下完整状态/下一预测一致；差异容差预先声明",
+      "evidence": "full-state manifests、数值比较；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-02",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_02_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_02_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-02-A02",
+      "level": "ENGINEERING",
+      "scenario": "有限可学习样例与无信号样例",
+      "expected": "前者有真实更新，后者允许无增益；不能要求训练损失每步下降",
+      "evidence": "梯度/参数差/损失原始数组摘要；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-02",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_02_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_02_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-02-A03",
+      "level": "ENGINEERING",
+      "scenario": "NaN 梯度或过期 fence",
+      "expected": "拒绝提交，模型仍为上次已提交版本",
+      "evidence": "错误码与 CAS 结果；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-02",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_02_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_02_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-03-A01",
+      "level": "ENGINEERING",
+      "scenario": "发布M1，生成冻结，再发布M2",
+      "expected": "旧冻结仍为M1；新研究可用M2；旧未来注册不得自动换M2",
+      "evidence": "publication→surface→call→freeze hash joins；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-03",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_03_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_03_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-03-A02",
+      "level": "ENGINEERING",
+      "scenario": "错 position/featureABI/target 或部分 epoch",
+      "expected": "全部拒绝并保留正确版本；无空模型成功回执",
+      "evidence": "identity 负例清单；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-03",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_03_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_03_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-03-A03",
+      "level": "ENGINEERING",
+      "scenario": "同调用重试与发布中断",
+      "expected": "一次有效调用/发布，重复回执不增加独立样本",
+      "evidence": "唯一键查询与 crash receipts；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-03",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_03_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_03_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-04-A01",
+      "level": "ENGINEERING",
+      "scenario": "同结算事件投递三次，中途重启",
+      "expected": "模型至多训练一次；只有一个 effect 引用；后续事件继续",
+      "evidence": "事件/outbox/step 对账；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-04",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_04_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_04_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-04-A02",
+      "level": "ENGINEERING",
+      "scenario": "固定失败开发样例",
+      "expected": "下一轮指定父节点/预算或合法在线参数确变，能追回原反馈",
+      "evidence": "before/after effect hashes；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-04",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_04_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_04_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-04-A03",
+      "level": "ENGINEERING",
+      "scenario": "正式 FUTURE 反馈",
+      "expected": "原实验只更新资格账、冻结模型不变；后续研究须新边界/新身份且从零未来证据",
+      "evidence": "角色/身份隔离查询；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-04",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_04_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_04_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-05-A01",
+      "level": "ENGINEERING",
+      "scenario": "归档对象坏一条，训练仍有热源与容量",
+      "expected": "该对象隔离，训练和其他归档继续",
+      "evidence": "训练/归档双水位；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-05",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_05_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_05_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-05-A02",
+      "level": "ENGINEERING",
+      "scenario": "硬容量耗尽",
+      "expected": "可解释等待，无 OOM、无未验删除；恢复容量后续算",
+      "evidence": "resource receipts；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-05",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_05_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_05_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B07-05-A03",
+      "level": "ENGINEERING",
+      "scenario": "任务状态 RUNNING 但旧提交",
+      "expected": "显示 STALE/无新提交，不能声称已恢复",
+      "evidence": "session liveness 投影；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B07-05",
+      "batch": "B07",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+        "method": "test_r341_b07_05_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_05_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-01-A01",
+      "level": "ENGINEERING",
+      "scenario": "构建中断、重复页、源修正",
+      "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因",
+      "evidence": "segment/manifest/pin 对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-01",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_01_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_01_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-01-A02",
+      "level": "ENGINEERING",
+      "scenario": "断期或晚到历史标签",
+      "expected": "不会伪造连续段或赛前可见时间；对应实验拒绝或分段",
+      "evidence": "provenance 负例；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-01",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_01_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_01_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-01-A03",
+      "level": "ENGINEERING",
+      "scenario": "无任何学生但合法源",
+      "expected": "source-only acquire 成功；学生图明确 WAITING",
+      "evidence": "资源与任务回执；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-01",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_01_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_01_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-02-A01",
+      "level": "ENGINEERING",
+      "scenario": "18图逐项完整及缺项夹具",
+      "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图",
+      "evidence": "18项运行矩阵与可复算数据；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-02",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_02_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_02_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-02-A02",
+      "level": "ENGINEERING",
+      "scenario": "一个图抛错/耗尽切片预算",
+      "expected": "其余图继续，当前图保留原件错误与可重试水位",
+      "evidence": "轮转测试；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-02",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_02_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_02_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-02-A03",
+      "level": "ENGINEERING",
+      "scenario": "给 R11/R14/R18 写训练/REAL 权限",
+      "expected": "拒绝；图只读取既有证据，不产生资格或策略动作",
+      "evidence": "权限负例；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-02",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_02_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_02_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-03-A01",
+      "level": "ENGINEERING",
+      "scenario": "无学生且合法数据",
+      "expected": "两个source-only矩阵产出；学生矩阵 WAITING_STUDENT，不阻其他kind",
+      "evidence": "逐kind状态/shape/hash；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-03",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_03_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_03_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-03-A02",
+      "level": "ENGINEERING",
+      "scenario": "20对象正常/缺源/错shape/错目标",
+      "expected": "正常原值可重算；缺源清楚等待；错项拒绝且旧合法产物保留stale",
+      "evidence": "20项契约结果；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-03",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_03_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_03_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-03-A03",
+      "level": "ENGINEERING",
+      "scenario": "实际消费者关闭与开启矩阵",
+      "expected": "记录动作/预算/子代差；无差允许，无自动宣称增益",
+      "evidence": "同目标消融 effect receipt；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-03",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_03_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_03_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-04-A01",
+      "level": "ENGINEERING",
+      "scenario": "提案正例、只读图、角色不符、源失效",
+      "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留",
+      "evidence": "proposal→child/effect→receipt joins；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-04",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_04_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_04_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-04-A02",
+      "level": "ENGINEERING",
+      "scenario": "commit前后杀进程并重投",
+      "expected": "至多一次动作；无孤儿child、无假consumption",
+      "evidence": "故障点DB差；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-04",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_04_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_04_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-04-A03",
+      "level": "ENGINEERING",
+      "scenario": "非出生预算动作",
+      "expected": "实际下一轮配置/发放变化与effect匹配",
+      "evidence": "预算before/after及分发清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-04",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_04_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_04_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-05-A01",
+      "level": "ENGINEERING",
+      "scenario": "固定失败夹具运行两代并中途恢复",
+      "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果",
+      "evidence": "generation与lineage清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-05",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_05_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_05_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-05-A02",
+      "level": "ENGINEERING",
+      "scenario": "全部子代被拒绝",
+      "expected": "本代可ENGINEERING_COMPLETE，改进数0；下一轮仍按预算可运行",
+      "evidence": "terminal outcomes；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-05",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_05_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_05_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-05-A03",
+      "level": "ENGINEERING",
+      "scenario": "未来命中注入研究输入",
+      "expected": "角色阻断，搜索/预算不改变",
+      "evidence": "负例hash；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-05",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_05_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_05_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-06-A01",
+      "level": "ENGINEERING",
+      "scenario": "合法双亲、不同目标、自融合、缺组件",
+      "expected": "仅合法pair可生新identity；无输入明确等待",
+      "evidence": "pair manifest、AST diff；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-06",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_06_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_06_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-06-A02",
+      "level": "ENGINEERING",
+      "scenario": "有互补和无互补的确定夹具",
+      "expected": "均有完整对照；无互补可拒绝，不能强制正增益",
+      "evidence": "同机会A/B/A+B/equal输出；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-06",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_06_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_06_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-06-A03",
+      "level": "ENGINEERING",
+      "scenario": "已有证书父代融合",
+      "expected": "子代证书/未来计数为零，父证书不被改写",
+      "evidence": "身份/资格账对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-06",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_06_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_06_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-07-A01",
+      "level": "ENGINEERING",
+      "scenario": "两个算子不同开发效用/成本，多次重复回执",
+      "expected": "下一轮分配有可解释变化；重复不叠乘；各合法探索算子仍有机会",
+      "evidence": "allocation与dispatch对账；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-07",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_07_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_07_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-07-A02",
+      "level": "ENGINEERING",
+      "scenario": "所有成效未知或全负",
+      "expected": "缩回先验/保留探索；不制造正信用",
+      "evidence": "budget state；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-07",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_07_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_07_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B08-07-A03",
+      "level": "ENGINEERING",
+      "scenario": "未来数据/旧revision负例",
+      "expected": "拒绝越界信用；旧负记忆不永久封新机制",
+      "evidence": "role/revision负例；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B08-07",
+      "batch": "B08",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "method": "test_r341_b08_07_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_07_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-01-A01",
+      "level": "ENGINEERING",
+      "scenario": "正常注册、重复、模型替换、重命名",
+      "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移",
+      "evidence": "registration manifest及唯一键；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-01",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_01_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_01_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-01-A02",
+      "level": "ENGINEERING",
+      "scenario": "TRAIN样本伪装CONFIRM",
+      "expected": "拒绝并给曝光冲突原件",
+      "evidence": "exposure test；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-01",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_01_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_01_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-01-A03",
+      "level": "ENGINEERING",
+      "scenario": "隔离ENGINEERING夹具强阳性/阴性",
+      "expected": "走完确认/拒绝分支，产物不可进入自然资格或真实证书",
+      "evidence": "sandbox scope证明；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-01",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_01_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_01_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-02-A01",
+      "level": "ENGINEERING",
+      "scenario": "乱序/重复开奖与重启",
+      "expected": "按日历恰好一次，重建/增量同值，机会分母守恒",
+      "evidence": "ledger/sequence replay；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-02",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_02_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_02_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-02-A02",
+      "level": "ENGINEERING",
+      "scenario": "漏期、迟冻结、开奖冲突",
+      "expected": "缺口明确，质量不可通过；后开奖补录不能变有效",
+      "evidence": "negative receipt；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-02",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_02_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_02_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-02-A03",
+      "level": "ENGINEERING",
+      "scenario": "全HOLD或零ACT",
+      "expected": "rate=null而非0%或100%；覆盖真实0",
+      "evidence": "aggregate公式复算；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-02",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_02_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_02_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-03-A01",
+      "level": "ENGINEERING",
+      "scenario": "逐一单门槛失败/缺证据/全门槛通过的隔离fixture",
+      "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算",
+      "evidence": "gate boundary table；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-03",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_03_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_03_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-03-A02",
+      "level": "ENGINEERING",
+      "scenario": "coverage不足但V1其余通过",
+      "expected": "V1 verdict与R34.1资产验收分别显示，不冒充Q02合格",
+      "evidence": "dual verdict；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-03",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_03_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_03_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-03-A03",
+      "level": "ENGINEERING",
+      "scenario": "250ACT无足够序贯/配对证据",
+      "expected": "保持ACCUMULATING或REJECTED，不自动授证",
+      "evidence": "统计原始账复算；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-03",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_03_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_03_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-03-A04",
+      "level": "NATURAL",
+      "scenario": "预注册后的独立自然机会持续积累",
+      "expected": "仅原始真实未来账符合各项门槛时标NATURAL_QUALITY_PASS；未达/拒绝/未观察均如实保留；Q05校准支持≥200与资产ACT≥250分别检验，≥37%是研究优先目标而非既有V1硬门槛",
+      "evidence": "自然registration/predraw/settlement/calibration/support/paired originals；当前未完成，不由工程夹具代替",
+      "issue_id": "R341-B09-03",
+      "batch": "B09",
+      "test_contract": {
+        "status": "NATURAL_OBSERVATION_REQUIRED",
+        "path": null,
+        "command_argv": null,
+        "harness": "PRODUCTION_PREREGISTERED_FUTURE_EVALUATOR",
+        "boundary": "依原V1和新质量投影分别观察；新未来、完整分母和原件；无固定时间必达标承诺。"
+      }
+    },
+    {
+      "id": "R341-B09-04-A01",
+      "level": "ENGINEERING",
+      "scenario": "隔离有效/过期/撤销/错模型/错K3证明",
+      "expected": "只有正确证明通过同一决策owner；任何错项拒绝",
+      "evidence": "authority负例表；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-04",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_04_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_04_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-04-A02",
+      "level": "ENGINEERING",
+      "scenario": "freeze后发布新模型或证书撤销",
+      "expected": "已冻结身份不被重算；后续非法调用被拒绝，已授权结算仍按原冻结",
+      "evidence": "time-order integration replay；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-04",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_04_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_04_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-04-A03",
+      "level": "DEVICE",
+      "scenario": "生产无自然证书",
+      "expected": "不伪造REAL；显示真实HOLD/既定fallback原因",
+      "evidence": "真实设备同一构建/进程/目标期的只读观测；未执行，PENDING_DEVICE；不写人工夹具",
+      "issue_id": "R341-B09-04",
+      "batch": "B09",
+      "test_contract": {
+        "status": "DEVICE_EXECUTION_REQUIRED",
+        "path": null,
+        "command_argv": null,
+        "harness": "ACTUAL_INSTALLED_APK_DEVICE_CAMPAIGN",
+        "boundary": "真实设备/同一APK/完整机会和原始事件；B12复核全窗口。宿主与fixture不能代签。"
+      }
+    },
+    {
+      "id": "R341-B09-05-A01",
+      "level": "ENGINEERING",
+      "scenario": "相同seed与中断恢复",
+      "expected": "结果/完整搜索轨迹相同；当前code/config指纹一致",
+      "evidence": "trial manifest/checkpoint；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-05",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_05_a01",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_05_a01"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-05-A02",
+      "level": "ENGINEERING",
+      "scenario": "零信号与植入结构",
+      "expected": "报告误报/功效及区间，即使目标不达也如实失败；不得改原试验门槛重跑到通过",
+      "evidence": "summary与全部trial结果；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-05",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_05_a02",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_05_a02"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "R341-B09-05-A03",
+      "level": "ENGINEERING",
+      "scenario": "模拟结果尝试写自然证书",
+      "expected": "强制拒绝、无生产表写入",
+      "evidence": "scope/isolation负例；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "issue_id": "R341-B09-05",
+      "batch": "B09",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+        "method": "test_r341_b09_05_a03",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_05_a03"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-01a",
+      "scenario": "已有4.34GB且有充足物理空闲，工作集超额",
+      "expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。",
+      "evidence": "budget-migration.json、分类前后清单、准入/拒绝回执",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-01",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_01a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_01a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-01b",
+      "scenario": "两个并发预约、写一半进程死亡、allocated不可读",
+      "expected": "总预约原子守恒；仅死亡租约未用部分回收；未知allocated保留null。",
+      "evidence": "并发测试日志、租约恢复回执、目录hash差异清单",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-01",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_01b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_01b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-02a",
+      "scenario": "9份报告，其中一份唯一故障证据、一份共享、一份哈希等价副本",
+      "expected": "仅核验副本可自动回收；唯一原件和共享报告保留，空间不足给出保护原因。",
+      "evidence": "回收dry-run与实际回执、保留对象hash列表",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-02",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_02a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_02a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-02b",
+      "scenario": "清理快照/中间分卷时断电或I/O失败",
+      "expected": "发布结果仍可读，重启幂等续清；FULL_RAW缺原snapshot时拒绝清私有DB。",
+      "evidence": "故障注入记录、ZIP成员复验、cleanup状态日志",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-02",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_02b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_02b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-02c",
+      "scenario": "缓存/审计热集持续增长",
+      "expected": "工作集在分类上限内或显示明确protected debt；审计回放数与归档前一致，实时预算不被大事务击穿。",
+      "evidence": "热冷分层统计、事件全量hash/计数核对、写锁分位与超时分母",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-02",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_02c",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_02c"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-03a",
+      "scenario": "有匹配备份/哈希不符备份/确无原件各一个",
+      "expected": "匹配恢复一次；不符隔离；无源保持可解释缺失；统计分母与各状态加总一致。",
+      "evidence": "recovery-ledger.jsonl、流式hash回执、恢复前后引用快照",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-03",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_03a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_03a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-03b",
+      "scenario": "GC声称零引用但闭包未知，或claim后新增pin",
+      "expected": "拒绝unlink并出明确原因；完整无根验证副本可回收；中断后不重复错误释放。",
+      "evidence": "闭包和竞争测试、逐对象GC receipt",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-03",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_03b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_03b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-03c",
+      "scenario": "556历史缺失仍未全部找回但新独立候选能完成训练链",
+      "expected": "B10工程可通过，历史恢复债务明确保留；受缺失依赖者仍禁止资格晋升。",
+      "evidence": "工程验收台账、隔离范围、独立新谱系证据",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-03",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_03c",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_03c"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-04a",
+      "scenario": "5000行但中间断10期；全部连续；跨日边界三组",
+      "expected": "分别精确输出缺口/连续；合法期号后继按现有TargetIssueResolver计算，不用整数+1。",
+      "evidence": "连续性清单、权威来源hash、epoch提交回执",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-04",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_04a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_04a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-04b",
+      "scenario": "开奖后补齐旧标签后重跑历史/未来任务",
+      "expected": "历史PIT任务拒绝晚到特征；新epoch只用于可用时间后的任务，旧frozen字节不变。",
+      "evidence": "availableAt/targetAt审计、旧新epoch与frozen哈希对照",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-04",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_04b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_04b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-05a",
+      "scenario": "空间不够/已有唯一backup/持有读pin",
+      "expected": "安全延后并保留原件；无需Activity重开才能继续重试；不持有大写锁等条件。",
+      "evidence": "维护准入回执、reservation、锁等待时间",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-05",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_05a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_05a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B10-05b",
+      "scenario": "swap边界中断后重启",
+      "expected": "恢复journal选择唯一可信库，原始5000开奖及不可替代证据内容守恒；成功后磁盘按实测减少。",
+      "evidence": "每个故障点恢复日志、integrity_check、前后hash与physicalBytes",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B10-05",
+      "batch": "B10",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+        "method": "test_a_b10_05b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_05b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-01a",
+      "scenario": "缺表3个、其他查询成功、schemaPending=null",
+      "expected": "顶层明确至少3个来源不可用；未知仍null/未知；evidenceComplete可true但健康不PASS。",
+      "evidence": "machine-report.json、UI文本快照、96项状态分布核对",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-01",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_01a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_01a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-01b",
+      "scenario": "空表/真实0/超时/无权限/截断各一项",
+      "expected": "五种原因保留；UNKNOWN不画成0线，不自动按N/A关闭失败。",
+      "evidence": "源状态契约测试、聚合一致性校验日志",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-01",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_01b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_01b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-02a",
+      "scenario": "新安装读到旧crash/旧Q08 120计划0完成/旧FTRL学习",
+      "expected": "当前进程不背旧crash；旧数据可见且明确历史，Q08仍UNKNOWN_STALE_SYNTHETIC_SOURCE，当前训练不虚增。",
+      "evidence": "scope连接校验、报告与UI同值对照",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-02",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_02a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_02a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-02b",
+      "scenario": "2成功、3超时、1未启动，混入shadow成功",
+      "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。",
+      "evidence": "事件夹具、指标分母明细、逐期timeline",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-02",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_02b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_02b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-03a",
+      "scenario": "旧LIVE/7229 refs与当前缺表/0当前帧同时存在",
+      "expected": "旧内容可追溯但不当当前成果；当前缺表给真实R341票和初始化证据链，不能靠旧计数消警。",
+      "evidence": "诊断diff、finding/issue映射及链接校验",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-03",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_03a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_03a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-03b",
+      "scenario": "165对象共享多个根因且部分可读性未知",
+      "expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。",
+      "evidence": "对象→工单关系表、真实回读场景",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-03",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_03b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_03b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-04a",
+      "scenario": "真实空、缺表、超时、旧帧、真实零值、非零值六类",
+      "expected": "显示态与reason准确；只有真实零值画0；其他图不受某张超时连带阻塞。",
+      "evidence": "六类渲染快照、源值比对、取消与deadline日志",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-04",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_04a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_04a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-04b",
+      "scenario": "仅第一页空但后页有行/无全量count",
+      "expected": "只显示此页为空且total未知，不断言整表无数据；打开页面不增加生产计数。",
+      "evidence": "分页读取记录、服务生产者计数前后比对",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-04",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_04b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_04b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-05a",
+      "scenario": "相同场景重复上报、旧进程成功、新进程无证据",
+      "expected": "重复去重；旧成功不关闭新安装问题；工单保持FIELD_PENDING，原因可回查。",
+      "evidence": "不可变台账、scope查询回执",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-05",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_05a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_05a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-05b",
+      "scenario": "源码+单测齐全但无设备；设备有实际producer/consumer回执",
+      "expected": "前者ENGINEERING_VERIFIED/FIELD_PENDING；后者仅对应现场场景FIELD_VERIFIED，自然状态不自动变化。",
+      "evidence": "工程与现场分栏台账、生产/消费关联hash",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-05",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_05b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_05b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-06a",
+      "scenario": "DIAGNOSTIC缺DB/APK/模型但96检查有状态",
+      "expected": "语义范围完整可true；字节全量false，明确不能独立复算所有模型；健康仍按失败项。",
+      "evidence": "实际ZIP枚举、范围声明、首页快照",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-06",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_06a",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_06a"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B11-06b",
+      "scenario": "FULL_RAW声称DB但成员缺失或hash不符",
+      "expected": "发布/语义验证失败，保留源快照；不让B10清理原件。",
+      "evidence": "伪造缺件负例、清理拒绝回执",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B11-06",
+      "batch": "B11",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+        "method": "test_a_b11_06b",
+        "harness": "ANDROID_PRODUCTION_OWNER_AND_SQLITE",
+        "command_argv": [
+          "./gradlew",
+          ":app:connectedDebugAndroidTest",
+          "-Pr30Instrumentation=true",
+          "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_06b"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-01a",
+      "scenario": "正确封印及三种篡改输入",
+      "expected": "正确通过；每种篡改拒绝；B01起始APK与B12最终APK身份可关联同一计划版本。",
+      "evidence": "identity-verification.json、负例日志、三层封印hash",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-01",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_01a",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-01a",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-01b",
+      "scenario": "构建后工作树改变或apk嵌入sourceCommit不符",
+      "expected": "封包拒绝且输出具体身份差异，不改旧门禁掩盖。",
+      "evidence": "clean/head/tree前后证据、APK asset解包比对",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-01",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_01b",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-01b",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-02a",
+      "scenario": "实际122可用且原签名凭据可用",
+      "expected": "可install -r且versionCode>577311122，原数据/保护证据保留；新process identity与APK一致。",
+      "evidence": "baseline122.apk hash/证书、apksigner、badging、安装退出码、迁移回执",
+      "level": "DEVICE",
+      "issue_id": "R341-B12-02",
+      "batch": "B12",
+      "test_contract": {
+        "status": "DEVICE_EXECUTION_REQUIRED",
+        "path": null,
+        "command_argv": null,
+        "harness": "ACTUAL_INSTALLED_APK_DEVICE_CAMPAIGN",
+        "boundary": "真实设备/同一APK/完整机会和原始事件；B12复核全窗口。宿主与fixture不能代签。"
+      }
+    },
+    {
+      "id": "A-B12-02b",
+      "scenario": "更高安装版本/缺设备/缺签名/签名不符",
+      "expected": "版本按真实上限递增；缺设备仅FIELD_PENDING；缺签名BUILD_BLOCKED；签名不符拒绝封包，绝不清库卸载。",
+      "evidence": "环境检查回执、版本journal、明确状态原因",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-02",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_02b",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-02b",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-03a",
+      "scenario": "完整12批账本；漏一票/无log/仅脚本存在三种负例",
+      "expected": "完整工程实测覆盖才ENGINEERING_COMPLETE；负例拒绝，FIELD_PENDING不自动使已验工程退回未实施。",
+      "evidence": "全工单JSON/MD台账、validator结果、每批证据目录",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-03",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_03a",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-03a",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-03b",
+      "scenario": "无自然合格资产但受控端到端夹具可走完整工程链",
+      "expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。",
+      "evidence": "SYNTHETIC链hash、数值变化diff、producer-consumer匹配、生产资格状态",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-03",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_03b",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-03b",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-04a",
+      "scenario": "24h/72h无Activity定时唤起，包含受控故障",
+      "expected": "每个预登记机会均有状态或明确missing；重连/进程回收后推进；结果按实际SLO判通过/失败。",
+      "evidence": "campaign.jsonl、全机会ledger、原始log哈希、24h/72h回执",
+      "level": "DEVICE",
+      "issue_id": "R341-B12-04",
+      "batch": "B12",
+      "test_contract": {
+        "status": "DEVICE_EXECUTION_REQUIRED",
+        "path": null,
+        "command_argv": null,
+        "harness": "ACTUAL_INSTALLED_APK_DEVICE_CAMPAIGN",
+        "boundary": "真实设备/同一APK/完整机会和原始事件；B12复核全窗口。宿主与fixture不能代签。"
+      }
+    },
+    {
+      "id": "A-B12-04b",
+      "scenario": "受控回放夹具验证采样缺失、墙钟调整、跨boot、force-stop与无设备分支（不计真实运行时长）",
+      "expected": "缺失可见，跨boot不把单调时间相减；force-stop独列；无设备NOT_RUN/FIELD_PENDING。",
+      "evidence": "时间锚点、操作日志、状态分母一致性验证",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-04",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_04b",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-04b",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-05a",
+      "scenario": "工程全部通过但自然样本不足/无优势",
+      "expected": "ENGINEERING_COMPLETE成立，natural分别PENDING/REJECTED；主路资格门控正确，产品不宣传已有高胜率。",
+      "evidence": "工程台账、冻结协议、未来观察台账、资格检查回执",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-05",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_05a",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-05a",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-05b",
+      "scenario": "候选变更或历史标签混入未来资格",
+      "expected": "旧证书不能授权新hash；时间泄漏/样本复用拒绝，保留拒绝原因及原始证据。",
+      "evidence": "B09协议回放、污染负例、撤销/新身份记录",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-05",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_05b",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-05b",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-05c",
+      "level": "NATURAL",
+      "scenario": "实际冻结候选收集至少250个有效未来ACT，按B09预注册协议评估；Q05校准support≥200另核",
+      "expected": "严格复用V1门槛：HR≥.34、ECE≤.04、worst720Block≥.26、maxLosingStreak≤6、ABI等价、原序贯合格、pairedLcbVsI00>0、pairedLcbVsNull>0及24h证书有效期。结果可QUALIFIED、REJECTED或NATURAL_PENDING；不保证必定合格。coverage/部署后ACT率分别报告，不追加互锁阻止第一份合法证书。",
+      "evidence": "冻结协议hash、独立未来ACT原件、成本与配对对照、资格评估和有效期回执",
+      "issue_id": "R341-B12-05",
+      "batch": "B12",
+      "test_contract": {
+        "status": "NATURAL_OBSERVATION_REQUIRED",
+        "path": null,
+        "command_argv": null,
+        "harness": "PRODUCTION_PREREGISTERED_FUTURE_EVALUATOR",
+        "boundary": "依原V1和新质量投影分别观察；新未来、完整分母和原件；无固定时间必达标承诺。"
+      }
+    },
+    {
+      "id": "A-B12-06a",
+      "scenario": "从空目录下载最终包并恢复source bundle",
+      "expected": "APK hash/签名/版本与清单一致；源码tree/HEAD与嵌入身份一致；全部工单证据能定位。",
+      "evidence": "download-receipt.json、apksigner/badging、bundle verify、ledger validator",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-06",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_06a",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-06a",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    },
+    {
+      "id": "A-B12-06b",
+      "scenario": "URL坏链/缓存旧APK/缺源码/敏感材料/未执行真机场景",
+      "expected": "拒绝最终交付PASS并修复具体缺项；真实未执行项保持FIELD_PENDING，不造全绿。",
+      "evidence": "下载失败记录、秘密扫描只给规则命中路径不输出内容、状态清单",
+      "level": "ENGINEERING",
+      "issue_id": "R341-B12-06",
+      "batch": "B12",
+      "test_contract": {
+        "status": "TEST_CONTRACT_REQUIRES_IMPLEMENTATION",
+        "path": "tools/r341/test_b12_contracts.py",
+        "method": "test_a_b12_06b",
+        "harness": "PYTHON_PRODUCTION_BUILD_OR_DELIVERY_TOOLS",
+        "command_argv": [
+          "python3",
+          "tools/r341/test_b12_contracts.py",
+          "--case",
+          "A-B12-06b",
+          "--repo",
+          "<ISOLATED_CURRENT_SOURCE>",
+          "--out",
+          "<CASE_EVIDENCE>"
+        ],
+        "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
+        "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
+      }
+    }
+  ],
+  "counts_by_level": {
+    "ENGINEERING": 146,
+    "DEVICE": 4,
+    "NATURAL": 2
+  },
+  "execution_status": "ALL_APPLICATION_CASES_NOT_RUN"
+}

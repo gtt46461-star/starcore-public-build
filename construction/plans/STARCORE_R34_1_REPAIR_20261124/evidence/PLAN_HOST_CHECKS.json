@@ -1,0 +1,36 @@
+{
+  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_1",
+  "performed_at_local_date": "2026-11-24",
+  "timezone": "Asia/Shanghai",
+  "checks": [
+    {
+      "name": "original_report_reproducibility",
+      "command": [
+        "python3",
+        "tools/audit_report.py",
+        "--input",
+        "<ORIGINAL_REPORT_ZIP>",
+        "--compare",
+        "evidence/BASELINE_FACTS.json"
+      ],
+      "exit_code": 0,
+      "result": "PASS_REPORT_EXTRACTION",
+      "members": 53,
+      "tables": 795,
+      "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc"
+    },
+    {
+      "name": "receipt_rejection_guards",
+      "command": [
+        "python3",
+        "tools/test_receipt_guards.py"
+      ],
+      "exit_code": 0,
+      "tests_run": 14,
+      "failures": 0,
+      "result": "OK",
+      "scope": "measurement types/original refs/product metadata-only/real 72h duration guards"
+    }
+  ],
+  "boundary": "Host validation of plan helpers and evidence extraction only. No Android implementation/build/device/natural pass is inferred."
+}

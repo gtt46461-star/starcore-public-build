@@ -1,20 +1,15 @@
-# STARCORE 当前施工方案 · R34 · 2026-11-23
+# 当前唯一施工入口：STARCORE R34.1 122版返修
 
-当前入口：[R34完整施工方案](construction/plans/STARCORE_R34_20261123/README.md) · [Codex施工任务书](construction/plans/STARCORE_R34_20261123/CODEX_EXECUTE.md) · [13批66项工单](construction/plans/STARCORE_R34_20261123/BATCHES.md) · [152条逐文件卡](construction/plans/STARCORE_R34_20261123/FILE_INDEX.md)。
+当前执行 [STARCORE_R34_1_REPAIR_20261124](construction/plans/STARCORE_R34_1_REPAIR_20261124/README.md)。
 
-本轮以三份实际577311095现场报告及精确源码273641e838e0b8dd842b42a67a674e184942a30a为依据，设计R34返修。应用施工必须从construction/r335-field-095的上述提交或其已核实R34前序继续，不将main旧应用或033旧后态覆盖现场。
+先读 [完整Codex施工任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)，再按 [12批施工索引](construction/plans/STARCORE_R34_1_REPAIR_20261124/BATCH_INDEX.md) 实施。
 
-## 当前交付
+- 应用源码底座：`construction/r34-20261123` 的 `5562f9b19aa09f9f7d9e69ca085db56c537967fc`。
+- 实际安装基线：`R34-B12-2026-11-24-577311122`。
+- main在本轮用于交付方案和原报告；不得把main旧应用目录覆盖122源码。
+- 新方案完整承接旧R34的66工单、152文件范围，以及R33.5的66项要求；旧方案不删除，但不作为本轮单独开工入口。
+- 本次状态：方案已设计，应用实施尚未执行。工程、APK、设备24/72h与自然质量必须各自提供实际回执，不由计划自检代签。
 
-- 完整取证、13批66问题、R33.5旧66要求逐项承接、152条文件卡。
-- 12份Java修改后态及delta、6份完整新Java类、4份完整计划/证据工具；130条文件仍是待实现方法合同。
-- 三份用户报告原ZIP已原字节封存：[原件目录](construction/evidence/STARCORE_R34_20261123/raw/)，[摘要清单](construction/evidence/STARCORE_R34_20261123/INPUT_MANIFEST.json)。
-- [方案与局部代码验证](construction/plans/STARCORE_R34_20261123/verification/SELF_CHECK.json)及[最终封包校验](construction/verification/STARCORE_R34_20261123/PLAN_CHECK.json)。
+原始报告：[STARCORE-9325298a3e033715226cf1126404c5a5273a6928f88.zip](construction/evidence/STARCORE_R34_1_20261124/raw/STARCORE-9325298a3e033715226cf1126404c5a5273a6928f88.zip)。
 
-当前完成的是施工方案与局部参考实现。本次没有实施全部应用改动、没有构建新的APK、没有真机或自然质量通过结论。完整范围见[验证边界](construction/plans/STARCORE_R34_20261123/VERIFICATION_BOUNDARY.md)。未来执行按明确施工指令及任务书逐批实施、编译、签名、装机和采样，不把本入口存在当作应用完成。
-
-## 历史方案
-
-[R33.5 2026-11-20第三次复核](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)及其32门/96断言/288场景继续保留，并由R34承接重验。[R33.5逐项承接](construction/plans/STARCORE_R34_20261123/R335_CROSSWALK.md)。
-
-[R32.5.1历史交付](construction/repairs/STARCORE_R32_5_FINAL_REPAIR_20261115/README.md)保留历史身份，不作为095当前施工前态。
+历史入口：[R34旧方案](construction/plans/STARCORE_R34_20261123/README.md)、[R33.5复核方案](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)。保留历史封印和资料，禁止套用旧整文件后态覆盖当前源代码。

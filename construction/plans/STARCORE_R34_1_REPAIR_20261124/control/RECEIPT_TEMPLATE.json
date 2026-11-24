@@ -1,0 +1,50 @@
+{
+  "schema": "STARCORE_R341_EXECUTION_RECEIPT_1",
+  "template_only": true,
+  "plan_manifest_sha256": null,
+  "batch": null,
+  "level": "ENGINEERING",
+  "status": "NOT_RUN",
+  "issue_ids": [],
+  "source_before": null,
+  "source_after": null,
+  "revalidation_only": false,
+  "artifacts": [],
+  "test_results": [],
+  "apk_sha256": null,
+  "device_identity": null,
+  "installed_version_code": null,
+  "window_start": null,
+  "window_end": null,
+  "fixture": null,
+  "background_campaign_artifact": null,
+  "preregistration_artifact": null,
+  "future_calendar_artifact": null,
+  "natural_evaluator_artifact": null,
+  "format_notes": {
+    "artifact": {
+      "path": "relative/path/to/original.json",
+      "sha256": "REAL_64_HEX_DIGEST"
+    },
+    "test_result": {
+      "id": "EXACT_CASE_ID",
+      "status": "PASS_ONLY_AFTER_REAL_EXECUTION",
+      "command": [
+        "ACTUAL",
+        "ARGV"
+      ],
+      "exit_code": null,
+      "log": "relative/path/to/log.txt",
+      "assertions": [
+        {
+          "metric": "REAL_MEASUREMENT",
+          "actual": null,
+          "operator": "eq",
+          "expected": null,
+          "evidence_artifact": "relative/path/to/original.json"
+        }
+      ]
+    },
+    "warning": "这是不通过的空模板。填真实原件/命令/测量，不能只把status改为PASS。"
+  }
+}

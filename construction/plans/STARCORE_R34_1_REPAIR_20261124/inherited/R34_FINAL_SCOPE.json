@@ -1,0 +1,203 @@
+{
+  "schema": "STARCORE_R34_SCOPE_1",
+  "source_baseline": "273641e838e0b8dd842b42a67a674e184942a30a",
+  "batch_count": 13,
+  "issue_count": 66,
+  "legacy_requirement_count": 66,
+  "source_file_count": 152,
+  "code_material_counts": {
+    "METHOD_CONTRACT_REQUIRES_IMPLEMENTATION": 130,
+    "APPLICABLE_PATCH_WITH_FULL_POSTIMAGE": 12,
+    "FULL_NEW_SOURCE": 6,
+    "COMPLETE_PLAN_VALIDATION_TOOL": 4
+  },
+  "research_chart_count": 18,
+  "matrix_count": 20,
+  "batches": [
+    {
+      "id": "B00",
+      "title": "固定095基线、继承旧要求、构建身份",
+      "issue_count": 5,
+      "issues": [
+        "R34-B00-01",
+        "R34-B00-02",
+        "R34-B00-03",
+        "R34-B00-04",
+        "R34-B00-05"
+      ],
+      "predecessor": null,
+      "acceptance_dependency": "无前序；只核来源、可构建性和不可变规则。"
+    },
+    {
+      "id": "B01",
+      "title": "写入闸口、迁移和故障排债",
+      "issue_count": 6,
+      "issues": [
+        "R34-B01-01",
+        "R34-B01-02",
+        "R34-B01-03",
+        "R34-B01-04",
+        "R34-B01-05",
+        "R34-B01-06"
+      ],
+      "predecessor": "B00",
+      "acceptance_dependency": "B00；本批用真实SQLite故障夹具验收，不依赖未来策略产出。"
+    },
+    {
+      "id": "B02",
+      "title": "抓取身份、幂等落库和历史连续性",
+      "issue_count": 5,
+      "issues": [
+        "R34-B02-01",
+        "R34-B02-02",
+        "R34-B02-03",
+        "R34-B02-04",
+        "R34-B02-05"
+      ],
+      "predecessor": "B01",
+      "acceptance_dependency": "B01；本批用原始响应与重复/乱序回放验收。"
+    },
+    {
+      "id": "B03",
+      "title": "唯一运行调度与可恢复canonical提交",
+      "issue_count": 5,
+      "issues": [
+        "R34-B03-01",
+        "R34-B03-02",
+        "R34-B03-03",
+        "R34-B03-04",
+        "R34-B03-05"
+      ],
+      "predecessor": "B02",
+      "acceptance_dependency": "B02；本批只要求计算/提交水位推进，不借用后续研究结果签收。"
+    },
+    {
+      "id": "B04",
+      "title": "赛前冻结、影子、结算与逐期反馈",
+      "issue_count": 6,
+      "issues": [
+        "R34-B04-01",
+        "R34-B04-02",
+        "R34-B04-03",
+        "R34-B04-04",
+        "R34-B04-05",
+        "R34-B04-06"
+      ],
+      "predecessor": "B03",
+      "acceptance_dependency": "B03；固定基准影子即可验证主链机械闭环，不能用它冒充有效资产。"
+    },
+    {
+      "id": "B05",
+      "title": "5000期工作集、原件恢复与存储治理",
+      "issue_count": 5,
+      "issues": [
+        "R34-B05-01",
+        "R34-B05-02",
+        "R34-B05-03",
+        "R34-B05-04",
+        "R34-B05-05"
+      ],
+      "predecessor": "B04",
+      "acceptance_dependency": "B04；缺失旧模型与新链运行隔离，原件保护独立验收。"
+    },
+    {
+      "id": "B06",
+      "title": "候选冷启重生与真实策略工厂",
+      "issue_count": 5,
+      "issues": [
+        "R34-B06-01",
+        "R34-B06-02",
+        "R34-B06-03",
+        "R34-B06-04",
+        "R34-B06-05"
+      ],
+      "predecessor": "B05",
+      "acceptance_dependency": "B05；验收出生/去重/身份，不要求尚未施工的自然证书。"
+    },
+    {
+      "id": "B07",
+      "title": "逐期训练、完整模型发布与实际消费",
+      "issue_count": 5,
+      "issues": [
+        "R34-B07-01",
+        "R34-B07-02",
+        "R34-B07-03",
+        "R34-B07-04",
+        "R34-B07-05"
+      ],
+      "predecessor": "B06",
+      "acceptance_dependency": "B06；以真实参数和游标变化、数值重演验收。"
+    },
+    {
+      "id": "B08",
+      "title": "失败研究、变异、融合和淘汰",
+      "issue_count": 5,
+      "issues": [
+        "R34-B08-01",
+        "R34-B08-02",
+        "R34-B08-03",
+        "R34-B08-04",
+        "R34-B08-05"
+      ],
+      "predecessor": "B07",
+      "acceptance_dependency": "B07；以真实AST变化与配对结果验收，负结果也须保留。"
+    },
+    {
+      "id": "B09",
+      "title": "独立未来样本、资格和稳定性",
+      "issue_count": 5,
+      "issues": [
+        "R34-B09-01",
+        "R34-B09-02",
+        "R34-B09-03",
+        "R34-B09-04",
+        "R34-B09-05"
+      ],
+      "predecessor": "B08",
+      "acceptance_dependency": "B08；工程夹具通过与自然观察达标分别记录。"
+    },
+    {
+      "id": "B10",
+      "title": "合格资产进入唯一主链并结算",
+      "issue_count": 4,
+      "issues": [
+        "R34-B10-01",
+        "R34-B10-02",
+        "R34-B10-03",
+        "R34-B10-04"
+      ],
+      "predecessor": "B09",
+      "acceptance_dependency": "B09；无合格对象时NO_BET正确，正例以隔离夹具测接线，真实资格另验。"
+    },
+    {
+      "id": "B11",
+      "title": "18研究图、20矩阵、16逻辑表与诊断闭环",
+      "issue_count": 6,
+      "issues": [
+        "R34-B11-01",
+        "R34-B11-02",
+        "R34-B11-03",
+        "R34-B11-04",
+        "R34-B11-05",
+        "R34-B11-06"
+      ],
+      "predecessor": "B10",
+      "acceptance_dependency": "B10；逐生产者/消费者追踪，空数据有原因但不能冒充数据。"
+    },
+    {
+      "id": "B12",
+      "title": "逐批APK、真机耐久与全案签收",
+      "issue_count": 4,
+      "issues": [
+        "R34-B12-01",
+        "R34-B12-02",
+        "R34-B12-03",
+        "R34-B12-04"
+      ],
+      "predecessor": "B11",
+      "acceptance_dependency": "B11；复核全部前序回执与同候选24/72小时观察，不追认失败批次。"
+    }
+  ],
+  "status": "PLAN_WITH_PARTIAL_IMPLEMENTATION_PAYLOAD_NOT_COMPLETED_APP"
+}
+

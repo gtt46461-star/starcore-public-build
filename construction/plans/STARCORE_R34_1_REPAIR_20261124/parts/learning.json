@@ -1,0 +1,2147 @@
+{
+  "schema": "R341_LEARNING_PLAN_V1",
+  "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+  "artifact_status": "DESIGN_READY_NOT_IMPLEMENTED",
+  "evidence_scope": "report v122 frozen snapshot; source reviewed at exact commit; no live database/application execution",
+  "batches": [
+    {
+      "id": "B06",
+      "title": "候选 ABI、冷启重生与真实公式创造",
+      "depends_on": [
+        "B05"
+      ],
+      "scope": "B01–B05 工程通过后，在设备无新自然开奖时也可用隔离开发夹具完成本批。B09 资格合同只作数据字段约束，不作为本批通关依赖。",
+      "issues": [
+        {
+          "id": "R341-B06-01",
+          "title": "保全旧 ABI 父代并完成可重入冷启出生",
+          "evidence_refs": [
+            "R26_REPORT.json#/sections[sectionId=TRAINING]",
+            "R26_REPORT.json#/sections[sectionId=EXPERTS]",
+            "R30_REPORT.json#/chapters/3/data/taskLiveness",
+            "ColdRebirthR34.java#prepare,publish,step"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "50 候选均停在旧数值 ABI 保存态，12 个实验专家同类受阻；冷启表缺失及任务未注册由 B03 处理。本单接管迁移就绪之后的逐父代出生，不能用抹掉旧权重消除故障。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+              "methods": [
+                "pick",
+                "prepare",
+                "publish",
+                "retry",
+                "step"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "保留既有 prepare/guarded publish；在 source_kind+source_campaign+source_id+targetAbi 的既有唯一键上返回 ALREADY_COMMITTED；snapshotHash属于已提交子代身份，不得因重试换源再生，不重复建子代；失败持久化父代级 nextAt，继续扫描其他父代。",
+                "核对原 checkpoint 摘要及 parent 曝光上界；新子代训练可见范围严格在选定 PIT 合同内，futureActs、alphaIndex 引用、证书、校准与确认均不可继承。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthContractR34.java",
+              "methods": [
+                "sourceKey",
+                "campaign",
+                "coldParameters",
+                "requireSnapshot",
+                "requireFreshCounts"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "沿已有 sourceKey/campaign 身份与 requireFreshCounts 零继承断言补齐字段核验；保留原身份版本，不新增并行身份规则。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+              "methods": [
+                "prepareAbiR31",
+                "applyPreparedAbiR31",
+                "preparePreservationR31",
+                "applyPreparedPreservationR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "区分数值 ABI 不兼容、缺源和已损坏；保存原件状态不得覆盖为 READY。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "以 B03 的 schema/task receipt 作为前置，读 B01 原件清单；对每个保存态父代计算不可变摘要。",
+            "事务外读输入并生成新初始状态；短事务内 CAS owner/fence、父代摘要、source generation、容量、身份唯一键，再原子提交 child+lineage+checkpoint+receipt。",
+            "提交前后任意崩溃可重入；容量或暂缺源只记 WAITING，单父代坏字节记 QUARANTINED 并轮转；报告同时显示保全父代与新子代。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B06-01-A01",
+              "level": "ENGINEERING",
+              "scenario": "候选/专家各一例旧 ABI，重启两次",
+              "expected": "各一个新身份；父字节及旧证据不变；新未来计数为零",
+              "evidence": "parent/child manifests、交易回执、hash 比较；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-01-A02",
+              "level": "ENGINEERING",
+              "scenario": "提交前/提交后杀进程，两个 worker 抢同父代",
+              "expected": "恰好一子代；过期 fence 不可写；无孤儿 checkpoint",
+              "evidence": "崩溃点日志、唯一键查询；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-01-A03",
+              "level": "ENGINEERING",
+              "scenario": "坏父代与合法父代混合",
+              "expected": "坏对象隔离，合法对象继续；不会要求等 B09 自然样本",
+              "evidence": "每对象 retry/state 与本次提交水位；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "关闭新出生调度，保留父子关系与已提交原件；旧父代仍按旧 ABI 只读，不降级解释新状态。",
+          "forbidden": [
+            "删除旧权重/清零旧证据",
+            "复制父证书或 alpha 身份",
+            "把 B03 未就绪当本单新建重复迁移理由"
+          ]
+        },
+        {
+          "id": "R341-B06-02",
+          "title": "让工厂候选产生真实数值训练与可续算状态",
+          "evidence_refs": [
+            "R26_REPORT.json#/sections[sectionId=TRAINING]",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/tasks",
+            "FoundryCampaignR26.java#capture,step,publishFinishPreparedR31"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "历史游标和 RUNNING 不证明当前代码有权重更新；候选开发段很少，val_n 全零。先证明训练执行，再讨论统计质量。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+              "methods": [
+                "capture",
+                "step",
+                "publishBirthPreparedR31",
+                "publishFinishPreparedR31",
+                "finish"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "每个训练切片绑定 candidate、datasetHash、role、input-through、ABI、before/after state hash、更新计数及 owner/fence；通过 B02 有界写入发布。",
+                "分别计 born/trained/developmentEvaluated/awaitingConfirmation，出生不算合格；将本次进度与历史最后进度分开。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+              "methods": [
+                "step",
+                "authenticate"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "训练后保存数值模型、优化器/随机状态及下一游标，恢复时验证摘要和输入续接；错误返回对象级类型，不重跑全部旧窗口。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SymbolicFamilyR26.java",
+              "methods": [
+                "predict",
+                "update",
+                "write",
+                "read",
+                "lastTrainingStep",
+                "completedTrainingUpdates"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "记录真实数值步与损失；合法零梯度标 ZERO_GRADIENT 而非伪造参数变化；F13/F14 的更新与 state codec 共用版本。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "冻结开发样本与 TRAIN/SELECT 角色，训练仅用合法开发角色；预测先于该样本标签更新。",
+            "计算在短写事务外执行；结果以旧 checkpoint hash CAS 提交，并将游标、数值状态和 step receipt 放同事务。",
+            "用固定种子连续运行与中途恢复对比；实算输出失败时只冻结该候选，调度队列继续。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B06-02-A01",
+              "level": "ENGINEERING",
+              "scenario": "固定可学习样例、连续与中断恢复",
+              "expected": "输入/更新次数相同；参数与预测在已声明容差内相同；有正梯度样例参数确变",
+              "evidence": "codec bytes、step JSON、数值差报告；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-02-A02",
+              "level": "ENGINEERING",
+              "scenario": "改变目标及其未来标签",
+              "expected": "当期输入和预测不变，只有合法后续训练状态变化",
+              "evidence": "PIT 变形测试；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-02-A03",
+              "level": "ENGINEERING",
+              "scenario": "损坏一个 checkpoint",
+              "expected": "对象隔离；其余家族在本轮有提交或明确依赖状态",
+              "evidence": "逐家族状态清单；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停新训练切片，保留最后已提交 checkpoint；未提交计算可丢弃，已提交 cursor 不后退。",
+          "forbidden": [
+            "把 cursor 增加当训练成功",
+            "用 SELECT/FUTURE 相互改名混用",
+            "为清除阻塞回滚全库"
+          ]
+        },
+        {
+          "id": "R341-B06-03",
+          "title": "形成可执行、可去重、可消融的公式与结构子代",
+          "evidence_refs": [
+            "R26_REPORT.json#/sections[sectionId=EVOLUTION]",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=capabilities,id=F13]",
+            "PolicyAstR27.java#parse,type,rangeAndCausality"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "50 次尝试中有 10 个结构候选，却没有行为新颖/研究接纳/独立改进。名字变更与模板枚举不等于新的可执行机制。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+              "methods": [
+                "parse",
+                "type",
+                "rangeAndCausality",
+                "evalScopedR31",
+                "evalRealtimeScopedR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "保持原 AST 语法、因果约束及资源上限；非法类型/未来访问/非有限值给出节点路径。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+              "methods": [
+                "structure",
+                "from",
+                "mechanismChildren",
+                "fragmentChildren",
+                "neuralChildren",
+                "add"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "每次变异附操作、父节点路径、替换子树、seed、before/after canonical hash；NO_OP/PARAMETER_VARIANT/STRUCTURAL 分开计数。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR30.java",
+              "methods": [
+                "violations",
+                "controlOnly"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "固定目标位置 1..10、单位置三个不同号码、≤64 节点≤8 深度；随机控制不能申请实盘。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java",
+              "methods": [
+                "canonical",
+                "fingerprint",
+                "diff"
+              ],
+              "action": "NEW",
+              "changes": [
+                "NEW 接口 canonical(Node,Abi)->bytes、fingerprint(Node,Probe)->Behavior、diff(parent,child)->NodeEdits；仅规范等价序列化和交换律安全节点，禁止浮点结合律重排。由 StructuralProposalR26.add 与 BirthGateR27.checkCandidate 调用。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+              "methods": [
+                "checkCandidate",
+                "duplicateOf",
+                "register"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "规范 AST hash 精确去重，冻结 TRAIN 探针上的动作/概率指纹近重复筛选；不同机制保留单独候选，不能借未见评估选择探针。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "先落实 specs/ALGORITHM_RESEARCH_PROTOCOL.md 中 F13/F14、跨位/交集、窗口/状态、失败修复等真实 AST 操作；节点替换后 parse→type→causality→bounded eval。",
+            "出生输出 canonical_ast、parameter_blob、model ABI、probe hash、lineage、op diff；生成后无行为差异要记录原因，不计有效结构创新。",
+            "公式可执行后在同目标开发切片做移除子树对照，保存 A/B/无组件输出与成本；此结果只决定继续研究。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B06-03-A01",
+              "level": "ENGINEERING",
+              "scenario": "合法公式、类型错误、未来引用、深树及常量公式集合",
+              "expected": "合法公式产出可复算概率/K3；其余有确定拒绝码",
+              "evidence": "节点级审计与 golden 输出；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-03-A02",
+              "level": "ENGINEERING",
+              "scenario": "换名字/冗余节点/交换输入重试",
+              "expected": "等价不重复出生；安全归一化不改变逐位数值",
+              "evidence": "canonical/probe/dedup receipt；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-03-A03",
+              "level": "ENGINEERING",
+              "scenario": "指定非平凡变异",
+              "expected": "结构 diff 非空且开发探针有真实差异；无差异可被正常淘汰",
+              "evidence": "父子 AST 与动作差记录；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停新变异算子，旧 AST 与身份保留；不得重写已出生公式的 canonical hash。",
+          "forbidden": [
+            "用随机字符串制造新策略",
+            "把常数/全 HOLD 当优质资产",
+            "交集不足时偷偷补号或改为多位置投注"
+          ]
+        },
+        {
+          "id": "R341-B06-04",
+          "title": "区分实验专家与审计专家并恢复真实教师绑定",
+          "evidence_refs": [
+            "R26_REPORT.json#/sections[sectionId=EXPERTS]",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=capabilities,id=F23]",
+            "ExpertWorkshopR26.java#step,audit"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "16 专家中 4 个 AUDIT 合法只读、12 个实验态 ABI 受阻；F23 报告进程静态未绑定不证明后台 owner 也未绑定。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+              "methods": [
+                "step",
+                "result",
+                "audit"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "实验输出必须绑定 Pair 的两个合法组件、目标、角色、输入摘要、真实 child AST；审计输出 audit receipt 不冒充出生。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertExperimentR26.java",
+              "methods": [
+                "spec",
+                "genome",
+                "continueAfter",
+                "requireSource",
+                "advance",
+                "encode",
+                "decode"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "Pair 状态可恢复；源角色/目标改变则新实验身份，保全原实验；缺组件只阻塞该专家。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+              "methods": [
+                "propose",
+                "proposeInternal",
+                "audit"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "处方包含具体 AST 操作、父策略、来源 measure/run、预期检验，非可执行文本标 AUDIT_ONLY。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+              "methods": [
+                "bindLegacyTeacher",
+                "legacyBinding",
+                "dependencyR31",
+                "acceptR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "在运行 owner 读取并核验 teacher original/state hash、数值 ABI、position/target/knownAt；导出 owner binding receipt，报告进程只消费，不用其静态变量反推后台。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "建立 16 专家逐项角色表，与原报告保持身份不变；12 实验专家接 B06-01 新身份恢复。",
+            "每个实验对合法源构造可执行 Pair，并在事务外跑开发比较；需要教师的实验只使用同目标冻结的原 teacher。",
+            "缺教师时列 teacher/target/ABI 缺口，其余家族和审计继续；禁止跨目标拿当前教师替历史教师。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B06-04-A01",
+              "level": "ENGINEERING",
+              "scenario": "12 实验+4 审计的固定输入集",
+              "expected": "实验逐项得到子代或精确 WAITING/REJECTED；审计有回执且出生数不增加",
+              "evidence": "逐专家结果矩阵；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-04-A02",
+              "level": "ENGINEERING",
+              "scenario": "报告进程无静态绑定，运行 owner 有合法绑定",
+              "expected": "显示 owner 已绑定，F23 可用性由实际 owner 验证",
+              "evidence": "binding receipt 与进程身份；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-04-A03",
+              "level": "ENGINEERING",
+              "scenario": "错目标/错 ABI 教师",
+              "expected": "拒绝本对象并保持其他任务前进",
+              "evidence": "教师负例和轮转水位；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停新专家出生，保留原实验/审计和教师原件；恢复旧调度不得复用不兼容 Pair 字节。",
+          "forbidden": [
+            "强迫所有审计专家生子",
+            "用 F23 静态 callable=false 断言运行根因",
+            "缺教师时填随机矩阵"
+          ]
+        },
+        {
+          "id": "R341-B06-05",
+          "title": "设置可持续多样性、资源预算与非破坏淘汰",
+          "evidence_refs": [
+            "R26_REPORT.json#/sections[sectionId=EVOLUTION]",
+            "FoundryCampaignR26.java#savedParents,pruneFinishedR31",
+            "BirthGateR27.java#duplicateOf,sameTarget"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "可持续创造要求受预算约束的活跃池，不要求无限常驻或每轮强行通过；旧未兼容对象保护与新候选轮转必须同时成立。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+              "methods": [
+                "savedParents",
+                "pruneFinishedR31",
+                "step"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "活跃槽按机制、目标位置和研发阶段分层，预算耗尽正常结束切片；引用中的父代/证书对象不得 prune。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+              "methods": [
+                "duplicateOf",
+                "register",
+                "unregister",
+                "sameTarget"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "保留结构与行为双索引；淘汰产生 reason/source/comparison receipt；删除热索引与销毁历史原件分离。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+              "methods": [
+                "weights",
+                "skipRefuted"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "B06 仅用固定先验和开发负证据；B08 再接实际反馈。设正探索下限，负记忆按机制+dataset revision 精确作用，保护活跃资产。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "将候选池上限、每家族预算、单轮候选数写入带 hash 的版本化配置，默认延用既有资源上限；只改调度公平性，不扩大主链权限。",
+            "淘汰顺序为无效→重复→有证据被支配→预算不足挂起；比较同资源且同目标，保留全部淘汰原由。",
+            "保存退出对象的最小复演清单；B10 负责冷热归档，归档未验证前禁止删原件。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B06-05-A01",
+              "level": "ENGINEERING",
+              "scenario": "大量重复候选+少数新机制，有限内存预算",
+              "expected": "不 OOM；新机制取得非零计算预算；重复不虚增有效出生",
+              "evidence": "预算发放/耗用和去重清单；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-05-A02",
+              "level": "ENGINEERING",
+              "scenario": "父代被候选/证书/未决确认引用",
+              "expected": "不能 prune；释放引用后只按保留合同归档",
+              "evidence": "引用检查与淘汰回执；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B06-05-A03",
+              "level": "ENGINEERING",
+              "scenario": "全部候选无增益",
+              "expected": "正常完成一轮并保留负结果，合格数可以为零",
+              "evidence": "轮次完成清单；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "切回固定先验调度；保留已提交出生及淘汰回执，暂停破坏性归档。",
+          "forbidden": [
+            "清空历史使计数好看",
+            "无上限生成挤占实时链",
+            "为达成出生数量降低因果或质量门槛"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "B07",
+      "title": "十位置真实训练、发布与结算反馈闭环",
+      "depends_on": [
+        "B06"
+      ],
+      "scope": "使用 B06 候选和隔离开发数据验证数值/事务闭环；模型消费者以影子冻结测试，天然未来优势及 REAL 不作为工程通关条件。",
+      "issues": [
+        {
+          "id": "R341-B07-01",
+          "title": "冻结因果样本并对齐十位置完整训练轮",
+          "evidence_refs": [
+            "DIAGNOSTIC_SCOPE.json#/tables[name=r30_atomnet_sample]",
+            "DIAGNOSTIC_SCOPE.json#/tables[name=r31_atomnet_sample_stage]",
+            "AtomNetRuntimeR30.java#step,requireLabel"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "2150 样本、790 stage 行只是材料；当前训练/发布字段因 SchemaPending 为未知。训练必须有同 epoch 十位置完整输入与标签时点。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+              "methods": [
+                "step",
+                "requireLabel",
+                "settle"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "用 B03 已安装 r34 缺标签/optimizer 表；按 issue+position+featureABI+source revision 幂等准备样本，标签只在权威结算可见后允许用于开发训练。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+              "methods": [
+                "work",
+                "online",
+                "eventKey",
+                "trainedThrough",
+                "consumableR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "同 epoch 十位置一致；partialIssue 非空不可发布；缺位置保持部分状态，不写“完整轮”；恢复继续缺项。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+              "methods": [
+                "knownBeforeR31",
+                "provenanceR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "样本记录原开奖可见时间、feature through、源提交及连续区间，拒绝把导入时间伪作历史赛前可见时间。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "先区分 TRAIN/SELECT/ONLINE_RESEARCH 与密封 CONFIRM/FUTURE/SYNTHETIC；后者不能直接进同实验优化器和 replay buffer；后续研究使用公开结算事实时必须新开发边界/新身份，且样本标已暴露，不能再计独立未来。",
+            "逐位置先特征、预测，再合法标签；同 epoch 组装清单必须覆盖 1..10 且无重复。",
+            "缺标签、缺位置、断期各有状态与下一依赖；缺一个位置不重复训练已提交的九个位置。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B07-01-A01",
+              "level": "ENGINEERING",
+              "scenario": "十位置完整/缺一位置/重复标签/乱序输入",
+              "expected": "完整组可消费；缺项组不可发布；重复不增加步数；恢复后只补缺项",
+              "evidence": "epoch position manifest、训练键查询；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-01-A02",
+              "level": "ENGINEERING",
+              "scenario": "扰动当期与未来开奖",
+              "expected": "当期特征、预报和已冻结概率不变",
+              "evidence": "PIT hash 对比；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-01-A03",
+              "level": "ENGINEERING",
+              "scenario": "将 FUTURE 或 synthetic 送训练",
+              "expected": "类型拒绝且模型、cursor、buffer 不变",
+              "evidence": "负例事务状态对照；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停新样本摄入，保留完整组与部分组；恢复依同 identity 续算。",
+          "forbidden": [
+            "用 stage 行数当 optimizer 步数",
+            "补零凑十位置",
+            "后开奖补制赛前输入"
+          ]
+        },
+        {
+          "id": "R341-B07-02",
+          "title": "证明优化器真实更新并支持完整状态恢复",
+          "evidence_refs": [
+            "R30_REPORT.json#/objectIndex/boundedPayloads",
+            "AtomNetRuntimeR30.java#step",
+            "AtomNetTrainerR27.java#pretrain,online,checkDevelopment"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "源码已有 optimizer receipts 但现场表未就绪，无法证实当前训练；仅存权重不足以续训，Adam 动量、步数、随机状态和样本轮次必须一起保存。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+              "methods": [
+                "pretrain",
+                "online",
+                "checkDevelopment"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "延用现有 Adam/回放语义，固定 batch=64、最多20 epoch、patience=3 等当前配置；真实变更配置必须新 contract hash，不能悄改历史版本。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+              "methods": [
+                "encode",
+                "decode",
+                "work",
+                "finishEvaluation"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "完整 checkpoint 含权重、Adam moments/step、LR schedule、RNG、回放键、position cursor、split hash、feature ABI 和源状态；恢复后验证每字段。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+              "methods": [
+                "step",
+                "progressFrameR33"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "一个有界数值切片记录 inputHash、gradientNorm、parameterChange、loss、before/after modelHash；与 checkpoint/cursor 共同提交；历史进度不可充作当前会话进度。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+              "methods": [
+                "prepare",
+                "currentStateHash"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "提交 guard 拒绝 stale old-state hash，stage/commit 的幂等键使用 optimizer epoch/step 和 owner fence。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "新增数值证据校验，不重写已有优化器；finite、梯度限幅及参数变化必须取真实计算。",
+            "以固定可学习样例验证非零梯度产生状态变化；零梯度样例可成功执行但分类为 ZERO_GRADIENT，不冒充学到优势。",
+            "在计算前、stage 后、commit 后设故障点，对连续和重启过程比对完整状态及下一预测。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B07-02-A01",
+              "level": "ENGINEERING",
+              "scenario": "连续 N 步与 N/2 杀进程恢复",
+              "expected": "相同数值 ABI 下完整状态/下一预测一致；差异容差预先声明",
+              "evidence": "full-state manifests、数值比较；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-02-A02",
+              "level": "ENGINEERING",
+              "scenario": "有限可学习样例与无信号样例",
+              "expected": "前者有真实更新，后者允许无增益；不能要求训练损失每步下降",
+              "evidence": "梯度/参数差/损失原始数组摘要；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-02-A03",
+              "level": "ENGINEERING",
+              "scenario": "NaN 梯度或过期 fence",
+              "expected": "拒绝提交，模型仍为上次已提交版本",
+              "evidence": "错误码与 CAS 结果；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停新 optimizer 工作，保留上个完整 checkpoint 与未提交 stage；不能将模型回退却保留向前 cursor。",
+          "forbidden": [
+            "只增 onlineSteps",
+            "只存 weights 不存 optimizer",
+            "用随机噪声权重变化当训练效果"
+          ]
+        },
+        {
+          "id": "R341-B07-03",
+          "title": "打通发布模型到同 hash 概率面和冻结消费",
+          "evidence_refs": [
+            "DIAGNOSTIC_SCOPE.json#/tables[name=r31_atomnet_publication]",
+            "R30_REPORT.json#/objectIndex/boundedPayloads/modelCalls",
+            "ModelSurfaceProviderR30.java#predict,validate"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "已有19行 publication 不证明可发布模型被调用；当前 modelCalls 为0。需要同一模型身份从数值步走到实际策略预测。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+              "methods": [
+                "prepare",
+                "stagingBatches",
+                "publicationBatch",
+                "verifyPrepared"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "发布仅指向完整十位置、已提交 model/state hash；提交后产生不可变 publication manifest，失败保持旧 publication 可用。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
+              "methods": [
+                "predict",
+                "validate",
+                "source"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "校验 position、target、featureThrough、historyHash、prepared/frozen/deadline 与 published modelHash；不得内部取 latest 替换已绑定模型。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+              "methods": [
+                "surface",
+                "calls",
+                "report"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "保存概率面十维值/shape、modelCall 的 publication/model/feature/hash；源丢失为 UNAVAILABLE，不回填均匀面伪作模型输出。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FutureModelRegistrationR34.java",
+              "methods": [
+                "register",
+                "fillBinding",
+                "read",
+                "open"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "未来注册固定 publication/weights/feature ABI；注册时点之后模型更新不改变已注册实验；改变模型须新实验与独立证据。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+              "methods": [
+                "forecastModelR32",
+                "forecast"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "forecast 读取已提交版本；将真实 call 与待冻结策略引用关联；本批用 ENGINEERING_ONLY 的影子消费验证，不授证。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "先提交模型，再从该 publication 生成概率面；逐调用保存相同 identity 的调用回执。",
+            "通过 model_surface AST 的真实预测路径引用概率面；冻结 proof 必须包含此次实际 modelCall 引用。",
+            "新发布模型可供新研究；已有 FUTURE 实验固定原模型或预注册可预测的学习程序身份，不允许事后选择 latest。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B07-03-A01",
+              "level": "ENGINEERING",
+              "scenario": "发布M1，生成冻结，再发布M2",
+              "expected": "旧冻结仍为M1；新研究可用M2；旧未来注册不得自动换M2",
+              "evidence": "publication→surface→call→freeze hash joins；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-03-A02",
+              "level": "ENGINEERING",
+              "scenario": "错 position/featureABI/target 或部分 epoch",
+              "expected": "全部拒绝并保留正确版本；无空模型成功回执",
+              "evidence": "identity 负例清单；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-03-A03",
+              "level": "ENGINEERING",
+              "scenario": "同调用重试与发布中断",
+              "expected": "一次有效调用/发布，重复回执不增加独立样本",
+              "evidence": "唯一键查询与 crash receipts；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "回退“新调用选择头”至上一完整 publication；不修改任何已冻结/已注册模型身份。",
+          "forbidden": [
+            "把文件存在当被策略使用",
+            "读 latest 覆盖未来模型",
+            "用缓存占位曲线当概率面"
+          ]
+        },
+        {
+          "id": "R341-B07-04",
+          "title": "使结算反馈产生幂等学习和下一轮研究输入",
+          "evidence_refs": [
+            "R30_REPORT.json#/objectIndex/boundedPayloads/r31FeedbackEvents",
+            "R30_REPORT.json#/objectIndex/boundedPayloads/r31FeedbackReceipts",
+            "R30_REPORT.json#/objectIndex/boundedPayloads/researchProposals"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "有176 feedback events、88 receipts、1 frozen effect，但 proposal/consumption 为0；登记反馈不等于它改变了模型或研究动作。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+              "methods": [
+                "drainOne",
+                "prepareFinding",
+                "commitFinding",
+                "commitAckCP12",
+                "drainResult",
+                "resultBinding"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "主包：以权威 settled decisionId+target+model+feedback schema 为事件键；记录真实误差/残差/支持域，ACK 与下游 outbox/effect 引用同事务。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+              "methods": [
+                "settleNow",
+                "drain",
+                "publish"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "主包：结算后仅投递事实，不在实时事务内做重训练；失败独立重试且不会拖延下一期冻结。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+              "methods": [
+                "select",
+                "routeR31",
+                "hypothesisR31",
+                "recordWithin"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "消费开发角色反馈形成父节点+失败簇+可检验假设；在下一轮计划记录选中反馈键及预算/候选变化。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+              "methods": [
+                "online",
+                "checkDevelopment"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "反馈仅按允许角色进入 optimizer；正式确认/未来结果不得回流同一密封实验；已结算公开事实若驱动后续开发，须新ONLINE_RESEARCH快照、selectionBoundary与新子代，旧证据不继承。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "区分反馈 RECEIVED、PROJECTED、ACTION_PLANNED、APPLIED；每步都有来源 hash，维护 ACK 不算模型 APPLIED。",
+            "B07 先闭合反馈→真实在线训练/固定开发动作；B08 再消费该 outbox 做变异与融合，因此本批不等待 B08。",
+            "重复/乱序反馈按源键去重；模型/目标错配拒绝，未知标签等待；单事件失败不阻整个 drain。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B07-04-A01",
+              "level": "ENGINEERING",
+              "scenario": "同结算事件投递三次，中途重启",
+              "expected": "模型至多训练一次；只有一个 effect 引用；后续事件继续",
+              "evidence": "事件/outbox/step 对账；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-04-A02",
+              "level": "ENGINEERING",
+              "scenario": "固定失败开发样例",
+              "expected": "下一轮指定父节点/预算或合法在线参数确变，能追回原反馈",
+              "evidence": "before/after effect hashes；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-04-A03",
+              "level": "ENGINEERING",
+              "scenario": "正式 FUTURE 反馈",
+              "expected": "原实验只更新资格账、冻结模型不变；后续研究须新边界/新身份且从零未来证据",
+              "evidence": "角色/身份隔离查询；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "暂停新反馈消费者，保持事件/outbox 未清；已应用步与 ACK 一起恢复，不重复投递成新事件。",
+          "forbidden": [
+            "ACK 数当改进次数",
+            "失败后直接清空反馈队列",
+            "将 FUTURE 命中结果用于同实验调参"
+          ]
+        },
+        {
+          "id": "R341-B07-05",
+          "title": "隔离归档故障并建立训练有用进度判据",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/tasks[taskId=r27-atomnet-archive]",
+            "AtomNetSampleArchiveR324.java#maintenance,archive"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "归档任务有 ADMISSION 回滚记录，旧 r27-atomnet RUNNING 不能证明当前健康。冷归档完成与训练数值提交应分开。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSampleArchiveR324.java",
+              "methods": [
+                "maintenance",
+                "next",
+                "attemptMatches",
+                "eligible",
+                "archive",
+                "source",
+                "read"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "每对象重试、退避、失败隔离；原件仍热可读时不阻训练；容量已到硬限才回报明确 CAPACITY_WAIT，不能无限增长。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+              "methods": [
+                "workReservationR31",
+                "requireReservationCapacityR32",
+                "storageHealthR32"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "训练保留有界工作容量；校验 publication 与未决实验引用后才允许归档/释放；归档入库和删除分离。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+              "methods": [
+                "progressFrameR33",
+                "step"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "健康使用本 session 的最新 committed optimizer/sample/publication/call 水位；区分无输入、无容量、归档受阻、计算执行中和数值提交停滞。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "故障注入归档写入拒绝、文件损坏、源未归档三类，确保原件仍存在时数值学习可继续。",
+            "归档文件 checksum/索引可读/引用完整验证后才交 B10 回收；本批不改全局保留策略。",
+            "B01 liveness 只以真实提交事件推进；step retry 和 UI刷新不算有用进度。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B07-05-A01",
+              "level": "ENGINEERING",
+              "scenario": "归档对象坏一条，训练仍有热源与容量",
+              "expected": "该对象隔离，训练和其他归档继续",
+              "evidence": "训练/归档双水位；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-05-A02",
+              "level": "ENGINEERING",
+              "scenario": "硬容量耗尽",
+              "expected": "可解释等待，无 OOM、无未验删除；恢复容量后续算",
+              "evidence": "resource receipts；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B07-05-A03",
+              "level": "ENGINEERING",
+              "scenario": "任务状态 RUNNING 但旧提交",
+              "expected": "显示 STALE/无新提交，不能声称已恢复",
+              "evidence": "session liveness 投影；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "暂停归档删除，保留热原件；训练按真实容量状态运行，不能关闭限额逃避故障。",
+          "forbidden": [
+            "归档成功当学习成功",
+            "归档失败阻住全部家族",
+            "删除未验证原件释放空间"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "B08",
+      "title": "不可变研究数据、图矩阵与进化消费闭环",
+      "depends_on": [
+        "B07"
+      ],
+      "scope": "本批工程验收使用有标记的隔离开发夹具和不可变测试原件；18图/20矩阵逐项允许真实WAITING/READ_ONLY，不要求伪造自然证书。",
+      "issues": [
+        {
+          "id": "R341-B08-01",
+          "title": "建立可续建、不可变的研究数据集和输入 pin",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/tasks[taskId=r27-replay-dataset]",
+            "R30_REPORT.json#/objectIndex/boundedPayloads/researchMeasures",
+            "ResearchObservatoryR30R1.java#step"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "观测器共同停在 IMMUTABLE_REPLAY_DATASET，538 measures 中517为 INPUT_INVALIDATION；没有稳定输入就不能把缺图简单归因于绘制层。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+              "methods": [
+                "of",
+                "append",
+                "tail",
+                "consecutive",
+                "knownBeforeR31",
+                "provenanceR31",
+                "originalBytesR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "分段追加数据并保留可见时点、断期段、原字节 hash；已封存 datasetHash 永不可原地换内容。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+              "methods": [
+                "loadCurrent",
+                "require",
+                "appendAdmitted",
+                "load",
+                "invalid",
+                "validRunSql"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+              "methods": [
+                "acquire",
+                "close"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "事务外有界读；SOURCE_ONLY 不请求学生；释放资源必须 finally；pin 与计算预算同时获得后才开始。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+              "methods": [
+                "step",
+                "publishDatasetInputR335"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "按原数据 owner 的分页游标构造 staging segments；每页提交有摘要、行数、first/last ordinal 与可见时间。",
+            "只有完整 manifest 可发布为 immutable；重启从已提交页续建；已注册实验的旧 pin 保持可读。",
+            "输入重复读不重复 invalidation；被源修正影响的具体 run 失效，有原因和新 revision；不把所有历史一刀切删除。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B08-01-A01",
+              "level": "ENGINEERING",
+              "scenario": "构建中断、重复页、源修正",
+              "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因",
+              "evidence": "segment/manifest/pin 对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-01-A02",
+              "level": "ENGINEERING",
+              "scenario": "断期或晚到历史标签",
+              "expected": "不会伪造连续段或赛前可见时间；对应实验拒绝或分段",
+              "evidence": "provenance 负例；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-01-A03",
+              "level": "ENGINEERING",
+              "scenario": "无任何学生但合法源",
+              "expected": "source-only acquire 成功；学生图明确 WAITING",
+              "evidence": "资源与任务回执；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停新 manifest 发布，保留上一个合法 pin 及 staging 页；不重写旧 dataset bytes。",
+          "forbidden": [
+            "将 history latest 当任意旧 run 输入",
+            "清除 INPUT_INVALIDATION 让图好看",
+            "一次锁全历史数据堵实时写入"
+          ]
+        },
+        {
+          "id": "R341-B08-02",
+          "title": "逐图生产18种真实产物并保留只读图语义",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=researchCharts]",
+            "ResearchChartActionsR33.java#action",
+            "ResearchObservatoryR30R1.java#compute,productR335,step"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "18研究图同源产出与消费均为0。每图需输入、算法产物与消费者，读账图不能强行变成训练器。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+              "methods": [
+                "compute",
+                "stored",
+                "productR335",
+                "classifyFrameR335",
+                "sourceWatermarkR335",
+                "step"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "按 appendix 中 R01–R18 合同执行；一图一有界切片，错误/等待后轮转；frame 必含点值/support/单位/role/sourceHash。",
+                "R11/R14/R18 是正式链只读证据图，缺自然证据显示未观察；R08 固定 TRAIN 探针；其余研究测量用 SELECT/允许的 ONLINE_RESEARCH。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
+              "methods": [
+                "action"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "将既有动作说明与可执行 actionKind/source contract 对齐；说明文本不能替代真实动作与回执。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+              "methods": [
+                "requireRun",
+                "validRunSql"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "图只能展示与固定 input pin 一致的 current-source 数值；历史/失效 frame 分区显示，不混合计数。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "逐图照 RESEARCH_OBJECT_CONTRACTS.json 建正常输入、缺输入、坏源 fixture；输出 frame+measure+cost+source receipt 同事务。",
+            "数据不够写 INSUFFICIENT 与缺口；任务等待不写空 PRODUCED frame；上一合法产物可保留但标 stale。",
+            "工程测试给 R11/R14/R18 隔离原件夹具验证只读 join；设备自然数据依然标未观察。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B08-02-A01",
+              "level": "ENGINEERING",
+              "scenario": "18图逐项完整及缺项夹具",
+              "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图",
+              "evidence": "18项运行矩阵与可复算数据；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-02-A02",
+              "level": "ENGINEERING",
+              "scenario": "一个图抛错/耗尽切片预算",
+              "expected": "其余图继续，当前图保留原件错误与可重试水位",
+              "evidence": "轮转测试；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-02-A03",
+              "level": "ENGINEERING",
+              "scenario": "给 R11/R14/R18 写训练/REAL 权限",
+              "expected": "拒绝；图只读取既有证据，不产生资格或策略动作",
+              "evidence": "权限负例；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "暂停新 frame 发布，保留原图源与旧 frame，UI 显示真实 stale；不删错误证据。",
+          "forbidden": [
+            "用占位点/随机曲线填图",
+            "每图一份共享原因就宣称全部复演",
+            "读账图计入新增算法"
+          ]
+        },
+        {
+          "id": "R341-B08-03",
+          "title": "为20矩阵配置逐对象输入、shape与实际用途",
+          "evidence_refs": [
+            "STRATEGY_MATRICES.json#/matrixInventoryR34",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=matrices]",
+            "MatrixResearchR30R1.java#build,produceR31,step"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "20对象无保留快照，19 typed对象观察为空；旧目录algorithmConsumer多数写持久化诊断，但typedConsumers已有真实研究入口；必须核验实际绑定与消费，不能误称缺实现。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+              "methods": [
+                "build",
+                "produceR31",
+                "receiptR31",
+                "dependencyKeyR31",
+                "step"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "维持 source-only 优先和每kind隔离；19 R930 kinds按各自产物原件生产，COUNTERFACTUAL 原有专属来源单独接入，不绕过其精确组件移除合同。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+              "methods": [
+                "exportR34",
+                "report"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "每对象输出 role、target、knownAt、shape、axis labels、mask、support、artifactHash、消费引用与状态；20对象包含独立 SU2 teacher checkpoint，不能漏掉。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+              "methods": [
+                "typedConsumers",
+                "all"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "分别导出legacy algorithmConsumer与实际typedConsumers；前者PERSISTENCE_AND_DIAGNOSTICS不意味着后者缺失。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+              "methods": [
+                "compute",
+                "stored"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "按实际各kind shape/axis/support生产；EVIDENCE_TEACHER可用同位置原归档策略作研究教师，明确不得替代F23原VM；RESOURCE_EFFICIENCY未测memory/queue列维持缺失。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+              "methods": [
+                "position",
+                "cross",
+                "fusionParents",
+                "premiseHypothesis",
+                "calibrationHypothesis",
+                "measuredPrune",
+                "residualHypothesis",
+                "actionHypothesis",
+                "weights",
+                "familyCredit",
+                "appendBudgetReceipt",
+                "annotate",
+                "stage"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "复用原typed消费者，校验input pin/axis/role/support；use/annotate/stage必须绑定实际child或预算回执；没有可用信号时不假记消费。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+              "methods": [
+                "paired",
+                "ready",
+                "consume"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "COUNTERFACTUAL复用paired的1×blockCount专属生产与exact measured child，不塞入通用轮转制造假对照。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+              "methods": [
+                "refreshResourceBudget",
+                "recordResourceUse"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "RESOURCE_EFFICIENCY消费既有预算入口，记录实际发放与使用，不以声明budget冒充已分配。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+              "methods": [
+                "capture",
+                "support",
+                "decode"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "20项之一为SU2 factor/teacher bundle；每factor10位置权重与原stream codec校验，保留原owner可见时间。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "以appendix 20行合同核对实际typed producer/consumer；legacy与typed分开，诊断型用途保持READ_ONLY，不假报实际消费。",
+            "已验证原代码 shape：NUMBER_POSITION 10x10、CROSS_POSITION 10x40、STUDENT_ERROR 1x3、FEEDBACK 3x2、RESIDUAL 3x10；其他kind的精确动态轴/shape见附录，来源MatrixEvidence.compute/stored、ResearchStore.paired与SU2原codec。",
+            "接通ResearchContext既有calibration/residual/premise/fusion与budget消费者并记录use→stage→commit；typed研究teacher与F23原VM严格区分；移除矩阵同目标消融独立记录。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B08-03-A01",
+              "level": "ENGINEERING",
+              "scenario": "无学生且合法数据",
+              "expected": "两个source-only矩阵产出；学生矩阵 WAITING_STUDENT，不阻其他kind",
+              "evidence": "逐kind状态/shape/hash；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-03-A02",
+              "level": "ENGINEERING",
+              "scenario": "20对象正常/缺源/错shape/错目标",
+              "expected": "正常原值可重算；缺源清楚等待；错项拒绝且旧合法产物保留stale",
+              "evidence": "20项契约结果；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-03-A03",
+              "level": "ENGINEERING",
+              "scenario": "实际消费者关闭与开启矩阵",
+              "expected": "记录动作/预算/子代差；无差允许，无自动宣称增益",
+              "evidence": "同目标消融 effect receipt；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "关闭本轮新增消费绑定，原合法typed/诊断产物及未消费proposal保留，不改主链。",
+          "forbidden": [
+            "空矩阵写零冒充测量",
+            "把相关性叫因果",
+            "把20能力目录与20对象重复计40问题"
+          ]
+        },
+        {
+          "id": "R341-B08-04",
+          "title": "原子闭合提案到出生或非出生动作的消费",
+          "evidence_refs": [
+            "R30_REPORT.json#/objectIndex/boundedPayloads/researchProposals",
+            "R30_REPORT.json#/objectIndex/boundedPayloads/researchConsumption",
+            "ResearchConsumptionStoreR31.java#completeWithin"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "已有历史frames/measures但proposals和consumption都是0，关键缺口是分析结果没有变成可执行动作。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+              "methods": [
+                "requireAction",
+                "weights",
+                "fusionPairs",
+                "skipRefuted"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "Source.requireAction 保留角色/来源/时点校验，输出 typed proposal；明确 READ_ONLY 与 BIRTH/BUDGET/PRUNE/REPLAY_CHANGE 动作。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+              "methods": [
+                "originalContractMatches",
+                "completeWithin",
+                "nonBornReportR335",
+                "ablation"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "BORN child、lineage、proposal consumed receipt 同一事务；非出生动作必须有实际 before/after状态及提交事务，不能借一个文字ACK。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+              "methods": [
+                "stepInsideEvolution",
+                "stepSwitchR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "proposal 状态 READY→CLAIMED(fence)→APPLIED/REJECTED/RETRY；结果由同 sourceHash+actionKey 幂等，消费的源产物不可先归档删除。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "为每个 proposal 固定源view/run/measure/matrix hash、parent/pin/target、action参数、role和预期检验；重复同源同action不再出生。",
+            "短事务检查 source still valid与worker fence；执行复杂计算在事务外，commit时再次CAS。",
+            "若 child已提交回执缺失，禁止盲补质量；从同事务设计消灭半成功，旧坏数据隔离修复另留审计。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B08-04-A01",
+              "level": "ENGINEERING",
+              "scenario": "提案正例、只读图、角色不符、源失效",
+              "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留",
+              "evidence": "proposal→child/effect→receipt joins；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-04-A02",
+              "level": "ENGINEERING",
+              "scenario": "commit前后杀进程并重投",
+              "expected": "至多一次动作；无孤儿child、无假consumption",
+              "evidence": "故障点DB差；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-04-A03",
+              "level": "ENGINEERING",
+              "scenario": "非出生预算动作",
+              "expected": "实际下一轮配置/发放变化与effect匹配",
+              "evidence": "预算before/after及分发清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停止claim新提案，保留READY和已提交动作；过期CLAIM只在fence判定后恢复。",
+          "forbidden": [
+            "先写consumed后做动作",
+            "用出生计数替代有用改进",
+            "借旧sourceHash拼新子代"
+          ]
+        },
+        {
+          "id": "R341-B08-05",
+          "title": "使失败驱动变异和代际迭代可完成可复演",
+          "evidence_refs": [
+            "R26_REPORT.json#/sections[sectionId=EVOLUTION]",
+            "R26_REPORT.json#/strategyAssessment/failureDirectedResearch",
+            "EvolutionLoopR27.java#step,calculateReplayR31,applyReplayR31"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "verifiedGenerations为0，失败驱动batch为0；需区分搜索尝试、开发完成一代与自然证实改进，不能只让generation数字增长。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java",
+              "methods": [
+                "select",
+                "creditR31",
+                "routeR31",
+                "regimeR31",
+                "hypothesisR31",
+                "recordWithin"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "失败簇使用开发角色的真实error/support/context；每假设指定父机制、待改节点、反证条件，信用由实际后续配对回执归因。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+              "methods": [
+                "step",
+                "stepInsideEvolution",
+                "calculateReplayR31",
+                "applyReplayR31",
+                "snapshot",
+                "restore",
+                "behaviorFingerprints"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "generation manifest冻结seed、预算、父池、input pin、提案集合；每提案产生terminal outcome后才 ENGINEERING_GENERATION_COMPLETE，独立verified字段由B09证据决定。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+              "methods": [
+                "mechanismChildren",
+                "fragmentChildren",
+                "tensorChildren",
+                "hiddenStateChildren"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "变异包含节点替换/剪枝/交叉/窗口或状态变更，遵守类型与预算；算子日志与实际AST diff一致。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "固定一轮输入和预算，从失败簇选择具体算子；子代走B06训练/去重再开发评价，落负结果。",
+            "每轮有最大计算/候选预算和时间切片；未处理提案有暂停状态，不伪称完成；失败子代不拖住整代。",
+            "下一代父池只用已合法可执行且有开发证据的对象；所有传承保留lineage，新身份未来证据归零。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B08-05-A01",
+              "level": "ENGINEERING",
+              "scenario": "固定失败夹具运行两代并中途恢复",
+              "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果",
+              "evidence": "generation与lineage清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-05-A02",
+              "level": "ENGINEERING",
+              "scenario": "全部子代被拒绝",
+              "expected": "本代可ENGINEERING_COMPLETE，改进数0；下一轮仍按预算可运行",
+              "evidence": "terminal outcomes；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-05-A03",
+              "level": "ENGINEERING",
+              "scenario": "未来命中注入研究输入",
+              "expected": "角色阻断，搜索/预算不改变",
+              "evidence": "负例hash；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "冻结当前代新增工作，保留manifest/已完成结果；恢复从未完成proposal续行。",
+          "forbidden": [
+            "尝试数当已证实代数",
+            "把父未来战绩复制给子代",
+            "反复重试同失败对象刷改进率"
+          ]
+        },
+        {
+          "id": "R341-B08-06",
+          "title": "验证同目标双亲融合与组件协同",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=logicalTables,id=T06]",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=logicalTables,id=T10]",
+            "FusionOpsR27.java#fuse,weighted"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "T06缺合法双组件，T10缺同目标双亲，不能以占位融合图验收。融合的作用必须对比最好单亲及固定组合。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+              "methods": [
+                "fuse",
+                "weighted"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "只合并同position/target语义、角色与pin相容的两亲；融合权重只在TRAIN拟合，SELECT选方案；新策略独立hash/lineage。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+              "methods": [
+                "fusionPairs"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "以冻结开发误差和覆盖支持选择双亲；拒绝同身份、自融合、样本不齐、未来证据选亲；相关性只作候选提示。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DirectedResearchPolicyR30R1.java",
+              "methods": [
+                "counterfactualR31",
+                "withoutChild",
+                "maskFamilyR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "生成A、B、A+B、固定等权、最佳单体同机会对照；保存缺组件、K3不足HOLD和资源成本。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+              "methods": [
+                "sameTarget",
+                "checkCandidate"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "融合仍走AST/因果/行为去重；不因双亲有证书赋予子证书。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "材料不足时返回具体componentId/parentId与缺口，避免死循环；其他变异继续。",
+            "对齐全机会日历，分别计算ACT覆盖、HIT/ACT、净记录收益/机会、Brier和成本，禁止只比较各自选择命中的交集。",
+            "开发增益只决定送确认；父子/融合独立配对由B09冻结后检验。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B08-06-A01",
+              "level": "ENGINEERING",
+              "scenario": "合法双亲、不同目标、自融合、缺组件",
+              "expected": "仅合法pair可生新identity；无输入明确等待",
+              "evidence": "pair manifest、AST diff；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-06-A02",
+              "level": "ENGINEERING",
+              "scenario": "有互补和无互补的确定夹具",
+              "expected": "均有完整对照；无互补可拒绝，不能强制正增益",
+              "evidence": "同机会A/B/A+B/equal输出；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-06-A03",
+              "level": "ENGINEERING",
+              "scenario": "已有证书父代融合",
+              "expected": "子代证书/未来计数为零，父证书不被改写",
+              "evidence": "身份/资格账对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "关融合算子，已有融合对象只读保全；其他研究可继续。",
+          "forbidden": [
+            "跨目标强行拼权重",
+            "只报最优期隐藏负差",
+            "继承父证书"
+          ]
+        },
+        {
+          "id": "R341-B08-07",
+          "title": "以真实动作成效更新下一轮探索预算",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=researchCharts,id=R10]",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=researchCharts,id=R16]",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=researchCharts,id=R17]"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "动态迭代的可验收结果是下一轮实际发放资源变化及可追溯原因；文字“自适应”或重复累加同回执不足以证明。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+              "methods": [
+                "weights",
+                "skipRefuted"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "固定prior+去重effect、成本和不确定性更新权重，保持非零探索；同source/effect只能计一次；正式FUTURE/CONFIRM图只读不进入同实验预算；后续开发投影必须另立暴露边界，预算只能使用该新开发角色已可见的事实。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+              "methods": [
+                "ablation",
+                "nonBornReportR335"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "每轮保存allocationBefore/After、configHash、receipt集合及实际dispatch；可做关闭反馈的固定预算同资源对照。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+              "methods": [
+                "stepInsideEvolution",
+                "stepSwitchR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "下一轮读取已提交allocation，不能只改报告副本；预算耗尽回WAITING_BUDGET而不忙轮询。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "以已完成开发消融净差/CPU cost为信号，不用出生数量或原始高命中率单指标奖励；样本不足下缩回先验。",
+            "失败机制记忆按精确机制+data revision生效；新源版本可受控复测，保护现行资产及未决确认。",
+            "资源分配输出可复演seed、质量/成本输入、探索份额、per-operator token；以真实dispatch对账。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B08-07-A01",
+              "level": "ENGINEERING",
+              "scenario": "两个算子不同开发效用/成本，多次重复回执",
+              "expected": "下一轮分配有可解释变化；重复不叠乘；各合法探索算子仍有机会",
+              "evidence": "allocation与dispatch对账；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-07-A02",
+              "level": "ENGINEERING",
+              "scenario": "所有成效未知或全负",
+              "expected": "缩回先验/保留探索；不制造正信用",
+              "evidence": "budget state；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B08-07-A03",
+              "level": "ENGINEERING",
+              "scenario": "未来数据/旧revision负例",
+              "expected": "拒绝越界信用；旧负记忆不永久封新机制",
+              "evidence": "role/revision负例；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "改回固定先验预算，仅影响未来轮；保留所有历史分配与负结果。",
+          "forbidden": [
+            "以合格证书数量作可提前窥视奖励",
+            "停掉全部探索形成自证循环",
+            "修改历史预算以匹配结果"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "B09",
+      "title": "独立未来资格、质量合同与主链授权",
+      "depends_on": [
+        "B08"
+      ],
+      "scope": "所有工程分支可在隔离库完成；真实自然采集、质量达标、设备后台运行与最终发布分别保留PENDING_DEVICE/PENDING_NATURAL状态，不以未来等待阻止工程批次封板，也不冒称自然完成。",
+      "issues": [
+        {
+          "id": "R341-B09-01",
+          "title": "冻结独立确认及新未来实验身份",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture",
+            "R30_REPORT.json#/objectIndex/boundedPayloads/confirmation",
+            "FrozenConfirmationR30.java#freeze,evaluate"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "未来ACT、合格实验、证书均为0，已有开发记录不能替代未见证据；新子代、模型或数据角色变更必须独立注册。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+              "methods": [
+                "freeze",
+                "evaluate",
+                "unavailable",
+                "currentSemantics"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "冻结child/parent/control、AST/model/feature ABI、role边界、calendar、规则、seed、统计计划；评分不得再选阈值或窗口。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+              "methods": [
+                "freeze",
+                "context",
+                "complete",
+                "nextRegistration",
+                "register"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FutureModelRegistrationR34.java",
+              "methods": [
+                "register",
+                "fillBinding",
+                "read",
+                "open"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "绑定注册前已提交模型/权重/特征 ABI与暴露上界；当前source已不存在则WAITING，不能用latest凑。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "确认样本与TRAIN/SELECT隔离，已被开发看过的样本永不能重新命名独立；登记时固定同目标父与控制。",
+            "新实验保存模型/政策身份、代码语义、alphaIndex、calendarStart、截止规则和预注册最低覆盖；同算法改名不得重置全局试验预算。",
+            "不合格确认是终态REJECTED而非任务故障；可继续新研究，新子代从新身份开始。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B09-01-A01",
+              "level": "ENGINEERING",
+              "scenario": "正常注册、重复、模型替换、重命名",
+              "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移",
+              "evidence": "registration manifest及唯一键；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-01-A02",
+              "level": "ENGINEERING",
+              "scenario": "TRAIN样本伪装CONFIRM",
+              "expected": "拒绝并给曝光冲突原件",
+              "evidence": "exposure test；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-01-A03",
+              "level": "ENGINEERING",
+              "scenario": "隔离ENGINEERING夹具强阳性/阴性",
+              "expected": "走完确认/拒绝分支，产物不可进入自然资格或真实证书",
+              "evidence": "sandbox scope证明；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停止新注册；保留全部实验及alpha消耗，不删除或复用已分配index。",
+          "forbidden": [
+            "继承父未来战绩",
+            "用历史回放当真实未来",
+            "工程夹具授生产证书"
+          ]
+        },
+        {
+          "id": "R341-B09-02",
+          "title": "按全机会日历闭合事前冻结与权威结算",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture",
+            "QualificationInboxR29.java#calendarStart,consume,step,rebuild",
+            "QualificationGapRepairR30R1.java#legalOriginal"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "缺冻结不能在开奖后补造，晚到/重复开奖不能漏期或多算；按到达顺序直接更新序贯状态可能丢失旧ordinal，必须由完整日历驱动。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+              "methods": [
+                "plan",
+                "consume",
+                "calendarStart",
+                "step",
+                "sameCursor",
+                "hasOpenConflict",
+                "rebuild",
+                "reconcilePendingDrawsR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "以experiment+target为唯一机会键按ordinal推进；乱序先存待决，不跳过中间未知；ACT/HOLD/MISSING/FROZEN_LATE逐项记账。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+              "methods": [
+                "step",
+                "legalOriginal",
+                "predrawHash",
+                "observeFailure"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "仅用原事前hash、时间证据与权威开奖修复投影；缺原件保持缺口，不发明事前预测。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+              "methods": [
+                "observe"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "仅由按序、已settled、合法独立的账本输入；重复不得累计；缺口处理使用原合同，不把未知变miss或HOLD偷改统计。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "分母保存完整计划机会与各种状态；命中率HIT/settledACT，覆盖ACT/全部预注册机会，缺失单列并触发资格完整性阻断。",
+            "每结算事务同时写机会行、序贯状态、配对对照、cursor；同源冲突开奖隔离，不覆盖原证据。",
+            "按原事前账重建投影，摘要与增量一致；无原事前冻结的期永不纳入成功样本。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B09-02-A01",
+              "level": "ENGINEERING",
+              "scenario": "乱序/重复开奖与重启",
+              "expected": "按日历恰好一次，重建/增量同值，机会分母守恒",
+              "evidence": "ledger/sequence replay；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-02-A02",
+              "level": "ENGINEERING",
+              "scenario": "漏期、迟冻结、开奖冲突",
+              "expected": "缺口明确，质量不可通过；后开奖补录不能变有效",
+              "evidence": "negative receipt；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-02-A03",
+              "level": "ENGINEERING",
+              "scenario": "全HOLD或零ACT",
+              "expected": "rate=null而非0%或100%；覆盖真实0",
+              "evidence": "aggregate公式复算；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "暂停资格推进，保留原ledger；重建只改派生投影并留版本，不删除机会或改登记起点。",
+          "forbidden": [
+            "跳过输期缩分母",
+            "晚到后改赛前时间",
+            "删实验重置序贯证据"
+          ]
+        },
+        {
+          "id": "R341-B09-03",
+          "title": "落实质量合同全门槛及统计不确定性",
+          "evidence_refs": [
+            "CertificateGateR27.java#evaluate,contract,futureSummary",
+            "SequentialQualificationR27.java#alpha,observe",
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "用户要求的高胜率/稳定/品质必须分项测量。当前V1证书门槛与报告Q02覆盖要求并非同一字段，不能把futureSummary覆盖通过自动说成evaluate已检查。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+              "methods": [
+                "evaluate",
+                "futureSummary",
+                "contract",
+                "rejectionReportR31",
+                "streakGateSensitivityR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "保持R27_GATE_V1既有数值：HR≥.34、ACT≥250、ECE≤.04、worst720≥.26、streak≤6、ABI、序贯与两个控制配对LCB>0；逐项UNKNOWN/FAIL/PASS。",
+                "V1 coverage目前只在futureSummary描述；R34.1资产质量另报预登记FUTURE_ACT_RATE≥.15、全机会完整、同目标父子独立差与成本；部署后REAL_ACT_RATE另计，不作为首次应用前置，不改V1 contractHash。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+              "methods": [
+                "alpha",
+                "deltaMin",
+                "observe",
+                "threshold"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "保留永久全局index与可预测betting系数；固定目标act rate，不用同一未来数据重新调threshold。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AssetQualityVerdictR341.java",
+              "methods": [
+                "evaluate",
+                "serialize"
+              ],
+              "action": "NEW",
+              "changes": [
+                "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "严格分离工程完成、已计算但被门槛拒绝、样本不足、自然质量通过；0ACT时收益/区间/命中率未观察。",
+            "率之外同时报覆盖、固定块最差表现、最长连错、校准support、Brier、同机会父子/控制净差、成本及置信区间；利润只用真实赔率参数并披露未观测费用。",
+            "对原MAX_LOSS_STREAK=6做iid敏感性与联合功效报告；若质量目标需变更，另建新统计合同并前瞻注册，不以“优化”绕现合同。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B09-03-A01",
+              "level": "ENGINEERING",
+              "scenario": "逐一单门槛失败/缺证据/全门槛通过的隔离fixture",
+              "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算",
+              "evidence": "gate boundary table；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-03-A02",
+              "level": "ENGINEERING",
+              "scenario": "coverage不足但V1其余通过",
+              "expected": "V1 verdict与R34.1资产验收分别显示，不冒充Q02合格",
+              "evidence": "dual verdict；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-03-A03",
+              "level": "ENGINEERING",
+              "scenario": "250ACT无足够序贯/配对证据",
+              "expected": "保持ACCUMULATING或REJECTED，不自动授证",
+              "evidence": "统计原始账复算；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-03-A04",
+              "level": "NATURAL",
+              "scenario": "预注册后的独立自然机会持续积累",
+              "expected": "仅原始真实未来账符合各项门槛时标NATURAL_QUALITY_PASS；未达/拒绝/未观察均如实保留；Q05校准支持≥200与资产ACT≥250分别检验，≥37%是研究优先目标而非既有V1硬门槛",
+              "evidence": "自然registration/predraw/settlement/calibration/support/paired originals；当前未完成，不由工程夹具代替"
+            }
+          ],
+          "rollback": "回退新只读质量投影，不改旧V1原件或阈值；原注册实验继续按原合同累计。",
+          "forbidden": [
+            "承诺必胜或固定期限必出高胜率资产",
+            "放宽阈值让报表变绿",
+            "把R27族内alpha说成全家族错误率保证"
+          ]
+        },
+        {
+          "id": "R341-B09-04",
+          "title": "将合法证书接入唯一实时决策并支持撤销",
+          "evidence_refs": [
+            "CertificateGateR27.java#choose",
+            "MainlineAdapterR31.java#prepare,verifyFrozen",
+            "DecisionGateEngine.java#decideV51B12",
+            "SettlementEngine.java#settleV51ByDraw"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "当前无活跃证书；工程可以验证授权路径与拒绝路径，但不能为了出号直接研究→REAL。唯一决策者与结算者必须保留。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+              "methods": [
+                "certificate",
+                "publishWithinFreeze",
+                "freeze",
+                "read",
+                "allows"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "核验证书gateVersion/有效期/撤销、policy/model/calibration/qualification不可变绑定与同目标；冻结时CAS source revision。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+              "methods": [
+                "capture",
+                "stillCommitted",
+                "executableIdentityR31"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "冻结使用资格注册模型身份，拒绝当前latest替代已认证模型；记录实际model call来源。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+              "methods": [
+                "prepare",
+                "verifyFrozen"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "直接适配原冻结position/K3；不得再次预测、挑新位置或补号。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+              "methods": [
+                "revokeWithin",
+                "blockedPolicy",
+                "report"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "语义/模型/校准失效、证书到期、原件冲突按原合同撤销；撤销与阻断选择同事务。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+              "methods": [
+                "decideV51B12"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "主包：沿B04已有唯一owner验证该proof及时间；无证书走明确HOLD/既定fallback，任何备用不得冒称R27授证出号。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+              "methods": [
+                "settleV51ByDraw"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "主包：沿B04权威冻结/decisionId/target结算，R27资格账消费结果不能自建第二笔trade。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "从ACTIVE certificate→mainline proof→immutable action→唯一decision→trade→settlement逐键核查；每层记录拒绝owner及原件。",
+            "证书选择规则延用同gateVersion的logE×calibrationQuality；有效证书在原有效期/PIT依赖满足后自动进入既定选择；不得以未观察到部署后REAL频率或综合研发目标阻住首次合法应用。",
+            "工程夹具只在隔离库/测试构建运行，强阳性只验证调用链；真实设备没有自然证书时准确显示无合格资产。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B09-04-A01",
+              "level": "ENGINEERING",
+              "scenario": "隔离有效/过期/撤销/错模型/错K3证明",
+              "expected": "只有正确证明通过同一决策owner；任何错项拒绝",
+              "evidence": "authority负例表；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-04-A02",
+              "level": "ENGINEERING",
+              "scenario": "freeze后发布新模型或证书撤销",
+              "expected": "已冻结身份不被重算；后续非法调用被拒绝，已授权结算仍按原冻结",
+              "evidence": "time-order integration replay；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-04-A03",
+              "level": "DEVICE",
+              "scenario": "生产无自然证书",
+              "expected": "不伪造REAL；显示真实HOLD/既定fallback原因",
+              "evidence": "真实设备同一构建/进程/目标期的只读观测；未执行，PENDING_DEVICE；不写人工夹具"
+            }
+          ],
+          "rollback": "停新R27主链选择，保留冻结与待结算事实；已有trade继续权威结算，不能撤销后抹去亏损。",
+          "forbidden": [
+            "研究图直接授REAL",
+            "证书通过后换策略K3",
+            "回滚删除待结算trade"
+          ]
+        },
+        {
+          "id": "R341-B09-05",
+          "title": "用同提交全工厂模拟检验误报与功效",
+          "evidence_refs": [
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32",
+            "NullEvolutionR27.java#generation,labels,snapshot,restoreFull",
+            "R30_REPORT.json#/objectIndex"
+          ],
+          "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
+          "diagnosis": "旧Q08来自别的sourceCommit且120计划0完成，不能作当前验证。模拟需包含搜索选择及序贯授证全过程，且与自然证据隔离。",
+          "files": [
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java",
+              "methods": [
+                "generation",
+                "labels",
+                "snapshot",
+                "restoreFull"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "保留CONTROL_MUST_NEVER_PROMOTE与holdout保护；完整保存搜索池/算子/预算/RNG/alpha索引，崩溃恢复同一路径。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+              "methods": [
+                "synthetic",
+                "planted"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "两类数据：无信号可交换空模型与预声明植入结构；标SYNTHETIC并禁止混入自然训练/资格。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualityExperimentR341.java",
+              "methods": [
+                "run",
+                "resume",
+                "summarize"
+              ],
+              "action": "NEW",
+              "changes": [
+                "NEW 离线runner接口 run(Spec,Seed)->Trial，resume(Checkpoint)->Trial；调用原EvolutionLoop/NullEvolution/门槛而非另写简化赢家；输出code/config hash、搜索数量、全部trial状态、误报/功效区间与成本。入口为 tools/quality_experiment_r341 而非设备主线程。"
+              ]
+            },
+            {
+              "path": "tools/quality_experiment_r341",
+              "methods": [
+                "main"
+              ],
+              "action": "NEW",
+              "changes": [
+                "离线命令解析固定spec/checkpoint/output参数并调用QualityExperimentR341；强制ENGINEERING_ONLY store、不可连接生产库；非完成返回非零状态。"
+              ]
+            }
+          ],
+          "implementation_steps": [
+            "预先写模拟spec：种子清单、试验次数、预算、零假设/植入效应、目标alpha/误报精度、功效与终止规则；试验数由置信精度决定，不能宣称120次足以证明任意小alpha。",
+            "每trial完整运行候选搜索→选择→确认→未来序贯→证书模拟；多策略搜索算进同trial family error，失败/超时单列不从分母删掉。",
+            "报告点估计与二项置信界；只证明所模拟条件下表现，不替代真实未来；工程通过不等于Q08数值通过。"
+          ],
+          "acceptance": [
+            {
+              "id": "R341-B09-05-A01",
+              "level": "ENGINEERING",
+              "scenario": "相同seed与中断恢复",
+              "expected": "结果/完整搜索轨迹相同；当前code/config指纹一致",
+              "evidence": "trial manifest/checkpoint；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-05-A02",
+              "level": "ENGINEERING",
+              "scenario": "零信号与植入结构",
+              "expected": "报告误报/功效及区间，即使目标不达也如实失败；不得改原试验门槛重跑到通过",
+              "evidence": "summary与全部trial结果；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            },
+            {
+              "id": "R341-B09-05-A03",
+              "level": "ENGINEERING",
+              "scenario": "模拟结果尝试写自然证书",
+              "expected": "强制拒绝、无生产表写入",
+              "evidence": "scope/isolation负例；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+            }
+          ],
+          "rollback": "停离线runner，保留所有完成/失败trial及种子，标INCOMPLETE；不用旧源结果补当前完成数。",
+          "forbidden": [
+            "只模拟筛选后的冠军",
+            "把模拟正例当自然资产",
+            "删失败trial或改seed重复到显著"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,16 @@
-# STARCORE 最终施工入口 · R34
+# STARCORE 最终施工入口
 
-[打开R34完整施工方案](construction/plans/STARCORE_R34_20261123/README.md) · [Codex完整施工任务书](construction/plans/STARCORE_R34_20261123/CODEX_EXECUTE.md) · [取证与根因](construction/plans/STARCORE_R34_20261123/EVIDENCE_AND_CAUSES.md) · [三份原始检测报告](construction/evidence/STARCORE_R34_20261123/raw/)。
+执行 **R34.1：122版返修后的完整施工方案**。
 
-13批、66项R34问题，逐项承接R33.5旧66项；152条逐文件卡。精确基线为construction/r335-field-095@273641e838e0b8dd842b42a67a674e184942a30a，不从033旧后态覆盖095。
+1. [问题总结与施工总设计](construction/plans/STARCORE_R34_1_REPAIR_20261124/README.md)
+2. [直接交给Codex的完整任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)
+3. [B01—B12逐批施工入口](construction/plans/STARCORE_R34_1_REPAIR_20261124/BATCH_INDEX.md)
+4. [全部工单及具体文件方法](construction/plans/STARCORE_R34_1_REPAIR_20261124/WORK_ORDERS.json)
+5. [文件所有权、基线摘要与共享编辑顺序](construction/plans/STARCORE_R34_1_REPAIR_20261124/FILE_CARDS.json)
+6. [旧R34全部要求的承接关系](construction/plans/STARCORE_R34_1_REPAIR_20261124/R34_CROSSWALK.md)
+7. [算法创造、真实训练、变异融合和质量协议](construction/plans/STARCORE_R34_1_REPAIR_20261124/specs/ALGORITHM_RESEARCH_PROTOCOL.md)
+8. [工程、真机与自然质量的分别验收和交付](construction/plans/STARCORE_R34_1_REPAIR_20261124/specs/ACCEPTANCE_AND_DELIVERY.md)
 
-方案、局部补丁、真实应用施工、APK、真机和自然有效性分别验收。当前状态与历史索引见[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。
+固定应用源码：`5562f9b19aa09f9f7d9e69ca085db56c537967fc`，对应现场577311122。新施工从此提交或已核验后继续工；main只导入方案/证据路径，不能覆盖实际应用底座。
+
+先修首批构建桥，再修运行、研究、训练与产物消费；按回执逐批签收和构建。旧要求全部保留追溯，错误或过时的现场归因在本轮明确纠正。方案上传不等于APK修复、后台长测或高胜率自然资格已完成。
