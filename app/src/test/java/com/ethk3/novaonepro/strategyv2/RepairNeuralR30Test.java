@@ -14,7 +14,11 @@ public final class RepairNeuralR30Test {
     @Test public void allOptimizationAndRiskValidationExcludeOriginalConfirmRows(){
         AtomNetSessionR30 s=fixture();AtomNetSessionR30.Samples researchOnly=index->{if(index>=120)throw new AssertionError("FORMAL_CONFIRM_SAMPLE_READ:"+index);return R30TenPositionTrainingTest.sample(index);};
         int steps=0;while(!s.ready()){s.work(researchOnly);assertTrue(++steps<1000);}
-        assertEquals(120,s.trainer.buffer.size());s.trainer.sinceCheck=10L*AtomNetTrainerR27.CHECK_EVERY-10;
+        assertEquals(s.trainCount,s.trainer.buffer.size());
+        Set<String> validationKeys=new HashSet<>();
+        for(int i=s.trainCount;i<s.trainCount+s.selectCount;i++)validationKeys.add(R30TenPositionTrainingTest.sample(i).issue);
+        for(AtomNetTrainerR27.Sample sample:s.trainer.buffer)assertFalse(validationKeys.contains(sample.issue));
+        s.trainer.sinceCheck=10L*AtomNetTrainerR27.CHECK_EVERY-10;
         for(int p=1;p<=10;p++)s.online(new AtomNetTrainerR27.Sample(AtomNetR27.positionedInput(new double[]{.2,.7},p),0,p-1,AtomNetSessionR30.eventKey("000000001000",p)),"000000001000",1000,p);
         assertEquals("EVAL_ONLINE_DEVELOPMENT_VALIDATION",s.phase);while(!s.ready())s.work(researchOnly);
         assertEquals("DEVELOPMENT_VALIDATION_FROM_ORIGINAL_SELECT_ONLY",s.report().get("validationRole"));

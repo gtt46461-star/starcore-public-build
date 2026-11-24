@@ -40,7 +40,7 @@ public final class R341FoundryTestCases {
     }
 
     public static void restoredScopeAndFence(Context app) throws Exception {
-        new R26DeviceTest().oldWorkerCannotCommitAfterFenceOrLeaseChanges();
+        R341StartupTestCases.staleGenerationCannotClaim(app);
         try { ColdRebirthContractR34.requireSnapshot(64,3000,5000,10000,10000);fail("expired source accepted"); }
         catch(IllegalArgumentException expected) { assertTrue(expected.getMessage().contains("BOUND")); }
         ColdRebirthContractR34.requireSnapshot(64,3000,5001,10000,10000);
@@ -54,10 +54,10 @@ public final class R341FoundryTestCases {
             db.beginTransaction();
             try {
                 for(String ddl:ColdRebirthSchemaR34.DDL) db.execSQL(ddl);
-                db.execSQL("INSERT INTO r26_candidate(campaign_id,policy_hash,canonical_text,status) VALUES('UNKNOWN_SOURCE','UNKNOWN','original-parent','BLOCKED_WARM_NUMERICAL_ABI_PRESERVED')");
+                db.execSQL("INSERT INTO r26_candidate(campaign_id,policy_hash,canonical_text,status,operation) VALUES('UNKNOWN_SOURCE','UNKNOWN','original-parent','BLOCKED_WARM_NUMERICAL_ABI_PRESERVED','ENGINEERING_ORIGINAL')");
                 String old=StatsR27.sha256("old ABI fixture");
                 db.execSQL("INSERT INTO r26_foundry(campaign_id,snapshot_hash,source_through,snapshot,status,created_at,numerical_abi,source_first) VALUES('KNOWN_SOURCE','frozen',100,X'0001','ABANDONED_NUMERICAL_ABI',1,?,20)",new Object[]{old});
-                db.execSQL("INSERT INTO r26_candidate(campaign_id,policy_hash,canonical_text,status) VALUES('KNOWN_SOURCE','KNOWN','second-parent','BLOCKED_WARM_NUMERICAL_ABI_PRESERVED')");
+                db.execSQL("INSERT INTO r26_candidate(campaign_id,policy_hash,canonical_text,status,operation) VALUES('KNOWN_SOURCE','KNOWN','second-parent','BLOCKED_WARM_NUMERICAL_ABI_PRESERVED','ENGINEERING_ORIGINAL')");
                 assertEquals(Long.valueOf(2L),ColdRebirthR34.pendingParentsForHealth(db));
                 assertEquals("original-parent", cell(db,"SELECT canonical_text FROM r26_candidate WHERE policy_hash='UNKNOWN'"));
                 db.setTransactionSuccessful();
@@ -93,7 +93,7 @@ public final class R341FoundryTestCases {
             }
             ReplayDatasetR27 longData=ReplayDatasetR27.of(source);
             ReplayDatasetR27 shortData=ReplayDatasetR27.of(source.subList(0,4));
-            PolicySpecR27 spec=policy("(zscore (freq 1 16))");
+            PolicySpecR27 spec=policy("(zscore (freq 1 8))").withMeta(IdeaFamilyR27.meta("I02","ENGINEERING_REPLAY",1,1,"Short checkpoint coverage probe"));
             try(FeatureCacheR27 shortCache=new FeatureCacheR27(shortData);FeatureCacheR27 longCache=new FeatureCacheR27(longData)) {
                 BirthGateR27.Verdict missing=new BirthGateR27(shortCache,4).checkCandidate(spec);
                 assertFalse(missing.ok);
