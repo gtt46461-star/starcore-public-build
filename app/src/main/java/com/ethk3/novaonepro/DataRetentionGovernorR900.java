@@ -154,7 +154,7 @@ public final class DataRetentionGovernorR900 {
             String[] drawCutoffArgs=rule.args(cutoff.issue,cutoff.openTime);
             try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM draws WHERE dirty=0 AND ("+rule.eligibleSql+") AND EXISTS("+proof+")",drawCutoffArgs)){if(c.moveToFirst()&&c.getLong(0)>=32)return null;}
             unarchived=" AND NOT EXISTS("+proof+")";
-        }else{cutoff=readCutoff(db,4999);if(cutoff==null)return null;}
+        }else{cutoff=retentionCutoffR341(db,table);if(cutoff==null)return null;}
         // ORDER BY rowid below can make SQLite scan millions of current protected rows.
         // The leading range is a necessary condition only. A positive probe grants no
         // deletion authority; every dependency/pin/version check still runs unchanged.
@@ -165,6 +165,12 @@ public final class DataRetentionGovernorR900 {
         try(Cursor c=db.rawQuery(sql,args)){while(c.moveToNext()){int bytes=canonicalLiveKeyCP12(db,keyShape,c.getLong(0),"0000000000000000000000000000000000000000000000000000000000000000").length;if(keyBytes>RetentionArchiveProtocolCP12.MAX_KEY_TOTAL-bytes)break;keyBytes+=bytes;if(rows.size()>=StalePageR31.cap(table))break;rows.add(new RetentionArchiveProtocolCP12.RowVersion(c.getLong(0),c.getLong(1)));if(ResearchWorkBudgetR927.remainingMs()<20)break;}}
         if(rows.isEmpty())return null;
         return new RetentionArchiveProtocolCP12.Page(table,cutoff.issue,cutoff.openTime,schemaHashCP12(db,table),ReleaseManifestR926.MANIFEST_SHA256,RetentionTableRegistryCP12.hashForTable(table),rows);
+    }
+    private static Cutoff retentionCutoffR341(SQLiteDatabase db,String table){
+        if(!FetchLedgerR925.R341_TIMING_TABLE.equals(table))return readCutoff(db,AppConfig.MAX_LOCAL_HISTORY_SAVE-1);
+        Cutoff newest=readCutoff(db,0);
+        long completedBefore=System.currentTimeMillis()-15L*60_000L;
+        return newest==null?null:new Cutoff(newest.issue,Math.min(newest.openTime,completedBefore));
     }
     static boolean hasRowsBeforeCutoffR77(SQLiteDatabase db,RetentionTableRegistryCP12.Rule rule,String issue,long time){
         String column=rule.issueColumn.isEmpty()?rule.timeColumn:rule.issueColumn;
@@ -206,7 +212,7 @@ public final class DataRetentionGovernorR900 {
         }
         db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)",new Object[]{cursorKey,Integer.toString(memberCursor),System.currentTimeMillis()});
         if(memberCursor<receipt.members.size())return -2;
-        Cutoff cutoff=readCutoff(db,AppConfig.MAX_LOCAL_HISTORY_SAVE-1);if(cutoff==null)return 0; // asynchronous pruning never shrinks the required live history tail
+        Cutoff cutoff=retentionCutoffR341(db,rule.table);if(cutoff==null)return 0; // draw pruning keeps the live history tail
         String pruneKey="retention_cp12_prune_cursor_"+receipt.page.requestId;int pruneCursor=0;
         try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key=?",new String[]{pruneKey})){if(c.moveToFirst())try{pruneCursor=Integer.parseInt(c.getString(0));}catch(NumberFormatException corrupt){throw new IllegalStateException("RETENTION_PRUNE_CURSOR",corrupt);}}
         if(pruneCursor<0||pruneCursor>receipt.members.size())throw new IllegalStateException("RETENTION_PRUNE_CURSOR");

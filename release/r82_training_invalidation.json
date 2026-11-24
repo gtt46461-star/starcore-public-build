@@ -321,12 +321,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "56846752eb611f84b1caca7752f06934f1040411117ec07221a648a95160da32",
+      "after_sha256": "d8efb8a124977c8b688112d09d4d0f9dc9d5f837bba48e63c503f51641958c3b",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
-      "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。",
-      "reviewer": "R32.4_SOURCE_AND_DOMAIN_REVIEW"
+      "rationale": "Publish visited object denominators and preserve the distinction between byte verification limits and missing originals.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "PRESENTATION",
@@ -348,12 +348,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "82d50c7d1cae8aba8ea10f35b11c6f4cad4db267091530d66e20717e4c7b5634",
+      "after_sha256": "bc81c09e4e72c73af71e72a893b8c9c49791c516c209a1a5d069df9fa40181ed",
       "before_role": "NUMERIC",
       "before_sha256": "b535ee57f6c9db464a0eaa0c115eb69f50a90ffd291e3fe6fb01c01a1995d4a6",
       "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
-      "rationale": "R335 B01 精确源码复核：DataRetentionGovernorR900.java。真实限一行原件worker：23列SQLite类型/长度/原值编码，与原参考wire一致；增量预算后fsync/rename/目录fsync，pending与report pin，既有维护ACTIVE，短deadline typed telemetry transaction内最终比较全原件、插定位和删热行；独立连接收据和CAS读回。独立schema域、冷热读取、FULL_RAW附件和compact可用性索引全部接线。；真实原消费者缺件只发有界提示；同维护owner耐久登记和公平扫描；可从现有冷热字节或明确恢复intake中按旧SHA恢复；先登记/验证children；沿原prepareLease、GC与回执协议发布，不改旧hash或证据N。恢复工作全部为GC根。配套ZIP/分卷验证与逐字节提取器，缺件返回非零。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)"
+      "rationale": "Archive completed transport traces through the same readback, exact generation and permit owner before removing their hot rows.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -375,12 +375,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "7fd502ef5230c184cdfbae7dd921c85432e7a64beee04cf53630ad9b41dcbfd7",
+      "after_sha256": "a00a3103128f2cc359d06953bfa161918b40eec03d5b10d495033a965be8e6dc",
       "before_role": "NUMERIC",
       "before_sha256": "25f82b067254b385d620c052ae628df9c11d55c900f7a2cc60377ae11d162f6a",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "Migrate only known Critical schema edges and require receipt resolution for ambiguous deferred or canonical commits. Measured deferred writes share the existing writer.",
-      "reviewer": "R34.1 B04 implementation review"
+      "rationale": "Reserve measured database and WAL copy growth before entering the existing explicit offline maintenance owner.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -591,12 +591,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "6a3697cbbce708dc3660b4baa54b1662b369175f7b893882c97cc4f8980d1a78",
+      "after_sha256": "fe6f2e2fb9e3f34e7445a8eb57ee032ad7a496aad258f9dd0280b390f7db5ccd",
       "before_role": "NUMERIC",
       "before_sha256": "a295f734ff385166ea91e75bc4e0aefcacdbd977722e63343d8ef3a7dddd0f37",
       "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
-      "rationale": "Observe the original HTTP request and exact first durable draw return with native wall and elapsed times, without replacing transport identity.",
-      "reviewer": "R34.1 B05 implementation review"
+      "rationale": "Wake bounded archive before transport trace capacity, guard timing originals against direct deletion and maintain exact row revisions.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -1041,12 +1041,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "f26afd19f4fd441389570a5dc3decd34697ab37bced693a28854e0196657d859",
+      "after_sha256": "581542218092bacbfbb3a72d7fd0ea9301e62bd081833c1925a195185480b6c5",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Keep pending cleanup independent of READY and measure actual file length and allocated blocks separately.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "PRESENTATION",
@@ -1077,12 +1077,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "06372fd6f890aae1cdf5cb422c8a75ec45964ac2282b688fd4a6f3848734623a",
+      "after_sha256": "4ed5da055f4139459428e820e01cf4a8b212e4652ccd4a5814de56930ce73061",
       "before_role": "NUMERIC",
       "before_sha256": "db380466ffa8b042269e4b543218c914692867445658fac824824de0a6893859",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
-      "rationale": "Collect service scope and separate research startup journal evidence using the existing bounded observer.",
-      "reviewer": "Codex R341 B01 source review"
+      "rationale": "Publish a validated export before optional quota cleanup so unrelated old archives cannot cause the new request to fail.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -1158,12 +1158,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "4e999ce2f7aeb544ea6f6edfee724af860a4c5fca692b26d353c474a78af43c0",
+      "after_sha256": "04f841cf6677c6a84a2fb9d3790df8d073a6880a75fe5b2f27d5fe541b6d092b",
       "before_role": "NUMERIC",
       "before_sha256": "89361bf6c0e1ace0627bf596a4f5c3ca824886afd5fc538184f63cd2980eecda",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
-      "rationale": "Reuse the existing ordered part identity, size and whole SHA verification to stream verified parts to the selected provider, reread its complete result and preserve previous destination on corrupt source.",
-      "reviewer": "R34 B12-116"
+      "rationale": "Keep original private workspace until verified replacement readback and retire only exact duplicate published delivery under share leases.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -1428,12 +1428,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "f1dd234a3c059b24d53edab8158c229a38fc21e4ee5315db23fe4d7ef29ad261",
+      "after_sha256": "6efe58ceec95d51e1de2767875b8ddd495199c05ae6691b753377da6b4fd66ee",
       "before_role": "NUMERIC",
       "before_sha256": "c475c34bb944bc26af9e5b6ec2f433302fd5acadc7803a0884c93871519be215",
       "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Register completed raw transport trace rows with the existing paged archive and exact raw byte readback path.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -1554,12 +1554,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "4d27c07e9f3310ee6c3e0860630c3bd655dbabab760fb11eadb0ef766be729d7",
+      "after_sha256": "db085fe11c804cbc261c733b09197bdf9353320136c93ac060626afafdaaecb1",
       "before_role": "NUMERIC",
       "before_sha256": "1fe1ae6ad5ec799cea0900ebb828b1dc36cfbcf1c4b12761d753ec91dfcc237c",
       "path": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
-      "rationale": "Allow only the precisely declared Critical addition from the preceding authenticated stamp and preserve unknown drift during startup.",
-      "reviewer": "R34.1 B04 implementation review"
+      "rationale": "Add separately stamped timing archive guards and checkpoint recovery observations through the existing schema owners.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -1707,21 +1707,21 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "ab31cf22666096863127122b535ac6fe313a0a00603646fdb0e07f433dba63d5",
+      "after_sha256": "0adea20b095c2f0d077230c4bc78a3ae375fd1b24713c5a04604b8c077eaf5c2",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
-      "rationale": "A real native history import lost a transient directory entry during final reservation measurement and threw SCOPE_UNKNOWN_TYPE. Use no-follow attributes and verify actual absence while preserving rejection of links, special types and unmeasurable storage.",
-      "reviewer": "R34 B12-120"
+      "rationale": "Guard new physical reservations and ordinary work growth under the same OS lease while preserving existing original debt.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "PRESENTATION",
-      "after_sha256": "226c145d0de731b3ebd392cc9024cec2b4df7975b1e7485b2b603ca953dff36d",
+      "after_sha256": "a4e210c07e16ae82539066da73f327630098863bbfe33be5246e8fa190736800",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Classify disjoint logical bytes and report kernel blocks and sqlite object coverage without guessing.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -1770,21 +1770,30 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "fdd1c603518bcfae84e7fc357d42f3da5e1e6a2f978ebc95b25c39361cd5830a",
+      "after_sha256": "08f38e8427c5aea536d2a5afbcbd5636a6235626f53314362866d9dbbee97ece",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
-      "rationale": "R335 B01 精确源码复核：StorageMaintenanceFileR82.java。复用033原closed-offline维护owner、source lease、native完整typed/rowid复制、独立Android probe、原DbStore/模型/引用/待结算业务消费者及Binder PID实际死亡认证。补原manifest严格读回/源SHA/历史列验证、一次显式选择原备份的预算准入克隆、UI实际入口、原manifest/request/result全文持久receipt；原件保留，不改r82清理权限。退出VERIFIED_BUT_RETAINED，physicalFreeBytesReleased=0，cleanupAuthority=NONE。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。 动态入口仍仅固定 System.loadLibrary(\"starcore_report_cp4\")，相对033未增加载入目标；更新整文件已审字节pin。",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)"
+      "rationale": "Charge the conservative closed database copy before rebuilding and verify measured growth prior to any swap.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "5ed6ed613fe28ab3cb9f7dec5c66a662247e5768e9526b9a4d770bb5efc87499",
+      "after_sha256": "462af48c96b17a655cb0a77f7740e40a716fc1394a267ebd6bb9a622f8075210",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
-      "rationale": "原用户显式维护owner新增custody导出/导入/重验/单文件退役动作，先停运行、保留原writer/source关闭栅栏；64MiB内存准入，SAF长I/O不在actor锁内，实际probe提交/收集/死亡后清理私有树并释放资源。成功只记录事实，未伪造释放空间或自动恢复运行。动态载入仍是固定System.loadLibrary(\"starcore_report_cp4\")，保留原JNI身份与NUMERIC角色。 原R81受控基线/原r967 validator/资格policy不改；本次按原R82规则使旧数值资格失效，不继承旧证书或自然胜率。",
-      "reviewer": "R335 collaborative source audit (AI-assisted; not a device or qualification sign-off)"
+      "rationale": "Preserve the original maintenance state machine while exposing exact retryable reservation or protected backup status.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "74eda6252e41e6b0b5df97763f3875ba7260621695b33deea6e5463846e8d5e8",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/StoragePolicyR341.java",
+      "rationale": "Apply ordinary incremental limits only to explicitly recomputable data and preserve independent physical disk admission.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -2040,6 +2049,15 @@
     },
     {
       "after_role": "NUMERIC",
+      "after_sha256": "71e9fab5e873d3887ff52070aee624c7a0b38d49ec24e5823f0ce54e1cf2cc54",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+      "rationale": "Check bounded authoritative issue continuity with the existing cross-date calendar and hash actual availability and digits.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
+    },
+    {
+      "after_role": "NUMERIC",
       "after_sha256": "00f22603a78ea8537de46252b3022ccdbda958daf2b232cda57f10e3b61db8fa",
       "before_role": "NUMERIC",
       "before_sha256": "98c3cf3225a3c1a08e2bf65fc3270b17708cc2cec280eb7c965b78d608b2b51d",
@@ -2049,12 +2067,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "abf902d0abf5ca8312ad5b7a326cd3f110596df2c96c8803d73ccb05906d04ea",
+      "after_sha256": "39a54164af676d965e31fc02cf902b6d6a21080a568ed9b342ec57b4e75d1509",
       "before_role": "NUMERIC",
       "before_sha256": "480718a2aa84d5ab1ed2ec085bfd0f49965a13b3172c60505e4c85cd37fa5b86",
       "path": "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleSummaryR80.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Start a clean epoch only on actual issue continuity and retain latest original visibility time in the PIT source.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -2715,12 +2733,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "ec92dc0b52e660927119361f691f704c879cfa646af1c7a450f0ae52f6531c8c",
+      "after_sha256": "566ae536b7f17ec86584c6470269be0d5fcbeaf49231f857575cc235a2fe187a",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
-      "rationale": "Space out stationary missing-source attempts and wake the exact old hash on intake without transferring weights or qualification.",
-      "reviewer": "R34 B05"
+      "rationale": "Record exact per-attempt source observations in the existing recovery transaction and leave model authority isolated.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -4803,6 +4821,15 @@
     },
     {
       "after_role": "NUMERIC",
+      "after_sha256": "369152ed55868d0ce6ab42ed5de24bcc88ca9a97427f227b2fb2e65c137c6185",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RecoveryLedgerR341.java",
+      "rationale": "Store readback and exact original identity observations independently of model acceptance or certificate permission.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
+    },
+    {
+      "after_role": "NUMERIC",
       "after_sha256": "cce43a2218a596696e3fe2fb4151f2c4dde83f3a09f558ffa90f9b8a7fe24068",
       "before_role": "",
       "before_sha256": "",
@@ -5343,12 +5370,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "b573a8d026c011de0926c9c8a381f62f8c8ba164d02c414e816a04a4101ddaf2",
+      "after_sha256": "8bb0a750659b5009bc3225b15e227b45345c7440696dbf6f6d8469b202476bf8",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
-      "rationale": "Verify guarded checkpoint archive and the committed boot receipt on the original protected-preservation path without clearing old payloads.",
-      "reviewer": "R34.1 B03 implementation review"
+      "rationale": "Only compare known historical display cache frames within the same scope and preserve current or unknown records.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review"
     },
     {
       "after_role": "NUMERIC",
@@ -6359,7 +6386,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "b5c5395e3967839c8d8de368e08e0f4df0d5ecc8d81b56a05baef89b8e889b5e",
+  "current_controlled_roles_sha256": "bdfd40e4bd6f2910e74c7ac4972c9c376620b75f4814ac29f95bbfd9e1a9a0a1",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -6897,6 +6924,12 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StoragePolicyR341.java",
+      "rationale": "Apply ordinary incremental limits only to explicitly recomputable data and preserve independent physical disk admission.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review",
+      "role": "NUMERIC"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageRestoreAssetsR324.java",
       "rationale": "R32.4逐文件复核：长期归档、冷热一致读取、并发引用保护与分页物理回收的同批闭环；不改原始证据哈希，不按累计历史数量停机，不删除仍有引用的原件。 P2当前Gradle 659单测通过后发现UsableSpace建议告警；与原StorageLedgerR31/StorageMaintenanceFileR82一致，仅在实际物理容量准入方法注明保守预算的有意语义。保持全部free/reserve/溢出检查及失败保全，不计尚未释放缓存；不改全局lint基线、资格政策或任何运行语句。",
       "reviewer": "Codex P2 physical-budget lint review",
@@ -6936,6 +6969,12 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/r952/FeatureMetadataR82.java",
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+      "rationale": "Check bounded authoritative issue continuity with the existing cross-date calendar and hash actual availability and digits.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review",
       "role": "NUMERIC"
     },
     {
@@ -8709,6 +8748,12 @@
       "role": "NUMERIC"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RecoveryLedgerR341.java",
+      "rationale": "Store readback and exact original identity observations independently of model acceptance or certificate permission.",
+      "reviewer": "R34.1 B10 disk admission, custody and actual chronology review",
+      "role": "NUMERIC"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RegimeHypothesisR31.java",
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
@@ -9731,7 +9776,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "821750432fe8de6410a1f869f16370c087413c7f1d5eb785e3ecc30e343f604b",
+  "reviewed_input_provenance_sha256": "1eac5cf239a3c84024d90a24d1e8716b8aa6f3d96459dae5158ea928c1b738ed",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

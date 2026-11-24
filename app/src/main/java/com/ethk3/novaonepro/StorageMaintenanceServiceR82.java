@@ -116,7 +116,13 @@ public final class StorageMaintenanceServiceR82 extends Service {
                     record(this,"RESTORE_VERIFIED_BACKUP_RETAINED","independent Android clone startup/consumer receipt recorded; backup cleanup remains a separate explicit user action; "+workspace);
                 }
                 }
-            }catch(Throwable failure){record(this,"FAILED_OR_RECOVERY_REQUIRED",DatabaseCoordinator.describeCauseChain(failure,2000));}
+            }catch(Throwable failure){
+                String detail=DatabaseCoordinator.describeCauseChain(failure,2000);
+                String phase=detail.contains("FREE_SPACE_RESERVE")||detail.contains("MAINTENANCE_WRITER_BUSY")
+                        ?"MAINTENANCE_RETRYABLE_STORAGE_OR_OWNER":detail.contains("retained backup must be handled")
+                        ?"BACKUP_CUSTODY_PENDING":"FAILED_OR_RECOVERY_REQUIRED";
+                record(this,phase,detail);
+            }
             finally{
                 // Finish Android IPC before admitting a new maintenance action.
                 // Admission and worker release share the original transition

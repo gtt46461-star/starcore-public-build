@@ -123,10 +123,14 @@ public final class LongScaleSummaryR80 {
         boolean fresh=old==null||!"ACTIVE".equals(old.status);LongScaleCountsR80 state=fresh?new LongScaleCountsR80():LongScaleCountsR80.restore(old.state,old.hash);
         List<Models.Draw> rows=draws(db,fresh?"":old.through,fresh?5000:PAGE_ROWS);
         if(rows.isEmpty())throw new DevelopmentProductionCP12.Wait("WAIT_LONG_SOURCE");
+        String startReason=old==null?"INITIAL_SOURCE":"NEW_EPOCH_AFTER:"+old.error;
         if(fresh){
-            // Keep only the latest contiguous authenticated suffix. Earlier gaps
-            // are retained in the journal of the replaced epoch, never filled.
-            int start=rows.size()-1;while(start>0&&TargetIssueResolver.exact(rows.get(start-1).issue,rows.get(start).issue).valid)start--;
+            HistoryContinuityR341.Inspection inspection=HistoryContinuityR341.inspect(rows);
+            int start=inspection.contiguousSuffixStart;
+            if(!inspection.gaps.isEmpty()){
+                HistoryContinuityR341.Gap gap=inspection.gaps.get(inspection.gaps.size()-1);
+                startReason+="|"+gap.reason()+"|GAPS="+inspection.gaps.size()+"|PAGE="+inspection.sourceHash;
+            }
             rows=new ArrayList<>(rows.subList(start,Math.min(rows.size(),start+PAGE_ROWS)));
         }
         String first=fresh?rows.get(0).issue:old.first;
@@ -136,7 +140,8 @@ public final class LongScaleSummaryR80 {
         for(Models.Draw row:rows){
             if(System.nanoTime()+50_000_000L>=deadlineNs)break;
             ResearchWorkBudgetR927.checkpoint();
-            if(!through.isEmpty()&&!TargetIssueResolver.exact(through,row.issue).valid)return new Prepared(old,old.epoch,old.first,old.through,generation,old.chain,old.available,now,LongScaleCountsR80.restore(old.state,old.hash),historyGeneration,canonicalGeneration,"SOURCE_GAP:"+through+":"+row.issue,"SOURCE_GAP");
+            HistoryContinuityR341.Gap gap=HistoryContinuityR341.gap(through,row.issue);
+            if(gap!=null)return new Prepared(old,old.epoch,old.first,old.through,generation,old.chain,old.available,now,LongScaleCountsR80.restore(old.state,old.hash),historyGeneration,canonicalGeneration,gap.reason(),"SOURCE_GAP");
             if(row.openTime<=0||row.fetchTime<row.openTime||row.fetchTime>now)throw new DevelopmentProductionCP12.Wait("WAIT_LONG_ORIGINAL_SOURCE_CLOCK");
             int[] digits=new int[10];for(int p=0;p<10;p++)digits[p]=row.numbers[p]-1;
             state.append(MatrixSourceRouterCP12.issueOrdinal(row.issue),digits);through=row.issue;available=Math.max(available,row.fetchTime);
@@ -144,10 +149,10 @@ public final class LongScaleSummaryR80 {
         }
         if(advanced==0)throw new DevelopmentProductionCP12.Wait("TIME_BUDGET_EXCEEDED");
         need(canonicalGeneration==token(db)&&historyGeneration==DevelopmentProductionCP12.historyGeneration(db),"LONG_SOURCE_CHANGED_DURING_READ");
-        return new Prepared(old,epoch,first,through,generation,chain,available,now,state,historyGeneration,canonicalGeneration,"",fresh?(old==null?"INITIAL_SOURCE":"NEW_EPOCH_AFTER:"+old.error):"ADVANCE");
+        return new Prepared(old,epoch,first,through,generation,chain,available,now,state,historyGeneration,canonicalGeneration,"",fresh?startReason:"ADVANCE");
     }
     private static List<Models.Draw> draws(SQLiteDatabase db,String after,int limit){
-        String columns="d.issue,d.open_time,d.fetch_time,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10,d.draw_hash_v2";
+        String columns="d.issue,d.open_time,MAX(d.fetch_time,d.first_seen_at,c.updated_at),d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10,d.draw_hash_v2";
         String join=" FROM "+(after.isEmpty()?"draws":DrawDependencyInputCP12.SOURCE)+" d JOIN "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c ON c.target_issue=d.issue AND c.status='CONFIRMED_CANONICAL_DRAW' AND c.canonical_draw_hash=d.draw_hash_v2 WHERE d.dirty=0";
         String sql=after.isEmpty()?"SELECT * FROM (SELECT "+columns+join+" ORDER BY d.issue DESC LIMIT "+limit+") ORDER BY issue":"SELECT "+columns+join+" AND d.issue>? ORDER BY d.issue LIMIT "+limit;
         List<Models.Draw> result=new ArrayList<>();try(Cursor c=db.rawQuery(sql,after.isEmpty()?null:new String[]{after})){while(c.moveToNext()){

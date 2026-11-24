@@ -948,7 +948,6 @@
     },
     {
       "dynamic_review_note": "O09 20261011 exact source review: rolling 5000-row history is decoupled from immutable in-flight draw input; exact consumer queries retain original first_seen and draw identity. No new settlement owner, REAL authority or natural qualification. Device revalidation remains required. R72: draw archives join the existing fair table cursor, preserving exact row generation and deletion proofs. R77: Use an indexed necessary leading-range existence check before the original archive row selector. Only a verified conjunct can be factored out; a positive result grants no deletion authority. Original exact eligibility, protected window, dependency pins, row generation, archive proof and CAS deletion remain unchanged; no new dynamic targets.",
-      "dynamic_review_sha256": "b535ee57f6c9db464a0eaa0c115eb69f50a90ffd291e3fe6fb01c01a1995d4a6",
       "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
       "role": "NUMERIC"
     },
@@ -966,7 +965,7 @@
       "role": "NUMERIC"
     },
     {
-      "dynamic_review_sha256": "7fd502ef5230c184cdfbae7dd921c85432e7a64beee04cf53630ad9b41dcbfd7",
+      "dynamic_review_sha256": "a00a3103128f2cc359d06953bfa161918b40eec03d5b10d495033a965be8e6dc",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "rationale": "Retain the audited original fault-versus-research release branch while giving the separately acquired migration slot its own release path and preserving freeze precedence.",
       "role": "NUMERIC"
@@ -3049,15 +3048,20 @@
       "role": "NUMERIC"
     },
     {
-      "dynamic_review_sha256": "fdd1c603518bcfae84e7fc357d42f3da5e1e6a2f978ebc95b25c39361cd5830a",
+      "dynamic_review_sha256": "08f38e8427c5aea536d2a5afbcbd5636a6235626f53314362866d9dbbee97ece",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
       "rationale": "R335 B01 精确源码复核：StorageMaintenanceFileR82.java。复用033原closed-offline维护owner、source lease、native完整typed/rowid复制、独立Android probe、原DbStore/模型/引用/待结算业务消费者及Binder PID实际死亡认证。补原manifest严格读回/源SHA/历史列验证、一次显式选择原备份的预算准入克隆、UI实际入口、原manifest/request/result全文持久receipt；原件保留，不改r82清理权限。退出VERIFIED_BUT_RETAINED，physicalFreeBytesReleased=0，cleanupAuthority=NONE。 保留旧证据与DEV原件；本次采用原R82失效机制，新规则不继承任何旧资格、证书或自然成绩。 动态入口仍仅固定 System.loadLibrary(\"starcore_report_cp4\")，相对033未增加载入目标；更新整文件已审字节pin。",
       "role": "NUMERIC"
     },
     {
-      "dynamic_review_sha256": "5ed6ed613fe28ab3cb9f7dec5c66a662247e5768e9526b9a4d770bb5efc87499",
+      "dynamic_review_sha256": "462af48c96b17a655cb0a77f7740e40a716fc1394a267ebd6bb9a622f8075210",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
       "rationale": "原用户显式维护owner新增custody导出/导入/重验/单文件退役动作，先停运行、保留原writer/source关闭栅栏；64MiB内存准入，SAF长I/O不在actor锁内，实际probe提交/收集/死亡后清理私有树并释放资源。成功只记录事实，未伪造释放空间或自动恢复运行。动态载入仍是固定System.loadLibrary(\"starcore_report_cp4\")，保留原JNI身份与NUMERIC角色。 原R81受控基线/原r967 validator/资格policy不改；本次按原R82规则使旧数值资格失效，不继承旧证书或自然胜率。",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/StoragePolicyR341.java",
+      "rationale": "Apply ordinary incremental limits only to explicitly recomputable data and preserve independent physical disk admission.",
       "role": "NUMERIC"
     },
     {
@@ -4043,6 +4047,11 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/r952/HistoricalTrainingReceiptCP12.java",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+      "rationale": "Check bounded authoritative issue continuity with the existing cross-date calendar and hash actual availability and digits.",
       "role": "NUMERIC"
     },
     {
@@ -5764,6 +5773,11 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
       "rationale": "SU1 explicit source review; independent research identity, no inheritance of historical qualification.",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RecoveryLedgerR341.java",
+      "rationale": "Store readback and exact original identity observations independently of model acceptance or certificate permission.",
       "role": "NUMERIC"
     },
     {

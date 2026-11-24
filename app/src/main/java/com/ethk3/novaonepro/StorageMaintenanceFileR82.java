@@ -90,17 +90,25 @@ public final class StorageMaintenanceFileR82 {
     // Quotas/other writers can still reject I/O; verified-copy failures preserve the original.
     @android.annotation.SuppressLint("UsableSpace")
     public static Receipt rebuildAndSwap(File database)throws IOException {
+        return rebuildAndSwap(database,null);
+    }
+    static long copyGrowthR341(long sourceAndWal) {
+        return Math.addExact(sourceAndWal,Math.max(64L * 1024 * 1024,sourceAndWal/10));
+    }
+    static Receipt rebuildAndSwap(File database,StorageBudgetR31.Reservation admission)throws IOException {
         File db=database.getCanonicalFile();recover(db);File out=candidate(db),old=backup(db),j=journal(db);
         if(!db.isFile())throw new IOException("original database missing");
         if(old.exists()||receipt(db).exists())throw new IOException("retained backup must be handled before another rebuild");
         if(out.exists())throw new IOException("unowned rebuilt file exists; preserved");clearClosedSidecars(db);
         long before=db.length();long free=db.getParentFile().getUsableSpace();
         if(free<=0)throw new IOException("filesystem free-byte measurement unavailable or empty; source preserved");
-        long required=before>Long.MAX_VALUE/2?Long.MAX_VALUE:before+Math.max(64L*1024*1024,before/10);
+        long required=copyGrowthR341(before);
         if(free<required)throw new IOException("insufficient free space for verified offline copy: required="+required+" available="+free);
+        if(admission!=null)admission.beforeChunk(required);
         String oldHash=sha256(db),proof=nativeRebuild(db.getPath(),out.getPath());
         if(proof==null||!proof.startsWith("OK "))throw new IOException("native rebuild rejected: "+proof);
         if(!out.isFile()||out.length()==0)throw new IOException("verified output missing");
+        if(admission!=null)admission.reconcile();
         String newHash=sha256(out);requireHash(db,oldHash,"source changed during offline copy");requireNoSidecars(db);
         Properties p=new Properties();p.setProperty("database",db.getPath());p.setProperty("source_sha256",oldHash);
         p.setProperty("candidate_sha256",newHash);p.setProperty("original_bytes",Long.toString(before));

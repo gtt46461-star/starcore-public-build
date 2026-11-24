@@ -453,7 +453,12 @@ public final class DatabaseCoordinator {
     }
     static void endExplicitMaintenanceR82() { synchronized(RUNTIME_TRANSITION_R82) { explicitMaintenanceR82=false; } }
     static StorageMaintenanceFileR82.Receipt rebuildExplicitR82(Context context) throws Exception {
-        return withClosedDatabaseR31(context,StorageMaintenanceFileR82::rebuildAndSwap);
+        java.io.File source=context.getDatabasePath(AppConfig.DB_NAME);
+        long bound=StorageMaintenanceFileR82.copyGrowthR341(Math.addExact(source.length(),new java.io.File(source.getPath()+"-wal").length()));
+        try(StorageBudgetR31.Reservation copy=StorageBudgetR31.forFiles(context.getFilesDir()).reserve(
+                "R341_STORAGE_MAINTENANCE_COPY",0,StorageBudgetR31.Category.BACKUP,"databases",bound,true)){
+            return withClosedDatabaseR31(context,db->StorageMaintenanceFileR82.rebuildAndSwap(db,copy));
+        }
     }
     interface OfflineFilesR31<T>{T run(java.io.File database)throws Exception;}
     /** No cross-process work is awaited while either actor lock is held. Every

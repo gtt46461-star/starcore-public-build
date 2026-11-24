@@ -22,10 +22,17 @@ public final class FetchLedgerR925 {
     private static final String CLOCK_EPOCH = V51ChecksumEngine.sha256(
             "R926_CLOCK_EPOCH|" + RuntimeObservabilityR925.PROCESS_ID);
     public static volatile String lastWriteError = "";
-    public static final int R31_TIMING_REVISION=1,R31_TIMING_MAX_ROWS=16384;
+    public static final int R31_TIMING_REVISION=2,R31_TIMING_MAX_ROWS=16384;
+    static final int R341_TIMING_ARCHIVE_AT=12288;
+    static final String R341_TIMING_TABLE="r31_fetch_timing";
     public static final String[] R31_TIMING_DDL={
         "CREATE TABLE IF NOT EXISTS r31_fetch_timing(request_id TEXT PRIMARY KEY,boot_id TEXT NOT NULL,payload_hash TEXT NOT NULL,request_wall_ms INTEGER,request_mono_ms INTEGER,headers_wall_ms INTEGER,headers_mono_ms INTEGER,first_byte_wall_ms INTEGER,first_byte_mono_ms INTEGER,body_complete_wall_ms INTEGER,body_complete_mono_ms INTEGER,parse_wall_ms INTEGER,parse_mono_ms INTEGER,validated_wall_ms INTEGER,validated_mono_ms INTEGER,finished_wall_ms INTEGER,finished_mono_ms INTEGER,issue TEXT NOT NULL,accepted INTEGER NOT NULL,body_truncated INTEGER NOT NULL,observation_contract TEXT NOT NULL)",
-        "CREATE INDEX IF NOT EXISTS r31_fetch_timing_issue ON r31_fetch_timing(issue,request_mono_ms)"
+        "CREATE INDEX IF NOT EXISTS r31_fetch_timing_issue ON r31_fetch_timing(issue,request_mono_ms)",
+        "CREATE INDEX IF NOT EXISTS r341_fetch_timing_finished ON r31_fetch_timing(finished_wall_ms)",
+        "CREATE TRIGGER IF NOT EXISTS r341_fetch_trace_revision AFTER UPDATE ON r31_fetch_timing BEGIN DELETE FROM research_row_revision_v2 WHERE source_table='r31_fetch_timing' AND source_rowid=OLD.rowid; INSERT INTO research_row_revision_v2(source_table,source_rowid) VALUES('r31_fetch_timing',NEW.rowid); END",
+        "CREATE TRIGGER IF NOT EXISTS r341_fetch_trace_revision_retire AFTER DELETE ON r31_fetch_timing BEGIN DELETE FROM research_row_revision_v2 WHERE source_table='r31_fetch_timing' AND source_rowid=OLD.rowid; END",
+        "CREATE TRIGGER IF NOT EXISTS r341_fetch_trace_guard BEFORE DELETE ON r31_fetch_timing WHEN NOT EXISTS(SELECT 1 FROM research_retention_permit_v2 p JOIN research_evidence_archive_v2 a ON a.archive_id=p.archive_id JOIN research_evidence_archive_member_v2 m ON m.archive_id=p.archive_id AND m.source_table=p.source_table AND m.source_rowid=p.source_rowid AND m.row_hash=p.row_hash AND m.source_generation=p.source_generation WHERE p.source_table='r31_fetch_timing' AND p.source_rowid=OLD.rowid AND p.source_generation=COALESCE((SELECT generation FROM research_row_revision_v2 WHERE source_table='r31_fetch_timing' AND source_rowid=OLD.rowid),0) AND a.state IN('VERIFIED','REFERENCED','PRUNED')) BEGIN SELECT RAISE(ABORT,'R341_FETCH_TRACE_VERIFIED_ARCHIVE_REQUIRED'); END",
+        "CREATE TRIGGER IF NOT EXISTS r341_fetch_trace_locator BEFORE DELETE ON r31_fetch_timing BEGIN INSERT OR IGNORE INTO research_evidence_locator_v2(source_table,source_key_hash,archive_id,row_hash,key_canonical,created_at) SELECT m.source_table,m.source_key_hash,m.archive_id,m.row_hash,m.key_canonical,p.created_at FROM research_retention_permit_v2 p JOIN research_evidence_archive_member_v2 m ON m.archive_id=p.archive_id AND m.source_table=p.source_table AND m.source_rowid=p.source_rowid WHERE p.source_table='r31_fetch_timing' AND p.source_rowid=OLD.rowid; END"
     };
     public static void ensureR31Timing(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_TIMING_MIGRATION_OWNER_REQUIRED");for(String sql:R31_TIMING_DDL)db.execSQL(sql);}
     private static final java.util.LinkedHashMap<String,TransportTraceR31> TRANSPORT_R31=new java.util.LinkedHashMap<>();
@@ -52,7 +59,11 @@ public final class FetchLedgerR925 {
         try{timingOwner.submitBackgroundWrite("R31_FETCH_TIMING",db->{
             try{
             boolean exists;try(Cursor row=db.rawQuery("SELECT 1 FROM r31_fetch_timing WHERE request_id=?",new String[]{trace.id})){exists=row.moveToFirst();}
-            if(!exists){try(Cursor count=db.rawQuery("SELECT count(*) FROM r31_fetch_timing",null)){if(count.moveToFirst()&&count.getLong(0)>=R31_TIMING_MAX_ROWS){traceAdmissionDropsR31.incrementAndGet();db.execSQL("INSERT OR IGNORE INTO app_state(state_key,state_value,updated_at) VALUES('r31_fetch_timing_dropped','0',?)",new Object[]{System.currentTimeMillis()});db.execSQL("UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=? WHERE state_key='r31_fetch_timing_dropped'",new Object[]{System.currentTimeMillis()});return;}}
+            if(!exists){try(Cursor count=db.rawQuery("SELECT count(*) FROM r31_fetch_timing",null)){if(count.moveToFirst()){
+                long rows=count.getLong(0),now=System.currentTimeMillis();
+                if(rows>=R341_TIMING_ARCHIVE_AT)db.execSQL("UPDATE app_state SET state_value='0',updated_at=? WHERE state_key='r979_retention_due_at' AND state_value<>'0'",new Object[]{now});
+                if(rows>=R31_TIMING_MAX_ROWS){traceAdmissionDropsR31.incrementAndGet();db.execSQL("INSERT OR IGNORE INTO app_state(state_key,state_value,updated_at) VALUES('r31_fetch_timing_dropped','0',?)",new Object[]{now});db.execSQL("UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=? WHERE state_key='r31_fetch_timing_dropped'",new Object[]{now});return;}
+            }}
                 Object[] args=new Object[21];args[0]=trace.id;args[1]=trace.boot;args[2]=trace.payload;for(int i=0;i<14;i++)args[i+3]=knownTimeR31(trace.clocks[i]);args[17]=trace.issue;args[18]=trace.accepted?1:0;args[19]=trace.truncated?1:0;args[20]="FIRST_SUCCESSFUL_INPUTSTREAM_READ; BODY_EOF_BEFORE_CLOSE; MONOTONIC_SAME_BOOT_ONLY; ZERO_IS_UNKNOWN";
                 db.execSQL("INSERT INTO r31_fetch_timing VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",args);
             }else db.execSQL("UPDATE r31_fetch_timing SET parse_wall_ms=coalesce(parse_wall_ms,?),parse_mono_ms=coalesce(parse_mono_ms,?),validated_wall_ms=coalesce(validated_wall_ms,?),validated_mono_ms=coalesce(validated_mono_ms,?),issue=CASE WHEN issue='' THEN ? ELSE issue END,accepted=max(accepted,?) WHERE request_id=? AND payload_hash=?",new Object[]{knownTimeR31(trace.clocks[8]),knownTimeR31(trace.clocks[9]),knownTimeR31(trace.clocks[10]),knownTimeR31(trace.clocks[11]),trace.issue,trace.accepted?1:0,trace.id,trace.payload});

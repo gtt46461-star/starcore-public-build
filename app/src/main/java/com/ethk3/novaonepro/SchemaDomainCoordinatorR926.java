@@ -105,9 +105,9 @@ public final class SchemaDomainCoordinatorR926 {
 
     public static void migrateR335CheckpointRecovery(SQLiteDatabase db) throws Exception {
         if(!db.inTransaction())throw new IllegalStateException("R335_CHECKPOINT_SCHEMA_OWNER_REQUIRED");
-        Contract contract=new Contract(com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335.DOMAIN,1,com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335.OBJECTS);
+        Contract contract=new Contract(com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335.DOMAIN,2,com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335.OBJECTS);
         prepareRepairIfDrift(db,contract);
-        runStep(db,contract,"R335_CHECKPOINT_RECOVERY_V1",com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335::ensureSchema);
+        runStep(db,contract,"R341_CHECKPOINT_RECOVERY_OBSERVATION_V2",com.ethk3.novaonepro.strategyv2.CheckpointRecoveryR335::ensureSchema);
         verifyAndStamp(db,contract);
     }
 
@@ -1071,7 +1071,8 @@ public final class SchemaDomainCoordinatorR926 {
 
     public static Contract r31TransportTimingContract() {
         return new Contract("REALTIME_R31_TIMING", FetchLedgerR925.R31_TIMING_REVISION,
-                new String[] {"r31_fetch_timing", "r31_fetch_timing_issue"});
+                new String[] {"r31_fetch_timing", "r31_fetch_timing_issue", "r341_fetch_timing_finished",
+                        "r341_fetch_trace_revision", "r341_fetch_trace_revision_retire", "r341_fetch_trace_guard", "r341_fetch_trace_locator"});
     }
 
     /** Startup-only additive domain, under the existing sole writer guard. */
@@ -1081,7 +1082,7 @@ public final class SchemaDomainCoordinatorR926 {
             if (own) db.beginTransaction();
             Contract contract = r31TransportTimingContract();
             prepareRepairIfDrift(db, contract);
-            runStep(db, contract, "R31_TRANSPORT_TIMING_V1", FetchLedgerR925::ensureR31Timing);
+            runStep(db, contract, "R341_TRANSPORT_TIMING_ARCHIVE_V2", FetchLedgerR925::ensureR31Timing);
             verifyAndStamp(db, contract);
             if (own) db.setTransactionSuccessful();
         } catch (RuntimeException failure) {

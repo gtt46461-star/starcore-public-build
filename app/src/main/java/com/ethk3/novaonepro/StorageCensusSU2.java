@@ -16,10 +16,12 @@ public final class StorageCensusSU2 {
 
     public static final class Census {
         public final Map<String, Long> bytes = new TreeMap<>(), detailBytes=new TreeMap<>(),scopeBytes=new TreeMap<>(); public final List<String> largest = new ArrayList<>(); public final Set<String> incompleteReasons=new TreeSet<>();public long total,allocatedFileAndDirectoryBytes;public boolean allocatedBytesKnown=true;public final Map<String,Long> allocatedCategories=new TreeMap<>(),allocatedScopeBytes=new TreeMap<>();public long sampleStartedAt,sampleFinishedAt,startedMonotonicNanos,finishedMonotonicNanos;public final String bootId=StorageBudgetR31.boot(); public int entries,excludedInstallationLinks; public boolean truncated;
+        public final Map<String,Long> protectionBytes = new TreeMap<>();
         public String line() {
             StringBuilder b = new StringBuilder("STORAGE_CENSUS_SU2|total=").append(total).append("|entries=").append(entries).append("|truncated=").append(truncated);
             for (Map.Entry<String, Long> e : bytes.entrySet()) b.append('|').append(e.getKey()).append('=').append(e.getValue());
             for(Map.Entry<String,Long> e:detailBytes.entrySet())b.append("|detail.").append(e.getKey()).append('=').append(e.getValue());
+            b.append("|classificationRegularBytes=").append(protectionBytes);
             b.append("|sampleStartedAt=").append(sampleStartedAt).append("|sampleFinishedAt=").append(sampleFinishedAt).append("|complete=").append(!truncated).append("|incompleteReasons=").append(incompleteReasons).append("|excludedInstallationLinks=").append(excludedInstallationLinks);
             b.append("|bootId=").append(bootId).append("|startedMonotonicNanos=").append(startedMonotonicNanos).append("|finishedMonotonicNanos=").append(finishedMonotonicNanos).append("|method=REGULAR_FILE_LENGTH|allocatedBlocksBytes="+(allocatedBytesKnown&&!truncated?allocatedFileAndDirectoryBytes:"UNKNOWN")+"|allocatedMethod=ANDROID_OS_STAT_ST_BLOCKS_TIMES_512_FILES_AND_DIRECTORIES|sampling=INTERVAL_NOT_ATOMIC_SNAPSHOT|memoryMetric=false");
             b.append("|owners=MAIN_DB:DatabaseCoordinator;BACKUP:offline-migration-with-verified-recovery;REPORT_SNAPSHOT:immutable-report-job-reference;ARCHIVE:reference-closure;MODEL:original-model-owner;CACHE:explicit-recomputable-only");
@@ -39,6 +41,12 @@ public final class StorageCensusSU2 {
         if(p.startsWith("cache/")||p.startsWith("code_cache/"))return "CACHE_CLASSIFICATION_IS_NOT_DELETION_AUTHORITY";return "OTHER_PROTECTED_UNCLASSIFIED";
     }
     private static final class Entry{final String path;final long bytes;Entry(String p,long b){path=p;bytes=b;}}
+
+    private static String protection(String path, String category) {
+        if (path.startsWith("code_cache/") || path.startsWith("files/r335-prepared-canonical/")) return "RECOMPUTABLE";
+        if (!"OTHER".equals(category) && !"CACHE".equals(category)) return "PROTECTED_ORIGINAL";
+        return "UNKNOWN";
+    }
 
     public static String category(String relative) {
         String r = relative.replace('\\', '/');
@@ -81,6 +89,7 @@ public final class StorageCensusSU2 {
                     if(k.isDirectory()){if(frame.depth>=12){c.truncated=true;c.incompleteReasons.add("DEPTH_BUDGET_12");}else stack.push(new Frame(k,r,frame.depth+1));continue;}
                     if(!k.isFile()){c.truncated=true;c.incompleteReasons.add("UNRESOLVED_FILE_TYPE");continue;}
                     long len=k.length();String cat=category(r);c.bytes.put(cat,Math.addExact(c.bytes.get(cat),len));c.total=Math.addExact(c.total,len);
+                    c.protectionBytes.merge(protection(r,cat),len,Math::addExact);
                     for(String scope:c.scopeBytes.keySet())if(r.equals(scope)||r.startsWith(scope+"/"))c.scopeBytes.put(scope,Math.addExact(c.scopeBytes.get(scope),len));
                     c.detailBytes.merge(detail(r),len,Long::sum);top.add(new Entry(r,len));if(top.size()>8)top.poll();
                 }catch(java.io.IOException|SecurityException unresolved){c.truncated=true;c.incompleteReasons.add("PATH_UNREADABLE:"+unresolved.getClass().getSimpleName());}
@@ -115,5 +124,6 @@ public final class StorageCensusSU2 {
     public static Map<String,Object> sqliteSpace(android.database.sqlite.SQLiteDatabase db){return sqliteSpace(db,null);}
     public static Map<String,Object> sqliteSpace(android.database.sqlite.SQLiteDatabase db,android.os.CancellationSignal cancellation){Map<String,Object> out=new LinkedHashMap<>();out.put("sampleWallMs",System.currentTimeMillis());for(String key:new String[]{"page_count","page_size","freelist_count"})try(android.database.Cursor q=db.rawQuery("PRAGMA "+key,null,cancellation)){out.put(key,q.moveToFirst()?q.getLong(0):null);}catch(RuntimeException error){if(error instanceof android.os.OperationCanceledException)throw error;out.put(key,null);out.put(key+"Error",error.getClass().getSimpleName());}if(out.get("page_count") instanceof Number&&out.get("page_size") instanceof Number&&out.get("freelist_count") instanceof Number){long size=((Number)out.get("page_size")).longValue();out.put("logicalPageBytes",Math.multiplyExact(size,((Number)out.get("page_count")).longValue()));out.put("freePageBytes",Math.multiplyExact(size,((Number)out.get("freelist_count")).longValue()));}
         List<Map<String,Object>> pages=new ArrayList<>();try(android.database.Cursor q=db.rawQuery("SELECT name,SUM(pgsize) FROM dbstat GROUP BY name ORDER BY name LIMIT 1025",null,cancellation)){while(q.moveToNext()){if(pages.size()==1024){out.put("dbstatStatus","TRUNCATED_EXPLICIT_1024_OBJECT_LIMIT");break;}Map<String,Object> row=new LinkedHashMap<>();row.put("object",q.getString(0));row.put("btreePageBytes",q.getLong(1));pages.add(row);}if(!out.containsKey("dbstatStatus"))out.put("dbstatStatus","MEASURED_IMMUTABLE_COPY_BTREE_PAGES");out.put("dbstatObjects",pages);}catch(RuntimeException unavailable){if(unavailable instanceof android.os.OperationCanceledException)throw unavailable;out.put("dbstatStatus","UNSUPPORTED_OR_UNAVAILABLE");out.put("dbstatReason",unavailable.getClass().getSimpleName());out.put("dbstatObjects",null);}
+        out.put("dbstatObjectCoverageComplete","MEASURED_IMMUTABLE_COPY_BTREE_PAGES".equals(out.get("dbstatStatus")));
         out.put("scope","IMMUTABLE_REPORT_COPY; NOT_LIVE_FILE_OR_FREE_DISK; DBSTAT_EXCLUDES_FREELIST_AND_SIDECARS");return out;}
 }

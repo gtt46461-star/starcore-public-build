@@ -11,11 +11,12 @@ import java.util.*;
 public final class CheckpointRecoveryR335 {
     private CheckpointRecoveryR335(){}
     public static final String DOMAIN="RESEARCH_R335_CHECKPOINT_RECOVERY",DIRECTORY="r335-checkpoint-recovery";
-    public static final String[] OBJECTS={"r335_checkpoint_recovery","r335_checkpoint_recovery_order","r335_checkpoint_recovery_cursor"};
+    public static final String[] OBJECTS={"r335_checkpoint_recovery","r335_checkpoint_recovery_order","r335_checkpoint_recovery_cursor",RecoveryLedgerR341.TABLE};
     public static final String[] DDL={
         "CREATE TABLE IF NOT EXISTS r335_checkpoint_recovery(expected_hash TEXT PRIMARY KEY,owner_identity TEXT NOT NULL,status TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,child_cursor INTEGER NOT NULL DEFAULT 0,source_evidence TEXT NOT NULL DEFAULT '',last_error TEXT NOT NULL DEFAULT '',updated_seq INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL DEFAULT 0)",
         "CREATE INDEX IF NOT EXISTS r335_checkpoint_recovery_order ON r335_checkpoint_recovery(status,updated_seq,expected_hash)",
-        "CREATE TABLE IF NOT EXISTS r335_checkpoint_recovery_cursor(singleton INTEGER PRIMARY KEY CHECK(singleton=1),sequence INTEGER NOT NULL,intake_after TEXT NOT NULL DEFAULT '')"
+        "CREATE TABLE IF NOT EXISTS r335_checkpoint_recovery_cursor(singleton INTEGER PRIMARY KEY CHECK(singleton=1),sequence INTEGER NOT NULL,intake_after TEXT NOT NULL DEFAULT '')",
+        RecoveryLedgerR341.DDL
     };
     private static final LinkedHashMap<String,String> SIGNALS=new LinkedHashMap<>();
     private static long lostSignals;
@@ -28,7 +29,7 @@ public final class CheckpointRecoveryR335 {
     }
     public static String currentOwner(){RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();return claim==null?"CAS_CONSUMER_NO_TASK_CLAIM":claim.task+":"+claim.owner+":"+claim.fence;}
     public static void ensureSchema(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R335_CHECKPOINT_SCHEMA_OWNER");for(String sql:DDL)db.execSQL(sql);db.execSQL("INSERT OR IGNORE INTO r335_checkpoint_recovery_cursor(singleton,sequence,intake_after) VALUES(1,0,'')");}
-    public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE name IN ('r335_checkpoint_recovery','r335_checkpoint_recovery_order','r335_checkpoint_recovery_cursor')",null)){return c.moveToFirst()&&c.getLong(0)==3;}}
+    public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE name IN ('r335_checkpoint_recovery','r335_checkpoint_recovery_order','r335_checkpoint_recovery_cursor','"+RecoveryLedgerR341.TABLE+"')",null)){return c.moveToFirst()&&c.getLong(0)==OBJECTS.length;}}
     private static long scalar(SQLiteDatabase db,String sql,String...args){try(Cursor c=db.rawQuery(sql,args)){if(!c.moveToFirst())throw new IllegalStateException("R335_CHECKPOINT_QUERY_EMPTY");return c.getLong(0);}}
     private static DatabaseCoordinator.WriteContext context(String op){return DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,op).withDeadlineMonoMs(TimeSourceR811.monoNowMs()+20L);}
     private static void check(long deadline)throws InterruptedIOException {if(Thread.currentThread().isInterrupted()||android.os.SystemClock.elapsedRealtime()>=deadline||RealtimePressureGateR811.hasActiveCriticalWork())throw new InterruptedIOException("R335_CHECKPOINT_RECOVERY_YIELDED");}
@@ -60,7 +61,12 @@ public final class CheckpointRecoveryR335 {
                     new Object[]{hash});
             }db.execSQL("UPDATE r335_checkpoint_recovery_cursor SET intake_after=? WHERE singleton=1",new Object[]{next});return 0;});
     }
-    private static final class Item {String hash,owner,status,source;long attempts,seq;int childCursor;}
+    private static final class Item {
+        String hash,owner,status,source,observedHash,location="HOT_COLD_AND_EXACT_INTAKE";
+        Long observedBytes;
+        long attempts,seq;
+        int childCursor;
+    }
     private static Item next(DbStore store){return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(context("R335_CHECKPOINT_RECOVERY_CLAIM"),db->{
         Item out=new Item();try(Cursor c=db.rawQuery("SELECT expected_hash,owner_identity,status,attempts,child_cursor,source_evidence FROM r335_checkpoint_recovery WHERE status<>'BYTES_RESTORED_NOT_MODEL_ACCEPTED'"
             +" AND (status<>'WAIT_SOURCE' OR attempts=0 OR updated_at<=? OR updated_at>?) ORDER BY updated_seq,expected_hash LIMIT 1",
@@ -71,8 +77,12 @@ public final class CheckpointRecoveryR335 {
     });}
     private static void finish(DbStore store,Item item,String state,int cursor,String source,String detail){
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(context("R335_CHECKPOINT_RECOVERY_OBSERVE"),db->{
-            db.execSQL("UPDATE r335_checkpoint_recovery SET status=?,child_cursor=?,source_evidence=?,last_error=?,updated_at=? WHERE expected_hash=? AND updated_seq=?",new Object[]{state,cursor,source,RuntimeFaultEvidenceR31.clean(detail,512),System.currentTimeMillis(),item.hash,item.seq});
-            if(scalar(db,"SELECT changes()")!=1)throw new IllegalStateException("R335_CHECKPOINT_RECOVERY_CAS");return 0;
+            long at=System.currentTimeMillis();
+            String reason=RuntimeFaultEvidenceR31.clean(detail,512);
+            db.execSQL("UPDATE r335_checkpoint_recovery SET status=?,child_cursor=?,source_evidence=?,last_error=?,updated_at=? WHERE expected_hash=? AND updated_seq=?",new Object[]{state,cursor,source,reason,at,item.hash,item.seq});
+            if(scalar(db,"SELECT changes()")!=1)throw new IllegalStateException("R335_CHECKPOINT_RECOVERY_CAS");
+            RecoveryLedgerR341.record(db,item.hash,item.seq,item.owner,state,item.location,source,item.observedHash,item.observedBytes,reason,at);
+            return 0;
         });observation=state+":"+item.hash+":"+RuntimeFaultEvidenceR31.clean(detail,128);
     }
     private static File inside(File directory,String name)throws IOException {
@@ -96,12 +106,15 @@ public final class CheckpointRecoveryR335 {
             File intake=new File(files,DIRECTORY),sourceFile=inside(intake,item.hash+".bin");
             boolean exists=ColdCheckpointR324.exists(hotRoot,item.hash);long length=exists?ColdCheckpointR324.rawSize(hotRoot,item.hash):sourceFile.length();
             if(!exists&&!sourceFile.isFile()){finish(store,item,"WAIT_SOURCE",0,"","NO_EXACT_BYTES_IN_HOT_COLD_OR_RECOVERY_INTAKE; OLD_IDENTITY_PRESERVED");return observation;}
+            item.location=exists?"HOT_OR_COLD:"+item.hash:DIRECTORY+"/"+item.hash+".bin";
+            item.observedBytes=length;
             if(length<1||length>CheckpointArtifactsR26.MAX_BYTES){finish(store,item,"HASH_OR_SOURCE_INVALID_PRESERVED",0,"","SOURCE_SIZE_BOUND");return observation;}
             MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("r335-checkpoint-recovery",MemoryBudgetR31.Kind.CHECKPOINT,4L*length+(2L<<20),()->Thread.currentThread().isInterrupted());
             if(!admission.acquired()){finish(store,item,"WAIT_BUDGET",item.childCursor,item.source,"MEMORY:"+admission.reason);return observation;}
             try(MemoryBudgetR31.Lease memory=admission.lease){
                 byte[] body=exists?ColdCheckpointR324.read(hotRoot,item.hash):bounded(sourceFile,length,deadline);check(deadline);
-                if(!item.hash.equals(CheckpointArtifactsR26.sha(body))){finish(store,item,"HASH_OR_SOURCE_INVALID_PRESERVED",0,"","EXACT_OLD_HASH_MISMATCH; SOURCE_RETAINED");return observation;}
+                item.observedHash=CheckpointArtifactsR26.sha(body);
+                if(!item.hash.equals(item.observedHash)){finish(store,item,"HASH_OR_SOURCE_INVALID_PRESERVED",0,"","EXACT_OLD_HASH_MISMATCH; SOURCE_RETAINED");return observation;}
                 String evidence=exists?"EXACT_HOT_OR_COLD_BYTES:"+item.hash:proof(intake,item.hash,length,deadline);
                 if(body.length>=3&&body[0]==0x26&&body[1]==0x43&&body[2]==0x53&&!ChunkedCheckpointR26.isManifest(body)){
                     finish(store,item,"UNKNOWN_CHILD_CLOSURE_PRESERVED",0,evidence,"UNKNOWN_MANIFEST_VERSION");return observation;
@@ -132,7 +145,10 @@ public final class CheckpointRecoveryR335 {
                             long liveEdges=scalar(tx,"SELECT count(*) FROM r31_gc_edge e JOIN r31_gc_artifact a ON a.artifact_hash=e.to_hash AND a.state='LIVE' WHERE e.from_hash=?",selected.hash);
                             if(liveEdges!=children.size())throw new IllegalStateException("R335_RECOVERED_CHILD_NOT_LIVE");
                             tx.execSQL("UPDATE r335_checkpoint_recovery SET status='BYTES_RESTORED_NOT_MODEL_ACCEPTED',child_cursor=?,source_evidence=?,last_error='',updated_at=? WHERE expected_hash=? AND updated_seq=?",new Object[]{children.size(),sourceEvidence,System.currentTimeMillis(),selected.hash,selected.seq});
-                            if(scalar(tx,"SELECT changes()")!=1)throw new IllegalStateException("R335_CHECKPOINT_RECEIPT_CAS");return 1;
+                            if(scalar(tx,"SELECT changes()")!=1)throw new IllegalStateException("R335_CHECKPOINT_RECEIPT_CAS");
+                            RecoveryLedgerR341.record(tx,selected.hash,selected.seq,selected.owner,"BYTES_RESTORED_NOT_MODEL_ACCEPTED",
+                                    selected.location,sourceEvidence,selected.hash,length,"EXACT_READBACK_AND_LIVE_DEPENDENCIES",System.currentTimeMillis());
+                            return 1;
                         },1);
                         try(SQLiteDatabase fresh=SQLiteDatabase.openDatabase(db.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
                             if(scalar(fresh,"SELECT count(*) FROM r335_checkpoint_recovery w JOIN r31_commit_receipt r ON r.commit_key=? WHERE w.expected_hash=? AND w.status='BYTES_RESTORED_NOT_MODEL_ACCEPTED' AND w.updated_seq=? AND r.payload_hash=?",key,item.hash,Long.toString(item.seq),payload)!=1)throw new IOException("R335_CHECKPOINT_RECEIPT_READBACK");
@@ -155,7 +171,7 @@ public final class CheckpointRecoveryR335 {
     }
     public static Map<String,Object> report(SQLiteDatabase db){
         Map<String,Object> out=new LinkedHashMap<>();out.put("schemaReady",ready(db));out.put("restorationAuthority","EXACT_OLD_BYTES_ONLY; NO_EVIDENCE_N_OR_CERTIFICATE_OR_MODEL_ACCEPTANCE");out.put("missingSourceAction","PRESERVE_OLD_IDENTITY; ORIGINAL_CONSUMER_STAYS_DEPENDENCY_ISOLATED; INDEPENDENT_RETRAINING_REQUIRES_NEW_IDENTITY");
-        if(ready(db)){List<Object> counts=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT status,count(*) FROM r335_checkpoint_recovery GROUP BY status ORDER BY status",null)){while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();row.put("status",c.getString(0));row.put("count",c.getLong(1));counts.add(row);}}out.put("states",counts);}
+        if(ready(db)){List<Object> counts=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT status,count(*) FROM r335_checkpoint_recovery GROUP BY status ORDER BY status",null)){while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();row.put("status",c.getString(0));row.put("count",c.getLong(1));counts.add(row);}}out.put("states",counts);out.put("observedTransitions",RecoveryLedgerR341.counts(db));}
         return out;
     }
     public static synchronized Map<String,Object> processObservation(){Map<String,Object> out=new LinkedHashMap<>();out.put("pendingSignals",SIGNALS.size());out.put("droppedSignals",lostSignals);out.put("lastState",observation);out.put("scope","CURRENT_PROCESS_DIAGNOSTIC; DURABLE_COUNTS_ARE_SEPARATE");return out;}

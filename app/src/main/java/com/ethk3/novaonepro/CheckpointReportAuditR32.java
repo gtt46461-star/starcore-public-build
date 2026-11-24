@@ -84,6 +84,8 @@ public final class CheckpointReportAuditR32 {
                 .put("state",missing+corrupt+unreadable>0?"CHECKPOINT_EVIDENCE_GAPS":!closure?"CHECKPOINT_VERIFICATION_INCOMPLETE":roots.isEmpty()?"NO_REFERENCED_CHECKPOINT_OBJECTS":"VERIFIED_REFERENCED_CHECKPOINT_CLOSURE")
                 .put("referenceRoots",omittedRoots?JSONObject.NULL:roots.size()).put("retainedRootKeys",roots.size()).put("observedObjects",objects).put("observedBytes",bytes).put("verifiedObjects",verified).put("missingObjects",missing)
                 .put("corruptObjects",corrupt).put("unreadableObjects",unreadable).put("byteVerificationNotRun",notRun).put("unknownChildSets",unknownEdges).put("truncated",truncated)
+                .put("queuedObjectsUnvisited",work.size()).put("byteVerificationDenominator",objects)
+                .put("byteCoverageComplete",!truncated&&notRun==0&&missing==0&&corrupt==0&&unreadable==0)
                 .put("sourceClosureVerified",closure).put("sourceRootsComplete",!truncated).put("compactByteBudget",BYTE_BUDGET).put("bytesRead",BYTE_BUDGET-remaining)
                 .put("metadataMember",MEMBER).put("rawBodiesIncluded",false).put("gcOrModelUseAuthorized",false)
                 .put("boundary","Diagnostic inventory only; missing objects and unknown children are not healthy, restored, exported, or a usable GC mark.");

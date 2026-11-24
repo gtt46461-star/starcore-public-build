@@ -596,8 +596,6 @@ public final class ReportExportServiceCP4 extends Service {
         ReportSemanticVerifierR31.verifyDelivery(directory,job,active);
         job.semanticVerificationR31="ZIP_READBACK_VERIFIED";
         pointer.put("deliveryIndexSha256",ReportArchiveCP4.hash(new File(directory,"delivery/index.json"),active));
-        ReportPublicationCP12.pruneOldReports(journal.root(),directory,System.currentTimeMillis());
-        ReportPublicationCP12.enforceQuota(journal.root(),directory,job.publishedQuotaBytes);   // R13-P34: the quota existed but was never called
         ReportJobJournalCP12.writeAtomic(new File(directory,"published.json"),pointer.toString());
         active.releaseResourcesForPublicationR31();
         active.validatedDeliveryR31=true;journal.transition(job,ReportJobJournalCP12.Stage.READY_TO_SHARE,System.currentTimeMillis());

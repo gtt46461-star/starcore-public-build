@@ -23,7 +23,7 @@ public final class ReportCleanupR31 {
         return new JSONObject().put("format","R31_REPORT_CLEANUP_V1").put("jobId",id).put("state","CLEANUP_PENDING")
                 .put("attempts",0).put("nextWallMs",0).put("nextMonotonicNanos",0).put("boot",StorageBudgetR31.boot())
                 .put("reason",bounded(reason)).put("retainedWorkspaceBytes",JSONObject.NULL).put("reclaimedBytes",0)
-                .put("measurement","REGULAR_FILE_LENGTH; ALLOCATED_BLOCKS_UNKNOWN; RECEIPT_WRITE_EXCLUDED")
+                .put("measurement","SEPARATE_REGULAR_FILE_LENGTH_AND_ALLOCATED_BLOCKS; RECEIPT_WRITE_EXCLUDED")
                 .put("resourcesClosed",false);
     }
     /** Invoke only before opening work inputs or after the outer resource scope has closed. */
@@ -45,23 +45,30 @@ public final class ReportCleanupR31 {
             if(!"CLEANUP_PENDING".equals(row.optString("state")))continue;
             if(delay(row,nowWall,System.nanoTime())>0)continue;
             handled++;row.put("attempts",Math.min(1000000,row.optInt("attempts",0)+1)).put("resourcesClosed",true).put("attemptWallMs",nowWall);
-            long before=-1;
             try{
-                before=ReportPublicationCP12.jobPhysicalBytes(directory);row.put("beforePhysicalBytes",before);
+                long[] before=StorageBudgetR31.measureScopeR341(directory.getAbsoluteFile());
+                row.put("beforeRegularFileBytes",before[0]).put("beforeAllocatedBytes",allocated(before[1]));
                 ReportJobJournalCP12.Job job=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(directory,"job.json"),65536));
                 if(!"READY_TO_SHARE".equals(job.stage)||!new File(directory,"published.json").isFile())throw new IOException("REPORT_CLEANUP_UNPUBLISHED_PROTECTED");
                 ReportPublicationCP12.cleanRaw(directory,job.publishedDir);
-                long after=ReportPublicationCP12.jobPhysicalBytes(directory);
-                row.put("state","CLEANUP_COMPLETE").put("afterPhysicalBytes",after).put("reclaimedBytes",Math.max(0,before-after))
-                        .put("retainedWorkspaceBytes",after).put("reason","VERIFIED_DELIVERY_PRESERVED_PRIVATE_WORKSPACE_RELEASED");
+                long[] after=StorageBudgetR31.measureScopeR341(directory.getAbsoluteFile());
+                row.put("state","CLEANUP_COMPLETE").put("afterRegularFileBytes",after[0]).put("afterAllocatedBytes",allocated(after[1]))
+                        .put("reclaimedRegularFileBytes",Math.max(0,before[0]-after[0]))
+                        .put("reclaimedBytes",before[1]<0||after[1]<0?JSONObject.NULL:Math.max(0,before[1]-after[1]))
+                        .put("retainedWorkspaceBytes",after[0]).put("reason","VERIFIED_DELIVERY_PRESERVED_PRIVATE_WORKSPACE_RELEASED");
             }catch(Exception failure){
                 try{row.put("retainedWorkspaceBytes",ReportPublicationCP12.jobPhysicalBytes(directory));}catch(IOException unknown){row.put("retainedWorkspaceBytes",JSONObject.NULL);}
                 row.put("reason",bounded(failure.getClass().getSimpleName()+":"+failure.getMessage()));defer(row,nowWall);
             }
             // A receipt failure is a cleanup failure; callers must never demote the already-published job.
             ReportJobJournalCP12.writeAtomic(record,row.toString());
+            if("CLEANUP_COMPLETE".equals(row.optString("state"))){
+                try{ReportPublicationCP12.enforceQuota(journal.root(),directory,ReportBudgetSU2.PUBLISHED_QUOTA_BYTES);}
+                catch(Exception deferred){android.util.Log.i("ReportCleanup", "Duplicate sweep deferred",deferred);}
+            }
         }return handled;
     }
+    private static Object allocated(long bytes){return bytes<0?JSONObject.NULL:bytes;}
     private static void defer(JSONObject row,long wall)throws JSONException{
         long wait=Math.min(MAX_RETRY,1000L<<Math.min(9,Math.max(0,row.optInt("attempts",0))));
         row.put("state","CLEANUP_PENDING").put("nextWallMs",wall+wait).put("nextMonotonicNanos",System.nanoTime()+wait*1000000L).put("boot",StorageBudgetR31.boot());

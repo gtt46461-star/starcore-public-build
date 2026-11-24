@@ -127,12 +127,9 @@ public final class ReportPublicationCP12 {
   if(new File(job,"published.json").exists())return; // An already published immutable export is preserved.
   cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","share.lock","cancel-receipt-r30.json")));
  }
- /** Delete old published reports, preserving the current report and open/shared exports. */
+ /** Age is a scan hint. The only automatic publication retirement is a verified duplicate. */
  public static void pruneOldReports(File root,File current,long now)throws Exception{
-  File[] directories=DirectoryCursorR31.children(new File(root,"jobs"),1024);
-  List<File> published=new ArrayList<>();for(File d:directories)if(!d.equals(current)&&new File(d,"published.json").isFile())published.add(d);
-  published.sort((a,b)->Long.compare(b.lastModified(),a.lastModified()));
-  for(int i=0;i<published.size();i++){File d=published.get(i);if(i>=2||now-d.lastModified()>7*24*60*60*1000L)deletePublished(d,now);}
+  retireOneDuplicate(root,current,now);
  }
  public static void grant(File job,long now)throws Exception{try(Lease pin=shared(job)){ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));if(!state.stage.equals("READY_TO_SHARE"))throw new IOException("REPORT_SHARE_NOT_READY");JSONObject lease=new JSONObject();lease.put("expiresWallMs",Math.addExact(now,24*60*60*1000L));ReportJobJournalCP12.writeAtomic(new File(job,"share-until.json"),lease.toString());}}
  /** Explicit user deletion: ignore the soft 24-hour grant, honor actual open reader locks.
@@ -160,28 +157,68 @@ public final class ReportPublicationCP12 {
   for(File directory:dirs){if(!directory.getName().matches("[0-9a-f]{64}")||!directory.getAbsoluteFile().equals(directory.getCanonicalFile()))throw new IOException("REPORT_USER_DELETE_PATH");
    cleanChildren(directory,Collections.<String>emptySet());if(!directory.delete())throw new IOException("REPORT_USER_DELETE_FAILED");}
  }
- /** Keep recent deliveries within the cache target. The current report and in-use shares have priority. */
+ /** A quota may retire an equivalent delivery, while unique evidence stays readable. */
  public static void enforceQuota(File root,File current,long quota)throws Exception{
-  File jobs=new File(root,"jobs");
-  List<File> old=new ArrayList<>();
-  long total=publishedBytes(current);
-  for(File job:DirectoryCursorR31.children(jobs,1024)){
-   if(!job.getName().matches("[0-9a-f]{64}")||!job.isDirectory())throw new IOException("REPORT_QUOTA_JOB_PATH");
-   if(!job.equals(current)&&new File(job,"published.json").isFile()){
-    old.add(job);
-    total=Math.addExact(total,publishedBytes(job));
+  if(quota>0&&allPhysicalBytes(new File(root,"jobs"))>quota)pruneOldReports(root,current,System.currentTimeMillis());
+ }
+ private static String sealedDeliveryIdentity(File job)throws Exception{
+  if(!job.getAbsoluteFile().equals(job.getCanonicalFile())||!new File(job,"published.json").isFile())return "";
+  JSONObject cleanup=new JSONObject(ReportJobJournalCP12.readAtomic(new File(job,"cleanup-r31.json"),16384));
+  if(!"CLEANUP_COMPLETE".equals(cleanup.optString("state")))return "";
+  JSONObject index=delivery(job);
+  String format=index.optString("format"), hash;long bytes;
+  if(ZIP_PART_FORMAT_R30.equals(format)){
+   hash=index.getString("zipSha256");bytes=index.getLong("zipBytes");
+  }else if("SCREPORT_SINGLE_ZIP_R992".equals(format)){
+   JSONObject zip=index.getJSONArray("files").getJSONObject(0);
+   hash=zip.getString("sha256");bytes=zip.getLong("bytes");
+  }else return "";
+  return bytes>0&&hash.matches("[0-9a-f]{64}")?format+"|"+bytes+"|"+hash+"|"+index.getString("manifestSha256"):"";
+ }
+ private static void retireOneDuplicate(File root,File current,long now)throws Exception{
+  long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
+  ReportNativeCP4.Control control=()->!Thread.currentThread().isInterrupted()&&System.nanoTime()<deadline;
+  Map<String,File> retained=new HashMap<>();
+  File[] candidates=DirectoryCursorR31.children(new File(root,"jobs"),1024);
+  Arrays.sort(candidates,Comparator.comparingLong(File::lastModified).reversed().thenComparing(File::getName));
+  for(File candidate:candidates){
+   if(!control.shouldContinue())return;
+   if(candidate.equals(current)||!candidate.isDirectory()||!candidate.getName().matches("[0-9a-f]{64}"))continue;
+   try{
+    String identity=sealedDeliveryIdentity(candidate);
+    if(identity.isEmpty())continue;
+    File keeper=retained.putIfAbsent(identity,candidate);
+    if(keeper!=null&&deletePublished(candidate,keeper,identity,now,control))return;
+   }catch(Exception damagedOrBusy){
+    // The immutable publication and its cleanup state remain independent of the sweep.
+    android.util.Log.i("ReportPublication", "Duplicate sweep deferred for "+candidate.getName(),damagedOrBusy);
    }
   }
-  old.sort(Comparator.comparingLong(File::lastModified));
-  int retained=old.size()+1;
-  for(File job:old){
-   if(total<=quota&&retained<=8)break;
-   long bytes=publishedBytes(job);
-   if(deletePublished(job,System.currentTimeMillis())){total-=bytes;retained--;}
+ }
+ private static boolean deletePublished(File job,File keeper,String identity,long now,ReportNativeCP4.Control control)throws Exception{
+  File lockFile=ReportArchiveVerifierCP12.inside(job,"share.lock");
+  File until=new File(job,"share-until.json");
+  try(Lease retained=shared(keeper);RandomAccessFile io=new RandomAccessFile(lockFile,"rw")){
+   FileLock exclusive;try{exclusive=io.getChannel().tryLock();}catch(OverlappingFileLockException open){return false;}
+   if(exclusive==null)return false;
+   try{
+    if(until.exists()&&new JSONObject(ReportJobJournalCP12.readAtomic(until,4096)).getLong("expiresWallMs")>now)return false;
+    if(!identity.equals(sealedDeliveryIdentity(job))||!identity.equals(sealedDeliveryIdentity(keeper))
+      ||!verifyPublishedZip(job,control)||!verifyPublishedZip(keeper,control))return false;
+    File copy=ReportArchiveVerifierCP12.inside(job,"delivery");
+    File retired=ReportArchiveVerifierCP12.inside(job,"delivery-duplicate-r341");
+    File receipt=new File(job,"duplicate-retirement-r341.json");
+    JSONObject proof=new JSONObject().put("state","VERIFIED_EQUIVALENT").put("deliveryIdentity",identity)
+      .put("retainedJob",keeper.getName()).put("retiredJob",job.getName()).put("verifiedAt",now);
+    ReportJobJournalCP12.writeAtomic(receipt,proof.toString());
+    if(retired.exists()||!copy.renameTo(retired))return false;
+    cleanChildren(retired,Collections.<String>emptySet());
+    if(!retired.delete())throw new IOException("REPORT_DUPLICATE_DIRECTORY_CLEANUP");
+    ReportJobJournalCP12.writeAtomic(receipt,proof.put("state","DUPLICATE_DELIVERY_RETIRED").toString());
+    return true;
+   }finally{exclusive.release();}
   }
  }
- private static long publishedBytes(File job)throws Exception{long bytes=0;JSONObject index=new File(job,"delivery/index.json").isFile()?delivery(job):null;if(index!=null){JSONArray rows=index.getJSONArray("files");if(rows.length()>128)throw new IOException("REPORT_DELIVERY_BOUND");for(int i=0;i<rows.length();i++)bytes=Math.addExact(bytes,rows.getJSONObject(i).getLong("bytes"));bytes=Math.addExact(bytes,new File(job,"delivery/index.json").length());ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));if(!state.publishedDir.isEmpty())bytes=Math.addExact(bytes,new File(job,state.publishedDir+"/manifest.jsonl").length());}return bytes;}
- private static boolean deletePublished(File job,long now)throws Exception{File until=new File(job,"share-until.json");if(until.exists()&&new JSONObject(ReportJobJournalCP12.readAtomic(until,4096)).getLong("expiresWallMs")>now)return false;synchronized(OPEN){if(OPEN.containsKey(new File(job,"share.lock").getCanonicalPath()))return false;try(RandomAccessFile io=new RandomAccessFile(new File(job,"share.lock"),"rw")){FileLock lock;try{lock=io.getChannel().tryLock();}catch(OverlappingFileLockException held){return false;}if(lock==null)return false;try{cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","share.lock")));ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));state.stage="FAILED";state.lastReason="REPORT_EXPIRED_BY_QUOTA";ReportJobJournalCP12.writeAtomic(new File(job,"job.json"),state.json().toString());JSONObject ack=new JSONObject();ack.put("requestId",state.requestId);ack.put("jobId",state.jobId);ack.put("stage","FAILED");ack.put("reason",state.lastReason);ReportJobJournalCP12.writeAtomic(new File(job.getParentFile().getParentFile(),"requests/"+state.requestId+".ack.json"),ack.toString());return true;}finally{lock.release();}}}}
  /** A verified, sealed single ZIP is sufficient for recovery; legacy multipart reports keep parts. */
  public static boolean verifyPublishedZip(File job,ReportNativeCP4.Control control)throws Exception {
   if(!new File(job,"delivery/index.json").isFile())return false;
@@ -211,12 +248,24 @@ public final class ReportPublicationCP12 {
  }
  private static void cleanRawOwned(File job,String archive)throws IOException{
   try{
+   if(!verifyPublishedZip(job,()->!Thread.currentThread().isInterrupted()))
+    throw new IOException("REPORT_REPLACEMENT_INDEX_MISSING_OR_FORMAT_UNKNOWN");
    requireRawCoverageR31(job,archive);
-   if(verifyPublishedZip(job,()->true)) {
-    File directory=ReportArchiveVerifierCP12.inside(job,archive);File[] parts=DirectoryCursorR31.children(directory,4096);
+   File directory=ReportArchiveVerifierCP12.inside(job,archive);
+   if(new File(job,ReportSemanticVerifierR31.RECEIPT).isFile()){
+    ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));
+    ReportSemanticVerifierR31.verifyDelivery(job,state,()->!Thread.currentThread().isInterrupted());
+    File[] parts=DirectoryCursorR31.children(directory,4096);
     for(File part:parts)if(part.getName().matches("P[0-9]{6}\\.bin")){
      if(!part.getAbsoluteFile().equals(part.getCanonicalFile())||!part.isFile()||!part.delete())throw new IOException("REPORT_PART_CLEANUP_FAILED");
     }
+   }else{
+    // Legacy delivery cannot substitute for its private archive without the semantic receipt.
+    // Keep the real archive parts and verify them before retiring the redundant snapshot.
+    ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));
+    if(!ReportArchiveVerifierCP12.verify(directory,state.jobId,ReportArchiveVerifierCP12.nativeDecoder(4L<<20),
+      ()->!Thread.currentThread().isInterrupted(),null).evidenceComplete)
+     throw new IOException("REPORT_LEGACY_REPLACEMENT_INCOMPLETE");
    }
    cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","published.json","delivery","share.lock","share-until.json","R30_SUCCESSFUL_SUMMARY_CANDIDATE.json",ReportSemanticVerifierR31.RECEIPT,"cleanup-r31.json",archive)));
   }catch(IOException error){throw error;}catch(Exception error){throw new IOException("REPORT_CLEANUP_VERIFICATION_FAILED",error);}
