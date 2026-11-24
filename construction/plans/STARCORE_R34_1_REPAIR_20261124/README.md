@@ -1,5 +1,11 @@
 # STARCORE R34.1：122版返修后的完整施工方案
 
+**本次复核为 R34.1 第 2 版。** 仍按 12 批、62 个工单、152 个原验收入口施工。本次在 28 个工单的 31 个验收入口内加入 **32 项必测条件**，文件卡由 249 份更新为 271 份。工单、逐批说明、文件卡和回执校验均使用相同复核编号。
+
+[构建、迁移与交付](specs/review/build.md) · [后台、冻结与结算](specs/review/runtime.md) · [创造、训练、进化与资格](specs/review/algorithm.md) · [图表、缓存与页面](specs/review/charts.md) · [存储、导出与恢复](specs/review/storage.md) · [原报告与九层诊断](specs/review/report.md)
+
+[逐批修改及验收索引](REVIEW.md) · [原报告 347 条对照](evidence/REPORT_COVERAGE.json) · [本次复核的工单与用例映射](control/REVIEW_CONTRACTS.json)
+
 **任务：以实际安装的 R34-B12-2026-11-24-577311122 为底座，修复后台实时业务和研究闭环，使“创造、训练、反馈、研究、变异、融合、发布、独立未来评价、主链应用”逐段可运行、可恢复、可验收。**
 
 本目录是施工交付物，状态为 `DESIGNED_APP_IMPLEMENTATION_NOT_RUN`。本次完成的是现场分析、方法级施工设计、旧要求承接、验收合同和方案校验工具；应用源码修改、Android APK 构建、设备持续运行及自然质量结果必须由后续施工回执证明。不得把方案上传或自检通过解释为软件已经修好。

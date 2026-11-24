@@ -122,7 +122,9 @@ def validate_structure(root):
     for row in rows:
         need(row['work_orders'] and set(row['work_orders']).issubset(ids),
              'Research object has no valid work-order owner '+row['key'])
-    return {'batches':len(batches),'issues':len(ids),'files':len(cf),'acceptance_cases':len(allcases),
+    from review_contracts import verify as verify_review_contracts
+    review_counts = verify_review_contracts(root)
+    return {**review_counts, 'batches':len(batches),'issues':len(ids),'files':len(cf),'acceptance_cases':len(allcases),
             'acceptance_by_level':dict(collections.Counter(x['level'] for x in allcases.values())),
             'r34_requirements':len(cross),'r34_files':len(oc),'r335_requirements':len(chain),
             'source_manifest_entries':len(baseline['files']),'method_contracts':len(anchors)}

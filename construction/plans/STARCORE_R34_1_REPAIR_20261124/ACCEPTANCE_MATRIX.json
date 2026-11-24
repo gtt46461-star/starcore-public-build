@@ -3,7 +3,7 @@
   "cases": [
     {
       "scenario": "R33.5、R34 既有封印 fixtures 加 R34.1-B01…B12 新 fixtures，各修改一个成员/版本/祖先关系。",
-      "expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。",
+      "expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。 REV-B01-01：以同一122源码祖先、两份不同 R34.1 封印构建测试输入，替换新封印或放入旧 APK 时，封包拒绝；R33.5 摘要相同不能掩盖交换。编译 androidTest APK 只记编译完成，须另取实际运行输出签场景。",
       "evidence": "ENGINEERING：Python/Gradle identity 测试、输入 manifest、stdout 脱敏日志；Android 编译单独 NOT_RUN 或附真实日志。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -27,7 +27,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B01-01"
+      ]
     },
     {
       "scenario": "版本四文件写到中途故障后恢复；传033、122、签名不匹配、缺真实122 APK四种封包输入。",
@@ -275,7 +278,7 @@
     },
     {
       "scenario": "研究10000行、fault24条、迁移多DDL输入；中间slice被取消或进程死亡。",
-      "expected": "所有已提交slice保留、未提交slice不前移；单片边界可观察；恢复从已提交cursor续跑。任何超限单SQL另列待修，不把平均值掩盖最大值。",
+      "expected": "所有已提交slice保留、未提交slice不前移；单片边界可观察；恢复从已提交cursor续跑。任何超限单SQL另列待修，不把平均值掩盖最大值。 REV-B02-01：在 B02 仅使用本批代码与隔离容量数据运行；分别阻塞进入 SQL 之前和提交确认阶段，断言超时原因、晚到提交核对、幂等与全机会分母。B10 装入真实空间策略后重跑相同用例，禁止持写锁扫描文件。",
       "evidence": "ENGINEERING：预算histogram及逐slice commit receipts，实体机耗时另列DEVICE未测。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -295,7 +298,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B02-01"
+      ]
     },
     {
       "scenario": "填满32故障，普通研究被挡；独立控制tick在UI关闭、R26未初始化状态运行。",
@@ -515,7 +521,7 @@
     },
     {
       "scenario": "持续实时任务夹入lifecycle-schema安装并在任一对象后死亡。",
-      "expected": "遵守B02迁移片预算，重启续装，ready不提前；本批只验结构与调度，不要求未来候选产生。",
+      "expected": "遵守B02迁移片预算，重启续装，ready不提前；本批只验结构与调度，不要求未来候选产生。 REV-B03-01：旧122结构升级时只留下前一项已提交的迁移，注入第二项中断，重启后逐对象校对结构和唯一迁移收据。旧库历史保留，等待注册与真实空表分开，B03 的签收不依赖 B06 子代或 B07 模型。",
       "evidence": "ENGINEERING：逐对象故障注入和ready断言。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -535,7 +541,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B03-01"
+      ]
     },
     {
       "scenario": "双owner同时初始化、注册事务前后崩溃、旧线程晚提交、缺一任务后重试。",
@@ -827,7 +836,7 @@
     },
     {
       "scenario": "有predraw、无predraw、S0 shadow、等待开奖、draw correction、deferred尚未完成六种情况。",
-      "expected": "已有predraw正常核心结算；无predraw被排除；shadow不计REAL；未开奖不提前结算；延后证据不改变原动作/截止期。",
+      "expected": "已有predraw正常核心结算；无predraw被排除；shadow不计REAL；未开奖不提前结算；延后证据不改变原动作/截止期。 REV-B04-01：handler拒绝，首次写与第二次写之间杀进程，重复合法请求、迟到标签与跨日轮转。唯一原件、可追踪每个目标；返回不可证的原件无有效命中，不补造赛前时间。",
       "evidence": "ENGINEERING：结算资格矩阵；不要求未来样本产生。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -847,7 +856,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B04-01"
+      ]
     },
     {
       "scenario": "789项结构fixture，含已结算/未开奖、内存受限、坏payload、重复claim和中途死亡。",
@@ -923,7 +935,7 @@
     },
     {
       "scenario": "complete写BUSY后回读缺行；有完整pending原件与完全无原件两类重试。",
-      "expected": "前者同writer幂等恢复正确收据；后者WAIT_DURABLE_BINDING；真正body篡改仍HASH_CONFLICT不被恢复机制放行。",
+      "expected": "前者同writer幂等恢复正确收据；后者WAIT_DURABLE_BINDING；真正body篡改仍HASH_CONFLICT不被恢复机制放行。 REV-B04-02：计时表恰满，发送同请求的 transport/parse/validated 三阶段与一次新的 HISTORY 请求，再令事务已提交但返回证据丢失；LIVE 与 HISTORY 区分，缺失不填 0，同一请求不会被报为三个独立漏件，业务提交保持。",
       "evidence": "ENGINEERING：真实SQLite故障/receipt/hash对账。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -943,7 +955,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B04-02"
+      ]
     },
     {
       "scenario": "重复100次、逆序/迟到、同键异排列、跨日/休市以及历史缺一段。",
@@ -971,7 +986,7 @@
     },
     {
       "scenario": "service-only环境运行合法连续目标，注入抓取失败、DB等待、analysis失败、deferred等待，然后恢复。",
-      "expected": "无需Activity触发即可再次抓取、请求、提交/结算；每个失效loop在有资源后恢复；无双executor/双request；失败仍进全分母。",
+      "expected": "无需Activity触发即可再次抓取、请求、提交/结算；每个失效loop在有资源后恢复；无双executor/双request；失败仍进全分母。 REV-B05-01：无 Activity 连续每 500ms 调 ensure，同时注入遥测抛错、handler拒绝、断网/恢复、旧 generation 晚回、开奖已落库但派发前被杀。恢复后下一个合法目标在固定 deadline 内得到唯一 request、冻结/结算；记录计划及实际 due，用户关闭后迟到事件无副作用。",
       "evidence": "ENGINEERING：无Activity lifecycle记录、逐目标矩阵、nextDue/workerState快照。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -991,7 +1006,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B05-01"
+      ]
     },
     {
       "scenario": "短时间重复START100次、服务进程重建、用户主动关闭开关。",
@@ -1043,7 +1061,7 @@
     },
     {
       "scenario": "连续无进展触发10次，随后资源解锁并真实commit；设备重启使旧mono失效。",
-      "expected": "启动次数受冷却限制；原cause年龄不重置；真正commit关联旧recovery闭合一次；旧boot lease安全回收。",
+      "expected": "启动次数受冷却限制；原cause年龄不重置；真正commit关联旧recovery闭合一次；旧boot lease安全回收。 REV-B05-02：两次已受理后第三次投递失败，Job/Alarm 并发、壁钟回拨、同 ordinal 异 hash、旧 owner 重放、当前 lane 新 commit；未送达保留有界重试，同因不重复扣名额，只有最后一个真实提交关闭一次恢复。",
       "evidence": "ENGINEERING：虚拟时钟、lease故障、commit因果链；无需自然胜率验收。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -1063,11 +1081,14 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B05-02"
+      ]
     },
     {
       "scenario": "无Activity工程harness覆盖网络、时钟和进程场景；保留关闭开关与force-stop反例。",
-      "expected": "无越期canonical、无新窗口续命；恢复只在授权/OS允许下进行；所有预期目标有明确结果与原因。",
+      "expected": "无越期canonical、无新窗口续命；恢复只在授权/OS允许下进行；所有预期目标有明确结果与原因。 REV-B05-03：999/1000/1001ms 与 4999/5000/5001ms、没有源发布时间、跨 boot、服务整段未运行、最后目标待开奖。逐项正确过界，未知不能判通过，打开页面不改变基线；同一规则用于无人干预 24h/72h 的 B05-03-T02。",
       "evidence": "ENGINEERING：确定性场景脚本、period denominator、事件/commit输出。",
       "level": "ENGINEERING",
       "execution_status": "NOT_RUN",
@@ -1087,7 +1108,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B05-03"
+      ]
     },
     {
       "scenario": "在一台声明完整配置的真机上进行每个场景、连续24h及72h。",
@@ -1204,7 +1228,7 @@
       "id": "R341-B06-01-A03",
       "level": "ENGINEERING",
       "scenario": "坏父代与合法父代混合",
-      "expected": "坏对象隔离，合法对象继续；不会要求等 B09 自然样本",
+      "expected": "坏对象隔离，合法对象继续；不会要求等 B09 自然样本 REV-B06-01：同库放一个已有证据的旧 ABI 父代、一个无 campaign 且无出生记录的保全父代和一个已出生父代。重启两次后总数守恒，首个只生一次，未知对象能查到具体缺项，其他父代不受阻。",
       "evidence": "每对象 retry/state 与本次提交水位；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B06-01",
       "batch": "B06",
@@ -1221,7 +1245,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B06-01"
+      ]
     },
     {
       "id": "R341-B06-02-A01",
@@ -1549,7 +1576,7 @@
       "id": "R341-B07-01-A03",
       "level": "ENGINEERING",
       "scenario": "将 FUTURE 或 synthetic 送训练",
-      "expected": "类型拒绝且模型、cursor、buffer 不变",
+      "expected": "类型拒绝且模型、cursor、buffer 不变 REV-B07-01：固定种子使旧实现能抽中 SELECT；通过两个真实入口各跑一次在线更新、一次开发验证和一次恢复。验证集合与该模型实际 replay 抽样键交集为零，两个入口结果与各自连续运行一致。旧 checkpoint 来源不明时不得将原 SELECT 报为未训练验证。",
       "evidence": "负例事务状态对照；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B07-01",
       "batch": "B07",
@@ -1566,7 +1593,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B07-01"
+      ]
     },
     {
       "id": "R341-B07-02-A01",
@@ -1641,7 +1671,7 @@
       "id": "R341-B07-03-A01",
       "level": "ENGINEERING",
       "scenario": "发布M1，生成冻结，再发布M2",
-      "expected": "旧冻结仍为M1；新研究可用M2；旧未来注册不得自动换M2",
+      "expected": "旧冻结仍为M1；新研究可用M2；旧未来注册不得自动换M2 REV-B07-02：夹具提供有并列的10×10概率面、完整赛前动作序列与开奖，独立参考实现重算指标；换掉一个 target/hash、漏掉一个动作、注入 NaN 或将开奖后重排输入时返回缺证/拒绝。1200个动作只占一期分母；这组 ENGINEERING 只验接口与复算。",
       "evidence": "publication→surface→call→freeze hash joins；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B07-03",
       "batch": "B07",
@@ -1658,7 +1688,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B07-02"
+      ]
     },
     {
       "id": "R341-B07-03-A02",
@@ -1848,7 +1881,7 @@
       "id": "R341-B08-01-A01",
       "level": "ENGINEERING",
       "scenario": "构建中断、重复页、源修正",
-      "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因",
+      "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因 REV-B08-01：代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。",
       "evidence": "segment/manifest/pin 对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-01",
       "batch": "B08",
@@ -1865,7 +1898,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B08-01"
+      ]
     },
     {
       "id": "R341-B08-01-A02",
@@ -1917,7 +1953,7 @@
       "id": "R341-B08-02-A01",
       "level": "ENGINEERING",
       "scenario": "18图逐项完整及缺项夹具",
-      "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图",
+      "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图 REV-B08-04：逐一跑 R01–R18。有值、全null、旧版以及篡改原件各一份。R06 校验自身配对字段，R11/R14/R18 无资料为待观测且消费不适用；真实零+正support仍可显示。",
       "evidence": "18项运行矩阵与可复算数据；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-02",
       "batch": "B08",
@@ -1934,7 +1970,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B08-04"
+      ]
     },
     {
       "id": "R341-B08-02-A02",
@@ -2009,7 +2048,7 @@
       "id": "R341-B08-03-A02",
       "level": "ENGINEERING",
       "scenario": "20对象正常/缺源/错shape/错目标",
-      "expected": "正常原值可重算；缺源清楚等待；错项拒绝且旧合法产物保留stale",
+      "expected": "正常原值可重算；缺源清楚等待；错项拒绝且旧合法产物保留stale REV-B08-02：先插入 A，再插入 ordinal 更新的 B 模型对照，两者数据集不同。运行 A 只返回 A 的两行时间差；只有 B 时 A 等待，再写入合法 A 后可恢复。更换无关 B 或竞争写不得把 A 永久标 INVALID 或重复产出。",
       "evidence": "20项契约结果；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-03",
       "batch": "B08",
@@ -2026,7 +2065,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B08-02"
+      ]
     },
     {
       "id": "R341-B08-03-A03",
@@ -2055,7 +2097,7 @@
       "id": "R341-B08-04-A01",
       "level": "ENGINEERING",
       "scenario": "提案正例、只读图、角色不符、源失效",
-      "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留",
+      "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留 REV-B08-03：隔离环境注入方向相反、每半199支持、单位置只过全局阈值及同向达标样例。前三者不开 S5；达标且上下游就绪的例子恰有一个影子；落盘前后重启、槽满后重试不重复，不产生生产证书或 REAL。 REV-B08-05：给同一 viewId 写旧版动作、重复消费、仅文字提案、当期有 before/after 变化且原件可复算的非出生动作，当前真实消费只有最后一笔。只读图不取得优化授权。",
       "evidence": "proposal→child/effect→receipt joins；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-04",
       "batch": "B08",
@@ -2072,7 +2114,11 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B08-03",
+        "REV-B08-05"
+      ]
     },
     {
       "id": "R341-B08-04-A02",
@@ -2124,7 +2170,7 @@
       "id": "R341-B08-05-A01",
       "level": "ENGINEERING",
       "scenario": "固定失败夹具运行两代并中途恢复",
-      "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果",
+      "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果 REV-B08-06：复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。",
       "evidence": "generation与lineage清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B08-05",
       "batch": "B08",
@@ -2141,7 +2187,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B08-06"
+      ]
     },
     {
       "id": "R341-B08-05-A02",
@@ -2331,7 +2380,7 @@
       "id": "R341-B09-01-A01",
       "level": "ENGINEERING",
       "scenario": "正常注册、重复、模型替换、重命名",
-      "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移",
+      "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移 REV-B09-01：A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。",
       "evidence": "registration manifest及唯一键；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-01",
       "batch": "B09",
@@ -2348,7 +2397,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B09-01"
+      ]
     },
     {
       "id": "R341-B09-01-A02",
@@ -2400,7 +2452,7 @@
       "id": "R341-B09-02-A01",
       "level": "ENGINEERING",
       "scenario": "乱序/重复开奖与重启",
-      "expected": "按日历恰好一次，重建/增量同值，机会分母守恒",
+      "expected": "按日历恰好一次，重建/增量同值，机会分母守恒 REV-B09-02：为同一期 A 正常冻结并先结算；B 首轮因 PIT 未写，之后在截止前成功或截止后迟到。重复提交并重启后分别逐键复算，A 的 ACT 与 settled 仍在，迟到的 B 只计一次，各实验日历与汇总定义一致。",
       "evidence": "ledger/sequence replay；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-02",
       "batch": "B09",
@@ -2417,7 +2469,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B09-02"
+      ]
     },
     {
       "id": "R341-B09-02-A02",
@@ -2469,7 +2524,7 @@
       "id": "R341-B09-03-A01",
       "level": "ENGINEERING",
       "scenario": "逐一单门槛失败/缺证据/全门槛通过的隔离fixture",
-      "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算",
+      "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算 REV-B09-04：有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。",
       "evidence": "gate boundary table；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-03",
       "batch": "B09",
@@ -2486,14 +2541,17 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B09-04"
+      ]
     },
     {
       "id": "R341-B09-03-A02",
       "level": "ENGINEERING",
-      "scenario": "coverage不足但V1其余通过",
-      "expected": "V1 verdict与R34.1资产验收分别显示，不冒充Q02合格",
-      "evidence": "dual verdict；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+      "scenario": "数学裁决通过，分别构造未来 ACT 为250、机会为1667与1666的边界",
+      "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。",
+      "evidence": "数学裁决、实发决定、质量投影三份原件；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-03",
       "batch": "B09",
       "test_contract": {
@@ -2509,7 +2567,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B09-03"
+      ]
     },
     {
       "id": "R341-B09-03-A03",
@@ -2639,7 +2700,7 @@
       "id": "R341-B09-05-A02",
       "level": "ENGINEERING",
       "scenario": "零信号与植入结构",
-      "expected": "报告误报/功效及区间，即使目标不达也如实失败；不得改原试验门槛重跑到通过",
+      "expected": "按原登记六臂×20个种子对照完整120记录，保留各臂原表；原协议三个零假设臂按既定方式合算单侧误报上界，SIGNAL 按原协议核功效下界；独立运行强度扫描，另报34/37/40%各自的功效及区间。缺臂、重复种子凑数、统计阈值失守均不得签为原Q08达标。额外精度试验独立注册；保留原门槛与失败轨迹",
       "evidence": "summary与全部trial结果；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
       "issue_id": "R341-B09-05",
       "batch": "B09",
@@ -2684,7 +2745,7 @@
     {
       "id": "A-B10-01a",
       "scenario": "已有4.34GB且有充足物理空闲，工作集超额",
-      "expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。",
+      "expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。 REV-B10-02：从实际有分配页的 1,427,210,240 B 级现场规模库请求诊断/FULL_RAW，各自完成发布读回。另跑空间不足、并发、复制中进程死亡和复用坏快照，验证关键结算与预约守恒。",
       "evidence": "budget-migration.json、分类前后清单、准入/拒绝回执",
       "level": "ENGINEERING",
       "issue_id": "R341-B10-01",
@@ -2702,7 +2763,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B10-02"
+      ]
     },
     {
       "id": "A-B10-01b",
@@ -2753,7 +2817,7 @@
     {
       "id": "A-B10-02b",
       "scenario": "清理快照/中间分卷时断电或I/O失败",
-      "expected": "发布结果仍可读，重启幂等续清；FULL_RAW缺原snapshot时拒绝清私有DB。",
+      "expected": "发布结果仍可读，重启幂等续清；FULL_RAW缺原snapshot时拒绝清私有DB。 REV-B10-03：分别移去索引、损坏 ZIP、换未知格式、模拟 share 锁竞争与权限失败。源 hash 不变且 cleanup 待恢复，READY 独立。修复后只回收一次。旧格式、稀疏文件、损坏 job.json 和唯一 FAILED 快照分别重放。",
       "evidence": "故障注入记录、ZIP成员复验、cleanup状态日志",
       "level": "ENGINEERING",
       "issue_id": "R341-B10-02",
@@ -2771,12 +2835,15 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B10-03"
+      ]
     },
     {
       "id": "A-B10-02c",
       "scenario": "缓存/审计热集持续增长",
-      "expected": "工作集在分类上限内或显示明确protected debt；审计回放数与归档前一致，实时预算不被大事务击穿。",
+      "expected": "工作集在分类上限内或显示明确protected debt；审计回放数与归档前一致，实时预算不被大事务击穿。 REV-B10-01：预置16384条旧记录，三阶段重复写、归档中断、钉住原件、磁盘不足，随后解除压力。重启后计数/哈希守恒、无先删后存、未闭合原件保全；释放后新期计时可查，不以简单调高上限过关。",
       "evidence": "热冷分层统计、事件全量hash/计数核对、写锁分位与超时分母",
       "level": "ENGINEERING",
       "issue_id": "R341-B10-02",
@@ -2794,7 +2861,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B10-01"
+      ]
     },
     {
       "id": "A-B10-03a",
@@ -2983,7 +3053,7 @@
     {
       "id": "A-B11-01b",
       "scenario": "空表/真实0/超时/无权限/截断各一项",
-      "expected": "五种原因保留；UNKNOWN不画成0线，不自动按N/A关闭失败。",
+      "expected": "五种原因保留；UNKNOWN不画成0线，不自动按N/A关闭失败。 REV-B11-01：当期唯一帧 usableResearchProduct=false，旧版本同名视图有消费，原 SQL 两项均返回1；升级后已存帧1、当前可用0、当前有效消费0。破坏列名得到SOURCE_ERROR且值null，空表的成功COUNT才是0。",
       "evidence": "源状态契约测试、聚合一致性校验日志",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-01",
@@ -3001,7 +3071,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B11-01"
+      ]
     },
     {
       "id": "A-B11-02a",
@@ -3029,7 +3102,7 @@
     {
       "id": "A-B11-02b",
       "scenario": "2成功、3超时、1未启动，混入shadow成功",
-      "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。",
+      "expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。",
       "evidence": "事件夹具、指标分母明细、逐期timeline",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-02",
@@ -3047,7 +3120,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B11-02"
+      ]
     },
     {
       "id": "A-B11-03a",
@@ -3075,7 +3151,7 @@
     {
       "id": "A-B11-03b",
       "scenario": "165对象共享多个根因且部分可读性未知",
-      "expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。",
+      "expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。 REV-B11-06：以旧 V51 全 UNTRAINED 和新模型回执并存构造期级对照；新模型不得覆盖旧模型证明。依次替换为错 target /错模型/跨窗/任意非空文本/缺原件/结构化有效真零；实时与冻结报告对同输入给相同层级，report 缺输入仍可出报告；完全通过夹具也不改变主链门。",
       "evidence": "对象→工单关系表、真实回读场景",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-03",
@@ -3093,12 +3169,15 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B11-06"
+      ]
     },
     {
       "id": "A-B11-04a",
       "scenario": "真实空、缺表、超时、旧帧、真实零值、非零值六类",
-      "expected": "显示态与reason准确；只有真实零值画0；其他图不受某张超时连带阻塞。",
+      "expected": "显示态与reason准确；只有真实零值画0；其他图不受某张超时连带阻塞。 REV-B11-03：47图及16表逐ID核对；夹具某图超时另图有值，旧epoch不得回刷；零值+正support、全null点、残缺矩阵及两个快照切换各走对应状态。总数29、offset边界和语句失败见同批 A-B11-04b。打开/刷新页面前后冻结、出生、消费业务行不变。",
       "evidence": "六类渲染快照、源值比对、取消与deadline日志",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-04",
@@ -3116,12 +3195,15 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B11-03"
+      ]
     },
     {
       "id": "A-B11-04b",
-      "scenario": "仅第一页空但后页有行/无全量count",
-      "expected": "只显示此页为空且total未知，不断言整表无数据；打开页面不增加生产计数。",
+      "scenario": "同一快照有29条匹配记录，limit=8，分别从offset=0和offset=29读取，再单独注入必需源缺失或取消",
+      "expected": "首屏shown=8、totalMatchingRows=29、hasMore=true。越界页shown=0、totalMatchingRows=29、hasMore=false。语句失败时总数未知，取消单列；打开页面不增加生产计数。 REV-B11-04：同一快照中输入29行：offset=0、limit=8，shown=8、totalMatchingRows=29、hasMore=true；offset=29，shown=0、totalMatchingRows=29、hasMore=false；必需源缺失时总数未知，取消单列，均不能显示total=0。打开页面前后生产写入数不变。",
       "evidence": "分页读取记录、服务生产者计数前后比对",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-04",
@@ -3139,12 +3221,15 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B11-04"
+      ]
     },
     {
       "id": "A-B11-05a",
       "scenario": "相同场景重复上报、旧进程成功、新进程无证据",
-      "expected": "重复去重；旧成功不关闭新安装问题；工单保持FIELD_PENDING，原因可回查。",
+      "expected": "重复去重；旧成功不关闭新安装问题；工单保持FIELD_PENDING，原因可回查。 REV-B11-07：故意互换相同id不同组的20对矩阵别名，或用052/074/078的同一次缺失伪成三个独立发生；比对须发现。复用同SHA、删除注册ID/加入重复、将已执行WARN升为PASS、将旧job的case累加当改进均须失败。",
       "evidence": "不可变台账、scope查询回执",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-05",
@@ -3162,7 +3247,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B11-07"
+      ]
     },
     {
       "id": "A-B11-05b",
@@ -3213,7 +3301,7 @@
     {
       "id": "A-B11-06b",
       "scenario": "FULL_RAW声称DB但成员缺失或hash不符",
-      "expected": "发布/语义验证失败，保留源快照；不让B10清理原件。",
+      "expected": "发布/语义验证失败，保留源快照；不让B10清理原件。 REV-B11-05：压力窗口内同时导出和冻结/结算，注入重启、目的地短写、空间不足、权限失效。同一目标日历比较无导出基线，核对唯一快照或显式新采样、目标逐卷 hash 与 index、无后台饿死、失败不降级配置。",
       "evidence": "伪造缺件负例、清理拒绝回执",
       "level": "ENGINEERING",
       "issue_id": "R341-B11-06",
@@ -3231,7 +3319,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B11-05"
+      ]
     },
     {
       "id": "A-B12-01a",
@@ -3527,7 +3618,7 @@
     {
       "id": "A-B12-06b",
       "scenario": "URL坏链/缓存旧APK/缺源码/敏感材料/未执行真机场景",
-      "expected": "拒绝最终交付PASS并修复具体缺项；真实未执行项保持FIELD_PENDING，不造全绿。",
+      "expected": "拒绝最终交付PASS并修复具体缺项；真实未执行项保持FIELD_PENDING，不造全绿。 REV-B12-01：下载端注入 HTTP 200 HTML、截短字节、同版本不同已签名包、缺祖先的源码归档，分别拒绝并保留具体原因。工程回执可直接在临时独立 HTTP 发布端重演；真实交付另从实际发布地址回下载并保存结果。",
       "evidence": "下载失败记录、秘密扫描只给规则命中路径不输出内容、状态清单",
       "level": "ENGINEERING",
       "issue_id": "R341-B12-06",
@@ -3549,7 +3640,10 @@
         ],
         "fixture_scope": "ENGINEERING_ONLY_ISOLATED_STORE",
         "boundary": "必须调用工单中的实际生产owner；文件/字符串/手工成功行不能通过。可复用等价已有测试并记录映射。"
-      }
+      },
+      "required_review_ids": [
+        "REV-B12-01"
+      ]
     }
   ],
   "counts_by_level": {

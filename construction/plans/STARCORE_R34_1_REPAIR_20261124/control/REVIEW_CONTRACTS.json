@@ -1,0 +1,486 @@
+{
+  "schema": "R341_SOURCE_REVIEW_2",
+  "application_baseline": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+  "reviewed_plan_commit": "00d53219ce7047c4abb5b55320ae140247cb5f87",
+  "report_sha256": "2b984d2b249f54e4363f7c02c5d2470e7b9393e6f3994b24e25bcead3e44c37d",
+  "initial_status": "NOT_RUN",
+  "checks": [
+    {
+      "id": "REV-B01-01",
+      "batch": "B01",
+      "issue": "R341-B01-01",
+      "case": "R341-B01-01-T01",
+      "files": [
+        "app/build.gradle",
+        "tools/r33/run_release_build.py",
+        "tools/r33/verify_plan_binding.py"
+      ],
+      "spec": "specs/review/build.md",
+      "title": "把三个方案根分别绑定到实际构建输入和产物",
+      "implementation": "沿用 run_release_build.py 的真实 Gradle 任务与发布前后 identity 守卫；给 R34.1 增加独立回执字段，将新封印和源提交与签名 APK 内身份逐项回读。保留原 R33.5 摘要字段。prepare_worktree 新增中文路径、精确导入、旧工作树续工测试。",
+      "acceptance": "以同一122源码祖先、两份不同 R34.1 封印构建测试输入，替换新封印或放入旧 APK 时，封包拒绝；R33.5 摘要相同不能掩盖交换。编译 androidTest APK 只记编译完成，须另取实际运行输出签场景。"
+    },
+    {
+      "id": "REV-B02-01",
+      "batch": "B02",
+      "issue": "R341-B02-01",
+      "case": "R341-B02-01-T02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java"
+      ],
+      "spec": "specs/review/build.md",
+      "title": "在 B10 存储策略交付前独立签收写入期限",
+      "implementation": "B02 用现有写入入口与可注入的容量快照施加队列、锁等待、SQL 和提交后阶段边界，记录同一单调 deadline 的剩余额度。B10 在同一接口接正式空间预约。B02 原始延迟序列和故障用例成为 B10 的回归输入。",
+      "acceptance": "在 B02 仅使用本批代码与隔离容量数据运行；分别阻塞进入 SQL 之前和提交确认阶段，断言超时原因、晚到提交核对、幂等与全机会分母。B10 装入真实空间策略后重跑相同用例，禁止持写锁扫描文件。"
+    },
+    {
+      "id": "REV-B03-01",
+      "batch": "B03",
+      "issue": "R341-B03-02",
+      "case": "R341-B03-02-T02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaUnitPlanR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "spec": "specs/review/build.md",
+      "title": "在 B03 验证迁移边界和当前会话可见性",
+      "implementation": "沿 LifecycleSchemaR31 与 SchemaUnitPlanR34 的生产迁移入口，分别由独立连接在提交前、提交后及进程重启后读回三张新表和必要列/索引。只读就绪后验证当前会话能登记、claim 并到达生产 step 的输入边界；无合法输入给可恢复原因。B06、B07 各自验收真实出生和优化器数值。",
+      "acceptance": "旧122结构升级时只留下前一项已提交的迁移，注入第二项中断，重启后逐对象校对结构和唯一迁移收据。旧库历史保留，等待注册与真实空表分开，B03 的签收不依赖 B06 子代或 B07 模型。"
+    },
+    {
+      "id": "REV-B12-01",
+      "batch": "B12",
+      "issue": "R341-B12-06",
+      "case": "A-B12-06b",
+      "files": [
+        "tools/r33/package_ci_candidate.py",
+        "tools/r341/publish_delivery_manifest.py"
+      ],
+      "spec": "specs/review/build.md",
+      "title": "从施工交付地址独立取回产物并绑定实际安装身份",
+      "implementation": "publish_delivery_manifest.py 在空目录从工程发布地址重新取得签名 APK、源码包/可恢复 bundle 和证据索引；校验 bytes/hash，对 APK 执行签名与 manifest/内嵌源身份读取，对 bundle 在隔离库展开并验证提交及祖先。每一批记载其实际构建身份，最终可安装包绑定最终源树。",
+      "acceptance": "下载端注入 HTTP 200 HTML、截短字节、同版本不同已签名包、缺祖先的源码归档，分别拒绝并保留具体原因。工程回执可直接在临时独立 HTTP 发布端重演；真实交付另从实际发布地址回下载并保存结果。"
+    },
+    {
+      "id": "REV-B05-01",
+      "batch": "B05",
+      "issue": "R341-B05-01",
+      "case": "R341-B05-01-T01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java"
+      ],
+      "spec": "specs/review/runtime.md",
+      "title": "服务单次预约与持久开奖重派",
+      "implementation": "修 AutoFetchService.scheduleNextFetchLoop、ensureAnalysisWatchdog、runAnalysisWatchdogR36、ensureRuntimeLoopsAliveV17；先保障下一次预约，遥测独立，检测 post/postDelayed=false；按同代 elapsed due 保留更早的预约，避免每次 ensure 取消已到期的 watchdog。断网恢复事件在 service 注册并按代际注销。沿 BusinessReconcilerR36.reconcile 从已提交的 base 对账和勾稽下一请求、当前结算，避免遗失回调或长 SQL 阻塞控制线程。",
+      "acceptance": "无 Activity 连续每 500ms 调 ensure，同时注入遥测抛错、handler拒绝、断网/恢复、旧 generation 晚回、开奖已落库但派发前被杀。恢复后下一个合法目标在固定 deadline 内得到唯一 request、冻结/结算；记录计划及实际 due，用户关闭后迟到事件无副作用。"
+    },
+    {
+      "id": "REV-B05-02",
+      "batch": "B05",
+      "issue": "R341-B05-02",
+      "case": "R341-B05-02-T02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/RecoveryCoordinatorR815.java",
+        "app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+      ],
+      "spec": "specs/review/runtime.md",
+      "title": "恢复真实所有者与投递失败重试",
+      "implementation": "Job/Alarm 的真实入口为 RecoveryCoordinatorR815.request/markServiceStarted/markBusinessRestored；RuntimeRecoveryCoordinatorR926.record 仅记录异常。修 R815 在第三次 FETCH_SETTLEMENT_ONLY 且 start=false 仍产生 accepted=true 的分支，Job/Alarm 区分合并、拒绝、降级、nextDue；限流用 boot+elapsed。修 ServiceHeartbeatStore.noteResearchRecoveryRequestR31/markResearchHealthR31，同 ordinal 异 hash 或更换 owner 的初次基线不可确认恢复。旧 preferences 不带 scope 标 LEGACY_UNSCOPED。",
+      "acceptance": "两次已受理后第三次投递失败，Job/Alarm 并发、壁钟回拨、同 ordinal 异 hash、旧 owner 重放、当前 lane 新 commit；未送达保留有界重试，同因不重复扣名额，只有最后一个真实提交关闭一次恢复。"
+    },
+    {
+      "id": "REV-B04-01",
+      "batch": "B04",
+      "issue": "R341-B04-04",
+      "case": "R341-B04-04-T02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BaselineShadowR34.java"
+      ],
+      "spec": "specs/review/runtime.md",
+      "title": "S0 双事务赛前证据与逐期失败归属",
+      "implementation": "AutoFetchService.handleLatestDrawAfterSave 检查 S0 postAtFrontOfQueue 的返回，BaselineShadowR34.freeze/settleWithin 区分输入缺失、派发失败、首次事务、返回时刻不可证、过期和已结算；按 base 重建仍合法的派发，保留 RETURN_NOT_OBSERVED 与历史 UNVERIFIED_PIT，S0 与候选、canonical、REAL 分角色。",
+      "acceptance": "handler拒绝，首次写与第二次写之间杀进程，重复合法请求、迟到标签与跨日轮转。唯一原件、可追踪每个目标；返回不可证的原件无有效命中，不补造赛前时间。"
+    },
+    {
+      "id": "REV-B04-02",
+      "batch": "B04",
+      "issue": "R341-B04-06",
+      "case": "R341-B04-06-T02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java"
+      ],
+      "spec": "specs/review/runtime.md",
+      "title": "满表后的来源与事务返回证据",
+      "implementation": "FetchLedgerR925.persistTraceR31 当前 16384 行时拒绝新 request_id；降级继续业务，按唯一 request 与阶段尝试分别统计缺失。由 IssueTimelineWriterR30.markEventAt、commitObservationState 勾稽 event_id、role、request、issue、drawHash、boot 与真实返回，旧物理 timeline 和新事件载体分读，样本内联不足不能代替总分母。",
+      "acceptance": "计时表恰满，发送同请求的 transport/parse/validated 三阶段与一次新的 HISTORY 请求，再令事务已提交但返回证据丢失；LIVE 与 HISTORY 区分，缺失不填 0，同一请求不会被报为三个独立漏件，业务提交保持。"
+    },
+    {
+      "id": "REV-B10-01",
+      "batch": "B10",
+      "issue": "R341-B10-02",
+      "case": "A-B10-02c",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java"
+      ],
+      "spec": "specs/review/runtime.md",
+      "title": "满容量取证热表持续接纳新请求",
+      "implementation": "于 FetchLedgerR925.persistTraceR31 和 DataRetentionGovernorR900.prepareArchivePageCP12/publishAndPruneCP12 接入计时行专用归档与提前回收。按页校验可读原件、hash、件数和身份后 CAS 裁剪，保护未完成、固定、未入档证据。空间不足隔离统计并不拖住业务；释放后接纳新 request 并导出 archive↔live 的覆盖。",
+      "acceptance": "预置16384条旧记录，三阶段重复写、归档中断、钉住原件、磁盘不足，随后解除压力。重启后计数/哈希守恒、无先删后存、未闭合原件保全；释放后新期计时可查，不以简单调高上限过关。"
+    },
+    {
+      "id": "REV-B05-03",
+      "batch": "B05",
+      "issue": "R341-B05-03",
+      "case": "R341-B05-03-T01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java"
+      ],
+      "spec": "specs/review/runtime.md",
+      "title": "每期影子和 1 秒/5 秒的实测分母",
+      "implementation": "通过 TargetIssueResolver.next/distance、FetchLedgerR925 和 IssueTimelineWriterR30 的同身份回执生成跨日连续期历；独立列健康单在途 1000ms 抓取节拍、真实源开奖至落库及结算≤1000ms、真实源开奖至下一期赛前冻结≤5000ms、相对目标开奖余量，另列同 boot 的收包→落库→结算和本期开奖落库→下期冻结。记录 missed、欠缺与不可信源时钟的 NOT_MEASURABLE、逐期超标和 P50/P95/max。每个已开奖应有影子的目标保留在总分母。",
+      "acceptance": "999/1000/1001ms 与 4999/5000/5001ms、没有源发布时间、跨 boot、服务整段未运行、最后目标待开奖。逐项正确过界，未知不能判通过，打开页面不改变基线；同一规则用于无人干预 24h/72h 的 B05-03-T02。"
+    },
+    {
+      "id": "REV-B06-01",
+      "batch": "B06",
+      "issue": "R341-B06-01",
+      "case": "R341-B06-01-A03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthContractR34.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "旧父代遇到空 ABI 时可计数、可恢复",
+      "implementation": "ColdRebirthR34.pick 与 pendingParentsForHealth 共用包含未知 ABI 的分类。左联结原 campaign 与出生记录均缺时，保全原行，标明缺失的 owner/through/hash，尝试读取同一封存原件。ABI、曝光和输入可核实后才调用 prepare/publish。区分已生、可运行、延期与身份待查四个互斥集合。",
+      "acceptance": "同库放一个已有证据的旧 ABI 父代、一个无 campaign 且无出生记录的保全父代和一个已出生父代。重启两次后总数守恒，首个只生一次，未知对象能查到具体缺项，其他父代不受阻。"
+    },
+    {
+      "id": "REV-B07-01",
+      "batch": "B07",
+      "issue": "R341-B07-01",
+      "case": "R341-B07-01-A03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "在线回放不能再抽中本模型的开发验证样本",
+      "implementation": "同时修改 AtomNetSessionR30.work 的 FILL 和 AtomNetTrainerR27.pretrain 的 buffer 初始化。保留原 SELECT 作为开发验证时，两入口仅装入合法 TRAIN 及后来已显式登记的 ONLINE_RESEARCH。将每次抽取的样本键、角色、原始 pin 和抽样顺序写入有界可重演清单；按原键与该版本开发验证键校验交集。旧 checkpoint 来历不齐保全原版本，从有身份的样本恢复或另起已曝光子实验。",
+      "acceptance": "固定种子使旧实现能抽中 SELECT；通过两个真实入口各跑一次在线更新、一次开发验证和一次恢复。验证集合与该模型实际 replay 抽样键交集为零，两个入口结果与各自连续运行一致。旧 checkpoint 来源不明时不得将原 SELECT 报为未训练验证。"
+    },
+    {
+      "id": "REV-B08-01",
+      "batch": "B08",
+      "issue": "R341-B08-01",
+      "case": "R341-B08-01-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "进化卡在老代时可安全替换待用数据缓存",
+      "implementation": "RuntimeR27.publishDatasetInputR335、recoverCommittedEvolutionInputR335 和 EvolutionTask.step 统一当前、待用及选中缓存的所有权。在临界区更换指针并登记引用；最后一个读者退出后释放已被取代的 FeatureCacheR27。取消或提交失败不改变已提交代的输入，老 pin 保留可回读。",
+      "acceptance": "代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。"
+    },
+    {
+      "id": "REV-B08-02",
+      "batch": "B08",
+      "issue": "R341-B08-03",
+      "case": "R341-B08-03-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "时序矩阵按本次数据版本读取模型对照",
+      "implementation": "MatrixEvidenceR30R1.stored 的 TEMPORAL_PRECEDENCE SQL 在读取 MODEL_PAIR_FROZEN 之前按当前研究契约限定 dataset_hash、source_revision 和源码版本，保留 validRunSql 与在线角色；若设计消费独立在线 pin，则显式绑定两者的来源键和合法时间边界。MatrixResearchR30R1.step 以该 kind 同范围可见原件身份形成重试键，提交时复核。",
+      "acceptance": "先插入 A，再插入 ordinal 更新的 B 模型对照，两者数据集不同。运行 A 只返回 A 的两行时间差；只有 B 时 A 等待，再写入合法 A 后可恢复。更换无关 B 或竞争写不得把 A 永久标 INVALID 或重复产出。"
+    },
+    {
+      "id": "REV-B08-03",
+      "batch": "B08",
+      "issue": "R341-B08-04",
+      "case": "R341-B08-04-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "将 S4 的连续形态处方闭合至 S5 影子回读",
+      "implementation": "复用 ContMatSU2.update/refit、DiagnosisStoreSU2.maintain 与 DiagnosisShadowReceiptR335.attempt/readback。对达到源码起算条件的每个 500 期边界记录两半支持、方向、z、窗口和原件 hash；仅有经核实的新模式时经既有 S5 owner 申请影子并回读实际 child、league、shadow。旧 7229 留历史栏，已观察计数与终身未知分别显示。",
+      "acceptance": "隔离环境注入方向相反、每半199支持、单位置只过全局阈值及同向达标样例。前三者不开 S5；达标且上下游就绪的例子恰有一个影子；落盘前后重启、槽满后重试不重复，不产生生产证书或 REAL。"
+    },
+    {
+      "id": "REV-B09-01",
+      "batch": "B09",
+      "issue": "R341-B09-01",
+      "case": "R341-B09-01-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "冻结资格比较对象及适用区间",
+      "implementation": "FrozenConfirmationStoreR30 冻结确认对象后，在建立独立未来实验时同时登记两组对照的具体 experiment/policy identity、开始期和规则版本。LiveShadowsR27.certify/paired 按所属合同及完整日历比对。在原 V1 字段旁记录全机会、交集和缺口；历史绑定缺失输出来源待核，不事后选择新晋对照补齐。",
+      "acceptance": "A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。"
+    },
+    {
+      "id": "REV-B09-02",
+      "batch": "B09",
+      "issue": "R341-B09-02",
+      "case": "R341-B09-02-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "同一期分批冻结、重试和超时后机会总数守恒",
+      "implementation": "LiveShadowsR27.freeze 正常与超时两分支都应以当期登记集合及其已持久化原件重建 r27_opportunity。禁止用此次尚未处理的 todo.size 覆盖累计 frozen、acted、settled、deadline_missed。区分登记内业务机会与 OBSERVE/控制角色；在短事务内检查源版本，独立资格始终读各实验原始日历。",
+      "acceptance": "为同一期 A 正常冻结并先结算；B 首轮因 PIT 未写，之后在截止前成功或截止后迟到。重复提交并重启后分别逐键复算，A 的 ACT 与 settled 仍在，迟到的 B 只计一次，各实验日历与汇总定义一致。"
+    },
+    {
+      "id": "REV-B09-03",
+      "batch": "B09",
+      "issue": "R341-B09-03",
+      "case": "R341-B09-03-A02",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java"
+      ],
+      "spec": "specs/review/algorithm.md",
+      "title": "区分数学门、实际发证与附加质量验收",
+      "implementation": "保留 CertificateGateR27.evaluate 的数学裁决；用 LiveShadowsR27.certify 的实际 issued/failing/commit 及产物报告实发裁决。122已要求独立未来覆盖≥15%、记录净收益>0、合法模型/校准/资格原件、无资格冲突与撤销。部署后 REAL 频率及额外质量指标另列，不能成为首次发证或首用的循环前置。",
+      "acceptance": "构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。"
+    },
+    {
+      "id": "REV-B08-04",
+      "batch": "B08",
+      "issue": "R341-B08-02",
+      "case": "R341-B08-02-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java"
+      ],
+      "spec": "specs/review/charts.md",
+      "title": "逐图以有值原件或正式链原件验收产出",
+      "implementation": "在 ResearchObservatoryR30R1.classifyFrameR335/productR335、R06 单独配对产线和 ResearchWorkbenchRepositoryR30R1.Page.read/readFrame 对齐 viewId、runId、input/contractHash、source、ABI、role、窗口和 support。分开记录持久帧、可用数值、正式链证据和历史帧。",
+      "acceptance": "逐一跑 R01–R18。有值、全null、旧版以及篡改原件各一份。R06 校验自身配对字段，R11/R14/R18 无资料为待观测且消费不适用；真实零+正support仍可显示。"
+    },
+    {
+      "id": "REV-B08-05",
+      "batch": "B08",
+      "issue": "R341-B08-04",
+      "case": "R341-B08-04-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java"
+      ],
+      "spec": "specs/review/charts.md",
+      "title": "把视图产品消费定位到同源实际动作",
+      "implementation": "ResearchConsumptionStoreR31.completeWithin 与已存在的 r33_research_applied 路径按 sourceRun/productHash/role/ABI/revision/effectKey 绑定。分别保存出生和非出生动作；重放同一个 consumeKey 不增加计数。",
+      "acceptance": "给同一 viewId 写旧版动作、重复消费、仅文字提案、当期有 before/after 变化且原件可复算的非出生动作，当前真实消费只有最后一笔。只读图不取得优化授权。"
+    },
+    {
+      "id": "REV-B11-01",
+      "batch": "B11",
+      "issue": "R341-B11-01",
+      "case": "A-B11-01b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "spec": "specs/review/charts.md",
+      "title": "修正图表缓存及报告索引的零值和归因",
+      "implementation": "ChartCacheR27.count/build 和 ChartsRepositoryR83.actionCandles/hitTrend 传播缺表、坏列和取消；ReportSnapshotR30.rowsets 按当次scope复核已提交原件和有效消费，ReportObjectIndexR30.buildProductionR31 读取真实数值状态并按 consumerKind 写 N/A。按路径分类缓存帧数、当前可用产品数和已验证消费数。",
+      "acceptance": "当期唯一帧 usableResearchProduct=false，旧版本同名视图有消费，原 SQL 两项均返回1；升级后已存帧1、当前可用0、当前有效消费0。破坏列名得到SOURCE_ERROR且值null，空表的成功COUNT才是0。"
+    },
+    {
+      "id": "REV-B11-02",
+      "batch": "B11",
+      "issue": "R341-B11-02",
+      "case": "A-B11-02b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java"
+      ],
+      "spec": "specs/review/charts.md",
+      "title": "统一探索影子、预测趋势与正式主链的图表角色",
+      "implementation": "ChartRegistryR31.R83_VISIBLE 配合 ChartsRepositoryR83.loadPanel/actionCandles/hitTrend 和 ReportObjectIndexR30.build，role 依正常SQL来源确定。探索模拟K线和两张R35预测趋势带SHADOW，不进入REAL、也不计为原始开奖；主链通过唯一决策和实际结算单列。",
+      "acceptance": "仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。"
+    },
+    {
+      "id": "REV-B11-03",
+      "batch": "B11",
+      "issue": "R341-B11-04",
+      "case": "A-B11-04a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartPageReadR34.java"
+      ],
+      "spec": "specs/review/charts.md",
+      "title": "47个图和16个表从真实页面逐ID回读对账",
+      "implementation": "ChartsActivityR83.load、ResearchWorkbenchActivityR30R1.load、ResearchTablesActivityR31.load 调正常只读入口，按已验证原件/数值/结构边判断可绘，区别状态信息和历史证据。分页显示当次同语句totalMatchingRows和shown；总数不可得保留null。记录哈希取业务字段，排除本次耗时和时间戳。",
+      "acceptance": "47图及16表逐ID核对；夹具某图超时另图有值，旧epoch不得回刷；零值+正support、全null点、残缺矩阵及两个快照切换各走对应状态。总数29、offset边界和语句失败见同批 A-B11-04b。打开/刷新页面前后冻结、出生、消费业务行不变。"
+    },
+    {
+      "id": "REV-B11-04",
+      "batch": "B11",
+      "issue": "R341-B11-04",
+      "case": "A-B11-04b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java"
+      ],
+      "spec": "specs/review/charts.md",
+      "title": "将分页负例改为真实可达的数据库状态",
+      "implementation": "同一匹配集在同一语句中 COUNT 和连续排序读取，分开验已知总数、越界页与查询失败。跨请求活库水位变化时提示重读；业务scope及rowKey不一致时不得把前后页拼成一份快照。",
+      "acceptance": "同一快照中输入29行：offset=0、limit=8，shown=8、totalMatchingRows=29、hasMore=true；offset=29，shown=0、totalMatchingRows=29、hasMore=false；必需源缺失时总数未知，取消单列，均不能显示total=0。打开页面前后生产写入数不变。"
+    },
+    {
+      "id": "REV-B10-02",
+      "batch": "B10",
+      "issue": "R341-B10-01",
+      "case": "A-B10-01a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StoragePolicyR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java"
+      ],
+      "spec": "specs/review/storage.md",
+      "title": "为大库一致快照独立预约实际峰值",
+      "implementation": "修改 reserveDisk、reserveOnceR31、ensureAdditionalOnceR31。128 MiB 只限普通派生数据单次增量，256 MiB 只限并存可重算普通工作集。为本地一致性快照发唯一临时租约，按 DB+WAL+开销、可用空间、活动预约与结算余量准入，按实际块数核销。归档、ZIP、分卷并存峰值逐阶段登记。失败不额外创建快照。",
+      "acceptance": "从实际有分配页的 1,427,210,240 B 级现场规模库请求诊断/FULL_RAW，各自完成发布读回。另跑空间不足、并发、复制中进程死亡和复用坏快照，验证关键结算与预约守恒。"
+    },
+    {
+      "id": "REV-B10-03",
+      "batch": "B10",
+      "issue": "R341-B10-02",
+      "case": "A-B10-02b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java"
+      ],
+      "spec": "specs/review/storage.md",
+      "title": "先证明交付件可恢复，再清理原始工作区",
+      "implementation": "cleanRawOwned 在 verifyPublishedZip=false 时分流可识别旧分卷验证或缺索引/未知格式保护。requireRawCoverageR31 检查实际可回读替代，失败时保留快照和分片。runDue 同时记录 logical 与 allocated 及未知；jobPhysicalBytes 调用的 scopeBytes 只返回文件长度，不可当已释放块。",
+      "acceptance": "分别移去索引、损坏 ZIP、换未知格式、模拟 share 锁竞争与权限失败。源 hash 不变且 cleanup 待恢复，READY 独立。修复后只回收一次。旧格式、稀疏文件、损坏 job.json 和唯一 FAILED 快照分别重放。"
+    },
+    {
+      "id": "REV-B11-05",
+      "batch": "B11",
+      "issue": "R341-B11-06",
+      "case": "A-B11-06b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java"
+      ],
+      "spec": "specs/review/storage.md",
+      "title": "报告与赛前服务并行，并验手机端持久保存",
+      "implementation": "在 ActiveControl.shouldContinue 和 drain 的安全边界登记完整报告实时让行与恢复游标。按已封存输入恢复或明确重新采样。runSafTreeRequest、verifySavedTreeParts 复用既有按卷回读，分别签收本地发布、外部写入和目标回读，并以同一已验证源任务恢复目标故障。",
+      "acceptance": "压力窗口内同时导出和冻结/结算，注入重启、目的地短写、空间不足、权限失效。同一目标日历比较无导出基线，核对唯一快照或显式新采样、目标逐卷 hash 与 index、无后台饿死、失败不降级配置。"
+    },
+    {
+      "id": "REV-B11-06",
+      "batch": "B11",
+      "issue": "R341-B11-03",
+      "case": "A-B11-03b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java"
+      ],
+      "spec": "specs/review/report.md",
+      "title": "RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源",
+      "implementation": "K3FailureDiagnosisEngine.diagnose/diagnoseSnapshotCP4 与 FormulaAlgorithmAuditEngine.audit/auditSnapshotCP4、LiveResearchDiagnosisOrchestrator.collectRanker 及对应快照分支、CodeOwnershipCompletenessAuditEngine.audit及快照分支引用同一只读评估。保留 V51 旧模型原身份和 UNTRAINED 状态；分别按所评模型的 schema、参数/特征/策略/数据 hash、当前消费记录及严格同模型 OOS 明示静态、开发、自然三个角色。六个 stateLayer 要取目标期、指标版本、样本与分母、来源哈希、时间窗口、可用性和计算结果。缺失、旧字串或未识别值只能输出相应缺证状态，切断字符串不含异常即 HEALTHY 的分支。详见本次报告覆盖索引 k3_layers。",
+      "acceptance": "以旧 V51 全 UNTRAINED 和新模型回执并存构造期级对照；新模型不得覆盖旧模型证明。依次替换为错 target /错模型/跨窗/任意非空文本/缺原件/结构化有效真零；实时与冻结报告对同输入给相同层级，report 缺输入仍可出报告；完全通过夹具也不改变主链门。"
+    },
+    {
+      "id": "REV-B07-02",
+      "batch": "B07",
+      "issue": "R341-B07-03",
+      "case": "R341-B07-03-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java"
+      ],
+      "spec": "specs/review/report.md",
+      "title": "十位置概率面与同目标1200个动作排序建立可复算关系",
+      "implementation": "把实际发布的原始十位置概率面、归一化后的行列偏差、回退原因及同目标冻结结合。绑定参数/输入/ABI/hash与确定性并列规则；动作面由正式动作账本引用，取到唯一1200动作后才出完整排名比较。对 NumberQ 与 AtomNet、fallback 分别记身份。按同期实际 permutations 计算各位置 top-k recall；动作命中按该动作同位置的开奖号码是否在K3内确定，Rank1、MRR、NDCG、成对顺序用同一赛前排序同期标签按期汇总；同分、无有效标签、未完成延迟材料明确对待。",
+      "acceptance": "夹具提供有并列的10×10概率面、完整赛前动作序列与开奖，独立参考实现重算指标；换掉一个 target/hash、漏掉一个动作、注入 NaN 或将开奖后重排输入时返回缺证/拒绝。1200个动作只占一期分母；这组 ENGINEERING 只验接口与复算。"
+    },
+    {
+      "id": "REV-B08-06",
+      "batch": "B08",
+      "issue": "R341-B08-05",
+      "case": "R341-B08-05-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDirectedResearchR26.java"
+      ],
+      "spec": "specs/review/report.md",
+      "title": "RSEC-066 六个窗口、归因与边界子试验回到真实消费者",
+      "implementation": "使用预冻结的同一开发 SELECT 日历，在 RSEC-066 的 THIRD/WINDOW/REGIME/MOTIF/RELATION/CONSENSUS 分别记录第三/四名差与替换反证，12/24/48/96/360固定窗，滞后变点分块，模式支持和失效，跨位边消融，专家留一与相关性。只接受源水位在截止期前的特征。将实际变异/保留/淘汰理由和父子身份或非出生动作绑定一致输入；严格保留无改进、无支持、预算不足。",
+      "acceptance": "复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。"
+    },
+    {
+      "id": "REV-B09-04",
+      "batch": "B09",
+      "issue": "R341-B09-03",
+      "case": "R341-B09-03-A01",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java"
+      ],
+      "spec": "specs/review/report.md",
+      "title": "选择后校准与模型/策略独立取证",
+      "implementation": "在固定选择策略与预注册分箱后比较同一预测期的赛前选择概率和自然标签；保留原始分子/分母、分组与空桶、ECE/Brier/Wilson及配对覆盖。完整校准 artifact 必须带模型 hash、feature schema、selectionPolicyHash 和有效窗口。窗口内重新选择/拟合只进开发记录，旧 V51SelectedCalibrationArtifact 的 support=0 不得替代在线模型资格。",
+      "acceptance": "有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。"
+    },
+    {
+      "id": "REV-B11-07",
+      "batch": "B11",
+      "issue": "R341-B11-05",
+      "case": "A-B11-05a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java"
+      ],
+      "spec": "specs/review/report.md",
+      "title": "96项执行、44指标、165案例逐键回读和分流",
+      "implementation": "每次回查读取同作业 R31_SEMANTIC_RECEIPT 与 catalog-*.jsonl 的真实 ID，并与报告相应单项比较；将输出关联原检查、对应工单、修复安装身份、有效范围、下一次触发和原件。资格门、期级闭环、只读观察、复合章节分别出状态。改进案例以 (group,id,caseKey,occurrenceId,sourceCommit,snapshot) 归档，新版本按业务键和可比窗口回查，重复报告或来源改变不增加独立时段。",
+      "acceptance": "故意互换相同id不同组的20对矩阵别名，或用052/074/078的同一次缺失伪成三个独立发生；比对须发现。复用同SHA、删除注册ID/加入重复、将已执行WARN升为PASS、将旧job的case累加当改进均须失败。"
+    }
+  ]
+}

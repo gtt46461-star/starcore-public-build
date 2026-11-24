@@ -44,7 +44,7 @@ MeasuredStorage = {
 | 工作集类别 | 上限 |
 |---|---:|
 | 可重算图表缓存 | 128MiB |
-| 未发布报告工作区 | 256MiB |
+| 未发布报告中可重算的普通派生工作集 | 256MiB |
 | 可重建未发布模型/检查点 | 512MiB |
 | 可重建诊断索引及派生统计 | 256MiB |
 | 其他可重算工作集 | 384MiB |
@@ -57,10 +57,10 @@ MeasuredStorage = {
 ```text
 availableForClass = physicalFreeBytes - floorForClass - otherLiveReservations
 allow = requestedMaximumGrowth <= availableForClass
-        AND (criticalBoundedWrite OR categoryProjectedBytes <= categoryLimit)
+        AND (criticalBoundedWrite OR verifiedSnapshotLease OR categoryProjectedBytes <= categoryLimit)
 ```
 
-`DEBT`表示历史/当前可重算工作集超过目标：停止该类别新增可选大任务并触发有界回收；关键结算和现有运行不因历史保护负担直接停机。单次普通报告新增上限128MiB，超过则流式/分卷或给出`REPORT_GROWTH_ADMISSION_DENIED`，不以删除唯一报告换取新报告。
+`DEBT`表示历史/当前可重算工作集超过目标：停止该类别新增可选大任务并触发有界回收；关键结算和现有运行不因历史保护负担直接停机。128MiB 限普通派生数据的单次增量。SQLite 一致性快照先按 DB、WAL、开销、其他活动预约和结算余量单独申请同卷临时租约。分卷发生在快照之后。空间不足保留原件并可重试，具体计算与故障用例见 [存储与导出复核](review/storage.md)。
 
 每个可增长任务使用现有`reserve→beforeChunk/ensureAdditional→reconcile→close`协议。预约不能替代实际测量；任务取消只退还未使用增长额度，已落盘文件必须按其身份另行处理。重启时仅收回已死亡OS租约的剩余额度。过期时间不能独立证明所有者死亡。
 

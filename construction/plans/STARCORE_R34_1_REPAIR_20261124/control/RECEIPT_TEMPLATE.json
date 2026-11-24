@@ -1,5 +1,5 @@
 {
-  "schema": "STARCORE_R341_EXECUTION_RECEIPT_1",
+  "schema": "STARCORE_R341_EXECUTION_RECEIPT_2",
   "template_only": true,
   "plan_manifest_sha256": null,
   "batch": null,
@@ -41,10 +41,45 @@
           "actual": null,
           "operator": "eq",
           "expected": null,
-          "evidence_artifact": "relative/path/to/original.json"
+          "evidence_artifact": "relative/path/to/original.json",
+          "json_pointer": "/rows/0/measured",
+          "review_id": "COPY_FROM_CASE_IF_REQUIRED"
         }
-      ]
+      ],
+      "execution_artifact": "relative/path/to/case-run-original.json"
     },
-    "warning": "这是不通过的空模板。填真实原件/命令/测量，不能只把status改为PASS。"
-  }
+    "warning": "草稿默认不签收。正式记录 template_only=false。待观察/阻塞写具体 reason，验证器返回 RECORDED_NONPASS，退出码2。",
+    "runner_original": {
+      "id": "EXACT_CASE_ID",
+      "issue_id": "EXACT_WORK_ORDER",
+      "batch": null,
+      "level": null,
+      "source_after": null,
+      "plan_manifest_sha256": null,
+      "case_contract_sha256": null,
+      "harness": "FROM_ACCEPTANCE_MATRIX",
+      "command": [],
+      "exit_code": null,
+      "log_sha256": null,
+      "owner_paths": [],
+      "runner_path": "TRACKED_TEST_RUNNER_IF_ENGINEERING",
+      "runner_blob_sha": null,
+      "runner_method": null,
+      "oracle_path": "TRACKED_ORACLE_OR_TEST_SOURCE",
+      "assertions": []
+    },
+    "field_runner_extra": [
+      "apk_sha256",
+      "device_identity",
+      "installed_version_code",
+      "window_start",
+      "window_end",
+      "fixture"
+    ]
+  },
+  "reason": null,
+  "apk_artifact": null,
+  "apk_identity_member": null,
+  "original_implementation_receipt_artifact": null,
+  "original_implementation_receipt_sha256": null
 }

@@ -1,5 +1,7 @@
 # STARCORE 最终施工入口
 
+**当前为 R34.1 第 2 版，适用 577311122。** [本次逐批复核与整改验收](construction/plans/STARCORE_R34_1_REPAIR_20261124/REVIEW.md) · [完整施工任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)。
+
 执行 **R34.1：122版返修后的完整施工方案**。
 
 1. [问题总结与施工总设计](construction/plans/STARCORE_R34_1_REPAIR_20261124/README.md)

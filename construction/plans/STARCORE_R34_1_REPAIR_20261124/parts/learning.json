@@ -19,7 +19,8 @@
             "R26_REPORT.json#/sections[sectionId=TRAINING]",
             "R26_REPORT.json#/sections[sectionId=EXPERTS]",
             "R30_REPORT.json#/chapters/3/data/taskLiveness",
-            "ColdRebirthR34.java#prepare,publish,step"
+            "ColdRebirthR34.java#prepare,publish,step",
+            "specs/review/algorithm.md [REV-B06-01]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "50 候选均停在旧数值 ABI 保存态，12 个实验专家同类受阻；冷启表缺失及任务未注册由 B03 处理。本单接管迁移就绪之后的逐父代出生，不能用抹掉旧权重消除故障。",
@@ -31,12 +32,16 @@
                 "prepare",
                 "publish",
                 "retry",
-                "step"
+                "step",
+                "pendingParentsForHealth",
+                "campaign",
+                "hash"
               ],
               "action": "MODIFY",
               "changes": [
                 "保留既有 prepare/guarded publish；在 source_kind+source_campaign+source_id+targetAbi 的既有唯一键上返回 ALREADY_COMMITTED；snapshotHash属于已提交子代身份，不得因重试换源再生，不重复建子代；失败持久化父代级 nextAt，继续扫描其他父代。",
-                "核对原 checkpoint 摘要及 parent 曝光上界；新子代训练可见范围严格在选定 PIT 合同内，futureActs、alphaIndex 引用、证书、校准与确认均不可继承。"
+                "核对原 checkpoint 摘要及 parent 曝光上界；新子代训练可见范围严格在选定 PIT 合同内，futureActs、alphaIndex 引用、证书、校准与确认均不可继承。",
+                "REV-B06-01 旧父代遇到空 ABI 时可计数、可恢复。实施入口与反例见 specs/review/algorithm.md / R341-B06-01-A03。"
               ]
             },
             {
@@ -46,11 +51,13 @@
                 "campaign",
                 "coldParameters",
                 "requireSnapshot",
-                "requireFreshCounts"
+                "requireFreshCounts",
+                "hash"
               ],
               "action": "MODIFY",
               "changes": [
-                "沿已有 sourceKey/campaign 身份与 requireFreshCounts 零继承断言补齐字段核验；保留原身份版本，不新增并行身份规则。"
+                "沿已有 sourceKey/campaign 身份与 requireFreshCounts 零继承断言补齐字段核验；保留原身份版本，不新增并行身份规则。",
+                "REV-B06-01 旧父代遇到空 ABI 时可计数、可恢复。实施入口与反例见 specs/review/algorithm.md / R341-B06-01-A03。"
               ]
             },
             {
@@ -70,7 +77,8 @@
           "implementation_steps": [
             "以 B03 的 schema/task receipt 作为前置，读 B01 原件清单；对每个保存态父代计算不可变摘要。",
             "事务外读输入并生成新初始状态；短事务内 CAS owner/fence、父代摘要、source generation、容量、身份唯一键，再原子提交 child+lineage+checkpoint+receipt。",
-            "提交前后任意崩溃可重入；容量或暂缺源只记 WAITING，单父代坏字节记 QUARANTINED 并轮转；报告同时显示保全父代与新子代。"
+            "提交前后任意崩溃可重入；容量或暂缺源只记 WAITING，单父代坏字节记 QUARANTINED 并轮转；报告同时显示保全父代与新子代。",
+            "REV-B06-01 ColdRebirthR34.pick 与 pendingParentsForHealth 共用包含未知 ABI 的分类。左联结原 campaign 与出生记录均缺时，保全原行，标明缺失的 owner/through/hash，尝试读取同一封存原件。ABI、曝光和输入可核实后才调用 prepare/publish。区分已生、可运行、延期与身份待查四个互斥集合。"
           ],
           "acceptance": [
             {
@@ -91,8 +99,11 @@
               "id": "R341-B06-01-A03",
               "level": "ENGINEERING",
               "scenario": "坏父代与合法父代混合",
-              "expected": "坏对象隔离，合法对象继续；不会要求等 B09 自然样本",
-              "evidence": "每对象 retry/state 与本次提交水位；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "坏对象隔离，合法对象继续；不会要求等 B09 自然样本 REV-B06-01：同库放一个已有证据的旧 ABI 父代、一个无 campaign 且无出生记录的保全父代和一个已出生父代。重启两次后总数守恒，首个只生一次，未知对象能查到具体缺项，其他父代不受阻。",
+              "evidence": "每对象 retry/state 与本次提交水位；fixture store=test-r341-b06, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B06-01"
+              ]
             }
           ],
           "rollback": "关闭新出生调度，保留父子关系与已提交原件；旧父代仍按旧 ABI 只读，不降级解释新状态。",
@@ -100,6 +111,9 @@
             "删除旧权重/清零旧证据",
             "复制父证书或 alpha 身份",
             "把 B03 未就绪当本单新建重复迁移理由"
+          ],
+          "required_review_ids": [
+            "REV-B06-01"
           ]
         },
         {
@@ -500,7 +514,8 @@
           "evidence_refs": [
             "DIAGNOSTIC_SCOPE.json#/tables[name=r30_atomnet_sample]",
             "DIAGNOSTIC_SCOPE.json#/tables[name=r31_atomnet_sample_stage]",
-            "AtomNetRuntimeR30.java#step,requireLabel"
+            "AtomNetRuntimeR30.java#step,requireLabel",
+            "specs/review/algorithm.md [REV-B07-01]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "2150 样本、790 stage 行只是材料；当前训练/发布字段因 SchemaPending 为未知。训练必须有同 epoch 十位置完整输入与标签时点。",
@@ -510,11 +525,13 @@
               "methods": [
                 "step",
                 "requireLabel",
-                "settle"
+                "settle",
+                "work"
               ],
               "action": "MODIFY",
               "changes": [
-                "用 B03 已安装 r34 缺标签/optimizer 表；按 issue+position+featureABI+source revision 幂等准备样本，标签只在权威结算可见后允许用于开发训练。"
+                "用 B03 已安装 r34 缺标签/optimizer 表；按 issue+position+featureABI+source revision 幂等准备样本，标签只在权威结算可见后允许用于开发训练。",
+                "REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。"
               ]
             },
             {
@@ -528,7 +545,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "同 epoch 十位置一致；partialIssue 非空不可发布；缺位置保持部分状态，不写“完整轮”；恢复继续缺项。"
+                "同 epoch 十位置一致；partialIssue 非空不可发布；缺位置保持部分状态，不写“完整轮”；恢复继续缺项。",
+                "REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。"
               ]
             },
             {
@@ -541,12 +559,23 @@
               "changes": [
                 "样本记录原开奖可见时间、feature through、源提交及连续区间，拒绝把导入时间伪作历史赛前可见时间。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+              "methods": [
+                "pretrain"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。"
+              ]
             }
           ],
           "implementation_steps": [
             "先区分 TRAIN/SELECT/ONLINE_RESEARCH 与密封 CONFIRM/FUTURE/SYNTHETIC；后者不能直接进同实验优化器和 replay buffer；后续研究使用公开结算事实时必须新开发边界/新身份，且样本标已暴露，不能再计独立未来。",
             "逐位置先特征、预测，再合法标签；同 epoch 组装清单必须覆盖 1..10 且无重复。",
-            "缺标签、缺位置、断期各有状态与下一依赖；缺一个位置不重复训练已提交的九个位置。"
+            "缺标签、缺位置、断期各有状态与下一依赖；缺一个位置不重复训练已提交的九个位置。",
+            "REV-B07-01 同时修改 AtomNetSessionR30.work 的 FILL 和 AtomNetTrainerR27.pretrain 的 buffer 初始化。保留原 SELECT 作为开发验证时，两入口仅装入合法 TRAIN 及后来已显式登记的 ONLINE_RESEARCH。将每次抽取的样本键、角色、原始 pin 和抽样顺序写入有界可重演清单；按原键与该版本开发验证键校验交集。旧 checkpoint 来历不齐保全原版本，从有身份的样本恢复或另起已曝光子实验。"
           ],
           "acceptance": [
             {
@@ -567,8 +596,11 @@
               "id": "R341-B07-01-A03",
               "level": "ENGINEERING",
               "scenario": "将 FUTURE 或 synthetic 送训练",
-              "expected": "类型拒绝且模型、cursor、buffer 不变",
-              "evidence": "负例事务状态对照；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "类型拒绝且模型、cursor、buffer 不变 REV-B07-01：固定种子使旧实现能抽中 SELECT；通过两个真实入口各跑一次在线更新、一次开发验证和一次恢复。验证集合与该模型实际 replay 抽样键交集为零，两个入口结果与各自连续运行一致。旧 checkpoint 来源不明时不得将原 SELECT 报为未训练验证。",
+              "evidence": "负例事务状态对照；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B07-01"
+              ]
             }
           ],
           "rollback": "停新样本摄入，保留完整组与部分组；恢复依同 identity 续算。",
@@ -576,6 +608,9 @@
             "用 stage 行数当 optimizer 步数",
             "补零凑十位置",
             "后开奖补制赛前输入"
+          ],
+          "required_review_ids": [
+            "REV-B07-01"
           ]
         },
         {
@@ -678,7 +713,8 @@
           "evidence_refs": [
             "DIAGNOSTIC_SCOPE.json#/tables[name=r31_atomnet_publication]",
             "R30_REPORT.json#/objectIndex/boundedPayloads/modelCalls",
-            "ModelSurfaceProviderR30.java#predict,validate"
+            "ModelSurfaceProviderR30.java#predict,validate",
+            "specs/review/report.md [REV-B07-02]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "已有19行 publication 不证明可发布模型被调用；当前 modelCalls 为0。需要同一模型身份从数值步走到实际策略预测。",
@@ -693,7 +729,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "发布仅指向完整十位置、已提交 model/state hash；提交后产生不可变 publication manifest，失败保持旧 publication 可用。"
+                "发布仅指向完整十位置、已提交 model/state hash；提交后产生不可变 publication manifest，失败保持旧 publication 可用。",
+                "REV-B07-02 十位置概率面与同目标1200个动作排序建立可复算关系。实施入口与反例见 specs/review/report.md / R341-B07-03-A01。"
               ]
             },
             {
@@ -743,20 +780,32 @@
               "changes": [
                 "forecast 读取已提交版本；将真实 call 与待冻结策略引用关联；本批用 ENGINEERING_ONLY 的影子消费验证，不授证。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B07-02 十位置概率面与同目标1200个动作排序建立可复算关系。实施入口与反例见 specs/review/report.md / R341-B07-03-A01。"
+              ]
             }
           ],
           "implementation_steps": [
             "先提交模型，再从该 publication 生成概率面；逐调用保存相同 identity 的调用回执。",
             "通过 model_surface AST 的真实预测路径引用概率面；冻结 proof 必须包含此次实际 modelCall 引用。",
-            "新发布模型可供新研究；已有 FUTURE 实验固定原模型或预注册可预测的学习程序身份，不允许事后选择 latest。"
+            "新发布模型可供新研究；已有 FUTURE 实验固定原模型或预注册可预测的学习程序身份，不允许事后选择 latest。",
+            "REV-B07-02 把实际发布的原始十位置概率面、归一化后的行列偏差、回退原因及同目标冻结结合。绑定参数/输入/ABI/hash与确定性并列规则；动作面由正式动作账本引用，取到唯一1200动作后才出完整排名比较。对 NumberQ 与 AtomNet、fallback 分别记身份。按同期实际 permutations 计算各位置 top-k recall；动作命中按该动作同位置的开奖号码是否在K3内确定，Rank1、MRR、NDCG、成对顺序用同一赛前排序同期标签按期汇总；同分、无有效标签、未完成延迟材料明确对待。"
           ],
           "acceptance": [
             {
               "id": "R341-B07-03-A01",
               "level": "ENGINEERING",
               "scenario": "发布M1，生成冻结，再发布M2",
-              "expected": "旧冻结仍为M1；新研究可用M2；旧未来注册不得自动换M2",
-              "evidence": "publication→surface→call→freeze hash joins；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "旧冻结仍为M1；新研究可用M2；旧未来注册不得自动换M2 REV-B07-02：夹具提供有并列的10×10概率面、完整赛前动作序列与开奖，独立参考实现重算指标；换掉一个 target/hash、漏掉一个动作、注入 NaN 或将开奖后重排输入时返回缺证/拒绝。1200个动作只占一期分母；这组 ENGINEERING 只验接口与复算。",
+              "evidence": "publication→surface→call→freeze hash joins；fixture store=test-r341-b07, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B07-02"
+              ]
             },
             {
               "id": "R341-B07-03-A02",
@@ -778,6 +827,9 @@
             "把文件存在当被策略使用",
             "读 latest 覆盖未来模型",
             "用缓存占位曲线当概率面"
+          ],
+          "required_review_ids": [
+            "REV-B07-02"
           ]
         },
         {
@@ -979,7 +1031,8 @@
           "evidence_refs": [
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/tasks[taskId=r27-replay-dataset]",
             "R30_REPORT.json#/objectIndex/boundedPayloads/researchMeasures",
-            "ResearchObservatoryR30R1.java#step"
+            "ResearchObservatoryR30R1.java#step",
+            "specs/review/algorithm.md [REV-B08-01]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "观测器共同停在 IMMUTABLE_REPLAY_DATASET，538 measures 中517为 INPUT_INVALIDATION；没有稳定输入就不能把缺图简单归因于绘制层。",
@@ -1012,7 +1065,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。"
+                "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。",
+                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
               ]
             },
             {
@@ -1030,26 +1084,40 @@
               "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
               "methods": [
                 "step",
-                "publishDatasetInputR335"
+                "publishDatasetInputR335",
+                "recoverCommittedEvolutionInputR335"
               ],
               "action": "MODIFY",
               "changes": [
-                "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。"
+                "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。",
+                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
               ]
             }
           ],
           "implementation_steps": [
             "按原数据 owner 的分页游标构造 staging segments；每页提交有摘要、行数、first/last ordinal 与可见时间。",
             "只有完整 manifest 可发布为 immutable；重启从已提交页续建；已注册实验的旧 pin 保持可读。",
-            "输入重复读不重复 invalidation；被源修正影响的具体 run 失效，有原因和新 revision；不把所有历史一刀切删除。"
+            "输入重复读不重复 invalidation；被源修正影响的具体 run 失效，有原因和新 revision；不把所有历史一刀切删除。",
+            "REV-B08-01 RuntimeR27.publishDatasetInputR335、recoverCommittedEvolutionInputR335 和 EvolutionTask.step 统一当前、待用及选中缓存的所有权。在临界区更换指针并登记引用；最后一个读者退出后释放已被取代的 FeatureCacheR27。取消或提交失败不改变已提交代的输入，老 pin 保留可回读。"
           ],
           "acceptance": [
             {
               "id": "R341-B08-01-A01",
               "level": "ENGINEERING",
               "scenario": "构建中断、重复页、源修正",
-              "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因",
-              "evidence": "segment/manifest/pin 对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因 REV-B08-01：代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。",
+              "evidence": "segment/manifest/pin 对照；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B08-01"
+              ]
             },
             {
               "id": "R341-B08-01-A02",
@@ -1071,6 +1139,9 @@
             "将 history latest 当任意旧 run 输入",
             "清除 INPUT_INVALIDATION 让图好看",
             "一次锁全历史数据堵实时写入"
+          ],
+          "required_review_ids": [
+            "REV-B08-01"
           ]
         },
         {
@@ -1079,7 +1150,8 @@
           "evidence_refs": [
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=researchCharts]",
             "ResearchChartActionsR33.java#action",
-            "ResearchObservatoryR30R1.java#compute,productR335,step"
+            "ResearchObservatoryR30R1.java#compute,productR335,step",
+            "specs/review/charts.md [REV-B08-04]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "18研究图同源产出与消费均为0。每图需输入、算法产物与消费者，读账图不能强行变成训练器。",
@@ -1092,12 +1164,15 @@
                 "productR335",
                 "classifyFrameR335",
                 "sourceWatermarkR335",
-                "step"
+                "step",
+                "read",
+                "support"
               ],
               "action": "MODIFY",
               "changes": [
                 "按 appendix 中 R01–R18 合同执行；一图一有界切片，错误/等待后轮转；frame 必含点值/support/单位/role/sourceHash。",
-                "R11/R14/R18 是正式链只读证据图，缺自然证据显示未观察；R08 固定 TRAIN 探针；其余研究测量用 SELECT/允许的 ONLINE_RESEARCH。"
+                "R11/R14/R18 是正式链只读证据图，缺自然证据显示未观察；R08 固定 TRAIN 探针；其余研究测量用 SELECT/允许的 ONLINE_RESEARCH。",
+                "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
               ]
             },
             {
@@ -1120,20 +1195,43 @@
               "changes": [
                 "图只能展示与固定 input pin 一致的 current-source 数值；历史/失效 frame 分区显示，不混合计数。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+              "methods": [
+                "read",
+                "readFrame"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
+              ]
             }
           ],
           "implementation_steps": [
             "逐图照 RESEARCH_OBJECT_CONTRACTS.json 建正常输入、缺输入、坏源 fixture；输出 frame+measure+cost+source receipt 同事务。",
             "数据不够写 INSUFFICIENT 与缺口；任务等待不写空 PRODUCED frame；上一合法产物可保留但标 stale。",
-            "工程测试给 R11/R14/R18 隔离原件夹具验证只读 join；设备自然数据依然标未观察。"
+            "工程测试给 R11/R14/R18 隔离原件夹具验证只读 join；设备自然数据依然标未观察。",
+            "REV-B08-04 在 ResearchObservatoryR30R1.classifyFrameR335/productR335、R06 单独配对产线和 ResearchWorkbenchRepositoryR30R1.Page.read/readFrame 对齐 viewId、runId、input/contractHash、source、ABI、role、窗口和 support。分开记录持久帧、可用数值、正式链证据和历史帧。"
           ],
           "acceptance": [
             {
               "id": "R341-B08-02-A01",
               "level": "ENGINEERING",
               "scenario": "18图逐项完整及缺项夹具",
-              "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图",
-              "evidence": "18项运行矩阵与可复算数据；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图 REV-B08-04：逐一跑 R01–R18。有值、全null、旧版以及篡改原件各一份。R06 校验自身配对字段，R11/R14/R18 无资料为待观测且消费不适用；真实零+正support仍可显示。",
+              "evidence": "18项运行矩阵与可复算数据；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B08-04"
+              ]
             },
             {
               "id": "R341-B08-02-A02",
@@ -1155,6 +1253,9 @@
             "用占位点/随机曲线填图",
             "每图一份共享原因就宣称全部复演",
             "读账图计入新增算法"
+          ],
+          "required_review_ids": [
+            "REV-B08-04"
           ]
         },
         {
@@ -1163,7 +1264,8 @@
           "evidence_refs": [
             "STRATEGY_MATRICES.json#/matrixInventoryR34",
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/rows[group=matrices]",
-            "MatrixResearchR30R1.java#build,produceR31,step"
+            "MatrixResearchR30R1.java#build,produceR31,step",
+            "specs/review/algorithm.md [REV-B08-02]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "20对象无保留快照，19 typed对象观察为空；旧目录algorithmConsumer多数写持久化诊断，但typedConsumers已有真实研究入口；必须核验实际绑定与消费，不能误称缺实现。",
@@ -1175,11 +1277,13 @@
                 "produceR31",
                 "receiptR31",
                 "dependencyKeyR31",
-                "step"
+                "step",
+                "stored"
               ],
               "action": "MODIFY",
               "changes": [
-                "维持 source-only 优先和每kind隔离；19 R930 kinds按各自产物原件生产，COUNTERFACTUAL 原有专属来源单独接入，不绕过其精确组件移除合同。"
+                "维持 source-only 优先和每kind隔离；19 R930 kinds按各自产物原件生产，COUNTERFACTUAL 原有专属来源单独接入，不绕过其精确组件移除合同。",
+                "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
               ]
             },
             {
@@ -1208,11 +1312,13 @@
               "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
               "methods": [
                 "compute",
-                "stored"
+                "stored",
+                "validRunSql"
               ],
               "action": "MODIFY",
               "changes": [
-                "按实际各kind shape/axis/support生产；EVIDENCE_TEACHER可用同位置原归档策略作研究教师，明确不得替代F23原VM；RESOURCE_EFFICIENCY未测memory/queue列维持缺失。"
+                "按实际各kind shape/axis/support生产；EVIDENCE_TEACHER可用同位置原归档策略作研究教师，明确不得替代F23原VM；RESOURCE_EFFICIENCY未测memory/queue列维持缺失。",
+                "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
               ]
             },
             {
@@ -1271,12 +1377,23 @@
               "changes": [
                 "20项之一为SU2 factor/teacher bundle；每factor10位置权重与原stream codec校验，保留原owner可见时间。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+              "methods": [
+                "validRunSql"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
+              ]
             }
           ],
           "implementation_steps": [
             "以appendix 20行合同核对实际typed producer/consumer；legacy与typed分开，诊断型用途保持READ_ONLY，不假报实际消费。",
             "已验证原代码 shape：NUMBER_POSITION 10x10、CROSS_POSITION 10x40、STUDENT_ERROR 1x3、FEEDBACK 3x2、RESIDUAL 3x10；其他kind的精确动态轴/shape见附录，来源MatrixEvidence.compute/stored、ResearchStore.paired与SU2原codec。",
-            "接通ResearchContext既有calibration/residual/premise/fusion与budget消费者并记录use→stage→commit；typed研究teacher与F23原VM严格区分；移除矩阵同目标消融独立记录。"
+            "接通ResearchContext既有calibration/residual/premise/fusion与budget消费者并记录use→stage→commit；typed研究teacher与F23原VM严格区分；移除矩阵同目标消融独立记录。",
+            "REV-B08-02 MatrixEvidenceR30R1.stored 的 TEMPORAL_PRECEDENCE SQL 在读取 MODEL_PAIR_FROZEN 之前按当前研究契约限定 dataset_hash、source_revision 和源码版本，保留 validRunSql 与在线角色；若设计消费独立在线 pin，则显式绑定两者的来源键和合法时间边界。MatrixResearchR30R1.step 以该 kind 同范围可见原件身份形成重试键，提交时复核。"
           ],
           "acceptance": [
             {
@@ -1290,8 +1407,11 @@
               "id": "R341-B08-03-A02",
               "level": "ENGINEERING",
               "scenario": "20对象正常/缺源/错shape/错目标",
-              "expected": "正常原值可重算；缺源清楚等待；错项拒绝且旧合法产物保留stale",
-              "evidence": "20项契约结果；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "正常原值可重算；缺源清楚等待；错项拒绝且旧合法产物保留stale REV-B08-02：先插入 A，再插入 ordinal 更新的 B 模型对照，两者数据集不同。运行 A 只返回 A 的两行时间差；只有 B 时 A 等待，再写入合法 A 后可恢复。更换无关 B 或竞争写不得把 A 永久标 INVALID 或重复产出。",
+              "evidence": "20项契约结果；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B08-02"
+              ]
             },
             {
               "id": "R341-B08-03-A03",
@@ -1306,6 +1426,9 @@
             "空矩阵写零冒充测量",
             "把相关性叫因果",
             "把20能力目录与20对象重复计40问题"
+          ],
+          "required_review_ids": [
+            "REV-B08-02"
           ]
         },
         {
@@ -1314,7 +1437,9 @@
           "evidence_refs": [
             "R30_REPORT.json#/objectIndex/boundedPayloads/researchProposals",
             "R30_REPORT.json#/objectIndex/boundedPayloads/researchConsumption",
-            "ResearchConsumptionStoreR31.java#completeWithin"
+            "ResearchConsumptionStoreR31.java#completeWithin",
+            "specs/review/algorithm.md [REV-B08-03]",
+            "specs/review/charts.md [REV-B08-05]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "已有历史frames/measures但proposals和consumption都是0，关键缺口是分析结果没有变成可执行动作。",
@@ -1342,7 +1467,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "BORN child、lineage、proposal consumed receipt 同一事务；非出生动作必须有实际 before/after状态及提交事务，不能借一个文字ACK。"
+                "BORN child、lineage、proposal consumed receipt 同一事务；非出生动作必须有实际 before/after状态及提交事务，不能借一个文字ACK。",
+                "REV-B08-05 把视图产品消费定位到同源实际动作。实施入口与反例见 specs/review/charts.md / R341-B08-04-A01。"
               ]
             },
             {
@@ -1355,20 +1481,74 @@
               "changes": [
                 "proposal 状态 READY→CLAIMED(fence)→APPLIED/REJECTED/RETRY；结果由同 sourceHash+actionKey 幂等，消费的源产物不可先归档删除。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+              "methods": [
+                "update",
+                "refit"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+              "methods": [
+                "update",
+                "maintain",
+                "attempt",
+                "readback",
+                "shadow"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+              "methods": [
+                "attempt",
+                "readback",
+                "shadow"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+              "methods": [
+                "update",
+                "shadow"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+              ]
             }
           ],
           "implementation_steps": [
             "为每个 proposal 固定源view/run/measure/matrix hash、parent/pin/target、action参数、role和预期检验；重复同源同action不再出生。",
             "短事务检查 source still valid与worker fence；执行复杂计算在事务外，commit时再次CAS。",
-            "若 child已提交回执缺失，禁止盲补质量；从同事务设计消灭半成功，旧坏数据隔离修复另留审计。"
+            "若 child已提交回执缺失，禁止盲补质量；从同事务设计消灭半成功，旧坏数据隔离修复另留审计。",
+            "REV-B08-03 复用 ContMatSU2.update/refit、DiagnosisStoreSU2.maintain 与 DiagnosisShadowReceiptR335.attempt/readback。对达到源码起算条件的每个 500 期边界记录两半支持、方向、z、窗口和原件 hash；仅有经核实的新模式时经既有 S5 owner 申请影子并回读实际 child、league、shadow。旧 7229 留历史栏，已观察计数与终身未知分别显示。",
+            "REV-B08-05 ResearchConsumptionStoreR31.completeWithin 与已存在的 r33_research_applied 路径按 sourceRun/productHash/role/ABI/revision/effectKey 绑定。分别保存出生和非出生动作；重放同一个 consumeKey 不增加计数。"
           ],
           "acceptance": [
             {
               "id": "R341-B08-04-A01",
               "level": "ENGINEERING",
               "scenario": "提案正例、只读图、角色不符、源失效",
-              "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留",
-              "evidence": "proposal→child/effect→receipt joins；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留 REV-B08-03：隔离环境注入方向相反、每半199支持、单位置只过全局阈值及同向达标样例。前三者不开 S5；达标且上下游就绪的例子恰有一个影子；落盘前后重启、槽满后重试不重复，不产生生产证书或 REAL。 REV-B08-05：给同一 viewId 写旧版动作、重复消费、仅文字提案、当期有 before/after 变化且原件可复算的非出生动作，当前真实消费只有最后一笔。只读图不取得优化授权。",
+              "evidence": "proposal→child/effect→receipt joins；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B08-03",
+                "REV-B08-05"
+              ]
             },
             {
               "id": "R341-B08-04-A02",
@@ -1390,6 +1570,10 @@
             "先写consumed后做动作",
             "用出生计数替代有用改进",
             "借旧sourceHash拼新子代"
+          ],
+          "required_review_ids": [
+            "REV-B08-03",
+            "REV-B08-05"
           ]
         },
         {
@@ -1398,7 +1582,8 @@
           "evidence_refs": [
             "R26_REPORT.json#/sections[sectionId=EVOLUTION]",
             "R26_REPORT.json#/strategyAssessment/failureDirectedResearch",
-            "EvolutionLoopR27.java#step,calculateReplayR31,applyReplayR31"
+            "EvolutionLoopR27.java#step,calculateReplayR31,applyReplayR31",
+            "specs/review/report.md [REV-B08-06]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "verifiedGenerations为0，失败驱动batch为0；需区分搜索尝试、开发完成一代与自然证实改进，不能只让generation数字增长。",
@@ -1415,7 +1600,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "失败簇使用开发角色的真实error/support/context；每假设指定父机制、待改节点、反证条件，信用由实际后续配对回执归因。"
+                "失败簇使用开发角色的真实error/support/context；每假设指定父机制、待改节点、反证条件，信用由实际后续配对回执归因。",
+                "REV-B08-06 RSEC-066 六个窗口、归因与边界子试验回到真实消费者。实施入口与反例见 specs/review/report.md / R341-B08-05-A01。"
               ]
             },
             {
@@ -1451,15 +1637,19 @@
           "implementation_steps": [
             "固定一轮输入和预算，从失败簇选择具体算子；子代走B06训练/去重再开发评价，落负结果。",
             "每轮有最大计算/候选预算和时间切片；未处理提案有暂停状态，不伪称完成；失败子代不拖住整代。",
-            "下一代父池只用已合法可执行且有开发证据的对象；所有传承保留lineage，新身份未来证据归零。"
+            "下一代父池只用已合法可执行且有开发证据的对象；所有传承保留lineage，新身份未来证据归零。",
+            "REV-B08-06 使用预冻结的同一开发 SELECT 日历，在 RSEC-066 的 THIRD/WINDOW/REGIME/MOTIF/RELATION/CONSENSUS 分别记录第三/四名差与替换反证，12/24/48/96/360固定窗，滞后变点分块，模式支持和失效，跨位边消融，专家留一与相关性。只接受源水位在截止期前的特征。将实际变异/保留/淘汰理由和父子身份或非出生动作绑定一致输入；严格保留无改进、无支持、预算不足。"
           ],
           "acceptance": [
             {
               "id": "R341-B08-05-A01",
               "level": "ENGINEERING",
               "scenario": "固定失败夹具运行两代并中途恢复",
-              "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果",
-              "evidence": "generation与lineage清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果 REV-B08-06：复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。",
+              "evidence": "generation与lineage清单；fixture store=test-r341-b08, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B08-06"
+              ]
             },
             {
               "id": "R341-B08-05-A02",
@@ -1481,6 +1671,9 @@
             "尝试数当已证实代数",
             "把父未来战绩复制给子代",
             "反复重试同失败对象刷改进率"
+          ],
+          "required_review_ids": [
+            "REV-B08-06"
           ]
         },
         {
@@ -1670,7 +1863,8 @@
           "evidence_refs": [
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture",
             "R30_REPORT.json#/objectIndex/boundedPayloads/confirmation",
-            "FrozenConfirmationR30.java#freeze,evaluate"
+            "FrozenConfirmationR30.java#freeze,evaluate",
+            "specs/review/algorithm.md [REV-B09-01]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "未来ACT、合格实验、证书均为0，已有开发记录不能替代未见证据；新子代、模型或数据角色变更必须独立注册。",
@@ -1699,7 +1893,8 @@
               ],
               "action": "MODIFY",
               "changes": [
-                "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。"
+                "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。",
+                "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
               ]
             },
             {
@@ -1714,20 +1909,43 @@
               "changes": [
                 "绑定注册前已提交模型/权重/特征 ABI与暴露上界；当前source已不存在则WAITING，不能用latest凑。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+              "methods": [
+                "certify",
+                "paired"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
+              ]
             }
           ],
           "implementation_steps": [
             "确认样本与TRAIN/SELECT隔离，已被开发看过的样本永不能重新命名独立；登记时固定同目标父与控制。",
             "新实验保存模型/政策身份、代码语义、alphaIndex、calendarStart、截止规则和预注册最低覆盖；同算法改名不得重置全局试验预算。",
-            "不合格确认是终态REJECTED而非任务故障；可继续新研究，新子代从新身份开始。"
+            "不合格确认是终态REJECTED而非任务故障；可继续新研究，新子代从新身份开始。",
+            "REV-B09-01 FrozenConfirmationStoreR30 冻结确认对象后，在建立独立未来实验时同时登记两组对照的具体 experiment/policy identity、开始期和规则版本。LiveShadowsR27.certify/paired 按所属合同及完整日历比对。在原 V1 字段旁记录全机会、交集和缺口；历史绑定缺失输出来源待核，不事后选择新晋对照补齐。"
           ],
           "acceptance": [
             {
               "id": "R341-B09-01-A01",
               "level": "ENGINEERING",
               "scenario": "正常注册、重复、模型替换、重命名",
-              "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移",
-              "evidence": "registration manifest及唯一键；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移 REV-B09-01：A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。",
+              "evidence": "registration manifest及唯一键；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B09-01"
+              ]
             },
             {
               "id": "R341-B09-01-A02",
@@ -1749,6 +1967,9 @@
             "继承父未来战绩",
             "用历史回放当真实未来",
             "工程夹具授生产证书"
+          ],
+          "required_review_ids": [
+            "REV-B09-01"
           ]
         },
         {
@@ -1757,7 +1978,8 @@
           "evidence_refs": [
             "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture",
             "QualificationInboxR29.java#calendarStart,consume,step,rebuild",
-            "QualificationGapRepairR30R1.java#legalOriginal"
+            "QualificationGapRepairR30R1.java#legalOriginal",
+            "specs/review/algorithm.md [REV-B09-02]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "缺冻结不能在开奖后补造，晚到/重复开奖不能漏期或多算；按到达顺序直接更新序贯状态可能丢失旧ordinal，必须由完整日历驱动。",
@@ -1772,11 +1994,13 @@
                 "sameCursor",
                 "hasOpenConflict",
                 "rebuild",
-                "reconcilePendingDrawsR31"
+                "reconcilePendingDrawsR31",
+                "size"
               ],
               "action": "MODIFY",
               "changes": [
-                "以experiment+target为唯一机会键按ordinal推进；乱序先存待决，不跳过中间未知；ACT/HOLD/MISSING/FROZEN_LATE逐项记账。"
+                "以experiment+target为唯一机会键按ordinal推进；乱序先存待决，不跳过中间未知；ACT/HOLD/MISSING/FROZEN_LATE逐项记账。",
+                "REV-B09-02 同一期分批冻结、重试和超时后机会总数守恒。实施入口与反例见 specs/review/algorithm.md / R341-B09-02-A01。"
               ]
             },
             {
@@ -1801,20 +2025,46 @@
               "changes": [
                 "仅由按序、已settled、合法独立的账本输入；重复不得累计；缺口处理使用原合同，不把未知变miss或HOLD偷改统计。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+              "methods": [
+                "freeze",
+                "r27_opportunity",
+                "size",
+                "frozen",
+                "settled"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B09-02 同一期分批冻结、重试和超时后机会总数守恒。实施入口与反例见 specs/review/algorithm.md / R341-B09-02-A01。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B09-02 同一期分批冻结、重试和超时后机会总数守恒。实施入口与反例见 specs/review/algorithm.md / R341-B09-02-A01。"
+              ]
             }
           ],
           "implementation_steps": [
             "分母保存完整计划机会与各种状态；命中率HIT/settledACT，覆盖ACT/全部预注册机会，缺失单列并触发资格完整性阻断。",
             "每结算事务同时写机会行、序贯状态、配对对照、cursor；同源冲突开奖隔离，不覆盖原证据。",
-            "按原事前账重建投影，摘要与增量一致；无原事前冻结的期永不纳入成功样本。"
+            "按原事前账重建投影，摘要与增量一致；无原事前冻结的期永不纳入成功样本。",
+            "REV-B09-02 LiveShadowsR27.freeze 正常与超时两分支都应以当期登记集合及其已持久化原件重建 r27_opportunity。禁止用此次尚未处理的 todo.size 覆盖累计 frozen、acted、settled、deadline_missed。区分登记内业务机会与 OBSERVE/控制角色；在短事务内检查源版本，独立资格始终读各实验原始日历。"
           ],
           "acceptance": [
             {
               "id": "R341-B09-02-A01",
               "level": "ENGINEERING",
               "scenario": "乱序/重复开奖与重启",
-              "expected": "按日历恰好一次，重建/增量同值，机会分母守恒",
-              "evidence": "ledger/sequence replay；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "按日历恰好一次，重建/增量同值，机会分母守恒 REV-B09-02：为同一期 A 正常冻结并先结算；B 首轮因 PIT 未写，之后在截止前成功或截止后迟到。重复提交并重启后分别逐键复算，A 的 ACT 与 settled 仍在，迟到的 B 只计一次，各实验日历与汇总定义一致。",
+              "evidence": "ledger/sequence replay；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B09-02"
+              ]
             },
             {
               "id": "R341-B09-02-A02",
@@ -1836,6 +2086,9 @@
             "跳过输期缩分母",
             "晚到后改赛前时间",
             "删实验重置序贯证据"
+          ],
+          "required_review_ids": [
+            "REV-B09-02"
           ]
         },
         {
@@ -1844,7 +2097,9 @@
           "evidence_refs": [
             "CertificateGateR27.java#evaluate,contract,futureSummary",
             "SequentialQualificationR27.java#alpha,observe",
-            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture"
+            "UPGRADE_DIAGNOSIS.json#/capabilityRepairR32/operatingSummary/independentFuture",
+            "specs/review/algorithm.md [REV-B09-03]",
+            "specs/review/report.md [REV-B09-04]"
           ],
           "evidence_status": "报告直接观察到断点；源码入口存在；本次未执行应用复演，具体运行根因须用 B01/B03 原件锁定",
           "diagnosis": "用户要求的高胜率/稳定/品质必须分项测量。当前V1证书门槛与报告Q02覆盖要求并非同一字段，不能把futureSummary覆盖通过自动说成evaluate已检查。",
@@ -1861,7 +2116,9 @@
               "action": "MODIFY",
               "changes": [
                 "保持R27_GATE_V1既有数值：HR≥.34、ACT≥250、ECE≤.04、worst720≥.26、streak≤6、ABI、序贯与两个控制配对LCB>0；逐项UNKNOWN/FAIL/PASS。",
-                "V1 coverage目前只在futureSummary描述；R34.1资产质量另报预登记FUTURE_ACT_RATE≥.15、全机会完整、同目标父子独立差与成本；部署后REAL_ACT_RATE另计，不作为首次应用前置，不改V1 contractHash。"
+                "CertificateGateR27.evaluate 给数学裁决，LiveShadowsR27.certify 在实际发证时另核未来覆盖≥15%、净收益及资格绑定；R34.1资产质量另报预登记FUTURE_ACT_RATE≥.15、全机会完整、同目标父子独立差与成本；部署后REAL_ACT_RATE另计，不作为首次应用前置，不改V1 contractHash。",
+                "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。",
+                "REV-B09-04 选择后校准与模型/策略独立取证。实施入口与反例见 specs/review/report.md / R341-B09-03-A01。"
               ]
             },
             {
@@ -1887,27 +2144,65 @@
               "changes": [
                 "NEW evaluate(V1Verdict,CalendarProof,PairedProof,Scope)->QualityVerdict；严格引用不可变原件，输出Q01–Q08状态，consumer为报告与质量验收；不增加V1选择门槛、不阻已合法证书首次进入既定选择，无独立REAL授权。"
               ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+              "methods": [
+                "evaluate",
+                "certify",
+                "commit"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+              "methods": [
+                "commit"
+              ],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。"
+              ]
+            },
+            {
+              "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+              "methods": [],
+              "action": "MODIFY",
+              "changes": [
+                "REV-B09-04 选择后校准与模型/策略独立取证。实施入口与反例见 specs/review/report.md / R341-B09-03-A01。"
+              ]
             }
           ],
           "implementation_steps": [
             "严格分离工程完成、已计算但被门槛拒绝、样本不足、自然质量通过；0ACT时收益/区间/命中率未观察。",
             "率之外同时报覆盖、固定块最差表现、最长连错、校准support、Brier、同机会父子/控制净差、成本及置信区间；利润只用真实赔率参数并披露未观测费用。",
-            "对原MAX_LOSS_STREAK=6做iid敏感性与联合功效报告；若质量目标需变更，另建新统计合同并前瞻注册，不以“优化”绕现合同。"
+            "对原MAX_LOSS_STREAK=6做iid敏感性与联合功效报告；若质量目标需变更，另建新统计合同并前瞻注册，不以“优化”绕现合同。",
+            "REV-B09-03 保留 CertificateGateR27.evaluate 的数学裁决；用 LiveShadowsR27.certify 的实际 issued/failing/commit 及产物报告实发裁决。122已要求独立未来覆盖≥15%、记录净收益>0、合法模型/校准/资格原件、无资格冲突与撤销。部署后 REAL 频率及额外质量指标另列，不能成为首次发证或首用的循环前置。",
+            "REV-B09-04 在固定选择策略与预注册分箱后比较同一预测期的赛前选择概率和自然标签；保留原始分子/分母、分组与空桶、ECE/Brier/Wilson及配对覆盖。完整校准 artifact 必须带模型 hash、feature schema、selectionPolicyHash 和有效窗口。窗口内重新选择/拟合只进开发记录，旧 V51SelectedCalibrationArtifact 的 support=0 不得替代在线模型资格。"
           ],
           "acceptance": [
             {
               "id": "R341-B09-03-A01",
               "level": "ENGINEERING",
               "scenario": "逐一单门槛失败/缺证据/全门槛通过的隔离fixture",
-              "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算",
-              "evidence": "gate boundary table；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算 REV-B09-04：有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。",
+              "evidence": "gate boundary table；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B09-04"
+              ]
             },
             {
               "id": "R341-B09-03-A02",
               "level": "ENGINEERING",
-              "scenario": "coverage不足但V1其余通过",
-              "expected": "V1 verdict与R34.1资产验收分别显示，不冒充Q02合格",
-              "evidence": "dual verdict；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
+              "scenario": "数学裁决通过，分别构造未来 ACT 为250、机会为1667与1666的边界",
+              "expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。",
+              "evidence": "数学裁决、实发决定、质量投影三份原件；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false",
+              "required_review_ids": [
+                "REV-B09-03"
+              ]
             },
             {
               "id": "R341-B09-03-A03",
@@ -1929,6 +2224,10 @@
             "承诺必胜或固定期限必出高胜率资产",
             "放宽阈值让报表变绿",
             "把R27族内alpha说成全家族错误率保证"
+          ],
+          "required_review_ids": [
+            "REV-B09-03",
+            "REV-B09-04"
           ]
         },
         {
@@ -2123,7 +2422,7 @@
               "id": "R341-B09-05-A02",
               "level": "ENGINEERING",
               "scenario": "零信号与植入结构",
-              "expected": "报告误报/功效及区间，即使目标不达也如实失败；不得改原试验门槛重跑到通过",
+              "expected": "按原登记六臂×20个种子对照完整120记录，保留各臂原表；原协议三个零假设臂按既定方式合算单侧误报上界，SIGNAL 按原协议核功效下界；独立运行强度扫描，另报34/37/40%各自的功效及区间。缺臂、重复种子凑数、统计阈值失守均不得签为原Q08达标。额外精度试验独立注册；保留原门槛与失败轨迹",
               "evidence": "summary与全部trial结果；fixture store=test-r341-b09, runScope=ENGINEERING_ONLY, productionWritable=false"
             },
             {

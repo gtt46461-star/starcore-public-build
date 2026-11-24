@@ -1,7 +1,7 @@
 {
   "schema": "STARCORE_R341_FILE_CARDS_1",
   "base": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
-  "file_count": 249,
+  "file_count": 271,
   "inherited_file_count": 152,
   "files": [
     {
@@ -49,7 +49,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "bff4ae42c5bc451a0a33775dc0ab5a0d6964e885",
       "before_sha256": "f5f183dab994c985ab103a5516289dac23b6758abddc9dbb0eddaa775c165857",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B01",
@@ -61,7 +61,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "保留 R31/R33.5 封印校验和原 assets；增加 r341 identity asset 的生成及最终输入一致性校验，禁止用 R34.1 目录冒充 R33.5 root。"
+            "保留 R31/R33.5 封印校验和原 assets；增加 r341 identity asset 的生成及最终输入一致性校验，禁止用 R34.1 目录冒充 R33.5 root。",
+            "REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。"
           ]
         },
         {
@@ -1442,6 +1443,7 @@
         "R341-B03-03",
         "R341-B04-02",
         "R341-B04-03",
+        "R341-B04-04",
         "R341-B04-05",
         "R341-B04-06",
         "R341-B05-01",
@@ -1457,7 +1459,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "93ec9ddd0affef5eb062a9fb14d17ecb81c0dc17",
       "before_sha256": "265b7aa62d77405497ee0b4aebff772c2bd6cc4ccee2997b1a3d4f14a7499a6d",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B01",
@@ -1540,6 +1542,21 @@
         },
         {
           "batch": "B04",
+          "issue_id": "R341-B04-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "methods": [
+            "handleLatestDrawAfterSave",
+            "postAtFrontOfQueue",
+            "freeze",
+            "canonical"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B04-01 S0 双事务赛前证据与逐期失败归属。实施入口与反例见 specs/review/runtime.md / R341-B04-04-T02。"
+          ]
+        },
+        {
+          "batch": "B04",
           "issue_id": "R341-B04-05",
           "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
           "methods": [
@@ -1575,11 +1592,16 @@
             "handleLatestDrawAfterSave",
             "postAnalysisForLatest",
             "ensureAnalysisWatchdog",
-            "runAnalysisWatchdogR36"
+            "runAnalysisWatchdogR36",
+            "ensureRuntimeLoopsAliveV17",
+            "post",
+            "postDelayed",
+            "reconcile"
           ],
           "action": "MODIFY",
           "changes": [
-            "形成同一service generation的启动/续排闭包；每条工作成功/失败/取消都有nextDue或终态；消除仅靠重复START补排的死角。"
+            "形成同一service generation的启动/续排闭包；每条工作成功/失败/取消都有nextDue或终态；消除仅靠重复START补排的死角。",
+            "REV-B05-01 服务单次预约与持久开奖重派。实施入口与反例见 specs/review/runtime.md / R341-B05-01-T01。"
           ]
         },
         {
@@ -1602,11 +1624,14 @@
           "methods": [
             "scheduleNextFetchLoop",
             "runFetchChannelOnce",
-            "startWorkR3610OffMain"
+            "startWorkR3610OffMain",
+            "next",
+            "max"
           ],
           "action": "MODIFY",
           "changes": [
-            "网络退避有上限并对新合法周期重排；异常不阻断控制scheduler；wall/mono分工明确。"
+            "网络退避有上限并对新合法周期重排；异常不阻断控制scheduler；wall/mono分工明确。",
+            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。"
           ]
         }
       ],
@@ -1847,7 +1872,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "9191792dede230e84d4f009e7a833e5b780a67ee",
       "before_sha256": "8caf412aac86092d3488f56547839f02703fa09189e799719a4614c750ab2a24",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B11",
@@ -1859,7 +1884,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "保留逐图deadline与页面取消；timeout回值必须UNAVAILABLE/TIMED_OUT并附sourceScope，不画默认0系列。"
+            "保留逐图deadline与页面取消；timeout回值必须UNAVAILABLE/TIMED_OUT并附sourceScope，不画默认0系列。",
+            "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。"
           ]
         }
       ],
@@ -1880,14 +1906,26 @@
       "issue_ids": [
         "R341-B08-02",
         "R341-B11-01",
+        "R341-B11-02",
         "R341-B11-04"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "3e627550fd790d0147204dbea90753de321a7319",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "40a88e9871901ec56940c0ce21013c6cce7dda36ef8e2638eb5957db07ad2da5",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F011",
       "inherited_r34_issue_ids": [
         "R34-B11-03"
@@ -1934,14 +1972,46 @@
       "issue_ids": [
         "R341-B08-02",
         "R341-B11-01",
+        "R341-B11-02",
         "R341-B11-04"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "6f9689ff534516a6fc012240ba9633dcf3956c93",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "f4b387baaabec7474f0d561866f733048fbed9bf08e1b0591823b840d38f5b70",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "methods": [
+            "build",
+            "actionCandles",
+            "hitTrend"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。"
+          ]
+        },
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+          "methods": [
+            "loadPanel",
+            "actionCandles",
+            "hitTrend",
+            "build",
+            "role"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F013",
       "inherited_r34_issue_ids": [
         "R34-B11-03"
@@ -2007,7 +2077,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "e546228d1640012a43fd497a7e83aeef31cbab42",
       "before_sha256": "82d50c7d1cae8aba8ea10f35b11c6f4cad4db267091530d66e20717e4c7b5634",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B10",
@@ -2017,11 +2087,13 @@
             "trimOwnedCP12",
             "prepareArchivePageCP12",
             "publishAndPruneCP12",
-            "expireOneArchiveCP12"
+            "expireOneArchiveCP12",
+            "hash"
           ],
           "action": "MODIFY",
           "changes": [
-            "writer_hold等原始审计尾部先按既有归档协议封存/哈希/可读验证，再分页裁剪SQL热集；不得把聚合计数当原始事件替代。"
+            "writer_hold等原始审计尾部先按既有归档协议封存/哈希/可读验证，再分页裁剪SQL热集；不得把聚合计数当原始事件替代。",
+            "REV-B10-01 满容量取证热表持续接纳新请求。实施入口与反例见 specs/review/runtime.md / A-B10-02c。"
           ]
         },
         {
@@ -2105,7 +2177,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "统一WriteBudget与phase测量；大批工作先prepare、再短提交，长SQL按owner拆片；保留现有commit receipt和UNKNOWN读回。"
+            "统一WriteBudget与phase测量；大批工作先prepare、再短提交，长SQL按owner拆片；保留现有commit receipt和UNKNOWN读回。",
+            "REV-B02-01 在 B10 存储策略交付前独立签收写入期限。实施入口与反例见 specs/review/build.md / R341-B02-01-T02。"
           ]
         },
         {
@@ -2526,7 +2599,8 @@
       "ordered_batches": [
         "B01",
         "B04",
-        "B05"
+        "B05",
+        "B10"
       ],
       "issue_ids": [
         "R341-B01-02",
@@ -2534,13 +2608,14 @@
         "R341-B04-04",
         "R341-B04-06",
         "R341-B05-01",
-        "R341-B05-03"
+        "R341-B05-03",
+        "R341-B10-02"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "5740579a2cf22842444403a5269b5d6065d43ad1",
       "before_sha256": "8a819d7d7779245bac476c6901e0f4750617f7719b3ccd927733053729f6cc74",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B04",
@@ -2550,11 +2625,39 @@
             "complete",
             "bindRawResultR82",
             "bindParsedResultR82",
-            "checkedBindingR82"
+            "checkedBindingR82",
+            "persistTraceR31",
+            "markEventAt"
           ],
           "action": "MODIFY",
           "changes": [
-            "复验pending/raw/parsed绑定同request/hash；缺收据、未知请求、payload冲突各有状态，writer故障后仅凭原件恢复。"
+            "复验pending/raw/parsed绑定同request/hash；缺收据、未知请求、payload冲突各有状态，writer故障后仅凭原件恢复。",
+            "REV-B04-02 满表后的来源与事务返回证据。实施入口与反例见 specs/review/runtime.md / R341-B04-06-T02。"
+          ]
+        },
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+          "methods": [
+            "next",
+            "max"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。"
+          ]
+        },
+        {
+          "batch": "B10",
+          "issue_id": "R341-B10-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+          "methods": [
+            "persistTraceR31"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B10-01 满容量取证热表持续接纳新请求。实施入口与反例见 specs/review/runtime.md / A-B10-02c。"
           ]
         }
       ],
@@ -2724,7 +2827,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "列出每个需要的对象name/type/DDL hash/owner；单对象推进并验证sqlite_master及必需列/索引，不仅检查table exists。"
+            "列出每个需要的对象name/type/DDL hash/owner；单对象推进并验证sqlite_master及必需列/索引，不仅检查table exists。",
+            "REV-B03-01 在 B03 验证迁移边界和当前会话可见性。实施入口与反例见 specs/review/build.md / R341-B03-02-T02。"
           ]
         }
       ],
@@ -3081,7 +3185,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "1dc37f367756d570f6d901939609e9f583af450b",
       "before_sha256": "f26afd19f4fd441389570a5dc3decd34697ab37bced693a28854e0196657d859",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B10",
@@ -3090,11 +3194,13 @@
           "methods": [
             "runDue",
             "enqueue",
-            "nextDelayMs"
+            "nextDelayMs",
+            "jobPhysicalBytes"
           ],
           "action": "MODIFY",
           "changes": [
-            "按原件保护分类和实际清理字节出回执；清理失败保持已发布状态独立，不把报告成功改为失败。"
+            "按原件保护分类和实际清理字节出回执；清理失败保持已发布状态独立，不把报告成功改为失败。",
+            "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。"
           ]
         }
       ],
@@ -3138,6 +3244,7 @@
         "B11"
       ],
       "issue_ids": [
+        "R341-B10-01",
         "R341-B10-02",
         "R341-B10-05",
         "R341-B11-06"
@@ -3146,8 +3253,20 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "c965169dcecd9046b1a8187b6127ca48dedc16c2",
       "before_sha256": "06b45cfd990fe515a40a8aa883ecfd53fee48ddce4d027d875c28b72a4aa1046",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B10",
+          "issue_id": "R341-B10-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "methods": [
+            "reserveDisk"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+          ]
+        },
         {
           "batch": "B11",
           "issue_id": "R341-B11-06",
@@ -3157,11 +3276,16 @@
             "prepareAndPinReportInputs",
             "publish",
             "verifyReady",
-            "recordSuccessfulSummaryR30"
+            "recordSuccessfulSummaryR30",
+            "shouldContinue",
+            "drain",
+            "runSafTreeRequest",
+            "verifySavedTreeParts"
           ],
           "action": "MODIFY",
           "changes": [
-            "显式DIAGNOSTIC与FULL_RAW模式，发布页列rawPayloadCoverage、excludedKinds、sourceSnapshotHash、capturedAt、runtimeObservedAt及无法复算项；模式选取不隐式改变业务。"
+            "显式DIAGNOSTIC与FULL_RAW模式，发布页列rawPayloadCoverage、excludedKinds、sourceSnapshotHash、capturedAt、runtimeObservedAt及无法复算项；模式选取不隐式改变业务。",
+            "REV-B11-05 报告与赛前服务并行，并验手机端持久保存。实施入口与反例见 specs/review/storage.md / A-B11-06b。"
           ]
         }
       ],
@@ -3178,18 +3302,31 @@
       "production_path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
       "primary_owner_batch": "B10",
       "ordered_batches": [
-        "B10"
+        "B10",
+        "B11"
       ],
       "issue_ids": [
         "R341-B10-02",
-        "R341-B10-05"
+        "R341-B10-05",
+        "R341-B11-06"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "b94679298968b040bd460211616ebf104737c979",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "3c6f3fd2f4e0618af0ac7b37eebc5df8c6de611bd48f15ae045598d89cd7b465",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-06",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-05 报告与赛前服务并行，并验手机端持久保存。实施入口与反例见 specs/review/storage.md / A-B11-06b。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F036",
       "inherited_r34_issue_ids": [
         "R34-B05-04"
@@ -3207,6 +3344,7 @@
         "B11"
       ],
       "issue_ids": [
+        "R341-B10-01",
         "R341-B10-02",
         "R341-B11-06"
       ],
@@ -3214,8 +3352,18 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "9445500822b4a79f45876cc8dd788fa1de93e87d",
       "before_sha256": "4e999ce2f7aeb544ea6f6edfee724af860a4c5fca692b26d353c474a78af43c0",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B10",
+          "issue_id": "R341-B10-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+          ]
+        },
         {
           "batch": "B10",
           "issue_id": "R341-B10-02",
@@ -3226,13 +3374,17 @@
             "deletePublished",
             "cleanRawOwned",
             "requireRawCoverageR31",
-            "discardByUser"
+            "discardByUser",
+            "verifyPublishedZip",
+            "jobPhysicalBytes",
+            "scopeBytes"
           ],
           "action": "MODIFY",
           "changes": [
             "自动配额回收只允许已核验等价副本/可重算中间文件；唯一已发布报告、当前调查固定对象、未验证托管对象不可按年龄自动删除。",
             "保留主动删除接口的显式用户语义；任何后台自动retire需内容哈希等价与仍存在可读替代件证明，不用mtime代替证明。",
-            "FULL_RAW的私有snapshot只有相同字节已进可验证交付件才清理；诊断摘要不能冒充原数据库托管。"
+            "FULL_RAW的私有snapshot只有相同字节已进可验证交付件才清理；诊断摘要不能冒充原数据库托管。",
+            "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。"
           ]
         },
         {
@@ -3243,11 +3395,13 @@
             "prepareSingleZip",
             "prepareBoundedZipR30",
             "delivery",
-            "requireRawCoverageR31"
+            "requireRawCoverageR31",
+            "shouldContinue"
           ],
           "action": "MODIFY",
           "changes": [
-            "交付index包含模式/缺失范围/成员hash和已知外部原件引用；B10清理依据确切byte coverage，不依据语义完整。"
+            "交付index包含模式/缺失范围/成员hash和已知外部原件引用；B10清理依据确切byte coverage，不依据语义完整。",
+            "REV-B11-05 报告与赛前服务并行，并验手机端持久保存。实施入口与反例见 specs/review/storage.md / A-B11-06b。"
           ]
         }
       ],
@@ -3907,7 +4061,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "760e0453bf2eaef213290fe50f48727b3307fe4d",
       "before_sha256": "5bf1decd6c13275cc880ac201baee52931c8844d99ef435eb0ec46961c71b595",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B01",
@@ -3963,11 +4117,14 @@
             "markRecoveryRequest",
             "markRecoveryResult",
             "tryAcquireRecoveryLease",
-            "releaseRecoveryLease"
+            "releaseRecoveryLease",
+            "noteResearchRecoveryRequestR31",
+            "markResearchHealthR31"
           ],
           "action": "MODIFY",
           "changes": [
-            "恢复id绑定baseline progress token；独立lease与冷却，成功只由B01新commit确认。"
+            "恢复id绑定baseline progress token；独立lease与冷却，成功只由B01新commit确认。",
+            "REV-B05-02 恢复真实所有者与投递失败重试。实施入口与反例见 specs/review/runtime.md / R341-B05-02-T02。"
           ]
         },
         {
@@ -4164,7 +4321,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "b068e51c38f5e46649a3a78f5e5ecc3eefd518dd",
       "before_sha256": "ab31cf22666096863127122b535ac6fe313a0a00603646fdb0e07f433dba63d5",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B10",
@@ -4181,7 +4338,20 @@
           "changes": [
             "引入版本化分类增量策略；现有受保护字节记protectedDebtBytes，不能作为可删预算；以完整实际总量检查物理空闲，按分类工作集和未落盘reservation检查增量。",
             "普通最低空闲保留256MiB；关键结算/事实写入的应急区为另行预留的64MiB有界空间，耗尽输出STORAGE_CRITICAL，禁止无限豁免。",
-            "继续OS租约和原子预约；取消/失败退还未写增量；重启只回收已死亡所有者预约，既有文件一律不随预约回收删除。"
+            "继续OS租约和原子预约；取消/失败退还未写增量；重启只回收已死亡所有者预约，既有文件一律不随预约回收删除。",
+            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+          ]
+        },
+        {
+          "batch": "B10",
+          "issue_id": "R341-B10-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+          "methods": [
+            "scopeBytes"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。"
           ]
         },
         {
@@ -4381,7 +4551,8 @@
           "action": "NEW",
           "changes": [
             "输入category、criticality、maxGrowth、protectionClass、censusHash；输出ALLOW/DEFER/REJECT、remainingGrowth、reason、policyHash；由StorageBudgetR31.reserveOnceR31及ensureAdditionalOnceR31调用，无独立写库入口。",
-            "初始受控工作集上限1.5GiB：可重算图表128MiB、临时报表256MiB、未发布模型512MiB、诊断索引256MiB、其他工作集384MiB；唯一原件单列，不强行纳入缓存驱逐。单次可选报表增量上限128MiB，超出改用流式/分卷/明确拒绝。调整须版本化记录。"
+            "初始受控工作集上限1.5GiB：可重算图表128MiB、临时报表256MiB、未发布模型512MiB、诊断索引256MiB、其他工作集384MiB；唯一原件单列，不强行纳入缓存驱逐。单次可选报表增量上限128MiB，超出改用流式/分卷/明确拒绝。调整须版本化记录。",
+            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
           ]
         }
       ],
@@ -4398,6 +4569,7 @@
       "ordered_batches": [
         "B01",
         "B04",
+        "B05",
         "B09",
         "B10"
       ],
@@ -4407,6 +4579,7 @@
         "R341-B04-03",
         "R341-B04-04",
         "R341-B04-06",
+        "R341-B05-03",
         "R341-B09-02",
         "R341-B10-04"
       ],
@@ -4414,7 +4587,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "df811373cd56de3287e2e4ca612f4492d6a2429a",
       "before_sha256": "9cbe4bdc9463bab5a3928612b5fa80d78199f3809ad626f0ee932a0947795303",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B04",
@@ -4428,6 +4601,19 @@
           "action": "VERIFY_ONLY",
           "changes": [
             "VERIFY_ONLY：跨日、休市、期号ordinal使用现有规则，不十进制相减。"
+          ]
+        },
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+          "methods": [
+            "next",
+            "distance"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。"
           ]
         }
       ],
@@ -4613,7 +4799,8 @@
           ],
           "action": "NEW",
           "changes": [
-            "NEW：输入lane/deadlineMono/rows/bytes/statements与等待开始；返回permit或RESOURCE_WAIT及nextDue，不能跨线程强行结束事务。"
+            "NEW：输入lane/deadlineMono/rows/bytes/statements与等待开始；返回permit或RESOURCE_WAIT及nextDue，不能跨线程强行结束事务。",
+            "REV-B02-01 在 B10 存储策略交付前独立签收写入期限。实施入口与反例见 specs/review/build.md / R341-B02-01-T02。"
           ]
         }
       ],
@@ -4819,7 +5006,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "5cad7042a5b7a42f2ce643da5999821b402b5734",
       "before_sha256": "3b22058b395d1373382b77f6e77901712777bec57e0e6128f4ee34674e49493c",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B07",
@@ -4846,7 +5033,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "发布仅指向完整十位置、已提交 model/state hash；提交后产生不可变 publication manifest，失败保持旧 publication 可用。"
+            "发布仅指向完整十位置、已提交 model/state hash；提交后产生不可变 publication manifest，失败保持旧 publication 可用。",
+            "REV-B07-02 十位置概率面与同目标1200个动作排序建立可复算关系。实施入口与反例见 specs/review/report.md / R341-B07-03-A01。"
           ]
         },
         {
@@ -4890,7 +5078,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "036cdc61bb19a99310a04d1ccabccb2cbe41d5bf",
       "before_sha256": "81c8a5bf6cba41325793a1ad6bb778d7277ddef48f5a1b80259e5b2da37f695c",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B07",
@@ -4899,11 +5087,13 @@
           "methods": [
             "step",
             "requireLabel",
-            "settle"
+            "settle",
+            "work"
           ],
           "action": "MODIFY",
           "changes": [
-            "用 B03 已安装 r34 缺标签/optimizer 表；按 issue+position+featureABI+source revision 幂等准备样本，标签只在权威结算可见后允许用于开发训练。"
+            "用 B03 已安装 r34 缺标签/optimizer 表；按 issue+position+featureABI+source revision 幂等准备样本，标签只在权威结算可见后允许用于开发训练。",
+            "REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。"
           ]
         },
         {
@@ -5010,7 +5200,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "a8d1fd729c3a37b0d6e2e076724029773d5d7be7",
       "before_sha256": "f61d69c3e879a8aff104b39a0efeaea47b0ae8852170d59db2be12d0fecc18d6",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B07",
@@ -5025,7 +5215,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "同 epoch 十位置一致；partialIssue 非空不可发布；缺位置保持部分状态，不写“完整轮”；恢复继续缺项。"
+            "同 epoch 十位置一致；partialIssue 非空不可发布；缺位置保持部分状态，不写“完整轮”；恢复继续缺项。",
+            "REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。"
           ]
         },
         {
@@ -5087,6 +5278,7 @@
         "B07"
       ],
       "issue_ids": [
+        "R341-B07-01",
         "R341-B07-02",
         "R341-B07-04"
       ],
@@ -5094,8 +5286,20 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "e750703db3e1b6f853700c4ca67fb29dee6163cd",
       "before_sha256": "8d6dfdd60bfd960ab6d00bc0103e98a73249f957819fd91098db2901f0e73a67",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B07",
+          "issue_id": "R341-B07-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+          "methods": [
+            "pretrain"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B07-01 在线回放不能再抽中本模型的开发验证样本。实施入口与反例见 specs/review/algorithm.md / R341-B07-01-A03。"
+          ]
+        },
         {
           "batch": "B07",
           "issue_id": "R341-B07-02",
@@ -5221,9 +5425,20 @@
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "993421d9e272c1ff863e8b052a3765f6f57e457a",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "7cebe37ca9fcd89d0fd16482f3ef1640628e0b6e156f1a85e0c93ee2989fe0b0",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B09-04 选择后校准与模型/策略独立取证。实施入口与反例见 specs/review/report.md / R341-B09-03-A01。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F059",
       "inherited_r34_issue_ids": [
         "R34-B07-05"
@@ -5302,8 +5517,18 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "753ced4673dac687212d9a9b4c2560f42da9e363",
       "before_sha256": "42c6d00f010baed60c2eee07c17243d7bf22a1f3d7c1db6da4271426922dd95c",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B09-02 同一期分批冻结、重试和超时后机会总数守恒。实施入口与反例见 specs/review/algorithm.md / R341-B09-02-A01。"
+          ]
+        },
         {
           "batch": "B09",
           "issue_id": "R341-B09-03",
@@ -5318,7 +5543,9 @@
           "action": "MODIFY",
           "changes": [
             "保持R27_GATE_V1既有数值：HR≥.34、ACT≥250、ECE≤.04、worst720≥.26、streak≤6、ABI、序贯与两个控制配对LCB>0；逐项UNKNOWN/FAIL/PASS。",
-            "V1 coverage目前只在futureSummary描述；R34.1资产质量另报预登记FUTURE_ACT_RATE≥.15、全机会完整、同目标父子独立差与成本；部署后REAL_ACT_RATE另计，不作为首次应用前置，不改V1 contractHash。"
+            "CertificateGateR27.evaluate 给数学裁决，LiveShadowsR27.certify 在实际发证时另核未来覆盖≥15%、净收益及资格绑定；R34.1资产质量另报预登记FUTURE_ACT_RATE≥.15、全机会完整、同目标父子独立差与成本；部署后REAL_ACT_RATE另计，不作为首次应用前置，不改V1 contractHash。",
+            "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。",
+            "REV-B09-04 选择后校准与模型/策略独立取证。实施入口与反例见 specs/review/report.md / R341-B09-03-A01。"
           ]
         }
       ],
@@ -5570,7 +5797,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "4f39cad28a2816845025cf89fdb4a554ec10ae52",
       "before_sha256": "f26f6b04ed99babefeaaba0bc4f07cbae9197aa391757c8a180fb6b14c7e13e5",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B06",
@@ -5581,11 +5808,13 @@
             "campaign",
             "coldParameters",
             "requireSnapshot",
-            "requireFreshCounts"
+            "requireFreshCounts",
+            "hash"
           ],
           "action": "MODIFY",
           "changes": [
-            "沿已有 sourceKey/campaign 身份与 requireFreshCounts 零继承断言补齐字段核验；保留原身份版本，不新增并行身份规则。"
+            "沿已有 sourceKey/campaign 身份与 requireFreshCounts 零继承断言补齐字段核验；保留原身份版本，不新增并行身份规则。",
+            "REV-B06-01 旧父代遇到空 ABI 时可计数、可恢复。实施入口与反例见 specs/review/algorithm.md / R341-B06-01-A03。"
           ]
         }
       ],
@@ -5614,7 +5843,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "f284bdd049ab92ce27639a59a5004adb4bdcb93d",
       "before_sha256": "b5863ab2000b50f16615792d2988016aa2e1b7606cd7d41336b04e969b360415",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B03",
@@ -5637,12 +5866,16 @@
             "prepare",
             "publish",
             "retry",
-            "step"
+            "step",
+            "pendingParentsForHealth",
+            "campaign",
+            "hash"
           ],
           "action": "MODIFY",
           "changes": [
             "保留既有 prepare/guarded publish；在 source_kind+source_campaign+source_id+targetAbi 的既有唯一键上返回 ALREADY_COMMITTED；snapshotHash属于已提交子代身份，不得因重试换源再生，不重复建子代；失败持久化父代级 nextAt，继续扫描其他父代。",
-            "核对原 checkpoint 摘要及 parent 曝光上界；新子代训练可见范围严格在选定 PIT 合同内，futureActs、alphaIndex 引用、证书、校准与确认均不可继承。"
+            "核对原 checkpoint 摘要及 parent 曝光上界；新子代训练可见范围严格在选定 PIT 合同内，futureActs、alphaIndex 引用、证书、校准与确认均不可继承。",
+            "REV-B06-01 旧父代遇到空 ABI 时可计数、可恢复。实施入口与反例见 specs/review/algorithm.md / R341-B06-01-A03。"
           ]
         }
       ],
@@ -6102,7 +6335,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "e49d2dbfad7b78bd83732ef7a99b4b589c55b7ec",
       "before_sha256": "ac25dd45fbc1bf6f5d29ae0a0158c907497176d9bf01f28df79de5e769ea8119",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B07",
@@ -6133,7 +6366,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "失败簇使用开发角色的真实error/support/context；每假设指定父机制、待改节点、反证条件，信用由实际后续配对回执归因。"
+            "失败簇使用开发角色的真实error/support/context；每假设指定父机制、待改节点、反证条件，信用由实际后续配对回执归因。",
+            "REV-B08-06 RSEC-066 六个窗口、归因与边界子试验回到真实消费者。实施入口与反例见 specs/review/report.md / R341-B08-05-A01。"
           ]
         }
       ],
@@ -6253,7 +6487,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "960db3cba9155a0f27fe01e244118c46ab45a5db",
       "before_sha256": "b57a4e48222eab1436051382969db5f76ae5dbf0b7c9deba3e61b6aa65b1db5d",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B11",
@@ -6293,7 +6527,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "读取统一工单生效账本：修复commit、apkSha、installedVersion、effectStartProcess/issue、观察范围与新旧计数；当前修复后的观测必须比effectStart新。"
+            "读取统一工单生效账本：修复commit、apkSha、installedVersion、effectStartProcess/issue、观察范围与新旧计数；当前修复后的观测必须比effectStart新。",
+            "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。"
           ]
         }
       ],
@@ -6459,7 +6694,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "8fc45e7967e69db14ad50b7ef960a48dea1304ef",
       "before_sha256": "55457e05af8a5144c275ea3edb5b6f1442189001dc9582a05e80c8a58066c160",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B09",
@@ -6474,7 +6709,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。"
+            "确认原件和结果不可变；每次注册全局alpha index永久递增；重复注册幂等，拒绝原登记后换模型。",
+            "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
           ]
         }
       ],
@@ -6582,16 +6818,20 @@
       "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
       "primary_owner_batch": "B01",
       "ordered_batches": [
-        "B01"
+        "B01",
+        "B04",
+        "B05"
       ],
       "issue_ids": [
-        "R341-B01-04"
+        "R341-B01-04",
+        "R341-B04-06",
+        "R341-B05-03"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "8a4fae3577e99508e3da7256b2c37726228b979e",
       "before_sha256": "31476d4cee77f827ce9c0217f42c95bf1ad419ebbe5c0cb7c8e986221d658f37",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B01",
@@ -6605,6 +6845,29 @@
           "action": "MODIFY",
           "changes": [
             "进程内观测待刷与DB实际提交分开；重启缺进程缓存不能倒推失败或成功。"
+          ]
+        },
+        {
+          "batch": "B04",
+          "issue_id": "R341-B04-06",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
+          "methods": [
+            "markEventAt",
+            "commitObservationState"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B04-02 满表后的来源与事务返回证据。实施入口与反例见 specs/review/runtime.md / R341-B04-06-T02。"
+          ]
+        },
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B05-03 每期影子和 1 秒/5 秒的实测分母。实施入口与反例见 specs/review/runtime.md / R341-B05-03-T01。"
           ]
         }
       ],
@@ -6623,14 +6886,59 @@
       ],
       "issue_ids": [
         "R341-B09-01",
-        "R341-B09-02"
+        "R341-B09-02",
+        "R341-B09-03"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "7707209418d8639ef9ae8f678b39e81d92fe90a6",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "63f1eae68eddd8eca8b7303c8df6b2a47e9b19f5563f9aa07a9db44e1b349f30",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+          "methods": [
+            "certify",
+            "paired"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
+          ]
+        },
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+          "methods": [
+            "freeze",
+            "r27_opportunity",
+            "size",
+            "frozen",
+            "settled"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B09-02 同一期分批冻结、重试和超时后机会总数守恒。实施入口与反例见 specs/review/algorithm.md / R341-B09-02-A01。"
+          ]
+        },
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+          "methods": [
+            "evaluate",
+            "certify",
+            "commit"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F083",
       "inherited_r34_issue_ids": [
         "R34-B09-01"
@@ -6865,7 +7173,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "f106296aaed070d253b66ddb55c52ec1d4a11e17",
       "before_sha256": "d81b074b5765cde6c39a44738fed7c2a59028c4ba707482aecdc78dab4bc42ed",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B08",
@@ -6873,11 +7181,13 @@
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
           "methods": [
             "compute",
-            "stored"
+            "stored",
+            "validRunSql"
           ],
           "action": "MODIFY",
           "changes": [
-            "按实际各kind shape/axis/support生产；EVIDENCE_TEACHER可用同位置原归档策略作研究教师，明确不得替代F23原VM；RESOURCE_EFFICIENCY未测memory/queue列维持缺失。"
+            "按实际各kind shape/axis/support生产；EVIDENCE_TEACHER可用同位置原归档策略作研究教师，明确不得替代F23原VM；RESOURCE_EFFICIENCY未测memory/queue列维持缺失。",
+            "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
           ]
         }
       ],
@@ -6984,7 +7294,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "f1cc63b012954cca484c1de111d17ff7b28cbc98",
       "before_sha256": "11556f0fc5433af91a483a5dae6d551be3f5e8f96ea716267c36d5dda56542c7",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B08",
@@ -6995,11 +7305,13 @@
             "produceR31",
             "receiptR31",
             "dependencyKeyR31",
-            "step"
+            "step",
+            "stored"
           ],
           "action": "MODIFY",
           "changes": [
-            "维持 source-only 优先和每kind隔离；19 R930 kinds按各自产物原件生产，COUNTERFACTUAL 原有专属来源单独接入，不绕过其精确组件移除合同。"
+            "维持 source-only 优先和每kind隔离；19 R930 kinds按各自产物原件生产，COUNTERFACTUAL 原有专属来源单独接入，不绕过其精确组件移除合同。",
+            "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
           ]
         }
       ],
@@ -7476,14 +7788,25 @@
       ],
       "issue_ids": [
         "R341-B09-01",
-        "R341-B09-02"
+        "R341-B09-02",
+        "R341-B09-03"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "320220768e363b03c492e4f5666fda5c5d791a7c",
       "before_sha256": "0c72fbef059e3b8cd847680742c42044f70b75820eb999e1e90f4769f7ff0e3f",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B09-01 冻结资格比较对象及适用区间。实施入口与反例见 specs/review/algorithm.md / R341-B09-01-A01。"
+          ]
+        },
         {
           "batch": "B09",
           "issue_id": "R341-B09-02",
@@ -7496,11 +7819,25 @@
             "sameCursor",
             "hasOpenConflict",
             "rebuild",
-            "reconcilePendingDrawsR31"
+            "reconcilePendingDrawsR31",
+            "size"
           ],
           "action": "MODIFY",
           "changes": [
-            "以experiment+target为唯一机会键按ordinal推进；乱序先存待决，不跳过中间未知；ACT/HOLD/MISSING/FROZEN_LATE逐项记账。"
+            "以experiment+target为唯一机会键按ordinal推进；乱序先存待决，不跳过中间未知；ACT/HOLD/MISSING/FROZEN_LATE逐项记账。",
+            "REV-B09-02 同一期分批冻结、重试和超时后机会总数守恒。实施入口与反例见 specs/review/algorithm.md / R341-B09-02-A01。"
+          ]
+        },
+        {
+          "batch": "B09",
+          "issue_id": "R341-B09-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+          "methods": [
+            "commit"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B09-03 区分数学门、实际发证与附加质量验收。实施入口与反例见 specs/review/algorithm.md / R341-B09-03-A02。"
           ]
         }
       ],
@@ -7604,7 +7941,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "e5e19624027913cc0b5363a2fa0588c164b3fcf6",
       "before_sha256": "ee4facc5800f62027cc5a39adaca28cd5e760452228d1fa52596190a1cbee1ec",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B11",
@@ -7637,6 +7974,16 @@
           "changes": [
             "每条finding带statusAtInstall、firstSeen/lastSeen/resolvedAt、scopeId、evidenceRefs、confidence和R341工单ID；历史LIVE改为STALE_UNRECHECKED视图标识，保留原始文字。",
             "当前根因分级CONFIRMED/PROBABLE/UNKNOWN；有DDL源码但运行缺表只能定位初始化链证据缺口，不能直接断言没建表代码。"
+          ]
+        },
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-05",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-07 96项执行、44指标、165案例逐键回读和分流。实施入口与反例见 specs/review/report.md / A-B11-05a。"
           ]
         }
       ],
@@ -7777,9 +8124,37 @@
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "ca798a5a405e34cfd18c8df09a5d86f46e50d8ec",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "4f6a6d44af1f1fb2063b958eb7a7ed0e34cc97d81f0cc0dbfdaacf1186d46eee",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "methods": [
+            "build",
+            "hitTrend",
+            "buildProductionR31"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。"
+          ]
+        },
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "methods": [
+            "hitTrend",
+            "build"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-02 统一探索影子、预测趋势与正式主链的图表角色。实施入口与反例见 specs/review/charts.md / A-B11-02b。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F104",
       "inherited_r34_issue_ids": [
         "R34-B11-04"
@@ -7862,9 +8237,24 @@
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "eedfca8a522dddc151d6ee28b54292860276e54e",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "3c3ed705d339e5c77b126717e3690935151853668715e54f798d70dff3cbbfe3",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "methods": [
+            "count",
+            "rowsets",
+            "buildProductionR31"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F105",
       "inherited_r34_issue_ids": [
         "R34-B11-04",
@@ -8008,7 +8398,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "70a6b0ffe9613da6e4235cc0ad1df6a827c1cfc8",
       "before_sha256": "414f766b370cccc41984cdd89ea8b71e76edf80da99e683889ae82513aad3ccc",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B08",
@@ -8022,7 +8412,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "BORN child、lineage、proposal consumed receipt 同一事务；非出生动作必须有实际 before/after状态及提交事务，不能借一个文字ACK。"
+            "BORN child、lineage、proposal consumed receipt 同一事务；非出生动作必须有实际 before/after状态及提交事务，不能借一个文字ACK。",
+            "REV-B08-05 把视图产品消费定位到同源实际动作。实施入口与反例见 specs/review/charts.md / R341-B08-04-A01。"
           ]
         },
         {
@@ -8108,9 +8499,20 @@
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "6322674ac99133c251826bc9d877b30744dbf3c1",
-      "before_sha256": null,
-      "source_verification": "GIT_TREE_METADATA_ONLY",
-      "changes_in_order": [],
+      "before_sha256": "f9bd370079e2db2257e92f06eaeb218d31a642747b412ff99a64c9946ab6e828",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
+          ]
+        }
+      ],
       "inherited_r34_file_id": "F108",
       "inherited_r34_issue_ids": [
         "R34-B11-01"
@@ -8164,13 +8566,14 @@
       ],
       "issue_ids": [
         "R341-B08-01",
-        "R341-B08-02"
+        "R341-B08-02",
+        "R341-B08-03"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "30c74a8d06b7d1305e8f12c1650fc95e17bc85f3",
       "before_sha256": "3f22284add34aa7b19074aff654553b8f6af7fcb2e4e16ba3a22dd8b477d0d42",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B08",
@@ -8186,7 +8589,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。"
+            "run pin 固定 datasetHash+revision+role+sourceCommit+可见水位；发布时 CAS，版本变化只作失效回执并重排，不覆写旧产物。",
+            "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
           ]
         },
         {
@@ -8200,6 +8604,18 @@
           "action": "MODIFY",
           "changes": [
             "图只能展示与固定 input pin 一致的 current-source 数值；历史/失效 frame 分区显示，不混合计数。"
+          ]
+        },
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+          "methods": [
+            "validRunSql"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-02 时序矩阵按本次数据版本读取模型对照。实施入口与反例见 specs/review/algorithm.md / R341-B08-03-A02。"
           ]
         }
       ],
@@ -8223,7 +8639,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "a32fd9edf6c09ce5f5e9ab443c5681185bcd49b6",
       "before_sha256": "2876c5e06f00aedcf1af576b7c9977a39daec6adf3a47003c45d899a2ccf5d9e",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B08",
@@ -8235,12 +8651,15 @@
             "productR335",
             "classifyFrameR335",
             "sourceWatermarkR335",
-            "step"
+            "step",
+            "read",
+            "support"
           ],
           "action": "MODIFY",
           "changes": [
             "按 appendix 中 R01–R18 合同执行；一图一有界切片，错误/等待后轮转；frame 必含点值/support/单位/role/sourceHash。",
-            "R11/R14/R18 是正式链只读证据图，缺自然证据显示未观察；R08 固定 TRAIN 探针；其余研究测量用 SELECT/允许的 ONLINE_RESEARCH。"
+            "R11/R14/R18 是正式链只读证据图，缺自然证据显示未观察；R08 固定 TRAIN 探针；其余研究测量用 SELECT/允许的 ONLINE_RESEARCH。",
+            "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
           ]
         }
       ],
@@ -8487,7 +8906,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "f9f835b0e4fd529d2232ab0ebb986f0913436c4b",
       "before_sha256": "063d7395b198bbc19a0b11b44826606e2ebf6548c4aa6c6ef91dd60c39e59736",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B11",
@@ -8500,7 +8919,9 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "明确pageRows、pageOffset、filterHash、totalKnown/totalRows；无全量COUNT证明时totalRows=null；现有displayIsFullDenominator=false保持。"
+            "明确pageRows、pageOffset、filterHash、totalKnown/totalRows；无全量COUNT证明时totalRows=null；现有displayIsFullDenominator=false保持。",
+            "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。",
+            "REV-B11-04 将分页负例改为真实可达的数据库状态。实施入口与反例见 specs/review/charts.md / A-B11-04b。"
           ]
         }
       ],
@@ -8769,7 +9190,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "storageReady后仍未lifecycleReady时lifecycle-schema可被claim；ready状态只由完整验证产生。"
+            "storageReady后仍未lifecycleReady时lifecycle-schema可被claim；ready状态只由完整验证产生。",
+            "REV-B03-01 在 B03 验证迁移边界和当前会话可见性。实施入口与反例见 specs/review/build.md / R341-B03-02-T02。"
           ]
         },
         {
@@ -8891,7 +9313,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "e489e58c2438161cef05e8085ca171e3145ecd93",
       "before_sha256": "c71afae0a870fc496863934b20e1f32ad4dfe486887d0f685b19d03da0ad7b8f",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B03",
@@ -8912,11 +9334,13 @@
           "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
           "methods": [
             "step",
-            "publishDatasetInputR335"
+            "publishDatasetInputR335",
+            "recoverCommittedEvolutionInputR335"
           ],
           "action": "MODIFY",
           "changes": [
-            "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。"
+            "精确入口为内部类 DatasetTask.step；在现有 r27-replay-dataset owner 将数据 staging/cursor/manifest 原子提交，只在提交后调用 publishDatasetInputR335 暴露输入，不能新增第二数据所有者。",
+            "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
           ]
         }
       ],
@@ -9021,9 +9445,10 @@
             "beforeWrite",
             "resolve"
           ],
-          "action": "VERIFY_ONLY",
+          "action": "MODIFY",
           "changes": [
-            "校验保留迁移的现有unit预算、fence与UNKNOWN解析契约；生命周期DDL仍用LifecycleSchemaR31.advance自己的单对象owner，不创建第二个DDL安装器。"
+            "校验保留迁移的现有unit预算、fence与UNKNOWN解析契约；生命周期DDL仍用LifecycleSchemaR31.advance自己的单对象owner，不创建第二个DDL安装器。",
+            "REV-B03-01 在 B03 验证迁移边界和当前会话可见性。实施入口与反例见 specs/review/build.md / R341-B03-02-T02。"
           ]
         }
       ],
@@ -9455,19 +9880,34 @@
     {
       "file_id": "F214",
       "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
-      "primary_owner_batch": "B11",
+      "primary_owner_batch": "B08",
       "ordered_batches": [
+        "B08",
         "B11"
       ],
       "issue_ids": [
+        "R341-B08-04",
         "R341-B11-03"
       ],
       "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "ce81a0381167830a3c04f4208f3129c77cb4206a",
       "before_sha256": "123f4ee852a81d3bee17b4d63d1d251534d5fa6bca76b90b1884a033930510cd",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+          "methods": [
+            "update",
+            "shadow"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+          ]
+        },
         {
           "batch": "B11",
           "issue_id": "R341-B11-03",
@@ -10096,9 +10536,10 @@
             "write_source_bundle",
             "main"
           ],
-          "action": "VERIFY_ONLY",
+          "action": "MODIFY",
           "changes": [
-            "VERIFY_ONLY：复用精确Git blob、mode、空仓bundle恢复校验；最终输出源树保持clean，不将CI回执回写源commit。"
+            "VERIFY_ONLY：复用精确Git blob、mode、空仓bundle恢复校验；最终输出源树保持clean，不将CI回执回写源commit。",
+            "REV-B12-01 从施工交付地址独立取回产物并绑定实际安装身份。实施入口与反例见 specs/review/build.md / A-B12-06b。"
           ]
         }
       ],
@@ -10129,7 +10570,7 @@
       "before_state": "EXISTING_122",
       "before_git_blob_sha": "224d9aa55eff3c9e4428fcc3221911b63d40c198",
       "before_sha256": "8981e4fc5d7aa7c8f6037f2629d1256e2b1fcf2378cdeb0eb156ee06581650fd",
-      "source_verification": "CONTENT_GIT_BLOB_VERIFIED",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
       "changes_in_order": [
         {
           "batch": "B01",
@@ -10137,11 +10578,13 @@
           "path": "tools/r33/run_release_build.py",
           "methods": [
             "build_environment",
-            "main"
+            "main",
+            "identity"
           ],
           "action": "MODIFY",
           "changes": [
-            "显式传递并验证 R33、R34、R341 三个封存根；缺任何实际要求的封存根即返回确定的构建前置错误。"
+            "显式传递并验证 R33、R34、R341 三个封存根；缺任何实际要求的封存根即返回确定的构建前置错误。",
+            "REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。"
           ]
         },
         {
@@ -10194,7 +10637,8 @@
           ],
           "action": "MODIFY",
           "changes": [
-            "按 release.versionName 严格分派 R33.5/R34/R34.1；旧 r34 binding 的存在仅触发旧封印验证，不能强制对新版本运行旧版本正则。"
+            "按 release.versionName 严格分派 R33.5/R34/R34.1；旧 r34 binding 的存在仅触发旧封印验证，不能强制对新版本运行旧版本正则。",
+            "REV-B01-01 把三个方案根分别绑定到实际构建输入和产物。实施入口与反例见 specs/review/build.md / R341-B01-01-T01。"
           ]
         },
         {
@@ -10631,7 +11075,8 @@
           "changes": [
             "生成外置DELIVERY_R341.json，列APK、source.zip、source.bundle、plan、批次台账、原始日志、现场/自然状态和SHA256；仅在仓库/已授权发布端写入。",
             "实际HTTP/平台下载最终公开文件后重新算hash、枚举ZIP、复验签名/身份；仅得到页面链接不足以PASS。",
-            "产物清单先列成员sha，外层bundle sha在包外最后写；本清单不包含自己的最终sha，下载回执独立文件。"
+            "产物清单先列成员sha，外层bundle sha在包外最后写；本清单不包含自己的最终sha，下载回执独立文件。",
+            "REV-B12-01 从施工交付地址独立取回产物并绑定实际安装身份。实施入口与反例见 specs/review/build.md / A-B12-06b。"
           ]
         }
       ],
@@ -10959,6 +11404,810 @@
           "changes": [
             "通过adb读取指定设备包名/版本/签名，pm path并pull实际已安装base.apk计算sha；只对明确选定设备安装。",
             "执行adb install -r，安装后再次读取包名/版本/签名及数据迁移/原件hash；不卸载、不clear data、不-d降级。输出deviceId哈希化标识、前后版本、apkSHA及失败原因。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F250",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+      "primary_owner_batch": "B05",
+      "ordered_batches": [
+        "B05"
+      ],
+      "issue_ids": [
+        "R341-B05-01"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "2b3e9c6d1f8923894059a3a04a509d60911bfa11",
+      "before_sha256": "4ce6fef13c1df306b01aeee4757de1c423c71d87ba4ec3fc206b14d29cf7ada1",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR36.java",
+          "methods": [
+            "reconcile"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B05-01 服务单次预约与持久开奖重派。实施入口与反例见 specs/review/runtime.md / R341-B05-01-T01。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F251",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/RecoveryCoordinatorR815.java",
+      "primary_owner_batch": "B05",
+      "ordered_batches": [
+        "B05"
+      ],
+      "issue_ids": [
+        "R341-B05-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "716b16ed83aca20da75b40881631847b48bb4f75",
+      "before_sha256": "7d8f3ac10539aa49642b459a6ac7fb415a4c5e2c870219247bef03dda80a2a46",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/RecoveryCoordinatorR815.java",
+          "methods": [
+            "request",
+            "markServiceStarted",
+            "markBusinessRestored"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B05-02 恢复真实所有者与投递失败重试。实施入口与反例见 specs/review/runtime.md / R341-B05-02-T02。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F252",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java",
+      "primary_owner_batch": "B05",
+      "ordered_batches": [
+        "B05"
+      ],
+      "issue_ids": [
+        "R341-B05-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "5ff824c61f5d58d6e5f45714bd96fb1e1e7c954c",
+      "before_sha256": "703065e09ec00ec7760941b742a416a8aa9cd8e09fba4f8eeb2b09a60ebaeb09",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java",
+          "methods": [
+            "request",
+            "record",
+            "onReceive"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B05-02 恢复真实所有者与投递失败重试。实施入口与反例见 specs/review/runtime.md / R341-B05-02-T02。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F253",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java",
+      "primary_owner_batch": "B05",
+      "ordered_batches": [
+        "B05"
+      ],
+      "issue_ids": [
+        "R341-B05-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "1b7d925a2f63a1799e5bc55bcc3366cfaf2419e7",
+      "before_sha256": "d169f474f5decfae0ad5be76a58385095a66bac2c2c2b02a4e0e06b33f5689d1",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B05",
+          "issue_id": "R341-B05-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java",
+          "methods": [
+            "request",
+            "onStartJob"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B05-02 恢复真实所有者与投递失败重试。实施入口与反例见 specs/review/runtime.md / R341-B05-02-T02。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F254",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/BaselineShadowR34.java",
+      "primary_owner_batch": "B04",
+      "ordered_batches": [
+        "B04"
+      ],
+      "issue_ids": [
+        "R341-B04-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "ecd61362cf1c5469ef06801972c2f62387fbb56c",
+      "before_sha256": "370a5b266754f9e1566bb5696756716ffb322e8fbc0a8de46faad0214d84c429",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B04",
+          "issue_id": "R341-B04-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/BaselineShadowR34.java",
+          "methods": [
+            "freeze",
+            "settleWithin"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B04-01 S0 双事务赛前证据与逐期失败归属。实施入口与反例见 specs/review/runtime.md / R341-B04-04-T02。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F255",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-01"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "fcf846edfad8e12f6d3b5b53d6c102ec7148bd0e",
+      "before_sha256": "57b42988120b77edad6780163a2599ab4df04fdfcdf5d3fd36a7aa8e34b69a16",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-01 进化卡在老代时可安全替换待用数据缓存。实施入口与反例见 specs/review/algorithm.md / R341-B08-01-A01。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F256",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "f47aac9598996219fa850b62d88a4f7a80a80e65",
+      "before_sha256": "0fb16a29fd8e9d104be27b106b002f472746f89bd7bf0e9fa5e7cecb6cf67a1c",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+          "methods": [
+            "update",
+            "refit"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F257",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "5ac6dc7859807e0302f197f5481e82d0ff47d3a0",
+      "before_sha256": "4baf4e9ce7ab3d22804744d266432a3b3b803db619b1244f05d5069288e144ae",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+          "methods": [
+            "update",
+            "maintain",
+            "attempt",
+            "readback",
+            "shadow"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F258",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "5abd2da5472df9fa22e7dc01464814f04ca7c032",
+      "before_sha256": "9584a59bc272d81e9fbbe1b5da6c39f115989898819caff06e11953009d0e86b",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisShadowReceiptR335.java",
+          "methods": [
+            "attempt",
+            "readback",
+            "shadow"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-03 将 S4 的连续形态处方闭合至 S5 影子回读。实施入口与反例见 specs/review/algorithm.md / R341-B08-04-A01。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F259",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+      "primary_owner_batch": "B08",
+      "ordered_batches": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R341-B08-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "80b816c8ec243fc92316cc20b7e065738114bef3",
+      "before_sha256": "177e87510c21eb328cfbf60c270cfb9d2007b36f273077a9f7dba81ca3198117",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B08",
+          "issue_id": "R341-B08-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "methods": [
+            "read",
+            "readFrame"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B08-04 逐图以有值原件或正式链原件验收产出。实施入口与反例见 specs/review/charts.md / R341-B08-02-A01。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F260",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-01"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "b46c485361c76232321cb71696b7ce00e59656cc",
+      "before_sha256": "bb40a5e51ba19ecf21ef470037869a302a87f90f67e84e323ac13f0e1e00a148",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+          "methods": [
+            "count",
+            "build"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-01 修正图表缓存及报告索引的零值和归因。实施入口与反例见 specs/review/charts.md / A-B11-01b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F261",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "339c3db0d843d4c6dd1a729e0b94d55525a6b757",
+      "before_sha256": "e73fea120b98472f4bb9abf5455fcb3708a2433372528cc6815df1a3d220e4ec",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+          "methods": [
+            "load"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F262",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "81f6a499aed4b9744118ef53f723c7ba01039d60",
+      "before_sha256": "03458a1d792efab885cb66aa6a5318b4b436dbe84e698f90eacb76069629ee2b",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
+          "methods": [
+            "load"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F263",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-04"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "76a06a95c44b9a10a2b2ac9a1ca780385c347198",
+      "before_sha256": "5d2eea2e54eccb9035036acedda82f87d4fdadeb6f37507dc14342d2f3a029ee",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-04",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+          "methods": [
+            "load"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-03 47个图和16个表从真实页面逐ID回读对账。实施入口与反例见 specs/review/charts.md / A-B11-04a。",
+            "REV-B11-04 将分页负例改为真实可达的数据库状态。实施入口与反例见 specs/review/charts.md / A-B11-04b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F264",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+      "primary_owner_batch": "B10",
+      "ordered_batches": [
+        "B10"
+      ],
+      "issue_ids": [
+        "R341-B10-01"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "4fdaa9c159c067d4b211b979c86b2e749d4335a8",
+      "before_sha256": "b3fd6655c47580d9bde6c102f1d43374808278a298a96024a1667d529021c1f4",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B10",
+          "issue_id": "R341-B10-01",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B10-02 为大库一致快照独立预约实际峰值。实施入口与反例见 specs/review/storage.md / A-B10-01a。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F265",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+      "primary_owner_batch": "B10",
+      "ordered_batches": [
+        "B10"
+      ],
+      "issue_ids": [
+        "R341-B10-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "045ec520ccc2f8d1fd7d67d42f70c04e5f725598",
+      "before_sha256": "870cdd9a663daba6a4c3cde2034f878d1cb94b92a3f4deb0785cace60f21b7c4",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B10",
+          "issue_id": "R341-B10-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "methods": [
+            "verify"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F266",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+      "primary_owner_batch": "B10",
+      "ordered_batches": [
+        "B10"
+      ],
+      "issue_ids": [
+        "R341-B10-02"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "72fc16c29ad27d8e1ccff5c6d67b0ae51dcd00dd",
+      "before_sha256": "e0aa464648a15413692e2d735a25d3557aae7d536512439e35cd8ccf1145cf5c",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B10",
+          "issue_id": "R341-B10-02",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+          "methods": [
+            "verifyPublishedZip",
+            "requireRawCoverageR31",
+            "abandoned"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B10-03 先证明交付件可恢复，再清理原始工作区。实施入口与反例见 specs/review/storage.md / A-B10-02b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F267",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-06"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "549a8b7c24a741e7b9e266dd458c5e3f58665205",
+      "before_sha256": "ddbc5e3de40555635d1e916bebb473401c12a7a8c2f30b85fc3ea1eb8cf2d38d",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-06",
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java",
+          "methods": [
+            "shouldContinue"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-05 报告与赛前服务并行，并验手机端持久保存。实施入口与反例见 specs/review/storage.md / A-B11-06b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F268",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-03"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "70244ff822a12b7bd5f93e4f53b6831075bc768b",
+      "before_sha256": "7cee3e38b76e021e54d783cdbe64f96e2b643608aeb00fdc33b7bb77ada203c5",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnose",
+            "diagnoseSnapshotCP4",
+            "stateLayer"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F269",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-03"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "d3cf878f344c7264f3a30ad94827b336656a9c8b",
+      "before_sha256": "83b56c042d70f7f942be98cdb2cb294d46ec02ba83316c0c0a72eace25706f26",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+          "methods": [
+            "audit",
+            "auditSnapshotCP4"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F270",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "primary_owner_batch": "B07",
+      "ordered_batches": [
+        "B07",
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B07-03",
+        "R341-B11-03"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "37e910085de1781e2274e757683d39dbd587e62f",
+      "before_sha256": "f85144b3d09ec938b7497ba6c10001b83bdc360540648a901e44624ff7da8ff9",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B07",
+          "issue_id": "R341-B07-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+          "methods": [],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B07-02 十位置概率面与同目标1200个动作排序建立可复算关系。实施入口与反例见 specs/review/report.md / R341-B07-03-A01。"
+          ]
+        },
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+          "methods": [
+            "diagnose",
+            "diagnoseSnapshotCP4",
+            "audit",
+            "auditSnapshotCP4",
+            "collectRanker"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。"
+          ]
+        }
+      ],
+      "inherited_r34_file_id": null,
+      "inherited_r34_issue_ids": [],
+      "effective_replacement": null,
+      "disposition": "CURRENT_MODIFICATION_AND_REGRESSION",
+      "application_status": "TODO"
+    },
+    {
+      "file_id": "F271",
+      "production_path": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+      "primary_owner_batch": "B11",
+      "ordered_batches": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R341-B11-03"
+      ],
+      "baseline_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+      "before_state": "EXISTING_122",
+      "before_git_blob_sha": "d9ee48812d4e5ccf8c8cd438e4cea84865be5c83",
+      "before_sha256": "fc36fcf7ab292502bc00b17037921e50811863c225b906f9d542c8c515debc44",
+      "source_verification": "CONTENT_GIT_BLOB_AND_SHA256_VERIFIED",
+      "changes_in_order": [
+        {
+          "batch": "B11",
+          "issue_id": "R341-B11-03",
+          "path": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+          "methods": [
+            "audit",
+            "auditSnapshotCP4"
+          ],
+          "action": "MODIFY",
+          "changes": [
+            "REV-B11-06 RSEC-066/069/070/071 的三项编译占位与六项自由文本改为可重算来源。实施入口与反例见 specs/review/report.md / A-B11-03b。"
           ]
         }
       ],
