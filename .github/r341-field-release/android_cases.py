@@ -9,6 +9,7 @@ plan=Path(os.environ['STARCORE_R341_PLAN_ROOT'])
 output=temp/'engineering'
 output.mkdir(exist_ok=True)
 source=os.environ['SOURCE'];stage=os.environ['STAGE'];version=int(os.environ['VERSION'])
+replay_batches=set(os.environ.get('R341_REPLAY_BATCHES','').split(','))-{''}
 pkg='com.starcore.research.r13'
 receipt=dict(sourceCommit=source,versionCode=version,deviceSerial=None,api=None,upgrade={},cases=[])
 def save():
@@ -110,7 +111,15 @@ try:
            if c['batch']==stage and c['level']=='ENGINEERING' and c['test_contract'].get('android_scope_contract')]
     if stage=='B01':
         assert len(cases)==8
-    if stage=='B12':
+    if replay_batches:
+        assert stage=='B12' and replay_batches <= {f'B{i:02d}' for i in range(1,12)}
+        cases=[c for c in json.loads((plan/'ACCEPTANCE_MATRIX.json').read_bytes())['cases']
+               if c['batch'] in replay_batches and c['level']=='ENGINEERING'
+               and c['test_contract'].get('android_scope_contract')]
+        assert {case['batch'] for case in cases}==replay_batches
+        receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_ANDROID_RECHECK'
+        receipt['replayedBatches']=sorted(replay_batches)
+    elif stage=='B12':
         # Cumulative smoke proofs on the exact final candidate source. These
         # are prior Android cases and are never reported as the missing B12
         # three-generation or physical-device witness.
@@ -122,11 +131,13 @@ try:
             replay+=['R341-B06-01-A01','R341-B06-03-A02','R341-B06-05-A02']
         if version>=577311146:
             replay+=['A-B11-01b']
+        if version>=577311150:
+            replay+=['A-B11-02b']
         available={case['id']:case for case in json.loads((plan/'ACCEPTANCE_MATRIX.json').read_bytes())['cases']}
         cases=[available[ident] for ident in replay]
         receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_EMULATOR_SMOKE'
     outcomes=[case_run(c) for c in cases]
-    if stage=='B12' and version>=577311144:
+    if stage=='B12' and not replay_batches and version>=577311144:
         outcomes.append(run_full_report_readback())
     assert all(outcomes),'REGISTERED_ANDROID_PROBES_NOT_ALL_PASSED'
 except Exception as error:
