@@ -1,0 +1,441 @@
+{
+  "schema": "STARCORE_R341_PLAN_HOST_CHECKS_5",
+  "performed_at_local_date": "2026-11-24",
+  "timezone": "Asia/Shanghai",
+  "reviewed_parent": "cf764e34da7397077892634da525f8b0a274e477",
+  "parent_plan_files_matching_repository": 119,
+  "application_source_git_blob_checks": 249,
+  "application_source_with_content_hash": 249,
+  "application_content_bytes_independently_hashed_this_review": 249,
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/field_report_v3.py",
+        "--input",
+        "<SECOND_REPORT_ZIP>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "result": "PASS_FIELD_REPORT_IDENTITY",
+        "job_id": "4bef989d7e71259a0793ffc8f51871d62b808d770b4aeb834ca065c788c984eb",
+        "members": 57,
+        "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+        "outer_sha256": "fb499fc609435be82591ea015239fbee2b7da5c0dba772dd028d1417f1b8784c",
+        "snapshot_sha256": "fc884706d620e5c8058fbef68948a1972ecd076b6402ea82c1616390f137bd14",
+        "report_all_checks_passed": false
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_field_report_v3.py",
+        "--input",
+        "<SECOND_REPORT_ZIP>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "result": "PASS_FIELD_REPORT_GUARDS",
+        "rejections": 6,
+        "extracted_member_checks": 57
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/directions.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>",
+        "--plan",
+        ".",
+        "--check",
+        "evidence/field3/directions.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "PASS: 165 objects, 8 needs, 12 stored capability rows, 9 probe rows, 1 stored finding, 3 operating prescriptions"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/extended.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>",
+        "--plan",
+        ".",
+        "--check",
+        "evidence/field3/extended.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "r30_sections": 9,
+        "source_projections": 9,
+        "rules": 16,
+        "metric_triggers": 44,
+        "chapter_actions": 12,
+        "embedded_actions": 7,
+        "r26_sections": 45,
+        "r26_finding_actions": 1,
+        "report_text_sources": 19
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/runtime_opportunities.py",
+        "--previous",
+        "<FIRST_REPORT_ZIP>",
+        "--current",
+        "<SECOND_REPORT_ZIP>",
+        "--rows"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "previous_job": "9325298a3e033715226cf1126404c5a5273a6928f882babf8a0f14ece352aa4e",
+        "current_job": "4bef989d7e71259a0793ffc8f51871d62b808d770b4aeb834ca065c788c984eb",
+        "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+        "after_exclusive": "202611240137",
+        "through_inclusive": "202611240604",
+        "draw_targets": 467,
+        "r35": {
+          "R35_ROW_FROZEN_AND_SETTLED": 372,
+          "MISSING_R35": 95
+        },
+        "settlement_tasks": {
+          "COMPLETED": 372,
+          "NO_PREDRAW_CANONICAL_TERMINAL": 95
+        },
+        "missing_r35_terminal": {
+          "FROZEN_OBSERVATION_MISSING": 74,
+          "R919_AUDITED_NO_IMMUTABLE_PREDRAW": 21
+        },
+        "r35_hits": 127
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/baseline4.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>",
+        "--check",
+        "evidence/production-baseline.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "PASS_FIELD_ASSET_INVENTORY"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_baseline4.py",
+        "--report-dir",
+        "<VERIFIED_PRIVATE_MEMBERS>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "PASS_SOURCE_ROLE_AND_WRONG_SNAPSHOT_PROBES"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/reproduce_unblock.py",
+        "--first",
+        "<FIRST_REPORT_MEMBERS>",
+        "--second",
+        "<VERIFIED_PRIVATE_MEMBERS>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "{\n  \"reports\": [\n    {\n      \"snapshot\": \"81ecacff7de4bc34cf760ccc6750d761876a5fb6bbc029ccd4d390071f8fad76\",\n      \"counts\": {\n        \"r27_replay_dataset\": 3,\n        \"r27_evolution_cursor\": 1,\n        \"r27_policy\": 0,\n        \"r27_lineage\": 0,\n        \"r27_replay_score\": 0,\n        \"r27_generation\": 0,\n        \"r27_live_shadow\": 0,\n        \"r30_frozen_confirm\": 0\n      },\n      \"steps\": {\n        \"r27-evolution\": 4,\n        \"r27-replay-dataset\": 3\n      }\n    },\n    {\n      \"snapshot\": \"fc884706d620e5c8058fbef68948a1972ecd076b6402ea82c1616390f137bd14\",\n      \"counts\": {\n        \"r27_replay_dataset\": 3,\n        \"r27_evolution_cursor\": 1,\n        \"r27_policy\": 0,\n        \"r27_lineage\": 0,\n        \"r27_replay_score\": 0,\n        \"r27_generation\": 0,\n        \"r27_live_shadow\": 0,\n        \"r30_frozen_confirm\": 0\n      },\n      \"steps\": {\n        \"r27-evolution\": 4,\n        \"r27-replay-dataset\": 3\n      }\n    }\n  ],\n  \"controls\": {\n    \"model_competitor_commits\": 10,\n    \"model_dataset_admissions\": 0,\n    \"sqlite_retries_selecting_same_invalid_json\": 3,\n    \"boundary\": \"Bounded counterexamples, no Android execution or natural quality evidence.\"\n  }\n}"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_dispatch5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 5,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_joined_lineage5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_real_application5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 4,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_stability5.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_batch_builds.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 5,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_mainline4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 2,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_owner_receipt4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 7,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_continuity4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 4,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_background4.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 6,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_q06_receipt.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_q08_receipt.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 3,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_direction_receipt.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 8,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_learning_trace.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 6,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_receipt_guards.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 30,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_prepare_worktree.py"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "tests": 10,
+        "result": "OK"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/audit_report.py",
+        "--input",
+        "<FIRST_REPORT_ZIP>",
+        "--compare",
+        "evidence/BASELINE_FACTS.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "status": "PASS_REPORT_EXTRACTION",
+        "members": 53,
+        "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+        "table_count": 795,
+        "application_validation": "NOT_RUN"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/verify_report_coverage.py",
+        "--plan",
+        ".",
+        "--input",
+        "<FIRST_REPORT_ZIP>",
+        "--coverage",
+        "evidence/REPORT_COVERAGE.json"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "application_validation": "NOT_RUN",
+        "counts": {
+          "checks": 96,
+          "diagnostic_rules": 16,
+          "followups": 9,
+          "k3_layers": 9,
+          "metrics": 44,
+          "needs": 8,
+          "objects": 165
+        },
+        "report_job": "9325298a3e033715226cf1126404c5a5273a6928f882babf8a0f14ece352aa4e",
+        "status": "PASS_REPORT_COVERAGE"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "tools/test_report_coverage.py",
+        "--plan",
+        ".",
+        "--input",
+        "<FIRST_REPORT_ZIP>"
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": {
+        "status": "PASS_REPORT_CROSSWALK_REJECTIONS",
+        "verified_rejections": [
+          "promoted_health",
+          "changed_quality_sample",
+          "null_as_zero",
+          "crossed_occurrences",
+          "duplicate_followup",
+          "orphan_requirement"
+        ]
+      }
+    }
+  ],
+  "stability_reference": {
+    "java_method": "LiveShadowsR27.blocks",
+    "baseline_blob": "7707209418d8639ef9ae8f678b39e81d92fe90a6",
+    "matched_test_vectors": 40,
+    "runtime": "Java source and isolated cursor adapter"
+  },
+  "android_runner_host_probe": "evidence/ANDROID_RUNNER_PREFLIGHT.json",
+  "scope": "Plan integrity, extraction, projection, local reference checkers and fixtures. Android implementation/build/device/natural not run."
+}

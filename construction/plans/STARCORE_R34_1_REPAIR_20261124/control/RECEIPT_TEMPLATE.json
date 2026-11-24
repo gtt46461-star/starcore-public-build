@@ -1,0 +1,133 @@
+{
+  "schema": "STARCORE_R341_EXECUTION_RECEIPT_2",
+  "template_only": true,
+  "plan_manifest_sha256": null,
+  "batch": null,
+  "level": "ENGINEERING",
+  "status": "NOT_RUN",
+  "issue_ids": [],
+  "source_before": null,
+  "source_after": null,
+  "revalidation_only": false,
+  "artifacts": [],
+  "test_results": [],
+  "apk_sha256": null,
+  "device_identity": null,
+  "installed_version_code": null,
+  "window_start": null,
+  "window_end": null,
+  "fixture": null,
+  "background_campaign_artifact": null,
+  "preregistration_artifact": null,
+  "future_calendar_artifact": null,
+  "natural_evaluator_artifact": null,
+  "format_notes": {
+    "artifact": {
+      "path": "relative/path/to/original.json",
+      "sha256": "REAL_64_HEX_DIGEST"
+    },
+    "test_result": {
+      "id": "EXACT_CASE_ID",
+      "status": "PASS_ONLY_AFTER_REAL_EXECUTION",
+      "command": [
+        "ACTUAL",
+        "ARGV"
+      ],
+      "exit_code": null,
+      "log": "relative/path/to/log.txt",
+      "assertions": [
+        {
+          "metric": "REAL_MEASUREMENT",
+          "actual": null,
+          "operator": "eq",
+          "expected": null,
+          "evidence_artifact": "relative/path/to/original.json",
+          "json_pointer": "/rows/0/measured",
+          "review_id": "COPY_FROM_CASE_IF_REQUIRED"
+        }
+      ],
+      "execution_artifact": "relative/path/to/case-run-original.json"
+    },
+    "warning": "草稿默认不签收。正式记录 template_only=false。待观察/阻塞写具体 reason，验证器返回 RECORDED_NONPASS，退出码2。",
+    "runner_original": {
+      "id": "EXACT_CASE_ID",
+      "issue_id": "EXACT_WORK_ORDER",
+      "batch": null,
+      "level": null,
+      "source_after": null,
+      "plan_manifest_sha256": null,
+      "case_contract_sha256": null,
+      "harness": "FROM_ACCEPTANCE_MATRIX",
+      "command": [],
+      "exit_code": null,
+      "log_sha256": null,
+      "owner_paths": [],
+      "runner_path": "TRACKED_TEST_RUNNER_IF_ENGINEERING",
+      "runner_blob_sha": null,
+      "runner_method": null,
+      "oracle_path": "TRACKED_ORACLE_OR_TEST_SOURCE",
+      "assertions": []
+    },
+    "field_runner_extra": [
+      "apk_sha256",
+      "device_identity",
+      "installed_version_code",
+      "window_start",
+      "window_end",
+      "fixture"
+    ],
+    "field3_direction_cases": {
+      "when": "case.field3_directions 非空时，执行原件中每个绑定方向提交一行",
+      "direction_results": [
+        {
+          "key": "EXACT_DIRECTION_KEY",
+          "contract_sha256": "SEALED_DIRECTION_DIGEST",
+          "positive_metric": "MEASURED_POSITIVE",
+          "negative_metric": "MEASURED_NEGATIVE"
+        }
+      ],
+      "details": "specs/RECEIPT_FORMAT.md"
+    },
+    "field3_learning_case": {
+      "when": "A-B12-03b 含 F3-B12-01",
+      "execution_artifact_fields": [
+        "learning_trace_index_artifact"
+      ],
+      "apk_identity": "在回执或执行原件中声明 apk_artifact、apk_identity_member，校验真实 APK 字节并核对构建身份。",
+      "originals": "索引、所有阶段记录、公式、模型状态和实际数值权重都在 artifacts 声明。",
+      "details": "specs/field3/chain.md"
+    },
+    "revision4": {
+      "file_probes": "owner_probe_results，见 specs/field4/owners.md",
+      "B12-03b": "continuity_index_artifact 与同 APK 的 learning_trace_index_artifact",
+      "B09-04-A01": "mainline_campaign，见 specs/field4/gate.md",
+      "B09-05-A02": "q08_component_artifact",
+      "field": "每个完整窗口含 observer 和期末原件，见 specs/field4/flow.md",
+      "natural": "质量投影 PASS 时由预登记父子原件和分组的工厂原件复算 Q06、Q08"
+    },
+    "revision5": {
+      "android": "instrumentation_artifact，含实际沙箱、设备日志和 JUnit 的原件引用，见 specs/field5/dispatch.md",
+      "A-B12-03b": "现有两个索引同次运行，提交从阶段及持久键对得上的生产证据，见 specs/field5/trace.md",
+      "deployment": "有部署观察时在 natural evaluator 添加 deployment_evidence_artifact，Q07 单候选 scope=ONE_REGISTERED_CANDIDATE",
+      "Q04": "stability_window_rule_hash 与 window_rule_hash 均绑定 tools/stability5.py 的 RULE_HASH",
+      "build": "构建前缀从独立索引运行，见 specs/field5/apk.md"
+    },
+    "revision6": {
+      "case": "A-B12-03b",
+      "required_artifact": "mechanism6_index_artifact",
+      "scope": "same installed engineering run as learning/continuity; registered TRAIN score panel, root creation and training, effective structure and parent ablations",
+      "spec": "specs/field6/witness.md",
+      "per_asset": "specs/field6/quality.md",
+      "rule_reuse": {
+        "case": "R341-B08-04-A01",
+        "required_artifact": "rule6_index_artifact",
+        "spec": "specs/field6/foundry.md"
+      }
+    }
+  },
+  "reason": null,
+  "apk_artifact": null,
+  "apk_identity_member": null,
+  "original_implementation_receipt_artifact": null,
+  "original_implementation_receipt_sha256": null
+}

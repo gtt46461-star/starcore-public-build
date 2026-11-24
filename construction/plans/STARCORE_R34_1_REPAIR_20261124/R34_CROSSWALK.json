@@ -1,0 +1,1846 @@
+{
+  "schema": "STARCORE_R341_R34_CROSSWALK_1",
+  "legacy_count": 66,
+  "requirements": [
+    {
+      "legacy_id": "R34-B00-01",
+      "title": "锁定实际095源码与三原报告，不用033覆盖现场",
+      "current_issue_ids": [
+        "R341-B01-01",
+        "R341-B01-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B00-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": "095为旧R34施工底座；本轮真实底座改为122/5562f9b1。旧报告和旧后态仅历史，不覆盖当前源码。",
+      "original_paths": [
+        "app/build.gradle",
+        "release/release_manifest.json",
+        "release/r33_plan_binding.json"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 0
+    },
+    {
+      "legacy_id": "R34-B00-02",
+      "title": "逐项承接R33.5的66工单与32复核记录",
+      "current_issue_ids": [
+        "R341-B01-01",
+        "R341-B12-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B00-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "tools/r33/verify_plan_binding.py",
+        "tools/r31/verify_baseline.py",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B00-03",
+      "title": "R34构建入口与版本四文件原子一致",
+      "current_issue_ids": [
+        "R341-B01-01",
+        "R341-B12-01"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B00-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": "新增R34.1系列与独立封印；保留旧R33.5/R34封印的原义，不删除旧验证。",
+      "original_paths": [
+        "app/build.gradle",
+        "app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+        "release/release_identity.properties",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B00-04",
+      "title": "数值ABI精确失效与新增类依赖登记",
+      "current_issue_ids": [
+        "R341-B01-01",
+        "R341-B06-01",
+        "R341-B07-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B00-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": "ABI按当前语义依赖实际重算；不得沿用095旧hash判断122状态。",
+      "original_paths": [
+        "scripts/r967_semantic_identity.py",
+        "release/research_dependencies_r967.json",
+        "release/r82_training_invalidation.json",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 2,
+      "original_legacy_test_contract_groups": 9
+    },
+    {
+      "legacy_id": "R34-B00-05",
+      "title": "每批独立验收与构建工具链可重复",
+      "current_issue_ids": [
+        "R341-B01-01",
+        "R341-B12-01",
+        "R341-B12-02",
+        "R341-B12-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B00-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "tools/r33/run_release_build.py",
+        "tools/r31/package_release.py",
+        "tools/r33/package_ci_candidate.py",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 2,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B01-01",
+      "title": "故障积压阻断业务但排债也依赖同一闸口",
+      "current_issue_ids": [
+        "R341-B02-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B01-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeFaultEvidenceR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "tools/r34/test_legacy_r335.py",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B01-02",
+      "title": "可恢复资源等待被算成崩溃/耗尽业务尝试",
+      "current_issue_ids": [
+        "R341-B02-01",
+        "R341-B03-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B01-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B01-03",
+      "title": "启动迁移/ensureSchema反复执行全量DDL和保护扫描",
+      "current_issue_ids": [
+        "R341-B03-01",
+        "R341-B03-02",
+        "R341-B04-01"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B01-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+        "tools/r34/test_legacy_r335.py",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaUnitPlanR34.java"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B01-04",
+      "title": "写事务含重计算导致BUSY_DEADLINE",
+      "current_issue_ids": [
+        "R341-B02-01",
+        "R341-B02-04",
+        "R341-B04-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B01-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B01-05",
+      "title": "失败原因与事务回执丢失导致重复/误成功",
+      "current_issue_ids": [
+        "R341-B02-01",
+        "R341-B04-04",
+        "R341-B11-01"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B01-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "tools/r34/test_legacy_r335.py",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaUnitPlanR34.java"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 5
+    },
+    {
+      "legacy_id": "R34-B01-06",
+      "title": "启动持有锁、跨进程租约和恢复顺序不清",
+      "current_issue_ids": [
+        "R341-B01-03",
+        "R341-B03-01",
+        "R341-B03-03",
+        "R341-B05-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B01-06]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B02-01",
+      "title": "原响应摘要和trim后摘要冲突",
+      "current_issue_ids": [
+        "R341-B04-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B02-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "tools/r34/test_legacy_r335.py",
+        "app/src/main/java/com/ethk3/novaonepro/RawHttpIdentityR34.java"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B02-02",
+      "title": "请求收据未持久化被误报payload身份冲突",
+      "current_issue_ids": [
+        "R341-B04-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B02-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B02-03",
+      "title": "重复、乱序、迟到开奖没有稳定幂等契约",
+      "current_issue_ids": [
+        "R341-B04-06",
+        "R341-B04-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B02-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B02-04",
+      "title": "历史仅contiguous=1导致分析持续等待",
+      "current_issue_ids": [
+        "R341-B04-06",
+        "R341-B04-02",
+        "R341-B10-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B02-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B02-05",
+      "title": "请求频率、超时与源时钟没有一致测量",
+      "current_issue_ids": [
+        "R341-B01-02",
+        "R341-B01-05",
+        "R341-B05-01",
+        "R341-B05-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B02-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B03-01",
+      "title": "canonical结果计算后提交失败缺同身份续接",
+      "current_issue_ids": [
+        "R341-B04-02",
+        "R341-B04-03",
+        "R341-B04-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B03-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalCodecR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B03-02",
+      "title": "分析线程与导出/研究长任务争抢关键时段",
+      "current_issue_ids": [
+        "R341-B02-01",
+        "R341-B02-03",
+        "R341-B04-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B03-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B03-03",
+      "title": "任务总心跳活但业务水位停滞",
+      "current_issue_ids": [
+        "R341-B01-04",
+        "R341-B05-01"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B03-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeDiagnosticLinksR31.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B03-04",
+      "title": "后台重启风暴没有进度收益",
+      "current_issue_ids": [
+        "R341-B05-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B03-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+        "app/src/main/AndroidManifest.xml",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B03-05",
+      "title": "任务顺序/续收游标让旧期或坏对象长期饥饿",
+      "current_issue_ids": [
+        "R341-B02-03",
+        "R341-B03-04",
+        "R341-B04-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B03-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 6
+    },
+    {
+      "legacy_id": "R34-B04-01",
+      "title": "每期机会分母缺失导致漏期被隐藏",
+      "current_issue_ids": [
+        "R341-B01-05",
+        "R341-B04-03",
+        "R341-B09-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B04-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B04-02",
+      "title": "无合格策略时影子链也长期没有前态",
+      "current_issue_ids": [
+        "R341-B04-04",
+        "R341-B09-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B04-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ShadowAdmissionR26.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B04-03",
+      "title": "冻结/标签双时钟PIT与固定截止防线",
+      "current_issue_ids": [
+        "R341-B04-02",
+        "R341-B04-04",
+        "R341-B09-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B04-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 2,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B04-04",
+      "title": "结算必须与预测/研究完成解耦",
+      "current_issue_ids": [
+        "R341-B04-04",
+        "R341-B04-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B04-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B04-05",
+      "title": "每期训练反馈依赖全链重计算或漏消费",
+      "current_issue_ids": [
+        "R341-B07-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B04-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/EssentialSettlementFeedbackR923.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B04-06",
+      "title": "延迟目标没有真实落库计时和完整失败分母",
+      "current_issue_ids": [
+        "R341-B01-05",
+        "R341-B04-03",
+        "R341-B11-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B04-06]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B05-01",
+      "title": "热历史5000期上限与输入pin互相冲突",
+      "current_issue_ids": [
+        "R341-B08-01",
+        "R341-B10-01",
+        "R341-B10-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B05-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B05-02",
+      "title": "旧checkpoint缺556个原件却长期阻断新能力",
+      "current_issue_ids": [
+        "R341-B03-04",
+        "R341-B10-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B05-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointClosureR324.java",
+        "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 1,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B05-03",
+      "title": "保护债/归档累计无上限拖垮正常写入",
+      "current_issue_ids": [
+        "R341-B10-01",
+        "R341-B10-02",
+        "R341-B10-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B05-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionWorkingStorageQuotaCP12.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 1,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B05-04",
+      "title": "报告复制1.4GB快照与源索引拖慢业务",
+      "current_issue_ids": [
+        "R341-B10-02",
+        "R341-B10-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B05-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B05-05",
+      "title": "恢复/卸载/回滚没有资料与数据兼容边界",
+      "current_issue_ids": [
+        "R341-B10-03",
+        "R341-B10-05",
+        "R341-B12-02",
+        "R341-B12-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B05-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/StorageCheckpointServiceR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+        "tools/r31/package_release.py",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B06-01",
+      "title": "旧ABI候选/专家封存后无冷启重生处理器",
+      "current_issue_ids": [
+        "R341-B06-01",
+        "R341-B06-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B06-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertContinuationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertExperimentR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStateR26.java",
+        "tools/r34/test_legacy_r335.py",
+        "app/src/main/java/com/ethk3/novaonepro/DirectedResearchCreationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthContractR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTaskRegistryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B06-02",
+      "title": "策略工厂产的是名称/尝试数而非可执行对象",
+      "current_issue_ids": [
+        "R341-B06-02",
+        "R341-B06-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B06-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyFoundrySU1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/LegacyTeacherOwnerR26.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B06-03",
+      "title": "无限创造诉求与活跃池资源边界失衡",
+      "current_issue_ids": [
+        "R341-B06-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B06-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CreationBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B06-04",
+      "title": "同构候选重复占额与坏学生拖住源独立研究",
+      "current_issue_ids": [
+        "R341-B03-04",
+        "R341-B06-03",
+        "R341-B06-05",
+        "R341-B08-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B06-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B06-05",
+      "title": "策略/公式身份与谱系没有发布事务",
+      "current_issue_ids": [
+        "R341-B06-01",
+        "R341-B06-03",
+        "R341-B08-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B06-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationSqlR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 1,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B07-01",
+      "title": "每期开奖没有形成持续训练任务",
+      "current_issue_ids": [
+        "R341-B07-01",
+        "R341-B07-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B07-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B07-02",
+      "title": "断点/梯度/权重变化不能核验",
+      "current_issue_ids": [
+        "R341-B07-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B07-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingCheckpointSU1.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 2,
+      "original_legacy_test_contract_groups": 5
+    },
+    {
+      "legacy_id": "R34-B07-03",
+      "title": "训练产物没有发布到下一期消费者",
+      "current_issue_ids": [
+        "R341-B07-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B07-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B07-04",
+      "title": "训练/开发挑选/确认/未来角色串用",
+      "current_issue_ids": [
+        "R341-B07-01",
+        "R341-B08-01",
+        "R341-B09-01"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B07-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 1,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B07-05",
+      "title": "损失下降不代表稳定高品质",
+      "current_issue_ids": [
+        "R341-B09-03",
+        "R341-B09-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B07-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatisticalTrainingDiagnosticsR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingDiagnosticsR26.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 1,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B08-01",
+      "title": "失败分析没有变成可执行修改",
+      "current_issue_ids": [
+        "R341-B08-04",
+        "R341-B08-05",
+        "R341-B08-07"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B08-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureProfileR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B08-02",
+      "title": "变异只换参数/加代号却没有机制增益",
+      "current_issue_ids": [
+        "R341-B06-03",
+        "R341-B08-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B08-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B08-03",
+      "title": "融合没有互补证据/继承父证书",
+      "current_issue_ids": [
+        "R341-B08-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B08-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B08-04",
+      "title": "垃圾淘汰与保全证据矛盾",
+      "current_issue_ids": [
+        "R341-B06-05",
+        "R341-B10-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B08-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 2,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B08-05",
+      "title": "进化循环代际/预算只计尝试不计落地",
+      "current_issue_ids": [
+        "R341-B08-04",
+        "R341-B08-05",
+        "R341-B08-07"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B08-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B09-01",
+      "title": "未来实验没有预登记/冻结所以样本一直0",
+      "current_issue_ids": [
+        "R341-B09-01",
+        "R341-B09-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B09-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B09-02",
+      "title": "大量候选挑最高分引发偶然胜率",
+      "current_issue_ids": [
+        "R341-B09-03",
+        "R341-B09-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B09-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatsR27.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B09-03",
+      "title": "最低15%覆盖与高胜率目标被混成强行出手",
+      "current_issue_ids": [
+        "R341-B09-02",
+        "R341-B09-03",
+        "R341-B09-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B09-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": "源代码核准：V1 evaluate没有coverage硬门；15%是报告质量要求，30%为研发目标。部署前独立预登记FUTURE_ACT_RATE和部署后REAL_ACT_RATE分开；后者不阻断首次合法V1部署。更改硬门须新协议/实验，不悄改原V1。",
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceSU1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B09-04",
+      "title": "稳定性/漂移/新版本没有隔离",
+      "current_issue_ids": [
+        "R341-B09-01",
+        "R341-B09-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B09-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplayStudyR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B09-05",
+      "title": "证书内容与净收益评价未闭合",
+      "current_issue_ids": [
+        "R341-B09-03",
+        "R341-B09-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B09-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/AppConfig.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 2
+    },
+    {
+      "legacy_id": "R34-B10-01",
+      "title": "有效证书没有自动选中与应用",
+      "current_issue_ids": [
+        "R341-B09-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B10-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B10-02",
+      "title": "多个旧引擎可能绕过唯一真实BET入口",
+      "current_issue_ids": [
+        "R341-B09-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B10-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51DecisionGateCore.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B10-03",
+      "title": "应用贡献、实际出手与结算没有原键归因",
+      "current_issue_ids": [
+        "R341-B09-02",
+        "R341-B09-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B10-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineModelBindingR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B10-04",
+      "title": "上线/停用/回退没有可审计的生效边界",
+      "current_issue_ids": [
+        "R341-B09-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B10-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/EnabledWindowJournalR335.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B11-01",
+      "title": "18研究图只有声明无生产和消费",
+      "current_issue_ids": [
+        "R341-B08-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B11-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchGraphSpecsR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchChartActionsR33.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 7
+    },
+    {
+      "legacy_id": "R34-B11-02",
+      "title": "20矩阵长期inputAvailable=false且快照空",
+      "current_issue_ids": [
+        "R341-B08-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B11-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixEvidenceR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 8
+    },
+    {
+      "legacy_id": "R34-B11-03",
+      "title": "图表与16逻辑表读取口径/取消/缓存失真",
+      "current_issue_ids": [
+        "R341-B08-02",
+        "R341-B11-01",
+        "R341-B11-04"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B11-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 1,
+      "original_legacy_test_contract_groups": 5
+    },
+    {
+      "legacy_id": "R34-B11-04",
+      "title": "检测报告把方法存在当能力运行/有效",
+      "current_issue_ids": [
+        "R341-B01-04",
+        "R341-B11-01",
+        "R341-B11-02"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B11-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 5
+    },
+    {
+      "legacy_id": "R34-B11-05",
+      "title": "诊断只有泛化优化方向无可施工根因",
+      "current_issue_ids": [
+        "R341-B01-03",
+        "R341-B11-03",
+        "R341-B11-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B11-05]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTraceReaderR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedRegistryR335.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 2,
+      "original_legacy_test_contract_groups": 7
+    },
+    {
+      "legacy_id": "R34-B11-06",
+      "title": "修复后的新报告不能证明问题是否减少",
+      "current_issue_ids": [
+        "R341-B11-05",
+        "R341-B11-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B11-06]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairDiagnosisR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B12-01",
+      "title": "每批APK交付缺完整可下载可安装证据",
+      "current_issue_ids": [
+        "R341-B12-01",
+        "R341-B12-02",
+        "R341-B12-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B12-01]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": "覆盖基线必须包含真实安装122；033祖先检查继续保留，但单独通过不证明122覆盖。",
+      "original_paths": [
+        "tools/r31/package_release.py",
+        "tools/r33/package_ci_candidate.py",
+        "release/release_manifest.json",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 2,
+      "original_legacy_test_contract_groups": 3
+    },
+    {
+      "legacy_id": "R34-B12-02",
+      "title": "真机24/72小时结果与宿主夹具混在一起",
+      "current_issue_ids": [
+        "R341-B12-04",
+        "R341-B12-05"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B12-02]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    },
+    {
+      "legacy_id": "R34-B12-03",
+      "title": "总包/执行器只检查文件存在没有实际行为",
+      "current_issue_ids": [
+        "R341-B12-03"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B12-03]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "tools/r34/verify_plan.py",
+        "tools/r34/check_acceptance.py",
+        "tools/r34/verify_period_trace.py",
+        "tools/r34/test_plan_guards.py",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 1,
+      "original_legacy_test_contract_groups": 4
+    },
+    {
+      "legacy_id": "R34-B12-04",
+      "title": "全案完成/自然高品质和后续研究状态边界",
+      "current_issue_ids": [
+        "R341-B11-05",
+        "R341-B12-03",
+        "R341-B12-05",
+        "R341-B12-06"
+      ],
+      "status": "REVERIFY_ON_122_BASELINE_NO_OLD_PASS_REUSED",
+      "retained_original": "inherited/R34_WORK_ORDERS.json#issues[id=R34-B12-04]",
+      "retained_fields": [
+        "method_contract",
+        "implementation",
+        "verification",
+        "mandatory_assertions",
+        "legacy_requirements",
+        "legacy_test_contracts"
+      ],
+      "explicit_current_correction": null,
+      "original_paths": [
+        "tools/r34/check_acceptance.py",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "CURRENT_FINAL_PLAN.md",
+        "tools/r34/test_legacy_r335.py"
+      ],
+      "original_mandatory_assertion_count": 0,
+      "original_legacy_test_contract_groups": 1
+    }
+  ],
+  "precedence": "当前证据与明确纠正优先；不降低原PIT/唯一入口/原件保护/真实数值/统计门槛。旧字节保留便于审计。"
+}

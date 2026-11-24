@@ -1,0 +1,4908 @@
+{
+  "schema": "R341_FIELD_604_EXTENDED_DIRECTIONS_1",
+  "job": "4bef989d7e71259a0793ffc8f51871d62b808d770b4aeb834ca065c788c984eb",
+  "source_commit": "5562f9b19aa09f9f7d9e69ca085db56c537967fc",
+  "snapshot_sha256": "fc884706d620e5c8058fbef68948a1972ecd076b6402ea82c1616390f137bd14",
+  "r30_sections": [
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/0",
+      "collectionAction": "DiagnosisStoreSU2.snapshot：采集同一数据集父子机会收益配对；下界不为正不计验证提升",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "缺少已存父子同源代际记录",
+      "records": 0,
+      "section": "GENERATION",
+      "source": "su2_diag_snapshot:gen",
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/1",
+      "collectionAction": "DiagnosisStoreSU2.snapshot：采集算子实际尝试与结果，不补造成功率",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "缺少已存算子结果",
+      "records": 0,
+      "section": "OPERATORS",
+      "source": "su2_diag_snapshot:op",
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/2",
+      "collectionAction": "DiagnosisStoreSU2.maintain：恢复原信息探针并保留实际数据集与曝光边界",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "已存来源记录，不能仅凭行数判定质量或改善",
+      "records": 9,
+      "section": "FAMILIES",
+      "source": "su2_diag_snapshot:fam/probe",
+      "status": "RECORDED_UNVALIDATED",
+      "routes": [
+        {
+          "issue": "R341-B06-05",
+          "cases": [
+            "R341-B06-05-A01",
+            "R341-B06-05-A02",
+            "R341-B06-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/3",
+      "collectionAction": "DiagnosisStoreSU2.snapshot：采集原子分级与原始贡献数据；不以存在性代替有效性",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "缺少原子分级记录",
+      "records": 0,
+      "section": "ATOMS",
+      "source": "su2_diag_snapshot:atom",
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/4",
+      "collectionAction": "DiagnosisStoreSU2.snapshot：采集真实修复尝试、保留数与拒绝原因",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "缺少修复尝试和结果",
+      "records": null,
+      "section": "REPAIR",
+      "source": "su2_diag_snapshot:repair",
+      "status": "UNKNOWN",
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/5",
+      "collectionAction": "DiagnosisStoreSU2.maintain：让原探针继续到已结算边界，采集同源验证与前向分块结果",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "已存来源记录，不能仅凭行数判定质量或改善",
+      "records": 9,
+      "section": "STRUCTURE",
+      "source": "su2_diag_snapshot:probe/stage",
+      "status": "RECORDED_UNVALIDATED",
+      "routes": [
+        {
+          "issue": "R341-B08-01",
+          "cases": [
+            "R341-B08-01-A01",
+            "R341-B08-01-A02",
+            "R341-B08-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/6",
+      "collectionAction": "DiagnosisStoreSU2.report：核对最新快照对应 ledger_text 与 diagnosed_sequence，保留问题生命周期",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "已存来源记录，不能仅凭行数判定质量或改善",
+      "records": 1,
+      "section": "LEDGER",
+      "source": "su2_diag_state.ledger_text",
+      "status": "RECORDED_UNVALIDATED",
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/7",
+      "collectionAction": "DiagnosisStoreSU2.snapshot：采集各分类实际字节、预算和测量时刻；不能用缺记录表示0字节",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "缺少存储分类测量",
+      "records": 0,
+      "section": "STORAGE",
+      "source": "su2_diag_snapshot:storage",
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B10-01",
+          "cases": [
+            "A-B10-01a",
+            "A-B10-01b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/r30Sections/8",
+      "collectionAction": "ReportR29.chapters：读取同一快照第10章的原消融行和已存任务/报告hash；按原同一期配对规则验证Q06",
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "reason": "旧SU2诊断快照未包含完整消融配对证据；不能据此称消融表为空",
+      "records": null,
+      "section": "ABLATION",
+      "source": "R30 chapter10: r27_ablation / su1_model_ablation",
+      "status": "UNKNOWN",
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_projections": [
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/ATOMS",
+      "id": "ATOMS",
+      "qualityEffective": null,
+      "records": 0,
+      "scope": "原SU2前推原因分级；不同于R27 atom_score命名空间",
+      "sourceFrames": [],
+      "sourceFramesOmitted": 0,
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/GENERATION",
+      "id": "GENERATION",
+      "candidateSelection": "LATEST_SIX_ACTUAL_LINEAGE_PAIRS; OMITTED_OLDER_PAIRS_NOT_DECLARED_ABSENT",
+      "displayedRows": 0,
+      "legacySeparateRateNotUsedAsPairedGain": true,
+      "omittedRows": 0,
+      "qualityEffective": null,
+      "records": 0,
+      "rows": [],
+      "source": "su2_lineage + su2_model_genome + su2_live_decision",
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/LEDGER",
+      "id": "LEDGER",
+      "ack": false,
+      "qualificationGranted": false,
+      "qualityEffective": null,
+      "records": 1,
+      "source": "su2_diag_state.ledger_text + su2_lineage receipt + actual child/league/shadow",
+      "state": "NO_S5_CASE",
+      "status": "RECORDED_OR_PENDING",
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/MATRICES",
+      "id": "MATRICES",
+      "displayedRows": 0,
+      "omittedRows": 0,
+      "qualityEffective": null,
+      "records": 0,
+      "rows": [],
+      "source": "su2_matrix_snapshot.snapshot_json + stats_json",
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/OPERATORS",
+      "id": "OPERATORS",
+      "error": "R335_EVOLUTION_CHECKPOINT_MISSING",
+      "errorType": "java.lang.IllegalStateException",
+      "qualityEffective": null,
+      "records": null,
+      "source": "su2_evolution_state.state_blob / ModelEvolutionSU2.State.opStats",
+      "status": "UNKNOWN",
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/REFIT",
+      "id": "REFIT",
+      "knownLifetimeRefits": null,
+      "qualityEffective": null,
+      "source": "su2_diag_state.P5 + su2_live_state.PROBE",
+      "status": "UNKNOWN_LEGACY_CHECKPOINT_NO_MEASURED_REFIT_ORIGINAL",
+      "routes": [
+        {
+          "issue": "R341-B08-04",
+          "cases": [
+            "R341-B08-04-A01",
+            "R341-B08-04-A02",
+            "R341-B08-04-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/REPAIR",
+      "id": "REPAIR",
+      "error": "R335_EVOLUTION_CHECKPOINT_MISSING",
+      "errorType": "java.lang.IllegalStateException",
+      "qualityEffective": null,
+      "records": null,
+      "source": "su2_evolution_state.state_blob / repairNotes; su2_lineage",
+      "status": "UNKNOWN",
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/STORAGE",
+      "id": "STORAGE",
+      "displayedRows": 10,
+      "measurementFreshnessNotInferred": true,
+      "omittedRows": 0,
+      "qualityEffective": null,
+      "records": 10,
+      "rows": [
+        {
+          "action": "",
+          "capBytes": 67108864,
+          "category": "CACHE",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 402653184,
+          "category": "DATABASE",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 201326592,
+          "category": "MODEL_BUNDLES",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 134217728,
+          "category": "OTHER",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 536870912,
+          "category": "REPORTS",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 134217728,
+          "category": "REPORT_RECOVERY",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 268435456,
+          "category": "RESEARCH_CAS",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 1610612736,
+          "category": "TOTAL",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 134217728,
+          "category": "TRAINING_CAS",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        },
+        {
+          "action": "",
+          "capBytes": 67108864,
+          "category": "WAL",
+          "measuredAt": null,
+          "measuredBytes": null,
+          "status": "UNKNOWN_NOT_MEASURED"
+        }
+      ],
+      "source": "su2_storage_budget",
+      "status": "RECORDED_UNVALIDATED",
+      "routes": [
+        {
+          "issue": "R341-B10-01",
+          "cases": [
+            "A-B10-01a",
+            "A-B10-01b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "UPGRADE_DIAGNOSIS.json/sourceEvidenceR335/TEACHERS",
+      "id": "TEACHERS",
+      "qualityEffective": null,
+      "records": 0,
+      "scope": "原检查点教师状态关联；非同机会因果消融或自然资格",
+      "sourceFrames": [],
+      "sourceFramesOmitted": 0,
+      "status": "INSUFFICIENT",
+      "routes": [
+        {
+          "issue": "R341-B06-04",
+          "cases": [
+            "R341-B06-04-A01",
+            "R341-B06-04-A02",
+            "R341-B06-04-A03"
+          ]
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/0",
+      "id": "WRITER_HARD",
+      "metric": "M07",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "DETECTED",
+      "condition": "writerHardViolations > 0; missing is UNKNOWN",
+      "conclusion": "写锁窗口存在硬超限；按窗口的 operation 定位实际写者",
+      "collectionAction": "在目标设备运行实际写者并收集 WriterHoldLedgerR30.record 的窗口、operation、count 和 hold/wait 分位数",
+      "refutedBy": "同一范围原始来源恢复一致且对应回归通过",
+      "action": {
+        "card": "FR-B02-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java:submit",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF02",
+          "UF03",
+          "UF04"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "instruction": "读取 writerWindows.operation/critical，按 FR-B02-02/FR-B02-03 的幂等分片合同拆对应操作；计算移到事务外，保留写队列与实时优先级",
+        "legacyCard": "R30-B01-04",
+        "method": "submit",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B02-01",
+          "FR-B02-02",
+          "FR-B02-03"
+        ],
+        "verification": "R30WriterHoldLedgerTest、R30ChunkedWriterTest；目标设备复测相同 operation 的硬超限与实时结算"
+      },
+      "observation": {
+        "source": "r30_writer_hold.over_hard",
+        "field": "writerHardViolations",
+        "value": 8859
+      },
+      "routes": [
+        {
+          "issue": "R341-B02-01",
+          "cases": [
+            "R341-B02-01-T01",
+            "R341-B02-01-T02"
+          ]
+        },
+        {
+          "issue": "R341-B02-02",
+          "cases": [
+            "R341-B02-02-T01",
+            "R341-B02-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/1",
+      "id": "TASK_STALLED",
+      "metric": "M12",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "NONE",
+      "status": "UNKNOWN",
+      "condition": "taskStalled > 0; missing is UNKNOWN",
+      "conclusion": "UNKNOWN：缺少可判定的同快照证据",
+      "collectionAction": "采集 r30r1_task_progress 的 pending、last_commit_clock_ordinal、work_unit、artifact_identity 和当前真实期号；补齐被限量展示省略的任务，依赖等待与等待新期分别记录",
+      "refutedBy": "同一范围原始来源恢复一致且对应回归通过",
+      "action": {
+        "card": "FR-B03-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java:loop",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF02",
+          "UF04",
+          "UF12",
+          "UF13"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "instruction": "采集 r30r1_task_progress 的 pending、last_commit_clock_ordinal、work_unit、artifact_identity 和当前真实期号；补齐被限量展示省略的任务，依赖等待与等待新期分别记录",
+        "legacyCard": "R30-B01-05",
+        "method": "loop",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B03-01",
+          "FR-B03-04",
+          "FR-B07-04"
+        ],
+        "verification": "R30TaskLivenessTest；有积压五期告警、等待新期不误报、缺字段保持 UNKNOWN"
+      },
+      "observation": {
+        "source": "r26_task -> TaskLivenessR30.summary.m12",
+        "field": "taskStalled",
+        "value": null
+      },
+      "routes": [
+        {
+          "issue": "R341-B01-04",
+          "cases": [
+            "R341-B01-04-T01",
+            "R341-B01-04-T02"
+          ]
+        },
+        {
+          "issue": "R341-B03-03",
+          "cases": [
+            "R341-B03-03-T01",
+            "R341-B03-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/2",
+      "id": "RECEIPT_STATE",
+      "metric": "M32",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "CLEAR_IN_CAPTURED_SCOPE",
+      "condition": "receiptStateMismatches > 0; missing is UNKNOWN",
+      "conclusion": "本次采集范围未记录该问题；不外推为自然质量或真机通过",
+      "collectionAction": "导出 ACTIVE 正永久序号实验的全部 receipt、eprocess、cursor 及原始冻结；缺表先记录 SchemaR27.ensure 的实际失败",
+      "refutedBy": "同一范围原始来源恢复一致且对应回归通过",
+      "action": {
+        "card": "FR-B05-03",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java:rebuild",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF12",
+          "UF17"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "instruction": "逐 experiment_id 对照原始冻结、回执与游标，沿原 rebuild 幂等恢复；保留冲突账，不改 n/alpha 或补造冻结",
+        "legacyCard": "R30-B03-06",
+        "method": "rebuild",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B05-03",
+          "FR-B05-05"
+        ],
+        "verification": "QualInboxR29HostTest 的重试/回滚/重建场景；同一快照 n 与连续回执一致"
+      },
+      "observation": {
+        "source": "r29_qual_receipt / r27_eprocess.n",
+        "field": "receiptStateMismatches",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B02-01",
+          "cases": [
+            "R341-B02-01-T01",
+            "R341-B02-01-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/3",
+      "id": "QUAL_CONFLICT",
+      "metric": "M27",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "CLEAR_IN_CAPTURED_SCOPE",
+      "condition": "openQualificationConflicts > 0; missing is UNKNOWN",
+      "conclusion": "本次采集范围未记录该问题；不外推为自然质量或真机通过",
+      "collectionAction": "采集 r29_qual_conflict、draws、原始来源和对应冻结记录及其水位",
+      "refutedBy": "同一范围原始来源恢复一致且对应回归通过",
+      "action": {
+        "card": "FR-B05-03",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java:plan",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF12",
+          "UF17"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "instruction": "逐条核对 conflict.detail 与原始开奖来源，保留隔离及审计；经原源治理流程解决后再验证证书，不覆盖旧证据",
+        "legacyCard": "R30-B03-02",
+        "method": "plan",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B05-03",
+          "FR-B05-05"
+        ],
+        "verification": "QualInboxR29HostTest 冲突隔离；错误来源修正后重算并确认旧证书已撤销"
+      },
+      "observation": {
+        "source": "r29_qual_conflict.resolved_at=0",
+        "field": "openQualificationConflicts",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-01",
+          "cases": [
+            "R341-B09-01-A01",
+            "R341-B09-01-A02",
+            "R341-B09-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/4",
+      "id": "UNSAFE_DECISION",
+      "metric": "M28",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "CLEAR_IN_CAPTURED_SCOPE",
+      "condition": "unsafeDecisionMismatches > 0; missing is UNKNOWN",
+      "conclusion": "本次采集范围未记录该问题；不外推为自然质量或真机通过",
+      "collectionAction": "采集 r30_decision_explain、r30_decision_mismatch、完整冻结/证书/intent/REAL 与来源代号",
+      "refutedBy": "同一范围原始来源恢复一致且对应回归通过",
+      "action": {
+        "card": "FR-B05-04",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java:allows",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF17"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
+        "instruction": "按 issue/entry_point 对照原 allow、first_blocker、完整 freeze、证书/源版本和两本 REAL 账；修复原授权条件并重跑正反对照，禁止用解释器放宽授权",
+        "legacyCard": "R30-B07-03",
+        "method": "allows",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B05-04",
+          "FR-B05-05"
+        ],
+        "verification": "R30DecisionChainAndroidTest 正对照贯通、过期/撤销/缺冻结/重复 REAL 拦截"
+      },
+      "observation": {
+        "source": "r30_decision_mismatch ORIGINAL_MORE_PERMISSIVE",
+        "field": "unsafeDecisionMismatches",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/5",
+      "id": "PIT_REJECTIONS",
+      "metric": "M18",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "CLEAR_IN_CAPTURED_SCOPE",
+      "condition": "pitViolations > 0; missing is UNKNOWN",
+      "conclusion": "本次采集范围未记录该问题；不外推为自然质量或真机通过",
+      "collectionAction": "采集守卫的真实 code/source 和原冻结输入；运行当前及未来标签扰动反证，明确运行环境与夹具范围",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B04-05",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java:check",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF12",
+          "UF17"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java",
+        "instruction": "按 policy_hash/target_ordinal/code/source 定位来源，修复 availability/trainedThrough/history 边界并保持拒绝；分别导出注入和非注入反证，不将拒绝误报为成功泄漏",
+        "legacyCard": "R30-B03-01",
+        "method": "check",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B04-05"
+        ],
+        "verification": "R30 PIT 与 FreezeSourceR30HostTest 标签投毒/源竞态；既有 predraw 输出不变"
+      },
+      "observation": {
+        "source": "r30_pit_violation (guard rejections, not proven leakage)",
+        "field": "pitViolations",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B04-02",
+          "cases": [
+            "R341-B04-02-T01",
+            "R341-B04-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/6",
+      "id": "CONFIRM_EVIDENCE",
+      "metric": "M19",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "confirmedPackets == 0 / > 0; existence is not validation",
+      "conclusion": "独立确认没有已完成且已验证的数据包；已有数据包也不代表自然优势",
+      "collectionAction": "导出 r30_frozen_confirm 与 r30_confirm_read 的冻结候选/数据hash、预约和完成状态",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B05-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java:evaluate",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF13",
+          "UF14",
+          "UF16"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "instruction": "导出 r30_frozen_confirm 与 r30_confirm_read 的冻结候选/数据hash、预约和完成状态",
+        "legacyCard": "R30-B05-01",
+        "method": "evaluate",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B05-01",
+          "FR-B05-02"
+        ],
+        "verification": "FrozenConfirmationR30HostTest 中断恢复、重复曝光拒绝、原始证据重用与登记一致"
+      },
+      "observation": {
+        "source": "r30_frozen_confirm DONE verified=1",
+        "field": "confirmedPackets",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-01",
+          "cases": [
+            "R341-B09-01-A01",
+            "R341-B09-01-A02",
+            "R341-B09-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/7",
+      "id": "MODEL_STATE",
+      "metric": "M20",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "RECORDED_UNVALIDATED",
+      "condition": "modelCheckpoints == 0 / > 0; existence is not validation",
+      "conclusion": "已有来源记录，尚不能据行数判定有效；当前 NN checkpoint 不足以证明可恢复全状态训练",
+      "collectionAction": "经原诊断导出 checkpoint 元数据与解码结果、实际训练任务状态；完整模型仅保留在原受保护产物内",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B04-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java:decode",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF12",
+          "UF17"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+        "instruction": "核对 owner/ABI/dataset/state_hash，完整解码权重/优化器/RNG/游标后重跑中断恢复；保留旧 ABI 模型，不用缓存冒充模型",
+        "legacyCard": "R30-B05-03",
+        "method": "decode",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B04-01",
+          "FR-B04-02",
+          "FR-B04-03"
+        ],
+        "verification": "TenPositionR30HostTest 位置5杀进程后6–10恢复一致；旧模型、失败提交和游标保留"
+      },
+      "observation": {
+        "source": "r29_model_checkpoint ATOMNET_TEN_R30_REPAIR1；旧 ATOMNET_TEN_R30/ATOMNET_FTRL 原件保留",
+        "field": "modelCheckpoints",
+        "value": 1
+      },
+      "routes": [
+        {
+          "issue": "R341-B07-02",
+          "cases": [
+            "R341-B07-02-A01",
+            "R341-B07-02-A02",
+            "R341-B07-02-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/8",
+      "id": "MODEL_CONSUMER",
+      "metric": "M24",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "modelCalls == 0 / > 0; existence is not validation",
+      "conclusion": "模型消费尚无可追溯调用；调用行存在仍需匹配实际冻结",
+      "collectionAction": "采集 r30_model_call、r30_model_surface、模型元数据和原冻结引用的同一期配对",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B04-04",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java:predict",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF12",
+          "UF17"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
+        "instruction": "采集 r30_model_call、r30_model_surface、模型元数据和原冻结引用的同一期配对",
+        "legacyCard": "R30-B05-04",
+        "method": "predict",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B04-04",
+          "FR-B04-05"
+        ],
+        "verification": "ModelSurfaceR30HostTest valid/missing/target/race；实际引用一致且缺失拒绝"
+      },
+      "observation": {
+        "source": "r30_model_call",
+        "field": "modelCalls",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B07-03",
+          "cases": [
+            "R341-B07-03-A01",
+            "R341-B07-03-A02",
+            "R341-B07-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/9",
+      "id": "CALIBRATION",
+      "metric": "Q05",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "calibratedPolicies == 0 / > 0; existence is not validation",
+      "conclusion": "校准存在性不证明满足 Q05；缺样本时不得报告有效校准",
+      "collectionAction": "采集原校准行与 calibration-r30 同数据集缓存的 validationRows/fitEnd/validateStart/支持范围；缺失仍为 UNKNOWN/INSUFFICIENT",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B06-06",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java:calibrate",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF13",
+          "UF16"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "instruction": "采集原校准行与 calibration-r30 同数据集缓存的 validationRows/fitEnd/validateStart/支持范围；缺失仍为 UNKNOWN/INSUFFICIENT",
+        "legacyCard": "R30-B06-01",
+        "method": "calibrate",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B06-06",
+          "FR-B08-04"
+        ],
+        "verification": "CalibrationR30HostTest 严格时序、恒定概率与失败提交；自然 Q05 单独验收"
+      },
+      "observation": {
+        "source": "r27_calibration / calibration-r30 cache",
+        "field": "calibratedPolicies",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/10",
+      "id": "NATIVE_MATRIX",
+      "metric": "M25",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "nativeMatrixRows == 0 / > 0; existence is not validation",
+      "conclusion": "原生矩阵缺少已存快照；有快照也不能称有效资产",
+      "collectionAction": "采集20对象清单与原矩阵来源表的 count/latest issue/hash，缺来源保持 null",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B06-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java:registryId",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF15",
+          "UF16"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+        "instruction": "采集20对象清单与原矩阵来源表的 count/latest issue/hash，缺来源保持 null",
+        "legacyCard": "R30-B06-03",
+        "method": "registryId",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B06-01",
+          "FR-B06-02",
+          "FR-B06-03"
+        ],
+        "verification": "MatrixRegistryR30HostTest 原生19类和已有SU2对象的实际绑定与三态"
+      },
+      "observation": {
+        "source": "research_matrix_snapshot_r930",
+        "field": "nativeMatrixRows",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/11",
+      "id": "SU2_MATRIX",
+      "metric": "M25",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "su2MatrixRows == 0 / > 0; existence is not validation",
+      "conclusion": "SU2矩阵/教师对象缺少已存快照；checkpoint序列不得当作日历期号",
+      "collectionAction": "采集 su2_matrix_snapshot 的真实数量、checkpoint_sequence、updated_at 与20对象注册来源",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B06-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java:capture",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF15",
+          "UF16"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+        "instruction": "采集 su2_matrix_snapshot 的真实数量、checkpoint_sequence、updated_at 与20对象注册来源",
+        "legacyCard": "R30-B06-03",
+        "method": "capture",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B06-01",
+          "FR-B06-02",
+          "FR-B06-03"
+        ],
+        "verification": "MatrixRegistryR30HostTest SU2来源和checkpoint水位；qualityEffective仍需独立证据"
+      },
+      "observation": {
+        "source": "su2_matrix_snapshot",
+        "field": "su2MatrixRows",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/12",
+      "id": "ABI_CONTINUITY",
+      "metric": "M20",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "abiChecks == 0 / > 0; existence is not validation",
+      "conclusion": "ABI连续性缺少回执；已有行必须逐项核验结果，不能仅数行判通过",
+      "collectionAction": "采集当前源版本对应的 ABI 检查行、完整checkpoint解码和中断恢复差异",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B04-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java:decode",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF12",
+          "UF17"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+        "instruction": "采集当前源版本对应的 ABI 检查行、完整checkpoint解码和中断恢复差异",
+        "legacyCard": "R30-B03-05",
+        "method": "decode",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B04-01",
+          "FR-B04-02",
+          "FR-B04-03"
+        ],
+        "verification": "ModelArtifact 全状态恢复回归；源版本与数据集相同的恢复比较"
+      },
+      "observation": {
+        "source": "r27_abi_continuity",
+        "field": "abiChecks",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B06-01",
+          "cases": [
+            "R341-B06-01-A01",
+            "R341-B06-01-A02",
+            "R341-B06-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/13",
+      "id": "ABLATION",
+      "metric": "Q06",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "ablationRows == 0 / > 0; existence is not validation",
+      "conclusion": "消融没有已存同源对照；有行也不能代替父子同一期配对区间",
+      "collectionAction": "采集原消融行和父子同一期机会配对明细、样本数与单侧95%区间；禁止选好窗口",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B07-01",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java:render",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF13",
+          "UF14",
+          "UF16"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+        "instruction": "采集原消融行和父子同一期机会配对明细、样本数与单侧95%区间；禁止选好窗口",
+        "legacyCard": "R30-B08-03",
+        "method": "render",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B07-01",
+          "FR-B08-01"
+        ],
+        "verification": "空库无空章；有数据不丢原始结果；同一期配对下界验证 Q06"
+      },
+      "observation": {
+        "source": "r27_ablation",
+        "field": "ablationRows",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/14",
+      "id": "NATURAL_SAMPLE",
+      "metric": "Q01",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "INSUFFICIENT",
+      "condition": "independentFutureIssues == 0 / > 0; existence is not validation",
+      "conclusion": "独立未来期数只能说明已存样本，不能宣称自然命中达标",
+      "collectionAction": "在目标设备采集事前登记到自然FUTURE结算的原始冻结、ACT命中、时间块、校准和序贯证据",
+      "refutedBy": "对应原始配对数据和独立验证回执，不能仅凭行数",
+      "action": {
+        "card": "FR-B11-03",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java:certify",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF17",
+          "UF19"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "instruction": "在目标设备采集事前登记到自然FUTURE结算的原始冻结、ACT命中、时间块、校准和序贯证据",
+        "legacyCard": "R30-B10-02",
+        "method": "certify",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B11-03"
+        ],
+        "verification": "FR-B11-03自然Q01–Q07逐项验收；样本不足为INSUFFICIENT，未测不填0/PASS"
+      },
+      "observation": {
+        "source": "r29_qual_receipt DISTINCT target_issue",
+        "field": "independentFutureIssues",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-02",
+          "cases": [
+            "R341-B09-02-A01",
+            "R341-B09-02-A02",
+            "R341-B09-02-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/diagnosis/findings/15",
+      "id": "SNAPSHOT_CAPTURE",
+      "metric": "M32",
+      "scope": "DETACHED_CAPTURE_ONLY; NO_AUTOMATIC_MUTATION; NOT_PHYSICAL_OR_NATURAL_ACCEPTANCE",
+      "strength": "DIRECT_SNAPSHOT_COUNT_NOT_CAUSAL_OR_QUALITY_PROOF",
+      "status": "CLEAR_IN_CAPTURED_SCOPE",
+      "condition": "captureErrors > 0; missing is UNKNOWN",
+      "conclusion": "本次采集范围未记录该问题；不外推为自然质量或真机通过",
+      "collectionAction": "保留真实异常和当前 schema_version/来源表元数据，启动后重新导出同一快照；不可读值保持未知",
+      "refutedBy": "同一范围原始来源恢复一致且对应回归通过",
+      "action": {
+        "card": "FR-B01-04",
+        "code": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java:capture",
+        "currentPlan": "STARCORE_R31_UNIFIED_FINAL_20261112",
+        "currentRepairCards": [
+          "UF06",
+          "UF07",
+          "UF10",
+          "UF11"
+        ],
+        "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "instruction": "按 sourceErrors 与来源表水位定位只读采集失败；保持单快照及schema版本检查，不改成逐章重新查库",
+        "legacyCard": "R30-B08-01",
+        "method": "capture",
+        "plan": "R30_REPAIR_FINAL_20261101",
+        "repairCards": [
+          "FR-B01-04",
+          "FR-B10-03"
+        ],
+        "verification": "ReportSnapshotR30HostTest 并发写入、缺源、UTF8、水位及冲突原样显示"
+      },
+      "observation": {
+        "source": "ReportSnapshotR30.capture sourceErrors",
+        "field": "captureErrors",
+        "value": 0
+      },
+      "routes": [
+        {
+          "issue": "R341-B11-01",
+          "cases": [
+            "A-B11-01a",
+            "A-B11-01b"
+          ]
+        }
+      ]
+    }
+  ],
+  "metric_triggers": [
+    {
+      "source_locator": "R30_REPORT.json/metricResults/0",
+      "metricId": "M01",
+      "name": "源码与安装身份",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）；按 [FR-B00-01, FR-B11-04] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B00-01",
+        "FR-B11-04"
+      ],
+      "target": "全部一致",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "全部一致",
+        "supportingChecks": [
+          "RSEC-009",
+          "RSEC-027",
+          "RSEC-076",
+          "RSEC-078"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B01-01",
+          "cases": [
+            "R341-B01-01-T01",
+            "R341-B01-01-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/1",
+      "metricId": "M02",
+      "name": "功能保全覆盖",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest；按 [FR-B00-03, FR-B11-01] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B00-03",
+        "FR-B11-01"
+      ],
+      "target": "100%有记录；无凭空VERIFIED",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "100%有记录；无凭空VERIFIED",
+        "supportingChecks": [
+          "RSEC-025",
+          "RSEC-028",
+          "RSEC-043",
+          "RSEC-070",
+          "RSEC-071"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B12-03",
+          "cases": [
+            "A-B12-03a",
+            "A-B12-03b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/2",
+      "metricId": "M03",
+      "name": "准时预测持久化",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）；按 [FR-B02-04, FR-B02-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B02-04",
+        "FR-B02-05"
+      ],
+      "target": "P95≤5000ms",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "P95≤5000ms",
+        "supportingChecks": [
+          "RSEC-021",
+          "RSEC-030",
+          "RSEC-031",
+          "RSEC-048",
+          "RSEC-312",
+          "RSEC-313"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B04-03",
+          "cases": [
+            "R341-B04-03-T01",
+            "R341-B04-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/3",
+      "metricId": "M04",
+      "name": "抓到后正式结算",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：r30_issue_timeline：observe_to_settled 段 P95",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_issue_timeline：observe_to_settled 段 P95；按 [FR-B02-03, FR-B02-04, FR-B02-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B02-03",
+        "FR-B02-04",
+        "FR-B02-05"
+      ],
+      "target": "P95≤1000ms",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_issue_timeline：observe_to_settled 段 P95",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "P95≤1000ms",
+        "supportingChecks": [
+          "RSEC-029",
+          "RSEC-031",
+          "RSEC-305",
+          "RSEC-306",
+          "RSEC-312",
+          "RSEC-313",
+          "RSEC-315"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B04-04",
+          "cases": [
+            "R341-B04-04-T01",
+            "R341-B04-04-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/4",
+      "metricId": "M05",
+      "name": "赛前有效覆盖",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比；按 [FR-B02-04, FR-B02-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B02-04",
+        "FR-B02-05"
+      ],
+      "target": "目标100%；受支持健康场景≥99.5%",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "目标100%；受支持健康场景≥99.5%",
+        "supportingChecks": [
+          "RSEC-030"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B01-05",
+          "cases": [
+            "R341-B01-05-T01",
+            "R341-B01-05-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/5",
+      "metricId": "M06",
+      "name": "唯一正式结算",
+      "status": "RECORDED_UNVALIDATED",
+      "missingReason": "仅原REAL逐期唯一性；正式结算唯一键仍需原结算账联合回执",
+      "value": 0,
+      "sampleCount": 0,
+      "nextTrigger": "采集 结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）；按 [FR-B02-05, FR-B02-06, FR-B05-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B02-05",
+        "FR-B02-06",
+        "FR-B05-05"
+      ],
+      "target": "均为0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "均为0",
+        "supportingChecks": [
+          "RSEC-029",
+          "RSEC-038",
+          "RSEC-053"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B04-04",
+          "cases": [
+            "R341-B04-04-T01",
+            "R341-B04-04-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/6",
+      "metricId": "M07",
+      "name": "实时写事务",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)；按 [FR-B02-01, FR-B02-02, FR-B02-03, FR-B02-06] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B02-01",
+        "FR-B02-02",
+        "FR-B02-03",
+        "FR-B02-06"
+      ],
+      "target": "P95≤200ms；24h失败0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "P95≤200ms；24h失败0",
+        "supportingChecks": [
+          "RSEC-033"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B02-01",
+          "cases": [
+            "R341-B02-01-T01",
+            "R341-B02-01-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/7",
+      "metricId": "M08",
+      "name": "分库隔离",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数；按 [FR-B00-02, FR-B10-04] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B00-02",
+        "FR-B10-04"
+      ],
+      "target": "0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "0",
+        "supportingChecks": []
+      },
+      "routes": [
+        {
+          "issue": "R341-B02-04",
+          "cases": [
+            "R341-B02-04-T01",
+            "R341-B02-04-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/8",
+      "metricId": "M09",
+      "name": "迁移一致性",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数；按 [FR-B10-04] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B10-04"
+      ],
+      "target": "全部一致；丢失/重复0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "全部一致；丢失/重复0",
+        "supportingChecks": [
+          "RSEC-005",
+          "RSEC-078"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B03-01",
+          "cases": [
+            "R341-B03-01-T01",
+            "R341-B03-01-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/9",
+      "metricId": "M10",
+      "name": "每期训练投递",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标；按 [FR-B02-05, FR-B03-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B02-05",
+        "FR-B03-03"
+      ],
+      "target": "100%；重复消费0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "100%；重复消费0",
+        "supportingChecks": [
+          "RSEC-001"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B07-04",
+          "cases": [
+            "R341-B07-04-A01",
+            "R341-B07-04-A02",
+            "R341-B07-04-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/10",
+      "metricId": "M11",
+      "name": "训练完成新鲜度",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：TaskLivenessR30：最老积压期数（pending 最大任务）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 TaskLivenessR30：最老积压期数（pending 最大任务）；按 [FR-B03-02, FR-B04-01] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B03-02",
+        "FR-B04-01"
+      ],
+      "target": "正常负载最老积压≤5期；超限必须FAIL",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "TaskLivenessR30：最老积压期数（pending 最大任务）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "正常负载最老积压≤5期；超限必须FAIL",
+        "supportingChecks": [
+          "RSEC-001"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B07-05",
+          "cases": [
+            "R341-B07-05-A01",
+            "R341-B07-05-A02",
+            "R341-B07-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/11",
+      "metricId": "M12",
+      "name": "任务活性",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 TaskLivenessR30.summarize.m12（null=有UNKNOWN）；按 [FR-B03-02, FR-B03-03, FR-B03-04, FR-B03-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B03-02",
+        "FR-B03-03",
+        "FR-B03-04",
+        "FR-B03-05"
+      ],
+      "target": "0；等依赖/等数据单列",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "0；等依赖/等数据单列",
+        "supportingChecks": [
+          "RSEC-032",
+          "RSEC-036",
+          "RSEC-052",
+          "RSEC-074"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B03-03",
+          "cases": [
+            "R341-B03-03-T01",
+            "R341-B03-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/12",
+      "metricId": "M13",
+      "name": "前后台连续性",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：B10 场景：前后台切换前后已投递任务数差",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 B10 场景：前后台切换前后已投递任务数差；按 [FR-B03-05, FR-B11-02] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B03-05",
+        "FR-B11-02"
+      ],
+      "target": "受支持场景不丢已投递任务；缺口全记录",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "B10 场景：前后台切换前后已投递任务数差",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "受支持场景不丢已投递任务；缺口全记录",
+        "supportingChecks": [
+          "RSEC-036",
+          "RSEC-041",
+          "RSEC-042"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B05-03",
+          "cases": [
+            "R341-B05-03-T01"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/13",
+      "metricId": "M14",
+      "name": "进程稳定性",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 进程崩溃/ANR 计数（logcat + ApplicationExitInfo）；按 [FR-B11-02] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B11-02"
+      ],
+      "target": "0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "0",
+        "supportingChecks": [
+          "RSEC-042"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B05-02",
+          "cases": [
+            "R341-B05-02-T01",
+            "R341-B05-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/14",
+      "metricId": "M15",
+      "name": "热库与总磁盘",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：draws 热库行数 + 应用数据目录总字节",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 draws 热库行数 + 应用数据目录总字节；按 [FR-B10-01, FR-B10-02] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B10-01",
+        "FR-B10-02"
+      ],
+      "target": "draws≤5000；未超配置总预算且可恢复",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "draws 热库行数 + 应用数据目录总字节",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "draws≤5000；未超配置总预算且可恢复",
+        "supportingChecks": [
+          "RSEC-006"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B10-01",
+          "cases": [
+            "A-B10-01a",
+            "A-B10-01b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/15",
+      "metricId": "M16",
+      "name": "报告取消",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：ReportTaskControlR69 取消到释放耗时",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 ReportTaskControlR69 取消到释放耗时；按 [FR-B10-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B10-03"
+      ],
+      "target": "≤2000ms",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "ReportTaskControlR69 取消到释放耗时",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "≤2000ms",
+        "supportingChecks": []
+      },
+      "routes": [
+        {
+          "issue": "R341-B10-02",
+          "cases": [
+            "A-B10-02a",
+            "A-B10-02b",
+            "A-B10-02c"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/16",
+      "metricId": "M17",
+      "name": "报告完整性",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：报告索引覆盖率 + ZIP 大小/分卷",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 报告索引覆盖率 + ZIP 大小/分卷；按 [FR-B01-05, FR-B10-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B01-05",
+        "FR-B10-03"
+      ],
+      "target": "全量索引100%；默认ZIP≤20MiB或明确分卷",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "报告索引覆盖率 + ZIP 大小/分卷",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "全量索引100%；默认ZIP≤20MiB或明确分卷",
+        "supportingChecks": [
+          "RSEC-010",
+          "RSEC-011",
+          "RSEC-016",
+          "RSEC-018",
+          "RSEC-022",
+          "RSEC-302",
+          "RSEC-303",
+          "RSEC-307",
+          "RSEC-309",
+          "RSEC-318",
+          "RSEC-319",
+          "RSEC-320",
+          "RSEC-324"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B11-06",
+          "cases": [
+            "A-B11-06a",
+            "A-B11-06b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/17",
+      "metricId": "M18",
+      "name": "PIT泄漏反证",
+      "status": "INSUFFICIENT",
+      "missingReason": "PIT拒绝记录不等于泄漏；需当前/未来标签扰动原件，注入与产品来源分列",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_pit_violation 非注入行数；按 [FR-B00-04, FR-B04-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B00-04",
+        "FR-B04-03"
+      ],
+      "target": "0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_pit_violation 非注入行数",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "0",
+        "supportingChecks": [
+          "RSEC-057"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B04-02",
+          "cases": [
+            "R341-B04-02-T01",
+            "R341-B04-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/18",
+      "metricId": "M19",
+      "name": "训练分割污染",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 HoldoutLedgerR27 R30_CONFIRM_REUSED 计数；按 [FR-B00-04, FR-B05-02] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B00-04",
+        "FR-B05-02"
+      ],
+      "target": "0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "0",
+        "supportingChecks": [
+          "RSEC-057"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B08-01",
+          "cases": [
+            "R341-B08-01-A01",
+            "R341-B08-01-A02",
+            "R341-B08-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/19",
+      "metricId": "M20",
+      "name": "全状态续训恢复",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：ModelArtifactR29 中断/恢复一致性测试结果",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 ModelArtifactR29 中断/恢复一致性测试结果；按 [FR-B04-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B04-03"
+      ],
+      "target": "按已登记浮点容差一致；不重复学习",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "ModelArtifactR29 中断/恢复一致性测试结果",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "按已登记浮点容差一致；不重复学习",
+        "supportingChecks": [
+          "RSEC-004"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B07-02",
+          "cases": [
+            "R341-B07-02-A01",
+            "R341-B07-02-A02",
+            "R341-B07-02-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/20",
+      "metricId": "M21",
+      "name": "策略完整合同",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0；按 [FR-B06-04, FR-B08-01] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B06-04",
+        "FR-B08-01"
+      ],
+      "target": "100%；空壳拒绝",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "100%；空壳拒绝",
+        "supportingChecks": [
+          "RSEC-003",
+          "RSEC-024",
+          "RSEC-069",
+          "RSEC-079",
+          "RSEC-317",
+          "RSEC-321",
+          "RSEC-322",
+          "RSEC-323"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B06-03",
+          "cases": [
+            "R341-B06-03-A01",
+            "R341-B06-03-A02",
+            "R341-B06-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/21",
+      "metricId": "M22",
+      "name": "结构与行为去重",
+      "status": "RECORDED_UNVALIDATED",
+      "missingReason": "原账全量计数；结构/参数去重及生成链一致性需分别复算",
+      "value": 0,
+      "sampleCount": 0,
+      "nextTrigger": "采集 r30_behavior_dup 行数与报告去重计数一致；按 [FR-B08-01, FR-B08-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B08-01",
+        "FR-B08-03"
+      ],
+      "target": "计数与ledger一致",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_behavior_dup 行数与报告去重计数一致",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "计数与ledger一致",
+        "supportingChecks": [
+          "RSEC-024"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B06-03",
+          "cases": [
+            "R341-B06-03-A01",
+            "R341-B06-03-A02",
+            "R341-B06-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/22",
+      "metricId": "M23",
+      "name": "族专家覆盖",
+      "status": "BLOCKED",
+      "missingReason": "可调用绑定与输入可用、真实产出、被消费、有效性分别记录，禁止由此推出质量",
+      "value": 81,
+      "sampleCount": 82,
+      "nextTrigger": "采集 CapabilityRegistryR30 对象可执行率；按 [FR-B06-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B06-05"
+      ],
+      "target": "全部注册与可执行；没有证据不标有效",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "CapabilityRegistryR30 对象可执行率",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "全部注册与可执行；没有证据不标有效",
+        "supportingChecks": [
+          "RSEC-014",
+          "RSEC-015",
+          "RSEC-017",
+          "RSEC-317",
+          "RSEC-321",
+          "RSEC-322",
+          "RSEC-323"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B06-04",
+          "cases": [
+            "R341-B06-04-A01",
+            "R341-B06-04-A02",
+            "R341-B06-04-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/23",
+      "metricId": "M24",
+      "name": "模型实际消费",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：r30_model_call 与冻结行匹配率",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_model_call 与冻结行匹配率；按 [FR-B04-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B04-05"
+      ],
+      "target": "100%匹配或明确BLOCKED；不得伪造调用",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_model_call 与冻结行匹配率",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "100%匹配或明确BLOCKED；不得伪造调用",
+        "supportingChecks": [
+          "RSEC-001",
+          "RSEC-007",
+          "RSEC-054",
+          "RSEC-055",
+          "RSEC-056",
+          "RSEC-058"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B07-03",
+          "cases": [
+            "R341-B07-03-A01",
+            "R341-B07-03-A02",
+            "R341-B07-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/24",
+      "metricId": "M25",
+      "name": "矩阵接线",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：MatrixRegistryR30 20 项可追溯率",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 MatrixRegistryR30 20 项可追溯率；按 [FR-B06-01, FR-B06-02, FR-B06-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B06-01",
+        "FR-B06-02",
+        "FR-B06-03"
+      ],
+      "target": "全部可追溯；未产出有明确原因",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "MatrixRegistryR30 20 项可追溯率",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "全部可追溯；未产出有明确原因",
+        "supportingChecks": []
+      },
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/25",
+      "metricId": "M26",
+      "name": "校准时间隔离",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：校准样本时间隔离检查通过率",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 校准样本时间隔离检查通过率；按 [FR-B06-06] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B06-06"
+      ],
+      "target": "100%；零模型需可定位原因",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "校准样本时间隔离检查通过率",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "100%；零模型需可定位原因",
+        "supportingChecks": [
+          "RSEC-001",
+          "RSEC-019"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/26",
+      "metricId": "M27",
+      "name": "资格预算连续",
+      "status": "RECORDED_UNVALIDATED",
+      "missingReason": "未解决冲突数；全局序号、预算不重置与连续游标需联合原件",
+      "value": 0,
+      "sampleCount": 0,
+      "nextTrigger": "采集 SequentialQualificationR27 全局序号连续、无重置；按 [FR-B05-03, FR-B05-04] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B05-03",
+        "FR-B05-04"
+      ],
+      "target": "全部通过",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "SequentialQualificationR27 全局序号连续、无重置",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "全部通过",
+        "supportingChecks": [
+          "RSEC-001",
+          "RSEC-012",
+          "RSEC-023"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-01",
+          "cases": [
+            "R341-B09-01-A01",
+            "R341-B09-01-A02",
+            "R341-B09-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/27",
+      "metricId": "M28",
+      "name": "主链闭环",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：androidTest 正对照贯通 + 非法/过期拦截",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 androidTest 正对照贯通 + 非法/过期拦截；按 [FR-B05-05, FR-B11-01] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B05-05",
+        "FR-B11-01"
+      ],
+      "target": "合法正对照贯通；非法/过期全部拦截",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "androidTest 正对照贯通 + 非法/过期拦截",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "合法正对照贯通；非法/过期全部拦截",
+        "supportingChecks": [
+          "RSEC-012",
+          "RSEC-021",
+          "RSEC-023",
+          "RSEC-035",
+          "RSEC-039",
+          "RSEC-053",
+          "RSEC-059",
+          "RSEC-060",
+          "RSEC-072",
+          "RSEC-073",
+          "RSEC-308",
+          "RSEC-310",
+          "RSEC-314"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/28",
+      "metricId": "M29",
+      "name": "确认队列连续",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：确认队列被挤出次数",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 确认队列被挤出次数；按 [FR-B05-01, FR-B05-02] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B05-01",
+        "FR-B05-02"
+      ],
+      "target": "0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "确认队列被挤出次数",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "0",
+        "supportingChecks": []
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-02",
+          "cases": [
+            "R341-B09-02-A01",
+            "R341-B09-02-A02",
+            "R341-B09-02-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/29",
+      "metricId": "M30",
+      "name": "主链选择器身份",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）；按 [FR-B05-04, FR-B05-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B05-04",
+        "FR-B05-05"
+      ],
+      "target": "未确认组合不能REAL",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "未确认组合不能REAL",
+        "supportingChecks": [
+          "RSEC-037",
+          "RSEC-316"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/30",
+      "metricId": "M31",
+      "name": "诊断可追溯",
+      "status": "RECORDED_UNVALIDATED",
+      "missingReason": "行动字段覆盖，不能代替诊断结论正确性及修复验收",
+      "value": 1.0,
+      "sampleCount": 16,
+      "nextTrigger": "采集 DiagnosisRulesR30 规则行动覆盖率；按 [FR-B01-01, FR-B01-02, FR-B01-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B01-01",
+        "FR-B01-02",
+        "FR-B01-03"
+      ],
+      "target": "100%或UNKNOWN并给采集动作",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "DiagnosisRulesR30 规则行动覆盖率",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "100%或UNKNOWN并给采集动作",
+        "supportingChecks": [
+          "RSEC-002",
+          "RSEC-061",
+          "RSEC-062",
+          "RSEC-063",
+          "RSEC-064",
+          "RSEC-065",
+          "RSEC-074",
+          "RSEC-075",
+          "RSEC-077",
+          "RSEC-301"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/31",
+      "metricId": "M32",
+      "name": "报告口径一致",
+      "status": "UNKNOWN_SOURCE_MISSING",
+      "missingReason": "没有同角色、同水位的独立源对照；不能用同一对象重复渲染填0",
+      "value": null,
+      "sampleCount": 0,
+      "nextTrigger": "采集 同快照两章同指标冲突数；按 [FR-B01-04, FR-B01-05, FR-B09-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B01-04",
+        "FR-B01-05",
+        "FR-B09-05"
+      ],
+      "target": "0",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "同快照两章同指标冲突数",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "0",
+        "supportingChecks": [
+          "RSEC-032",
+          "RSEC-305"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B11-02",
+          "cases": [
+            "A-B11-02a",
+            "A-B11-02b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/32",
+      "metricId": "M33",
+      "name": "图表回归",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：图表页面 androidTest 截图通过数",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 图表页面 androidTest 截图通过数；按 [FR-B09-03, FR-B09-04, FR-B09-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B09-03",
+        "FR-B09-04",
+        "FR-B09-05"
+      ],
+      "target": "全部场景可打开且口径一致",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "图表页面 androidTest 截图通过数",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "全部场景可打开且口径一致",
+        "supportingChecks": [
+          "RSEC-026"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B11-04",
+          "cases": [
+            "A-B11-04a",
+            "A-B11-04b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/33",
+      "metricId": "M34",
+      "name": "签名覆盖安装",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：覆盖安装首启/二启无崩溃（两证书）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 覆盖安装首启/二启无崩溃（两证书）；按 [FR-B10-04, FR-B11-04] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B10-04",
+        "FR-B11-04"
+      ],
+      "target": "成功；首启/二启无崩溃",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "覆盖安装首启/二启无崩溃（两证书）",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "成功；首启/二启无崩溃",
+        "supportingChecks": []
+      },
+      "routes": [
+        {
+          "issue": "R341-B12-02",
+          "cases": [
+            "A-B12-02b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/34",
+      "metricId": "M35",
+      "name": "失效模型撤销",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：证书撤销到 DecisionGate 拒绝的耗时",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 证书撤销到 DecisionGate 拒绝的耗时；按 [FR-B05-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B05-05"
+      ],
+      "target": "目标≤5000ms；不含APK回滚",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "证书撤销到 DecisionGate 拒绝的耗时",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "目标≤5000ms；不含APK回滚",
+        "supportingChecks": [
+          "RSEC-072",
+          "RSEC-073"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/35",
+      "metricId": "M36",
+      "name": "同池对照",
+      "status": "INSUFFICIENT",
+      "missingReason": "原合成对照与完整创造工厂实验的多轮功效区间分别验收；缺失或未完成不算通过，合成不计入自然质量",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 NullEvolutionR27 同池对照输出可复算；按 [FR-B07-05, FR-B08-05] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B07-05",
+        "FR-B08-05"
+      ],
+      "target": "有可复算输出；合成不计真实质量",
+      "definition": {
+        "role": "ENGINEERING_RUNTIME",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "minimumSample": 1,
+        "collectionSource": "NullEvolutionR27 同池对照输出可复算",
+        "window": "CURRENT_REPORT_SNAPSHOT",
+        "target": "有可复算输出；合成不计真实质量",
+        "supportingChecks": [
+          "RSEC-067",
+          "RSEC-068"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-05",
+          "cases": [
+            "R341-B09-05-A01",
+            "R341-B09-05-A02",
+            "R341-B09-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/36",
+      "metricId": "Q01",
+      "name": "自然ACT命中",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：真机 FUTURE ACT 命中率（事前登记策略）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 真机 FUTURE ACT 命中率（事前登记策略）；按 [FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "target": "≥34%，优先≥37%；未达不得宣称达标",
+      "definition": {
+        "role": "NATURAL_FUTURE_ONLY",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "minimumSample": 250,
+        "collectionSource": "真机 FUTURE ACT 命中率（事前登记策略）",
+        "window": "PREREGISTERED_FUTURE_WINDOW",
+        "target": "≥34%，优先≥37%；未达不得宣称达标",
+        "supportingChecks": [
+          "RSEC-020",
+          "RSEC-034",
+          "RSEC-039",
+          "RSEC-066",
+          "RSEC-306",
+          "RSEC-310"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/37",
+      "metricId": "Q02",
+      "name": "真实频率",
+      "status": "NOT_DEPLOYED",
+      "missingReason": "当前没有原REAL行且没有有效ACTIVE证书；FUTURE_ACT_RATE与正式REAL频率分列",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 真机实际出手频率（不补配额）；按 [FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "target": "目标≥15%；质量支持扩大；不得补配额",
+      "definition": {
+        "role": "NATURAL_FUTURE_ONLY",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "minimumSample": 250,
+        "collectionSource": "真机实际出手频率（不补配额）",
+        "window": "PREREGISTERED_FUTURE_WINDOW",
+        "target": "目标≥15%；质量支持扩大；不得补配额",
+        "supportingChecks": [
+          "RSEC-020",
+          "RSEC-040"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/38",
+      "metricId": "Q03",
+      "name": "真实统计优势",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 SequentialQualificationR27 logEUp ≥ log(1/α_i)；按 [FR-B05-04, FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B05-04",
+        "FR-B11-03"
+      ],
+      "target": "e≥1/alpha，假设与预算成立",
+      "definition": {
+        "role": "NATURAL_FUTURE_ONLY",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "minimumSample": 250,
+        "collectionSource": "SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+        "window": "PREREGISTERED_FUTURE_WINDOW",
+        "target": "e≥1/alpha，假设与预算成立",
+        "supportingChecks": [
+          "RSEC-034"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/39",
+      "metricId": "Q04",
+      "name": "跨块稳定",
+      "status": "INSUFFICIENT",
+      "missingReason": "需事前固定块规则及逐策略同角色日历块；不从本次展示子集事后挑好窗口",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 事前冻结窗口规则下各块命中率；按 [FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "target": "窗口规则事前冻结；不得事后选好块",
+      "definition": {
+        "role": "NATURAL_FUTURE_ONLY",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "minimumSample": 250,
+        "collectionSource": "事前冻结窗口规则下各块命中率",
+        "window": "PREREGISTERED_FUTURE_WINDOW",
+        "target": "窗口规则事前冻结；不得事后选好块",
+        "supportingChecks": []
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/40",
+      "metricId": "Q05",
+      "name": "校准与BSS",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）；按 [FR-B06-06, FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B06-06",
+        "FR-B11-03"
+      ],
+      "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+      "definition": {
+        "role": "NATURAL_FUTURE_ONLY",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "minimumSample": 200,
+        "minimumSampleScope": "ORIGINAL_Q05_REPORT_SUPPORT_200_AND_SUPPORTED_BIN_COVERAGE_GE_90_PERCENT; NOT_A_CHANGE_TO_PER_ASSET_V1_MIN_ACTS_250_OR_ECE_LE_0.04",
+        "collectionSource": "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+        "window": "PREREGISTERED_FUTURE_WINDOW",
+        "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+        "supportingChecks": [
+          "RSEC-019"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/41",
+      "metricId": "Q06",
+      "name": "进化提升",
+      "status": "INSUFFICIENT",
+      "missingReason": "缺少同版本、同角色的测量原件：父子配对差单侧95%下界",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 父子配对差单侧95%下界；按 [FR-B05-01, FR-B08-01, FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B05-01",
+        "FR-B08-01",
+        "FR-B11-03"
+      ],
+      "target": "有效区间下界>0才计验证改善",
+      "definition": {
+        "role": "NATURAL_FUTURE_ONLY",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "minimumSample": 250,
+        "collectionSource": "父子配对差单侧95%下界",
+        "window": "PREREGISTERED_FUTURE_WINDOW",
+        "target": "有效区间下界>0才计验证改善",
+        "supportingChecks": [
+          "RSEC-007",
+          "RSEC-079"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/42",
+      "metricId": "Q07",
+      "name": "有效资产产量",
+      "status": "RECORDED_UNVALIDATED",
+      "missingReason": "当前有效证书为0；不隐去负结果、不补配额，Q01/03/04/05逐资产独立验收",
+      "value": 0,
+      "sampleCount": 0,
+      "nextTrigger": "采集 ACTIVE 证书资产数；按 [FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+      "definition": {
+        "role": "NATURAL_FUTURE_ONLY",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "minimumSample": 1,
+        "minimumSampleScope": "ONE_INSPECTED_ASSET_RECORD_IS_REPORT_SUPPORT_ONLY; Q01_Q03_Q04_Q05_AND_ORIGINAL_V1_GATES_STILL_REQUIRED_PER_ASSET; ACTIVE_COUNT_ALONE_IS_RECORDED_UNVALIDATED",
+        "collectionSource": "ACTIVE 证书资产数",
+        "window": "PREREGISTERED_FUTURE_WINDOW",
+        "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+        "supportingChecks": [
+          "RSEC-003",
+          "RSEC-013",
+          "RSEC-014",
+          "RSEC-308"
+        ]
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/metricResults/43",
+      "metricId": "Q08",
+      "name": "空信号与优势检出力",
+      "status": "UNKNOWN_STALE_SYNTHETIC_SOURCE",
+      "missingReason": "原注册回执不是当前源码；旧源实验不能签当前Q08。",
+      "value": null,
+      "sampleCount": null,
+      "nextTrigger": "采集 R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27；按 [FR-B07-05, FR-B11-03] 验证，禁止用编译通过代替",
+      "repairCardIds": [
+        "FR-B07-05",
+        "FR-B11-03"
+      ],
+      "target": "报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收",
+      "definition": {
+        "role": "SYNTHETIC_ONLY",
+        "requiredEvidence": "REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS",
+        "minimumSample": 120,
+        "minimumSampleScope": "120_ORIGINAL_TRIAL_RECORDS_IS_COMPLETENESS_ONLY; PER_ARM_20_SEEDS_AND_NULL_FALSE_ALARM_CI_SIGNAL_POWER_CI_MUST_PASS_THE_ORIGINAL_REGISTERED_PROTOCOL; NOT_120_NATURAL_PERIODS",
+        "collectionSource": "R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27",
+        "window": "PREREGISTERED_COMPLETE_SYNTHETIC_PROTOCOL",
+        "target": "报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收",
+        "supportingChecks": []
+      },
+      "routes": [
+        {
+          "issue": "R341-B09-05",
+          "cases": [
+            "R341-B09-05-A01",
+            "R341-B09-05-A02",
+            "R341-B09-05-A03"
+          ]
+        }
+      ]
+    }
+  ],
+  "chapter_actions": [
+    {
+      "source_locator": "R30_REPORT.json/chapters/0",
+      "sectionId": "R30_01",
+      "title": "第1章 胜率真相与独立样本",
+      "status": "INSUFFICIENT",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/1",
+      "sectionId": "R30_02",
+      "title": "第2章 进化与独立确认",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/2",
+      "sectionId": "R30_03",
+      "title": "第3章 运行与时延",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B04-03",
+          "cases": [
+            "R341-B04-03-T01",
+            "R341-B04-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/3",
+      "sectionId": "R30_04",
+      "title": "第4章 任务活性",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B03-03",
+          "cases": [
+            "R341-B03-03-T01",
+            "R341-B03-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/4",
+      "sectionId": "R30_05",
+      "title": "第5章 真实数据与时点边界",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B04-02",
+          "cases": [
+            "R341-B04-02-T01",
+            "R341-B04-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/5",
+      "sectionId": "R30_06",
+      "title": "第6章 十位置模型与校准",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B07-03",
+          "cases": [
+            "R341-B07-03-A01",
+            "R341-B07-03-A02",
+            "R341-B07-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/6",
+      "sectionId": "R30_07",
+      "title": "第7章 原子分子矩阵与能力",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/7",
+      "sectionId": "R30_08",
+      "title": "第8章 资格、证书与主链解释",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/8",
+      "sectionId": "R30_09",
+      "title": "第9章 升级连续性",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B06-01",
+          "cases": [
+            "R341-B06-01-A01",
+            "R341-B06-01-A02",
+            "R341-B06-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/9",
+      "sectionId": "R30_10",
+      "title": "第10章 消融与修复证据",
+      "status": "INSUFFICIENT",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/10",
+      "sectionId": "R30_11",
+      "title": "第11章 导出、存储与证据保留",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B10-02",
+          "cases": [
+            "A-B10-02a",
+            "A-B10-02b",
+            "A-B10-02c"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/11",
+      "sectionId": "R30_12",
+      "title": "第12章 实施、运行与验收差距",
+      "status": "INSUFFICIENT",
+      "collectionAction": "ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.",
+      "reason": "同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。",
+      "evidenceLevel": "DETACHED_SQLITE_READ_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    }
+  ],
+  "embedded_actions": [
+    {
+      "source_locator": "R30_REPORT.json/chapters/1/pairedImprovementChart",
+      "status": "INSUFFICIENT",
+      "source": "r27_generation.paired_lcb + immutable confirmation detail",
+      "collectionAction": "FrozenConfirmationStoreR30.generationReport：采集当前代/数据集/原taskKey的完成确认回执与父子配对原始证据，不重复计旧确认",
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/6/capabilityCoverageChart",
+      "status": "READY",
+      "source": "same captured capability registry",
+      "collectionAction": "CapabilityRegistryR30.all：对照原82对象与实际生产者/消费者；运行产出、模型数据依赖和有效证据另行采集，不以代码覆盖代替质量",
+      "routes": [
+        {
+          "issue": "R341-B11-03",
+          "cases": [
+            "A-B11-03a",
+            "A-B11-03b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/8/upgradeDiagnosisSources/ledger",
+      "status": "RECORDED_UNVALIDATED",
+      "reason": "已存来源记录，不能仅凭行数判定质量或改善",
+      "source": "su2_diag_state",
+      "collectionAction": "DiagnosisStoreSU2.report：导出同源 ledger_text 与 diagnosed_sequence，和升级快照对照",
+      "records": 1,
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/8/upgradeDiagnosisSources/snapshots",
+      "status": "RECORDED_UNVALIDATED",
+      "reason": "已存来源记录，不能仅凭行数判定质量或改善",
+      "source": "su2_diag_snapshot",
+      "collectionAction": "DiagnosisStoreSU2.maintain：采集真实已结算探针进度、最新快照序列和数据集；不补写诊断",
+      "records": 6,
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "routes": [
+        {
+          "issue": "R341-B08-04",
+          "cases": [
+            "R341-B08-04-A01",
+            "R341-B08-04-A02",
+            "R341-B08-04-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/9/ablationEvidence/model",
+      "status": "INSUFFICIENT",
+      "reason": "没有已存模型消融任务；不能宣称NN消融已完成",
+      "source": "su1_model_ablation",
+      "collectionAction": "ModelAblationStoreSU1.advanceOne：按原数据集与kernel继续原任务，保留checkpoint/frozen/report_hash；DONE后读取原报告配对结果",
+      "records": 0,
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/9/ablationEvidence/policy",
+      "status": "INSUFFICIENT",
+      "reason": "没有已存策略消融行；Q06同一期配对改善证据不足",
+      "source": "r27_ablation",
+      "collectionAction": "EvolutionLoopR27.stepPromote：采集同源champion/node/removed_child及原delta；父子同一期机会配对后验证单侧95%下界",
+      "records": 0,
+      "pairedImprovementLower95": null,
+      "qualityEffective": null,
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R30_REPORT.json/chapters/10/retention",
+      "status": "RECORDED_UNVALIDATED",
+      "collectionAction": "ResearchRetentionStoreR30.step：运行原retention任务，采集完整物理目录与同快照受保护归档/文件删除引用；缺测不填预算通过",
+      "routes": [
+        {
+          "issue": "R341-B10-02",
+          "cases": [
+            "A-B10-02a",
+            "A-B10-02b",
+            "A-B10-02c"
+          ]
+        }
+      ]
+    }
+  ],
+  "r26_sections": [
+    {
+      "source_locator": "R26_REPORT.json/sections/0",
+      "sectionId": "IDENTITY",
+      "title": "版本与原件",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "repoCommit",
+        "generatedHash",
+        "apkHash",
+        "snapshotHash",
+        "exportedAt"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B01-02",
+          "cases": [
+            "R341-B01-02-T01",
+            "R341-B01-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/1",
+      "sectionId": "R27_01_WIN_RATE_TRUTH",
+      "title": "胜率真相与差距",
+      "status": "INSUFFICIENT",
+      "reason": "实时影子池为空：尚无 FUTURE 样本；REPLAY/HOLDOUT 成绩不代表未来。",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "conclusion": "样本不足：FUTURE 已结算 0 期（最多的影子），需约 720+ 期才能判断（按当前效应估计；无优势时按序贯检验反向判退）。",
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/2",
+      "sectionId": "R27_02_EVOLUTION_TRUTH",
+      "title": "进化真实性",
+      "status": "INSUFFICIENT",
+      "reason": "尚无完成的进化代（r27_generation 为空）",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "reading": "verifiedImprovements 才代表变强；训练段/挑选段上升在打乱标签对照中同样会出现（docs/01 B/C）。",
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/3",
+      "sectionId": "R27_03_CONTINUOUS_RUNTIME",
+      "title": "持续运行与饥饿",
+      "status": "OBSERVED",
+      "reason": "数据自动生成",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B02-03",
+          "cases": [
+            "R341-B02-03-T01",
+            "R341-B02-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/4",
+      "sectionId": "R27_04_UPGRADE_CONTINUITY",
+      "title": "升级连续性",
+      "status": "INSUFFICIENT",
+      "reason": "尚无跨版本的语义等价记录（首次安装或检查未完成）",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B06-01",
+          "cases": [
+            "R341-B06-01-A01",
+            "R341-B06-01-A02",
+            "R341-B06-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/5",
+      "sectionId": "R29_12_ACCEPTANCE_GAPS",
+      "title": "R29.1 实施、运行与验收差距",
+      "status": "PARTIAL",
+      "reason": "52卡/44指标逐项验收；缺少回执不能作为0或PASS。设备长测和未来质量独立验收。",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/6",
+      "sectionId": "REQUIREMENTS",
+      "title": "历史要求保全",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "1832Legacy",
+        "299Cards",
+        "P001_P124",
+        "newCards",
+        "statusCounts"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B12-03",
+          "cases": [
+            "A-B12-03a",
+            "A-B12-03b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/7",
+      "sectionId": "DATA",
+      "title": "开奖与缺口",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "rowCount",
+        "permutationValidity",
+        "duplicates",
+        "gaps",
+        "dirty",
+        "firstSeen"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B10-04",
+          "cases": [
+            "A-B10-04a",
+            "A-B10-04b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/8",
+      "sectionId": "OPPORTUNITY",
+      "title": "全期机会与覆盖",
+      "status": "INSUFFICIENT",
+      "reason": "R27 data source is empty for this capture: SELECT count(*) AS targets,sum(scheduled) AS n_sched,sum(frozen) AS n_frozen,sum(acted) AS n_act,sum(settled) AS n_settled,sum(deadline_missed) AS deadline_missed FROM r27_opportunity HAVING count(*)>0",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "scheduled",
+        "eligible",
+        "frozen",
+        "late",
+        "abstain",
+        "real",
+        "missingReason"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B01-05",
+          "cases": [
+            "R341-B01-05-T01",
+            "R341-B01-05-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/9",
+      "sectionId": "FETCH",
+      "title": "抓取时序",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "request",
+        "response",
+        "upstreamPublished",
+        "validation",
+        "commit",
+        "rejectReason"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B04-06",
+          "cases": [
+            "R341-B04-06-T01",
+            "R341-B04-06-T02",
+            "R341-B04-06-T03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/10",
+      "sectionId": "SETTLEMENT",
+      "title": "正式结算",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "pending",
+        "completed",
+        "noPredraw",
+        "duplicate",
+        "conflictingDraw",
+        "owner"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B04-04",
+          "cases": [
+            "R341-B04-04-T01",
+            "R341-B04-04-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/11",
+      "sectionId": "FREEZE",
+      "title": "赛前冻结与延后证据",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "inputThrough",
+        "freezeTime",
+        "deadline",
+        "hash",
+        "deferredBlocks"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B04-04",
+          "cases": [
+            "R341-B04-04-T01",
+            "R341-B04-04-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/12",
+      "sectionId": "AUTHORITY",
+      "title": "主链资格与REAL",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "assetState",
+        "certificate",
+        "expiry",
+        "authorization",
+        "blockReason",
+        "nextTrigger"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/13",
+      "sectionId": "ATOMS",
+      "title": "原子世界",
+      "status": "INSUFFICIENT",
+      "reason": "R27 data source is empty for this capture: SELECT s.atom_id,s.state,s.n_select,s.gain_select,s.lcb_select,s.n_holdout,s.gain_holdout,s.lcb_holdout,s.missing_rate,s.derived,s.definition,c.n_periods AS contribution_periods,c.mean_gain AS paired_brier_gain,c.lcb95 AS paired_brier_lcb95_one_sided FROM r31_atom_score_visible s LEFT JOIN r31_atom_contribution_visible c ON c.atom_id=s.atom_id AND c.dataset_hash=s.dataset_hash ORDER BY s.derived,s.atom_index",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "registered",
+        "executed",
+        "trained",
+        "support",
+        "ablation",
+        "100Surfaces"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/14",
+      "sectionId": "FAMILIES",
+      "title": "24家族",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "mechanism",
+        "codeHash",
+        "updateState",
+        "performance",
+        "cost",
+        "status"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B06-02",
+          "cases": [
+            "R341-B06-02-A01",
+            "R341-B06-02-A02",
+            "R341-B06-02-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/15",
+      "sectionId": "EXPERTS",
+      "title": "16专家",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "task",
+        "proposal",
+        "ASTdiff",
+        "falsifier",
+        "experiment",
+        "acceptedReason"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B06-04",
+          "cases": [
+            "R341-B06-04-A01",
+            "R341-B06-04-A02",
+            "R341-B06-04-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/16",
+      "sectionId": "TRAINING",
+      "title": "持续训练与恢复",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "labelsConsumed",
+        "weightDelta",
+        "optimizer",
+        "checkpoint",
+        "CAS",
+        "lag"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B07-02",
+          "cases": [
+            "R341-B07-02-A01",
+            "R341-B07-02-A02",
+            "R341-B07-02-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/17",
+      "sectionId": "EVOLUTION",
+      "title": "代际与谱系",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "parent",
+        "child",
+        "NO_OP",
+        "attempted",
+        "structural",
+        "research",
+        "verified"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/18",
+      "sectionId": "FAILURES",
+      "title": "原九类失败树",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "rootCause",
+        "counterEvidence",
+        "hit0",
+        "delayHit",
+        "owner",
+        "repairCard"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B08-05",
+          "cases": [
+            "R341-B08-05-A01",
+            "R341-B08-05-A02",
+            "R341-B08-05-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/19",
+      "sectionId": "ABLATION",
+      "title": "消融与冲突",
+      "status": "INSUFFICIENT",
+      "reason": "R27 data source is empty for this capture: SELECT generation,champion_hash,node_index,removed_child,branch,delta_u,delta_logloss FROM r27_ablation ORDER BY generation DESC,node_index",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "variant",
+        "commonIssues",
+        "delta",
+        "interval",
+        "budget",
+        "allAttempts"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B08-07",
+          "cases": [
+            "R341-B08-07-A01",
+            "R341-B08-07-A02",
+            "R341-B08-07-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/20",
+      "sectionId": "EVIDENCE",
+      "title": "历史与自然证据",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "history",
+        "holdout",
+        "prospective",
+        "birth",
+        "exposure",
+        "alphaBudget"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B09-01",
+          "cases": [
+            "R341-B09-01-A01",
+            "R341-B09-01-A02",
+            "R341-B09-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/21",
+      "sectionId": "CALIBRATION",
+      "title": "概率与校准",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "selectedP",
+        "rawP",
+        "bins",
+        "ECE",
+        "Brier",
+        "matchedBaseline",
+        "uncertainty"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/22",
+      "sectionId": "RANKING",
+      "title": "Rank1/2/3",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "rankIdentity",
+        "hitRate",
+        "sample",
+        "MRR",
+        "NDCG",
+        "denominator"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B07-03",
+          "cases": [
+            "R341-B07-03-A01",
+            "R341-B07-03-A02",
+            "R341-B07-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/23",
+      "sectionId": "ACTION_SURFACE",
+      "title": "100面与1200动作",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "identity",
+        "probability",
+        "completeCount",
+        "checksum",
+        "nested7Stages"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B07-03",
+          "cases": [
+            "R341-B07-03-A01",
+            "R341-B07-03-A02",
+            "R341-B07-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/24",
+      "sectionId": "OWNER",
+      "title": "Owner红线",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "runtimeOwner",
+        "betOwner",
+        "settlementOwner",
+        "conflicts",
+        "activeReceipts"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B04-04",
+          "cases": [
+            "R341-B04-04-T01",
+            "R341-B04-04-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/25",
+      "sectionId": "PERFORMANCE",
+      "title": "资源与时延",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "P50",
+        "P95",
+        "P99",
+        "max",
+        "OOM",
+        "CPU",
+        "heap",
+        "writerWait",
+        "deadlineMiss"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B02-01",
+          "cases": [
+            "R341-B02-01-T01",
+            "R341-B02-01-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/26",
+      "sectionId": "BACKGROUND",
+      "title": "后台与活性",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "serviceBeat",
+        "businessBeat",
+        "screenState",
+        "fgsType",
+        "OSRestriction"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B05-03",
+          "cases": [
+            "R341-B05-03-T01"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/27",
+      "sectionId": "RETENTION",
+      "title": "淘汰与磁盘",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "rawDraws<=5000",
+        "pins",
+        "DB",
+        "WAL",
+        "models",
+        "reports",
+        "temp",
+        "GC"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B10-02",
+          "cases": [
+            "A-B10-02a",
+            "A-B10-02b",
+            "A-B10-02c"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/28",
+      "sectionId": "RECOVERY",
+      "title": "异常与恢复",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "crash",
+        "stall",
+        "IOError",
+        "lease",
+        "checkpoint",
+        "duplicates",
+        "recoveryResult"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B05-02",
+          "cases": [
+            "R341-B05-02-T01",
+            "R341-B05-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/29",
+      "sectionId": "UI",
+      "title": "界面与排行",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "sourceMapping",
+        "unknownLabels",
+        "chartConsistency",
+        "mainThreadCost"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B11-04",
+          "cases": [
+            "A-B11-04a",
+            "A-B11-04b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/30",
+      "sectionId": "SOURCE",
+      "title": "源码审计覆盖",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "filesIndexed",
+        "bodiesAvailable",
+        "reviewed",
+        "staticCalls",
+        "runtimeReceipts"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B01-02",
+          "cases": [
+            "R341-B01-02-T01",
+            "R341-B01-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/31",
+      "sectionId": "DEVICE",
+      "title": "真机矩阵",
+      "status": "NOT_RUN",
+      "reason": "真机设备矩阵（docs/12 12.3：V2353A/API34 + 另一品牌；亮屏/息屏/锁屏/充电/断网/覆盖安装/强杀/低内存/24小时）尚未执行；HOST 测试不能替代。",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "device",
+        "API",
+        "APKhash",
+        "scenario",
+        "logHash",
+        "result",
+        "openLimit"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B12-04",
+          "cases": [
+            "A-B12-04b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/32",
+      "sectionId": "CONCLUSION",
+      "title": "目标差距和修复",
+      "status": "PARTIAL",
+      "reason": "R27-01 data-selected conclusion template plus separate engineering/quality/mainline flags; never PASS",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "engineeringPass",
+        "qualityPass",
+        "coveragePass",
+        "mainlinePass",
+        "missingEvidence"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/33",
+      "sectionId": "POLICY_IDENTITY",
+      "title": "政策更新身份",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "policyHash",
+        "checkpointHash",
+        "parentCheckpoint",
+        "ruleHash",
+        "consumedThrough",
+        "newBirthReason"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B06-03",
+          "cases": [
+            "R341-B06-03-A01",
+            "R341-B06-03-A02",
+            "R341-B06-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/34",
+      "sectionId": "AVAILABILITY",
+      "title": "数据可见时间",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "firstSeen",
+        "upstreamKnown",
+        "freezeCutoff",
+        "clockState",
+        "lateLabelCount"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B04-02",
+          "cases": [
+            "R341-B04-02-T01",
+            "R341-B04-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/35",
+      "sectionId": "EXPERIMENT_LEDGER",
+      "title": "研究实验总账",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "attempted",
+        "failed",
+        "noOp",
+        "cpuSeconds",
+        "hypothesis",
+        "falsifier",
+        "allSeeds"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B09-01",
+          "cases": [
+            "R341-B09-01-A01",
+            "R341-B09-01-A02",
+            "R341-B09-01-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/36",
+      "sectionId": "TEST_BUDGET",
+      "title": "检验预算",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "cohort",
+        "evidenceDigest",
+        "look",
+        "alphaReserved",
+        "deduplicated",
+        "precheckReason"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B09-03",
+          "cases": [
+            "R341-B09-03-A01",
+            "R341-B09-03-A02",
+            "R341-B09-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/37",
+      "sectionId": "PUBLICATION_RECOVERY",
+      "title": "发布恢复",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "prepared",
+        "committed",
+        "active",
+        "casVersion",
+        "crashPoint",
+        "recovery"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B07-03",
+          "cases": [
+            "R341-B07-03-A01",
+            "R341-B07-03-A02",
+            "R341-B07-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/38",
+      "sectionId": "BUILD_IDENTITY",
+      "title": "构建物身份",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "checkout",
+        "tree",
+        "generated",
+        "apk",
+        "signature",
+        "applicationId",
+        "versionCode",
+        "machineResults"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B12-01",
+          "cases": [
+            "A-B12-01a",
+            "A-B12-01b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/39",
+      "sectionId": "SUPPLY_CHAIN",
+      "title": "供应链清单",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "dependencyLock",
+        "license",
+        "origin",
+        "hash",
+        "auditStatus"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B12-06",
+          "cases": [
+            "A-B12-06a",
+            "A-B12-06b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/40",
+      "sectionId": "SLO_BUDGET",
+      "title": "SLO误差预算",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "metric",
+        "window",
+        "n",
+        "p95",
+        "p99",
+        "deadlineMisses",
+        "device",
+        "os",
+        "targetSdk"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B05-03",
+          "cases": [
+            "R341-B05-03-T01"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/41",
+      "sectionId": "MERGE",
+      "title": "双方案覆盖与冲突",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "sourceAHash",
+        "sourceBHash",
+        "A32",
+        "B32",
+        "R2448",
+        "R2616",
+        "unmapped",
+        "conflicts"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B12-03",
+          "cases": [
+            "A-B12-03a",
+            "A-B12-03b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/42",
+      "sectionId": "CONTINUOUS_RUNTIME",
+      "title": "持续运行与调度",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "session",
+        "blockedReason",
+        "resumeLatency",
+        "criticalDuration",
+        "lastActualProgress",
+        "chargingTelemetryOnly"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B05-01",
+          "cases": [
+            "R341-B05-01-T01",
+            "R341-B05-01-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/43",
+      "sectionId": "FAIR_CAPABILITY_SERVICE",
+      "title": "全家族专家防饥饿",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "familyService40",
+        "cpuMs",
+        "cursorDelta",
+        "oldestReadyAge",
+        "lag",
+        "missedServiceWindow",
+        "enabledButNeverRun"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B02-03",
+          "cases": [
+            "R341-B02-03-T01",
+            "R341-B02-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "R26_REPORT.json/sections/44",
+      "sectionId": "LOSSLESS_IDENTITY",
+      "title": "无损身份与缺陷回归",
+      "status": "PARTIAL",
+      "reason": "Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation",
+      "evidenceLevel": "ANDROID_DATABASE_SNAPSHOT",
+      "requiredMetrics": [
+        "protocolVersion",
+        "goldenVectors",
+        "legacyMapping",
+        "floatCollision",
+        "pairedLowerRegression",
+        "NO_OPRegression"
+      ],
+      "routes": [
+        {
+          "issue": "R341-B06-01",
+          "cases": [
+            "R341-B06-01-A01",
+            "R341-B06-01-A02",
+            "R341-B06-01-A03"
+          ]
+        }
+      ]
+    }
+  ],
+  "r26_finding_actions": [
+    {
+      "source_locator": "R26_REPORT.json/sections/5/findings/0",
+      "card": "R29-036",
+      "code": "LiveShadowsR27.certify → GateV2R29.record",
+      "evidence": "no R29_GATE_V2 evaluation recorded (no ACTIVE live shadow or certify not run)",
+      "id": "R29F-GATEV2-NOT-RUN",
+      "refutedBy": "r29_gate_v2 rows after the next certify pass",
+      "severity": "UNKNOWN",
+      "strength": "UNKNOWN",
+      "verification": "export after one live period with an ACTIVE shadow",
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    }
+  ],
+  "report_text_sources": [
+    {
+      "source_locator": "report-text-03b1733663e30cd8a02db70b866821d43a0e56a454467ac2a4b07efae79f7b2e.txt",
+      "subject": "R967登记与正式实验统计",
+      "sha256": "03b1733663e30cd8a02db70b866821d43a0e56a454467ac2a4b07efae79f7b2e",
+      "catalog_direct_references": [
+        "RSEC-011"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B11-02",
+          "cases": [
+            "A-B11-02a",
+            "A-B11-02b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-1ac48e379c8c1cabf8defda2f375d05a7ecac1246bb3ddf0b130b6fbb6dec6c8.txt",
+      "subject": "逐期生产fallback与正式授权",
+      "sha256": "1ac48e379c8c1cabf8defda2f375d05a7ecac1246bb3ddf0b130b6fbb6dec6c8",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B09-04",
+          "cases": [
+            "R341-B09-04-A01",
+            "R341-B09-04-A02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-1d74ec58c6c9aa3077c6a8f71b4e768c666bac724a5866455890e762169f1bc7.txt",
+      "subject": "R975运行断点定位",
+      "sha256": "1d74ec58c6c9aa3077c6a8f71b4e768c666bac724a5866455890e762169f1bc7",
+      "catalog_direct_references": [
+        "RSEC-001"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B11-03",
+          "cases": [
+            "A-B11-03a",
+            "A-B11-03b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-4da09317462eaee802f35cfa2b7f76b1bf5ce182778b7681cc1de09bda5da287.txt",
+      "subject": "R970历史资产库存及状态",
+      "sha256": "4da09317462eaee802f35cfa2b7f76b1bf5ce182778b7681cc1de09bda5da287",
+      "catalog_direct_references": [
+        "RSEC-005"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B11-02",
+          "cases": [
+            "A-B11-02a",
+            "A-B11-02b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-7506a2026dee6f21347fa97834541fe9faa10068ac1aed8e4ec16913bd3471f6.txt",
+      "subject": "统一软件运行状态",
+      "sha256": "7506a2026dee6f21347fa97834541fe9faa10068ac1aed8e4ec16913bd3471f6",
+      "catalog_direct_references": [
+        "RSEC-010"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B11-02",
+          "cases": [
+            "A-B11-02a",
+            "A-B11-02b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-8357e49ef7f45cb325fee3988aaadd6b3f19bd4fac206bdeacc37d48598a3f1b.txt",
+      "subject": "CP12十四阶段业务漏斗",
+      "sha256": "8357e49ef7f45cb325fee3988aaadd6b3f19bd4fac206bdeacc37d48598a3f1b",
+      "catalog_direct_references": [
+        "RSEC-307",
+        "RSEC-309"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B11-05",
+          "cases": [
+            "A-B11-05a",
+            "A-B11-05b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-8411b545735f717753b59f7fb2908e7a0d066a0676bac4b73c7d87cd348123dd.txt",
+      "subject": "逐请求接收与源发布时间",
+      "sha256": "8411b545735f717753b59f7fb2908e7a0d066a0676bac4b73c7d87cd348123dd",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B04-06",
+          "cases": [
+            "R341-B04-06-T01",
+            "R341-B04-06-T02",
+            "R341-B04-06-T03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-8ebe303fbc14db024724a8f60780ec3bc36ab6d08a934a58adb3f2d16b2e9c28.txt",
+      "subject": "冷/热路径实测时延",
+      "sha256": "8ebe303fbc14db024724a8f60780ec3bc36ab6d08a934a58adb3f2d16b2e9c28",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B05-03",
+          "cases": [
+            "R341-B05-03-T01"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-905c4941ae3276c0d68d0370fd583a4c1f89ed2979b16fc4b58d05bc17ce87f5.txt",
+      "subject": "R925静态、实测与历史施工卡",
+      "sha256": "905c4941ae3276c0d68d0370fd583a4c1f89ed2979b16fc4b58d05bc17ce87f5",
+      "catalog_direct_references": [
+        "RSEC-018"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B11-02",
+          "cases": [
+            "A-B11-02a",
+            "A-B11-02b"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-9a2c2945af5c52d2d261d13a8bd75089e732d80112dc08daf19daa5ac6cbc0f6.txt",
+      "subject": "原子组网络研究更新",
+      "sha256": "9a2c2945af5c52d2d261d13a8bd75089e732d80112dc08daf19daa5ac6cbc0f6",
+      "catalog_direct_references": [
+        "RSEC-007"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B07-02",
+          "cases": [
+            "R341-B07-02-A01",
+            "R341-B07-02-A02",
+            "R341-B07-02-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-a449b9b1b161fb3633445ec554e125f59268049535c90b39720aca0ed93de123.txt",
+      "subject": "深度网络、旧FTRL与模型使用分栏",
+      "sha256": "a449b9b1b161fb3633445ec554e125f59268049535c90b39720aca0ed93de123",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B07-03",
+          "cases": [
+            "R341-B07-03-A01",
+            "R341-B07-03-A02",
+            "R341-B07-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-a7c8c90733022e2df73a3b9de4d59cb010b5dd682e7584486a1e5b809a7c9d37.txt",
+      "subject": "数据脏行与可见时点",
+      "sha256": "a7c8c90733022e2df73a3b9de4d59cb010b5dd682e7584486a1e5b809a7c9d37",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B04-02",
+          "cases": [
+            "R341-B04-02-T01",
+            "R341-B04-02-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-be34e7929277447923a4e00289f84c766d005363ee2645329d5fa5da01999b41.txt",
+      "subject": "原子、分子、固定受保护资产",
+      "sha256": "be34e7929277447923a4e00289f84c766d005363ee2645329d5fa5da01999b41",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B08-03",
+          "cases": [
+            "R341-B08-03-A01",
+            "R341-B08-03-A02",
+            "R341-B08-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-c0b455af2ff0a5cbb513ea2dbea6834cc840bcdcdc99ab7a422a28fd135158cb.txt",
+      "subject": "逐目标业务水位",
+      "sha256": "c0b455af2ff0a5cbb513ea2dbea6834cc840bcdcdc99ab7a422a28fd135158cb",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B04-04",
+          "cases": [
+            "R341-B04-04-T01",
+            "R341-B04-04-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-c4f6b2cbb793cadf2af5ee2bd05c86e61213f0b910da5b01c7c7cef60050c03c.txt",
+      "subject": "资源预算与研究服务能力",
+      "sha256": "c4f6b2cbb793cadf2af5ee2bd05c86e61213f0b910da5b01c7c7cef60050c03c",
+      "catalog_direct_references": [
+        "RSEC-022"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B02-03",
+          "cases": [
+            "R341-B02-03-T01",
+            "R341-B02-03-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-cc5a9225d7a0dc14c293ae33211fd62f5e1cc81731160a7b63759a337b3d82a2.txt",
+      "subject": "B05近120次资源测量",
+      "sha256": "cc5a9225d7a0dc14c293ae33211fd62f5e1cc81731160a7b63759a337b3d82a2",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B02-01",
+          "cases": [
+            "R341-B02-01-T01",
+            "R341-B02-01-T02"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-f3a35297c31183ffa861653d7c9a539c7536f926ec995482ce29608d5520e00c.txt",
+      "subject": "创生/算法/公式与十四维护任务",
+      "sha256": "f3a35297c31183ffa861653d7c9a539c7536f926ec995482ce29608d5520e00c",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B06-03",
+          "cases": [
+            "R341-B06-03-A01",
+            "R341-B06-03-A02",
+            "R341-B06-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-f8d86637213f011595dc9d7c942b3c8799b544cf088f8a1ad42f9f4293713b50.txt",
+      "subject": "240个原子身份及角色",
+      "sha256": "f8d86637213f011595dc9d7c942b3c8799b544cf088f8a1ad42f9f4293713b50",
+      "catalog_direct_references": [
+        "RSEC-016"
+      ],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B06-03",
+          "cases": [
+            "R341-B06-03-A01",
+            "R341-B06-03-A02",
+            "R341-B06-03-A03"
+          ]
+        }
+      ]
+    },
+    {
+      "source_locator": "report-text-f9e8ede4aa185668886765aef2d7186e5e6db546ff8a90924798a7faee2c0b08.txt",
+      "subject": "数据库模式索引与运行能力分层",
+      "sha256": "f9e8ede4aa185668886765aef2d7186e5e6db546ff8a90924798a7faee2c0b08",
+      "catalog_direct_references": [],
+      "scope": "辅助原件；来源与对象角色决定结论；重复页面引用沿用同一事实。",
+      "routes": [
+        {
+          "issue": "R341-B03-02",
+          "cases": [
+            "R341-B03-02-T01",
+            "R341-B03-02-T02"
+          ]
+        }
+      ]
+    }
+  ],
+  "probe_protocol": {
+    "source_locator": "DIAGNOSTIC_SCOPE.json/multiHorizonProbeResearch",
+    "archivePolicy": "VERIFIED_CAS_BEYOND_5000;KEEP_PENDING_REFERENCES_AND_LAST48_SETTLED_PER_HORIZON;AUDIT_LOCATORS_RETAIN_ORIGINAL_BYTES",
+    "archivedOriginalPages": 0,
+    "comparisonPolicy": "FIXED_HORIZONS_THRESHOLD_AND_RESIDUAL_STRATA;NO_RETROSPECTIVE_SELECTION",
+    "correlatedHorizonsAreIndependentSamples": false,
+    "diagnosticWindowPerHorizon": 48,
+    "efficacy": "NOT_PROVEN",
+    "firstObservedAnchor": "202611240132",
+    "gapMeaning": "EXPECTED_SCHEDULE_NO_CAPTURE_RECEIPT_NOT_BACKFILLED",
+    "historyRetentionLimit": 5000,
+    "latestConfirmedAnchor": "202611240604",
+    "mayCreateReal": false,
+    "metricScope": "RETAINED_HOT_ORIGINALS_AND_PENDING;NOT_LIFETIME_METRICS",
+    "observedOpportunityTargets": 1,
+    "probabilityEncoding": "JAVA_HEX_DOUBLE_EXACT_RAW_NOT_CALIBRATED",
+    "probabilityKind": "RAW_NOT_CALIBRATED",
+    "promotion": "NOT_GRANTED",
+    "protocol": "R80_PROBE_V1|game=Binance1-PK10|windows=48,240,960|h=1,2,4,8|alpha=1|weights=equal|position=1|K=3|threshold=0.40|consensus=equal_same_target|residual=prior_settled_48_per_h|baseline=fixed123|NO_REAL_NO_CALIBRATION_NO_TRAINING",
+    "protocolHash": "545bebdf82bd54e083bb1c3005c6ef32c99534f7e0b7a85934e26fb3f6c7f704",
+    "role": "PROBE_RESEARCH_ONLY_NOT_FORMAL",
+    "scheduledTargetsSinceFirstObservedAnchor": 473,
+    "separateTargetDenominators": {
+      "fixedSameTargetConsensus": {
+        "brierRawNotCalibrated": null,
+        "fixed123BaselineBrierSameTargets": null,
+        "fixed123BaselineHitsSameTargets": 0,
+        "frozenTargets": 0,
+        "hitRate": null,
+        "hits": 0,
+        "pendingTargets": 0,
+        "predeclaredPriorResidualStrata": {
+          "PRIOR_MEAN_RESIDUAL_NONPOSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "PRIOR_MEAN_RESIDUAL_POSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "UNAVAILABLE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          }
+        },
+        "rejectedTargets": 0,
+        "settledTargets": 0,
+        "threshold040CoverageOfSettledTargets": null,
+        "threshold040HitRate": null,
+        "threshold040Hits": 0,
+        "threshold040SettledTargets": 0
+      },
+      "h1": {
+        "brierRawNotCalibrated": null,
+        "fixed123BaselineBrierSameTargets": null,
+        "fixed123BaselineHitsSameTargets": 0,
+        "frozenTargets": 0,
+        "hitRate": null,
+        "hits": 0,
+        "pendingTargets": 0,
+        "predeclaredPriorResidualStrata": {
+          "PRIOR_MEAN_RESIDUAL_NONPOSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "PRIOR_MEAN_RESIDUAL_POSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "UNAVAILABLE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          }
+        },
+        "rejectedTargets": 0,
+        "settledTargets": 0,
+        "threshold040CoverageOfSettledTargets": null,
+        "threshold040HitRate": null,
+        "threshold040Hits": 0,
+        "threshold040SettledTargets": 0
+      },
+      "h2": {
+        "brierRawNotCalibrated": null,
+        "fixed123BaselineBrierSameTargets": null,
+        "fixed123BaselineHitsSameTargets": 0,
+        "frozenTargets": 0,
+        "hitRate": null,
+        "hits": 0,
+        "pendingTargets": 0,
+        "predeclaredPriorResidualStrata": {
+          "PRIOR_MEAN_RESIDUAL_NONPOSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "PRIOR_MEAN_RESIDUAL_POSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "UNAVAILABLE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          }
+        },
+        "rejectedTargets": 0,
+        "settledTargets": 0,
+        "threshold040CoverageOfSettledTargets": null,
+        "threshold040HitRate": null,
+        "threshold040Hits": 0,
+        "threshold040SettledTargets": 0
+      },
+      "h4": {
+        "brierRawNotCalibrated": null,
+        "fixed123BaselineBrierSameTargets": null,
+        "fixed123BaselineHitsSameTargets": 0,
+        "frozenTargets": 0,
+        "hitRate": null,
+        "hits": 0,
+        "pendingTargets": 0,
+        "predeclaredPriorResidualStrata": {
+          "PRIOR_MEAN_RESIDUAL_NONPOSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "PRIOR_MEAN_RESIDUAL_POSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "UNAVAILABLE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          }
+        },
+        "rejectedTargets": 0,
+        "settledTargets": 0,
+        "threshold040CoverageOfSettledTargets": null,
+        "threshold040HitRate": null,
+        "threshold040Hits": 0,
+        "threshold040SettledTargets": 0
+      },
+      "h8": {
+        "brierRawNotCalibrated": null,
+        "fixed123BaselineBrierSameTargets": null,
+        "fixed123BaselineHitsSameTargets": 0,
+        "frozenTargets": 0,
+        "hitRate": null,
+        "hits": 0,
+        "pendingTargets": 0,
+        "predeclaredPriorResidualStrata": {
+          "PRIOR_MEAN_RESIDUAL_NONPOSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "PRIOR_MEAN_RESIDUAL_POSITIVE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          },
+          "UNAVAILABLE": {
+            "hitRate": null,
+            "hits": 0,
+            "settledTargets": 0
+          }
+        },
+        "rejectedTargets": 0,
+        "settledTargets": 0,
+        "threshold040CoverageOfSettledTargets": null,
+        "threshold040HitRate": null,
+        "threshold040Hits": 0,
+        "threshold040SettledTargets": 0
+      }
+    },
+    "sourceCodeHash": "dc835c0f076c26f021a4cc8e1a19d2e1b59e9c5242368c58a4acce7e3275134a",
+    "status": "READ_OK",
+    "unrecordedGapTargets": 472,
+    "routes": [
+      {
+        "issue": "R341-B04-05",
+        "cases": [
+          "R341-B04-05-T01",
+          "R341-B04-05-T02"
+        ]
+      }
+    ]
+  },
+  "strategy_assessment": {
+    "source_locator": "R26_REPORT.json/strategyAssessment",
+    "scope": "CAPTURED_DATABASE_EVIDENCE; NO_GUARANTEE_OF_HIGH_HIT_RATE_OR_MONOTONIC_EVOLUTION",
+    "requiredCalendarOpportunities": 69120,
+    "independentOpportunityUnit": "ONE_SCHEDULED_ISSUE_NOT_100_CELLS_OR_1200_ACTIONS",
+    "failureDirectedResearch": {
+      "scope": "FAILED_LOOK_GUIDED_FRESH_RESEARCH; REGISTRATION_AND_TRAINING_DO_NOT_GRANT_QUALITY",
+      "installed": true,
+      "totalBatches": 0,
+      "batches": [],
+      "omittedBatches": 0
+    },
+    "evolution": {
+      "attempts": 50,
+      "structural": 10,
+      "researchAccepted": 0,
+      "qualificationAssertions": 0,
+      "improvementAssertions": 0,
+      "scope": "PERSISTED_LEDGER_ASSERTIONS_ACROSS_RETAINED_SOURCES; NO_NEW_REAUDIT_OR_PER_GENERATION_GAIN_INFERRED"
+    },
+    "authorityGranted": false,
+    "totalPolicies": 0,
+    "routes": [
+      {
+        "issue": "R341-B08-05",
+        "cases": [
+          "R341-B08-05-A01",
+          "R341-B08-05-A02",
+          "R341-B08-05-A03"
+        ]
+      }
+    ]
+  }
+}
