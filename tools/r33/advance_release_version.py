@@ -22,6 +22,7 @@ FILES=('release/release_manifest.json','release/release_identity.properties',
        'app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java',
        'verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java')
 STAGES=('P00',*(f'B{i:02d}' for i in range(1,9)))
+FIELD_FLOORS={'R34.1':577311122,'R34.2':577311152}
 
 
 def require(ok,message):
@@ -66,14 +67,14 @@ def atomic(path,data):
 def prepare(repo,journal,installed_version,stage,day,series='R33.5', published_version=None):
     repo=Path(repo).resolve();journal=Path(journal).absolute()
     require(type(installed_version) is int and installed_version>0,'POSITIVE_INSTALLED_VERSION_REQUIRED')
-    require(series in ('R33.5','R34','R34.1'),'KNOWN_RELEASE_SERIES_REQUIRED')
-    if series == 'R34.1':
-        require(type(published_version) is int and published_version >= 577311122,
-                'R341_PUBLISHED_VERSION_LOWER_BOUND_REQUIRED')
+    require(series in ('R33.5','R34',*FIELD_FLOORS),'KNOWN_RELEASE_SERIES_REQUIRED')
+    if series in FIELD_FLOORS:
+        require(type(published_version) is int and published_version >= FIELD_FLOORS[series],
+                series.replace('.','')+'_PUBLISHED_VERSION_LOWER_BOUND_REQUIRED')
     else:
         require(published_version is None or (type(published_version) is int and published_version > 0),
                 'POSITIVE_PUBLISHED_VERSION_REQUIRED')
-    first = 1 if series == 'R34.1' else 0
+    first = 1 if series in FIELD_FLOORS else 0
     stages = STAGES if series == 'R33.5' else tuple(f'B{i:02d}' for i in range(first, 13))
     require(stage in stages,'KNOWN_STAGE_REQUIRED')
     datetime.date.fromisoformat(day)
@@ -82,7 +83,7 @@ def prepare(repo,journal,installed_version,stage,day,series='R33.5', published_v
     gen=generator(repo);current=gen.load()
     require(type(current['versionCode']) is int,'INTEGER_CURRENT_VERSION_REQUIRED')
     version=max(current['versionCode'],installed_version,published_version or 0,
-                577311122 if series == 'R34.1' else 577311033)+1
+                FIELD_FLOORS.get(series,577311033))+1
     require(version<=2100000000,'ANDROID_VERSION_CODE_LIMIT')
     new=json.loads(json.dumps(current));new['versionCode']=version
     new['versionName']=f'{series}-{stage}-{day}-{version}'
@@ -163,9 +164,9 @@ def main():
     parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
     parser.add_argument('--journal',type=Path,required=True)
     parser.add_argument('--stage')
-    parser.add_argument('--series',choices=['R33.5','R34','R34.1'],default='R33.5')
+    parser.add_argument('--series',choices=('R33.5','R34',*FIELD_FLOORS),default='R33.5')
     parser.add_argument('--installed-version',type=int)
-    parser.add_argument('--published-version',type=int,help='Highest observed published version, required for R34.1')
+    parser.add_argument('--published-version',type=int,help='Highest observed published version, required for R34.1 and R34.2')
     parser.add_argument('--date',default=datetime.datetime.now(ZoneInfo('Asia/Shanghai')).date().isoformat())
     parser.add_argument('--apply',action='store_true')
     parser.add_argument('--resume',action='store_true')

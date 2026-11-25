@@ -205,13 +205,15 @@ def verify_plan(plan, binding):
 
 def release_owner(repo, directory):
     from importlib.util import module_from_spec, spec_from_file_location
-    spec = spec_from_file_location(directory + '_build_identity', repo/'tools'/directory/'build_identity.py')
+    path = safe(repo, f'tools/{directory}/build_identity.py')
+    require(path.is_file(), directory.upper()+'_BUILD_IDENTITY_OWNER_REQUIRED')
+    spec = spec_from_file_location(directory + '_build_identity', path)
     owner = module_from_spec(spec)
     spec.loader.exec_module(owner)
     return owner
 
 
-def identity(repo, plan, binding_file, require_clean=False, *, r34_plan=None, r341_plan=None):
+def identity(repo, plan, binding_file, require_clean=False, *, r34_plan=None, r341_plan=None, r342_plan=None):
     repo=Path(repo).resolve();binding=read(binding_file)
     result=verify_plan(plan,binding)
     require(Path(git(repo,'rev-parse','--show-toplevel').decode().strip()).resolve()==repo,'ACTUAL_REPOSITORY_ROOT_REQUIRED')
@@ -229,17 +231,23 @@ def identity(repo, plan, binding_file, require_clean=False, *, r34_plan=None, r3
     release = read(repo/'release/release_manifest.json')
     version_name = release['versionName']
     has_prior_binding = (repo/'release/r34_plan_binding.json').exists()
-    if version_name.startswith('R34.1-'):
+    if version_name.startswith(('R34.1-', 'R34.2-')):
         prior = release_owner(repo, 'r34').verify_seal(repo, head, r34_plan)
-        result['r341'] = release_owner(repo, 'r341').identity(
-            repo, head, result['source_tree'], release, r341_plan,
-            legacy_plan_seals={'r33_5': dict(planRevision=result['planRevision'],
-                                            planSha256=result['plan_manifest_sha256']),
-                               'r34': prior})
+        legacy = {'r33_5': dict(planRevision=result['planRevision'],
+                               planSha256=result['plan_manifest_sha256']), 'r34': prior}
+        if version_name.startswith('R34.2-'):
+            legacy['r341'] = release_owner(repo, 'r341').verify_seal(repo, head, r341_plan)
+            result['r342'] = release_owner(repo, 'r342').identity(
+                repo, head, result['source_tree'], release, r342_plan, legacy_plan_seals=legacy)
+        else:
+            result['r341'] = release_owner(repo, 'r341').identity(
+                repo, head, result['source_tree'], release, r341_plan, legacy_plan_seals=legacy)
     elif version_name.startswith('R34-') or has_prior_binding:
         result['r34'] = release_owner(repo, 'r34').identity(repo, head, result['source_tree'], release, r34_plan)
-    require(not (repo/'release/r341_plan_binding.json').exists() or 'r341' in result,
+    require(not (repo/'release/r341_plan_binding.json').exists() or 'r341' in result or 'r342' in result,
             'R341_BOUND_SOURCE_REQUIRES_RELEASE_SERIES')
+    require(not (repo/'release/r342_plan_binding.json').exists() or 'r342' in result,
+            'R342_BOUND_SOURCE_REQUIRES_RELEASE_SERIES')
     return result
 
 
@@ -257,6 +265,7 @@ def main():
     parser.add_argument('--plan',type=Path,default=os.environ.get('STARCORE_R33_PLAN_ROOT'))
     parser.add_argument('--r34-plan',type=Path,help='Sealed R34 directory, defaults to STARCORE_R34_PLAN_ROOT')
     parser.add_argument('--r341-plan',type=Path,help='Sealed R34.1 directory, defaults to STARCORE_R341_PLAN_ROOT')
+    parser.add_argument('--r342-plan',type=Path,help='Sealed R34.2 directory, defaults to STARCORE_R342_PLAN_ROOT')
     parser.add_argument('--binding',type=Path)
     parser.add_argument('--init-binding',action='store_true',help='Write a new, reviewable pin from an already validated sealed plan; never overwrite.')
     parser.add_argument('--require-clean',action='store_true')
@@ -272,7 +281,8 @@ def main():
         binding.parent.mkdir(parents=True,exist_ok=True)
         with binding.open('x',encoding='utf-8') as f:json.dump(value,f,indent=2,sort_keys=True);f.write('\n')
         print(json.dumps({'status':'NEW_REVIEWABLE_PIN_CREATED','file':str(binding),'sha256':sha(binding)}));return
-    result=identity(args.repo,args.plan,binding,args.require_clean,r34_plan=args.r34_plan,r341_plan=args.r341_plan)
+    result=identity(args.repo,args.plan,binding,args.require_clean,r34_plan=args.r34_plan,
+                    r341_plan=args.r341_plan,r342_plan=args.r342_plan)
     if args.out:write_json(args.out,result)
     else:print(json.dumps(result,ensure_ascii=False,indent=2))
 

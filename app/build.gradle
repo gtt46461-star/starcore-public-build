@@ -394,6 +394,8 @@ if (r335Descriptor.schema != 'STARCORE_PLAN_DESCRIPTOR_1' ||
 }
 def r334IdentityArgs = ['python3', rootProject.file('tools/r33/verify_plan_binding.py').absolutePath,
                        '--repo', rootProject.projectDir.absolutePath, '--plan', r334PlanRoot]
+def r342PlanRoot = providers.environmentVariable('STARCORE_R342_PLAN_ROOT').orNull
+if (r342PlanRoot) r334IdentityArgs += ['--r342-plan', r342PlanRoot]
 if (requestedRelease) r334IdentityArgs += ['--require-clean']
 def generateR334PlanIdentity = tasks.register('generateR334PlanIdentity', Exec) {
     workingDir rootProject.projectDir
@@ -401,7 +403,7 @@ def generateR334PlanIdentity = tasks.register('generateR334PlanIdentity', Exec) 
     doLast {
         def dir = layout.buildDirectory.dir('generated/assets/r334/diagnostics').get().asFile
         def identity = new groovy.json.JsonSlurper().parse(new File(dir, 'build-identity-r334.json'))
-        ['r34', 'r341'].each { series ->
+        ['r34', 'r341', 'r342'].each { series ->
             def asset = new File(dir, "build-identity-${series}.json")
             if (identity[series]) asset.setText(groovy.json.JsonOutput.toJson(identity[series]), 'UTF-8')
             else project.delete(asset)
@@ -417,7 +419,7 @@ def verifyFinalR334PlanIdentity = tasks.register('verifyFinalR334PlanIdentity') 
         }.standardOutput.asText.get())
         def embedded = new groovy.json.JsonSlurper().parse(layout.buildDirectory.file('generated/assets/r334/diagnostics/build-identity-r334.json').get().asFile)
         if (actual != embedded) throw new GradleException('R334_BUILD_INPUT_CHANGED')
-        ['r34', 'r341'].each { series ->
+        ['r34', 'r341', 'r342'].each { series ->
             def asset = layout.buildDirectory.file("generated/assets/r334/diagnostics/build-identity-${series}.json").get().asFile
             if (asset.isFile() != actual.containsKey(series) ||
                     (asset.isFile() && new groovy.json.JsonSlurper().parse(asset) != actual[series])) {

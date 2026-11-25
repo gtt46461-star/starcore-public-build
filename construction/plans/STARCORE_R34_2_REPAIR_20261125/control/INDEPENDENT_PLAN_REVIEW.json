@@ -1,0 +1,224 @@
+{
+  "schema": "R342_PLAN_SOURCE_FINAL_REVIEW_1",
+  "reviewer": "/root/plan_source_audit",
+  "status": "PASS_WITH_SCOPE_LIMITS",
+  "scope": "只读审阅方案、固定152源码调用/方法/schema合同；本review只修改audit审阅产物。",
+  "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+  "source_git_tree": "eb3eec742a195c77b50b9a4ae051165bba9ba420",
+  "plan_publication_baseline": "2b0177b77fa5f6079da27c915201b95b8bdcef20",
+  "reviewed_file_sha256": {
+    "CONSTRUCTION_PLAN.md": "cae66d887afb7565268862f4cf2f41544e5573d662340ee50a6249097898f547",
+    "CODEX_EXECUTE.md": "0104cc2be3b7caa47d7ace3ef1d1b2c6889064cb38cbfb37c66ed9c8d3b39fc0",
+    "ISSUES.json": "397a2465857183038e6dbde613e441f016ea7f1ff5ff41adde7d4801a2770d8e",
+    "ACCEPTANCE_MATRIX.json": "18f5d99d46694891fb4185deeb9c48ba5fb5c0d6f46889abd764c6231547eb74",
+    "FILE_CARDS.json": "4586ef16e116e3c4a898267a2a7aa127985529df438e12b112e64f7cb920cd7a",
+    "control/PLAN_IDENTITY.json": "ef0d561d699871ce6a6a409426335cbaa0540c84b84ce96736bc4dd219b9b599",
+    "specs/ACCEPTANCE_AND_STATUS.md": "912bd0dc29ed55feb550f53731db21b620d1fcd44fa58c5d0f56691a436ec50b",
+    "specs/CERTIFICATE_DOMAINS.md": "331a9a48613f038b702e2e0c1f92e988bbe6230b8641ca8d6823a70543493ed6",
+    "specs/MAINLINE.md": "ebd5a461d6e274294e3eb3624064e35f65a05ffc21c433479b505ecc6432454d",
+    "specs/PRESERVATION.md": "511db6e25da505049b584a68331e8f10b609f701b762f87d0aaa311d027b399c",
+    "specs/TYPED_GENERATION_RULE.md": "ca6d3c56f34d8961c85341346d611e59e26bbda9a7a0255622de0a3029a67f84"
+  },
+  "review_snapshot_sha256": "f0a71af67bb28cf0ded2c944618833264e3af6b6b525e2c5409b47efcded81d0",
+  "review_snapshot_hash_scope": "仅本终审11个核心文档的path→sha256规范映射；不是后续全计划manifest封印或发布commit。",
+  "unresolved_content_conflicts_in_reviewed_scope": false,
+  "counts": {
+    "issues": 57,
+    "file_cards": 137,
+    "unique_file_paths": 137,
+    "new_acceptance_cases": 57,
+    "old_work_orders": 62,
+    "old_acceptance_cases": 152,
+    "old_file_cards": 295,
+    "old_unique_paths": 294
+  },
+  "findings": [
+    {
+      "id": "PSF-01",
+      "status": "PASS",
+      "title": "应用152与计划维护main明确分离",
+      "evidence": [
+        "CONSTRUCTION_PLAN.md 固定身份表",
+        "CODEX_EXECUTE.md 开始前第1–3条",
+        "保留152源码与其合法后代，禁止122整文件后态覆盖；新版本从实际最高code递增。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-02",
+      "status": "PASS",
+      "title": "原62工单、152验收、295卡/294路径保留边界一致",
+      "evidence": [
+        "inheritance/R341_WORK_ORDER_CROSSWALK_62.json",
+        "inheritance/R341_ACCEPTANCE_CROSSWALK_152.json",
+        "inheritance/R341_FILE_DELTA_295.json",
+        "F238/F247经旧effective_replacement共用verify_integrated_chain.py；按卡127/122/46。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-03",
+      "status": "PASS",
+      "title": "唯一事实/决定/提交/结算owner与异步研究并存，无新增竞争owner",
+      "evidence": [
+        "specs/MAINLINE.md",
+        "specs/PRESERVATION.md",
+        "BusinessReconcilerR36.reconcile 保留下期请求先行；研究、图表、旧结算不能阻塞下期。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-04",
+      "status": "PASS",
+      "title": "四域完整证书合同与最终授权语义一致",
+      "evidence": [
+        "specs/CERTIFICATE_DOMAINS.md",
+        "specs/ACCEPTANCE_AND_STATUS.md",
+        "CertifiedPredictionR974.prepare/verifyCertificate/beforeInsert的四分支源码已核。",
+        "R27_GATE_V1、SU1、SU2/R26_V3、R958/CP4不混用120/250或最低门槛；发行器不授权不等于最终门永不REAL。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-05",
+      "status": "PASS",
+      "title": "拟建TypedGenerationRule显式未实现，保持既有schema和生产消费owner",
+      "evidence": [
+        "specs/TYPED_GENERATION_RULE.md",
+        "不改旧SCORES/MOLECULES CHECK、165/32完整性门；新规则表由单一Lifecycle migration owner安装。",
+        "原discovery pin不变，当前dataset派生run遵守旧consume合同；原BORN事务、固定generation RNG、最多4个sourceRuns保持。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-06",
+      "status": "PASS",
+      "title": "每批独立工程闭环，无接口空壳转嫁B12",
+      "evidence": [
+        "CODEX_EXECUTE.md 每批固定执行",
+        "specs/ACCEPTANCE_AND_STATUS.md 每批最小回执",
+        "B01已明确版本桥、真实workflow与原r33工具扩展；B12仅全链汇总/外部条件验收。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-07",
+      "status": "PASS",
+      "title": "自然未来与工程执行状态分开，无本轮APK/设备或质量完成冒称",
+      "evidence": [
+        "所有新增用例execution_status=NOT_RUN_IN_THIS_TASK。",
+        "R342-033-A已修正为MIXED_WITH_EXPLICIT_NATURAL。",
+        "计划明确本轮未改应用、未构建APK、未连接设备、未执行自然未来。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-08",
+      "status": "RESOLVED",
+      "title": "拟新增验收施工文件必须进入文件卡范围",
+      "evidence": [
+        "全部planned_test_path已纳入文件卡，随其所属批次实现。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-10",
+      "status": "RESOLVED",
+      "title": "RES25真实生产接线文件与已核实methods完整落卡",
+      "evidence": [
+        "agent_final_wiring_additions.json 所需接线文件已纳入该问题。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-09",
+      "status": "RESOLVED",
+      "title": "RES26真实生产接线文件与已核实methods完整落卡",
+      "evidence": [
+        "agent_final_wiring_additions.json 所需接线文件已纳入该问题。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-11",
+      "status": "RESOLVED",
+      "title": "字段、构造器、配置入口不能冒充Java方法",
+      "evidence": [
+        "未再发现6个artifact字段被放入methods；PLAN_SOURCE方法合同已区分constructor/gradle/workflow/json。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-12",
+      "status": "RESOLVED",
+      "title": "漂移TUNE与概率校准的事前fit/embargo/validation协议必须分开",
+      "evidence": [
+        "保留原概率面并分开协议：FrozenDriftPolicyR82只用其既有earlier-TUNE；CandidateCalibrationR932按eligibleEvaluation、事前预约采集及FIT120/EMBARGO1/VALIDATION120隔离序列，拒绝训练角色与开奖后捕获。版本化模型仍绑定R969_STATIC_DISJOINT_CALIBRATION；其它证书域按各自完整合同，不能用TUNE或历史回放抵充正式概率校准/自然未来。",
+        "FrozenDriftPolicyR82使用earlier-TUNE；CandidateCalibrationR932.captureOrPredict要求eligibleEvaluation、原预约、未开奖与FIT120_EMBARGO1_VALIDATION120，拒绝训练角色/开奖后收样。"
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-13",
+      "status": "PASS",
+      "title": "最新文件卡中的既有Java方法已按真实声明复核",
+      "evidence": [
+        {
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+          "snapshot_file_card_count": 137,
+          "parsed_java_files": 110,
+          "declarations": 4868,
+          "new_files_since_last_snapshot": 10,
+          "parse_diagnostics": 0,
+          "unmatched_current_existing_java_methods": [],
+          "application_compiled": false,
+          "application_executed": false
+        }
+      ],
+      "required_fix": ""
+    },
+    {
+      "id": "PSF-14",
+      "status": "PASS",
+      "title": "本次快照预封印内容/源码校验通过",
+      "evidence": [
+        {
+          "schema": "R342_PLAN_VERIFICATION_1",
+          "plan_version": "R34.2",
+          "verification_scope": "PLAN_CONTENT_SOURCE_LINKAGE_ONLY",
+          "application_test_executed": false,
+          "device_test_executed": false,
+          "natural_quality_proven": false,
+          "status": "PASS",
+          "check_count": 1261,
+          "passed_count": 1260,
+          "skipped_count": 1,
+          "errors": []
+        },
+        "封印阶段另验证最终MANIFEST_SHA256；本次唯一跳过项是尚未封印的manifest，不是应用测试。"
+      ],
+      "required_fix": ""
+    }
+  ],
+  "source_only_evidence": [
+    "audit/agent_plan_selfcheck.json",
+    "audit/agent_certificate_domains.json",
+    "audit/agent_final_wiring_additions.json",
+    "audit/plan_source_java_declarations.jsonl",
+    "audit/plan_source_java_parse_diagnostics.txt",
+    "audit/plan_source_final_method_check.json",
+    "audit/plan_source_preseal_validation.json"
+  ],
+  "not_executed": [
+    "应用编译/APK签名和构建",
+    "APK拆包及当前安装字节独立重算",
+    "真实SQLite/模型原字节数值回放",
+    "设备/24h/72h运行",
+    "自然未来质量验证"
+  ],
+  "limitations": [
+    "方法存在/AST解析仅证明源码定位，不证明生产实际调用成功。",
+    "四域正例/反例必须在后续隔离工程验收中触达既有生产入口；自然质量另验。",
+    "r929贡献投影空且未找到recordContribution生产调用，不否定现有R922 canonical贡献原件；二者语义必须保留。"
+  ]
+}

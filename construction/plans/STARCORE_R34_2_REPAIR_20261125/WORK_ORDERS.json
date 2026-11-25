@@ -1,0 +1,459 @@
+{
+  "schema": "R342_BATCHES_1",
+  "batch_count": 12,
+  "issue_count": 57,
+  "ordering": "SEQUENTIAL_INCREMENTAL_NO_OLD_FILE_OVERWRITE",
+  "batches": [
+    {
+      "id": "B01",
+      "full_id": "R342-B01",
+      "title": "152底座重绑、版本桥与成熟功能保全",
+      "lead_owner": "BUILD_AND_PRESERVE",
+      "depends_on": [],
+      "issue_ids": [
+        "R342-001",
+        "R342-002"
+      ],
+      "issue_count": 2,
+      "files": [
+        ".github/workflows/build-apk.yml",
+        ".github/workflows/r31-publish-release.yml",
+        "CURRENT_FINAL_PLAN.md",
+        "app/build.gradle",
+        "construction/plans/STARCORE_R34_1_REPAIR_20261124/MANIFEST_SHA256.json",
+        "construction/plans/STARCORE_R34_2_REPAIR_20261125/FILE_CARDS.json",
+        "construction/plans/STARCORE_R34_2_REPAIR_20261125/control/PLAN_IDENTITY.json",
+        "release/r342_plan_binding.json",
+        "tools/r33/advance_release_version.py",
+        "tools/r33/package_ci_candidate.py",
+        "tools/r33/run_release_build.py",
+        "tools/r33/verify_plan_binding.py",
+        "tools/r341/publish_delivery_manifest.py",
+        "tools/r342/build_identity.py",
+        "tools/r342/test_b01_contracts.py"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B02",
+      "full_id": "R342-B02",
+      "title": "故障原件排空与数据库写入背压恢复",
+      "lead_owner": "WRITER_RECOVERY",
+      "depends_on": [
+        "B01"
+      ],
+      "issue_ids": [
+        "R342-003",
+        "R342-004",
+        "R342-005",
+        "R342-006"
+      ],
+      "issue_count": 4,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B02ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B03",
+      "full_id": "R342-B03",
+      "title": "研究启动、分能力schema与公平续跑",
+      "lead_owner": "RESEARCH_STARTUP",
+      "depends_on": [
+        "B02"
+      ],
+      "issue_ids": [
+        "R342-007",
+        "R342-008",
+        "R342-009",
+        "R342-010",
+        "R342-011"
+      ],
+      "issue_count": 5,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B03ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B04",
+      "full_id": "R342-B04",
+      "title": "历史最小前缀、赛前冻结、结算与完整证据",
+      "lead_owner": "REALTIME_CYCLE",
+      "depends_on": [
+        "B03"
+      ],
+      "issue_ids": [
+        "R342-012",
+        "R342-013",
+        "R342-014"
+      ],
+      "issue_count": 3,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B04ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementBacklogAuditR3611.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B05",
+      "full_id": "R342-B05",
+      "title": "秒级调度、后台连续与卡顿定位",
+      "lead_owner": "BACKGROUND_AND_PERFORMANCE",
+      "depends_on": [
+        "B04"
+      ],
+      "issue_ids": [
+        "R342-015",
+        "R342-016",
+        "R342-017",
+        "R342-018",
+        "R342-019"
+      ],
+      "issue_count": 5,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B05ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeContractR922.java",
+        "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrameMetricsR906.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B06",
+      "full_id": "R342-B06",
+      "title": "分族就绪、历史快速训练与可恢复模型",
+      "lead_owner": "HISTORY_TRAINING",
+      "depends_on": [
+        "B05"
+      ],
+      "issue_ids": [
+        "R342-020",
+        "R342-021",
+        "R342-022",
+        "R342-023"
+      ],
+      "issue_count": 4,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B06ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B07",
+      "full_id": "R342-B07",
+      "title": "持续多机制创造、原子与新思路族",
+      "lead_owner": "CONTINUOUS_CREATION",
+      "depends_on": [
+        "B06"
+      ],
+      "issue_ids": [
+        "R342-024",
+        "R342-025",
+        "R342-026",
+        "R342-027",
+        "R342-028",
+        "R342-029",
+        "R342-030"
+      ],
+      "issue_count": 7,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B07ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B08",
+      "full_id": "R342-B08",
+      "title": "在线训练、反馈研究、矩阵与进化融合",
+      "lead_owner": "LEARNING_AND_EVOLUTION",
+      "depends_on": [
+        "B07"
+      ],
+      "issue_ids": [
+        "R342-031",
+        "R342-032",
+        "R342-033",
+        "R342-034",
+        "R342-035",
+        "R342-036",
+        "R342-037",
+        "R342-038",
+        "R342-039",
+        "R342-040",
+        "R342-041",
+        "R342-042"
+      ],
+      "issue_count": 12,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B08ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowStatisticsR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+        "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionStudyR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionPolicyR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSourceJournalR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B09",
+      "full_id": "R342-B09",
+      "title": "独立未来评价、校准、证书与主链应用",
+      "lead_owner": "QUALIFICATION_AND_USE",
+      "depends_on": [
+        "B08"
+      ],
+      "issue_ids": [
+        "R342-043",
+        "R342-044"
+      ],
+      "issue_count": 2,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B09ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/BusinessFunnelCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/DomainRouterR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenDriftPolicyR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51CandidateRealGateR915.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/Su2CommitAuthorityR30.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B10",
+      "full_id": "R342-B10",
+      "title": "5000期之外的总存储预算与原件恢复",
+      "lead_owner": "STORAGE_AND_RETENTION",
+      "depends_on": [
+        "B09"
+      ],
+      "issue_ids": [
+        "R342-045",
+        "R342-046",
+        "R342-047",
+        "R342-048"
+      ],
+      "issue_count": 4,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B10ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B11",
+      "full_id": "R342-B11",
+      "title": "研究图表、诊断报告与修复生效账",
+      "lead_owner": "REPORT_AND_RESEARCH_UI",
+      "depends_on": [
+        "B10"
+      ],
+      "issue_ids": [
+        "R342-049",
+        "R342-050",
+        "R342-051",
+        "R342-052",
+        "R342-053",
+        "R342-054",
+        "R342-055"
+      ],
+      "issue_count": 7,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B11ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+        "app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateServiceV2R929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerArtifact.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51NumberModelArtifact.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    },
+    {
+      "id": "B12",
+      "full_id": "R342-B12",
+      "title": "集成回归、APK交付与真机自然证据",
+      "lead_owner": "DELIVERY_AND_FIELD",
+      "depends_on": [
+        "B11"
+      ],
+      "issue_ids": [
+        "R342-056",
+        "R342-057"
+      ],
+      "issue_count": 2,
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/r342/R342B12ContractTest.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java"
+      ],
+      "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+      "status": "DESIGNED_NOT_IMPLEMENTED",
+      "module_acceptance": "每项列出的合同、生产调用、迁移及失败恢复须在本批完成；保留原相关152测试并补本轮反例；本批编译APK与身份校验。",
+      "handoff": "输出源码提交、文件差异、测试原件、APK/hash、未完成设备/自然项；下批在此提交上增量施工。"
+    }
+  ]
+}

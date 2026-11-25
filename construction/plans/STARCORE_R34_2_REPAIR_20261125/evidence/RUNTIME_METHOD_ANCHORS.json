@@ -1,0 +1,4467 @@
+{
+  "schema": "R342_RUNTIME_METHODS_MAP_1",
+  "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+  "method": "JDK 21 com.sun.source.util.JavacTask.parse / Trees / SourcePositions；只解析源文件，不做依赖解析、不编译应用、不运行应用。",
+  "parser_source": "audit/RuntimeMethodExtractor.java",
+  "parser_all_declarations": "audit/runtime_java_method_declarations.jsonl",
+  "parser_diagnostics": "audit/runtime_java_parse_diagnostics.txt",
+  "generator": "audit/build_runtime_methods_map.py",
+  "boundary": "方法声明存在只证明源码定位；不证明运行已到达、收据已提交或验收已通过。原 description 字符串保留在 entrypoint_notes，不能直接标为真实方法。",
+  "matching_policy": "选取与 RT01–RT23 已审计源码行区间相交的 AST 方法声明；每个签名保留实际类/匿名 owner 与行区间。构造器单列，接口无方法体声明标 has_executable_body=false。字段、静态注册块、类名、DDL、SQL 不是方法，不生成假方法。",
+  "original_issue_ids": [
+    "RT01",
+    "RT02",
+    "RT03",
+    "RT04",
+    "RT05",
+    "RT06",
+    "RT07",
+    "RT08",
+    "RT09",
+    "RT10",
+    "RT11",
+    "RT12",
+    "RT13",
+    "RT14",
+    "RT15",
+    "RT16",
+    "RT17",
+    "RT18",
+    "RT19",
+    "RT20",
+    "RT21",
+    "RT22",
+    "RT23"
+  ],
+  "source_location_corrections": [
+    {
+      "original_issue_id": "RT03",
+      "file": "strategyv2/WriterHoldFaultsR31.java",
+      "before": "20–40,154–234,292–294",
+      "after": "20–40,147–234,292–294",
+      "reason": "drainControlSliceR32 声明位于 147，原区间未包含入口；drainBatchR33 实际声明位于 153。"
+    },
+    {
+      "original_issue_id": "RT06",
+      "file": "RuntimeTruthSnapshotR906.java",
+      "before": "671 / pipelineDetail query",
+      "after": "687–719,1395–1428 / pipelineDetail / pipelineDetailSnapshotCP4",
+      "reason": "671 实为 appendContributions 的错误处理行，不是 pipelineDetail；按实际业务明细及只读报告快照方法更正锚点，不改报告观察结论。"
+    },
+    {
+      "original_issue_id": "RT07",
+      "file": "LiveResearchDiagnosisOrchestrator.java",
+      "before": "currentPersistedSurface",
+      "after": "persistedNumberSurfaceR80; current persisted surface",
+      "reason": "前者是功能描述，真实声明方法为 persistedNumberSurfaceR80（1062–1116），原 1087–1114 锚点正确落在此方法。"
+    }
+  ],
+  "files": [
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "source_sha256": "9d92b17e5df9e50c43d6df11b8ec969742f3dfc6fac4b2d9adcdd2577e072889",
+      "original_issue_ids": [
+        "RT01",
+        "RT03",
+        "RT04",
+        "RT05",
+        "RT08",
+        "RT09",
+        "RT11",
+        "RT12"
+      ],
+      "method_names": [
+        "beginSession",
+        "endSession",
+        "wake",
+        "nextDelay",
+        "snapshot",
+        "startWork",
+        "ensureContinuousRuntimeR26",
+        "drainWriterFaultControlR334",
+        "run",
+        "postResearchControlR31",
+        "reconcileResearchOwner",
+        "reconcilePredrawTailRecoveryR32",
+        "scheduleNextFetchLoop",
+        "runFetchChannelOnce",
+        "prepareAnalysisHistoryR364",
+        "dispatchResearchCaptureR946"
+      ],
+      "methods": [
+        {
+          "symbol_id": "AutoFetchService.PollCadenceR31.beginSession@646",
+          "name": "beginSession",
+          "owner": "AutoFetchService.PollCadenceR31",
+          "signature": "public synchronized void beginSession(long mono)",
+          "declaration_start_line": 646,
+          "method_name_line": 646,
+          "declaration_end_line": 646,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "642–665"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.PollCadenceR31.endSession@647",
+          "name": "endSession",
+          "owner": "AutoFetchService.PollCadenceR31",
+          "signature": "public synchronized void endSession(long mono)",
+          "declaration_start_line": 647,
+          "method_name_line": 647,
+          "declaration_end_line": 647,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "642–665"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.PollCadenceR31.wake@648",
+          "name": "wake",
+          "owner": "AutoFetchService.PollCadenceR31",
+          "signature": "public synchronized void wake(long mono)",
+          "declaration_start_line": 648,
+          "method_name_line": 648,
+          "declaration_end_line": 656,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "642–665"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.PollCadenceR31.nextDelay@657",
+          "name": "nextDelay",
+          "owner": "AutoFetchService.PollCadenceR31",
+          "signature": "public synchronized long nextDelay(long mono,long backoff,String reason,long minimum)",
+          "declaration_start_line": 657,
+          "method_name_line": 657,
+          "declaration_end_line": 661,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "642–665"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.PollCadenceR31.snapshot@662",
+          "name": "snapshot",
+          "owner": "AutoFetchService.PollCadenceR31",
+          "signature": "public synchronized java.util.Map<String,Object> snapshot()",
+          "declaration_start_line": 662,
+          "method_name_line": 662,
+          "declaration_end_line": 665,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "642–665"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.startWork@2491",
+          "name": "startWork",
+          "owner": "AutoFetchService",
+          "signature": "private void startWork()",
+          "declaration_start_line": 2491,
+          "method_name_line": 2491,
+          "declaration_end_line": 2505,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT12"
+          ],
+          "anchor_lines": [
+            "2498–2504"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.ensureContinuousRuntimeR26@2507",
+          "name": "ensureContinuousRuntimeR26",
+          "owner": "AutoFetchService",
+          "signature": "private synchronized void ensureContinuousRuntimeR26()",
+          "declaration_start_line": 2507,
+          "method_name_line": 2507,
+          "declaration_end_line": 2515,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT01",
+            "RT11"
+          ],
+          "anchor_lines": [
+            "2507–2514",
+            "2510–2512,2538–2580"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.drainWriterFaultControlR334@2517",
+          "name": "drainWriterFaultControlR334",
+          "owner": "AutoFetchService",
+          "signature": "private void drainWriterFaultControlR334()",
+          "declaration_start_line": 2517,
+          "method_name_line": 2517,
+          "declaration_end_line": 2536,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT03",
+            "RT04"
+          ],
+          "anchor_lines": [
+            "2517–2534",
+            "2523–2531"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.<anonymous@2539>.run@2539",
+          "name": "run",
+          "owner": "AutoFetchService.<anonymous@2539>",
+          "signature": "@Override public void run()",
+          "declaration_start_line": 2539,
+          "method_name_line": 2539,
+          "declaration_end_line": 2544,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT11"
+          ],
+          "anchor_lines": [
+            "2510–2512,2538–2580"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.postResearchControlR31@2545",
+          "name": "postResearchControlR31",
+          "owner": "AutoFetchService",
+          "signature": "private void postResearchControlR31()",
+          "declaration_start_line": 2545,
+          "method_name_line": 2545,
+          "declaration_end_line": 2548,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT11"
+          ],
+          "anchor_lines": [
+            "2510–2512,2538–2580"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.reconcileResearchOwner@2549",
+          "name": "reconcileResearchOwner",
+          "owner": "AutoFetchService",
+          "signature": "private void reconcileResearchOwner(String reason)",
+          "declaration_start_line": 2549,
+          "method_name_line": 2549,
+          "declaration_end_line": 2581,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT11"
+          ],
+          "anchor_lines": [
+            "2510–2512,2538–2580"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.<anonymous@2557>.run@2558",
+          "name": "run",
+          "owner": "AutoFetchService.<anonymous@2557>",
+          "signature": "@Override public void run()",
+          "declaration_start_line": 2558,
+          "method_name_line": 2558,
+          "declaration_end_line": 2565,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT11"
+          ],
+          "anchor_lines": [
+            "2510–2512,2538–2580"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.reconcilePredrawTailRecoveryR32@2587",
+          "name": "reconcilePredrawTailRecoveryR32",
+          "owner": "AutoFetchService",
+          "signature": "private void reconcilePredrawTailRecoveryR32(DbStore active)",
+          "declaration_start_line": 2587,
+          "method_name_line": 2587,
+          "declaration_end_line": 2599,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT05"
+          ],
+          "anchor_lines": [
+            "2587–2598"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.scheduleNextFetchLoop@2944",
+          "name": "scheduleNextFetchLoop",
+          "owner": "AutoFetchService",
+          "signature": "private void scheduleNextFetchLoop()",
+          "declaration_start_line": 2944,
+          "method_name_line": 2944,
+          "declaration_end_line": 2961,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "2944–3012"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.runFetchChannelOnce@2963",
+          "name": "runFetchChannelOnce",
+          "owner": "AutoFetchService",
+          "signature": "private void runFetchChannelOnce()",
+          "declaration_start_line": 2963,
+          "method_name_line": 2963,
+          "declaration_end_line": 3124,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "2944–3012"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.prepareAnalysisHistoryR364@4271",
+          "name": "prepareAnalysisHistoryR364",
+          "owner": "AutoFetchService",
+          "signature": "private List<Models.Draw> prepareAnalysisHistoryR364(AnalysisSingleFlightR36.Request request)",
+          "declaration_start_line": 4271,
+          "method_name_line": 4271,
+          "declaration_end_line": 4325,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT05"
+          ],
+          "anchor_lines": [
+            "4271–4293"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.dispatchResearchCaptureR946@4430",
+          "name": "dispatchResearchCaptureR946",
+          "owner": "AutoFetchService",
+          "signature": "private void dispatchResearchCaptureR946(\n            final ResearchCaptureQueueR946.Ticket ticket, long delay)",
+          "declaration_start_line": 4430,
+          "method_name_line": 4430,
+          "declaration_end_line": 4528,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT09"
+          ],
+          "anchor_lines": [
+            "4466"
+          ]
+        },
+        {
+          "symbol_id": "AutoFetchService.<anonymous@4438>.run@4439",
+          "name": "run",
+          "owner": "AutoFetchService.<anonymous@4438>",
+          "signature": "@Override public void run()",
+          "declaration_start_line": 4439,
+          "method_name_line": 4439,
+          "declaration_end_line": 4524,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT09"
+          ],
+          "anchor_lines": [
+            "4466"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT01",
+          "anchor_lines": "2507–2514",
+          "original_entrypoint_text": "ensureContinuousRuntimeR26",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT03",
+          "anchor_lines": "2517–2534",
+          "original_entrypoint_text": "drainWriterFaultControlR334",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT04",
+          "anchor_lines": "2523–2531",
+          "original_entrypoint_text": "drainWriterFaultControlR334 projection",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT05",
+          "anchor_lines": "4271–4293",
+          "original_entrypoint_text": "prepareAnalysisHistoryR364",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT05",
+          "anchor_lines": "2587–2598",
+          "original_entrypoint_text": "reconcilePredrawTailRecoveryR32",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT08",
+          "anchor_lines": "642–665",
+          "original_entrypoint_text": "PollCadenceR31",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT08",
+          "anchor_lines": "2944–3012",
+          "original_entrypoint_text": "scheduleNextFetchLoop / runFetchChannelOnce",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT09",
+          "anchor_lines": "4466",
+          "original_entrypoint_text": "research capture caller observed in stack",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT11",
+          "anchor_lines": "2510–2512,2538–2580",
+          "original_entrypoint_text": "researchControlLoopR31 / reconcileResearchOwner",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT12",
+          "anchor_lines": "2498–2504",
+          "original_entrypoint_text": "startup retry/watchdog",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT01",
+          "lines": "2507–2514",
+          "methods": [
+            "AutoFetchService.ensureContinuousRuntimeR26@2507"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT03",
+          "lines": "2517–2534",
+          "methods": [
+            "AutoFetchService.drainWriterFaultControlR334@2517"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT04",
+          "lines": "2523–2531",
+          "methods": [
+            "AutoFetchService.drainWriterFaultControlR334@2517"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT05",
+          "lines": "4271–4293",
+          "methods": [
+            "AutoFetchService.prepareAnalysisHistoryR364@4271"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT05",
+          "lines": "2587–2598",
+          "methods": [
+            "AutoFetchService.reconcilePredrawTailRecoveryR32@2587"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT08",
+          "lines": "642–665",
+          "methods": [
+            "AutoFetchService.PollCadenceR31.beginSession@646",
+            "AutoFetchService.PollCadenceR31.endSession@647",
+            "AutoFetchService.PollCadenceR31.wake@648",
+            "AutoFetchService.PollCadenceR31.nextDelay@657",
+            "AutoFetchService.PollCadenceR31.snapshot@662"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT08",
+          "lines": "2944–3012",
+          "methods": [
+            "AutoFetchService.scheduleNextFetchLoop@2944",
+            "AutoFetchService.runFetchChannelOnce@2963"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT09",
+          "lines": "4466",
+          "methods": [
+            "AutoFetchService.dispatchResearchCaptureR946@4430",
+            "AutoFetchService.<anonymous@4438>.run@4439"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT11",
+          "lines": "2510–2512,2538–2580",
+          "methods": [
+            "AutoFetchService.ensureContinuousRuntimeR26@2507",
+            "AutoFetchService.<anonymous@2539>.run@2539",
+            "AutoFetchService.postResearchControlR31@2545",
+            "AutoFetchService.reconcileResearchOwner@2549",
+            "AutoFetchService.<anonymous@2557>.run@2558"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT12",
+          "lines": "2498–2504",
+          "methods": [
+            "AutoFetchService.startWork@2491"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+      "source_sha256": "03b4c9d8e9bf8ded76360c7b52dab6c2649f2e1f352a223066476841e228cc8d",
+      "original_issue_ids": [
+        "RT01",
+        "RT02"
+      ],
+      "method_names": [
+        "recordUncaught",
+        "classify",
+        "code",
+        "hasDeterministicFailureLimit"
+      ],
+      "methods": [
+        {
+          "symbol_id": "StartupStageJournalR341.recordUncaught@135",
+          "name": "recordUncaught",
+          "owner": "StartupStageJournalR341",
+          "signature": "public AppendResult recordUncaught(Token token, Throwable failure)",
+          "declaration_start_line": 135,
+          "method_name_line": 135,
+          "declaration_end_line": 152,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "135–177"
+          ]
+        },
+        {
+          "symbol_id": "StartupStageJournalR341.classify@154",
+          "name": "classify",
+          "owner": "StartupStageJournalR341",
+          "signature": "public static Outcome classify(Throwable failure)",
+          "declaration_start_line": 154,
+          "method_name_line": 154,
+          "declaration_end_line": 169,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "135–177"
+          ]
+        },
+        {
+          "symbol_id": "StartupStageJournalR341.code@171",
+          "name": "code",
+          "owner": "StartupStageJournalR341",
+          "signature": "private static String code(Throwable failure)",
+          "declaration_start_line": 171,
+          "method_name_line": 171,
+          "declaration_end_line": 178,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "135–177"
+          ]
+        },
+        {
+          "symbol_id": "StartupStageJournalR341.hasDeterministicFailureLimit@239",
+          "name": "hasDeterministicFailureLimit",
+          "owner": "StartupStageJournalR341",
+          "signature": "public boolean hasDeterministicFailureLimit()",
+          "declaration_start_line": 239,
+          "method_name_line": 239,
+          "declaration_end_line": 258,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT01"
+          ],
+          "anchor_lines": [
+            "239–252"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT01",
+          "anchor_lines": "239–252",
+          "original_entrypoint_text": "hasDeterministicFailureLimit",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT02",
+          "anchor_lines": "135–177",
+          "original_entrypoint_text": "recordUncaught / classify / code",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT01",
+          "lines": "239–252",
+          "methods": [
+            "StartupStageJournalR341.hasDeterministicFailureLimit@239"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT02",
+          "lines": "135–177",
+          "methods": [
+            "StartupStageJournalR341.recordUncaught@135",
+            "StartupStageJournalR341.classify@154",
+            "StartupStageJournalR341.code@171"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "source_sha256": "66808ea0e65ab2b00a38bed8952e92d611a8a0adce8227034643d2da761a0bbe",
+      "original_issue_ids": [
+        "RT01",
+        "RT11",
+        "RT14"
+      ],
+      "method_names": [
+        "isRunning",
+        "activeHealthObservationR31",
+        "prepareStartupSchemaR34",
+        "initialize"
+      ],
+      "methods": [
+        {
+          "symbol_id": "RuntimeCoordinatorR26.isRunning@168",
+          "name": "isRunning",
+          "owner": "RuntimeCoordinatorR26",
+          "signature": "public boolean isRunning()",
+          "declaration_start_line": 168,
+          "method_name_line": 168,
+          "declaration_end_line": 168,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT11"
+          ],
+          "anchor_lines": [
+            "168–170"
+          ]
+        },
+        {
+          "symbol_id": "RuntimeCoordinatorR26.activeHealthObservationR31@169",
+          "name": "activeHealthObservationR31",
+          "owner": "RuntimeCoordinatorR26",
+          "signature": "public static java.util.Map<String,Object> activeHealthObservationR31()",
+          "declaration_start_line": 169,
+          "method_name_line": 169,
+          "declaration_end_line": 169,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT11"
+          ],
+          "anchor_lines": [
+            "168–170"
+          ]
+        },
+        {
+          "symbol_id": "RuntimeCoordinatorR26.prepareStartupSchemaR34@530",
+          "name": "prepareStartupSchemaR34",
+          "owner": "RuntimeCoordinatorR26",
+          "signature": "private String prepareStartupSchemaR34()",
+          "declaration_start_line": 530,
+          "method_name_line": 530,
+          "declaration_end_line": 561,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT01",
+            "RT14"
+          ],
+          "anchor_lines": [
+            "530–560,572–585",
+            "530–585"
+          ]
+        },
+        {
+          "symbol_id": "RuntimeCoordinatorR26.initialize@562",
+          "name": "initialize",
+          "owner": "RuntimeCoordinatorR26",
+          "signature": "private void initialize()",
+          "declaration_start_line": 562,
+          "method_name_line": 562,
+          "declaration_end_line": 604,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT01",
+            "RT14"
+          ],
+          "anchor_lines": [
+            "530–560,572–585",
+            "530–585"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT01",
+          "anchor_lines": "530–560,572–585",
+          "original_entrypoint_text": "prepareStartupSchemaR34 / initialize",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT11",
+          "anchor_lines": "168–170",
+          "original_entrypoint_text": "isRunning / activeHealthObservationR31",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT14",
+          "anchor_lines": "530–585",
+          "original_entrypoint_text": "startup migration ordering",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT01",
+          "lines": "530–560,572–585",
+          "methods": [
+            "RuntimeCoordinatorR26.prepareStartupSchemaR34@530",
+            "RuntimeCoordinatorR26.initialize@562"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT11",
+          "lines": "168–170",
+          "methods": [
+            "RuntimeCoordinatorR26.isRunning@168",
+            "RuntimeCoordinatorR26.activeHealthObservationR31@169"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT14",
+          "lines": "530–585",
+          "methods": [
+            "RuntimeCoordinatorR26.prepareStartupSchemaR34@530",
+            "RuntimeCoordinatorR26.initialize@562"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+      "source_sha256": "8bb0a750659b5009bc3225b15e227b45345c7440696dbf6f6d8469b202476bf8",
+      "original_issue_ids": [
+        "RT01",
+        "RT15",
+        "RT16"
+      ],
+      "method_names": [
+        "preservePreparedStartupCheckpoint",
+        "preserveStartupCheckpoint",
+        "cleanFiles",
+        "retiredCopyReference",
+        "beforeDelete",
+        "afterDelete"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ResearchRetentionStoreR30.preservePreparedStartupCheckpoint@225",
+          "name": "preservePreparedStartupCheckpoint",
+          "owner": "ResearchRetentionStoreR30",
+          "signature": "static void preservePreparedStartupCheckpoint(SQLiteDatabase db, StartupCheckpointIdentityR31.Prepared startup)",
+          "declaration_start_line": 225,
+          "method_name_line": 225,
+          "declaration_end_line": 232,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT01",
+            "RT16"
+          ],
+          "anchor_lines": [
+            "225–264"
+          ]
+        },
+        {
+          "symbol_id": "ResearchRetentionStoreR30.preserveStartupCheckpoint@233",
+          "name": "preserveStartupCheckpoint",
+          "owner": "ResearchRetentionStoreR30",
+          "signature": "private static void preserveStartupCheckpoint(SQLiteDatabase db)",
+          "declaration_start_line": 233,
+          "method_name_line": 233,
+          "declaration_end_line": 235,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT01",
+            "RT16"
+          ],
+          "anchor_lines": [
+            "225–264"
+          ]
+        },
+        {
+          "symbol_id": "ResearchRetentionStoreR30.preserveStartupCheckpoint@236",
+          "name": "preserveStartupCheckpoint",
+          "owner": "ResearchRetentionStoreR30",
+          "signature": "private static void preserveStartupCheckpoint(SQLiteDatabase db,StartupCheckpointIdentityR31.Prepared startup)",
+          "declaration_start_line": 236,
+          "method_name_line": 236,
+          "declaration_end_line": 265,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT01",
+            "RT16"
+          ],
+          "anchor_lines": [
+            "225–264"
+          ]
+        },
+        {
+          "symbol_id": "ResearchRetentionStoreR30.cleanFiles@286",
+          "name": "cleanFiles",
+          "owner": "ResearchRetentionStoreR30",
+          "signature": "public static ResearchRetentionR30.Result cleanFiles(SQLiteDatabase read,File appData,long budget,Writer writer)throws Exception",
+          "declaration_start_line": 286,
+          "method_name_line": 286,
+          "declaration_end_line": 301,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "285–300"
+          ]
+        },
+        {
+          "symbol_id": "ResearchRetentionStoreR30.<anonymous@289>.retiredCopyReference@290",
+          "name": "retiredCopyReference",
+          "owner": "ResearchRetentionStoreR30.<anonymous@289>",
+          "signature": "public String retiredCopyReference(ResearchRetentionR30.Candidate candidate)",
+          "declaration_start_line": 290,
+          "method_name_line": 290,
+          "declaration_end_line": 290,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "285–300"
+          ]
+        },
+        {
+          "symbol_id": "ResearchRetentionStoreR30.<anonymous@289>.beforeDelete@291",
+          "name": "beforeDelete",
+          "owner": "ResearchRetentionStoreR30.<anonymous@289>",
+          "signature": "public void beforeDelete(ResearchRetentionR30.Candidate candidate,String reference)throws Exception",
+          "declaration_start_line": 291,
+          "method_name_line": 291,
+          "declaration_end_line": 296,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "285–300"
+          ]
+        },
+        {
+          "symbol_id": "ResearchRetentionStoreR30.<anonymous@289>.afterDelete@297",
+          "name": "afterDelete",
+          "owner": "ResearchRetentionStoreR30.<anonymous@289>",
+          "signature": "public void afterDelete(ResearchRetentionR30.Candidate candidate,String reference,boolean deleted)throws Exception",
+          "declaration_start_line": 297,
+          "method_name_line": 297,
+          "declaration_end_line": 299,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "285–300"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT01",
+          "anchor_lines": "225–264",
+          "original_entrypoint_text": "preservePreparedStartupCheckpoint / preserveStartupCheckpoint",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT15",
+          "anchor_lines": "285–300",
+          "original_entrypoint_text": "cleanFiles",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT16",
+          "anchor_lines": "225–264",
+          "original_entrypoint_text": "checkpoint preservation",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT01",
+          "lines": "225–264",
+          "methods": [
+            "ResearchRetentionStoreR30.preservePreparedStartupCheckpoint@225",
+            "ResearchRetentionStoreR30.preserveStartupCheckpoint@233",
+            "ResearchRetentionStoreR30.preserveStartupCheckpoint@236"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT15",
+          "lines": "285–300",
+          "methods": [
+            "ResearchRetentionStoreR30.cleanFiles@286",
+            "ResearchRetentionStoreR30.<anonymous@289>.retiredCopyReference@290",
+            "ResearchRetentionStoreR30.<anonymous@289>.beforeDelete@291",
+            "ResearchRetentionStoreR30.<anonymous@289>.afterDelete@297"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT16",
+          "lines": "225–264",
+          "methods": [
+            "ResearchRetentionStoreR30.preservePreparedStartupCheckpoint@225",
+            "ResearchRetentionStoreR30.preserveStartupCheckpoint@233",
+            "ResearchRetentionStoreR30.preserveStartupCheckpoint@236"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "source_sha256": "05ea02426d47876f6e1568d72bbeaa13637728aa1dfee89a2e72093829ddd160",
+      "original_issue_ids": [
+        "RT02",
+        "RT03",
+        "RT04",
+        "RT05",
+        "RT07",
+        "RT10"
+      ],
+      "method_names": [
+        "failureCategory",
+        "operation",
+        "phase",
+        "commitOutcomeName",
+        "writeProtocolSnapshotR31",
+        "runWriteOrThrowF01",
+        "runWrite"
+      ],
+      "methods": [
+        {
+          "symbol_id": "DatabaseCoordinator.WriteRejectedR31.failureCategory@149",
+          "name": "failureCategory",
+          "owner": "DatabaseCoordinator.WriteRejectedR31",
+          "signature": "@Override public String failureCategory()",
+          "declaration_start_line": 149,
+          "method_name_line": 149,
+          "declaration_end_line": 149,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "141–152,921–933"
+          ]
+        },
+        {
+          "symbol_id": "DatabaseCoordinator.WriteRejectedR31.operation@150",
+          "name": "operation",
+          "owner": "DatabaseCoordinator.WriteRejectedR31",
+          "signature": "@Override public String operation()",
+          "declaration_start_line": 150,
+          "method_name_line": 150,
+          "declaration_end_line": 150,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "141–152,921–933"
+          ]
+        },
+        {
+          "symbol_id": "DatabaseCoordinator.WriteRejectedR31.phase@151",
+          "name": "phase",
+          "owner": "DatabaseCoordinator.WriteRejectedR31",
+          "signature": "@Override public String phase()",
+          "declaration_start_line": 151,
+          "method_name_line": 151,
+          "declaration_end_line": 151,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "141–152,921–933"
+          ]
+        },
+        {
+          "symbol_id": "DatabaseCoordinator.WriteRejectedR31.commitOutcomeName@152",
+          "name": "commitOutcomeName",
+          "owner": "DatabaseCoordinator.WriteRejectedR31",
+          "signature": "@Override public String commitOutcomeName()",
+          "declaration_start_line": 152,
+          "method_name_line": 152,
+          "declaration_end_line": 152,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "141–152,921–933"
+          ]
+        },
+        {
+          "symbol_id": "DatabaseCoordinator.writeProtocolSnapshotR31@241",
+          "name": "writeProtocolSnapshotR31",
+          "owner": "DatabaseCoordinator",
+          "signature": "public static Map<String,Object> writeProtocolSnapshotR31()",
+          "declaration_start_line": 241,
+          "method_name_line": 241,
+          "declaration_end_line": 252,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT04"
+          ],
+          "anchor_lines": [
+            "249"
+          ]
+        },
+        {
+          "symbol_id": "DatabaseCoordinator.runWriteOrThrowF01@921",
+          "name": "runWriteOrThrowF01",
+          "owner": "DatabaseCoordinator",
+          "signature": "public <T> T runWriteOrThrowF01(final WriteContext context, final WriteCallable<T> task)",
+          "declaration_start_line": 921,
+          "method_name_line": 921,
+          "declaration_end_line": 939,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "141–152,921–933"
+          ]
+        },
+        {
+          "symbol_id": "DatabaseCoordinator.runWrite@958",
+          "name": "runWrite",
+          "owner": "DatabaseCoordinator",
+          "signature": "public <T> T runWrite(WriteContext context, WriteCallable<T> task, T fallback)",
+          "declaration_start_line": 958,
+          "method_name_line": 958,
+          "declaration_end_line": 1117,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT03",
+            "RT05",
+            "RT07",
+            "RT10"
+          ],
+          "anchor_lines": [
+            "88–119,994–1008",
+            "88,96,1005–1008",
+            "96,1005–1008",
+            "961–963"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "DatabaseCoordinator.WriteRejectedR31.WriteRejectedR31@145",
+          "name": "WriteRejectedR31",
+          "owner": "DatabaseCoordinator.WriteRejectedR31",
+          "signature": "public WriteRejectedR31(String category,String operation,String phase,CommitOutcome outcome,Throwable cause)",
+          "declaration_start_line": 145,
+          "method_name_line": 145,
+          "declaration_end_line": 148,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "141–152,921–933"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT02",
+          "anchor_lines": "141–152,921–933",
+          "original_entrypoint_text": "WriteRejectedR31 / runWriteOrThrowF01",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT03",
+          "anchor_lines": "88–119,994–1008",
+          "original_entrypoint_text": "operation registry / runWrite",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT04",
+          "anchor_lines": "249",
+          "original_entrypoint_text": "protocol observation writerHoldFaultReceipts",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT05",
+          "anchor_lines": "88,96,1005–1008",
+          "original_entrypoint_text": "bootstrap vs ordinary history operation admission",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT07",
+          "anchor_lines": "96,1005–1008",
+          "original_entrypoint_text": "R36_DEFERRED RESEARCH_DATA",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT10",
+          "anchor_lines": "961–963",
+          "original_entrypoint_text": "main-thread database write rejection",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT02",
+          "lines": "141–152,921–933",
+          "methods": [
+            "DatabaseCoordinator.WriteRejectedR31.failureCategory@149",
+            "DatabaseCoordinator.WriteRejectedR31.operation@150",
+            "DatabaseCoordinator.WriteRejectedR31.phase@151",
+            "DatabaseCoordinator.WriteRejectedR31.commitOutcomeName@152",
+            "DatabaseCoordinator.runWriteOrThrowF01@921"
+          ],
+          "constructors": [
+            "DatabaseCoordinator.WriteRejectedR31.WriteRejectedR31@145"
+          ]
+        },
+        {
+          "original_issue_id": "RT03",
+          "lines": "88–119,994–1008",
+          "methods": [
+            "DatabaseCoordinator.runWrite@958"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT04",
+          "lines": "249",
+          "methods": [
+            "DatabaseCoordinator.writeProtocolSnapshotR31@241"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT05",
+          "lines": "88,96,1005–1008",
+          "methods": [
+            "DatabaseCoordinator.runWrite@958"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT07",
+          "lines": "96,1005–1008",
+          "methods": [
+            "DatabaseCoordinator.runWrite@958"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT10",
+          "lines": "961–963",
+          "methods": [
+            "DatabaseCoordinator.runWrite@958"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java",
+      "source_sha256": "2b9384e18e245cf133a5b125577e42ae976bfe0257caee38e8d9eb49325e9cef",
+      "original_issue_ids": [
+        "RT02"
+      ],
+      "method_names": [
+        "failureCategory",
+        "operation",
+        "phase",
+        "commitOutcomeName",
+        "consumesFaultBudget",
+        "classify",
+        "rootCategoryR31",
+        "firstTypedR31",
+        "declaredCategoryR31",
+        "ownCategoryR31",
+        "physicalCauseCategoryR31"
+      ],
+      "methods": [
+        {
+          "symbol_id": "FailureDispositionR31.ClassifiedFailure.failureCategory@11",
+          "name": "failureCategory",
+          "owner": "FailureDispositionR31.ClassifiedFailure",
+          "signature": "String failureCategory();",
+          "declaration_start_line": 11,
+          "method_name_line": 11,
+          "declaration_end_line": 11,
+          "kind": "method",
+          "has_executable_body": false,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.ClassifiedFailure.operation@12",
+          "name": "operation",
+          "owner": "FailureDispositionR31.ClassifiedFailure",
+          "signature": "String operation();",
+          "declaration_start_line": 12,
+          "method_name_line": 12,
+          "declaration_end_line": 12,
+          "kind": "method",
+          "has_executable_body": false,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.ClassifiedFailure.phase@13",
+          "name": "phase",
+          "owner": "FailureDispositionR31.ClassifiedFailure",
+          "signature": "String phase();",
+          "declaration_start_line": 13,
+          "method_name_line": 13,
+          "declaration_end_line": 13,
+          "kind": "method",
+          "has_executable_body": false,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.ClassifiedFailure.commitOutcomeName@14",
+          "name": "commitOutcomeName",
+          "owner": "FailureDispositionR31.ClassifiedFailure",
+          "signature": "String commitOutcomeName();",
+          "declaration_start_line": 14,
+          "method_name_line": 14,
+          "declaration_end_line": 14,
+          "kind": "method",
+          "has_executable_body": false,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.Decision.consumesFaultBudget@24",
+          "name": "consumesFaultBudget",
+          "owner": "FailureDispositionR31.Decision",
+          "signature": "public boolean consumesFaultBudget()",
+          "declaration_start_line": 24,
+          "method_name_line": 24,
+          "declaration_end_line": 24,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.classify@26",
+          "name": "classify",
+          "owner": "FailureDispositionR31",
+          "signature": "public static Decision classify(Throwable failure)",
+          "declaration_start_line": 26,
+          "method_name_line": 26,
+          "declaration_end_line": 49,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.rootCategoryR31@54",
+          "name": "rootCategoryR31",
+          "owner": "FailureDispositionR31",
+          "signature": "public static String rootCategoryR31(Throwable failure)",
+          "declaration_start_line": 54,
+          "method_name_line": 54,
+          "declaration_end_line": 69,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.firstTypedR31@70",
+          "name": "firstTypedR31",
+          "owner": "FailureDispositionR31",
+          "signature": "private static ClassifiedFailure firstTypedR31(Throwable failure)",
+          "declaration_start_line": 70,
+          "method_name_line": 70,
+          "declaration_end_line": 75,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.declaredCategoryR31@76",
+          "name": "declaredCategoryR31",
+          "owner": "FailureDispositionR31",
+          "signature": "private static String declaredCategoryR31(String category)",
+          "declaration_start_line": 76,
+          "method_name_line": 76,
+          "declaration_end_line": 82,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.ownCategoryR31@84",
+          "name": "ownCategoryR31",
+          "owner": "FailureDispositionR31",
+          "signature": "private static String ownCategoryR31(Throwable cause)",
+          "declaration_start_line": 84,
+          "method_name_line": 84,
+          "declaration_end_line": 98,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.physicalCauseCategoryR31@99",
+          "name": "physicalCauseCategoryR31",
+          "owner": "FailureDispositionR31",
+          "signature": "private static String physicalCauseCategoryR31(Throwable failure)",
+          "declaration_start_line": 99,
+          "method_name_line": 99,
+          "declaration_end_line": 108,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "FailureDispositionR31.FailureDispositionR31@7",
+          "name": "FailureDispositionR31",
+          "owner": "FailureDispositionR31",
+          "signature": "private FailureDispositionR31()",
+          "declaration_start_line": 7,
+          "method_name_line": 7,
+          "declaration_end_line": 7,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "FailureDispositionR31.Decision.Decision@20",
+          "name": "Decision",
+          "owner": "FailureDispositionR31.Decision",
+          "signature": "Decision(Disposition disposition, String category, String outcome, boolean resolve, boolean committed)",
+          "declaration_start_line": 20,
+          "method_name_line": 20,
+          "declaration_end_line": 23,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT02"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT02",
+          "anchor_lines": "1–100",
+          "original_entrypoint_text": "classify",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT02",
+          "lines": "1–100",
+          "methods": [
+            "FailureDispositionR31.ClassifiedFailure.failureCategory@11",
+            "FailureDispositionR31.ClassifiedFailure.operation@12",
+            "FailureDispositionR31.ClassifiedFailure.phase@13",
+            "FailureDispositionR31.ClassifiedFailure.commitOutcomeName@14",
+            "FailureDispositionR31.Decision.consumesFaultBudget@24",
+            "FailureDispositionR31.classify@26",
+            "FailureDispositionR31.rootCategoryR31@54",
+            "FailureDispositionR31.firstTypedR31@70",
+            "FailureDispositionR31.declaredCategoryR31@76",
+            "FailureDispositionR31.ownCategoryR31@84",
+            "FailureDispositionR31.physicalCauseCategoryR31@99"
+          ],
+          "constructors": [
+            "FailureDispositionR31.FailureDispositionR31@7",
+            "FailureDispositionR31.Decision.Decision@20"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "source_sha256": "d84c8c5624b9bcb404bc313c313f41631f3e1f807aae2a109c93f0a6340c2496",
+      "original_issue_ids": [
+        "RT03",
+        "RT04",
+        "RT19",
+        "RT22"
+      ],
+      "method_names": [
+        "drainControlSliceR32",
+        "drainOne",
+        "drainBatchR33",
+        "snapshot",
+        "deferResearch"
+      ],
+      "methods": [
+        {
+          "symbol_id": "WriterHoldFaultsR31.drainControlSliceR32@147",
+          "name": "drainControlSliceR32",
+          "owner": "WriterHoldFaultsR31",
+          "signature": "public static void drainControlSliceR32(DbStore store)",
+          "declaration_start_line": 147,
+          "method_name_line": 147,
+          "declaration_end_line": 149,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT03"
+          ],
+          "anchor_lines": [
+            "20–40,147–234,292–294"
+          ]
+        },
+        {
+          "symbol_id": "WriterHoldFaultsR31.drainOne@151",
+          "name": "drainOne",
+          "owner": "WriterHoldFaultsR31",
+          "signature": "public static boolean drainOne(DbStore store)",
+          "declaration_start_line": 151,
+          "method_name_line": 151,
+          "declaration_end_line": 151,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT03"
+          ],
+          "anchor_lines": [
+            "20–40,147–234,292–294"
+          ]
+        },
+        {
+          "symbol_id": "WriterHoldFaultsR31.drainBatchR33@153",
+          "name": "drainBatchR33",
+          "owner": "WriterHoldFaultsR31",
+          "signature": "private static int drainBatchR33(DbStore store,int maximum)",
+          "declaration_start_line": 153,
+          "method_name_line": 153,
+          "declaration_end_line": 235,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT03",
+            "RT19"
+          ],
+          "anchor_lines": [
+            "20–40,147–234,292–294",
+            "195–229"
+          ]
+        },
+        {
+          "symbol_id": "WriterHoldFaultsR31.snapshot@261",
+          "name": "snapshot",
+          "owner": "WriterHoldFaultsR31",
+          "signature": "public static synchronized Map<String,Object> snapshot()",
+          "declaration_start_line": 261,
+          "method_name_line": 261,
+          "declaration_end_line": 290,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT04",
+            "RT22"
+          ],
+          "anchor_lines": [
+            "261–288",
+            "270–272"
+          ]
+        },
+        {
+          "symbol_id": "WriterHoldFaultsR31.deferResearch@293",
+          "name": "deferResearch",
+          "owner": "WriterHoldFaultsR31",
+          "signature": "public static synchronized boolean deferResearch()",
+          "declaration_start_line": 293,
+          "method_name_line": 293,
+          "declaration_end_line": 295,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT03"
+          ],
+          "anchor_lines": [
+            "20–40,147–234,292–294"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "WriterHoldFaultsR31.Event.Event@38",
+          "name": "Event",
+          "owner": "WriterHoldFaultsR31.Event",
+          "signature": "Event(String operation, boolean critical, long wait, long hold, boolean failed,\n              DatabaseCoordinator.CommitOutcome outcome, long sequence, MemoryBudgetR31.Lease memory)",
+          "declaration_start_line": 38,
+          "method_name_line": 38,
+          "declaration_end_line": 70,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT03"
+          ],
+          "anchor_lines": [
+            "20–40,147–234,292–294"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT03",
+          "anchor_lines": "20–40,147–234,292–294",
+          "original_entrypoint_text": "drainControlSliceR32 / drainBatchR33 / deferResearch",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT04",
+          "anchor_lines": "261–288",
+          "original_entrypoint_text": "snapshot",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT19",
+          "anchor_lines": "195–229",
+          "original_entrypoint_text": "durable fault drain / archive request",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT22",
+          "anchor_lines": "270–272",
+          "original_entrypoint_text": "process observation identity",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT03",
+          "lines": "20–40,147–234,292–294",
+          "methods": [
+            "WriterHoldFaultsR31.drainControlSliceR32@147",
+            "WriterHoldFaultsR31.drainOne@151",
+            "WriterHoldFaultsR31.drainBatchR33@153",
+            "WriterHoldFaultsR31.deferResearch@293"
+          ],
+          "constructors": [
+            "WriterHoldFaultsR31.Event.Event@38"
+          ]
+        },
+        {
+          "original_issue_id": "RT04",
+          "lines": "261–288",
+          "methods": [
+            "WriterHoldFaultsR31.snapshot@261"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT19",
+          "lines": "195–229",
+          "methods": [
+            "WriterHoldFaultsR31.drainBatchR33@153"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT22",
+          "lines": "270–272",
+          "methods": [
+            "WriterHoldFaultsR31.snapshot@261"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+      "source_sha256": "3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",
+      "original_issue_ids": [
+        "RT05"
+      ],
+      "method_names": [
+        "savePredrawSuffixR32",
+        "saveHistoryPageR32",
+        "call"
+      ],
+      "methods": [
+        {
+          "symbol_id": "DbStore.savePredrawSuffixR32@2528",
+          "name": "savePredrawSuffixR32",
+          "owner": "DbStore",
+          "signature": "int savePredrawSuffixR32(List<Models.Draw> page, String target)",
+          "declaration_start_line": 2528,
+          "method_name_line": 2528,
+          "declaration_end_line": 2547,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT05"
+          ],
+          "anchor_lines": [
+            "2528–2614"
+          ]
+        },
+        {
+          "symbol_id": "DbStore.saveHistoryPageR32@2549",
+          "name": "saveHistoryPageR32",
+          "owner": "DbStore",
+          "signature": "private int saveHistoryPageR32(List<Models.Draw> draws, final String bootstrapBase)",
+          "declaration_start_line": 2549,
+          "method_name_line": 2549,
+          "declaration_end_line": 2623,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT05"
+          ],
+          "anchor_lines": [
+            "2528–2614"
+          ]
+        },
+        {
+          "symbol_id": "DbStore.<anonymous@2573>.call@2574",
+          "name": "call",
+          "owner": "DbStore.<anonymous@2573>",
+          "signature": "@Override public Integer call(SQLiteDatabase db)",
+          "declaration_start_line": 2574,
+          "method_name_line": 2574,
+          "declaration_end_line": 2605,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT05"
+          ],
+          "anchor_lines": [
+            "2528–2614"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT05",
+          "anchor_lines": "2528–2614",
+          "original_entrypoint_text": "savePredrawSuffixR32 / saveHistoryPageR32",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT05",
+          "lines": "2528–2614",
+          "methods": [
+            "DbStore.savePredrawSuffixR32@2528",
+            "DbStore.saveHistoryPageR32@2549",
+            "DbStore.<anonymous@2573>.call@2574"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+      "source_sha256": "3486f013667136b290085917851c4f9649cd21e1491c9e8dbb90f45bcd998083",
+      "original_issue_ids": [
+        "RT05",
+        "RT06",
+        "RT09"
+      ],
+      "method_names": [
+        "measuredDurableR80",
+        "applyPerformanceR80",
+        "readProgressR34",
+        "classifyBusinessR77"
+      ],
+      "methods": [
+        {
+          "symbol_id": "RuntimeHealthLedgerR36.measuredDurableR80@175",
+          "name": "measuredDurableR80",
+          "owner": "RuntimeHealthLedgerR36",
+          "signature": "public static boolean measuredDurableR80(long elapsed, String status, String detail)",
+          "declaration_start_line": 175,
+          "method_name_line": 175,
+          "declaration_end_line": 178,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT09"
+          ],
+          "anchor_lines": [
+            "9,173–185"
+          ]
+        },
+        {
+          "symbol_id": "RuntimeHealthLedgerR36.applyPerformanceR80@180",
+          "name": "applyPerformanceR80",
+          "owner": "RuntimeHealthLedgerR36",
+          "signature": "static void applyPerformanceR80(BusinessTruth out, Metrics metrics)",
+          "declaration_start_line": 180,
+          "method_name_line": 180,
+          "declaration_end_line": 186,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT09"
+          ],
+          "anchor_lines": [
+            "9,173–185"
+          ]
+        },
+        {
+          "symbol_id": "RuntimeHealthLedgerR36.readProgressR34@251",
+          "name": "readProgressR34",
+          "owner": "RuntimeHealthLedgerR36",
+          "signature": "private static void readProgressR34(ReportReadContextCP4 report,SQLiteDatabase db,BusinessTruth out)",
+          "declaration_start_line": 251,
+          "method_name_line": 251,
+          "declaration_end_line": 267,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT05",
+            "RT06"
+          ],
+          "anchor_lines": [
+            "260–291"
+          ]
+        },
+        {
+          "symbol_id": "RuntimeHealthLedgerR36.classifyBusinessR77@270",
+          "name": "classifyBusinessR77",
+          "owner": "RuntimeHealthLedgerR36",
+          "signature": "static void classifyBusinessR77(BusinessTruth out, int analysisSamples)",
+          "declaration_start_line": 270,
+          "method_name_line": 270,
+          "declaration_end_line": 296,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT05",
+            "RT06"
+          ],
+          "anchor_lines": [
+            "260–291"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT05",
+          "anchor_lines": "260–291",
+          "original_entrypoint_text": "runtime business root cause",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT06",
+          "anchor_lines": "260–291",
+          "original_entrypoint_text": "business chain root cause / predraw coverage",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT09",
+          "anchor_lines": "9,173–185",
+          "original_entrypoint_text": "DURABLE_RETURN_EVENT_R923 / applyPerformanceR80",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT05",
+          "lines": "260–291",
+          "methods": [
+            "RuntimeHealthLedgerR36.readProgressR34@251",
+            "RuntimeHealthLedgerR36.classifyBusinessR77@270"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT06",
+          "lines": "260–291",
+          "methods": [
+            "RuntimeHealthLedgerR36.readProgressR34@251",
+            "RuntimeHealthLedgerR36.classifyBusinessR77@270"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT09",
+          "lines": "9,173–185",
+          "methods": [
+            "RuntimeHealthLedgerR36.measuredDurableR80@175",
+            "RuntimeHealthLedgerR36.applyPerformanceR80@180"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/SettlementBacklogAuditR3611.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/SettlementBacklogAuditR3611.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/SettlementBacklogAuditR3611.java",
+      "source_sha256": "455eb3219d0c4a4492f49a5f190324a5e10ecc130ef346ce1c08d2168c230e73",
+      "original_issue_ids": [
+        "RT06"
+      ],
+      "method_names": [
+        "scan",
+        "classify",
+        "isTerminal"
+      ],
+      "methods": [
+        {
+          "symbol_id": "SettlementBacklogAuditR3611.scan@18",
+          "name": "scan",
+          "owner": "SettlementBacklogAuditR3611",
+          "signature": "public static Summary scan(DbStore store, int limit)",
+          "declaration_start_line": 18,
+          "method_name_line": 18,
+          "declaration_end_line": 69,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "31–42,71–90"
+          ]
+        },
+        {
+          "symbol_id": "SettlementBacklogAuditR3611.classify@71",
+          "name": "classify",
+          "owner": "SettlementBacklogAuditR3611",
+          "signature": "private static State classify(Row row, long now)",
+          "declaration_start_line": 71,
+          "method_name_line": 71,
+          "declaration_end_line": 84,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "31–42,71–90"
+          ]
+        },
+        {
+          "symbol_id": "SettlementBacklogAuditR3611.isTerminal@86",
+          "name": "isTerminal",
+          "owner": "SettlementBacklogAuditR3611",
+          "signature": "private static boolean isTerminal(String status)",
+          "declaration_start_line": 86,
+          "method_name_line": 86,
+          "declaration_end_line": 91,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "31–42,71–90"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT06",
+          "anchor_lines": "31–42,71–90",
+          "original_entrypoint_text": "scan / classify",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT06",
+          "lines": "31–42,71–90",
+          "methods": [
+            "SettlementBacklogAuditR3611.scan@18",
+            "SettlementBacklogAuditR3611.classify@71",
+            "SettlementBacklogAuditR3611.isTerminal@86"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "source_sha256": "c40233d3e942d3994644a6daa92394c3f8cdcf1fe1df1adcc4837f43416b4707",
+      "original_issue_ids": [
+        "RT06"
+      ],
+      "method_names": [
+        "pipelineDetail",
+        "pipelineDetailSnapshotCP4"
+      ],
+      "methods": [
+        {
+          "symbol_id": "RuntimeTruthSnapshotR906.pipelineDetail@687",
+          "name": "pipelineDetail",
+          "owner": "RuntimeTruthSnapshotR906",
+          "signature": "private static String pipelineDetail(DbStore store,SQLiteDatabase db,DiagnosticSnapshotR811 d,\n            SettlementCoverageTruthR906 cov,String summary)",
+          "declaration_start_line": 687,
+          "method_name_line": 687,
+          "declaration_end_line": 719,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "687–719,1395–1428"
+          ]
+        },
+        {
+          "symbol_id": "RuntimeTruthSnapshotR906.pipelineDetailSnapshotCP4@1395",
+          "name": "pipelineDetailSnapshotCP4",
+          "owner": "RuntimeTruthSnapshotR906",
+          "signature": "public static String pipelineDetailSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store,SQLiteDatabase db,DiagnosticSnapshotR811 d,\n            SettlementCoverageTruthR906 cov,String summary)",
+          "declaration_start_line": 1395,
+          "method_name_line": 1395,
+          "declaration_end_line": 1427,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "687–719,1395–1428"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT06",
+          "anchor_lines": "687–719,1395–1428",
+          "original_entrypoint_text": "pipelineDetail / pipelineDetailSnapshotCP4",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT06",
+          "lines": "687–719,1395–1428",
+          "methods": [
+            "RuntimeTruthSnapshotR906.pipelineDetail@687",
+            "RuntimeTruthSnapshotR906.pipelineDetailSnapshotCP4@1395"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "source_sha256": "f85144b3d09ec938b7497ba6c10001b83bdc360540648a901e44624ff7da8ff9",
+      "original_issue_ids": [
+        "RT06",
+        "RT07"
+      ],
+      "method_names": [
+        "collectRuntime",
+        "persistedNumberSurfaceR80",
+        "runtimeBusinessFailedR76",
+        "appendRuntimeItemR76",
+        "runtimeFailureItemsR76"
+      ],
+      "methods": [
+        {
+          "symbol_id": "LiveResearchDiagnosisOrchestrator.collectRuntime@818",
+          "name": "collectRuntime",
+          "owner": "LiveResearchDiagnosisOrchestrator",
+          "signature": "private StageArtifact collectRuntime(DbStore store, DiagnosisContext context)",
+          "declaration_start_line": 818,
+          "method_name_line": 818,
+          "declaration_end_line": 972,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "940,2614–2624"
+          ]
+        },
+        {
+          "symbol_id": "LiveResearchDiagnosisOrchestrator.persistedNumberSurfaceR80@1062",
+          "name": "persistedNumberSurfaceR80",
+          "owner": "LiveResearchDiagnosisOrchestrator",
+          "signature": "static String persistedNumberSurfaceR80(SQLiteDatabase db,String requestedTarget,ReportNativeCP4.Control control)throws Exception",
+          "declaration_start_line": 1062,
+          "method_name_line": 1062,
+          "declaration_end_line": 1116,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT07"
+          ],
+          "anchor_lines": [
+            "1087–1114"
+          ]
+        },
+        {
+          "symbol_id": "LiveResearchDiagnosisOrchestrator.runtimeBusinessFailedR76@2612",
+          "name": "runtimeBusinessFailedR76",
+          "owner": "LiveResearchDiagnosisOrchestrator",
+          "signature": "private static boolean runtimeBusinessFailedR76(StageArtifact stage)",
+          "declaration_start_line": 2612,
+          "method_name_line": 2612,
+          "declaration_end_line": 2615,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "940,2614–2624"
+          ]
+        },
+        {
+          "symbol_id": "LiveResearchDiagnosisOrchestrator.appendRuntimeItemR76@2617",
+          "name": "appendRuntimeItemR76",
+          "owner": "LiveResearchDiagnosisOrchestrator",
+          "signature": "private static void appendRuntimeItemR76(StringBuilder out,String item)",
+          "declaration_start_line": 2617,
+          "method_name_line": 2617,
+          "declaration_end_line": 2619,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "940,2614–2624"
+          ]
+        },
+        {
+          "symbol_id": "LiveResearchDiagnosisOrchestrator.runtimeFailureItemsR76@2621",
+          "name": "runtimeFailureItemsR76",
+          "owner": "LiveResearchDiagnosisOrchestrator",
+          "signature": "private static String runtimeFailureItemsR76(StageArtifact stage)",
+          "declaration_start_line": 2621,
+          "method_name_line": 2621,
+          "declaration_end_line": 2630,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT06"
+          ],
+          "anchor_lines": [
+            "940,2614–2624"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT06",
+          "anchor_lines": "940,2614–2624",
+          "original_entrypoint_text": "business failure classification",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT07",
+          "anchor_lines": "1087–1114",
+          "original_entrypoint_text": "persistedNumberSurfaceR80; current persisted surface",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT06",
+          "lines": "940,2614–2624",
+          "methods": [
+            "LiveResearchDiagnosisOrchestrator.collectRuntime@818",
+            "LiveResearchDiagnosisOrchestrator.runtimeBusinessFailedR76@2612",
+            "LiveResearchDiagnosisOrchestrator.appendRuntimeItemR76@2617",
+            "LiveResearchDiagnosisOrchestrator.runtimeFailureItemsR76@2621"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT07",
+          "lines": "1087–1114",
+          "methods": [
+            "LiveResearchDiagnosisOrchestrator.persistedNumberSurfaceR80@1062"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "source_sha256": "a2836d1aead1ffffb434cbd513b706b2e21780fd122b5829bff5eb561c8df392",
+      "original_issue_ids": [
+        "RT07"
+      ],
+      "method_names": [
+        "writeOneInternal",
+        "claim",
+        "call"
+      ],
+      "methods": [
+        {
+          "symbol_id": "DeferredEvidenceWriterR36.writeOneInternal@146",
+          "name": "writeOneInternal",
+          "owner": "DeferredEvidenceWriterR36",
+          "signature": "private static WriteResult writeOneInternal(\n            final DbStore store,\n            final String target,\n            final String owner,\n            final boolean settledCatchup)",
+          "declaration_start_line": 146,
+          "method_name_line": 146,
+          "declaration_end_line": 223,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT07"
+          ],
+          "anchor_lines": [
+            "197–221"
+          ]
+        },
+        {
+          "symbol_id": "DeferredEvidenceWriterR36.claim@232",
+          "name": "claim",
+          "owner": "DeferredEvidenceWriterR36",
+          "signature": "private static Claim claim(\n            final DbStore store, final String target, final String owner, final long now)",
+          "declaration_start_line": 232,
+          "method_name_line": 232,
+          "declaration_end_line": 294,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT07"
+          ],
+          "anchor_lines": [
+            "232–265"
+          ]
+        },
+        {
+          "symbol_id": "DeferredEvidenceWriterR36.<anonymous@246>.call@248",
+          "name": "call",
+          "owner": "DeferredEvidenceWriterR36.<anonymous@246>",
+          "signature": "@Override\n                            public Claim call(SQLiteDatabase db)",
+          "declaration_start_line": 247,
+          "method_name_line": 248,
+          "declaration_end_line": 291,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": true,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT07"
+          ],
+          "anchor_lines": [
+            "232–265"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT07",
+          "anchor_lines": "232–265",
+          "original_entrypoint_text": "claim",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT07",
+          "anchor_lines": "197–221",
+          "original_entrypoint_text": "materialize / complete / retry",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT07",
+          "lines": "232–265",
+          "methods": [
+            "DeferredEvidenceWriterR36.claim@232",
+            "DeferredEvidenceWriterR36.<anonymous@246>.call@248"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT07",
+          "lines": "197–221",
+          "methods": [
+            "DeferredEvidenceWriterR36.writeOneInternal@146"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+      "source_sha256": "94d8eed4d707238903ba9218675162717e2b2db1d6e5ec4c36f2198cdb88defd",
+      "original_issue_ids": [
+        "RT08"
+      ],
+      "method_names": [
+        "requestGet",
+        "requestGovernedLatest"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ApiClient.requestGet@523",
+          "name": "requestGet",
+          "owner": "ApiClient",
+          "signature": "public RawHttpResult requestGet(String urlText)",
+          "declaration_start_line": 523,
+          "method_name_line": 523,
+          "declaration_end_line": 593,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "556,1021"
+          ]
+        },
+        {
+          "symbol_id": "ApiClient.requestGovernedLatest@1017",
+          "name": "requestGovernedLatest",
+          "owner": "ApiClient",
+          "signature": "private Models.ApiResult requestGovernedLatest(\n            int limit, ApiTransportGovernanceEngine.PayloadGate gate)",
+          "declaration_start_line": 1017,
+          "method_name_line": 1017,
+          "declaration_end_line": 1022,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT08"
+          ],
+          "anchor_lines": [
+            "556,1021"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT08",
+          "anchor_lines": "556,1021",
+          "original_entrypoint_text": "requestGet / requestGovernedLatest",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT08",
+          "lines": "556,1021",
+          "methods": [
+            "ApiClient.requestGet@523",
+            "ApiClient.requestGovernedLatest@1017"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/FrameMetricsR906.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/FrameMetricsR906.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/FrameMetricsR906.java",
+      "source_sha256": "324e609e0bf3b65b6cefb627d8acd280ee8e12fc6b031072c5d7f03fd3732e7c",
+      "original_issue_ids": [
+        "RT10"
+      ],
+      "method_names": [
+        "doFrame",
+        "buildSummary"
+      ],
+      "methods": [
+        {
+          "symbol_id": "FrameMetricsR906.doFrame@43",
+          "name": "doFrame",
+          "owner": "FrameMetricsR906",
+          "signature": "@Override\n    public void doFrame(long frameTimeNanos)",
+          "declaration_start_line": 42,
+          "method_name_line": 43,
+          "declaration_end_line": 62,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT10"
+          ],
+          "anchor_lines": [
+            "43–61,85–101"
+          ]
+        },
+        {
+          "symbol_id": "FrameMetricsR906.buildSummary@85",
+          "name": "buildSummary",
+          "owner": "FrameMetricsR906",
+          "signature": "private String buildSummary()",
+          "declaration_start_line": 85,
+          "method_name_line": 85,
+          "declaration_end_line": 102,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT10"
+          ],
+          "anchor_lines": [
+            "43–61,85–101"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT10",
+          "anchor_lines": "43–61,85–101",
+          "original_entrypoint_text": "doFrame / buildSummary",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT10",
+          "lines": "43–61,85–101",
+          "methods": [
+            "FrameMetricsR906.doFrame@43",
+            "FrameMetricsR906.buildSummary@85"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "source_sha256": "b56c1430a119b8bfc8b6fb53a8a1163b10d10984dce322e941d1a821813ddc65",
+      "original_issue_ids": [
+        "RT10"
+      ],
+      "method_names": [
+        "parseDoubles"
+      ],
+      "methods": [
+        {
+          "symbol_id": "DeferredEvidenceSnapshotR36.parseDoubles@977",
+          "name": "parseDoubles",
+          "owner": "DeferredEvidenceSnapshotR36",
+          "signature": "private static double[] parseDoubles(String text)",
+          "declaration_start_line": 977,
+          "method_name_line": 977,
+          "declaration_end_line": 990,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT10"
+          ],
+          "anchor_lines": [
+            "984"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT10",
+          "anchor_lines": "984",
+          "original_entrypoint_text": "parseDoubles",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT10",
+          "lines": "984",
+          "methods": [
+            "DeferredEvidenceSnapshotR36.parseDoubles@977"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+      "source_sha256": "cf96baa43a20af21a6ae99a970d7044536066b4482fdf0dd49be57b75a09fa29",
+      "original_issue_ids": [
+        "RT10"
+      ],
+      "method_names": [
+        "freezeChampion"
+      ],
+      "methods": [
+        {
+          "symbol_id": "FixedResearchWindowR932.freezeChampion@30",
+          "name": "freezeChampion",
+          "owner": "FixedResearchWindowR932",
+          "signature": "public static void freezeChampion(final DbStore store,final DeferredEvidenceSnapshotR36.Snapshot snapshot)",
+          "declaration_start_line": 30,
+          "method_name_line": 30,
+          "declaration_end_line": 56,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT10"
+          ],
+          "anchor_lines": [
+            "43"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT10",
+          "anchor_lines": "43",
+          "original_entrypoint_text": "freezeChampion",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT10",
+          "lines": "43",
+          "methods": [
+            "FixedResearchWindowR932.freezeChampion@30"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "source_sha256": "c3e65be6de0fc87e383784e0170bcdc62b70d62bfa5ac009bad17ce0432734d6",
+      "original_issue_ids": [
+        "RT11"
+      ],
+      "method_names": [
+        "getBusinessStaleReason"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ServiceHeartbeatStore.getBusinessStaleReason@834",
+          "name": "getBusinessStaleReason",
+          "owner": "ServiceHeartbeatStore",
+          "signature": "public String getBusinessStaleReason()",
+          "declaration_start_line": 834,
+          "method_name_line": 834,
+          "declaration_end_line": 871,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT11"
+          ],
+          "anchor_lines": [
+            "838"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT11",
+          "anchor_lines": "838",
+          "original_entrypoint_text": "startup phase classification",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT11",
+          "lines": "838",
+          "methods": [
+            "ServiceHeartbeatStore.getBusinessStaleReason@834"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "source_sha256": "26e102568805f32f426bfb3049aac7f5517dcb07e6384c1e8822f6f3d637413a",
+      "original_issue_ids": [
+        "RT12"
+      ],
+      "method_names": [
+        "runtimeOperatingStateR31"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportExportServiceCP4.runtimeOperatingStateR31@156",
+          "name": "runtimeOperatingStateR31",
+          "owner": "ReportExportServiceCP4",
+          "signature": "private static java.util.Map<String,Object> runtimeOperatingStateR31(Context app)",
+          "declaration_start_line": 156,
+          "method_name_line": 156,
+          "declaration_end_line": 161,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT12"
+          ],
+          "anchor_lines": [
+            "160"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT12",
+          "anchor_lines": "160",
+          "original_entrypoint_text": "runtime operating state projection",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT12",
+          "lines": "160",
+          "methods": [
+            "ReportExportServiceCP4.runtimeOperatingStateR31@156"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeContractR922.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeContractR922.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeContractR922.java",
+      "source_sha256": "744b872fa8a4e60964e154208c17b58c4bb2337da9b3d6db517ecb9caccd99c6",
+      "original_issue_ids": [
+        "RT12"
+      ],
+      "method_names": [
+        "evaluate"
+      ],
+      "methods": [
+        {
+          "symbol_id": "BackgroundRuntimeContractR922.evaluate@11",
+          "name": "evaluate",
+          "owner": "BackgroundRuntimeContractR922",
+          "signature": "public static Evaluation evaluate(\n            boolean userEnabled,\n            boolean foregroundServiceDeclared,\n            boolean stopWithTaskFalse,\n            boolean bootReceiverDeclared,\n            boolean jobServiceDeclared,\n            boolean alarmRecoveryDeclared,\n            boolean taskRemovedReconcile,\n            boolean uiExitReconcile,\n            boolean researchLoopArmed,\n            boolean settlementLoopArmed)",
+          "declaration_start_line": 11,
+          "method_name_line": 11,
+          "declaration_end_line": 43,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT12"
+          ],
+          "anchor_lines": [
+            "1–20"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "BackgroundRuntimeContractR922.BackgroundRuntimeContractR922@9",
+          "name": "BackgroundRuntimeContractR922",
+          "owner": "BackgroundRuntimeContractR922",
+          "signature": "private BackgroundRuntimeContractR922()",
+          "declaration_start_line": 9,
+          "method_name_line": 9,
+          "declaration_end_line": 9,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT12"
+          ],
+          "anchor_lines": [
+            "1–20"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT12",
+          "anchor_lines": "1–20",
+          "original_entrypoint_text": "platform recovery contract",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT12",
+          "lines": "1–20",
+          "methods": [
+            "BackgroundRuntimeContractR922.evaluate@11"
+          ],
+          "constructors": [
+            "BackgroundRuntimeContractR922.BackgroundRuntimeContractR922@9"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java",
+      "source_sha256": "1f71c281105cc72724920aa5171504b474cb89bc39dfbf93d89546953d44538b",
+      "original_issue_ids": [
+        "RT13"
+      ],
+      "method_names": [
+        "persistOomLowAllocation",
+        "detailedSummary"
+      ],
+      "methods": [
+        {
+          "symbol_id": "CrashRecorder.persistOomLowAllocation@127",
+          "name": "persistOomLowAllocation",
+          "owner": "CrashRecorder",
+          "signature": "private void persistOomLowAllocation(Thread thread, String stage)",
+          "declaration_start_line": 127,
+          "method_name_line": 127,
+          "declaration_end_line": 152,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT13"
+          ],
+          "anchor_lines": [
+            "150–180"
+          ]
+        },
+        {
+          "symbol_id": "CrashRecorder.detailedSummary@154",
+          "name": "detailedSummary",
+          "owner": "CrashRecorder",
+          "signature": "public static String detailedSummary(Context context)",
+          "declaration_start_line": 154,
+          "method_name_line": 154,
+          "declaration_end_line": 189,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT13"
+          ],
+          "anchor_lines": [
+            "150–180"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT13",
+          "anchor_lines": "150–180",
+          "original_entrypoint_text": "summary crash window export",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT13",
+          "lines": "150–180",
+          "methods": [
+            "CrashRecorder.persistOomLowAllocation@127",
+            "CrashRecorder.detailedSummary@154"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/FieldFollowupR34.java",
+      "source_sha256": "53e40aff2254309ba2be725d490af92b94b7e45c2a5606ae6c92a61cd409d936",
+      "original_issue_ids": [
+        "RT14"
+      ],
+      "method_names": [
+        "capture"
+      ],
+      "methods": [
+        {
+          "symbol_id": "FieldFollowupR34.capture@21",
+          "name": "capture",
+          "owner": "FieldFollowupR34",
+          "signature": "static Map<String,Object> capture(SQLiteDatabase db,CancellationSignal cancel,Map<String,Object> source)",
+          "declaration_start_line": 21,
+          "method_name_line": 21,
+          "declaration_end_line": 63,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT14"
+          ],
+          "anchor_lines": [
+            "42–44"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT14",
+          "anchor_lines": "42–44",
+          "original_entrypoint_text": "source projections",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT14",
+          "lines": "42–44",
+          "methods": [
+            "FieldFollowupR34.capture@21"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthSchemaR34.java",
+      "source_sha256": "a22040c1e22b456f80618672aecb2761c9ba4797f9d06b6cd45d240ed8207d79",
+      "original_issue_ids": [
+        "RT14"
+      ],
+      "method_names": [
+        "declares",
+        "require"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ColdRebirthSchemaR34.declares@19",
+          "name": "declares",
+          "owner": "ColdRebirthSchemaR34",
+          "signature": "public static boolean declares(String name)",
+          "declaration_start_line": 19,
+          "method_name_line": 19,
+          "declaration_end_line": 23,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT14"
+          ],
+          "anchor_lines": [
+            "11–28"
+          ]
+        },
+        {
+          "symbol_id": "ColdRebirthSchemaR34.require@24",
+          "name": "require",
+          "owner": "ColdRebirthSchemaR34",
+          "signature": "public static void require(SQLiteDatabase db)",
+          "declaration_start_line": 24,
+          "method_name_line": 24,
+          "declaration_end_line": 31,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT14"
+          ],
+          "anchor_lines": [
+            "11–28"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT14",
+          "anchor_lines": "11–28",
+          "original_entrypoint_text": "cold rebirth schema",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT14",
+          "lines": "11–28",
+          "methods": [
+            "ColdRebirthSchemaR34.declares@19",
+            "ColdRebirthSchemaR34.require@24"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "source_sha256": "005d6898c6f397766db3e24a4428d25c2df800be592e9bc379f62b0facec08d2",
+      "original_issue_ids": [
+        "RT14"
+      ],
+      "method_names": [
+        "schemaObjectsR31"
+      ],
+      "methods": [
+        {
+          "symbol_id": "AtomNetPublicationR31.schemaObjectsR31@51",
+          "name": "schemaObjectsR31",
+          "owner": "AtomNetPublicationR31",
+          "signature": "public static String[][] schemaObjectsR31()",
+          "declaration_start_line": 51,
+          "method_name_line": 51,
+          "declaration_end_line": 51,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT14"
+          ],
+          "anchor_lines": [
+            "26–37,51"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT14",
+          "anchor_lines": "26–37,51",
+          "original_entrypoint_text": "optimizer/unavailable label schema",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT14",
+          "lines": "26–37,51",
+          "methods": [
+            "AtomNetPublicationR31.schemaObjectsR31@51"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+      "source_sha256": "a4e210c07e16ae82539066da73f327630098863bbfe33be5246e8fa190736800",
+      "original_issue_ids": [
+        "RT15",
+        "RT17",
+        "RT18"
+      ],
+      "method_names": [
+        "detail",
+        "protection",
+        "sqliteSpace"
+      ],
+      "methods": [
+        {
+          "symbol_id": "StorageCensusSU2.detail@31",
+          "name": "detail",
+          "owner": "StorageCensusSU2",
+          "signature": "static String detail(String path)",
+          "declaration_start_line": 31,
+          "method_name_line": 31,
+          "declaration_end_line": 42,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "40–48"
+          ]
+        },
+        {
+          "symbol_id": "StorageCensusSU2.protection@45",
+          "name": "protection",
+          "owner": "StorageCensusSU2",
+          "signature": "private static String protection(String path, String category)",
+          "declaration_start_line": 45,
+          "method_name_line": 45,
+          "declaration_end_line": 49,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "40–48"
+          ]
+        },
+        {
+          "symbol_id": "StorageCensusSU2.sqliteSpace@125",
+          "name": "sqliteSpace",
+          "owner": "StorageCensusSU2",
+          "signature": "public static Map<String,Object> sqliteSpace(android.database.sqlite.SQLiteDatabase db,android.os.CancellationSignal cancellation)",
+          "declaration_start_line": 125,
+          "method_name_line": 125,
+          "declaration_end_line": 128,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT17",
+            "RT18"
+          ],
+          "anchor_lines": [
+            "126–127"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "StorageCensusSU2.Entry.Entry@43",
+          "name": "Entry",
+          "owner": "StorageCensusSU2.Entry",
+          "signature": "Entry(String p,long b)",
+          "declaration_start_line": 43,
+          "method_name_line": 43,
+          "declaration_end_line": 43,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "40–48"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT15",
+          "anchor_lines": "40–48",
+          "original_entrypoint_text": "classification",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT17",
+          "anchor_lines": "126–127",
+          "original_entrypoint_text": "actual B-tree page measurement",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT18",
+          "anchor_lines": "126–127",
+          "original_entrypoint_text": "dbstat GROUP BY name ORDER BY name LIMIT 1025",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT15",
+          "lines": "40–48",
+          "methods": [
+            "StorageCensusSU2.detail@31",
+            "StorageCensusSU2.protection@45"
+          ],
+          "constructors": [
+            "StorageCensusSU2.Entry.Entry@43"
+          ]
+        },
+        {
+          "original_issue_id": "RT17",
+          "lines": "126–127",
+          "methods": [
+            "StorageCensusSU2.sqliteSpace@125"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT18",
+          "lines": "126–127",
+          "methods": [
+            "StorageCensusSU2.sqliteSpace@125"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+      "source_sha256": "94c47a76273b1e60e5437e96337bc4882667b453c4218753d44818aa7a5581bd",
+      "original_issue_ids": [
+        "RT15",
+        "RT17"
+      ],
+      "method_names": [
+        "kind",
+        "clean"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ResearchRetentionR30.kind@48",
+          "name": "kind",
+          "owner": "ResearchRetentionR30",
+          "signature": "public static String kind(String relative)",
+          "declaration_start_line": 48,
+          "method_name_line": 48,
+          "declaration_end_line": 52,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15"
+          ],
+          "anchor_lines": [
+            "50,93–102"
+          ]
+        },
+        {
+          "symbol_id": "ResearchRetentionR30.clean@84",
+          "name": "clean",
+          "owner": "ResearchRetentionR30",
+          "signature": "public static Result clean(File dataRoot,long budget,Audit audit)throws Exception",
+          "declaration_start_line": 84,
+          "method_name_line": 84,
+          "declaration_end_line": 104,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT15",
+            "RT17"
+          ],
+          "anchor_lines": [
+            "50,93–102",
+            "93–102"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT15",
+          "anchor_lines": "50,93–102",
+          "original_entrypoint_text": "classification / retained cleanup",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT17",
+          "anchor_lines": "93–102",
+          "original_entrypoint_text": "verified candidate cleanup",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT15",
+          "lines": "50,93–102",
+          "methods": [
+            "ResearchRetentionR30.kind@48",
+            "ResearchRetentionR30.clean@84"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT17",
+          "lines": "93–102",
+          "methods": [
+            "ResearchRetentionR30.clean@84"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+      "source_sha256": "8d9ec59ce7c96bea800661a116fb27b9412387fbdf6f675088fdafeecb7557fe",
+      "original_issue_ids": [
+        "RT16"
+      ],
+      "method_names": [
+        "prepare"
+      ],
+      "methods": [
+        {
+          "symbol_id": "StartupCheckpointIdentityR31.prepare@94",
+          "name": "prepare",
+          "owner": "StartupCheckpointIdentityR31",
+          "signature": "public static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot)throws IOException",
+          "declaration_start_line": 94,
+          "method_name_line": 94,
+          "declaration_end_line": 94,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT16"
+          ],
+          "anchor_lines": [
+            "94–114"
+          ]
+        },
+        {
+          "symbol_id": "StartupCheckpointIdentityR31.prepare@95",
+          "name": "prepare",
+          "owner": "StartupCheckpointIdentityR31",
+          "signature": "public static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot,BudgetTokenSU1 budget)throws IOException",
+          "declaration_start_line": 95,
+          "method_name_line": 95,
+          "declaration_end_line": 116,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT16"
+          ],
+          "anchor_lines": [
+            "94–114"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT16",
+          "anchor_lines": "94–114",
+          "original_entrypoint_text": "prepare / original comparison",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT16",
+          "lines": "94–114",
+          "methods": [
+            "StartupCheckpointIdentityR31.prepare@94",
+            "StartupCheckpointIdentityR31.prepare@95"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "source_sha256": "d8efb8a124977c8b688112d09d4d0f9dc9d5f837bba48e63c503f51641958c3b",
+      "original_issue_ids": [
+        "RT16"
+      ],
+      "method_names": [
+        "observe"
+      ],
+      "methods": [
+        {
+          "symbol_id": "CheckpointReportAuditR32.observe@30",
+          "name": "observe",
+          "owner": "CheckpointReportAuditR32",
+          "signature": "private static JSONObject observe(File directory,Set<String> roots,Writer out,BooleanSupplier continuing,boolean omittedRoots)throws Exception",
+          "declaration_start_line": 30,
+          "method_name_line": 30,
+          "declaration_end_line": 93,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT16"
+          ],
+          "anchor_lines": [
+            "45–91"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT16",
+          "anchor_lines": "45–91",
+          "original_entrypoint_text": "original availability / byte verification / closure projection",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT16",
+          "lines": "45–91",
+          "methods": [
+            "CheckpointReportAuditR32.observe@30"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "source_sha256": "49b72e5c17637f7db3223e9033a82bf330aab9883ddd7b462e4fd33de10210f8",
+      "original_issue_ids": [
+        "RT19",
+        "RT23"
+      ],
+      "method_names": [
+        "capture"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportAttachmentClosureCP12.capture@39",
+          "name": "capture",
+          "owner": "ReportAttachmentClosureCP12",
+          "signature": "public static void capture(Context context,SQLiteDatabase copy,File job,JSONObject request,\n                               ReportNativeCP4.Control control,Writer members,String snapshotHash,long snapshotBytes)throws Exception",
+          "declaration_start_line": 39,
+          "method_name_line": 39,
+          "declaration_end_line": 233,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT19",
+            "RT23"
+          ],
+          "anchor_lines": [
+            "64–95"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT19",
+          "anchor_lines": "64–95",
+          "original_entrypoint_text": "diagnostic payload omissions",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT23",
+          "anchor_lines": "64–95",
+          "original_entrypoint_text": "manifest omissions",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT19",
+          "lines": "64–95",
+          "methods": [
+            "ReportAttachmentClosureCP12.capture@39"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT23",
+          "lines": "64–95",
+          "methods": [
+            "ReportAttachmentClosureCP12.capture@39"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+      "source_sha256": "a28ea80b93a2321db2e55ae6e56b54228d3ef777a8d1b759f2c0b43f264baaad",
+      "original_issue_ids": [
+        "RT20",
+        "RT21"
+      ],
+      "method_names": [
+        "hasCompleteResult",
+        "writeReadableSummary"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportCatalogCP4.hasCompleteResult@76",
+          "name": "hasCompleteResult",
+          "owner": "ReportCatalogCP4",
+          "signature": "public static boolean hasCompleteResult(CheckSpec spec,CheckResult result)",
+          "declaration_start_line": 76,
+          "method_name_line": 76,
+          "declaration_end_line": 84,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT20",
+            "RT21"
+          ],
+          "anchor_lines": [
+            "64–80,145–146",
+            "64–80"
+          ]
+        },
+        {
+          "symbol_id": "ReportCatalogCP4.writeReadableSummary@136",
+          "name": "writeReadableSummary",
+          "owner": "ReportCatalogCP4",
+          "signature": "public static File writeReadableSummary(File job,Result result,ReportNativeCP4.Control control)throws Exception",
+          "declaration_start_line": 136,
+          "method_name_line": 136,
+          "declaration_end_line": 160,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT20"
+          ],
+          "anchor_lines": [
+            "64–80,145–146"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "ReportCatalogCP4.CheckSpec.CheckSpec@61",
+          "name": "CheckSpec",
+          "owner": "ReportCatalogCP4.CheckSpec",
+          "signature": "public CheckSpec(String id, String section, String sourcePath, String sourceMethod,\n                String queryContract, String evidenceMember, boolean required, CheckRunner runner)",
+          "declaration_start_line": 61,
+          "method_name_line": 61,
+          "declaration_end_line": 65,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT20",
+            "RT21"
+          ],
+          "anchor_lines": [
+            "64–80,145–146",
+            "64–80"
+          ]
+        },
+        {
+          "symbol_id": "ReportCatalogCP4.CheckSpec.CheckSpec@66",
+          "name": "CheckSpec",
+          "owner": "ReportCatalogCP4.CheckSpec",
+          "signature": "public CheckSpec(String id,String section,String sourcePath,String sourceMethod,\n                String queryContract,String evidenceMember,boolean required,CheckKind kind,CheckRunner runner)",
+          "declaration_start_line": 66,
+          "method_name_line": 66,
+          "declaration_end_line": 73,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT20",
+            "RT21"
+          ],
+          "anchor_lines": [
+            "64–80,145–146",
+            "64–80"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT20",
+          "anchor_lines": "64–80,145–146",
+          "original_entrypoint_text": "CheckKind / completeness",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT21",
+          "anchor_lines": "64–80",
+          "original_entrypoint_text": "diagnostic vs assertion semantics",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT20",
+          "lines": "64–80,145–146",
+          "methods": [
+            "ReportCatalogCP4.hasCompleteResult@76",
+            "ReportCatalogCP4.writeReadableSummary@136"
+          ],
+          "constructors": [
+            "ReportCatalogCP4.CheckSpec.CheckSpec@61",
+            "ReportCatalogCP4.CheckSpec.CheckSpec@66"
+          ]
+        },
+        {
+          "original_issue_id": "RT21",
+          "lines": "64–80",
+          "methods": [
+            "ReportCatalogCP4.hasCompleteResult@76"
+          ],
+          "constructors": [
+            "ReportCatalogCP4.CheckSpec.CheckSpec@61",
+            "ReportCatalogCP4.CheckSpec.CheckSpec@66"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "source_sha256": "a7d61c106626f3e0219827afbad6a024c500fdf1667b235caab036766668468a",
+      "original_issue_ids": [
+        "RT20"
+      ],
+      "method_names": [
+        "writeReceipt",
+        "verifyDelivery"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportSemanticVerifierR31.writeReceipt@83",
+          "name": "writeReceipt",
+          "owner": "ReportSemanticVerifierR31",
+          "signature": "public static File writeReceipt(File directory,Map<String,Object> document,ReportCatalogCP4.Result catalog,\n            ReportJobJournalCP12.Job job,boolean raw,ReportNativeCP4.Control control)throws Exception",
+          "declaration_start_line": 83,
+          "method_name_line": 83,
+          "declaration_end_line": 120,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT20"
+          ],
+          "anchor_lines": [
+            "111,165"
+          ]
+        },
+        {
+          "symbol_id": "ReportSemanticVerifierR31.verifyDelivery@157",
+          "name": "verifyDelivery",
+          "owner": "ReportSemanticVerifierR31",
+          "signature": "public static void verifyDelivery(File directory,ReportJobJournalCP12.Job job,ReportNativeCP4.Control control)throws Exception",
+          "declaration_start_line": 157,
+          "method_name_line": 157,
+          "declaration_end_line": 187,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT20"
+          ],
+          "anchor_lines": [
+            "111,165"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT20",
+          "anchor_lines": "111,165",
+          "original_entrypoint_text": "semantic archive verification",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT20",
+          "lines": "111,165",
+          "methods": [
+            "ReportSemanticVerifierR31.writeReceipt@83",
+            "ReportSemanticVerifierR31.verifyDelivery@157"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+      "source_sha256": "f6c8e8cdcbd35b4ebd2eb097b928b4542683a27a49c30e359f3d96795f9457e2",
+      "original_issue_ids": [
+        "RT20",
+        "RT21"
+      ],
+      "method_names": [
+        "failed",
+        "map",
+        "finite",
+        "verifiedPass",
+        "group",
+        "evaluate"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportAssessmentR33.failed@9",
+          "name": "failed",
+          "owner": "ReportAssessmentR33",
+          "signature": "private static boolean failed(String status)",
+          "declaration_start_line": 9,
+          "method_name_line": 9,
+          "declaration_end_line": 12,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT21"
+          ],
+          "anchor_lines": [
+            "1–80"
+          ]
+        },
+        {
+          "symbol_id": "ReportAssessmentR33.map@13",
+          "name": "map",
+          "owner": "ReportAssessmentR33",
+          "signature": "private static Map<?,?> map(Object value)",
+          "declaration_start_line": 13,
+          "method_name_line": 13,
+          "declaration_end_line": 13,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT21"
+          ],
+          "anchor_lines": [
+            "1–80"
+          ]
+        },
+        {
+          "symbol_id": "ReportAssessmentR33.finite@14",
+          "name": "finite",
+          "owner": "ReportAssessmentR33",
+          "signature": "private static Double finite(Object value)",
+          "declaration_start_line": 14,
+          "method_name_line": 14,
+          "declaration_end_line": 17,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT21"
+          ],
+          "anchor_lines": [
+            "1–80"
+          ]
+        },
+        {
+          "symbol_id": "ReportAssessmentR33.verifiedPass@18",
+          "name": "verifiedPass",
+          "owner": "ReportAssessmentR33",
+          "signature": "private static boolean verifiedPass(Map<?,?> row,String id)",
+          "declaration_start_line": 18,
+          "method_name_line": 18,
+          "declaration_end_line": 35,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT21"
+          ],
+          "anchor_lines": [
+            "1–80"
+          ]
+        },
+        {
+          "symbol_id": "ReportAssessmentR33.group@36",
+          "name": "group",
+          "owner": "ReportAssessmentR33",
+          "signature": "private static Map<String,Object> group(Map<String,Map<?,?>> rows,List<String> wanted,boolean device,boolean conflicts,boolean natural)",
+          "declaration_start_line": 36,
+          "method_name_line": 36,
+          "declaration_end_line": 62,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT20",
+            "RT21"
+          ],
+          "anchor_lines": [
+            "54",
+            "1–80"
+          ]
+        },
+        {
+          "symbol_id": "ReportAssessmentR33.evaluate@63",
+          "name": "evaluate",
+          "owner": "ReportAssessmentR33",
+          "signature": "public static Map<String,Object> evaluate(Object metricObject,Object errorObject)",
+          "declaration_start_line": 63,
+          "method_name_line": 63,
+          "declaration_end_line": 90,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT21"
+          ],
+          "anchor_lines": [
+            "1–80"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "ReportAssessmentR33.ReportAssessmentR33@8",
+          "name": "ReportAssessmentR33",
+          "owner": "ReportAssessmentR33",
+          "signature": "private ReportAssessmentR33()",
+          "declaration_start_line": 8,
+          "method_name_line": 8,
+          "declaration_end_line": 8,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT21"
+          ],
+          "anchor_lines": [
+            "1–80"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT20",
+          "anchor_lines": "54",
+          "original_entrypoint_text": "device evidence aggregation",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        },
+        {
+          "original_issue_id": "RT21",
+          "anchor_lines": "1–80",
+          "original_entrypoint_text": "metric aggregation",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT20",
+          "lines": "54",
+          "methods": [
+            "ReportAssessmentR33.group@36"
+          ],
+          "constructors": []
+        },
+        {
+          "original_issue_id": "RT21",
+          "lines": "1–80",
+          "methods": [
+            "ReportAssessmentR33.failed@9",
+            "ReportAssessmentR33.map@13",
+            "ReportAssessmentR33.finite@14",
+            "ReportAssessmentR33.verifiedPass@18",
+            "ReportAssessmentR33.group@36",
+            "ReportAssessmentR33.evaluate@63"
+          ],
+          "constructors": [
+            "ReportAssessmentR33.ReportAssessmentR33@8"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "source_sha256": "921651f73d3a5c813625efe7c2960c2298a85405ff6a43ee4599c21f4ce42bdd",
+      "original_issue_ids": [
+        "RT22"
+      ],
+      "method_names": [
+        "has",
+        "add",
+        "count",
+        "rows",
+        "sql",
+        "capture"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportSnapshotR30.Query.has@28",
+          "name": "has",
+          "owner": "ReportSnapshotR30.Query",
+          "signature": "boolean has(String table,String... columns)",
+          "declaration_start_line": 28,
+          "method_name_line": 28,
+          "declaration_end_line": 28,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.Query.add@29",
+          "name": "add",
+          "owner": "ReportSnapshotR30.Query",
+          "signature": "void add(String key,String sql,boolean numeric)",
+          "declaration_start_line": 29,
+          "method_name_line": 29,
+          "declaration_end_line": 29,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.Query.count@30",
+          "name": "count",
+          "owner": "ReportSnapshotR30.Query",
+          "signature": "void count(String key,String table)",
+          "declaration_start_line": 30,
+          "method_name_line": 30,
+          "declaration_end_line": 30,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.Query.rows@31",
+          "name": "rows",
+          "owner": "ReportSnapshotR30.Query",
+          "signature": "void rows(String key,String table,String[] wanted,String order,int limit,String where,int maxCell)",
+          "declaration_start_line": 31,
+          "method_name_line": 31,
+          "declaration_end_line": 42,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.Query.sql@43",
+          "name": "sql",
+          "owner": "ReportSnapshotR30.Query",
+          "signature": "String sql()",
+          "declaration_start_line": 43,
+          "method_name_line": 43,
+          "declaration_end_line": 43,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.capture@45",
+          "name": "capture",
+          "owner": "ReportSnapshotR30",
+          "signature": "public static ReportR27.R30Input capture(SQLiteDatabase db)",
+          "declaration_start_line": 45,
+          "method_name_line": 45,
+          "declaration_end_line": 45,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.capture@46",
+          "name": "capture",
+          "owner": "ReportSnapshotR30",
+          "signature": "public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source)",
+          "declaration_start_line": 46,
+          "method_name_line": 46,
+          "declaration_end_line": 46,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.capture@47",
+          "name": "capture",
+          "owner": "ReportSnapshotR30",
+          "signature": "public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source,android.os.CancellationSignal cancellation)",
+          "declaration_start_line": 47,
+          "method_name_line": 47,
+          "declaration_end_line": 155,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        }
+      ],
+      "constructors": [
+        {
+          "symbol_id": "ReportSnapshotR30.ReportSnapshotR30@16",
+          "name": "ReportSnapshotR30",
+          "owner": "ReportSnapshotR30",
+          "signature": "private ReportSnapshotR30()",
+          "declaration_start_line": 16,
+          "method_name_line": 16,
+          "declaration_end_line": 16,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.Table.Table@21",
+          "name": "Table",
+          "owner": "ReportSnapshotR30.Table",
+          "signature": "Table(String name)",
+          "declaration_start_line": 21,
+          "method_name_line": 21,
+          "declaration_end_line": 21,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.Cell.Cell@23",
+          "name": "Cell",
+          "owner": "ReportSnapshotR30.Cell",
+          "signature": "Cell(String key,String sql,boolean numeric)",
+          "declaration_start_line": 23,
+          "method_name_line": 23,
+          "declaration_end_line": 23,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        },
+        {
+          "symbol_id": "ReportSnapshotR30.Query.Query@27",
+          "name": "Query",
+          "owner": "ReportSnapshotR30.Query",
+          "signature": "Query(Map<String,Table> tables,List<String> errors)",
+          "declaration_start_line": 27,
+          "method_name_line": 27,
+          "declaration_end_line": 27,
+          "kind": "constructor",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT22"
+          ],
+          "anchor_lines": [
+            "1–100"
+          ]
+        }
+      ],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT22",
+          "anchor_lines": "1–100",
+          "original_entrypoint_text": "snapshot projections",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT22",
+          "lines": "1–100",
+          "methods": [
+            "ReportSnapshotR30.Query.has@28",
+            "ReportSnapshotR30.Query.add@29",
+            "ReportSnapshotR30.Query.count@30",
+            "ReportSnapshotR30.Query.rows@31",
+            "ReportSnapshotR30.Query.sql@43",
+            "ReportSnapshotR30.capture@45",
+            "ReportSnapshotR30.capture@46",
+            "ReportSnapshotR30.capture@47"
+          ],
+          "constructors": [
+            "ReportSnapshotR30.ReportSnapshotR30@16",
+            "ReportSnapshotR30.Table.Table@21",
+            "ReportSnapshotR30.Cell.Cell@23",
+            "ReportSnapshotR30.Query.Query@27"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+      "source_sha256": "bda5dcfb1d7e406f1715b3c71715ae7d3990e3dc148b9e0981eb79af549649dc",
+      "original_issue_ids": [
+        "RT23"
+      ],
+      "method_names": [
+        "compactDiagnosticR64",
+        "evidenceMemberR64"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportReadContextCP4.compactDiagnosticR64@45",
+          "name": "compactDiagnosticR64",
+          "owner": "ReportReadContextCP4",
+          "signature": "public boolean compactDiagnosticR64()",
+          "declaration_start_line": 45,
+          "method_name_line": 45,
+          "declaration_end_line": 70,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT23"
+          ],
+          "anchor_lines": [
+            "42–71"
+          ]
+        },
+        {
+          "symbol_id": "ReportReadContextCP4.evidenceMemberR64@71",
+          "name": "evidenceMemberR64",
+          "owner": "ReportReadContextCP4",
+          "signature": "public String evidenceMemberR64()",
+          "declaration_start_line": 71,
+          "method_name_line": 71,
+          "declaration_end_line": 71,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT23"
+          ],
+          "anchor_lines": [
+            "42–71"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT23",
+          "anchor_lines": "42–71",
+          "original_entrypoint_text": "diagnostic profile / evidenceMemberR64",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT23",
+          "lines": "42–71",
+          "methods": [
+            "ReportReadContextCP4.compactDiagnosticR64@45",
+            "ReportReadContextCP4.evidenceMemberR64@71"
+          ],
+          "constructors": []
+        }
+      ]
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+      "source_file": "repo-source/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+      "absolute_path": "audit/repo-source/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+      "source_sha256": "5af23a43c070e9d9987260a97dff86cddd906d1b18bf018eb7a143eb2b071b0b",
+      "original_issue_ids": [
+        "RT23"
+      ],
+      "method_names": [
+        "write"
+      ],
+      "methods": [
+        {
+          "symbol_id": "ReportDiagnosticEvidenceR64.write@12",
+          "name": "write",
+          "owner": "ReportDiagnosticEvidenceR64",
+          "signature": "public static File write(SQLiteDatabase snapshot, File job, String hash,\n            ReportNativeCP4.Control control) throws Exception",
+          "declaration_start_line": 12,
+          "method_name_line": 12,
+          "declaration_end_line": 144,
+          "kind": "method",
+          "has_executable_body": true,
+          "anonymous_callback": false,
+          "verification": "JAVA_COMPILER_AST_DECLARATION_AT_SOURCE_COMMIT",
+          "original_issue_ids": [
+            "RT23"
+          ],
+          "anchor_lines": [
+            "15–18"
+          ]
+        }
+      ],
+      "constructors": [],
+      "entrypoint_notes": [
+        {
+          "original_issue_id": "RT23",
+          "anchor_lines": "15–18",
+          "original_entrypoint_text": "diagnostic export",
+          "interpretation": "原串是定位说明，只有下列 AST 声明可当方法名；类、字段、DDL、枚举、SQL 文本不作方法声明。"
+        }
+      ],
+      "source_anchor_map": [
+        {
+          "original_issue_id": "RT23",
+          "lines": "15–18",
+          "methods": [
+            "ReportDiagnosticEvidenceR64.write@12"
+          ],
+          "constructors": []
+        }
+      ]
+    }
+  ],
+  "self_check": {
+    "files": 35,
+    "original_issue_count": 23,
+    "all_file_method_declarations_parsed": 2824,
+    "selected_method_declarations": 121,
+    "selected_constructor_declarations": 13,
+    "errors": []
+  }
+}

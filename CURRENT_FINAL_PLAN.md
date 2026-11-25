@@ -1,27 +1,19 @@
-# 当前唯一施工入口：STARCORE R34.1 122版返修
+# 当前唯一施工入口：STARCORE R34.2 · 152底座完整返修方案
 
-**从第 6 版开工。** [持续创造不同机制的工单与验收](construction/plans/STARCORE_R34_1_REPAIR_20261124/FIELD6.md) · [给 Codex 的完整施工任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)。
+**2026-11-25｜文档修订1｜57项问题/缺口与施工前置｜12批顺序施工。**
 
-[第 5 版开工、持续运行和真实应用的施工变更](construction/plans/STARCORE_R34_1_REPAIR_20261124/FIELD5.md) · [直接交给施工方的任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)。
+1. [完整汇总施工方案](construction/plans/STARCORE_R34_2_REPAIR_20261125/CONSTRUCTION_PLAN.md)
+2. [57项详细问题、原因和处理方法](construction/plans/STARCORE_R34_2_REPAIR_20261125/ISSUES.md)
+3. [唯一施工任务书](construction/plans/STARCORE_R34_2_REPAIR_20261125/CODEX_EXECUTE.md)
+4. [12批施工顺序](construction/plans/STARCORE_R34_2_REPAIR_20261125/BATCH_INDEX.md)与[逐文件修改矩阵](construction/plans/STARCORE_R34_2_REPAIR_20261125/FILE_MODIFICATION_MATRIX.md)
+5. [96检查/44指标/165方向全量覆盖](construction/plans/STARCORE_R34_2_REPAIR_20261125/coverage/README.md)
+6. [原方案62工单/152验收/295文件卡承接](construction/plans/STARCORE_R34_2_REPAIR_20261125/inheritance/R341_WORK_ORDER_STATUS.md)
+7. [报告1832需求/299文件卡原样传承](construction/plans/STARCORE_R34_2_REPAIR_20261125/inheritance/REPORT_LEDGER_INHERITANCE.md)
+8. [唯一主链](construction/plans/STARCORE_R34_2_REPAIR_20261125/specs/MAINLINE.md)、[成熟功能保留](construction/plans/STARCORE_R34_2_REPAIR_20261125/specs/PRESERVATION.md)、[资格四域](construction/plans/STARCORE_R34_2_REPAIR_20261125/specs/CERTIFICATE_DOMAINS.md)
+9. [新增验收合同](construction/plans/STARCORE_R34_2_REPAIR_20261125/ACCEPTANCE_MATRIX.md)与[本轮实际自检](construction/plans/STARCORE_R34_2_REPAIR_20261125/SELF_CHECK.md)
 
-[持续创造、堵点与合格资产真实出手的施工和验收](construction/plans/STARCORE_R34_1_REPAIR_20261124/FIELD4.md) · [全部文件的实际调用与验收](construction/plans/STARCORE_R34_1_REPAIR_20261124/FILE_WIRING.md)。
+应用实施基线固定为 **577311152 / `eb8f82a8bda8db22f1f122095217132f07053bcb`**，对应报告中的R34.1-B12安装版本。后续从此源码或已核验的后代增量施工；main维护计划入口，本次不覆盖应用源码。
 
-[报告提出的升级方向逐条施工表](construction/plans/STARCORE_R34_1_REPAIR_20261124/UPGRADE_ACTIONS.md)。
+旧R34.1第6版仍保留为[历史要求与封印](construction/plans/STARCORE_R34_1_REPAIR_20261124/README.md)，不再作为122底座的新开工指令；禁止把旧整文件后态套到152。所有成熟能力、历史产物和原验收要求按新方案传承。
 
-**当前为 R34.1 第 6 版，适用 577311122。** [本次新报告与逐批施工变更](construction/plans/STARCORE_R34_1_REPAIR_20261124/FIELD3.md) · [完整施工任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)。
-
-当前执行 [STARCORE_R34_1_REPAIR_20261124](construction/plans/STARCORE_R34_1_REPAIR_20261124/README.md)。
-
-先读 [完整Codex施工任务书](construction/plans/STARCORE_R34_1_REPAIR_20261124/CODEX_EXECUTE.md)，再按 [12批施工索引](construction/plans/STARCORE_R34_1_REPAIR_20261124/BATCH_INDEX.md) 实施。
-
-- 应用源码底座：`construction/r34-20261123` 的 `5562f9b19aa09f9f7d9e69ca085db56c537967fc`。
-- 实际安装基线：`R34-B12-2026-11-24-577311122`。
-- main 交付两次观察的方案与证据。施工从上述 122 应用源码提交建立工作树。
-- 新方案完整承接旧R34的66工单、152文件范围，以及R33.5的66项要求；旧方案不删除，但不作为本轮单独开工入口。
-- 本次状态：方案已设计，应用实施尚未执行。工程、APK、设备24/72h与自然质量必须各自提供实际回执，不由计划自检代签。
-
-第一份现场报告原包：[STARCORE-9325298a3e033715226cf1126404c5a5273a6928f88.zip](construction/evidence/STARCORE_R34_1_20261124/raw/STARCORE-9325298a3e033715226cf1126404c5a5273a6928f88.zip)。
-
-第二份现场报告见[报告身份与 57 个成员摘要](construction/plans/STARCORE_R34_1_REPAIR_20261124/evidence/FIELD3_IDENTITY.json)、[逐条优化方向](construction/plans/STARCORE_R34_1_REPAIR_20261124/UPGRADE_ACTIONS.md)和[两次观察间的 467 期对账](construction/plans/STARCORE_R34_1_REPAIR_20261124/evidence/field3/runtime_delta.json)。
-
-历史入口：[R34旧方案](construction/plans/STARCORE_R34_20261123/README.md)、[R33.5复核方案](construction/plans/STARCORE_R33_5_REVIEW_20261119/README.md)。保留历史封印和资料，禁止套用旧整文件后态覆盖当前源代码。
+**本次为审计与方案更新，不是应用源码修复、APK构建、真机长测或自然质量验收完成。** 每层必须取得各自真实原件；研究应持续创造、训练、验证和晋升，不能承诺无证据的高胜率或每代必强。

@@ -12,7 +12,16 @@ import zipfile
 PREFIX="/gtt46461-star/starcore-public-build/releases/download/"
 
 
-def collect(candidate,output):
+def collect(candidate,output,series='R34.1'):
+    if series == 'R34.2':
+        if (candidate.get('series') != series
+                or not re.fullmatch(r'[0-9a-f]{40}',candidate.get('sourceCommit',''))
+                or not re.fullmatch(r'B(?:0[1-9]|1[0-2])',candidate.get('batch',''))
+                or not re.fullmatch(r'[0-9a-f]{40}',candidate.get('planCommit',''))
+                or not re.fullmatch(r'[0-9a-f]{64}',candidate.get('planSha256',''))
+                or not re.fullmatch(r'[1-9][0-9]*',str(candidate.get('buildRun','')))):
+            raise ValueError('R342_PUBLICATION_IDENTITY_REQUIRED')
+        tag = 'r34.2-' + candidate['batch'] + '-' + candidate['sourceCommit'][:12]
     output.mkdir(parents=True,exist_ok=False)
     artifacts=[]
     for artifact in candidate["artifacts"]:
@@ -22,6 +31,8 @@ def collect(candidate,output):
         url=urllib.parse.urlsplit(artifact["url"])
         if url.scheme!="https" or url.netloc!="github.com" or not url.path.startswith(PREFIX) or url.path.split("/")[-1]!=name:
             raise ValueError("UNAUTHORIZED_PUBLICATION_ADDRESS")
+        if series == 'R34.2' and (url.path != PREFIX+tag+'/'+name or url.query or url.fragment):
+            raise ValueError('R342_PUBLICATION_TAG_MISMATCH')
         expected=artifact["bytes"]; wanted=artifact["sha256"]
         if type(expected) is not int or expected<1 or re.fullmatch(r"[0-9a-f]{64}",wanted) is None:
             raise ValueError("DELIVERY_EXPECTED_IDENTITY_MISSING")
@@ -42,17 +53,22 @@ def collect(candidate,output):
                 if any(re.search(r"\.(jks|p12|key|keystore|pfx)$",p,re.I) for p in archive.namelist()):
                     raise ValueError("PRIVATE_SIGNING_FILE_REJECTED")
         artifacts.append({**artifact,"downloadState":"READBACK_BYTES_MATCH"})
-    return {"status":"DOWNLOAD_BYTES_VERIFIED","sourceCommit":candidate["sourceCommit"],"artifacts":artifacts}
+    result = {"status":"DOWNLOAD_BYTES_VERIFIED","sourceCommit":candidate["sourceCommit"],"artifacts":artifacts}
+    if series == 'R34.2':
+        result.update({key:candidate[key] for key in ('series','batch','planCommit','planSha256','buildRun')})
+    return result
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--index",type=Path,required=True)
     p.add_argument("--out",type=Path,required=True)
+    p.add_argument('--series',choices=('R34.1','R34.2'),default='R34.1')
     a=p.parse_args()
     try:
-        report=collect(json.loads(a.index.read_bytes()),a.out)
-        (a.out/"DELIVERY_R341.json").write_text(json.dumps(report,indent=2)+"\n")
+        report=collect(json.loads(a.index.read_bytes()),a.out,a.series)
+        name = 'DELIVERY_R342.json' if a.series == 'R34.2' else 'DELIVERY_R341.json'
+        (a.out/name).write_text(json.dumps(report,indent=2)+"\n")
         print(json.dumps(report,indent=2))
         return 0
     except (OSError,ValueError,KeyError,zipfile.BadZipFile) as error:
