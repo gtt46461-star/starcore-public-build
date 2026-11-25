@@ -7,6 +7,8 @@ public final class SettlementBacklogAuditR3611 {
     public enum State {
         READY_TO_SETTLE,
         WAIT_DRAW,
+        WAIT_DRAW_SOURCE_UNKNOWN,
+        DRAW_SOURCE_MISSING,
         LEASE_ACTIVE,
         PIT_INVALID,
         TERMINAL,
@@ -30,12 +32,16 @@ public final class SettlementBacklogAuditR3611 {
                             .rawQuery(
                                     "SELECT o.target_issue,o.base_issue,o.commit_at,o.created_at,"
                                             + "o.pre_draw_frozen,o.settled,d.issue,d.open_time,d.first_seen_at,"
-                                            + "t.status,t.lease_until,t.next_attempt_at,t.last_error "
+                                            + "t.status,t.lease_until,t.next_attempt_at,t.last_error,o.snapshot_hash,"
+                                            + "(SELECT max(issue) FROM draws WHERE dirty=0),"
+                                            + "base.open_time,d.dirty "
                                             + "FROM "
                                             + DbHelper.TABLE_R35_SHADOW_OBSERVATION
                                             + " o LEFT JOIN "
                                             + DrawDependencyInputCP12.SOURCE
                                             + " d ON d.issue=o.target_issue LEFT JOIN "
+                                            + DrawDependencyInputCP12.SOURCE
+                                            + " base ON base.issue=o.base_issue AND base.dirty=0 LEFT JOIN "
                                             + DbHelper.TABLE_R36_SETTLEMENT_TASK
                                             + " t ON t.target_issue=o.target_issue "
                                             + "WHERE o.pre_draw_frozen=1 AND o.settled=0 "
@@ -56,10 +62,14 @@ public final class SettlementBacklogAuditR3611 {
                 row.leaseUntil = c.isNull(10) ? 0L : c.getLong(10);
                 row.nextAttemptAt = c.isNull(11) ? 0L : c.getLong(11);
                 row.lastError = safe(c.getString(12));
+                row.snapshotHash = safe(c.getString(13));
+                row.latestDrawIssue = safe(c.getString(14));
+                row.baseDrawOpenTime = c.isNull(15) ? 0L : c.getLong(15);
+                row.drawDirty = c.isNull(16) ? -1 : c.getInt(16);
                 row.state = classify(row, now);
                 out.add(row);
             }
-        } catch (Throwable error) {
+        } catch (RuntimeException error) {
             out.readError = error.getClass().getSimpleName();
         } finally {
             if (c != null) c.close();
@@ -68,15 +78,22 @@ public final class SettlementBacklogAuditR3611 {
         return out;
     }
 
-    private static State classify(Row row, long now) {
+    static State classify(Row row, long now) {
         if (row == null
                 || !TargetIssueResolver.isValid(row.targetIssue)
                 || row.preDrawFrozen != 1
                 || row.commitAt <= 0L) return State.DATA_CORRUPT;
         if (isTerminal(row.taskStatus)) return State.TERMINAL;
-        if (row.drawIssue.length() == 0) return State.WAIT_DRAW;
+        if (row.drawIssue.isEmpty() || row.drawDirty > 0) {
+            if (TargetIssueResolver.isValid(row.latestDrawIssue)
+                    && row.latestDrawIssue.compareTo(row.targetIssue) >= 0) return State.DRAW_SOURCE_MISSING;
+            if (row.baseDrawOpenTime <= 0 || !TargetIssueResolver.exact(row.baseIssue,row.targetIssue).valid
+                    || now - row.baseDrawOpenTime >= 60_000L) return State.WAIT_DRAW_SOURCE_UNKNOWN;
+            return State.WAIT_DRAW;
+        }
         if (!row.targetIssue.equals(row.drawIssue)) return State.DATA_CORRUPT;
-        if (row.drawFirstSeenAt <= 0L || row.drawFirstSeenAt <= row.commitAt)
+        if (row.drawFirstSeenAt <= 0L || row.drawFirstSeenAt <= row.commitAt
+                || row.drawOpenTime <= 0L || row.drawOpenTime <= row.commitAt)
             return State.PIT_INVALID;
         if (SettlementTaskStoreR36.RUNNING.equals(row.taskStatus) && row.leaseUntil > now)
             return State.LEASE_ACTIVE;
@@ -96,13 +113,16 @@ public final class SettlementBacklogAuditR3611 {
 
     public static final class Row {
         public String targetIssue = "", baseIssue = "", drawIssue = "", taskStatus = "", lastError = "";
-        public long commitAt, createdAt, drawOpenTime, drawFirstSeenAt, leaseUntil, nextAttemptAt;
-        public int preDrawFrozen, settled;
+        public String latestDrawIssue = "", snapshotHash = "";
+        public long commitAt, createdAt, drawOpenTime, drawFirstSeenAt, leaseUntil, nextAttemptAt, baseDrawOpenTime;
+        public int preDrawFrozen, settled, drawDirty;
         public State state = State.DATA_CORRUPT;
     }
 
     public static final class Summary {
         public int total, ready, waitDraw, leaseActive, pitInvalid, terminal, dataCorrupt;
+        public int drawSourceMissing, drawSourceUnknown;
+        public final java.util.List<java.util.Map<String,Object>> sourceGaps = new java.util.ArrayList<>();
         public long scannedAt;
         public String readError = "";
         public String oldestTarget = "";
@@ -116,6 +136,22 @@ public final class SettlementBacklogAuditR3611 {
             }
             if (row.state == State.READY_TO_SETTLE) ready++;
             else if (row.state == State.WAIT_DRAW) waitDraw++;
+            else if (row.state == State.DRAW_SOURCE_MISSING || row.state == State.WAIT_DRAW_SOURCE_UNKNOWN) {
+                if (row.state == State.DRAW_SOURCE_MISSING) drawSourceMissing++;
+                else drawSourceUnknown++;
+                if (sourceGaps.size() < 20) {
+                    java.util.Map<String,Object> gap = new java.util.LinkedHashMap<>();
+                    gap.put("targetIssue", row.targetIssue);
+                    gap.put("baseIssue", row.baseIssue);
+                    gap.put("freezeSnapshotHash", row.snapshotHash);
+                    gap.put("freezeCommitAt", row.commitAt);
+                    gap.put("latestDrawIssue", row.latestDrawIssue);
+                    gap.put("drawSource", row.state.name());
+                    gap.put("settlementState", row.taskStatus);
+                    gap.put("resolution", "PRESERVE_OBLIGATION_WAIT_FOR_AUTHENTIC_DRAW");
+                    sourceGaps.add(gap);
+                }
+            }
             else if (row.state == State.LEASE_ACTIVE) leaseActive++;
             else if (row.state == State.PIT_INVALID) pitInvalid++;
             else if (row.state == State.TERMINAL) terminal++;
@@ -129,6 +165,10 @@ public final class SettlementBacklogAuditR3611 {
                     + ready
                     + "|waitDraw="
                     + waitDraw
+                    + "|drawSourceMissing="
+                    + drawSourceMissing
+                    + "|drawSourceUnknown="
+                    + drawSourceUnknown
                     + "|leaseActive="
                     + leaseActive
                     + "|pitInvalid="

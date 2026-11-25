@@ -108,6 +108,31 @@ public final class RuntimeScenarioRecorderR341 {
                 if (period != null) period.add(events);
             }
         }
+        try (Cursor requests = db.rawQuery("SELECT target_issue,base_issue,request_hash,request_at,deadline_at,"
+                + "finished_at,attempts,status,last_stage,first_error_code,error_code,history_hash,canonical_hash "
+                + "FROM " + DbHelper.TABLE_R36_ANALYSIS_REQUEST + " WHERE target_issue>=? AND target_issue<=?",
+                range)) {
+            while (requests.moveToNext()) {
+                Period period = periods.get(requests.getString(0));
+                if (period == null || !period.requested) continue;
+                Map<String,Object> receipt = new LinkedHashMap<>();
+                for (int col = 1; col < requests.getColumnCount(); col++) {
+                    String name = requests.getColumnName(col);
+                    if (col >= 3 && col <= 6) receipt.put(name, requests.getLong(col));
+                    else {
+                        String original = requests.getString(col);
+                        if (col == 1) receipt.put(name, TargetIssueResolver.isValid(original) ? original : null);
+                        else if (name.endsWith("_hash")) receipt.put(name,
+                                original != null && original.matches("[a-f0-9]{64}") ? original : null);
+                        else receipt.put(name, redact(original));
+                    }
+                }
+                period.analysisRequest = receipt;
+            }
+            out.put("analysisRequestSourceR342", "IMMUTABLE_SNAPSHOT_ROWS_FOR_SCOPED_REQUEST_EVENTS");
+        } catch (android.database.sqlite.SQLiteException unavailable) {
+            out.put("analysisRequestSourceR342", "WAIT_SOURCE:" + unavailable.getClass().getSimpleName());
+        }
 
         int requested = 0, drawnEligible = 0, future = 0, canonical = 0, drawnWithCanonical = 0;
         List<Object> rows = new ArrayList<>();
@@ -134,6 +159,7 @@ public final class RuntimeScenarioRecorderR341 {
         out.put("futureOrUnobservedLastTarget", future);
         out.put("canonicalSuccesses", canonical);
         out.put("drawnWithPredrawCanonical", drawnWithCanonical);
+        out.put("drawnWithoutPredrawCanonical", drawnEligible - drawnWithCanonical);
         out.put("rows", rows);
         appendProgress(db, scope, scopeArgs, out);
     }
@@ -178,6 +204,7 @@ public final class RuntimeScenarioRecorderR341 {
         long earliestCanonical;
         boolean requested;
         final List<Map<String, Object>> effects = new ArrayList<>();
+        Map<String, Object> analysisRequest;
         int omitted;
 
         Period(String target) { this.target = target; }
@@ -211,6 +238,7 @@ public final class RuntimeScenarioRecorderR341 {
             item.put("drawAt", drawAt > 0 ? drawAt : null);
             item.put("request", requested ? "OBSERVED" : "NO_REQUEST");
             item.put("canonicalAt", earliestCanonical > 0 ? earliestCanonical : null);
+            item.put("analysisRequestR342", analysisRequest);
             item.put("drawState", drawAt > 0 ? "OBSERVED"
                     : target.equals(head) ? "HEAD_DRAW_NOT_OBSERVED" : "MISSING_DRAW");
             item.put("effects", effects);

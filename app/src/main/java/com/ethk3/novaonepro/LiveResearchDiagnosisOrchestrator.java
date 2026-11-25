@@ -823,6 +823,7 @@ public final class LiveResearchDiagnosisOrchestrator {
         String durable = new AnalysisRequestStoreR36(store).diagnostic(context.targetIssue);
         ArrayList<Metric> metrics = new ArrayList<Metric>();
         metrics.add(latestAttemptMetricR76(runtime));
+        appendRuntimeCoverageR342(metrics, business);
         metrics.add(
                 metric(
                         "serviceAlive",
@@ -2614,6 +2615,19 @@ public final class LiveResearchDiagnosisOrchestrator {
         return "0".equals(runtimeValueR76(stage,"businessAlive"))||"RUNTIME_CHAIN".equals(root)||"SETTLEMENT_OOS".equals(root)||"PREDRAW_COVERAGE_MISSING".equals(root);
     }
 
+    private static void appendRuntimeCoverageR342(ArrayList<Metric> metrics,
+            RuntimeHealthLedgerR36.BusinessTruth truth) {
+        String source = "RuntimeHealthLedgerR36.closedDrawCoverage";
+        metrics.add(metric("preDrawEligible", String.valueOf(truth.coverageEligible), "count", source,
+                truth.coverageEligible >= 0));
+        metrics.add(metric("preDrawFrozen", String.valueOf(truth.coverageFrozen), "count", source,
+                truth.coverageFrozen >= 0));
+        metrics.add(metric("preDrawSettled", String.valueOf(truth.coverageSettled), "count", source,
+                truth.coverageSettled >= 0));
+        metrics.add(metric("preDrawCoverageScope", truth.coverageScope, "scope", source,
+                truth.coverageEligible >= 0));
+    }
+
     private static void appendRuntimeItemR76(StringBuilder out,String item) {
         if(out.length()>0)out.append("；");out.append(item);
     }
@@ -2622,6 +2636,10 @@ public final class LiveResearchDiagnosisOrchestrator {
         StringBuilder out=new StringBuilder();String root=runtimeValueR76(stage,"rootCause");
         if("0".equals(runtimeValueR76(stage,"businessAlive")))appendRuntimeItemR76(out,"businessAlive=0");
         if("RUNTIME_CHAIN".equals(root)||"SETTLEMENT_OOS".equals(root)||"PREDRAW_COVERAGE_MISSING".equals(root))appendRuntimeItemR76(out,"rootCause="+root);
+        if ("PREDRAW_COVERAGE_MISSING".equals(root)) {
+            appendRuntimeItemR76(out,"赛前冻结/已观测开奖=" + runtimeValueR76(stage,"preDrawFrozen")
+                    + '/' + runtimeValueR76(stage,"preDrawEligible"));
+        }
         if("1".equals(runtimeValueR76(stage,"latestAttemptFailed")))appendRuntimeItemR76(out,"latestAttemptFailed=1");
         if(runtimeAboveR76(stage,"requestToCommitP95",5000L))appendRuntimeItemR76(out,"requestToCommitP95="+runtimeValueR76(stage,"requestToCommitP95")+"ms >5000ms");
         if(runtimeAboveR76(stage,"maxConcurrency",1L))appendRuntimeItemR76(out,"maxConcurrency="+runtimeValueR76(stage,"maxConcurrency")+" >1");
@@ -3986,6 +4004,7 @@ public StageArtifact collectRuntimeSnapshotCP4(com.ethk3.novaonepro.ReportReadCo
         String durable = AnalysisRequestStoreR36.diagnosticSnapshotCP4(report, context.targetIssue);
         ArrayList<Metric> metrics = new ArrayList<Metric>();
         metrics.add(latestAttemptMetricR76(runtime));
+        appendRuntimeCoverageR342(metrics, business);
         metrics.add(
                 metricSnapshotCP4(report, 
                         "serviceAlive",

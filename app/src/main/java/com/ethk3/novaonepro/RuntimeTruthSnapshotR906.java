@@ -1398,6 +1398,10 @@ public static String pipelineDetailSnapshotCP4(com.ethk3.novaonepro.ReportReadCo
         b.append("目标期=").append(explicitSnapshotCP4(report, d.targetIssue,"N/A")).append("｜CORE=").append(explicitSnapshotCP4(report, d.coreStatus,"N/A"))
                 .append("｜FULL=").append(explicitSnapshotCP4(report, d.fullStatus,"N/A")).append('\n');
         b.append("结算任务分布=").append(taskDistributionSnapshotCP4(report, db)).append('\n');
+        b.append("最近结算缺源样例=").append(explicitSnapshotCP4(report,
+                store.getState("r342_settlement_draw_source_examples",""),"NOT_OBSERVED")).append('\n');
+        b.append("最小连续历史补录回执=").append(explicitSnapshotCP4(report,
+                store.getState("r342_predraw_suffix",""),"NOT_OBSERVED")).append('\n');
         b.append("结算Owner=SettlementEngine_ONLY｜预测Owner=AnalysisSingleFlightR36_ONLY｜Research失败不得回滚核心结算。\n");
         b.append("后台系统能力=状态=").append(explicitSnapshotCP4(report, store.getState("r919_background_capability_status",""),"NOT_OBSERVED"))
                 .append("｜电池无限制=").append("1".equals(store.getState("r919_background_battery_unrestricted","0"))?"YES":"NO")

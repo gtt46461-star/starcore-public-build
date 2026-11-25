@@ -2526,14 +2526,42 @@ public final class DbStore {
     }
 
     int savePredrawSuffixR32(List<Models.Draw> page, String target) {
+        SuffixReceiptR342 receipt = savePredrawSuffixWithReceiptR342(page, target);
+        return receipt.ready ? receipt.inserted : 0;
+    }
+
+    static final class SuffixReceiptR342 {
+        final String target, base, state;
+        final int received, inserted, observedSuffix;
+        final boolean ready;
+        SuffixReceiptR342(String target, String base, String state, int received, int inserted, int suffix,
+                boolean ready) {
+            this.target=target;this.base=base;this.state=state;this.received=received;
+            this.inserted=inserted;this.observedSuffix=suffix;this.ready=ready;
+        }
+        String observation() {
+            java.util.Map<String,Object> values=new java.util.LinkedHashMap<>();
+            values.put("targetIssue",target);values.put("baseIssue",base);values.put("state",state);
+            values.put("sourceBatchSize",received);values.put("writesReturned",inserted);
+            values.put("readBackSuffix",observedSuffix);values.put("currentHeadReady",ready);
+            return com.ethk3.novaonepro.strategyv2.JsonR27.write(values);
+        }
+    }
+
+    SuffixReceiptR342 savePredrawSuffixWithReceiptR342(List<Models.Draw> page, String target) {
+        int received=page==null?0:page.size();
         Models.Draw latest = getLatestDraw();
-        if (latest == null || !latest.isValid()
-                || !AppConfig.nextIssueText(latest.issue).equals(target)) return 0;
+        if (latest == null || !latest.isValid())
+            return new SuffixReceiptR342(target,"","NO_DURABLE_BASE",received,0,0,false);
+        if (!AppConfig.nextIssueText(latest.issue).equals(target))
+            return new SuffixReceiptR342(target,latest.issue,"TARGET_SUPERSEDED",received,0,0,false);
         final int needed = R36AnalysisHistoryPolicyR364.MIN_LIVE_HISTORY;
-        if (R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) >= needed)
-            return 0;
+        int original=R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue);
+        if (original >= needed)
+            return new SuffixReceiptR342(target,latest.issue,"ALREADY_DURABLE",received,0,original,true);
         List<Models.Draw> suffix = R36AnalysisHistoryPolicyR364.bootstrapSuffixR32(page, latest.issue);
-        if (suffix.isEmpty()) return 0;
+        if (suffix.isEmpty())
+            return new SuffixReceiptR342(target,latest.issue,"SOURCE_SUFFIX_INCOMPLETE",received,0,original,false);
         for (Models.Draw candidate : suffix) {
             Models.Draw current = getDrawByIssue(candidate.issue);
             if (current != null && current.isValid()
@@ -2541,9 +2569,11 @@ public final class DbStore {
                 throw new IllegalStateException("R32_SUFFIX_REQUIRES_SOURCE_RECONCILIATION|" + candidate.issue);
         }
         int inserted = saveHistoryPageR32(suffix, latest.issue);
-        if (inserted == 0 || R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue) < needed)
-            return 0;
-        return inserted;
+        if (!latest.issue.equals(getLatestDrawIssue()))
+            return new SuffixReceiptR342(target,latest.issue,"TARGET_SUPERSEDED_AFTER_WRITE",received,inserted,0,false);
+        int observed=R36AnalysisHistoryPolicyR364.contiguousSuffixCount(getRecentDraws(needed), latest.issue);
+        return new SuffixReceiptR342(target,latest.issue,observed>=needed?"DURABLE_SUFFIX_READBACK":"PERSISTED_SUFFIX_INCOMPLETE",
+                received,inserted,observed,observed>=needed);
     }
 
     private int saveHistoryPageR32(List<Models.Draw> draws, final String bootstrapBase) {
@@ -2605,7 +2635,7 @@ public final class DbStore {
                         }
                     });
             } catch(RuntimeException writeFailure) {
-                throw new IllegalStateException("R914_DRAW_HISTORY_BATCH_WRITE_FAILED|committedRows="
+                throw new IllegalStateException(operation + "_WRITE_FAILED|committedRows="
                         +inserted+"|fromOrdinal="+from+"|chunkCount="+batch.size(),writeFailure);
             }
             if (saved == null || saved.intValue() < 0)

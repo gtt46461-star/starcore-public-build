@@ -2265,6 +2265,12 @@ public final class AutoFetchService extends Service {
             store.setState("r816_shadow_live_retry_drained", String.valueOf(drainedLive));
             store.setState("r816_shadow_backlog_drained", String.valueOf(drainedBacklog));
             store.setState("r3611_shadow_backlog_read_error", safe(audit.readError));
+            java.util.Map<String,String> sourceStatus = new java.util.LinkedHashMap<>();
+            sourceStatus.put("r342_settlement_draw_source_missing",String.valueOf(audit.drawSourceMissing));
+            sourceStatus.put("r342_settlement_draw_source_unknown",String.valueOf(audit.drawSourceUnknown));
+            sourceStatus.put("r342_settlement_draw_source_examples",
+                    com.ethk3.novaonepro.strategyv2.JsonR27.write(audit.sourceGaps));
+            store.trySetTelemetryStatesR77(sourceStatus);
         } catch (Throwable e) {
             try {
                 if (store != null)
@@ -2602,6 +2608,8 @@ public final class AutoFetchService extends Service {
             CrashRecorder.recordCaught(getApplicationContext(), failure, "R32_TAIL_RECOVERY_CONTROL");
         }
     }
+
+    private volatile String lastSuffixRecheckTargetR342 = "";
 
     private void startWorkR3610OffMain() {
         if (runtimeInitializationCancelled || userRequestedStopV5 || !heartbeatStateV8().isUserEnabled()) {
@@ -3440,8 +3448,12 @@ public final class AutoFetchService extends Service {
                         Models.Draw base = store.getLatestDraw();
                         if (base != null && base.isValid()) {
                             String target = AppConfig.nextIssueText(base.issue);
-                            if (store.savePredrawSuffixR32(result.draws, target) > 0)
+                            DbStore.SuffixReceiptR342 suffix = store.savePredrawSuffixWithReceiptR342(result.draws, target);
+                            if (suffix.ready && !target.equals(lastSuffixRecheckTargetR342)) {
+                                lastSuffixRecheckTargetR342 = target;
                                 postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
+                            }
+                            store.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r342_predraw_suffix",suffix.observation()));
                         }
                     } catch (RuntimeException failure) {
                         recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);

@@ -264,6 +264,60 @@ public final class RuntimeHealthLedgerR36 {
         try(Cursor row=report==null?db.rawQuery(committed,args):report.select(committed,args)){
             if(row.moveToFirst())out.lastAnalysisDurableReturn=row.getLong(0);
         }
+        readCoverageR342(report,db,out);
+    }
+
+    /** Uses only closed draws in the declared current-source range; field enablement is a separate denominator. */
+    static void readCoverageR342(ReportReadContextCP4 report,SQLiteDatabase db,BusinessTruth out) {
+        if (!TargetIssueResolver.isValid(out.latestDrawIssue)) return;
+        try {
+            String databaseIdentity = RuntimeObservationScopeR341.databaseIdentity(db);
+            if (RuntimeObservationScopeR341.UNRESOLVED.equals(databaseIdentity)) return;
+            String scope = "SELECT min(e.target_issue) FROM " + RuntimeEventLedgerR926.TABLE_EVENT + " e JOIN "
+                    + RuntimeObservationScopeR341.EVENT_SCOPE + " s ON s.event_id=e.event_id "
+                    + "WHERE s.release_id=? AND s.source_commit=? AND s.database_identity=? AND e.game_code=? "
+                    + "AND length(e.target_issue)=12 AND e.target_issue NOT GLOB '*[^0-9]*'";
+            String[] identity = {ReleaseManifestR926.MANIFEST_SHA256, BuildConfig.SOURCE_COMMIT_R26,
+                    databaseIdentity, ReleaseManifestR926.GAME_CODE};
+            String first;
+            try(Cursor bounds = report==null?db.rawQuery(scope,identity):report.select(scope,identity)){
+                first=bounds.moveToFirst()?bounds.getString(0):null;
+            }
+            if (!TargetIssueResolver.isValid(first)) return;
+            String rows = "SELECT d.issue,d.open_time,o.pre_draw_frozen,o.commit_at,o.snapshot_hash,o.settled,"
+                    + "o.settlement_hash,t.status,t.settlement_hash,EXISTS(SELECT 1 FROM "
+                    + RuntimeEventLedgerR926.TABLE_EVENT + " e JOIN " + RuntimeObservationScopeR341.EVENT_SCOPE
+                    + " s ON s.event_id=e.event_id WHERE e.target_issue=d.issue AND e.event_type='CANONICAL'"
+                    + " AND s.release_id=? AND s.source_commit=? AND s.database_identity=? AND e.game_code=?"
+                    + " AND s.sample_wall_at<d.open_time)"
+                    + " FROM (SELECT issue,open_time FROM draws "
+                    + "WHERE dirty=0 AND open_time>0 AND issue>=? AND issue<=? ORDER BY issue DESC LIMIT 30) d "
+                    + "LEFT JOIN " + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o ON o.target_issue=d.issue "
+                    + "LEFT JOIN " + DbHelper.TABLE_R36_SETTLEMENT_TASK + " t ON t.target_issue=d.issue";
+            String[] range = {identity[0],identity[1],identity[2],identity[3],first,out.latestDrawIssue};
+            try(Cursor covered = report==null?db.rawQuery(rows,range):report.select(rows,range)){
+                out.coverageEligible=0;out.coverageFrozen=0;out.coverageSettled=0;out.coverageNoPredrawTerminal=0;
+                while(covered.moveToNext()){
+                    out.coverageEligible++;
+                    boolean frozen=covered.getInt(9)==1&&covered.getInt(2)==1&&covered.getLong(3)>0
+                            &&covered.getLong(3)<covered.getLong(1)&&safe(covered.getString(4)).matches("[a-f0-9]{64}");
+                    String terminal=safe(covered.getString(7));
+                    if(frozen){
+                        out.coverageFrozen++;
+                        if(covered.getInt(5)==1&&SettlementTaskStoreR36.COMPLETED.equals(terminal)
+                                &&safe(covered.getString(6)).matches("[a-f0-9]{64}")
+                                &&safe(covered.getString(6)).equals(safe(covered.getString(8))))out.coverageSettled++;
+                    }else if(SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL.equals(terminal)){
+                        out.coverageNoPredrawTerminal++;
+                    }
+                }
+            }
+            out.coverageScope="CURRENT_SOURCE_OBSERVED_CLOSED_DRAWS_UP_TO_30";
+        }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
+        catch(RuntimeException unavailable){
+            out.coverageEligible=-1;out.coverageFrozen=-1;out.coverageSettled=-1;out.coverageNoPredrawTerminal=-1;
+            out.coverageScope="UNKNOWN_SOURCE:"+unavailable.getClass().getSimpleName();
+        }
     }
 
     /** Compare settlement with obligations that actually have immutable predraw evidence. */
@@ -280,6 +334,9 @@ public final class RuntimeHealthLedgerR36 {
         if (!out.businessAlive || out.drawToCanonicalLag > 0) {
             out.status = "FAIL";
             out.rootCause = "RUNTIME_CHAIN";
+        } else if (out.coverageEligible > 0 && out.coverageFrozen < out.coverageEligible) {
+            out.status = "FAIL";
+            out.rootCause = "PREDRAW_COVERAGE_MISSING";
         } else if (out.drawToSettledLag > 0 || out.settledToOosLag > 0) {
             out.status = "DEGRADED";
             out.rootCause = "SETTLEMENT_OOS";
@@ -320,6 +377,8 @@ public final class RuntimeHealthLedgerR36 {
         public int drawToSettledLag = -1;
         public int settledToOosLag = -1;
         public int deferredPending = -1;
+        public int coverageEligible=-1, coverageFrozen=-1, coverageSettled=-1, coverageNoPredrawTerminal=-1;
+        public String coverageScope="NO_CURRENT_SOURCE_RANGE";
         public String oldestPendingIssue = "", oldestPendingStage = "";
         public long oldestPendingSince = -1L, lastAnalysisDurableReturn = -1L;
         public long analysisP95Ms = -1L;
@@ -362,6 +421,11 @@ public final class RuntimeHealthLedgerR36 {
                     + "|latestDrawPredrawMissing="
                     + (latestDrawPredrawMissing ? 1 : 0)
                     + "|settlementLagScope=EXISTING_PREDRAW_OBLIGATIONS"
+                    + "|coverageScope=" + coverageScope
+                    + "|eligibleObserved=" + coverageEligible
+                    + "|predrawCovered=" + coverageFrozen
+                    + "|coveredSettled=" + coverageSettled
+                    + "|noPredrawTerminal=" + coverageNoPredrawTerminal
                     + "|lag="
                     + drawToCanonicalLag
                     + ','

@@ -79,7 +79,7 @@ public final class DeferredEvidenceWriterR36 {
                 last = "YIELD_REALTIME";
                 break;
             }
-            String target = nextRunnable(store, System.currentTimeMillis());
+            String target = nextRunnable(store, System.currentTimeMillis(), i == 0);
             if (target.length() == 0) break;
             attempted++;
             WriteResult one = writeOne(store, target, safeOwner(owner));
@@ -161,12 +161,9 @@ public final class DeferredEvidenceWriterR36 {
         Claim claim = claim(store, target, leaseOwner, started);
         if (claim == null) return new WriteResult(false, target, "NOT_CLAIMED", 0, 0);
         try {
-            if (claim.snapshot == null || claim.snapshot.length == 0)
-                throw new IllegalStateException("SNAPSHOT_MISSING");
-            if (!claim.snapshotHash.equals(DeferredEvidenceSnapshotR36.sha256(claim.snapshot)))
-                throw new IllegalStateException("SNAPSHOT_HASH_MISMATCH");
+            byte[] frozen = readLeasedSnapshotR342(store, target, leaseOwner, claim);
             DeferredEvidenceSnapshotR36.Snapshot snapshot =
-                    DeferredEvidenceSnapshotR36.decodeCached(claim.snapshot,claim.snapshotHash);
+                    DeferredEvidenceSnapshotR36.decodeCached(frozen, claim.snapshotHash);
             if (!target.equals(snapshot.targetIssue))
                 throw new IllegalStateException("SNAPSHOT_TARGET_MISMATCH");
             if (snapshot.numbers.size() != 100 || snapshot.actions.size() != 1200)
@@ -231,15 +228,6 @@ public final class DeferredEvidenceWriterR36 {
 
     private static Claim claim(
             final DbStore store, final String target, final String owner, final long now) {
-        // Large immutable bytes are read outside the sole writer. Claim + compact identity
-        // read are one transaction: failed reads/yields cannot leave an orphan RUNNING lease.
-        final byte[] frozenBytes;
-        final String frozenHash;
-        try(Cursor frozen=store.readable().rawQuery("SELECT snapshot_blob,snapshot_hash FROM "
-                +DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB+" WHERE target_issue=?",new String[]{target})) {
-            if(!frozen.moveToFirst())return null;
-            frozenBytes=frozen.getBlob(0);frozenHash=safe(frozen.getString(1));
-        }
         return store.coordinatorR36()
                 .runAtomicWrite(
                         "R36_DEFERRED_CLAIM",
@@ -269,6 +257,7 @@ public final class DeferredEvidenceWriterR36 {
                                             db.rawQuery(
                                                     "SELECT snapshot_hash,attempts,"
                                                             + "core_materialized,next_action_ordinal,cursor_version,core_next_ordinal"
+                                                            + ",length(snapshot_blob)"
                                                         + " FROM "
                                                             + DbHelper
                                                                     .TABLE_R35_DEFERRED_EVIDENCE_JOB
@@ -276,11 +265,11 @@ public final class DeferredEvidenceWriterR36 {
                                                             + " status='RUNNING' AND lease_owner=?"
                                                             + " LIMIT 1",
                                                     new String[] {target, owner});
-                                    if (!c.moveToFirst() || !frozenHash.equals(safe(c.getString(0))))
-                                        throw new IllegalStateException("DEFERRED_CLAIM_SNAPSHOT_IDENTITY_CHANGED");
+                                    if (!c.moveToFirst())
+                                        throw new IllegalStateException("DEFERRED_CLAIM_RECEIPT_MISSING");
                                     return new Claim(
-                                            frozenBytes,
-                                            frozenHash,
+                                            c.getInt(6),
+                                            safe(c.getString(0)),
                                             c.getInt(1),
                                             c.getInt(2) == 1,
                                             c.getInt(3),
@@ -291,6 +280,33 @@ public final class DeferredEvidenceWriterR36 {
                             }
                         },
                         null);
+    }
+
+    private static byte[] readLeasedSnapshotR342(DbStore store, String target, String owner, Claim claim) {
+        if (claim.snapshotBytes <= 0 || claim.snapshotBytes > AppConfig.R36_SNAPSHOT_MAX_BYTES) {
+            throw new IllegalStateException("SNAPSHOT_LENGTH_INVALID:" + claim.snapshotBytes);
+        }
+        byte[] frozen = new byte[claim.snapshotBytes];
+        SQLiteDatabase database = store.readable();
+        String sql = "SELECT substr(snapshot_blob,?,?) FROM " + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
+                + " WHERE target_issue=? AND snapshot_hash=? AND status='RUNNING' AND lease_owner=?";
+        final int sliceBytes = 64 * 1024;
+        for (int offset = 0; offset < frozen.length; offset += sliceBytes) {
+            int count = Math.min(sliceBytes, frozen.length - offset);
+            String[] args = {String.valueOf(offset + 1), String.valueOf(count), target, claim.snapshotHash, owner};
+            try (Cursor cursor = database.rawQuery(sql, args)) {
+                if (!cursor.moveToFirst()) throw new IllegalStateException("DEFERRED_LEASE_LOST");
+                byte[] slice = cursor.getBlob(0);
+                if (slice == null || slice.length != count) {
+                    throw new IllegalStateException("SNAPSHOT_TRUNCATED_AT:" + offset);
+                }
+                System.arraycopy(slice, 0, frozen, offset, count);
+            }
+        }
+        if (!claim.snapshotHash.equals(DeferredEvidenceSnapshotR36.sha256(frozen))) {
+            throw new IllegalStateException("SNAPSHOT_HASH_MISMATCH");
+        }
+        return frozen;
     }
 
     private static int materializeCore(
@@ -911,7 +927,11 @@ public final class DeferredEvidenceWriterR36 {
         }
     }
 
-    private static String nextRunnable(DbStore store, long now) {
+    private static String nextRunnable(DbStore store, long now, boolean preferCurrentCore) {
+        String priority = preferCurrentCore
+                ? "CASE WHEN core_materialized=0 AND target_issue=(SELECT max(target_issue) FROM "
+                    + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB + ") THEN 0 ELSE 1 END,"
+                : "";
         Cursor c = null;
         try {
             c =
@@ -921,7 +941,7 @@ public final class DeferredEvidenceWriterR36 {
                                             + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
                                             + " WHERE ((status IN ('PENDING','RETRY_WAIT') AND"
                                             + " next_attempt_at<=?) OR (status='RUNNING' AND"
-                                            + " lease_until<?)) ORDER BY target_issue ASC,core_materialized DESC,"
+                                            + " lease_until<?)) ORDER BY " + priority + "target_issue ASC,core_materialized DESC,"
                                             + " next_action_ordinal DESC,"
                                             + " updated_at ASC LIMIT 1",
                                     new String[] {String.valueOf(now), String.valueOf(now)});
@@ -1121,13 +1141,13 @@ public final class DeferredEvidenceWriterR36 {
     }
 
     private static final class Claim {
-        final byte[] snapshot;
+        final int snapshotBytes;
         final String snapshotHash;
         final int attempts, nextActionOrdinal, cursorVersion, coreCursor;
         final boolean coreMaterialized;
 
-        Claim(byte[] b, String h, int a, boolean core, int ordinal, int version, int coreOrdinal) {
-            snapshot = b;
+        Claim(int bytes, String h, int a, boolean core, int ordinal, int version, int coreOrdinal) {
+            snapshotBytes = bytes;
             snapshotHash = h;
             attempts = a;
             coreMaterialized = core;
