@@ -114,12 +114,35 @@ public final class CandidateCalibrationR932 {
                 V51ChecksumEngine.sha256(AlgorithmProofRecoveryR948.epoch(db,key)))+"|"+QUALITY_POLICY_HASH_CP12);
     }
     static final class Probability {final double value;final String hash;Probability(double value,String hash){this.value=value;this.hash=hash;}}
+
+    static long requirePredrawClockR342(SQLiteDatabase db,String target,long capturedAt) {
+        String base=TargetIssueResolver.previous(target);
+        if(!TargetIssueResolver.exact(base,target).valid)
+            throw new IllegalStateException("R342_CAL_PIT_BASE_UNKNOWN");
+        try(Cursor cursor=db.rawQuery("SELECT open_time,first_seen_at,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10"
+                +" FROM draws WHERE issue=? AND dirty=0",
+                new String[]{base})){
+            if(!cursor.moveToFirst()||cursor.getLong(0)<=0L||cursor.getLong(1)<=0L
+                    ||cursor.getLong(0)>capturedAt||cursor.getLong(1)>capturedAt)
+                throw new IllegalStateException("R342_CAL_PIT_BASE_UNKNOWN");
+            Models.Draw clock=new Models.Draw();
+            clock.issue=base;clock.openTime=cursor.getLong(0);clock.fetchTime=cursor.getLong(1);
+            for(int i=0;i<clock.numbers.length;i++)clock.numbers[i]=cursor.getInt(i+2);
+            long deadline=TargetIssueResolver.predrawDeadlineWallR20261008(clock);
+            if(capturedAt>=deadline)
+                throw new IllegalStateException("R342_CAL_SCHEDULED_CUTOFF_PASSED");
+            return deadline;
+        }
+    }
+
     static Probability captureOrPredict(SQLiteDatabase db,String key,String structure,String bundle,String selector,String target,String prediction,double score,int position,int n1,int n2,int n3) {
         if(db==null||!db.inTransaction()||!Double.isFinite(score)||!TargetIssueResolver.isValid(target)
                 ||key==null||key.isEmpty()||structure==null||!structure.matches("[0-9a-f]{64}")||bundle==null||!bundle.matches("[0-9a-f]{64}")
                 ||selector==null||!selector.matches("[0-9a-f]{64}")||prediction==null||!prediction.matches("[0-9a-f]{64}")
                 ||position<1||position>10||!DecisionGateEngine.b12K3(n1,n2,n3))throw new IllegalArgumentException("R932_CAL_PREDRAW_INPUT");
         if(!ResearchEvaluationRunR967.eligibleEvaluation(key,target))throw new IllegalStateException("R969_CAL_TRAINING_ROLE_REJECTED");
+        long cutoff=ResearchEvaluationRunR967.versioned(key)
+                ?requirePredrawClockR342(db,target,System.currentTimeMillis()):Long.MAX_VALUE;
         String base=baseStudy(db,key,structure,bundle,selector);
         String study=study(db,key,structure,bundle,selector);
         try(Cursor c=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE issue>=? LIMIT 1",new String[]{target})) {
@@ -132,7 +155,12 @@ public final class CandidateCalibrationR932 {
             if(c.moveToFirst()) {
                 if(target.compareTo(c.getString(0))<=0)throw new IllegalStateException("R932_CAL_VALIDATION_OVERLAP");
                 String json=c.getString(1),hash=c.getString(2);if(!hash.equals(V51ChecksumEngine.sha256(json)))throw new IllegalStateException("R932_CAL_MODEL_HASH");
-                try {JSONObject model=new JSONObject(json);Qualification quality=qualificationForStudyCP12(db,study);if(!quality.qualified())return null;return new Probability(predict(model,score),hash);}catch(JSONException e){throw new IllegalStateException("R932_CAL_MODEL_JSON",e);}
+                try {JSONObject model=new JSONObject(json);Qualification quality=qualificationForStudyCP12(db,study);
+                    if(!quality.qualified())return null;
+                    double probability=predict(model,score);
+                    if(System.currentTimeMillis()>=cutoff)throw new IllegalStateException("R342_CAL_SCHEDULED_CUTOFF_PASSED");
+                    return new Probability(probability,hash);
+                }catch(JSONException e){throw new IllegalStateException("R932_CAL_MODEL_JSON",e);}
             }
         }
         db.execSQL("INSERT OR IGNORE INTO "+STUDY+" VALUES(?,?,0,0,'COLLECTING',?)",new Object[]{study,key,target});
@@ -146,7 +174,9 @@ public final class CandidateCalibrationR932 {
                     ||!("RESERVED".equals(reservation.state)||"ACTIVE".equals(reservation.state)))
                 throw new IllegalStateException("CALIBRATION_CAPTURE_WITHOUT_DUE_RESERVATION");
         }
-        db.execSQL("INSERT OR IGNORE INTO "+OBS+"(study_hash,target_issue,candidate_key,structure_hash,bundle_hash,selection_hash,raw_score,position,n1,n2,n3,prediction_hash,frozen_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{study,target,key,structure,bundle,selector,score,position,n1,n2,n3,prediction,System.currentTimeMillis()});
+        long capturedAt=System.currentTimeMillis();
+        if(capturedAt>=cutoff)throw new IllegalStateException("R342_CAL_SCHEDULED_CUTOFF_PASSED");
+        db.execSQL("INSERT OR IGNORE INTO "+OBS+"(study_hash,target_issue,candidate_key,structure_hash,bundle_hash,selection_hash,raw_score,position,n1,n2,n3,prediction_hash,frozen_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{study,target,key,structure,bundle,selector,score,position,n1,n2,n3,prediction,capturedAt});
         try(Cursor c=db.rawQuery("SELECT prediction_hash,raw_score FROM "+OBS+" WHERE study_hash=? AND target_issue=?",new String[]{study,target})) {if(!c.moveToFirst()||!prediction.equals(c.getString(0))||Double.compare(score,c.getDouble(1))!=0)throw new IllegalStateException("R932_CAL_OBSERVATION_DRIFT");}
         db.execSQL("UPDATE "+STUDY+" SET captured_n=captured_n+1 WHERE study_hash=? AND captured_n=? AND state='COLLECTING'",new Object[]{study,count});
         try(Cursor changed=db.rawQuery("SELECT changes()",null)){if(!changed.moveToFirst()||changed.getInt(0)!=1)throw new IllegalStateException("CALIBRATION_COUNTER_CAS_LOST");}
