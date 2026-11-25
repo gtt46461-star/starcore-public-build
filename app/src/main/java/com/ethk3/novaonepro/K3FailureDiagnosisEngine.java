@@ -1,5 +1,6 @@
 package com.ethk3.novaonepro;
 
+import android.database.Cursor;
 import java.util.ArrayList;
 
 /**
@@ -104,16 +105,12 @@ public final class K3FailureDiagnosisEngine {
     public Report diagnose(DbStore store) {
         ArrayList<LayerFinding> a = new ArrayList<LayerFinding>();
         a.add(
-                artifactLayer(
-                        Layer.NUMBER,
-                        V51NumberModelArtifact.PROVEN,
+                frozenArtifactR342(null,store==null?null:store.readable(),Layer.NUMBER,
                         "NumberQ artifact",
                         "Untrained NumberQ cannot establish top-number quality",
                         "Train/freeze NumberQ; compare top-k recall and Sinkhorn parity."));
         a.add(
-                artifactLayer(
-                        Layer.RANK,
-                        V51ActionRankerArtifact.PROVEN && V51ActionRankerArtifact.RANK_ORDER_PASSED,
+                frozenArtifactR342(null,store==null?null:store.readable(),Layer.RANK,
                         "1200-action rank artifact",
                         "Untrained ranker cannot establish Champion ordering",
                         "Run same-issue groupwise OOS Rank1/MRR/NDCG/pairwise stability."));
@@ -163,9 +160,7 @@ public final class K3FailureDiagnosisEngine {
                         "Consensus can become correlated-vote double counting",
                         "Measure expert diversity, regret and leave-one-expert-out delta."));
         a.add(
-                artifactLayer(
-                        Layer.CALIBRATION,
-                        V51SelectedCalibrationArtifact.PROVEN,
+                frozenArtifactR342(null,store==null?null:store.readable(),Layer.CALIBRATION,
                         "SelectedHitP calibration artifact",
                         "Untrained calibration makes threshold/coverage decisions unreliable",
                         "Use selection-conditioned pre-draw OOS ECE/Brier/Wilson/subgroup"
@@ -181,16 +176,50 @@ public final class K3FailureDiagnosisEngine {
         return new Report(layers);
     }
 
-    private LayerFinding artifactLayer(
-            Layer layer, boolean proven, String positive, String negative, String test) {
-        return new LayerFinding(
-                layer,
-                proven ? State.HEALTHY : State.BLOCKED,
-                positive + "|PROVEN=" + proven,
-                negative,
-                proven ? "Frozen artifact evidence exists" : "Strict OOS artifact proof is missing",
-                test,
-                proven ? 0.9d : 1.0d);
+    private LayerFinding frozenArtifactR342(ReportReadContextCP4 report, android.database.sqlite.SQLiteDatabase database,
+            Layer layer, String label, String negative, String next) {
+        if (database==null) return new LayerFinding(layer,State.UNAVAILABLE,label,negative,"INPUT_DATABASE_UNAVAILABLE",next,0d);
+        String sourceSql="SELECT target_issue,bundle_hash,contract_hash FROM "+V51Repository.ISSUE
+                +" ORDER BY target_issue DESC LIMIT 1";
+        try (Cursor current=layerQueryR342(report,database,sourceSql,null)) {
+            if(!current.moveToFirst())return new LayerFinding(layer,State.UNAVAILABLE,label,negative,
+                    "NO_COMMITTED_DYNAMIC_ARTIFACT",next,0d);
+            String issue=current.getString(0),bundle=current.getString(1),contract=current.getString(2);
+            String evidence=label+"|target="+issue+"|bundle="+bundle+"|contract="+contract;
+            if(layer==Layer.CALIBRATION){
+                try(Cursor row=layerQueryR342(report,database,"SELECT status,reason,calibration_hash,proof_json,proof_hash FROM "
+                        +ChampionProbabilityEvidenceR82.TABLE+" WHERE target_issue=? AND bundle_hash=?",new String[]{issue,bundle})){
+                    if(row.moveToFirst()&&"PROVEN".equals(row.getString(0))&&row.getString(2).matches("[a-f0-9]{64}")
+                            &&V51ChecksumEngine.sha256(row.getString(3)).equals(row.getString(4))){
+                        return new LayerFinding(layer,State.WATCH,evidence+"|calibration="+row.getString(2),negative,
+                                "EXACT_FROZEN_CALIBRATION_ORIGINAL_REOPENED;INDEPENDENT_QUALITY_PENDING",next,.5d);
+                    }
+                    return new LayerFinding(layer,State.BLOCKED,evidence,negative,
+                            row.isAfterLast()?"FROZEN_CALIBRATION_ORIGINAL_MISSING":"FROZEN_CALIBRATION_NOT_QUALIFIED",next,.8d);
+                }
+            }
+            String table=layer==Layer.NUMBER?V51Repository.NUMBER:V51Repository.ACTION_SPACE;
+            int expected=layer==Layer.NUMBER?100:K3ActionSpaceEngine.TOTAL_ACTIONS;
+            try(Cursor rows=layerQueryR342(report,database,"SELECT count(*) FROM (SELECT 1 FROM "+table
+                    +" WHERE target_issue=? AND bundle_hash=? AND contract_hash=? LIMIT "+(expected+1)+')',
+                    new String[]{issue,bundle,contract})){
+                int count=rows.moveToFirst()?rows.getInt(0):0;
+                return new LayerFinding(layer,count==expected?State.WATCH:State.BLOCKED,
+                        evidence+"|sourceRows="+count+'/'+expected,negative,
+                        count==expected?"EXACT_DYNAMIC_SURFACE_PRESENT;INDEPENDENT_QUALITY_PENDING"
+                                :"EXACT_DYNAMIC_SURFACE_INCOMPLETE",next,count==expected?.5d:.85d);
+            }
+        }catch(android.os.OperationCanceledException cancelled){
+            throw cancelled;
+        }catch(android.database.sqlite.SQLiteException unavailable){
+            return new LayerFinding(layer,State.UNAVAILABLE,label,negative,
+                    "ARTIFACT_SOURCE_QUERY_"+unavailable.getClass().getSimpleName(),next,0d);
+        }
+    }
+
+    private static Cursor layerQueryR342(ReportReadContextCP4 report,android.database.sqlite.SQLiteDatabase database,
+            String sql,String[] parameters){
+        return report==null?database.rawQuery(sql,parameters):report.select(sql,parameters);
     }
 
     private LayerFinding stateLayer(
@@ -320,16 +349,12 @@ public String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report
 public Report diagnoseSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
         ArrayList<LayerFinding> a = new ArrayList<LayerFinding>();
         a.add(
-                artifactLayerSnapshotCP4(report, 
-                        Layer.NUMBER,
-                        V51NumberModelArtifact.PROVEN,
+                frozenArtifactR342(report,store==null?null:store.readable(),Layer.NUMBER,
                         "NumberQ artifact",
                         "Untrained NumberQ cannot establish top-number quality",
                         "Train/freeze NumberQ; compare top-k recall and Sinkhorn parity."));
         a.add(
-                artifactLayerSnapshotCP4(report, 
-                        Layer.RANK,
-                        V51ActionRankerArtifact.PROVEN && V51ActionRankerArtifact.RANK_ORDER_PASSED,
+                frozenArtifactR342(report,store==null?null:store.readable(),Layer.RANK,
                         "1200-action rank artifact",
                         "Untrained ranker cannot establish Champion ordering",
                         "Run same-issue groupwise OOS Rank1/MRR/NDCG/pairwise stability."));
@@ -379,9 +404,7 @@ public Report diagnoseSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 repo
                         "Consensus can become correlated-vote double counting",
                         "Measure expert diversity, regret and leave-one-expert-out delta."));
         a.add(
-                artifactLayerSnapshotCP4(report, 
-                        Layer.CALIBRATION,
-                        V51SelectedCalibrationArtifact.PROVEN,
+                frozenArtifactR342(report,store==null?null:store.readable(),Layer.CALIBRATION,
                         "SelectedHitP calibration artifact",
                         "Untrained calibration makes threshold/coverage decisions unreliable",
                         "Use selection-conditioned pre-draw OOS ECE/Brier/Wilson/subgroup"

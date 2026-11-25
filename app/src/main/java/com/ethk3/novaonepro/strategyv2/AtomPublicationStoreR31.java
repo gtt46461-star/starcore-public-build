@@ -54,7 +54,13 @@ public final class AtomPublicationStoreR31 {
     static TypedGenerationRuleR342 prepareRuleR342(SQLiteDatabase db, EvalContextR27 context) {
         if (!ruleSchemaReadyR342(db) || context.split.selectTo <= context.split.selectFrom) return null;
         ReplayDatasetR27 data = context.data;
-        long revision = ResearchInputPinR30R1.admittedRevisionR341(db,data.datasetHash);
+        final long revision;
+        try {
+            revision = ResearchInputPinR30R1.admittedRevisionR341(db,data.datasetHash);
+        } catch (ResearchStoreR30R1.StaleResearch inactivePin) {
+            // Rule discovery is optional for a preserved generation; it cannot hold the atom/molecule producer.
+            return null;
+        }
         long from = data.ordinals[context.split.trainFrom];
         long through = data.ordinals[context.split.selectTo - 1];
         List<RuleDonorR342> donors = new ArrayList<>();

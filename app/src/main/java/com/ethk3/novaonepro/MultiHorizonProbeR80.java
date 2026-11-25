@@ -203,6 +203,35 @@ public final class MultiHorizonProbeR80 {
         },Boolean.FALSE);
         return "NOT_RUN_"+reason+(Boolean.TRUE.equals(recorded)?"":"_UNRECORDED_GAP");
     }
+
+    /** Closed opportunities can acquire only a missing-outcome receipt. */
+    static void recordClosedOwnerOpportunityR342(DbStore store,String target) {
+        if(!TargetIssueResolver.isValid(target)||RealtimePressureGateR811.hasActiveCriticalWork()
+                ||SettlementExecutionGateR819.isActive())return;
+        SQLiteDatabase read=store.readable();
+        if(!readyR80(read))return;
+        final String base;
+        try(Cursor c=read.rawQuery(
+                "SELECT o.base_issue FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" o JOIN draws d ON d.issue=o.target_issue"
+                +" WHERE o.target_issue=? AND d.dirty=0 AND d.open_time>0 AND o.pre_draw_frozen=1"
+                +" AND o.commit_at>0 AND o.commit_at<d.open_time AND o.snapshot_hash<>'' LIMIT 1",new String[]{target})){
+            if(!c.moveToFirst())return;
+            base=c.getString(0);
+        }
+        if(!TargetIssueResolver.exact(base,target).valid||exists(read,OPPORTUNITY,"anchor_issue",base))return;
+        store.coordinatorR36().runAtomicWrite("R80_PROBE_NOT_RUN",db->{
+            if(exists(db,OPPORTUNITY,"anchor_issue",base))return false;
+            try(Cursor stillClosed=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION
+                    +" o JOIN draws d ON d.issue=o.target_issue WHERE o.target_issue=? AND o.base_issue=?"
+                    +" AND d.dirty=0 AND o.pre_draw_frozen=1 AND o.commit_at>0 AND o.commit_at<d.open_time",
+                    new String[]{target,base})){
+                if(!stillClosed.moveToFirst())return false;
+            }
+            writeOpportunity(db,opportunity(base,"NOT_RUN","CLOSED_TARGET_NO_DURABLE_PROBE_RECEIPT",
+                    "NOT_RUN",System.currentTimeMillis()));
+            return true;
+        },Boolean.FALSE);
+    }
     static final class Prepared {
         final String anchor,inputJson,inputHash,modelHash;
         final long frozenAt,deadline;

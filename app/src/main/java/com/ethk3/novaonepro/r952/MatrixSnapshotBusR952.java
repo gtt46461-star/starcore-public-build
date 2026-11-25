@@ -148,7 +148,10 @@ public final class MatrixSnapshotBusR952 {
         StringBuilder excludeSql=new StringBuilder();java.util.ArrayList<String> excludeArgs=new java.util.ArrayList<>();for(String key:excluded){if(!hashCP4(key))throw new IllegalArgumentException("CP12_MATRIX_EXCLUDE");excludeSql.append(" AND i.matrix_id<>?");excludeArgs.add(key);}
         // Event ordinals, unlike draw ordinals, need not follow source issue order.
         // Preserve each metadata partition's head before applying global oldest-issue fairness.
-        try(Cursor c=db.rawQuery("SELECT i.matrix_id,i.source_receipt_hash,i.source_issue,i.source_ordinal,i.input_hash,i.proof_hash,i.input_payload,s.matrix_type,s.partition_key,s.window_size,s.spec_manifest_hash FROM research_matrix_input_cp12 i JOIN research_matrix_spec_cp12 s ON s.matrix_id=i.matrix_id WHERE i.state='READY'"+excludeSql+" AND (s.matrix_type NOT IN ('LatencyMatrix','FailureMatrix') OR NOT EXISTS(SELECT 1 FROM research_matrix_input_cp12 earlier WHERE earlier.matrix_id=i.matrix_id AND earlier.state='READY' AND earlier.source_ordinal<i.source_ordinal)) ORDER BY i.source_issue,i.source_ordinal,i.matrix_id,i.source_receipt_hash LIMIT 1",excludeArgs.toArray(new String[0]))) {
+        String cutoff=retainedCutoffR342(db);
+        excludeArgs.add(0,cutoff==null?"":cutoff);
+        excludeArgs.add(cutoff==null?"":cutoff);
+        try(Cursor c=db.rawQuery("SELECT i.matrix_id,i.source_receipt_hash,i.source_issue,i.source_ordinal,i.input_hash,i.proof_hash,i.input_payload,s.matrix_type,s.partition_key,s.window_size,s.spec_manifest_hash FROM research_matrix_input_cp12 i JOIN research_matrix_spec_cp12 s ON s.matrix_id=i.matrix_id WHERE i.state='READY' AND i.source_issue>=?"+excludeSql+" AND (s.matrix_type NOT IN ('LatencyMatrix','FailureMatrix') OR NOT EXISTS(SELECT 1 FROM research_matrix_input_cp12 earlier WHERE earlier.matrix_id=i.matrix_id AND earlier.state='READY' AND earlier.source_issue>=? AND earlier.source_ordinal<i.source_ordinal)) ORDER BY i.source_issue,i.source_ordinal,i.matrix_id,i.source_receipt_hash LIMIT 1",excludeArgs.toArray(new String[0]))) {
             if(!c.moveToFirst())return null;id=c.getString(0);receipt=c.getString(1);issue=c.getString(2);ordinal=c.getLong(3);inputHash=c.getString(4);proof=c.getString(5);payload=c.getBlob(6);type=c.getString(7);partition=c.getString(8);window=c.getInt(9);manifest=c.getString(10);
         }
         try {
@@ -172,6 +175,8 @@ public final class MatrixSnapshotBusR952 {
             if(!c.moveToFirst()||!p.inputHash.equals(c.getString(0)))throw new IllegalStateException("CP12_MATRIX_INPUT_DRIFT");
             if("DONE".equals(c.getString(1)))return true;if(!"READY".equals(c.getString(1)))return false;
         }
+        String cutoff=retainedCutoffR342(db);
+        if(cutoff!=null&&p.sourceIssue.compareTo(cutoff)<0)return false;
         if(!p.alreadyApplied&&!commitCP4(db,p.expected,p.next,now))return false;
         if(!p.alreadyApplied)AtomAdmissionCP12.commitProjectionCP12(db,p.atomAdmission,p.next,now);
         if(p.alreadyApplied){try(Cursor a=db.rawQuery("SELECT through_issue FROM research_projection_ack_v2 WHERE consumer=? AND source_hash=?",new String[]{"MATRIX_CP4/"+p.matrixId,p.sourceReceiptHash})) {if(!a.moveToFirst()||TargetIssueResolver.compare(a.getString(0),p.sourceIssue)<0)throw new IllegalStateException("CP12_MATRIX_ACK_MISSING");}}
@@ -189,9 +194,15 @@ public final class MatrixSnapshotBusR952 {
         try(Cursor c=db.rawQuery("SELECT changes()",null)){return c.moveToFirst()&&c.getInt(0)==1;}
     }
     /** Terminal ownership remains here; retention archives the full input before authorized deletion. No numeric ACK is issued. */
+    private static String retainedCutoffR342(SQLiteDatabase db) {
+        try(Cursor row=db.rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1 OFFSET 4999",null)){
+            return row.moveToFirst()?row.getString(0):null;
+        }
+    }
+
     public static int expireInputsCP12(SQLiteDatabase db,long now,int limit) {
         if(!db.inTransaction()||limit<1||limit>32)throw new IllegalStateException("CP12_MATRIX_EXPIRY_TRANSACTION");
-        String cutoff=null;try(Cursor c=db.rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1 OFFSET 4999",null)){if(c.moveToFirst())cutoff=c.getString(0);}if(cutoff==null)return 0;
+        String cutoff=retainedCutoffR342(db);if(cutoff==null)return 0;
         java.util.ArrayList<String[]> rows=new java.util.ArrayList<>();try(Cursor c=db.rawQuery("SELECT matrix_id,source_receipt_hash,input_hash,proof_hash,source_issue,state,last_error FROM research_matrix_input_cp12 WHERE source_issue<? AND state IN('READY','QUARANTINED','REPLAY_REQUIRED') ORDER BY source_issue,matrix_id,source_receipt_hash LIMIT "+limit,new String[]{cutoff})){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getString(4),c.getString(5),c.getString(6)});}
         for(String[] row:rows){String reason="MATRIX_INPUT_EXPIRED_WITHOUT_PROJECTION",terminal=MatrixProjectionCP12.hash("CP12_MATRIX_TERMINAL|"+row[0]+'|'+row[1]+'|'+row[2]+'|'+row[3]+'|'+row[4]+'|'+reason);
             db.execSQL("INSERT OR IGNORE INTO research_matrix_terminal_cp12(matrix_id,source_receipt_hash,input_hash,proof_hash,terminal_hash,reason,source_issue,created_at) VALUES(?,?,?,?,?,?,?,?)",new Object[]{row[0],row[1],row[2],row[3],terminal,reason,row[4],now});
@@ -205,7 +216,9 @@ public final class MatrixSnapshotBusR952 {
         if(store==null||start+50000000L>=phaseDeadline)return false;
         boolean worked=false;java.util.Set<String> visited=new java.util.HashSet<>();
         final boolean[] registrationFirst={false};
-        Integer expired=store.coordinatorForResearchR952().runAtomicWrite("CP12_MATRIX_EXPIRE",new DatabaseCoordinator.WriteCallable<Integer>(){public Integer call(SQLiteDatabase db){registrationFirst[0]=MatrixRegistrationR75.registrationFirst(db);return expireInputsCP12(db,System.currentTimeMillis(),32);}},null);worked=expired!=null&&expired>0;
+        // Charge an expiry-only quantum on alternate turns. The remaining live prefix
+        // still gets the full projection window on the other turn.
+        Integer expired=store.coordinatorForResearchR952().runAtomicWrite("CP12_MATRIX_EXPIRE",new DatabaseCoordinator.WriteCallable<Integer>(){public Integer call(SQLiteDatabase db){registrationFirst[0]=MatrixRegistrationR75.registrationFirst(db);return registrationFirst[0]?expireInputsCP12(db,System.currentTimeMillis(),8):0;}},null);worked=expired!=null&&expired>0;
         if(registrationFirst[0])worked|=MatrixRegistrationR75.drain(store,Math.min(phaseDeadline-75000000L,System.nanoTime()+75000000L));
         try(MemoryBudgetCP4.Lease scratch=com.ethk3.novaonepro.RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(1572864)) {
             for(int partition=0;partition<32&&System.nanoTime()+50000000L<phaseDeadline;partition++){

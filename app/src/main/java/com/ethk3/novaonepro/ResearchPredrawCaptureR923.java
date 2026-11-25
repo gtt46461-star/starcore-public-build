@@ -30,6 +30,7 @@ public final class ResearchPredrawCaptureR923 {
         if (!TargetIssueResolver.isValid(target)) return Result.fail(target, "TARGET_INVALID");
         if (store.getDrawByIssue(target) != null){
             GlobalResearchScheduleR932.releaseCompleted(store,target);
+            MultiHorizonProbeR80.recordClosedOwnerOpportunityR342(store,target);
             return publish(store, Result.fail(target, "TARGET_ALREADY_DRAWN_NO_RETROACTIVE_CAPTURE"));
         }
         if (RealtimePressureGateR811.hasActiveCriticalWork() || SettlementExecutionGateR819.isActive())
