@@ -95,7 +95,8 @@ public final class ResearchMainlineContributionAuditR922 {
     public static List<Map<String,Object>> exactRealAttributionR34(SQLiteDatabase db,int limit){
         List<Map<String,Object>> results=new ArrayList<>();
         String sql="SELECT e.target_issue,e.candidate_id,e.model_hash,e.certificate_hash,e.proof_hash,e.authorization_hash,"
-            +"t._id,s.record_hash,t.settled,t.actual_number,t.hit,t.pnl,t.result,s.settlement_hash,q.draw_hash,q.settlement_hash"
+            +"t._id,s.record_hash,t.settled,t.actual_number,t.hit,t.pnl,t.result,s.settlement_hash,q.draw_hash,q.settlement_hash,"
+            +"s.commit_at,d.open_time,d.first_seen_at,t.settled_at,t.settle_time"
             +" FROM r974_exact_real_receipt e JOIN "+DbHelper.TABLE_TRADES+" t"
             +" ON t._id=e.trade_id AND t.target_issue=e.target_issue AND t.authorization_id=e.authorization_hash"
             +" JOIN "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s ON s.target_issue=e.target_issue AND s.authorization_hash=e.authorization_hash"
@@ -103,6 +104,7 @@ public final class ResearchMainlineContributionAuditR922 {
             +" AND a.bundle_hash=s.bundle_hash AND a.contract_hash=s.contract_hash"
             +" JOIN "+TABLE+" r ON r.target_issue=e.target_issue AND r.candidate_id=e.candidate_id AND r.rank1_hash=e.action_hash"
             +" LEFT JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" q ON q.target_issue=e.target_issue AND q.status='COMPLETED'"
+            +" LEFT JOIN draws d ON d.issue=e.target_issue AND d.dirty=0"
             +" WHERE s.game_code=? AND s.pre_draw_frozen=1 AND s.decision_action='BET' AND t.action='BET' AND t.stat_scope='REAL_TRADE'"
             +" AND t.position=s.position AND t.n1=s.n1 AND t.n2=s.n2 AND t.n3=s.n3 AND r.applied=1"
             +" ORDER BY e.target_issue DESC LIMIT ?";
@@ -112,14 +114,26 @@ public final class ResearchMainlineContributionAuditR922 {
                 row.put("targetIssue",c.getString(0));row.put("policy",c.getString(1));row.put("modelHash",c.getString(2));
                 row.put("certificateHash",c.getString(3));row.put("predictionProof",c.getString(4));
                 row.put("authorizationHash",c.getString(5));row.put("tradeId",c.getLong(6));row.put("canonicalHash",c.getString(7));
-                boolean settled=c.getInt(8)==1&&matchesTerminal(c.getLong(6),c.getInt(9),c.getInt(10),
+                long committed=c.getLong(16),drawOpen=c.getLong(17),firstSeen=c.getLong(18);
+                long settledAt=Math.max(c.getLong(19),c.getLong(20));
+                boolean confirmedClock=exactPredrawClockR342(committed,drawOpen,firstSeen);
+                boolean settled=c.getInt(8)==1&&confirmedClock&&settledAt>=firstSeen
+                    &&matchesTerminal(c.getLong(6),c.getInt(9),c.getInt(10),
                     c.getString(12),c.getString(13),c.getString(14),c.getString(15));
                 row.put("state",settled?"SETTLED_EXACT":c.getInt(8)==1?"SETTLEMENT_IDENTITY_UNKNOWN":"BET_AWAITING_SETTLEMENT");
+                row.put("predrawClock",confirmedClock?"VERIFIED":drawOpen<=0?"EXACT_DRAW_CLOCK_UNAVAILABLE":"UNVERIFIED_ORDER");
+                row.put("frozenCommitWallMs",committed>0?committed:null);
+                row.put("drawFirstSeenWallMs",firstSeen>0?firstSeen:null);
+                row.put("tradeSettledWallMs",settledAt>0?settledAt:null);
                 if(settled){row.put("hit",c.getInt(10));row.put("pnl",c.getDouble(11));row.put("settlementHash",c.getString(15));}
                 results.add(row);
             }
         }
         return results;
+    }
+
+    static boolean exactPredrawClockR342(long committed,long open,long firstSeen) {
+        return committed>0L&&open>committed&&firstSeen>committed;
     }
 
     static boolean matchesTerminal(long trade,int actual,int hit,String result,String label,String draw,String terminal){
