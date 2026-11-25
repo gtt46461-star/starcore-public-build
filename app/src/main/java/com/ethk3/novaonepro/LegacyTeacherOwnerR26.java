@@ -36,7 +36,9 @@ public final class LegacyTeacherOwnerR26 {
     private long retainedBytesR31(){long instructions=genome.scoreProgram.size()+genome.updateProgram.size();long chars=genome.canonical().length()+stateText.length()+trained.length()+identity.length();for(Map.Entry<String,String> e:binding.entrySet())chars+=e.getKey().length()+e.getValue().length();return 4096+4*chars+256*instructions;}
     private static synchronized LegacyTeacherOwnerR26 loadedOwnerR31(){
         reapCollectedR31();if(instance!=null)return instance;if(assetManagerR31==null)throw new InputPendingR31("F23_NOT_REGISTERED");
-        try{AssetBoundsR31 measured=assetBoundsR31(assetManagerR31);long bootstrap=8*measured.bytes+4*measured.maxLine+65536;
+        try{AssetBoundsR31 measured=assetBoundsR31(assetManagerR31);
+            if(!HistoricalGenomeImportR967.SOURCE_SHA.equals(measured.hash))throw new IOException("F23_ORIGINAL_ARCHIVE_SHA256");
+            long bootstrap=8*measured.bytes+4*measured.maxLine+65536;
             try(MemoryBudgetR31.Lease temporary=admitR31("asset-parse-workspace",bootstrap)){LegacyTeacherOwnerR26 loaded=new LegacyTeacherOwnerR26(assetManagerR31,measured);loaded.sharedLeaseR31=admitR31("shared-immutable-owner",loaded.retainedBytesR31());instance=loaded;return loaded;}
         }catch(IOException e){throw new IllegalStateException("F23_ORIGINAL_ARCHIVE_BLOCKED",e);}
     }

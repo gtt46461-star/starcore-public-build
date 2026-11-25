@@ -231,6 +231,11 @@ public final class EvolutionLoopR27 implements AutoCloseable {
         // before allocating the remaining operators; family minima and this quota may exceed a tiny target.
         int ex = cfg.expertShare > 0 ? Math.max(1, (int) Math.floor(total * cfg.expertShare)) : 0;
         int rest = Math.max(0, total - births.size() - ex);
+        if(researchContext!=null){
+            List<PolicySpecR27> generated=researchContext.proposeRuleR342(ctx,generation,rest);
+            births.addAll(generated);
+            rest-=generated.size();
+        }
         boolean haveParents = !population.isEmpty();
         int mut = haveParents ? (int) Math.round(rest * cfg.mutationShare / 1.0) : 0, cx = haveParents ? (int) Math.round(rest * cfg.crossoverShare) : 0;
         int fu = archive.filled() >= 2 ? (int) Math.round(rest * cfg.fusionShare) : 0;

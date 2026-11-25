@@ -56,11 +56,42 @@ public final class ResearchConsumptionStoreR31 {
         return out;
     }
 
+    private static void completeRuleUseWithinR342(SQLiteDatabase db,String run,String proposal,String child,
+            int generation,Map<?,?> product,Map<String,Object> link){
+        String id=ResearchContractR30R1.sha(String.valueOf(product.get("typedRule")));
+        String dataset=ResearchContractR30R1.sha(String.valueOf(product.get("ruleTransferDataset")));
+        TypedGenerationRuleR342 rule;
+        try(Cursor row=db.rawQuery("SELECT canonical FROM "+AtomPublicationStoreR31.RULES_R342
+                +" WHERE rule_id=?",new String[]{id})){
+            if(!row.moveToFirst())throw new ResearchStoreR30R1.StaleResearch();
+            rule=TypedGenerationRuleR342.decode(row.getString(0));
+        }
+        if(!id.equals(rule.ruleId)||!FrozenConfirmationR30.currentSemantics().equals(rule.abi)
+                ||ResearchInputPinR30R1.admittedRevisionR341(db,rule.dataset)!=rule.revision)throw new ResearchStoreR30R1.StaleResearch();
+        try(Cursor source=db.rawQuery("SELECT dataset_hash,source_revision,from_ordinal,through_ordinal "
+                +"FROM r30r1_analysis_run WHERE run_id=?",new String[]{run})){
+            if(!source.moveToFirst()||!dataset.equals(source.getString(0))
+                    ||ResearchInputPinR30R1.admittedRevisionR341(db,dataset)!=source.getLong(1))throw new ResearchStoreR30R1.StaleResearch();
+            boolean derived=false;
+            for(PolicySpecR27 exact:rule.instantiate(dataset,source.getLong(2),source.getLong(3),generation))
+                if(exact.policyHash().equals(child))derived=true;
+            if(!derived)throw new IllegalStateException("R342_RULE_BORN_CHILD_IDENTITY");
+        }
+        String receipt=HashingSU1.fields("R342_RULE_BORN_USE",id,dataset,run,proposal,child,Integer.toString(generation));
+        db.execSQL("INSERT INTO "+AtomPublicationStoreR31.RULE_USES_R342+" VALUES(?,?,?,?,?,?,?,?)",
+                new Object[]{proposal,id,child,dataset,generation,run,receipt,System.currentTimeMillis()});
+        link.put("typedRule",id);link.put("typedRuleUseReceipt",receipt);link.put("firstEvaluation","PENDING_ORIGINAL_EVOLUTION_EVALUATOR");
+    }
+
     /** Reads the staged immutable action plan, rechecks actual source and child,
      * then decorates the existing source-consumption receipt in the same writer. */
     public static void completeWithin(SQLiteDatabase db,String run,String proposal,String child,int generation,String consumer,
             Map<?,?> proposalPayload,String originalSource,Map<String,Object> link){
         if(!db.inTransaction())throw new IllegalStateException("R31_ACTION_EXISTING_WRITER_REQUIRED");
+        if(proposalPayload.containsKey("typedRule")){
+            completeRuleUseWithinR342(db,run,proposal,child,generation,proposalPayload,link);
+            return;
+        }
         Object raw=proposalPayload.get("actionContractR31");
         if(!(raw instanceof Map)){link.put("resultContractR31",Collections.singletonMap("state","LEGACY_UNVALIDATED_ACTION_PRESERVED"));return;}
         Map<String,Object> plan=object(raw),contract=object(object(plan.get("sourceContracts")).get(run));

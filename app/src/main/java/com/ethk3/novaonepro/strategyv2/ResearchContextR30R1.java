@@ -9,6 +9,8 @@ public final class ResearchContextR30R1 {
  private final Map<String,Map<String,Object>> sourceContractsR31=new LinkedHashMap<>();
  private final Map<String,String> sourceInputsR31=new LinkedHashMap<>();
  private final Map<String,Map<String,Object>> ablationRecipesR31=new LinkedHashMap<>();
+ private final Map<String,TypedGenerationRuleR342> ruleByChildR342=new LinkedHashMap<>();
+ private List<TypedGenerationRuleR342> typedRulesR342=Collections.emptyList();
  private long actionOrdinalR335;private ResearchContextR30R1(String dataset,long revision){datasetHash=dataset;this.revision=revision;}
  /** Bounded real generator counterfactual. Its private RNG never changes the original birth stream. */
  PolicySpecR27 proposeFamilyR31(IdeaFamilyR27 family,StatsR27.SplitMix rng,IdeaFamilyR27.Context ctx){
@@ -24,6 +26,7 @@ public final class ResearchContextR30R1 {
   return child;
  }
  String stageBoundR31(ResearchWriteQueueR27.Batch batch,PolicySpecR27 child,EvalContextR27 ctx,long budget,long now){
+  if(child!=null&&ruleByChildR342.containsKey(child.policyHash()))return stageRuleTransferR342(batch,child,ctx,now);
   List<String> refs=references(child);if(refs.isEmpty())return null;
   Map<String,Object> action=new LinkedHashMap<>(),views=new LinkedHashMap<>(),hashes=new LinkedHashMap<>(),contracts=new LinkedHashMap<>(),inputs=new LinkedHashMap<>();
   for(String run:refs){String view=null;for(Map.Entry<String,String> entry:runs.entrySet())if(run.equals(entry.getValue())){view=entry.getKey();break;}if(view==null||!sourceHashesR31.containsKey(run)||!sourceContractsR31.containsKey(run))return stage(batch,child,datasetHash,revision,now);views.put(run,view);hashes.put(run,sourceHashesR31.get(run));contracts.put(run,sourceContractsR31.get(run));inputs.put(run,sourceInputsR31.get(run));}
@@ -63,7 +66,53 @@ public final class ResearchContextR30R1 {
     }
    }
   }
+  if(context.split.selectTo>context.split.trainFrom){
+   long start=context.data.ordinals[context.split.trainFrom];
+   result.typedRulesR342=AtomPublicationStoreR31.readRulesR342(db,context.data.datasetHash,start);
+  }
   return result;
+ }
+
+ List<PolicySpecR27> proposeRuleR342(EvalContextR27 context,int generation,int capacity){
+  if(capacity<2||typedRulesR342.isEmpty()||context.split.selectTo<=context.split.trainFrom)return Collections.emptyList();
+  long from=context.data.ordinals[context.split.trainFrom], through=context.data.ordinals[context.split.selectTo-1];
+  TypedGenerationRuleR342 rule=typedRulesR342.get(0);
+  List<PolicySpecR27> variants=rule.instantiate(datasetHash,from,through,generation);
+  for(PolicySpecR27 variant:variants)ruleByChildR342.put(variant.policyHash(),rule);
+  return variants;
+ }
+
+ private String stageRuleTransferR342(ResearchWriteQueueR27.Batch batch,PolicySpecR27 child,EvalContextR27 ctx,long now){
+  TypedGenerationRuleR342 rule=ruleByChildR342.get(child.policyHash());
+  long from=ctx.data.ordinals[ctx.split.trainFrom], through=ctx.data.ordinals[ctx.split.selectTo-1];
+  String original=rule.encodeCanonical();
+  String run=HashingSU1.fields("R342_RULE_TRANSFER",rule.ruleId,datasetHash,Long.toString(revision),
+          Long.toString(from),Long.toString(through),BuildConfig.SOURCE_COMMIT_R26);
+  String proposal=HashingSU1.fields("R342_RULE_PROPOSAL",run,child.policyHash());
+  Map<String,Object> source=new LinkedHashMap<>();
+  source.put("sourceContract",Collections.singletonMap("abi",rule.abi));
+  source.put("ruleId",rule.ruleId);source.put("discoveryDataset",rule.dataset);source.put("transferDataset",datasetHash);
+  source.put("discoveryThrough",rule.through);source.put("transferFrom",from);source.put("transferThrough",through);
+  String summary=JsonR27.write(source);
+  Map<String,Object> product=new LinkedHashMap<>();
+  product.put("candidate",child.fullJson());product.put("candidateHash",child.policyHash());
+  product.put("typedRule",rule.ruleId);product.put("ruleTransferDataset",datasetHash);
+  String payload=JsonR27.write(product);
+  batch.guardBefore(db->{
+   if(ResearchInputPinR30R1.admittedRevisionR341(db,rule.dataset)!=rule.revision
+      ||ResearchInputPinR30R1.admittedRevisionR341(db,datasetHash)!=revision)throw new ResearchStoreR30R1.StaleResearch();
+   try(Cursor saved=db.rawQuery("SELECT canonical FROM "+AtomPublicationStoreR31.RULES_R342+" WHERE rule_id=?",new String[]{rule.ruleId})){
+    if(!saved.moveToFirst()||!original.equals(saved.getString(0)))throw new ResearchStoreR30R1.StaleResearch();
+   }
+   return 0;
+  });
+  batch.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+          run,datasetHash,rule.parents().get(0),"SELECT",BuildConfig.SOURCE_COMMIT_R26,revision,from,through,
+          StatsR27.sha256(summary),"COMMITTED",summary,now);
+  batch.add("INSERT OR IGNORE INTO r30r1_proposal VALUES(?,?,?,?,?,?,?,?,?)",
+          proposal,run,rule.parents().get(0),"TYPED_GENERATION_RULE",payload,StatsR27.sha256(payload),"READY",
+          "Original typed rule applied to later independent development input",now);
+  return proposal;
  }
  private final Map<String,String> isolatedSourcesR341=new LinkedHashMap<>();
  Map<String,String> isolatedSourcesR341(){return Collections.unmodifiableMap(isolatedSourcesR341);}

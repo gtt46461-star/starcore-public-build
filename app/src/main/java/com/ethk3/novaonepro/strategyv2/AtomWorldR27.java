@@ -17,7 +17,7 @@ public final class AtomWorldR27 {
     private static final Map<RuntimeR27,PublicationR31> PUBLICATIONS_R31=java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
     private static final class PublicationR31 {
         java.lang.ref.WeakReference<double[][]> scoredFrame=new java.lang.ref.WeakReference<>(null);
-        String scoreDataset="",moleculeRun="";int moleculeGeneration=-1;
+        String scoreDataset="",moleculeRun="",ruleDataset="";int moleculeGeneration=-1,ruleGeneration=-1;
     }
     private static PublicationR31 publicationR31(RuntimeR27 rt){synchronized(PUBLICATIONS_R31){PublicationR31 p=PUBLICATIONS_R31.get(rt);if(p==null){p=new PublicationR31();PUBLICATIONS_R31.put(rt,p);}return p;}}
     private static void restoreCompleteR31(RuntimeR27 rt,ResearchPoolR27.Worker w)throws InterruptedException {
@@ -53,6 +53,12 @@ public final class AtomWorldR27 {
             return ResearchPoolR27.Outcome.progress(to - from, to);
         }
         long units = 0;
+        if (!d.datasetHash.equals(publication.ruleDataset) || evo.generation != publication.ruleGeneration) {
+            TypedGenerationRuleR342 rule = AtomPublicationStoreR31.prepareRuleR342(w.ro,evo.context());
+            if (AtomPublicationStoreR31.publishRuleR342(w,rule)) units++;
+            publication.ruleDataset=d.datasetHash;
+            publication.ruleGeneration=evo.generation;
+        }
         if (rt.derivedDue) { units += derived(rt, w, evo); rt.derivedDue = false; }
         units += molecules(rt, w, evo);
         return units > 0 ? ResearchPoolR27.Outcome.progress(units, evo.generation) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", evo.generation, evo.generation);
@@ -150,16 +156,38 @@ public final class AtomWorldR27 {
         List<PolicyAstR27.Node> keep = new ArrayList<>();
         for (int i = 0; i < 32; i++) {
             int tp = 1 + r.nextInt(10); PolicyAstR27.Node mol = DerivedAtomR27.molecule(ks, tp, r, ic);
-            PolicySpecR27 s = new PolicySpecR27(mol, tp, PolicySpecR27.Rule.QUANTILE, 0, 0.15, 1.0, true, 0.01, 0.01, null);
+            PolicySpecR27 s = new PolicySpecR27(mol, tp, PolicySpecR27.Rule.QUANTILE, 0, 0.15, 1.0, true, 0.01, 0.01,
+                    IdeaFamilyR27.meta("I09","DERIVED_MOLECULE",generation,r.state,"Typed compound evaluated on the same development slice"));
             String state, reason; Double gain = null;AtomScoreR27.Contribution paired=new AtomScoreR27.Contribution();
             try {
+                java.util.Set<String> atomInputs=new java.util.HashSet<>();
+                for(PolicyAstR27.Node node:PolicyAstR27.nodes(mol))
+                    if(node.leaf()&&!node.op.equals("c"))atomInputs.add(node.toString());
+                if(atomInputs.size()<2||mol.kids.length!=2||mol.kids[0].equals(mol.kids[1])
+                        ||!BirthGateR27.candidateContract(s).ok)
+                    throw new IllegalArgumentException("R342_MOLECULE_INDEPENDENT_TYPED_COMPONENTS");
                 double tau = ctx.temperature(s); ReplayEvaluatorR27.Trace tr = ctx.selectTrace(s, tau);
                 ReplayScoreR27 sc = ReplayScoreR27.of(SplitR27.SELECT, tr, ctx.split.selectFrom, ctx.split.selectTo); gain = sc.pairedUMean;
                 paired=DerivedAtomR27.pairedContribution(mol,java.util.Collections.singletonList(s),ctx);
                 boolean ok = paired.lower95()>0 && sc.pairedULcb > 0 && sc.brier <= ReplayScoreR27.constantBrier(tr, ctx.split.selectFrom, ctx.split.selectTo) + SuccessiveHalvingR27.BRIER_SLACK;
                 state = ok ? "SURVIVED" : "RETIRED"; reason = "H_SELECT paired Brier LCB="+paired.lower95()+",legacy paired u LCB="+sc.pairedULcb+",Brier="+sc.brier;
-                if (ok) { survived++; keep.add(mol); }
-            } catch (RuntimeException e) { state = "REJECTED"; reason = e.getClass().getSimpleName() + ":" + e.getMessage(); }
+                if (ok) {
+                    PolicySpecR27 left=s.withAst(mol.kids[0],s.meta),right=s.withAst(mol.kids[1],s.meta);
+                    ResearchGainR30R1.Estimate beyondLeft=FusionStudyR30R1.gain(left,s,ctx).estimate();
+                    ResearchGainR30R1.Estimate beyondRight=FusionStudyR30R1.gain(right,s,ctx).estimate();
+                    reason += ",removeRight="+beyondLeft.meanBlockGain+",removeLeft="+beyondRight.meanBlockGain;
+                    if(!beyondLeft.supported()||!beyondRight.supported()){
+                        state="RETIRED";reason+=",R342_PAIR_SUPPORT_MISSING";
+                    }else {
+                        survived++; keep.add(mol);
+                    }
+                }
+            } catch (RuntimeException e) {
+                if (e instanceof BudgetTokenSU1.Yield || e instanceof java.util.concurrent.CancellationException) throw e;
+                Error fatal=FailureDispositionR31.processFatalCause(e);
+                if(fatal!=null)throw fatal;
+                state = "REJECTED"; reason = e.getClass().getSimpleName() + ":" + e.getMessage();
+            }
             String moleculeHash=StatsR27.sha256(mol+"@"+tp);contribution(b,"MOLECULE:"+moleculeHash,ctx.data.datasetHash,ctx.split.selectFrom,ctx.split.selectTo,paired,now);
             b.add("INSERT OR IGNORE INTO r27_molecule(molecule_hash,definition,generation,state,select_gain,reason,created_at) VALUES(?,?,?,?,?,?,?)", StatsR27.sha256(mol + "@" + tp), mol.toString() + "@" + tp, generation, state, gain, reason, now);
         }

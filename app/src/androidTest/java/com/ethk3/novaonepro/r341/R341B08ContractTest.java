@@ -80,7 +80,10 @@ public final class R341B08ContractTest {
     }
 
     @Test public void test_r341_b08_04_a01() throws Exception {
-        execute("0401", app -> new R26PublicationDeviceTest().failedLookCreatesFreshBoundedResearchAndAtomicCursorWithoutInheritedQuality());
+        execute("0401", app -> {
+            new R26PublicationDeviceTest().failedLookCreatesFreshBoundedResearchAndAtomicCursorWithoutInheritedQuality();
+            com.ethk3.novaonepro.strategyv2.R342CreationTests.typedRuleArtifact(app);
+        });
     }
 
     @Test public void test_r341_b08_04_a02() throws Exception {

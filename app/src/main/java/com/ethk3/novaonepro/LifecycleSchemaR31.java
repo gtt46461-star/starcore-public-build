@@ -87,6 +87,7 @@ public final class LifecycleSchemaR31 {
         Collections.addAll(sql,ResearchActionSchemaR33.DDL);
         Collections.addAll(sql,DiagnosisSchemaR335.DDL);
         Collections.addAll(sql,ColdRebirthSchemaR34.DDL);
+        Collections.addAll(sql,com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31.ruleDdlR342());
         return definitions(sql.toArray(new String[0]));
     }
     private static boolean startupSourcePresentR31(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r29_model_checkpoint'",null)){return c.moveToFirst();}}
@@ -129,6 +130,23 @@ public final class LifecycleSchemaR31 {
 
     public static boolean coldRebirthMigrationCommittedR342(SQLiteDatabase db) {
         return SchemaDomainCoordinatorR926.matches(db, coldRebirthContractR342(definitions(ColdRebirthSchemaR34.DDL)));
+    }
+
+    public static Result advanceTypedRuleWithinMigrationR342(SQLiteDatabase db) throws Exception {
+        String[] declared = com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31.ruleDdlR342();
+        List<Definition> objects = definitions(declared);
+        return advance(db, objects, tx -> requireDefinitions(tx,declared,"R342_TYPED_RULE"), typedRuleContractR342(objects));
+    }
+
+    public static boolean typedRuleMigrationCommittedR342(SQLiteDatabase db) {
+        return SchemaDomainCoordinatorR926.matches(db,typedRuleContractR342(definitions(
+                com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31.ruleDdlR342())));
+    }
+
+    private static SchemaDomainCoordinatorR926.Contract typedRuleContractR342(List<Definition> objects) {
+        String[] names = new String[objects.size()];
+        for (int i = 0; i < names.length; i++) names[i] = objects.get(i).name;
+        return new SchemaDomainCoordinatorR926.Contract("RESEARCH_R342_TYPED_RULE", 1, names);
     }
 
     private static SchemaDomainCoordinatorR926.Contract coldRebirthContractR342(List<Definition> objects) {

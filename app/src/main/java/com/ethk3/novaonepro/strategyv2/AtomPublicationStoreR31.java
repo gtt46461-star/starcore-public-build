@@ -8,6 +8,122 @@ import java.util.*;
 
 /** Original atom/molecule computations publish immutable, complete result sets on the existing writer. */
 public final class AtomPublicationStoreR31 {
+    static final String RULES_R342 = "r342_typed_generation_rule";
+    static final String RULE_USES_R342 = "r342_typed_generation_rule_use";
+    public static String[] ruleDdlR342() {
+        return new String[]{
+            "CREATE TABLE IF NOT EXISTS r342_typed_generation_rule(rule_id TEXT PRIMARY KEY CHECK(length(rule_id)=64),shape_hash TEXT NOT NULL CHECK(length(shape_hash)=64),dataset_hash TEXT NOT NULL CHECK(length(dataset_hash)=64),source_revision INTEGER NOT NULL,abi TEXT NOT NULL,from_ordinal INTEGER NOT NULL,through_ordinal INTEGER NOT NULL,canonical TEXT NOT NULL CHECK(length(CAST(canonical AS BLOB))<=16384),created_at INTEGER NOT NULL,CHECK(through_ordinal>=from_ordinal))",
+            "CREATE INDEX IF NOT EXISTS r342_rule_selection ON r342_typed_generation_rule(abi,through_ordinal,created_at)",
+            "CREATE TRIGGER IF NOT EXISTS r342_rule_no_update BEFORE UPDATE ON r342_typed_generation_rule BEGIN SELECT RAISE(ABORT,'R342_RULE_IMMUTABLE'); END",
+            "CREATE TRIGGER IF NOT EXISTS r342_rule_no_delete BEFORE DELETE ON r342_typed_generation_rule BEGIN SELECT RAISE(ABORT,'R342_RULE_IMMUTABLE'); END",
+            "CREATE TRIGGER IF NOT EXISTS r342_rule_no_replace BEFORE INSERT ON r342_typed_generation_rule WHEN EXISTS(SELECT 1 FROM r342_typed_generation_rule WHERE rule_id=NEW.rule_id) BEGIN SELECT RAISE(ABORT,'R342_RULE_IMMUTABLE'); END",
+            "CREATE TABLE IF NOT EXISTS r342_typed_generation_rule_use(proposal_id TEXT PRIMARY KEY,rule_id TEXT NOT NULL REFERENCES r342_typed_generation_rule(rule_id),child_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,generation INTEGER NOT NULL,source_run TEXT NOT NULL,receipt_hash TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(rule_id,dataset_hash,child_hash))",
+            "CREATE TRIGGER IF NOT EXISTS r342_rule_use_no_update BEFORE UPDATE ON r342_typed_generation_rule_use BEGIN SELECT RAISE(ABORT,'R342_RULE_USE_IMMUTABLE'); END",
+            "CREATE TRIGGER IF NOT EXISTS r342_rule_use_no_delete BEFORE DELETE ON r342_typed_generation_rule_use BEGIN SELECT RAISE(ABORT,'R342_RULE_USE_IMMUTABLE'); END",
+            "CREATE TRIGGER IF NOT EXISTS r342_rule_use_no_replace BEFORE INSERT ON r342_typed_generation_rule_use WHEN EXISTS(SELECT 1 FROM r342_typed_generation_rule_use WHERE proposal_id=NEW.proposal_id OR (rule_id=NEW.rule_id AND dataset_hash=NEW.dataset_hash AND child_hash=NEW.child_hash)) BEGIN SELECT RAISE(ABORT,'R342_RULE_USE_IMMUTABLE'); END"
+        };
+    }
+
+    private static boolean ruleSchemaReadyR342(SQLiteDatabase database) {
+        try {
+            com.ethk3.novaonepro.LifecycleSchemaR31.requireDefinitions(database,ruleDdlR342(),"R342_TYPED_RULE");
+            return true;
+        } catch (com.ethk3.novaonepro.DatabaseCoordinator.SchemaPendingR31 missing) {
+            return false;
+        }
+    }
+
+    static final class RuleDonorR342 {
+        final PolicySpecR27 policy;
+        final String proof;
+        RuleDonorR342(Cursor row) {
+            policy = PolicySpecR27.parse(row.getString(1));
+            if (!policy.policyHash().equals(row.getString(0))) {
+                throw new IllegalArgumentException("R342_RULE_DONOR_IDENTITY");
+            }
+            proof = HashingSU1.fields("R342_RULE_DONOR_SELECT",row.getString(0),row.getString(2),
+                    row.getString(3),row.getString(4),row.getString(5),row.getString(6),row.getString(7));
+        }
+    }
+
+    private static final String RULE_DONOR_SQL = "SELECT p.policy_hash,p.spec_json,s.dataset_hash,s.n_sched,"
+            + "s.n_act,s.hits,s.paired_u_mean,s.paired_u_lcb FROM r27_replay_score s "
+            + "JOIN r27_policy p ON p.policy_hash=s.policy_hash WHERE s.split='SELECT' "
+            + "AND s.dataset_hash=? AND s.n_sched>=30 AND s.n_act>0 AND s.paired_u_lcb>0 ";
+
+    static TypedGenerationRuleR342 prepareRuleR342(SQLiteDatabase db, EvalContextR27 context) {
+        if (!ruleSchemaReadyR342(db) || context.split.selectTo <= context.split.selectFrom) return null;
+        ReplayDatasetR27 data = context.data;
+        long revision = ResearchInputPinR30R1.admittedRevisionR341(db,data.datasetHash);
+        long from = data.ordinals[context.split.trainFrom];
+        long through = data.ordinals[context.split.selectTo - 1];
+        List<RuleDonorR342> donors = new ArrayList<>();
+        try (Cursor rows = db.rawQuery(RULE_DONOR_SQL + " ORDER BY s.computed_at DESC,p.policy_hash LIMIT 8",
+                new String[]{data.datasetHash})) {
+            while (rows.moveToNext()) donors.add(new RuleDonorR342(rows));
+        }
+        for (int i = 0; i < donors.size(); i++) {
+            RuleDonorR342 first = donors.get(i);
+            for (int j = i+1; j < donors.size(); j++) {
+                RuleDonorR342 second = donors.get(j);
+                if (first.policy.position != second.policy.position) continue;
+                try {
+                    return TypedGenerationRuleR342.induct(first.policy,first.proof,second.policy,second.proof,
+                            data.datasetHash,revision,from,through,FrozenConfirmationR30.currentSemantics());
+                } catch (IllegalArgumentException incompatibleStructure) {
+                    if (!"R342_TYPED_RULE_CONTRACT".equals(incompatibleStructure.getMessage())) throw incompatibleStructure;
+                }
+            }
+        }
+        return null;
+    }
+
+    static boolean publishRuleR342(ResearchPoolR27.Worker worker, TypedGenerationRuleR342 rule) throws InterruptedException {
+        if (rule == null) return false;
+        try (Cursor existing = worker.ro.rawQuery("SELECT 1 FROM "+RULES_R342+" WHERE rule_id=?",new String[]{rule.ruleId})) {
+            if (existing.moveToFirst()) return false;
+        }
+        ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
+        batch.guardBefore(db -> {
+            ResearchInputPinR30R1.require(db,rule.dataset,rule.revision);
+            List<String> parents=rule.parents();
+            for (int i=0;i<2;i++) {
+                try (Cursor current=db.rawQuery(RULE_DONOR_SQL+" AND p.policy_hash=?",
+                        new String[]{rule.dataset,parents.get(i)})) {
+                    String proof=i==0?rule.firstProof:rule.secondProof;
+                    if (!current.moveToFirst() || !proof.equals(new RuleDonorR342(current).proof)) {
+                        throw new ResearchStoreR30R1.StaleResearch();
+                    }
+                }
+            }
+            return 0;
+        });
+        batch.add("INSERT INTO "+RULES_R342+" SELECT ?,?,?,?,?,?,?,?,? WHERE NOT EXISTS"
+                        +"(SELECT 1 FROM "+RULES_R342+" WHERE rule_id=?)",
+                rule.ruleId,rule.shapeHash,rule.dataset,rule.revision,rule.abi,rule.from,rule.through,
+                rule.encodeCanonical(),System.currentTimeMillis(),rule.ruleId);
+        commit(worker,"ATOM_RULE_R342",rule.ruleId,rule.dataset,0L,batch);
+        return true;
+    }
+
+    static List<TypedGenerationRuleR342> readRulesR342(SQLiteDatabase db, String target, long from) {
+        if (!ruleSchemaReadyR342(db)) return java.util.Collections.emptyList();
+        List<TypedGenerationRuleR342> rules = new ArrayList<>();
+        try (Cursor rows = db.rawQuery("SELECT rule_id,canonical FROM "+RULES_R342
+                +" WHERE abi=? AND dataset_hash<>? AND through_ordinal<?"
+                +" ORDER BY created_at DESC,rule_id LIMIT 4",
+                new String[]{FrozenConfirmationR30.currentSemantics(),target,Long.toString(from)})) {
+            while (rows.moveToNext()) {
+                try {
+                    TypedGenerationRuleR342 rule=TypedGenerationRuleR342.decode(rows.getString(1));
+                    if (rule.ruleId.equals(rows.getString(0)) && !ResearchInputPinR30R1.invalid(db,rule.dataset)) rules.add(rule);
+                } catch (IllegalArgumentException unreadableOriginal) {
+                    android.util.Log.w("STARCORE_R342","Typed rule retained with unreadable payload "+rows.getString(0));
+                }
+            }
+        }
+        return rules;
+    }
     private AtomPublicationStoreR31() {}
     public static final String SCORE_VIEW="r31_atom_score_visible", CONTRIBUTION_VIEW="r31_atom_contribution_visible", MOLECULE_VIEW="r31_molecule_visible";
     public static final String[] DDL={

@@ -618,6 +618,26 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db -> { ResearchRetentionStoreR30.preserveAfterMigrationR34(db); return 0; }));
         return retentionPlan;
     }
+    private long nextTeacherBindingRetryR342;
+
+    private void ensureTeacherBindingR342(){
+        if(FamilyRegistryR26.dependencyR31("F23").isEmpty())return;
+        long now=SystemClock.elapsedRealtime();
+        if(now<nextTeacherBindingRetryR342)return;
+        nextTeacherBindingRetryR342=now+60_000L;
+        try{
+            LegacyTeacherOwnerR26.register(store.contextForR26());
+            store.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r26_teacher_blocked",""));
+        }catch(RuntimeException blocked){
+            Error fatal=FailureDispositionR31.processFatalCause(blocked);
+            if(fatal!=null)throw fatal;
+            android.util.Log.w("STARCORE_R26","Original F23 teacher remains unavailable",blocked);
+            String detail=blocked.getClass().getSimpleName()+":"+java.util.Objects.toString(blocked.getMessage(),"");
+            store.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r26_teacher_blocked",
+                    detail.substring(0,Math.min(240,detail.length()))));
+        }
+    }
+
     private void initialize(){
         // The live Context is an explicit authority for this private directory.
         // A missing directory is never invented by a read-side SQLite pathname.
@@ -627,7 +647,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         // R30-B00-03: retire R29 CP07-CP16 Root triggers / independent RP before any worker starts (idempotent, no-op on CP06 data).
         try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
         catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
-        try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
+        ensureTeacherBindingR342();
         String retentionPlan = prepareStartupSchemaR34();
         SchemaDomainCoordinatorR926.UpgradeSpecR31 original=startupUpgradeSpecR31(owner,null);
         SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=new SchemaDomainCoordinatorR926.UpgradeSpecR31(
@@ -912,14 +932,16 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 catch (BudgetTokenSU1.Yield pause) { if (units == 0) throw pause; break; }
                 boolean coldPending = !ColdRebirthSchemaR34.readyR342(store.readable())
                         || !LifecycleSchemaR31.coldRebirthMigrationCommittedR342(store.readable());
+                boolean rulePending = !LifecycleSchemaR31.typedRuleMigrationCommittedR342(store.readable());
                 result = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
                     DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_LIFECYCLE_SCHEMA_UNIT")
                             .withWorkload(0, 0L, 1, 1, true), db -> {
                             requireFence(db,c);
-                            return coldPending ? LifecycleSchemaR31.advanceColdRebirthWithinMigrationR342(db)
-                                    : LifecycleSchemaR31.advanceWithinMigration(db);
+                            if (coldPending) return LifecycleSchemaR31.advanceColdRebirthWithinMigrationR342(db);
+                            if (rulePending) return LifecycleSchemaR31.advanceTypedRuleWithinMigrationR342(db);
+                            return LifecycleSchemaR31.advanceWithinMigration(db);
                         });
-                lifecycleReadyR335 = !coldPending && result.ready;
+                lifecycleReadyR335 = !coldPending && !rulePending && result.ready;
                 if (!result.committedUnit) break;
                 units++;
                 c.reason("COOPERATIVE_LIFECYCLE_SCHEMA_UNIT_COMMITTED:"+result.object);
@@ -944,11 +966,11 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "publish-models":return TaskContinuationR26.step(store,c,budget,seq+1);
             case "live-forecast-preparation":return TaskContinuationR26.step(store,c,budget,seq+1);
             case "live-model-training":return TaskContinuationR26.step(store,c,budget,seq+1);
-            case "foundry-su2":return TaskContinuationR26.step(store,c,budget,seq+1);
+            case "foundry-su2":ensureTeacherBindingR342();return TaskContinuationR26.step(store,c,budget,seq+1);
             case "feedback":{long bridged=RuntimeSchemaR26.reconcileFeedbackR31(store,c,budget);boolean consumed=ResearchFeedbackSU1.drainOne(store);c.reason("FEEDBACK_DISPATCH_NOT_MODEL_TRAINING:bridge="+bridged+",legacyConsumption="+(consumed?1:0));return bridged+(consumed?1:0);}
             case "ablation":return ModelAblationStoreSU1.advanceOne(store,budget)?1:0;
             case "campaign-audit":return CampaignAuditStoreSU1.advanceOne(store,budget)?1:0;
-            case "foundry-su1":return TaskContinuationR26.step(store,c,budget,seq+1);
+            case "foundry-su1":ensureTeacherBindingR342();return TaskContinuationR26.step(store,c,budget,seq+1);
             default:break;
         }
         if(!c.task.equals("retention")&&!store.coordinatorForResearchR952().isR811ResearchSchemaReady()){c.reason("WAITING_LEGACY_RESEARCH_SCHEMA:"+ResearchSchemaCoordinatorR926.summary());return 0;}
