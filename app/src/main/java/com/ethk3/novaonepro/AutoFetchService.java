@@ -637,10 +637,20 @@ public final class AutoFetchService extends Service {
     private volatile long fetchGenerationR31;
     private final PollCadenceR31 fetchCadenceR31=new PollCadenceR31();
     private volatile int offlineStreakR31;
+    private final java.util.concurrent.atomic.AtomicReference<Object> latestHistoryTicketR342 =
+            new java.util.concurrent.atomic.AtomicReference<>();
 
     /** One monotonic target slot per second. Late work is counted, never replayed in a burst. */
     public static final class PollCadenceR31 {
+        private static final String[] PHASES = {"slotDelay","network","decode","headRead","ingest","postcallback"};
+        private static final int PHASE_WINDOW = 128;
         private long nextTarget,wakes,targetSlots,missedTicks,earlyWakes,lastWake,inactiveAt,excludedInactiveMs,sessions;
+        private long slotLateness;
+        private final long[][] phases = new long[PHASES.length][PHASE_WINDOW];
+        private int phaseCursor, phaseCount;
+        private final java.util.Map<String,Long> outcomes = new java.util.LinkedHashMap<>();
+        private String lastTarget = "";
+        private String longestPhase = "SCHEDULER_DELAY";
         private String scheduleReason="SESSION_START";
         private final java.util.Map<String,Long> missedByReason=new java.util.LinkedHashMap<>();
         public synchronized void beginSession(long mono){if(inactiveAt>0)excludedInactiveMs+=Math.max(0,mono-inactiveAt);inactiveAt=0;nextTarget=mono;lastWake=mono;sessions++;scheduleReason="SESSION_START";}
@@ -649,6 +659,7 @@ public final class AutoFetchService extends Service {
             if(mono<lastWake)throw new IllegalArgumentException("R31_MONOTONIC_CLOCK_REGRESSION");
             lastWake=mono;wakes++;
             if(nextTarget==0)nextTarget=mono;
+            slotLateness=Math.max(0L,mono-nextTarget);
             if(mono<nextTarget){earlyWakes++;return;}
             long skipped=(mono-nextTarget)/1000L;
             missedTicks+=skipped;targetSlots+=skipped+1;nextTarget+=(skipped+1)*1000L;
@@ -659,9 +670,44 @@ public final class AutoFetchService extends Service {
             if(backoff>1000L)due=Math.max(due,mono+backoff);
             return Math.max(minimum,due-mono);
         }
+        synchronized void finishRoundR342(String target, String outcome, long network, long decode,
+                long headRead, long ingest, long postcallback) {
+            long[] spent = {slotLateness, network, decode, headRead, ingest, postcallback};
+            int longest = 0;
+            for (int i = 0; i < PHASES.length; i++) {
+                phases[i][phaseCursor] = spent[i];
+                if (spent[i] > spent[longest]) longest = i;
+            }
+            phaseCursor = (phaseCursor + 1) % PHASE_WINDOW;
+            phaseCount = Math.min(PHASE_WINDOW, phaseCount + 1);
+            outcomes.put(outcome, outcomes.getOrDefault(outcome,0L) + 1);
+            lastTarget = target;
+            longestPhase = spent[longest] >= 1000L ? "PREVIOUS_" + PHASES[longest] : "SCHEDULER_DELAY";
+        }
+        synchronized String overrunReasonR342() { return longestPhase; }
+        private java.util.Map<String,Object> phaseSummaryR342() {
+            java.util.Map<String,Object> summary = new java.util.LinkedHashMap<>();
+            for (int i = 0; i < PHASES.length; i++) {
+                long[] values = java.util.Arrays.stream(phases[i],0,phaseCount).filter(value -> value >= 0L).sorted().toArray();
+                java.util.Map<String,Long> details = new java.util.LinkedHashMap<>();
+                details.put("measured",(long)values.length);
+                details.put("missing",(long)phaseCount-values.length);
+                if (values.length > 0) {
+                    details.put("p95Ms", values[(int)Math.ceil(values.length*.95d)-1]);
+                    details.put("p99Ms", values[(int)Math.ceil(values.length*.99d)-1]);
+                    details.put("maxMs", values[values.length-1]);
+                }
+                summary.put(PHASES[i],details);
+            }
+            return summary;
+        }
         public synchronized java.util.Map<String,Object> snapshot(){
             java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();
-            out.put("targetPeriodMs",1000L);out.put("wakes",wakes);out.put("targetSlots",targetSlots);out.put("missed_tick",missedTicks);out.put("earlyExplicitWakes",earlyWakes);out.put("lastWakeElapsedMs",lastWake);out.put("nextTargetElapsedMs",nextTarget);out.put("scheduleReason",scheduleReason);out.put("missedByReason",java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(missedByReason)));out.put("activeSessions",sessions);out.put("excludedInactiveMs",excludedInactiveMs);out.put("scope","CURRENT_SERVICE_INSTANCE_MONOTONIC_SCHEDULER_NOT_HTTP_OR_DEVICE_SLO");return java.util.Collections.unmodifiableMap(out);
+            out.put("targetPeriodMs",1000L);out.put("wakes",wakes);out.put("targetSlots",targetSlots);out.put("missed_tick",missedTicks);out.put("earlyExplicitWakes",earlyWakes);out.put("lastWakeElapsedMs",lastWake);out.put("nextTargetElapsedMs",nextTarget);out.put("scheduleReason",scheduleReason);out.put("missedByReason",java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(missedByReason)));out.put("activeSessions",sessions);out.put("excludedInactiveMs",excludedInactiveMs);out.put("scope","CURRENT_SERVICE_INSTANCE_MONOTONIC_SCHEDULER_NOT_HTTP_OR_DEVICE_SLO");
+            out.put("recentRoundPhases",phaseSummaryR342());
+            out.put("roundOutcomes",new java.util.LinkedHashMap<>(outcomes));
+            out.put("lastTarget",lastTarget);
+            return java.util.Collections.unmodifiableMap(out);
         }
     }
 
@@ -2705,6 +2751,7 @@ public final class AutoFetchService extends Service {
 
     private void resetServiceLoopsR341(long generation) {
         fetchGenerationR31 = generation;
+        latestHistoryTicketR342.set(null);
         startTicketR341.reset(generation);
         startRetryR341.reset(generation);
         fetchTicketR341.reset(generation);
@@ -2963,7 +3010,7 @@ public final class AutoFetchService extends Service {
         // completion cannot add another second to every period. Backoff keeps its original
         // bounded failure policy; no overlapping request or catch-up replay is scheduled.
         long backoffR30=FETCH_R30.consecutiveFailures()>0?FETCH_R30.nextDelayMs(false,Long.MIN_VALUE):1000L;
-        String reason=FETCH_R30.consecutiveFailures()>0?"HTTP_FAILURE_OR_429_BACKOFF":"NORMAL_OR_PREVIOUS_WORK_OVERRUN";
+        String reason=FETCH_R30.consecutiveFailures()>0?"HTTP_FAILURE_OR_429_BACKOFF":fetchCadenceR31.overrunReasonR342();
         if(offlineStreakR31>0){backoffR30=Math.max(backoffR30,Math.min(15000L,1000L<<Math.min(4,offlineStreakR31-1)));reason="NETWORK_UNAVAILABLE_BACKOFF";}
         long delay=fetchCadenceR31.nextDelay(android.os.SystemClock.elapsedRealtime(),backoffR30,reason,1L);
         fetchTicketR341.request(fetchGenerationR31, fetchHandler, delay, true, fetchLoop);
@@ -2980,10 +3027,11 @@ public final class AutoFetchService extends Service {
 
         fetchBusy = true;
         final long generationR31=fetchGenerationR31;
+        long headReadMs = -1L, ingestMs = -1L, tailStarted = -1L;
+        ApiClient.LatestRoundR342 round = null;
+        String timedTarget = "", roundOutcome = "INTERRUPTED";
 
         try {
-            com.ethk3.novaonepro.strategyv2.HistoryImportR27.resumePendingOffThread(this,
-                    ()->!running || userRequestedStopV5 || generationR31!=fetchGenerationR31);
             long now = System.currentTimeMillis();
             lastFetchLoopAt = now;
 
@@ -2991,6 +3039,7 @@ public final class AutoFetchService extends Service {
             forceRefresh = false;
 
             if (!isNetworkAvailable()) {
+                roundOutcome = "NETWORK_UNAVAILABLE";
                 offlineStreakR31=Math.min(16,offlineStreakR31+1);
                 networkWasUnavailable = true;
                 lastError = "网络不可用";
@@ -3013,13 +3062,19 @@ public final class AutoFetchService extends Service {
             // R30-B02-02: single flight around the actual draw request; a concurrent caller returns without a
             // request (no queueing). Only a request that ran changes the backoff counter.
             if (!FETCH_R30.tryBegin()) {
+                roundOutcome = "HTTP_OWNER_BUSY";
                 lastStatus = AppConfig.SERVICE_STATUS_WAITING;
                 return;
             }
             Models.ApiResult latestResult = null;
             if(!running||userRequestedStopV5||generationR31!=fetchGenerationR31){FETCH_R30.end(true);return;}
             try (com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.RequestScope timelineRole=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.requestScope(com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.LIVE)) {
-                latestResult = fetchLatestRealtime();
+                long headStarted = TimeSourceR811.monoNowMs();
+                Models.Draw local = store == null ? null : store.getLatestDraw();
+                headReadMs = TimeSourceR811.monoNowMs() - headStarted;
+                timedTarget = local == null || !local.isValid() ? "" : AppConfig.nextIssueText(local.issue);
+                round = new ApiClient.LatestRoundR342(TimeSourceR811.monoNowMs());
+                latestResult = apiClient.fetchLatest(timedTarget, round);
             } finally {
                 FETCH_R30.end(latestResult != null && latestResult.ok && latestResult.latestDraw != null);
             }
@@ -3031,8 +3086,12 @@ public final class AutoFetchService extends Service {
 
             // A slow database must not delay starting the HTTP request. Compare the response
             // with the durable head immediately before admitting it to the draw writer.
+            long headStarted = TimeSourceR811.monoNowMs();
             Models.Draw oldLatest = store == null ? null : store.getLatestDraw();
+            headReadMs += TimeSourceR811.monoNowMs() - headStarted;
             if (latestResult == null || !latestResult.ok || latestResult.latestDraw == null) {
+                roundOutcome = round != null && round.remaining(TimeSourceR811.monoNowMs()) == 0L
+                        ? "HTTP_TOTAL_DEADLINE" : "HTTP_OR_PAYLOAD_FAILURE";
                 lastError=ApiClient.failureSummary(latestResult);
                 heartbeatStateV8().markFetchFailed(safeIssue(oldLatest),lastError);
                 if (realtimeLike || forceRefresh || realtimeMissCount >= 1) {
@@ -3061,6 +3120,7 @@ public final class AutoFetchService extends Service {
             Models.DataCheck latestCheck = dataGuard.checkLatest(latestFromApi);
 
             if (latestCheck == null || !latestCheck.ok) {
+                roundOutcome = "DRAW_VALIDATION_FAILED";
                 lastError = latestCheck == null ? "最新开奖校验失败" : latestCheck.reason;
 
                 if (realtimeLike || forceRefresh) {
@@ -3083,6 +3143,8 @@ public final class AutoFetchService extends Service {
             final String[] dispatchedIssueR57 = {""};
             // Submit the finite-window request and clock update as soon as the latest
             // draw is durable. Historical writes must not precede this callback.
+            long ingestStarted = TimeSourceR811.monoNowMs();
+            List<Models.Draw> incidentalHistory = latestResult.draws;
             saveApiResultDraws(latestResult, new Runnable() {
                 @Override public void run() {
                     Models.Draw durable = getAuthoritativeLatest(latestForDispatchR57);
@@ -3090,7 +3152,10 @@ public final class AutoFetchService extends Service {
                             recoveredForDispatchR57, "R57_DURABLE_LATEST_BEFORE_HISTORY");
                     if (durable != null) dispatchedIssueR57[0] = safe(durable.issue);
                 }
-            });
+            }, false, false);
+            ingestMs = TimeSourceR811.monoNowMs() - ingestStarted;
+            tailStarted = TimeSourceR811.monoNowMs();
+            postLatestHistoryR342(incidentalHistory, generationR31);
 
             // The current draw and finite-window analysis are already durable/dispatched.
             recordValidatedFetchResponseR817(latestFromApi, expectedTarget, latestResult.apiLine);
@@ -3128,10 +3193,18 @@ public final class AutoFetchService extends Service {
 
             updateRuntimeState(AppConfig.SERVICE_STATUS_RUNNING, "");
             refreshNotificationIfNeeded();
+            roundOutcome = "DRAW_INGEST_RETURNED";
         } catch (Throwable e) {
+            Error fatal = com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);
+            if (fatal != null) throw fatal;
+            roundOutcome = "FETCH_ROUND_FAILED";
             lastError = safeError(e);
             updateRuntimeState(AppConfig.SERVICE_STATUS_API_ERROR, lastError);
         } finally {
+            fetchCadenceR31.finishRoundR342(timedTarget,roundOutcome,
+                    round == null || round.attempts == 0 ? -1L : round.httpMs,
+                    round == null || round.parsedBody == null ? -1L : round.decodeMs,
+                    headReadMs, ingestMs, tailStarted < 0 ? -1L : TimeSourceR811.monoNowMs() - tailStarted);
             fetchBusy = false;
         }
     }
@@ -3385,18 +3458,26 @@ public final class AutoFetchService extends Service {
         return REALTIME_DECISION_CANDIDATE_CAP;
     }
 
-    private Models.ApiResult fetchLatestRealtime() {
-        try {
-            Models.Draw local = store == null ? null : store.getLatestDraw();
-            String expectedTarget =
-                    local == null || !local.isValid()
-                            ? ""
-                            : AppConfig.nextIssueText(local.issue);
-            return apiClient.fetchLatest(expectedTarget);
-        } catch (Throwable e) {
-            lastError = safeError(e);
-            return null;
-        }
+    private void postLatestHistoryR342(List<Models.Draw> history, long generation) {
+        Handler handler = backfillHandler;
+        Object ticket = new Object();
+        if (history == null || history.isEmpty() || handler == null
+                || !latestHistoryTicketR342.compareAndSet(null, ticket)) return;
+        if (!handler.post(() -> {
+            try {
+                if (!running || userRequestedStopV5 || generation != fetchGenerationR31 || store == null) return;
+                ArrayList<Models.Draw> changed = new ArrayList<>();
+                for (Models.Draw draw : history) {
+                    if (draw != null && (!DrawPollingReplayR67.alreadyDurable(store.getDrawByIssue(draw.issue), draw)
+                            || FetchLedgerR925.hasDrawBindingR82(draw))) changed.add(draw);
+                }
+                if (!changed.isEmpty()) store.saveDraws(changed);
+            } catch (RuntimeException error) {
+                recordCriticalCatchR926("R342_LATEST_HISTORY_DEFERRED", "", error);
+            } finally {
+                latestHistoryTicketR342.compareAndSet(ticket, null);
+            }
+        })) latestHistoryTicketR342.compareAndSet(ticket, null);
     }
 
     private void saveApiResultDraws(Models.ApiResult result) {
@@ -3409,6 +3490,11 @@ public final class AutoFetchService extends Service {
 
     private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57,
                                     boolean historyPage) {
+        saveApiResultDraws(result, durableLatestConsumerR57, historyPage, true);
+    }
+
+    private void saveApiResultDraws(Models.ApiResult result, Runnable durableLatestConsumerR57,
+                                    boolean historyPage, boolean writeHistoricalRows) {
         if (result == null || store == null) {
             return;
         }
@@ -3442,7 +3528,7 @@ public final class AutoFetchService extends Service {
                 if (row > 0L) inserted++;
                 if (durableLatestConsumerR57 != null) durableLatestConsumerR57.run();
             }
-            if (result.draws != null && !result.draws.isEmpty()) {
+            if (writeHistoricalRows && result.draws != null && !result.draws.isEmpty()) {
                 if (historyPage) {
                     try {
                         Models.Draw base = store.getLatestDraw();
@@ -11839,6 +11925,9 @@ public final class AutoFetchService extends Service {
         backfillBusy = true;
 
         try {
+            final long generation = fetchGenerationR31;
+            com.ethk3.novaonepro.strategyv2.HistoryImportR27.resumePendingOffThread(this,
+                    () -> !running || userRequestedStopV5 || generation != fetchGenerationR31);
             long now = System.currentTimeMillis();
 
             if (!force) {

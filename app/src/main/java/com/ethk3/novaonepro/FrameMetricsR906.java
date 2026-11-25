@@ -15,6 +15,9 @@ public final class FrameMetricsR906 implements Choreographer.FrameCallback {
     private long frames, slowFrames, severeFrames, maxFrameNs;
     private long scrollFrames, scrollSlowFrames, scrollSevereFrames, scrollActiveUntilNs;
     private long totalBindNs, maxBindNs, binds;
+    private final long[] recentGaps = new long[256];
+    private int gapCount, gapCursor;
+    private long lastBindFinishedNs, lastBindDurationNs, slowFrameAfterBind;
     private boolean running;
 
     public void start() {
@@ -44,15 +47,8 @@ public final class FrameMetricsR906 implements Choreographer.FrameCallback {
         if (!running) return;
         if (lastFrameNs > 0L) {
             long duration = Math.max(0L, frameTimeNanos - lastFrameNs);
-            frames++;
-            if (duration > SLOW_NS) slowFrames++;
-            if (duration > SEVERE_NS) severeFrames++;
-            maxFrameNs = Math.max(maxFrameNs, duration);
-            if (System.nanoTime() <= scrollActiveUntilNs) {
-                scrollFrames++;
-                if (duration > SLOW_NS) scrollSlowFrames++;
-                if (duration > SEVERE_NS) scrollSevereFrames++;
-            }
+            recordFrameGapR342(duration, System.nanoTime() <= scrollActiveUntilNs,
+                    lastBindFinishedNs > lastFrameNs && lastBindDurationNs >= 10_000_000L);
         }
         lastFrameNs = frameTimeNanos;
         if (frameTimeNanos - lastPublishedNs >= 2_000_000_000L) {
@@ -66,7 +62,9 @@ public final class FrameMetricsR906 implements Choreographer.FrameCallback {
     }
 
     public void endBind(long started) {
-        long duration = Math.max(0L, System.nanoTime() - started);
+        lastBindFinishedNs = System.nanoTime();
+        long duration = Math.max(0L, lastBindFinishedNs - started);
+        lastBindDurationNs = duration;
         binds++;
         totalBindNs += duration;
         maxBindNs = Math.max(maxBindNs, duration);
@@ -82,12 +80,35 @@ public final class FrameMetricsR906 implements Choreographer.FrameCallback {
         return latestSummary;
     }
 
+    void recordFrameGapR342(long duration, boolean scrolling, boolean recentBind) {
+        recentGaps[gapCursor] = duration;
+        gapCursor = (gapCursor + 1) % recentGaps.length;
+        gapCount = Math.min(gapCount + 1, recentGaps.length);
+        frames++;
+        if (duration > SLOW_NS) {
+            slowFrames++;
+            if (recentBind) slowFrameAfterBind++;
+        }
+        if (duration > SEVERE_NS) severeFrames++;
+        maxFrameNs = Math.max(maxFrameNs, duration);
+        if (scrolling) {
+            scrollFrames++;
+            if (duration > SLOW_NS) scrollSlowFrames++;
+            if (duration > SEVERE_NS) scrollSevereFrames++;
+        }
+    }
+
     private String buildSummary() {
+        long[] window = java.util.Arrays.copyOf(recentGaps, gapCount);
+        java.util.Arrays.sort(window);
+        double p95 = gapCount == 0 ? -1d : window[(int)Math.ceil(gapCount*.95d)-1] / 1_000_000d;
+        double p99 = gapCount == 0 ? -1d : window[(int)Math.ceil(gapCount*.99d)-1] / 1_000_000d;
         return String.format(
                 Locale.US,
                 "R914_FRAME|frames=%d|slow33=%d|severe50=%d|maxMs=%.3f|"
                         + "scrollFrames=%d|scrollSlow33=%d|scrollSevere50=%d|scrollSlowRate=%.6f|"
-                        + "truthBinds=%d|truthBindAvgMs=%.3f|truthBindMaxMs=%.3f",
+                        + "truthBinds=%d|truthBindAvgMs=%.3f|truthBindMaxMs=%.3f|"
+                        + "recentGapSamples=%d|recentGapP95Ms=%.3f|recentGapP99Ms=%.3f|slowFrameWithRecentBind=%d",
                 frames,
                 slowFrames,
                 severeFrames,
@@ -98,6 +119,6 @@ public final class FrameMetricsR906 implements Choreographer.FrameCallback {
                 scrollFrames <= 0 ? 0.0d : (double) scrollSlowFrames / scrollFrames,
                 binds,
                 binds <= 0 ? 0.0d : (double) totalBindNs / 1_000_000.0d / binds,
-                maxBindNs / 1_000_000.0d);
+                maxBindNs / 1_000_000.0d, gapCount, p95, p99, slowFrameAfterBind);
     }
 }

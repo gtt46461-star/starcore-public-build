@@ -42,6 +42,32 @@ public final class BackgroundRuntimeContractR922 {
                 detail, LIMITATION);
     }
 
+    static String observedOwnerR342(boolean enabled, String serviceState, String startScope,
+            String businessScope, RuntimeObservationScopeR341 observer) {
+        if (!enabled) return "USER_DISABLED";
+        if (!"RUNNING".equals(serviceState)) return "OWNER_" + serviceState;
+        try {
+            org.json.JSONObject start = new org.json.JSONObject(startScope);
+            org.json.JSONObject business = new org.json.JSONObject(businessScope);
+            String process = start.getString("processEpoch");
+            if (process.isEmpty() || RuntimeObservationScopeR341.UNRESOLVED.equals(process)
+                    || !process.equals(business.getString("processEpoch"))
+                    || !observer.releaseId.equals(start.getString("releaseId"))
+                    || !observer.releaseId.equals(business.getString("releaseId"))
+                    || !observer.sourceCommit.equals(start.getString("sourceCommit"))
+                    || !observer.sourceCommit.equals(business.getString("sourceCommit"))
+                    || !observer.bootId.equals(start.getString("bootId"))
+                    || !observer.bootId.equals(business.getString("bootId"))
+                    || business.getLong("sampleMonoAt") < start.getLong("sampleMonoAt")
+                    || business.getLong("sampleMonoAt") > observer.sampleMonoAt) {
+                return "BUSINESS_PROJECTION_SCOPE_MISMATCH";
+            }
+            return "CURRENT_OWNER_BUSINESS_PROJECTION_OBSERVED";
+        } catch (org.json.JSONException missing) {
+            return "OWNER_PROJECTION_MISSING";
+        }
+    }
+
     public static final class Evaluation {
         public final boolean passed, staticReady, runtimeReady;
         public final String status, detail, limitation;

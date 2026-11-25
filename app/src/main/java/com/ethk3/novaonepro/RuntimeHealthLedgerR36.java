@@ -181,8 +181,15 @@ public final class RuntimeHealthLedgerR36 {
         out.performanceMeasured = metrics.sample;
         out.performanceWindow = metrics.windowSample;
         out.performanceUnmeasured = metrics.unmeasured;
-        out.performanceState = !"OK".equals(metrics.readStatus) || metrics.sample <= 0 || metrics.p95Ms < 0L
-                ? "UNKNOWN" : metrics.p95Ms <= out.performanceThresholdMs ? "PASS" : "FAIL";
+        if (!"OK".equals(metrics.readStatus) || metrics.sample <= 0 || metrics.p95Ms < 0L) {
+            out.performanceState = "UNKNOWN";
+        } else if (metrics.p95Ms > out.performanceThresholdMs) {
+            out.performanceState = "FAIL";
+        } else if (metrics.sample < 30 || metrics.unmeasured > 0 || metrics.windowSample != metrics.sample) {
+            out.performanceState = "INSUFFICIENT_MEASURED_WINDOW";
+        } else {
+            out.performanceState = "PASS";
+        }
     }
 
     /** Single read-only health truth used by UI and diagnostic renderers. */

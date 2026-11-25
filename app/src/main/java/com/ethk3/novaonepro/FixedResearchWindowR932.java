@@ -39,6 +39,8 @@ public final class FixedResearchWindowR932 {
                 return;
             }
         }catch(android.database.sqlite.SQLiteException firstSchema){ /* create schema below */ }
+        if (drawExists(store.readable(), snapshot.targetIssue))
+            throw new IllegalStateException("R932_CHAMPION_DRAW_ALREADY_EXISTS");
         try(ModelBundleRuntimeR932.Scope scope=ModelBundleRuntimeR932.forEvidence(bundle,snapshot.targetIssue,System.currentTimeMillis())) {
             V51Models.PositionAction[] actions=snapshot.positionActions();double[][] meta=new double[actions.length][];
             for(int i=0;i<actions.length;i++)meta[i]=actions[i].metaFeatures;

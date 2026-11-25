@@ -5,11 +5,18 @@ import android.content.SharedPreferences;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import com.ethk3.novaonepro.strategyv2.JsonR27;
 
 /** 莉脂�鎦��綽��э�筝���膸㊧���logcat鐚�筝�������茵�綛炊�㏍�� */
 public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
     public static final String VERSION = "V44_NOVA_DIAGNOSIS_FREQUENCY_STABILITY_20260720_44157296";
     private static final String PREF = "v20_crash_snapshot";
+    private static final String EVENT_INDEX = "r342_timestamped_events";
+    private static final int EVENT_LIMIT = 64;
     // Constructor rejects Activity/null fallback; only process-lifetime Application context is retained.
     @android.annotation.SuppressLint("StaticFieldLeak")
     private static volatile CrashRecorder installed;
@@ -17,6 +24,7 @@ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
     private static volatile String currentStage = "";
     private final Context app;
     private final Thread.UncaughtExceptionHandler previous;
+    private final RuntimeObservationScopeR341 recorderScope;
 
     private CrashRecorder(Context context) {
         Context c = context == null ? null : context.getApplicationContext();
@@ -24,6 +32,7 @@ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
             throw new IllegalArgumentException("APPLICATION_CONTEXT_REQUIRED");
         app = c == null ? context : c;
         previous = Thread.getDefaultUncaughtExceptionHandler();
+        recorderScope = RuntimeObservationScopeR341.capture(null, null, RuntimeObservationScopeR341.SYSTEM);
     }
 
     public static void install(Context context) {
@@ -64,7 +73,7 @@ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
         if (previous != null && previous != this) previous.uncaughtException(thread, error);
     }
 
-    private void persist(Thread thread, Throwable error, String stage) {
+    private synchronized void persist(Thread thread, Throwable error, String stage) {
         if (app == null) return;
         if (error instanceof OutOfMemoryError) {
             persistOomLowAllocation(thread, stage);
@@ -121,7 +130,72 @@ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
                         + (thread == null ? "" : thread.getName()));
         ed.putLong("max_memory", rt.maxMemory());
         ed.putString("version", AppConfig.B07R2_VERSION);
+        try {
+            appendTimestampedRecordR342(prefs, ed, now, error, stage, shortStack.toString());
+        } catch (RuntimeException damagedIndex) {
+            ed.putLong("r342_index_append_failed_at", now);
+        }
         ed.commit();
+    }
+
+    private void appendTimestampedRecordR342(SharedPreferences prefs, SharedPreferences.Editor editor,
+            long wall, Throwable error, String stage, String stack) {
+        List<Object> rows = new ArrayList<>(readEventIndexR342(prefs));
+        if (rows.size() >= EVENT_LIMIT) rows.remove(0);
+        Map<String,Object> row = new LinkedHashMap<>();
+        row.put("release", recorderScope.releaseId);
+        row.put("sourceCommit", recorderScope.sourceCommit);
+        row.put("processEpoch", recorderScope.processEpoch);
+        row.put("bootId", recorderScope.bootId);
+        row.put("pid", android.os.Process.myPid());
+        row.put("kind", error == null ? "UNKNOWN" : error.getClass().getName());
+        String stageName = stage == null ? "" : stage;
+        row.put("stage", stageName.substring(0, Math.min(stageName.length(), 96)));
+        row.put("wallMs", wall);
+        row.put("elapsedMs", TimeSourceR811.monoNowMs());
+        row.put("stackPrefixSha256", V51ChecksumEngine.sha256(stack));
+        rows.add(row);
+        editor.putString(EVENT_INDEX, JsonR27.write(rows));
+    }
+
+    private static List<?> readEventIndexR342(SharedPreferences prefs) {
+        Object raw = JsonR27.parse(prefs.getString(EVENT_INDEX, "[]"));
+        if (!(raw instanceof List) || ((List<?>) raw).size() > EVENT_LIMIT)
+            throw new IllegalStateException("CRASH_EVENT_INDEX_INVALID");
+        return (List<?>) raw;
+    }
+
+    private static void appendWindowR342(StringBuilder result, SharedPreferences prefs) {
+        try {
+            long elapsed = TimeSourceR811.monoNowMs();
+            RuntimeObservationScopeR341 scope = RuntimeObservationScopeR341.capture(null, null, RuntimeObservationScopeR341.SYSTEM);
+            List<?> rows = readEventIndexR342(prefs);
+            int recent = 0, otherBuild = 0;
+            for (Object raw : rows) {
+                if (!(raw instanceof Map)) throw new IllegalStateException("CRASH_EVENT_INVALID");
+                Map<?,?> row = (Map<?,?>)raw;
+                if (!scope.releaseId.equals(row.get("release")) || !scope.sourceCommit.equals(row.get("sourceCommit"))) {
+                    otherBuild++;
+                    continue;
+                }
+                if (!scope.bootId.equals(row.get("bootId"))) continue;
+                Object recorded = row.get("elapsedMs");
+                if (!(recorded instanceof Number)) throw new IllegalStateException("CRASH_EVENT_TIME_INVALID");
+                long at = ((Number)recorded).longValue();
+                if (at >= 0 && at <= elapsed && elapsed - at <= 600_000L) recent++;
+            }
+            result.append("r342CurrentReleaseRecordedEvents10m=").append(recent)
+                    .append("|scope=BOUNDED_APP_EVENTS_SAME_BOOT")
+                    .append("|indexEntries=").append(rows.size())
+                    .append("|historicalReleaseEntries=").append(otherBuild)
+                    .append("|lastOomWithoutIndexAt=").append(prefs.getLong("r342_oom_unindexed_wall",0L))
+                    .append("|lastIndexWriteFailureAt=").append(prefs.getLong("r342_index_append_failed_at",0L))
+                    .append('\n');
+            result.append("r342CrashEventIndex=").append(JsonR27.write(rows)).append('\n');
+        } catch (RuntimeException error) {
+            result.append("r342CurrentReleaseRecordedEvents10m=UNKNOWN|cause=")
+                    .append(error.getClass().getSimpleName()).append('\n');
+        }
     }
 
     private void persistOomLowAllocation(Thread thread, String stage) {
@@ -146,6 +220,11 @@ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
             ed.putLong("max_memory", rt.maxMemory());
             ed.putString("fingerprint", "OOM_LOW_ALLOC");
             ed.putString("version", AppConfig.B07R2_VERSION);
+            ed.putLong("r342_oom_unindexed_wall", now);
+            ed.putString("r342_oom_unindexed_source", recorderScope.sourceCommit);
+            ed.putString("r342_oom_unindexed_process", recorderScope.processEpoch);
+            ed.putString("r342_oom_unindexed_boot", recorderScope.bootId);
+            ed.putLong("r342_oom_unindexed_elapsed", TimeSourceR811.monoNowMs());
             ed.commit();
         } catch (Throwable ignore) {
         }
@@ -168,6 +247,7 @@ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
             b.append("windowCrashCountScope=NO_ROLLING_TIMESTAMP_LOG;UNKNOWN_WHEN_RECENT_EVENT\n");
             b.append("recordedCrashWindowCount=").append(p.getInt("crash_window_count", 0)).append('\n');
             b.append("recordedCrashWindowStart=").append(p.getLong("crash_window_start", 0L)).append('\n');
+            appendWindowR342(b,p);
             b.append("crashObservedAt=").append(observedAt).append('\n');
             b.append("lastAt=").append(p.getLong("at", 0L)).append('\n');
             b.append("thread=").append(p.getString("thread", "")).append('\n');

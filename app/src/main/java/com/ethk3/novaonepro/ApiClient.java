@@ -28,6 +28,30 @@ public final class ApiClient {
 
     private final DbStore ledgerStoreR925;
     private final ThreadLocal<String> ledgerRequestR925=new ThreadLocal<String>();
+    private final ThreadLocal<LatestRoundR342> latestRoundR342 = new ThreadLocal<>();
+    private static final java.util.concurrent.ScheduledThreadPoolExecutor LATEST_DEADLINE_R342 =
+            new java.util.concurrent.ScheduledThreadPoolExecutor(1, run -> {
+                Thread thread = new Thread(run, "starcore-latest-http-deadline");
+                thread.setDaemon(true);
+                return thread;
+            });
+    static {
+        LATEST_DEADLINE_R342.setRemoveOnCancelPolicy(true);
+    }
+
+    static final class LatestRoundR342 {
+        final long deadline;
+        long httpMs, decodeMs;
+        int attempts;
+        Models.ApiResult parsed;
+        String parsedBody, parsedSource;
+
+        LatestRoundR342(long now) {
+            deadline = now + AppConfig.HTTP_CONNECT_TIMEOUT_MS + AppConfig.HTTP_READ_TIMEOUT_MS;
+        }
+
+        long remaining(long now) { return Math.max(0L, deadline - now); }
+    }
     private volatile java.util.function.BooleanSupplier requestCancelledR31=()->false;
     private final java.util.concurrent.Semaphore requestPermitsR31=new java.util.concurrent.Semaphore(8,true);
     private final java.util.concurrent.atomic.AtomicLong cancellationFailuresR31=new java.util.concurrent.atomic.AtomicLong();
@@ -50,6 +74,35 @@ public final class ApiClient {
      * Historical/date recovery remains data-only and never creates predictions or BET records.
      */
     public Models.ApiResult fetchLatest(final String localTargetIssue) {
+        return fetchLatest(localTargetIssue, new LatestRoundR342(TimeSourceR811.monoNowMs()));
+    }
+
+    Models.ApiResult fetchLatest(final String localTargetIssue, LatestRoundR342 round) {
+        latestRoundR342.set(round);
+        try {
+            return fetchLatestWithinDeadlineR342(localTargetIssue);
+        } finally {
+            latestRoundR342.remove();
+        }
+    }
+
+    private Models.ApiResult parseLatestR342(String body, String source) {
+        LatestRoundR342 round = latestRoundR342.get();
+        if (round == null) return ApiParser.parseLatest(body, source);
+        if (round.parsedBody == body && java.util.Objects.equals(round.parsedSource, source)) return round.parsed;
+        long started = TimeSourceR811.monoNowMs();
+        try {
+            Models.ApiResult parsed = ApiParser.parseLatest(body, source);
+            round.parsedBody = body;
+            round.parsedSource = source;
+            round.parsed = parsed;
+            return parsed;
+        } finally {
+            round.decodeMs += TimeSourceR811.monoNowMs() - started;
+        }
+    }
+
+    private Models.ApiResult fetchLatestWithinDeadlineR342(final String localTargetIssue) {
         if (!KeyProvider.isKeyReady()) {
             return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
         }
@@ -61,7 +114,7 @@ public final class ApiClient {
                             @Override
                             public ApiTransportGovernanceEngine.PayloadDecision evaluate(
                                     String sourceLine, String body, long nowMs) {
-                                Models.ApiResult parsed = ApiParser.parseLatest(body, sourceLine);
+                                Models.ApiResult parsed = parseLatestR342(body, sourceLine);
                                 if (parsed == null
                                         || (!parsed.success && !parsed.ok)
                                         || parsed.latestDraw == null
@@ -81,7 +134,7 @@ public final class ApiClient {
                             }
                         });
         if (raw == null || (!raw.success && !raw.ok)) return raw;
-        Models.ApiResult parsed = ApiParser.parseLatest(raw.rawJson, raw.sourceLine);
+        Models.ApiResult parsed = parseLatestR342(raw.rawJson, raw.sourceLine);
         if (parsed == null) return Models.ApiResult.fail("PARSE_EMPTY", "最新开奖解析为空");
         parsed.rawJson = raw.rawJson;
         parsed.setSourceLine(raw.sourceLine);
@@ -521,11 +574,18 @@ public final class ApiClient {
     }
 
     public RawHttpResult requestGet(String urlText) {
+        LatestRoundR342 round = latestRoundR342.get();
+        if (round != null && round.remaining(TimeSourceR811.monoNowMs()) == 0L) {
+            RawHttpResult expired = new RawHttpResult();
+            expired.errorMessage = "R342_LATEST_REQUEST_DEADLINE";
+            return expired;
+        }
         final String requestIdR925=FetchLedgerR925.begin(ledgerStoreR925,"GET",urlText);
         final long requestStartedR925=TimeSourceR811.monoNowMs();
         ledgerRequestR925.set(requestIdR925);
         HttpURLConnection conn = null;
         InputStream in = null;
+        java.util.concurrent.ScheduledFuture<?> deadline = null;
 
         boolean requestPermitR31=false;
         RawHttpResult out = new RawHttpResult();
@@ -540,13 +600,22 @@ public final class ApiClient {
         }
 
         try {
+            if (round != null) round.attempts++;
             checkRequestCancellationR31();
             if(!requestPermitsR31.tryAcquire())throw new java.io.IOException("R31_HTTP_CAPACITY_RETRY");requestPermitR31=true;
             URL url = new URL(urlText);
             conn = (HttpURLConnection) url.openConnection();
             activeRequestsR31.add(conn);checkRequestCancellationR31();
-            conn.setConnectTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_CONNECT_TIMEOUT_MS, RuntimeResourceAuditR927.remainingMs())));
-            conn.setReadTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_READ_TIMEOUT_MS, RuntimeResourceAuditR927.remainingMs())));
+            long remaining = RuntimeResourceAuditR927.remainingMs();
+            if (round != null) {
+                remaining = Math.min(remaining, round.remaining(TimeSourceR811.monoNowMs()));
+                if (remaining == 0L) throw new java.net.SocketTimeoutException("R342_LATEST_REQUEST_DEADLINE");
+                HttpURLConnection watched = conn;
+                deadline = LATEST_DEADLINE_R342.schedule(watched::disconnect, remaining,
+                        java.util.concurrent.TimeUnit.MILLISECONDS);
+            }
+            conn.setConnectTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_CONNECT_TIMEOUT_MS, remaining)));
+            conn.setReadTimeout((int)Math.max(1L, Math.min(AppConfig.HTTP_READ_TIMEOUT_MS, remaining)));
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
             conn.setDoInput(true);
@@ -580,14 +649,17 @@ public final class ApiClient {
         } catch (Exception e) {
             Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(e);if(fatal!=null)throw fatal;
             out.ok = false;
-            out.errorMessage = sanitizeMessage(e.getMessage());
+            out.errorMessage = round != null && round.remaining(TimeSourceR811.monoNowMs()) == 0L
+                    ? "R342_LATEST_REQUEST_DEADLINE" : sanitizeMessage(e.getMessage());
         } finally {
+            if (deadline != null) deadline.cancel(false);
             try { closeQuietly(in); }
             finally { try { if (conn != null) conn.disconnect(); }
                 finally { if(conn!=null)activeRequestsR31.remove(conn);if(requestPermitR31)requestPermitsR31.release(); } }
         }
 
         out.finishedMonoMs=TimeSourceR811.monoNowMs();out.finishedWallMs=TimeSourceR811.wallNowMs();
+        if (round != null) round.httpMs += out.finishedMonoMs - requestStartedR925;
         FetchLedgerR925.complete(ledgerStoreR925,requestIdR925,TimeSourceR811.monoNowMs()-requestStartedR925,out);
         return out;
     }
@@ -1044,7 +1116,7 @@ public final class ApiClient {
             public ApiTransportGovernanceEngine.PayloadDecision evaluate(String source,String body,long now){
                 ApiTransportGovernanceEngine.PayloadDecision decision=gate==null?ApiTransportGovernanceEngine.PayloadDecision.accept():gate.evaluate(source,body,now);
                 String issue="",observedDrawHash=null;
-                try{Models.ApiResult parsed=ApiParser.parseLatest(body,source);if(parsed!=null&&parsed.latestDraw!=null){issue=parsed.latestDraw.issue;observedDrawHash=DrawHashR36.sha256V2(parsed.latestDraw);}}catch(Throwable invalid){issue="PARSE_UNAVAILABLE";}
+                try{Models.ApiResult parsed=parseLatestR342(body,source);if(parsed!=null&&parsed.latestDraw!=null){issue=parsed.latestDraw.issue;observedDrawHash=DrawHashR36.sha256V2(parsed.latestDraw);}}catch(Exception invalid){issue="PARSE_UNAVAILABLE";}
                 FetchLedgerR925.payload(ledgerStoreR925,ledgerRequestR925.get(),source,issue,decision.accepted,decision.code,observedDrawHash);
                 return decision;
             }
@@ -1055,9 +1127,9 @@ public final class ApiClient {
                         request,
                         new ApiTransportGovernanceEngine.TransportAdapter() {
                             public ApiTransportGovernanceEngine.HttpResponse execute(String url) {
-                                long started = System.currentTimeMillis();
+                                long started = TimeSourceR811.monoNowMs();
                                 RawHttpResult raw = requestGet(url);
-                                long elapsed = System.currentTimeMillis() - started;
+                                long elapsed = TimeSourceR811.monoNowMs() - started;
                                 return new ApiTransportGovernanceEngine.HttpResponse(
                                         raw != null && raw.ok,
                                         raw == null ? 0 : raw.httpCode,

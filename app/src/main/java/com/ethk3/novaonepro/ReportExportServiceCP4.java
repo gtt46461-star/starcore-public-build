@@ -157,6 +157,24 @@ public final class ReportExportServiceCP4 extends Service {
         BackgroundRuntimeCapabilityR811.RuntimeObservationR31 value=BackgroundRuntimeCapabilityR811.observeRuntimeR31(app);
         java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("status",value.status);out.put("reason",value.reason);out.put("recoveryCondition",value.recoveryCondition);out.put("snapshotId",value.snapshotId);
         out.put("sampleWallMs",value.sampleWallMs);out.put("sampleElapsedMs",value.sampleElapsedMs);out.put("observerPid",android.os.Process.myPid());out.put("runtimeSdk",value.runtimeSdk);out.put("targetSdk",value.targetSdk);out.put("userEnabled",value.userEnabled);
+        ServiceHeartbeatStore owner = new ServiceHeartbeatStore(app);
+        ServiceHeartbeatStore.BusinessTruthSnapshot business = owner.readBusinessTruth();
+        String mainScope = owner.processStartScopeR341();
+        String phase = owner.runtimeTruthState();
+        String observed = BackgroundRuntimeContractR922.observedOwnerR342(value.userEnabled,phase,
+                mainScope,business.observationScope,
+                RuntimeObservationScopeR341.capture(null,null,RuntimeObservationScopeR341.SYSTEM));
+        out.put("ownerState",observed);
+        out.put("serviceState",phase);
+        out.put("mainStartScope",mainScope);
+        out.put("lastRecovery",owner.getLastRecoveryResult());
+        out.put("lastRecoveryWallMs",owner.getLastRecoveryResultAt());
+        if ("CURRENT_OWNER_BUSINESS_PROJECTION_OBSERVED".equals(observed)) {
+            out.put("businessSampleWallMs",business.updatedAt);
+            out.put("latestDurableDraw",business.latestDraw);
+            out.put("latestDurableCanonical",business.latestCanonical);
+            out.put("latestDurableSettlement",business.latestSettled);
+        }
         out.put("batteryExemption",value.batteryExemption.name());out.put("deviceIdle",value.deviceIdle.name());out.put("powerSave",value.powerSave.name());out.put("backgroundRestricted",value.backgroundRestricted.name());out.put("foregroundService",value.foregroundService.name());out.put("notifications",value.notifications.name());out.put("exactAlarm",value.exactAlarm.name());out.put("errors",value.errors);out.put("continuous24h","NOT_RUN");out.put("continuous72h","NOT_RUN");return out;
     }
     /** R31Q: request-thread state for the quick diagnostic (a blocked request never reaches the service). */

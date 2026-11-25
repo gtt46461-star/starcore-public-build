@@ -114,12 +114,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "94d8eed4d707238903ba9218675162717e2b2db1d6e5ec4c36f2198cdb88defd",
+      "after_sha256": "a7f8bd4b720c9ddbb30c572e1ca512b2c8397992a24d430c78badf175e837e4a",
       "before_role": "NUMERIC",
       "before_sha256": "20819ada10f8ea1892fc733f52bf957d508d99edaae44a123ac359843f8c386b",
       "path": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
-      "rationale": "Permit Android HTTPS stream reuse after a fully read body to avoid a compulsory new TLS handshake on each poll; preserve server close, cancellation, resource cleanup, fingerprint and actual-network retry policy.",
-      "reviewer": "Codex R33.5 vivo field repair"
+      "rationale": "Bound the production latest request across primary and fallback transports, and measure and reuse exact-content decoding without changing provider validation.",
+      "reviewer": "STARCORE R34.2 B05 source review"
     },
     {
       "after_role": "PRESENTATION",
@@ -150,12 +150,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "d5a84c0ffee7917cba3f6f6aa84f15dc7feb089c3d2e9dd60ed81341fd58e380",
+      "after_sha256": "ef4e93463ade2d2649a35daff745903b8174cfefb250e6859e8cfc38f892ee63",
       "before_role": "NUMERIC",
       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
-      "rationale": "Connect persisted latest history suffix repair and source-aware settlement gaps to the existing service and report producers with unchanged single ownership.",
-      "reviewer": "STARCORE R34.2 B04 source review"
+      "rationale": "Measure monotonic stages on the original singleton fetch owner, defer incidental history to the existing bounded backfill owner, and retain failed rounds.",
+      "reviewer": "STARCORE R34.2 B05 source review"
     },
     {
       "after_role": "NUMERIC",
@@ -165,6 +165,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
       "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "e7e080ed2f7efd6296bdda135caa9e1395bab75edaccf81047b2ca95175fe47a",
+      "before_role": "NUMERIC",
+      "before_sha256": "744b872fa8a4e60964e154208c17b58c4bb2337da9b3d6db517ecb9caccd99c6",
+      "path": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeContractR922.java",
+      "rationale": "Separate observed current process business progress from permission capability by requiring exact start and business scope matches.",
+      "reviewer": "STARCORE R34.2 B05 source review"
     },
     {
       "after_role": "NUMERIC",
@@ -357,6 +366,15 @@
     },
     {
       "after_role": "NUMERIC",
+      "after_sha256": "f32b4cad9dce4f7de63932ca1f1875a485ab5579ce6287defb369c50cc854076",
+      "before_role": "NUMERIC",
+      "before_sha256": "1f71c281105cc72724920aa5171504b474cb89bc39dfbf93d89546953d44538b",
+      "path": "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java",
+      "rationale": "Keep the legacy crash original and add a bounded timestamped index with current source and process identities and explicit unindexed OOM gaps.",
+      "reviewer": "STARCORE R34.2 B05 source review"
+    },
+    {
+      "after_role": "NUMERIC",
       "after_sha256": "bc81c09e4e72c73af71e72a893b8c9c49791c516c209a1a5d069df9fa40181ed",
       "before_role": "NUMERIC",
       "before_sha256": "b535ee57f6c9db464a0eaa0c115eb69f50a90ffd291e3fe6fb01c01a1995d4a6",
@@ -453,6 +471,15 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/DeepLearningActivity.java",
       "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
       "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "d617d07f47356af89a8af28db371007a13785de0da8f745c159451ec689c7e59",
+      "before_role": "NUMERIC",
+      "before_sha256": "b56c1430a119b8bfc8b6fb53a8a1163b10d10984dce322e941d1a821813ddc65",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "rationale": "Avoid temporary split arrays while preserving exactly the persisted comma-separated numeric parse semantics and allowing fatal errors to propagate.",
+      "reviewer": "STARCORE R34.2 B05 source review"
     },
     {
       "after_role": "NUMERIC",
@@ -609,12 +636,21 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "cf96baa43a20af21a6ae99a970d7044536066b4482fdf0dd49be57b75a09fa29",
+      "after_sha256": "dfb9645ec5c90c75ea5e910fa9f7e8a5fb0e9b48189262f51a1cf8afd8c0329d",
       "before_role": "NUMERIC",
       "before_sha256": "eb1e99dcba9f5d8d44e96ba7714250968803d31451f82348961c1b9de0b54143",
       "path": "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
-      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
-      "reviewer": "Codex SU1 source integration"
+      "rationale": "Skip late full reranking when the exact draw is already durable, while preserving the write-time race and immutable candidate checks.",
+      "reviewer": "STARCORE R34.2 B05 source review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "f4540caf8fa00358e371e56cb3af2a754227590bb2af3cbfc711c8c38c56158e",
+      "before_role": "NUMERIC",
+      "before_sha256": "324e609e0bf3b65b6cefb627d8acd280ee8e12fc6b031072c5d7f03fd3732e7c",
+      "path": "app/src/main/java/com/ethk3/novaonepro/FrameMetricsR906.java",
+      "rationale": "Accumulate bounded frame interval percentiles and record nearby slow binds without adding database work to the main thread.",
+      "reviewer": "STARCORE R34.2 B05 source review"
     },
     {
       "after_role": "NUMERIC",
@@ -1122,12 +1158,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "26e102568805f32f426bfb3049aac7f5517dcb07e6384c1e8822f6f3d637413a",
+      "after_sha256": "e55e30118858e1a133212b1167b4ace825fb15fd75a0380686777cca2ae5d141",
       "before_role": "NUMERIC",
       "before_sha256": "db380466ffa8b042269e4b543218c914692867445658fac824824de0a6893859",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
-      "rationale": "Supply source preparation as source metadata when freezing the report inputs. The request observation remains inside the existing journal bound and the preexisting snapshot, verification and publication path remains authoritative.",
-      "reviewer": "STARCORE R34.1 report export repair"
+      "rationale": "Attach main-owner process and durable-progress observations to the report runtime capability while keeping actual physical soak pending.",
+      "reviewer": "STARCORE R34.2 B05 source review"
     },
     {
       "after_role": "NUMERIC",
@@ -1554,12 +1590,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "a7e026bb4226e8c9bc9534349f7869dd383f2750b6c1e11fa37ce0e43b38d25c",
+      "after_sha256": "9d892843bcce2b3a1fcdbef082277e50c68207f5e3dcbee74cc40604d28c2abc",
       "before_role": "NUMERIC",
       "before_sha256": "ecbd68d1b389f773bdae6c71a2029226b7b4c455dc77ed905030ec169a79123a",
       "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
-      "rationale": "Join exact-source predraw events to actual closed draws and settled hashes and classify missed opportunities alongside existing settlement obligations.",
-      "reviewer": "STARCORE R34.2 B04 source review"
+      "rationale": "Do not declare a whole measured window passed from one successful return or while its timing evidence is missing.",
+      "reviewer": "STARCORE R34.2 B05 source review"
     },
     {
       "after_role": "PRESENTATION",
@@ -9866,7 +9902,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "8d3e2fd7f9f6905de0adf5fa648360af9d8e5f5b966131091cecb99a439f8bc0",
+  "reviewed_input_provenance_sha256": "a13c509bfcc6275197f75d25c8991ed738933682b46df2395d04c97fb47f9981",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

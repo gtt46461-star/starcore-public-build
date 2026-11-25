@@ -977,14 +977,18 @@ public final class DeferredEvidenceSnapshotR36 {
     private static double[] parseDoubles(String text) {
         String value = safe(text);
         if (value.length() == 0) return new double[0];
-        String[] fields = value.split(",", -1);
-        double[] out = new double[fields.length];
-        for (int i = 0; i < fields.length; i++) {
+        int fieldCount = 1;
+        for (int i = 0; i < value.length(); i++) if (value.charAt(i) == ',') fieldCount++;
+        double[] out = new double[fieldCount];
+        int start = 0;
+        for (int i = 0; i < fieldCount; i++) {
+            int end = i + 1 == fieldCount ? value.length() : value.indexOf(',', start);
             try {
-                out[i] = finite(Double.parseDouble(fields[i]), 0.0d);
-            } catch (Throwable ignored) {
+                out[i] = finite(Double.parseDouble(value.substring(start, end)), 0.0d);
+            } catch (NumberFormatException invalid) {
                 out[i] = 0.0d;
             }
+            start = end + 1;
         }
         return out;
     }
