@@ -25,6 +25,11 @@ public final class R31RetirementManifestTest {
     @SuppressWarnings("unchecked") static Map<String, Object> manifest() throws Exception {
         return (Map<String, Object>) JsonR27.parse(new String(Files.readAllBytes(Paths.get("../tools/r31/retirement_manifest.json")), StandardCharsets.UTF_8));
     }
+    @SuppressWarnings("unchecked") static Map<String,Object> currentDbStoreCoverage() throws Exception {
+        Map<String,Object> current=(Map<String,Object>)JsonR27.parse(Files.readString(
+                Paths.get("../release/r3251_retirement_inventory.json"), StandardCharsets.UTF_8));
+        return (Map<String,Object>)current.get("dbstore");
+    }
     static String read(Path p) { try { return new String(Files.readAllBytes(p), StandardCharsets.UTF_8); } catch (Exception e) { throw new IllegalStateException(e); } }
     static List<Path> sources(Path root) throws Exception { List<Path> out = new ArrayList<>(); try (java.util.stream.Stream<Path> s = Files.walk(root)) { s.filter(p -> p.toString().endsWith(".java")).sorted().forEach(out::add); } return out; }
     /** {file|kind|target} for every DROP in production code, scanned here (not taken from the manifest). */
@@ -118,7 +123,7 @@ public final class R31RetirementManifestTest {
         assertTrue(com.ethk3.novaonepro.strategyv2.ReportObjectIndexR30.chartRegistryConsistentR31());
         assertEquals(47, ChartRegistryR31.ids().size());
         // DbStore: mapped, not cut; the coverage map is the current source
-        @SuppressWarnings("unchecked") Map<String, Object> db = (Map<String, Object>) m.get("dbstore");
+        Map<String, Object> db = currentDbStoreCoverage();
         requireCurrentDbStoreCoverageR32(db, Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java")));
     }
 
@@ -136,7 +141,7 @@ public final class R31RetirementManifestTest {
 
     @SuppressWarnings("unchecked")
     @Test public void changedCoverageBytesAndMissingMethodsAreRejected()throws Exception {
-        Map<String,Object> db=(Map<String,Object>)manifest().get("dbstore");
+        Map<String,Object> db=currentDbStoreCoverage();
         byte[] source=Files.readAllBytes(MAIN.resolve("com/ethk3/novaonepro/DbStore.java"));
         requireCurrentDbStoreCoverageR32(db,source);
         Map<String,Object> stale=new LinkedHashMap<>(db);stale.put("source_sha256","698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93");

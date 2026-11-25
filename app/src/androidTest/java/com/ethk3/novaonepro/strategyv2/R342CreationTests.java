@@ -33,7 +33,9 @@ public final class R342CreationTests {
 
     public static void typedRuleArtifact(Context ignored) {
         PolicySpecR27 a=policy("(add (zscore (freq 1 8)) (zscore (trans1)))");
-        PolicySpecR27 b=policy("(add (zscore (freqnb 1 16)) (zscore (trans2)))");
+        PolicySpecR27 b=policy("(add (zscore (freqnb 1 32)) (zscore (trans2)))");
+        assertTrue(BirthGateR27.candidateContract(a).detail,BirthGateR27.candidateContract(a).ok);
+        assertTrue(BirthGateR27.candidateContract(b).detail,BirthGateR27.candidateContract(b).ok);
         TypedGenerationRuleR342 rule=TypedGenerationRuleR342.induct(a,PAIRED_A,b,PAIRED_B,DISCOVERY,
                 4L,1000L,1999L,FrozenConfirmationR30.currentSemantics());
         assertEquals(rule.ruleId,TypedGenerationRuleR342.induct(b,PAIRED_B,a,PAIRED_A,DISCOVERY,
@@ -42,7 +44,7 @@ public final class R342CreationTests {
         assertThrows(IllegalArgumentException.class,()->rule.instantiate(DISCOVERY,2000L,2900L,2));
         assertThrows(IllegalArgumentException.class,()->rule.instantiate(TRANSFER,0L,900L,2));
         assertThrows(IllegalArgumentException.class,()->TypedGenerationRuleR342.induct(a,PAIRED_A,
-                policy("(add (zscore (freq 1 16)) (zscore (trans1)))"),PAIRED_B,
+                policy("(add (zscore (freq 1 32)) (zscore (trans1)))"),PAIRED_B,
                 DISCOVERY,4L,1000L,1999L,rule.abi));
         try (SQLiteDatabase db=SQLiteDatabase.create(null)) {
             for(String ddl:AtomPublicationStoreR31.ruleDdlR342())db.execSQL(ddl);

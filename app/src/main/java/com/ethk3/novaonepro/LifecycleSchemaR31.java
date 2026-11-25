@@ -46,7 +46,8 @@ public final class LifecycleSchemaR31 {
             Matcher m=DECLARATION.matcher(sql);
             if(!m.find())throw new IllegalArgumentException("R31_LIFECYCLE_UNDECLARED_DDL");
             kind=m.group(1).toLowerCase(Locale.ROOT);name=m.group(2);this.sql=sql;
-            if(!(ColdRebirthSchemaR34.declares(name)||DiagnosisSchemaR335.declares(name)||ResearchActionSchemaR33.declares(name)||name.startsWith("r31_startup_checkpoint_")||name.startsWith("r31_gap_")||name.startsWith("idx_r31_gap_")||name.startsWith("r31_keep_")||name.startsWith("r31_gc_")||name.startsWith("r31_hypothesis_")||name.startsWith("idx_r31_keep_")||name.startsWith("idx_r31_gc_")||name.startsWith("idx_r31_hypothesis_")||name.startsWith("r31_mainline_")||name.startsWith("idx_r31_mainline_")||name.startsWith("r31_improvement_")||name.startsWith("idx_r31_improvement_")))
+            if(!(ColdRebirthSchemaR34.declares(name)||DiagnosisSchemaR335.declares(name)||ResearchActionSchemaR33.declares(name)||name.startsWith("r31_startup_checkpoint_")||name.startsWith("r31_gap_")||name.startsWith("idx_r31_gap_")||name.startsWith("r31_keep_")||name.startsWith("r31_gc_")||name.startsWith("r31_hypothesis_")||name.startsWith("idx_r31_keep_")||name.startsWith("idx_r31_gc_")||name.startsWith("idx_r31_hypothesis_")||name.startsWith("r31_mainline_")||name.startsWith("idx_r31_mainline_")||name.startsWith("r31_improvement_")||name.startsWith("idx_r31_improvement_")
+                    ||Arrays.asList(com.ethk3.novaonepro.strategyv2.AtomPublicationStoreR31.ruleDdlR342()).contains(sql)))
                 throw new IllegalArgumentException("R31_LIFECYCLE_FOREIGN_OBJECT");
             unit="OBJECT:"+name+":"+V51ChecksumEngine.sha256(canonical(sql));
         }
