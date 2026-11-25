@@ -38,6 +38,7 @@ public final class CheckpointReportAuditR32 {
             if(queued.size()>=MAX_NODES){truncated=true;break;}queued.add(hash);work.add(hash);
         }
         long remaining=BYTE_BUDGET,objects=0,bytes=0,verified=0,missing=0,corrupt=0,unreadable=0,notRun=0,unknownEdges=0;
+        String firstUnverifiedHash=null;
         while(!work.isEmpty()){
             check(continuing);String hash=work.removeFirst();File file=new File(root,hash+".bin");
             String status;String observedHash="",tier="UNKNOWN_OR_MISSING";long size=0;Set<String> children=null;
@@ -71,10 +72,16 @@ public final class CheckpointReportAuditR32 {
             }
             }catch(InterruptedIOException cancelled){throw cancelled;}
             catch(IOException metadata){status="UNREADABLE_COLD_OR_HOT_METADATA";unreadable++;}
-            objects++;bytes=Math.addExact(bytes,size);if(children==null)unknownEdges++;
+            objects++;bytes=Math.addExact(bytes,size);
+            if(children==null){
+                unknownEdges++;
+                if(firstUnverifiedHash==null)firstUnverifiedHash=hash;
+            }
             JSONObject row=new JSONObject().put("kind","checkpoint_object").put("expectedSha256",hash).put("relativePath","r26-checkpoints/"+hash+".bin")
                     .put("observedBytes",size).put("physicalTier",tier).put("availability",status).put("bodyIncluded",false).put("childrenKnown",children!=null).put("directRoot",roots.contains(hash));
-            if(!observedHash.isEmpty())row.put("observedSha256",observedHash);line(out,row);
+            if(!observedHash.isEmpty())row.put("observedSha256",observedHash);
+            row.put("verifiedChildHashes",children==null?JSONObject.NULL:new org.json.JSONArray(new TreeSet<>(children)));
+            line(out,row);
             if(children!=null)for(String child:children){
                 if(queued.contains(child))continue;if(queued.size()>=MAX_NODES){truncated=true;continue;}queued.add(child);work.addLast(child);
             }
@@ -85,6 +92,7 @@ public final class CheckpointReportAuditR32 {
                 .put("referenceRoots",omittedRoots?JSONObject.NULL:roots.size()).put("retainedRootKeys",roots.size()).put("observedObjects",objects).put("observedBytes",bytes).put("verifiedObjects",verified).put("missingObjects",missing)
                 .put("corruptObjects",corrupt).put("unreadableObjects",unreadable).put("byteVerificationNotRun",notRun).put("unknownChildSets",unknownEdges).put("truncated",truncated)
                 .put("queuedObjectsUnvisited",work.size()).put("byteVerificationDenominator",objects)
+                .put("firstUnverifiedSha256",firstUnverifiedHash==null?JSONObject.NULL:firstUnverifiedHash)
                 .put("byteCoverageComplete",!truncated&&notRun==0&&missing==0&&corrupt==0&&unreadable==0)
                 .put("sourceClosureVerified",closure).put("sourceRootsComplete",!truncated).put("compactByteBudget",BYTE_BUDGET).put("bytesRead",BYTE_BUDGET-remaining)
                 .put("metadataMember",MEMBER).put("rawBodiesIncluded",false).put("gcOrModelUseAuthorized",false)

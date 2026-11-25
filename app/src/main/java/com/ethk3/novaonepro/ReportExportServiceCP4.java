@@ -399,7 +399,7 @@ public final class ReportExportServiceCP4 extends Service {
                     File census=new File(directory,"STORAGE_CENSUS.txt");android.os.CancellationSignal spaceCancellation=new android.os.CancellationSignal();active.readCancellationR30=spaceCancellation;
                     try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(census,new java.io.FileOutputStream(census)),StandardCharsets.UTF_8)){
                         w.write(StorageCensusSU2.measure(getFilesDir().getParentFile(),java.util.Collections.<String>emptyList(),()->!active.shouldContinue()).line());w.write('\n');active.checkpoint();
-                        w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(StorageCensusSU2.sqliteSpace(copy,spaceCancellation)));w.write('\n');
+                        StorageCensusSU2.writeSqliteSpaceR342(copy,w,spaceCancellation);w.write('\n');
                     }finally{active.readCancellationR30=null;}
                     ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
                     File r26Report=new File(directory,"R26_REPORT.json");

@@ -329,6 +329,7 @@ public final class ResearchRetentionStoreR30 {
     /** Adapter also used by real SQLite/file regressions. No open writer transaction is allowed across file IO. */
     public static ResearchRetentionR30.Result cleanFiles(SQLiteDatabase read,File appData,long budget,Writer writer)throws Exception{
         if(read.inTransaction())throw new IllegalStateException("R30_FILE_RETENTION_CALLED_WITH_TRANSACTION");
+        recoverFileActionsR342(read,appData,writer);
         Map<String,String> actions=new HashMap<>();
         return ResearchRetentionR30.clean(appData,budget,new ResearchRetentionR30.Audit(){
             public String retiredCopyReference(ResearchRetentionR30.Candidate candidate){return verifiedFoldback(read);}
@@ -342,6 +343,38 @@ public final class ResearchRetentionStoreR30 {
                 ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();batch.add("UPDATE r30_retention_file_action SET state=?,finished_at=? WHERE action_id=? AND state='DELETE_PENDING'",deleted?"DELETED":"PRESERVED_FILE_CHANGED_OR_DELETE_FAILED",System.currentTimeMillis(),actions.get(candidate.relative));writer.write("R30_RETENTION_FILE_RESULT",batch);
             }
         });
+    }
+
+    private static void recoverFileActionsR342(SQLiteDatabase read,File data,Writer writer)throws Exception{
+        List<String[]> pending=new ArrayList<>();
+        try(Cursor rows=read.rawQuery("SELECT action_id,relative_path,kind FROM r30_retention_file_action "
+                +"WHERE state='DELETE_PENDING' ORDER BY recorded_at,action_id LIMIT 8",null)){
+            while(rows.moveToNext())pending.add(new String[]{rows.getString(0),rows.getString(1),rows.getString(2)});
+        }
+        if(pending.isEmpty())return;
+        File root=data.getCanonicalFile();
+        ResearchWriteQueueR27.Batch result=new ResearchWriteQueueR27.Batch();
+        for(String[] action:pending){
+            File file=new File(root,action[1]).getAbsoluteFile();
+            File canonical=file.getCanonicalFile();
+            boolean safe=canonical.equals(file)&&canonical.getPath().startsWith(root.getPath()+File.separator)
+                    &&action[2].equals(ResearchRetentionR30.kind(action[1]))
+                    &&!"PROTECTED_OR_UNCLASSIFIED".equals(action[2]);
+            String state="RECOVERY_PATH_UNVERIFIED";
+            if(safe){
+                try{
+                    android.system.Os.lstat(file.getPath());
+                    state="RECOVERY_PRESERVED_FOR_RECHECK";
+                }catch(android.system.ErrnoException failure){
+                    state=failure.errno==android.system.OsConstants.ENOENT
+                            ?"PREAUTHORIZED_FILE_ABSENT_PHYSICAL_DELTA_UNKNOWN"
+                            :"RECOVERY_FILE_METADATA_UNAVAILABLE";
+                }
+            }
+            result.add("UPDATE r30_retention_file_action SET state=?,finished_at=? WHERE action_id=? AND state='DELETE_PENDING'",
+                    state,System.currentTimeMillis(),action[0]);
+        }
+        writer.write("R30_RETENTION_FILE_RESULT",result);
     }
     public static String visualCacheDeleteSql(){
         // R31-B05-C08: only panels classified DISPLAY; business state (mainline/choice), checkpoints and timelines are never scanned.

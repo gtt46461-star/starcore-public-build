@@ -91,6 +91,7 @@ public final class StartupCheckpointIdentityR31 {
         public Map<String,Object> evidence(){Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","ACTUAL_COMPLETE_TYPED_SOURCE_CAS_COMPARISON_NOT_STATE_HASH_EQUALITY");out.put("sourceRows",sourceRows);out.put("matchedSourceRows",matches.size());out.put("examinedOriginalRows",examinedOriginalRows);out.put("comparedOriginalBytes",comparedOriginalBytes);out.put("sourceGeneration",revision);out.put("sourceSchemaVersion",schemaVersion);out.put("writerCasReads",0);out.put("permanentPayloadCopies",0);out.put("wholeApplicationOrNaturalQualityProven",false);
             out.put("unavailableColdRows",unavailableRows);
             out.put("unavailableColdHashSample",unavailableHashes);
+            out.put("unavailableColdHashSampleComplete",unavailableRows==unavailableHashes.size());
             out.put("unavailableColdPolicy","EXCLUDED_FROM_CAS_EQUALITY; EXACT_HOT_ORIGINAL_RETAINED; COLD_REFERENCE_PROTECTED");
             return out;
         }
