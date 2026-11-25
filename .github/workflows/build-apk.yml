@@ -37,11 +37,24 @@ on:
         type: boolean
         required: false
         default: false
+      r342_batch:
+        description: R34.2 batch to build and publish from the authorized signing ref
+        type: string
+        required: false
+        default: ''
+      r342_source:
+        description: Full R34.2 application commit for the selected batch
+        type: string
+        required: false
+        default: ''
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/r342-release-request.json']
 permissions:
   contents: read
 jobs:
   debug-apk:
-    if: ${{ !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && !inputs.probe_report_export && inputs.verified_run_id == '' && inputs.reportfix_run_id == '' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.r342_batch == '' && !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && !inputs.probe_report_export && inputs.verified_run_id == '' && inputs.reportfix_run_id == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -66,7 +79,7 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
   publish-verified-1025:
-    if: ${{ inputs.publish_verified_1025 }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.r342_batch == '' && inputs.publish_verified_1025 }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -119,7 +132,7 @@ jobs:
           gh release edit r13-5.4.3.04-20261025 --draft=false --prerelease --latest=false
           echo 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r13-5.4.3.04-20261025/STARCORE-10.25-R16-P50-release.apk' >> "$GITHUB_STEP_SUMMARY"
   publish-r26:
-    if: ${{ inputs.verified_run_id != '' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.r342_batch == '' && inputs.verified_run_id != '' }}
     permissions:
       contents: write
       actions: read
@@ -184,7 +197,7 @@ jobs:
           gh release upload r26-20261027-engineering public-assets/*
           gh release edit r26-20261027-engineering --draft=false --prerelease --latest=false
   publish-r26-runtime-117:
-    if: ${{ inputs.publish_runtime_117 }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.r342_batch == '' && inputs.publish_runtime_117 }}
     permissions:
       contents: write
       actions: read
@@ -224,7 +237,7 @@ jobs:
           PY
           gh release edit r26-20261028-runtime-117 --draft=false --prerelease --latest=false --notes-file public-assets117/release-notes.md
   publish-report-export-repair:
-    if: ${{ inputs.reportfix_run_id != '' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.r342_batch == '' && inputs.reportfix_run_id != '' }}
     permissions:
       contents: write
       actions: read
@@ -276,7 +289,7 @@ jobs:
           PY
           gh release edit r26-20261028-reportfix2 --draft=false --prerelease --latest=false
   probe-report-export:
-    if: ${{ inputs.probe_report_export }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.r342_batch == '' && inputs.probe_report_export }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -311,3 +324,190 @@ jobs:
           name: R26-report-export-ui-to-zip-source120
           path: report-export-probe/
           if-no-files-found: error
+
+  r342-candidate-build:
+    if: ${{ github.repository == 'gtt46461-star/starcore-public-build' && github.ref == 'refs/heads/construction/r27-20261028' && (github.event_name == 'push' || inputs.r342_batch != '') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source: ${{ steps.request.outputs.source }}
+      stage: ${{ steps.request.outputs.stage }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r342-release-request.json
+          sparse-checkout-cone-mode: false
+          path: dispatch
+          persist-credentials: false
+      - id: request
+        name: Pin the authorized source and batch
+        env:
+          MANUAL_SOURCE: ${{ inputs.r342_source }}
+          MANUAL_STAGE: ${{ inputs.r342_batch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == push ]]; then
+            source=$(jq -er '.source' dispatch/.github/r342-release-request.json)
+            stage=$(jq -er '.batch' dispatch/.github/r342-release-request.json)
+          else
+            source="$MANUAL_SOURCE"
+            stage="$MANUAL_STAGE"
+          fi
+          [[ "$source" =~ ^[a-f0-9]{40}$ && "$stage" =~ ^B(0[1-9]|1[0-2])$ ]]
+          printf 'source=%s\nstage=%s\n' "$source" "$stage" >> "$GITHUB_OUTPUT"
+          printf 'SOURCE=%s\nSTAGE=%s\n' "$source" "$stage" >> "$GITHUB_ENV"
+          git init -q app-source
+          git -C app-source fetch -q --no-tags "https://github.com/${GITHUB_REPOSITORY}.git" construction/r342-repair-20261125
+          git -C app-source merge-base --is-ancestor "$source" FETCH_HEAD
+          git -C app-source merge-base --is-ancestor eb8f82a8bda8db22f1f122095217132f07053bcb "$source"
+          git -C app-source checkout -q --detach "$source"
+          jq -e --arg name "R34.2-$stage-" '.versionCode > 577311152 and (.versionName | startswith($name))' app-source/release/release_manifest.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore and verify independent sealed inputs
+        run: bash app-source/tools/r342/ci_plan_inputs.sh
+      - name: Install and preflight the project SDK
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          python3 -m pip install numpy==2.3.5 'cryptography>=41,<51'
+          python3 -B "$RUNNER_TEMP/material/current-review/source/preflight_delivery.py" --repo app-source --android-sdk "$ANDROID_HOME" --baseline-apk "$RUNNER_TEMP/formal-033.apk" > "$RUNNER_TEMP/engineering/preflight.json"
+      - name: Restore the existing authorized signer
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Restore the pinned input of the existing signing preflight
+        uses: actions/download-artifact@v4
+        with:
+          name: r31-report-032-signed-build
+          run-id: 43556844131
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/original032
+      - name: Verify original signer and configure the release build
+        working-directory: app-source
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          set -euo pipefail
+          git diff --quiet bb7b49bbcc9266bad548ec37e71403256fc06a4d HEAD -- tools/r3251/prepare_existing_signer.py
+          python3 -B tools/r3251/prepare_existing_signer.py
+      - name: Run the B01 host identity and interrupted-version contracts
+        if: env.STAGE == 'B01'
+        working-directory: app-source
+        run: |
+          python3 -B tools/r342/test_b01_contracts.py --repo "$PWD" --plan "$STARCORE_R342_PLAN_ROOT" --legacy-plan "$STARCORE_R33_PLAN_ROOT" --sdk-tools "$ANDROID_HOME/build-tools/36.0.0" --baseline-apk "$RUNNER_TEMP/baseline152.apk" --out "$RUNNER_TEMP/engineering/b01-host-contracts.json"
+      - name: Build the original-signed APK from the exact clean source
+        working-directory: app-source
+        run: |
+          python3 -B tools/r33/run_release_build.py --repo "$PWD" --r342-plan "$STARCORE_R342_PLAN_ROOT" --out "$RUNNER_TEMP/build"
+      - name: Enable KVM for the disposable Android emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 8G
+          ram-size: 4096M
+          script: python3 -B app-source/tools/r342/ci_candidate_tests.py
+      - name: Build exact source, restorable history and test evidence packages
+        working-directory: app-source
+        run: |
+          set -euo pipefail
+          (cd "$RUNNER_TEMP/engineering" && zip -q "$RUNNER_TEMP/engineering-originals.zip" ./*)
+          python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --r342-plan "$STARCORE_R342_PLAN_ROOT" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$RUNNER_TEMP/baseline152.apk" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json" --engineering-evidence "$RUNNER_TEMP/engineering-originals.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r342-candidate-${{ steps.request.outputs.stage }}-${{ steps.request.outputs.source }}
+          path: ${{ runner.temp }}/candidate/
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r342-run-${{ github.run_id }}-originals
+          path: |
+            ${{ runner.temp }}/build/CI_BUILD_RECEIPT.json
+            ${{ runner.temp }}/build/gradle-build.log
+            ${{ runner.temp }}/engineering/
+          if-no-files-found: warn
+
+  r342-publish:
+    needs: r342-candidate-build
+    if: ${{ needs.r342-candidate-build.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      actions: read
+      contents: write
+    env:
+      SOURCE: ${{ needs.r342-candidate-build.outputs.source }}
+      STAGE: ${{ needs.r342-candidate-build.outputs.stage }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.r342-candidate-build.outputs.source }}
+          persist-credentials: false
+          sparse-checkout: |
+            tools/r33
+            tools/r341
+            tools/r342
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: r342-candidate-${{ needs.r342-candidate-build.outputs.stage }}-${{ needs.r342-candidate-build.outputs.source }}
+          path: ${{ runner.temp }}/candidate
+      - name: Validate same-run package and publish original bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;36.0.0'
+          candidate="$RUNNER_TEMP/candidate"
+          (cd "$candidate" && sha256sum -c SHA256SUMS.txt)
+          python3 -B tools/r342/release_delivery.py --candidate "$candidate" --sdk-tools "$ANDROID_HOME/build-tools/36.0.0" --source "$SOURCE" --stage "$STAGE" --index "$RUNNER_TEMP/r342-index.json"
+          tag="r34.2-${STAGE}-${SOURCE:0:12}"
+          version=$(jq -er .versionCode "$RUNNER_TEMP/r342-index.json")
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$SOURCE" --title "STARCORE R34.2 $STAGE · $version" --notes "Source $SOURCE and build $GITHUB_RUN_ID. See the attached engineering originals for the observed scope." --latest=false --draft
+          fi
+          release=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,targetCommitish)
+          [[ $(jq -r '.targetCommitish' <<< "$release") == "$SOURCE" ]]
+          if [[ $(jq -r '.isDraft' <<< "$release") == true ]]; then
+            mapfile -t assets < <(jq -er '.artifacts[].filename' "$RUNNER_TEMP/r342-index.json")
+            for file in "${assets[@]}"; do
+              gh release upload "$tag" "$candidate/$file" --repo "$GITHUB_REPOSITORY"
+            done
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest=false
+          fi
+          python3 -B tools/r342/release_delivery.py --candidate "$candidate" --sdk-tools "$ANDROID_HOME/build-tools/36.0.0" --source "$SOURCE" --stage "$STAGE" --index "$RUNNER_TEMP/r342-index.json" --received "$RUNNER_TEMP/received"
+          cat "$RUNNER_TEMP/received/DELIVERY_R342.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r342-received-${{ needs.r342-candidate-build.outputs.stage }}-${{ needs.r342-candidate-build.outputs.source }}
+          path: |
+            ${{ runner.temp }}/r342-index.json
+            ${{ runner.temp }}/received/DELIVERY_R342.json
+          if-no-files-found: warn
