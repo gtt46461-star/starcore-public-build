@@ -57,6 +57,7 @@ def cover_install(serial, baseline, apk, release, originals, signed_reports=None
 
 def signed_report_campaign(serial, originals, apk_sha):
     import time
+    import zipfile
     import report_ui_driver as driver
     require(driver.DEVICE == serial and adb(serial, 'shell', 'getprop', 'ro.kernel.qemu') == '1',
             'SIGNED_REPORT_TEST_REQUIRES_DISPOSABLE_EMULATOR')
@@ -87,6 +88,16 @@ def signed_report_campaign(serial, originals, apk_sha):
             record = driver.save_report(driver.wait_for_report(name),name)
             require(record['rawEvidenceIncluded'] == (profile == 'FULL_RAW'), 'UNEXPECTED_REPORT_EVIDENCE_PROFILE')
             zip_file = driver.OUT / record['file']
+            expected_apk = BASELINE_APK if name == 'baseline' else apk_sha
+            with zipfile.ZipFile(zip_file) as archive:
+                manifest = json.loads(archive.read('source-manifest.json'))
+                require(manifest['apkSha256'] == expected_apk, 'REPORT_INSTALLED_APK_DIGEST_MISMATCH')
+                if profile == 'FULL_RAW':
+                    import hashlib
+                    with archive.open('installed-app.apk') as body:
+                        require(hashlib.file_digest(body,'sha256').hexdigest() == expected_apk,
+                                'REPORT_ARCHIVED_APK_DIGEST_MISMATCH')
+            record['installedApkSha256'] = expected_apk
             encrypted = originals / f'signed-report-{name}.zip.cms'
             subprocess.run(['openssl','cms','-encrypt','-binary','-aes-256-gcm','-outform','DER',
                             '-in',str(zip_file),'-out',str(encrypted),str(certificate)],check=True)

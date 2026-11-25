@@ -45,8 +45,14 @@ def run(case,repo,plan,originals):
                 rejections.append(refuse(lambda:verify_seal(repo,head(repo),tested),"R341_PLAN_"))
         inherited={}
         if os.getenv("STARCORE_R33_PLAN_ROOT") and os.getenv("STARCORE_R34_PLAN_ROOT"):
-            inherited=binding.identity(repo,Path(os.environ["STARCORE_R33_PLAN_ROOT"]),repo/"release/r33_plan_binding.json",
-                                       require_clean=True,r34_plan=Path(os.environ["STARCORE_R34_PLAN_ROOT"]),r341_plan=plan)["r341"]["legacyPlanSeals"]
+            identity=binding.identity(repo,Path(os.environ["STARCORE_R33_PLAN_ROOT"]),repo/"release/r33_plan_binding.json",
+                                     require_clean=True,r34_plan=Path(os.environ["STARCORE_R34_PLAN_ROOT"]),r341_plan=plan)
+            if "r342" in identity:
+                inherited=identity["r342"]["legacyPlanSeals"]
+                if inherited.get("r341")!=seal:
+                    raise ValueError("R342_INHERITED_R341_SEAL_MISMATCH")
+            else:
+                inherited=identity["r341"]["legacyPlanSeals"]
         return {"verified":seal,"inheritedSeals":inherited,"tamperedPlansRejected":rejections}
     if case=="A-B12-01b":
         with tempfile.TemporaryDirectory(prefix="r341-build-bytes-") as directory:

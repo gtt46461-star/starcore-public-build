@@ -260,6 +260,42 @@ public final class R27QualityTest {
         return source.replace(newShadow,oldShadow);
     }
 
+    @SuppressWarnings("unchecked")
+    private static String restoreR342ReviewedHistory(String source) throws Exception {
+        File fixture = new File(R27TestSupport.root(),"verification/r342/dbstore-h15-reviewed-hunks.json");
+        byte[] bytes = Files.readAllBytes(fixture.toPath());
+        assertEquals("Exact R34.2 review of the history owner",
+                "3cd4ea51e98e7892961f5825e028eab553416244e98d4f92094185f466b48d5c",StatsR27.sha256(bytes));
+        Map<String,Object> review = (Map<String,Object>)JsonR27.parse(new String(bytes,java.nio.charset.StandardCharsets.UTF_8));
+        assertEquals("R342_DBSTORE_H15_REVIEW_1",review.get("schema"));
+        assertEquals("app/src/main/java/com/ethk3/novaonepro/DbStore.java",review.get("path"));
+        assertEquals("3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",review.get("beforeSha256"));
+        List<Object> hunks = (List<Object>)review.get("hunks");
+        assertEquals(2,hunks.size());
+        for(int index=hunks.size()-1;index>=0;index--){
+            Map<String,Object> hunk = (Map<String,Object>)hunks.get(index);
+            String after=(String)hunk.get("after"),before=(String)hunk.get("before");
+            assertEquals(hunk.get("afterSha256"),StatsR27.sha256(after));
+            assertEquals(hunk.get("beforeSha256"),StatsR27.sha256(before));
+            int offset=source.indexOf(after);
+            assertTrue("R34.2 history block missing or repeated: "+hunk.get("id"),
+                    offset>=0&&source.indexOf(after,offset+1)<0);
+            source=source.substring(0,offset)+before+source.substring(offset+after.length());
+        }
+        return source;
+    }
+
+    @Test public void h15R342HistoryReviewRejectsUnregisteredChanges() throws Exception {
+        File owner=new File(R27TestSupport.root(),"app/src/main/java/com/ethk3/novaonepro/DbStore.java");
+        String source=new String(Files.readAllBytes(owner.toPath()),java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals("3fd2823f256d79b30338e711ce42ea8fb5d94b41ad6fac205bcb701fbd64810e",
+                StatsR27.sha256(restoreR342ReviewedHistory(source)));
+        String changed=source.replace("observed>=needed?\"DURABLE_SUFFIX_READBACK\"",
+                "true?\"DURABLE_SUFFIX_READBACK\"");
+        assertNotEquals(source,changed);
+        assertThrows(AssertionError.class,()->restoreR342ReviewedHistory(changed));
+    }
+
     /** The two literal-body alternatives are disjoint. Possessive repetition preserves the
      * matched language/output while avoiding one recursive regex frame per source character. */
     static String stripJavaStringsR31(String source) {
@@ -268,7 +304,8 @@ public final class R27QualityTest {
 
     @Test public void h15R32ExactReviewRejectsUnregisteredChanges() throws Exception {
         File root=R27TestSupport.root();
-        String source=new String(Files.readAllBytes(new File(root,"app/src/main/java/com/ethk3/novaonepro/DbStore.java").toPath()),java.nio.charset.StandardCharsets.UTF_8);
+        String source=restoreR342ReviewedHistory(new String(Files.readAllBytes(
+                new File(root,"app/src/main/java/com/ethk3/novaonepro/DbStore.java").toPath()),java.nio.charset.StandardCharsets.UTF_8));
         String baseline=new String(Files.readAllBytes(new File(root,"construction/STARCORE_R31_FINAL_20261104/baseline_source/app/src/main/java/com/ethk3/novaonepro/DbStore.java").toPath()),java.nio.charset.StandardCharsets.UTF_8);
         assertEquals("Exact R32 reversal preserves the entire pre-R32 current owner",
                 "698116449af099fa6a774e25701ce8f800f809d2e13cd2a3714f31e9eae4ca93",StatsR27.sha256(restoreR32ReviewedDbStoreForH15(source)));
@@ -363,7 +400,7 @@ public final class R27QualityTest {
                 assertThrows(AssertionError.class,()->restoreR31FeedbackExtractionForH15(core+"\ncom.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.feedbackWithinTransaction(db, draw);\n"));
             }
             if(f[0].endsWith("/DbStore.java")) {
-                String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
+                String source=restoreR342ReviewedHistory(new String(bytes,java.nio.charset.StandardCharsets.UTF_8));
                 String baseline=new String(Files.readAllBytes(new File(root,"construction/STARCORE_R31_FINAL_20261104/baseline_source/"+f[0]).toPath()),java.nio.charset.StandardCharsets.UTF_8);
                 bytes=restoreR31DbSchemaSidecarsForH15(source,baseline).getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 String illegalModuleProbe=source.replace("module_name,version,cohort,status,detail,registered_at","module_name,version,cohort,status,detail");
@@ -641,11 +678,15 @@ public final class R27QualityTest {
                 researchGate > writer && researchSlot > researchGate && researchSlot < deadline && freezeRecheck > lock
                         && src.substring(researchGate, researchSlot).contains("DATASET_SERVICE_R341.isTurn(context.readyDataset,now)"));
         assertTrue("a fault drain has its own bounded slot and cannot preempt a freeze",
-                src.contains("if(faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
-                        + "&&now-LAST_FAULT_SERVICE_R33.get()>=1000L)"
+                src.contains("if(faultControl&&!reentrant&&FREEZE_WAITERS_R31.get()==0"
+                        + "&&(faultArchiveR342||now-LAST_FAULT_SERVICE_R33.get()>=1000L))"
                         + "serviceSlot=FAULT_SERVICE_SLOT_R34.compareAndSet(false,true);"));
+        assertTrue("the archive service shares this admission only for registered research-control operations",
+                src.contains("faultArchiveR342=researchControl&&context.operation.startsWith(\"R335_FAULT_ARCHIVE_\")"
+                        +"&&OPERATION_REGISTRY_R31.get(context.operation)==WriteClass.RESEARCH_CONTROL;")
+                &&src.contains("faultControl=faultDrainR33||faultArchiveR342;"));
         assertTrue("completion releases only the admission actually held",
-                src.contains("if(serviceSlot)(faultDrainR33?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);"));
+                src.contains("if(serviceSlot)(faultControl?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);"));
         assertEquals(5000, ((Number) DatabaseCoordinator.writeProtocolSnapshotR31().get("researchServiceIntervalMs")).intValue());
         String report = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java").toPath()), "UTF-8");
         assertTrue("report carries app thread stacks", report.contains("collectObservation(root,id,observation,\"threadStacks\",ReportExportServiceCP4::threadStacksR27)"));
