@@ -65,6 +65,13 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
     if(!(included instanceof Boolean)||((Boolean)included).booleanValue()==compact)
      throw new ReportReadFailureCP4("REPORT_PROFILE_EVIDENCE_CONFLICT");
    }
+   if(manifest.has("reproductionR342")){
+    JSONObject reproduction=manifest.getJSONObject("reproductionR342");
+    if(reproduction.getBoolean("includesSqlite")==compact||reproduction.getBoolean("includesInstalledApk")==compact
+            ||!manifest.getString("snapshotSha256").equals(reproduction.getString("snapshotSha256"))
+            ||!manifest.getString("sourceCommit").equals(reproduction.getString("sourceCommit")))
+     throw new ReportReadFailureCP4("REPORT_REPRODUCTION_SCOPE_CONFLICT");
+   }
    return compact;
   }catch(JSONException e){throw new ReportReadFailureCP4("REPORT_PROFILE_INVALID",e);}
  }

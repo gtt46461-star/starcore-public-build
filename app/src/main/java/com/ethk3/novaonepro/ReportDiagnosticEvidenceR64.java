@@ -17,6 +17,9 @@ public final class ReportDiagnosticEvidenceR64 {
              Writer out = new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(result,fd,control), StandardCharsets.UTF_8))) {
             out.write("{\"profile\":\"COMPLETE_DIAGNOSTIC_R70\",\"snapshotSha256\":");
             out.write(JSONObject.quote(hash));
+            out.write(",\"reproductionState\":\"ORIGINAL_BYTES_NOT_INCLUDED\","
+                    +"\"rawEvidenceRequest\":\"另存完整原始备份（体积大）\","
+                    +"\"sourceCommit\":"+JSONObject.quote(BuildConfig.SOURCE_COMMIT_R26));
             out.write(",\"evidenceRevision\":\"R70_CALIBRATION_RETENTION_RUNTIME_METADATA_V3\",\"rawDatabaseIncluded\":false,\"allChecks\":96,"
                     + "\"coverage\":\"All checks use the full immutable database. All schema objects, table counts, grouped task states and current construction ledgers are retained."
                     + " Static calls are not proof of runtime execution. Selected research and period metadata include every row and every text column without truncation; binary cells are described by byte length and existing registry hashes. Raw payloads are not required to evaluate these checks.\","

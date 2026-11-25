@@ -64,6 +64,12 @@ public final class ReportAttachmentClosureCP12 {
         source.put("rawEvidenceIncluded", !compact);
         source.put("snapshotSha256", snapshotHash);
         source.put("snapshotBytes", new File(copy.getPath()).length());
+        source.put("reproductionR342",new JSONObject()
+                .put("scope",compact?"DIAGNOSTIC_ONLY":"REQUESTED_RAW_SNAPSHOT_AND_ORIGINALS")
+                .put("includesSqlite",!compact).put("includesInstalledApk",!compact)
+                .put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26).put("snapshotSha256",snapshotHash)
+                .put("metadataMember",compact?"DIAGNOSTIC_SCOPE.json":"attachments.jsonl")
+                .put("state",compact?"ORIGINAL_BYTES_NOT_INCLUDED":"VERIFY_MEMBER_HASHES_ON_READBACK"));
         source.put("mainWriterFaultsR342", new JSONObject(MainWriterFaultProjectionR342.fromSnapshot(app, copy)));
         String sourcePreparation = request.optString("reportSourcePreparation");
         if (!sourcePreparation.isEmpty()) source.put("reportSourcePreparation", sourcePreparation);
