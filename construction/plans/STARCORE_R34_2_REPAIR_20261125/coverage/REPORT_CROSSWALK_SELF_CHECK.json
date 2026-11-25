@@ -1,0 +1,77 @@
+{
+  "schema": "R342_REPORT_CROSSWALK_SELF_CHECK_1",
+  "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+  "count_checks": 96,
+  "count_metrics": 44,
+  "count_RSEC074_subfindings": 14,
+  "checks_health_counts": {
+    "OBSERVED": 44,
+    "NOT_APPLICABLE": 16,
+    "NOT_PROVEN": 21,
+    "PASS": 4,
+    "FAIL": 4,
+    "WARN": 7
+  },
+  "checks_domain_outcome_counts": {
+    "OBSERVED": 38,
+    "N/A": 16,
+    "READ_OK": 1,
+    "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY": 6,
+    "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING": 4,
+    "OK": 1,
+    "PASS": 4,
+    "FAIL": 3,
+    "RETEST_REQUIRED": 4,
+    "NOT_PROVEN": 4,
+    "WAIT_CALIBRATION_INPUT": 1,
+    "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED": 4,
+    "BLOCKED": 1,
+    "NO_MEASURED_ABLATION": 1,
+    "WATCH": 2,
+    "WARN": 1,
+    "REAL_LOCKED_SHADOW_ONLY": 1,
+    "AVAILABLE": 4
+  },
+  "metric_status_counts": {
+    "INSUFFICIENT": 35,
+    "RECORDED_UNVALIDATED": 5,
+    "BLOCKED": 1,
+    "UNKNOWN_SOURCE_MISSING": 1,
+    "NOT_DEPLOYED": 1,
+    "UNKNOWN_STALE_SYNTHETIC_SOURCE": 1
+  },
+  "disposition_checks": {
+    "修复": 41,
+    "不适用并说明": 10,
+    "保留回归": 23,
+    "调查补证": 22
+  },
+  "disposition_metrics": {
+    "调查补证": 27,
+    "修复": 17
+  },
+  "missing_origin_issue_ids": [],
+  "errors": [],
+  "validation": [
+    "All IDs once, source order retained",
+    "All original status/title/value/sample/definition/role/assessment fields unchanged",
+    "Original health separated from original domain_outcome",
+    "Each entry individually authored coverage and acceptance",
+    "All original issue IDs resolve",
+    "All RSEC074 14 children exact IDs/states retained",
+    "PASS and OBSERVED not blanket reclassified as defects",
+    "RT24 separated as preservation reference, not extra defect",
+    "No R342 final numbered ID used",
+    "No application or raw report edits",
+    "RSEC074 comparison parser accepts digits in K3_FUNNEL; exact 14 rows/states matched"
+  ],
+  "artifact_sha256": {
+    "REPORT_CHECKS_96_CROSSWALK.json": "a46c52e8fcb89a41f019a6172a337854cd501f08b323338bd1998dbca292498a",
+    "REPORT_CHECKS_96_CROSSWALK.md": "8e84488baa5d5cf4afe54c0844e7d99fe951e338ccd4671b7ad90cab458781ba",
+    "METRICS_44_CROSSWALK.json": "10f342df672980850717e9ecacf6cc96f5b322e4d44dede883d8fb60f2df87cc",
+    "METRICS_44_CROSSWALK.md": "fc4f08f9e2a5a02a9d8683b8aada2c0d88bafd112f19d38d2d451e0e86e3eb8e"
+  },
+  "boundary": "COVERAGE_AUDIT_ONLY_NOT_RUNTIME_ACCEPTANCE",
+  "scope_note": "代理原ID覆盖校验发生于根新增current_issue_ids之前。原artifact_sha256和无R342编号断言仅指该集成前快照；最终文件另由tools/verify_plan.py核验。",
+  "phase": "AGENT_PRE_INTEGRATION_ORIGIN_COVERAGE_CHECK"
+}

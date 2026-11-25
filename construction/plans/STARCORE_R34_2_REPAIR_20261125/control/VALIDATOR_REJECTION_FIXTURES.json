@@ -1,0 +1,32 @@
+{
+  "scope": "PLAN_VALIDATOR_REJECTION_FIXTURES_ONLY",
+  "status": "PASS",
+  "case_count": 4,
+  "cases": [
+    {
+      "case": "duplicate_issue",
+      "expected_rejection": "57_unique_issues",
+      "observed_status": "FAIL",
+      "rejected_by_expected_check": true
+    },
+    {
+      "case": "forward_dependency",
+      "expected_rejection": "dependency_before_R342-001",
+      "observed_status": "FAIL",
+      "rejected_by_expected_check": true
+    },
+    {
+      "case": "false_apk_claim",
+      "expected_rejection": "no_app_or_natural_claim",
+      "observed_status": "FAIL",
+      "rejected_by_expected_check": true
+    },
+    {
+      "case": "missing_report_item",
+      "expected_rejection": "coverage_count_REPORT_CHECKS_96_CROSSWALK.json",
+      "observed_status": "FAIL",
+      "rejected_by_expected_check": true
+    }
+  ],
+  "application_tests_run": false
+}

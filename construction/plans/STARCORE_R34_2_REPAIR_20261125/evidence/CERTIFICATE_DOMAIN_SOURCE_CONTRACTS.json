@@ -1,0 +1,318 @@
+{
+  "schema": "R342_CERTIFICATE_DOMAIN_SOURCE_AUDIT_V1",
+  "source_baseline": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+  "adaptation_domain_count": 4,
+  "scope": "STATIC_CALLCHAIN_AND_CONTRACT_AUDIT_ONLY_NOT_DEVICE_OR_NATURAL_PASS",
+  "domains": [
+    {
+      "id": "R27_TYPED",
+      "candidate_prefix": "R31-R27-",
+      "gate_identity": "R27_GATE_V1",
+      "qualification_actor_count_min": 250,
+      "actor_count_unit": "settled independent FUTURE ACT",
+      "extra_runtime_authority": "MainlineFreezeProofR31.allows; shared explicit user switch; exact typed original freeze"
+    },
+    {
+      "id": "SU1_EXACT",
+      "candidate_prefix": "SU1-F-",
+      "gate_identity": "SHA256(SU1_CERT_V1|FIXED_PAIRED_CALENDAR|NULL_AND_PARENT|CAL_120_1_120|BRIER_ECE|4_BLOCKS|NULL_CONTROL|RESOURCE_7|EXPIRY_24H)",
+      "extra_runtime_authority": "Original MAINLINE_ADAPTER contract and head; source generation; exact prediction"
+    },
+    {
+      "id": "SU2_R26_V3",
+      "candidate_prefix": "SU2-F-",
+      "gate_identity": "R26_PREREGISTERED_AGGREGATE_LCB_V3",
+      "calendar_periods": 69120,
+      "calendar_stride": 720,
+      "settled_act_min": 600,
+      "extra_runtime_authority": "RealAuthoritySU2.allows/completeFreezeAndNoRealR30 and Su2CommitAuthorityR30.verifyFrozen"
+    },
+    {
+      "id": "R958_CP4_EXACT",
+      "candidate_prefix": "R958-F-",
+      "gate_identity": "CP3 canonical policy + CP4 lifetime/identity/resource/exact-selection/calibration bindings",
+      "future_n_min": 360,
+      "paired_n_min": 360,
+      "independent_windows_min": 2,
+      "issuer_creates_real": false,
+      "exact_recipe_weight": 1.0,
+      "ordinary_controlled_influence_cap": 0.05,
+      "extra_runtime_authority": "Exact immutable proof + release boundary + the original DecisionGate; issuer real_authority=false is not a blanket ban on final gate approval"
+    }
+  ],
+  "cp3_admitted_canonical_policy_sha256": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
+  "cp3_admitted_canonical_policy": {
+    "allocation_revision": "CP3_GLOBAL_LIFETIME_SUMMABLE_V1",
+    "alpha_formula": "0.05/(j*(j+1));j=global_index+1",
+    "baseline_probability": 0.3,
+    "brier_relative_gate": "LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER",
+    "calibration_revision": "R932_CANDIDATE_CAL_LOGISTIC_V1",
+    "certificate_valid_issues": 120,
+    "comparison_reference_required": true,
+    "consumer_cap": 0.05,
+    "crossing_rule": "CURRENT_LOG_E_GTE_NEG_LOG_ALPHA",
+    "data_roles": {
+      "calibration_fit": 120,
+      "calibration_validation": 120,
+      "development": "TRAINABLE_ONLY",
+      "embargo": 1,
+      "formal": "SEALED_NOT_TRAINABLE"
+    },
+    "decision_p": "MIN_1_EXP_NEG_MAX_LOG_E",
+    "duplicate_jaccard_min": 0.98,
+    "duplicate_paired_advantage_max": 0.0,
+    "ece_bins": 10,
+    "eprocess_alternatives": [
+      0.31,
+      0.32,
+      0.34,
+      0.36,
+      0.4,
+      0.45,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9
+    ],
+    "eprocess_weights": "UNIFORM_FIXED",
+    "heap_increment_bytes_max": 67108864,
+    "hypotheses_per_freeze_protocol": 1,
+    "latency_measurements_min": 50,
+    "latency_p95_ms_max": 700,
+    "legacy_point_rate_alone_is_certificate": false,
+    "max_brier": 0.24,
+    "max_ece": 0.04,
+    "max_js_drift": 0.1,
+    "max_looks": 5,
+    "max_loss_streak": 12,
+    "max_residual_drawdown": 8.0,
+    "min_certificate_n": 360,
+    "min_coverage": 0.95,
+    "min_fixed_window_hit_rate": 0.3,
+    "min_hit_rate": 0.34,
+    "min_regime_hit_rate": 0.27,
+    "min_regime_n": 50,
+    "min_wilson_lower": 0.3,
+    "min_window_integrity": 1.0,
+    "missing_policy": "KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION",
+    "mode": "STATIC_FROZEN",
+    "null_assumption": "CONDITIONAL_HIT_PROBABILITY_LE_0_30",
+    "planned_endpoints": [
+      120,
+      360,
+      600,
+      840,
+      1200
+    ],
+    "real_authority": false,
+    "renewal_new_future_n": 120,
+    "resource_unmeasured": "BLOCK",
+    "restart_policy": "AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND",
+    "revision": "CP3_STATIC_FIXED_POLICY_V1",
+    "rolling_hit_rate_min": {
+      "100": 0.27,
+      "20": 0.15,
+      "300": 0.34,
+      "50": 0.22
+    },
+    "statistical_family": "CP3_ALL_PRODUCTION",
+    "statistics_revision": "CP3_PREQUENTIAL_EPROCESS_V1",
+    "terminal_look_id": "CP3_PROTOCOL_FINAL",
+    "total_alpha": 0.05,
+    "unsupported_regime_policy": "EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS",
+    "wilson_comparison": "STRICT_GREATER",
+    "wilson_role": "IID_DESCRIPTIVE_ADDITIONAL_GATE",
+    "window_sizes": [
+      120,
+      240,
+      240,
+      240,
+      360
+    ]
+  },
+  "source_contracts": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "sha256": "c3f325f57adcfac98cf2c6b497bac1821c7d4e46fd2aa856c8f790fc28832470",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "sha256": "d8df77be1b214d8f6d3af9d5615bd82a6a44f228a8f3cd3806a1619eeb7da75d",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+      "sha256": "ecdca4ba0956a7accd5749d89400d16b37d681e70fba63041c1ee53a907be2ec",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java",
+      "sha256": "6ba5d77bdc2eb3424988020f4b2adba538665b1c6bf34a6d5204c5efc2cd9bff",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+      "sha256": "7e07152d224e4342e4a7f95e200f52fd6b12c5bde2022c19393437c440b436e2",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CandidateResourceEvidenceCP4.java",
+      "sha256": "4744e19e82369c5a4e9f28ce434fc80500007b6c670be6411ebbd10d75842ea0",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CertificateDependenciesR932.java",
+      "sha256": "072349a0ba684117fbb9f9f09312a58c1dad1b5fce87f06e59d40bbc2e2b77f0",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+      "sha256": "7e05211ba09a5748663e805d9ec5228666e8932bea8bff861502f3fd5a72b5f2",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+      "sha256": "b91a8f71ec8b1543867eb6a260a63d53cfd157bc31fba97aac548577211cb0a6",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+      "sha256": "f042cc6733f8d2838444de26911aaa92fe1eb770da20f863788157910175b4b5",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+      "sha256": "a644903c5906057f1d1c34ab1a3779dab70149e36cd3af2bf5fc65566bbfc7d3",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51CandidateRealGateR915.java",
+      "sha256": "568fb8c29f04b0ddd4735455667cd29708a187c205cdce918662ecdcbcf58c96",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "sha256": "160d2203723ad2bb12c0165b98524bf400b2566861a0e86a978810fb6e4837d0",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51AuthorizationCore.java",
+      "sha256": "76128c4f27fd536c925d551231644795d060f17598f94ea7638760b2bf41786f",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+      "sha256": "79ed2215980bee921ee16c2adf864ab5e74ab0cf1117796c54dd40e4731278bc",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "sha256": "67f17219474f6be6d30bed5a6c49541783c889f39c7c39fb486ca0705866597a",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "sha256": "88c93df87efeb3b127fdd9b37bb1a838bc66f6bd5e1b8f6ed2f072921b04ee35",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "sha256": "a52e01365e26b9688da15a2178e51d4535ddebc66c3d89c6d5a318ac1d0bfecb",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "sha256": "991ac070326275e4f59986389caccb417ac86511c69b8f0a2dfa0cfcadc08457",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU1.java",
+      "sha256": "fe071aa4c48c1699dc159538b4e92e75185abe8f99842a99f9a29ba7893d36c6",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceQualitySU1.java",
+      "sha256": "5e18dcb89e34555b4f4c41601394685fd6c2f19f1fed528da730b6cc91b98fb4",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU1.java",
+      "sha256": "37cd2246924c15bd6513d263d8f3f3808b34212b95b81f785a186b0275e8498b",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU1.java",
+      "sha256": "a31b19474627a65c9513842a99955a6202b186482e5d4b4742c63938b7d43a73",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineHeadSU1.java",
+      "sha256": "218df172fff54ad93deb0d7b7a0ff6e7ae4e13d15a21d85f8ba372365e00e53e",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AlphaLedgerSU1.java",
+      "sha256": "00fce7cc665d809b190312bab63fe9b1e33ddf639fb815d9b2df4b02f7afff06",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+      "sha256": "3581e95b502da707502d4b8ceb0f6135e6bfa6062d82eaa0ba94ba14df87e245",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationWindowR26.java",
+      "sha256": "feccc8ebe32f9ab4ff951ac8b6dc4dcd43f6980e5c34215175e7de7b4353f962",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceBlockR26.java",
+      "sha256": "e1626167f6085824d082338b92638bf1216075f6459772ff9bcd85cbe8cdc7a1",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceAccumulatorR26.java",
+      "sha256": "425690f5afdaf6e03f12f90b2c72eb636fe3d7f752abb5f15599265bd6a25c1d",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectiveEvidenceSU2.java",
+      "sha256": "d615b64b72835e903bce70b5507cdf2df75b47e8d258d83d5784d875badea16c",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectiveCalibrationSU2.java",
+      "sha256": "84a12d7f0f6731e165a43f6f9ba1fe845e170fe986478665fca4c919d8ce796d",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CurrentPolicyR26.java",
+      "sha256": "5488e6f6b52f6b9de4792c3f5a18b90a3a383adc78d4c7daf931c587ecd63dc2",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java",
+      "sha256": "e3625ddf0815343d54ac19daba96a78f9ded2a7d837f05ece321fb60f447a0a9",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+      "sha256": "915704b12522440b7696886affb69e3a2fefce5b7cd13608a5e94a00e2c76032",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
+      "sha256": "065eb9790252f2423d5a9b6f516fdc6e5b031c8a3d00218238bc45ef8414f03f",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/Su2CommitAuthorityR30.java",
+      "sha256": "098c567e7a9ef3f4d5321d520e16aff50126034c8321bc9c467fa32221948328",
+      "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+    }
+  ],
+  "single_real_owner": "DecisionGateEngine#decideV51B12",
+  "no_fifth_raw_score_domain": "V51CandidateRealGateR915 raw-score overload fails NO_QUALIFIED_MODEL_PROOF"
+}

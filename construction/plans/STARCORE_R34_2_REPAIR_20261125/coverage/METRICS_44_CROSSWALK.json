@@ -1,0 +1,4032 @@
+{
+  "schema": "R342_REPORT_CROSSWALK_1",
+  "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+  "installed_version_code": 577311152,
+  "origin_id_policy": "仅使用RT/RES/PLAN/ROOT原问题ID；最终施工编号由root拓扑重编号后关联。",
+  "disposition_policy": {
+    "修复": "已有具体阻断/合同缺口，修对应既有owner与链路；不改变原检查状态。",
+    "调查补证": "现有证据不够，明确采集、复现或自然时间条件，不能据缺样本直接判实现不存在。",
+    "保留回归": "现有效合同或已观察有用功能需保全，并执行其适用范围回归。",
+    "不适用并说明": "组合索引/格式参考/历史标签等非独立业务运行断言，保留原件及适用协议。"
+  },
+  "completion_boundary": "逐项覆盖关系完成，不等于应用修复、设备验收或自然质量通过。",
+  "kind": "METRICS",
+  "expected_count": 44,
+  "actual_count": 44,
+  "original_status_counts": {
+    "INSUFFICIENT": 35,
+    "RECORDED_UNVALIDATED": 5,
+    "BLOCKED": 1,
+    "UNKNOWN_SOURCE_MISSING": 1,
+    "NOT_DEPLOYED": 1,
+    "UNKNOWN_STALE_SYNTHETIC_SOURCE": 1
+  },
+  "disposition_counts": {
+    "调查补证": 27,
+    "修复": 17
+  },
+  "rows": [
+    {
+      "metricId": "M01",
+      "id": "M01",
+      "name": "源码与安装身份",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "source/APK/签名/plan可互证",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+      "measurementSource": "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+      "source": "build_identity + device package probe",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）"
+      ],
+      "repairCardIds": [
+        "FR-B00-01",
+        "FR-B11-04"
+      ],
+      "r31Definition": {
+        "cards": "B00/B12",
+        "collectionSource": "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M01",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "源码与安装身份",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "source/APK/签名/plan可互证",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-009",
+          "RSEC-027",
+          "RSEC-076",
+          "RSEC-078"
+        ],
+        "target": "全部一致",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M01",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "PLAN-SOURCE-04",
+        "RT21",
+        "RT23"
+      ],
+      "coverage_reason": "安装manifest已验证，但指标缺同角色签名测量receipt；不能说已装错版本，也不能称M01已通过。",
+      "acceptance_direction": "打通source/APK/签名/plan六身份与receipt；独立重算安装及构建hash，新版本由实际构建链生成。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M01",
+        "audit_source": "audit/evidence/metrics_44.json#M01",
+        "report": "R30_REPORT.json#/metricResults[metricId=M01]"
+      },
+      "original_full_record_sha256": "b9d6c21f515fe32ffb0d2726477486e2e6838f5efcc31293f3f37b074a893fe7",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-002",
+        "R342-054",
+        "R342-057"
+      ],
+      "current_batches": [
+        "B01",
+        "B11",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "M02",
+      "id": "M02",
+      "name": "功能保全覆盖",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "1832要求及299卡逐项有状态、Owner与证据路径",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+      "measurementSource": "保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+      "source": "legacy registry + regression receipts",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest"
+      ],
+      "repairCardIds": [
+        "FR-B00-03",
+        "FR-B11-01"
+      ],
+      "r31Definition": {
+        "cards": "B00/B12",
+        "collectionSource": "保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M02",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "功能保全覆盖",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "1832要求及299卡逐项有状态、Owner与证据路径",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-025",
+          "RSEC-028",
+          "RSEC-043",
+          "RSEC-070",
+          "RSEC-071"
+        ],
+        "target": "100%有记录；无凭空VERIFIED",
+        "uncoveredConditions": [
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M02",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "PLAN-SOURCE-01",
+        "RT21"
+      ],
+      "coverage_reason": "1832要求/299卡原账有状态，但当前1770/296未检查、62/3待验证，逐行传承不等于功能回归通过。",
+      "acceptance_direction": "保存所有原行与52/19列语义、原验收及hash；新增路径关联/实际回归receipt，未运行不得置VERIFIED。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M02",
+        "audit_source": "audit/evidence/metrics_44.json#M02",
+        "report": "R30_REPORT.json#/metricResults[metricId=M02]"
+      },
+      "original_full_record_sha256": "16d620266d5ab2bec34291b7e8699ab690203a8908b248bc2965eaef46a7130b",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [
+        "RT24"
+      ],
+      "current_issue_ids": [
+        "R342-001",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B01",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M03",
+      "id": "M03",
+      "name": "准时预测持久化",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "request→durable，近1440可用期；缺失单列",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+      "measurementSource": "r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+      "source": "issue_trace",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）"
+      ],
+      "repairCardIds": [
+        "FR-B02-04",
+        "FR-B02-05"
+      ],
+      "r31Definition": {
+        "cards": "B03",
+        "collectionSource": "r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M03",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "准时预测持久化",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "request→durable，近1440可用期；缺失单列",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-021",
+          "RSEC-030",
+          "RSEC-031",
+          "RSEC-048",
+          "RSEC-312",
+          "RSEC-313"
+        ],
+        "target": "P95≤5000ms",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M03",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT05",
+        "RT09"
+      ],
+      "coverage_reason": "1440期request→durable指标缺测；当前单样本2804ms仅局部事实，不填入整体通过。",
+      "acceptance_direction": "完整时间窗记录成功/缺失/失败、request→durable P95≤5000ms，trace绑定同target/epoch。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M03",
+        "audit_source": "audit/evidence/metrics_44.json#M03",
+        "report": "R30_REPORT.json#/metricResults[metricId=M03]"
+      },
+      "original_full_record_sha256": "79a5f618ba719a91cfeb08b84d942e0a94749b99f38d3910fbae6b05236a4fa0",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-012",
+        "R342-016"
+      ],
+      "current_batches": [
+        "B04",
+        "B05"
+      ]
+    },
+    {
+      "metricId": "M04",
+      "id": "M04",
+      "name": "抓到后正式结算",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "first valid observed→draw+settlement commit",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：r30_issue_timeline：observe_to_settled 段 P95",
+      "measurementSource": "r30_issue_timeline：observe_to_settled 段 P95",
+      "source": "draw_receipt + settlement_receipt",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_issue_timeline：observe_to_settled 段 P95"
+      ],
+      "repairCardIds": [
+        "FR-B02-03",
+        "FR-B02-04",
+        "FR-B02-05"
+      ],
+      "r31Definition": {
+        "cards": "B03",
+        "collectionSource": "r30_issue_timeline：observe_to_settled 段 P95",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M04",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "抓到后正式结算",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "first valid observed→draw+settlement commit",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-029",
+          "RSEC-031",
+          "RSEC-305",
+          "RSEC-306",
+          "RSEC-312",
+          "RSEC-313",
+          "RSEC-315"
+        ],
+        "target": "P95≤1000ms",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M04",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT06",
+        "RT09"
+      ],
+      "coverage_reason": "observe_to_validate有8样本P95=88ms，而observe_to_settled为0有效/8缺测；不能用校验段代结算段。",
+      "acceptance_direction": "first-valid-observed→draw+settlement commit同boot单调receipt，P95≤1000ms，缺源/无冻结单列。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M04",
+        "audit_source": "audit/evidence/metrics_44.json#M04",
+        "report": "R30_REPORT.json#/metricResults[metricId=M04]"
+      },
+      "original_full_record_sha256": "b78ea43614bb2e9c52a65bfc0d1ec42b428c815c145276197e2b0cc8b0371dd7",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-013",
+        "R342-016"
+      ],
+      "current_batches": [
+        "B04",
+        "B05"
+      ]
+    },
+    {
+      "metricId": "M05",
+      "id": "M05",
+      "name": "赛前有效覆盖",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "截止前5秒合法冻结/全部应有期，缺网仍列全分母",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+      "measurementSource": "r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+      "source": "opportunity LEFT JOIN freeze",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比"
+      ],
+      "repairCardIds": [
+        "FR-B02-04",
+        "FR-B02-05"
+      ],
+      "r31Definition": {
+        "cards": "B03",
+        "collectionSource": "r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M05",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "赛前有效覆盖",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "截止前5秒合法冻结/全部应有期，缺网仍列全分母",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-030"
+        ],
+        "target": "目标100%；受支持健康场景≥99.5%",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M05",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT05",
+        "RT06"
+      ],
+      "coverage_reason": "要求截止前5秒合法冻结/全部应有期；当前deadline样本0且近30仅1覆盖。",
+      "acceptance_direction": "完整机会分母保留断网/停机，计算deadline−freeze≥5000ms；健康支持场景≥99.5%目标及每个缺口可解释。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M05",
+        "audit_source": "audit/evidence/metrics_44.json#M05",
+        "report": "R30_REPORT.json#/metricResults[metricId=M05]"
+      },
+      "original_full_record_sha256": "33efd8eadf3814bcc0e5196604823c2365fa465df21f8a3f3b7b2baad73f780d",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-012",
+        "R342-013"
+      ],
+      "current_batches": [
+        "B04"
+      ]
+    },
+    {
+      "metricId": "M06",
+      "id": "M06",
+      "name": "唯一正式结算",
+      "status": "RECORDED_UNVALIDATED",
+      "value": 0,
+      "sampleCount": 0,
+      "definition": "同issue REAL重复、非法补冻结与结算重复",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": 0,
+      "denominator": 0,
+      "missingReason": "仅原REAL逐期唯一性；正式结算唯一键仍需原结算账联合回执",
+      "measurementSource": "结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）",
+      "source": "decision + settlement constraints",
+      "sourceReceiptSha256": "fc039ff7cc1612b24c60dbd7c6c5c50854c8c2a315f3ebe8bec46328704fbb5b",
+      "evidenceRefs": [
+        "结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）"
+      ],
+      "repairCardIds": [
+        "FR-B02-05",
+        "FR-B02-06",
+        "FR-B05-05"
+      ],
+      "r31Definition": {
+        "cards": "B03/B10",
+        "collectionSource": "结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M06",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "唯一正式结算",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "同issue REAL重复、非法补冻结与结算重复",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-029",
+          "RSEC-038",
+          "RSEC-053"
+        ],
+        "target": "均为0",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": 0.0,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M06",
+        "minimumSample": 1,
+        "receiptHash": "fc039ff7cc1612b24c60dbd7c6c5c50854c8c2a315f3ebe8bec46328704fbb5b",
+        "role": "ENGINEERING_RUNTIME",
+        "samples": 0,
+        "status": "INSUFFICIENT_ZERO_SAMPLES",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT21"
+      ],
+      "coverage_reason": "value0/sample0仅空REAL逐期唯一性，无正式结算联合收据，未证幂等。",
+      "acceptance_direction": "竞争同target、重复draw、重启与提交不确定注入；非法补冻结/REAL重复/结算重复均0且有非空输入。",
+      "original_status": "RECORDED_UNVALIDATED",
+      "original_evaluation_status": "INSUFFICIENT_ZERO_SAMPLES",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M06",
+        "audit_source": "audit/evidence/metrics_44.json#M06",
+        "report": "R30_REPORT.json#/metricResults[metricId=M06]"
+      },
+      "original_full_record_sha256": "f3855df29a932456c874a932364231ac6bae224f672b7ec342129a97f25ad708",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [
+        "RT24"
+      ],
+      "current_issue_ids": [
+        "R342-054"
+      ],
+      "current_batches": [
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M07",
+      "id": "M07",
+      "name": "实时写事务",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "单次事务wall time及busy失败",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+      "measurementSource": "r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+      "source": "realtime_writer_receipt",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)"
+      ],
+      "repairCardIds": [
+        "FR-B02-01",
+        "FR-B02-02",
+        "FR-B02-03",
+        "FR-B02-06"
+      ],
+      "r31Definition": {
+        "cards": "B02",
+        "collectionSource": "r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M07",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "实时写事务",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "单次事务wall time及busy失败",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-033"
+        ],
+        "target": "P95≤200ms；24h失败0",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M07",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT03",
+        "RT04",
+        "RT09"
+      ],
+      "coverage_reason": "实时写事务P95/24h busy失败证据缺失，现场确有写背压和最长等待历史观测。",
+      "acceptance_direction": "主PID同scope分开wait/hold/SQL/commit/返回；P95≤200ms与24h失败0按定义实测，超限保留原件。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M07",
+        "audit_source": "audit/evidence/metrics_44.json#M07",
+        "report": "R30_REPORT.json#/metricResults[metricId=M07]"
+      },
+      "original_full_record_sha256": "ece6edfefa3fba01b13a571a19c3690e86fe060e394132415aae4f0129f8f1db",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-004",
+        "R342-005",
+        "R342-016"
+      ],
+      "current_batches": [
+        "B02",
+        "B05"
+      ]
+    },
+    {
+      "metricId": "M08",
+      "id": "M08",
+      "name": "分库隔离",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "research写realtime表与跨库持锁等待计数",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+      "measurementSource": "单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+      "source": "table ownership guard",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数"
+      ],
+      "repairCardIds": [
+        "FR-B00-02",
+        "FR-B10-04"
+      ],
+      "r31Definition": {
+        "cards": "B02",
+        "collectionSource": "单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M08",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "分库隔离",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "research写realtime表与跨库持锁等待计数",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [],
+        "target": "0",
+        "uncoveredConditions": [
+          "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M08",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT03",
+        "PLAN-SOURCE-01"
+      ],
+      "coverage_reason": "当前可为单库模式，缺同表双写/跨库持锁观测；不能为指标名称强制分库。",
+      "acceptance_direction": "沿现owner验证研究写实时表/双owner0；若确启分库则outbox/inbox和无跨库持锁等待，证据注明拓扑。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M08",
+        "audit_source": "audit/evidence/metrics_44.json#M08",
+        "report": "R30_REPORT.json#/metricResults[metricId=M08]"
+      },
+      "original_full_record_sha256": "9d22de5f50d1d7f6e04b7193ef9614264d760758afeaeb1bb866d1041c865528",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [
+        "RT24"
+      ],
+      "current_issue_ids": [
+        "R342-001",
+        "R342-004"
+      ],
+      "current_batches": [
+        "B01",
+        "B02"
+      ]
+    },
+    {
+      "metricId": "M09",
+      "id": "M09",
+      "name": "迁移一致性",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "主键行hash/事件watermark/中断恢复",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+      "measurementSource": "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+      "source": "migration manifest",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数"
+      ],
+      "repairCardIds": [
+        "FR-B10-04"
+      ],
+      "r31Definition": {
+        "cards": "B05/B12",
+        "collectionSource": "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M09",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "迁移一致性",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "主键行hash/事件watermark/中断恢复",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-005",
+          "RSEC-078"
+        ],
+        "target": "全部一致；丢失/重复0",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M09",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT01",
+        "RT14",
+        "RT16",
+        "PLAN-SOURCE-01"
+      ],
+      "coverage_reason": "迁移rowhash/watermark/中断恢复没有完整receipt，实际startup preserve与新表就绪存在阻断。",
+      "acceptance_direction": "实际旧数据副本升级，主键/全行hash/事件水位及中断重入一致，无丢失/重复；原件缺失按资产隔离。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M09",
+        "audit_source": "audit/evidence/metrics_44.json#M09",
+        "report": "R30_REPORT.json#/metricResults[metricId=M09]"
+      },
+      "original_full_record_sha256": "1fe71eec0d32cb305f530c8733a37b6f19a395ca380016813cd5ac3b506f4a3a",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-001",
+        "R342-007",
+        "R342-009",
+        "R342-046"
+      ],
+      "current_batches": [
+        "B01",
+        "B03",
+        "B10"
+      ]
+    },
+    {
+      "metricId": "M10",
+      "id": "M10",
+      "name": "每期训练投递",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "结果事件数与训练inbox唯一事件数",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+      "measurementSource": "每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+      "source": "outbox/inbox",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标"
+      ],
+      "repairCardIds": [
+        "FR-B02-05",
+        "FR-B03-03"
+      ],
+      "r31Definition": {
+        "cards": "B06",
+        "collectionSource": "每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M10",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "每期训练投递",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "结果事件数与训练inbox唯一事件数",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-001"
+        ],
+        "target": "100%；重复消费0",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M10",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES08",
+        "RES11",
+        "RT21"
+      ],
+      "coverage_reason": "结果事件与训练inbox匹配缺测，历史25次POST_TRAIN不证明每期100%投递。",
+      "acceptance_direction": "非空自然/注入序列逐event对账outbox→inbox→数值提交，重复消费0；消费者提交后才推进游标。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M10",
+        "audit_source": "audit/evidence/metrics_44.json#M10",
+        "report": "R30_REPORT.json#/metricResults[metricId=M10]"
+      },
+      "original_full_record_sha256": "b562a3f7f3823797ec2f8d7e86045bf1d406f89405835e51a7d654cf8d4fa6e5",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-010",
+        "R342-032",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B03",
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M11",
+      "id": "M11",
+      "name": "训练完成新鲜度",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "有样本ready任务的已提交学习游标",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：TaskLivenessR30：最老积压期数（pending 最大任务）",
+      "measurementSource": "TaskLivenessR30：最老积压期数（pending 最大任务）",
+      "source": "learning receipt + backlog",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "TaskLivenessR30：最老积压期数（pending 最大任务）"
+      ],
+      "repairCardIds": [
+        "FR-B03-02",
+        "FR-B04-01"
+      ],
+      "r31Definition": {
+        "cards": "B01/B06",
+        "collectionSource": "TaskLivenessR30：最老积压期数（pending 最大任务）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M11",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "训练完成新鲜度",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "有样本ready任务的已提交学习游标",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-001"
+        ],
+        "target": "正常负载最老积压≤5期；超限必须FAIL",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M11",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES08",
+        "RES11",
+        "RES29"
+      ],
+      "coverage_reason": "TaskLiveness中27训练任务源未知、总55 UNKNOWN，oldestBacklogIssues null不能用observed0替代。",
+      "acceptance_direction": "按有ready输入任务计算真实期号积压，正常最老≤5期；unknown、依赖等待、无新输入分开。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M11",
+        "audit_source": "audit/evidence/metrics_44.json#M11",
+        "report": "R30_REPORT.json#/metricResults[metricId=M11]"
+      },
+      "original_full_record_sha256": "029d1ea951adae9d5f5dc0db1a89cc98cf0031194d96a1965e6d768214e56a58",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-010",
+        "R342-011",
+        "R342-032"
+      ],
+      "current_batches": [
+        "B03",
+        "B08"
+      ]
+    },
+    {
+      "metricId": "M12",
+      "id": "M12",
+      "name": "任务活性",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "有ready积压但连续5期无提交的任务",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+      "measurementSource": "TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+      "source": "task service receipt",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "TaskLivenessR30.summarize.m12（null=有UNKNOWN）"
+      ],
+      "repairCardIds": [
+        "FR-B03-02",
+        "FR-B03-03",
+        "FR-B03-04",
+        "FR-B03-05"
+      ],
+      "r31Definition": {
+        "cards": "B01",
+        "collectionSource": "TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M12",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "任务活性",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "有ready积压但连续5期无提交的任务",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-032",
+          "RSEC-036",
+          "RSEC-052",
+          "RSEC-074"
+        ],
+        "target": "0；等依赖/等数据单列",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M12",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT01",
+        "RT11",
+        "RES08",
+        "RES29"
+      ],
+      "coverage_reason": "63任务摘要有stalled1/faulted2/unknown55，attempt或维护work_units不是连续5期提交。",
+      "acceptance_direction": "有ready积压的任务每5期内真实产物/游标提交，否则FAIL；原owner恢复及依赖冷却可观察。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M12",
+        "audit_source": "audit/evidence/metrics_44.json#M12",
+        "report": "R30_REPORT.json#/metricResults[metricId=M12]"
+      },
+      "original_full_record_sha256": "a4f415c6658d61c9b9e4a8a5105ecea89b21be56402883b9fc559b5d170c57b3",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-007",
+        "R342-008",
+        "R342-010",
+        "R342-011"
+      ],
+      "current_batches": [
+        "B03"
+      ]
+    },
+    {
+      "metricId": "M13",
+      "id": "M13",
+      "name": "前后台连续性",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "前台60min、息屏6h、连续72h的业务游标和缺期",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：B10 场景：前后台切换前后已投递任务数差",
+      "measurementSource": "B10 场景：前后台切换前后已投递任务数差",
+      "source": "device scenarios",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "B10 场景：前后台切换前后已投递任务数差"
+      ],
+      "repairCardIds": [
+        "FR-B03-05",
+        "FR-B11-02"
+      ],
+      "r31Definition": {
+        "cards": "B04/B12",
+        "collectionSource": "B10 场景：前后台切换前后已投递任务数差",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M13",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "前后台连续性",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "前台60min、息屏6h、连续72h的业务游标和缺期",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-036",
+          "RSEC-041",
+          "RSEC-042"
+        ],
+        "target": "受支持场景不丢已投递任务；缺口全记录",
+        "uncoveredConditions": [
+          "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M13",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT12",
+        "RT11"
+      ],
+      "coverage_reason": "前台60min/息屏6h/72h设备窗口尚无receipt，权限YES不能证明持续性。",
+      "acceptance_direction": "真实设备按场景记录全部投递和完成/缺口、重启代次；受支持场景不丢已投递任务且无重复owner。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M13",
+        "audit_source": "audit/evidence/metrics_44.json#M13",
+        "report": "R30_REPORT.json#/metricResults[metricId=M13]"
+      },
+      "original_full_record_sha256": "a91b15019ba8277088a2ab12796d5947c71fc4c76e7f322f94d19fe5fae34b4e",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-008",
+        "R342-018"
+      ],
+      "current_batches": [
+        "B03",
+        "B05"
+      ]
+    },
+    {
+      "metricId": "M14",
+      "id": "M14",
+      "name": "进程稳定性",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "测试窗口OOM/ANR/crash",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+      "measurementSource": "进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+      "source": "device logs",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "进程崩溃/ANR 计数（logcat + ApplicationExitInfo）"
+      ],
+      "repairCardIds": [
+        "FR-B11-02"
+      ],
+      "r31Definition": {
+        "cards": "B04/B12",
+        "collectionSource": "进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M14",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "进程稳定性",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "测试窗口OOM/ANR/crash",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-042"
+        ],
+        "target": "0",
+        "uncoveredConditions": [
+          "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M14",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT12",
+        "RT13"
+      ],
+      "coverage_reason": "无当前测试窗OOM/ANR/crash联合证据，历史crash2与旧stall不能算本版本复现。",
+      "acceptance_direction": "同APK/source/boot日志与ApplicationExitInfo相互核对，完整测试窗三类计数0；系统杀/更新/用户stop单列。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M14",
+        "audit_source": "audit/evidence/metrics_44.json#M14",
+        "report": "R30_REPORT.json#/metricResults[metricId=M14]"
+      },
+      "original_full_record_sha256": "97ee68be8218a14f3a8fe21083f32f8025e0b79b2011acb267f0724536577427",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-018",
+        "R342-019"
+      ],
+      "current_batches": [
+        "B05"
+      ]
+    },
+    {
+      "metricId": "M15",
+      "id": "M15",
+      "name": "热库与总磁盘",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "开奖热表及所有文件分类预算",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：draws 热库行数 + 应用数据目录总字节",
+      "measurementSource": "draws 热库行数 + 应用数据目录总字节",
+      "source": "storage census",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "draws 热库行数 + 应用数据目录总字节"
+      ],
+      "repairCardIds": [
+        "FR-B10-01",
+        "FR-B10-02"
+      ],
+      "r31Definition": {
+        "cards": "B05",
+        "collectionSource": "draws 热库行数 + 应用数据目录总字节",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M15",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "热库与总磁盘",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "开奖热表及所有文件分类预算",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-006"
+        ],
+        "target": "draws≤5000；未超配置总预算且可恢复",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M15",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT15",
+        "RT16",
+        "RT17",
+        "RT18"
+      ],
+      "coverage_reason": "draws5000已见，但storage指标receipt缺失；独立census已有10.97GB和保护原件信息。",
+      "acceptance_direction": "接入现有census与配置预算，draws≤5000、owner预算和可恢复性完整；释放量以真实bytes/receipt证明。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M15",
+        "audit_source": "audit/evidence/metrics_44.json#M15",
+        "report": "R30_REPORT.json#/metricResults[metricId=M15]"
+      },
+      "original_full_record_sha256": "4f86dc7c2ea7300a8e4427c377e0ea12ca1396f55bddc1e526f369ce2f7a8914",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-045",
+        "R342-046",
+        "R342-047",
+        "R342-048"
+      ],
+      "current_batches": [
+        "B10"
+      ]
+    },
+    {
+      "metricId": "M16",
+      "id": "M16",
+      "name": "报告取消",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "cancel request→job停止且清本job临时文件",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：ReportTaskControlR69 取消到释放耗时",
+      "measurementSource": "ReportTaskControlR69 取消到释放耗时",
+      "source": "export job journal",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "ReportTaskControlR69 取消到释放耗时"
+      ],
+      "repairCardIds": [
+        "FR-B10-03"
+      ],
+      "r31Definition": {
+        "cards": "B05/B11",
+        "collectionSource": "ReportTaskControlR69 取消到释放耗时",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M16",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "报告取消",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "cancel request→job停止且清本job临时文件",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [],
+        "target": "≤2000ms",
+        "uncoveredConditions": [
+          "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M16",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT21",
+        "RT15"
+      ],
+      "coverage_reason": "报告取消≤2000ms无测量，不能从一次成功导出或按钮存在推断。",
+      "acceptance_direction": "在读取/压缩/写卷/交付阶段注入取消，测请求→owner停止/本job临时文件释放；其他作业pin和原件保留。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M16",
+        "audit_source": "audit/evidence/metrics_44.json#M16",
+        "report": "R30_REPORT.json#/metricResults[metricId=M16]"
+      },
+      "original_full_record_sha256": "af64d86a17b0a6cd7a01e80098e32dfdbcf23c54c8424b457da656880983a504",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [
+        "RT24"
+      ],
+      "current_issue_ids": [
+        "R342-045",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B10",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M17",
+      "id": "M17",
+      "name": "报告完整性",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "registered对象与导出对象、expected/exported/omitted",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：报告索引覆盖率 + ZIP 大小/分卷",
+      "measurementSource": "报告索引覆盖率 + ZIP 大小/分卷",
+      "source": "archive manifest",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "报告索引覆盖率 + ZIP 大小/分卷"
+      ],
+      "repairCardIds": [
+        "FR-B01-05",
+        "FR-B10-03"
+      ],
+      "r31Definition": {
+        "cards": "B11",
+        "collectionSource": "报告索引覆盖率 + ZIP 大小/分卷",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M17",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "报告完整性",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "registered对象与导出对象、expected/exported/omitted",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-010",
+          "RSEC-011",
+          "RSEC-016",
+          "RSEC-018",
+          "RSEC-022",
+          "RSEC-302",
+          "RSEC-303",
+          "RSEC-307",
+          "RSEC-309",
+          "RSEC-318",
+          "RSEC-319",
+          "RSEC-320",
+          "RSEC-324"
+        ],
+        "target": "全量索引100%；默认ZIP≤20MiB或明确分卷",
+        "uncoveredConditions": [
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M17",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT20",
+        "RT23"
+      ],
+      "coverage_reason": "本次57成员封包可核hash，但metric仍缺同角色完整性receipt；DIAGNOSTIC排除raw属声明范围。",
+      "acceptance_direction": "registered/expected/exported/omitted逐项对账，默认≤20MiB或明确分卷，损坏/截断拒绝，RAW与诊断分别签收。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M17",
+        "audit_source": "audit/evidence/metrics_44.json#M17",
+        "report": "R30_REPORT.json#/metricResults[metricId=M17]"
+      },
+      "original_full_record_sha256": "782c13dd9e5ae7a5b00d515653fc7ccf9afd3dc2507016003891b7194194584f",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-053",
+        "R342-057"
+      ],
+      "current_batches": [
+        "B11",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "M18",
+      "id": "M18",
+      "name": "PIT泄漏反证",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "改当前/未来标签后既有predraw输出差异",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "PIT拒绝记录不等于泄漏；需当前/未来标签扰动原件，注入与产品来源分列",
+      "measurementSource": "r30_pit_violation 非注入行数",
+      "source": "PIT perturbation tests",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_pit_violation 非注入行数"
+      ],
+      "repairCardIds": [
+        "FR-B00-04",
+        "FR-B04-03"
+      ],
+      "r31Definition": {
+        "cards": "B06/B12",
+        "collectionSource": "r30_pit_violation 非注入行数",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M18",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "PIT泄漏反证",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "改当前/未来标签后既有predraw输出差异",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-057"
+        ],
+        "target": "0",
+        "uncoveredConditions": [
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M18",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT21",
+        "RES23"
+      ],
+      "coverage_reason": "pitViolations0与PIT拒绝记录不能代替未来标签扰动反证。",
+      "acceptance_direction": "固定事前输入，改当前/未来标签不改变已冻结输出；真泄漏反例被硬挡，测试注入与生产源分列。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M18",
+        "audit_source": "audit/evidence/metrics_44.json#M18",
+        "report": "R30_REPORT.json#/metricResults[metricId=M18]"
+      },
+      "original_full_record_sha256": "5facb89ee18ebdaf295d303c2372b04a6327aadf5813c78f1bb8be71ce7d1b55",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [
+        "RT24"
+      ],
+      "current_issue_ids": [
+        "R342-033",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M19",
+      "id": "M19",
+      "name": "训练分割污染",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "CONFIRM进入生成/调参/原子权重的未记账次数",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+      "measurementSource": "HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+      "source": "split exposure ledger",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "HoldoutLedgerR27 R30_CONFIRM_REUSED 计数"
+      ],
+      "repairCardIds": [
+        "FR-B00-04",
+        "FR-B05-02"
+      ],
+      "r31Definition": {
+        "cards": "B06/B07",
+        "collectionSource": "HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M19",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "训练分割污染",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "CONFIRM进入生成/调参/原子权重的未记账次数",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-057"
+        ],
+        "target": "0",
+        "uncoveredConditions": [
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M19",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES23",
+        "RES24",
+        "RT21"
+      ],
+      "coverage_reason": "CONFIRM未污染缺Holdout真实账，0确认reservations不是隔离生效证明。",
+      "acceptance_direction": "生成/调参/原子权重不得读取封存确认标签；非法复用被记账拒绝，重启后仍遵守角色与预算。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M19",
+        "audit_source": "audit/evidence/metrics_44.json#M19",
+        "report": "R30_REPORT.json#/metricResults[metricId=M19]"
+      },
+      "original_full_record_sha256": "a2242e52e877b31200b1997cf3a94e7a8d35d89e573f0065c5040a4bea5926b7",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-033",
+        "R342-034",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M20",
+      "id": "M20",
+      "name": "全状态续训恢复",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "权重、优化器、RNG、cursor断点前后差异",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：ModelArtifactR29 中断/恢复一致性测试结果",
+      "measurementSource": "ModelArtifactR29 中断/恢复一致性测试结果",
+      "source": "restart replay",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "ModelArtifactR29 中断/恢复一致性测试结果"
+      ],
+      "repairCardIds": [
+        "FR-B04-03"
+      ],
+      "r31Definition": {
+        "cards": "B06",
+        "collectionSource": "ModelArtifactR29 中断/恢复一致性测试结果",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M20",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "全状态续训恢复",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "权重、优化器、RNG、cursor断点前后差异",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-004"
+        ],
+        "target": "按已登记浮点容差一致；不重复学习",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M20",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT01",
+        "RT16",
+        "RES10",
+        "RES11"
+      ],
+      "coverage_reason": "有旧AtomNet checkpoint元数据但缺全状态重启续训对照，缺原件与startup保存亦未闭环。",
+      "acceptance_direction": "同权重/优化器/RNG/cursor/输入hash恢复，按预登记容差与不中断训练等价且不重学；缺源不得伪恢复。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M20",
+        "audit_source": "audit/evidence/metrics_44.json#M20",
+        "report": "R30_REPORT.json#/metricResults[metricId=M20]"
+      },
+      "original_full_record_sha256": "7dd690f5eba7dcfdc9ad3831da4d14e78c1a3099f83db4f8667df149ed89858f",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-007",
+        "R342-031",
+        "R342-032",
+        "R342-046"
+      ],
+      "current_batches": [
+        "B03",
+        "B08",
+        "B10"
+      ]
+    },
+    {
+      "metricId": "M21",
+      "id": "M21",
+      "name": "策略完整合同",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "出生候选的必要字段、可执行图、hash",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+      "measurementSource": "BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+      "source": "policy contract validator",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0"
+      ],
+      "repairCardIds": [
+        "FR-B06-04",
+        "FR-B08-01"
+      ],
+      "r31Definition": {
+        "cards": "B07",
+        "collectionSource": "BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M21",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "策略完整合同",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "出生候选的必要字段、可执行图、hash",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-003",
+          "RSEC-024",
+          "RSEC-069",
+          "RSEC-079",
+          "RSEC-317",
+          "RSEC-321",
+          "RSEC-322",
+          "RSEC-323"
+        ],
+        "target": "100%；空壳拒绝",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M21",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES05",
+        "RES06",
+        "RES07",
+        "PLAN-SOURCE-02"
+      ],
+      "coverage_reason": "policyObjects0/birthRejects空，不能证明出生策略必要字段和可执行图完整。",
+      "acceptance_direction": "合法结构真正出生并可执行/恢复，缺字段/空壳/非法图被BirthGate拒绝；产物具输入输出/状态/hash。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M21",
+        "audit_source": "audit/evidence/metrics_44.json#M21",
+        "report": "R30_REPORT.json#/metricResults[metricId=M21]"
+      },
+      "original_full_record_sha256": "5ed9b0430ad33654b0b2ec4096a58500b91cce914458abfda6e274d62057c86b",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-022",
+        "R342-025",
+        "R342-026",
+        "R342-027"
+      ],
+      "current_batches": [
+        "B06",
+        "B07"
+      ]
+    },
+    {
+      "metricId": "M22",
+      "id": "M22",
+      "name": "结构与行为去重",
+      "status": "RECORDED_UNVALIDATED",
+      "value": 0,
+      "sampleCount": 0,
+      "definition": "结构/行为/参数计数分列且可复算",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": 0,
+      "denominator": 0,
+      "missingReason": "原账全量计数；结构/参数去重及生成链一致性需分别复算",
+      "measurementSource": "r30_behavior_dup 行数与报告去重计数一致",
+      "source": "birth gate + semantic fingerprints",
+      "sourceReceiptSha256": "7c07b353af5ea9d39024147d076ae3d4898c1edcdefdd9670849e22fe9b93ca4",
+      "evidenceRefs": [
+        "r30_behavior_dup 行数与报告去重计数一致"
+      ],
+      "repairCardIds": [
+        "FR-B08-01",
+        "FR-B08-03"
+      ],
+      "r31Definition": {
+        "cards": "B07",
+        "collectionSource": "r30_behavior_dup 行数与报告去重计数一致",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M22",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "结构与行为去重",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "结构/行为/参数计数分列且可复算",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-024"
+        ],
+        "target": "计数与ledger一致",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": 0.0,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M22",
+        "minimumSample": 1,
+        "receiptHash": "7c07b353af5ea9d39024147d076ae3d4898c1edcdefdd9670849e22fe9b93ca4",
+        "role": "ENGINEERING_RUNTIME",
+        "samples": 0,
+        "status": "INSUFFICIENT_ZERO_SAMPLES",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES05",
+        "RES21",
+        "PLAN-SOURCE-02"
+      ],
+      "coverage_reason": "结构/行为/参数去重value0/sample0为未验证空账。",
+      "acceptance_direction": "同构/交换律/重命名/仅参数变体反例不计新机制；结构与行为hash可重算，真实新结构计数与谱系一致。",
+      "original_status": "RECORDED_UNVALIDATED",
+      "original_evaluation_status": "INSUFFICIENT_ZERO_SAMPLES",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M22",
+        "audit_source": "audit/evidence/metrics_44.json#M22",
+        "report": "R30_REPORT.json#/metricResults[metricId=M22]"
+      },
+      "original_full_record_sha256": "8a2b2a3f7032d471808f5eaa4b513bc39c5d9717d8c7b40d9cd39ce87bc80356",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-025",
+        "R342-026",
+        "R342-040"
+      ],
+      "current_batches": [
+        "B07",
+        "B08"
+      ]
+    },
+    {
+      "metricId": "M23",
+      "id": "M23",
+      "name": "族专家覆盖",
+      "status": "BLOCKED",
+      "value": 81,
+      "sampleCount": 82,
+      "definition": "F24/E16/I20全量对象有producer/consumer/ready/status",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": 81,
+      "denominator": 82,
+      "missingReason": "可调用绑定与输入可用、真实产出、被消费、有效性分别记录，禁止由此推出质量",
+      "measurementSource": "CapabilityRegistryR30 对象可执行率",
+      "source": "capability registry",
+      "sourceReceiptSha256": "f93ee55acb27a40ea507b98060a585f056f164deb1c3310328a4be0704493280",
+      "evidenceRefs": [
+        "CapabilityRegistryR30 对象可执行率"
+      ],
+      "repairCardIds": [
+        "FR-B06-05"
+      ],
+      "r31Definition": {
+        "cards": "B07/B08",
+        "collectionSource": "CapabilityRegistryR30 对象可执行率",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M23",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "族专家覆盖",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "F24/E16/I20全量对象有producer/consumer/ready/status",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-014",
+          "RSEC-015",
+          "RSEC-017",
+          "RSEC-317",
+          "RSEC-321",
+          "RSEC-322",
+          "RSEC-323"
+        ],
+        "target": "全部注册与可执行；没有证据不标有效",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": 1.0,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M23",
+        "minimumSample": 1,
+        "receiptHash": "f93ee55acb27a40ea507b98060a585f056f164deb1c3310328a4be0704493280",
+        "role": "ENGINEERING_RUNTIME",
+        "samples": 82,
+        "status": "MEASURED_REQUIRES_VALIDATION",
+        "value": 81.0,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES28",
+        "RES04",
+        "RES29",
+        "RT21"
+      ],
+      "coverage_reason": "81/82静态可调用唯一缺F23教师绑定；代码绑定不代表输入可用、执行产物、消费或效果。",
+      "acceptance_direction": "局部修F23真实teacher owner绑定；82对象逐项producer/consumer/ready/status，非空生产执行与产物验收分列。",
+      "original_status": "BLOCKED",
+      "original_evaluation_status": "MEASURED_REQUIRES_VALIDATION",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M23",
+        "audit_source": "audit/evidence/metrics_44.json#M23",
+        "report": "R30_REPORT.json#/metricResults[metricId=M23]"
+      },
+      "original_full_record_sha256": "f28ec0b110fd4f66f92953521299850fb47b0aa61b894f3ea29c4106684fe7fd",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-011",
+        "R342-020",
+        "R342-030",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B03",
+        "B06",
+        "B07",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M24",
+      "id": "M24",
+      "name": "模型实际消费",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "I08冻结引用model artifact且trainedThrough合法",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：r30_model_call 与冻结行匹配率",
+      "measurementSource": "r30_model_call 与冻结行匹配率",
+      "source": "model consumption receipt",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_model_call 与冻结行匹配率"
+      ],
+      "repairCardIds": [
+        "FR-B04-05"
+      ],
+      "r31Definition": {
+        "cards": "B07/B10",
+        "collectionSource": "r30_model_call 与冻结行匹配率",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M24",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "模型实际消费",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "I08冻结引用model artifact且trainedThrough合法",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-001",
+          "RSEC-007",
+          "RSEC-054",
+          "RSEC-055",
+          "RSEC-056",
+          "RSEC-058"
+        ],
+        "target": "100%匹配或明确BLOCKED；不得伪造调用",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M24",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES10",
+        "RES26",
+        "RT21"
+      ],
+      "coverage_reason": "expectedCalls0/matched0/ratio null，没有模型调用与冻结行匹配证据。",
+      "acceptance_direction": "I08按实际AST位置消费合法trainedThrough模型，调用与冻结model/artifact identity100%匹配或明确BLOCKED，不伪造call。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M24",
+        "audit_source": "audit/evidence/metrics_44.json#M24",
+        "report": "R30_REPORT.json#/metricResults[metricId=M24]"
+      },
+      "original_full_record_sha256": "65959d492dae2385f9759571e679a1c6931802c62d96f4ded1dc7d016072918f",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-031",
+        "R342-044",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B08",
+        "B09",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M25",
+      "id": "M25",
+      "name": "矩阵接线",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "20矩阵producer→consumer、schema与watermark",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：MatrixRegistryR30 20 项可追溯率",
+      "measurementSource": "MatrixRegistryR30 20 项可追溯率",
+      "source": "matrix registry",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "MatrixRegistryR30 20 项可追溯率"
+      ],
+      "repairCardIds": [
+        "FR-B06-01",
+        "FR-B06-02",
+        "FR-B06-03"
+      ],
+      "r31Definition": {
+        "cards": "B08",
+        "collectionSource": "MatrixRegistryR30 20 项可追溯率",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M25",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "矩阵接线",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "20矩阵producer→consumer、schema与watermark",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [],
+        "target": "全部可追溯；未产出有明确原因",
+        "uncoveredConditions": [
+          "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M25",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES15",
+        "RES16",
+        "RES17"
+      ],
+      "coverage_reason": "20矩阵原生与SU2消费行0，另25个R952快照不能抵这20矩阵。",
+      "acceptance_direction": "逐matrix producer→typed schema/watermark→consumer→结果receipt；17过期输入修保留/服务时限，未产出给原因。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M25",
+        "audit_source": "audit/evidence/metrics_44.json#M25",
+        "report": "R30_REPORT.json#/metricResults[metricId=M25]"
+      },
+      "original_full_record_sha256": "35009b4f8ed5283a138d43194fb81171f9e959d4e4bf07e0f04603722b6f65b7",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-035",
+        "R342-036",
+        "R342-037"
+      ],
+      "current_batches": [
+        "B08"
+      ]
+    },
+    {
+      "metricId": "M26",
+      "id": "M26",
+      "name": "校准时间隔离",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "fitEnd<validateStart及apply时版本可见",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：校准样本时间隔离检查通过率",
+      "measurementSource": "校准样本时间隔离检查通过率",
+      "source": "calibration study",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "校准样本时间隔离检查通过率"
+      ],
+      "repairCardIds": [
+        "FR-B06-06"
+      ],
+      "r31Definition": {
+        "cards": "B07/B10",
+        "collectionSource": "校准样本时间隔离检查通过率",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M26",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "校准时间隔离",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "fitEnd<validateStart及apply时版本可见",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-001",
+          "RSEC-019"
+        ],
+        "target": "100%；零模型需可定位原因",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M26",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES25"
+      ],
+      "coverage_reason": "校准列表空，无法验证fitEnd<validateStart及apply版本可见。",
+      "acceptance_direction": "冻结校准训练区间/版本和验证区间，强制时间隔离/选择条件一致；零模型明确缺输入或阻断，不默认通过。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M26",
+        "audit_source": "audit/evidence/metrics_44.json#M26",
+        "report": "R30_REPORT.json#/metricResults[metricId=M26]"
+      },
+      "original_full_record_sha256": "9f625f749113300eb7ecec4ec05188117c05804d4f9545d79821d8cbd1a0d235",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-043"
+      ],
+      "current_batches": [
+        "B09"
+      ]
+    },
+    {
+      "metricId": "M27",
+      "id": "M27",
+      "name": "资格预算连续",
+      "status": "RECORDED_UNVALIDATED",
+      "value": 0,
+      "sampleCount": 0,
+      "definition": "永久index唯一、旧观察不回填、重启预算不重置",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": 0,
+      "denominator": 0,
+      "missingReason": "未解决冲突数；全局序号、预算不重置与连续游标需联合原件",
+      "measurementSource": "SequentialQualificationR27 全局序号连续、无重置",
+      "source": "eprocess ledger",
+      "sourceReceiptSha256": "61d105a1c68855597ef71d1a057c445ede5620f28c77e784261b2174b0ff447f",
+      "evidenceRefs": [
+        "SequentialQualificationR27 全局序号连续、无重置"
+      ],
+      "repairCardIds": [
+        "FR-B05-03",
+        "FR-B05-04"
+      ],
+      "r31Definition": {
+        "cards": "B10",
+        "collectionSource": "SequentialQualificationR27 全局序号连续、无重置",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M27",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "资格预算连续",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "永久index唯一、旧观察不回填、重启预算不重置",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-001",
+          "RSEC-012",
+          "RSEC-023"
+        ],
+        "target": "全部通过",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": 0.0,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M27",
+        "minimumSample": 1,
+        "receiptHash": "61d105a1c68855597ef71d1a057c445ede5620f28c77e784261b2174b0ff447f",
+        "role": "ENGINEERING_RUNTIME",
+        "samples": 0,
+        "status": "INSUFFICIENT_ZERO_SAMPLES",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES23",
+        "RES24",
+        "RES30"
+      ],
+      "coverage_reason": "资格冲突0/sample0并未证明永久index、不可回填、重启预算连续。",
+      "acceptance_direction": "跨重启/重复投递验证假设索引唯一、alpha支出不重置、旧observations不回填新窗，完整原件可复算。",
+      "original_status": "RECORDED_UNVALIDATED",
+      "original_evaluation_status": "INSUFFICIENT_ZERO_SAMPLES",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M27",
+        "audit_source": "audit/evidence/metrics_44.json#M27",
+        "report": "R30_REPORT.json#/metricResults[metricId=M27]"
+      },
+      "original_full_record_sha256": "ecebf040450142d74f9bc203c2cd383e14439b03f4cf4999e858136574c0e57d",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-033",
+        "R342-034",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B08",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "M28",
+      "id": "M28",
+      "name": "主链闭环",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "证书→projection→当期intent→REAL→结算",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：androidTest 正对照贯通 + 非法/过期拦截",
+      "measurementSource": "androidTest 正对照贯通 + 非法/过期拦截",
+      "source": "integration + device receipts",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "androidTest 正对照贯通 + 非法/过期拦截"
+      ],
+      "repairCardIds": [
+        "FR-B05-05",
+        "FR-B11-01"
+      ],
+      "r31Definition": {
+        "cards": "B10/B12",
+        "collectionSource": "androidTest 正对照贯通 + 非法/过期拦截",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M28",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "主链闭环",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "证书→projection→当期intent→REAL→结算",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-012",
+          "RSEC-021",
+          "RSEC-023",
+          "RSEC-035",
+          "RSEC-039",
+          "RSEC-053",
+          "RSEC-059",
+          "RSEC-060",
+          "RSEC-072",
+          "RSEC-073",
+          "RSEC-308",
+          "RSEC-310",
+          "RSEC-314"
+        ],
+        "target": "合法正对照贯通；非法/过期全部拦截",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M28",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES26",
+        "RT21",
+        "ROOT-01"
+      ],
+      "coverage_reason": "decisions空/unsafeMismatch0，不足以证明certificate→projection→intent→REAL→settlement贯通。",
+      "acceptance_direction": "同生产入口合法正例真实用证书与模型并结算；过期/错bundle/错域/未确认selector全拒绝，SHADOW不转REAL。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M28",
+        "audit_source": "audit/evidence/metrics_44.json#M28",
+        "report": "R30_REPORT.json#/metricResults[metricId=M28]"
+      },
+      "original_full_record_sha256": "af3c30f5d4a35ca6386d6132a8f062c72307d3a8157e4f7b61ce88b63571bd05",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-044",
+        "R342-051",
+        "R342-054"
+      ],
+      "current_batches": [
+        "B09",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M29",
+      "id": "M29",
+      "name": "确认队列连续",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "锁定候选被仅因榜单变化驱逐次数",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：确认队列被挤出次数",
+      "measurementSource": "确认队列被挤出次数",
+      "source": "confirmation cohort log",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "确认队列被挤出次数"
+      ],
+      "repairCardIds": [
+        "FR-B05-01",
+        "FR-B05-02"
+      ],
+      "r31Definition": {
+        "cards": "B07",
+        "collectionSource": "确认队列被挤出次数",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M29",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "确认队列连续",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "锁定候选被仅因榜单变化驱逐次数",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [],
+        "target": "0",
+        "uncoveredConditions": [
+          "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M29",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES23",
+        "RES24",
+        "RES29"
+      ],
+      "coverage_reason": "confirmation队列无原件，不能证明锁定候选不会因榜单变化被挤出。",
+      "acceptance_direction": "锁定后固定协议与样本预算，榜单重排/新候选/重启不驱逐已确认义务；每次取消必须有合法原因和收据。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M29",
+        "audit_source": "audit/evidence/metrics_44.json#M29",
+        "report": "R30_REPORT.json#/metricResults[metricId=M29]"
+      },
+      "original_full_record_sha256": "b1cb3440f9323c8e75235b402d47f8a53a591bb30222c6cbf6a52fb766d0b3b4",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-011",
+        "R342-033",
+        "R342-034"
+      ],
+      "current_batches": [
+        "B03",
+        "B08"
+      ]
+    },
+    {
+      "metricId": "M30",
+      "id": "M30",
+      "name": "主链选择器身份",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "多成员择优作为完整meta-policy冻结评价",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+      "measurementSource": "r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+      "source": "selector ledger",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）"
+      ],
+      "repairCardIds": [
+        "FR-B05-04",
+        "FR-B05-05"
+      ],
+      "r31Definition": {
+        "cards": "B10",
+        "collectionSource": "r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M30",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "主链选择器身份",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "多成员择优作为完整meta-policy冻结评价",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-037",
+          "RSEC-316"
+        ],
+        "target": "未确认组合不能REAL",
+        "uncoveredConditions": [
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M30",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RES26",
+        "RES24"
+      ],
+      "coverage_reason": "selector决策为空，未确认meta-policy禁止REAL尚缺生产正负对照。",
+      "acceptance_direction": "多成员择优整体identity/版本/冻结评价绑定；selector未确认不REAL，已确认新模型合法选择可追溯。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M30",
+        "audit_source": "audit/evidence/metrics_44.json#M30",
+        "report": "R30_REPORT.json#/metricResults[metricId=M30]"
+      },
+      "original_full_record_sha256": "cdc5d5533a1b39209dba28de7e61519d6ed91f20de29a6bffe5ea819d0b172d5",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-034",
+        "R342-044"
+      ],
+      "current_batches": [
+        "B08",
+        "B09"
+      ]
+    },
+    {
+      "metricId": "M31",
+      "id": "M31",
+      "name": "诊断可追溯",
+      "status": "RECORDED_UNVALIDATED",
+      "value": 1.0,
+      "sampleCount": 16,
+      "definition": "每条缺陷含证据、强度、代码位置、卡号与验证",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": 16,
+      "denominator": 16,
+      "missingReason": "行动字段覆盖，不能代替诊断结论正确性及修复验收",
+      "measurementSource": "DiagnosisRulesR30 规则行动覆盖率",
+      "source": "diagnosis finding",
+      "sourceReceiptSha256": "fbd459074c05821f6ddf62c37ef8e388ff7ce3da975c873a22fb763a60b73f6d",
+      "evidenceRefs": [
+        "DiagnosisRulesR30 规则行动覆盖率"
+      ],
+      "repairCardIds": [
+        "FR-B01-01",
+        "FR-B01-02",
+        "FR-B01-03"
+      ],
+      "r31Definition": {
+        "cards": "B11",
+        "collectionSource": "DiagnosisRulesR30 规则行动覆盖率",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M31",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "诊断可追溯",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "每条缺陷含证据、强度、代码位置、卡号与验证",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-002",
+          "RSEC-061",
+          "RSEC-062",
+          "RSEC-063",
+          "RSEC-064",
+          "RSEC-065",
+          "RSEC-074",
+          "RSEC-075",
+          "RSEC-077",
+          "RSEC-301"
+        ],
+        "target": "100%或UNKNOWN并给采集动作",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": 1.0,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M31",
+        "minimumSample": 1,
+        "receiptHash": "fbd459074c05821f6ddf62c37ef8e388ff7ce3da975c873a22fb763a60b73f6d",
+        "role": "ENGINEERING_RUNTIME",
+        "samples": 16,
+        "status": "MEASURED_REQUIRES_VALIDATION",
+        "value": 1.0,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "ROOT-02",
+        "RES20",
+        "RT20",
+        "PLAN-SOURCE-03"
+      ],
+      "coverage_reason": "16/16行动字段覆盖值1.0仅结构，不能代表诊断正确或全缺陷已修；现修复生效账覆盖不足。",
+      "acceptance_direction": "每缺陷证据强度/源码/卡号/动作/回读/效果齐全；原状态保留，多次修复和失败都可追，不把首次登记当关闭。",
+      "original_status": "RECORDED_UNVALIDATED",
+      "original_evaluation_status": "MEASURED_REQUIRES_VALIDATION",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M31",
+        "audit_source": "audit/evidence/metrics_44.json#M31",
+        "report": "R30_REPORT.json#/metricResults[metricId=M31]"
+      },
+      "original_full_record_sha256": "85c0e107f14471a1a1e277f4033e9f4dee0d3c5588b440415cb4a91a08881368",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-039",
+        "R342-049",
+        "R342-052",
+        "R342-053"
+      ],
+      "current_batches": [
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M32",
+      "id": "M32",
+      "name": "报告口径一致",
+      "status": "UNKNOWN_SOURCE_MISSING",
+      "value": null,
+      "sampleCount": 0,
+      "definition": "JSON/HTML/UI同metric同snapshot值差异",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": 0,
+      "missingReason": "没有同角色、同水位的独立源对照；不能用同一对象重复渲染填0",
+      "measurementSource": "同快照两章同指标冲突数",
+      "source": "report golden fixtures",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "同快照两章同指标冲突数"
+      ],
+      "repairCardIds": [
+        "FR-B01-04",
+        "FR-B01-05",
+        "FR-B09-05"
+      ],
+      "r31Definition": {
+        "cards": "B11",
+        "collectionSource": "同快照两章同指标冲突数",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M32",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "报告口径一致",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "JSON/HTML/UI同metric同snapshot值差异",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-032",
+          "RSEC-305"
+        ],
+        "target": "0",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M32",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "修复",
+      "origin_issue_ids": [
+        "RT04",
+        "RT22",
+        "RT20"
+      ],
+      "coverage_reason": "无同角色同水位独立源，原UNKNOWN_SOURCE_MISSING；同对象重复渲染不能填一致差0。",
+      "acceptance_direction": "用同metric/scope独立原账重算与JSON/HTML/UI比对；诊断PID零队列及7/30对1/30必须显式不可比或校正合同。",
+      "original_status": "UNKNOWN_SOURCE_MISSING",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M32",
+        "audit_source": "audit/evidence/metrics_44.json#M32",
+        "report": "R30_REPORT.json#/metricResults[metricId=M32]"
+      },
+      "original_full_record_sha256": "419a831727a266122856a97cb1d7e46fa9c15b7aa275544c4cc36107f11c78f2",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-005",
+        "R342-053",
+        "R342-055"
+      ],
+      "current_batches": [
+        "B02",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M33",
+      "id": "M33",
+      "name": "图表回归",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "原图表入口、排行榜、谱系、BSS/覆盖与空态",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：图表页面 androidTest 截图通过数",
+      "measurementSource": "图表页面 androidTest 截图通过数",
+      "source": "device UI receipts",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "图表页面 androidTest 截图通过数"
+      ],
+      "repairCardIds": [
+        "FR-B09-03",
+        "FR-B09-04",
+        "FR-B09-05"
+      ],
+      "r31Definition": {
+        "cards": "B09/B12",
+        "collectionSource": "图表页面 androidTest 截图通过数",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M33",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "图表回归",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "原图表入口、排行榜、谱系、BSS/覆盖与空态",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-026"
+        ],
+        "target": "全部场景可打开且口径一致",
+        "uncoveredConditions": [
+          "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M33",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RT10",
+        "RES18"
+      ],
+      "coverage_reason": "图表入口/排行榜/谱系/BSS/空态无设备截图回归；18研究视图不能用模拟数据充实。",
+      "acceptance_direction": "保留成熟图表与筛选入口，真实产物/无样本/缺源/失败场景均可打开、口径一致并达交互性能要求。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M33",
+        "audit_source": "audit/evidence/metrics_44.json#M33",
+        "report": "R30_REPORT.json#/metricResults[metricId=M33]"
+      },
+      "original_full_record_sha256": "9c92923efe9001ff6d96dbc1e5f9cef2ff6b0120ded7d3e2254d035d8eb4763d",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [
+        "RT24"
+      ],
+      "current_issue_ids": [
+        "R342-017",
+        "R342-050"
+      ],
+      "current_batches": [
+        "B05",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M34",
+      "id": "M34",
+      "name": "签名覆盖安装",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "保持公有版签名及包名，版本递增且保留数据库",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：覆盖安装首启/二启无崩溃（两证书）",
+      "measurementSource": "覆盖安装首启/二启无崩溃（两证书）",
+      "source": "APK identity + install receipt",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "覆盖安装首启/二启无崩溃（两证书）"
+      ],
+      "repairCardIds": [
+        "FR-B10-04",
+        "FR-B11-04"
+      ],
+      "r31Definition": {
+        "cards": "B12",
+        "collectionSource": "覆盖安装首启/二启无崩溃（两证书）",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M34",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "签名覆盖安装",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "保持公有版签名及包名，版本递增且保留数据库",
+        "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [],
+        "target": "成功；首启/二启无崩溃",
+        "uncoveredConditions": [
+          "NO_SUPPORTING_CHECK:TARGET_DEVICE_SCENARIO_RECEIPT",
+          "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT",
+          "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M34",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "PLAN-SOURCE-04",
+        "RT01",
+        "RT12"
+      ],
+      "coverage_reason": "当前安装已识别不等于新版本覆盖安装完成；缺首启/二启及保库receipt。",
+      "acceptance_direction": "同包同签名版本递增构建，真实覆盖安装后首启/二启无崩溃、数据库/原件保留、migration续跑可验。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M34",
+        "audit_source": "audit/evidence/metrics_44.json#M34",
+        "report": "R30_REPORT.json#/metricResults[metricId=M34]"
+      },
+      "original_full_record_sha256": "b57de6e4462124a726bea83d5c9e19365394d3afcc5819b5a2d4b991a2ff8850",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [
+        "RT24"
+      ],
+      "current_issue_ids": [
+        "R342-002",
+        "R342-007",
+        "R342-018"
+      ],
+      "current_batches": [
+        "B01",
+        "B03",
+        "B05"
+      ]
+    },
+    {
+      "metricId": "M35",
+      "id": "M35",
+      "name": "失效模型撤销",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "模型撤销到主链不再采纳的耗时",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "ENGINEERING",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：证书撤销到 DecisionGate 拒绝的耗时",
+      "measurementSource": "证书撤销到 DecisionGate 拒绝的耗时",
+      "source": "projection revocation",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "证书撤销到 DecisionGate 拒绝的耗时"
+      ],
+      "repairCardIds": [
+        "FR-B05-05"
+      ],
+      "r31Definition": {
+        "cards": "B10",
+        "collectionSource": "证书撤销到 DecisionGate 拒绝的耗时",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M35",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "失效模型撤销",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "模型撤销到主链不再采纳的耗时",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-072",
+          "RSEC-073"
+        ],
+        "target": "目标≤5000ms；不含APK回滚",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M35",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES26",
+        "ROOT-01"
+      ],
+      "coverage_reason": "revocationEvents0没有“撤销→不再采纳”时延样本。",
+      "acceptance_direction": "证书过期/撤销/ABI不兼容的事件发布到主链缓存/版本指针失效≤5000ms，下一合法调用必须拒绝旧模型；非APK回滚。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M35",
+        "audit_source": "audit/evidence/metrics_44.json#M35",
+        "report": "R30_REPORT.json#/metricResults[metricId=M35]"
+      },
+      "original_full_record_sha256": "4667e38aa73b9b1289c78f6b3e209ab7c9b9bb70cbbc3a554c88740b3b2d11e8",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-044",
+        "R342-051"
+      ],
+      "current_batches": [
+        "B09",
+        "B11"
+      ]
+    },
+    {
+      "metricId": "M36",
+      "id": "M36",
+      "name": "同池对照",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "每个实验有同预算负对照和合法正对照",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "SYNTHETIC",
+      "kind": "ENGINEERING",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "原合成对照与完整创造工厂实验的多轮功效区间分别验收；缺失或未完成不算通过，合成不计入自然质量",
+      "measurementSource": "NullEvolutionR27 同池对照输出可复算",
+      "source": "experiment manifest",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "NullEvolutionR27 同池对照输出可复算"
+      ],
+      "repairCardIds": [
+        "FR-B07-05",
+        "FR-B08-05"
+      ],
+      "r31Definition": {
+        "cards": "B07/B12",
+        "collectionSource": "NullEvolutionR27 同池对照输出可复算",
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "id": "M36",
+        "kind": "ENGINEERING",
+        "minimumSample": 1,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "同池对照",
+        "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "每个实验有同预算负对照和合法正对照",
+        "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "role": "ENGINEERING_RUNTIME",
+        "supportingChecks": [
+          "RSEC-067",
+          "RSEC-068"
+        ],
+        "target": "有可复算输出；合成不计真实质量",
+        "uncoveredConditions": [],
+        "version": "R31_METRICS_20261108",
+        "window": "CURRENT_REPORT_SNAPSHOT"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "MEASURED_EVENTS_IN_SCOPE",
+        "diagnosticRoleRevision": null,
+        "id": "M36",
+        "minimumSample": 1,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES30",
+        "RES24"
+      ],
+      "coverage_reason": "原同池合成对照与全创造工厂功效验收分离，当前各arm完成0，不能用模拟单次成功证明优势。",
+      "acceptance_direction": "固定预算的合法正/负对照经同搜索/停止/选择管线，多轮收据与区间可重算；明确SYNTHETIC不计自然质量。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#M36",
+        "audit_source": "audit/evidence/metrics_44.json#M36",
+        "report": "R30_REPORT.json#/metricResults[metricId=M36]"
+      },
+      "original_full_record_sha256": "b09b2814a387339559a1d5a47b4796cc25aec0d04f8edb44e73f65f43792599f",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-034",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B08",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "Q01",
+      "id": "Q01",
+      "name": "自然ACT命中",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "注册后合法ACT命中/已结算ACT",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "FUTURE",
+      "kind": "QUALITY",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：真机 FUTURE ACT 命中率（事前登记策略）",
+      "measurementSource": "真机 FUTURE ACT 命中率（事前登记策略）",
+      "source": "future predictions",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "真机 FUTURE ACT 命中率（事前登记策略）"
+      ],
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B10/B12",
+        "collectionSource": "真机 FUTURE ACT 命中率（事前登记策略）",
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "id": "Q01",
+        "kind": "QUALITY",
+        "minimumSample": 250,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "自然ACT命中",
+        "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "注册后合法ACT命中/已结算ACT",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "role": "NATURAL_FUTURE_ONLY",
+        "supportingChecks": [
+          "RSEC-020",
+          "RSEC-034",
+          "RSEC-039",
+          "RSEC-066",
+          "RSEC-306",
+          "RSEC-310"
+        ],
+        "target": "≥34%，优先≥37%；未达不得宣称达标",
+        "uncoveredConditions": [
+          "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_FUTURE_WINDOW"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "diagnosticRoleRevision": null,
+        "id": "Q01",
+        "minimumSample": 250,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES23",
+        "RES24",
+        "RES30"
+      ],
+      "coverage_reason": "自然注册后ACT质量未证；累计1858 shadow不替新模型事前冻结的FUTURE ACT。",
+      "acceptance_direction": "对应R27域至少250已结算ACT及完整现门合同，命中率目标≥34%/优先37%只按自然样本声明；其他域不强套阈值。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q01",
+        "audit_source": "audit/evidence/metrics_44.json#Q01",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q01]"
+      },
+      "original_full_record_sha256": "05225455f52e31e6b79c6c13c020664dba4f33920a5fb496bfd963dd4a3d14ff",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-033",
+        "R342-034",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B08",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "Q02",
+      "id": "Q02",
+      "name": "真实频率",
+      "status": "NOT_DEPLOYED",
+      "value": null,
+      "sampleCount": null,
+      "definition": "部署后REAL期数/部署后全部应有期；部署前另列FUTURE_ACT_RATE",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "FUTURE",
+      "kind": "QUALITY",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "当前没有原REAL行且没有有效ACTIVE证书；FUTURE_ACT_RATE与正式REAL频率分列",
+      "measurementSource": "真机实际出手频率（不补配额）",
+      "source": "calendar opportunity",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "真机实际出手频率（不补配额）"
+      ],
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B10/B12",
+        "collectionSource": "真机实际出手频率（不补配额）",
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "id": "Q02",
+        "kind": "QUALITY",
+        "minimumSample": 250,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "真实频率",
+        "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "部署后REAL期数/部署后全部应有期；部署前另列FUTURE_ACT_RATE",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "role": "NATURAL_FUTURE_ONLY",
+        "supportingChecks": [
+          "RSEC-020",
+          "RSEC-040"
+        ],
+        "target": "目标≥15%；质量支持扩大；不得补配额",
+        "uncoveredConditions": [
+          "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_FUTURE_WINDOW"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "diagnosticRoleRevision": null,
+        "id": "Q02",
+        "minimumSample": 250,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES26",
+        "RES30",
+        "RT06"
+      ],
+      "coverage_reason": "NOT_DEPLOYED因0REAL/0ACTIVE证书，部署前FUTURE_ACT_RATE与部署后REAL频率不同。",
+      "acceptance_direction": "资格先成立，部署后全部应有期作分母，目标≥15%不补配额；未部署如实保留状态。",
+      "original_status": "NOT_DEPLOYED",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q02",
+        "audit_source": "audit/evidence/metrics_44.json#Q02",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q02]"
+      },
+      "original_full_record_sha256": "7023e2cf4858b8218a6bea9542c9184f9b9faf2a15a12b529f605878584c230e",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-013",
+        "R342-044",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B04",
+        "B09",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "Q03",
+      "id": "Q03",
+      "name": "真实统计优势",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "有效序贯证据相对预登记p0",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "FUTURE",
+      "kind": "QUALITY",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+      "measurementSource": "SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+      "source": "qualification evidence",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "SequentialQualificationR27 logEUp ≥ log(1/α_i)"
+      ],
+      "repairCardIds": [
+        "FR-B05-04",
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B10/B12",
+        "collectionSource": "SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "id": "Q03",
+        "kind": "QUALITY",
+        "minimumSample": 250,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "真实统计优势",
+        "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "有效序贯证据相对预登记p0",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "role": "NATURAL_FUTURE_ONLY",
+        "supportingChecks": [
+          "RSEC-034"
+        ],
+        "target": "e≥1/alpha，假设与预算成立",
+        "uncoveredConditions": [
+          "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_FUTURE_WINDOW"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "diagnosticRoleRevision": null,
+        "id": "Q03",
+        "minimumSample": 250,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES23",
+        "RES24",
+        "RES30"
+      ],
+      "coverage_reason": "没有当前事前登记序贯资格与证书证据，普通Wilson或一次高命中不能代替e过程。",
+      "acceptance_direction": "固定p0/alpha_i与可选停止协议，e≥1/alpha或logE门由同角色原件重算，假设预算跨重启不清零。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q03",
+        "audit_source": "audit/evidence/metrics_44.json#Q03",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q03]"
+      },
+      "original_full_record_sha256": "ba50f00a949717216e3bb5c6970b6a6eb2e98ef5f29c10f47b17eb9bc75f14f3",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-033",
+        "R342-034",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B08",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "Q04",
+      "id": "Q04",
+      "name": "跨块稳定",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "预登记时间块命中/区间/回撤/漂移",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "FUTURE",
+      "kind": "QUALITY",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "需事前固定块规则及逐策略同角色日历块；不从本次展示子集事后挑好窗口",
+      "measurementSource": "事前冻结窗口规则下各块命中率",
+      "source": "block quality ledger",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "事前冻结窗口规则下各块命中率"
+      ],
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B10/B12",
+        "collectionSource": "事前冻结窗口规则下各块命中率",
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "id": "Q04",
+        "kind": "QUALITY",
+        "minimumSample": 250,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "跨块稳定",
+        "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "预登记时间块命中/区间/回撤/漂移",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "role": "NATURAL_FUTURE_ONLY",
+        "supportingChecks": [],
+        "target": "窗口规则事前冻结；不得事后选好块",
+        "uncoveredConditions": [
+          "NO_SUPPORTING_CHECK:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+          "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_FUTURE_WINDOW"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "diagnosticRoleRevision": null,
+        "id": "Q04",
+        "minimumSample": 250,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES24",
+        "RES25",
+        "RES30"
+      ],
+      "coverage_reason": "无预登记同策略日历块质量；事后从展示子集选好块会污染稳定性证明。",
+      "acceptance_direction": "先冻结块规则，再逐块报告命中/区间/回撤/漂移及最差块；缺块和停机全记，不挑窗口。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q04",
+        "audit_source": "audit/evidence/metrics_44.json#Q04",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q04]"
+      },
+      "original_full_record_sha256": "fac44e8a72c97aecf084e05400c53a743ff346ef66017e6ac9f49d78e7865a8a",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-034",
+        "R342-043",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B08",
+        "B09",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "Q05",
+      "id": "Q05",
+      "name": "校准与BSS",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "同一目标同一ACT条件、固定校准器的验证样本；ECE按全部样本加权",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "FUTURE",
+      "kind": "QUALITY",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+      "measurementSource": "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+      "source": "calibration frozen validation",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）"
+      ],
+      "repairCardIds": [
+        "FR-B06-06",
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B10/B12",
+        "collectionSource": "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+        "denominator": "FIXED_CALIBRATOR_SAME_TARGET_AND_ACT_CONDITION_VALIDATION_OBSERVATIONS",
+        "diagnosticSupportRevision": "R32_5_REPORT_UNIT_1",
+        "id": "Q05",
+        "kind": "QUALITY",
+        "minimumSample": 200,
+        "minimumSampleScope": "ORIGINAL_Q05_REPORT_SUPPORT_200_AND_SUPPORTED_BIN_COVERAGE_GE_90_PERCENT; NOT_A_CHANGE_TO_PER_ASSET_V1_MIN_ACTS_250_OR_ECE_LE_0.04",
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "校准与BSS",
+        "numerator": "WEIGHTED_CALIBRATION_ERROR_ON_FROZEN_VALIDATION_OBSERVATIONS",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "同一目标同一ACT条件、固定校准器的验证样本；ECE按全部样本加权",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "role": "NATURAL_FUTURE_ONLY",
+        "sampleUnit": "CALIBRATION_VALIDATION_OBSERVATIONS",
+        "supportingChecks": [
+          "RSEC-019"
+        ],
+        "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+        "uncoveredConditions": [
+          "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_FUTURE_WINDOW"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "FIXED_CALIBRATOR_SAME_TARGET_AND_ACT_CONDITION_VALIDATION_OBSERVATIONS",
+        "diagnosticRoleRevision": null,
+        "id": "Q05",
+        "minimumSample": 200,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES25",
+        "RES23"
+      ],
+      "coverage_reason": "没有固定校准器同目标同ACT条件验证；合法校准样本0。",
+      "acceptance_direction": "至少200样本、支持箱覆盖质量≥90%，全样本加权ECE目标≤0.04；并报BSS/区间/支持范围，不硬凑5非空箱。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q05",
+        "audit_source": "audit/evidence/metrics_44.json#Q05",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q05]"
+      },
+      "original_full_record_sha256": "ab1c52faa6056d1e7962b1d907c857052c9001cc2e50972c4229c7f84a42d1bd",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-033",
+        "R342-043"
+      ],
+      "current_batches": [
+        "B08",
+        "B09"
+      ]
+    },
+    {
+      "metricId": "Q06",
+      "id": "Q06",
+      "name": "进化提升",
+      "status": "INSUFFICIENT",
+      "value": null,
+      "sampleCount": null,
+      "definition": "父子同一期机会收益配对差",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "FUTURE",
+      "kind": "QUALITY",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "缺少同版本、同角色的测量原件：父子配对差单侧95%下界",
+      "measurementSource": "父子配对差单侧95%下界",
+      "source": "paired lineage experiment",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "父子配对差单侧95%下界"
+      ],
+      "repairCardIds": [
+        "FR-B05-01",
+        "FR-B08-01",
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B07/B12",
+        "collectionSource": "父子配对差单侧95%下界",
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "id": "Q06",
+        "kind": "QUALITY",
+        "minimumSample": 250,
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "进化提升",
+        "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "父子同一期机会收益配对差",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "role": "NATURAL_FUTURE_ONLY",
+        "supportingChecks": [
+          "RSEC-007",
+          "RSEC-079"
+        ],
+        "target": "有效区间下界>0才计验证改善",
+        "uncoveredConditions": [
+          "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_FUTURE_WINDOW"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+        "diagnosticRoleRevision": null,
+        "id": "Q06",
+        "minimumSample": 250,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES21",
+        "RES22",
+        "RES24",
+        "RES30"
+      ],
+      "coverage_reason": "父子同期配对/确认/演化原件为空，代数/出生数不是代际提升。",
+      "acceptance_direction": "事前冻结父子版本与同target机会，配对收益差有效单侧区间下界>0才计改善；失败保留，不承诺每个子代更强。",
+      "original_status": "INSUFFICIENT",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q06",
+        "audit_source": "audit/evidence/metrics_44.json#Q06",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q06]"
+      },
+      "original_full_record_sha256": "c6459b97bcb9fe9cb1f61f0e0b45d24b3ff3db1699decbea5475bd96a8c616a3",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-034",
+        "R342-040",
+        "R342-041",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B08",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "Q07",
+      "id": "Q07",
+      "name": "有效资产产量",
+      "status": "RECORDED_UNVALIDATED",
+      "value": 0,
+      "sampleCount": 0,
+      "definition": "同时满足Q01/03/04/05的独立资产数",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "FUTURE",
+      "kind": "QUALITY",
+      "numerator": 0,
+      "denominator": 0,
+      "missingReason": "当前有效证书为0；不隐去负结果、不补配额，Q01/03/04/05逐资产独立验收",
+      "measurementSource": "ACTIVE 证书资产数",
+      "source": "asset qualification ledger",
+      "sourceReceiptSha256": "c1080eb032bbbc27a37c4e7b5c913fb2ef6b3507164c990e838ead1e6558e16a",
+      "evidenceRefs": [
+        "ACTIVE 证书资产数"
+      ],
+      "repairCardIds": [
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B10/B12",
+        "collectionSource": "ACTIVE 证书资产数",
+        "denominator": "QUALIFIED_EXPERIMENT_RECORDS_INSPECTED_IN_THIS_SNAPSHOT",
+        "diagnosticSupportRevision": "R32_5_REPORT_UNIT_1",
+        "id": "Q07",
+        "kind": "QUALITY",
+        "minimumSample": 1,
+        "minimumSampleScope": "ONE_INSPECTED_ASSET_RECORD_IS_REPORT_SUPPORT_ONLY; Q01_Q03_Q04_Q05_AND_ORIGINAL_V1_GATES_STILL_REQUIRED_PER_ASSET; ACTIVE_COUNT_ALONE_IS_RECORDED_UNVALIDATED",
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "有效资产产量",
+        "numerator": "CURRENT_ORIGINAL_V1_ACTIVE_CERTIFICATES_REQUIRING_INDEPENDENT_ASSET_AUDIT",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "同时满足Q01/03/04/05的独立资产数",
+        "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "role": "NATURAL_FUTURE_ONLY",
+        "sampleUnit": "ASSET_QUALIFICATION_RECORDS_NOT_FUTURE_ACT_PERIODS",
+        "supportingChecks": [
+          "RSEC-003",
+          "RSEC-013",
+          "RSEC-014",
+          "RSEC-308"
+        ],
+        "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+        "uncoveredConditions": [
+          "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_FUTURE_WINDOW"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "QUALIFIED_EXPERIMENT_RECORDS_INSPECTED_IN_THIS_SNAPSHOT",
+        "diagnosticRoleRevision": null,
+        "id": "Q07",
+        "minimumSample": 1,
+        "receiptHash": "c1080eb032bbbc27a37c4e7b5c913fb2ef6b3507164c990e838ead1e6558e16a",
+        "role": "FUTURE",
+        "samples": 0,
+        "status": "NOT_PROVEN_NOT_NATURAL_ROLE",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES26",
+        "RES30"
+      ],
+      "coverage_reason": "有效证书0/sample0如实记录，评估器还指出非NATURAL角色；不能补配额造有效资产。",
+      "acceptance_direction": "逐独立资产同时完成Q01/Q03/Q04/Q05，证书域/版本/消费匹配；0如实保留，互补性需独立证据。",
+      "original_status": "RECORDED_UNVALIDATED",
+      "original_evaluation_status": "NOT_PROVEN_NOT_NATURAL_ROLE",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q07",
+        "audit_source": "audit/evidence/metrics_44.json#Q07",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q07]"
+      },
+      "original_full_record_sha256": "0ac9afb15030def2ec427b5641fda726a286942d5b2acdcfa5401b4a06fb7583",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-044",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B09",
+        "B12"
+      ]
+    },
+    {
+      "metricId": "Q08",
+      "id": "Q08",
+      "name": "空信号与优势检出力",
+      "status": "UNKNOWN_STALE_SYNTHETIC_SOURCE",
+      "value": null,
+      "sampleCount": null,
+      "definition": "全搜索/选择/停止管线试验",
+      "definitionVersion": "R31_METRICS_20261108",
+      "role": "SYNTHETIC",
+      "kind": "QUALITY",
+      "numerator": null,
+      "denominator": null,
+      "missingReason": "原注册回执不是当前源码；旧源实验不能签当前Q08。",
+      "measurementSource": "R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27",
+      "source": "statistical validation suite",
+      "sourceReceiptSha256": null,
+      "evidenceRefs": [
+        "R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27"
+      ],
+      "repairCardIds": [
+        "FR-B07-05",
+        "FR-B11-03"
+      ],
+      "r31Definition": {
+        "cards": "B07/B12",
+        "collectionSource": "R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27",
+        "denominator": "REGISTERED_SYNTHETIC_ARM_SEED_PAIRS_6_X_20",
+        "diagnosticRoleRevision": "R32_4_Q08_SYNTHETIC_TRIALS_1",
+        "id": "Q08",
+        "kind": "QUALITY",
+        "minimumSample": 120,
+        "minimumSampleScope": "120_ORIGINAL_TRIAL_RECORDS_IS_COMPLETENESS_ONLY; PER_ARM_20_SEEDS_AND_NULL_FALSE_ALARM_CI_SIGNAL_POWER_CI_MUST_PASS_THE_ORIGINAL_REGISTERED_PROTOCOL; NOT_120_NATURAL_PERIODS",
+        "missingPolicy": "UNKNOWN_NOT_ZERO",
+        "name": "空信号与优势检出力",
+        "naturalQualityEligible": false,
+        "numerator": "COMPLETED_VALIDATED_SYNTHETIC_TRIAL_RECORDS",
+        "owner": "MetricEvaluatorR29.evaluateR31",
+        "r30Definition": "全搜索/选择/停止管线试验",
+        "requiredEvidence": "REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS",
+        "role": "SYNTHETIC_ONLY",
+        "supportingChecks": [],
+        "target": "报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收",
+        "uncoveredConditions": [
+          "NO_SUPPORTING_CHECK:REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS",
+          "SYNTHETIC_PROTOCOL_NEEDS:REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS"
+        ],
+        "version": "R31_METRICS_20261108",
+        "window": "PREREGISTERED_COMPLETE_SYNTHETIC_PROTOCOL"
+      },
+      "r31Evaluation": {
+        "coverage": null,
+        "denominator": "REGISTERED_SYNTHETIC_ARM_SEED_PAIRS_6_X_20",
+        "diagnosticRoleRevision": "R32_4_Q08_SYNTHETIC_TRIALS_1",
+        "id": "Q08",
+        "minimumSample": 120,
+        "receiptHash": null,
+        "role": null,
+        "samples": null,
+        "status": "UNKNOWN_SOURCE_MISSING",
+        "value": null,
+        "version": "R31_METRICS_20261108"
+      },
+      "disposition": "调查补证",
+      "origin_issue_ids": [
+        "RES30",
+        "PLAN-SOURCE-04"
+      ],
+      "coverage_reason": "UNKNOWN_STALE_SYNTHETIC_SOURCE说明原注册不是当前源码，旧实验不能签当前版本。",
+      "acceptance_direction": "当前source注册6臂×20种子完整搜索/选择/停止实验，报告空信号误授证CI及34/37/40%信号功效；120组合与原对照可复算。",
+      "original_status": "UNKNOWN_STALE_SYNTHETIC_SOURCE",
+      "original_evaluation_status": "UNKNOWN_SOURCE_MISSING",
+      "original_state_preserved": true,
+      "original_record": {
+        "delivered": "../evidence/METRICS_44_PROJECTED.json#Q08",
+        "audit_source": "audit/evidence/metrics_44.json#Q08",
+        "report": "R30_REPORT.json#/metricResults[metricId=Q08]"
+      },
+      "original_full_record_sha256": "13e5dbbeb665cbfd96137be5a9d16ac2b815edee6e9577bd811e3d8189b764ea",
+      "interpretation_boundary": "原顶层status与r31Evaluation.status分别保留；本覆盖表不签发新的测量receipt或自然质量证书。",
+      "preservation_reference_ids": [],
+      "current_issue_ids": [
+        "R342-002",
+        "R342-056"
+      ],
+      "current_batches": [
+        "B01",
+        "B12"
+      ]
+    }
+  ],
+  "current_issue_mapping_policy": "原ID/原状态保留；current_issue_ids按最终57项施工依赖编号增补。PASS/OBSERVED的关联表示保留/复核责任，不自动转为故障。"
+}

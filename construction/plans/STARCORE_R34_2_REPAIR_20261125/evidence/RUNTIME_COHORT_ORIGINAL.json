@@ -1,0 +1,1909 @@
+{
+  "schema": "R341_RUNTIME_OPPORTUNITY_COHORT_1",
+  "scope": {
+    "schema": "R341_RUNTIME_SCOPE_1",
+    "releaseId": "dea0831879133177189c9ae710d849e8bdd873293b02f9c2d3df055f51ce1e2b",
+    "sourceCommit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+    "processEpoch": "f79523b237a299a19124c702",
+    "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+    "databaseIdentity": "35129b31-577b-41a8-95e6-76df10cd5a3d",
+    "sampleWallAt": 1795586335233,
+    "sampleMonoAt": 126443319,
+    "sqlWatermark": "31fc2f65c7137dd52e6c308eab53f35df0c19cd946adfaeb6b738430a49e5673",
+    "scopeKind": "SQL_SNAPSHOT"
+  },
+  "datasetRole": "DIAGNOSTIC_ONLY",
+  "state": "OBSERVED_DECLARED_BOUNDED_RANGE",
+  "bounds": "FIRST_AND_LAST_SCOPED_EVENT; MISSING_TARGETS_INSIDE_INCLUDED",
+  "firstRetainedTarget": "202611250228",
+  "lastRetainedTarget": "202611250347",
+  "retainedHistoryScope": "SEPARATE_FROM_CURRENT_RELEASE",
+  "unknownOrigin": "LEGACY_UNSCOPED",
+  "truncatedOlderTargets": true,
+  "requestedTargets": 12,
+  "drawnEligibleTargets": 119,
+  "futureOrUnobservedLastTarget": 1,
+  "canonicalSuccesses": 2,
+  "drawnWithPredrawCanonical": 1,
+  "rows": [
+    {
+      "target": "202611250347",
+      "drawAt": null,
+      "request": "OBSERVED",
+      "canonicalAt": 1795585569909,
+      "drawState": "HEAD_DRAW_NOT_OBSERVED",
+      "effects": [
+        {
+          "eventId": "ff68c8601bb90cac0785c4e225038d23df9dee7939c702b4f9a70c1cc4f23ab0",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795585567281,
+          "monoAt": 125675367,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3349"
+        },
+        {
+          "eventId": "c0451415e534c1a885e3c3838c1a7f89fd363ebf794d0c4d2173c4cdcad69fff",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795585567424,
+          "monoAt": 125675511,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3349"
+        },
+        {
+          "eventId": "421868e0af0793a536790af9ea6ec6693cacb81f378746ae18c27a6fb9e400df",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795585568514,
+          "monoAt": 125676600,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3349"
+        },
+        {
+          "eventId": "4fa7098fedd3981abe416d552159fc283dcf530175efa793c5d9bc72b5661fbe",
+          "event": "CANONICAL",
+          "stage": "CANONICAL_COMMITTED",
+          "wallAt": 1795585569909,
+          "monoAt": 125677995,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3349"
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250346",
+      "drawAt": 1795585563000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "eb64c5b090cca2f6857e39b49bcf1a74136e9e3c8818c7335206e03f7a8963ee",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795585567372,
+          "monoAt": 125675458,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "d27b3f793a184804203f03ff121b60d9783cd2ee3d389d9f95f4065a9172104a",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585567459,
+          "monoAt": 125675546,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "276c90ef3969ea382aa7fcbf4dd84034c03cfb841bd8917db86df5c307205fe6",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585568150,
+          "monoAt": 125676236,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250345",
+      "drawAt": 1795585503000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250344",
+      "drawAt": 1795585443000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250343",
+      "drawAt": 1795585383000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250342",
+      "drawAt": 1795585323000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "9f211bd222fd5e59d160f402044ac249b4f9581b99fe0b4e603d3eaf1a80dc0d",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795585268500,
+          "monoAt": 125376586,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3348"
+        },
+        {
+          "eventId": "385e50b2ba944407d28cac99c8500777cf4eefea1f1e4142b0998ab612dd838e",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795585268688,
+          "monoAt": 125376774,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3348"
+        },
+        {
+          "eventId": "d061d6a04c2efd8e76b7a017b2e992d94dfa12f4e991d36b62b14321da2249f4",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795585269085,
+          "monoAt": 125377171,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3348"
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250341",
+      "drawAt": 1795585263000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "a34d45c7de673dea080a17c1f2abc1f113f850962e726498b68a57ba04e65b14",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795585207833,
+          "monoAt": 125315919,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3347"
+        },
+        {
+          "eventId": "c43dba9c14ed7129101d565c47ee58855f85012a4d309703bc9ffbcf05d92fa6",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795585208139,
+          "monoAt": 125316225,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3347"
+        },
+        {
+          "eventId": "90127819b554d933a501e8aad8f69552bb18807174c8f50832be3aa2838d81bd",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795585208880,
+          "monoAt": 125316966,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3347"
+        },
+        {
+          "eventId": "7c71df882c01e89a05bc1eab562cea783efadb084ab7e1bcbbae77f52726d720",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585268860,
+          "monoAt": 125376946,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "0d72049cf2572d202e982ee6479bc1a6f7ef279fbdebc65b6ecbd2f7063c46d3",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795585269817,
+          "monoAt": 125377903,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "642cbef699ddc06357cce479c42795a4463eebd52da3d5a4dcdc700da6c9678c",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585273571,
+          "monoAt": 125381658,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250340",
+      "drawAt": 1795585203000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "5382799c726ae4ab6622739eb97925c198365607a6e852a841e21d69d6aa9046",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795585148117,
+          "monoAt": 125256204,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3346"
+        },
+        {
+          "eventId": "721cee2e9653a4066aee028bef7531bdb7f31e180cb44c0a88a849fe1ed44a0e",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795585148324,
+          "monoAt": 125256410,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3346"
+        },
+        {
+          "eventId": "b9127eb8415e266eb24c307a5c6c93b6a5d406dcf833587d1cc8e121a0249f64",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795585148720,
+          "monoAt": 125256806,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3346"
+        },
+        {
+          "eventId": "fbf8722eb63e860fbe363c21a4c5bfae56a7badce12ec44ab7ee6dcd000fe166",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585208472,
+          "monoAt": 125316558,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "c7cd58e744851f7dc06e67d771958be7beb3e6e0cdb5bce8fc13a75b3e9e3a05",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795585209841,
+          "monoAt": 125317928,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "7f48969cd1a2b5d0f5a719721bcf4bfdb6ff1de5389d18574123d8c19fe60d98",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585263155,
+          "monoAt": 125371241,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250339",
+      "drawAt": 1795585143000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "e44decc20b5a8900e38e3e605c18d2cd32de8661f89d18be85f78a1914b709b4",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795585088252,
+          "monoAt": 125196338,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3345"
+        },
+        {
+          "eventId": "0906aa215a4cc0b0195bc66d8c07d34a48a7657e37427bd83ac4abad589eb536",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795585088459,
+          "monoAt": 125196546,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3345"
+        },
+        {
+          "eventId": "18b87fdac1af6e571dad9c8a9be19d9532763ad07f069858c8bb20407c7563f8",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795585088924,
+          "monoAt": 125197010,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3345"
+        },
+        {
+          "eventId": "481eaba77019269db348ca7792c1db52cb36e1cf03152f359afe49e5f1adc40c",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795585148585,
+          "monoAt": 125256671,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "67fc32fbf3cfde75a77d96c9405b8a092a3a977c667fb24db65b8ed1e425f6b3",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585148867,
+          "monoAt": 125256954,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "849b69de5cb332b99ac7b1f3b37c44e8fc7d33a36ff16f3f8abc633e7a7369f2",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585149919,
+          "monoAt": 125258005,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250338",
+      "drawAt": 1795585083000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "33c5151eeac7e127e9a3476aa4a7b615c2cbbc98975e2bd11a74ca6b712d57b6",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795585029164,
+          "monoAt": 125137250,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3344"
+        },
+        {
+          "eventId": "18345f3c6ba176f05027c6b8053ad4c7b42d151380fe79e0c79766d1706c0ec7",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795585029306,
+          "monoAt": 125137392,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3344"
+        },
+        {
+          "eventId": "cbd3544798e45f612e32e38bde1298b955594d74d31d0071f3c9fdc4ad225249",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795585029625,
+          "monoAt": 125137711,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3344"
+        },
+        {
+          "eventId": "97ec08147735ae568f129a848413f028d1f201e9e9cb96a6f57143273f6129f3",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585088998,
+          "monoAt": 125197085,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "3befe35bf6815e9c34f3d5015370f906182d6dede351c476a4ff5088c38adaf0",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795585089527,
+          "monoAt": 125197614,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "0a3fec094bdf58f33acede89a3b435804f9a2159c918a06fc9fbcf8af0b0f091",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585144491,
+          "monoAt": 125252577,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250337",
+      "drawAt": 1795585023000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "d7e87f43a5c6c6048d582503f14d6276fdc3f732e76b393beba913c6455a99cc",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795584968062,
+          "monoAt": 125076148,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3343"
+        },
+        {
+          "eventId": "952782de1fa84c9020a5d95ebe33bbf15d98b7f00cd5656ea03f035112cdeab2",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795584968426,
+          "monoAt": 125076512,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3343"
+        },
+        {
+          "eventId": "8687de671a0057909b9996f19fa47f79fb6f6f9b5c6fa274ccfbb3d00dc3e3b2",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795584968671,
+          "monoAt": 125076758,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3343"
+        },
+        {
+          "eventId": "f2ad4b53ee5ce59142024f78e5534807e7f01fa94835290a0d41f60da55c4624",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585029433,
+          "monoAt": 125137520,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "d705f6bef77190a2d96736e657063812e49acc5e2c2f702b6dbc41da99fca631",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795585030044,
+          "monoAt": 125138130,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "a1ea4dbb5f0e54be5df78a845c2e7c168e0914b10eda786347ed521037085719",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795585092515,
+          "monoAt": 125200601,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250336",
+      "drawAt": 1795584963000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "bd5556f3c1de8dda994648bf797dcad0e6d4aab4394f531c902fb60234cdff56",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795584907600,
+          "monoAt": 125015686,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3342"
+        },
+        {
+          "eventId": "d6ed60537e775694653cfe9c058c4de353fc39d54c36697785f2c4d055c4a9d4",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795584907848,
+          "monoAt": 125015934,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3342"
+        },
+        {
+          "eventId": "b36273a67dab3dff0a1e933fe94f048cc6be52a63265d21152cf0015275db8f5",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795584908443,
+          "monoAt": 125016529,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3342"
+        },
+        {
+          "eventId": "dd40947c81ace058ab2f19cc904ef3e45966242805c14d255099f8c8fc0617d3",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795584968341,
+          "monoAt": 125076427,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "3fba7289c359a8843bc71ae922fad9625ad9fdc0859dfbe17726b019cd690afc",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584968567,
+          "monoAt": 125076653,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250335",
+      "drawAt": 1795584903000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "31c44eec5e8bb6e61697d9b618b71aa822373f4b68caf9212349e92835ea15ca",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795584847958,
+          "monoAt": 124956044,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3341"
+        },
+        {
+          "eventId": "54d7f80f725c2cbe8d16a119398cfbe7f92bab14cf6bc2551fb267b8d357ba53",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795584848287,
+          "monoAt": 124956373,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3341"
+        },
+        {
+          "eventId": "14baaa2efc28af054d01d76e4b1aa6588331068a2b11896d30153f44014d8e9e",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795584848721,
+          "monoAt": 124956807,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3341"
+        },
+        {
+          "eventId": "0c3259dc9b257e267a6708f2c00e295a4ff0cf4461099c4307fc57456946bea6",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795584908699,
+          "monoAt": 125016785,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "c05ba84c57a09a49583899fff729bed6585f4ed0e4981562669530fb369de09e",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584909973,
+          "monoAt": 125018059,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "ed9573823bb45f0e628ecf21632c1048930baa91b590f036ebef1db40b27f751",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584968104,
+          "monoAt": 125076191,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250334",
+      "drawAt": 1795584843000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "6dced29d6aec8917ee7851759c4f63095b35342538bc2c473decec0033ba312c",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795584787771,
+          "monoAt": 124895858,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3340"
+        },
+        {
+          "eventId": "1185e212adc505d266f58752d0e6614c4fa3c9354b27ae9ee37fb22980acd1eb",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795584788158,
+          "monoAt": 124896244,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3340"
+        },
+        {
+          "eventId": "31efe01c1a2235841222829fc575d8a847c4858a716eebdd455cfe14f7a99268",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795584788799,
+          "monoAt": 124896885,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3340"
+        },
+        {
+          "eventId": "43342c58486af6a717e6db1248d8469575fd9dfa1a962bc83cea7d9f179cec96",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795584848866,
+          "monoAt": 124956953,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "3b41bf57aa488f8b12aeaede46e09fb04bd4a6bcadabbc138142409ab07d545f",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584850176,
+          "monoAt": 124958263,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "422b348c582b4167c025b502bc4788753d578d89fce99f20034a8dd3f318b1d0",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584902695,
+          "monoAt": 125010781,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250333",
+      "drawAt": 1795584783000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "ad2c3930b8c9474151b91a33d0ca3465710c515f66ab073d62879fbd4492396a",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795584728152,
+          "monoAt": 124836238,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3339"
+        },
+        {
+          "eventId": "6a1774850124f346c7aed682a49028ba421c8e9010cb8d0659ad1e98eeae74b6",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795584728298,
+          "monoAt": 124836384,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3339"
+        },
+        {
+          "eventId": "aadea89b35a7f9204cc44e901a9f30dcc5ebc1bb7020cfb3b20be2e4b6b4c354",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795584728694,
+          "monoAt": 124836781,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3339"
+        },
+        {
+          "eventId": "3a9ecf8834826b2359cc17870fb71bcce575831a814cbf73f27cbcf1aab0ed90",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795584788201,
+          "monoAt": 124896287,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "9e7acb99ef5bd383b84264f7f6e873b22781f01edf24112094f71d0e5fe5bd43",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584791155,
+          "monoAt": 124899241,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "fba65fefb3c27c15ff331c38c4b5c7d9899265020e437118a11111ce8705c336",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584843380,
+          "monoAt": 124951466,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250332",
+      "drawAt": 1795584723000,
+      "request": "OBSERVED",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "1c58cb2ec8b5b38a471567d144c983991cb94c4d372429462362d2ca2a59fcb3",
+          "event": "REQUESTED",
+          "stage": "REQUESTED",
+          "wallAt": 1795584667219,
+          "monoAt": 124775306,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3338"
+        },
+        {
+          "eventId": "2baa073dbc76935993d1c33d997f19324dc73c8ad5924dcf843eed4aea3ff017",
+          "event": "HISTORY_BOUND",
+          "stage": "HISTORY_FROZEN",
+          "wallAt": 1795584667920,
+          "monoAt": 124776006,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3338"
+        },
+        {
+          "eventId": "53aa8f1394233e0652c8f12e2e77ab0678315a84a66b85b30f7878b54e061631",
+          "event": "STARTED",
+          "stage": "RUNNING",
+          "wallAt": 1795584673319,
+          "monoAt": 124781406,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3338"
+        },
+        {
+          "eventId": "c77f832d54786707e863206d66634cff32a2f6d8bb98c565c431784b7d1d82a6",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584728504,
+          "monoAt": 124836590,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "507d2281429cd2003991ab3c584e2b30fcb147c439b61f22f6a91aaac0310910",
+          "event": "SETTLED",
+          "stage": "NO_PREDRAW_CANONICAL_TERMINAL",
+          "wallAt": 1795584729063,
+          "monoAt": 124837149,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "1c1ccbcd0f4d8f393cc5e93f5065fd281f6501853b02556d09533131bca33b58",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584784176,
+          "monoAt": 124892262,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250331",
+      "drawAt": 1795584663000,
+      "request": "NO_REQUEST",
+      "canonicalAt": 1795584643897,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "ad04d4c713fb0bda19f4fd5a0cd17814a028ffc6976fb1760fe5a8fb43c86e06",
+          "event": "CANONICAL",
+          "stage": "CANONICAL_COMMITTED",
+          "wallAt": 1795584643897,
+          "monoAt": 124751983,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": "3337"
+        },
+        {
+          "eventId": "3ca2691a3b22d6839982abe848adc1f9b75ee13e84b2c0659a57192453749e40",
+          "event": "SETTLED",
+          "stage": "COMPLETED",
+          "wallAt": 1795584667628,
+          "monoAt": 124775714,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "674f4a4492175efadf1b27ca64668c2dd06cc23296d24c91f2c6310c4a989647",
+          "event": "LEARNED",
+          "stage": "LEARNED_EXACTLY_ONCE",
+          "wallAt": 1795584673044,
+          "monoAt": 124781130,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "f6cfe8d749406b8527350ba060c3770fc6ced9723e3afc7869dfbc6c8ad462e1",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584695089,
+          "monoAt": 124803175,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "e6085cd366e30f24f712a7cfea48dcd21bc2189ee7896485e1189694afb947b5",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584722439,
+          "monoAt": 124830525,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250330",
+      "drawAt": 1795584603000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [
+        {
+          "eventId": "5d733f96aa59e465e25f79dcf0d1f9804c82cbe3ad93bf04942a71f2cfdc068c",
+          "event": "LEARNED",
+          "stage": "LEARNED_EXACTLY_ONCE",
+          "wallAt": 1795584636200,
+          "monoAt": 124744286,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "57f493235ba4ff3e05f63f62a93f2a4d6fc5d8ca74ac82e04d0609e24f160630",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584665934,
+          "monoAt": 124774020,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        },
+        {
+          "eventId": "a06978b3d966812a70434eefac1164f33b45ee9f5c275414bfd27ae83beef4b9",
+          "event": "RECOVERY",
+          "stage": "R926_R50_HISTORY_BACKFILL_DEFERRED",
+          "wallAt": 1795584664272,
+          "monoAt": 124772358,
+          "processEpoch": "cd887819f7cce9f91c86707c",
+          "bootId": "KERNEL_BOOT:98d3b276-bde0-4d99-878b-18cc36f76a9e",
+          "requestGeneration": ""
+        }
+      ],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250329",
+      "drawAt": 1795584543000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250328",
+      "drawAt": 1795584483000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250327",
+      "drawAt": 1795584423000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250326",
+      "drawAt": 1795584363000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250325",
+      "drawAt": 1795584303000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250324",
+      "drawAt": 1795584243000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250323",
+      "drawAt": 1795584183000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250322",
+      "drawAt": 1795584123000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250321",
+      "drawAt": 1795584063000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250320",
+      "drawAt": 1795584003000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250319",
+      "drawAt": 1795583943000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250318",
+      "drawAt": 1795583883000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250317",
+      "drawAt": 1795583823000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250316",
+      "drawAt": 1795583763000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250315",
+      "drawAt": 1795583703000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250314",
+      "drawAt": 1795583643000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250313",
+      "drawAt": 1795583583000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250312",
+      "drawAt": 1795583523000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250311",
+      "drawAt": 1795583463000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250310",
+      "drawAt": 1795583403000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250309",
+      "drawAt": 1795583343000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250308",
+      "drawAt": 1795583283000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250307",
+      "drawAt": 1795583223000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250306",
+      "drawAt": 1795583163000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250305",
+      "drawAt": 1795583103000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250304",
+      "drawAt": 1795583043000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250303",
+      "drawAt": 1795582983000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250302",
+      "drawAt": 1795582923000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250301",
+      "drawAt": 1795582863000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250300",
+      "drawAt": 1795582803000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250299",
+      "drawAt": 1795582743000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250298",
+      "drawAt": 1795582683000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250297",
+      "drawAt": 1795582623000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250296",
+      "drawAt": 1795582563000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250295",
+      "drawAt": 1795582503000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250294",
+      "drawAt": 1795582443000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250293",
+      "drawAt": 1795582383000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250292",
+      "drawAt": 1795582323000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250291",
+      "drawAt": 1795582263000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250290",
+      "drawAt": 1795582203000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250289",
+      "drawAt": 1795582143000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250288",
+      "drawAt": 1795582083000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250287",
+      "drawAt": 1795582023000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250286",
+      "drawAt": 1795581963000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250285",
+      "drawAt": 1795581903000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250284",
+      "drawAt": 1795581843000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250283",
+      "drawAt": 1795581783000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250282",
+      "drawAt": 1795581723000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250281",
+      "drawAt": 1795581663000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250280",
+      "drawAt": 1795581603000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250279",
+      "drawAt": 1795581543000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250278",
+      "drawAt": 1795581483000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250277",
+      "drawAt": 1795581423000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250276",
+      "drawAt": 1795581363000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250275",
+      "drawAt": 1795581303000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250274",
+      "drawAt": 1795581243000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250273",
+      "drawAt": 1795581183000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250272",
+      "drawAt": 1795581123000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250271",
+      "drawAt": 1795581063000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250270",
+      "drawAt": 1795581003000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250269",
+      "drawAt": 1795580943000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250268",
+      "drawAt": 1795580883000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250267",
+      "drawAt": 1795580823000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250266",
+      "drawAt": 1795580763000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250265",
+      "drawAt": 1795580703000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250264",
+      "drawAt": 1795580643000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250263",
+      "drawAt": 1795580583000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250262",
+      "drawAt": 1795580523000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250261",
+      "drawAt": 1795580463000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250260",
+      "drawAt": 1795580403000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250259",
+      "drawAt": 1795580343000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250258",
+      "drawAt": 1795580283000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250257",
+      "drawAt": 1795580223000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250256",
+      "drawAt": 1795580163000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250255",
+      "drawAt": 1795580103000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250254",
+      "drawAt": 1795580043000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250253",
+      "drawAt": 1795579983000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250252",
+      "drawAt": 1795579923000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250251",
+      "drawAt": 1795579863000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250250",
+      "drawAt": 1795579803000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250249",
+      "drawAt": 1795579743000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250248",
+      "drawAt": 1795579683000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250247",
+      "drawAt": 1795579623000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250246",
+      "drawAt": 1795579563000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250245",
+      "drawAt": 1795579503000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250244",
+      "drawAt": 1795579443000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250243",
+      "drawAt": 1795579383000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250242",
+      "drawAt": 1795579323000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250241",
+      "drawAt": 1795579263000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250240",
+      "drawAt": 1795579203000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250239",
+      "drawAt": 1795579143000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250238",
+      "drawAt": 1795579083000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250237",
+      "drawAt": 1795579023000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250236",
+      "drawAt": 1795578963000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250235",
+      "drawAt": 1795578903000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250234",
+      "drawAt": 1795578843000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250233",
+      "drawAt": 1795578783000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250232",
+      "drawAt": 1795578723000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250231",
+      "drawAt": 1795578663000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250230",
+      "drawAt": 1795578603000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250229",
+      "drawAt": 1795578543000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    },
+    {
+      "target": "202611250228",
+      "drawAt": 1795578483000,
+      "request": "NO_REQUEST",
+      "canonicalAt": null,
+      "drawState": "OBSERVED",
+      "effects": [],
+      "omittedEvents": 0
+    }
+  ],
+  "releaseProgress": {
+    "canonicalCommits": 2,
+    "confirmedLearningEvents": 2,
+    "recoveryObservations": 25,
+    "settlementEvents": 12
+  },
+  "snapshotObserverEpochProgress": {
+    "canonicalCommits": 0,
+    "confirmedLearningEvents": 0,
+    "recoveryObservations": 0,
+    "settlementEvents": 0
+  },
+  "lastCanonicalLedgerSequence": 622880,
+  "settlementTimingOrigin": "NOT_MEASURABLE_FROM_EVENT_LEDGER_WITHOUT_AUTHORITATIVE_SOURCE_AND_RETURN"
+}

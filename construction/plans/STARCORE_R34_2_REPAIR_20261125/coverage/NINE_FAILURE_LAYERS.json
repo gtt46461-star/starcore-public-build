@@ -1,0 +1,1984 @@
+{
+  "schema": "STARCORE_R342_NINE_FAILURE_LAYERS_1",
+  "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+  "scope": "RSEC-066的九层诊断原件与施工接入；3个静态flag BLOCKED和6个summary UNAVAILABLE，不是九种已证算法缺陷。",
+  "batch_boundary": "B06/B08/B09按实际冻结模型核原训练/资格合同，缺件在所属批次补；B11仅只读诊断与报告接入，不新增训练owner，不因静态Artifact false否定动态bundle。",
+  "input_identity": {
+    "path": "agent_research_findings.json",
+    "sha256": "7497e199a7bee4715d5cddae430a429b8c9a6f9ad1b12d70112ae04e7e4f4666",
+    "original_check_path": "REPORT_DETAILS.txt",
+    "original_check_line": 72
+  },
+  "shared_output_contract": [
+    "target_issue",
+    "canonical_hash",
+    "frozen_bundle_hash",
+    "component_hashes",
+    "model_hash",
+    "source_commit",
+    "numerical_abi",
+    "certificate_domain",
+    "gate_version",
+    "evidence_role",
+    "input_hash",
+    "training_or_evaluation_receipt",
+    "settlement_hash",
+    "fact_status",
+    "hypothesis_id",
+    "experiment_id",
+    "confidence_kind",
+    "evidence_scope",
+    "first_missing_dependency"
+  ],
+  "validation": {
+    "all_original_nine_states_preserved": true,
+    "source_methods_verified": true,
+    "no_final_topology_issue_numbers": true,
+    "b11_read_only_no_training_owner": true
+  },
+  "layers": [
+    {
+      "sequence": 1,
+      "layer": "NUMBER",
+      "meaning": "号码概率面",
+      "original_check_id": "RSEC-066",
+      "original_status": "BLOCKED",
+      "original_diagnostic_fields": {
+        "confidence": 1.0,
+        "Positive": "NumberQ artifact|PROVEN=false",
+        "Negative": "Untrained NumberQ cannot establish top-number quality",
+        "Reason": "Strict OOS artifact proof is missing",
+        "NextTest": "Train/freeze NumberQ; compare top-k recall and Sinkhorn parity.",
+        "Hash": "188a8c07b32305677574b8281e3fa23d00fb91928b496e47af2903fc7721746f"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 1,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24"
+      ],
+      "source_diagnostic_reason": "静态 V51*Artifact.PROVEN（RANK另含RANK_ORDER_PASSED）为false，报告输出BLOCKED；不代表已读取当前动态模型原件。",
+      "cannot_infer": [
+        "静态工程种子PROVEN=false不能否定该期动态bundle是否有已训练模型。",
+        "单一miss或10×10矩阵非空不能证明模型数值失败、预测优势或资格。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "canonical中该期bundleHash/modelHash、target/base、历史cutoff及预测时点。",
+        "该冻结bundle的number/gate组件、训练协议/数据hash/参数hash、Result.status/artifactProven/projection.productionValid及10×10概率面。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+          "methods": [
+            "predict"
+          ],
+          "line": 220,
+          "anchor": "public Result predict(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+          "methods": [
+            "Result.productionModelProven"
+          ],
+          "line": 166,
+          "anchor": "public boolean productionModelProven()",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "在B06/B08对应真实训练路径复核开发、校准与正式未来角色；B11只联查原回执。",
+        "固定同目标同样本，对实际number模型、频率/均匀基线及去模型/去gate对照计算top-k与Brier，并验归一化、排列/Sinkhorn约束。",
+        "数值相同则记录无贡献；有提升仍须通过该证书域原合同后才能发布替换。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES07",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES10",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES23",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-022",
+        "R342-031",
+        "R342-033",
+        "R342-034",
+        "R342-039",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B06",
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 2,
+      "layer": "RANK",
+      "meaning": "候选排序",
+      "original_check_id": "RSEC-066",
+      "original_status": "BLOCKED",
+      "original_diagnostic_fields": {
+        "confidence": 1.0,
+        "Positive": "1200-action rank artifact|PROVEN=false",
+        "Negative": "Untrained ranker cannot establish Champion ordering",
+        "Reason": "Strict OOS artifact proof is missing",
+        "NextTest": "Run same-issue groupwise OOS Rank1/MRR/NDCG/pairwise stability.",
+        "Hash": "04dd7351eac06dd82af4b9fffe376070b7f865e47b594e7a46fb63f9eb2fd84a"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 2,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24"
+      ],
+      "source_diagnostic_reason": "静态 V51*Artifact.PROVEN（RANK另含RANK_ORDER_PASSED）为false，报告输出BLOCKED；不代表已读取当前动态模型原件。",
+      "cannot_infer": [
+        "静态ranker标志false不等于当前bundle排序器未训练。",
+        "候选按分数排了序、rank1命中过或排行榜好看，均不能证明学习排序优于固定基线。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "该target完整1200动作identity与顺序、rawActionP/rankScore/meta输入hash、实际ranker组件和selector身份。",
+        "RankResult、rankOne与canonical选中动作的一致性；训练/选择/确认分段与样本数原件。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+          "methods": [
+            "rankDetailed"
+          ],
+          "line": 49,
+          "anchor": "public RankResult rankDetailed(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+          "methods": [
+            "rankOne"
+          ],
+          "line": 120,
+          "anchor": "public V51Models.PositionAction rankOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "由B06/B08实际ranker训练owner按同issue分组完成开发与OOS比较，不将同一期1200动作当1200独立开奖。",
+        "比较同目标Rank1、MRR、NDCG、pairwise和排序稳定性，并保留固定排序/去学习器对照。",
+        "在B09核原证书/选择合同；B11展示当前冻结排序证据和缺件，不启动新训练。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES07",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES23",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-022",
+        "R342-033",
+        "R342-034",
+        "R342-039",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B06",
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 3,
+      "layer": "THIRD",
+      "meaning": "第三号码边界",
+      "original_check_id": "RSEC-066",
+      "original_status": "UNAVAILABLE",
+      "original_diagnostic_fields": {
+        "confidence": 0.0,
+        "Positive": "N/A",
+        "Negative": "No persisted runtime evidence",
+        "Reason": "Third boundary decides whether final K3 loses its marginal candidate",
+        "NextTest": "Audit rank3 vs rank4 margin, miss migration and after-draw counterfactual.",
+        "Hash": "6b79dd3575f6e6884abccc9ba90ac2200ea6630bf2c2af228348ceff0a35e0c9"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 3,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24"
+      ],
+      "source_diagnostic_reason": "旧runtime summary key未读到持久值，报告输出UNAVAILABLE；不能确定该机制运行错误或数值无效。",
+      "cannot_infer": [
+        "旧v51_third_boundary_summary为空仅证明未取得该key值，不证明rank3选错。",
+        "开奖后替换rank3能命中属于事后反事实，不是该期真实命中或可立即改写的策略。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "该期冻结K3、合法第四边界候选、rank3/rank4概率或分数、thirdMargin、候选全集与exact模型身份。",
+        "同target authoritative settlement和实际号码；执行/数据/缺冻结先分流。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3ActionSpaceEngine.java",
+          "methods": [
+            "validateDetailed"
+          ],
+          "line": 247,
+          "anchor": "public static ValidationReport validateDetailed(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3ActionSpaceEngine.java",
+          "methods": [
+            "validFourthBoundary"
+          ],
+          "line": 505,
+          "anchor": "public static boolean validFourthBoundary(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "对合法冻结数据计算边界替换的遗漏迁移、支持与同目标反事实，只用于下一研究版本。",
+        "通过RES20为边界规则变异建立独立action/child，走既有EVOLVE/TRAIN。",
+        "父子同目标配对和独立确认后判断是否采用；固定K3不改成K4增加命中。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES21",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-034",
+        "R342-039",
+        "R342-040",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 4,
+      "layer": "WINDOW",
+      "meaning": "窗口选择",
+      "original_check_id": "RSEC-066",
+      "original_status": "UNAVAILABLE",
+      "original_diagnostic_fields": {
+        "confidence": 0.0,
+        "Positive": "N/A",
+        "Negative": "No persisted runtime evidence",
+        "Reason": "Window choice can overfit local repetition or react too slowly",
+        "NextTest": "Compare 12/24/48/96/360 survival and PIT-stable window selection.",
+        "Hash": "fb3a48fa1bc2d5e28442c917c82f59400f6fb92e839b0127032d1fab2102cfed"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 4,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24"
+      ],
+      "source_diagnostic_reason": "旧runtime summary key未读到持久值，报告输出UNAVAILABLE；不能确定该机制运行错误或数值无效。",
+      "cannot_infer": [
+        "b05_window_summary为空不等于全部窗口计算未运行。",
+        "短期高分或事后挑最优窗口不能证明该窗口选择规则有效。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "冻结WindowFeatureEngine.B05WindowEvidenceBundle/校验hash与所选窗口、历史区间、gap、availability。",
+        "其输入状态、number模型和最终动作的exact引用；实际窗口支持长度须匹配协议。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/WindowFeatureEngine.java",
+          "methods": [
+            "buildB05Evidence"
+          ],
+          "line": 529,
+          "anchor": "public B05WindowEvidenceBundle buildB05Evidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "在B06/B08按连续合法开发区间对12/24/48/96/360等原合同窗口做分块生存与稳定性对照。",
+        "窗口选择只使用当时可见数据；另设未参与选择的确认段，与固定窗口基线比较。",
+        "一个窗口缺输入局部等待，不阻断无此依赖策略；draws热表仍不超过5000。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES09",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES18",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-021",
+        "R342-034",
+        "R342-039",
+        "R342-050",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B06",
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 5,
+      "layer": "REGIME",
+      "meaning": "状态/漂移",
+      "original_check_id": "RSEC-066",
+      "original_status": "UNAVAILABLE",
+      "original_diagnostic_fields": {
+        "confidence": 0.0,
+        "Positive": "N/A",
+        "Negative": "No persisted runtime evidence",
+        "Reason": "Regime mismatch can invalidate an otherwise strong motif/expert",
+        "NextTest": "Blockwise regime transition replay; inspect CUSUM/BOCPD/drift flags.",
+        "Hash": "5c21f76c86346f97ba4c37d6cb76d5b36db86f656d68be3f9a833416efda04b0"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 5,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24",
+        "RES25"
+      ],
+      "source_diagnostic_reason": "旧runtime summary key未读到持久值，报告输出UNAVAILABLE；不能确定该机制运行错误或数值无效。",
+      "cannot_infer": [
+        "summary含DRIFT/RISK不是数值根因证据；空summary也不能证明状态引擎不存在。",
+        "不同位置不同target的drift记录不能合成同一期十位置状态。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "冻结state trajectory、B05 drift bundle、所属位置/目标/输入hash和当时使用的drift policy hash。",
+        "FrozenDriftPolicy.observe输出、DomainRouter决策与provider健康原件；TUNE artifact缺失和运行健康暂停分别列示。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51StateTrajectoryEngine.java",
+          "methods": [
+            "buildAudited"
+          ],
+          "line": 36,
+          "anchor": "public TrajectoryBundle buildAudited(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DistributionDriftEngine.java",
+          "methods": [
+            "buildB05Evidence"
+          ],
+          "line": 1120,
+          "anchor": "public B05DriftEvidenceBundle buildB05Evidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FrozenDriftPolicyR82.java",
+          "methods": [
+            "observe"
+          ],
+          "line": 33,
+          "anchor": "public static Observation observe(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "按预声明状态转换块回放识别延迟、误报和稳定性，TUNE数据与正式未来分离。",
+        "比较有/无drift策略的同目标父子，保存政策阈值、冷却和支持域；不将经验超限预算称理论误报保证。",
+        "漂移只触发下一模型研究/回放，沿既有DomainRouter局部fallback/PAUSE；不得修改已冻结观察。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES18",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES25",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-034",
+        "R342-039",
+        "R342-043",
+        "R342-050",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B08",
+        "B09",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 6,
+      "layer": "MOTIF",
+      "meaning": "局部模式",
+      "original_check_id": "RSEC-066",
+      "original_status": "UNAVAILABLE",
+      "original_diagnostic_fields": {
+        "confidence": 0.0,
+        "Positive": "N/A",
+        "Negative": "No persisted runtime evidence",
+        "Reason": "Motif may be sparse, stale or duplicated across templates",
+        "NextTest": "Require support, recent validity and negative evidence before promotion.",
+        "Hash": "32e23403c5b53c02ba73ab0509c51dd7bef16b695d1f80a76ba87818f1267b0d"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 6,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24"
+      ],
+      "source_diagnostic_reason": "旧runtime summary key未读到持久值，报告输出UNAVAILABLE；不能确定该机制运行错误或数值无效。",
+      "cannot_infer": [
+        "b06_motif_summary空不证明当前Motif expert无计算；模式条数不能代表可执行创新。",
+        "少量重复出现或模板名不同不能证明稳定规律或新机制。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "冻结Motif expert输入历史、window、位置/号码、模式身份、scoreSurface、支持/负例和语义指纹。",
+        "该expert的gate/consensus贡献、完整模型身份与最终动作/结算。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51MotifNumberExpert.java",
+          "methods": [
+            "evaluate"
+          ],
+          "line": 9,
+          "anchor": "public V51Models.ExpertEvidence evaluate(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51MotifMatrixProfileEngine.java",
+          "methods": [
+            "scoreSurface"
+          ],
+          "line": 15,
+          "anchor": "public double[][] scoreSurface(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "按类型和行为指纹去重模式；对稀疏/失效模式保留support与反例而不是强行晋级。",
+        "跨块比较原模式、去模式、简单基线；新结构走真实AST/graph、input protocol和训练。",
+        "新生成规则在B07按TypedGenerationRule规格由既有生成器/owner归纳与消费，B08继续反馈与代际验证；B11只读取产物，不新增NumberQ或规则训练owner。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES05",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES13",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES18",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-025",
+        "R342-028",
+        "R342-034",
+        "R342-039",
+        "R342-050",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B07",
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 7,
+      "layer": "RELATION",
+      "meaning": "跨位关系",
+      "original_check_id": "RSEC-066",
+      "original_status": "UNAVAILABLE",
+      "original_diagnostic_fields": {
+        "confidence": 0.0,
+        "Positive": "N/A",
+        "Negative": "No persisted runtime evidence",
+        "Reason": "Cross-position relation can be spurious or leak contemporaneous information",
+        "NextTest": "Verify relation uses only pre-draw history and survives block ablation.",
+        "Hash": "ed64e2c478c02f484a80404a6928a808cd31024f665f2a266dc1e88e6c34e1ac"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 7,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24"
+      ],
+      "source_diagnostic_reason": "旧runtime summary key未读到持久值，报告输出UNAVAILABLE；不能确定该机制运行错误或数值无效。",
+      "cannot_infer": [
+        "旧关系summary无值不等于关系模型没有实现。",
+        "同期开出的其他位相关、全数据相关系数或关键词提示均不能证明可开奖前使用的因果关系。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "冻结关系expert/tensor来源位置、目标位置、lag、cutoff、输入hash、可用时刻与支持域。",
+        "该关系经过哪个原模型组件/graph节点进入最终概率和动作；精确消费回执及结算。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51RelationGraphNumberExpert.java",
+          "methods": [
+            "evaluate"
+          ],
+          "line": 9,
+          "anchor": "public V51Models.ExpertEvidence evaluate(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51RelationGraphVerifier.java",
+          "methods": [
+            "stable"
+          ],
+          "line": 19,
+          "anchor": "public boolean stable(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "先验证所有关系输入在target前可用，禁止同期开奖后他位信息泄漏。",
+        "按预声明时段/状态分块消融关系并评估稳定性，复用V51RelationGraphVerifier原校验；全搜索登记避免挑最高相关。",
+        "只有可执行、可消费的新子代才能计为研究产物，证据不足记录待证而非因果结论。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES13",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES15",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES18",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-028",
+        "R342-034",
+        "R342-035",
+        "R342-039",
+        "R342-050",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B07",
+        "B08",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 8,
+      "layer": "CONSENSUS",
+      "meaning": "多专家共识",
+      "original_check_id": "RSEC-066",
+      "original_status": "UNAVAILABLE",
+      "original_diagnostic_fields": {
+        "confidence": 0.0,
+        "Positive": "N/A",
+        "Negative": "No persisted runtime evidence",
+        "Reason": "Consensus can become correlated-vote double counting",
+        "NextTest": "Measure expert diversity, regret and leave-one-expert-out delta.",
+        "Hash": "ee3932ea4105789fae103d999748483cf24d5b906f8af0c3e863266986fdc346"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 8,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24"
+      ],
+      "source_diagnostic_reason": "旧runtime summary key未读到持久值，报告输出UNAVAILABLE；不能确定该机制运行错误或数值无效。",
+      "cannot_infer": [
+        "summary为空不证明投票或expert gate没有运行。",
+        "专家数量、共识一致或换名后的重复票不能当独立证据与质量提升。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "冻结experts、各自版本/输出、gate weights、Consensus.evidence/checksum及共同target。",
+        "候选/父代来源关系、共同失败区域、实际排序和最终动作的exact消费。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51EffectiveConsensusEngine.java",
+          "methods": [
+            "evaluate"
+          ],
+          "line": 52,
+          "anchor": "public Consensus[] evaluate(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "测量同目标专家行为相关性、重复来源和共同失败；leave-one-expert-out区分各方真实贡献。",
+        "合法双父融合另建child；比较父A、父B、简单组合与融合子代，不能仅复制相同预测再加权。",
+        "未达B09原资格时保留成熟父模型和合法SHADOW，B11只显示可信共识证据。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES22",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES26",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-034",
+        "R342-039",
+        "R342-041",
+        "R342-044",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B08",
+        "B09",
+        "B11"
+      ]
+    },
+    {
+      "sequence": 9,
+      "layer": "CALIBRATION",
+      "meaning": "选择后概率校准",
+      "original_check_id": "RSEC-066",
+      "original_status": "BLOCKED",
+      "original_diagnostic_fields": {
+        "confidence": 1.0,
+        "Positive": "SelectedHitP calibration artifact|PROVEN=false",
+        "Negative": "Untrained calibration makes threshold/coverage decisions unreliable",
+        "Reason": "Strict OOS artifact proof is missing",
+        "NextTest": "Use selection-conditioned pre-draw OOS ECE/Brier/Wilson/subgroup certificates.",
+        "Hash": "b56a0c0e94baee871985a8f23a4d725e5905ac9a1d3733cb744df123eea93f51"
+      },
+      "source_reference": {
+        "path": "REPORT_DETAILS.txt",
+        "line": 72,
+        "json_path": "$.evidence",
+        "layer_block": 9,
+        "report_hash": "ab97478b03a0ebcbc22a03866cb796855156dc7dbee7965a7952526aef4a3fc1"
+      },
+      "original_related_issue_ids": [
+        "RES20",
+        "RES24",
+        "RES25"
+      ],
+      "source_diagnostic_reason": "静态 V51*Artifact.PROVEN（RANK另含RANK_ORDER_PASSED）为false，报告输出BLOCKED；不代表已读取当前动态模型原件。",
+      "cannot_infer": [
+        "静态SelectedCalibrationArtifact.PROVEN=false不能替代当前bundle.calibration或该证书域校准的实际状态。",
+        "输出0到1概率、提高选中概率或单次命中不等于经过校准，也不能据此提高REAL权限。",
+        "本报告confidence是静态诊断输出，不能作为算法根因的统计置信；读取失败、缺原件和实际失败必须分开。"
+      ],
+      "dynamic_facts_to_join": [
+        "canonical选中条件、实际calibration artifact版本/输入及模型/选择器身份；原始概率与校准后概率。",
+        "所属证书域原拟合/隔离/验证范围与角色、事前捕获原件、支持域、Brier/ECE/分组及覆盖；不得把FrozenDriftPolicy的earlier-TUNE误当全部概率校准协议。"
+      ],
+      "identity_binding": "先取该target已提交canonical/compiled/冻结payload中的bundleHash、组件hash、ABI、source和证书域，以固定身份只读联查。forEvidence(hash,target,at)内部以当前墙钟校验可用性；过去目标回放复用既有forHistoricalEvidence(hash,target,frozenAt)，按原冻结时点核验（ModuleAblationR932已有调用）。不得读诊断发生时current()替代过去模型，不把今天过期等同于当年无效，也不得用历史回放恢复今天REAL资格；原件不可加载保持UNKNOWN。",
+      "existing_production_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java",
+          "methods": [
+            "calibrateDetailed"
+          ],
+          "line": 72,
+          "anchor": "public CalibrationResult calibrateDetailed(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "existing_identity_diagnostic_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forEvidence"
+          ],
+          "line": 177,
+          "anchor": "public static Scope forEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "forHistoricalEvidence"
+          ],
+          "line": 181,
+          "anchor": "static Scope forHistoricalEvidence(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java",
+          "methods": [
+            "open"
+          ],
+          "line": 186,
+          "anchor": "public static Scope open(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+          "methods": [
+            "diagnoseSnapshotCP4"
+          ],
+          "line": 320,
+          "anchor": "public Report diagnoseSnapshotCP4",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "training_owner_dependency": {
+        "batches": [
+          "B06",
+          "B08",
+          "B09"
+        ],
+        "rule": "以实际冻结模型manifest登记的原训练owner与协议为准；以下是已有候选训练适配入口，不宣称所有NumberQ/Ranker/校准都由同一适配器训练。旧R26/SU及各证书域保留自己的原训练/资格合同，缺件在对应批次补齐。",
+        "existing_adapters": [
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepare"
+            ],
+            "line": 102,
+            "anchor": "public static PreparedProtocol prepare(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+            "methods": [
+              "prepareBatch"
+            ],
+            "line": 190,
+            "anchor": "public static ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 prepareBatch(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+            "methods": [
+              "drainTrainingSlotCP11"
+            ],
+            "line": 137,
+            "anchor": "public static boolean drainTrainingSlotCP11(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+            "methods": [
+              "commitPreparedCandidateCP5"
+            ],
+            "line": 482,
+            "anchor": "commitPreparedCandidateCP5(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          },
+          {
+            "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+            "methods": [
+              "step"
+            ],
+            "line": 103,
+            "anchor": "public static long step(",
+            "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+          }
+        ]
+      },
+      "attribution_experiments": [
+        "B06/B08形成实际数值模型；B09沿各域原协议拟合和验证。CandidateCalibrationR932须eligibleEvaluation及事前预约采集的FIT120/EMBARGO1/VALIDATION120，版本化模型绑定R969_STATIC_DISJOINT_CALIBRATION；FrozenDriftPolicyR82才用其earlier-TUNE。不能用历史TUNE代替正式校准观察；B11不现场拟合。",
+        "同目标比较校准前后Brier/ECE、覆盖与区间，固定选择条件；有多个校准器需登记全选择过程。",
+        "通过时绑定精确artifact和支持域再消费；失败/缺件保留原概率与合法fallback，不改静态PROVEN常量。"
+      ],
+      "feedback_existing_owners": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+          "methods": [
+            "drainOne"
+          ],
+          "line": 61,
+          "anchor": "public static boolean drainOne(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "methods": [
+            "drainActionCP12"
+          ],
+          "line": 15,
+          "anchor": "public static boolean drainActionCP12(",
+          "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb"
+        }
+      ],
+      "mainline_integration": "B11诊断/报告只读消费既有V51RuntimeOrchestrator→V51Repository的已提交冻结事实与SettlementEngine的exact结果。同一类型化事实由B08已有ResearchFeedbackCP12/研究owner独立于UI生成合法动作并交原Director消费；B11只联查这些原动作回执，不新增或触发入队。新模型训练、冻结、资格和发布仍在所属owner，下一期由原selector/DecisionGate读取，绝不回写当期预测或授权。",
+      "issue_relations": [
+        {
+          "original_issue_id": "ROOT-02",
+          "role": "修正静态flag/summary关键词诊断，建立当前冻结模型事实源与类型化证据。"
+        },
+        {
+          "original_issue_id": "RES20",
+          "role": "可验证失败或研究假设进入真实action/child并取得结果回流；证据不足允许NO_ACTION。"
+        },
+        {
+          "original_issue_id": "RES23",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES24",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES25",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        },
+        {
+          "original_issue_id": "RES26",
+          "role": "前置输入、数值生产或配对/资格消费依赖，按该问题原合同实施。"
+        }
+      ],
+      "acceptance": [
+        "报告的target/bundle/组件/模型/证书域与canonical一致；换版本后不能沿用旧PROVEN或旧根因。",
+        "每层给出事实、假设、反证和未取证边界；缺输入/读失败保持明确状态；关键字和count不单独产生数值因果结论。",
+        "实际实验能由原冻结输入重放或由新增合法未来验证；研究创建与消费原键可对账，诊断不触发主链重算或改变REAL权限。"
+      ],
+      "preservation": "保留成熟100号码/1200动作空间、工程SHADOW、现有窗口/状态/专家/排序/校准实现、真实旧训练与四证书域门槛；不将静态种子标志改true。",
+      "current_issue_ids": [
+        "R342-033",
+        "R342-034",
+        "R342-039",
+        "R342-043",
+        "R342-044",
+        "R342-052"
+      ],
+      "current_batches": [
+        "B08",
+        "B09",
+        "B11"
+      ]
+    }
+  ],
+  "current_issue_mapping_policy": "原ID/原状态保留；current_issue_ids按最终57项施工依赖编号增补。PASS/OBSERVED的关联表示保留/复核责任，不自动转为故障。"
+}

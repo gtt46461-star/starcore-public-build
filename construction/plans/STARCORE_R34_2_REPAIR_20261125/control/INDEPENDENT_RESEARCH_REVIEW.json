@@ -1,0 +1,271 @@
+{
+  "schema": "STARCORE_RESEARCH_FINAL_PLAN_REVIEW_1",
+  "reviewed_at_utc": "2026-11-25T08:17:21.988128+00:00",
+  "reviewer": "/root/research_audit",
+  "source_commit": "eb8f82a8bda8db22f1f122095217132f07053bcb",
+  "scope": "独立研究方向内容终审与57项结构连接核验；不替其它代理审签全部Android/存储实现事实。仅修改自有审计稿/附录，未修改根成稿、原始报告或应用代码。",
+  "status": "PLAN_REVIEW_PASS_NO_APPLICATION_ACCEPTANCE",
+  "plan_snapshot": [
+    {
+      "path": "CONSTRUCTION_PLAN.md",
+      "bytes": 20389,
+      "sha256": "cae66d887afb7565268862f4cf2f41544e5573d662340ee50a6249097898f547"
+    },
+    {
+      "path": "CODEX_EXECUTE.md",
+      "bytes": 5423,
+      "sha256": "0104cc2be3b7caa47d7ace3ef1d1b2c6889064cb38cbfb37c66ed9c8d3b39fc0"
+    },
+    {
+      "path": "ISSUES.json",
+      "bytes": 742021,
+      "sha256": "9f75cd9ea08b7559d5a7fe6bd49ba1b6e53c9af6e4e25add4903f97dbeef1f40"
+    },
+    {
+      "path": "WORK_ORDERS.json",
+      "bytes": 24522,
+      "sha256": "68141a9dc80fd5bf6d970a0b723615fccab1eb69039909fadd855e10e92f9c4b"
+    },
+    {
+      "path": "FILE_CARDS.json",
+      "bytes": 527201,
+      "sha256": "4586ef16e116e3c4a898267a2a7aa127985529df438e12b112e64f7cb920cd7a"
+    },
+    {
+      "path": "ACCEPTANCE_MATRIX.json",
+      "bytes": 79274,
+      "sha256": "18f5d99d46694891fb4185deeb9c48ba5fb5c0d6f46889abd764c6231547eb74"
+    },
+    {
+      "path": "specs/ACCEPTANCE_AND_STATUS.md",
+      "bytes": 6469,
+      "sha256": "912bd0dc29ed55feb550f53731db21b620d1fcd44fa58c5d0f56691a436ec50b"
+    },
+    {
+      "path": "specs/CERTIFICATE_DOMAINS.md",
+      "bytes": 16735,
+      "sha256": "331a9a48613f038b702e2e0c1f92e988bbe6230b8641ca8d6823a70543493ed6"
+    },
+    {
+      "path": "specs/MAINLINE.md",
+      "bytes": 10514,
+      "sha256": "ebd5a461d6e274294e3eb3624064e35f65a05ffc21c433479b505ecc6432454d"
+    },
+    {
+      "path": "specs/PRESERVATION.md",
+      "bytes": 3922,
+      "sha256": "511db6e25da505049b584a68331e8f10b609f701b762f87d0aaa311d027b399c"
+    },
+    {
+      "path": "specs/TYPED_GENERATION_RULE.md",
+      "bytes": 12256,
+      "sha256": "ca6d3c56f34d8961c85341346d611e59e26bbda9a7a0255622de0a3029a67f84"
+    },
+    {
+      "path": "coverage/DIRECTIONS_165_CROSSWALK.json",
+      "bytes": 593374,
+      "sha256": "2f3e3c8379d996fb2db73d29f714bb8f63bcb633216fba41c6175c39a11daa8b"
+    },
+    {
+      "path": "coverage/NINE_FAILURE_LAYERS.json",
+      "bytes": 92351,
+      "sha256": "867d8c1bd168dda14fce29dc4aa534e7cea06bdd4b63a516fac46556a08d7131"
+    }
+  ],
+  "mechanical_checks": {
+    "issues": 57,
+    "batches": 12,
+    "file_cards": 137,
+    "acceptance_cases": 57,
+    "errors": [],
+    "dependencies_all_point_to_prior_issue": true,
+    "issue_batch_file_acceptance_joins_checked": true,
+    "all_57_application_execution_statuses": "NOT_RUN_IN_THIS_TASK",
+    "direction_count": 165,
+    "direction_original_fields_preserved": true,
+    "nine_original_states": {
+      "BLOCKED": 3,
+      "UNAVAILABLE": 6
+    },
+    "method_ast_reference": "research_method_ast_selfcheck.json"
+  },
+  "findings": [
+    {
+      "id": "REVIEW-RES-01",
+      "severity": "P1",
+      "topic": "B11展示职责误含实际生产",
+      "observed_problem": "首版RES18把dataset/student准备及ResearchContext/ActionPolicy行为变更放到B11，只列Observatory证据文件，与主规格只读边界冲突。",
+      "correction": "已移至RES12输入、RES19 measure、RES20动作及原生产文件；RES18只联查并验证前批回执，源依赖清除反向环。",
+      "status": "FIXED_AND_OBSERVED_IN_INTEGRATED_PLAN",
+      "references": [
+        "ISSUES.json origin_id=RES12/RES18/RES19/RES20",
+        "specs/MAINLINE.md sections 3–4",
+        "agent_research_findings.json"
+      ]
+    },
+    {
+      "id": "REVIEW-RES-02",
+      "severity": "P1",
+      "topic": "调用词误充方法名",
+      "observed_problem": "首版Observatory出现equals/put，Director出现enqueue，Seed方法为空，属于证据anchor首调用词误提取。",
+      "correction": "真实方法按问题分配并补methods_by_original_issue；33文件97方法经JDK AST声明核对，零诊断/零缺声明；B11只用stored/classifyFrameR335。",
+      "status": "CORRECTED_SOURCE_MAP_AND_AST_VERIFIED",
+      "references": [
+        "agent_research_methods_map.json",
+        "research_method_ast_selfcheck.json",
+        "FILE_CARDS.json"
+      ]
+    },
+    {
+      "id": "REVIEW-RES-03",
+      "severity": "P1",
+      "topic": "证据文件不等于实际施工文件",
+      "observed_problem": "原卡TRAIN只列准备和Director；矩阵/配对/进化/融合多处只列报告或调度证据文件，遗漏实际生产接线。",
+      "correction": "源卡已逐问题加入既有TRAIN分派/Trainer/commit、MatrixResearch/Tensor、Feedback、FrozenCandidateAdapter、FixedResearchWindow/Statistics、FrozenConfirmation/Store、EvolutionLoop/Fusion生产入口，均MODIFY_OR_VERIFY并保留原合同；不断言每个文件都需改。",
+      "status": "FIXED_AND_OBSERVED_IN_INTEGRATED_PLAN",
+      "pending": [],
+      "references": [
+        "agent_research_findings.json $.issues[*].files",
+        "agent_research_methods_map.json"
+      ]
+    },
+    {
+      "id": "REVIEW-RES-04",
+      "severity": "P1",
+      "topic": "证书到主链的施工文件不足",
+      "observed_problem": "RES26首版只有Observatory/Director，不能完整覆盖选择、精确证书复核、唯一决策、canonical及结算归因。",
+      "correction": "plan_source_audit代理已提供agent_final_wiring_additions.json；保留四域与原门，修复或验证既有生产链，区分R922/R974权威原件与旧r929投影。",
+      "status": "FIXED_AND_OBSERVED_IN_INTEGRATED_PLAN",
+      "references": [
+        "agent_final_wiring_additions.json $.RES26",
+        "specs/CERTIFICATE_DOMAINS.md sections 4–7"
+      ]
+    },
+    {
+      "id": "REVIEW-RES-05",
+      "severity": "P2",
+      "topic": "主图缺子代训练且校准时序易误读",
+      "observed_problem": "首版G创造直接连H冻结未来，I把校准与未来后资格并列，详细文字正确但图可误导。",
+      "correction": "现图已有G→T模型/子代实训与开发选择→H分域事前观察、校准与独立验证→I资格；配文明确按原域顺序，不以历史TUNE抵正式校准、不在最终验证后回拟合；不合格保留父代。",
+      "status": "FIXED_AND_OBSERVED_IN_INTEGRATED_PLAN",
+      "references": [
+        "CONSTRUCTION_PLAN.md 唯一主链怎样运行"
+      ]
+    },
+    {
+      "id": "REVIEW-RES-06",
+      "severity": "P2",
+      "topic": "自然未来验收误标纯工程",
+      "observed_problem": "RES23验收含自然新发生未来，却最初level=ENGINEERING。",
+      "correction": "应标MIXED_WITH_EXPLICIT_NATURAL；工程反例可立即执行，自然窗口保持独立NOT_PROVEN，合成原件不进入自然分母。",
+      "status": "FIXED_AND_OBSERVED_IN_INTEGRATED_PLAN",
+      "references": [
+        "ACCEPTANCE_MATRIX.json origin_id=RES23"
+      ]
+    },
+    {
+      "id": "REVIEW-RES-07",
+      "severity": "P2",
+      "topic": "九层附录职责与批次细化",
+      "observed_problem": "MOTIF原描述把规则归纳写到B08，且反馈入队一句未明确不是由B11页面触发。",
+      "correction": "已写B07规则归纳/消费，B08研究feedback owner独立UI产动作；B11只联查、无入队。",
+      "status": "FIXED_IN_OWNED_APPENDIX",
+      "references": [
+        "coverage/NINE_FAILURE_LAYERS.json $.layers[*].mainline_integration",
+        "coverage/NINE_FAILURE_LAYERS.json layer=MOTIF"
+      ]
+    },
+    {
+      "id": "REVIEW-RES-08",
+      "severity": "P2",
+      "topic": "drift-TUNE与正式概率校准协议须分开",
+      "observed_problem": "旧CALIBRATION九层文字笼统写TUNE/未来分离，易与FrozenDriftPolicy的earlier-TUNE及CandidateCalibration正式事前拟合序列混淆。",
+      "correction": "RES25和CALIBRATION附录已明确各域原拟合/隔离/验证角色，CandidateCalibration的eligibleEvaluation、FIT120/EMBARGO1/VALIDATION120及R969身份；ROOT-02的旧短语亦须同步。",
+      "status": "FIXED_AND_OBSERVED_IN_INTEGRATED_PLAN",
+      "references": [
+        "ISSUES.json origin_id=RES25/ROOT-02",
+        "coverage/NINE_FAILURE_LAYERS.json layer=CALIBRATION"
+      ]
+    }
+  ],
+  "manual_domain_checks": [
+    {
+      "check": "历史快训、在线更新、HOLDOUT确认、自然FUTURE四种角色",
+      "status": "PASS_PLAN_SEMANTICS",
+      "detail": "MAINLINE和各卡明确身份/水位/role；新增RES24明确FrozenConfirmation是封存HOLDOUT，FixedResearchWindow是正式未来，不合并样本。"
+    },
+    {
+      "check": "四证书域门槛与消费",
+      "status": "PASS_PLAN_SEMANTICS",
+      "detail": "R27、SU1、SU2、R958/CP4分别列原完整合同。120/250/360不统套；发行器无REAL权不等于最终门永拒；研究不增第二决策owner。"
+    },
+    {
+      "check": "全4200目录阻塞修法",
+      "status": "PASS_PLAN_SEMANTICS",
+      "detail": "只按家族真实依赖放行准备，仍保留完整SHA/prefix/offset/generation CAS、完整对象发布和依赖族局部等待；不是简单删除complete守卫。"
+    },
+    {
+      "check": "新生成规则兼容",
+      "status": "PASS_PLAN_SEMANTICS",
+      "detail": "TypedGenerationRule新增纯类型、原AtomsTask/EvolutionTask/writer；追加专用表、不破旧SCORES/MOLECULES CHECK。发现pin与当前消费pin分开，派生当前SELECT run不改写旧dataset；原同dataset/ABI/source/role及四源上限保留。"
+    },
+    {
+      "check": "模型历史读取API",
+      "status": "PASS_SOURCE_AND_PLAN",
+      "detail": "forEvidence按当前墙钟requireUsable；forHistoricalEvidence按冻结时间。过去诊断固定原bundle、不能读取current替代；不能借历史API恢复今天REAL。"
+    },
+    {
+      "check": "成熟实际产物与计数",
+      "status": "PASS_PLAN_SEMANTICS",
+      "detail": "旧25数值更新、AtomNet19发布和long1043代号均保留并解释实际范围，未一概宣称伪造或从未训练；目录/发布/尝试计数不算真实效果。"
+    },
+    {
+      "check": "代际质量与成熟父代",
+      "status": "PASS_PLAN_SEMANTICS",
+      "detail": "只按同目标独立证据晋级，失败子代不强制替换冠军；没有保证每代更强、必发证或高胜率。"
+    },
+    {
+      "check": "九层静态诊断证据边界",
+      "status": "PASS_PLAN_SEMANTICS",
+      "detail": "3 BLOCKED由静态flag、6 UNAVAILABLE由旧summary；不是九种已证模型缺陷。实际冻结bundle/组件/训练与结果事实源绑定，缺件UNKNOWN。"
+    }
+  ],
+  "accepted_integrated_overrides": [
+    {
+      "origin_id": "RES25",
+      "reason": "独立复读并接受根/证书代理的精确域合同增强；不以原源卡字节不等误报未整合。",
+      "reviewed_steps": [
+        "保留原概率面并分开协议：FrozenDriftPolicyR82只用其既有earlier-TUNE；CandidateCalibrationR932按eligibleEvaluation、事前预约采集及FIT120/EMBARGO1/VALIDATION120隔离序列，拒绝训练角色与开奖后捕获。版本化模型仍绑定R969_STATIC_DISJOINT_CALIBRATION；其它证书域按各自完整合同，不能用TUNE或历史回放抵充正式概率校准/自然未来。",
+        "按目标/位置/选择条件/版本生成immutable校准artifact，记录原始与校准后概率、Brier/ECE及分块证据。",
+        "冻结drift policy后由原DomainRouter消费，绑定source hash；缺artifact保持可解释fallback或局部PAUSE。",
+        "漂移触发新研究输入/回放计划，真实再训练产新版本，不能在线修改已冻结正式候选。"
+      ]
+    },
+    {
+      "origin_id": "RES26",
+      "reason": "独立复读并接受根/证书代理的精确域合同增强；不以原源卡字节不等误报未整合。",
+      "reviewed_steps": [
+        "以原DecisionGate为唯一授权入口，证书必须绑定精确冻结模型、协议、时间范围和支持域。",
+        "选择器只选在当前target合法且未过期的证书模型，记录拒绝其他候选的reason与保留旧冠军的依据。",
+        "将exact certificate→selection→canonical predraw freeze→authoritative settlement→mainline contribution联成可读链。",
+        "研究侧只提供证据和候选，不能写真实出手账、绕过用户设置或以测试样本充当已达标自然未来。",
+        "按现有canonical、R974与R922精确审计建立不重复的读投影/派生回执，修正仅查看r929表的漏读；不把旧r929写入强行搬到热事务，不另造授权owner。exact recipe weight=1的构成语义与旧mix influence cap=.05分别保留。"
+      ]
+    }
+  ],
+  "open_integration_findings": [],
+  "explicit_not_performed": [
+    "应用源码修复或合并",
+    "Android编译/单元与设备集成测试",
+    "新APK构建或覆盖安装",
+    "真机前后台24h/72h观察",
+    "原SQLite/模型字节数值重放",
+    "新自然未来样本、四证书域现场资格或质量验收"
+  ],
+  "remaining_evidence_limits": [
+    "报告不是原snapshot.db、安装APK或数值模型payload；现有元数据不足以独立还原所有数值计算。",
+    "方法AST校验只证明声明和语法存在，不证明业务执行、性能、训练有效或模型更强。",
+    "方案结构通过只能签设计完整性；每个软件问题仍须按六层验收提供真实原件。"
+  ],
+  "recheck_command": "python audit/build_research_final_review.py"
+}
