@@ -3,6 +3,7 @@ package com.ethk3.novaonepro.r342;
 import static org.junit.Assert.*;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -17,6 +18,7 @@ import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -73,11 +75,17 @@ public final class R342B10ContractTest {
         run("R342-048",app -> {
             int tables=516;
             try(SQLiteDatabase db=SQLiteDatabase.create(null)) {
+                Set<String> expected=new TreeSet<>();
+                try(Cursor systemObjects=db.rawQuery("SELECT name FROM sqlite_master WHERE rootpage>0",null)){
+                    while(systemObjects.moveToNext())expected.add(systemObjects.getString(0));
+                }
                 db.beginTransaction();
                 try {
                     for(int i=0;i<tables;i++){
                         db.execSQL("CREATE TABLE inventory_"+i+"(x INTEGER)");
                         db.execSQL("CREATE INDEX inventory_index_"+i+" ON inventory_"+i+"(x)");
+                        assertTrue(expected.add("inventory_"+i));
+                        assertTrue(expected.add("inventory_index_"+i));
                     }
                     db.setTransactionSuccessful();
                 } finally {
@@ -86,17 +94,19 @@ public final class R342B10ContractTest {
                 StringWriter output=new StringWriter();
                 StorageCensusSU2.writeSqliteSpaceR342(db,output,null);
                 JSONObject inventory=new JSONObject(output.toString());
-                assertEquals(2*tables,inventory.getInt("objectDenominator"));
-                assertEquals(2*tables,inventory.getInt("objectsEnumerated"));
+                assertEquals(expected.size(),inventory.getInt("objectDenominator"));
+                assertEquals(expected.size(),inventory.getInt("objectsEnumerated"));
                 JSONArray rows=inventory.getJSONArray("dbstatObjects");
-                assertEquals(2*tables,rows.length());
+                assertEquals(expected.size(),rows.length());
                 String after="";
                 for(int i=0;i<rows.length();i++){
                     JSONObject row=rows.getJSONObject(i);
                     String name=row.getString("object");
                     assertTrue(name.compareTo(after)>0);
+                    assertTrue(expected.remove(name));
                     after=name;
                 }
+                assertTrue(expected.isEmpty());
                 if(!inventory.getBoolean("dbstatObjectCoverageComplete")){
                     assertEquals("OBJECT_BYTES_PARTIAL_OR_UNAVAILABLE",inventory.getString("dbstatStatus"));
                 }
