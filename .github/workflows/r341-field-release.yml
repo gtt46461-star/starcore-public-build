@@ -127,13 +127,24 @@ jobs:
           plan="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
           python3 -B tools/r33/run_release_build.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/build"
           python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$RUNNER_TEMP/baseline122.apk" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json"
-      - name: Run inherited host regressions at this exact source
-        working-directory: app-source
+      - name: Restore the exact-source regression originals from the first attempt
+        uses: actions/download-artifact@v4
+        with:
+          name: R341-B12-e7a9e3a38f16fbc12d1c7698f50aea59cedc1e3c-engineering
+          run-id: 45539082278
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/prior-report-replay
+      - name: Validate and retain the exact-source host originals
         run: |
           set -euo pipefail
+          cd "$RUNNER_TEMP/prior-report-replay"
+          sha256sum -c <<'SUMS'
+          c50c106371e9ce37c579637ac96428fa4d4ed0ed2bab0e1b67ab64f550b1666d  engineering/device-run.json
+          fd808a0b8c23deb17d1dcfdf230a53bbd82a5fdd685dbb96b7bf54e5ea418850  engineering/host-regressions.log
+          SUMS
           mkdir -p "$RUNNER_TEMP/engineering"
-          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:testDebugUnitTest > "$RUNNER_TEMP/engineering/host-regressions.log" 2>&1
-          cp -r app/build/test-results/testDebugUnitTest "$RUNNER_TEMP/engineering/host-junit"
+          cp -r engineering/host-regressions.log engineering/host-junit "$RUNNER_TEMP/engineering/"
+          echo "R341_REPORT_RETRY_PRIOR=$RUNNER_TEMP/prior-report-replay" >> "$GITHUB_ENV"
       - name: Execute sealed B12 identity and delivery negative probes
         working-directory: app-source
         run: |

@@ -1,6 +1,7 @@
 """Capture native Android test results and actual upgrade on the disposable API34 guest."""
 from pathlib import Path
 import hashlib,json,os,re,shutil,subprocess,sys,zipfile
+import xml.etree.ElementTree as ET
 
 root=Path(os.environ['GITHUB_WORKSPACE'])
 temp=Path(os.environ['RUNNER_TEMP'])
@@ -82,7 +83,7 @@ def run_full_report_readback(include_raw=True):
     profile='true' if include_raw else 'false'
     dest=output/('production-report-service' if include_raw else 'production-report-diagnostic')
     dest.mkdir()
-    if dense:
+    if dense and 'package:'+pkg in adb('shell','pm','list','packages','--user','0',pkg).splitlines():
         assert 'Success' in adb('shell','pm','clear',pkg)
     results_path=repo/'app/build/outputs/androidTest-results/connected'
     if results_path.is_dir():
@@ -118,6 +119,28 @@ def run_full_report_readback(include_raw=True):
     receipt['reportExport' if include_raw else 'reportExportCompact']=record
     save()
     return result.returncode==0 and bool(junit) and (not include_raw or len(marker)==1) and (not dense or len(cohorts)==1)
+
+def reuse_exact_source_smoke(prior, cases):
+    original=prior/'engineering'
+    old=json.loads((original/'device-run.json').read_bytes())
+    assert (old['sourceCommit'],old['versionCode'],old['api'])==(source,version,34)
+    assert [case['id'] for case in old['cases']]==[case['id'] for case in cases]
+    for case in old['cases']:
+        directory=original/case['id']
+        assert case['exitCode']==0 and case['observedMarkers']==2 and len(case['junit'])==1
+        assert sha(directory/'android-observation.log')==case['deviceLogSha256']
+        witness=case['junit'][0]
+        xml=directory/witness['name']
+        assert sha(xml)==witness['sha256']
+        node,=ET.parse(xml).getroot().iter('testcase')
+        assert all(node.find(state) is None for state in ('failure','error','skipped'))
+        if 'storageRecoverySha256' in case:
+            assert sha(directory/'storage-recovery.log')==case['storageRecoverySha256'] and case['observedStorageBoundaries']==2
+        shutil.copytree(directory,output/case['id'])
+        receipt['cases'].append({**case,'originalWorkflowRun':45539082278})
+    shutil.copyfile(original/'device-run.json',output/'first-attempt-device-run.json')
+    receipt['exactSourceSmokeReusedFrom']=45539082278
+    save()
 
 try:
     receipt['deviceSerial']=adb('get-serialno')
@@ -156,7 +179,12 @@ try:
         available={case['id']:case for case in json.loads((plan/'ACCEPTANCE_MATRIX.json').read_bytes())['cases']}
         cases=[available[ident] for ident in replay]
         receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_EMULATOR_SMOKE'
-    outcomes=[case_run(c) for c in cases]
+    prior=os.environ.get('R341_REPORT_RETRY_PRIOR')
+    if prior:
+        reuse_exact_source_smoke(Path(prior),cases)
+        outcomes=[]
+    else:
+        outcomes=[case_run(c) for c in cases]
     if stage=='B12' and not replay_batches and version>=577311144:
         outcomes.append(run_full_report_readback())
         if version>=577311151:
