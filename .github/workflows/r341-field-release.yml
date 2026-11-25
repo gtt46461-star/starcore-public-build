@@ -18,8 +18,8 @@ jobs:
       matrix:
         include:
           - stage: B12
-            source: 6a44cbbba962cf1f56a3cf59774a0601bb26465c
-            version: '577311150'
+            source: e7a9e3a38f16fbc12d1c7698f50aea59cedc1e3c
+            version: '577311151'
     env:
       SOURCE: ${{ matrix.source }}
       STAGE: ${{ matrix.stage }}
@@ -81,6 +81,8 @@ jobs:
           echo "STARCORE_R33_PLAN_ROOT=$RUNNER_TEMP/material/STARCORE_R33_5_20261118" >> "$GITHUB_ENV"
           curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r34-B12-5562f9b19aa0/STARCORE-R34-577311122-5562f9b19aa0-release.apk" -o "$RUNNER_TEMP/baseline122.apk"
           test "$(sha256sum "$RUNNER_TEMP/baseline122.apk" | cut -d ' ' -f1)" = 5b887677a727e3b8d07362c02bc3cd497ae26de052944e8b399b5cefc9d96cc6
+          curl -fsSL --retry 3 "https://github.com/${GITHUB_REPOSITORY}/releases/download/r34.1-B12-6a44cbbba962/STARCORE-R341-577311150-6a44cbbba962-release.apk" -o "$RUNNER_TEMP/previous150.apk"
+          test "$(sha256sum "$RUNNER_TEMP/previous150.apk" | cut -d ' ' -f1)" = 638169be83fab5528fcb2091843e366e7f4989d373a5ad8a3d59767aa7cb92a0
           cd app-source
           python3 -c 'import json,os; m=json.load(open("release/release_manifest.json")); assert m["versionCode"]==int(os.environ["VERSION"]) and m["versionName"].startswith("R34.1-"+os.environ["STAGE"]+"-")'
       - name: Install pinned build dependencies

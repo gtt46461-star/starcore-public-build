@@ -33,10 +33,17 @@ def covers_122():
     before=installed(577311122)
     candidate,=sorted((temp/'candidate').glob('*-release.apk'))
     assert before['apkSha256']==sha(temp/'baseline122.apk')
+    intermediate=None
+    if (temp/'previous150.apk').is_file():
+        assert 'Success' in adb('install','-r',temp/'previous150.apk')
+        intermediate=installed(577311150)
+        assert intermediate['uid']==before['uid'] and intermediate['apkSha256']==sha(temp/'previous150.apk')
     assert 'Success' in adb('install','-r',candidate)
     after=installed(version)
     assert before['uid']==after['uid'] and after['apkSha256']==sha(candidate)
     receipt['upgrade']={'baseline':before,'installed':after,'scope':'DISPOSABLE_ANDROID_API34_SAME_SIGNER_COVER_INSTALL'}
+    if intermediate is not None:
+        receipt['upgrade']['previousAffectedBuild']=intermediate
     save()
     assert 'Success' in adb('uninstall',pkg)
 
@@ -70,9 +77,13 @@ def case_run(case):
     verified=result.returncode==0 and bool(junit) and len(logs.splitlines())==2
     return verified and (ident!='A-B10-05b' or version<577311148 or len(states.splitlines())==2)
 
-def run_full_report_readback():
-    dest=output/'production-report-service'
+def run_full_report_readback(include_raw=True):
+    dense=version>=577311151
+    profile='true' if include_raw else 'false'
+    dest=output/('production-report-service' if include_raw else 'production-report-diagnostic')
     dest.mkdir()
+    if dense:
+        assert 'Success' in adb('shell','pm','clear',pkg)
     results_path=repo/'app/build/outputs/androidTest-results/connected'
     if results_path.is_dir():
         shutil.rmtree(results_path)
@@ -80,24 +91,33 @@ def run_full_report_readback():
           '-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.R31QDeliveryInstrumentedTest#fullReportReachesPublishedZipAndProviderReadback',
           '-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=R341_B12_FULL_REPORT_NATIVE',
           '-Pandroid.testInstrumentationRunnerArguments.r31qRealService=true',
-          '-Pandroid.testInstrumentationRunnerArguments.r341IncludeRaw=true']
+          '-Pandroid.testInstrumentationRunnerArguments.r341IncludeRaw='+profile]
+    if dense:
+        argv.append('-Pandroid.testInstrumentationRunnerArguments.r341DenseCohort=true')
     (dest/'argv.json').write_text(json.dumps(argv,indent=2)+'\n')
     with (dest/'gradle-case.log').open('w') as log:
         result=subprocess.run(argv,cwd=repo,stdout=log,stderr=subprocess.STDOUT,timeout=900)
     logs=run(['adb','logcat','-d','-v','brief','STARCORE_R341:I','*:S']).stdout
-    marker=[line for line in logs.splitlines() if re.search(r'FULL_REPORT_PROVIDER_READBACK\|[0-9a-f]{64}\|bytes=[1-9][0-9]*$',line)]
+    marker=[line for line in logs.splitlines() if include_raw and re.search(r'FULL_REPORT_PROVIDER_READBACK\|[0-9a-f]{64}\|bytes=[1-9][0-9]*$',line)]
+    cohorts=[line for line in logs.splitlines() if dense and re.search(
+        r'DENSE_REPORT_COHORT\|raw='+profile+r'\|periods=120\|events=2880\|bytes=[1-9][0-9]*\|sha256=[0-9a-f]{64}$',line)]
     (dest/'android-observation.log').write_text(''.join(line+'\n' for line in marker))
+    if dense:
+        (dest/'dense-cohort.log').write_text(''.join(line+'\n' for line in cohorts))
     junit=[]
     for j,xml in enumerate(sorted(results_path.rglob('*.xml'))):
         copied=dest/f'native-result-{j}.xml'
         shutil.copyfile(xml,copied)
         junit.append(dict(name=copied.name,sha256=sha(copied)))
-    receipt['reportExport']={'scope':'DISPOSABLE_API34_ANDROID_DEBUG_DIAGNOSTICS_PROCESS',
-        'includesRequestedRawDatabase':result.returncode==0 and len(marker)==1,
+    record={'scope':'DISPOSABLE_API34_ANDROID_DEBUG_DIAGNOSTICS_PROCESS',
+        'includesRequestedRawDatabase':include_raw and result.returncode==0 and len(marker)==1,
         'exitCode':result.returncode,'deviceMarkerCount':len(marker),'junit':junit,
         'deviceLogSha256':sha(dest/'android-observation.log')}
+    if dense:
+        record.update(denseCohortObservations=len(cohorts),denseCohortSha256=sha(dest/'dense-cohort.log'))
+    receipt['reportExport' if include_raw else 'reportExportCompact']=record
     save()
-    return result.returncode==0 and bool(junit) and len(marker)==1
+    return result.returncode==0 and bool(junit) and (not include_raw or len(marker)==1) and (not dense or len(cohorts)==1)
 
 try:
     receipt['deviceSerial']=adb('get-serialno')
@@ -139,6 +159,8 @@ try:
     outcomes=[case_run(c) for c in cases]
     if stage=='B12' and not replay_batches and version>=577311144:
         outcomes.append(run_full_report_readback())
+        if version>=577311151:
+            outcomes.append(run_full_report_readback(include_raw=False))
     assert all(outcomes),'REGISTERED_ANDROID_PROBES_NOT_ALL_PASSED'
 except Exception as error:
     receipt['failureType']=type(error).__name__
