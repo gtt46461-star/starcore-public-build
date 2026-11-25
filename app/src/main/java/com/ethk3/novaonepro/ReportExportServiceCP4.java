@@ -357,9 +357,8 @@ public final class ReportExportServiceCP4 extends Service {
                         JSONObject latest=loadRequest(journal.root(),job.requestId);
                         if(!job.requestId.equals(latest.getString("requestId"))||!job.releaseHash.equals(latest.getString("releaseHash")))throw new IOException("REPORT_REQUEST_OBSERVATION_IDENTITY");
                         JSONObject frozenRequest=new JSONObject(request.toString());
-                        JSONObject observation=ReportAttachmentClosureCP12.requestObservationR31(latest);
-                        if(!job.reportSourcePreparation.isEmpty())observation.put("reportSourcePreparation",job.reportSourcePreparation);
-                        frozenRequest.put("observation",observation);
+                        frozenRequest.put("observation",ReportAttachmentClosureCP12.requestObservationR31(latest));
+                        if(!job.reportSourcePreparation.isEmpty())frozenRequest.put("reportSourcePreparation",job.reportSourcePreparation);
                         ReportAttachmentClosureCP12.capture(this,copy,directory,frozenRequest,active,members,job.snapshotSha,job.snapshotBytes);
                     }
                     android.os.CancellationSignal cancellation=new android.os.CancellationSignal();

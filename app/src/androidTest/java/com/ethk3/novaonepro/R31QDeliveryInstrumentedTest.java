@@ -8,8 +8,16 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.json.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -147,6 +155,8 @@ public final class R31QDeliveryInstrumentedTest {
     @Test public void fullReportReachesPublishedZipAndProviderReadback()throws Exception{
         Context app=app();DbStore store=new DbStore(app());ready(store);
         boolean includeRaw="true".equals(InstrumentationRegistry.getArguments().getString("r341IncludeRaw"));
+        boolean denseCohort="true".equals(InstrumentationRegistry.getArguments().getString("r341DenseCohort"));
+        Map<String,List<String>> expectedEvents=denseCohort?seedReportCohort(store):null;
         new ServiceHeartbeatStore(app).setUserEnabled(false);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(()->app.startActivity(new Intent(app,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
         Thread.sleep(1000);
@@ -166,6 +176,7 @@ public final class R31QDeliveryInstrumentedTest {
         assertTrue("published ZIP invalid",ReportPublicationCP12.verifyPublishedZip(job,()->true));
         readyUiSurvivesBusyLeaseR31(app,job,request);
         JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());
+        if(denseCohort)verifyDenseCohort(job,expectedEvents,includeRaw);
         if(includeRaw){
             JSONObject semantic=new JSONObject(ReportJobJournalCP12.readAtomic(
                     new File(job,ReportSemanticVerifierR31.RECEIPT),65536));
@@ -187,6 +198,90 @@ public final class R31QDeliveryInstrumentedTest {
         System.out.println("R31Q_ANDROID|FULL_REPORT_PUBLISHED|PROVIDER_READBACK_HASH_PASS|BYTES="+bytes+"|CHECKS_COMPLETE="+index.optBoolean("checksComplete")+"|HEALTH="+index.optBoolean("allChecksPassed")+"|NO_QUALITY_CLAIM|PASS");
         if(includeRaw)android.util.Log.i("STARCORE_R341","FULL_REPORT_PROVIDER_READBACK|"+jobId+"|bytes="+bytes);
         store.close();
+    }
+
+    /** Disposable instrumentation only. Use the normal event writer to populate every retained cohort slot. */
+    private static Map<String,List<String>> seedReportCohort(DbStore store) throws Exception {
+        Map<String,List<String>> expected = new LinkedHashMap<>();
+        DatabaseCoordinator coordinator = store.coordinatorR36();
+        coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,
+                "R341_DENSE_REPORT_SCHEMA_FIXTURE"), db -> {
+            RuntimeEventLedgerR926.ensureSchema(db);
+            RuntimeObservationScopeR341.installWithinTransaction(db);
+            return null;
+        });
+        for (int period = 101; period <= 220; period++) {
+            String issue = String.format(Locale.ROOT, "20301125%04d", period);
+            List<String> ids = new ArrayList<>();
+            coordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,
+                    "R341_DENSE_REPORT_EVENT_FIXTURE"), db -> {
+                for (int i = 0; i < 24; i++) {
+                    RuntimeEventLedgerR926.Event event = RuntimeEventLedgerR926.Event.of(issue, "21", "fixture",
+                            i == 0 ? "REQUESTED" : "RECOVERY", "REQUESTED", RuntimeEventLedgerR926.RANK_REQUESTED,
+                            "disposable report fixture", "R341_TEST", issue + "/dense-report/" + i);
+                    assertTrue(RuntimeEventLedgerR926.appendWithinTransaction(db, event));
+                    ids.add(event.eventId());
+                }
+                return null;
+            });
+            expected.put(issue, ids);
+        }
+        return expected;
+    }
+
+    private static void verifyDenseCohort(File job, Map<String,List<String>> expected, boolean raw) throws Exception {
+        try (ZipFile zip = new ZipFile(new File(job,"delivery/STARCORE_FULL_REPORT.zip"))) {
+            JSONObject source = new JSONObject(new String(reportMember(zip,"source-manifest.json",65536),StandardCharsets.UTF_8));
+            assertEquals(raw, source.getBoolean("rawEvidenceIncluded"));
+            assertEquals(raw, zip.getEntry("snapshot.db") != null);
+            assertEquals(!raw, zip.getEntry("DIAGNOSTIC_SCOPE.json") != null);
+            assertNotNull("snapshot preparation evidence", source.get("reportSourcePreparation"));
+            JSONObject ref = source.getJSONObject("r341RuntimeCohort");
+            assertEquals("runtime-opportunity-cohort.json", ref.getString("member"));
+            byte[] body = reportMember(zip,ref.getString("member"),2 * 1024 * 1024);
+            assertTrue("test must exceed the old control JSON limit", body.length > ReportJobJournalCP12.MAX_JSON);
+            assertEquals(ref.getLong("bytes"), body.length);
+            assertEquals(ref.getString("sha256"), ReportArchiveCP4.hex(MessageDigest.getInstance("SHA-256").digest(body)));
+            byte[] observation = reportMember(zip,"runtime-observation.json",ReportJobJournalCP12.MAX_JSON);
+            assertFalse(new JSONObject(new String(observation,StandardCharsets.UTF_8)).has("r341RuntimeCohort"));
+            JSONObject cohort = new JSONObject(new String(body,StandardCharsets.UTF_8));
+            assertEquals("OBSERVED_DECLARED_BOUNDED_RANGE", cohort.getString("state"));
+            JSONObject scope = source.getJSONObject("r341SqlObservationScope");
+            assertEquals(source.getString("snapshotSha256"), scope.getString("sqlWatermark"));
+            assertEquals(cohort.getJSONObject("scope").toString(), scope.toString());
+            assertEquals("DIAGNOSTIC_ONLY", cohort.getString("datasetRole"));
+            assertEquals(expected.size(), cohort.getInt("requestedTargets"));
+            JSONArray rows = cohort.getJSONArray("rows");
+            assertEquals(expected.size(), rows.length());
+            int events = 0;
+            for (int i = 0; i < rows.length(); i++) {
+                JSONObject row = rows.getJSONObject(i);
+                List<String> ids = expected.remove(row.getString("target"));
+                assertNotNull("missing or repeated target", ids);
+                JSONArray effects = row.getJSONArray("effects");
+                assertEquals(ids.size(), effects.length());
+                assertEquals(0, row.getInt("omittedEvents"));
+                for (int j = 0; j < effects.length(); j++) {
+                    assertEquals(ids.get(j), effects.getJSONObject(j).getString("eventId"));
+                }
+                events += effects.length();
+            }
+            assertTrue(expected.isEmpty());
+            assertEquals(2880, events);
+            JSONObject semantic = new JSONObject(new String(reportMember(zip,ReportSemanticVerifierR31.RECEIPT,65536),StandardCharsets.UTF_8));
+            assertEquals(96, semantic.getJSONObject("checks").length());
+            android.util.Log.i("STARCORE_R341","DENSE_REPORT_COHORT|raw="+raw+"|periods="+rows.length()
+                    +"|events="+events+"|bytes="+body.length+"|sha256="+ref.getString("sha256"));
+        }
+    }
+
+    private static byte[] reportMember(ZipFile zip, String name, int maxBytes) throws IOException {
+        ZipEntry entry = zip.getEntry(name);
+        assertNotNull(name, entry);
+        assertTrue(name, entry.getSize() >= 0 && entry.getSize() <= maxBytes);
+        try (InputStream input = zip.getInputStream(entry)) {
+            return input.readAllBytes();
+        }
     }
 
     @Test public void committedIntentSurvivesObserverDeathAndExportsExplicitUnknown()throws Exception{

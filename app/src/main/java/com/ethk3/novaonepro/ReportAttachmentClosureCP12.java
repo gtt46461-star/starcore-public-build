@@ -14,6 +14,7 @@ import org.json.JSONObject;
 /** Explicit external evidence registry, bound to the copied SQLite file; no live DbStore/model runtime is opened. */
 public final class ReportAttachmentClosureCP12 {
     private static final long MiB=1024L*1024L;
+    private static final String RUNTIME_COHORT = "runtime-opportunity-cohort.json";
     /** Shared with the read-only report context: producer and consumer name one format. */
     public static String reportProfileR80(boolean compact){
         return compact?ReportReadContextCP4.COMPLETE_DIAGNOSTIC_PROFILE_R68:ReportReadContextCP4.RAW_EVIDENCE_PROFILE;
@@ -43,15 +44,6 @@ public final class ReportAttachmentClosureCP12 {
         File attachments=new File(job,"attachments");if(!attachments.isDirectory()&&!attachments.mkdir())throw new IOException("REPORT_ATTACHMENT_DIRECTORY");
         File plans=new File(job,"attachments-plan-"+UUID.randomUUID().toString().replace("-","")+".jsonl");
         JSONObject frozenObservation=requestObservationR31(request);
-        try {
-            RuntimeObservationScopeR341 scope = RuntimeObservationScopeR341.capture(app,
-                    RuntimeObservationScopeR341.databaseIdentity(copy), snapshotHash, RuntimeObservationScopeR341.SYSTEM);
-            frozenObservation.put("r341SqlObservationScope", new JSONObject(scope.exportEnvelope()));
-            frozenObservation.put("r341RuntimeCohort", new JSONObject(RuntimeScenarioRecorderR341.exportFixture(copy, scope)));
-        } catch (android.database.sqlite.SQLiteException unavailable) {
-            frozenObservation.put("r341SqlObservationScopeState", "RESOURCE_WAIT");
-        }
-
         File observation=new File(job,"runtime-observation.json");ReportJobJournalCP12.writeAtomic(observation,frozenObservation.toString());
         ReportMemberPlanCP12.append(members,"runtime-observation.json",observation.getName(),ReportArchiveCP4.hash(observation,control),observation.length());
         String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);source.put("sourceTreeSha256",SourceManifestR815.SOURCE_TREE_SHA256);source.put("generatedRuleSha256",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
@@ -72,12 +64,15 @@ public final class ReportAttachmentClosureCP12 {
         source.put("rawEvidenceIncluded", !compact);
         source.put("snapshotSha256", snapshotHash);
         source.put("snapshotBytes", new File(copy.getPath()).length());
+        String sourcePreparation = request.optString("reportSourcePreparation");
+        if (!sourcePreparation.isEmpty()) source.put("reportSourcePreparation", sourcePreparation);
         source.put("omittedPayloads", compact ? "installed APK; raw SQLite; model/training/retention binaries; historical duplicate ledgers" : "NONE");
         source.put("coverage", "All 96 checks evaluated on one immutable full snapshot; all schema objects and table counts; exact source call index; current construction ledgers; runtime observations. No omitted payload is claimed to be exported.");
         long total,seedRows=0,seedMismatches=0;
         File seedEvidence=new File(job,"seed-bundle-observations.jsonl");
         source.put("installedSeedBundleSha256",V51ArtifactBundleManifest.BUNDLE_HASH);
         try(FileOutputStream fd=new FileOutputStream(plans);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(plans,fd,control),StandardCharsets.UTF_8),8192)) {
+            captureRuntimeCohort(app, copy, job, snapshotHash, source, out, control);
             org.json.JSONArray observations=frozenObservation.optJSONArray("fullObservations");
             if(observations!=null){if(observations.length()>ReportJobJournalCP12.MAX_FULL_OBSERVATIONS_R31)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
                 for(int i=0;i<observations.length();i++){JSONObject ref=observations.getJSONObject(i);String key=ref.getString("key"),requestId=request.getString("requestId"),hash=ref.getString("sha256");
@@ -236,6 +231,33 @@ public final class ReportAttachmentClosureCP12 {
         JSONObject complete=new JSONObject();complete.put("format","CP12_FIXED_INPUT_CLOSURE_V1");complete.put("snapshotSha256",snapshotHash);complete.put("attachmentsSha256",ReportArchiveCP4.hash(manifest,control));complete.put("sourceSha256",ReportArchiveCP4.hash(sourceManifest,control));complete.put("observationSha256",ReportArchiveCP4.hash(observation,control));
         ReportJobJournalCP12.writeAtomic(new File(job,"inputs-complete.json"),complete.toString());
     }
+
+    /** The snapshot cohort can contain 120 periods of effects. It is a verified attachment in both report profiles. */
+    private static void captureRuntimeCohort(Context app, SQLiteDatabase snapshot, File job, String snapshotHash,
+            JSONObject source, Writer plans, ReportNativeCP4.Control control) throws Exception {
+        RuntimeObservationScopeR341 scope;
+        try {
+            scope = RuntimeObservationScopeR341.capture(app, RuntimeObservationScopeR341.databaseIdentity(snapshot),
+                    snapshotHash, RuntimeObservationScopeR341.SYSTEM);
+        } catch (android.database.sqlite.SQLiteException unavailable) {
+            source.put("r341SqlObservationScopeState", "RESOURCE_WAIT");
+            return;
+        }
+        JSONObject cohort = new JSONObject(RuntimeScenarioRecorderR341.exportFixture(snapshot, scope));
+        byte[] payload = cohort.toString().getBytes(StandardCharsets.UTF_8);
+        String sha256 = ReportArchiveCP4.hex(MessageDigest.getInstance("SHA-256").digest(payload));
+        File fixed = ReportArchiveVerifierCP12.inside(job, fixedPath(sha256));
+        if (!fixed.isFile()) {
+            try (InputStream input = new ByteArrayInputStream(payload)) {
+                copy(input, fixed, payload.length, sha256, control);
+            }
+        }
+        descriptor(plans, RUNTIME_COHORT, sha256, payload.length, "SQL_SNAPSHOT", snapshotHash, "");
+        source.put("r341SqlObservationScope", new JSONObject(scope.exportEnvelope()));
+        source.put("r341RuntimeCohort", new JSONObject().put("member", RUNTIME_COHORT)
+                .put("bytes", payload.length).put("sha256", sha256).put("state", cohort.getString("state")));
+    }
+
     /** Exact-snapshot locators, receipts and byte-identical originals; compact mode records unavailable bytes explicitly. */
     private static JSONObject captureFaultOriginalsR335(SQLiteDatabase snapshot,File files,File job,Writer plans,
             ReportNativeCP4.Control control,boolean compact)throws Exception {
