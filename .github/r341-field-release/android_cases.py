@@ -1,6 +1,6 @@
 """Capture native Android test results and actual upgrade on the disposable API34 guest."""
 from pathlib import Path
-import hashlib,json,os,re,shutil,subprocess,sys,zipfile
+import hashlib,json,os,re,shlex,shutil,subprocess,sys,time,zipfile
 import xml.etree.ElementTree as ET
 
 root=Path(os.environ['GITHUB_WORKSPACE'])
@@ -83,7 +83,9 @@ def run_full_report_readback(include_raw=True):
     profile='true' if include_raw else 'false'
     dest=output/('production-report-service' if include_raw else 'production-report-diagnostic')
     dest.mkdir()
-    if dense and 'package:'+pkg in adb('shell','pm','list','packages','--user','0',pkg).splitlines():
+    if os.environ.get('R341_WARM_REPORT_REPLAY')=='1':
+        restore_warmed_report_db()
+    elif dense and 'package:'+pkg in adb('shell','pm','list','packages','--user','0',pkg).splitlines():
         assert 'Success' in adb('shell','pm','clear',pkg)
     results_path=repo/'app/build/outputs/androidTest-results/connected'
     if results_path.is_dir():
@@ -123,6 +125,54 @@ def run_full_report_readback(include_raw=True):
     receipt['reportExport' if include_raw else 'reportExportCompact']=record
     save()
     return result.returncode==0 and bool(junit) and (not include_raw or len(marker)==1) and (not dense or len(cohorts)==1)
+
+warm_db=f'/data/user/0/{pkg}/databases/binance_k3_nova_one_pro_v57.db'
+warm_backup='/data/local/tmp/starcore-r341-warmed-report.db'
+
+def warm_report_db():
+    adb('shell','cmd','connectivity','airplane-mode','enable')
+    adb('shell','svc','wifi','disable')
+    assert adb('shell','settings','get','global','airplane_mode_on')=='1'
+    setup=output/'report-legacy-preparation'
+    setup.mkdir()
+    argv=['./gradlew',':app:assembleDebug',':app:assembleDebugAndroidTest','-Pr30Instrumentation=true','--max-workers=4']
+    with (setup/'assemble.log').open('w') as log:
+        subprocess.run(argv,cwd=repo,stdout=log,stderr=subprocess.STDOUT,timeout=900,check=True)
+    application,=sorted((repo/'app/build/outputs/apk/debug').glob('*.apk'))
+    test_apk,=sorted((repo/'app/build/outputs/apk/androidTest/debug').glob('*.apk'))
+    assert 'Success' in adb('install','-r',application)
+    assert 'Success' in adb('install','-r','-t',test_apk)
+    case='com.ethk3.novaonepro.R31QDeliveryInstrumentedTest#legacyMigrationResumesAndAllowsCriticalCommitsBetweenUnits'
+    runner=pkg+'.test/com.ethk3.novaonepro.R30FaultAndroidRunner'
+    for attempt in range(1,4):
+        result=run(['adb','shell','am','instrument','-w','-r','-e','class',case,
+                    '-e','r30Sandbox','R341_REAL_REPORT_WARM_REPLAY','-e','r31qRealService','true',runner],timeout=260,check=False)
+        (setup/f'preparation-{attempt}.log').write_text(result.stdout+result.stderr)
+        if re.search(r'OK \(1 test\)',result.stdout) and 'FAILURES!!!' not in result.stdout:
+            break
+    else:
+        raise RuntimeError('REPORT_REPLAY_LEGACY_PREPARATION_NOT_READY')
+    adb('shell','am','force-stop',pkg)
+    adb('shell','sqlite3 '+shlex.quote(warm_db)+' '+shlex.quote('.backup '+warm_backup))
+    sha_actual=adb('shell','sha256sum',warm_backup).split()[0]
+    assert re.fullmatch('[a-f0-9]{64}',sha_actual)
+    receipt['warmedReportFixture']={'sha256':sha_actual,'attempts':attempt,'scope':'NATURALLY_MIGRATED_DISPOSABLE_REPLAY_DATABASE'}
+    save()
+
+def restore_warmed_report_db():
+    application,=sorted((repo/'app/build/outputs/apk/debug').glob('*.apk'))
+    assert 'Success' in adb('install','-r',application)
+    uid=re.search(r'\b(?:userId|appId)=(\d+)',adb('shell','dumpsys','package',pkg))[1]
+    adb('shell','am','force-stop',pkg)
+    db_directory=warm_db.rsplit('/',1)[0]
+    adb('shell','mkdir','-p',db_directory)
+    adb('shell','rm','-f',warm_db+'-wal',warm_db+'-shm')
+    adb('shell','cp',warm_backup,warm_db)
+    adb('shell','chown',uid+':'+uid,db_directory,warm_db)
+    adb('shell','chmod','0771',db_directory)
+    adb('shell','chmod','0660',warm_db)
+    adb('shell','restorecon','-R',db_directory)
+    assert adb('shell','sha256sum',warm_db).split()[0]==receipt['warmedReportFixture']['sha256']
 
 def reuse_inherited_smoke(prior, cases):
     original=prior/'engineering'
@@ -198,6 +248,8 @@ try:
     else:
         outcomes=[case_run(c) for c in cases]
     if stage=='B12' and not replay_batches and version>=577311144:
+        if os.environ.get('R341_WARM_REPORT_REPLAY')=='1':
+            warm_report_db()
         outcomes.append(run_full_report_readback())
         if version>=577311151:
             outcomes.append(run_full_report_readback(include_raw=False))

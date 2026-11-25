@@ -24,6 +24,7 @@ jobs:
       SOURCE: ${{ matrix.source }}
       STAGE: ${{ matrix.stage }}
       VERSION: ${{ matrix.version }}
+      R341_WARM_REPORT_REPLAY: '1'
     steps:
       - uses: actions/setup-java@v4
         with:
@@ -120,21 +121,31 @@ jobs:
           for case in R341-B01-01-T01 R341-B01-01-T02; do
             python3 -B tools/r341/test_b01_contracts.py --case "$case" --repo "$PWD" --out "$RUNNER_TEMP/engineering/$case.json"
           done
-      - name: Build from the clean committed source and package its evidence
+      - name: Restore the verified original-signed candidate from the signing run
+        uses: actions/download-artifact@v4
+        with:
+          name: staged-original-signed-apk
+          run-id: 45546053680
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/staged152
+      - name: Restore the original build log and the first cold startup witness
+        uses: actions/download-artifact@v4
+        with:
+          name: R341-B12-eb8f82a8bda8db22f1f122095217132f07053bcb-engineering
+          run-id: 45546053680
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/cold152
+      - name: Reopen the original APK and package its commit and build proof
         working-directory: app-source
         run: |
           set -euo pipefail
           plan="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
-          python3 -B tools/r33/run_release_build.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/build"
-          python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$RUNNER_TEMP/baseline122.apk" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: staged-original-signed-apk
-          path: |
-            ${{ runner.temp }}/candidate/*-release.apk
-            ${{ runner.temp }}/candidate/CI_BUILD_RECEIPT.json
-          compression-level: 0
-          if-no-files-found: error
+          apk="$RUNNER_TEMP/staged152/STARCORE-R341-577311152-eb8f82a8bda8-release.apk"
+          test "$(sha256sum "$apk" | cut -d ' ' -f1)" = 2afc220e8942f7eda678b7ddd09ca16c48225c2f4f99167a9233a5e9bf1a8c38
+          cmp "$RUNNER_TEMP/staged152/CI_BUILD_RECEIPT.json" "$RUNNER_TEMP/cold152/build/CI_BUILD_RECEIPT.json"
+          python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$RUNNER_TEMP/baseline122.apk" --apk "$apk" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/cold152/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/cold152/build/CI_BUILD_RECEIPT.json"
+          mkdir -p "$RUNNER_TEMP/engineering/cold-start-152"
+          cp -r "$RUNNER_TEMP/cold152/engineering/device-run.json" "$RUNNER_TEMP/cold152/engineering/production-report-service" "$RUNNER_TEMP/cold152/engineering/production-report-diagnostic" "$RUNNER_TEMP/engineering/cold-start-152/"
       - name: Restore inherited regression originals from the first attempt
         uses: actions/download-artifact@v4
         with:
