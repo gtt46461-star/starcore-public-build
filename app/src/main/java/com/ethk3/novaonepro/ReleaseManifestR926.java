@@ -2,10 +2,10 @@ package com.ethk3.novaonepro;
 
 /** GENERATED from release/release_manifest.json by scripts/r926_release_manifest.py. */
 public final class ReleaseManifestR926 {
-    public static final String MANIFEST_SHA256 = "70442eab9f4a89af1d257a5030af830f3ff97bd2e473ecef67f39900718c6d63";
+    public static final String MANIFEST_SHA256 = "5d770aeb263a5d78c0dd46df34afdf753ec60e597e6509118a15ba1b29a559d7";
     public static final String APPLICATION_ID = "com.starcore.research.r13";
-    public static final String VERSION_NAME = "R34.2-B10-2026-11-26-577311167";
-    public static final int VERSION_CODE = 577311167;
+    public static final String VERSION_NAME = "R34.2-B11-2026-11-26-577311168";
+    public static final int VERSION_CODE = 577311168;
     public static final int COMPILE_SDK = 36;
     public static final int MIN_SDK = 21;
     public static final int TARGET_SDK = 28;

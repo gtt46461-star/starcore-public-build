@@ -26,8 +26,8 @@ public final class R31RetirementManifestTest {
         return (Map<String, Object>) JsonR27.parse(new String(Files.readAllBytes(Paths.get("../tools/r31/retirement_manifest.json")), StandardCharsets.UTF_8));
     }
     @SuppressWarnings("unchecked") static Map<String,Object> currentDbStoreCoverage() throws Exception {
-        Map<String,Object> current=(Map<String,Object>)JsonR27.parse(Files.readString(
-                Paths.get("../release/r3251_retirement_inventory.json"), StandardCharsets.UTF_8));
+        Map<String,Object> current=(Map<String,Object>)JsonR27.parse(read(
+                Paths.get("../release/r3251_retirement_inventory.json")));
         return (Map<String,Object>)current.get("dbstore");
     }
     static String read(Path p) { try { return new String(Files.readAllBytes(p), StandardCharsets.UTF_8); } catch (Exception e) { throw new IllegalStateException(e); } }

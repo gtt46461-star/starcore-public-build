@@ -320,7 +320,30 @@ public final class ReportSnapshotR30 {
         q.rows("runtimeCaches","r27_chart_cache",new String[]{"panel_id","key","payload_json","updated_at"},q.has("r27_chart_cache","updated_at")?"updated_at DESC,panel_id,key":null,64,q.has("r27_chart_cache","panel_id","key")?"(panel_id IN ('health','atomnet','calibration-r30','r30','mainline','r30-charts') OR (panel_id IN ('asset','r29') AND key IN ('build-identity','baseline-identity','legacy-preservation')) )":null,16384);
         q.rows("chartObjectIndex","r27_chart_cache",new String[]{"panel_id","key","updated_at"},"panel_id,key",512,q.has("r27_chart_cache","key")?"key='panel'":null,256);
         q.rows("repairFrameIndex","r30r1_chart_cache",new String[]{"view_id","frame_id","run_id","payload_hash","updated_at"},"view_id",18,"frame_id=(SELECT f.frame_id FROM r30r1_chart_cache f WHERE f.view_id=r30r1_chart_cache.view_id ORDER BY f.updated_at DESC,f.frame_id LIMIT 1)",256);
-        for(ResearchGraphSpecsR30R1.Spec graph:ResearchGraphSpecsR30R1.ALL){q.add("researchProduced:"+graph.id,q.has("r30r1_chart_cache","view_id","run_id")&&q.has("r30r1_analysis_run","run_id","source_commit")?"(SELECT count(*) FROM r30r1_chart_cache f JOIN r30r1_analysis_run r ON r.run_id=f.run_id WHERE f.view_id='"+graph.id+"' AND r.source_commit='"+BuildConfig.SOURCE_COMMIT_R26+"')":"NULL",true);q.add("researchConsumed:"+graph.id,q.has("r30r1_research_measure","run_id","kind","measure_key")&&q.has("r30r1_chart_cache","view_id","run_id")?"(SELECT count(DISTINCT m.measure_key) FROM r30r1_research_measure m JOIN r30r1_chart_cache f ON f.run_id=m.run_id WHERE f.view_id='"+graph.id+"' AND m.kind='RESEARCH_SOURCE_CONSUMPTION')":"NULL",true);}
+        for (ResearchGraphSpecsR30R1.Spec graph : ResearchGraphSpecsR30R1.ALL) {
+            boolean joinedRuns=q.has("r30r1_analysis_run","run_id","source_commit","dataset_hash","source_revision","role","status");
+            boolean currentHead=joinedRuns&&q.has("r33_research_input_head","view_id","source_run","state");
+            boolean applied=joinedRuns&&q.has("r33_research_applied","source_run","view_id","source_commit",
+                    "dataset_hash","source_revision","role","product_hash","before_hash","after_hash");
+            String current=" AND r.status='COMMITTED' AND r.source_commit='"+BuildConfig.SOURCE_COMMIT_R26+"'";
+            String view="'"+graph.id+"'";
+            q.add("researchProduced:"+graph.id,currentHead
+                    ?"(SELECT count(*) FROM r33_research_input_head h JOIN r30r1_analysis_run r "
+                        +"ON r.run_id=h.source_run WHERE h.view_id="+view+" AND h.state='PRODUCED'"+current+")":"NULL",true);
+            q.add("researchConsumed:"+graph.id,applied
+                    ?"(SELECT count(*) FROM r33_research_applied a JOIN r30r1_analysis_run r ON r.run_id=a.source_run "
+                        +"AND r.source_commit=a.source_commit AND r.dataset_hash=a.dataset_hash "
+                        +"AND r.source_revision=a.source_revision AND r.role=a.role WHERE a.view_id="+view
+                        +" AND length(a.product_hash)=64 AND length(a.before_hash)=64 AND length(a.after_hash)=64"
+                        +current+")":"NULL",true);
+        }
+        q.rows("researchCurrentHeadsR342","r33_research_input_head",
+                new String[]{"view_id","state","reason","source_run","input_hash","output_hash","observed_at"},
+                "view_id",38,"view_id GLOB 'R[0-9][0-9]' OR view_id LIKE 'MATRIX:%'",1024);
+        q.rows("researchCurrentActionsR342","r33_research_applied",
+                new String[]{"view_id","source_run","dataset_hash","source_revision","source_abi",
+                    "source_commit","product_hash","before_hash","after_hash","action_kind","consume_key"},
+                "applied_at DESC,consume_key",38,"source_commit='"+BuildConfig.SOURCE_COMMIT_R26+"'",1024);
         q.rows("researchFrameIndex","r30_research_chart_frame",new String[]{"graph_id","frame_hash","input_hash","role","updated_at"},null,512,null,256);
         q.rows("outbox","r952_research_outbox",new String[]{"issue","status","attempts","last_error","updated_at"},null,64,null,256);
         q.rows("atoms","r31_atom_contribution_visible",new String[]{"atom_id","dataset_hash","from_row","to_row","n_periods","paired_comparisons","mean_gain","lcb95","source","recorded_at"},null,20,null,256);

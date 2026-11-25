@@ -99,6 +99,7 @@ public final class ReportSemanticVerifierR31 {
         Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("format","R31_REPORT_SEMANTICS_V1");receipt.put("jobId",job.jobId);receipt.put("snapshotSha256",job.snapshotSha);
         receipt.put("sourceCommit",map(document.get("snapshotWatermark")).get("sourceCommit"));receipt.put("reportSha256",ReportArchiveCP4.hash(new File(directory,"R30_REPORT.json"),control));
         receipt.put("chapters",12);receipt.put("metrics",44);receipt.put("checks",checks);receipt.put("catalogPages",pages);receipt.put("catalogHashXor",ReportArchiveCP4.hex(catalogDigest));receipt.put("rawEvidence",raw);
+        receipt.put("checkAssessmentR342",assessChecksR342(checks));
         if(document.get("sourceHealthR341") instanceof Map){
             Map<?,?> health=(Map<?,?>)document.get("sourceHealthR341");
             Map<String,Object> overview=new LinkedHashMap<>();
@@ -117,6 +118,32 @@ public final class ReportSemanticVerifierR31 {
         }
         receipt.put("scope","DOCUMENT_IDENTITY_OBJECT_AND_CHECK_COVERAGE_NOT_BUSINESS_HEALTH_OR_NATURAL_QUALITY");
         File file=new File(directory,RECEIPT);ReportJobJournalCP12.writeAtomic(file,JsonR27.write(receipt));return file;
+    }
+
+    static Map<String,Object> assessChecksR342(Map<String,Object> checks)throws IOException {
+        Map<String,Object> summary=new LinkedHashMap<>();
+        Map<String,Integer> execution=new TreeMap<>();
+        Map<String,Integer> outcomes=new TreeMap<>();
+        Map<String,List<String>> unresolved=new LinkedHashMap<>();
+        for(CheckMetricCrosswalkR31.Check contract:CheckMetricCrosswalkR31.checks()){
+            if(!checks.containsKey(contract.id))continue;
+            Map<?,?> result=map(checks.get(contract.id));
+            String executionState=String.valueOf(result.get("execution_state"));
+            String outcome=String.valueOf(result.get("domain_outcome"));
+            String health=String.valueOf(result.get("health"));
+            execution.merge(executionState,1,Integer::sum);
+            outcomes.merge(outcome,1,Integer::sum);
+            if(!"EXECUTED".equals(executionState)
+                    ||!Arrays.asList("PASS","OBSERVED","NOT_APPLICABLE").contains(health)
+                    ||"OBSERVED_EMPTY".equals(outcome))
+                unresolved.put(contract.id,contract.metrics);
+        }
+        summary.put("registeredCheckDenominator",CheckMetricCrosswalkR31.checks().size());
+        summary.put("execution",execution);
+        summary.put("evidenceConclusion",outcomes);
+        summary.put("affectedMetricIdsByCheck",unresolved);
+        summary.put("businessAcceptance","INDEPENDENT_METRIC_AND_FIELD_RECEIPTS_REQUIRED");
+        return summary;
     }
     private static final class FrozenAttachment {
         final long bytes;final String hash;

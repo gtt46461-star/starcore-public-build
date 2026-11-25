@@ -16,6 +16,7 @@ public final class ReportAssessmentR33 {
         double n=((Number)value).doubleValue();return Double.isFinite(n)?n:null;
     }
     private static boolean verifiedPass(Map<?,?> row,String id){
+        if("SNAPSHOT_PROJECTION_ONLY".equals(row.get("sourceReceiptKind")))return false;
         Object receipt=row.get("sourceReceiptSha256");
         Map<?,?> evaluation=map(row.get("r31Evaluation")),definition=map(row.get("r31Definition"));
         Double samples=finite(row.get("sampleCount")),value=finite(row.get("value"));

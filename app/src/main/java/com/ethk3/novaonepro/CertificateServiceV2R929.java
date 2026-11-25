@@ -20,6 +20,12 @@ public final class CertificateServiceV2R929 {
     public static final int WEIGHT_STEP_1_N = 600;
     public static final int WEIGHT_STEP_2_N = 840;
     public static final int WEIGHT_STEP_3_N = 1200;
+    static double historicalRankingCapR342(int futureN) {
+        if (futureN >= WEIGHT_STEP_3_N) return 0.08d;
+        if (futureN >= WEIGHT_STEP_2_N) return 0.07d;
+        if (futureN >= WEIGHT_STEP_1_N) return 0.06d;
+        return futureN >= L6_CUMULATIVE_FUTURE_N ? 0.05d : 0d;
+    }
     private CertificateServiceV2R929() {}
 
     public enum Namespace { ALGORITHM, GRAPH_ASSET, GENESIS_ASSET, MODEL_BUNDLE }
@@ -201,12 +207,12 @@ public final class CertificateServiceV2R929 {
             return new Certificate(id, e, Level.L5, State.ACTIVE, Consumer.SHADOW_REORDER, 0.0d,
                     gates, "STATISTICAL_GATE_NOT_MET");
 
-        double weight = 0.05d;
+        double weight = historicalRankingCapR342(e.futureN);
         Level level = Level.L6;
         String reason = "L6_CONTROLLED_RANKING_5_PERCENT";
-        if (e.futureN >= WEIGHT_STEP_3_N) { weight = 0.08d; level = Level.L7; reason = "L7_1200_FUTURE_WEIGHT_CAP_8_PERCENT"; }
-        else if (e.futureN >= WEIGHT_STEP_2_N) { weight = 0.07d; level = Level.L7; reason = "L7_840_FUTURE_WEIGHT_CAP_7_PERCENT"; }
-        else if (e.futureN >= WEIGHT_STEP_1_N) { weight = 0.06d; level = Level.L7; reason = "L7_600_FUTURE_WEIGHT_CAP_6_PERCENT"; }
+        if (e.futureN >= WEIGHT_STEP_3_N) { level = Level.L7; reason = "L7_1200_FUTURE_WEIGHT_CAP_8_PERCENT"; }
+        else if (e.futureN >= WEIGHT_STEP_2_N) { level = Level.L7; reason = "L7_840_FUTURE_WEIGHT_CAP_7_PERCENT"; }
+        else if (e.futureN >= WEIGHT_STEP_1_N) { level = Level.L7; reason = "L7_600_FUTURE_WEIGHT_CAP_6_PERCENT"; }
         return new Certificate(id, e, level, State.ACTIVE, Consumer.CONTROLLED_RANKING, weight,
                 gates, reason);
     }
