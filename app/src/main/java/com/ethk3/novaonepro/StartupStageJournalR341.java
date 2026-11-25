@@ -3,7 +3,9 @@ package com.ethk3.novaonepro;
 import android.content.Context;
 import android.system.Os;
 import android.system.OsConstants;
+import com.ethk3.novaonepro.strategyv2.FailureDispositionR31;
 import com.ethk3.novaonepro.strategyv2.JsonR27;
+import com.ethk3.novaonepro.strategyv2.RuntimeFaultEvidenceR31;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -25,6 +27,7 @@ public final class StartupStageJournalR341 {
     private static final int MAX_FRAME = 2048;
     private static final int EMERGENCY_BYTES = 4096;
     private static final int LIMIT = 256 * 1024 - EMERGENCY_BYTES;
+    private static final int ORIGINAL_BUDGET = 2 * 1024 * 1024;
     private static final String SCHEMA = "R341_STARTUP_FRAME_1";
 
     public enum Stage {
@@ -134,38 +137,93 @@ public final class StartupStageJournalR341 {
 
     public AppendResult recordUncaught(Token token, Throwable failure) {
         Map<String, Object> frame = base(token, "END");
-        Outcome outcome = classify(failure);
+        FailureDispositionR31.Decision decision = FailureDispositionR31.classify(failure);
+        Outcome outcome = classify(failure, decision);
         frame.put("outcome", outcome.name());
         frame.put("failureType", bounded(failure.getClass().getName()));
-        Throwable cause = failure;
-        StringBuilder chain = new StringBuilder();
-        for (int n = 0; cause != null && n < 6; n++, cause = cause.getCause()) {
-            chain.append(cause.getClass().getName()).append(':').append(code(cause)).append('|');
-            StackTraceElement[] stack = cause.getStackTrace();
-            if (stack.length > 0) chain.append(stack[0].getClassName()).append('.').append(stack[0].getMethodName());
+        frame.put("failureCategory", decision.category);
+        frame.put("commitOutcome", decision.commitOutcome);
+        FailureDispositionR31.ClassifiedFailure origin = FailureDispositionR31.firstTypedR31(failure);
+        if (origin != null) {
+            frame.put("declaredFailureCategory", bounded(origin.failureCategory()));
+            frame.put("operation", bounded(origin.operation()));
+            frame.put("failurePhase", bounded(origin.phase()));
         }
         frame.put("code", code(failure));
+        if ("PROCESS_FATAL".equals(decision.category)) {
+            frame.put("failureOriginalState", "PROCESS_FATAL_FRAME_ONLY");
+            return append(frame);
+        }
         StackTraceElement[] stack = failure.getStackTrace();
         if (stack.length > 0) frame.put("stackTop", bounded(stack[0].getClassName() + "." + stack[0].getMethodName()));
-        frame.put("causeChainHash", V51ChecksumEngine.sha256(chain.toString()));
+        RuntimeFaultEvidenceR31 evidence = RuntimeFaultEvidenceR31.capture(failure, token.stage.name());
+        frame.put("causeChainHash", evidence.fingerprint);
+        List<?> chain = (List<?>) JsonR27.parse(evidence.causeChainJson);
+        if (!chain.isEmpty()) {
+            frame.put("rootType", bounded(String.valueOf(((Map<?,?>) chain.get(chain.size() - 1)).get("class"))));
+        }
+        Map<String, Object> original = new LinkedHashMap<>();
+        original.put("schema", "R342_STARTUP_FAILURE_ORIGINAL_1");
+        original.put("category", decision.category);
+        original.put("operation", evidence.operation);
+        original.put("phase", evidence.phase);
+        original.put("commitOutcome", decision.commitOutcome);
+        original.put("boundedRedactedCauseChain", chain);
+        original.put("boundedRedactedStack", evidence.stack);
+        original.put("retention", "R31_BOUNDED_REDACTED_CAUSE_CAPTURE");
+        String value = JsonR27.write(original);
+        String digest = V51ChecksumEngine.sha256(value);
+        String available = locked("ORIGINAL_IO_UNAVAILABLE", () -> persistFailureOriginal(digest, value));
+        frame.put("failureOriginalState", available);
+        if ("VERIFIED".equals(available)) frame.put("failureOriginalSha256", digest);
         return append(frame);
     }
 
     public static Outcome classify(Throwable failure) {
-        if (failure instanceof Error) return Outcome.FATAL;
-        Throwable cause = failure;
-        for (int n = 0; cause != null && n < 8; n++, cause = cause.getCause()) {
-            String code = code(cause);
-            if (cause instanceof InterruptedException || code.contains("CANCEL")) return Outcome.INTERRUPTED;
-            if (code.contains("MISSING_SOURCE") || code.contains("SOURCE_MISSING")
-                    || code.contains("CHECKPOINT_MISSING")) return Outcome.MISSING_SOURCE;
-            if (code.contains("LOCK") || code.contains("BUSY") || code.contains("SPACE")
-                    || code.contains("CAPACITY") || code.contains("DISK") || code.contains("RESOURCE")) {
-                return Outcome.WAIT_RESOURCE;
-            }
-            if (code.contains("DEPENDENCY") || code.contains("SCHEMA_PENDING")) return Outcome.WAIT_DEPENDENCY;
+        return classify(failure, FailureDispositionR31.classify(failure));
+    }
+
+    private static Outcome classify(Throwable failure, FailureDispositionR31.Decision decision) {
+        if (failure instanceof Error || "PROCESS_FATAL".equals(decision.category)
+                || "DB_CORRUPT".equals(decision.category)) return Outcome.FATAL;
+        FailureDispositionR31.ClassifiedFailure origin = FailureDispositionR31.firstTypedR31(failure);
+        if ("DEPENDENCY".equals(decision.category) && origin != null
+                && "STORAGE_ADMISSION".equals(origin.phase())) return Outcome.WAIT_RESOURCE;
+        switch (decision.category) {
+            case "CANCELLED": return Outcome.INTERRUPTED;
+            case "MISSING_SOURCE": return Outcome.MISSING_SOURCE;
+            case "LOCK_BUSY": case "TEMP_TIMEOUT": case "DISK_FULL":
+            case "RESOURCE_MEMORY": case "RESOURCE_QUEUE": return Outcome.WAIT_RESOURCE;
+            case "DEPENDENCY": case "STALE_OWNER": case "COMMIT_RESOLUTION_REQUIRED":
+            case "COMMITTED_ACK_RECOVERY": return Outcome.WAIT_DEPENDENCY;
+            default: return Outcome.BUG;
         }
-        return Outcome.BUG;
+    }
+
+    private String persistFailureOriginal(String digest, String value) throws IOException {
+        File root = new File(data.getParentFile(), "failure-originals");
+        initializeDirectory(root);
+        File original = new File(root, digest + ".json");
+        if (!original.exists()) {
+            File[] originals = root.listFiles();
+            if (originals == null) throw new IOException("R342_STARTUP_ORIGINAL_LIST_UNAVAILABLE");
+            long bytes = value.getBytes(StandardCharsets.UTF_8).length;
+            for (File retained : originals) bytes = Math.addExact(bytes, retained.length());
+            if (bytes > ORIGINAL_BUDGET) return "WAIT_RESOURCE_ORIGINAL_BUDGET_FULL";
+            ReportJobJournalCP12.writeAtomic(original, value);
+        }
+        if (!digest.equals(V51ChecksumEngine.sha256(ReportJobJournalCP12.readAtomic(original, 65536)))) {
+            throw new IOException("R342_STARTUP_ORIGINAL_HASH");
+        }
+        return "VERIFIED";
+    }
+
+    static File verifiedFailureOriginal(Context context, String hash) throws IOException {
+        if (hash == null || !hash.matches("[0-9a-f]{64}")) throw new IOException("R342_STARTUP_ORIGINAL_IDENTITY");
+        File original = new File(context.getNoBackupFilesDir(), "r341-startup/failure-originals/" + hash + ".json");
+        String value = ReportJobJournalCP12.readAtomic(original, 65536);
+        if (!hash.equals(V51ChecksumEngine.sha256(value))) throw new IOException("R342_STARTUP_ORIGINAL_HASH");
+        return original;
     }
 
     private static String code(Throwable failure) {

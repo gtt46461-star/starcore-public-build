@@ -79,13 +79,83 @@ def run_inherited_b01(serial, plan, source, originals):
         dest = originals / f'android-native-{index}.xml'
         shutil.copyfile(xml, dest)
         for case in ET.parse(dest).iter('testcase'):
-            require(case.get('classname') == selector and len(case) == 0, 'ANDROID_CASE_FAILED_OR_SKIPPED')
+            require(case.get('classname') == selector and not any(child.tag in ('failure', 'skipped', 'error') for child in case),
+                    'ANDROID_CASE_FAILED_OR_SKIPPED')
             checked.append(case.get('name'))
     methods = {f"test_r341_b01_{case.split('-')[-2]}_t{case[-2:]}" for case in cases}
     require(returncode == 0 and len(checked) == 8 and set(checked) == methods and set(recorded) == cases
             and all(events == ['CASE_ENTER', 'CASE_ASSERTIONS_COMPLETE'] for events in recorded.values()),
             'ANDROID_INHERITED_B01_CONTRACT_FAILED')
     return sorted(cases)
+
+
+def run_android_case(serial, source, result_dir, *, case_id, selector, scope, phase=None):
+    test_package = PACKAGE + '.test'
+    runner = test_package + '/com.ethk3.novaonepro.R30FaultAndroidRunner'
+    arguments = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class', selector, '-e', 'r30Sandbox', scope]
+    if phase:
+        arguments.extend(['-e', 'r342Phase', phase])
+    arguments.append(runner)
+    stem = case_id if phase is None else case_id + '-' + phase
+    write_json(result_dir / (stem + '-argv.json'), ['adb', '-s', serial, *arguments])
+    output = subprocess.run(['adb', '-s', serial, *arguments], capture_output=True, text=True, timeout=600)
+    (result_dir / (stem + '-native.log')).write_text(output.stdout + '\n' + output.stderr)
+    require(output.returncode == 0 and re.search(r'OK \(1 test\)', output.stdout),
+            'ANDROID_CASE_FAILED:' + stem)
+    require(not re.search(r'FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed', output.stdout),
+            'ANDROID_CASE_RUNNER_FAILURE:' + stem)
+    tag = 'STARCORE_R342' if phase else 'STARCORE_R341'
+    prefix = 'R342_INSTRUMENTATION ' if phase else 'R341_INSTRUMENTATION '
+    selected = []
+    for line in adb(serial, 'logcat', '-d', '-v', 'brief', tag + ':I', '*:S').splitlines():
+        _, marker, data = line.partition(prefix)
+        if not marker:
+            continue
+        event = json.loads(data)
+        if phase and (event.get('scope'), event.get('phase'), event.get('caseId')) == (scope, phase, case_id):
+            require(event['sourceCommit'] == source, 'ANDROID_RESULT_HAS_WRONG_SOURCE')
+            selected.append(event)
+        elif not phase and (event.get('r30Sandbox'), event.get('case_id')) == (scope, case_id):
+            require(event['source_commit'] == source, 'ANDROID_RESULT_HAS_WRONG_SOURCE')
+            selected.append(event)
+    require([event['event'] for event in selected] == ['CASE_ENTER', 'CASE_ASSERTIONS_COMPLETE'],
+            'ANDROID_CASE_ASSERTIONS_NOT_OBSERVED:' + stem)
+    write_json(result_dir / (stem + '-events.json'), selected)
+    return selected[-1]
+
+
+def run_b02(serial, plan, source, originals):
+    debug, = (ROOT / 'app/build/outputs/apk/debug').glob('*.apk')
+    tests, = (ROOT / 'app/build/outputs/apk/androidTest/debug').glob('*.apk')
+    require('Success' in adb(serial, 'install', debug), 'INSTRUMENTATION_APP_INSTALL_FAILED')
+    require('Success' in adb(serial, 'install', '-t', tests), 'INSTRUMENTATION_RUNNER_INSTALL_FAILED')
+    current = Path(os.environ['STARCORE_R342_PLAN_ROOT'])
+    selected = [case for case in read(current / 'ACCEPTANCE_MATRIX.json')['cases'] if case['batch'] == 'B02']
+    require(len(selected) == 4, 'R342_B02_CASE_SELECTION')
+    for case in selected:
+        method = 'test_' + case['issue_id'].lower().replace('-', '_')
+        selector = 'com.ethk3.novaonepro.r342.R342B02ContractTest#' + method
+        scope = 'R342_' + case['issue_id'].replace('-', '_') + '_' + source[:12]
+        run_android_case(serial, source, originals, case_id=case['id'], selector=selector, scope=scope, phase='normal')
+        if case['issue_id'] == 'R342-004':
+            restart_scope = scope + '_RESTART'
+            first = run_android_case(serial, source, originals, case_id=case['id'], selector=selector,
+                                     scope=restart_scope, phase='stage-restart')
+            adb(serial, 'shell', 'am', 'force-stop', PACKAGE)
+            second = run_android_case(serial, source, originals, case_id=case['id'], selector=selector,
+                                      scope=restart_scope, phase='restart')
+            require(first['pid'] != second['pid'], 'ANDROID_WRITER_RESTART_NOT_OBSERVED')
+    inherited = [case['id'] for case in read(plan / 'ACCEPTANCE_MATRIX.json')['cases']
+                 if case['id'].startswith('R341-B02-')]
+    require(len(inherited) == 8, 'R342_B02_INHERITED_CASE_SELECTION')
+    for case in inherited:
+        argv = json.loads(subprocess.run([sys.executable, '-B', str(plan / 'tools/dispatch5.py'),
+                          '--plan', str(plan), '--case', case], cwd=ROOT, capture_output=True, text=True,
+                          check=True).stdout)
+        selector = next(x.split('=', 1)[1] for x in argv if x.startswith('-Pandroid.testInstrumentationRunnerArguments.class='))
+        scope = next(x.split('=', 1)[1] for x in argv if x.startswith('-Pandroid.testInstrumentationRunnerArguments.r30Sandbox='))
+        run_android_case(serial, source, originals, case_id=case, selector=selector, scope=scope)
+    return inherited, [case['id'] for case in selected]
 
 
 def main():
@@ -104,17 +174,24 @@ def main():
     require(adb(serial, 'shell', 'getprop', 'ro.build.version.sdk') == '34', 'ANDROID_API_LEVEL_MISMATCH')
     cover_install(serial, temp / 'baseline152.apk', apk, release, originals)
 
-    receipts = {'B01': lambda: run_inherited_b01(serial, Path(os.environ['STARCORE_R341_PLAN_ROOT']), source, originals)}
-    require(stage in receipts, 'R342_STAGE_ANDROID_TESTS_NOT_IMPLEMENTED')
-    ran = receipts[stage]()
-    host = read(originals / 'b01-host-contracts.json')
-    require(host['status'] == 'PASS' and host['sourceCommit'] == source
-            and set(host['cases']) == {'R342-001', 'R342-002'}, 'ANDROID_BATCH_HOST_RECEIPT_MISMATCH')
+    old_plan = Path(os.environ['STARCORE_R341_PLAN_ROOT'])
+    host_cases = []
+    if stage == 'B01':
+        inherited = run_inherited_b01(serial, old_plan, source, originals)
+        host = read(originals / 'b01-host-contracts.json')
+        require(host['status'] == 'PASS' and host['sourceCommit'] == source
+                and set(host['cases']) == {'R342-001', 'R342-002'}, 'ANDROID_BATCH_HOST_RECEIPT_MISMATCH')
+        host_cases = sorted(host['cases'])
+        current = []
+    elif stage == 'B02':
+        inherited, current = run_b02(serial, old_plan, source, originals)
+    else:
+        raise ValueError('R342_STAGE_ANDROID_TESTS_NOT_IMPLEMENTED')
     write_json(originals / 'batch-receipt.json', {
         'schema': 'STARCORE_R342_BATCH_ENGINEERING_1', 'status': 'ENGINEERING_CHECKS_PASSED',
         'buildRun': os.environ['GITHUB_RUN_ID'], 'sourceCommit': source, 'batch': stage,
         'versionCode': release['versionCode'], 'apkSha256': sha(apk), 'planSha256': SEAL,
-        'androidInheritedCases': ran, 'hostIdentityCases': sorted(host['cases']),
+        'androidInheritedCases': inherited, 'hostIdentityCases': host_cases, 'androidCurrentCases': current,
         'vivoV2353A': 'NOT_RUN_DISPOSABLE_EMULATOR', 'physical24h': 'NOT_RUN',
         'physical72h': 'NOT_RUN', 'natural': 'NOT_RUN',
         'originals': {leaf.name: sha(leaf) for leaf in sorted(originals.iterdir()) if leaf.is_file()},

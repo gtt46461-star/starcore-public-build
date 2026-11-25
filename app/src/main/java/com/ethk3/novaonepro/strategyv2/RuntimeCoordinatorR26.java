@@ -696,11 +696,18 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                     initialized = true;
                 } catch (RuntimeException | Error retry) {
                     startupJournal.recordUncaught(attempt, retry);
+                    StartupStageJournalR341.Outcome startupOutcome = StartupStageJournalR341.classify(retry);
                     FailureDispositionR31.Decision disposition = FailureDispositionR31.classify(retry);
-                    if (disposition.disposition == FailureDispositionR31.Disposition.FAULT ||
-                            disposition.disposition == FailureDispositionR31.Disposition.FATAL) throw retry;
-                    android.util.Log.w("STARCORE_R26", "initialization dependency wait", retry);
-                    await(500);
+                    if (startupOutcome == StartupStageJournalR341.Outcome.FATAL
+                            || startupOutcome == StartupStageJournalR341.Outcome.BUG) throw retry;
+                    if (startupOutcome == StartupStageJournalR341.Outcome.INTERRUPTED) {
+                        cancelled = true;
+                        break;
+                    }
+                    android.util.Log.w("STARCORE_R26", "initialization " + startupOutcome + " " + disposition.category);
+                    // Preserve the next owner retry of the guarded, idempotent startup steps.
+                    await(startupOutcome == StartupStageJournalR341.Outcome.WAIT_RESOURCE
+                            || startupOutcome == StartupStageJournalR341.Outcome.MISSING_SOURCE ? 5000L : 500L);
                 }
             }
             // R27-003/009: DbStore → P0 (service) → research scheduler. The R27 pool owns the R27 tasks.

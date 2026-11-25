@@ -26,6 +26,7 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
     private static final String WORK_COLUMNS="singleton,revision,after_event,selected_event,selected_hash,stage,owner_epoch,fence,updated_at";
     private static final String SELECT_ORIGINAL=originalSelect();
     private static final long ROWS_TARGET=1024,BYTES_TARGET=2L*1024*1024;
+    private static final String AUDIT_KEY="r342_fault_original_audit";
     private static volatile String lastDetail="STARTUP_SCAN";
 
     public static void ensureSchema(SQLiteDatabase db){
@@ -87,7 +88,8 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
     private static Work work(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT revision,after_event,selected_event,selected_hash,stage,owner_epoch,fence FROM r335_fault_archive_work WHERE singleton=1",null)){
         if(!c.moveToFirst())throw new IllegalStateException("R335_FAULT_WORK_MISSING");Work w=new Work();w.revision=c.getLong(0);w.after=c.getString(1);w.event=c.getString(2);w.hash=c.getString(3);w.stage=c.getString(4);w.owner=c.getString(5);w.fence=c.getLong(6);return w;
     }}
-    private static DatabaseCoordinator.WriteContext context(String op){return DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.TELEMETRY,op).withDeadlineMonoMs(TimeSourceR811.monoNowMs()+20L);}
+    private static DatabaseCoordinator.WriteContext context(String op){return DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,op)
+        .withWorkload(1,65536,5,0,true).withDeadlineMonoMs(TimeSourceR811.monoNowMs()+20L);}
     private static boolean cancelled(long deadline){return Thread.currentThread().isInterrupted()||android.os.SystemClock.elapsedRealtime()>=deadline||RealtimePressureGateR811.hasActiveCriticalWork();}
     private static RuntimeFaultArchiveB01.Page retain(RuntimeFaultArchiveB01.State state,String detail){lastDetail=detail;return RuntimeFaultArchiveB01.Page.retain(state);}
 
@@ -204,6 +206,97 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
         try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{table})){
             return c.moveToFirst();
         }
+    }
+
+    /** The archive owner separately verifies old retained bodies in resumable keyset slices. */
+    static void auditSlice(DbStore store, long deadline) {
+        if (cancelled(deadline) || !mainProcess(store.contextForR26())) return;
+        SQLiteDatabase db = store.readable();
+        if (!ready(db) || db.inTransaction()) return;
+        long indexed = scalar(db, "SELECT count(*) FROM r335_fault_original");
+        Map<String, Object> state = new LinkedHashMap<>(auditObservation(db));
+        String status = (String) state.get("status");
+        long now = System.currentTimeMillis();
+        if ("COMPLETE".equals(status) && auditNumber(state, "indexedAtStart") == indexed
+                && now >= auditNumber(state, "finishedAt")
+                && now - auditNumber(state, "finishedAt") < 24L * 60 * 60 * 1000) return;
+        if (!"IN_PROGRESS".equals(status)) {
+            state.clear();
+            state.put("schema", "R342_FAULT_ORIGINAL_AUDIT_1");
+            state.put("status", "IN_PROGRESS");
+            state.put("databaseIdentity", RuntimeObservationScopeR341.databaseIdentity(db));
+            state.put("cycleId", UUID.randomUUID().toString());
+            state.put("sampleStartedAt", now);
+            state.put("indexedAtStart", indexed);
+            state.put("afterEventId", "");
+            state.put("verified", 0L);
+            state.put("unavailable", 0L);
+        }
+        if (auditNumber(state, "indexedAtStart") != indexed) state.put("indexChanged", true);
+        List<String[]> page = new ArrayList<>();
+        try (Cursor rows = db.rawQuery("SELECT event_id,original_hash,original_bytes FROM r335_fault_original "
+                + "WHERE event_id>? ORDER BY event_id LIMIT 4", new String[]{(String) state.get("afterEventId")})) {
+            while (rows.moveToNext()) page.add(new String[]{rows.getString(0), rows.getString(1), rows.getString(2)});
+        }
+        long verified = auditNumber(state, "verified"), unavailable = auditNumber(state, "unavailable");
+        long scannedBytes = 0;
+        for (String[] identity : page) {
+            if (cancelled(deadline)) break;
+            long bytes = Long.parseLong(identity[2]);
+            if (scannedBytes > 0 && bytes > 65536L - scannedBytes) break;
+            try {
+                if (readHotCold(db, store.contextForR26().getFilesDir(), identity[0]) == null) {
+                    throw new IOException("R342_FAULT_AUDIT_ORIGINAL_UNAVAILABLE");
+                }
+                verified++;
+                state.put("lastVerifiedSha256", identity[1]);
+            } catch (IOException badOriginal) {
+                unavailable++;
+                state.put("lastUnavailableEventId", identity[0]);
+                state.put("lastUnavailableReason", RuntimeFaultEvidenceR31.clean(badOriginal.getMessage(), 160));
+            }
+            scannedBytes += bytes;
+            state.put("afterEventId", identity[0]);
+        }
+        state.put("verified", verified);
+        state.put("unavailable", unavailable);
+        state.put("pending", Math.max(0L, indexed - verified - unavailable));
+        state.put("sampleUpdatedAt", System.currentTimeMillis());
+        if (page.isEmpty()) {
+            state.put("status", verified + unavailable == indexed && !Boolean.TRUE.equals(state.get("indexChanged"))
+                    ? "COMPLETE" : "INDEX_CHANGED_REQUIRES_NEW_CYCLE");
+            state.put("finishedAt", System.currentTimeMillis());
+        }
+        // Fault locators are immutable. A newly archived event starts the next pass
+        // instead of being marked verified merely because it has an index row.
+        if (scalar(db, "SELECT count(*) FROM r335_fault_original") != indexed || cancelled(deadline)) return;
+        store.trySetTelemetryStatesR77(Collections.singletonMap(AUDIT_KEY, JsonR27.write(state)));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> auditObservation(SQLiteDatabase db) {
+        if (!hasTable(db, DbHelper.TABLE_APP_STATE)) return Collections.singletonMap("status", "MISSING_SCHEMA");
+        try (Cursor row = db.rawQuery("SELECT state_value FROM " + DbHelper.TABLE_APP_STATE
+                + " WHERE state_key=? AND length(CAST(state_value AS BLOB))<=4096", new String[]{AUDIT_KEY})) {
+            if (!row.moveToFirst()) return Collections.singletonMap("status", "PENDING_NO_DURABLE_CURSOR");
+            Map<String, Object> state = (Map<String, Object>) JsonR27.parse(row.getString(0));
+            String database = RuntimeObservationScopeR341.databaseIdentity(db);
+            if (!"R342_FAULT_ORIGINAL_AUDIT_1".equals(state.get("schema"))
+                    || RuntimeObservationScopeR341.UNRESOLVED.equals(database)
+                    || !database.equals(state.get("databaseIdentity"))) {
+                return Collections.singletonMap("status", "UNKNOWN_FOREIGN_DATABASE");
+            }
+            return state;
+        } catch (android.os.OperationCanceledException cancelled) {
+            throw cancelled;
+        } catch (RuntimeException malformed) {
+            return Collections.singletonMap("status", "UNKNOWN_AUDIT_CURSOR_UNAVAILABLE");
+        }
+    }
+
+    private static long auditNumber(Map<String, Object> state, String key) {
+        Object value = state.get(key);
+        return value instanceof Number ? ((Number) value).longValue() : 0;
     }
 
     /** A bounded display sample from one read-only report snapshot. The exported index remains the denominator. */

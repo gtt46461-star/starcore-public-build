@@ -79,6 +79,16 @@ public final class RuntimeFaultArchiveB01 {
             try {
                 page = worker == null ? Page.retain(State.ADAPTER_MISSING) : worker.runOne(store, deadline);
                 if (page == null) page = Page.retain(State.WAIT_VERIFIED);
+                if (page.state == State.VERIFIED_RETIRED
+                        && com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.deferResearch()) {
+                    int retired = page.retired;
+                    for (int slice = 1; slice < 4 && android.os.SystemClock.elapsedRealtime() < deadline; slice++) {
+                        Page more = worker.runOne(store, deadline);
+                        if (more == null || more.state != State.VERIFIED_RETIRED) break;
+                        retired += more.retired;
+                    }
+                    page = Page.committed(retired);
+                }
             } catch (RuntimeException failure) {
                 Error fatal = com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);
                 if (fatal != null) throw fatal;

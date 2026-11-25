@@ -64,6 +64,7 @@ public final class ReportAttachmentClosureCP12 {
         source.put("rawEvidenceIncluded", !compact);
         source.put("snapshotSha256", snapshotHash);
         source.put("snapshotBytes", new File(copy.getPath()).length());
+        source.put("mainWriterFaultsR342", new JSONObject(MainWriterFaultProjectionR342.fromSnapshot(app, copy)));
         String sourcePreparation = request.optString("reportSourcePreparation");
         if (!sourcePreparation.isEmpty()) source.put("reportSourcePreparation", sourcePreparation);
         source.put("omittedPayloads", compact ? "installed APK; raw SQLite; model/training/retention binaries; historical duplicate ledgers" : "NONE");
@@ -103,6 +104,7 @@ public final class ReportAttachmentClosureCP12 {
             }
             source.put("keepOriginalsR31",captureKeepOriginalsR31(copy,app.getFilesDir(),job,out,control,compact));
             source.put("faultOriginalsR335",captureFaultOriginalsR335(copy,app.getFilesDir(),job,out,control,compact));
+            source.put("startupFailureOriginalsR342", captureStartupFailureOriginalsR342(app, out, control, compact));
             String last="";
             try(FileOutputStream seedFd=new FileOutputStream(seedEvidence);Writer seeds=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(seedEvidence,seedFd,control),StandardCharsets.UTF_8),8192)) {
             while(hasTable(copy,ResearchPlatformStoreR929.TABLE_BUNDLE)) {
@@ -215,6 +217,11 @@ public final class ReportAttachmentClosureCP12 {
                     else if(kind.equals("R26_CHECKPOINT")){File expected=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r26-checkpoints").getCanonicalFile(),hash+".bin");if(!expected.getPath().equals(input))throw new IOException("REPORT_R26_CHECKPOINT_SOURCE_PATH");try(InputStream in=com.ethk3.novaonepro.strategyv2.ColdCheckpointR324.open(expected.getParentFile(),hash)){copy(in,fixed,bytes,hash,control);}}
                     else if(kind.equals("R335_FAULT_ORIGINAL")){File expected=RuntimeFaultOriginalStoreR335.path(app.getFilesDir(),hash);if(!expected.getPath().equals(input))throw new IOException("REPORT_FAULT_ORIGINAL_SOURCE_PATH");try(InputStream in=new ByteArrayInputStream(RuntimeFaultOriginalStoreR335.readFile(app.getFilesDir(),hash,bytes))){copy(in,fixed,bytes,hash,control);}}
                     else if(kind.equals("R31_KEEP_ORIGINAL")){File expected=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r31-keep").getCanonicalFile(),hash+".row");if(!expected.getPath().equals(input)||!expected.isFile()||expected.length()!=bytes)throw new IOException("REPORT_KEEP_ORIGINAL_SOURCE_PATH_OR_BYTES");try(InputStream in=new FileInputStream(expected)){copy(in,fixed,bytes,hash,control);}}
+                    else if(kind.equals("R342_STARTUP_FAILURE")){
+                        File expected=StartupStageJournalR341.verifiedFailureOriginal(app,hash);
+                        if(!expected.getCanonicalPath().equals(input)||expected.length()!=bytes)throw new IOException("REPORT_STARTUP_ORIGINAL_IDENTITY");
+                        try(InputStream in=new FileInputStream(expected)){copy(in,fixed,bytes,hash,control);}
+                    }
                     else if(kind.equals("FILE")){File file=new File(input);if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(app.getFilesDir().getCanonicalPath()+File.separator))throw new IOException("REPORT_ATTACHMENT_SOURCE_PATH");
                         try(SharedLease lease=shared(new File(lock));InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
                     else throw new IOException("REPORT_ATTACHMENT_KIND");
@@ -258,6 +265,41 @@ public final class ReportAttachmentClosureCP12 {
                 .put("bytes", payload.length).put("sha256", sha256).put("state", cohort.getString("state")));
     }
 
+    private static JSONObject captureStartupFailureOriginalsR342(Context app, Writer plans,
+            ReportNativeCP4.Control control, boolean compact) throws Exception {
+        Set<String> hashes = new LinkedHashSet<>();
+        for (String owner : new String[]{"service", "research"}) {
+            Object frames = StartupStageJournalR341.snapshot(app, owner).get("frames");
+            if (!(frames instanceof List)) continue;
+            List<?> rows = (List<?>) frames;
+            for (int i = rows.size() - 1; i >= 0; i--) {
+                Object hash = ((Map<?, ?>) rows.get(i)).get("failureOriginalSha256");
+                if (hash instanceof String) hashes.add((String) hash);
+            }
+        }
+        long attached = 0, missing = 0, pending = 0;
+        for (String hash : hashes) {
+            checkpoint(control);
+            if (compact && attached >= 6) {
+                pending++;
+                continue;
+            }
+            File original;
+            try {
+                original = StartupStageJournalR341.verifiedFailureOriginal(app, hash);
+            } catch (IOException unavailable) {
+                missing++;
+                continue;
+            }
+            descriptor(plans, "startup-failure-" + hash + ".json", hash, original.length(), "R342_STARTUP_FAILURE",
+                    original.getCanonicalPath(), "");
+            attached++;
+        }
+        return new JSONObject().put("scope", "FILESYSTEM_STARTUP_JOURNAL_OUTSIDE_SQL_WATERMARK")
+                .put("referenced", hashes.size()).put("verifiedAndAttached", attached)
+                .put("pending", pending).put("unavailable", missing);
+    }
+
     /** Exact-snapshot locators, receipts and byte-identical originals; compact mode records unavailable bytes explicitly. */
     private static JSONObject captureFaultOriginalsR335(SQLiteDatabase snapshot,File files,File job,Writer plans,
             ReportNativeCP4.Control control,boolean compact)throws Exception {
@@ -287,6 +329,7 @@ public final class ReportAttachmentClosureCP12 {
         descriptor(plans,metadata.getName(),ReportArchiveCP4.hash(metadata,control),metadata.length(),"FILE",metadata.getCanonicalPath(),new File(files,"r335-fault-report-metadata.lock").getCanonicalPath());
         return new JSONObject().put("schemaState",ready?"PRESENT":"MISSING_SCHEMA").put("indexedOriginals",originals).put("indexedOriginalBytes",bytes)
             .put("hashAndReceiptVerified",verified).put("unavailable",missing).put("unverifiedByCompactBudget",unverified).put("rawBodiesIncluded",!compact)
+            .put("pendingVerification",unverified).put("backgroundAuditR342",new JSONObject(RuntimeFaultOriginalStoreR335.auditObservation(snapshot)))
             .put("metadataMember",metadata.getName()).put("hotQuotaMeaning","HOT_ROWS_ONLY; ALL_ARCHIVED_ORIGINALS_REMAIN_PROTECTED");
     }
     /** Snapshot-keyset metadata is streamed. Compact diagnostics spend at most

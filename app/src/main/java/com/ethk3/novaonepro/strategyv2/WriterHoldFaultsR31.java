@@ -2,12 +2,20 @@ package com.ethk3.novaonepro.strategyv2;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.AtomicFile;
 import com.ethk3.novaonepro.DatabaseCoordinator;
 import com.ethk3.novaonepro.DbStore;
 import com.ethk3.novaonepro.BuildConfig;
+import com.ethk3.novaonepro.ReportJobJournalCP12;
+import com.ethk3.novaonepro.RuntimeFaultOriginalStoreR335;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,6 +24,8 @@ public final class WriterHoldFaultsR31 {
     private WriterHoldFaultsR31() {}
     public static final int MAX_PENDING = 32;
     public static final int RESEARCH_BACKPRESSURE_AT = 24;
+    private static final int DRAIN_ROWS = 4;
+    private static final String OUTBOX_FORMAT = "R342_WRITER_FAULT_INFLIGHT_1";
     private static final long ENTRY_RESERVATION = 16 * 1024;
     private static final ArrayDeque<Event> PENDING = new ArrayDeque<>();
     private static final AtomicBoolean DRAINING = new AtomicBoolean();
@@ -23,15 +33,17 @@ public final class WriterHoldFaultsR31 {
     private static long firstDroppedSequence, lastDroppedSequence, nextDrainElapsed;
     private static int consecutiveDrainFailures;
     private static String drainStatus = "IDLE";
-    private static java.util.List<Event> retryBatch;
-    private static boolean resolveBeforeRetry;
+    private static int durableInFlightRows;
+    private static boolean recoveredDifferentProcess;
+    private static String durableInFlightHash, lastBatchReceipt, lastBatchPayload;
+    private static int lastBatchRows;
     private static int admitting;
     private static long lastDrainWallR33,lastDrainMsR33;
     private static String lastFailure = "", lastOutcome = "NOT_RUN";
     private static final String COLUMNS = "event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count";
 
     private static final class Event {
-        final String id, payload, task, owner, operation, outcome, boot, details;
+        final String id, payload, task, owner, operation, outcome, boot, details, processSession;
         final Long fence;
         final long wall, elapsed, bytes;
         final MemoryBudgetR31.Lease memory;
@@ -45,8 +57,9 @@ public final class WriterHoldFaultsR31 {
             fence = claim == null ? null : claim.fence;
             this.outcome = outcome == null ? "UNKNOWN" : outcome.name();
             boot = RuntimeFaultEvidenceR31.clean(IssueTimelineWriterR30.bootId(), 128);
+            processSession = WriterHoldLedgerR30.PROCESS_SESSION;
             wall = System.currentTimeMillis(); elapsed = android.os.SystemClock.elapsedRealtime();
-            id = HashingSU1.fields("R31_WRITER_HOLD_OBSERVATION_V1", WriterHoldLedgerR30.PROCESS_SESSION,
+            id = HashingSU1.fields("R31_WRITER_HOLD_OBSERVATION_V1", processSession,
                     Long.toString(sequence), task, owner, String.valueOf(fence), this.operation, Long.toString(elapsed));
             Map<String,Object> facts = new LinkedHashMap<>();
             facts.put("observation", "ACTUAL_WRITER_UNLOCKED_HOLD_OVER_200MS");
@@ -68,6 +81,35 @@ public final class WriterHoldFaultsR31 {
             bytes = 2048L + 2L * details.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
             if (bytes > ENTRY_RESERVATION / 2) throw new IllegalStateException("R31_WRITER_HOLD_FAULT_ENVELOPE");
         }
+
+        Event(Map<?, ?> row, String session) throws IOException {
+            memory = null;
+            processSession = session;
+            id = (String) row.get("id");
+            task = (String) row.get("task");
+            owner = (String) row.get("owner");
+            operation = (String) row.get("operation");
+            outcome = (String) row.get("outcome");
+            boot = (String) row.get("boot");
+            details = (String) row.get("details");
+            fence = row.get("fence") == null ? null : ((Number) row.get("fence")).longValue();
+            wall = ((Number) row.get("wall")).longValue();
+            elapsed = ((Number) row.get("elapsed")).longValue();
+            bytes = 2048L + 2L * details.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+            payload = HashingSU1.fields(id, details, outcome, boot, Long.toString(wall), Long.toString(elapsed));
+            if (!id.matches("[a-f0-9]{64}") || bytes > ENTRY_RESERVATION / 2 || wall <= 0 || elapsed < 0
+                    || !payload.equals(row.get("payload"))) throw new IOException("R342_FAULT_OUTBOX_EVENT_IDENTITY");
+        }
+
+        Map<String, Object> outboxRow() {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("id", id); row.put("task", task); row.put("owner", owner);
+            row.put("operation", operation); row.put("outcome", outcome); row.put("boot", boot);
+            row.put("details", details); row.put("fence", fence); row.put("wall", wall);
+            row.put("elapsed", elapsed); row.put("payload", payload);
+            return row;
+        }
+
         Object[] row() {
             String stack = "NOT_CAPTURED_NO_BUSINESS_THROWABLE", stackHash = StatsR27.sha256(stack);
             return new Object[] {id, task, owner, fence, operation, "WRITER_UNLOCKED", "WRITER_HOLD", id,
@@ -145,7 +187,7 @@ public final class WriterHoldFaultsR31 {
     /** One bounded receipt per actual Health dispatch. Failed/ambiguous delivery retains its event and lease. */
     /** Use the existing controller and per-event fenced writer, never hold the queue across events. */
     public static void drainControlSliceR32(DbStore store) {
-        drainBatchR33(store,4);
+        drainBatchR33(store,DRAIN_ROWS);
     }
 
     public static boolean drainOne(DbStore store) { return drainBatchR33(store,1)>0; }
@@ -154,41 +196,50 @@ public final class WriterHoldFaultsR31 {
         if(store==null||!DRAINING.compareAndSet(false,true))return 0;
         final long started=android.os.SystemClock.elapsedRealtime();
         try {
-            final java.util.ArrayList<Event> batch=new java.util.ArrayList<>();
+            if (!RuntimeFaultOriginalStoreR335.mainProcess(store.contextForR26())) return 0;
+            final File outbox = new File(store.contextForR26().getNoBackupFilesDir(), "r342-writer-fault-inflight.json");
             synchronized(WriterHoldFaultsR31.class){
                 if(started<nextDrainElapsed)return 0;
-                if (retryBatch != null) batch.addAll(retryBatch);
-                else for(Event e:PENDING){batch.add(e);if(batch.size()>=maximum)break;}
-                if(!batch.isEmpty())drainStatus="VERIFY_SCHEMA";
-                else drainStatus="IDLE";
             }
-            if(batch.isEmpty())return 0;
-            SQLiteDatabase read=store.readable();
-            if(read.inTransaction())throw new IllegalStateException("R31_WRITER_HOLD_FAULT_DRAIN_REQUIRES_SEPARATE_TRANSACTION");
-            requireReady(read);
-            StringBuilder identities=new StringBuilder(),payloads=new StringBuilder();
+            final List<Event> batch = readInFlight(outbox);
+            final boolean retry = !batch.isEmpty();
+            if (!retry) synchronized (WriterHoldFaultsR31.class) {
+                for (Event event : PENDING) {
+                    batch.add(event);
+                    if (batch.size() == maximum) break;
+                }
+                if (batch.isEmpty()) {
+                    if (!"COMMITTED_READ_BACK".equals(drainStatus)) drainStatus = "IDLE";
+                    return 0;
+                }
+            }
             long bindBytes=4096;
-            for(Event event:batch){identities.append(event.id);payloads.append(event.payload);bindBytes+=HoldLedgerFlushR30.bindBytesR31(event.row());}
+            for(Event event:batch)bindBytes+=HoldLedgerFlushR30.bindBytesR31(event.row());
             long bindLimit=Math.min(HoldLedgerFlushR30.bindCapR31(),com.ethk3.novaonepro.WriteBudgetR341.MAX_BIND_BYTES);
-            while(bindBytes>bindLimit&&batch.size()>1){
+            while(!retry&&bindBytes>bindLimit&&batch.size()>1){
                 Event removed=batch.remove(batch.size()-1);bindBytes-=HoldLedgerFlushR30.bindBytesR31(removed.row());
             }
             if(bindBytes>bindLimit)throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_BIND_CAPACITY)");
-            identities.setLength(0);payloads.setLength(0);
+            if (!retry) writeInFlight(outbox, batch);
+            synchronized (WriterHoldFaultsR31.class) { drainStatus = "VERIFY_SCHEMA"; }
+            SQLiteDatabase read=store.readable();
+            if(read.inTransaction())throw new IllegalStateException("R31_WRITER_HOLD_FAULT_DRAIN_REQUIRES_SEPARATE_TRANSACTION");
+            requireReady(read);
+
+            StringBuilder identities = new StringBuilder(), payloads = new StringBuilder();
             for(Event event:batch){identities.append(event.id);payloads.append(event.payload);}
             String batchId=StatsR27.sha256(identities.toString()),batchPayload=StatsR27.sha256(payloads.toString());
             DatabaseCoordinator.CommitIdentityR31 identity=new DatabaseCoordinator.CommitIdentityR31(
-                "R33_WRITER_HOLD_BATCH:"+batchId,batchPayload,"writer-hold-fault-evidence",WriterHoldLedgerR30.PROCESS_SESSION,
+                "R33_WRITER_HOLD_BATCH:"+batchId,batchPayload,"writer-hold-fault-evidence",batch.get(0).processSession,
                 0,batchId,0,"R33_WRITER_HOLD_BATCH_V1");
             DatabaseCoordinator.WriteContext context=DatabaseCoordinator.WriteContext.of(
                 DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_WRITER_HOLD_FAULT")
                     .withWorkload(batch.size(),bindBytes,batch.size()+1,0,true);
             synchronized (WriterHoldFaultsR31.class) {
-                retryBatch = new java.util.ArrayList<>(batch);
-                drainStatus = resolveBeforeRetry ? "RESOLVE_RECEIPT" : "WRITE_RECEIPT";
+                drainStatus = retry ? "RESOLVE_RECEIPT" : "WRITE_RECEIPT";
             }
             DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
-            DatabaseCoordinator.CommitOutcome outcome = resolveBeforeRetry ? coordinator.resolveCommitReceiptR31(identity)
+            DatabaseCoordinator.CommitOutcome outcome = retry ? coordinator.resolveCommitReceiptR31(identity)
                     : DatabaseCoordinator.CommitOutcome.ROLLED_BACK;
             if (outcome == DatabaseCoordinator.CommitOutcome.UNKNOWN)
                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
@@ -203,24 +254,45 @@ public final class WriterHoldFaultsR31 {
                 },batch.size()).outcome;
             if(outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED&&outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED)
                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
-            synchronized (WriterHoldFaultsR31.class) { resolveBeforeRetry = true; }
-            for(Event event:batch)if(!present(read,event))throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_RECEIPT_WITHOUT_EVENT");
+            for (Event event : batch) {
+                if (!present(read, event) && !matchesColdOriginal(store, read, event)) {
+                    throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_RECEIPT_WITHOUT_EVENT");
+                }
+            }
+            if (WriterHoldLedgerR30.PROCESS_SESSION.equals(batch.get(0).processSession)) {
+                synchronized (WriterHoldFaultsR31.class) {
+                    java.util.Iterator<Event> head = PENDING.iterator();
+                    for (Event event : batch) {
+                        if (!head.hasNext() || !head.next().id.equals(event.id)) {
+                            throw new IllegalStateException("R31_WRITER_HOLD_FAULT_QUEUE_IDENTITY");
+                        }
+                    }
+                }
+            }
+            new AtomicFile(outbox).delete();
+            if (outbox.exists() || new File(outbox.getPath()+".bak").exists()) {
+                throw new IOException("R342_FAULT_OUTBOX_RETIRE_FAILED");
+            }
+            List<Event> released = new ArrayList<>();
             synchronized(WriterHoldFaultsR31.class){
-                for(Event event:batch){if(PENDING.peekFirst()!=event)throw new IllegalStateException("R31_WRITER_HOLD_FAULT_QUEUE_IDENTITY");PENDING.removeFirst();persisted++;}
+                for (int i = 0; i < batch.size(); i++)
+                    if (WriterHoldLedgerR30.PROCESS_SESSION.equals(batch.get(i).processSession))
+                        released.add(PENDING.removeFirst());
+                persisted += batch.size();
                 lastOutcome=outcome.name();lastFailure="";
                 drainStatus="COMMITTED_READ_BACK";nextDrainElapsed=0;consecutiveDrainFailures=0;
-                retryBatch = null; resolveBeforeRetry = false;
+                durableInFlightRows = 0; recoveredDifferentProcess = false; durableInFlightHash = null;
+                lastBatchReceipt = identity.commitKey; lastBatchPayload = identity.payloadHash; lastBatchRows = batch.size();
             }
-            for(Event event:batch)event.memory.close();
+            for(Event event:released)event.memory.close();
             return batch.size();
-        }catch(RuntimeException unavailable){
+        }catch(RuntimeException|IOException unavailable){
             Error fatal=FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;
             String detail=RuntimeFaultEvidenceR31.clean(unavailable.getClass().getName()+":"+unavailable.getMessage(),512);
             boolean protectedDebt = com.ethk3.novaonepro.RuntimeFaultArchiveB01.isProtectedDebt(unavailable);
             synchronized(WriterHoldFaultsR31.class){
                 drainFailures++;lastFailure=detail;
                 drainStatus = retryStatus(unavailable, protectedDebt);
-                if ("COMMIT_UNKNOWN_REQUIRES_RECEIPT".equals(drainStatus)) resolveBeforeRetry = true;
                 long delay = 250L << Math.min(3, consecutiveDrainFailures++);
                 long jitter = java.util.concurrent.ThreadLocalRandom.current().nextLong(101L);
                 nextDrainElapsed = android.os.SystemClock.elapsedRealtime() + Math.min(5000L, delay + jitter);
@@ -234,8 +306,9 @@ public final class WriterHoldFaultsR31 {
         }
     }
 
-    private static String retryStatus(RuntimeException error, boolean protectedDebt) {
+    private static String retryStatus(Throwable error, boolean protectedDebt) {
         if (protectedDebt) return "BLOCKED_STORAGE";
+        if (error instanceof IOException) return "WAIT_OUTBOX_IO";
         if (error instanceof DatabaseCoordinator.WriteRejectedR31 &&
                 ((DatabaseCoordinator.WriteRejectedR31) error).commitOutcome == DatabaseCoordinator.CommitOutcome.UNKNOWN)
             return "COMMIT_UNKNOWN_REQUIRES_RECEIPT";
@@ -249,6 +322,79 @@ public final class WriterHoldFaultsR31 {
             if (message.contains("COMMIT_UNKNOWN")) return "COMMIT_UNKNOWN_REQUIRES_RECEIPT";
         }
         return category;
+    }
+
+    private static boolean matchesColdOriginal(DbStore store, SQLiteDatabase db, Event event) throws IOException {
+        Map<String, Object> original = RuntimeFaultOriginalStoreR335.readHotCold(
+                db, store.contextForR26().getFilesDir(), event.id);
+        if (original == null) return false;
+        Object[] expected = event.row();
+        String[] columns = COLUMNS.split(",");
+        for (int i = 0; i < columns.length; i++) {
+            Object actual = original.get(columns[i]), value = expected[i];
+            if (value instanceof Number) {
+                if (!(actual instanceof Number) || ((Number) value).longValue() != ((Number) actual).longValue()) return false;
+            } else if (!java.util.Objects.equals(value, actual)) return false;
+        }
+        return true;
+    }
+
+    private static List<Event> readInFlight(File outbox) throws IOException {
+        List<Event> batch = new ArrayList<>();
+        String raw;
+        try {
+            raw = ReportJobJournalCP12.readAtomic(outbox, (int) com.ethk3.novaonepro.WriteBudgetR341.MAX_BIND_BYTES);
+        } catch (FileNotFoundException missing) {
+            if (outbox.exists() || new File(outbox.getPath()+".bak").exists()) throw missing;
+            return batch;
+        }
+        try {
+            Map<?, ?> envelope = (Map<?, ?>) JsonR27.parse(raw);
+            String wire = (String) envelope.get("body");
+            String digest = StatsR27.sha256(wire);
+            if (!OUTBOX_FORMAT.equals(envelope.get("format")) || !digest.equals(envelope.get("sha256"))) {
+                throw new IOException("R342_FAULT_OUTBOX_HASH");
+            }
+            Map<?, ?> body = (Map<?, ?>) JsonR27.parse(wire);
+            String session = (String) body.get("session");
+            List<?> rows = (List<?>) body.get("rows");
+            if (session == null || !session.matches("[a-f0-9-]{36}") || rows.isEmpty() || rows.size() > DRAIN_ROWS) {
+                throw new IOException("R342_FAULT_OUTBOX_BATCH_BOUND");
+            }
+            java.util.Set<String> distinct = new java.util.HashSet<>();
+            for (Object row : rows) {
+                Event event = new Event((Map<?, ?>) row, session);
+                if (!distinct.add(event.id)) throw new IOException("R342_FAULT_OUTBOX_EVENT_REPEATED");
+                batch.add(event);
+            }
+            synchronized (WriterHoldFaultsR31.class) {
+                durableInFlightHash = digest;
+                durableInFlightRows = batch.size();
+                recoveredDifferentProcess = !WriterHoldLedgerR30.PROCESS_SESSION.equals(session);
+            }
+            return batch;
+        } catch (RuntimeException malformed) {
+            throw new IOException("R342_FAULT_OUTBOX_FORMAT", malformed);
+        }
+    }
+
+    private static void writeInFlight(File outbox, List<Event> batch) throws IOException {
+        List<Object> rows = new ArrayList<>();
+        for (Event event : batch) rows.add(event.outboxRow());
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("session", batch.get(0).processSession);
+        body.put("rows", rows);
+        String data = JsonR27.write(body);
+        Map<String, Object> envelope = new LinkedHashMap<>();
+        envelope.put("format", OUTBOX_FORMAT);
+        envelope.put("body", data);
+        envelope.put("sha256", StatsR27.sha256(data));
+        ReportJobJournalCP12.writeAtomic(outbox, JsonR27.write(envelope));
+        List<Event> saved = readInFlight(outbox);
+        if (saved.size() != batch.size()) throw new IOException("R342_FAULT_OUTBOX_READBACK");
+        for (int i = 0; i < saved.size(); i++) {
+            if (!saved.get(i).payload.equals(batch.get(i).payload)) throw new IOException("R342_FAULT_OUTBOX_PAYLOAD");
+        }
     }
 
     // Single primary process. A committed event stays pinned through the live read-back.
@@ -278,13 +424,19 @@ public final class WriterHoldFaultsR31 {
         out.put("observedOver200ms", observed); out.put("pending", PENDING.size()); out.put("persistedFaultReceipts", persisted);
         out.put("capacityLoss", capacityLoss); out.put("drainFailures", drainFailures); out.put("lastDrainFailure", lastFailure);
         out.put("lastDrainCommitOutcome", lastOutcome); out.put("maxPending", MAX_PENDING);
+        out.put("durableInFlightRows", durableInFlightRows);
+        out.put("durableInFlightHash", durableInFlightHash);
+        out.put("recoveredDifferentProcess", recoveredDifferentProcess);
+        out.put("lastBatchReceiptKey", lastBatchReceipt);
+        out.put("lastBatchPayloadSha256", lastBatchPayload);
+        out.put("lastBatchRows", lastBatchRows);
         out.put("admitting", admitting);
         out.put("researchBackpressureAt", RESEARCH_BACKPRESSURE_AT);
         out.put("researchDeferred", deferResearch());
         out.put("researchResumeCondition", "pending+admitting < 24 after actual durable drain; Critical and telemetry remain admitted");
         out.put("declaredQueueBytes", PENDING.size() * ENTRY_RESERVATION);
         out.put("state", capacityLoss > 0 ? "INCOMPLETE_CAPACITY_LOSS" : PENDING.isEmpty() ? "NO_PENDING_OBSERVATION" : "PENDING_DURABLE_FAULT_RECEIPTS");
-        out.put("heapReleaseClaim", false); out.put("processDeathBeforeDrain", "PENDING_MEMORY_OBSERVATION_NOT_DURABLE_UNKNOWN");
+        out.put("heapReleaseClaim", false); out.put("processDeathBeforeDrain", "OUTBOX_ROWS_RECOVERABLE; UNSTAGED_MEMORY_UNKNOWN");
         out.put("timingAttribution", "UNKNOWN_UNLESS_SEPARATELY_MEASURED");
         return Collections.unmodifiableMap(out);
     }

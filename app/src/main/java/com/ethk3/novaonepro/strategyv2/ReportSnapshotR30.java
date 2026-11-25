@@ -123,7 +123,8 @@ public final class ReportSnapshotR30 {
 
             // Explicitly outside the SQL watermark: process counters are diagnostic observations.
             data.put("r31ProcessTelemetry",ResearchPoolR27.telemetrySnapshotR31());
-            data.put("r31WriterProtocolObservation",com.ethk3.novaonepro.DatabaseCoordinator.writeProtocolSnapshotR31());
+            data.put("r31WriterProtocolObservation",com.ethk3.novaonepro.DatabaseCoordinator.writeProtocolSnapshotR31(
+                    source == null ? null : source.get("mainWriterFaultsR342")));
             MemoryBudgetR31.processBudget().sample();
             data.put("r31MemoryBudgetObservation",MemoryBudgetR31.processBudget().snapshot());
             data.put("r31ResearchHealthObservation",RuntimeCoordinatorR26.activeHealthObservationR31());

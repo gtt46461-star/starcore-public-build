@@ -2517,7 +2517,6 @@ public final class AutoFetchService extends Service {
     private void drainWriterFaultControlR334() {
         final DbStore localStore=store;
         if(!running||userRequestedStopV5||localStore==null)return;
-        if(faultMaintenanceR335!=null)faultMaintenanceR335.signal(localStore);
         try {
             com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.drainControlSliceR32(localStore);
             java.util.LinkedHashMap<String,String> projection=new java.util.LinkedHashMap<>();
@@ -2528,10 +2527,15 @@ public final class AutoFetchService extends Service {
             projection.put("r33_main_writer_faults_wall",String.valueOf(System.currentTimeMillis()));
             if(writerFaultControlR334!=null)projection.put("r334_fault_control_schedule",
                 java.util.Arrays.toString(writerFaultControlR334.snapshot()));
+            String mainSnapshot = MainWriterFaultProjectionR342.capture(getApplicationContext(), localStore.readable(),
+                    writerFaultControlR334 == null ? null : writerFaultControlR334.snapshot());
+            if (mainSnapshot != null) projection.put(MainWriterFaultProjectionR342.KEY, mainSnapshot);
             localStore.trySetTelemetryStatesR77(projection);
         } catch(RuntimeException failure) {
             Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;
             android.util.Log.w("R334WriterFaultControl","bounded drain/projection unavailable",failure);
+        } finally {
+            if (faultMaintenanceR335 != null) faultMaintenanceR335.signal(localStore);
         }
     }
 

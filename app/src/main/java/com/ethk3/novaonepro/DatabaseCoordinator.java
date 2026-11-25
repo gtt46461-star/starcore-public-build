@@ -89,6 +89,7 @@ public final class DatabaseCoordinator {
         registerR31(registry,WriteClass.LIVE_FREEZE,"R932_DOMAIN_ROUTE","R932_BUNDLE_CAPTURE","R932_FREEZE_ONE_RESEARCH_CONSUMER","R36_CANONICAL*","R36_ANALYSIS*","R366_ANALYSIS*","R26_INCUMBENT_FREEZE","R26_LIVE_FREEZE");
         registerR31(registry,WriteClass.SETTLEMENT,"R911_SETTLEMENT_CURRENT_SOLE_OWNER_RECOVER","R915_SETTLEMENT_CURRENT_NORMALIZE_AND_CLAIM","R919_TERMINALIZE_AUDITED_NO_PREDRAW","R911_SETTLEMENT_REOPEN_CURRENT_FAILED","R914_SETTLEMENT_HANDOFF_CURRENT*","R36_SETTLEMENT*","R811_SETTLEMENT_PROMOTE_CURRENT*","R909_SETTLEMENT_REOPEN_CURRENT*","R905_REOPEN_FALSE_NO_PREDRAW*","R820_SETTLEMENT*","R900_SETTLEMENT*");
         registerR31(registry,WriteClass.RESEARCH_CONTROL,"R30_PREPARED_TASK_CLAIM","R27_TASK_RECEIPT","R27_TASK_RETRY","R27_PRIORITY_CLAIM","R26_TASK_CLAIM","R26_TASK_RECEIPT","R26_SESSION_STATUS","R26_SESSION_STOP","R36_DEFERRED_FAILURE","R941_DEFERRED_RESOURCE_RECOVERY","R31_WRITER_HOLD_FAULT");
+        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R335_FAULT_ARCHIVE_CLAIM","R335_FAULT_ARCHIVE_COMMIT","R335_FAULT_ARCHIVE_SKIP");
         registerR31(registry,WriteClass.TELEMETRY,"R31_BUILD_MODULE_REGISTRY","R31_RUNTIME_OBSERVATION","R31_FETCH_TIMING","R31_FETCH_BEGIN_ASYNC","R27_THREAD_CPU","R27_WRITE_WAIT","R30_WRITER_HOLD_FLUSH","R30_TIMELINE_COMMIT_OBSERVATIONS","R927_RESOURCE*");
         registerR31(registry,WriteClass.MIGRATION,"R26_RUNTIME_SCHEMA","R26_SU2_SCHEMA","R26_STRATEGY_STORAGE_UNIT","R31_LEGACY_SCHEMA_PREPARE","R929_PLATFORM_SCHEMA","R930_EVOLUTION_SCHEMA","R932_ABLATION_SCHEMA","R932_D2_REPLAY_SCHEMA","R932_FIXED_WINDOW_SCHEMA","R948_RESEARCH_INTEGRITY_SCHEMA","R958_RESEARCH_SCHEMA_STEP");
         registerR31(registry,WriteClass.RETENTION,"RETENTION_CP12*","R26_RETENTION_PHASE_*","R26_ARTIFACT_RETENTION","R914_DRAW_HISTORY_TRIM*");
@@ -239,14 +240,22 @@ public final class DatabaseCoordinator {
     }
 
     public static Map<String,Object> writeProtocolSnapshotR31() {
+        return writeProtocolSnapshotR31(null);
+    }
+
+    public static Map<String,Object> writeProtocolSnapshotR31(Object mainProjection) {
         Map<String,Object> snapshot=new LinkedHashMap<>();snapshot.put("scope","CURRENT_PROCESS_ONLY_OUTSIDE_DATABASE_WATERMARK");snapshot.put("unknownPriorityCount",UNKNOWN_PRIORITY_R31.get());
         snapshot.put("lastUnknownPriority",lastUnknownPriorityR31);snapshot.put("diagnosticFailures",DIAGNOSTIC_FAILURES_R31.get());
         snapshot.put("lastDiagnosticFailure",lastDiagnosticR31);snapshot.put("unknownCommitCount",UNKNOWN_COMMITS_R31.get());
         snapshot.put("lastResearchDataServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());snapshot.put("lastResearchControlServiceMonoMs",LAST_RESEARCH_CONTROL_R335.get());snapshot.put("researchServiceIntervalMs",5000);snapshot.put("lastResearchServiceMonoMs",LAST_RESEARCH_SERVICE_R31.get());
         snapshot.put("lastReceiptResolutionR341", lastReceiptResolutionR341);
+        snapshot.put("lastFaultDrainServiceMonoMs", LAST_FAULT_SERVICE_R33.get());
+        snapshot.put("freezeWaiters", FREEZE_WAITERS_R31.get());
         snapshot.put("writeBudgetR341", WriteBudgetR341.snapshot());
         snapshot.put("replayDatasetServiceR341", DATASET_SERVICE_R341.snapshot(TimeSourceR811.monoNowMs(), FREEZE_WAITERS_R31.get()));
-        snapshot.put("writerHoldFaultReceipts",com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.snapshot());
+        snapshot.put("reportProcessWriterHoldObservation",com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.snapshot());
+        snapshot.put("writerHoldFaultReceipts",mainProjection instanceof Map ? mainProjection
+                : MainWriterFaultProjectionR342.unavailable(android.os.Process.myPid(), "MAIN_PROJECTION_NOT_CAPTURED"));
         snapshot.put("postCanonicalObservationR33",PostCanonicalObservationR33.snapshot());
         return Collections.unmodifiableMap(snapshot);
     }
@@ -969,7 +978,10 @@ public final class DatabaseCoordinator {
         final boolean reentrant=writeLock.isHeldByCurrentThread();
         final boolean research=context.writeClass==WriteClass.RESEARCH_DATA;
         final boolean researchControl=context.writeClass==WriteClass.RESEARCH_CONTROL;
-        final boolean faultDrainR33=context.writeClass==WriteClass.RESEARCH_CONTROL&&"R31_WRITER_HOLD_FAULT".equals(context.operation);
+        final boolean faultDrainR33=researchControl&&"R31_WRITER_HOLD_FAULT".equals(context.operation);
+        final boolean faultArchiveR342=researchControl&&context.operation.startsWith("R335_FAULT_ARCHIVE_")
+                && OPERATION_REGISTRY_R31.get(context.operation)==WriteClass.RESEARCH_CONTROL;
+        final boolean faultControl=faultDrainR33||faultArchiveR342;
         long now=TimeSourceR811.monoNowMs();
         Long scoped=WRITE_DEADLINE_CP3.get();
         long deadline=now+(critical?2000L:250L);
@@ -991,7 +1003,8 @@ public final class DatabaseCoordinator {
             // Drain work has its own controlled service slot. Expiring live freezes retain precedence.
             // Other aged, prepared research may enter the existing fair queue every five seconds.
             // An expiring freeze always retains precedence. This is admission, never a second writer.
-            if(faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0&&now-LAST_FAULT_SERVICE_R33.get()>=1000L)
+            if(faultControl&&!reentrant&&FREEZE_WAITERS_R31.get()==0
+                    && (faultArchiveR342 || now-LAST_FAULT_SERVICE_R33.get()>=1000L))
                 serviceSlot=FAULT_SERVICE_SLOT_R34.compareAndSet(false,true);
             else if(!reentrant&&migrationServiceDue(context,now,LAST_MIGRATION_SERVICE_R34.get(),FREEZE_WAITERS_R31.get()))
                 serviceSlot=MIGRATION_SERVICE_SLOT_R34.compareAndSet(false,true);
@@ -999,7 +1012,7 @@ public final class DatabaseCoordinator {
                     && (DATASET_SERVICE_R341.isTurn(context.readyDataset, now)
                         || (now-LAST_RESEARCH_TURN_R341.get()>=5000L && !DATASET_SERVICE_R341.hasPreparedTurn(now))))
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
-            else if(researchControl&&!faultDrainR33&&!reentrant&&FREEZE_WAITERS_R31.get()==0
+            else if(researchControl&&!faultControl&&!reentrant&&FREEZE_WAITERS_R31.get()==0
                     &&now-LAST_RESEARCH_CONTROL_R335.get()>=5000L)
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
             if(research&&!reentrant&&!serviceSlot
@@ -1057,7 +1070,7 @@ public final class DatabaseCoordinator {
                                 attemptState.diagnostic==null?CommitOutcome.COMMITTED:CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED;
                         if(context.writeClass==WriteClass.MIGRATION&&!failed)LAST_MIGRATION_SERVICE_R34.set(TimeSourceR811.monoNowMs());
                         if(research&&!failed&&!attemptState.receiptReplay)LAST_RESEARCH_TURN_R341.set(TimeSourceR811.monoNowMs());
-                        if(researchControl&&!faultDrainR33&&!failed)LAST_RESEARCH_CONTROL_R335.set(TimeSourceR811.monoNowMs());
+                        if(researchControl&&!faultControl&&!failed)LAST_RESEARCH_CONTROL_R335.set(TimeSourceR811.monoNowMs());
                         if(faultDrainR33&&!failed)LAST_FAULT_SERVICE_R33.set(TimeSourceR811.monoNowMs());
                         if (!failed && attemptState.outcome != CommitOutcome.ROLLED_BACK) budgetFailure = "";
                         diagnosticR31(attemptState,"RECORD_SUCCESS",()->recordSuccess(operation,started));
@@ -1109,7 +1122,7 @@ public final class DatabaseCoordinator {
             if(context.writeClass==WriteClass.LIVE_FREEZE)FREEZE_WAITERS_R31.decrementAndGet();
             if(context.writeClass==WriteClass.MIGRATION){
                 if(serviceSlot)MIGRATION_SERVICE_SLOT_R34.set(false);
-            }else if(serviceSlot)(faultDrainR33?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);
+            }else if(serviceSlot)(faultControl?FAULT_SERVICE_SLOT_R34:RESEARCH_SERVICE_SLOT_R31).set(false);
             if(previousAttempt==null)ATTEMPT_R31.remove();
             if (parentBudget == null) BUDGET_R341.remove(); else BUDGET_R341.set(parentBudget);
             if (!reentrant) budget.finish(TimeSourceR811.monoNowMs(), attemptState.phase, attemptState.outcome, budgetFailure);

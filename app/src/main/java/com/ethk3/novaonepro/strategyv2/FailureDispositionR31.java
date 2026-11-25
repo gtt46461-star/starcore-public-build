@@ -33,9 +33,7 @@ public final class FailureDispositionR31 {
                 return new Decision(Disposition.DEPENDENCY, "COMMITTED_ACK_RECOVERY", outcome, false, true);
             if ("UNKNOWN".equals(outcome))
                 return new Decision(Disposition.DEPENDENCY, "COMMIT_RESOLUTION_REQUIRED", outcome, true, false);
-            String physical = physicalCauseCategoryR31(failure);
-            // Physical storage failures refine the category; the typed owner still owns the outcome.
-            return category(physical == null ? typed.failureCategory() : physical, outcome);
+            return category(rootCategoryR31(failure), outcome);
         }
         String root=rootCategoryR31(failure);
         String outcome;
@@ -48,8 +46,8 @@ public final class FailureDispositionR31 {
         return category(root,outcome);
     }
     /** The one bounded cause-chain category shared by the R26 entry, the R27 pool, direct research writes,
-     * task claims and the DatabaseCoordinator adapter. Precedence: physical storage failure, then the first
-     * typed producer category, then cancellation, then stale owner, then the outermost transient/dependency
+     * task claims and the DatabaseCoordinator adapter. Precedence: physical storage failure, explicit
+     * cancellation, the first typed producer category, stale owner, then the outermost transient/dependency
      * cause. A cause chain without an explicit category is a BUG; no blanket IllegalStateException retry. */
     public static String rootCategoryR31(Throwable failure){
         if(failure==null)return "BUG";
@@ -62,12 +60,12 @@ public final class FailureDispositionR31 {
             if(own==null)continue;
             if(own.equals("CANCELLED"))cancelled=own;else if(own.equals("STALE_OWNER"))stale=own;else if(other==null)other=own;
         }
-        if(declared!=null)return declared;
         if(cancelled!=null)return cancelled;
+        if(declared!=null)return declared;
         if(stale!=null)return stale;
         return other==null?"BUG":other;
     }
-    private static ClassifiedFailure firstTypedR31(Throwable failure){
+    public static ClassifiedFailure firstTypedR31(Throwable failure){
         IdentityHashMap<Throwable,Boolean> seen=new IdentityHashMap<>();
         for(Throwable cause=failure;cause!=null&&seen.size()<16&&seen.put(cause,Boolean.TRUE)==null;cause=cause.getCause())
             if(cause instanceof ClassifiedFailure)return (ClassifiedFailure)cause;
@@ -75,7 +73,7 @@ public final class FailureDispositionR31 {
     }
     private static String declaredCategoryR31(String category){
         switch(category==null?"":category){
-            case "LOCK_BUSY":case "TEMP_TIMEOUT":case "CANCELLED":case "STALE_OWNER":case "DEPENDENCY":case "RESOURCE_MEMORY":case "RESOURCE_QUEUE":
+            case "LOCK_BUSY":case "TEMP_TIMEOUT":case "CANCELLED":case "STALE_OWNER":case "DEPENDENCY":case "RESOURCE_MEMORY":case "RESOURCE_QUEUE":case "MISSING_SOURCE":
             case "DISK_FULL":case "DB_CORRUPT":case "INTEGRITY":case "BUG":return category;
             default:return "BUG";
         }
@@ -83,12 +81,16 @@ public final class FailureDispositionR31 {
     /** Category of one throwable on its own (no cause walk). Explicit names and messages only. */
     private static String ownCategoryR31(Throwable cause){
         String name=cause.getClass().getName(),simple=cause.getClass().getSimpleName(),message=String.valueOf(cause.getMessage()).toUpperCase(java.util.Locale.ROOT);
-        if(cause instanceof InterruptedException||cause instanceof java.util.concurrent.CancellationException||message.contains("CANCELLED")||message.contains("WAIT_INTERRUPTED"))return "CANCELLED";
+        if(cause instanceof InterruptedException||cause instanceof java.util.concurrent.CancellationException
+                ||name.equals("android.os.OperationCanceledException")
+                ||(!(cause instanceof ClassifiedFailure)&&(message.contains("CANCELLED")||message.contains("WAIT_INTERRUPTED"))))return "CANCELLED";
         if(message.contains("STALE_OWNER")||message.contains("STALE_FENCE")||message.contains("FENCE_LOST")||message.contains("OWNER_MISMATCH")||message.startsWith("R31_STALE_")||message.startsWith("R30_PREPARED_OWNER_CHANGED"))return "STALE_OWNER";
         if(simple.contains("SQLiteDatabaseLocked")||simple.contains("SQLiteTableLocked")||name.endsWith("SQLiteBusyException")||message.contains("DATABASE IS LOCKED")
-                ||message.contains("DATABASE TABLE IS LOCKED")||message.contains("CP3_DB_BUSY_")||message.startsWith("R909_BACKGROUND_WRITER_YIELD"))return "LOCK_BUSY";
+                ||message.contains("DATABASE TABLE IS LOCKED")||message.contains("CP3_DB_BUSY_")||message.startsWith("SQLITE_BUSY")||message.startsWith("R909_BACKGROUND_WRITER_YIELD"))return "LOCK_BUSY";
         if(message.startsWith("R31_MEMORY_CAPACITY_WAIT")||message.startsWith("RESOURCE_WAIT:MEMORY_"))return "RESOURCE_MEMORY";
         if(message.startsWith("QUEUE_CAPACITY_WAIT")||name.endsWith("QueueCapacityWait"))return "RESOURCE_QUEUE";
+        if(message.contains("MISSING_SOURCE")||message.contains("SOURCE_MISSING")||message.contains("CHECKPOINT_MISSING"))
+            return "MISSING_SOURCE";
         if(message.contains("DEPENDENCY")||message.contains("SCHEMA_PENDING")||message.contains("NO SUCH TABLE")||message.contains("NO SUCH COLUMN")
                 ||message.startsWith("MATRIX_ORIGINAL_STUDENT_UNAVAILABLE")||message.startsWith("MISSING_TEACHER")||message.startsWith("R31_COMPUTE_CAPACITY")
                 ||message.startsWith("R31_CONTINUATION_CANCELLING")||message.startsWith("R31_CONTINUATION_SLICE_IN_FLIGHT")||message.startsWith("R26_UNSLICED_COMPUTATION_CAPACITY")
@@ -117,7 +119,7 @@ public final class FailureDispositionR31 {
         switch (category == null ? "" : category) {
             case "LOCK_BUSY": case "TEMP_TIMEOUT": disposition = Disposition.RETRY_LATER; break;
             case "CANCELLED": disposition = Disposition.CANCELLED; break;
-            case "DEPENDENCY": case "RESOURCE_MEMORY": case "RESOURCE_QUEUE": disposition = Disposition.DEPENDENCY; break;
+            case "DEPENDENCY": case "RESOURCE_MEMORY": case "RESOURCE_QUEUE": case "MISSING_SOURCE": disposition = Disposition.DEPENDENCY; break;
             case "STALE_OWNER": disposition = Disposition.STALE_OWNER; break;
             case "DISK_FULL": case "DB_CORRUPT": disposition = Disposition.FATAL; break;
             default: disposition = Disposition.FAULT;
