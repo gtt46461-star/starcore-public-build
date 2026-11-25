@@ -50,6 +50,10 @@ public final class AtomNetPublicationR31 {
     }
     public static String[][] schemaObjectsR31(){List<String[]> objects=new ArrayList<>(Arrays.asList(new String[][]{{"table",FutureModelRegistrationR34.TABLE},{"trigger",FutureModelRegistrationR34.TRIGGER},{"table","r34_atomnet_optimizer_step"},{"table","r34_atomnet_unavailable_label"},{"table","r33_atomnet_progress_head"},{"table","r31_atomnet_publication"},{"table","r31_atomnet_sample_stage"},{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}}));Collections.addAll(objects,AtomNetSampleArchiveR324.schemaObjects());return objects.toArray(new String[0][]);}
     public static void requireReady(SQLiteDatabase db){DatabaseCoordinator.requireSchemaObjectsR31(db,"R31_ATOMNET_PUBLICATION",TABLES,new String[][]{{"trigger",FutureModelRegistrationR34.TRIGGER},{"index","r31_atomnet_publication_samples"},{"index","r32_atomnet_active_material"},{"index","r32_atomnet_pending_parent"},{"index","r32_atomnet_complete_recovery"},{"trigger","r31_atomnet_stage_no_update"},{"trigger","r31_atomnet_stage_published_no_delete"}});AtomNetSampleArchiveR324.requireReady(db);}
+    static void requireConsumerSchemaR342(SQLiteDatabase db) {
+        requireReady(db);
+        com.ethk3.novaonepro.SchemaDomainCoordinatorR926.requireExactR31Definitions(db, "R342_ATOMNET_PUBLICATION", DDL);
+    }
     /** This is a storage observation, not permission to drop protected originals.
      * Capacity is a resource bound; it must not be reported as an algorithm quota
      * or as proof that archive/readback/reclamation is implemented. */

@@ -1018,6 +1018,19 @@ public final class ServiceHeartbeatStore {
     }
 
     public String getResearchStaleReason() {
+        String startup = getString("r342_owner_startup_state", "");
+        if (!startup.isEmpty() && !"READY".equals(startup)
+                && BuildConfig.SOURCE_COMMIT_R26.equals(getString("r342_owner_startup_source", ""))) {
+            try {
+                Object raw = com.ethk3.novaonepro.strategyv2.JsonR27.parse(processStartScopeR341());
+                if (raw instanceof java.util.Map && getString("r342_owner_startup_epoch", "")
+                        .equals(((java.util.Map<?,?>) raw).get("processEpoch"))) {
+                    return "RESEARCH_OWNER_" + startup + ":" + getString("r342_owner_startup_reason", "");
+                }
+            } catch (RuntimeException missingProcessScope) {
+                // Fall through to the original boot and observation age checks.
+            }
+        }
         if(getLong("r31_research_sample_elapsed",0)>0){
             String boot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
             long age=android.os.SystemClock.elapsedRealtime()-getLong("r31_research_sample_elapsed",0);
@@ -1026,6 +1039,22 @@ public final class ServiceHeartbeatStore {
             return researchProgressAcceptableR31(state)?"":"RESEARCH_"+state+":"+getString("r31_research_reason","");
         }
         return "RESEARCH_HEALTH_UNKNOWN_NOT_SAMPLED";
+    }
+
+    /** Service and research startup publish state without writing any progress clock. */
+    public void markResearchStartupR342(String state, String reason) {
+        String epoch = ProcessBootIdentityR906.id();
+        if (state.equals(getString("r342_owner_startup_state", ""))
+                && reason.equals(getString("r342_owner_startup_reason", ""))
+                && epoch.equals(getString("r342_owner_startup_epoch", ""))
+                && BuildConfig.SOURCE_COMMIT_R26.equals(getString("r342_owner_startup_source", ""))) return;
+        RuntimePatch p = new RuntimePatch();
+        p.putString("r342_owner_startup_state", safe(state));
+        p.putString("r342_owner_startup_reason", safe(reason));
+        p.putString("r342_owner_startup_epoch", epoch);
+        p.putString("r342_owner_startup_source", BuildConfig.SOURCE_COMMIT_R26);
+        p.putLong("r342_owner_startup_observed_at", System.currentTimeMillis());
+        applyTelemetryPatchR76(p);
     }
 
     public void markResearchHealthR31(com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.RuntimeHealthSnapshot snapshot){

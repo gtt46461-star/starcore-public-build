@@ -13,6 +13,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     private static final ThreadLocal<Claim> WRITING_CLAIM=new ThreadLocal<>();
     public static void checkThreadFence(SQLiteDatabase db){Claim c=WRITING_CLAIM.get();if(c!=null)requireFence(db,c);}
     private final DbStore store;private final String owner=UUID.randomUUID().toString();
+    private final String initialStartupDependencyR342;
+    private volatile String startupStateR342 = "STARTING", startupReasonR342 = "OWNER_INITIALIZATION";
     private final Object signal=new Object();private volatile boolean cancelled,closeStore;
     private final Thread worker;private int slot;private volatile RuntimeR27 r27;private long lastIncumbentSeq=-1;private long heartbeat;private String recordedSessionState;private boolean strategyStorageReady;private volatile boolean retentionProtectionReadyR31;private volatile String resourceBlocked;private volatile long resourceChecked;
     private final CapabilityServiceR26 service=new CapabilityServiceR26();
@@ -38,7 +40,29 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         Claim(String task,String owner,long fence,long cursor){this(task,owner,fence,cursor,null);}
         Claim(String task,String owner,long fence,long cursor,String lane){this.task=task;this.owner=owner;this.fence=fence;this.cursor=cursor;this.lane=lane;}
     }
-    public RuntimeCoordinatorR26(DbStore store){this.store=Objects.requireNonNull(store);ResearchPoolR27.installComputeBudgetR31();worker=new Thread(this::run,"starcore-r26-continuous-research");worker.setDaemon(true);synchronized(RuntimeCoordinatorR26.class){RuntimeCoordinatorR26 previous=active;if(previous!=null&&!previous.resourcesTerminatedR31()){previous.close();throw new IllegalStateException("R31_PREVIOUS_OWNER_DRAINING");}active=this;}worker.start();}
+    public RuntimeCoordinatorR26(DbStore store){this(store, startupDependencyRevisionR342(store));}
+    public RuntimeCoordinatorR26(DbStore store, String startupDependency){this.store=Objects.requireNonNull(store);initialStartupDependencyR342=Objects.requireNonNull(startupDependency);ResearchPoolR27.installComputeBudgetR31();worker=new Thread(this::run,"starcore-r26-continuous-research");worker.setDaemon(true);synchronized(RuntimeCoordinatorR26.class){RuntimeCoordinatorR26 previous=active;if(previous!=null&&!previous.resourcesTerminatedR31()){previous.close();throw new IllegalStateException("R31_PREVIOUS_OWNER_DRAINING");}active=this;}worker.start();}
+
+    /** A repaired source, committed recovery or changed schema re-arms this owner's circuit. */
+    public static String startupDependencyRevisionR342(DbStore store) {
+        List<Object> identity = new ArrayList<>();
+        identity.add(BuildConfig.SOURCE_COMMIT_R26);
+        SQLiteDatabase db = store.readable();
+        identity.add(RuntimeObservationScopeR341.databaseIdentity(db));
+        identity.add(observedScalarR342(db, "PRAGMA main.schema_version"));
+        if (SchemaR27.tableExists(db, "r31_startup_checkpoint_source"))
+            identity.add(observedScalarR342(db, "SELECT generation FROM r31_startup_checkpoint_source WHERE singleton=1"));
+        if (CheckpointRecoveryR335.ready(db))
+            identity.add(observedScalarR342(db, "SELECT coalesce(max(updated_seq),0) FROM r335_checkpoint_recovery "
+                    + "WHERE status='BYTES_RESTORED_NOT_MODEL_ACCEPTED'"));
+        return StatsR27.sha256(JsonR27.write(identity));
+    }
+
+    private static Long observedScalarR342(SQLiteDatabase db, String statement) {
+        try (Cursor row = db.rawQuery(statement, null)) {
+            return row.moveToFirst() && !row.isNull(0) ? row.getLong(0) : null;
+        }
+    }
     static void bindBackgroundClaim(Claim claim){WRITING_CLAIM.set(claim);}
     static void unbindBackgroundClaimR31(){WRITING_CLAIM.remove();}
     static Claim currentClaimR30(){return WRITING_CLAIM.get();}
@@ -244,7 +268,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 if(workPending!=null&&workPending>0&&!dependency&&!resourceWait&&!"DISABLED".equals(status))pendingTasks++;
                 String artifact=current?rows.getString(13):null;
                 if(entry!=null&&entry.unit!=TaskProgressR30R1.Unit.TIME_TICK&&artifact!=null&&!artifact.isEmpty()&&!rows.isNull(14)&&rows.getLong(14)>latestArtifactTime){latestArtifactTime=rows.getLong(14);lastArtifactOrdinal=clock;lastArtifactHash=artifact;}
-                java.util.Map<String,Object> row=new java.util.LinkedHashMap<>();row.put("taskId",id);row.put("rawSchedulerState",status);row.put("state",state);row.put("ownerEpoch",rows.getString(2));row.put("fence",rows.getLong(3));row.put("workUnit",entry==null?null:entry.unit.name());row.put("pending",workPending);row.put("pendingKnown",workPending!=null);row.put("lastArtifactClockOrdinal",clock);row.put("lastArtifactHash",artifact);row.put("artifactCommittedAt",artifact==null||rows.isNull(14)?null:rows.getLong(14));row.put("completedInputOrdinal",committedInput);row.put("sourceFailure",sourceFailure);row.put("blockedReason",RuntimeFaultEvidenceR31.clean(blocked,256));row.put("leaseValid",validLease);row.put("dependencyMissing",dependency);row.put("quarantineLevel",rows.isNull(17)?null:rows.getLong(17));row.put("faultFingerprint",rows.getString(18));row.put("halfOpenOwner",rows.getString(19));tasks.add(row);
+                java.util.Map<String,Object> row=new java.util.LinkedHashMap<>();row.put("taskId",id);row.put("rawSchedulerState",status);row.put("state",state);row.put("ownerEpoch",rows.getString(2));row.put("fence",rows.getLong(3));row.put("workUnit",entry==null?null:entry.unit.name());row.put("pending",workPending);row.put("pendingKnown",workPending!=null);row.put("lastArtifactClockOrdinal",clock);row.put("lastArtifactHash",artifact);row.put("artifactCommittedAt",artifact==null||rows.isNull(14)?null:rows.getLong(14));row.put("completedInputOrdinal",committedInput);row.put("sourceFailure",sourceFailure);row.put("blockedReason",RuntimeFaultEvidenceR31.clean(blocked,256));row.put("leaseValid",validLease);row.put("dependencyMissing",dependency);row.put("quarantineLevel",rows.isNull(17)?null:rows.getLong(17));row.put("faultFingerprint",rows.getString(18));row.put("halfOpenOwner",rows.getString(19));
+                row.put("currentOwnerArtifact", artifact != null && owner.equals(rows.getString(15)));
+                tasks.add(row);
             }
             for(String registered:ResearchTaskRegistryR30R1.all().keySet())if(!seen.contains(registered))unknown++;
         }catch(RuntimeException source){failure="HEALTH_SOURCE_UNAVAILABLE:"+source.getClass().getSimpleName();unknown=Math.max(1,ResearchTaskRegistryR30R1.all().size()-tasks.size());}
@@ -272,6 +298,12 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         control.put("memoryCacheTrimRequests",memoryTrimRequestsR31);control.put("memoryCacheTrimFailure",memoryTrimFailureR31);control.put("memoryTrimReleaseEvidence","REFERENCE_TRIM_REQUEST_ONLY_NOT_MEASURED_HEAP_RELEASE");
     }
     public RuntimeHealthSnapshot healthSnapshotR31(){
+        if (!"READY".equals(startupStateR342)) {
+            return new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),
+                    SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_INITIALIZING":"ALIVE_OWNER_DRAINING_OR_STOPPED",
+                    "STARTUP_" + startupStateR342,startupReasonR342,null,null,null,0,0,0,
+                    EXPECTED_TASKS_R341.size(),0,Collections.emptyList());
+        }
         RuntimeHealthSnapshot current=healthSnapshotR31;
         if(current==null)current=new RuntimeHealthSnapshot(owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED","UNKNOWN","HEALTH_PROBE_NOT_YET_SAMPLED",null,null,null,0,0,0,ResearchTaskRegistryR30R1.all().size(),0,java.util.Collections.emptyList());
         boolean stale=SystemClock.elapsedRealtime()-current.sampleElapsedMs>10_000;
@@ -285,12 +317,13 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         java.util.Map<String,Object> control=new java.util.LinkedHashMap<>();Object previous=current.asMap().get("control");if(previous instanceof java.util.Map)for(java.util.Map.Entry<?,?> entry:((java.util.Map<?,?>)previous).entrySet())control.put(String.valueOf(entry.getKey()),entry.getValue());control.put("memory",memory);appendMemoryControlFactsR31(control,memory);control.put("resourceReason",resourceBlocked);control.put("resourceObservedElapsedMs",resourceChecked);control.put("taskFactsAreCached",true);control.put("lastControlAdmissionFailure",lastHealthControlFailureR31);return merged.withControl(control);
     }
     public RuntimeHealthSnapshot reconcileResearchHealthR31(String reason){
-        synchronized(signal){if(cancelled)return healthSnapshotR31();healthControlRequestsR31++;if(!healthProbePendingR31.compareAndSet(false,true))return healthSnapshotR31();}lastHealthControlReasonR31=RuntimeFaultEvidenceR31.clean(reason,128);
+        synchronized(signal){if(cancelled||!"READY".equals(startupStateR342))return healthSnapshotR31();healthControlRequestsR31++;if(!healthProbePendingR31.compareAndSet(false,true))return healthSnapshotR31();}lastHealthControlReasonR31=RuntimeFaultEvidenceR31.clean(reason,128);
         try{healthControlExecutorR31().submit("health:"+owner,512,HEALTH_WORKING_ESTIMATE_R31,()->{try{
             RuntimeHealthSnapshot observed=captureHealthSnapshotR31(store.readable(),owner,IssueTimelineWriterR30.bootId(),System.currentTimeMillis(),SystemClock.elapsedRealtime(),isRunning()?"ALIVE_OWNER_RUNNING":"ALIVE_OWNER_DRAINING_OR_STOPPED",resourceBlocked);
             if(observed.lastArtifactHash!=null && store.contextForR26()!=null) {
                 for(java.util.Map<String,Object> task:observed.tasksImmutable) {
                     if(observed.lastArtifactHash.equals(task.get("lastArtifactHash")) && task.get("artifactCommittedAt") instanceof Number
+                            && Boolean.TRUE.equals(task.get("currentOwnerArtifact"))
                             && !"TIME_TICK".equals(task.get("workUnit"))) {
                         new com.ethk3.novaonepro.ServiceHeartbeatStore(store.contextForR26()).observeResearchArtifactR335(
                                 (String)task.get("taskId"),observed.lastArtifactHash,((Number)task.get("artifactCommittedAt")).longValue());
@@ -389,7 +422,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         SQLiteDatabase read=store.readable();
         if(!KeepArchiveRetirementR31.MODE.equals(KeepArchiveRetirementR31.mode(read,StartupCheckpointIdentityR31.SOURCE)))return null;
         if(!StartupCheckpointIdentityR31.ready(read))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","DECLARED_SOURCE_IDENTITY_NOT_READY");
-        try{return StartupCheckpointIdentityR31.prepare(read,new java.io.File(store.contextForR26().getFilesDir(),"r31-keep"));}
+        try{return StartupCheckpointIdentityR31.preparePreservingHotRowsR342(read,new java.io.File(store.contextForR26().getFilesDir(),"r31-keep"));}
         catch(CheckpointDependencyR341.SourceWait missing) {
             if (missing.state == CheckpointDependencyR341.State.CONFLICT)
                 throw new IllegalStateException("R341_INTEGRITY_CHECKPOINT_SOURCE:" + missing.getMessage(), missing);
@@ -495,6 +528,11 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     private StartupStageJournalR341 startupJournal;
     private String startupAttempt;
+    private void publishStartupR342(ServiceHeartbeatStore user, String state, String reason) {
+        startupReasonR342 = reason;
+        startupStateR342 = state;
+        user.markResearchStartupR342(state, reason);
+    }
 
     private <T> T startupStage(StartupStageJournalR341.Stage stage, java.util.function.Supplier<T> operation) {
         StartupStageJournalR341.Token phase = startupJournal.begin(owner, startupAttempt, stage, null);
@@ -513,6 +551,12 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if (!KeepArchiveRetirementR31.MODE.equals(KeepArchiveRetirementR31.mode(db, StartupCheckpointIdentityR31.SOURCE))) return;
         if (!SchemaR27.tableExists(db, StartupCheckpointIdentityR31.SOURCE))
             throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT", "PROTECTED_SOURCE_TABLE_MISSING");
+        if (!ResearchRetentionStoreR30.startupBootMarkerReadyR342(db)) {
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                    DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R342_STARTUP_BOOT_MARKER")
+                            .withWorkload(0, 0, 1, 1, true),
+                    tx -> { ResearchRetentionStoreR30.installStartupBootMarkerR342(tx); return null; });
+        }
         for (int step = 0; step <= StartupCheckpointIdentityR31.ddlR31().length + 1; step++) {
             if (cancelled) throw new IllegalStateException("R34_STARTUP_CANCELLED");
             try { if (StartupCheckpointIdentityR31.ready(db)) return; }
@@ -531,13 +575,28 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         StartupCheckpointIdentityR31.Prepared checkpoint = startupStage(StartupStageJournalR341.Stage.CHECKPOINT_PREPARE,
                 () -> {
                     installCheckpointReaderPrerequisitesR341();
+                    if (ResearchRetentionStoreR30.startupEvidenceReadBackR342(store.readable()) != null) return null;
                     return prepareStartupCheckpointR31(store);
                 });
         if (checkpoint != null) {
-            startupStage(StartupStageJournalR341.Stage.CHECKPOINT_PRESERVE, () ->
-                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
-                DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION, "R34_STARTUP_CHECKPOINT"),
-                db -> { ResearchRetentionStoreR30.preservePreparedStartupCheckpoint(db, checkpoint); return 0; }));
+            StartupStageJournalR341.Token phase = startupJournal.begin(owner, startupAttempt,
+                    StartupStageJournalR341.Stage.CHECKPOINT_PRESERVE, null);
+            try {
+                DatabaseCoordinator.WriteContext context = DatabaseCoordinator.WriteContext.of(
+                        DatabaseCoordinator.WriteClass.MIGRATION, "R34_STARTUP_CHECKPOINT")
+                        .withWorkload(checkpoint.sourceRows, 64 * 1024L, 9, 0, true);
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(context, db -> {
+                    ResearchRetentionStoreR30.preservePreparedStartupCheckpoint(db, checkpoint);
+                    return null;
+                });
+                String receipt = ResearchRetentionStoreR30.startupEvidenceReadBackR342(store.readable());
+                if (receipt == null) throw new DatabaseCoordinator.SchemaPendingR31(
+                        "R34_STARTUP_CHECKPOINT", "BOOT_RECEIPT_READBACK_PENDING");
+                startupJournal.end(phase, StartupStageJournalR341.Outcome.COMMITTED, receipt, 0L);
+            } catch (RuntimeException | Error unavailable) {
+                startupJournal.recordUncaught(phase, unavailable);
+                throw unavailable;
+            }
         }
         startupStage(StartupStageJournalR341.Stage.RUNTIME_BASE, () ->
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
@@ -683,13 +742,15 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             powerLease=new RuntimePowerLeaseR26(store.contextForR26(),owner);powerLease.keepAlive();
             startupJournal = StartupStageJournalR341.open(store.contextForR26(), "research");
             startupJournal.recoverOpenAttempts(IssueTimelineWriterR30.bootId(), ProcessBootIdentityR906.id());
+            publishStartupR342(user, "STARTING", "OWNER_INITIALIZATION");
             boolean initialized = false;
+            String dependency = initialStartupDependencyR342;
             while (!cancelled && !initialized) {
                 if (!user.isUserEnabled()) { cancelled = true; break; }
                 powerLease.keepAlive();
                 startupAttempt = java.util.UUID.randomUUID().toString();
                 StartupStageJournalR341.Token attempt = startupJournal.begin(owner, startupAttempt,
-                        StartupStageJournalR341.Stage.OWNER_BEGIN, null);
+                        StartupStageJournalR341.Stage.OWNER_BEGIN, dependency);
                 try {
                     initialize();
                     startupJournal.end(attempt, StartupStageJournalR341.Outcome.VERIFIED, "SESSION_READ_BACK", 0L);
@@ -698,6 +759,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                     startupJournal.recordUncaught(attempt, retry);
                     StartupStageJournalR341.Outcome startupOutcome = StartupStageJournalR341.classify(retry);
                     FailureDispositionR31.Decision disposition = FailureDispositionR31.classify(retry);
+                    publishStartupR342(user, startupOutcome.name(), disposition.category + ":" + disposition.commitOutcome);
                     if (startupOutcome == StartupStageJournalR341.Outcome.FATAL
                             || startupOutcome == StartupStageJournalR341.Outcome.BUG) throw retry;
                     if (startupOutcome == StartupStageJournalR341.Outcome.INTERRUPTED) {
@@ -708,6 +770,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                     // Preserve the next owner retry of the guarded, idempotent startup steps.
                     await(startupOutcome == StartupStageJournalR341.Outcome.WAIT_RESOURCE
                             || startupOutcome == StartupStageJournalR341.Outcome.MISSING_SOURCE ? 5000L : 500L);
+                    if (!cancelled) dependency = startupDependencyRevisionR342(store);
                 }
             }
             // R27-003/009: DbStore → P0 (service) → research scheduler. The R27 pool owns the R27 tasks.
@@ -716,6 +779,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 r27 = runtime;
                 runtime.start();
                 researchWorkersReadyR341 = RuntimeR27.active() == runtime;
+                if (researchWorkersReadyR341 && registrationVerifiedR341) publishStartupR342(user, "READY", "SESSION_AND_WORKERS_OBSERVED");
                 return null;
             });
             while(!cancelled){
@@ -846,13 +910,16 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             do {
                 try { budget.checkpointOrYield(); }
                 catch (BudgetTokenSU1.Yield pause) { if (units == 0) throw pause; break; }
+                boolean coldPending = !ColdRebirthSchemaR34.readyR342(store.readable())
+                        || !LifecycleSchemaR31.coldRebirthMigrationCommittedR342(store.readable());
                 result = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
                     DatabaseCoordinator.WriteContext.of(DatabaseCoordinator.WriteClass.MIGRATION,"R31_LIFECYCLE_SCHEMA_UNIT")
                             .withWorkload(0, 0L, 1, 1, true), db -> {
                             requireFence(db,c);
-                            return LifecycleSchemaR31.advanceWithinMigration(db);
+                            return coldPending ? LifecycleSchemaR31.advanceColdRebirthWithinMigrationR342(db)
+                                    : LifecycleSchemaR31.advanceWithinMigration(db);
                         });
-                lifecycleReadyR335 = result.ready;
+                lifecycleReadyR335 = !coldPending && result.ready;
                 if (!result.committedUnit) break;
                 units++;
                 c.reason("COOPERATIVE_LIFECYCLE_SCHEMA_UNIT_COMMITTED:"+result.object);

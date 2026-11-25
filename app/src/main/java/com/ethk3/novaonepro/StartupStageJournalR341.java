@@ -44,12 +44,14 @@ public final class StartupStageJournalR341 {
         private final String owner;
         private final String attempt;
         private final Stage stage;
+        private final String inputHash;
         private final String id = UUID.randomUUID().toString();
         public AppendResult beginReceipt;
-        Token(String owner, String attempt, Stage stage) {
+        Token(String owner, String attempt, Stage stage, String inputHash) {
             this.owner = owner;
             this.attempt = attempt;
             this.stage = stage;
+            this.inputHash = inputHash;
         }
     }
 
@@ -120,7 +122,8 @@ public final class StartupStageJournalR341 {
     }
 
     public Token begin(String owner, String attempt, Stage stage, String inputHash) {
-        Token token = new Token(bounded(owner), bounded(attempt), stage);
+        Token token = new Token(bounded(owner), bounded(attempt), stage,
+                inputHash != null && inputHash.matches("[a-f0-9]{64}") ? inputHash : null);
         Map<String, Object> frame = base(token, "BEGIN");
         if (inputHash != null && inputHash.matches("[a-f0-9]{64}")) frame.put("inputHash", inputHash);
         token.beginReceipt = append(frame);
@@ -295,6 +298,10 @@ public final class StartupStageJournalR341 {
     public String export() { return JsonR27.write(snapshot()); }
 
     public boolean hasDeterministicFailureLimit() {
+        return hasDeterministicFailureLimit(null);
+    }
+
+    public boolean hasDeterministicFailureLimit(String startDependency) {
         try {
             List<Map<String, Object>> frames = read(data).frames;
             String last = null;
@@ -303,6 +310,7 @@ public final class StartupStageJournalR341 {
                 Map<String, Object> frame = frames.get(i);
                 if (!identity.sourceCommit.equals(frame.get("sourceCommit")) ||
                         !"OWNER_BEGIN".equals(frame.get("stage")) || !"END".equals(frame.get("record"))) continue;
+                if (startDependency != null && !startDependency.equals(frame.get("inputHash"))) return false;
                 if (!"BUG".equals(frame.get("outcome"))) return false;
                 String fingerprint = (String) frame.get("causeChainHash");
                 if (fingerprint == null || (last != null && !last.equals(fingerprint))) return false;
@@ -323,6 +331,7 @@ public final class StartupStageJournalR341 {
         frame.put("owner", token.owner);
         frame.put("attempt", token.attempt);
         frame.put("stage", token.stage.name());
+        if (token.inputHash != null) frame.put("inputHash", token.inputHash);
         frame.put("wallAt", clock.wall());
         frame.put("monoAt", clock.monotonic());
         return frame;

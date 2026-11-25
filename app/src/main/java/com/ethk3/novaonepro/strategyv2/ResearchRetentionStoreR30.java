@@ -228,7 +228,42 @@ public final class ResearchRetentionStoreR30 {
         // checkpoint receipt and subsequent migration commit or roll back together.
         startup.requireWithin(db);
         requireKeepMigrationSourceR31(db, StartupCheckpointIdentityR31.ARCHIVE);
+        if (!startupBootMarkerReadyR342(db)) {
+            throw new DatabaseCoordinator.SchemaPendingR31("R34_STARTUP_CHECKPOINT", "BOOT_MARKER_DEFINITION_PENDING");
+        }
         preserveStartupCheckpoint(db, startup);
+    }
+
+    static boolean startupBootMarkerReadyR342(SQLiteDatabase db) {
+        try (Cursor row = db.rawQuery("SELECT sql FROM sqlite_master WHERE type='table' AND name='r30_retention_boot_checkpoint'", null)) {
+            if (!row.moveToFirst()) return false;
+            if (!com.ethk3.novaonepro.LifecycleSchemaR31.canonical(BOOT_DDL)
+                    .equals(com.ethk3.novaonepro.LifecycleSchemaR31.canonical(row.getString(0)))) {
+                throw new DatabaseCoordinator.SchemaPendingR31("R34_STARTUP_CHECKPOINT", "UNKNOWN_BOOT_MARKER_DEFINITION");
+            }
+            return true;
+        }
+    }
+
+    static void installStartupBootMarkerR342(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R342_CHECKPOINT_MIGRATION_OWNER_REQUIRED");
+        if (!startupBootMarkerReadyR342(db)) db.execSQL(BOOT_DDL);
+        if (!startupBootMarkerReadyR342(db)) throw new IllegalStateException("R342_CHECKPOINT_BOOT_MARKER_MISSING");
+    }
+
+    static String startupEvidenceReadBackR342(SQLiteDatabase db) {
+        if (!startupBootMarkerReadyR342(db) || !exists(db, "r31_startup_checkpoint_receipt")) return null;
+        try (Cursor row = db.rawQuery("SELECT r.source_generation,r.column_contract_hash,r.source_rows,"
+                + "r.cas_matched_rows,r.actual_new_archive_rows,b.retained_rows FROM r31_startup_checkpoint_receipt r "
+                + "JOIN r30_retention_boot_checkpoint b USING(process_nonce) WHERE r.process_nonce=?",
+                new String[]{PROCESS_CHECKPOINT_SNAPSHOT})) {
+            if (!row.moveToFirst()) return null;
+            if (row.getLong(4) != row.getLong(5) || row.getLong(4) + row.getLong(3) > row.getLong(2)) {
+                throw new IllegalStateException("R342_CHECKPOINT_BOOT_RECEIPT_MISMATCH");
+            }
+            return StatsR27.sha256(JsonR27.write(java.util.Arrays.asList(PROCESS_CHECKPOINT_SNAPSHOT,
+                    row.getLong(0), row.getString(1), row.getLong(2), row.getLong(3), row.getLong(4))));
+        }
     }
     private static void preserveStartupCheckpoint(SQLiteDatabase db){
         preserveStartupCheckpoint(db,null);
@@ -236,7 +271,9 @@ public final class ResearchRetentionStoreR30 {
     private static void preserveStartupCheckpoint(SQLiteDatabase db,StartupCheckpointIdentityR31.Prepared startup){
         String source="r29_model_checkpoint",target="r30_keep_"+source;
         if(!exists(db,source)||!exists(db,target))return;
-        db.execSQL(BOOT_DDL);
+        // A prepared comparison binds the current schema cookie. Any new DDL
+        // must have committed before that comparison, in the migration owner.
+        if (startup == null) db.execSQL(BOOT_DDL);
         try(Cursor c=db.rawQuery("SELECT 1 FROM r30_retention_boot_checkpoint WHERE process_nonce=?",new String[]{PROCESS_CHECKPOINT_SNAPSHOT})){
             if(c.moveToFirst())return;
         }
@@ -261,7 +298,14 @@ public final class ResearchRetentionStoreR30 {
         }
         db.execSQL("UPDATE r30_retention_archive_index SET retained_rows=retained_rows+?,updated_at=? WHERE source_table=?",new Object[]{retained,now,source});
         db.execSQL("INSERT INTO r30_retention_boot_checkpoint VALUES(?,?,?)",new Object[]{PROCESS_CHECKPOINT_SNAPSHOT,now,retained});
-        if(startup!=null)startup.recordWithin(db,PROCESS_CHECKPOINT_SNAPSHOT,retained);
+        if (startup != null) {
+            startup.recordWithin(db,PROCESS_CHECKPOINT_SNAPSHOT,retained);
+            Map<String,Object> availability = new LinkedHashMap<>(startup.evidence());
+            availability.put("verifiedHotRowsCopied", retained);
+            availability.put("readBackScope", "SAME_TRANSACTION_AS_EXACT_TYPED_BOOT_ORIGINAL");
+            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r342_startup_checkpoint_availability',?,?)",
+                    new Object[]{JsonR27.write(availability), now});
+        }
     }
     static String verifiedFoldback(SQLiteDatabase db){
         try{

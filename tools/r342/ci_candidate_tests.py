@@ -124,17 +124,17 @@ def run_android_case(serial, source, result_dir, *, case_id, selector, scope, ph
     return selected[-1]
 
 
-def run_b02(serial, plan, source, originals):
+def run_native_batch(stage, serial, plan, source, originals):
     debug, = (ROOT / 'app/build/outputs/apk/debug').glob('*.apk')
     tests, = (ROOT / 'app/build/outputs/apk/androidTest/debug').glob('*.apk')
     require('Success' in adb(serial, 'install', debug), 'INSTRUMENTATION_APP_INSTALL_FAILED')
     require('Success' in adb(serial, 'install', '-t', tests), 'INSTRUMENTATION_RUNNER_INSTALL_FAILED')
     current = Path(os.environ['STARCORE_R342_PLAN_ROOT'])
-    selected = [case for case in read(current / 'ACCEPTANCE_MATRIX.json')['cases'] if case['batch'] == 'B02']
-    require(len(selected) == 4, 'R342_B02_CASE_SELECTION')
+    selected = [case for case in read(current / 'ACCEPTANCE_MATRIX.json')['cases'] if case['batch'] == stage]
+    require(len(selected) == {'B02': 4, 'B03': 5}[stage], 'R342_STAGE_CASE_SELECTION')
     for case in selected:
         method = 'test_' + case['issue_id'].lower().replace('-', '_')
-        selector = 'com.ethk3.novaonepro.r342.R342B02ContractTest#' + method
+        selector = 'com.ethk3.novaonepro.r342.R342' + stage + 'ContractTest#' + method
         scope = 'R342_' + case['issue_id'].replace('-', '_') + '_' + source[:12]
         run_android_case(serial, source, originals, case_id=case['id'], selector=selector, scope=scope, phase='normal')
         if case['issue_id'] == 'R342-004':
@@ -146,8 +146,8 @@ def run_b02(serial, plan, source, originals):
                                       scope=restart_scope, phase='restart')
             require(first['pid'] != second['pid'], 'ANDROID_WRITER_RESTART_NOT_OBSERVED')
     inherited = [case['id'] for case in read(plan / 'ACCEPTANCE_MATRIX.json')['cases']
-                 if case['id'].startswith('R341-B02-')]
-    require(len(inherited) == 8, 'R342_B02_INHERITED_CASE_SELECTION')
+                 if case['id'].startswith('R341-' + stage + '-')]
+    require(len(inherited) == 8, 'R342_STAGE_INHERITED_CASE_SELECTION')
     for case in inherited:
         argv = json.loads(subprocess.run([sys.executable, '-B', str(plan / 'tools/dispatch5.py'),
                           '--plan', str(plan), '--case', case], cwd=ROOT, capture_output=True, text=True,
@@ -183,8 +183,8 @@ def main():
                 and set(host['cases']) == {'R342-001', 'R342-002'}, 'ANDROID_BATCH_HOST_RECEIPT_MISMATCH')
         host_cases = sorted(host['cases'])
         current = []
-    elif stage == 'B02':
-        inherited, current = run_b02(serial, old_plan, source, originals)
+    elif stage in ('B02', 'B03'):
+        inherited, current = run_native_batch(stage, serial, old_plan, source, originals)
     else:
         raise ValueError('R342_STAGE_ANDROID_TESTS_NOT_IMPLEMENTED')
     write_json(originals / 'batch-receipt.json', {

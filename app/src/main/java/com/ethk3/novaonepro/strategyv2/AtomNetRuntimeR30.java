@@ -9,7 +9,7 @@ import java.util.*;
 public final class AtomNetRuntimeR30 {
     private AtomNetRuntimeR30(){}
     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
-        AtomNetPublicationR31.requireReady(w.ro);
+        AtomNetPublicationR31.requireConsumerSchemaR342(w.ro);
         AtomNetSessionR30 saved=rt.atomSessionR30;
         if(saved!=null){
             OnlineResearchWindowR30R1.register(w,saved.datasetHash);

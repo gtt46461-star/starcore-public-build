@@ -36,6 +36,11 @@ final class FieldFollowupR34 {
         historical.put("state","STALE_UNRECHECKED");out.put("historicalBaseline",historical);
         out.put("sameWindowComparison","WAITING_FOR_MATCHED_FIELD_OPPORTUNITY_CALENDAR");
         out.put("training","Current production commits, with captured labels separate from formal future observations.");
+        Map<String,Object> domains = new LinkedHashMap<>();
+        domains.put("coldRebirth", domainState(() -> ColdRebirthSchemaR34.require(db)));
+        domains.put("atomNetPublication", domainState(() -> AtomNetPublicationR31.requireConsumerSchemaR342(db)));
+        domains.put("checkpointPreservation", StartupCheckpointIdentityR31.report(db).get("status"));
+        out.put("capabilitySchemaR342", domains);
         List<Map<String,Object>> sources=new ArrayList<>();
         sources.add(projection(db,cancel,"R34-B02-03","SELECT count(*) AS retainedCleanDraws,min(issue) AS fromIssue,max(issue) AS throughIssue FROM draws WHERE dirty=0"));
         sources.add(projection(db,cancel,"R34-B04-01","SELECT target_issue,base_issue,input_hash,state,returned_wall,settled_wall,label_hash,hit FROM r34_s0_shadow WHERE source_commit=? ORDER BY target_issue DESC LIMIT 32",BuildConfig.SOURCE_COMMIT_R26));
@@ -60,6 +65,20 @@ final class FieldFollowupR34 {
         out.put("repairEffectsR341",RepairEffectLedgerR341.read(db,checked instanceof Map?(Map<?,?>)checked:java.util.Collections.emptyMap(),
                 epoch instanceof String?(String)epoch:null,cancel));
         return out;
+    }
+
+    private static Map<String,Object> domainState(Runnable requirement) {
+        Map<String,Object> status = new LinkedHashMap<>();
+        try {
+            requirement.run();
+            status.put("state", "EXACT_SCHEMA_VERIFIED");
+        } catch (OperationCanceledException stopped) {
+            throw stopped;
+        } catch (RuntimeException unavailable) {
+            status.put("state", "WAIT_DEPENDENCY");
+            status.put("reason", RuntimeFaultEvidenceR31.clean(unavailable.getMessage(), 256));
+        }
+        return status;
     }
 
     private static Map<String,Object> projection(SQLiteDatabase db,CancellationSignal cancel,String id,String sql,String... args){

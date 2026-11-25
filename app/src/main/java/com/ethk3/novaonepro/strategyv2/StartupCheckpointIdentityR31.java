@@ -59,7 +59,15 @@ public final class StartupCheckpointIdentityR31 {
     public static final class Prepared {
         private final String database;private final long revision,schemaVersion;private final LinkedHashMap<String,String> columnContract;
         private final List<Match> matches;public final int sourceRows,examinedOriginalRows;public final long comparedOriginalBytes;
-        private Prepared(String database,long revision,long schemaVersion,LinkedHashMap<String,String> columns,List<Match> matches,int sourceRows,int examined,long bytes){this.database=database;this.revision=revision;this.schemaVersion=schemaVersion;columnContract=new LinkedHashMap<>(columns);this.matches=Collections.unmodifiableList(new ArrayList<>(matches));this.sourceRows=sourceRows;examinedOriginalRows=examined;comparedOriginalBytes=bytes;}
+        private final int unavailableRows;
+        private final List<String> unavailableHashes;
+        private Prepared(String database,long revision,long schemaVersion,LinkedHashMap<String,String> columns,List<Match> matches,int sourceRows,int examined,long bytes,
+                int unavailableRows,List<String> unavailableHashes){
+            this.database=database;this.revision=revision;this.schemaVersion=schemaVersion;columnContract=new LinkedHashMap<>(columns);
+            this.matches=Collections.unmodifiableList(new ArrayList<>(matches));this.sourceRows=sourceRows;
+            examinedOriginalRows=examined;comparedOriginalBytes=bytes;
+            this.unavailableRows=unavailableRows;this.unavailableHashes=Collections.unmodifiableList(new ArrayList<>(unavailableHashes));
+        }
         /** Small actual SQL guards only. Never opens a CAS file or selects artifact. */
         public void requireWithin(SQLiteDatabase db){
             if(!db.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_COMMIT_WRITER_REQUIRED");
@@ -80,7 +88,12 @@ public final class StartupCheckpointIdentityR31 {
             List<Object> refs=new ArrayList<>();for(Match match:matches){Map<String,Object> ref=new LinkedHashMap<>();ref.put("archive",ARCHIVE);ref.put("rowId",match.row);ref.put("rowHash",match.hash);ref.put("bytes",match.bytes);refs.add(ref);}
             db.execSQL("INSERT INTO r31_startup_checkpoint_receipt VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{processNonce,revision,schemaVersion,StatsR27.sha256(JsonR27.write(columnContract)),sourceRows,matches.size(),actualNewRows,examinedOriginalRows,comparedOriginalBytes,JsonR27.write(refs),System.currentTimeMillis()});
         }
-        public Map<String,Object> evidence(){Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","ACTUAL_COMPLETE_TYPED_SOURCE_CAS_COMPARISON_NOT_STATE_HASH_EQUALITY");out.put("sourceRows",sourceRows);out.put("matchedSourceRows",matches.size());out.put("examinedOriginalRows",examinedOriginalRows);out.put("comparedOriginalBytes",comparedOriginalBytes);out.put("sourceGeneration",revision);out.put("sourceSchemaVersion",schemaVersion);out.put("writerCasReads",0);out.put("permanentPayloadCopies",0);out.put("wholeApplicationOrNaturalQualityProven",false);return out;}
+        public Map<String,Object> evidence(){Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","ACTUAL_COMPLETE_TYPED_SOURCE_CAS_COMPARISON_NOT_STATE_HASH_EQUALITY");out.put("sourceRows",sourceRows);out.put("matchedSourceRows",matches.size());out.put("examinedOriginalRows",examinedOriginalRows);out.put("comparedOriginalBytes",comparedOriginalBytes);out.put("sourceGeneration",revision);out.put("sourceSchemaVersion",schemaVersion);out.put("writerCasReads",0);out.put("permanentPayloadCopies",0);out.put("wholeApplicationOrNaturalQualityProven",false);
+            out.put("unavailableColdRows",unavailableRows);
+            out.put("unavailableColdHashSample",unavailableHashes);
+            out.put("unavailableColdPolicy","EXCLUDED_FROM_CAS_EQUALITY; EXACT_HOT_ORIGINAL_RETAINED; COLD_REFERENCE_PROTECTED");
+            return out;
+        }
     }
     /** Bounded read-only projection of actual committed startup consumption.
      * Missing/new schema never becomes zero or a whole-application PASS. */
@@ -93,6 +106,12 @@ public final class StartupCheckpointIdentityR31 {
     }
     public static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot)throws IOException{return prepare(read,verifiedCasRoot,null);}
     public static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot,BudgetTokenSU1 budget)throws IOException{
+        return prepare(read, verifiedCasRoot, budget, false);
+    }
+    static Prepared preparePreservingHotRowsR342(SQLiteDatabase read, File verifiedCasRoot)throws IOException {
+        return prepare(read, verifiedCasRoot, null, true);
+    }
+    private static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot,BudgetTokenSU1 budget,boolean preserveHotOnMissing)throws IOException{
         if(read.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_PREPARE_OUTSIDE_WRITER");if(!ready(read))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","SOURCE_GUARD_NOT_READY");
         String database=identity(read);long version=schema(read),revision=generation(read);LinkedHashMap<String,String> contract=columns(read);LinkedHashSet<String> names=new LinkedHashSet<>(contract.keySet());names.remove("\u0000CREATE_SQL");
         LinkedHashSet<String> owners=new LinkedHashSet<>();try(Cursor c=read.rawQuery("SELECT typeof(owner),owner FROM r29_model_checkpoint WHERE length(artifact)>0 ORDER BY owner LIMIT 65",null)){while(c.moveToNext()){if(!"text".equals(c.getString(0))||c.getString(1)==null||c.getString(1).length()>4096)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_STORAGE_CLASS_OR_BOUND");owners.add(c.getString(1));if(owners.size()>MAX_OWNERS)throw new IOException("R31_STARTUP_CHECKPOINT_SOURCE_ROW_BOUND");}}
@@ -100,6 +119,8 @@ public final class StartupCheckpointIdentityR31 {
             throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","CAS_METADATA_NOT_READY");
         File root = verifiedCasRoot;
         List<Match> matches=new ArrayList<>();Set<String> found=new HashSet<>();long after=0,totalBytes=0;int examined=0;
+        int unavailableRows = 0;
+        List<String> unavailableHashes = new ArrayList<>();
         MemoryBudgetR31.Admission admission=MemoryBudgetR31.processBudget().tryAcquire("startup-checkpoint-typed-compare",MemoryBudgetR31.Kind.CHECKPOINT,1L<<20,()->Thread.currentThread().isInterrupted());if(!admission.acquired())throw new MemoryBudgetR31.CapacityWait(admission.reason);
         try(MemoryBudgetR31.Lease memory=admission.lease){
             while(found.size()<owners.size()){
@@ -107,12 +128,23 @@ public final class StartupCheckpointIdentityR31 {
                 try(Cursor c=read.rawQuery("SELECT row_id,row_hash,bytes FROM r31_keep_original WHERE archive_table=? AND state='MIGRATED_ORIGINAL_RETAINED' AND row_id>? ORDER BY row_id LIMIT 64",new String[]{ARCHIVE,Long.toString(after)})){while(c.moveToNext()){String hash=c.getString(1);long size=c.getLong(2);if(c.getLong(0)<=after||hash==null||!hash.matches("[0-9a-f]{64}")||size<1||size>KeepMigrationStoreR31.MAX_ROW_BYTES)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_METADATA");page.add(new Match(null,c.getLong(0),hash,size));}}
                 if(page.isEmpty())break;
                 for(Match original:page){checkpoint(budget);if(++examined>MAX_CAS_ROWS||totalBytes>KeepMigrationStoreR31.MAX_ROOT_BYTES-original.bytes)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_SCAN_BOUND");totalBytes+=original.bytes;after=original.row;
-                    String owner=compare(read,root,original,names,owners,found,budget);if(owner!=null){found.add(owner);matches.add(new Match(owner,original.row,original.hash,original.bytes));}if(found.size()==owners.size())break;
+                    String owner;
+                    try {
+                        owner=compare(read,root,original,names,owners,found,budget);
+                    } catch (CheckpointDependencyR341.SourceWait unverified) {
+                        if (!preserveHotOnMissing || unverified.state != CheckpointDependencyR341.State.WAIT_SOURCE) throw unverified;
+                        // An unavailable cold copy cannot prove equality. Keep the hot row in the
+                        // original boot archive, without replacing or treating this locator as verified.
+                        unavailableRows++;
+                        if (unavailableHashes.size() < 16) unavailableHashes.add(original.hash);
+                        continue;
+                    }
+                    if(owner!=null){found.add(owner);matches.add(new Match(owner,original.row,original.hash,original.bytes));}if(found.size()==owners.size())break;
                 }
             }
         }
         if(!database.equals(identity(read))||revision!=generation(read)||version!=schema(read)||!contract.equals(columns(read)))throw new IOException("R31_STARTUP_CHECKPOINT_SOURCE_CHANGED_DURING_PREPARATION");definitions(read);
-        return new Prepared(database,revision,version,contract,matches,owners.size(),examined,totalBytes);
+        return new Prepared(database,revision,version,contract,matches,owners.size(),examined,totalBytes,unavailableRows,unavailableHashes);
     }
     private static String compare(SQLiteDatabase read,File root,Match original,Set<String> names,Set<String> owners,Set<String> found,BudgetTokenSU1 budget)throws IOException{
         CheckpointDependencyR341.Source location = CheckpointDependencyR341.resolve(root, original.hash, original.bytes);

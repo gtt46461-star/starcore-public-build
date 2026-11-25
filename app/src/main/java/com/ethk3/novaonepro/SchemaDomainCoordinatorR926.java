@@ -1051,7 +1051,7 @@ public final class SchemaDomainCoordinatorR926 {
         for(String expected:definitions){java.util.regex.Matcher named=declaration.matcher(expected);if(!named.find())throw new IllegalStateException("R31_SCHEMA_DECLARATION_CONTRACT:"+operation);if(schemaObjectExists(db,named.group(1)))requireExactR31Definitions(db,operation,new String[]{expected});}
     }
 
-    private static void requireExactR31Definitions(SQLiteDatabase db,String operation,String[] definitions) {
+    public static void requireExactR31Definitions(SQLiteDatabase db,String operation,String[] definitions) {
         java.util.regex.Pattern declaration=java.util.regex.Pattern.compile(
                 "^CREATE (?:UNIQUE )?(TABLE|INDEX|TRIGGER|VIEW) IF NOT EXISTS ([A-Za-z0-9_]+)(?:\\s|\\()");
         for(String expected:definitions) {

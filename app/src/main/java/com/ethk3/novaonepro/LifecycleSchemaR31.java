@@ -120,6 +120,22 @@ public final class LifecycleSchemaR31 {
     public static Result advanceStartupCheckpointWithinMigration(SQLiteDatabase db) throws Exception {
         return advance(db, definitions(StartupCheckpointIdentityR31.ddlR31()), StartupCheckpointIdentityR31::seedWithinMigrationR31);
     }
+
+    /** The same migration task may bring one capability online before unrelated lifecycle prerequisites. */
+    public static Result advanceColdRebirthWithinMigrationR342(SQLiteDatabase db) throws Exception {
+        List<Definition> objects = definitions(ColdRebirthSchemaR34.DDL);
+        return advance(db, objects, tx -> ColdRebirthSchemaR34.require(tx), coldRebirthContractR342(objects));
+    }
+
+    public static boolean coldRebirthMigrationCommittedR342(SQLiteDatabase db) {
+        return SchemaDomainCoordinatorR926.matches(db, coldRebirthContractR342(definitions(ColdRebirthSchemaR34.DDL)));
+    }
+
+    private static SchemaDomainCoordinatorR926.Contract coldRebirthContractR342(List<Definition> objects) {
+        String[] names = new String[objects.size()];
+        for (int i = 0; i < names.length; i++) names[i] = objects.get(i).name;
+        return new SchemaDomainCoordinatorR926.Contract("RESEARCH_R342_COLD_REBIRTH", 1, names);
+    }
     private static void requireDeclaredAttachments(SQLiteDatabase db,List<Definition> all){
         Set<String> declared=new HashSet<>();for(Definition d:all)declared.add(d.name);
         int seen=0;
@@ -191,9 +207,12 @@ public final class LifecycleSchemaR31 {
     }
     interface Initializer {void run(SQLiteDatabase db);}
     static Result advance(SQLiteDatabase db,List<Definition> all,Initializer initialize)throws Exception{
+        return advance(db, all, initialize, contract(all));
+    }
+    private static Result advance(SQLiteDatabase db,List<Definition> all,Initializer initialize,
+            SchemaDomainCoordinatorR926.Contract contract)throws Exception{
         if(!db.inTransaction())throw new IllegalStateException("R31_LIFECYCLE_MIGRATION_WRITER_REQUIRED");
         if(!infrastructure(db))throw new DatabaseCoordinator.SchemaPendingR31(DOMAIN,"CRITICAL_JOURNAL_PREREQUISITE");
-        SchemaDomainCoordinatorR926.Contract contract=contract(all);
         // Validate every existing object before touching a receipt. An unknown
         // object never becomes accepted merely because an earlier name is absent.
         requireDeclaredAttachments(db,all);

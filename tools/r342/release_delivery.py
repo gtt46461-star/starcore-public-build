@@ -77,12 +77,19 @@ def inspect_candidate(candidate, source, stage, run_id, sdk):
     sums = read(candidate / 'ZIP_MEMBERS_SHA256.json')
     required = {apk.name, source_zip.name, git_bundle.name, raw.name, 'DELIVERY.json',
                 'CI_BUILD_RECEIPT.json', 'build-identity-r334.json', 'gradle-build.log'}
+    archive_only = {'badging.txt', 'public-certificate.txt', 'baseline033-badging.txt',
+                    'baseline033-certificate.txt', 'baseline152-badging.txt', 'baseline152-certificate.txt'}
     with zipfile.ZipFile(total) as archive:
-        require(required <= sums.keys() and set(archive.namelist()) == {*sums, 'ZIP_MEMBERS_SHA256.json'}
-                and len(archive.namelist()) == len(sums) + 1 and all(
-                    archive_member_sha(archive, name) == digest == sha(candidate / name)
-                    for name, digest in sums.items()) and json.loads(archive.read('ZIP_MEMBERS_SHA256.json')) == sums,
+        require(required | archive_only == sums.keys()
+                and set(archive.namelist()) == {*sums, 'ZIP_MEMBERS_SHA256.json'}
+                and len(archive.namelist()) == len(sums) + 1
+                and json.loads(archive.read('ZIP_MEMBERS_SHA256.json')) == sums,
                 'R342_PUBLICATION_TOTAL_CONTENT_MISMATCH')
+        for name, digest in sums.items():
+            require(archive_member_sha(archive, name) == digest, 'R342_TOTAL_MEMBER_CHANGED:' + name)
+            leaf = candidate / name
+            if name in required or leaf.is_file():
+                require(sha(leaf) == digest, 'R342_TOTAL_EXTERNAL_MEMBER_MISMATCH:' + name)
 
     assets = [apk, total, source_zip, git_bundle, raw, *(candidate / name for name in (
         'DELIVERY.json', 'CI_BUILD_RECEIPT.json', 'ZIP_MEMBERS_SHA256.json',

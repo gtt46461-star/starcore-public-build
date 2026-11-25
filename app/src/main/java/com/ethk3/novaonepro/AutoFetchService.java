@@ -2507,11 +2507,12 @@ public final class AutoFetchService extends Service {
     private synchronized void ensureContinuousRuntimeR26() {
         if (store == null || (continuousRuntimeR26 != null && !"TERMINATED".equals(continuousRuntimeR26.stopStateR31()))) return;
         StartupStageJournalR341 startup = StartupStageJournalR341.open(getApplicationContext(), "research");
-        if (startup.hasDeterministicFailureLimit()) {
-            heartbeatStateV8().markLearningAttempt("R341_RESEARCH_OWNER_BROKEN", "THREE_MATCHING_STARTUP_FAILURES");
+        String dependency = com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.startupDependencyRevisionR342(store);
+        if (startup.hasDeterministicFailureLimit(dependency)) {
+            heartbeatStateV8().markResearchStartupR342("CIRCUIT_OPEN", "THREE_MATCHING_STARTUP_BUGS:" + dependency);
             return;
         }
-        continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store);
+        continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store, dependency);
     }
     // Dedicated Looper. SQL is still serialized by the original global writer.
     private void drainWriterFaultControlR334() {

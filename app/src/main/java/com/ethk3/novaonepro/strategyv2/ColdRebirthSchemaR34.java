@@ -29,4 +29,12 @@ public final class ColdRebirthSchemaR34 {
             {"index","r34_cold_candidate_lookup"},{"index","r34_cold_expert_lookup"}});
         LifecycleSchemaR31.requireDefinitions(db, DDL, "R34_COLD_REBIRTH");
     }
+    static boolean readyR342(SQLiteDatabase db) {
+        try {
+            require(db);
+            return true;
+        } catch (DatabaseCoordinator.SchemaPendingR31 pending) {
+            return false;
+        }
+    }
 }

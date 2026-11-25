@@ -164,7 +164,7 @@ public final class ResearchLearningContinuityR912 {
         if(!com.ethk3.novaonepro.r952.AtomCatalogImportCP12.completeCP12(db))return true;
         if(exists(db,"research_molecule_import_cp12")&&!com.ethk3.novaonepro.r952.ModernSeedFactoryCP12.completeCP12(db))return true;
         if(exists(db,com.ethk3.novaonepro.r952.ModernFamilyFactoryCP12.CURSOR))
-            try(Cursor c=db.rawQuery("SELECT 1 FROM "+com.ethk3.novaonepro.r952.ModernFamilyFactoryCP12.CURSOR+" WHERE next_variant=0 AND last_reason='' LIMIT 1",null)){return c.moveToFirst();}
+            return com.ethk3.novaonepro.r952.ModernFamilyFactoryCP12.hasOpenVariantsR342(db);
         return false;
     }
     /** Only the immutable catalog bootstrap gets the faster retry. Teacher WAIT,

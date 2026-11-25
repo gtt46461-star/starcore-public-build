@@ -8,6 +8,7 @@ public final class ModernFamilyFactoryCP12 {
  private ModernFamilyFactoryCP12(){}
  public static final String WHEEL="research_family_wheel_cp12",CURSOR="research_family_cursor_cp12",CREATION="research_family_creation_cp12";
  public static final int LIMIT=40;private static final int[] WINDOWS={50,120,300,500};
+ private static final long WAIT_RETRY_MS = 5000L;
  public static void schema(SQLiteDatabase db){need(db.inTransaction(),"FAMILY_SCHEMA_TX");
   db.execSQL("CREATE TABLE IF NOT EXISTS "+WHEEL+"(singleton INTEGER PRIMARY KEY CHECK(singleton=1),next_family INTEGER NOT NULL CHECK(next_family BETWEEN 0 AND 14),generation INTEGER NOT NULL DEFAULT 0)");
   db.execSQL("INSERT OR IGNORE INTO "+WHEEL+" VALUES(1,0,0)");
@@ -22,6 +23,12 @@ public final class ModernFamilyFactoryCP12 {
  public static final class Proposal {
   public final CandidateAstR952 ast;public final String sourceHash;public final List<AtomSpecCP4> specs;
   Proposal(CandidateAstR952 a,String source,List<AtomSpecCP4>s){ast=a;sourceHash=source;specs=Collections.unmodifiableList(new ArrayList<>(s));}
+ }
+ public static boolean hasOpenVariantsR342(SQLiteDatabase db) {
+  try(Cursor rows=db.rawQuery("SELECT 1 FROM "+CURSOR+" WHERE next_variant<? LIMIT 1",
+      new String[]{Integer.toString(LIMIT)})){
+   return rows.moveToFirst();
+  }
  }
  /** Compiles actual mathematical graphs; family labels alone never supply a feature. */
  public static Proposal prepare(SQLiteDatabase db,CandidateAstR952.Family family,int variant){
@@ -158,7 +165,14 @@ public final class ModernFamilyFactoryCP12 {
   // The commit repeats this check; no capacity or acceptance gate is relaxed.
   if(!ResearchDirectorR952.trainingQueueHasCapacityR65(store.readable()))return "WAIT_TRAIN_INPUT_CAPACITY";
   Integer turn=store.coordinatorForResearchR952().runAtomicWrite("CP12_FAMILY_WHEEL",db->{int next;long generation;try(Cursor c=db.rawQuery("SELECT next_family,generation FROM "+WHEEL+" WHERE singleton=1",null)){need(c.moveToFirst(),"FAMILY_WHEEL_MISSING");next=c.getInt(0);generation=c.getLong(1);}db.execSQL("UPDATE "+WHEEL+" SET next_family=?,generation=generation+1 WHERE singleton=1 AND generation=?",new Object[]{(next+1)%15,generation});need(changes(db)==1,"FAMILY_WHEEL_CAS");return next;},null);if(turn==null)throw new IllegalStateException("FAMILY_WHEEL_COMMIT_FAILED");
-  CandidateAstR952.Family family=CandidateAstR952.Family.values()[turn];SQLiteDatabase db=store.readable();int variant;try(Cursor c=db.rawQuery("SELECT next_variant FROM "+CURSOR+" WHERE family=?",new String[]{family.name()})){need(c.moveToFirst(),"FAMILY_CURSOR_MISSING");variant=c.getInt(0);}if(variant>=LIMIT)return "FAMILY_FOUNDATION_COMPLETE:"+family;
+  CandidateAstR952.Family family=CandidateAstR952.Family.values()[turn];SQLiteDatabase db=store.readable();int variant;
+  try(Cursor c=db.rawQuery("SELECT next_variant,last_reason,updated_at FROM "+CURSOR+" WHERE family=?",new String[]{family.name()})){
+   need(c.moveToFirst(),"FAMILY_CURSOR_MISSING");variant=c.getInt(0);
+   long now=System.currentTimeMillis(), last=c.getLong(2);
+   if(retryableInputWaitR342(c.getString(1))&&now>=last&&now-last<WAIT_RETRY_MS)
+    return "HELD:"+family+':'+c.getString(1)+"|nextRetryAt="+(last+WAIT_RETRY_MS);
+  }
+  if(variant>=LIMIT)return "FAMILY_FOUNDATION_COMPLETE:"+family;
   try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(1L<<20)){
    String latest="";try(Cursor c=db.rawQuery("SELECT d.issue FROM draws d JOIN "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c ON c.target_issue=d.issue AND c.status='CONFIRMED_CANONICAL_DRAW' AND c.canonical_draw_hash=d.draw_hash_v2 WHERE d.dirty=0 ORDER BY d.issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=c.getString(0);}if(!TargetIssueResolver.isValid(latest))return holdCursor(store,family,variant,"WAIT_AUTHORITATIVE_DRAW");
    Proposal proposal;String existingSource=null,existingAst=null,sourceIssue=latest;
@@ -167,11 +181,34 @@ public final class ModernFamilyFactoryCP12 {
    try(Cursor c=db.rawQuery("SELECT candidate_id FROM "+CREATION+" WHERE family=? AND source_hash=? AND state IN('REGISTERED','NO_OP','HELD')",new String[]{family.name(),proposal.sourceHash})){
     if(c.moveToFirst()){final String existing=c.getString(0);Boolean done=store.coordinatorForResearchR952().runAtomicWrite("CP12_FAMILY_EXISTING_SOURCE",tx->{tx.execSQL("UPDATE "+CURSOR+" SET next_variant=next_variant+1,last_reason='NO_OP_EXISTING_SOURCE',generation=generation+1,updated_at=? WHERE family=? AND next_variant=?",new Object[]{System.currentTimeMillis(),family.name(),variant});need(changes(tx)==1,"FAMILY_EXISTING_CAS");return true;},false);if(!Boolean.TRUE.equals(done))throw new IllegalStateException("FAMILY_EXISTING_COMMIT_FAILED");return "NO_OP:"+existing;}
    }
+   if(existingAst==null){
+    int required=proposal.ast.graphSpec.manifest.requiredHistory;
+    if(!hasConsecutiveDevelopmentHistory(store,latest,required))return holdCursor(store,family,variant,"WAIT_HISTORY");
+   }
    return register(store,proposal,family,variant,sourceIssue,TargetIssueResolver.next(latest).targetIssue,deadlineNs);
   }catch(IllegalStateException resource){if(!"ALGORITHM_MEMORY_BUDGET".equals(resource.getMessage()))throw resource;return holdCursor(store,family,variant,"MEMORY_PRESSURE");}
  }
  private static void guardComplete(SQLiteDatabase db){if(!ModernSeedFactoryCP12.completeCP12(db))throw new DevelopmentProductionCP12.Wait("WAIT_MOLECULE_CATALOG_VERIFICATION");}
- private static String holdCursor(DbStore store,CandidateAstR952.Family f,int variant,String reason){Boolean ok=store.coordinatorForResearchR952().runAtomicWrite("CP12_FAMILY_WAIT",db->{db.execSQL("UPDATE "+CURSOR+" SET last_reason=?,generation=generation+1,updated_at=? WHERE family=? AND next_variant=?",new Object[]{reason,System.currentTimeMillis(),f.name(),variant});need(changes(db)==1,"FAMILY_WAIT_CAS");return true;},false);if(!Boolean.TRUE.equals(ok))throw new IllegalStateException("FAMILY_WAIT_COMMIT_FAILED");return "HELD:"+f+':'+reason;}
+ private static boolean hasConsecutiveDevelopmentHistory(DbStore store,String latest,int required){
+  // Preflight before committing the immutable selection cutoff. The trainer
+  // still independently verifies the exact history, authority and attachments.
+  int minimum=Math.max(20,required)+421;
+  return hasExactDevelopmentSuffix(store,latest,minimum);
+ }
+ private static boolean hasExactDevelopmentSuffix(DbStore store,String latest,int minimum){
+  try(Cursor rows=store.readable().rawQuery("SELECT issue FROM draws WHERE dirty=0 AND issue<=? ORDER BY issue DESC LIMIT ?",
+      new String[]{latest,Integer.toString(minimum)})){
+   String later=null;int count=0;
+   while(rows.moveToNext()){
+    ResearchWorkBudgetR927.checkpoint();
+    String issue=rows.getString(0);
+    if(later==null ? !latest.equals(issue) : !TargetIssueResolver.exact(issue,later).valid)return false;
+    later=issue;count++;
+   }
+   return count==minimum;
+  }
+ }
+ private static String holdCursor(DbStore store,CandidateAstR952.Family f,int variant,String reason){Boolean ok=store.coordinatorForResearchR952().runAtomicWrite("CP12_FAMILY_WAIT",db->{db.execSQL("UPDATE "+CURSOR+" SET last_reason=?,updated_at=? WHERE family=? AND next_variant=?",new Object[]{reason,System.currentTimeMillis(),f.name(),variant});need(changes(db)==1,"FAMILY_WAIT_CAS");return true;},false);if(!Boolean.TRUE.equals(ok))throw new IllegalStateException("FAMILY_WAIT_COMMIT_FAILED");return "HELD:"+f+':'+reason;}
  private static String register(DbStore store,Proposal p,CandidateAstR952.Family family,int variant,String sourceIssue,String target,long deadlineNs){
   final String evidence=V51ChecksumEngine.sha256("CP12_FAMILY_EVIDENCE|"+family+'|'+p.sourceHash+'|'+p.ast.structuralHash),action=V51ChecksumEngine.sha256("CP12_FAMILY_ACTION|"+evidence),finding=V51ChecksumEngine.sha256("CP12_FAMILY_FINDING|"+evidence),candidate="CP12-FAMILY-"+p.ast.structuralHash.substring(0,24);
   final boolean[] proposedNow={false};
@@ -189,12 +226,20 @@ public final class ModernFamilyFactoryCP12 {
   try(DevelopmentProductionCP12.PreparedProtocol protocol=ResearchDirectorR952.prepareTrainingProtocolCP5(store,p.ast,candidate,action,target)){
    ResearchDirectorR952.PreparedEvolution child=new ResearchDirectorR952.PreparedEvolution(candidate,action,"",intent,"",evidence);
    String result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("CP12_FAMILY_REGISTER",db->{String task=ResearchDirectorR952.commitPreparedCandidateCP5(db,protocol,child);if(task.startsWith("NO_OP:"))db.execSQL("UPDATE research_finding_v2 SET state='HOLD',updated_at=? WHERE finding_id=? AND state='PLANNED'",new Object[]{System.currentTimeMillis(),finding});finish(db,family,variant,action,task.startsWith("NO_OP:")?"NO_OP":"REGISTERED","");return task;});return result;
-  }catch(RuntimeException failure){for(Throwable cause=failure;cause!=null;cause=cause.getCause())if(cause instanceof DevelopmentProductionCP12.Wait&&"TRAIN_INPUT_CAPACITY".equals(((DevelopmentProductionCP12.Wait)cause).reason))return "WAIT_TRAIN_INPUT_CAPACITY";final String reason=terminalPreparationReasonCP12(failure);if(reason==null)throw failure;
+  }catch(RuntimeException failure){for(Throwable cause=failure;cause!=null;cause=cause.getCause())if(cause instanceof DevelopmentProductionCP12.Wait){
+    String waiting=((DevelopmentProductionCP12.Wait)cause).reason;
+    if("TRAIN_INPUT_CAPACITY".equals(waiting))return holdCursor(store,family,variant,"WAIT_TRAIN_INPUT_CAPACITY");
+    if(retryableInputWaitR342(waiting))return holdCursor(store,family,variant,waiting);
+   }
+   final String reason=terminalPreparationReasonCP12(failure);if(reason==null)throw failure;
    Boolean held=store.coordinatorForResearchR952().runAtomicWrite("CP12_FAMILY_FIXED_INPUT_HOLD",db->{db.execSQL("UPDATE research_action_v2 SET state='REJECTED',last_error=? WHERE action_id=? AND state='PROPOSED' AND evidence_hash=?",new Object[]{reason,action,evidence});need(changes(db)==1,"FAMILY_ACTION_HOLD_CAS");db.execSQL("UPDATE research_finding_v2 SET state='HOLD',updated_at=? WHERE finding_id=? AND state='PLANNED' AND evidence_hash=?",new Object[]{System.currentTimeMillis(),finding,evidence});need(changes(db)==1,"FAMILY_FINDING_HOLD_CAS");finish(db,family,variant,action,"HELD",reason);return true;},false);if(!Boolean.TRUE.equals(held))throw new IllegalStateException("FAMILY_HOLD_COMMIT_FAILED");return "HELD:"+reason;
   }catch(IOException e){throw new DevelopmentProductionCP12.Wait("WAIT_INPUT_IO",e);}
  }
  /** Deterministic integrity/size failures never enter the temporary capacity retry lane. */
- static String terminalPreparationReasonCP12(Throwable failure){for(Throwable c=failure;c!=null;c=c.getCause()){String code=c instanceof DevelopmentProductionCP12.Wait?((DevelopmentProductionCP12.Wait)c).reason:c.getMessage();if("WAIT_HISTORY".equals(code)||"WAIT_BOUND_FEATURE_HISTORY".equals(code)||"MODEL_STORAGE_HASH_SIZE_CONFLICT".equals(code)||"MODEL_STORAGE_SINGLE_PAYLOAD_BOUND".equals(code)||"TRAINING_WORKING_SINGLE_PAYLOAD_BOUND".equals(code))return code;}return null;}
+ static String terminalPreparationReasonCP12(Throwable failure){for(Throwable c=failure;c!=null;c=c.getCause()){String code=c instanceof DevelopmentProductionCP12.Wait?((DevelopmentProductionCP12.Wait)c).reason:c.getMessage();if("MODEL_STORAGE_HASH_SIZE_CONFLICT".equals(code)||"MODEL_STORAGE_SINGLE_PAYLOAD_BOUND".equals(code)||"TRAINING_WORKING_SINGLE_PAYLOAD_BOUND".equals(code))return code;}return null;}
+ private static boolean retryableInputWaitR342(String reason){
+  return reason.startsWith("WAIT_")||reason.equals("STALE_HISTORY")||reason.equals("TRAIN_HISTORY_CHANGED")||reason.equals("TARGET_SUPERSEDED");
+ }
  private static void finish(SQLiteDatabase db,CandidateAstR952.Family family,int variant,String action,String state,String reason){db.execSQL("UPDATE "+CREATION+" SET state=?,last_reason=?,updated_at=? WHERE family=? AND variant=? AND action_id=? AND state='PROPOSED'",new Object[]{state,reason,System.currentTimeMillis(),family.name(),variant,action});need(changes(db)==1,"FAMILY_FINISH_CAS");db.execSQL("UPDATE "+CURSOR+" SET next_variant=next_variant+1,last_reason=?,generation=generation+1,updated_at=? WHERE family=? AND next_variant=?",new Object[]{reason,System.currentTimeMillis(),family.name(),variant});need(changes(db)==1,"FAMILY_CURSOR_CAS");}
  private static List<AtomSpecCP4> registered(SQLiteDatabase db,CandidateAstR952 ast){TreeMap<String,AtomSpecCP4>s=new TreeMap<>();for(com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.NodeSpec n:ast.graphSpec.nodes)if(n.kind==com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.NodeKind.ATOM)s.put(n.source,spec(db,n.source));return new ArrayList<>(s.values());}
  private static Map<String,Object> base(CandidateAstR952.Family family,int position,String kind,List<Object> nodes,List<String> features,String output,int d,List<?> experts){return fields("version",3,"compilerRevision","AST3_CP4_1","game",ReleaseManifestR926.GAME_CODE,"position",position,"family",family.name(),"modelKind",kind,"normalizerPolicy","TRAIN_ONLY_ZSCORE_V1","nodes",nodes,"featureOutputIds",features,"outputId",output,"inputDimension",d,"experts",experts);}

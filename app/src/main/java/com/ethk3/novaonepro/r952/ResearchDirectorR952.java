@@ -319,7 +319,14 @@ public final class ResearchDirectorR952 {
             ResearchWorkBudgetR927.checkpoint();
             long end=slot.equals("TRAIN")||slot.equals("RESEARCH")||slot.equals("EVOLVE")||slot.equals("IMPORT")
                     ?overallEnd-75_000_000L:Math.min(overallEnd-75_000_000L,System.nanoTime()+250_000_000L);
-            total+=runDirectorSlotR65(store,slot,end);
+            try {
+                total+=runDirectorSlotR65(store,slot,end);
+            } catch (DevelopmentProductionCP12.Wait pending) {
+                // The six-slot cursor is already committed. Preserve the owner's
+                // input and let another eligible slot use the current time budget.
+                store.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r342_director_wait_" + slot,
+                        BuildConfig.SOURCE_COMMIT_R26 + "|" + pending.reason));
+            }
         }
         return total;
     }
@@ -585,7 +592,7 @@ public final class ResearchDirectorR952 {
                     &&overallEndNs-System.nanoTime()>=350_000_000L
                     &&ResearchWorkBudgetR927.remainingMs()>=350L;
             String slot=trainingTurn?"TRAIN":slots[selected];
-            long minimumNs=("TRAIN".equals(slot)||"EVOLVE".equals(slot)
+            long minimumNs=("TRAIN".equals(slot)&&trainingReady||"EVOLVE".equals(slot)
                     ||"RESEARCH".equals(slot)||"IMPORT".equals(slot))?350_000_000L:125_000_000L;
             if(overallEndNs-System.nanoTime()<minimumNs
                     ||ResearchWorkBudgetR927.remainingMs()<minimumNs/1_000_000L)return null;
