@@ -10,7 +10,8 @@ import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(ROOT / 'tools/r33'), str(ROOT / 'tools/r341')]
+sys.path.append(str(ROOT / 'tools/r33'))
+sys.path.append(str(ROOT / 'tools/r341'))
 import package_ci_candidate as package
 from publish_delivery_manifest import collect
 from verify_plan_binding import read, require, sha, write_json
