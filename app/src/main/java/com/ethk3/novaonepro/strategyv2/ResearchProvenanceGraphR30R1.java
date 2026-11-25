@@ -34,13 +34,38 @@ final class ResearchProvenanceGraphR30R1 {
   batch.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,state.datasetHash,publication,"ONLINE_RESEARCH",BuildConfig.SOURCE_COMMIT_R26,-1,ordinal,ordinal,hash,"COMMITTED_REPLAY_INPUTS",json,now);
   batch.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,trainingKey,"NEURAL_REPLAY_ORDER",publication,"EXACT_SAMPLE_KEYS_AND_OPTIMIZER_PUBLICATION",ordinal,ordinal,1,null,null,null,json);
  }
+ static void optimizerParametersR342(ResearchWriteQueueR27.Batch batch,AtomNetSessionR30 state,
+         AtomNetR27.OptimizerStep step,String publication,String previous,String next,String role,
+         String sourceKey,String inputHash,long now){
+  Map<String,Object> proof=new LinkedHashMap<>();
+  proof.put("publication",publication);proof.put("optimizerStep",step.adamStep);
+  proof.put("scope","LAST_ACTUAL_OPTIMIZER_STEP_OF_COMMITTED_SLICE");
+  proof.put("beforeParameters",step.parametersBefore);proof.put("afterParameters",step.parametersAfter);
+  proof.put("parametersChanged",!step.parametersBefore.equals(step.parametersAfter));
+  proof.put("gradientNorm",step.gradientNorm);proof.put("parameterDelta",step.parameterChange);
+  proof.put("batchCount",step.batchSize);proof.put("role",role);proof.put("sourceKey",sourceKey);
+  proof.put("inputHash",inputHash);proof.put("previousCheckpoint",previous);proof.put("checkpoint",next);
+  String original=JsonR27.write(proof);
+  String run=HashingSU1.fields("R342_ATOMNET_PARAMETER_TRANSITION",publication);
+  long through=state.trainedThroughOrdinal();
+  batch.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+          run,state.datasetHash,publication,"H_TRAIN".equals(role)?"TRAIN":role,BuildConfig.SOURCE_COMMIT_R26,
+          -1,through,through,StatsR27.sha256(original),"COMMITTED_PARAMETER_TRANSITION",original,now);
+  batch.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+          run,publication,"NEURAL_PARAMETER_TRANSITION",next,"ACTUAL_ADAM_PARAMETER_BYTES",
+          through,through,0,null,null,null,original);
+ }
  @SuppressWarnings("unchecked") static void project(String view,Map<String,Object> f,SQLiteDatabase db){
   if(!Arrays.asList("R05","R14","R18").contains(view))return;
   List<Object> records=new ArrayList<>(ResearchObservatoryR30R1.points(f));f.put("sourceRecords",records);ResearchObservatoryR30R1.points(f).clear();List<Object> out=ResearchObservatoryR30R1.points(f);
   if(view.equals("R14")){
    try(Cursor q=db.rawQuery("SELECT c.call_key,c.policy_hash,c.model_hash,c.target_ordinal,c.position,c.probability_hash,a.weights,s.probability_hash,f.hit,f.settled_at,f.frozen_at,c.frozen_at FROM r30_model_call c JOIN r30_model_artifact a ON a.model_hash=c.model_hash JOIN r30_model_surface s ON s.model_hash=c.model_hash AND s.target_ordinal=c.target_ordinal AND s.position=c.position AND s.probability_hash=c.probability_hash JOIN r27_live_frozen f ON f.policy_hash=c.policy_hash AND f.target_ordinal=c.target_ordinal AND f.frozen_at=c.frozen_at WHERE c.status='MATCHED' AND f.status='FROZEN' AND a.feature_abi=? ORDER BY c.called_at DESC,c.call_key LIMIT 8",new String[]{AtomNetSessionR30.ABI})){
     while(q.moveToNext()){String key=shortId(q.getString(0))+":"+q.getLong(3)+":P"+q.getInt(4),weights=StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(db,q.getBlob(6))),gradient=null;try(Cursor g=db.rawQuery("SELECT payload_json FROM r30r1_research_measure WHERE kind='NEURAL_GRADIENT_PUBLICATION' AND measure_key=? ORDER BY rowid DESC LIMIT 1",new String[]{weights})){if(g.moveToFirst())gradient=g.getString(0);}
-     String a=key+" 梯度",b=key+" 模型",c=key+" 概率面",d=key+" AST调用",e=key+" 冻结",z=key+" 结算";out.add(node(a,gradient==null?null:1,gradient==null?"旧模型未保存梯度→权重原键；UNKNOWN":gradient));out.add(node(b,1,"modelHash="+q.getString(2)+"; weightsHash="+weights));out.add(node(c,1,"probabilityHash="+q.getString(5)+"; 原目标/位置/模型/概率hash全匹配"));out.add(node(d,1,"policy="+q.getString(1)+"; call="+q.getString(0)));out.add(node(e,1,"原frozen_at精确相同="+q.getLong(10)));out.add(node(z,q.getInt(8)<0?null:q.getInt(8),"原冻结hit="+q.getInt(8)+"; settled_at="+q.getLong(9)+"; 非REAL结算"));if(gradient!=null)edge(f,a,b,"EXACT_WEIGHTS_HASH");edge(f,b,c,"EXACT_MODEL_HASH");edge(f,c,d,"EXACT_TARGET_POSITION_PROBABILITY_HASH");edge(f,d,e,"EXACT_POLICY_TARGET_FROZEN_AT");if(q.getInt(8)>=0&&q.getLong(9)>0)edge(f,e,z,"ORIGINAL_FROZEN_ROW_SETTLED");
+     String delta=null;
+     try(Cursor exact=db.rawQuery("SELECT m.payload_json FROM r31_atomnet_publication p JOIN r30r1_research_measure m ON m.measure_key=p.publication_id AND m.kind='NEURAL_PARAMETER_TRANSITION' WHERE p.model_hash=? AND p.weights_hash=? AND p.status='PUBLISHED' ORDER BY p.published_at DESC LIMIT 1",new String[]{q.getString(2),weights})){
+      if(exact.moveToFirst())delta=exact.getString(0);
+     }
+     String a=key+" 梯度",b=key+" 模型",c=key+" 概率面",d=key+" AST调用",e=key+" 冻结",z=key+" 结算";out.add(node(a,gradient==null?null:1,delta!=null?delta:gradient==null?"旧模型未保存梯度→权重原键；UNKNOWN":gradient+"|EXACT_PARAMETER_TRANSITION_UNAVAILABLE"));out.add(node(b,1,"modelHash="+q.getString(2)+"; weightsHash="+weights));out.add(node(c,1,"probabilityHash="+q.getString(5)+"; 原目标/位置/模型/概率hash全匹配"));out.add(node(d,1,"policy="+q.getString(1)+"; call="+q.getString(0)));out.add(node(e,1,"原frozen_at精确相同="+q.getLong(10)));out.add(node(z,q.getInt(8)<0?null:q.getInt(8),"原冻结hit="+q.getInt(8)+"; settled_at="+q.getLong(9)+"; 非REAL结算"));if(gradient!=null)edge(f,a,b,"EXACT_WEIGHTS_HASH");edge(f,b,c,"EXACT_MODEL_HASH");edge(f,c,d,"EXACT_TARGET_POSITION_PROBABILITY_HASH");edge(f,d,e,"EXACT_POLICY_TARGET_FROZEN_AT");if(q.getInt(8)>=0&&q.getLong(9)>0)edge(f,e,z,"ORIGINAL_FROZEN_ROW_SETTLED");
     }
    }f.put("chainScope","LATEST_8_EXACT_CALL_CHAINS; FULL_DENOMINATOR_IN_CONSUMPTION; MISSING_GRADIENT_RECEIPTS_STAY_UNKNOWN");
   }else{

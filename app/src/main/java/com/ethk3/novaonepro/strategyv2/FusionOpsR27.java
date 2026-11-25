@@ -83,6 +83,15 @@ public final class FusionOpsR27 {
         evidence.put("nominatedParents",nominated);evidence.put("executableParents",parents);
         evidence.put("excludedParents",excluded);evidence.put("fitWeights",weights);
         evidence.put("pairedComponentRemovals",ablation);
+        double[] equalWeights=new double[members.size()];
+        java.util.Arrays.fill(equalWeights,1d);
+        PolicySpecR27 equal=weighted(members,equalWeights,first);
+        java.util.Map<String,Object> equalControl=new java.util.LinkedHashMap<>();
+        equalControl.put("policyHash",equal.policyHash());
+        equalControl.put("combiner","EQUAL_STANDARDIZED_ACTIVE_PARENT_SCORES");
+        equalControl.put("sameTargetPosition",tp);
+        equalControl.put("comparison",FusionStudyR30R1.componentAblationR341(child,equal,ctx));
+        evidence.put("fixedEqualControl",equalControl);
         PolicySpecR27 accepted=child.withMeta(new PolicySpecR27.Meta(meta.idea,meta.operator,meta.parents,meta.generation,
             meta.seed,meta.reason+" PAIRED_SELECT_R34="+JsonR27.write(evidence)));
         return research==null?accepted:research.annotate(accepted);

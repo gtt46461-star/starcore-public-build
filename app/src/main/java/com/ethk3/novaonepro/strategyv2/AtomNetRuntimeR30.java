@@ -121,10 +121,13 @@ public final class AtomNetRuntimeR30 {
             AtomNetR27.OptimizerStep optimizer=next.trainer.net.lastStep();
             if(optimizer!=null){
                 String input=onlineWindow==null?optimizer.inputHash:HashingSU1.fields(optimizer.inputHash,onlineWindow);
+                String role=onlineWindow==null?SplitR27.TRAIN:"ONLINE_RESEARCH";
                 b.add("INSERT OR IGNORE INTO r34_atomnet_optimizer_step VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     publication.id,expectedCheckpointR31,publication.stateHash,next.datasetHash,
-                    onlineWindow==null?SplitR27.TRAIN:"ONLINE_RESEARCH",trainingSource,input,optimizer.adamStep,
+                    role,trainingSource,input,optimizer.adamStep,
                     optimizer.batchSize,optimizer.gradientNorm,optimizer.parameterChange,optimizer.batchLoss,now);
+                ResearchProvenanceGraphR30R1.optimizerParametersR342(b,next,optimizer,publication.id,
+                    expectedCheckpointR31,publication.stateHash,role,trainingSource,input,now);
                 if(onlineWindow!=null)ResearchProvenanceGraphR30R1.onlineInputsR341(b,next,publication.id,
                     publication.stateHash,onlineWindow,trainingSource,input,now);
             }

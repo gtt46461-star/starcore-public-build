@@ -27,12 +27,15 @@ public final class AtomNetR27 {
     static final class OptimizerStep {
         final long adamStep;
         final int batchSize;
-        final String inputHash;
+        final String inputHash, parametersBefore, parametersAfter;
         final double gradientNorm,parameterChange,batchLoss;
-        OptimizerStep(long adamStep,int batchSize,String inputHash,double gradientNorm,double parameterChange,double batchLoss){
+        OptimizerStep(long adamStep,int batchSize,String inputHash,String parametersBefore,String parametersAfter,
+                double gradientNorm,double parameterChange,double batchLoss){
             this.adamStep=adamStep;
             this.batchSize=batchSize;
             this.inputHash=inputHash;
+            this.parametersBefore=parametersBefore;
+            this.parametersAfter=parametersAfter;
             this.gradientNorm=gradientNorm;
             this.parameterChange=parameterChange;
             this.batchLoss=batchLoss;
@@ -146,13 +149,37 @@ public final class AtomNetR27 {
             throw new IllegalStateException("R34_ATOMNET_NONFINITE_OPTIMIZER");
         }
         String inputHash=batchHash(xs,y,cls);
+        String parametersBefore=parameterHashR342(p), parametersAfter=parameterHashR342(g);
         for(int i=0;i<p.length;i++){
             System.arraycopy(g[i],0,p[i],0,p[i].length);
             m[i]=nextM[i];v[i]=nextV[i];
         }
         adamT=nextStep;
-        lastStep=new OptimizerStep(adamT,n,inputHash,Math.sqrt(gradientNormSquared),Math.sqrt(parameterChangeSquared),loss/n);
+        lastStep=new OptimizerStep(adamT,n,inputHash,parametersBefore,parametersAfter,
+                Math.sqrt(gradientNormSquared),Math.sqrt(parameterChangeSquared),loss/n);
         return lastStep.batchLoss;
+    }
+
+    static String parameterHashR342(double[][] layers){
+        try{
+            MessageDigest digest=MessageDigest.getInstance("SHA-256");
+            digest.update("R342_ATOMNET_PARAMETERS_1".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            ByteBuffer bytes=ByteBuffer.allocate(Long.BYTES);
+            for(double[] layer:layers){
+                bytes.putLong(0,layer.length);
+                digest.update(bytes.array());
+                for(double value:layer){
+                    bytes.putLong(0,Double.doubleToLongBits(value));
+                    digest.update(bytes.array());
+                }
+            }
+            StringBuilder result=new StringBuilder(64);
+            for(byte value:digest.digest())result.append("0123456789abcdef".charAt((value>>>4)&15))
+                    .append("0123456789abcdef".charAt(value&15));
+            return result.toString();
+        }catch(java.security.NoSuchAlgorithmException missing){
+            throw new IllegalStateException("R342_ATOMNET_PARAMETER_HASH_UNAVAILABLE",missing);
+        }
     }
 
     private String batchHash(double[][] xs,int[] y,int[] cls){
