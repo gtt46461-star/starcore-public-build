@@ -14,7 +14,10 @@ public final class RuntimeFaultMaintenanceR335 implements AutoCloseable {
     public void signal(DbStore store){
         if(store==null||closed.get())return;
         long now=android.os.SystemClock.elapsedRealtime();RuntimeFaultArchiveB01.View view=RuntimeFaultArchiveB01.observation();
-        if(now<view.nextAttemptElapsedMs&&now<nextRecoveryElapsed&&now<nextAuditElapsed||!queued.compareAndSet(false,true))return;
+        boolean archiveWasWoken = view.state == RuntimeFaultArchiveB01.State.NO_ELIGIBLE_VERIFIED
+                && view.acknowledged != RuntimeFaultArchiveB01.requestedGeneration();
+        if((!archiveWasWoken && now<view.nextAttemptElapsedMs && now<nextRecoveryElapsed && now<nextAuditElapsed)
+                || !queued.compareAndSet(false,true))return;
         try{executor.execute(()->{
             try{if(!closed.get()&&!Thread.currentThread().isInterrupted()){
                 long started=android.os.SystemClock.elapsedRealtime();
@@ -22,10 +25,10 @@ public final class RuntimeFaultMaintenanceR335 implements AutoCloseable {
                 if(recovery){String state=DataRetentionGovernorR900.runCheckpointRecoveryR335(store,started+10_000L);nextRecoveryElapsed=android.os.SystemClock.elapsedRealtime()+("NO_PERSISTED_REQUEST".equals(state)?60_000L:5_000L);}
                 else DataRetentionGovernorR900.runFaultMaintenanceR335(store,started+10_000L);
                 lastWasRecovery=recovery;
-                long now = android.os.SystemClock.elapsedRealtime();
-                if (now >= nextAuditElapsed) {
-                    nextAuditElapsed = now + 5_000L;
-                    RuntimeFaultOriginalStoreR335.auditSlice(store, now + 200L);
+                long auditAt = android.os.SystemClock.elapsedRealtime();
+                if (auditAt >= nextAuditElapsed) {
+                    nextAuditElapsed = auditAt + 5_000L;
+                    RuntimeFaultOriginalStoreR335.auditSlice(store, auditAt + 200L);
                 }
             }}
             catch(RuntimeException failure){Error fatal=com.ethk3.novaonepro.strategyv2.FailureDispositionR31.processFatalCause(failure);if(fatal!=null)throw fatal;android.util.Log.w("R335FaultOriginal","maintenance unavailable; original retained",failure);}
