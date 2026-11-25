@@ -121,6 +121,91 @@ public final class StorageCensusSU2 {
         static long bytes(File file){if(STAT==null)return -1;try{long blocks=BLOCKS.getLong(STAT.invoke(null,file.getPath()));return blocks<0?-1:Math.multiplyExact(blocks,512L);}catch(ReflectiveOperationException|RuntimeException unavailable){return -1;}}
     }
     /** Immutable copy metadata, not physical app bytes and not a guessed largest-table scan. */
+    public static void writeSqliteSpaceR342(android.database.sqlite.SQLiteDatabase copy,
+            java.io.Writer out, android.os.CancellationSignal cancellation) throws java.io.IOException {
+        Map<String,Object> meta=sqlitePageCountsR342(copy,cancellation);
+        int total;
+        try(android.database.Cursor count=copy.rawQuery("SELECT count(*) FROM sqlite_master WHERE rootpage>0",null,cancellation)){
+            total=count.moveToFirst()?count.getInt(0):0;
+        }
+        Map<String,Long> bytesByTable=new TreeMap<>();
+        int observed=0, measured=0;
+        boolean dbstatSupported=true;
+        try(android.database.Cursor probe=copy.rawQuery("SELECT name FROM dbstat LIMIT 1",null,cancellation)){
+            probe.moveToFirst();
+        }catch(android.database.sqlite.SQLiteException unavailable){
+            dbstatSupported=false;
+            meta.put("dbstatReason",unavailable.getClass().getSimpleName());
+        }
+        out.write("{\"dbstatObjects\":[");
+        String after="";
+        while(observed<total){
+            if(cancellation!=null)cancellation.throwIfCanceled();
+            List<String[]> page=new ArrayList<>();
+            try(android.database.Cursor objects=copy.rawQuery(
+                    "SELECT name,tbl_name,type FROM sqlite_master WHERE rootpage>0 AND name COLLATE BINARY>? "
+                    +"ORDER BY name COLLATE BINARY LIMIT 128",new String[]{after},cancellation)){
+                while(objects.moveToNext())page.add(new String[]{objects.getString(0),objects.getString(1),objects.getString(2)});
+            }
+            if(page.isEmpty())break;
+            Map<String,Long> pageBytes=new HashMap<>();
+            if(dbstatSupported){
+                List<String> names=new ArrayList<>(page.size());
+                for(String[] object:page)names.add(object[0]);
+                String placeholders=String.join(",",Collections.nCopies(names.size(),"?"));
+                try(android.database.Cursor sizes=copy.rawQuery("SELECT name,sum(pgsize) FROM dbstat "
+                        +"WHERE name IN ("+placeholders+") GROUP BY name",names.toArray(new String[0]),cancellation)){
+                    while(sizes.moveToNext())pageBytes.put(sizes.getString(0),sizes.getLong(1));
+                }catch(android.database.sqlite.SQLiteException unavailable){
+                    dbstatSupported=false;
+                    meta.put("dbstatReason",unavailable.getClass().getSimpleName());
+                }
+            }
+            for(String[] object:page){
+                Map<String,Object> row=new LinkedHashMap<>();
+                row.put("object",object[0]);row.put("ownerTable",object[1]);row.put("type",object[2]);
+                Long physical=pageBytes.get(object[0]);
+                row.put("btreePageBytes",physical);
+                if(physical!=null){measured++;bytesByTable.merge(object[1],physical,Math::addExact);}
+                if(observed++>0)out.write(',');
+                out.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(row));
+                after=object[0];
+            }
+        }
+        meta.put("objectDenominator",total);meta.put("objectsEnumerated",observed);
+        meta.put("objectsWithMeasuredBytes",measured);
+        meta.put("dbstatStatus",dbstatSupported&&measured==total&&observed==total
+                ?"MEASURED_IMMUTABLE_COPY_BTREE_PAGES":"OBJECT_BYTES_PARTIAL_OR_UNAVAILABLE");
+        meta.put("dbstatObjectCoverageComplete",dbstatSupported&&measured==total&&observed==total);
+        meta.put("inventoryNameScope","SQLITE_MASTER_ROOTPAGE_OBJECTS;SQLITE_SCHEMA_METADATA_PAGE_EXCLUDED");
+        meta.put("enumerationCursor",after);
+        meta.put("measuredBytesByOwnerTable",bytesByTable);
+        out.write("],");
+        String summary=com.ethk3.novaonepro.strategyv2.JsonR27.write(meta);
+        out.write(summary,1,summary.length()-1);
+    }
+
+    private static Map<String,Object> sqlitePageCountsR342(android.database.sqlite.SQLiteDatabase db,
+            android.os.CancellationSignal cancellation){
+        Map<String,Object> summary=new LinkedHashMap<>();
+        summary.put("sampleWallMs",System.currentTimeMillis());
+        for(String key:new String[]{"page_count","page_size","freelist_count"})
+            try(android.database.Cursor row=db.rawQuery("PRAGMA "+key,null,cancellation)){
+                summary.put(key,row.moveToFirst()?row.getLong(0):null);
+            }catch(android.database.sqlite.SQLiteException unavailable){
+                summary.put(key,null);
+                summary.put(key+"Error",unavailable.getClass().getSimpleName());
+            }
+        if(summary.get("page_size") instanceof Number&&summary.get("page_count") instanceof Number
+                &&summary.get("freelist_count") instanceof Number){
+            long size=((Number)summary.get("page_size")).longValue();
+            summary.put("logicalPageBytes",Math.multiplyExact(size,((Number)summary.get("page_count")).longValue()));
+            summary.put("freePageBytes",Math.multiplyExact(size,((Number)summary.get("freelist_count")).longValue()));
+        }
+        summary.put("scope","IMMUTABLE_REPORT_COPY_BTREE;FREE_PAGES_AND_SIDECARS_SEPARATE");
+        return summary;
+    }
+
     public static Map<String,Object> sqliteSpace(android.database.sqlite.SQLiteDatabase db){return sqliteSpace(db,null);}
     public static Map<String,Object> sqliteSpace(android.database.sqlite.SQLiteDatabase db,android.os.CancellationSignal cancellation){Map<String,Object> out=new LinkedHashMap<>();out.put("sampleWallMs",System.currentTimeMillis());for(String key:new String[]{"page_count","page_size","freelist_count"})try(android.database.Cursor q=db.rawQuery("PRAGMA "+key,null,cancellation)){out.put(key,q.moveToFirst()?q.getLong(0):null);}catch(RuntimeException error){if(error instanceof android.os.OperationCanceledException)throw error;out.put(key,null);out.put(key+"Error",error.getClass().getSimpleName());}if(out.get("page_count") instanceof Number&&out.get("page_size") instanceof Number&&out.get("freelist_count") instanceof Number){long size=((Number)out.get("page_size")).longValue();out.put("logicalPageBytes",Math.multiplyExact(size,((Number)out.get("page_count")).longValue()));out.put("freePageBytes",Math.multiplyExact(size,((Number)out.get("freelist_count")).longValue()));}
         List<Map<String,Object>> pages=new ArrayList<>();try(android.database.Cursor q=db.rawQuery("SELECT name,SUM(pgsize) FROM dbstat GROUP BY name ORDER BY name LIMIT 1025",null,cancellation)){while(q.moveToNext()){if(pages.size()==1024){out.put("dbstatStatus","TRUNCATED_EXPLICIT_1024_OBJECT_LIMIT");break;}Map<String,Object> row=new LinkedHashMap<>();row.put("object",q.getString(0));row.put("btreePageBytes",q.getLong(1));pages.add(row);}if(!out.containsKey("dbstatStatus"))out.put("dbstatStatus","MEASURED_IMMUTABLE_COPY_BTREE_PAGES");out.put("dbstatObjects",pages);}catch(RuntimeException unavailable){if(unavailable instanceof android.os.OperationCanceledException)throw unavailable;out.put("dbstatStatus","UNSUPPORTED_OR_UNAVAILABLE");out.put("dbstatReason",unavailable.getClass().getSimpleName());out.put("dbstatObjects",null);}

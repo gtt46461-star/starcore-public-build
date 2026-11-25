@@ -78,11 +78,18 @@ public final class ResearchRetentionR30 {
     }
     public static final class Result {
         public final Census before;public Census after;public final long budget;public long deletedBytes;public int filesDeleted,protectedRetired;public String state;
+        public long usableBefore=-1L,usableAfter=-1L;
         Result(Census before,long budget){this.before=before;this.after=before;this.budget=budget;}
-        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("budgetBytes",budget);m.put("before",before.json());m.put("after",after.json());m.put("deletedBytes",deletedBytes);m.put("filesDeleted",filesDeleted);m.put("retiredWithoutCopyProofPreserved",protectedRetired);m.put("status",state);m.put("targetMet",after.complete&&budget>0?after.bytes<=budget:null);m.put("policy","Only verified retired duplicates and explicitly recomputable cache files; all other files protected");return m;}
+        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("budgetBytes",budget);m.put("before",before.json());m.put("after",after.json());m.put("deletedBytes",deletedBytes);m.put("filesDeleted",filesDeleted);m.put("retiredWithoutCopyProofPreserved",protectedRetired);m.put("status",state);m.put("targetMet",after.complete&&budget>0?after.bytes<=budget:null);m.put("policy","Only verified retired duplicates and explicitly recomputable cache files; all other files protected");
+            m.put("unlinkedLogicalFileBytes",deletedBytes);m.put("usableBefore",usableBefore<0?null:usableBefore);
+            m.put("usableAfter",usableAfter<0?null:usableAfter);
+            m.put("observedUsableSpaceDelta",usableBefore<0||usableAfter<0?null:usableAfter-usableBefore);
+            m.put("physicalAttribution","FILESYSTEM_SAMPLE_INCLUDES_OTHER_WRITERS;NO_GC_RELEASE_INFERENCE");
+            return m;}
     }
     public static Result clean(File dataRoot,long budget,Audit audit)throws Exception{
         Census before=measure(dataRoot);Result result=new Result(before,budget);
+        result.usableBefore=dataRoot.getUsableSpace();
         if(budget<=0){result.state="UNKNOWN_INVALID_BUDGET";return result;}
         if(!before.complete){result.state="UNKNOWN_INCOMPLETE_CENSUS";return result;}
         if(before.bytes<=budget){result.state="WITHIN_BUDGET";return result;}
@@ -97,7 +104,7 @@ public final class ResearchRetentionR30 {
             audit.afterDelete(candidate,reference,deleted);
             if(deleted){result.filesDeleted++;result.deletedBytes+=candidate.bytes;remaining-=candidate.bytes;}
         }
-        result.after=measure(root);boolean eligibleRemaining=false;
+        result.after=measure(root);result.usableAfter=root.getUsableSpace();boolean eligibleRemaining=false;
         for(Candidate candidate:result.after.candidates)if(candidate.kind.equals("RECOMPUTABLE_CACHE")||audit.retiredCopyReference(candidate)!=null){eligibleRemaining=true;break;}
         result.state=!result.after.complete?"UNKNOWN_INCOMPLETE_CENSUS":result.after.bytes<=budget?"WITHIN_BUDGET":result.filesDeleted>0&&eligibleRemaining?"MORE_RECOMPUTABLE_WORK":"BLOCKED_PROTECTED_DATA_BUDGET";
         return result;
