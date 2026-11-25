@@ -110,7 +110,7 @@ public final class HistoricalGenomeImportR967 {
                     ||result.equals("SEEDS_CHECKPOINT_INITIALIZED")
                     ||result.startsWith("SEEDS_RAW_SCAN:")||result.startsWith("SEEDS_SCAN_REPLAY:")
                     ||result.startsWith("SEEDS_TYPED_MATERIALIZED:")||result.startsWith("SEEDS_MATERIAL_REPLAY:")
-                    ||result.startsWith("NO_OP:")||result.startsWith("HELD:");}
+                    ||result.startsWith("NO_OP:");}
         return importArchivePageCP12(store,deadlineNs);
     }
     private static final class PreparedRowCP12 {

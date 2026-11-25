@@ -172,10 +172,18 @@ public final class DevelopmentProductionCP12 {
     }
     static List<Models.Draw> selectHistoryCP12(List<Models.Draw> loaded,int requiredHistory,boolean bound){
         int required=Math.max(20,requiredHistory)+421;
-        if(loaded==null||loaded.size()<required)throw new Wait("WAIT_HISTORY");
+        if(loaded==null||loaded.isEmpty())throw new Wait("WAIT_HISTORY",
+                new IllegalStateException("HISTORY_REQUIRED="+required+"|HISTORY_ACTUAL=0"));
         int suffix=loaded.size()-1;
         while(suffix>0 && TargetIssueResolver.exact(loaded.get(suffix-1).issue,loaded.get(suffix).issue).valid) suffix--;
-        if(loaded.size()-suffix<required)throw new Wait("WAIT_HISTORY");
+        int contiguous = loaded.size()-suffix;
+        if(contiguous<required) {
+            String firstBreak = suffix == 0 ? "SOURCE_BEFORE_OLDEST_UNAVAILABLE"
+                    : loaded.get(suffix-1).issue + '/' + loaded.get(suffix).issue;
+            throw new Wait("WAIT_HISTORY",new IllegalStateException("HISTORY_REQUIRED="+required
+                    +"|HISTORY_ACTUAL="+contiguous+"|BREAK="+firstBreak
+                    +"|DEVELOPMENT_CUTOFF="+loaded.get(loaded.size()-1).issue));
+        }
         int first=bound?loaded.size()-required:Math.max(suffix,loaded.size()-historyReadLimitR72(requiredHistory,false));
         return Collections.unmodifiableList(new ArrayList<>(loaded.subList(first,loaded.size())));
     }

@@ -373,15 +373,16 @@ public final class ResearchDirectorR952 {
      */
     private static int drainImportSliceCP12(DbStore store,long end) {
         int advanced=0,empty=0;
-        if(ModernSeedFactoryCP12.completeCP12(store.readable())&&System.nanoTime()+75000000L<end){
-            String bound=BoundAtomLifecycleR80.maintainR80(store,end);
-            if(bound.equals("BOUND_COHORT_PREREGISTERED")||bound.equals("BOUND_FRESH_ACTION_PROPOSED")||bound.startsWith("R967-"))advanced++;
-        }
         for(int page=0;page<8&&System.nanoTime()+50000000L<end;page++) {
             ResearchWorkBudgetR927.checkpoint();
             if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())break;
             if(HistoricalGenomeImportR967.maintainCP12(store,end)) {advanced++;empty=0;}
             else if(++empty>=2)break;
+        }
+        if(System.nanoTime()+75000000L<end && AtomCatalogImportCP12.completeCP12(store.readable())
+                && !RealtimePressureGateR811.hasActiveCriticalWork() && !SettlementExecutionGateR819.isActive()){
+            String bound=BoundAtomLifecycleR80.maintainR80(store,end);
+            if(bound.equals("BOUND_COHORT_PREREGISTERED")||bound.equals("BOUND_FRESH_ACTION_PROPOSED")||bound.startsWith("R967-"))advanced++;
         }
         return advanced;
     }

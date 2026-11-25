@@ -239,7 +239,7 @@ public final class RuntimeR27 implements AutoCloseable {
             // The actual writer still rechecks, so a race remains fail-closed.
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
             if(WriterHoldFaultsR31.deferResearch() && !com.ethk3.novaonepro.DatabaseCoordinator.replayDatasetDueR341(latest))
-                return ResearchPoolR27.Outcome.idle("DEPENDENCY(WRITER_HOLD_FAULT_BACKLOG)",0,-1);
+                return ResearchPoolR27.Outcome.idle("DEPENDENCY(WRITER_HOLD_FAULT_BACKLOG)|sourceHead="+latest,0,-1);
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
             ReplayDatasetR27 cur = pendingData != null ? pendingData : evoData;
             if(cur==null){
@@ -416,7 +416,15 @@ public final class RuntimeR27 implements AutoCloseable {
     final class EvolutionTask implements ResearchPoolR27.Task {
         public String id() { return "r27-evolution"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
-            if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
+            if (evoCache == null) {
+                String expectedPin = "";
+                try(Cursor registered=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop=?",new String[]{LOOP})){
+                    if(registered.moveToFirst())expectedPin=registered.getString(0);
+                }
+                return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)"
+                        + "|expectedPin=" + (expectedPin == null || expectedPin.isEmpty() ? "WAIT_FIRST_PUBLICATION" : expectedPin),
+                        0,-1);
+            }
             final EvolutionPublicationStoreR31.CursorState expectedEvolutionCursor=EvolutionPublicationStoreR31.CursorState.capture(w.ro,LOOP);
             EvolutionLoopR27 committed=evo;
             final boolean restoredObserverBoundaryR31=committed==null;

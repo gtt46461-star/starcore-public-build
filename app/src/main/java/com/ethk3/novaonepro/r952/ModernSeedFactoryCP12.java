@@ -15,6 +15,8 @@ public final class ModernSeedFactoryCP12 {
  public static final String ASSET="research/cp4_molecule_seeds.jsonl";
  public static final String ASSET_SHA="b4ab9a61e2a36a4a426d0588ffb52350a25c09165273f802b9aa4c63e3c726ad";
  public static final int TOTAL=4200,BATCH=25;
+ private static final java.util.concurrent.atomic.AtomicLong FOUNDATION_TURN_R342 =
+         new java.util.concurrent.atomic.AtomicLong();
  public static final String REVISION="CP12_SEED_AST3_1",IMPORT="research_molecule_import_cp12",USE="research_molecule_use_cp12";
  public static final class SeedRow {
   public final String hash,sourceId,sourceHash,graphJson,outputType;public final int position,row;
@@ -148,10 +150,13 @@ public final class ModernSeedFactoryCP12 {
   need(store!=null&&!store.readable().inTransaction(),"SEED_MAINTAIN_INPUT");
   if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())return "YIELD_P0_PRESSURE";
   if(!AtomCatalogImportCP12.completeCP12(store.readable()))return AtomCatalogImportCP12.drainOneCP12(store,deadlineNs);
+  SQLiteDatabase db=store.readable();Checkpoint before=readCheckpoint(db);
+  if(before==null){Boolean ok=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("CP12_MOLECULE_CHECKPOINT_INIT",tx->{initializeCheckpoint(tx);return true;});if(!Boolean.TRUE.equals(ok))throw new IllegalStateException("SEED_CHECKPOINT_INIT_COMMIT_FAILED");return "SEEDS_CHECKPOINT_INITIALIZED";}
+  // One shared IMPORT owner, with independent turns for ready families and for
+  // catalog verification. The catalog offset and family wheel remain durable.
+  if(before.state.equals("COMPLETE") || (FOUNDATION_TURN_R342.incrementAndGet() & 1L) == 0L)
+   return ModernFamilyFactoryCP12.maintain(store,deadlineNs);
   try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(1L<<20)){
-   SQLiteDatabase db=store.readable();Checkpoint before=readCheckpoint(db);
-   if(before==null){Boolean ok=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("CP12_MOLECULE_CHECKPOINT_INIT",tx->{initializeCheckpoint(tx);return true;});if(!Boolean.TRUE.equals(ok))throw new IllegalStateException("SEED_CHECKPOINT_INIT_COMMIT_FAILED");return "SEEDS_CHECKPOINT_INITIALIZED";}
-   if(before.state.equals("COMPLETE"))return ModernFamilyFactoryCP12.maintain(store,deadlineNs);
    long prepareDeadline=deadlineNs-COMMIT_RESERVE_NS;if(System.nanoTime()>=prepareDeadline)return "SEEDS_YIELD_TIME_BUDGET";
    MoleculeSeedPageCP12.Cursor cursor=before.state.equals("SCANNING")?before.scan:before.material;
    MoleculeSeedPageCP12.Page raw;try(InputStream in=store.openResearchMoleculeCatalogAtCP12(cursor.offset)){raw=MoleculeSeedPageCP12.prepare(in,cursor,TOTAL,prepareDeadline,System::nanoTime);}
