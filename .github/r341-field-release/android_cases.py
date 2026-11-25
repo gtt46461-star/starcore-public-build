@@ -102,9 +102,12 @@ def run_full_report_readback(include_raw=True):
     marker=[line for line in logs.splitlines() if include_raw and re.search(r'FULL_REPORT_PROVIDER_READBACK\|[0-9a-f]{64}\|bytes=[1-9][0-9]*$',line)]
     cohorts=[line for line in logs.splitlines() if dense and re.search(
         r'DENSE_REPORT_COHORT\|raw='+profile+r'\|periods=120\|events=2880\|bytes=[1-9][0-9]*\|sha256=[0-9a-f]{64}$',line)]
+    joined=[line for line in logs.splitlines() if dense and include_raw and re.search(
+        r'DENSE_REPORT_JOINED_ZIP\|bytes=[1-9][0-9]*\|sha256=[0-9a-f]{64}$',line)]
     (dest/'android-observation.log').write_text(''.join(line+'\n' for line in marker))
     if dense:
         (dest/'dense-cohort.log').write_text(''.join(line+'\n' for line in cohorts))
+        (dest/'joined-zip.log').write_text(''.join(line+'\n' for line in joined))
     junit=[]
     for j,xml in enumerate(sorted(results_path.rglob('*.xml'))):
         copied=dest/f'native-result-{j}.xml'
@@ -115,15 +118,24 @@ def run_full_report_readback(include_raw=True):
         'exitCode':result.returncode,'deviceMarkerCount':len(marker),'junit':junit,
         'deviceLogSha256':sha(dest/'android-observation.log')}
     if dense:
-        record.update(denseCohortObservations=len(cohorts),denseCohortSha256=sha(dest/'dense-cohort.log'))
+        record.update(denseCohortObservations=len(cohorts),denseCohortSha256=sha(dest/'dense-cohort.log'),
+                      joinedZipObservations=len(joined),joinedZipLogSha256=sha(dest/'joined-zip.log'))
     receipt['reportExport' if include_raw else 'reportExportCompact']=record
     save()
     return result.returncode==0 and bool(junit) and (not include_raw or len(marker)==1) and (not dense or len(cohorts)==1)
 
-def reuse_exact_source_smoke(prior, cases):
+def reuse_inherited_smoke(prior, cases):
     original=prior/'engineering'
     old=json.loads((original/'device-run.json').read_bytes())
-    assert (old['sourceCommit'],old['versionCode'],old['api'])==(source,version,34)
+    assert (old['sourceCommit'],old['versionCode'],old['api'])==('e7a9e3a38f16fbc12d1c7698f50aea59cedc1e3c',577311151,34)
+    if old['sourceCommit']!=source:
+        changed=set(run(['git','diff','--name-only',old['sourceCommit'],source],cwd=repo).stdout.splitlines())
+        assert changed=={
+            'app/src/androidTest/java/com/ethk3/novaonepro/R31QDeliveryInstrumentedTest.java',
+            'app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java',
+            'release/release_identity.properties','release/release_manifest.json',
+            'verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java',
+        }
     assert [case['id'] for case in old['cases']]==[case['id'] for case in cases]
     for case in old['cases']:
         directory=original/case['id']
@@ -137,9 +149,9 @@ def reuse_exact_source_smoke(prior, cases):
         if 'storageRecoverySha256' in case:
             assert sha(directory/'storage-recovery.log')==case['storageRecoverySha256'] and case['observedStorageBoundaries']==2
         shutil.copytree(directory,output/case['id'])
-        receipt['cases'].append({**case,'originalWorkflowRun':45539082278})
+        receipt['cases'].append({**case,'originalWorkflowRun':45539082278,'originalSourceCommit':old['sourceCommit']})
     shutil.copyfile(original/'device-run.json',output/'first-attempt-device-run.json')
-    receipt['exactSourceSmokeReusedFrom']=45539082278
+    receipt['inheritedSmoke']={'workflowRun':45539082278,'sourceCommit':old['sourceCommit']}
     save()
 
 try:
@@ -181,7 +193,7 @@ try:
         receipt['scope']='FINAL_CANDIDATE_CUMULATIVE_EMULATOR_SMOKE'
     prior=os.environ.get('R341_REPORT_RETRY_PRIOR')
     if prior:
-        reuse_exact_source_smoke(Path(prior),cases)
+        reuse_inherited_smoke(Path(prior),cases)
         outcomes=[]
     else:
         outcomes=[case_run(c) for c in cases]

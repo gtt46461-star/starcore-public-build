@@ -18,8 +18,8 @@ jobs:
       matrix:
         include:
           - stage: B12
-            source: e7a9e3a38f16fbc12d1c7698f50aea59cedc1e3c
-            version: '577311151'
+            source: eb8f82a8bda8db22f1f122095217132f07053bcb
+            version: '577311152'
     env:
       SOURCE: ${{ matrix.source }}
       STAGE: ${{ matrix.stage }}
@@ -127,14 +127,22 @@ jobs:
           plan="$RUNNER_TEMP/material/STARCORE_R33_5_20261118"
           python3 -B tools/r33/run_release_build.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/build"
           python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --plan "$plan" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$RUNNER_TEMP/baseline122.apk" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json"
-      - name: Restore the exact-source regression originals from the first attempt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: staged-original-signed-apk
+          path: |
+            ${{ runner.temp }}/candidate/*-release.apk
+            ${{ runner.temp }}/candidate/CI_BUILD_RECEIPT.json
+          compression-level: 0
+          if-no-files-found: error
+      - name: Restore inherited regression originals from the first attempt
         uses: actions/download-artifact@v4
         with:
           name: R341-B12-e7a9e3a38f16fbc12d1c7698f50aea59cedc1e3c-engineering
           run-id: 45539082278
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/prior-report-replay
-      - name: Validate and retain the exact-source host originals
+      - name: Validate and retain the inherited host originals
         run: |
           set -euo pipefail
           cd "$RUNNER_TEMP/prior-report-replay"
@@ -143,7 +151,8 @@ jobs:
           fd808a0b8c23deb17d1dcfdf230a53bbd82a5fdd685dbb96b7bf54e5ea418850  engineering/host-regressions.log
           SUMS
           mkdir -p "$RUNNER_TEMP/engineering"
-          cp -r engineering/host-regressions.log engineering/host-junit "$RUNNER_TEMP/engineering/"
+          mkdir -p "$RUNNER_TEMP/engineering/inherited-host-e7a9e3a3"
+          cp -r engineering/host-regressions.log engineering/host-junit "$RUNNER_TEMP/engineering/inherited-host-e7a9e3a3/"
           echo "R341_REPORT_RETRY_PRIOR=$RUNNER_TEMP/prior-report-replay" >> "$GITHUB_ENV"
       - name: Execute sealed B12 identity and delivery negative probes
         working-directory: app-source
