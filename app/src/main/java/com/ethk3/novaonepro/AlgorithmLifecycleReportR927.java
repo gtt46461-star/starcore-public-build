@@ -7,12 +7,32 @@ import android.database.sqlite.SQLiteDatabase;
 public final class AlgorithmLifecycleReportR927 {
     private AlgorithmLifecycleReportR927() {}
 
+    static String qualificationContractsR342() {
+        ResearchGatePlanR967.Policy current=ResearchGatePlanR967.installed();
+        StringBuilder out=new StringBuilder();
+        out.append("CP4 受控排序协议 ").append(current.revision)
+                .append("｜policy_sha256=").append(current.hash)
+                .append("｜consumer_cap=").append(current.consumerCap)
+                .append("｜实际权重取冻结证书、消费者和本期授权的交集\n");
+        out.append("历史 V2 受控排序梯级（仅清单回查）");
+        for(int bound:new int[]{CertificateServiceV2R929.L6_CUMULATIVE_FUTURE_N,
+                CertificateServiceV2R929.WEIGHT_STEP_1_N,CertificateServiceV2R929.WEIGHT_STEP_2_N,
+                CertificateServiceV2R929.WEIGHT_STEP_3_N}){
+            out.append("｜").append(bound).append("=").append(CertificateServiceV2R929.historicalRankingCapR342(bound));
+        }
+        return out.append('\n').append("R27 独立未来协议 ")
+                .append(com.ethk3.novaonepro.strategyv2.CertificateGateR27.GATE_VERSION)
+                .append("｜最低有效出手 ").append(com.ethk3.novaonepro.strategyv2.CertificateGateR27.MIN_ACTS)
+                .append("｜最低命中率 ").append(com.ethk3.novaonepro.strategyv2.CertificateGateR27.MIN_HR)
+                .append("\nSU2 独立分组协议 ").append(com.ethk3.novaonepro.strategyv2.QualificationWindowR26.PROTOCOL)
+                .append("｜以各自有效证书和唯一决策入口的授权记录为准\n").toString();
+    }
+
     public static String capture(DbStore store, boolean full) {
         StringBuilder out = new StringBuilder(16384);
         out.append("R932_ALGORITHM_LIFECYCLE_REPORT\n")
                 .append("三个研究消费者共用状态账本；全局名额A 8、B 128、C 64；单研究线程分片续跑，达到容量时优先训练已有对象，容量让步不作质量淘汰。\n")
-                .append("新120期仅L5影子；再新240期累计360后5%，后续独立窗口累计600/840/1200对应12%/20%/30%。\n")
-                .append("所有权重都须通过统一证书实测门；代理样本、开发回放和旧累计分数不作晋级证据。\n")
+                .append(qualificationContractsR342())
                 .append("原有定义、父代、历史指标与首次原因完整保留。旧统计在历史清单展示，新状态和证据以下述统一账本为准。\n");
         if (store == null) return out.append("STATUS=READ_ERROR|STORE_NULL\n").toString();
         try {
@@ -283,8 +303,7 @@ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
         com.ethk3.novaonepro.ReportTextCP12 out = new com.ethk3.novaonepro.ReportTextCP12(report, 16384);
         out.append("R932_ALGORITHM_LIFECYCLE_REPORT\n")
                 .append("三个研究消费者共用状态账本；全局名额A 8、B 128、C 64；单研究线程分片续跑，达到容量时优先训练已有对象，容量让步不作质量淘汰。\n")
-                .append("新120期仅L5影子；再新240期累计360后5%，后续独立窗口累计600/840/1200对应12%/20%/30%。\n")
-                .append("所有权重都须通过统一证书实测门；代理样本、开发回放和旧累计分数不作晋级证据。\n")
+                .append(qualificationContractsR342())
                 .append("原有定义、父代、历史指标与首次原因完整保留。旧统计在历史清单展示，新状态和证据以下述统一账本为准。\n");
         if (store == null) return out.append("STATUS=READ_ERROR|STORE_NULL\n").toString();
         try {

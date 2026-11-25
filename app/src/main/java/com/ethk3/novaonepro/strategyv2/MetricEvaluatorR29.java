@@ -87,12 +87,19 @@ public final class MetricEvaluatorR29 {
             Map<String,Object> scope=new LinkedHashMap<>();
             Map<String,Object> manifest=map(in.watermark.get("sourceManifest"));
             Map<String,Object> installation=map(manifest.get("verifiedInstallationR341"));
+            scope.putAll(map(manifest.get("r341SqlObservationScope")));
             scope.put("installation",installation);scope.put("snapshotHash",manifest.get("snapshotSha256"));
             scope.put("runtimeObservedAt",manifest.get("runtimeObservedAt"));scope.put("processEpoch",manifest.get("runtimeProcessEpochR341"));scope.put("snapshotAt",in.watermark.get("capturedAt"));
             scope.put("role",row.get("role"));scope.put("population",row.get("population"));scope.put("latestIssue",in.watermark.get("latestIssue"));
+            scope.put("windowDefinition",row.get("population"));
+            scope.put("sampleCount",row.get("sampleCount"));
+            scope.put("denominator",row.get("denominator"));
+            scope.put("requiredEvidence",definition.get("requiredEvidence"));
             scope.put("scopeId",installation.isEmpty()?null:StatsR27.sha256(JsonR27.write(scope)));
             row.put("observationScopeR341",scope);
-            row.put("sourceReceiptSha256",receipt==null?null:receipt.receiptHash);out.add(ReportR27.freezeMap(row));
+            row.put("sourceReceiptSha256",receipt==null?null:receipt.receiptHash);
+            row.put("sourceReceiptKind",receipt==null?"ORIGINAL_EVIDENCE_UNAVAILABLE":"SNAPSHOT_PROJECTION_ONLY");
+            out.add(ReportR27.freezeMap(row));
         }
         if(out.size()!=44)throw new IllegalStateException("R31_METRIC_COUNT:"+out.size());
         return java.util.Collections.unmodifiableList(out);

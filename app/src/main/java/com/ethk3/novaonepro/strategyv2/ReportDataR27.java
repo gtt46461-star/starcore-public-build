@@ -88,7 +88,7 @@ public final class ReportDataR27 {
     public static Map<String,Object> successfulSummaryR30(ReportR27.R30Input in){
         Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPAIR_SUCCESSFUL_SUMMARY_1");out.put("definitionVersion",MetricDefinitionsR29.CURRENT_VERSION);
         out.put("sourceCommit",in.watermark.get("sourceCommit"));out.put("jobId",in.watermark.get("reportJobId"));out.put("snapshotSha256",snapshotHashR30(in));
-        List<Object> objects=new ArrayList<>();for(Map<String,Object> metric:in.metricResults){Map<String,Object> row=new LinkedHashMap<>();for(String key:new String[]{"metricId","role","population","value","numerator","denominator","sampleCount","status","unit"})row.put(key,metric.get(key));row.put("objectId",metric.get("metricId"));row.put("objectKind","METRIC");row.put("counterScope","PERSISTED_SNAPSHOT_OR_EXPLICIT_MEASUREMENT");objects.add(row);}
+        List<Object> objects=new ArrayList<>();for(Map<String,Object> metric:in.metricResults){Map<String,Object> row=new LinkedHashMap<>();for(String key:new String[]{"metricId","role","population","value","numerator","denominator","sampleCount","status","unit","observationScopeR341"})row.put(key,metric.get(key));row.put("objectId",metric.get("metricId"));row.put("objectKind","METRIC");row.put("counterScope","PERSISTED_SNAPSHOT_OR_EXPLICIT_MEASUREMENT");objects.add(row);}
         Map<String,Object> index=MetricEvaluatorR29.map(in.data.get("objectIndex"));for(String category:new String[]{"legacyCharts","researchCharts","matrices","capabilities"}){
             Object rows=MetricEvaluatorR29.map(index.get(category)).get("objects");if(rows instanceof List)for(Object raw:(List<?>)rows){Map<String,Object> row=new LinkedHashMap<>();Map<String,Object> object=MetricEvaluatorR29.map(raw);for(String key:new String[]{"objectId","objectKind","implemented","callable","inputAvailable","produced","consumed","effective","retainedCount"})row.put(key,object.get(key));row.put("role","STATIC_BINDING_AND_PERSISTED_ARTIFACT");objects.add(row);}
         }out.put("objects",objects);return ReportR27.freezeMap(out);
@@ -104,8 +104,20 @@ public final class ReportDataR27 {
         List<Object> changes=new ArrayList<>();Object now=current.get("objects");if(now instanceof List)for(Object x:(List<?>)now){Map<String,Object> row=MetricEvaluatorR29.map(x),before=prior.get(compareKeyR30(row));if(before==null)continue;
             Map<String,Object> change=new LinkedHashMap<>();change.put("objectId",row.get("objectId"));change.put("objectKind",row.get("objectKind"));change.put("role",row.get("role"));change.put("previous",before);change.put("current",row);
             boolean comparable=java.util.Objects.equals(row.get("population"),before.get("population"))&&java.util.Objects.equals(row.get("unit"),before.get("unit"))&&!"PROCESS_LIFETIME".equals(row.get("counterScope"))&&!"PROCESS_LIFETIME".equals(before.get("counterScope"));
+            if("METRIC".equals(row.get("objectKind")))comparable&=sameObservationCohortR342(
+                    MetricEvaluatorR29.map(row.get("observationScopeR341")),MetricEvaluatorR29.map(before.get("observationScopeR341")));
+            change.put("observationComparison",comparable?"SAME_OBSERVATION_COHORT":"NOT_COMPARABLE");
             Number a=MetricEvaluatorR29.number(before.get("value")),b=MetricEvaluatorR29.number(row.get("value"));change.put("delta",comparable&&a!=null&&b!=null?b.doubleValue()-a.doubleValue():null);change.put("deltaMeaning","描述性快照变化；窗口分母/来源见原件，不能推断趋势或质量改善");changes.add(change);
         }out.put("status","COMPARABLE_TWO_SUCCESSFUL_SNAPSHOTS");out.put("independentPeriodsAdded",1);out.put("objects",changes);out.put("productEffectClaim",false);return out;
+    }
+    static boolean sameObservationCohortR342(Map<String,Object> first,Map<String,Object> second) {
+        for(String key:new String[]{"releaseId","sourceCommit","databaseIdentity","bootId","processEpoch",
+                "scopeKind","role","windowDefinition","sqlWatermark"}){
+            Object value=first.get(key);
+            if(!(value instanceof String)||((String)value).isEmpty()||"UNRESOLVED".equals(value)
+                    ||"LEGACY_UNSCOPED".equals(value)||!value.equals(second.get(key)))return false;
+        }
+        return true;
     }
     static String compareKeyR30(Map<String,Object> row){return row.get("objectKind")+"|"+row.get("objectId")+"|"+row.get("role");}
     /** Preserved R27 attachment API. The primary R30 report uses chaptersR30 and its detached read view. */

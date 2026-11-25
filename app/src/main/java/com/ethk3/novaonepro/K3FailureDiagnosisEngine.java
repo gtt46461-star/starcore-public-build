@@ -36,7 +36,7 @@ public final class K3FailureDiagnosisEngine {
         public final State state;
         public final String positive, negative, reason, nextTest;
         public final double confidence;
-        public final String checksum;
+        public final String checksum, confidenceKind, evidenceScope;
 
         LayerFinding(
                 Layer layer,
@@ -53,6 +53,10 @@ public final class K3FailureDiagnosisEngine {
             this.reason = s(reason);
             this.nextTest = s(nextTest);
             this.confidence = clamp(confidence);
+            confidenceKind = this.confidence == 0d ? "NO_STATISTICAL_CONFIDENCE" : "DIAGNOSTIC_PRIORITY_ONLY";
+            evidenceScope = this.reason.startsWith("EXACT_") ? "FROZEN_ORIGINAL"
+                    : this.reason.startsWith("UNBOUND_") ? "UNBOUND_RUNTIME_SUMMARY" : "EVIDENCE_STATE";
+
             checksum =
                     V51ChecksumEngine.sha256(
                             layer.name()
@@ -211,7 +215,7 @@ public final class K3FailureDiagnosisEngine {
             }
         }catch(android.os.OperationCanceledException cancelled){
             throw cancelled;
-        }catch(android.database.sqlite.SQLiteException unavailable){
+        }catch(RuntimeException unavailable){
             return new LayerFinding(layer,State.UNAVAILABLE,label,negative,
                     "ARTIFACT_SOURCE_QUERY_"+unavailable.getClass().getSimpleName(),next,0d);
         }
@@ -222,33 +226,16 @@ public final class K3FailureDiagnosisEngine {
         return report==null?database.rawQuery(sql,parameters):report.select(sql,parameters);
     }
 
+    private static LayerFinding observationalFindingR342(Layer layer,String value,String why,String test) {
+        if(value.isEmpty())return new LayerFinding(layer,State.UNAVAILABLE,"N/A",
+                "缺少同一期出号原件及层级对照",why,test,0d);
+        return new LayerFinding(layer,State.WATCH,"summary_sha256="+V51ChecksumEngine.sha256(value),
+                why,"UNBOUND_RUNTIME_SUMMARY_REQUIRES_TARGET_COUNTERFACTUAL",test,0d);
+    }
+
     private LayerFinding stateLayer(
             DbStore store, Layer layer, String key, String why, String test) {
-        String v = get(store, key, "");
-        if (v.length() == 0)
-            return new LayerFinding(
-                    layer,
-                    State.UNAVAILABLE,
-                    "N/A",
-                    "No persisted runtime evidence",
-                    why,
-                    test,
-                    0.0d);
-        String u = v.toUpperCase(java.util.Locale.ROOT);
-        State st =
-                (u.indexOf("FAIL") >= 0 || u.indexOf("FREEZE") >= 0 || u.indexOf("CHAOS") >= 0)
-                        ? State.SUSPECT
-                        : (u.indexOf("RISK") >= 0 || u.indexOf("DRIFT") >= 0
-                                ? State.WATCH
-                                : State.HEALTHY);
-        return new LayerFinding(
-                layer,
-                st,
-                v,
-                "Runtime summary is observational, not causal proof",
-                why,
-                test,
-                st == State.HEALTHY ? 0.6d : 0.75d);
+        return observationalFindingR342(layer,get(store,key,""),why,test);
     }
 
     public String render(DbStore store) {
@@ -270,6 +257,8 @@ public final class K3FailureDiagnosisEngine {
                     .append(x.state.name())
                     .append("|confidence=")
                     .append(x.confidence)
+                    .append("|confidence_kind=").append(x.confidenceKind)
+                    .append("|evidence_scope=").append(x.evidenceScope)
                     .append("\nPositive=")
                     .append(x.positive)
                     .append("\nNegative=")
@@ -330,6 +319,8 @@ public String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report
                     .append(x.state.name())
                     .append("|confidence=")
                     .append(x.confidence)
+                    .append("|confidence_kind=").append(x.confidenceKind)
+                    .append("|evidence_scope=").append(x.evidenceScope)
                     .append("\nPositive=")
                     .append(x.positive)
                     .append("\nNegative=")
@@ -424,41 +415,17 @@ public LayerFinding artifactLayerSnapshotCP4(com.ethk3.novaonepro.ReportReadCont
             Layer layer, boolean proven, String positive, String negative, String test) {
         return new LayerFinding(
                 layer,
-                proven ? State.HEALTHY : State.BLOCKED,
+                proven ? State.WATCH : State.UNAVAILABLE,
                 positive + "|PROVEN=" + proven,
                 negative,
-                proven ? "Frozen artifact evidence exists" : "Strict OOS artifact proof is missing",
+                proven ? "UNBOUND_STATIC_ARTIFACT_DECLARATION" : "DYNAMIC_ARTIFACT_PROOF_MISSING",
                 test,
-                proven ? 0.9d : 1.0d);
+                0d);
     }
 
 public LayerFinding stateLayerSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
             com.ethk3.novaonepro.ReportReadContextCP4 store, Layer layer, String key, String why, String test) {
-        String v = getSnapshotCP4(report, store, key, "");
-        if (v.length() == 0)
-            return new LayerFinding(
-                    layer,
-                    State.UNAVAILABLE,
-                    "N/A",
-                    "No persisted runtime evidence",
-                    why,
-                    test,
-                    0.0d);
-        String u = v.toUpperCase(java.util.Locale.ROOT);
-        State st =
-                (u.indexOf("FAIL") >= 0 || u.indexOf("FREEZE") >= 0 || u.indexOf("CHAOS") >= 0)
-                        ? State.SUSPECT
-                        : (u.indexOf("RISK") >= 0 || u.indexOf("DRIFT") >= 0
-                                ? State.WATCH
-                                : State.HEALTHY);
-        return new LayerFinding(
-                layer,
-                st,
-                v,
-                "Runtime summary is observational, not causal proof",
-                why,
-                test,
-                st == State.HEALTHY ? 0.6d : 0.75d);
+        return observationalFindingR342(layer,getSnapshotCP4(report,store,key,""),why,test);
     }
 
 public static String getSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, String k, String d) {

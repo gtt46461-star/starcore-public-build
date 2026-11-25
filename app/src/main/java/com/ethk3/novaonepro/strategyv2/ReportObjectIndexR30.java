@@ -49,6 +49,7 @@ public final class ReportObjectIndexR30 {
         for(String category:new String[]{"legacyCharts","researchCharts","matrices","capabilities"}) {
             for(Object raw:list(map(out.get(category)).get("objects"))) {
                 Map<String,Object> row=map(raw);String id=String.valueOf(row.get("objectId")),kind=String.valueOf(row.get("objectKind"));
+                if(kind.equals("MATRIX")||kind.equals("RESEARCH_CHART"))attachResearchEvidenceR342(row,id,kind,watermark,data);
                 if(kind.equals("CAPABILITY")&&runtime.containsKey(id))row.put("runtimeEvidenceR33",runtime.get(id));
                 if(kind.equals("CAPABILITY")&&id.equals("ATOMNET")){Map<String,Object> modelCounters=new LinkedHashMap<>();for(String key:new String[]{"atomnetPublishedModels","atomnetConsumedPublishedModels","atomnetConsumedModels"})modelCounters.put(key,facts.get(key));Map<String,Object> neural=map(map(data.get("neuralTraining")).get("payload"));for(String key:new String[]{"materializedSamples","trainingSamplesProcessed","onlineSamples","publicationReady","consumable"})modelCounters.put(key,neural.get(key));Map<String,Object> modelEvidence=new LinkedHashMap<>();modelEvidence.put("id",id);modelEvidence.put("counters",modelCounters);modelEvidence.put("sourceStatus","NAMED_ATOMNET_SOURCES; MISSING_VALUES_REMAIN_NULL");modelEvidence.put("counterScope","PUBLICATION_AND_FORECAST_HASH_JOIN; TRAINING_FIELDS_ARE_PERSISTED_CACHE_OBSERVATIONS_NOT_WEIGHT_RECOMPUTATION");row.put("runtimeEvidenceR33",modelEvidence);Number p=number(facts.get("atomnetPublishedModels")),c=number(facts.get("atomnetConsumedPublishedModels"));row.put("produced",p==null?null:p.longValue()>0);row.put("consumed",c==null?null:c.longValue()>0);}
                 if(kind.equals("CAPABILITY")&&id.startsWith("MATRIX:")){Map<String,Object> original=canonicalMatrices.get(id.substring(7));if(original!=null){Map<String,Object> alias=new LinkedHashMap<>();alias.put("id",id);alias.put("canonicalObjectReference","R30_REPORT.json#/objectIndex/matrices/objects[objectId="+id.substring(7)+"]");matrixAliases.put(id.substring(7),alias);alias.put("counterScope","ALIAS_OF_CANONICAL_MATRIX_NOT_AN_ADDITIONAL_PRODUCER");alias.put("retainedCount",original.get("retainedCount"));row.put("runtimeEvidenceR33",alias);for(String key:new String[]{"inputAvailable","produced","consumed"})row.put(key,original.get(key));}}
@@ -76,6 +77,32 @@ public final class ReportObjectIndexR30 {
                     "/objectIndex/matrices/objects[objectId="+matrixId+"]",canonicalMatrices.get(matrixId)));
         }
         out.put("capabilityNeedDiagnosticsR335",CapabilityNeedDiagnosticsR335.capture(out));return out;
+    }
+
+    private static void attachResearchEvidenceR342(Map<String,Object> row,String id,String kind,
+            Map<String,Object> watermark,Map<String,Object> data){
+        String view="MATRIX".equals(kind)&&id.startsWith("R930:")?"MATRIX:"+id.substring(5):id;
+        Map<String,Object> exact=new LinkedHashMap<>();
+        exact.put("currentSourceCommit",watermark.get("sourceCommit"));
+        for(Object raw:list(data.get("researchCurrentHeadsR342"))){
+            Map<String,Object> head=map(raw);
+            if(view.equals(head.get("view_id"))){
+                exact.put("latestDependencyHead",head);
+                Object reason=head.get("reason");
+                if(!Boolean.TRUE.equals(row.get("produced"))&&reason instanceof String&&!((String)reason).isEmpty())
+                    row.put("notProducedReason",reason);
+                break;
+            }
+        }
+        for(Object raw:list(data.get("researchCurrentActionsR342"))){
+            Map<String,Object> action=map(raw);
+            if(!view.equals(action.get("view_id"))||!Objects.equals(watermark.get("sourceCommit"),action.get("source_commit")))continue;
+            exact.put("currentActionSample",action);
+            exact.put("actionScope","RECORDED_ACTION; DOWNSTREAM_EFFECT_REQUIRES_EXACT_CHILD_OR_CONSUMER_RECEIPT");
+            break;
+        }
+        exact.put("actionSampleRule","LATEST_CURRENT_SOURCE_WINDOW; MISSING_SAMPLE_IS_NOT_ZERO");
+        row.put("researchEvidenceR342",exact);
     }
     public static final String SCHEMA="R30_REPAIR_OBJECT_INDEX_1";
     /** R31-B09-C01: the chart ids this report indexes (29 legacy + 18 research); must equal ChartRegistryR31.ids(). */
