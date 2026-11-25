@@ -1,19 +1,57 @@
 package com.ethk3.novaonepro;
 
 import com.ethk3.novaonepro.strategyv2.JsonR27;
+import android.util.AtomicFile;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-/** Report formatting only. Same canonical bytes as JsonR27 without materializing
+/** Same canonical bytes as JsonR27 without materializing
  * the complete document String, its builder and Writer's complete char[] copy.
- * The caller owns admission, cancellation, flush, close and publication. */
+ * Direct writers own their publication lifecycle. */
 public final class ReportJsonWriterR31 {
     private ReportJsonWriterR31() {}
     private static final int TEXT_CHUNK=4096;
+
+    /** Bulk report JSON is admitted by its encoded size, using the same atomic
+     * storage and path checks as report metadata without its journal size bound. */
+    public static void writeReportArtifactAtomic(File file,Object value)throws IOException {
+        class Size extends OutputStream {
+            long bytes;
+            @Override public void write(int value){bytes=Math.addExact(bytes,1L);}
+            @Override public void write(byte[] values,int offset,int length){bytes=Math.addExact(bytes,(long)length);}
+        }
+        Size size=new Size();
+        try(Writer counter=new BufferedWriter(new OutputStreamWriter(size,StandardCharsets.UTF_8))){
+            write(value,counter);
+        }
+        File parent=file.getParentFile();
+        if(parent==null||!parent.isDirectory()&&!parent.mkdirs())throw new IOException("REPORT_ARTIFACT_PARENT");
+        try(ReportIoR31.AtomicPermit permit=ReportIoR31.beforeAtomic(file,size.bytes)){
+            AtomicFile atomic=new AtomicFile(file);
+            FileOutputStream out=atomic.startWrite();
+            boolean published=false;
+            try{
+                Writer sink=new BufferedWriter(new OutputStreamWriter(permit.stream(out),StandardCharsets.UTF_8));
+                write(value,sink);
+                sink.flush();
+                out.getFD().sync();
+                atomic.finishWrite(out);
+                published=true;
+            }finally{
+                if(!published)atomic.failWrite(out);
+            }
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static void write(Object value,Writer out)throws IOException {

@@ -49,6 +49,7 @@ public final class R342B12ContractTest {
     @Test public void test_r342_057() throws Exception {
         run("R342-057",app -> {
             R342ReportAssertions.exactReproductionScope(app);
+            R342ReportAssertions.largeComparisonSummaryRetainsOriginals(app);
             R341ReportTestCases.fullRawMustContainExactSnapshot(app);
         });
     }

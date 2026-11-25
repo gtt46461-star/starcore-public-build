@@ -446,7 +446,7 @@ public final class ReportExportServiceCP4 extends Service {
                     ReportMemberPlanCP12.append(members,r31Receipt.getName(),r31Receipt.getName(),ReportArchiveCP4.hash(r31Receipt,active),r31Receipt.length());
                     job.semanticVerificationR31="REQUIRES_ZIP_READBACK";
                     File r30SummaryCandidate=new File(directory,"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");
-                    ReportJobJournalCP12.writeAtomic(r30SummaryCandidate,com.ethk3.novaonepro.strategyv2.JsonR27.write(r30Chapters.get(11).get("successfulSummaryCandidate")));
+                    ReportJsonWriterR31.writeReportArtifactAtomic(r30SummaryCandidate,r30Chapters.get(11).get("successfulSummaryCandidate"));
                     ReportMemberPlanCP12.append(members,r30SummaryCandidate.getName(),r30SummaryCandidate.getName(),ReportArchiveCP4.hash(r30SummaryCandidate,active),r30SummaryCandidate.length());
                     File r26Identities=new File(directory,"R26_POLICY_IDENTITIES.jsonl");
                     com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
@@ -661,7 +661,7 @@ public final class ReportExportServiceCP4 extends Service {
                 if(old.get("publishedAt") instanceof Number&&((Number)old.get("publishedAt")).longValue()>job.updatedWallMs)return;
             }
             summary.put("publicationStatus","READY_TO_SHARE_VERIFIED_ZIP");summary.put("publishedManifestSha256",job.manifestSha);summary.put("publishedAt",job.updatedWallMs);
-            ReportJobJournalCP12.writeAtomic(destination,com.ethk3.novaonepro.strategyv2.JsonR27.write(summary));
+            ReportJsonWriterR31.writeReportArtifactAtomic(destination,summary);
         }catch(Exception failure){android.util.Log.w("ReportExportCP12","Verified ZIP remains published; R30 summary persistence requires retry",failure);}
     }
     /** Normalize the trusted Android container alias, retaining strict checks

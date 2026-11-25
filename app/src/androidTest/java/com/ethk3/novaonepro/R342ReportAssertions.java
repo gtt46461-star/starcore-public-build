@@ -76,4 +76,22 @@ public final class R342ReportAssertions {
             return context.compactDiagnosticR64();
         }
     }
+
+    public static void largeComparisonSummaryRetainsOriginals(Context app)throws Exception {
+        File output=new File(app.getCacheDir().getCanonicalFile(),"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");
+        java.util.List<Object> trace=new java.util.ArrayList<>();
+        for(int i=0;i<144;i++){
+            trace.add(Map.of("objectId","R342-"+i,"observationScopeR341",
+                    Map.of("sourceCommit",BuildConfig.SOURCE_COMMIT_R26,"windowDefinition","赛前证据范围".repeat(42))));
+        }
+        Map<String,Object> payload=Map.of("objects",trace,"jobId","fixture-"+"1".repeat(64));
+        String original=com.ethk3.novaonepro.strategyv2.JsonR27.write(payload);
+        assertTrue(original.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>ReportJobJournalCP12.MAX_JSON);
+        assertThrows(java.io.IOException.class,()->ReportJobJournalCP12.writeAtomic(output,original));
+        ReportJsonWriterR31.writeReportArtifactAtomic(output,payload);
+        assertEquals(original,ReportJobJournalCP12.readAtomic(output,1024*1024));
+        assertThrows(IllegalArgumentException.class,
+                ()->ReportJsonWriterR31.writeReportArtifactAtomic(output,Map.of("invalid",new Object())));
+        assertEquals(original,ReportJobJournalCP12.readAtomic(output,1024*1024));
+    }
 }
