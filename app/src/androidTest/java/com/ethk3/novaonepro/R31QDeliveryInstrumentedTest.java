@@ -176,7 +176,7 @@ public final class R31QDeliveryInstrumentedTest {
         assertTrue("published ZIP invalid",ReportPublicationCP12.verifyPublishedZip(job,()->true));
         readyUiSurvivesBusyLeaseR31(app,job,request);
         JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());
-        if(denseCohort)verifyDenseCohort(job,expectedEvents,includeRaw);
+        if(denseCohort)verifyDenseDelivery(app,job,index,expectedEvents,includeRaw);
         if(includeRaw){
             JSONObject semantic=new JSONObject(ReportJobJournalCP12.readAtomic(
                     new File(job,ReportSemanticVerifierR31.RECEIPT),65536));
@@ -229,8 +229,30 @@ public final class R31QDeliveryInstrumentedTest {
         return expected;
     }
 
-    private static void verifyDenseCohort(File job, Map<String,List<String>> expected, boolean raw) throws Exception {
-        try (ZipFile zip = new ZipFile(new File(job,"delivery/STARCORE_FULL_REPORT.zip"))) {
+    private static void verifyDenseDelivery(Context app, File job, JSONObject index, Map<String,List<String>> expected,
+            boolean raw) throws Exception {
+        if (!ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.getString("format"))) {
+            verifyDenseCohort(new File(job,"delivery/STARCORE_FULL_REPORT.zip"),expected,raw);
+            return;
+        }
+        File saved = File.createTempFile("dense-report-", ".zip", app.getCacheDir());
+        try {
+            ReportSafCopyCP12.Destination destination = new ReportSafCopyCP12.Destination() {
+                @Override public OutputStream openOutputTruncating() throws IOException { return new FileOutputStream(saved); }
+                @Override public InputStream openInput() throws IOException { return new FileInputStream(saved); }
+            };
+            ReportSafCopyCP12.Receipt reopened = ReportPublicationCP12.saveJoinedZipR34(job,index,destination,()->true);
+            assertEquals(index.getLong("zipBytes"),reopened.bytes);
+            assertEquals(index.getString("zipSha256"),reopened.sha256);
+            verifyDenseCohort(saved,expected,raw);
+            android.util.Log.i("STARCORE_R341","DENSE_REPORT_JOINED_ZIP|bytes="+reopened.bytes+"|sha256="+reopened.sha256);
+        } finally {
+            assertTrue("delete temporary joined test copy", saved.delete());
+        }
+    }
+
+    private static void verifyDenseCohort(File archive, Map<String,List<String>> expected, boolean raw) throws Exception {
+        try (ZipFile zip = new ZipFile(archive)) {
             JSONObject source = new JSONObject(new String(reportMember(zip,"source-manifest.json",65536),StandardCharsets.UTF_8));
             assertEquals(raw, source.getBoolean("rawEvidenceIncluded"));
             assertEquals(raw, zip.getEntry("snapshot.db") != null);
