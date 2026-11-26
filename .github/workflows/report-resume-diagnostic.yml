@@ -1,0 +1,64 @@
+name: Report resume diagnostic
+on:
+  push:
+    branches: [construction/r27-20261028]
+    paths: ['.github/workflows/report-resume-diagnostic.yml', '.github/scripts/report-resume-diagnostic.py']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-signed-resume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SOURCE: 73ed8c6931d230f105ed3fbc05f48e76fa43cab5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts/report-resume-diagnostic.py
+          sparse-checkout-cone-mode: false
+          path: dispatch
+      - uses: actions/checkout@v4
+        with:
+          ref: 73ed8c6931d230f105ed3fbc05f48e76fa43cab5
+          path: app-source
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: r343-signed-build-original-B12-73ed8c6931d230f105ed3fbc05f48e76fa43cab5
+          run-id: 45898443873
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/signed-original
+      - name: Verify the existing exact original APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find "$RUNNER_TEMP/signed-original" -type f -name '*.apk')
+          mapfile -t receipts < <(find "$RUNNER_TEMP/signed-original" -type f -name CI_BUILD_RECEIPT.json)
+          [[ ${#files[@]} -eq 1 && ${#receipts[@]} -eq 1 ]]
+          test "$(git -C app-source rev-parse HEAD)" = "$SOURCE"
+          sha="$(sha256sum "${files[0]}" | cut -d' ' -f1)"
+          jq -e --arg sha "$sha" --arg source "$SOURCE" '.sourceCommit==$source and .apkSha256==$sha and .gradleRelease=="PASS" and .ciRun=="45898443873"' "${receipts[0]}"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "${files[0]}" | grep -F 'certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+          printf 'APK=%s\nORIGINAL_BUILD=%s\n' "${files[0]}" "${receipts[0]}" >> "$GITHUB_ENV"
+      - name: Enable KVM for the disposable Android emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Capture exact report state and reopen the original routine
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 8G
+          ram-size: 4096M
+          script: python3 -B dispatch/.github/scripts/report-resume-diagnostic.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-resume-diagnostic-originals-${{ github.run_id }}
+          path: ${{ runner.temp }}/resume-diagnostic
+          if-no-files-found: error
