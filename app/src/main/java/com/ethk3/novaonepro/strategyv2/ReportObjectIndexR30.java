@@ -26,7 +26,7 @@ public final class ReportObjectIndexR30 {
         out.put("legacyCharts",category(29,old));
         Map<String,Map<String,Object>> frames=new LinkedHashMap<>();for(Object x:list(data.get("repairFrameIndex"))){Map<String,Object> row=map(x);frames.put(String.valueOf(row.get("view_id")),row);}
         List<Object> research=new ArrayList<>();for(Object x:list(JsonR27.parse(RESEARCH_CHARTS))){Map<String,Object> d=map(x);String id=String.valueOf(d.get("id"));Map<String,Object> frame=frames.get(id);boolean bound=MatrixRegistryR30.declared("com.ethk3.novaonepro.strategyv2.ResearchGraphSpecsR30R1","group");
-            Number produced=number(facts.get("researchProduced:"+id)),consumed=number(facts.get("researchConsumed:"+id));Map<String,Object> r=state(id,"RESEARCH_CHART",d,bound,bound,null,produced==null?null:produced.longValue()>0);r.put("currentSourceProducedFrames",produced);r.put("consumed",consumed==null?null:consumed.longValue()>0);r.put("actualSourceConsumptionReceipts",consumed);r.put("consumptionScope","Original birth child and source-linked receipts; formal/read-only views do not drive optimization");r.put("runtimeReference",frame);r.put("notProducedReason",frame==null?"等待本图算法的真实有界分析产物；登记合同或空面板不算完成":null);research.add(r);}
+            Number produced=number(facts.get("researchProduced:"+id));Map<String,Object> consumption=ReportResearchConsumptionR343.view(data,id);Map<String,Object> r=state(id,"RESEARCH_CHART",d,bound,bound,null,produced==null?null:produced.longValue()>0);r.put("currentSourceProducedFrames",produced);r.put("consumed",ReportResearchConsumptionR343.consumed(consumption));r.put("actualSourceConsumptionReceipts",consumption.get("bornExact"));r.put("actualSourceNonBornActionReceipts",consumption.get("nonBornExact"));r.put("currentSourceNonBornActionRows",facts.get("researchConsumed:"+id));r.put("consumptionEvidenceR343",consumption);r.put("consumptionScope","Validated retained BORN and non-BORN receipts kept separate; bounded incomplete counts remain unknown; no effectiveness or REAL authority");r.put("runtimeReference",frame);r.put("notProducedReason",frame==null?"等待本图算法的真实有界分析产物；登记合同或空面板不算完成":null);research.add(r);}
         out.put("researchCharts",category(18,research));
         Map<String,Map<String,Object>> stats=new LinkedHashMap<>();for(Object x:list(data.get("matrixObjectIndex"))){Map<String,Object> row=map(x);stats.put("R930:"+row.get("kind"),row);}
         List<Object> matrices=new ArrayList<>();for(MatrixRegistryR30.Definition d:MatrixRegistryR30.all()){
@@ -54,13 +54,19 @@ public final class ReportObjectIndexR30 {
                 if(kind.equals("CAPABILITY")&&id.equals("ATOMNET")){Map<String,Object> modelCounters=new LinkedHashMap<>();for(String key:new String[]{"atomnetPublishedModels","atomnetConsumedPublishedModels","atomnetConsumedModels"})modelCounters.put(key,facts.get(key));Map<String,Object> neural=map(map(data.get("neuralTraining")).get("payload"));for(String key:new String[]{"materializedSamples","trainingSamplesProcessed","onlineSamples","publicationReady","consumable"})modelCounters.put(key,neural.get(key));Map<String,Object> modelEvidence=new LinkedHashMap<>();modelEvidence.put("id",id);modelEvidence.put("counters",modelCounters);modelEvidence.put("sourceStatus","NAMED_ATOMNET_SOURCES; MISSING_VALUES_REMAIN_NULL");modelEvidence.put("counterScope","PUBLICATION_AND_FORECAST_HASH_JOIN; TRAINING_FIELDS_ARE_PERSISTED_CACHE_OBSERVATIONS_NOT_WEIGHT_RECOMPUTATION");row.put("runtimeEvidenceR33",modelEvidence);Number p=number(facts.get("atomnetPublishedModels")),c=number(facts.get("atomnetConsumedPublishedModels"));row.put("produced",p==null?null:p.longValue()>0);row.put("consumed",c==null?null:c.longValue()>0);}
                 if(kind.equals("CAPABILITY")&&id.startsWith("MATRIX:")){Map<String,Object> original=canonicalMatrices.get(id.substring(7));if(original!=null){Map<String,Object> alias=new LinkedHashMap<>();alias.put("id",id);alias.put("canonicalObjectReference","R30_REPORT.json#/objectIndex/matrices/objects[objectId="+id.substring(7)+"]");matrixAliases.put(id.substring(7),alias);alias.put("counterScope","ALIAS_OF_CANONICAL_MATRIX_NOT_AN_ADDITIONAL_PRODUCER");alias.put("retainedCount",original.get("retainedCount"));row.put("runtimeEvidenceR33",alias);for(String key:new String[]{"inputAvailable","produced","consumed"})row.put(key,original.get(key));}}
                 Number current=number(row.get("currentSourceProducedFrames"));Map<String,Object> reference=map(row.get("runtimeReference"));
-                Boolean committed=current==null?null:current.longValue()>0?Boolean.TRUE:null;
-                if(reference.get("latestOriginalHash") instanceof String&&String.valueOf(reference.get("latestOriginalHash")).matches("[0-9a-f]{64}"))committed=Boolean.TRUE;
+                Boolean committed=current==null?null:current.longValue()>0;
+                // A retained hash has no current-source execution identity. Preserve it as inventory,
+                // never let an old matrix/frame override an observed current-source zero.
+                row.put("retainedOriginalHashPresent",reference.get("latestOriginalHash") instanceof String
+                        && String.valueOf(reference.get("latestOriginalHash")).matches("[0-9a-f]{64}"));
                 Boolean implemented=row.get("implemented") instanceof Boolean?(Boolean)row.get("implemented"):null;
                 Boolean consumed=row.get("consumed") instanceof Boolean?(Boolean)row.get("consumed"):null;
                 String card=kind.equals("MATRIX")?"R31-B08-C01":kind.equals("RESEARCH_CHART")?"R31-B08-C04":kind.equals("CAPABILITY")?"R31-B07-C01":"R31-B09-C01";
                 // A stored frame or object count does not establish finite values or an advantage.
-                Map<String,Object> layers=layersR31(new ObjectFactsR31(id,kind,card,implemented,null,committed,null,consumed,null,true));
+                boolean consumerApplicable=!"LEGACY_CHART".equals(kind)
+                        && !("RESEARCH_CHART".equals(kind)
+                            && ResearchResultContractR31.consumptionKindOf(id)==ResearchResultContractR31.ConsumptionKind.FORMAL_READ_ONLY);
+                Map<String,Object> layers=layersR31(new ObjectFactsR31(id,kind,card,implemented,null,committed,null,consumed,null,consumerApplicable));
                 layers.put("sourceSnapshot",ReportEvidenceProjectionR33.snapshot(watermark));layers.put("originalReference",reference);layers.put("inputAvailable",row.get("inputAvailable"));layers.put("deployment",row.get("callable"));
                 row.put("lifecycleR31",layers);entries.add(layers);
             }
@@ -122,10 +128,10 @@ public final class ReportObjectIndexR30 {
     public static Map<String,Object> layersR31(ObjectFactsR31 f){
         Map<String,Object> m=new LinkedHashMap<>();m.put("id",f.id);m.put("kind",f.kind);m.put("defined","YES");
         m.put("implemented",layer(f.implemented,"YES","NO"));
-        m.put("ran",f.running==null&&f.committed==null?"UNKNOWN":Boolean.TRUE.equals(f.committed)?"COMMITTED":Boolean.TRUE.equals(f.running)?"RUNNING_NO_COMMIT":"NOT_RUN");
+        m.put("ran",Boolean.TRUE.equals(f.committed)?"COMMITTED":Boolean.TRUE.equals(f.running)?"RUNNING_NO_COMMIT":f.running==null?"UNKNOWN":"NOT_RUN");
         m.put("produced",!Boolean.TRUE.equals(f.committed)?(f.committed==null?"UNKNOWN":"NO"):layer(f.frameHasValues,"VALUES","EMPTY"));
         m.put("consumed",!f.consumerApplicable?"NOT_APPLICABLE":layer(f.consumed,"YES","NO"));
-        m.put("effective",!f.consumerApplicable?"NOT_APPLICABLE":!Boolean.TRUE.equals(f.consumed)?"NOT_CONSUMED":layer(f.advantage,"YES","NO_MEASURED_ADVANTAGE"));
+        m.put("effective",!f.consumerApplicable?"NOT_APPLICABLE":f.consumed==null?"UNKNOWN":!f.consumed?"NOT_CONSUMED":layer(f.advantage,"YES","NO_MEASURED_ADVANTAGE"));
         boolean pass="YES".equals(m.get("implemented"))&&"COMMITTED".equals(m.get("ran"))&&"VALUES".equals(m.get("produced"))&&(!f.consumerApplicable||"YES".equals(m.get("effective")));
         m.put("status",pass?"PASS":"NOT_PASS");m.put("card",f.card);
         m.put("nextAction",pass?null:"SEE_CARD:"+f.card);return m;

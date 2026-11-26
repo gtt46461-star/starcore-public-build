@@ -34,12 +34,6 @@ final class WriterFaultSnapshotViewR343 {
             if (original == null || !StatsR27.sha256(original).equals(envelope.get("sha256")))
                 return unknown(observer,"MAIN_PROJECTION_HASH_MISMATCH");
             Map<?,?> sample = (Map<?,?>) JsonR27.parse(original);
-            // Preserve exact hash-verified bytes even when freshness/owner identity
-            // cannot be joined. Consumers must not promote this nested historical value.
-            out.put("historicalOriginalJson", original);
-            out.put("historicalOriginalSha256", envelope.get("sha256"));
-            out.put("historicalEvidenceScope", "HASH_VERIFIED_ROW_FROM_IMMUTABLE_SQL_SNAPSHOT; NOT_CURRENT_MAIN_STATE");
-            out.put("snapshotSha256", snapshot);
             if (!"R342_MAIN_WRITER_FAULT_PROJECTION_1".equals(sample.get("format"))
                     || !Objects.equals(release,sample.get("releaseId"))
                     || !Objects.equals(source,sample.get("sourceCommit"))
@@ -48,6 +42,11 @@ final class WriterFaultSnapshotViewR343 {
                 out.put("reason","SNAPSHOT_WRITER_SOURCE_IDENTITY_UNVERIFIED");
                 return out;
             }
+            // Hash integrity and source identity must both match before exposing verified historical evidence.
+            out.put("historicalOriginalJson", original);
+            out.put("historicalOriginalSha256", envelope.get("sha256"));
+            out.put("historicalEvidenceScope", "HASH_VERIFIED_ROW_FROM_IMMUTABLE_SQL_SNAPSHOT; NOT_CURRENT_MAIN_STATE");
+            out.put("snapshotSha256", snapshot);
             if (anchor == null) return out;
             if (snapshot == null || !snapshot.matches("[a-f0-9]{64}")
                     || !snapshot.equals(anchor.snapshot) || !Objects.equals(release,anchor.release)

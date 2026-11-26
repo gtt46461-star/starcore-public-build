@@ -68,7 +68,7 @@ def ensure_candidate_installed(serial, candidate, expected_sha):
                      'FIELD173_NATIVE_INSTALLED_INSTRUMENTATION_MISMATCH')
 
 
-def run(selector, host_verify=None):
+def run(selector, host_verify=None, collect=None):
     context = json.loads(Path(os.environ['STARCORE_FIELD173_CASE_CONTEXT']).read_bytes())
     target = Path(os.environ['STARCORE_FIELD173_CANDIDATE_APK'])
     output = Path(os.environ['STARCORE_FIELD173_CASE_OUTPUT'])
@@ -104,6 +104,8 @@ def run(selector, host_verify=None):
               'dataScope': record['dataScope'], 'artifacts': [native_argv, native, readback]}
     if host_original:
         report['artifacts'].extend(host_original)
+    if collect:
+        report['artifacts'].extend(collect(expected, serial, output.parent, record))
     write_original(output, contract.canonical(report))
     for event in events:
         print(contract.MARKER + json.dumps(event, ensure_ascii=False, separators=(',', ':')))
