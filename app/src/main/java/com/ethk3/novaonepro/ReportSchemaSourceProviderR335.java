@@ -14,14 +14,23 @@ import android.os.SystemClock;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /** Coordinates a cold report with the registered business-process migration owner before native backup. */
 public final class ReportSchemaSourceProviderR335 extends ContentProvider {
     private static final String STEP = "advance_registered_report_sources";
     private static final String AVAILABLE = "REGISTERED_REPORT_SOURCES_AVAILABLE";
     private static final String PENDING = "RESEARCH_SCHEMA_PREPARING";
-    private static final long STALLED_MS = 120000L;
+    private static final long PREPARATION_MS = 120000L, OWNER_CALL_MS = 5000L;
     private static final String JOURNAL = SchemaDomainCoordinatorR926.TABLE_JOURNAL;
+    private static final ThreadPoolExecutor OWNER_CALLS = newOwnerCallExecutor();
 
     interface Checkpoint {
         void check() throws IOException;
@@ -100,26 +109,68 @@ public final class ReportSchemaSourceProviderR335 extends ContentProvider {
         return answer;
     }
 
+    static ThreadPoolExecutor newOwnerCallExecutor() {
+        return new ThreadPoolExecutor(0, 1, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(), task -> {
+            Thread caller = new Thread(task, "report-source-owner-call");
+            caller.setDaemon(true);
+            return caller;
+        });
+    }
+
+    static <T> T awaitOwnerCall(ThreadPoolExecutor executor, Callable<T> request,
+                                Checkpoint cancellation, long timeoutMs)
+            throws IOException, ExecutionException, TimeoutException {
+        cancellation.check();
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+        FutureTask<T> call = new FutureTask<>(request);
+        executor.execute(call);
+        try {
+            for (;;) {
+                cancellation.check();
+                long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) throw new TimeoutException("REGISTERED_SOURCE_OWNER_CALL_TIMED_OUT");
+                try {
+                    return call.get(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(100)), TimeUnit.NANOSECONDS);
+                } catch (TimeoutException stillRunning) {
+                    // Binder work can outlive cancellation. Only one real call can occupy this executor.
+                }
+            }
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            InterruptedIOException failure = new InterruptedIOException("REPORT_WORKER_INTERRUPTED");
+            failure.initCause(interrupted);
+            throw failure;
+        } finally {
+            if (!call.isDone()) call.cancel(true);
+        }
+    }
+
     /** Unavailable sources are still exported and diagnosed by the original checks, with the cause recorded. */
     static String prepareBeforeSnapshot(Context context, Checkpoint cancellation) throws IOException {
         Uri uri = new Uri.Builder().scheme("content").authority(context.getPackageName() + ".report.schema").build();
-        long started = SystemClock.elapsedRealtime(), progressed = started, lastSteps = -1L;
+        final long prepareUntil = SystemClock.elapsedRealtime() + PREPARATION_MS;
         while (true) {
             cancellation.check();
+            long remaining = prepareUntil - SystemClock.elapsedRealtime();
+            if (remaining <= 0) return "REGISTERED_SOURCE_PREPARATION_WINDOW_ELAPSED";
             Bundle reply;
             try {
-                reply = context.getContentResolver().call(uri, STEP, ReleaseManifestR926.MANIFEST_SHA256, null);
-            } catch (RuntimeException failure) {
+                reply = awaitOwnerCall(OWNER_CALLS,
+                        () -> context.getContentResolver().call(uri, STEP, ReleaseManifestR926.MANIFEST_SHA256, null),
+                        cancellation, Math.min(remaining, OWNER_CALL_MS));
+            } catch (TimeoutException timedOut) {
+                return "REGISTERED_SOURCE_OWNER_CALL_TIMED_OUT";
+            } catch (RejectedExecutionException stillRunning) {
+                return "REGISTERED_SOURCE_OWNER_CALL_STILL_RUNNING";
+            } catch (ExecutionException failed) {
+                Throwable failure = failed.getCause();
+                if (failure instanceof Error) throw (Error) failure;
                 android.util.Log.w("ReportSchema", "Business-process schema owner unavailable", failure);
                 return "REGISTERED_SOURCE_OWNER_UNAVAILABLE_" + failure.getClass().getSimpleName();
             }
             if (reply == null || reply.getString("status") == null) return "REGISTERED_SOURCE_OWNER_NO_RESPONSE";
             String status = reply.getString("status");
             if (!PENDING.equals(status)) return status;
-            long now = SystemClock.elapsedRealtime(), steps = reply.getLong("completed", 0L);
-            if (steps != lastSteps) { progressed = now; lastSteps = steps; }
-            if (now - progressed >= STALLED_MS) return "REGISTERED_SOURCE_OWNER_STALLED";
-            if (now - started >= ReportBudgetSU2.FULL_REPORT_STAGE_MS / 2) return "REGISTERED_SOURCE_PREPARATION_WINDOW_ELAPSED";
             try { Thread.sleep(100L); }
             catch (InterruptedException interrupted) {
                 Thread.currentThread().interrupt();

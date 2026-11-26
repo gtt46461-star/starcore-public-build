@@ -585,6 +585,22 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
       "reason": "The report owner repeatedly waited up to two seconds for every 32 KiB under continuing realtime pressure. The recorded production-method replay timed out after hashing 29,458,432 of 50,331,648 bytes. Bound this cooperation per time interval, start the idle deadline again only after real progress, and reuse the live retry scheduler. Frozen inputs, streaming SHA verification, SQL quick_check, original cancellations and SAF readback remain required. Expose actual hashed bytes and quiet PAUSED state in the report UI.",
       "role": "PRESENTATION"
+    },
+    {
+      "afterFile": "B12-report-source-wait-201/ReportSchemaSourceProviderR335.java.snapshot",
+      "afterSha256": "1927cd08dc1141993bb1535e0d0207d3a9268b43577f42f78b3d6bf1724e4189",
+      "batch": "B12",
+      "beforeSha256": "a4f402c22c290d12bb04a0ac7a8ee26da8414f31b5f9105585ba89b5390834f6",
+      "issue": "R343-044",
+      "originals": {
+        "B12-report-source-wait-201/ReportSchemaSourceProviderR335.java.before.snapshot": "a4f402c22c290d12bb04a0ac7a8ee26da8414f31b5f9105585ba89b5390834f6",
+        "B12-report-source-wait-201/ReportSchemaSourceProviderR335.java.snapshot": "1927cd08dc1141993bb1535e0d0207d3a9268b43577f42f78b3d6bf1724e4189",
+        "B12-report-source-wait-201/bound-registered-source-owner-wait.patch": "0edd05635fbe7e381dc0eb0c1365196e4ddd57e42e8ca7ecf087c1a7333f56f5",
+        "B12-report-source-wait-201/claimed-stage-original.log": "f9062bf7df792c99512f39646abbb0ffefb78def276faa24e2defc25a1490486"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportSchemaSourceProviderR335.java",
+      "reason": "The signed 200 APK report job remained CLAIMED at PREPARE_REGISTERED_REPORT_SOURCES through the 240-second trace, before it acquired a database snapshot. Bound each synchronous provider request and the whole optional preparation window, check cancellation while waiting, permit at most one outstanding provider operation, and record the actual failure reason before continuing from an intact database with the original report checks.",
+      "role": "NUMERIC"
     }
   ],
   "schema": "STARCORE_FIELD173_SOURCE_CORRECTIONS_1"
