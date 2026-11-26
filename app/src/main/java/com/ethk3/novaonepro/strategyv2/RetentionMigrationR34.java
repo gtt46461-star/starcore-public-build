@@ -271,11 +271,11 @@ public final class RetentionMigrationR34 {
     }
 
     static String prepare(DbStore store, String ownerEpoch, java.util.function.BooleanSupplier cancelled, Runnable yield,
-            com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt) {
+            com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt,
+            DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn) {
         DatabaseCoordinator owner=store.coordinatorForResearchR952();
         try (SQLiteDatabase read = SQLiteDatabase.openDatabase(store.readable().getPath(), null,
-                    SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
-                DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn = owner.startupRetentionTurnR343()) {
+                    SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
             Writer writer=(context,task)->owner.runAtomicWriteOrThrowF01(context,db->{task.run(db);return 0;});
             Session session=null;
             long nextJournalSample = 0L;

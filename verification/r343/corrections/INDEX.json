@@ -470,6 +470,36 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
       "reason": "Android startup originals showed RETENTION_UNIT repeatedly waiting for prepared proof without passing INSTALL/8 during the legacy schema writer. Give the existing R34 install/verify pass a shared DDL turn outside the SQLite writer. Yield the turn on stale prepared input, writer wait or cancellation. Keep per-unit source roots, SQLite CAS, admission deadlines, and all protected-unit checks.",
       "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-proof-through-registration-198/RuntimeCoordinatorR26.java.snapshot",
+      "afterSha256": "b828ef7514a1042c554e0f1e4ac8051b8ea33c73102ec8f9d3d95944493ac253",
+      "batch": "B12",
+      "beforeSha256": "e1d626a73e4c97ce91aa3dcd3f217f7a827d0d36666e3d3bcce5ee5410e0da8d",
+      "issue": "R343-006",
+      "originals": {
+        "B12-proof-through-registration-198/RuntimeCoordinatorR26.java.snapshot": "b828ef7514a1042c554e0f1e4ac8051b8ea33c73102ec8f9d3d95944493ac253",
+        "B12-proof-through-registration-198/preserve-retention-proof-through-registration.patch": "da43d6048f58f65117115b954adddba78a8354651899b8967d28d7df986c8fc5",
+        "B12-proof-through-registration-198/retention-registration-preimage.log": "ab7878efcdc7e32413bccae0b3b4a83380660cc89ddc950a5f24f234cac87f03"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "reason": "The signed rerun crossed INSTALL/8 and produced VERIFY receipts, then the live owner repeated WAIT_DEPENDENCY with the verification cursor rearmed. Keep the single existing schema turn from checkpoint preparation through the durable registration that consumes the verified retention plan; retain detailed typed dependency and verified startup originals.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-proof-through-registration-198/RetentionMigrationR34.java.snapshot",
+      "afterSha256": "68e9281bdae3f644e13c117898831a9f74e54232f21251bd62973ed9ef30726d",
+      "batch": "B12",
+      "beforeSha256": "4bb218b201ef0df647b307ac0e3d71d47f2d20424beb0b521c2f4d941adbcde6",
+      "issue": "R343-006",
+      "originals": {
+        "B12-proof-through-registration-198/RetentionMigrationR34.java.snapshot": "68e9281bdae3f644e13c117898831a9f74e54232f21251bd62973ed9ef30726d",
+        "B12-proof-through-registration-198/preserve-retention-proof-through-registration.patch": "da43d6048f58f65117115b954adddba78a8354651899b8967d28d7df986c8fc5",
+        "B12-proof-through-registration-198/retention-registration-preimage.log": "ab7878efcdc7e32413bccae0b3b4a83380660cc89ddc950a5f24f234cac87f03"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
+      "reason": "The signed rerun crossed INSTALL/8 and produced VERIFY receipts, then the live owner repeated WAIT_DEPENDENCY with the verification cursor rearmed. Keep the single existing schema turn from checkpoint preparation through the durable registration that consumes the verified retention plan; retain detailed typed dependency and verified startup originals.",
+      "role": "NUMERIC"
     }
   ],
   "schema": "STARCORE_FIELD173_SOURCE_CORRECTIONS_1"

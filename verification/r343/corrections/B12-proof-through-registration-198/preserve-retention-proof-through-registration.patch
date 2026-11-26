@@ -1,0 +1,108 @@
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+index 0b4e4459..927e89d0 100644
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+@@ -121,7 +121,16 @@ public final class R26RuntimeDeviceTest {
+                     Map<String, Object> journal = StartupStageJournalR341.snapshot(app, "research");
+                     Object journalFrames = journal.get("frames");
+                     List<?> frames = journalFrames instanceof List ? (List<?>) journalFrames : List.of();
+-                    for (Object observed : frames.subList(Math.max(0, frames.size() - 8), frames.size())) {
++                    int last = Math.max(0, frames.size() - 8);
++                    List<Object> recent = new ArrayList<>(frames.subList(last, frames.size()));
++                    int errors = 0;
++                    for (int i = last - 1; i >= 0 && errors < 4; i--) {
++                        if (frames.get(i) instanceof Map && ((Map<?, ?>) frames.get(i)).containsKey("failureOriginalSha256")) {
++                            recent.add(frames.get(i));
++                            errors++;
++                        }
++                    }
++                    for (Object observed : recent) {
+                         System.out.println("R343_STARTUP_JOURNAL " + JsonR27.write(observed));
+                         if (observed instanceof Map) {
+                             Object hash = ((Map<?, ?>) observed).get("failureOriginalSha256");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java
+index f4e9b8ab..81bc2f33 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java
+@@ -271,11 +271,11 @@ public final class RetentionMigrationR34 {
+     }
+ 
+     static String prepare(DbStore store, String ownerEpoch, java.util.function.BooleanSupplier cancelled, Runnable yield,
+-            com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt) {
++            com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt,
++            DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn) {
+         DatabaseCoordinator owner=store.coordinatorForResearchR952();
+         try (SQLiteDatabase read = SQLiteDatabase.openDatabase(store.readable().getPath(), null,
+-                    SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+-                DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn = owner.startupRetentionTurnR343()) {
++                    SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
+             Writer writer=(context,task)->owner.runAtomicWriteOrThrowF01(context,db->{task.run(db);return 0;});
+             Session session=null;
+             long nextJournalSample = 0L;
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+index aaa2334e..8eaa04c0 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+@@ -574,7 +574,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+         throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT", "SOURCE_GUARD_UNFINISHED");
+     }
+ 
+-    private String prepareStartupSchemaR34() {
++    private String prepareStartupSchemaR34(DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn) {
+         StartupCheckpointIdentityR31.Prepared checkpoint = startupStage(StartupStageJournalR341.Stage.CHECKPOINT_PREPARE,
+                 () -> {
+                     installCheckpointReaderPrerequisitesR341();
+@@ -611,7 +611,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+                 return 0;
+             }));
+         String retentionPlan = startupStage(StartupStageJournalR341.Stage.RETENTION_PLAN, () -> {
+-            String audited = RetentionMigrationR34.prepare(store, owner, () -> cancelled, () -> await(20), startupJournal, startupAttempt);
++            String audited = RetentionMigrationR34.prepare(store, owner, () -> cancelled, () -> await(20),
++                    startupJournal, startupAttempt, ddlTurn);
+             if (cancelled || audited == null) throw new IllegalStateException("R34_STARTUP_CANCELLED");
+             return audited;
+         });
+@@ -651,7 +652,21 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+         try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
+         catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
+         ensureTeacherBindingR342();
+-        String retentionPlan = prepareStartupSchemaR34();
++        try (DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn =
++                     store.coordinatorForResearchR952().startupRetentionTurnR343()) {
++            if (!ddlTurn.acquire()) {
++                if (Thread.currentThread().isInterrupted()) throw new IllegalStateException("R34_STARTUP_CANCELLED");
++                throw new DatabaseCoordinator.SchemaPendingR31("R34_STARTUP", "WAIT_EXISTING_LEGACY_DDL_SLICE");
++            }
++            initializeProtectedRuntimeR343(ddlTurn);
++        }
++        retentionProtectionReadyR31=true;
++        ReplayBurstSchedulerSU1.cancel(store.contextForR26());
++    }
++    private void initializeProtectedRuntimeR343(DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn) {
++        // Keep the accepted proof and the registration that consumes it in one
++        // schema turn. SQLite writes still enter their individual original transactions.
++        String retentionPlan = prepareStartupSchemaR34(ddlTurn);
+         SchemaDomainCoordinatorR926.UpgradeSpecR31 original=startupUpgradeSpecR31(owner,null);
+         SchemaDomainCoordinatorR926.UpgradeSpecR31 upgradeR31=new SchemaDomainCoordinatorR926.UpgradeSpecR31(
+             original.id,original.revision,original.contractHash,original.roots,original.requiredFreeBytes,
+@@ -681,8 +696,6 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+             registrationVerifiedR341 = true;
+             return null;
+         });
+-        retentionProtectionReadyR31=true;
+-        ReplayBurstSchedulerSU1.cancel(store.contextForR26());
+     }
+     private static void registerCapability(SQLiteDatabase db,String id,String kind){
+         String implementation=kind.equals("EXPERT")?ExpertWorkshopR26.implementation(id):FamilyRegistryR26.implementation(id);String state=implementation.isEmpty()?"BLOCKED":"EXECUTABLE";
+@@ -797,7 +810,10 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+                         cancelled = true;
+                         break;
+                     }
+-                    android.util.Log.w("STARCORE_R26", "initialization " + startupOutcome + " " + disposition.category);
++                    RuntimeFaultEvidenceR31 startupFault = RuntimeFaultEvidenceR31.capture(retry, "R26_STARTUP");
++                    android.util.Log.w("STARCORE_R26", "initialization " + startupOutcome + " " + disposition.category
++                            + " " + startupFault.operation + "/" + startupFault.phase + " "
++                            + RuntimeFaultEvidenceR31.clean(startupFault.causeChainJson, 800));
+                     // Preserve the next owner retry of the guarded, idempotent startup steps.
+                     await(startupOutcome == StartupStageJournalR341.Outcome.WAIT_RESOURCE
+                             || startupOutcome == StartupStageJournalR341.Outcome.MISSING_SOURCE ? 5000L : 500L);

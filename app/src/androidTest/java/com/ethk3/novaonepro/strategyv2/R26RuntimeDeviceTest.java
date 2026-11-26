@@ -121,7 +121,16 @@ public final class R26RuntimeDeviceTest {
                     Map<String, Object> journal = StartupStageJournalR341.snapshot(app, "research");
                     Object journalFrames = journal.get("frames");
                     List<?> frames = journalFrames instanceof List ? (List<?>) journalFrames : List.of();
-                    for (Object observed : frames.subList(Math.max(0, frames.size() - 8), frames.size())) {
+                    int last = Math.max(0, frames.size() - 8);
+                    List<Object> recent = new ArrayList<>(frames.subList(last, frames.size()));
+                    int errors = 0;
+                    for (int i = last - 1; i >= 0 && errors < 4; i--) {
+                        if (frames.get(i) instanceof Map && ((Map<?, ?>) frames.get(i)).containsKey("failureOriginalSha256")) {
+                            recent.add(frames.get(i));
+                            errors++;
+                        }
+                    }
+                    for (Object observed : recent) {
                         System.out.println("R343_STARTUP_JOURNAL " + JsonR27.write(observed));
                         if (observed instanceof Map) {
                             Object hash = ((Map<?, ?>) observed).get("failureOriginalSha256");
