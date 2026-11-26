@@ -338,7 +338,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: .github/r342-release-request.json
+          sparse-checkout: |
+            .github/r342-release-request.json
+            .github/scripts/r343-integration-probes.py
           sparse-checkout-cone-mode: false
           path: dispatch
           persist-credentials: false
@@ -452,7 +454,9 @@ jobs:
           disable-animations: true
           disk-size: 8G
           ram-size: 4096M
-          script: python3 -B app-source/tools/r342/ci_candidate_tests.py
+          script: |
+            python3 -B app-source/tools/r342/ci_candidate_tests.py
+            if [ "$STAGE" = B12 ] && [ -f app-source/release/field173_plan_binding.json ]; then python3 -B dispatch/.github/scripts/r343-integration-probes.py; fi
       - name: Build exact source, restorable history and test evidence packages
         working-directory: app-source
         run: |

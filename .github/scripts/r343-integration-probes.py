@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Run existing cross-batch probes on the same original-signed B12 APK."""
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import uuid
+
+ROOT = (Path(os.environ['GITHUB_WORKSPACE']) / 'app-source').resolve()
+sys.path.insert(0, str(ROOT/'tools/r343'))
+import run_native_field_case as native
+
+CONTRACT = native.contract
+BINDING = CONTRACT.binding
+PACKAGE = 'com.ethk3.novaonepro.'
+PROBES = (
+    ('R343-004', 'R343RuntimeRepairInstrumentedTest', 'legitimateTempCacheFlushDoesNotBlockCheckpoint', False),
+    ('R343-005', 'R343CircuitRotationInstrumentedTest', 'returningDependencyCannotExceedItsPreRotationBudget', True),
+    ('R343-009', 'R343WriterRuntimeInstrumentedTest', 'fieldBackfillResumesAfterWriterFaultReadback', True),
+    ('R343-014', 'Field173CoverageAndroidTest', 'actualSettlementAndScopedCoverageUseSeparateHashes', False),
+    ('R343-015', 'r952.R343HistoryContinuityInstrumentedTest', 'verifiedBackfillAdvancesSourceWithoutChangingFrozenReplay', True),
+    ('R343-017', 'R343CheckpointAuditPagingInstrumentedTest', 'secondPinnedSnapshotVerifiesDeferredBodiesWithoutPromotingHistoricalBytes', True),
+    ('R343-021', 'r952.R343TrainingNativeTest', 'dependencyWaitKeepsOriginalTaskAndCursor', True),
+    ('R343-023', 'r952.R343TrainingNativeTest', 'originalTerminalMissingCandidateStaysOnHold', True),
+    ('R343-026', 'r952.R343RollingNativeTest', 'cleanupContinuesPastPinnedPageWithoutErasingHeadOrActiveInput', True),
+    ('R343-026', 'r952.R343RetiredRollingOfferInstrumentedTest', 'retiredParentReleasesUnpublishedRawWithoutRetiringFormalOrQueuedOffers', True),
+    ('R343-028', 'strategyv2.R343TypedRuleDonorAndroidTest', 'selectsOnlyEligiblePersistedDevelopmentDonors', False),
+    ('R343-030', 'r952.R343TeacherDependencyInstrumentedTest', 'r343_030_teacher_wait_preserves_foundation', True),
+    ('R343-031', 'strategyv2.R343MatrixRetainedInstrumentedTest', 'r343_031_typed_matrix_readback', True),
+    ('R343-034', 'R343RealAuthorityInstrumentedTest', 'r343_034_user_disabled_rejects_real', True),
+    ('R343-040', 'Field173ChartGalleryCapture', 'galleryRefreshPreservesOriginalSourceRows', True),
+    ('R343-042', 'R343LedgerAuditInstrumentedTest', 'preservesCurrentLedgerIdentityAndRejectsBrokenEvidence', True),
+    ('R343-042', 'R343ReportCancellationInstrumentedTest', 'preservesCancellationTimeAtDurableRestartBoundary', True),
+    ('R343-043', 'R343UniqueOwnerInstrumentedTest', 'existingCanonicalRealCannotBeIssuedByASecondGate', True),
+)
+
+
+def original(directory, name, data):
+    return native.write_original(directory/name, data)
+
+
+def run_probe(directory, serial, apk, field, run_id, index, probe):
+    issue, name, method, instrumented = probe
+    cls = PACKAGE + name
+    source_path = 'app/src/androidTest/java/' + cls.replace('.', '/') + '.java'
+    case_id = f'R343-INTEGRATION-{index:02d}'
+    expected = CONTRACT.expected_scope(field, case_id, BINDING.sha(apk), run_id)
+    expected['executionId'] = uuid.uuid4().hex
+    stem = f'field173-{case_id}'
+    source = CONTRACT.committed_bytes(ROOT, field['sourceCommit'], source_path)
+    CONTRACT.require(method.encode() in source and b'@Test' in source, 'R343_PROBE_SOURCE_METHOD:' + method)
+    source_ref = original(directory, stem+'-source.java', source)
+    context_path = directory / (stem+'-context.json')
+    context = dict(expected, originalIssue=issue, sourcePath=source_path, inputSha256=source_ref['sha256'])
+    context_ref = original(directory, context_path.name, CONTRACT.canonical(context))
+    output = directory / (stem+'-output.json')
+    environment = dict(os.environ, STARCORE_FIELD173_CASE_CONTEXT=str(context_path),
+                       STARCORE_FIELD173_CANDIDATE_APK=str(apk), STARCORE_FIELD173_CASE_OUTPUT=str(output))
+    selector = cls + '#' + method
+    if instrumented:
+        argv = [sys.executable, '-B', str(ROOT/'tools/r343/run_native_field_case.py'), selector]
+    else:
+        argv = native.adb(serial, 'shell','am','instrument','-w','-r','-e','class',selector,
+                          '-e','r30Sandbox','R343_'+expected['executionId'],native.RUNNER)
+    command = original(directory, stem+'-argv.json', CONTRACT.canonical(argv))
+    try:
+        result = subprocess.run(argv, cwd=ROOT, env=environment, capture_output=True, timeout=600, check=False)
+        exit_code, stdout, stderr = result.returncode, result.stdout, result.stderr
+    except subprocess.TimeoutExpired as fault:
+        exit_code, stdout, stderr = 124, fault.stdout or b'', fault.stderr or b''
+        subprocess.run(native.adb(serial, 'shell','am','force-stop',native.PACKAGE),timeout=15,check=False)
+    stdout_ref = original(directory, stem+'-stdout.log', stdout)
+    stderr_ref = original(directory, stem+'-stderr.log', stderr)
+    failure = None
+    assertions = None
+    readback = None
+    ok = exit_code == 0 and re.search(rb'OK \(1 test\)',stdout) and not re.search(rb'FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed',stdout)
+    if not ok:
+        failure = 'ANDROID_TEST_DID_NOT_COMPLETE:' + str(exit_code)
+    elif instrumented:
+        try:
+            assertions = CONTRACT.events(stdout, expected, 1)
+            readback = {'file': output.name, 'sha256': BINDING.sha(output)}
+            CONTRACT.verify_case_output(case_id, expected, readback, CONTRACT.directory_reader(directory))
+        except (KeyError, OSError, ValueError) as fault:
+            failure = str(fault)
+    disposition = 'FAIL' if failure else 'PASS'
+    print(f'INTEGRATED_NATIVE {issue} {selector} {disposition} assertions={assertions}',flush=True)
+    if failure:
+        excerpt = (stderr + b'\n' + stdout).decode('utf-8',errors='replace').splitlines()
+        for line in [line for line in excerpt if re.search(r'Error|Exception|Expected|actual|FAILURES',line)][-6:]:
+            print(line[:500],flush=True)
+    return dict(expected, issue=issue, selector=selector, status=disposition, failure=failure,
+                assertionCount=assertions, junitTests=1 if ok else None, exitCode=exit_code,
+                source=source_ref,context=context_ref,command=command,stdout=stdout_ref,stderr=stderr_ref,readback=readback)
+
+
+def main():
+    run_temp = Path(os.environ['RUNNER_TEMP']).resolve()
+    output = run_temp/'engineering'
+    build = BINDING.read(run_temp/'build/CI_BUILD_RECEIPT.json')
+    field = CONTRACT.bound_field(ROOT, build=build)
+    CONTRACT.require(os.environ['STAGE']=='B12' and field['batch']=='B12'
+                     and build['gradleRelease']=='PASS' and build['sourceClean'] and build['sourceUnchangedDuringBuild'],
+                     'R343_INTEGRATED_NATIVE_REQUIRES_EXACT_B12_BUILD')
+    apk, = sorted((ROOT/'app/build/outputs/apk/release').glob('*.apk'))
+    apk_sha = BINDING.sha(apk)
+    run_id = os.environ['GITHUB_RUN_ID']
+    CONTRACT.require(build['apkSha256']==apk_sha and build['ciRun']==run_id, 'R343_INTEGRATED_NATIVE_BUILD_CHANGED')
+    serial = subprocess.check_output(['adb','get-serialno'], text=True, timeout=20).strip()
+    CONTRACT.require(re.fullmatch(r'emulator-[0-9]+', serial), 'R343_DISPOSABLE_ANDROID_REQUIRED')
+    native.ensure_candidate_installed(serial, apk, apk_sha)
+    result = [run_probe(output, serial, apk, field, run_id, index, probe) for index,probe in enumerate(PROBES,1)]
+    assert native.installed_apk_sha(serial) == apk_sha
+    passed = sum(row['status']=='PASS' for row in result)
+    receipt = {'schema':'STARCORE_FIELD173_INTEGRATED_NATIVE_PROBES_1','fieldRepair173':field,
+               'apkSha256':apk_sha,'buildRun':run_id,'deviceScope':'DISPOSABLE_ANDROID_API_34',
+               'originalCaseGateCoverage':'SEPARATE','passed':passed,'total':len(result),'probes':result}
+    original(output, 'r343-integrated-native-probes.json', CONTRACT.canonical(receipt))
+    CONTRACT.require(passed==len(result), 'R343_INTEGRATED_NATIVE_PROBES_FAILED:' + str(len(result)-passed))
+
+
+if __name__ == '__main__':
+    main()
