@@ -1,0 +1,72 @@
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java b/app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java
+index 0e235cba..255bd0ed 100644
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java
+@@ -14,6 +14,10 @@ import java.util.Objects;
+ public final class Field173NativeEvidence {
+     private Field173NativeEvidence() {}
+ 
++    public static java.io.File verifiedStartupFailureOriginal(Context app, String hash) throws java.io.IOException {
++        return StartupStageJournalR341.verifiedFailureOriginal(app, hash);
++    }
++
+     @FunctionalInterface
+     public interface CheckedCase {
+         void run(Context app, Checks checks) throws Exception;
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+index 184278c1..de761b37 100644
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+@@ -77,6 +77,21 @@ public final class R26RuntimeDeviceTest {
+             RuntimeCoordinatorR26 runtime = null;
+             ServiceHeartbeatStore user = new ServiceHeartbeatStore(app);
+             try {
++                // AutoFetchService's existing control loop requests the legacy owner before
++                // it starts R26. Recreate the persisted, upgraded service input without
++                // installing schema or task rows from instrumentation.
++                long schemaDeadline = SystemClock.elapsedRealtime() + 90_000L;
++                while (!store.ensureResearchSidecarR811() && SystemClock.elapsedRealtime() < schemaDeadline)
++                    SystemClock.sleep(20L);
++                DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
++                checks.require(coordinator.isR811ResearchSchemaReady(), ResearchSchemaCoordinatorR926.summary());
++                store.requestLegacySchemaMigrationR31();
++                while (!coordinator.isLegacyRuntimeSchemaReady() && SystemClock.elapsedRealtime() < schemaDeadline) {
++                    store.requestLegacySchemaMigrationR31();
++                    SystemClock.sleep(125L);
++                }
++                checks.require(coordinator.isLegacyRuntimeSchemaReady(), coordinator.startupSchemaSummary());
++
+                 long first = TargetIssueResolver.sequenceOrdinalSU1("202611260400");
+                 long start = System.currentTimeMillis() - 48L * 60_000L;
+                 List<Models.Draw> draws = new ArrayList<>();
+@@ -102,8 +117,29 @@ public final class R26RuntimeDeviceTest {
+                     if (committed > 0 || !runtime.isRunning()) break;
+                     Thread.sleep(125L);
+                 }
++                if (committed == 0) {
++                    Map<String, Object> journal = StartupStageJournalR341.snapshot(app, "research");
++                    Object journalFrames = journal.get("frames");
++                    List<?> frames = journalFrames instanceof List ? (List<?>) journalFrames : List.of();
++                    for (Object observed : frames.subList(Math.max(0, frames.size() - 8), frames.size())) {
++                        System.out.println("R343_STARTUP_JOURNAL " + JsonR27.write(observed));
++                        if (observed instanceof Map) {
++                            Object hash = ((Map<?, ?>) observed).get("failureOriginalSha256");
++                            if (hash instanceof String) {
++                                File exact = Field173NativeEvidence.verifiedStartupFailureOriginal(app, (String) hash);
++                                if (exact != null) {
++                                    String failure = new String(java.nio.file.Files.readAllBytes(exact.toPath()),
++                                            java.nio.charset.StandardCharsets.UTF_8);
++                                    System.out.println("R343_STARTUP_FAILURE_ORIGINAL " + failure);
++                                }
++                            }
++                        }
++                    }
++                    System.out.println("R343_STARTUP_HEALTH " + JsonR27.write(runtime.healthSnapshotR31().asMap()));
++                }
+                 checks.require(committed > 0, "Normal R26 worker never committed its continuity turn: " + reason
+-                        + " / " + ResearchSchemaCoordinatorR926.summary());
++                        + " / " + ResearchSchemaCoordinatorR926.summary()
++                        + " / error=" + store.getState("r26_runtime_error", ""));
+                 checks.require(scalar(database, "SELECT count(*) FROM v57_research_task_r967 WHERE kind='MAINTENANCE'"
+                         + " AND status='COMPLETED'") > 0, "CP12 produced a durable maintenance receipt, independent of the outer claim");
+                 checks.equal(1L, scalar(database, "SELECT count(*) FROM r26_session WHERE user_enabled=1 AND state='RUNNING'"),

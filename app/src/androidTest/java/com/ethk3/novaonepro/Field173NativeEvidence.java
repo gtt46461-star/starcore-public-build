@@ -14,6 +14,10 @@ import java.util.Objects;
 public final class Field173NativeEvidence {
     private Field173NativeEvidence() {}
 
+    public static java.io.File verifiedStartupFailureOriginal(Context app, String hash) throws java.io.IOException {
+        return StartupStageJournalR341.verifiedFailureOriginal(app, hash);
+    }
+
     @FunctionalInterface
     public interface CheckedCase {
         void run(Context app, Checks checks) throws Exception;
