@@ -372,6 +372,9 @@ jobs:
           fi
           git -C app-source merge-base --is-ancestor eb8f82a8bda8db22f1f122095217132f07053bcb "$source"
           git -C app-source checkout -q --detach "$source"
+          if [[ -f app-source/tools/r343/run_report_resume_probe.py ]]; then
+            printf 'report_resume=true\n' >> "$GITHUB_OUTPUT"
+          fi
           jq -e --arg name "R34.2-$stage-" '.versionCode > 577311152 and (.versionName | startswith($name))' app-source/release/release_manifest.json
           if [[ -f app-source/release/field173_plan_binding.json ]]; then
             git -C app-source merge-base --is-ancestor 4d1de9d83692635b5c5ce39144fece1c8a31c8ac "$source"
@@ -446,6 +449,17 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+      - name: Resume a real report with its original snapshot on the signed APK
+        if: env.STAGE == 'B12' && steps.request.outputs.report_resume == 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 8G
+          ram-size: 4096M
+          script: python3 -B dispatch/.github/scripts/r343-integration-probes.py --report-resume
       - name: Verify R26 startup and the two predraw regressions on the original-signed APK
         if: env.STAGE == 'B12'
         uses: reactivecircus/android-emulator-runner@v2
@@ -499,6 +513,7 @@ jobs:
             ${{ runner.temp }}/build/gradle-build.log
             ${{ runner.temp }}/engineering/
             ${{ runner.temp }}/engineering-preflight/
+            ${{ runner.temp }}/engineering-report-resume/
           if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: ${{ always() && steps.request.outputs.source != '' }}
