@@ -1,0 +1,242 @@
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/ShadowCycleAndroidTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/ShadowCycleAndroidTest.java
+index 1be50a74..fa064f20 100644
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/ShadowCycleAndroidTest.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/ShadowCycleAndroidTest.java
+@@ -67,6 +67,74 @@ public final class ShadowCycleAndroidTest {
+         }
+     }
+ 
++    @Test public void canonicalCommitReopensCaptureOnTheSameDraw() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            DbStore store = new DbStore(app);
++            try {
++                long schemaDeadline = SystemClock.elapsedRealtime() + 60_000L;
++                while (!store.ensureResearchSidecarR811()) {
++                    checks.require(SystemClock.elapsedRealtime() < schemaDeadline, ResearchSchemaCoordinatorR926.summary());
++                    SystemClock.sleep(20L);
++                }
++                ArrayList<Models.Draw> history = new ArrayList<>();
++                long wall = System.currentTimeMillis();
++                for (int row = 1; row <= 240; row++) history.add(draw(row, wall - (240 - row) * 60_000L));
++                Models.Draw base = history.get(history.size() - 1);
++                String target = TargetIssueResolver.next(base.issue).targetIssue;
++                checks.equal(240, store.saveDraws(history), "The production history writer committed the fixture");
++                checks.equal("", ResearchCaptureQueueR946.recover(store), "No snapshot exists before normal analysis");
++
++                String laneStatus = "";
++                for (int step = 0; step < 4 && !laneStatus.contains("NO_PENDING_PREDRAW_SURFACE"); step++) {
++                    laneStatus = ResearchLearningContinuityR912.pulse(store, 1000L).status;
++                    SystemClock.sleep(70L);
++                }
++                checks.require(laneStatus.contains("NO_PENDING_PREDRAW_SURFACE"),
++                        "Continuity reviewed lane 0 before the canonical write: " + laneStatus);
++                try (Cursor cursor = store.readable().rawQuery("SELECT served_issue,active_task_id FROM "
++                        + ResearchTaskQueueR967.LANE + " WHERE lane=0", null)) {
++                    checks.require(cursor.moveToFirst(), "The closed lane has a durable cursor");
++                    checks.equal(base.issue, cursor.getString(0), "The latest draw has already been served");
++                    checks.equal("", cursor.getString(1), "The first review no longer owns a task");
++                }
++
++                predict(store, history, target);
++                checks.equal(base.issue, store.getLatestDraw().issue, "Canonical commit does not advance the draw");
++                checks.equal(target, ResearchCaptureQueueR946.recover(store), "The newly committed snapshot is pending");
++                checks.equal(0L, count(store, FixedResearchWindowR932.CHAMPION, target), "Research capture has not yet run");
++
++                String capture = "";
++                for (int step = 0; step < 12 && count(store, FixedResearchWindowR932.CHAMPION, target) == 0; step++) {
++                    capture = ResearchLearningContinuityR912.pulse(store, 1000L).status;
++                    SystemClock.sleep(100L);
++                }
++                checks.equal(1L, count(store, FixedResearchWindowR932.CHAMPION, target),
++                        "The resumed lane durably captured the exact target before the draw: " + capture);
++                checks.equal(0L, count(store, DbHelper.TABLE_R35_OOS_LABEL, target), "No actual draw has been supplied");
++                checks.equal(0L, count(store, DbHelper.TABLE_TRADES, target), "Synthetic capture cannot authorize REAL");
++                String hash;
++                long cutoff = TargetIssueResolver.predrawDeadlineWallR20261008(base);
++                try (Cursor cursor = store.readable().rawQuery("SELECT prediction_hash,frozen_at FROM "
++                        + FixedResearchWindowR932.CHAMPION + " WHERE target_issue=?", new String[]{target})) {
++                    checks.require(cursor.moveToFirst(), "Frozen research result is readable");
++                    hash = cursor.getString(0);
++                    checks.require(hash.length() == 64 && cursor.getLong(1) < cutoff, "Frozen identity precedes the cutoff");
++                }
++                Models.Draw actual = draw(241, System.currentTimeMillis());
++                checks.equal(1, store.saveDraws(Collections.singletonList(actual)), "The exact synthetic draw is durable");
++                checks.equal("", ResearchCaptureQueueR946.recover(store), "The exact draw closes capture eligibility");
++                checks.database("SYNTHETIC_ANDROID_OWNER", target, cutoff,
++                        RuntimeObservationScopeR341.databaseIdentity(store.readable()));
++                checks.record("baseIssue", base.issue);
++                checks.record("predrawHash", hash);
++                checks.record("durableLaneBeforeCanonical", laneStatus);
++                checks.record("captureAfterCanonical", capture);
++            } finally {
++                store.close();
++            }
++        });
++    }
++
+     @Test public void eachPredrawSettlesOnceAndFeedsTheNextCycle() throws Exception {
+         Context context = ApplicationProvider.getApplicationContext();
+         // Application startup schedules the real watchdog even for instrumentation. Use the
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+index 5b7eb8e4..d66ed9b6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+@@ -4542,6 +4542,7 @@ public final class AutoFetchService extends Service {
+     private void postResearchCaptureR907(final String requestedTarget, final int attempt) {
+         if (!running || userRequestedStopV5 || store == null) return;
+         if (researchOwnedByCoordinatorR30()) { // R30-B01-07: same shared research tables as the R26 tasks
++            com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.wake();
+             try { store.setState("r946_research_capture_status", "YIELD_R30_RESEARCH_OWNED_BY_R26:" + safe(requestedTarget)); } catch (Throwable ignored) {}
+             return;
+         }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java b/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java
+index 7234ed65..7b4f57b1 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java
+@@ -83,18 +83,17 @@ public final class ResearchCaptureQueueR946 {
+         boolean boundInstalled=false;
+         try(Cursor schema=db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN('research_bound_cohort_r80','research_bound_source_r80','research_bound_input_r80')",null)){boundInstalled=schema.moveToFirst()&&schema.getInt(0)==3;}
+         String jobs=DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB,plan=GlobalResearchScheduleR932.PLAN,task=GlobalResearchScheduleR932.TASK,capture=ResearchCaptureLedgerR932.TABLE;
+-        return "SELECT j.target_issue FROM "+jobs+" j WHERE j.snapshot_blob IS NOT NULL"
+-                +" AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
+-                +" AND NOT EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 AND d.issue>=j.target_issue)"
++        // Restrict the primary-key range before checking candidate/roster dependencies.
++        return "SELECT j.target_issue FROM "+jobs+" j WHERE j.target_issue>COALESCE((SELECT d.issue FROM "
++                +DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 ORDER BY d.issue DESC LIMIT 1),'')"
++                +" AND j.snapshot_blob IS NOT NULL AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
+                 +" AND (EXISTS(SELECT 1 FROM "+GlobalResearchScheduleR932.RESERVATION_CP11+" r"
+                 +" WHERE r.state IN('RESERVED','ACTIVE') AND r.next_issue=j.target_issue)"
+                 +(boundInstalled?" OR EXISTS(SELECT 1 FROM "+com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.COHORT+" b WHERE b.state IN('CAPTURING','READY','PROPOSED','REGISTERED') AND b.first_issue<=j.target_issue AND ((SELECT COUNT(*) FROM "+com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.SOURCE+" bs WHERE bs.cohort_hash=b.cohort_hash AND bs.target_issue=j.target_issue)<2 OR (b.state='CAPTURING' AND NOT EXISTS(SELECT 1 FROM "+com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.INPUT+" bi WHERE bi.cohort_hash=b.cohort_hash AND bi.target_issue=j.target_issue))))":"")
+                 +" OR NOT EXISTS(SELECT 1 FROM "+plan+" p WHERE p.target_issue=j.target_issue)"
+                 +" OR EXISTS(SELECT 1 FROM "+task+" t WHERE t.target_issue=j.target_issue"
+-                +" AND t.selected=1 AND NOT EXISTS(SELECT 1 FROM "+capture+" e WHERE e.target_issue=t.target_issue AND e.candidate_key=t.candidate_key AND "+completedCapture("t","e")+")))"
+-                +" OR (j.snapshot_blob IS NOT NULL AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
+-                +" AND NOT EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 AND d.issue>=j.target_issue)"
+-                +" AND EXISTS(SELECT 1 FROM r952_candidate nc JOIN "+ResearchEvaluationRunR967.RUN+" nr ON nr.learner_id=nc.candidate_id"
++                +" AND t.selected=1 AND NOT EXISTS(SELECT 1 FROM "+capture+" e WHERE e.target_issue=t.target_issue AND e.candidate_key=t.candidate_key AND "+completedCapture("t","e")+"))"
++                +" OR EXISTS(SELECT 1 FROM r952_candidate nc JOIN "+ResearchEvaluationRunR967.RUN+" nr ON nr.learner_id=nc.candidate_id"
+                 +" WHERE nc.ast NOT LIKE 'AST3:%' AND nc.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("nr.rule_hash")
+                 +" AND nr.first_issue=(SELECT MAX(nr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" nr2 WHERE nr2.learner_id=nc.candidate_id AND nr2.first_issue<=j.target_issue)"
+                 +" AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw np WHERE np.candidate_id=nc.candidate_id AND np.target_issue=j.target_issue)))"
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+index 5c7a2aa6..389cbfeb 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+@@ -27,7 +27,7 @@ public final class ResearchLearningContinuityR912 {
+         try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){return c.moveToFirst()?c.getString(0):"";}
+     }
+     /** One active review per lane; desired watermark may advance, immutable task inputs may not. */
+-    static void ensureDesired(SQLiteDatabase db,String issue,boolean unservedDev,boolean unservedOutbox) {
++    static void ensureDesired(SQLiteDatabase db,String issue,boolean unservedDev,boolean unservedOutbox,boolean unservedCapture) {
+         if(!db.inTransaction()||!TargetIssueResolver.isValid(issue))throw new IllegalArgumentException("R967_LANE_TRANSACTION_OR_ISSUE");
+         ResearchTaskQueueR967.schema(db);
+         // R971: two bounded reads, not 22 repetitions of insert/select/update on every pulse.
+@@ -59,7 +59,8 @@ public final class ResearchLearningContinuityR912 {
+                 if(!active.equals(head[3]))db.execSQL("UPDATE "+ResearchTaskQueueR967.LANE+" SET active_task_id=? WHERE lane=?",new Object[]{active,lane});
+                 continue;
+             }
+-            boolean due=served.compareTo(desired)<0||(lane==18&&unservedDev)||(lane==13&&unservedOutbox)
++            boolean due=served.compareTo(desired)<0||(lane==0&&unservedCapture)
++                    ||(lane==18&&unservedDev)||(lane==13&&unservedOutbox)
+                     ||(lane==6&&windowDue)||(lane==9&&publicationDue)||(lane==7&&moduleDue)||(lane==13&&foundationDue);
+             if(!due)continue;
+             if(next<0||next==Long.MAX_VALUE)throw new IllegalStateException("R967_LANE_SEQUENCE_EXHAUSTED");
+@@ -77,6 +78,15 @@ public final class ResearchLearningContinuityR912 {
+     }
+     static ResearchTaskQueueR967.Lease claimNext(SQLiteDatabase db,long now) { return claimNext(db,now,false); }
+     static ResearchTaskQueueR967.Lease claimNext(SQLiteDatabase db,long now,boolean prioritizeTraining) {
++        return claimNext(db,now,prioritizeTraining,false);
++    }
++    private static ResearchTaskQueueR967.Lease claimNext(SQLiteDatabase db,long now,
++            boolean prioritizeTraining,boolean prioritizeCapture) {
++        if(prioritizeCapture) {
++            ResearchTaskQueueR967.Lease capture=ResearchTaskQueueR967.claimFor(
++                    db,ResearchTaskQueueR967.MAINTENANCE,"lane:0",now);
++            if(capture!=null)return capture;
++        }
+         int start=0,turn=0;
+         try(Cursor c=db.rawQuery("SELECT state_key,state_value FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key IN (?,?)",new String[]{NEXT_LANE,"r971_maintenance_turn"})){
+             while(c.moveToNext())if(NEXT_LANE.equals(c.getString(0)))start=Integer.parseInt(c.getString(1));else turn=Integer.parseInt(c.getString(1));
+@@ -218,7 +228,8 @@ public final class ResearchLearningContinuityR912 {
+             return (exists(db,FixedResearchWindowR932.WINDOW)&&FixedResearchWindowR932.hasRunnableWork(db))
+                     ||(exists(db,FixedResearchWindowR932.WINDOW)&&FixedWindowCertificatePublisherR932.hasRunnableWork(db))
+                     ||(exists(db,DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB)&&ModuleAblationR932.hasRunnableWork(db))
+-                    ||hasUnfinishedFoundationCP12(db)||pendingOnline(store)||ResearchDynamicBootstrapR922.hasUnservedTraining(store);
++                    ||!pendingCaptureTarget(store).isEmpty()||hasUnfinishedFoundationCP12(db)
++                    ||pendingOnline(store)||ResearchDynamicBootstrapR922.hasUnservedTraining(store);
+         // A transient queue read failure cannot prove there is no durable work.
+         // Retain the same delayed callback; nextContinuationDelayMs backs off on errors.
+         }catch(Exception error){return true;}
+@@ -257,8 +268,16 @@ public final class ResearchLearningContinuityR912 {
+             ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
+             if (!gate.passed) return Result.fail("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
+             final boolean dev=ResearchDynamicBootstrapR922.hasUnservedTraining(store),online=pendingOnline(store);
++            // The canonical snapshot may commit after lane 0 served this same draw.
++            // Reopen only for a durable, still-unserved target and share time with learning.
++            final String captureTarget=pendingCaptureTarget(store);
++            final boolean captureDue=!captureTarget.isEmpty();
++            final boolean captureFirst=captureDue&&ResearchCaptureQueueR946.claimCapturePriority(store,captureTarget);
+             final ResearchTaskQueueR967.Lease task=store.coordinatorR36().runAtomicWrite("R967_LANE_CLAIM",new DatabaseCoordinator.WriteCallable<ResearchTaskQueueR967.Lease>() {
+-                public ResearchTaskQueueR967.Lease call(SQLiteDatabase db){ensureDesired(db,issue,dev,online);return claimNext(db,System.currentTimeMillis(),online||dev||hasLabelLane(db));}
++                public ResearchTaskQueueR967.Lease call(SQLiteDatabase db) {
++                    ensureDesired(db,issue,dev,online,captureDue);
++                    return claimNext(db,System.currentTimeMillis(),online||dev||hasLabelLane(db),captureFirst);
++                }
+             },null);
+             if(task==null)return Result.fail("PERIOD_PENDING|NO_READY_LEASE|watermark="+issue);
+             final int lane=Integer.parseInt(task.candidate.substring(5));
+@@ -378,31 +397,30 @@ public final class ResearchLearningContinuityR912 {
+         if(store==null)return PredrawCapture.none("STORE_NULL");
+         if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())
+             return PredrawCapture.none("YIELD_P0_PRESSURE");
+-        PendingSnapshot pending=loadPendingSnapshot(store);
+-        if(pending==null)return PredrawCapture.none("NO_PENDING_PREDRAW_SURFACE");
++        String target=pendingCaptureTarget(store);
++        if(target.isEmpty())return PredrawCapture.none("NO_PENDING_PREDRAW_SURFACE");
+         ResearchPredrawCaptureR923.Result capture=
+-                ResearchPredrawCaptureR923.captureTarget(store,pending.target,budgetMs);
++                ResearchPredrawCaptureR923.captureTarget(store,target,budgetMs);
+         String status=capture.canonical();
+         try{
+             store.setState("r914_research_predraw_recovery_status",status);
+-            store.setState("r914_research_predraw_recovery_target",pending.target);
++            store.setState("r914_research_predraw_recovery_target",target);
+             store.setState("r914_research_predraw_recovery_at",String.valueOf(System.currentTimeMillis()));
+         }catch(Throwable ignore){}
+-        return new PredrawCapture(capture.success,status,pending.target,capture.formulas,
++        return new PredrawCapture(capture.success,status,target,capture.formulas,
+                 capture.algorithms,capture.genesisAssets,capture.tinyDeep);
+     }
+ 
+-    private static PendingSnapshot loadPendingSnapshot(DbStore store){
+-        // R950: one durable definition of “capture still pending”. The old lane independently
+-        // searched every globally active asset and could repeatedly reopen a target that the
+-        // immutable staged roster had already completed (or that was never admitted). Reuse the
+-        // canonical queue recovery predicate so watchdog and continuity cannot disagree.
+-        try {
+-            String target=ResearchCaptureQueueR946.recover(store);
+-            return TargetIssueResolver.isValid(target) ? new PendingSnapshot(target,null,"") : null;
+-        } catch (Throwable unavailable) {
+-            return null;
+-        }
++    private static String pendingCaptureTarget(DbStore store) {
++        // Use the canonical recovery predicate for both work admission and execution.
++        String target=ResearchCaptureQueueR946.recover(store);
++        if(!TargetIssueResolver.isValid(target))return "";
++        // A late upstream response can leave the exact draw absent past the cutoff.
++        // Keep the recorded miss and wait for a new target instead of reopening it.
++        if(target.equals(store.getState("r914_research_predraw_recovery_target",""))
++                &&store.getState("r914_research_predraw_recovery_status","")
++                        .contains("|status=TARGET_DEADLINE_PASSED_NO_RETROACTIVE_CAPTURE|"))return "";
++        return target;
+     }
+ 
+     private static long remaining(long deadline){return Math.max(100L,deadline-TimeSourceR811.monoNowMs());}
+@@ -411,7 +429,6 @@ public final class ResearchLearningContinuityR912 {
+     private static int algorithmPending(DbStore s){return scalar(s,"SELECT COUNT(1) FROM "+DbHelper.TABLE_R908_ALGORITHM_PREDRAW+" a WHERE hit_label=-1 AND "+AlgorithmProofRecoveryR948.eligible("a.genome_id","a.target_issue","a.record_hash")+" AND EXISTS(SELECT 1 FROM "+DrawDependencyInputCP12.SOURCE+" d WHERE d.issue=a.target_issue AND d.dirty=0)");}
+     private static int scalar(DbStore s,String sql){Cursor c=null;try{c=BudgetedQueryR927.query(s.readable(),sql,null);return c.moveToFirst()?c.getInt(0):0;}finally{if(c!=null)c.close();}}
+     private static String safe(String x){return x==null?"":x.replace('|','_').trim();}
+-    private static final class PendingSnapshot{final String target,hash;final byte[]blob;PendingSnapshot(String t,byte[]b,String h){target=t;blob=b;hash=h;}}
+     public static final class PredrawCapture{public final boolean success;public final String status,target,tinyDeep;public final int formulas,algorithms,genesisAssets;PredrawCapture(boolean ok,String s,String t,int f,int a,int g,String d){success=ok;status=s;target=t;formulas=f;algorithms=a;genesisAssets=g;tinyDeep=d;}static PredrawCapture none(String s){return new PredrawCapture(false,s,"",0,0,0,"");}}
+     public static final class Result{
+         public final boolean success;

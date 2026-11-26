@@ -4542,6 +4542,7 @@ public final class AutoFetchService extends Service {
     private void postResearchCaptureR907(final String requestedTarget, final int attempt) {
         if (!running || userRequestedStopV5 || store == null) return;
         if (researchOwnedByCoordinatorR30()) { // R30-B01-07: same shared research tables as the R26 tasks
+            com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.wake();
             try { store.setState("r946_research_capture_status", "YIELD_R30_RESEARCH_OWNED_BY_R26:" + safe(requestedTarget)); } catch (Throwable ignored) {}
             return;
         }

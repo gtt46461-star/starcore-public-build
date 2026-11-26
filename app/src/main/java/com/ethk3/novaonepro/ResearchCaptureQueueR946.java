@@ -83,18 +83,17 @@ public final class ResearchCaptureQueueR946 {
         boolean boundInstalled=false;
         try(Cursor schema=db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN('research_bound_cohort_r80','research_bound_source_r80','research_bound_input_r80')",null)){boundInstalled=schema.moveToFirst()&&schema.getInt(0)==3;}
         String jobs=DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB,plan=GlobalResearchScheduleR932.PLAN,task=GlobalResearchScheduleR932.TASK,capture=ResearchCaptureLedgerR932.TABLE;
-        return "SELECT j.target_issue FROM "+jobs+" j WHERE j.snapshot_blob IS NOT NULL"
-                +" AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
-                +" AND NOT EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 AND d.issue>=j.target_issue)"
+        // Restrict the primary-key range before checking candidate/roster dependencies.
+        return "SELECT j.target_issue FROM "+jobs+" j WHERE j.target_issue>COALESCE((SELECT d.issue FROM "
+                +DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 ORDER BY d.issue DESC LIMIT 1),'')"
+                +" AND j.snapshot_blob IS NOT NULL AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
                 +" AND (EXISTS(SELECT 1 FROM "+GlobalResearchScheduleR932.RESERVATION_CP11+" r"
                 +" WHERE r.state IN('RESERVED','ACTIVE') AND r.next_issue=j.target_issue)"
                 +(boundInstalled?" OR EXISTS(SELECT 1 FROM "+com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.COHORT+" b WHERE b.state IN('CAPTURING','READY','PROPOSED','REGISTERED') AND b.first_issue<=j.target_issue AND ((SELECT COUNT(*) FROM "+com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.SOURCE+" bs WHERE bs.cohort_hash=b.cohort_hash AND bs.target_issue=j.target_issue)<2 OR (b.state='CAPTURING' AND NOT EXISTS(SELECT 1 FROM "+com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.INPUT+" bi WHERE bi.cohort_hash=b.cohort_hash AND bi.target_issue=j.target_issue))))":"")
                 +" OR NOT EXISTS(SELECT 1 FROM "+plan+" p WHERE p.target_issue=j.target_issue)"
                 +" OR EXISTS(SELECT 1 FROM "+task+" t WHERE t.target_issue=j.target_issue"
-                +" AND t.selected=1 AND NOT EXISTS(SELECT 1 FROM "+capture+" e WHERE e.target_issue=t.target_issue AND e.candidate_key=t.candidate_key AND "+completedCapture("t","e")+")))"
-                +" OR (j.snapshot_blob IS NOT NULL AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
-                +" AND NOT EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 AND d.issue>=j.target_issue)"
-                +" AND EXISTS(SELECT 1 FROM r952_candidate nc JOIN "+ResearchEvaluationRunR967.RUN+" nr ON nr.learner_id=nc.candidate_id"
+                +" AND t.selected=1 AND NOT EXISTS(SELECT 1 FROM "+capture+" e WHERE e.target_issue=t.target_issue AND e.candidate_key=t.candidate_key AND "+completedCapture("t","e")+"))"
+                +" OR EXISTS(SELECT 1 FROM r952_candidate nc JOIN "+ResearchEvaluationRunR967.RUN+" nr ON nr.learner_id=nc.candidate_id"
                 +" WHERE nc.ast NOT LIKE 'AST3:%' AND nc.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("nr.rule_hash")
                 +" AND nr.first_issue=(SELECT MAX(nr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" nr2 WHERE nr2.learner_id=nc.candidate_id AND nr2.first_issue<=j.target_issue)"
                 +" AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw np WHERE np.candidate_id=nc.candidate_id AND np.target_issue=j.target_issue)))"

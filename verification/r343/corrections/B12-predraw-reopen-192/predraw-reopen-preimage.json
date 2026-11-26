@@ -1,0 +1,10 @@
+{
+  "boundary": "After a successful lane 0 NO_PENDING_PREDRAW_SURFACE review, a valid canonical snapshot can become durable for the same base draw.",
+  "nativeRegression": "ShadowCycleAndroidTest#canonicalCommitReopensCaptureOnTheSameDraw",
+  "preimageCommit": "165f93135b5ca908b34802b523e01db049e3621d",
+  "sourceProof": {
+    "canonical write": "V51Repository inserts the exact immutable deferred snapshot in the normal canonical transaction.",
+    "frozen cutoff": "ResearchPredrawCaptureR923 retains its exact target, source, wall deadline and draw-existence guards.",
+    "missed work": "ensureDesired had no lane-zero cause beyond an advancing draw; AutoFetchService defers directly to the running R26 owner."
+  }
+}

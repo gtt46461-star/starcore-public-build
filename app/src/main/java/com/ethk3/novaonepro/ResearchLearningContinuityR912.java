@@ -27,7 +27,7 @@ public final class ResearchLearningContinuityR912 {
         try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){return c.moveToFirst()?c.getString(0):"";}
     }
     /** One active review per lane; desired watermark may advance, immutable task inputs may not. */
-    static void ensureDesired(SQLiteDatabase db,String issue,boolean unservedDev,boolean unservedOutbox) {
+    static void ensureDesired(SQLiteDatabase db,String issue,boolean unservedDev,boolean unservedOutbox,boolean unservedCapture) {
         if(!db.inTransaction()||!TargetIssueResolver.isValid(issue))throw new IllegalArgumentException("R967_LANE_TRANSACTION_OR_ISSUE");
         ResearchTaskQueueR967.schema(db);
         // R971: two bounded reads, not 22 repetitions of insert/select/update on every pulse.
@@ -59,7 +59,8 @@ public final class ResearchLearningContinuityR912 {
                 if(!active.equals(head[3]))db.execSQL("UPDATE "+ResearchTaskQueueR967.LANE+" SET active_task_id=? WHERE lane=?",new Object[]{active,lane});
                 continue;
             }
-            boolean due=served.compareTo(desired)<0||(lane==18&&unservedDev)||(lane==13&&unservedOutbox)
+            boolean due=served.compareTo(desired)<0||(lane==0&&unservedCapture)
+                    ||(lane==18&&unservedDev)||(lane==13&&unservedOutbox)
                     ||(lane==6&&windowDue)||(lane==9&&publicationDue)||(lane==7&&moduleDue)||(lane==13&&foundationDue);
             if(!due)continue;
             if(next<0||next==Long.MAX_VALUE)throw new IllegalStateException("R967_LANE_SEQUENCE_EXHAUSTED");
@@ -77,6 +78,15 @@ public final class ResearchLearningContinuityR912 {
     }
     static ResearchTaskQueueR967.Lease claimNext(SQLiteDatabase db,long now) { return claimNext(db,now,false); }
     static ResearchTaskQueueR967.Lease claimNext(SQLiteDatabase db,long now,boolean prioritizeTraining) {
+        return claimNext(db,now,prioritizeTraining,false);
+    }
+    private static ResearchTaskQueueR967.Lease claimNext(SQLiteDatabase db,long now,
+            boolean prioritizeTraining,boolean prioritizeCapture) {
+        if(prioritizeCapture) {
+            ResearchTaskQueueR967.Lease capture=ResearchTaskQueueR967.claimFor(
+                    db,ResearchTaskQueueR967.MAINTENANCE,"lane:0",now);
+            if(capture!=null)return capture;
+        }
         int start=0,turn=0;
         try(Cursor c=db.rawQuery("SELECT state_key,state_value FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key IN (?,?)",new String[]{NEXT_LANE,"r971_maintenance_turn"})){
             while(c.moveToNext())if(NEXT_LANE.equals(c.getString(0)))start=Integer.parseInt(c.getString(1));else turn=Integer.parseInt(c.getString(1));
@@ -218,7 +228,8 @@ public final class ResearchLearningContinuityR912 {
             return (exists(db,FixedResearchWindowR932.WINDOW)&&FixedResearchWindowR932.hasRunnableWork(db))
                     ||(exists(db,FixedResearchWindowR932.WINDOW)&&FixedWindowCertificatePublisherR932.hasRunnableWork(db))
                     ||(exists(db,DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB)&&ModuleAblationR932.hasRunnableWork(db))
-                    ||hasUnfinishedFoundationCP12(db)||pendingOnline(store)||ResearchDynamicBootstrapR922.hasUnservedTraining(store);
+                    ||!pendingCaptureTarget(store).isEmpty()||hasUnfinishedFoundationCP12(db)
+                    ||pendingOnline(store)||ResearchDynamicBootstrapR922.hasUnservedTraining(store);
         // A transient queue read failure cannot prove there is no durable work.
         // Retain the same delayed callback; nextContinuationDelayMs backs off on errors.
         }catch(Exception error){return true;}
@@ -257,8 +268,16 @@ public final class ResearchLearningContinuityR912 {
             ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
             if (!gate.passed) return Result.fail("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
             final boolean dev=ResearchDynamicBootstrapR922.hasUnservedTraining(store),online=pendingOnline(store);
+            // The canonical snapshot may commit after lane 0 served this same draw.
+            // Reopen only for a durable, still-unserved target and share time with learning.
+            final String captureTarget=pendingCaptureTarget(store);
+            final boolean captureDue=!captureTarget.isEmpty();
+            final boolean captureFirst=captureDue&&ResearchCaptureQueueR946.claimCapturePriority(store,captureTarget);
             final ResearchTaskQueueR967.Lease task=store.coordinatorR36().runAtomicWrite("R967_LANE_CLAIM",new DatabaseCoordinator.WriteCallable<ResearchTaskQueueR967.Lease>() {
-                public ResearchTaskQueueR967.Lease call(SQLiteDatabase db){ensureDesired(db,issue,dev,online);return claimNext(db,System.currentTimeMillis(),online||dev||hasLabelLane(db));}
+                public ResearchTaskQueueR967.Lease call(SQLiteDatabase db) {
+                    ensureDesired(db,issue,dev,online,captureDue);
+                    return claimNext(db,System.currentTimeMillis(),online||dev||hasLabelLane(db),captureFirst);
+                }
             },null);
             if(task==null)return Result.fail("PERIOD_PENDING|NO_READY_LEASE|watermark="+issue);
             final int lane=Integer.parseInt(task.candidate.substring(5));
@@ -378,31 +397,30 @@ public final class ResearchLearningContinuityR912 {
         if(store==null)return PredrawCapture.none("STORE_NULL");
         if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())
             return PredrawCapture.none("YIELD_P0_PRESSURE");
-        PendingSnapshot pending=loadPendingSnapshot(store);
-        if(pending==null)return PredrawCapture.none("NO_PENDING_PREDRAW_SURFACE");
+        String target=pendingCaptureTarget(store);
+        if(target.isEmpty())return PredrawCapture.none("NO_PENDING_PREDRAW_SURFACE");
         ResearchPredrawCaptureR923.Result capture=
-                ResearchPredrawCaptureR923.captureTarget(store,pending.target,budgetMs);
+                ResearchPredrawCaptureR923.captureTarget(store,target,budgetMs);
         String status=capture.canonical();
         try{
             store.setState("r914_research_predraw_recovery_status",status);
-            store.setState("r914_research_predraw_recovery_target",pending.target);
+            store.setState("r914_research_predraw_recovery_target",target);
             store.setState("r914_research_predraw_recovery_at",String.valueOf(System.currentTimeMillis()));
         }catch(Throwable ignore){}
-        return new PredrawCapture(capture.success,status,pending.target,capture.formulas,
+        return new PredrawCapture(capture.success,status,target,capture.formulas,
                 capture.algorithms,capture.genesisAssets,capture.tinyDeep);
     }
 
-    private static PendingSnapshot loadPendingSnapshot(DbStore store){
-        // R950: one durable definition of “capture still pending”. The old lane independently
-        // searched every globally active asset and could repeatedly reopen a target that the
-        // immutable staged roster had already completed (or that was never admitted). Reuse the
-        // canonical queue recovery predicate so watchdog and continuity cannot disagree.
-        try {
-            String target=ResearchCaptureQueueR946.recover(store);
-            return TargetIssueResolver.isValid(target) ? new PendingSnapshot(target,null,"") : null;
-        } catch (Throwable unavailable) {
-            return null;
-        }
+    private static String pendingCaptureTarget(DbStore store) {
+        // Use the canonical recovery predicate for both work admission and execution.
+        String target=ResearchCaptureQueueR946.recover(store);
+        if(!TargetIssueResolver.isValid(target))return "";
+        // A late upstream response can leave the exact draw absent past the cutoff.
+        // Keep the recorded miss and wait for a new target instead of reopening it.
+        if(target.equals(store.getState("r914_research_predraw_recovery_target",""))
+                &&store.getState("r914_research_predraw_recovery_status","")
+                        .contains("|status=TARGET_DEADLINE_PASSED_NO_RETROACTIVE_CAPTURE|"))return "";
+        return target;
     }
 
     private static long remaining(long deadline){return Math.max(100L,deadline-TimeSourceR811.monoNowMs());}
@@ -411,7 +429,6 @@ public final class ResearchLearningContinuityR912 {
     private static int algorithmPending(DbStore s){return scalar(s,"SELECT COUNT(1) FROM "+DbHelper.TABLE_R908_ALGORITHM_PREDRAW+" a WHERE hit_label=-1 AND "+AlgorithmProofRecoveryR948.eligible("a.genome_id","a.target_issue","a.record_hash")+" AND EXISTS(SELECT 1 FROM "+DrawDependencyInputCP12.SOURCE+" d WHERE d.issue=a.target_issue AND d.dirty=0)");}
     private static int scalar(DbStore s,String sql){Cursor c=null;try{c=BudgetedQueryR927.query(s.readable(),sql,null);return c.moveToFirst()?c.getInt(0):0;}finally{if(c!=null)c.close();}}
     private static String safe(String x){return x==null?"":x.replace('|','_').trim();}
-    private static final class PendingSnapshot{final String target,hash;final byte[]blob;PendingSnapshot(String t,byte[]b,String h){target=t;blob=b;hash=h;}}
     public static final class PredrawCapture{public final boolean success;public final String status,target,tinyDeep;public final int formulas,algorithms,genesisAssets;PredrawCapture(boolean ok,String s,String t,int f,int a,int g,String d){success=ok;status=s;target=t;formulas=f;algorithms=a;genesisAssets=g;tinyDeep=d;}static PredrawCapture none(String s){return new PredrawCapture(false,s,"",0,0,0,"");}}
     public static final class Result{
         public final boolean success;
