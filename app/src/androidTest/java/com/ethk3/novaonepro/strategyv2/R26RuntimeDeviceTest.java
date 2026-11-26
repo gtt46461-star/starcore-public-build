@@ -142,6 +142,12 @@ public final class R26RuntimeDeviceTest {
                         + " / error=" + store.getState("r26_runtime_error", ""));
                 checks.require(scalar(database, "SELECT count(*) FROM v57_research_task_r967 WHERE kind='MAINTENANCE'"
                         + " AND status='COMPLETED'") > 0, "CP12 produced a durable maintenance receipt, independent of the outer claim");
+                long verifiedUnits = scalar(database, "SELECT count(*) FROM r34_schema_unit_receipt r"
+                        + " JOIN r341_runtime_base_seal b ON b.plan_hash=r.plan_hash AND b.audit_round=r.audit_round"
+                        + " WHERE r.phase='VERIFY'");
+                checks.equal((long) SchemaUnitPlanR34.PROTECTED_TABLES_095.size(), verifiedUnits,
+                        "Every protected source retained its original migration proof before registration");
+                checks.record("protectedUnitReceiptCount", verifiedUnits);
                 checks.equal(1L, scalar(database, "SELECT count(*) FROM r26_session WHERE user_enabled=1 AND state='RUNNING'"),
                         "One running coordinator session retains the sole writer fence");
                 checks.database("SYNTHETIC_ANDROID_OWNER", latest, draws.get(draws.size() - 1).openTime,

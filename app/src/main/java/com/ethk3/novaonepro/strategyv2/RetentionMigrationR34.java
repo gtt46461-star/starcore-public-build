@@ -164,7 +164,7 @@ public final class RetentionMigrationR34 {
             long schemaCookie=cookie(read);
             if(plan==null || planCookie!=schemaCookie) {
                 SchemaUnitPlanR34.Plan preparedPlan=plan(read);
-                if(schemaCookie!=cookie(read))return false;
+                if (schemaCookie != cookie(read)) return waiting("WAIT_PLAN_SCHEMA_CHANGED");
                 if(plan==null || !plan.planHash.equals(preparedPlan.planHash))runAdmissionPending=true;
                 plan=preparedPlan;
                 planCookie=schemaCookie;
@@ -195,12 +195,13 @@ public final class RetentionMigrationR34 {
             long generation=dataVersion(read);
             String root=SchemaDomainCoordinatorR926.retentionOriginalRootR34(read,source);
             SchemaUnitPlanR34.View prepared=view(read,source,root);
-            if(prepared.schemaCookie!=planCookie)return false;
-            if(generation!=dataVersion(read)&&!emptySource(read,source))return false;
+            if (prepared.schemaCookie != planCookie) return waiting("WAIT_UNIT_SCHEMA_CHANGED:" + source);
+            if (generation != dataVersion(read) && !emptySource(read, source))
+                return waiting("WAIT_ORIGINAL_CHANGED_BEFORE_COST:" + source);
             boolean install=before.phase==SchemaUnitPlanR34.Phase.INSTALL;
             SchemaUnitPlanR34.Cost cost=ResearchRetentionStoreR30.protectionCostR34(read,source,install);
             noMetadataTriggers(read);
-            if(cookie(read)!=prepared.schemaCookie)return false;
+            if (cookie(read) != prepared.schemaCookie) return waiting("WAIT_SCHEMA_CHANGED_BEFORE_ADMISSION:" + source);
             SchemaUnitPlanR34.Ticket ticket=SchemaUnitPlanR34.prepare(plan,before,prepared,cost,BUDGET,SystemClock.elapsedRealtime()+250);
             final SchemaUnitPlanR34.ReceiptPayload[] payload={null};
             try {
@@ -240,7 +241,7 @@ public final class RetentionMigrationR34 {
                         && failure.getCause() instanceof SchemaUnitPlanR34.ProtocolViolation) {
                     String code=((SchemaUnitPlanR34.ProtocolViolation)failure.getCause()).code;
                     if ("DEADLINE_BEFORE_BEGIN".equals(code) || "REPREPARE_SCHEMA_COOKIE".equals(code)
-                            || "REPREPARE_ORIGINAL_INPUT".equals(code)) return false;
+                            || "REPREPARE_ORIGINAL_INPUT".equals(code)) return waiting("WAIT_" + code + ":" + source);
                 }
                 if(payload[0]==null || failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK)throw failure;
                 SchemaUnitPlanR34.Ack resolved = SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.UNKNOWN,readBack(read,plan,ticket.commitKey));
@@ -254,20 +255,27 @@ public final class RetentionMigrationR34 {
             }
             if(payload[0]==null)throw new IllegalStateException("R34_SCHEMA_RECEIPT_NOT_PRODUCED");
             SchemaUnitPlanR34.Ack ack=SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.COMMITTED,readBack(read,plan,ticket.commitKey));
-            if(ack.resolution!=SchemaUnitPlanR34.Resolution.ACKNOWLEDGED)return false;
+            if (ack.resolution != SchemaUnitPlanR34.Resolution.ACKNOWLEDGED)
+                return waiting("WAIT_COMMITTED_RECEIPT:" + ticket.commitKey);
             // This owner only installed the derived archive, its guards and its journal.
             // External DDL still changes the cookie and forces a complete plan comparison.
             planCookie=payload[0].schemaCookieAfter;
             lastObservation = "UNIT_COMMITTED:" + ticket.commitKey;
             return ack.cursor.phase==SchemaUnitPlanR34.Phase.DONE;
         }
+
+        private boolean waiting(String reason) {
+            lastObservation = reason;
+            return false;
+        }
     }
 
     static String prepare(DbStore store, String ownerEpoch, java.util.function.BooleanSupplier cancelled, Runnable yield,
             com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt) {
         DatabaseCoordinator owner=store.coordinatorForResearchR952();
-        try(SQLiteDatabase read=SQLiteDatabase.openDatabase(store.readable().getPath(),null,
-                SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
+        try (SQLiteDatabase read = SQLiteDatabase.openDatabase(store.readable().getPath(), null,
+                    SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+                DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn = owner.startupRetentionTurnR343()) {
             Writer writer=(context,task)->owner.runAtomicWriteOrThrowF01(context,db->{task.run(db);return 0;});
             Session session=null;
             long nextJournalSample = 0L;
@@ -281,17 +289,25 @@ public final class RetentionMigrationR34 {
                             com.ethk3.novaonepro.StartupStageJournalR341.Stage.RETENTION_UNIT,
                             session == null || session.plan == null ? null : session.plan.planHash);
                 }
-                try{
+                try {
+                    if (!ddlTurn.acquire()) {
+                        if (unit != null) journal.end(unit, StartupStageJournalR341.Outcome.WAIT_RESOURCE,
+                                "WAIT_EXISTING_LEGACY_DDL_SLICE", SystemClock.elapsedRealtime() + 20L);
+                        if (Thread.currentThread().isInterrupted()) return null;
+                        yield.run();
+                        continue;
+                    }
                     // Bootstrap can miss the writer just like an individual unit. Keep an
                     // already completed base migration and this read connection across retries.
                     if(session==null)session=new Session(read,writer,ownerEpoch);
                     boolean done = session.step();
+                    boolean waiting = session.lastObservation.startsWith("WAIT_");
+                    if (waiting) ddlTurn.close();
                     if (unit != null) {
                         SchemaUnitPlanR34.Cursor current = session.plan == null || session.runAdmissionPending
                                 ? null : cursor(read, session.plan);
                         String evidence = current == null ? "NO_DURABLE_UNIT_OBSERVED"
                                 : current.phase.name() + "/" + current.nextIndex + "/fence/" + current.fence;
-                        boolean waiting = session.lastObservation.startsWith("WAIT_");
                         journal.end(unit, waiting ? com.ethk3.novaonepro.StartupStageJournalR341.Outcome.WAIT_RESOURCE
                                 : com.ethk3.novaonepro.StartupStageJournalR341.Outcome.VERIFIED,
                                 session.lastObservation + "|" + evidence, waiting ? now + 20L : 0L);
@@ -299,6 +315,7 @@ public final class RetentionMigrationR34 {
                     if (done) return session.plan.planHash;
                     resourceWaits = 0;
                 }catch(DatabaseCoordinator.WriteRejectedR31 failure){
+                    ddlTurn.close();
                     if (unit != null) journal.recordUncaught(unit, failure);
                     if(!ResearchPoolR27.retryRolledBackLock(failure)
                             && !(failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK

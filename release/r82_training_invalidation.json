@@ -438,12 +438,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "be69fcaa959d99d9e6f653a90bb584c86222b19bf4047cf77e91d134dd789d67",
+      "after_sha256": "ea41a80c5420c40589df75e097d59d5c9a7288f0124a6940437d220c5ac34f3c",
       "before_role": "NUMERIC",
       "before_sha256": "25f82b067254b385d620c052ae628df9c11d55c900f7a2cc60377ae11d162f6a",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "Original database coordinator distinguishes CONTROL ticks from actual main-writer attempts, preserving transaction ownership and error evidence.",
-      "reviewer": "STARCORE R34.3-173 exact PATCHSET review"
+      "rationale": "Android startup originals showed RETENTION_UNIT repeatedly waiting for prepared proof without passing INSTALL/8 during the legacy schema writer. Give the existing R34 install/verify pass a shared DDL turn outside the SQLite writer. Yield the turn on stale prepared input, writer wait or cancellation. Keep per-unit source roots, SQLite CAS, admission deadlines, and all protected-unit checks.",
+      "reviewer": "STARCORE R34.3-173 construction correction R343-006"
     },
     {
       "after_role": "NUMERIC",
@@ -5829,12 +5829,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "9e02aaef9fd6ed876403a281ad1a623bf9bbc58ae790450c35eb572e0c16d723",
+      "after_sha256": "4bb218b201ef0df647b307ac0e3d71d47f2d20424beb0b521c2f4d941adbcde6",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
-      "rationale": "Bind runtime readiness to an audited per-source plan, database identity and scoped durable cursors, and retain exact proven receipts across transient waits.",
-      "reviewer": "R34.1 B03 implementation review"
+      "rationale": "Android startup originals showed RETENTION_UNIT repeatedly waiting for prepared proof without passing INSTALL/8 during the legacy schema writer. Give the existing R34 install/verify pass a shared DDL turn outside the SQLite writer. Yield the turn on stale prepared input, writer wait or cancellation. Keep per-unit source roots, SQLite CAS, admission deadlines, and all protected-unit checks.",
+      "reviewer": "STARCORE R34.3-173 construction correction R343-006"
     },
     {
       "after_role": "NUMERIC",
@@ -10262,7 +10262,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "b57cb2fa87a192f4925fe40c0b35ecfdaf314268c944c09d65330494ff15b564",
+  "reviewed_input_provenance_sha256": "9410fb8f499ca95f3ad8d7dc222e70b37d5883ee0e6594d8669994df36e5658a",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"

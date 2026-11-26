@@ -440,6 +440,36 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
       "reason": "Reopen the same fenced CP12 capture lane when the canonical write makes a still-legal snapshot durably available, and keep the original bounded priority for other research work.",
       "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-retention-ddl-turn-197/DatabaseCoordinator.java.snapshot",
+      "afterSha256": "ea41a80c5420c40589df75e097d59d5c9a7288f0124a6940437d220c5ac34f3c",
+      "batch": "B12",
+      "beforeSha256": "be69fcaa959d99d9e6f653a90bb584c86222b19bf4047cf77e91d134dd789d67",
+      "issue": "R343-006",
+      "originals": {
+        "B12-retention-ddl-turn-197/DatabaseCoordinator.java.snapshot": "ea41a80c5420c40589df75e097d59d5c9a7288f0124a6940437d220c5ac34f3c",
+        "B12-retention-ddl-turn-197/coordinate-retention-and-legacy.patch": "f76f8bcdebac5f499d7e3323e72309cf3dc2293eceaf6514ef976a0e024cfc4b",
+        "B12-retention-ddl-turn-197/retention-loop-original.log": "dad1c8a2ce90227f71850e9d6575be67efbd8b0e1b61827ab5f4555ac476b7d2"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "reason": "Android startup originals showed RETENTION_UNIT repeatedly waiting for prepared proof without passing INSTALL/8 during the legacy schema writer. Give the existing R34 install/verify pass a shared DDL turn outside the SQLite writer. Yield the turn on stale prepared input, writer wait or cancellation. Keep per-unit source roots, SQLite CAS, admission deadlines, and all protected-unit checks.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-retention-ddl-turn-197/RetentionMigrationR34.java.snapshot",
+      "afterSha256": "4bb218b201ef0df647b307ac0e3d71d47f2d20424beb0b521c2f4d941adbcde6",
+      "batch": "B12",
+      "beforeSha256": "9e02aaef9fd6ed876403a281ad1a623bf9bbc58ae790450c35eb572e0c16d723",
+      "issue": "R343-006",
+      "originals": {
+        "B12-retention-ddl-turn-197/RetentionMigrationR34.java.snapshot": "4bb218b201ef0df647b307ac0e3d71d47f2d20424beb0b521c2f4d941adbcde6",
+        "B12-retention-ddl-turn-197/coordinate-retention-and-legacy.patch": "f76f8bcdebac5f499d7e3323e72309cf3dc2293eceaf6514ef976a0e024cfc4b",
+        "B12-retention-ddl-turn-197/retention-loop-original.log": "dad1c8a2ce90227f71850e9d6575be67efbd8b0e1b61827ab5f4555ac476b7d2"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
+      "reason": "Android startup originals showed RETENTION_UNIT repeatedly waiting for prepared proof without passing INSTALL/8 during the legacy schema writer. Give the existing R34 install/verify pass a shared DDL turn outside the SQLite writer. Yield the turn on stale prepared input, writer wait or cancellation. Keep per-unit source roots, SQLite CAS, admission deadlines, and all protected-unit checks.",
+      "role": "NUMERIC"
     }
   ],
   "schema": "STARCORE_FIELD173_SOURCE_CORRECTIONS_1"

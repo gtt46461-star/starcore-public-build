@@ -499,6 +499,7 @@ public final class DatabaseCoordinator {
     private final android.app.Application app;
     private final DbHelper helper;
     private final ReentrantLock writeLock = WRITE_LOCK_CP3;
+    private final ReentrantLock startupDdlTurnR343 = new ReentrantLock(true);
     private final AtomicInteger waitingWriters = new AtomicInteger(0);
     /** R914: background writers wait outside the fair lock while live business work is queued. */
     private final AtomicInteger criticalBusinessWaitersR914 = new AtomicInteger(0);
@@ -1327,14 +1328,48 @@ public final class DatabaseCoordinator {
         return ok != null && ok.booleanValue();
     }
 
+    /** Reserve preparation against the legacy DDL owner before either acquires the SQLite writer. */
+    public final class StartupRetentionTurnR343 implements AutoCloseable {
+        private boolean held;
+
+        private StartupRetentionTurnR343() {}
+
+        public boolean acquire() {
+            if (held) return true;
+            try {
+                held = startupDdlTurnR343.tryLock(250L, TimeUnit.MILLISECONDS);
+                return held;
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+
+        @Override public void close() {
+            if (held) {
+                held = false;
+                startupDdlTurnR343.unlock();
+            }
+        }
+    }
+
+    public StartupRetentionTurnR343 startupRetentionTurnR343() {
+        return new StartupRetentionTurnR343();
+    }
+
     public Future<?> submitBackgroundWrite(final String operation, final WriteRunnable requested) {
-        final WriteRunnable task = "R31_LEGACY_SCHEMA_PREPARE".equals(operation) ? dedicatedDdlTaskR31Q(requested) : requested;
-        return backgroundWriter.submit(
-                new Runnable() {
-                    public void run() {
-                        runWrite(operation, task);
-                    }
-                });
+        final boolean legacy = "R31_LEGACY_SCHEMA_PREPARE".equals(operation);
+        final WriteRunnable task = legacy ? dedicatedDdlTaskR31Q(requested) : requested;
+        return backgroundWriter.submit(() -> {
+            // The existing control tick retries this same pending schema operation.
+            // An admission wait must not sit on the background executor or SQLite writer.
+            if (legacy && (startupDdlTurnR343.hasQueuedThreads() || !startupDdlTurnR343.tryLock())) return;
+            try {
+                runWrite(operation, task);
+            } finally {
+                if (legacy) startupDdlTurnR343.unlock();
+            }
+        });
     }
 
     /**

@@ -1,0 +1,191 @@
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+index e7aa423c..0b4e4459 100644
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+@@ -142,6 +142,12 @@ public final class R26RuntimeDeviceTest {
+                         + " / error=" + store.getState("r26_runtime_error", ""));
+                 checks.require(scalar(database, "SELECT count(*) FROM v57_research_task_r967 WHERE kind='MAINTENANCE'"
+                         + " AND status='COMPLETED'") > 0, "CP12 produced a durable maintenance receipt, independent of the outer claim");
++                long verifiedUnits = scalar(database, "SELECT count(*) FROM r34_schema_unit_receipt r"
++                        + " JOIN r341_runtime_base_seal b ON b.plan_hash=r.plan_hash AND b.audit_round=r.audit_round"
++                        + " WHERE r.phase='VERIFY'");
++                checks.equal((long) SchemaUnitPlanR34.PROTECTED_TABLES_095.size(), verifiedUnits,
++                        "Every protected source retained its original migration proof before registration");
++                checks.record("protectedUnitReceiptCount", verifiedUnits);
+                 checks.equal(1L, scalar(database, "SELECT count(*) FROM r26_session WHERE user_enabled=1 AND state='RUNNING'"),
+                         "One running coordinator session retains the sole writer fence");
+                 checks.database("SYNTHETIC_ANDROID_OWNER", latest, draws.get(draws.size() - 1).openTime,
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+index 31ef98a9..e257d808 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+@@ -499,6 +499,7 @@ public final class DatabaseCoordinator {
+     private final android.app.Application app;
+     private final DbHelper helper;
+     private final ReentrantLock writeLock = WRITE_LOCK_CP3;
++    private final ReentrantLock startupDdlTurnR343 = new ReentrantLock(true);
+     private final AtomicInteger waitingWriters = new AtomicInteger(0);
+     /** R914: background writers wait outside the fair lock while live business work is queued. */
+     private final AtomicInteger criticalBusinessWaitersR914 = new AtomicInteger(0);
+@@ -1327,14 +1328,48 @@ public final class DatabaseCoordinator {
+         return ok != null && ok.booleanValue();
+     }
+ 
++    /** Reserve preparation against the legacy DDL owner before either acquires the SQLite writer. */
++    public final class StartupRetentionTurnR343 implements AutoCloseable {
++        private boolean held;
++
++        private StartupRetentionTurnR343() {}
++
++        public boolean acquire() {
++            if (held) return true;
++            try {
++                held = startupDdlTurnR343.tryLock(250L, TimeUnit.MILLISECONDS);
++                return held;
++            } catch (InterruptedException interrupted) {
++                Thread.currentThread().interrupt();
++                return false;
++            }
++        }
++
++        @Override public void close() {
++            if (held) {
++                held = false;
++                startupDdlTurnR343.unlock();
++            }
++        }
++    }
++
++    public StartupRetentionTurnR343 startupRetentionTurnR343() {
++        return new StartupRetentionTurnR343();
++    }
++
+     public Future<?> submitBackgroundWrite(final String operation, final WriteRunnable requested) {
+-        final WriteRunnable task = "R31_LEGACY_SCHEMA_PREPARE".equals(operation) ? dedicatedDdlTaskR31Q(requested) : requested;
+-        return backgroundWriter.submit(
+-                new Runnable() {
+-                    public void run() {
+-                        runWrite(operation, task);
+-                    }
+-                });
++        final boolean legacy = "R31_LEGACY_SCHEMA_PREPARE".equals(operation);
++        final WriteRunnable task = legacy ? dedicatedDdlTaskR31Q(requested) : requested;
++        return backgroundWriter.submit(() -> {
++            // The existing control tick retries this same pending schema operation.
++            // An admission wait must not sit on the background executor or SQLite writer.
++            if (legacy && (startupDdlTurnR343.hasQueuedThreads() || !startupDdlTurnR343.tryLock())) return;
++            try {
++                runWrite(operation, task);
++            } finally {
++                if (legacy) startupDdlTurnR343.unlock();
++            }
++        });
+     }
+ 
+     /**
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java
+index 7bd012c9..f4e9b8ab 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java
+@@ -164,7 +164,7 @@ public final class RetentionMigrationR34 {
+             long schemaCookie=cookie(read);
+             if(plan==null || planCookie!=schemaCookie) {
+                 SchemaUnitPlanR34.Plan preparedPlan=plan(read);
+-                if(schemaCookie!=cookie(read))return false;
++                if (schemaCookie != cookie(read)) return waiting("WAIT_PLAN_SCHEMA_CHANGED");
+                 if(plan==null || !plan.planHash.equals(preparedPlan.planHash))runAdmissionPending=true;
+                 plan=preparedPlan;
+                 planCookie=schemaCookie;
+@@ -195,12 +195,13 @@ public final class RetentionMigrationR34 {
+             long generation=dataVersion(read);
+             String root=SchemaDomainCoordinatorR926.retentionOriginalRootR34(read,source);
+             SchemaUnitPlanR34.View prepared=view(read,source,root);
+-            if(prepared.schemaCookie!=planCookie)return false;
+-            if(generation!=dataVersion(read)&&!emptySource(read,source))return false;
++            if (prepared.schemaCookie != planCookie) return waiting("WAIT_UNIT_SCHEMA_CHANGED:" + source);
++            if (generation != dataVersion(read) && !emptySource(read, source))
++                return waiting("WAIT_ORIGINAL_CHANGED_BEFORE_COST:" + source);
+             boolean install=before.phase==SchemaUnitPlanR34.Phase.INSTALL;
+             SchemaUnitPlanR34.Cost cost=ResearchRetentionStoreR30.protectionCostR34(read,source,install);
+             noMetadataTriggers(read);
+-            if(cookie(read)!=prepared.schemaCookie)return false;
++            if (cookie(read) != prepared.schemaCookie) return waiting("WAIT_SCHEMA_CHANGED_BEFORE_ADMISSION:" + source);
+             SchemaUnitPlanR34.Ticket ticket=SchemaUnitPlanR34.prepare(plan,before,prepared,cost,BUDGET,SystemClock.elapsedRealtime()+250);
+             final SchemaUnitPlanR34.ReceiptPayload[] payload={null};
+             try {
+@@ -240,7 +241,7 @@ public final class RetentionMigrationR34 {
+                         && failure.getCause() instanceof SchemaUnitPlanR34.ProtocolViolation) {
+                     String code=((SchemaUnitPlanR34.ProtocolViolation)failure.getCause()).code;
+                     if ("DEADLINE_BEFORE_BEGIN".equals(code) || "REPREPARE_SCHEMA_COOKIE".equals(code)
+-                            || "REPREPARE_ORIGINAL_INPUT".equals(code)) return false;
++                            || "REPREPARE_ORIGINAL_INPUT".equals(code)) return waiting("WAIT_" + code + ":" + source);
+                 }
+                 if(payload[0]==null || failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK)throw failure;
+                 SchemaUnitPlanR34.Ack resolved = SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.UNKNOWN,readBack(read,plan,ticket.commitKey));
+@@ -254,20 +255,27 @@ public final class RetentionMigrationR34 {
+             }
+             if(payload[0]==null)throw new IllegalStateException("R34_SCHEMA_RECEIPT_NOT_PRODUCED");
+             SchemaUnitPlanR34.Ack ack=SchemaUnitPlanR34.resolve(ticket,payload[0],SchemaUnitPlanR34.Outcome.COMMITTED,readBack(read,plan,ticket.commitKey));
+-            if(ack.resolution!=SchemaUnitPlanR34.Resolution.ACKNOWLEDGED)return false;
++            if (ack.resolution != SchemaUnitPlanR34.Resolution.ACKNOWLEDGED)
++                return waiting("WAIT_COMMITTED_RECEIPT:" + ticket.commitKey);
+             // This owner only installed the derived archive, its guards and its journal.
+             // External DDL still changes the cookie and forces a complete plan comparison.
+             planCookie=payload[0].schemaCookieAfter;
+             lastObservation = "UNIT_COMMITTED:" + ticket.commitKey;
+             return ack.cursor.phase==SchemaUnitPlanR34.Phase.DONE;
+         }
++
++        private boolean waiting(String reason) {
++            lastObservation = reason;
++            return false;
++        }
+     }
+ 
+     static String prepare(DbStore store, String ownerEpoch, java.util.function.BooleanSupplier cancelled, Runnable yield,
+             com.ethk3.novaonepro.StartupStageJournalR341 journal, String attempt) {
+         DatabaseCoordinator owner=store.coordinatorForResearchR952();
+-        try(SQLiteDatabase read=SQLiteDatabase.openDatabase(store.readable().getPath(),null,
+-                SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)) {
++        try (SQLiteDatabase read = SQLiteDatabase.openDatabase(store.readable().getPath(), null,
++                    SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
++                DatabaseCoordinator.StartupRetentionTurnR343 ddlTurn = owner.startupRetentionTurnR343()) {
+             Writer writer=(context,task)->owner.runAtomicWriteOrThrowF01(context,db->{task.run(db);return 0;});
+             Session session=null;
+             long nextJournalSample = 0L;
+@@ -281,17 +289,25 @@ public final class RetentionMigrationR34 {
+                             com.ethk3.novaonepro.StartupStageJournalR341.Stage.RETENTION_UNIT,
+                             session == null || session.plan == null ? null : session.plan.planHash);
+                 }
+-                try{
++                try {
++                    if (!ddlTurn.acquire()) {
++                        if (unit != null) journal.end(unit, StartupStageJournalR341.Outcome.WAIT_RESOURCE,
++                                "WAIT_EXISTING_LEGACY_DDL_SLICE", SystemClock.elapsedRealtime() + 20L);
++                        if (Thread.currentThread().isInterrupted()) return null;
++                        yield.run();
++                        continue;
++                    }
+                     // Bootstrap can miss the writer just like an individual unit. Keep an
+                     // already completed base migration and this read connection across retries.
+                     if(session==null)session=new Session(read,writer,ownerEpoch);
+                     boolean done = session.step();
++                    boolean waiting = session.lastObservation.startsWith("WAIT_");
++                    if (waiting) ddlTurn.close();
+                     if (unit != null) {
+                         SchemaUnitPlanR34.Cursor current = session.plan == null || session.runAdmissionPending
+                                 ? null : cursor(read, session.plan);
+                         String evidence = current == null ? "NO_DURABLE_UNIT_OBSERVED"
+                                 : current.phase.name() + "/" + current.nextIndex + "/fence/" + current.fence;
+-                        boolean waiting = session.lastObservation.startsWith("WAIT_");
+                         journal.end(unit, waiting ? com.ethk3.novaonepro.StartupStageJournalR341.Outcome.WAIT_RESOURCE
+                                 : com.ethk3.novaonepro.StartupStageJournalR341.Outcome.VERIFIED,
+                                 session.lastObservation + "|" + evidence, waiting ? now + 20L : 0L);
+@@ -299,6 +315,7 @@ public final class RetentionMigrationR34 {
+                     if (done) return session.plan.planHash;
+                     resourceWaits = 0;
+                 }catch(DatabaseCoordinator.WriteRejectedR31 failure){
++                    ddlTurn.close();
+                     if (unit != null) journal.recordUncaught(unit, failure);
+                     if(!ResearchPoolR27.retryRolledBackLock(failure)
+                             && !(failure.commitOutcome==DatabaseCoordinator.CommitOutcome.ROLLED_BACK
