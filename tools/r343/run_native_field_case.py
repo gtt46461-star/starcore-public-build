@@ -34,20 +34,38 @@ def adb(serial, *args):
     return ['adb', '-s', serial, *map(str, args)]
 
 
-def installed_apk_sha(serial):
-    path = subprocess.check_output(adb(serial, 'shell', 'pm', 'path', PACKAGE),
-                                   text=True, timeout=20).strip()
-    contract.require(re.fullmatch(r'package:/[^\n]+', path), 'FIELD173_NATIVE_PACKAGE_PATH_REQUIRED')
+def installed_apk_sha(serial, package=PACKAGE, *, allow_missing=False):
+    result = subprocess.run(adb(serial, 'shell', 'pm', 'path', package),
+                            capture_output=True, text=True, timeout=20, check=False)
+    path = result.stdout.strip()
+    if allow_missing and result.returncode == 1 and not path and not result.stderr.strip():
+        packages = subprocess.check_output(adb(serial, 'shell', 'pm', 'list', 'packages', package),
+                                           text=True, timeout=20).splitlines()
+        if 'package:' + package not in packages:
+            return None
+    contract.require(result.returncode == 0 and re.fullmatch(r'package:/[^\n]+', path),
+                     'FIELD173_NATIVE_PACKAGE_PATH_REQUIRED:' + package)
     return subprocess.check_output(adb(serial, 'shell', 'sha256sum', path.removeprefix('package:')),
                                    text=True, timeout=30).split()[0]
 
 
 def ensure_candidate_installed(serial, candidate, expected_sha):
     contract.require(contract.binding.sha(candidate) == expected_sha, 'FIELD173_CANDIDATE_APK_MISMATCH')
-    if installed_apk_sha(serial) != expected_sha:
+    if installed_apk_sha(serial, allow_missing=True) != expected_sha:
         result = subprocess.check_output(adb(serial, 'install', '-r', candidate), text=True, timeout=180)
         contract.require('Success' in result, 'FIELD173_NATIVE_CANDIDATE_INSTALL_FAILED')
     contract.require(installed_apk_sha(serial) == expected_sha, 'FIELD173_NATIVE_INSTALLED_APK_MISMATCH')
+
+    # Gradle's connected test task removes both packages after its inherited suite.
+    # Restore the exact test APK from the same build before running a sealed case.
+    test_apk, = sorted((ROOT / 'app/build/outputs/apk/androidTest/debug').glob('*.apk'))
+    test_package = PACKAGE + '.test'
+    test_sha = contract.binding.sha(test_apk)
+    if installed_apk_sha(serial, test_package, allow_missing=True) != test_sha:
+        result = subprocess.check_output(adb(serial, 'install', '-r', '-t', test_apk), text=True, timeout=180)
+        contract.require('Success' in result, 'FIELD173_NATIVE_INSTRUMENTATION_INSTALL_FAILED')
+    contract.require(installed_apk_sha(serial, test_package) == test_sha,
+                     'FIELD173_NATIVE_INSTALLED_INSTRUMENTATION_MISMATCH')
 
 
 def run(selector, host_verify=None):
