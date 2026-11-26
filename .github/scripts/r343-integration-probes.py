@@ -64,7 +64,7 @@ def original(directory, name, data):
     return native.write_original(directory/name, data)
 
 
-def start_attachment(directory, field, apk_sha, run_id):
+def read_attachment(directory, field, apk_sha, run_id):
     receipt_path = directory/'batch-receipt.json'
     draft = receipt_path.read_bytes()
     receipt = json.loads(draft)
@@ -72,10 +72,15 @@ def start_attachment(directory, field, apk_sha, run_id):
     CONTRACT.require(receipt['status']=='ENGINEERING_CHECKS_PASSED' and receipt['fieldRepair173']==field
                      and receipt['apkSha256']==apk_sha and receipt['buildRun']==run_id,
                      'R343_INTEGRATED_BATCH_RECEIPT_IDENTITY')
-    CONTRACT.require(set(p.name for p in directory.iterdir()) == set(original_files) | {receipt_path.name},
-                     'R343_INTEGRATED_DRAFT_ATTACHMENT_FILE_SET')
     CONTRACT.require(all(BINDING.sha(directory/name)==digest for name,digest in original_files.items()),
                      'R343_INTEGRATED_DRAFT_ATTACHMENT_SHA')
+    return draft, receipt
+
+
+def start_attachment(directory, field, apk_sha, run_id):
+    draft, receipt = read_attachment(directory, field, apk_sha, run_id)
+    CONTRACT.require({p.name for p in directory.iterdir()} == set(receipt['originals']) | {'batch-receipt.json'},
+                     'R343_INTEGRATED_DRAFT_ATTACHMENT_FILE_SET')
     return draft, receipt
 
 
@@ -84,16 +89,72 @@ def finish_attachment(directory, draft, receipt):
     CONTRACT.require(receipt_path.read_bytes()==draft and all(
         BINDING.sha(directory/name)==digest for name,digest in receipt['originals'].items()),
         'R343_INTEGRATED_BASE_ORIGINAL_CHANGED')
-    original(directory, 'r343-integrated-batch-receipt-before.json', draft)
+    before = directory/'r343-integrated-batch-receipt-before.json'
+    if before.exists():
+        CONTRACT.require(before.is_file() and not before.is_symlink() and before.read_bytes()==draft,
+                         'R343_INTEGRATED_DURABLE_DRAFT_CHANGED')
+    else:
+        original(directory, before.name, draft)
+    resume_files = REPORT_RESUME_ORIGINALS | REPORT_RESUME_TRACE | {'resume-originals.json'}
     additions = sorted(p for p in directory.iterdir() if p.name not in receipt['originals'] and p!=receipt_path)
-    CONTRACT.require(all(p.is_file() and not p.is_symlink() and re.fullmatch(
-        r'(?:field173-R343-INTEGRATION-[0-9]{2}-[a-zA-Z0-9_.-]+|r343-integrated-[a-z-]+\.json)',p.name)
+    CONTRACT.require(all(p.is_file() and not p.is_symlink() and (p.name in resume_files or re.fullmatch(
+        r'(?:field173-R343-INTEGRATION-[0-9]{2}-[a-zA-Z0-9_.-]+|r343-integrated-[a-z-]+\.json)',p.name))
         for p in additions), 'R343_INTEGRATED_UNEXPECTED_ATTACHMENT_MEMBER')
     updated = dict(receipt, originals={**receipt['originals'], **{p.name:BINDING.sha(p) for p in additions}})
     staging = directory/'batch-receipt.json.next'
     original(directory, staging.name, CONTRACT.canonical(updated))
     os.replace(staging, receipt_path)
     print(f'INTEGRATED_ORIGINALS_BOUND {len(additions)}',flush=True)
+
+
+def verify_retained_probes(directory, field, apk_sha, run_id):
+    read = CONTRACT.directory_reader(directory)
+    report = BINDING.read(directory/'r343-integrated-native-probes.json')
+    CONTRACT.require(report['fieldRepair173']==field and report['apkSha256']==apk_sha and report['buildRun']==run_id
+                     and report['deviceScope']=='DISPOSABLE_ANDROID_API_34'
+                     and report['passed']==report['total']==len(PROBES)==len(report['probes']),
+                     'R343_RETAINED_INTEGRATION_IDENTITY')
+    for index, (probe, row) in enumerate(zip(PROBES, report['probes'], strict=True), 1):
+        issue, name, method, instrumented = probe
+        cls = PACKAGE+name
+        case_id = f'R343-INTEGRATION-{index:02d}'
+        expected = CONTRACT.expected_scope(field, case_id, apk_sha, run_id)
+        expected['executionId'] = row['executionId']
+        CONTRACT.require(all(row[key]==value for key,value in expected.items())
+                         and re.fullmatch('[0-9a-f]{32}', row['executionId']) and row['issue']==issue
+                         and row['selector']==cls+'#'+method and row['status']=='PASS'
+                         and row['failure'] is None and row['exitCode']==0 and row['junitTests']==1,
+                         'R343_RETAINED_INTEGRATION_CASE:'+case_id)
+        contents = {key:CONTRACT.original(read,row[key]['file'],row[key]['sha256'])
+                    for key in ('source','context','command','stdout','stderr')}
+        source_path = 'app/src/androidTest/java/'+cls.replace('.', '/')+'.java'
+        CONTRACT.require(contents['source']==CONTRACT.committed_bytes(ROOT,field['sourceCommit'],source_path)
+                         and json.loads(contents['context'])==dict(expected,originalIssue=issue,
+                             sourcePath=source_path,inputSha256=row['source']['sha256'])
+                         and re.search(rb'OK \(1 test\)',contents['stdout'])
+                         and not re.search(rb'FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed',contents['stdout']),
+                         'R343_RETAINED_INTEGRATION_ORIGINAL:'+case_id)
+        if instrumented:
+            CONTRACT.require(CONTRACT.events(contents['stdout'],expected,1)==row['assertionCount'],
+                             'R343_RETAINED_INTEGRATION_ASSERTIONS:'+case_id)
+            CONTRACT.verify_case_output(case_id,expected,row['readback'],read)
+
+    evidence = BINDING.read(directory/'resume-originals.json')
+    CONTRACT.require(evidence['field']==field and evidence['apkSha256']==apk_sha and evidence['run']==run_id
+                     and set(evidence['originals'])==REPORT_RESUME_ORIGINALS|REPORT_RESUME_TRACE
+                     and all(BINDING.sha(directory/name)==digest for name,digest in evidence['originals'].items()),
+                     'R343_RETAINED_REPORT_RESUME_ORIGINALS')
+    result = BINDING.read(directory/'signed-report-resume-readback.json')
+    before, reopened = result['before'], result['reopened']
+    CONTRACT.require(result['status']=='PASS' and result['sourceCommit']==field['sourceCommit']
+                     and result['apkSha256']==apk_sha and result['run']==run_id
+                     and before==BINDING.read(directory/'signed-report-resume-before.json')
+                     and all(before[key]==reopened[key] for key in ('jobId','snapshotSha256','snapshotBytes'))
+                     and result['attemptAfter']>before['attemptAtStop']
+                     and reopened['rawEvidenceIncluded'] is True and reopened['snapshotQuickCheck']=='ok'
+                     and result['encryptedOriginal']=='signed-report-resume-raw.zip.cms'
+                     and result['encryptedSha256']==evidence['originals'][result['encryptedOriginal']],
+                     'R343_RETAINED_REPORT_RESUME_READBACK')
 
 
 def run_probe(directory, serial, apk, field, run_id, index, probe):
@@ -177,6 +238,11 @@ def main():
     apk_sha = BINDING.sha(apk)
     run_id = os.environ['GITHUB_RUN_ID']
     CONTRACT.require(build['apkSha256']==apk_sha and build['ciRun']==run_id, 'R343_INTEGRATED_NATIVE_BUILD_CHANGED')
+    if sys.argv[1:] == ['--finish-retained-originals']:
+        draft, receipt = read_attachment(output, field, apk_sha, run_id)
+        verify_retained_probes(output, field, apk_sha, run_id)
+        finish_attachment(output, draft, receipt)
+        return
     serial = subprocess.check_output(['adb','get-serialno'], text=True, timeout=20).strip()
     CONTRACT.require(re.fullmatch(r'emulator-[0-9]+', serial), 'R343_DISPOSABLE_ANDROID_REQUIRED')
     early = run_temp/'engineering-preflight'

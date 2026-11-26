@@ -1,0 +1,127 @@
+name: Recover tested report delivery
+
+on:
+  push:
+    branches: [construction/r27-20261028]
+    paths: ['.github/workflows/recover-report-delivery.yml']
+
+jobs:
+  recover-b12-report-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      actions: read
+      contents: write
+    env:
+      SOURCE: 752846983da564d5dbf9dc5c3021f4625a07a68e
+      STAGE: B12
+      ORIGINAL_RUN: '45904934632'
+      ORIGINAL_JOB: '140199306103'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: dispatch
+          sparse-checkout: .github/scripts/r343-integration-probes.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 752846983da564d5dbf9dc5c3021f4625a07a68e
+          path: app-source
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore the original validation inputs
+        run: bash app-source/tools/r342/ci_plan_inputs.sh
+      - name: Restore exact build and Android originals from the interrupted packaging job
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sdk="$ANDROID_HOME/build-tools/36.0.0"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;36.0.0'
+          test "$(git -C app-source rev-parse HEAD)" = "$SOURCE"
+          test -z "$(git -C app-source status --porcelain)"
+          gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$ORIGINAL_JOB" > "$RUNNER_TEMP/original-job.json"
+          jq -e --argjson run "$ORIGINAL_RUN" '.run_id == $run and .name == "r342-candidate-build" and .conclusion == "failure"
+            and any(.steps[]; .name == "Build the original-signed APK from the exact clean source" and .conclusion == "success")
+            and any(.steps[]; .name == "Resume a real report with its original snapshot on the signed APK" and .conclusion == "success")
+            and any(.steps[]; .name == "Verify R26 startup and the two predraw regressions on the original-signed APK" and .conclusion == "success")
+            and any(.steps[]; .name == "Verify cover upgrade, Android cases, and report exports on the same APK" and .conclusion == "failure")' "$RUNNER_TEMP/original-job.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$ORIGINAL_JOB/logs" > "$RUNNER_TEMP/original-job.log"
+          grep -F 'ValueError: R343_INTEGRATED_UNEXPECTED_ATTACHMENT_MEMBER' "$RUNNER_TEMP/original-job.log"
+          download() {
+            local artifact=$1 digest=$2 output=$3
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact/zip" > "$output.zip"
+            printf '%s  %s\n' "$digest" "$output.zip" | sha256sum --check
+            unzip -q "$output.zip" -d "$output"
+          }
+          retained="$RUNNER_TEMP/retained"
+          signed="$RUNNER_TEMP/signed"
+          download 15158498172 0d522e78d61e52972c4e39c6fb6cc6f05cf2b363ae69f7f7815e3d5b52725ec1 "$retained"
+          download 15159311316 697719a1133b51240ff7d122fe3c6f63899c28782646251aa5a1b8a815425185 "$signed"
+          mapfile -t apks < <(find "$signed" -type f -name '*.apk')
+          mapfile -t receipts < <(find "$signed" -type f -name CI_BUILD_RECEIPT.json)
+          [[ ${#apks[@]} -eq 1 && ${#receipts[@]} -eq 1 ]]
+          cmp "${receipts[0]}" "$retained/build/CI_BUILD_RECEIPT.json"
+          sha="$(sha256sum "${apks[0]}" | cut -d' ' -f1)"
+          jq -e --arg sha "$sha" --arg source "$SOURCE" --arg run "$ORIGINAL_RUN" \
+            '.sourceClean and .sourceCommit==$source and .gradleRelease=="PASS" and .apkSha256==$sha and .ciRun==$run' "${receipts[0]}"
+          "$sdk/apksigner" verify --verbose --print-certs "${apks[0]}" | grep -F 'certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+          mkdir -p app-source/app/build/outputs/apk/release
+          cp "${apks[0]}" app-source/app/build/outputs/apk/release/
+          GITHUB_RUN_ID="$ORIGINAL_RUN" RUNNER_TEMP="$retained" python3 -B dispatch/.github/scripts/r343-integration-probes.py --finish-retained-originals
+          (cd "$retained/engineering" && zip -q "$retained/engineering-originals.zip" ./*)
+      - name: Build the exact delivery from the unchanged original APK, source and Android evidence
+        working-directory: app-source
+        run: |
+          set -euo pipefail
+          sdk="$ANDROID_HOME/build-tools/36.0.0"
+          retained="$RUNNER_TEMP/retained"
+          GITHUB_RUN_ID="$ORIGINAL_RUN" python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" \
+            --r342-plan "$STARCORE_R342_PLAN_ROOT" --out "$RUNNER_TEMP/candidate" \
+            --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$RUNNER_TEMP/baseline173.apk" \
+            --aapt "$sdk/aapt" --apksigner "$sdk/apksigner" --build-log "$retained/build/gradle-build.log" \
+            --build-receipt "$retained/build/CI_BUILD_RECEIPT.json" --engineering-evidence "$retained/engineering-originals.zip"
+      - name: Publish and verify the same original bytes from the public address
+        working-directory: app-source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          candidate="$RUNNER_TEMP/candidate"
+          index="$RUNNER_TEMP/publication-index.json"
+          tag="r34.2-${STAGE}-${SOURCE:0:12}"
+          args=(--candidate "$candidate" --sdk-tools "$ANDROID_HOME/build-tools/36.0.0" --source "$SOURCE" --stage "$STAGE" --index "$index")
+          (cd "$candidate" && sha256sum -c SHA256SUMS.txt)
+          GITHUB_RUN_ID="$ORIGINAL_RUN" python3 -B tools/r342/release_delivery.py "${args[@]}"
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$SOURCE" --title 'STARCORE R34.2 B12 · 577311201' \
+              --notes "Original build and Android evidence from run $ORIGINAL_RUN. Delivery resumed after validating the same original APK and all test originals." --latest=false --draft
+          fi
+          release=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,targetCommitish)
+          [[ $(jq -r '.targetCommitish' <<< "$release") == "$SOURCE" ]]
+          if [[ $(jq -r '.isDraft' <<< "$release") == true ]]; then
+            mapfile -t assets < <(jq -er '.artifacts[].filename' "$index")
+            for file in "${assets[@]}"; do
+              gh release upload "$tag" "$candidate/$file" --repo "$GITHUB_REPOSITORY"
+            done
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest=false
+          fi
+          GITHUB_RUN_ID="$ORIGINAL_RUN" python3 -B tools/r342/release_delivery.py "${args[@]}" --received "$RUNNER_TEMP/received"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-delivery-recovery-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/publication-index.json
+            ${{ runner.temp }}/received/DELIVERY_R342.json
+            ${{ runner.temp }}/original-job.json
+            ${{ runner.temp }}/retained/engineering/batch-receipt.json
+          if-no-files-found: warn
