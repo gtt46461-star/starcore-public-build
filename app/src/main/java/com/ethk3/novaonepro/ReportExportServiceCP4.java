@@ -342,7 +342,10 @@ public final class ReportExportServiceCP4 extends Service {
                 RetentionSnapshotCacheR73.discard(journal); // release optional cleanup copy before reserving full-report space
                 active.enter("RESUME_VERIFY",120000); // Read-only verification before promising new physical bytes.
                 boolean snapshotValid=validSnapshot(job,snapshot,active);
-                if(snapshotValid&&job.mode.equals("FULL_REPORT")&&!ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active))snapshotValid=false;
+                if(snapshotValid){
+                    active.enter("RESUME_ATTACHMENT_VERIFY",120000);
+                    snapshotValid=ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active);
+                }
                 reserveDisk(job,journal,active,snapshotValid);
                 if(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY")){verifyReady(job,directory,active);enqueueCleanupR31(journal,job);journal.acknowledge(job.requestId,job);return;}
                 File existing=job.publishedDir.isEmpty()?null:ReportArchiveVerifierCP12.inside(directory,job.publishedDir);
@@ -367,7 +370,7 @@ public final class ReportExportServiceCP4 extends Service {
                     CheckpointSourceScopeR31 checkpointSource=openCheckpointSourceR31(copy,getFilesDir());
                     com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ReaderRootLease keepSource=openKeepSourceR31(copy,getFilesDir())) {
                     if(!copy.isReadOnly())throw new IOException("REPORT_READONLY_SNAPSHOT_REQUIRED");
-                    if(ReportAttachmentClosureCP12.isComplete(directory,job.snapshotSha,active))ReportAttachmentClosureCP12.appendComplete(directory,members,active);
+                    if(snapshotValid)ReportAttachmentClosureCP12.appendComplete(directory,members,active);
                     else {
                         // The initial intent may have been claimed before its
                         // optional observers completed. Refresh only evidence;
@@ -516,7 +519,13 @@ public final class ReportExportServiceCP4 extends Service {
                     resourceRetryJob=job;resourceRetryDelay=ReportResourceWaitR335.retryDelay(job.resourceWaitR335.attempt);
                     retryAlarmScheduledB01=true;
                 }
-                else if(isRetryable(reason)&&++job.failureAttempts<30){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId,Math.min(60000L,1000L<<Math.min(6,job.failureAttempts)));retryAlarmScheduledB01=true;}
+                else if(isRetryable(reason)&&++job.failureAttempts<30){
+                    job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";
+                    journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());
+                    resourceRetryJob=job;
+                    resourceRetryDelay=Math.min(60000L,1000L<<Math.min(6,job.failureAttempts));
+                    retryAlarmScheduledB01=true;
+                }
                 else {journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}
                 if(job.stage.equals("FAILED")&&job.mode.equals("FULL_REPORT")){
                     job.recoveryPublicationR32="PENDING";journal.checkpoint(job,System.currentTimeMillis());
@@ -596,6 +605,7 @@ public final class ReportExportServiceCP4 extends Service {
     }
     private boolean validSnapshot(ReportJobJournalCP12.Job job,File snapshot,ActiveControl active)throws Exception {
         if(job.snapshotSha.isEmpty()||!snapshot.isFile()||snapshot.length()!=job.snapshotBytes||!job.snapshotSha.equals(ReportArchiveCP4.hash(snapshot,active)))return false;
+        active.enter("RESUME_SQLITE_CHECK",120000);
         final android.os.CancellationSignal validationCancellationR334=new android.os.CancellationSignal();
         active.readCancellationR30=validationCancellationR334;
         try {
@@ -760,8 +770,34 @@ public final class ReportExportServiceCP4 extends Service {
     }
     private void requireDiagnosticProcess()throws IOException{if(!(getPackageName()+":diagnostics").equals(processName()))throw new IOException("REPORT_WRONG_PROCESS");}
     private String processName(){if(Build.VERSION.SDK_INT>=28)return Application.getProcessName();ActivityManager manager=(ActivityManager)getSystemService(ACTIVITY_SERVICE);List<ActivityManager.RunningAppProcessInfo> processes=manager.getRunningAppProcesses();if(processes!=null)for(ActivityManager.RunningAppProcessInfo p:processes)if(p.pid==android.os.Process.myPid())return p.processName;return "UNKNOWN";}
+    static final class StageTiming {
+        private static final long PRESSURE_INTERVAL_MS=1000L, PRESSURE_YIELD_MS=100L;
+        private long deadline, idleBudgetMs, nextPressureYield;
+        private boolean progressExtendsDeadline;
+
+        synchronized void enter(long now,long requestedMs,boolean fullReport) {
+            deadline=ReportBudgetSU2.deadline(now,requestedMs,fullReport);
+            idleBudgetMs=deadline-now;
+            progressExtendsDeadline=fullReport;
+        }
+
+        synchronized boolean timedOut(long now) { return now>=deadline; }
+
+        synchronized void progress(long now) {
+            if(progressExtendsDeadline&&now<deadline)deadline=Math.max(deadline,now+idleBudgetMs);
+        }
+
+        synchronized long claimPressureYield(long now,long quietAfter) {
+            if(quietAfter<=now||now<nextPressureYield)return now;
+            nextPressureYield=now+PRESSURE_INTERVAL_MS;
+            return Math.min(quietAfter,now+PRESSURE_YIELD_MS);
+        }
+    }
+
     private final class ActiveControl implements ReportNativeCP4.Control {
-        final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;volatile long deadline=Long.MAX_VALUE,lastRead;private long stageStarted;
+        final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;private long lastRead;
+        private final StageTiming timing=new StageTiming();
+        private long stageStarted,stageStartedWall,hashedBytes,backupPages;
         private String progressStageR31="CLAIMED";
         private final Thread executingOwnerR341=Thread.currentThread();
         private volatile long realtimeQuietAfterR341;
@@ -785,16 +821,32 @@ public final class ReportExportServiceCP4 extends Service {
         boolean recoveryCancelledR31(){return cancel.get()||destroyed.get()||Thread.currentThread().isInterrupted();}
         void cancelReadR30(){android.os.CancellationSignal active=readCancellationR30;if(active!=null)active.cancel();}
         ActiveControl(ReportJobJournalCP12.Job job,File root){this(job,root,job.jobId);}
-        ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();deadline=ReportBudgetSU2.deadline(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
-        void enter(String stage,long milliseconds)throws IOException{checkpoint();closePhaseR31();progressStageR31=stage;stageStarted=SystemClock.elapsedRealtime();deadline=ReportBudgetSU2.deadline(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
+        ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();timing.enter(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
+        void enter(String stage,long milliseconds)throws IOException{checkpoint();closePhaseR31();progressStageR31=stage;stageStarted=SystemClock.elapsedRealtime();
+            stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;
+            timing.enter(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31 budget=com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.processBudget();
             budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP,SQLITE_BACKUP_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER,NATIVE_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");
             boolean backup=stage.equals("BACKUP")||stage.equals("RETENTION_PAGE");boolean codec=stage.equals("COMPRESSING")||stage.equals("VERIFYING")||stage.equals("ZIP_DELIVERY");
             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind kind=backup?com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP:codec?com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER:com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.RESEARCH;
             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Admission admitted=budget.tryAcquire("report:"+job.jobId,job.revision,kind,backup?SQLITE_BACKUP_BUDGET:codec?NATIVE_BUDGET:8*MiB,()->cancel.get()||destroyed.get());
             if(!admitted.acquired())throw new IOException("REPORT_MEMORY_BUDGET_WAIT:"+admitted.reason);phaseMemoryR31=admitted.lease;
-            try{sampleR31(0,new JSONObject().put("stage",stage).put("startedWallMs",System.currentTimeMillis()).put("cumulativeRealtimeParkedMs",stageParkedMsR341),stageStarted,true);}
-            catch(org.json.JSONException error){throw new IOException("REPORT_STAGE_SAMPLE_FORMAT",error);}}
+            sampleStage(stageStarted,true);
+        }
+        private void sampleStage(long now,boolean entering) {
+            if(!entering&&now<nextProgressR31[0])return;
+            try{sampleR31(0,new JSONObject().put("stage",progressStageR31).put("startedWallMs",stageStartedWall)
+                    .put("sampledElapsedMs",now).put("hashedBytes",hashedBytes)
+                    .put("cumulativeRealtimeParkedMs",stageParkedMsR341),now,entering);}
+            catch(org.json.JSONException error){android.util.Log.w("ReportExportCP12","UI stage sample format unavailable",error);}
+        }
+        @Override public void onHashedBytes(long bytes) {
+            if(bytes<=0L)return;
+            long now=SystemClock.elapsedRealtime();
+            timing.progress(now);
+            hashedBytes=Math.addExact(hashedBytes,bytes);
+            sampleStage(now,false);
+        }
         @Override public synchronized void onBackupProgress(long totalPages,long remainingPages,int nativeCode){
             // SQLite has already returned this error before reconciliation.
             // BUSY/LOCKED retain the native bounded retry policy.
@@ -802,7 +854,9 @@ public final class ReportExportServiceCP4 extends Service {
                 stopR31("REPORT_BACKUP_FAILED|native="+nativeCode,new ReportNativeCP4.Failure("BACKUP",nativeCode));
             try{settleBackupChunkR31();}catch(IOException|IllegalArgumentException|ArithmeticException failed){stopR31("REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED",failed);}
             long now=SystemClock.elapsedRealtime();
-            try{JSONObject progress=new JSONObject();progress.put("stage","BACKUP");progress.put("totalPages",totalPages);progress.put("copiedPages",Math.max(0L,totalPages-remainingPages));progress.put("elapsedMs",Math.max(0L,now-stageStarted));progress.put("nativeCode",nativeCode);progress.put("sampledElapsedMs",now);
+            long copiedPages=Math.max(0L,totalPages-remainingPages);
+            if((nativeCode==0||nativeCode==101)&&copiedPages>backupPages){backupPages=copiedPages;timing.progress(now);}
+            try{JSONObject progress=new JSONObject();progress.put("stage","BACKUP");progress.put("totalPages",totalPages);progress.put("copiedPages",copiedPages);progress.put("elapsedMs",Math.max(0L,now-stageStarted));progress.put("nativeCode",nativeCode);progress.put("sampledElapsedMs",now);
                 sampleR31(1,progress,now,nativeCode==101);
             }catch(org.json.JSONException error){android.util.Log.w("ReportExportCP12","UI backup sample format unavailable",error);}
         }
@@ -848,8 +902,8 @@ public final class ReportExportServiceCP4 extends Service {
                 // durable admission, while every actual sink write (including
                 // close-time flush) still checks cancellation and its grant.
                 return new BufferedOutputStream(new FilterOutputStream(admitted){
-                    @Override public void write(int value)throws IOException{checkpoint();out.write(value);}
-                    @Override public void write(byte[] bytes,int offset,int count)throws IOException{checkpoint();out.write(bytes,offset,count);}
+                    @Override public void write(int value)throws IOException{checkpoint();out.write(value);timing.progress(SystemClock.elapsedRealtime());}
+                    @Override public void write(byte[] bytes,int offset,int count)throws IOException{checkpoint();out.write(bytes,offset,count);if(count>0)timing.progress(SystemClock.elapsedRealtime());}
                 },65536);
             }
             catch(IOException|RuntimeException|Error error){try{sink.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
@@ -863,7 +917,8 @@ public final class ReportExportServiceCP4 extends Service {
         public boolean shouldContinue(){
             if(!probeControlR341())return false;
             if(!"FULL_REPORT".equals(job.mode)||Thread.currentThread()!=executingOwnerR341)return true;
-            long started=SystemClock.elapsedRealtime(), boundedUntil=Math.min(realtimeQuietAfterR341,started+2000L);
+            // A one-second stream of fresh pressure samples must still leave time to actually read and write.
+            long started=SystemClock.elapsedRealtime(), boundedUntil=timing.claimPressureYield(started,realtimeQuietAfterR341);
             if(boundedUntil<=started)return true;
             while(SystemClock.elapsedRealtime()<boundedUntil){
                 if(!probeControlR341())return false;
@@ -875,7 +930,7 @@ public final class ReportExportServiceCP4 extends Service {
             return probeControlR341();
         }
         private synchronized boolean probeControlR341(){if(!stopReason.isEmpty())return false;if(cancel.get()){stopReason="REPORT_USER_CANCEL";return false;}if(destroyed.get()){stopReason="REPORT_PROCESS_SHUTDOWN";return false;}if(Thread.currentThread().isInterrupted()){stopReason="REPORT_WORKER_INTERRUPTED";return false;}
-            long now=SystemClock.elapsedRealtime();if(now>=deadline){stopReason="REPORT_STAGE_TIMEOUT";return false;}
+            long now=SystemClock.elapsedRealtime();if(timing.timedOut(now)){stopReason="REPORT_STAGE_TIMEOUT";return false;}
             if(now-lastRead>=ReportTaskControlR69.CHECKPOINT_MS_R30){lastRead=now;try{
                 if(ReportTaskControlR69.cancelled(root,job.requestId,cancelKey)){cancel.set(true);stopReason="REPORT_USER_CANCEL";return false;}
                 if(job.mode.equals("RETENTION_PAGE")&&(ReportRequestQueueCP12.hasInteractive(root)||ReportTaskControlR69.hasPending(root))){stopReason="REPORT_REALTIME_PREEMPT";return false;}

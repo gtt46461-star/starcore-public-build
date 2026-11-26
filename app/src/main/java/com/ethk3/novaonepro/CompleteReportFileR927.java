@@ -106,7 +106,7 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
      }).show();});return;}
    if(stage.equals("FAILED")){ReportJobJournalCP12.FailureDetailR31 detail=ReportJobJournalCP12.failureDetailR31(root,value);if(activity!=null)activity.runOnUiThread(()->{if(session!=POLL_SESSION.get())return;show(activity,b.get(),s.get(),"完整报告失败："+reason+"。可查看和复制失败详情；恢复诊断是失败材料。",true);showFailureR31(activity,detail);});return;}
    if(stage.equals("FAILED")||stage.equals("CANCELLED"))throw new IOException(stage+":"+reason);
-   String progressText=value.has("jobId")?stageProgressText(app,value.getString("jobId")):"";
+   String progressText=value.has("jobId")?stageProgressText(app,value.getString("jobId"),stage,value.optLong("updatedWallMs")):"";
    final String pendingText="检测报告状态="+stage+progressText+(reason.isEmpty()?"":"｜原因="+reason)+"｜可点击取回或取消";
    activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),pendingText,true);});
    poll(app,request,a,b,s,nextDeliveryPoll(attempt),session);
@@ -127,13 +127,26 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
   if(parts)return new String[]{"一次保存完整ZIP文件","分享全部分卷","保存全部分卷到文件夹","保存一个分卷到文件"};
   return new String[]{"一次保存完整报告到文件夹","分享全部分卷","保存一个分卷到文件"};
  }
- static String stageProgressText(Context app,String id){try{
+ static String stageProgressText(Context app,String id,String jobStage,long updatedWallMs){try{
   if(!id.matches("[0-9a-f]{64}"))throw new IOException("REPORT_PROGRESS_JOB_ID");
   File file=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),"jobs/"+id+"/stage-progress.json");
-  if(!file.isFile())return backupProgressText(app,id);
-  JSONObject p=new JSONObject(ReportJobJournalCP12.readAtomic(file,4096));String stage=p.getString("stage");
-  return "｜最近采样步骤="+stage+"｜该采样开始后 "+Math.max(0,(System.currentTimeMillis()-p.getLong("startedWallMs"))/1000)+" 秒"+(stage.equals("BACKUP")?backupProgressText(app,id):"");
+  if(!file.isFile())return "PAUSED".equals(jobStage)?"｜任务已保留，等待重试":backupProgressText(app,id);
+  JSONObject progress=new JSONObject(ReportJobJournalCP12.readAtomic(file,4096));
+  String stage=progress.getString("stage");
+  return describeStageProgress(jobStage,updatedWallMs,stage,progress.optLong("startedWallMs"),
+      progress.optLong("hashedBytes"),progress.optLong("sampledElapsedMs",-1),android.os.SystemClock.elapsedRealtime())
+      +("BACKUP".equals(stage)?backupProgressText(app,id):"");
  }catch(Exception unavailable){return "｜阶段信息可用，详细进度暂不可用";}
+ }
+ static String describeStageProgress(String jobStage,long updatedWallMs,String stage,long startedWallMs,
+                                     long bytes,long sampled,long nowElapsed) {
+  String read=bytes>0?"｜本阶段哈希读取 "+String.format(Locale.ROOT,"%.1f MiB",bytes/(1024.0*1024.0)):"";
+  if("PAUSED".equals(jobStage)){
+   boolean retryObserved=startedWallMs>updatedWallMs && sampled>=0
+       && nowElapsed>=sampled && nowElapsed-sampled<=3000;
+   return (retryObserved?"｜已启动重试，步骤=":"｜任务已保留，等待重试｜上次步骤=")+stage+read;
+  }
+  return "｜最近采样步骤="+stage+read;
  }
  private static Uri uri(Context app,String id,String name){return new Uri.Builder().scheme("content").authority(app.getPackageName()+".diagnostic.reports").appendPath("r981").appendPath(id).appendPath(name).build();}
  static String backupProgressText(Context app,String id)throws Exception{if(!id.matches("[0-9a-f]{64}"))throw new IOException("REPORT_PROGRESS_JOB_ID");File file=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),"jobs/"+id+"/backup-progress.json");if(!file.isFile())return "";JSONObject progress=new JSONObject(ReportJobJournalCP12.readAtomic(file,4096));return "｜数据库快照块（不是报告页数） "+progress.optLong("copiedPages")+"/"+progress.optLong("totalPages")+"｜耗时 "+(progress.optLong("elapsedMs")/1000)+" 秒";}

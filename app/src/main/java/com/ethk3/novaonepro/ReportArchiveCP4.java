@@ -59,7 +59,19 @@ public final class ReportArchiveCP4 implements Closeable {
   public void close()throws IOException{if(file!=null){try{sink.close();}finally{file=null;sink=null;}}} // aborted partial is never a member
  }
  public static String hash(File f)throws Exception{return hash(f,()->!Thread.currentThread().isInterrupted());}
- public static String hash(File f,ReportNativeCP4.Control control)throws Exception{MessageDigest d=MessageDigest.getInstance("SHA-256");try(InputStream in=new FileInputStream(f)){byte[] b=new byte[32768];for(int n;(n=in.read(b))>=0;)if(n>0){if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new IOException("REPORT_CANCELLED");d.update(b,0,n);}}return hex(d.digest());}
+ public static String hash(File f,ReportNativeCP4.Control control)throws Exception {
+  MessageDigest digest=MessageDigest.getInstance("SHA-256");
+  try(InputStream in=new FileInputStream(f)) {
+   byte[] buffer=new byte[32768];
+   for(int count;(count=in.read(buffer))!=-1;) {
+    if(count==0)continue;
+    if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new IOException("REPORT_CANCELLED");
+    digest.update(buffer,0,count);
+    control.onHashedBytes(count);
+   }
+  }
+  return hex(digest.digest());
+ }
  static String hex(byte[] b){StringBuilder s=new StringBuilder(b.length*2);for(byte x:b)s.append(String.format(Locale.ROOT,"%02x",x&255));return s.toString();}
  static String q(String s){StringBuilder b=new StringBuilder("\"");for(int i=0;i<s.length();i++){char c=s.charAt(i);if(c=='"'||c=='\\')b.append('\\').append(c);else if(c<32)b.append(String.format(Locale.ROOT,"\\u%04x",(int)c));else b.append(c);}return b.append('"').toString();}
 }

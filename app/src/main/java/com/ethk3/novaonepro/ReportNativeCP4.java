@@ -47,6 +47,7 @@ public final class ReportNativeCP4 {
  public interface Control {
   boolean shouldContinue();
   default void onBackupProgress(long totalPages,long remainingPages,int nativeCode) {}
+  default void onHashedBytes(long bytes) {}
   default boolean hasDiskAdmissionR31(){return false;}
   default void beforeOutputBytesR31(File file,long bytes)throws IOException {}
   default void reserveFutureBytesR31(long bytes)throws IOException {}
