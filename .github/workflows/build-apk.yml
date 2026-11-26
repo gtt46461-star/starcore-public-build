@@ -455,6 +455,8 @@ jobs:
           disk-size: 8G
           ram-size: 4096M
           script: |
+            set -e
+            if [ "$STAGE" = B12 ] && [ -f app-source/release/field173_plan_binding.json ]; then python3 -B dispatch/.github/scripts/r343-integration-probes.py --startup-first; fi
             python3 -B app-source/tools/r342/ci_candidate_tests.py
             if [ "$STAGE" = B12 ] && [ -f app-source/release/field173_plan_binding.json ]; then python3 -B dispatch/.github/scripts/r343-integration-probes.py; fi
       - name: Build exact source, restorable history and test evidence packages
@@ -484,6 +486,7 @@ jobs:
             ${{ runner.temp }}/build/CI_BUILD_RECEIPT.json
             ${{ runner.temp }}/build/gradle-build.log
             ${{ runner.temp }}/engineering/
+            ${{ runner.temp }}/engineering-preflight/
           if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: ${{ always() && steps.request.outputs.source != '' }}

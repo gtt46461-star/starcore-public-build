@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import uuid
@@ -42,6 +43,13 @@ PROBES = (
     ('R343-042', 'R343ReportCancellationInstrumentedTest', 'preservesCancellationTimeAtDurableRestartBoundary', True),
     ('R343-043', 'R343UniqueOwnerInstrumentedTest', 'existingCanonicalRealCannotBeIssuedByASecondGate', True),
 )
+
+
+BOOTSTRAP_REGRESSIONS = {
+    'canonicalCommitReopensCaptureOnTheSameDraw',
+    'eachPredrawSettlesOnceAndFeedsTheNextCycle',
+    'activeRuntimeOwnsModernContinuityAndCommitsItsLane',
+}
 
 
 def original(directory, name, data):
@@ -149,11 +157,48 @@ def main():
     apk_sha = BINDING.sha(apk)
     run_id = os.environ['GITHUB_RUN_ID']
     CONTRACT.require(build['apkSha256']==apk_sha and build['ciRun']==run_id, 'R343_INTEGRATED_NATIVE_BUILD_CHANGED')
-    draft, batch_receipt = start_attachment(output, field, apk_sha, run_id)
     serial = subprocess.check_output(['adb','get-serialno'], text=True, timeout=20).strip()
     CONTRACT.require(re.fullmatch(r'emulator-[0-9]+', serial), 'R343_DISPOSABLE_ANDROID_REQUIRED')
+    early = run_temp/'engineering-preflight'
+    selectors = dict(enumerate(PROBES, 1))
+    early_indexes = {i for i, p in selectors.items() if p[2] in BOOTSTRAP_REGRESSIONS}
+    if sys.argv[1:] == ['--startup-first']:
+        early.mkdir()
+        native.ensure_candidate_installed(serial, apk, apk_sha)
+        try:
+            initial = [run_probe(early, serial, apk, field, run_id, i, selectors[i])
+                       for i in sorted(early_indexes)]
+            checks = {p.name:BINDING.sha(p) for p in early.iterdir() if p.is_file()}
+            original(early, 'bootstrap-originals.json', CONTRACT.canonical({
+                'field': field, 'apkSha256': apk_sha, 'run': run_id,
+                'cases': initial, 'originals': checks,
+            }))
+            CONTRACT.require(all(r['status']=='PASS' for r in initial), 'R343_BOOTSTRAP_REGRESSION_FAILED')
+        finally:
+            # The original cover-upgrade enters from a clean emulator and installs 173 itself.
+            for package in (native.PACKAGE+'.test', native.PACKAGE):
+                subprocess.run(native.adb(serial, 'uninstall', package), check=True, timeout=45)
+        return
+
+    draft, batch_receipt = start_attachment(output, field, apk_sha, run_id)
     native.ensure_candidate_installed(serial, apk, apk_sha)
-    result = [run_probe(output, serial, apk, field, run_id, index, probe) for index,probe in enumerate(PROBES,1)]
+    replayed = {}
+    if early.is_dir():
+        record = BINDING.read(early/'bootstrap-originals.json')
+        CONTRACT.require(record['field']==field and record['apkSha256']==apk_sha and record['run']==run_id,
+                         'R343_BOOTSTRAP_IDENTITY')
+        replayed = {int(r['caseId'].rsplit('-',1)[1]):r for r in record['cases']}
+        CONTRACT.require(set(replayed)==early_indexes and all(r['status']=='PASS' for r in replayed.values()),
+                         'R343_BOOTSTRAP_CASE_SET')
+        CONTRACT.require(set(p.name for p in early.iterdir())==set(record['originals'])|{'bootstrap-originals.json'},
+                         'R343_BOOTSTRAP_ORIGINAL_SET')
+        for name, digest in record['originals'].items():
+            CONTRACT.require(re.fullmatch(r'field173-R343-INTEGRATION-[0-9]{2}-[a-zA-Z0-9_.-]+',name)
+                             and BINDING.sha(early/name)==digest and not (output/name).exists(),
+                             'R343_BOOTSTRAP_ORIGINAL_SHA')
+            shutil.copyfile(early/name, output/name)
+    result = [replayed[i] if i in replayed else run_probe(output, serial, apk, field, run_id, i, probe)
+              for i,probe in selectors.items()]
     assert native.installed_apk_sha(serial) == apk_sha
     passed = sum(row['status']=='PASS' for row in result)
     receipt = {'schema':'STARCORE_FIELD173_INTEGRATED_NATIVE_PROBES_1','fieldRepair173':field,
