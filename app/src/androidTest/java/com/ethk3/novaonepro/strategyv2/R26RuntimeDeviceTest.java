@@ -78,19 +78,9 @@ public final class R26RuntimeDeviceTest {
             RuntimeCoordinatorR26 runtime = null;
             ServiceHeartbeatStore user = new ServiceHeartbeatStore(app);
             try {
-                // AutoFetchService's existing control loop requests the legacy owner before
-                // it starts R26. Recreate the persisted, upgraded service input without
-                // installing schema or task rows from instrumentation.
                 Field173NativeEvidence.prepareResearchSchema(store);
                 DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
                 checks.require(coordinator.isR811ResearchSchemaReady(), ResearchSchemaCoordinatorR926.summary());
-                store.requestLegacySchemaMigrationR31();
-                long legacyDeadline = SystemClock.elapsedRealtime() + 90_000L;
-                while (!coordinator.isLegacyRuntimeSchemaReady() && SystemClock.elapsedRealtime() < legacyDeadline) {
-                    store.requestLegacySchemaMigrationR31();
-                    SystemClock.sleep(125L);
-                }
-                checks.require(coordinator.isLegacyRuntimeSchemaReady(), coordinator.startupSchemaSummary());
 
                 long first = TargetIssueResolver.sequenceOrdinalSU1("202611260400");
                 long start = System.currentTimeMillis() - 48L * 60_000L;
@@ -99,12 +89,22 @@ public final class R26RuntimeDeviceTest {
                 checks.equal(48, store.saveDraws(draws), "Production history writer admits the consecutive fixture rows");
                 String latest = draws.get(draws.size() - 1).issue;
                 user.setUserEnabled(true);
+                // Mirror the live service: request the existing legacy writer, then start
+                // R26. The unrelated legacy readiness flag is not a start prerequisite.
+                store.requestLegacySchemaMigrationR31();
                 runtime = new RuntimeCoordinatorR26(store);
                 SQLiteDatabase database = store.readable();
+                long nextControl = SystemClock.elapsedRealtime();
                 long deadline = System.nanoTime() + 180_000_000_000L;
                 long committed = 0;
                 String reason = "NOT_REGISTERED";
                 while (System.nanoTime() < deadline) {
+                    long now = SystemClock.elapsedRealtime();
+                    if (now >= nextControl) {
+                        nextControl = now + 5000L;
+                        store.requestLegacySchemaMigrationR31();
+                        WriterHoldFaultsR31.drainControlSliceR32(store);
+                    }
                     if (table(database, "r26_task")) {
                         try (Cursor row = database.rawQuery("SELECT steps,blocked_reason FROM r26_task WHERE task_id=?",
                                 new String[]{task})) {
@@ -149,6 +149,7 @@ public final class R26RuntimeDeviceTest {
                 checks.record("schedulerTask", task);
                 checks.record("committedOuterTurns", committed);
                 checks.record("sourceStatus", reason);
+                checks.record("legacySchemaAtContinuityReceipt", coordinator.startupSchemaSummary());
             } finally {
                 user.setUserEnabled(false);
                 if (runtime != null) { runtime.close(); drain(runtime); }
