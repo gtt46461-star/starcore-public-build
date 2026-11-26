@@ -253,6 +253,9 @@ public final class ResearchLearningContinuityR912 {
         long started=TimeSourceR811.monoNowMs();
         try {
             final String issue=latest(store);if(issue.isEmpty())return Result.fail("WAIT_HISTORY");
+            // Both callers use this lane's pressure and SQL admission boundary.
+            ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
+            if (!gate.passed) return Result.fail("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
             final boolean dev=ResearchDynamicBootstrapR922.hasUnservedTraining(store),online=pendingOnline(store);
             final ResearchTaskQueueR967.Lease task=store.coordinatorR36().runAtomicWrite("R967_LANE_CLAIM",new DatabaseCoordinator.WriteCallable<ResearchTaskQueueR967.Lease>() {
                 public ResearchTaskQueueR967.Lease call(SQLiteDatabase db){ensureDesired(db,issue,dev,online);return claimNext(db,System.currentTimeMillis(),online||dev||hasLabelLane(db));}

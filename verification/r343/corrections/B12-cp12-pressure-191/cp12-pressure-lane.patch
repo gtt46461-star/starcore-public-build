@@ -1,0 +1,44 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+index 724f1791..5c7a2aa6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+@@ -253,6 +253,9 @@ public final class ResearchLearningContinuityR912 {
+         long started=TimeSourceR811.monoNowMs();
+         try {
+             final String issue=latest(store);if(issue.isEmpty())return Result.fail("WAIT_HISTORY");
++            // Both callers use this lane's pressure and SQL admission boundary.
++            ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
++            if (!gate.passed) return Result.fail("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
+             final boolean dev=ResearchDynamicBootstrapR922.hasUnservedTraining(store),online=pendingOnline(store);
+             final ResearchTaskQueueR967.Lease task=store.coordinatorR36().runAtomicWrite("R967_LANE_CLAIM",new DatabaseCoordinator.WriteCallable<ResearchTaskQueueR967.Lease>() {
+                 public ResearchTaskQueueR967.Lease call(SQLiteDatabase db){ensureDesired(db,issue,dev,online);return claimNext(db,System.currentTimeMillis(),online||dev||hasLabelLane(db));}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+index 78b62470..aaa2334e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+@@ -707,8 +707,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+         if(strategyStorageReady){long seq=latestSequence();if(seq>0&&seq!=lastIncumbentSeq){Claim first=claimTask("incumbent-forecast","P1");if(first!=null){lastIncumbentSeq=seq;return first;}}}
+         long now = SystemClock.elapsedRealtime();
+         if (strategyStorageReady && store.coordinatorForResearchR952().isR811ResearchSchemaReady()
+-                && now >= nextModernContinuityTurnElapsed && !RealtimePressureGateR811.hasActiveCriticalWork()
+-                && !SettlementExecutionGateR819.isActive()) {
++                && now >= nextModernContinuityTurnElapsed) {
+             nextModernContinuityTurnElapsed = now + 1000L;
+             Claim modern = claimTask(MODERN_CONTINUITY_TASK, "P2");
+             if (modern != null) return modern;
+@@ -1017,15 +1016,6 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+             return 0;
+         }
+         budget.checkpointOrYield();
+-        if (RealtimePressureGateR811.hasActiveCriticalWork() || SettlementExecutionGateR819.isActive()) {
+-            claim.reason("YIELD_P0_PRESSURE");
+-            return 0;
+-        }
+-        ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
+-        if (!gate.passed) {
+-            claim.reason("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
+-            return 0;
+-        }
+         long slice;
+         if (budget.tryConsume(850_000L)) slice = 850L;
+         else if (budget.tryConsume(600_000L)) slice = 600L;

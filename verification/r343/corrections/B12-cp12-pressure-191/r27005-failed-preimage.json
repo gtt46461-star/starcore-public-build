@@ -1,0 +1,12 @@
+{
+  "failedTest": "com.ethk3.novaonepro.strategyv2.R27QualityTest.r27005ResearchSessionNoLongerYieldsToDeadlines",
+  "failure": "The inherited regression requires realtime-pressure checks to stay out of the R26 coordinator, where session eligibility is defined.",
+  "observedGradleLines": [
+    "R27QualityTest > r27005ResearchSessionNoLongerYieldsToDeadlines FAILED",
+    "    java.lang.AssertionError at R27QualityTest.java:800"
+  ],
+  "repair": "The registered task delegates SQL and pressure eligibility to the existing CP12 lane. Other R26 tasks keep their original session eligibility. The R27-005 test is unchanged.",
+  "source": "80f0fe175e6fd3e51387e88b4eb3919309201d6b",
+  "supersededBuildRun": 45784917818,
+  "versionCode": 577311190
+}

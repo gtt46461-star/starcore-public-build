@@ -707,8 +707,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(strategyStorageReady){long seq=latestSequence();if(seq>0&&seq!=lastIncumbentSeq){Claim first=claimTask("incumbent-forecast","P1");if(first!=null){lastIncumbentSeq=seq;return first;}}}
         long now = SystemClock.elapsedRealtime();
         if (strategyStorageReady && store.coordinatorForResearchR952().isR811ResearchSchemaReady()
-                && now >= nextModernContinuityTurnElapsed && !RealtimePressureGateR811.hasActiveCriticalWork()
-                && !SettlementExecutionGateR819.isActive()) {
+                && now >= nextModernContinuityTurnElapsed) {
             nextModernContinuityTurnElapsed = now + 1000L;
             Claim modern = claimTask(MODERN_CONTINUITY_TASK, "P2");
             if (modern != null) return modern;
@@ -1017,15 +1016,6 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             return 0;
         }
         budget.checkpointOrYield();
-        if (RealtimePressureGateR811.hasActiveCriticalWork() || SettlementExecutionGateR819.isActive()) {
-            claim.reason("YIELD_P0_PRESSURE");
-            return 0;
-        }
-        ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
-        if (!gate.passed) {
-            claim.reason("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
-            return 0;
-        }
         long slice;
         if (budget.tryConsume(850_000L)) slice = 850L;
         else if (budget.tryConsume(600_000L)) slice = 600L;
