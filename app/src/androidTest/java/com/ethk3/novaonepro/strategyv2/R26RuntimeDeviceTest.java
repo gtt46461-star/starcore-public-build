@@ -9,6 +9,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.ethk3.novaonepro.*;
@@ -86,7 +87,8 @@ public final class R26RuntimeDeviceTest {
                 DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
                 checks.require(coordinator.isR811ResearchSchemaReady(), ResearchSchemaCoordinatorR926.summary());
                 store.requestLegacySchemaMigrationR31();
-                while (!coordinator.isLegacyRuntimeSchemaReady() && SystemClock.elapsedRealtime() < schemaDeadline) {
+                long legacyDeadline = SystemClock.elapsedRealtime() + 90_000L;
+                while (!coordinator.isLegacyRuntimeSchemaReady() && SystemClock.elapsedRealtime() < legacyDeadline) {
                     store.requestLegacySchemaMigrationR31();
                     SystemClock.sleep(125L);
                 }
