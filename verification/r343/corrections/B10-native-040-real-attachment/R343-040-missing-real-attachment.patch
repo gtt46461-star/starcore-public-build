@@ -1,0 +1,81 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java
+@@ -9,6 +9,7 @@
+ public final class ResearchObservatoryR30R1 {
+  private ResearchObservatoryR30R1(){}
+  public static final String VERSION="R30_REPAIR_OBSERVATORY1",PANEL="research-observatory-r1";
++ private static final String MISSING_REAL_RECEIPT_SOURCE = "MISSING_SOURCE:r974_exact_real_receipt";
+  static Map<String,Object> map(){return new LinkedHashMap<>();}
+  static Map<String,Object> point(String label,Object value,long n,String details){Map<String,Object> p=map();p.put("label",label);p.put("value",value);p.put("n",n);p.put("details",details);return p;}
+  static Map<String,Object> header(String view,EvalContextR27 c){Map<String,Object> f=map();f.put("viewId",view);f.put("datasetHash",c.data.datasetHash);f.put("role","SELECT");f.put("researchOnly",true);f.put("qualityEffective",null);f.put("status","MEASURED_RESEARCH_ONLY");f.put("points",new ArrayList<Object>());f.put("edges",new ArrayList<Object>());f.put("fromOrdinal",c.data.ordinals[c.split.selectFrom]);f.put("throughOrdinal",c.data.ordinals[c.split.selectTo-1]);return f;}
+@@ -102,13 +103,32 @@
+   }else if(view.equals("R18")){
+    f.put("role","FUTURE");f.put("formalReadOnly",true);
+    Map<String,Map<String,Object>> actual=new LinkedHashMap<>();
+-   for(Map<String,Object> receipt:com.ethk3.novaonepro.ResearchMainlineContributionAuditR922.exactRealAttributionR34(db,80))
+-    actual.putIfAbsent(String.valueOf(receipt.get("policy")),receipt);
+-   f.put("settlementAttributionScope","EXACT_REAL_DECISION_AND_AUTHORITATIVE_DRAW_READBACK");
++   boolean receiptTablePresent;
++   try (Cursor schema = db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name=?",
++           new String[]{"r974_exact_real_receipt"})) {
++    receiptTablePresent = schema.moveToFirst();
++   }
++   if (receiptTablePresent) {
++    for (Map<String,Object> receipt : com.ethk3.novaonepro.ResearchMainlineContributionAuditR922.exactRealAttributionR34(db,80)) {
++     actual.putIfAbsent(String.valueOf(receipt.get("policy")), receipt);
++    }
++   }
++   String attributionUnavailable = receiptTablePresent
++           ? "NO_EXACT_ORIGINAL_POLICY_AUTHORIZATION_AND_SETTLEMENT_KEY" : MISSING_REAL_RECEIPT_SOURCE;
++   f.put("settlementAttributionScope", receiptTablePresent
++           ? "EXACT_REAL_DECISION_AND_AUTHORITATIVE_DRAW_READBACK" : MISSING_REAL_RECEIPT_SOURCE);
+    f.put("naturalQualityState","EVALUATE_INDEPENDENT_REGISTERED_FUTURE_RECEIPTS");
+-   try(Cursor q=db.rawQuery("SELECT p.run_id,p.proposal_id,c.child_policy_hash,s.state,f.task_key,f.state,f.verified,f.registration_experiment_id,k.status,e.state FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id LEFT JOIN r27_policy s ON s.policy_hash=c.child_policy_hash LEFT JOIN r30_frozen_confirm f ON f.policy_hash=c.child_policy_hash LEFT JOIN r27_certificate k ON k.policy_hash=f.registration_experiment_id LEFT JOIN r27_eprocess e ON e.policy_hash=f.registration_experiment_id ORDER BY p.created_at DESC,p.proposal_id,f.task_key LIMIT 80",null)){while(q.moveToNext()){Map<String,Object> row=point(q.getString(1),q.isNull(2)?0:1,1,"逐真实外键；无child/确认/资格则链停在对应段，不能按同一期归因REAL");row.put("analysisRun",q.getString(0));row.put("proposal",q.getString(1));row.put("childHash",q.getString(2));row.put("admissionState",q.getString(3));row.put("confirmationTask",q.getString(4));row.put("confirmationState",q.getString(5));row.put("verified",q.isNull(6)?null:q.getInt(6));row.put("experiment",q.getString(7));row.put("certificateStatus",q.getString(8));row.put("sequentialState",q.getString(9));Map<String,Object> receipt=actual.get(MainlineFreezeProofR31.PREFIX+q.getString(7));row.put("realAuthorization",receipt==null?null:receipt.get("authorizationHash"));row.put("attributedRealSettlement",receipt);row.put("attributionReason",receipt==null?"NO_EXACT_ORIGINAL_POLICY_AUTHORIZATION_AND_SETTLEMENT_KEY":"MATCHED_ORIGINAL_POLICY_MODEL_AUTHORIZATION_AND_TRADE_KEYS");points(f).add(row);}}f.put("uniqueRealOwner","DecisionGateEngine_AND_SettlementEngine");f.put("naturalQuality","NOT_PROVEN");
++   try(Cursor q=db.rawQuery("SELECT p.run_id,p.proposal_id,c.child_policy_hash,s.state,f.task_key,f.state,f.verified,f.registration_experiment_id,k.status,e.state FROM r30r1_proposal p LEFT JOIN r30r1_consume c ON c.proposal_id=p.proposal_id LEFT JOIN r27_policy s ON s.policy_hash=c.child_policy_hash LEFT JOIN r30_frozen_confirm f ON f.policy_hash=c.child_policy_hash LEFT JOIN r27_certificate k ON k.policy_hash=f.registration_experiment_id LEFT JOIN r27_eprocess e ON e.policy_hash=f.registration_experiment_id ORDER BY p.created_at DESC,p.proposal_id,f.task_key LIMIT 80",null)){while(q.moveToNext()){Map<String,Object> row=point(q.getString(1),q.isNull(2)?0:1,1,"逐真实外键；无child/确认/资格则链停在对应段，不能按同一期归因REAL");row.put("analysisRun",q.getString(0));row.put("proposal",q.getString(1));row.put("childHash",q.getString(2));row.put("admissionState",q.getString(3));row.put("confirmationTask",q.getString(4));row.put("confirmationState",q.getString(5));row.put("verified",q.isNull(6)?null:q.getInt(6));row.put("experiment",q.getString(7));row.put("certificateStatus",q.getString(8));row.put("sequentialState",q.getString(9));Map<String,Object> receipt=actual.get(MainlineFreezeProofR31.PREFIX+q.getString(7));row.put("realAuthorization",receipt==null?null:receipt.get("authorizationHash"));row.put("attributedRealSettlement",receipt);row.put("attributionReason",receipt==null?attributionUnavailable:"MATCHED_ORIGINAL_POLICY_MODEL_AUTHORIZATION_AND_TRADE_KEYS");points(f).add(row);}}f.put("uniqueRealOwner","DecisionGateEngine_AND_SettlementEngine");f.put("naturalQuality","NOT_PROVEN");
+   }else return null;
+-  ResearchProvenanceGraphR30R1.project(view,f,db);if(points(f).isEmpty()){f.put("status","INSUFFICIENT");f.put("reason","NO_ORIGINAL_RECEIPTS_YET");}return f;
++  ResearchProvenanceGraphR30R1.project(view,f,db);
++  if (points(f).isEmpty()) {
++   f.put("status", "INSUFFICIENT");
++   f.put("reason", "NO_ORIGINAL_RECEIPTS_YET");
++  }
++  if (MISSING_REAL_RECEIPT_SOURCE.equals(f.get("settlementAttributionScope"))) {
++   f.put("reason", MISSING_REAL_RECEIPT_SOURCE);
++  }
++  return f;
+  }
+  public static ResearchWriteQueueR27.Batch product(String view,String measure,EvalContextR27 c,long revision,Map<String,Object> frame,long costNs,long now){
+   classifyFrameR335(frame);String policy=StatsR27.sha256("RESEARCH_OBSERVATORY_SOURCE_ONLY"),input=StatsR27.sha256(JsonR27.write(frame));ResearchContractR30R1.Role role=ResearchContractR30R1.Role.valueOf(String.valueOf(frame.get("role")));ResearchContractR30R1 contract=new ResearchContractR30R1(c.data.datasetHash,policy,FrozenConfirmationR30.currentSemantics(),BuildConfig.SOURCE_COMMIT_R26,input,role,((Number)frame.get("fromOrdinal")).longValue(),((Number)frame.get("throughOrdinal")).longValue(),now,revision);String run=StatsR27.sha256(VERSION+"|R335|"+view+'|'+revision+'|'+input+'|'+BuildConfig.SOURCE_COMMIT_R26);
+@@ -230,7 +250,8 @@
+    try(ResearchInputContextR33 owned=ResearchInputContextR33.acquire(rt,w,"OBSERVATORY:"+spec.id,needs)){
+     EvalContextR27 c=owned.context;long revision=owned.revision;StringBuilder ids=new StringBuilder();for(PolicySpecR27 p:owned.policies)ids.append(p.policyHash());
+     Map<String,Object> formal=spec.id.equals("R18")?stored(spec.id,c,w.ro,rt):null;
+-    String receipts=formal==null?sourceWatermarkR335(w.ro,spec.id):StatsR27.sha256(JsonR27.write(formal.get("sourceRecords")));
++    String receipts = formal == null ? sourceWatermarkR335(w.ro,spec.id)
++            : StatsR27.sha256(JsonR27.write(Arrays.asList(formal.get("settlementAttributionScope"), formal.get("sourceRecords"))));
+     String identity=StatsR27.sha256(VERSION+"|R335|"+spec.id+"|"+c.data.datasetHash+"|"+revision+"|"+ids+"|"+receipts+"|"+BuildConfig.SOURCE_COMMIT_R26);
+     boolean decided=false;try(Cursor q=w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?",new String[]{PANEL,spec.id})){decided=q.moveToFirst()&&identity.equals(q.getString(0));}
+     long now=System.currentTimeMillis();ResearchWriteQueueR27.Batch b;
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java
+@@ -63,8 +63,20 @@
+             DbStore store = new DbStore(app);
+             try {
+                 installDrawInputs(store, checks);
++                boolean exactRealReceiptPresent = scalar(store.readable(),
++                        "SELECT COUNT(*) FROM main.sqlite_master WHERE type='table' AND name='r974_exact_real_receipt'") == 1;
+                 Map<String, String> produced = RepairAnalysisAndroidFixture.create(store);
+                 checks.equal(18, produced.size(), "Original research producers issued per-ID outcomes");
++                checks.record("r18ExactRealReceiptTablePresent", exactRealReceiptPresent);
++                if (!exactRealReceiptPresent) {
++                    try (Cursor frame = store.readable().rawQuery(
++                            "SELECT payload_json FROM r30r1_chart_cache WHERE view_id='R18' ORDER BY updated_at DESC, frame_id DESC LIMIT 1", null)) {
++                        checks.require(frame.moveToFirst(), "R18 keeps a frame when its REAL receipt source is unavailable");
++                        Map<?, ?> payload = (Map<?, ?>) JsonR27.parse(frame.getString(0));
++                        checks.equal("MISSING_SOURCE:r974_exact_real_receipt", payload.get("reason"),
++                                "Native R18 frame distinguishes an unavailable source from a verified empty result");
++                    }
++                }
+                 ResearchWriteQueueR27 queue = new ResearchWriteQueueR27(store);
+                 checks.require(queue.submit("CHART_CACHE", ChartCacheR27.build(store.readable(), null), () -> false),
+                         "Original legacy cache writer committed");

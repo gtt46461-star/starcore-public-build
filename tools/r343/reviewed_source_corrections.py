@@ -102,9 +102,9 @@ def rebind(args):
             else:
                 after[key] = reviewed_after(repo, entry)
 
-        def corrected(state, through):
+        def corrected(state, through, review_count=None):
             updated = dict(state)
-            for row in reviews:
+            for row in reviews[:review_count]:
                 if row['batch'] <= through:
                     name = row['path']
                     digest = sealed.sha(updated[name]) if name in updated else None
@@ -115,7 +115,11 @@ def rebind(args):
         permitted = list(states)
         for stage in sorted({stages[group] for group in groups} | {review['batch'] for review in reviews}):
             group_count = sum(stages[group] <= stage for group in groups)
-            permitted.append(corrected(states[group_count], stage))
+            first_review = sum(review['batch'] < stage for review in reviews)
+            last_review = sum(review['batch'] <= stage for review in reviews)
+            # Each approved prefix is a possible durable state between two corrections.
+            for review_count in range(first_review, last_review + 1):
+                permitted.append(corrected(states[group_count], stage, review_count))
         corrected_expected = corrected(expected, batch)
         permitted.append(corrected_expected)
         return corrected_expected, permitted, groups
