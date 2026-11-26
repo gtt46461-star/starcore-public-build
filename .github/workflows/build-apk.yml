@@ -477,6 +477,7 @@ jobs:
             ${{ runner.temp }}/build/CI_BUILD_RECEIPT.json
             ${{ runner.temp }}/build/gradle-build.log
             ${{ runner.temp }}/engineering/
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: ${{ always() && steps.request.outputs.source != '' }}
         with:
@@ -488,7 +489,6 @@ jobs:
             app-source/app/build/outputs/apk/release/*.apk
           compression-level: 0
           if-no-files-found: ignore
-          if-no-files-found: warn
 
   r342-publish:
     needs: r342-candidate-build
