@@ -248,6 +248,10 @@ def identity(repo, plan, binding_file, require_clean=False, *, r34_plan=None, r3
             'R341_BOUND_SOURCE_REQUIRES_RELEASE_SERIES')
     require(not (repo/'release/r342_plan_binding.json').exists() or 'r342' in result,
             'R342_BOUND_SOURCE_REQUIRES_RELEASE_SERIES')
+    # Supplemental field plan is sealed separately; keep the original series gates.
+    if release.get('versionCode', 0) > 577311173 or (repo/'release/field173_plan_binding.json').exists():
+        result['fieldRepair173'] = release_owner(repo, 'r343').identity(
+            repo, head, result['source_tree'], release)
     return result
 
 

@@ -47,3 +47,14 @@ python3 -B "current-plan/$r342/tools/verify_plan.py" --plan "$PWD/current-plan/$
     printf 'STARCORE_R341_PLAN_ROOT=%s\n' "$PWD/previous-plan/$r341"
     printf 'STARCORE_R342_PLAN_ROOT=%s\n' "$PWD/current-plan/$r342"
 } >> "$GITHUB_ENV"
+
+# New field repair keeps all historical seals and adds its exact 173-source plan.
+if [[ -f "$repo/release/field173_plan_binding.json" ]]; then
+    field_plan=construction/plans/STARCORE_R34_3_REPAIR_20261126
+    field_commit=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["planCommit"])' "$repo/release/field173_plan_binding.json")
+    [[ "$field_commit" =~ ^[a-f0-9]{40}$ ]]
+    sealed_checkout field173-plan "$field_commit" "$field_plan"
+    python3 -B "field173-plan/$field_plan/tools/verify_plan.py" --plan "$PWD/field173-plan/$field_plan" --source-repo "$repo" --out "$RUNNER_TEMP/engineering/field173-plan.json"
+    printf 'STARCORE_FIELD173_PLAN_ROOT=%s\n' "$PWD/field173-plan/$field_plan" >> "$GITHUB_ENV"
+    public_file "$release/r34.2-B12-4d1de9d83692/STARCORE-R342-577311173-4d1de9d83692-release.apk" "$RUNNER_TEMP/baseline173.apk" 9304472262455c12b4600708fb23480d698acf9f3ba710ddee86cda214ae8750
+fi

@@ -11,6 +11,9 @@ import subprocess
 import tempfile
 import zipfile
 import verify_plan_binding as binding
+import sys
+sys.path.append(str(Path(__file__).resolve().parents[1]/'r343'))
+import field_delivery_contract as field_contract
 
 CERT='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
 BASE_APK='8f0cb6e6eadbce5787cffde310a6cbf204d43962e636fd9ebedf6e66556fb763'
@@ -208,8 +211,9 @@ def validate_pair(manifest, old, new, *, current_installed=None, expected_instal
     if current_installed is None:
         return 'COVER_INSTALL_UNVERIFIED'
     require(current_installed['package'] == PACKAGE, 'CURRENT_BASELINE_PACKAGE_MISMATCH')
-    baseline_error = ('EXACT_152_BASELINE_REQUIRED' if expected_installed['versionCode'] == 577311152
-                      else 'EXACT_122_BASELINE_REQUIRED')
+    baseline_error = {577311173:'EXACT_173_BASELINE_REQUIRED',577311152:'EXACT_152_BASELINE_REQUIRED',
+                      577311122:'EXACT_122_BASELINE_REQUIRED'}.get(expected_installed['versionCode'],
+                                                                    'EXACT_BOUND_BASELINE_REQUIRED')
     require(current_installed['versionCode'] == expected_installed['versionCode']
             and current_installed['sha256'] == expected_installed['sha256'], baseline_error)
     require(current_installed['signatureVerified'] is True
@@ -257,6 +261,7 @@ def main():
     require(args.build_log.is_file() and args.build_log.stat().st_size>0,'ORIGINAL_GRADLE_LOG_REQUIRED')
     identity=binding.identity(repo,args.plan,repo/'release/r33_plan_binding.json',True,
                               r34_plan=args.r34_plan,r341_plan=args.r341_plan,r342_plan=args.r342_plan)
+    field173 = field_contract.bound_field(repo, identity=identity)
     manifest=binding.read(repo/'release/release_manifest.json')
     choices=sorted((repo/'app/build/outputs/apk/release').glob('*.apk')) if args.apk is None else [args.apk]
     require(len(choices)==1,'EXACTLY_ONE_RELEASE_APK_REQUIRED');apk=choices[0]
@@ -265,7 +270,11 @@ def main():
     field_series = next((series for series in ('r342', 'r341') if series in identity), None)
     expected_installed = (binding.read(repo / f'release/{field_series}_plan_binding.json')['sourceApkEvidenceRef']
                           if field_series else None)
-    if field_series == 'r342':
+    if field173:
+        expected_installed = field173['sourceApkEvidenceRef']
+        require(args.current_installed_apk is not None, 'EXACT_173_BASELINE_REQUIRED')
+        require(args.engineering_evidence is not None, 'FIELD173_ENGINEERING_ORIGINALS_REQUIRED')
+    elif field_series == 'r342':
         require(args.current_installed_apk is not None, 'EXACT_152_BASELINE_REQUIRED')
     installed = inspect(args.current_installed_apk,args.aapt,args.apksigner) if args.current_installed_apk else None
     cover = validate_pair(manifest,old,new,current_installed=installed[0] if installed else None,
@@ -285,7 +294,10 @@ def main():
                 and build.get(field_series+'PlanCommit') == current['planCommit']
                 and build.get(field_series+'Batch') == current['batch'],
                 field_series.upper()+'_BUILD_RECEIPT_PLAN_MISMATCH')
+    if field173:
+        field_contract.bound_field(repo, identity=identity, build=build)
     engineering = None
+    field_evidence = None
     if args.engineering_evidence:
         require(field_series == 'r342', 'ENGINEERING_EVIDENCE_SERIES_MISMATCH')
         with zipfile.ZipFile(args.engineering_evidence) as originals:
@@ -303,6 +315,9 @@ def main():
                     and engineering.get('buildRun') == build.get('ciRun')
                     and engineering.get('status') == 'ENGINEERING_CHECKS_PASSED',
                     'ENGINEERING_EVIDENCE_BINDING_MISMATCH')
+            if field173:
+                field_evidence = field_contract.verify_archive(
+                    repo, field173, engineering, originals, apk_sha=new['sha256'], run_id=build['ciRun'])
     out.mkdir(parents=True,exist_ok=False)
     series = field_series.upper() if field_series else 'R34' if 'r34' in identity else 'R33'
     stem=f"STARCORE-{series}-{new['versionCode']}-{identity['source_commit'][:12]}"
@@ -311,7 +326,7 @@ def main():
     (out/'public-certificate.txt').write_text(signature);(out/'badging.txt').write_text(badging)
     (out/'baseline033-certificate.txt').write_text(old_signature);(out/'baseline033-badging.txt').write_text(old_badging)
     if installed:
-        baseline_label = 'baseline152' if field_series == 'r342' else 'baseline122'
+        baseline_label = 'baseline173' if field173 else 'baseline152' if field_series == 'r342' else 'baseline122'
         (out/f'{baseline_label}-certificate.txt').write_text(installed[1])
         (out/f'{baseline_label}-badging.txt').write_text(installed[2])
     shutil.copy2(args.build_log,out/'gradle-build.log')
@@ -345,6 +360,10 @@ def main():
         receipt.update(currentInstalledBaseline=installed[0] if installed else None, coverCompatibility=cover)
     if field_series == 'r342':
         receipt['engineeringAcceptance'] = 'SEPARATE_R342_BATCH_RECEIPT_REQUIRED'
+    if field173:
+        receipt['fieldRepair173'] = field173
+        receipt['fieldEngineeringEvidence'] = field_evidence
+        receipt['engineeringAcceptance'] = 'FIELD173_CURRENT_BATCH_ENGINEERING_PASSED_DEVICE_NATURAL_NOT_INFERRED'
     if engineering:
         raw = out/'engineering-originals.zip'
         shutil.copy2(args.engineering_evidence, raw)

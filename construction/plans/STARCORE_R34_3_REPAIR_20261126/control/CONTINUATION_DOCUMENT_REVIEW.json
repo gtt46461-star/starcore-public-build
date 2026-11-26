@@ -1,0 +1,87 @@
+{
+  "schema": "R343_DOCUMENT_SCOPE_REVIEW_1",
+  "reviewed_plan": "recovered/plan/STARCORE_R34_3_REPAIR_20261126",
+  "findings": [
+    {
+      "id": "DOC-PID",
+      "file": "specs/MAINLINE.md",
+      "line": 43,
+      "problem": "旧报告PID22528/18685与当前报告不符。",
+      "correct": "runtime PID5868；report observerPID6495；主writer producerPid=null,pending=null,admitting=null，状态UNKNOWN。",
+      "evidence": [
+        "runtime-observation.json#/pid",
+        "R30_REPORT.json#/snapshotWatermark/sourceManifest/mainWriterFaultsR342"
+      ]
+    },
+    {
+      "id": "DOC-STARTUP",
+      "file": "specs/MAINLINE.md",
+      "line": 47,
+      "problem": "4次CHECKPOINT_PREPARE均VERIFIED沿用旧窗口，当前source不成立。",
+      "correct": {
+        "current_source_attempts": 8,
+        "current_source_frames": 38,
+        "prepare_outcomes": {
+          "VERIFIED": 3,
+          "BUG": 5
+        },
+        "preserve_outcomes": {
+          "WAIT_RESOURCE": 2,
+          "BUG": 1
+        }
+      },
+      "evidence": [
+        "runtime-observation-r341ResearchStartupJournal.txt#/frames[sourceCommit=4d1de9d83692635b5c5ce39144fece1c8a31c8ac]",
+        "startup-failure-59a053484bc17847e342e12d84902d020dde20fcf45e1a7f589cb1cbbe0dc726.json"
+      ]
+    },
+    {
+      "id": "DOC-DISK",
+      "file": "specs/MAINLINE.md",
+      "line": 57,
+      "problem": "3GB是旧现场泛称，当前冻结快照4344995840 bytes。",
+      "correct": {
+        "snapshot_bytes": 4344995840,
+        "live_database_bytes": 4284432384,
+        "live_wal_bytes": 75795672,
+        "scope": "snapshot与live采样各自不同时间；4.345GB是十进制近似，不等于持有原始DB"
+      },
+      "evidence": [
+        "REPORT_DETAILS.txt#check:RSEC-006",
+        "runtime-observation.json"
+      ]
+    },
+    {
+      "id": "DOC-44-METRIC",
+      "file": "coverage/METRIC_ACTIONS_44.json",
+      "problem": "44个指标全部B11、相同issue集合及相同处理文案，不是生产责任追溯。",
+      "correct": "METRIC_ACTIONS_44_REVISED.json逐指标生产责任/验证归口/正反例/源码锚点；原metric保留sourceSnapshot。"
+    },
+    {
+      "id": "DOC-96-CHECK",
+      "file": "coverage/CHECK_ACTIONS_96.json",
+      "problem": "多个研究检查仅指通用R343-043，未连回021/022/026等真实生产断点。",
+      "correct": "CHECK_ACTIONS_96_REVISED.json逐检查关联具体issue、生产批、读取方法和验收；原始结果不变。"
+    },
+    {
+      "id": "DOC-M05",
+      "file": "coverage/METRIC_ACTIONS_44.json",
+      "problem": "8/30仅证明predraw早于开奖，不能代替M05截止前≥5000ms的独立期覆盖。",
+      "correct": "M03 request→durable≤5000ms、M04 observe→settled≤1000ms、M05 deadline−frozen≥5000ms三合同分列。"
+    },
+    {
+      "id": "DOC-ASOF",
+      "file": "issues/R343-041.md",
+      "problem": "历史冻结快照缺独立monotonic证据时不能直接因延迟导出而重授as-of有效状态。",
+      "correct": "保持UNKNOWN+原始样本/TTL/boot/范围说明；不以放宽TTL或使用报告进程时钟伪造主writer新鲜度。",
+      "status": "ROOT_HANDLING"
+    }
+  ],
+  "link_review": {
+    "authoritative_md_only": true,
+    "ignored_inline_code_and_code_fences": true,
+    "broken_relative_markdown_links": []
+  },
+  "evidence_scope_review": "EVIDENCE_SCOPE.md已准确说明67载荷+独立manifest、无原DB/APK二进制/模型字节/47UI/设备未来；无需把68 ZIP成员改成68 payload。",
+  "status": "ROOT_INTEGRATION_REQUIRED; NOT_PRODUCT_ACCEPTANCE"
+}

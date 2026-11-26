@@ -1,0 +1,4123 @@
+{
+  "schema": "R342_INHERITED_152_ACCEPTANCE_REBIND_1",
+  "count": 152,
+  "route_counts": {
+    "NAMED_METHOD_PRESENT": 136,
+    "EXTERNAL_DEVICE_OR_NATURAL_PROTOCOL": 6,
+    "B12_CASE_DISPATCH_PRESENT": 10
+  },
+  "cases": [
+    {
+      "old_case_id": "R341-B01-01-T01",
+      "old_issue_id": "R341-B01-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "tools/r341/test_b01_contracts.py",
+      "method_contract": "test_r341_b01_01_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "R33.5、R34 既有封印 fixtures 加 R34.1-B01…B12 新 fixtures，各修改一个成员/版本/祖先关系。",
+      "old_expected": "所有有效组合输出确定性 identity；篡改、脏发布源、错误根、非底座后代、越界批次均失败且不给 build PASS。旧封印字节及历史验证结果不变。 REV-B01-01：以同一122源码祖先、两份不同 R34.1 封印构建测试输入，替换新封印或放入旧 APK 时，封包拒绝；R33.5 摘要相同不能掩盖交换。编译 androidTest APK 只记编译完成，须另取实际运行输出签场景。 F5-B01-01 正例：新工作树、已完成批次和新增仅施工证据可独立续工。 反例：错封印、缺报告或同名 ignored 文件在导入前有明确结果，已有证据不被覆盖。",
+      "required_review_ids": [
+        "REV-B01-01",
+        "F5-B01-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b01_contracts.py",
+        "--case",
+        "R341-B01-01-T01",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-01-T02",
+      "old_issue_id": "R341-B01-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "tools/r341/test_b01_contracts.py",
+      "method_contract": "test_r341_b01_01_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "版本四文件写到中途故障后恢复；传033、122、签名不匹配、缺真实122 APK四种封包输入。",
+      "old_expected": "四文件原子恢复；033通过不产生122覆盖证明；签名不匹配阻断交付；缺122证据只允许候选，明确 COVER_INSTALL_UNVERIFIED。 F5-B01-03 正例：只有 B01 时可验本批；SDK 验签原件及下载回读在各自具备条件时追加。 反例：沿用旧包、错源码、错封印、非本批版本或原件摘要不符不能签过对应层。",
+      "required_review_ids": [
+        "F5-B01-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b01_contracts.py",
+        "--case",
+        "R341-B01-01-T02",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-02-T01",
+      "old_issue_id": "R341-B01-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_02_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "装入现场水位和跨进程混合 fixture；晚于心跳的138成功与早心跳136/133并存。",
+      "old_expected": "无矛盾告警；报告显示时间差，122已开奖覆盖1/6、未开奖138不入分母，跨版本30期1/30单列。 F5-B01-02 正例：精确选择指定 debug 用例，实例实际进入并完成，读到相同数据目录和令牌。 反例：漏参、错目录、零用例、重用旧日志或未运行的成功命令均拒收。",
+      "required_review_ids": [
+        "F5-B01-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_02_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-02-T02",
+      "old_issue_id": "R341-B01-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_02_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "数据库切换、设备重启/时钟回拨、缺sourceCommit、只读库忙。",
+      "old_expected": "拒绝错误join；mono仅同boot可比较；缺失身份或读取失败保持 UNKNOWN/RESOURCE_WAIT，不造数值零。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_02_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-03-T01",
+      "old_issue_id": "R341-B01-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_03_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "在每个初始化阶段前后杀进程；让SQLite写锁长期占用；故意令sqlite不可打开。",
+      "old_expected": "独立spool仍可导出最后BEGIN与首个失败；不会依赖数据库修复才知道停点。正常重启保留旧attempt，未闭合转INTERRUPTED。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_03_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-03-T02",
+      "old_issue_id": "R341-B01-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_03_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "模拟partial帧、磁盘满、WAIT锁、source缺失、重复确定性异常。",
+      "old_expected": "截断尾帧不损前帧；首错仍可见；WAIT不计BUG，缺源不伪装锁等待；同故障熔断仅相关owner，不停实时抓取。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_03_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-04-T01",
+      "old_issue_id": "R341-B01-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_04_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "心跳连续、同一个cursor重复写、提交成功但诊断刷写失败、UNKNOWN最终回读成功/失败。",
+      "old_expected": "前两者进度增量为0；COMMITTED_DIAGNOSTIC_FAILED业务只算一次；UNKNOWN解析前不算，解析后一次性补真实状态。 F4-B01-01 正例：22 路回顾后保持零训练，报告如实显示；新增实际可比的已提交产物才更新相应阶段，重复同一原件幂等。 反例：REVIEW_ONLY / WAIT_FORMAL_FUTURE、仅更新心跳或 R26 健康未采样都不能制造训练、出生或恢复成功。",
+      "required_review_ids": [
+        "F4-B01-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_04_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-04-T02",
+      "old_issue_id": "R341-B01-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_04_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "发三次恢复但无canonical，再提交下个canonical；独立提交maintenance与FTRL。",
+      "old_expected": "前三次恢复不算成功，真正新commit关闭正确recovery；maintenance和learner计数分列。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_04_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-05-T01",
+      "old_issue_id": "R341-B01-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_05_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "重放7目标矩阵，加一个从未产生request的应算目标，生成同事件两次。",
+      "old_expected": "分母保持完整；重复事件不翻倍；2成功不覆盖失败；138等待开奖；缺原始DB输入的案例标STRUCTURAL_RECONSTRUCTION而非现场复现。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_05_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B01-05-T02",
+      "old_issue_id": "R341-B01-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B01ContractTest.java",
+      "method_contract": "test_r341_b01_05_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "离线重放路径意外配置生产库、试图把模拟canonical标REAL。",
+      "old_expected": "输入边界立即拒绝；simulate结果带fixtureId与SIMULATION，无法获得生产发布/未来样本资格。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B01ContractTest#test_r341_b01_05_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-01-T01",
+      "old_issue_id": "R341-B02-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_01_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "一写者故意持锁超过deadline，其余各lane排队；释放后重试并模拟commit确认丢失。",
+      "old_expected": "所有等候返回有限 RESOURCE_WAIT/DEADLINE；无双重writer、无越期新canonical、无不明事务后重复提交；receipt可恢复已提交结果。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_01_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-01-T02",
+      "old_issue_id": "R341-B02-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_01_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "研究10000行、fault24条、迁移多DDL输入；中间slice被取消或进程死亡。",
+      "old_expected": "所有已提交slice保留、未提交slice不前移；单片边界可观察；恢复从已提交cursor续跑。任何超限单SQL另列待修，不把平均值掩盖最大值。 REV-B02-01：在 B02 仅使用本批代码与隔离容量数据运行；分别阻塞进入 SQL 之前和提交确认阶段，断言超时原因、晚到提交核对、幂等与全机会分母。B10 装入真实空间策略后重跑相同用例，禁止持写锁扫描文件。",
+      "required_review_ids": [
+        "REV-B02-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_01_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-02-T01",
+      "old_issue_id": "R341-B02-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_02_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "填满32故障，普通研究被挡；独立控制tick在UI关闭、R26未初始化状态运行。",
+      "old_expected": "已提交drain持续减少队列，只有验证成功后出队；最终低于backpressure，研究可重新admit；没有新的递归fault风暴。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_02_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-02-T02",
+      "old_issue_id": "R341-B02-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_02_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "drain在commit后崩溃、quota不足、schema缺失及SQL锁死到预算到期。",
+      "old_expected": "重启/重试不双计、不丢原fault；分别UNKNOWN可解析、BLOCKED_STORAGE、MIGRATION_REQUIRED、WAIT_LOCK，不统称网络异常。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_02_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-03-T01",
+      "old_issue_id": "R341-B02-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_03_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "虚拟时钟产生正常实时负载、失败且过期实时目标、持续合理实时峰值三场景。",
+      "old_expected": "正常/过期场景ready研究在30秒可用窗口提交至少一片；持续饱和明确SATURATED和全分母，不伪报研究服务。所有slot最终释放。 F5-B02-01 正例：持续故障背压、无临近冻结，在多个可用窗口总让另一个合法研究任务先提交。修复后两种已就绪研究在原单 writer、预登记预算内各有实际提交。 反例：每轮仅有其他任务成功或本项取消、回滚不能代签；真正的实时拥塞须保留饱和时间和对应目标。",
+      "required_review_ids": [
+        "F5-B02-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_03_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-03-T02",
+      "old_issue_id": "R341-B02-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_03_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "研究获取保留slot但rollback，随后同cursor重复提交；加入取消、异常、UNKNOWN。",
+      "old_expected": "失败/重复不刷新业务年龄；只有真实新commit刷新；UNKNOWN待解析期间不会平行重复执行。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_03_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-04-T01",
+      "old_issue_id": "R341-B02-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_04_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "阻塞getLatestDraw/一个UI read两秒，持续驱动控制tick、取消和fault drain。",
+      "old_expected": "控制tick仍运行且队列有界；UI明确STALE/RESOURCE_WAIT；阻塞读回调不会覆盖新版本snapshot或重复发analysis。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_04_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B02-04-T02",
+      "old_issue_id": "R341-B02-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B02ContractTest.java",
+      "method_contract": "test_r341_b02_04_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "Activity快速打开关闭100次、库identity切换、报表游标中途异常。",
+      "old_expected": "无泄漏Cursor/失效Activity回调、无指数读放大；新identity只接收同scope结果。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B02ContractTest#test_r341_b02_04_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-01-T01",
+      "old_issue_id": "R341-B03-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_01_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "针对启动链每一步注入锁、进程死亡、UNKNOWN、取消、无关表持续写入、真正源hash变化。",
+      "old_expected": "重启从最后提交unit续跑，无双重owner/重复保护；无关写入不导致无穷从头，真正源变化明确重验/阻断。每步均有BEGIN/END。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_01_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-01-T02",
+      "old_issue_id": "R341-B03-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_01_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "fresh库与含现场同类旧schema/保护定义的升级fixture执行initialize至session注册；真实现场输入不可得。",
+      "old_expected": "可用依赖全部闭合且返回ready；缺源fixture保留对象级DEPENDENCY；现场根因状态保持UNCONFIRMED，不因模拟通过改成已解决。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_01_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-02-T01",
+      "old_issue_id": "R341-B03-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_02_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "fresh、部分DDL安装、字段不匹配、已完整安装四种fixture运行migration。",
+      "old_expected": "前两者安装完整且重复执行幂等；错列明确阻断而保留数据；完整库无业务运行DDL；四张现场缺失表及所有依赖对象均可PRAGMA与hash核对。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_02_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-02-T02",
+      "old_issue_id": "R341-B03-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_02_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "持续实时任务夹入lifecycle-schema安装并在任一对象后死亡。",
+      "old_expected": "遵守B02迁移片预算，重启续装，ready不提前；本批只验结构与调度，不要求未来候选产生。 REV-B03-01：旧122结构升级时只留下前一项已提交的迁移，注入第二项中断，重启后逐对象校对结构和唯一迁移收据。旧库历史保留，等待注册与真实空表分开，B03 的签收不依赖 B06 子代或 B07 模型。",
+      "required_review_ids": [
+        "REV-B03-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_02_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-03-T01",
+      "old_issue_id": "R341-B03-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_03_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "双owner同时初始化、注册事务前后崩溃、旧线程晚提交、缺一任务后重试。",
+      "old_expected": "只有一个current session生效；manifest齐全无重复task；旧fence拒绝，补注册幂等；cold任务存在并有实际依赖状态。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_03_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-03-T02",
+      "old_issue_id": "R341-B03-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_03_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "具备schema但无source，与具备最小合法fixture两种输入。",
+      "old_expected": "前者WAIT_INPUT可诊断无伪产物，后者成功claim一片并写真实ProgressReceipt；本批无需未来训练/证书批才能验调度闭合。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_03_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-04-T01",
+      "old_issue_id": "R341-B03-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_04_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "独立task A有已验证source，task B缺source，迁移C有强保护依赖三种组合。",
+      "old_expected": "A正常claim，B WAIT_SOURCE，C保留硬阻断并精确指出所需原件；没有全局误放行或无关全局停摆。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_04_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B03-04-T02",
+      "old_issue_id": "R341-B03-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B03ContractTest.java",
+      "method_contract": "test_r341_b03_04_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "缺文件恢复后hash一致/不一致、同名目录被替换、低空间。",
+      "old_expected": "一致可解除依赖，冲突保留原指纹并拒绝；空间不够不删除原件；恢复操作有新证据不伪造过去已存在。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B03ContractTest#test_r341_b03_04_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-01-T01",
+      "old_issue_id": "R341-B04-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_01_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "fresh库、原research已建库、仅predraw存在的部分升级库、错列库四种输入；分别运行服务冷启动。",
+      "old_expected": "前三者完成结构闭合且旧行/hash不变；错列返回MIGRATION_CONFLICT保全。ready之前不能freeze；ready后两条热路径零DDL。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_01_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-01-T02",
+      "old_issue_id": "R341-B04-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_01_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "critical安装中进程死亡/rollback/UNKNOWN，再重启并重复canonical和settle。",
+      "old_expected": "幂等续装，无双owner/重复row；成功ready后可在无需R26启动情况下冻结/结算。业务commit仍遵守PIT和固定deadline。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_01_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-01-T03",
+      "old_issue_id": "R341-B04-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_01_t03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "原critical stamp显示MATCH、旧R906_SCHEMA step为COMPLETED但LegacyPredraw缺一表；另造一个未知critical列漂移；迁移中断后重启。",
+      "old_expected": "已知仅LegacyPredraw差异通过新受控step装齐并正确重签当前契约，不能被旧COMPLETED跳过；未知漂移仍拒绝，不自动信任；安装前后旧业务行hash不变。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_01_t03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-02-T01",
+      "old_issue_id": "R341-B04-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_02_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "相同history不同SQL返回顺序，补历史增加、draw correction、目标开奖后更新、旧fence晚绑。",
+      "old_expected": "同数据hash一致；真实变化需要新合法attempt；已开奖/过deadline不再创建；旧fence失败，原hash/canonical保持。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_02_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-02-T02",
+      "old_issue_id": "R341-B04-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_02_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "MIN-1/MIN/超过MAX、缺中间期、包含target或未来期、同issue多revision。",
+      "old_expected": "合法suffix按现有规则构建，非法输入明确reason；不泄露未来数据、不随机选择revision；无原始132输入时不宣称现场132已精确复现。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_02_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-03-T01",
+      "old_issue_id": "R341-B04-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_03_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "复现134→135、136→137到达顺序；注入长prepare、writer wait、commit未知。",
+      "old_expected": "所有目标均有唯一终态或合法pending；supersede引用清晰；固定deadline从未延长，过期目标无canonical；UNKNOWN期间无双owner。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_03_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-03-T02",
+      "old_issue_id": "R341-B04-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_03_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "旧任务失败、异常、cancel后不打开Activity，加入新的合法目标。",
+      "old_expected": "下一合法任务自动被claim；不会因先前失败永久保持inFlight；重复post只生成同request一次。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_03_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-04-T01",
+      "old_issue_id": "R341-B04-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_04_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "在核心bundle每个写点故障/崩溃，随后重试同identity与异payload。",
+      "old_expected": "没有半canonical被读取为成功；同payload至多一份完整bundle，异payload冲突；全部失败请求留终态。 F4-B04-01 正例：完整同目标、同授权的 REAL 提交成功后丢回调，再次处理只返回原交易；相同合同下只存在同一套 canonical、trade、exact receipt 和 probability。 反例：旧库的交易存在但其应有收据缺失或属于另一模型；拒绝宣称完整重放，不生第二笔交易，不用后来的开奖生成缺失事实；旧合同样本带版本归属。",
+      "required_review_ids": [
+        "F4-B04-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_04_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-04-T02",
+      "old_issue_id": "R341-B04-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_04_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "有predraw、无predraw、S0 shadow、等待开奖、draw correction、deferred尚未完成六种情况。",
+      "old_expected": "已有predraw正常核心结算；无predraw被排除；shadow不计REAL；未开奖不提前结算；延后证据不改变原动作/截止期。 REV-B04-01：handler拒绝，首次写与第二次写之间杀进程，重复合法请求、迟到标签与跨日轮转。唯一原件、可追踪每个目标；返回不可证的原件无有效命中，不补造赛前时间。 F3-B04-01 重放603结构：S0有已结算原件、投影frozen_seen=1/canonical_seen=0、R35缺失且R36已审计排除。该期只能计S0与正式缺期；604两角色分别计数。注入重复事件或打开页面重扫都不能增加冻结数。",
+      "required_review_ids": [
+        "REV-B04-01",
+        "F3-B04-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_04_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-05-T01",
+      "old_issue_id": "R341-B04-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_05_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "789项结构fixture，含已结算/未开奖、内存受限、坏payload、重复claim和中途死亡。",
+      "old_expected": "合法项持续推进，坏项有明确隔离且计入未完成；无重复动作/漏ordinal；重启从已提交cursor续跑，FULL只在完整校验后出现。 F3-B04-02 加入789→1115的净增326模式，持续有新任务和一个坏旧任务；逐窗验证入队与完成而非仅游标变化。未满足实时预算时保留原因，恢复后最老合法项能完成；坏项独立隔离，当前期核心冻结、结算和不依赖FULL的训练继续。",
+      "required_review_ids": [
+        "F3-B04-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_05_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-05-T02",
+      "old_issue_id": "R341-B04-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_05_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "控制handler DB读阻塞与analysis实时忙时持续drain；释放内存后不打开UI。",
+      "old_expected": "控制tick不阻塞，deferred使用自己的worker，遵守实时预算；资源恢复能自动续排；主canonical结果不变。 F3-B04-03 按原 h=1/2/4/8 轮流注入让行、原时钟过期、历史不足、写入失败、加入时间跨过开奖及重启。每个计划锚点保持一种可解释结果；晚到只记缺口，重复结算幂等。同目标的多个步长和共识不增加独立期数，不产生训练、校准或 REAL 授权。",
+      "required_review_ids": [
+        "F3-B04-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_05_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-06-T01",
+      "old_issue_id": "R341-B04-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_06_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "首尾空格/换行/Unicode/空body，原文重复绑定、改一字、伪造trim后hash。",
+      "old_expected": "原解码字符串身份稳定且不归一化；有效字符或空白改变即对应不同原件hash；bytes hash与body hash不同域不互当；禁止overwrite。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_06_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-06-T02",
+      "old_issue_id": "R341-B04-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_06_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "complete写BUSY后回读缺行；有完整pending原件与完全无原件两类重试。",
+      "old_expected": "前者同writer幂等恢复正确收据；后者WAIT_DURABLE_BINDING；真正body篡改仍HASH_CONFLICT不被恢复机制放行。 REV-B04-02：计时表恰满，发送同请求的 transport/parse/validated 三阶段与一次新的 HISTORY 请求，再令事务已提交但返回证据丢失；LIVE 与 HISTORY 区分，缺失不填 0，同一请求不会被报为三个独立漏件，业务提交保持。",
+      "required_review_ids": [
+        "REV-B04-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_06_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B04-06-T03",
+      "old_issue_id": "R341-B04-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B04ContractTest.java",
+      "method_contract": "test_r341_b04_06_t03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "重复100次、逆序/迟到、同键异排列、跨日/休市以及历史缺一段。",
+      "old_expected": "去重和冲突隔离正确；最新摄取不被旧gap阻断；short-window合法则继续，long-window明确WAIT；补历史不得获得自然future资格。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B04ContractTest#test_r341_b04_06_t03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B05-01-T01",
+      "old_issue_id": "R341-B05-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+      "method_contract": "test_r341_b05_01_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "service-only环境运行合法连续目标，注入抓取失败、DB等待、analysis失败、deferred等待，然后恢复。",
+      "old_expected": "无需Activity触发即可再次抓取、请求、提交/结算；每个失效loop在有资源后恢复；无双executor/双request；失败仍进全分母。 REV-B05-01：无 Activity 连续每 500ms 调 ensure，同时注入遥测抛错、handler拒绝、断网/恢复、旧 generation 晚回、开奖已落库但派发前被杀。恢复后下一个合法目标在固定 deadline 内得到唯一 request、冻结/结算；记录计划及实际 due，用户关闭后迟到事件无副作用。",
+      "required_review_ids": [
+        "REV-B05-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_01_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B05-01-T02",
+      "old_issue_id": "R341-B05-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+      "method_contract": "test_r341_b05_01_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "短时间重复START100次、服务进程重建、用户主动关闭开关。",
+      "old_expected": "重复START幂等；重建恢复durable pending；userEnabled=false后不自行重启、不偷算；恢复开关才重新启动合法工作。 F4-B05-01 正例：服务入口 post(false) 后恢复投递并重复 START；保留一次实际启动和由服务独立提交的正常目标原件。 反例：已接收后撤销、旧代回调晚到、用户关闭后重排；旧任务不能清新令牌，也不能新建第二套执行者。",
+      "required_review_ids": [
+        "F4-B05-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_01_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B05-02-T01",
+      "old_issue_id": "R341-B05-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+      "method_contract": "test_r341_b05_02_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "heartbeat活但writer锁住、无新draw、worker崩溃、service不存在四场景。",
+      "old_expected": "分别资源等待、合法等待、worker恢复、service重启；不把所有场景都重启；无业务进展都不记RECOVERED。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_02_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B05-02-T02",
+      "old_issue_id": "R341-B05-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+      "method_contract": "test_r341_b05_02_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "连续无进展触发10次，随后资源解锁并真实commit；设备重启使旧mono失效。",
+      "old_expected": "启动次数受冷却限制；原cause年龄不重置；真正commit关联旧recovery闭合一次；旧boot lease安全回收。 REV-B05-02：两次已受理后第三次投递失败，Job/Alarm 并发、壁钟回拨、同 ordinal 异 hash、旧 owner 重放、当前 lane 新 commit；未送达保留有界重试，同因不重复扣名额，只有最后一个真实提交关闭一次恢复。",
+      "required_review_ids": [
+        "REV-B05-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_02_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B05-03-T01",
+      "old_issue_id": "R341-B05-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+      "method_contract": "test_r341_b05_03_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "无Activity工程harness覆盖网络、时钟和进程场景；保留关闭开关与force-stop反例。",
+      "old_expected": "无越期canonical、无新窗口续命；恢复只在授权/OS允许下进行；所有预期目标有明确结果与原因。 REV-B05-03：999/1000/1001ms 与 4999/5000/5001ms、没有源发布时间、跨 boot、服务整段未运行、最后目标待开奖。逐项正确过界，未知不能判通过，打开页面不改变基线；同一规则用于无人干预 24h/72h 的 B05-03-T02。 F3-B05-01 关闭Activity，依次注入超过256个不同事件、写者繁忙、原件暂不可见、恢复及进程死亡。实际返回原件每项只计一次；没有原返回时钟的目标仍入分母并为未测。报告同时给所有目标、可测返回及未测数，限流和诊断争用不能阻塞下一个真实请求。 F3-B05-03 构造出号耗时4999ms但截止余量4999ms，以及耗时5001ms但余量5000ms；两种判定应相反。各加入一个无截止、无冻结、断网和跨boot不可比的期。按不同分母复算，非健康和未知仍留在全日历，不能靠删期达到报告的健康子集≥99.5%目标。 F4-B05-02 正例：仅有 B01–B05 的工程工作树和本批 APK 即能启动采集、结束后导出两个时长的统一结构，独立读取已开奖期和服务生命周期。 反例：B12 尚未开工时 B05 不得依赖其新建工具；B12 复验换最终 APK 后混用先前 APK 采样必须拒绝。",
+      "required_review_ids": [
+        "REV-B05-03",
+        "F3-B05-01",
+        "F3-B05-03",
+        "F4-B05-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_03_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B05-03-T02",
+      "old_issue_id": "R341-B05-03",
+      "level": "DEVICE",
+      "route": "EXTERNAL_DEVICE_OR_NATURAL_PROTOCOL",
+      "path": null,
+      "method_contract": null,
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "在一台声明完整配置的真机上进行每个场景、连续24h及72h。",
+      "old_expected": "逐项给真实PASS/FAIL/NOT_RUN；本次只有方案所以均NOT_RUN。capabilities ready不能自动转为soak PASS；每次人工开Activity都记录并使无人干预连续性判据失败。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": null
+    },
+    {
+      "old_case_id": "R341-B05-04-T01",
+      "old_issue_id": "R341-B05-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+      "method_contract": "test_r341_b05_04_t01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "同seed/input分别service-only与Activity打开关闭100次，包含UI read异常。",
+      "old_expected": "业务输出hash集合一致、请求无重复；UI退出不停止授权服务；读失败显示明确状态，主线程不执行DB/迁移/训练。 F3-B05-02 在UI快照查询、广播接收和刷新通知分别注入超时/旧epoch，以关闭页面、反复开关页面两个相同目标流比较请求/冻结/结算的唯一键与时限。UI失败可显式显示旧值年龄或待刷新，不能阻塞下期调度，也不由重开UI补写业务。",
+      "required_review_ids": [
+        "F3-B05-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_04_t01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B05-04-T02",
+      "old_issue_id": "R341-B05-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B05ContractTest.java",
+      "method_contract": "test_r341_b05_04_t02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "用户关闭后台开关、库identity切换、服务等待资源、进程重启。",
+      "old_expected": "界面准确显示STOPPED/INVALIDATED/WAIT/STARTING并最终按真实commit更新；不能把旧snapshot显示为新进展。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B05ContractTest#test_r341_b05_04_t02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-01-A01",
+      "old_issue_id": "R341-B06-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_01_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "候选/专家各一例旧 ABI，重启两次",
+      "old_expected": "各一个新身份；父字节及旧证据不变；新未来计数为零 F4-B06-02 正例：最新期10000，旧段跨5000、水位前有256条连续合法样本且父代曝光可核，生产入口完成一次出生和首次训练提交，重启读取相同窗口及状态。 反例：测跨度4999/5000、不足64条、违反曝光或模型预热要求和源修订；不得填造相邻样本、冒认首训，或创建已确定会立即过期的工厂。",
+      "required_review_ids": [
+        "F4-B06-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_01_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-01-A02",
+      "old_issue_id": "R341-B06-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_01_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "提交前/提交后杀进程，两个 worker 抢同父代",
+      "old_expected": "恰好一子代；过期 fence 不可写；无孤儿 checkpoint",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_01_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-01-A03",
+      "old_issue_id": "R341-B06-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_01_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "坏父代与合法父代混合",
+      "old_expected": "坏对象隔离，合法对象继续；不会要求等 B09 自然样本 REV-B06-01：同库放一个已有证据的旧 ABI 父代、一个无 campaign 且无出生记录的保全父代和一个已出生父代。重启两次后总数守恒，首个只生一次，未知对象能查到具体缺项，其他父代不受阻。 F4-B06-01 正例：无 RUNNING 工厂，合法种子、合法历史父代和一份可定位的损坏旧文本/旧 proposal_json 并存，生产工厂成功发布，合法候选取得首个训练 checkpoint，读回原父与故障证据。 反例：损坏父代不静默丢失；源修订、fence、取消及存储不可用须中止相关事务；同输入重试和进程重启不重生或推进被隔离游标。",
+      "required_review_ids": [
+        "REV-B06-01",
+        "F4-B06-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_01_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-02-A01",
+      "old_issue_id": "R341-B06-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_02_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "固定可学习样例、连续与中断恢复",
+      "old_expected": "输入/更新次数相同；参数与预测在已声明容差内相同；有正梯度样例参数确变 F3-B06-01 覆盖24个家族ID，不允许以一个通用数值测试批量签24个处方。例：F02 保留一元项切相邻因子，F19 分别切位置/状态模式并恢复 AdaGrad，F24 比 F01/F09/F11 单体、等权和已学路由。恢复后与连续跑同期逐行对账；无差别可记录无观察增益，未执行留待完成。",
+      "required_review_ids": [
+        "F3-B06-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_02_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-02-A02",
+      "old_issue_id": "R341-B06-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_02_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "改变目标及其未来标签",
+      "old_expected": "当期输入和预测不变，只有合法后续训练状态变化",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_02_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-02-A03",
+      "old_issue_id": "R341-B06-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_02_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "损坏一个 checkpoint",
+      "old_expected": "对象隔离；其余家族在本轮有提交或明确依赖状态",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_02_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-03-A01",
+      "old_issue_id": "R341-B06-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_03_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "合法公式、类型错误、未来引用、深树及常量公式集合",
+      "old_expected": "合法公式产出可复算概率/K3；其余有确定拒绝码 F3-B06-02 21个ID逐行读回。对 I14 构造来源重叠及等大小不相交两例，对 I20 加入开奖后才出现的条件，对 I08 换错 ABI 权重，结果分别回到合法目标K3/预先约定的HOLD/拒绝。等价AST在出生门去重，失败对照不占创新数。 F5-B06-01 正例：最老不可解析 PENDING、第二个合法确认和一个可出生公式并存，读回坏行原件及原因、合法包处理记录、独立策略 BORN/谱系/首次重放，杀进程再投仍幂等。 反例：存储键A却装入合法包B、当前代正依赖坏包、确认曝光已耗、数据库暂忙、提交未知分别有终态或可重试原件；错包不确认，不借用结果，不重新开放已消费的样本。",
+      "required_review_ids": [
+        "F3-B06-02",
+        "F5-B06-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_03_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-03-A02",
+      "old_issue_id": "R341-B06-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_03_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "换名字/冗余节点/交换输入重试",
+      "old_expected": "等价不重复出生；安全归一化不改变逐位数值 F4-B06-03 正例：可解析的同一公式在 A 因 AVAILABLE_ROWS 不足被真实 gate 拒绝；预定开发 B 具备合法输入后同一个 hash 完成首次出生并重放，保留两份不同作用域的记录。 反例：同 A 重试、已出生对象、语法无效、换名、两个工人同时处理 B、提交后被杀和非法未来输入均不得让出生、行为创新或资格重复/越权计数。 F6-B06-01 同一公式调窗口、阈值或学习率，包括 K3 确实改变的例子，新增结构数为 0。新增可执行跨来源边并改变共同探针的决策才计结构和行为新颖。交换等价输入、只改操作名、缺父原件和改变互不相干的两项数值均不能冒领。",
+      "required_review_ids": [
+        "F4-B06-03",
+        "F6-B06-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_03_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-03-A03",
+      "old_issue_id": "R341-B06-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_03_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "指定非平凡变异",
+      "old_expected": "结构 diff 非空且开发探针有真实差异；无差异可被正常淘汰",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_03_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-04-A01",
+      "old_issue_id": "R341-B06-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_04_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "12 实验+4 审计的固定输入集",
+      "old_expected": "实验逐项得到子代或精确 WAITING/REJECTED；审计有回执且出生数不增加",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_04_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-04-A02",
+      "old_issue_id": "R341-B06-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_04_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "报告进程无静态绑定，运行 owner 有合法绑定",
+      "old_expected": "显示 owner 已绑定，F23 可用性由实际 owner 验证",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_04_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-04-A03",
+      "old_issue_id": "R341-B06-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_04_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "错目标/错 ABI 教师",
+      "old_expected": "拒绝本对象并保持其他任务前进",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_04_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-05-A01",
+      "old_issue_id": "R341-B06-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_05_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "大量重复候选+少数新机制，有限内存预算",
+      "old_expected": "不 OOM；新机制取得非零计算预算；重复不虚增有效出生 F6-B06-02 热门父本产生大量调参变体时，在预登记有算力的窗口，另一机制仍能被执行并首次训练/回放。以已有输入重试、重启均不重复出生。受资源限制时游标可续，已引用的原件完整。",
+      "required_review_ids": [
+        "F6-B06-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_05_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-05-A02",
+      "old_issue_id": "R341-B06-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_05_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "父代被候选/证书/未决确认引用",
+      "old_expected": "不能 prune；释放引用后只按保留合同归档",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_05_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B06-05-A03",
+      "old_issue_id": "R341-B06-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B06ContractTest.java",
+      "method_contract": "test_r341_b06_05_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "全部候选无增益",
+      "old_expected": "正常完成一轮并保留负结果，合格数可以为零",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B06ContractTest#test_r341_b06_05_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-01-A01",
+      "old_issue_id": "R341-B07-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_01_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "十位置完整/缺一位置/重复标签/乱序输入",
+      "old_expected": "完整组可消费；缺项组不可发布；重复不增加步数；恢复后只补缺项",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_01_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-01-A02",
+      "old_issue_id": "R341-B07-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_01_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "扰动当期与未来开奖",
+      "old_expected": "当期特征、预报和已冻结概率不变",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_01_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-01-A03",
+      "old_issue_id": "R341-B07-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_01_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "将 FUTURE 或 synthetic 送训练",
+      "old_expected": "类型拒绝且模型、cursor、buffer 不变 REV-B07-01：固定种子使旧实现能抽中 SELECT；通过两个真实入口各跑一次在线更新、一次开发验证和一次恢复。验证集合与该模型实际 replay 抽样键交集为零，两个入口结果与各自连续运行一致。旧 checkpoint 来源不明时不得将原 SELECT 报为未训练验证。",
+      "required_review_ids": [
+        "REV-B07-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_01_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-02-A01",
+      "old_issue_id": "R341-B07-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_02_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "连续 N 步与 N/2 杀进程恢复",
+      "old_expected": "相同数值 ABI 下完整状态/下一预测一致；差异容差预先声明",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_02_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-02-A02",
+      "old_issue_id": "R341-B07-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_02_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "有限可学习样例与无信号样例",
+      "old_expected": "前者有真实更新，后者允许无增益；不能要求训练损失每步下降",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_02_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-02-A03",
+      "old_issue_id": "R341-B07-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_02_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "NaN 梯度或过期 fence",
+      "old_expected": "拒绝提交，模型仍为上次已提交版本",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_02_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-03-A01",
+      "old_issue_id": "R341-B07-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_03_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "发布M1，生成冻结，再发布M2",
+      "old_expected": "旧冻结仍为M1；新研究可用M2；旧未来注册不得自动换M2 REV-B07-02：夹具提供有并列的10×10概率面、完整赛前动作序列与开奖，独立参考实现重算指标；换掉一个 target/hash、漏掉一个动作、注入 NaN 或将开奖后重排输入时返回缺证/拒绝。1200个动作只占一期分母；这组 ENGINEERING 只验接口与复算。",
+      "required_review_ids": [
+        "REV-B07-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_03_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-03-A02",
+      "old_issue_id": "R341-B07-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_03_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "错 position/featureABI/target 或部分 epoch",
+      "old_expected": "全部拒绝并保留正确版本；无空模型成功回执 F3-B07-01 固定同一位置与十分类面，使历史特征规则K3与当前候选K3不同并令开奖号码仅命中其中一组。两个事件各自重算，不得互换所选命中概率、命中标签、ECE或 REAL 计数。扰动当期未来开奖不改变先前两头输出；回读同哈希 checkpoint 后推理关闭 dropout、各位置十类概率合法。",
+      "required_review_ids": [
+        "F3-B07-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_03_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-03-A03",
+      "old_issue_id": "R341-B07-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_03_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "同调用重试与发布中断",
+      "old_expected": "一次有效调用/发布，重复回执不增加独立样本",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_03_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-04-A01",
+      "old_issue_id": "R341-B07-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_04_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "同结算事件投递三次，中途重启",
+      "old_expected": "模型至多训练一次；只有一个 effect 引用；后续事件继续 F3-B07-03 当10个连续已开奖目标里故意漏掉中间一期，或成功反馈仅写计数而下轮读旧输入时须定位该期；补齐合法输入并重启后恰好消费一次。无合法赛前证据者保留在机会分母并说明排除，严禁事后生成赛前预测。",
+      "required_review_ids": [
+        "F3-B07-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_04_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-04-A02",
+      "old_issue_id": "R341-B07-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_04_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "固定失败开发样例",
+      "old_expected": "下一轮指定父节点/预算或合法在线参数确变，能追回原反馈 F6-B07-01 同一期两条不同策略各有冻结，开奖号码只到一次。分别核对两份标签、两条不同的下游输入与更新前后证据。重复事件只消费一次。把 A 的反馈、权重或结果归给 B 必须失败。",
+      "required_review_ids": [
+        "F6-B07-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_04_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-04-A03",
+      "old_issue_id": "R341-B07-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_04_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "正式 FUTURE 反馈",
+      "old_expected": "原实验只更新资格账、冻结模型不变；后续研究须新边界/新身份且从零未来证据 F3-B07-02 从相同 checkpoint/seed 开启可重放三臂并杀进程续算，要求每臂能独立重现自己的更新次序；旧/新模型损失差相同而回放对照无增益时只允许既定研究触发，不宣称回放已改善。注入缺旧模型、缺一个臂、错误角色、支持不足、训练碰到保留评估键或重复结算，均不能产生正开发效果。",
+      "required_review_ids": [
+        "F3-B07-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_04_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-05-A01",
+      "old_issue_id": "R341-B07-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_05_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "归档对象坏一条，训练仍有热源与容量",
+      "old_expected": "该对象隔离，训练和其他归档继续",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_05_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-05-A02",
+      "old_issue_id": "R341-B07-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_05_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "硬容量耗尽",
+      "old_expected": "可解释等待，无 OOM、无未验删除；恢复容量后续算",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_05_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B07-05-A03",
+      "old_issue_id": "R341-B07-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B07ContractTest.java",
+      "method_contract": "test_r341_b07_05_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "任务状态 RUNNING 但旧提交",
+      "old_expected": "显示 STALE/无新提交，不能声称已恢复",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B07ContractTest#test_r341_b07_05_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-01-A01",
+      "old_issue_id": "R341-B08-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_01_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "构建中断、重复页、源修正",
+      "old_expected": "不产生半完成 dataset；恢复结果 hash 与连续构建一致；旧 run 保留失效原因 REV-B08-01：代内冻结 A，连续发布 B、C，插入取消、读者未退出及提交后进程死亡。运行租约有界，B 在最后读者退出后释放，A 在代内仍可读取，下一代接 C。每个保护中的 pin 重启后按原 hash 恢复。 F5-B08-01 正例：恢复已有同身份 pin、游标及匹配恢复投影；阻挡冗余投影写仍能把相同输入交给下一进化切片。另测投影缺失后有界补写、重启回读，合法受控输入最终走到真实出生与首个开发重放。 反例：只有3条表头、pin字节或修订错误、fence被替代、取消、读预算不足及不合法历史均不能发布成功。",
+      "required_review_ids": [
+        "REV-B08-01",
+        "F5-B08-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_01_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-01-A02",
+      "old_issue_id": "R341-B08-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_01_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "断期或晚到历史标签",
+      "old_expected": "不会伪造连续段或赛前可见时间；对应实验拒绝或分段",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_01_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-01-A03",
+      "old_issue_id": "R341-B08-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_01_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "无任何学生但合法源",
+      "old_expected": "source-only acquire 成功；学生图明确 WAITING",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_01_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-02-A01",
+      "old_issue_id": "R341-B08-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_02_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "18图逐项完整及缺项夹具",
+      "old_expected": "有输入者产真实点及support；无输入者精确状态；不能遗漏视图 REV-B08-04：逐一跑 R01–R18。有值、全null、旧版以及篡改原件各一份。R06 校验自身配对字段，R11/R14/R18 无资料为待观测且消费不适用；真实零+正support仍可显示。 F3-B08-05 让研究提示的合法 sw/lw 与备用抽样窗口不同，按实际 AST 复算两种单来源、交集和每期投入；九种扰动包括未来标签、目标位置、断档、过期原件及交集0、1、2、3个数、条件迟到。保留每臂日历及三号码，I14只在共同三号码时可ACT；条件/支持不足分别计数。",
+      "required_review_ids": [
+        "REV-B08-04",
+        "F3-B08-05"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_02_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-02-A02",
+      "old_issue_id": "R341-B08-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_02_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "一个图抛错/耗尽切片预算",
+      "old_expected": "其余图继续，当前图保留原件错误与可重试水位",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_02_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-02-A03",
+      "old_issue_id": "R341-B08-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_02_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "给 R11/R14/R18 写训练/REAL 权限",
+      "old_expected": "拒绝；图只读取既有证据，不产生资格或策略动作",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_02_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-03-A01",
+      "old_issue_id": "R341-B08-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_03_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "无学生且合法数据",
+      "old_expected": "两个source-only矩阵产出；学生矩阵 WAITING_STUDENT，不阻其他kind F6-B08-01 固定其余因素，在 source-only 跨位流或其他已有算法消费者中屏蔽关键单元，观察到具体输入边、后续选取及非平凡输出的预期变化。缺学生的矩阵等待，独立源矩阵仍继续。只换 matrixId 或截图无效。",
+      "required_review_ids": [
+        "F6-B08-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_03_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-03-A02",
+      "old_issue_id": "R341-B08-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_03_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "20对象正常/缺源/错shape/错目标",
+      "old_expected": "正常原值可重算；缺源清楚等待；错项拒绝且旧合法产物保留stale REV-B08-02：先插入 A，再插入 ordinal 更新的 B 模型对照，两者数据集不同。运行 A 只返回 A 的两行时间差；只有 B 时 A 等待，再写入合法 A 后可恢复。更换无关 B 或竞争写不得把 A 永久标 INVALID 或重复产出。",
+      "required_review_ids": [
+        "REV-B08-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_03_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-03-A03",
+      "old_issue_id": "R341-B08-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_03_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "实际消费者关闭与开启矩阵",
+      "old_expected": "记录动作/预算/子代差；无差允许，无自动宣称增益",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_03_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-04-A01",
+      "old_issue_id": "R341-B08-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_04_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "提案正例、只读图、角色不符、源失效",
+      "old_expected": "只有正例产生真实child或effect；其他确定拒绝，原件保留 REV-B08-03：隔离环境注入方向相反、每半199支持、单位置只过全局阈值及同向达标样例。前三者不开 S5；达标且上下游就绪的例子恰有一个影子；落盘前后重启、槽满后重试不重复，不产生生产证书或 REAL。 REV-B08-05：给同一 viewId 写旧版动作、重复消费、仅文字提案、当期有 before/after 变化且原件可复算的非出生动作，当前真实消费只有最后一笔。只读图不取得优化授权。 F6-B08-02 在发现时未使用的开发片段生成两棵去参数后不同、可执行且实际被训练/重放的树。重启后同规则再消费一次。删除原子、替换规则、退化为同模板调参、只写登记记录或复用未知旧 ABI 均不能计新思路族。",
+      "required_review_ids": [
+        "REV-B08-03",
+        "REV-B08-05",
+        "F6-B08-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_04_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-04-A02",
+      "old_issue_id": "R341-B08-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_04_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "commit前后杀进程并重投",
+      "old_expected": "至多一次动作；无孤儿child、无假consumption F3-B08-02 同代依次发布 A(两个可用分子)、B(零幸存)、C(新revision,一个分子)，夹入读头与读行之间的切换、kill 和恢复；正常进化入口回读当前集合，B 不得再生带A来源的子代，独立派生原子仍可用，C可重新调度。只可追到叶权重但未真正采用时计数为0；无原件记录未知。",
+      "required_review_ids": [
+        "F3-B08-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_04_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-04-A03",
+      "old_issue_id": "R341-B08-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_04_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "非出生预算动作",
+      "old_expected": "实际下一轮配置/发放变化与effect匹配",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_04_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-05-A01",
+      "old_issue_id": "R341-B08-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_05_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "固定失败夹具运行两代并中途恢复",
+      "old_expected": "代际manifest及确定性结果可复演；第二代确引用第一代结果 REV-B08-06：复演固定失败并在断点恢复；每层给可计算、空分母和污染反例；两次只认同一动作。生成层与观察层共用 sourceHash；重叠窗口和同目标的多个专家不能增加独立期数。 F3-B08-06 注入合法跨位对照、只有全策略失败的假设、错组件 hash、同父已测反事实。仅具备合法执行材料的两项可进入各自原生产路径一次；其余返回具体原因，后续补件唤醒。重启后去重。核实 R26 F15 未代替 I14、开发子代的未来计数为0、PRUNE 的子代就是测量过的结构。 F6-B08-03 同一刺激下比较父本、仅调参、结构编辑、撤销这处编辑和等预算随机编辑。只有实改且干预引起行为差的后代才能进入行为新颖统计。消融无效、输入错域和重试不重复记。",
+      "required_review_ids": [
+        "REV-B08-06",
+        "F3-B08-06",
+        "F6-B08-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_05_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-05-A02",
+      "old_issue_id": "R341-B08-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_05_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "全部子代被拒绝",
+      "old_expected": "本代可ENGINEERING_COMPLETE，改进数0；下一轮仍按预算可运行",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_05_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-05-A03",
+      "old_issue_id": "R341-B08-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_05_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "未来命中注入研究输入",
+      "old_expected": "角色阻断，搜索/预算不改变",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_05_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-06-A01",
+      "old_issue_id": "R341-B08-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_06_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "合法双亲、不同目标、自融合、缺组件",
+      "old_expected": "仅合法pair可生新identity；无输入明确等待 F6-B08-04 对两父及三父的权重、条件路由和秩投票分别验收。零权父、状态门从未到达的父、仅使用头两个成员时的第三父、同机制克隆不得充作有效贡献。两真父的逐亲移除应各有差异。无协同或开发变差留真实负例。",
+      "required_review_ids": [
+        "F6-B08-04"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_06_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-06-A02",
+      "old_issue_id": "R341-B08-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_06_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "有互补和无互补的确定夹具",
+      "old_expected": "均有完整对照；无互补可拒绝，不能强制正增益 F3-B08-03 构造三亲门控、三亲中一项权重为零、全部为零和合法双亲互补四种候选。追踪出生、谱系、消融和下一轮预算；未嵌入者仅可做参考对照，无独立贡献计数。同位置、同层级、同机会留证，负结果如实进入淘汰。",
+      "required_review_ids": [
+        "F3-B08-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_06_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-06-A03",
+      "old_issue_id": "R341-B08-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_06_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "已有证书父代融合",
+      "old_expected": "子代证书/未来计数为零，父证书不被改写",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_06_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-07-A01",
+      "old_issue_id": "R341-B08-07",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_07_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "两个算子不同开发效用/成本，多次重复回执",
+      "old_expected": "下一轮分配有可解释变化；重复不叠乘；各合法探索算子仍有机会 F3-B08-04 相邻两代前后额度本来就不同且当前研究输入对结果无影响时，不给该图/矩阵改进记功；当同代开关确实改变分配时只记一次。进入下一代前杀进程、重放同一消费无重复，预算紧张时公布延期对象和重试水位。零增益进入去重/降权，保留最低探索与唯一原件。 F3-B08-08 在同一隔离工厂先只做策略消融，再只做模型消融，另一栏保持无测量。注入同名异数据集、跨kernel重启、只写DONE而缺report_hash、差下界非正；拒绝取样替换或提升预算。合法重跑能读回原结果一次；下一轮预算变更明确指向实际配对，不向自然层复制开发结果。",
+      "required_review_ids": [
+        "F3-B08-04",
+        "F3-B08-08"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_07_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-07-A02",
+      "old_issue_id": "R341-B08-07",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_07_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "所有成效未知或全负",
+      "old_expected": "缩回先验/保留探索；不制造正信用 F3-B08-01 四段中一段缺失或下界≤0均继续观察，四段有序且各下界>0才能记录对应研究验证。让不同版本的 REGMEM 或重复期混入四段必须拒绝。影子 599 次、600 次但无对照、600 次且有合格对照分别调用真实 shadowOutcome；实际上下文分开记录 EFFECTIVE、NO_EFFECT、HARMFUL、PENDING。AUTO无执行差、MANUAL未施工和既无原报告动作又无源的情况均不得记作已改进。 F6-B08-05 等预算对照下，含热门重复、低支持新路及全负轮次。下轮有新的派发及拒绝/留存原因。计时器代号递增、反复运行同一公式、拟定预算而从未调度均不能计已完成进化或改善。",
+      "required_review_ids": [
+        "F3-B08-01",
+        "F6-B08-05"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_07_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B08-07-A03",
+      "old_issue_id": "R341-B08-07",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B08ContractTest.java",
+      "method_contract": "test_r341_b08_07_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "未来数据/旧revision负例",
+      "old_expected": "拒绝越界信用；旧负记忆不永久封新机制 F3-B08-07 放入同家族的大量旧正收益、当前同一合同的负收益、缺配对与未达支持的结果。只用适用分层生成分配，交换旧数据不应改变当前次序。重复提交和重启不重复记功；全负或缺证仍有合规探索位。检查真实入队或预算投递以及下一期消费者。",
+      "required_review_ids": [
+        "F3-B08-07"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B08ContractTest#test_r341_b08_07_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-01-A01",
+      "old_issue_id": "R341-B09-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_01_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "正常注册、重复、模型替换、重命名",
+      "old_expected": "幂等注册；换模型拒绝或创建新实验，新全局index；旧证据不迁移 REV-B09-01：A 注册时对照 C1，积累中签入同类 C2，且 C2 与 A 仅有一个重合期。A 继续使用其冻结的 C1；错目标、缺口及迟冻结隔离。换对照形成新独立区间，旧 ACT 和 alpha 不复制。 F3-B09-01 同一预测器两阈值构成 100 个已知开发机会，固定规则ACT40命中14，专攻规则ACT5命中3；在候选5次为前者子集时，共同ACT=5，并集=40，专攻率虽60%但覆盖5%。另用试验覆盖率15%和30%的独立夹具检查分母与展示，禁止将该例计生产资格；换阈值、换位置及开奖后补填选择各自引发隔离/新注册，0次ACT的命中率为空。 F6-B09-01 两个不同机制及一个调参版本各走自己的合法注册路径。同键重试不重复分配。父证直接借用、换族名重置 alpha、训练命中混入未来、子代沿用父代已开奖目标均拒收。",
+      "required_review_ids": [
+        "REV-B09-01",
+        "F3-B09-01",
+        "F6-B09-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_01_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-01-A02",
+      "old_issue_id": "R341-B09-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_01_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "TRAIN样本伪装CONFIRM",
+      "old_expected": "拒绝并给曝光冲突原件",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_01_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-01-A03",
+      "old_issue_id": "R341-B09-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_01_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "隔离ENGINEERING夹具强阳性/阴性",
+      "old_expected": "走完确认/拒绝分支，产物不可进入自然资格或真实证书",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_01_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-02-A01",
+      "old_issue_id": "R341-B09-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_02_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "乱序/重复开奖与重启",
+      "old_expected": "按日历恰好一次，重建/增量同值，机会分母守恒 REV-B09-02：为同一期 A 正常冻结并先结算；B 首轮因 PIT 未写，之后在截止前成功或截止后迟到。重复提交并重启后分别逐键复算，A 的 ACT 与 settled 仍在，迟到的 B 只计一次，各实验日历与汇总定义一致。",
+      "required_review_ids": [
+        "REV-B09-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_02_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-02-A02",
+      "old_issue_id": "R341-B09-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_02_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "漏期、迟冻结、开奖冲突",
+      "old_expected": "缺口明确，质量不可通过；后开奖补录不能变有效",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_02_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-02-A03",
+      "old_issue_id": "R341-B09-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_02_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "全HOLD或零ACT",
+      "old_expected": "rate=null而非0%或100%；覆盖真实0",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_02_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-03-A01",
+      "old_issue_id": "R341-B09-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_03_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "逐一单门槛失败/缺证据/全门槛通过的隔离fixture",
+      "old_expected": "任何FAIL/UNKNOWN不标自然合格；逐项拒绝原因可复算 REV-B09-04：有标签夹具独立计算等质量和等宽ECE、BSS和逐行先前拟合支持域，Q05需N≥200、等质量ECE≤0.04且支持覆盖≥90%；199/200条与179/200、180/200支持的边界分别留证。保持数字但换 selectionPolicyHash、把训练标签放入校准、0支持或缺子组样本均不可签证；旧shadow的254/887、新S0的0/5及新候选自然ACT必须各有分母，零未来分母不给出0%命中。 F4-B09-05 正例：用隔离正例复算每个同目标父子差值、样本方差与预注册下界；独立未来回执按同一合同复算。 反例：同一策略换名、错父代、跨窗口拼接、遗漏弃权或自报正下界不签收。 F5-B09-01 正例：同一命中率但不同先后分布产生不同连败；测试 19/20 次支持和跨块边界。 反例：自报通过但存在超限连败、错窗口、无足量块或重复期均不得签收对应 Q04 优势。",
+      "required_review_ids": [
+        "REV-B09-04",
+        "F4-B09-05",
+        "F5-B09-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_03_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-03-A02",
+      "old_issue_id": "R341-B09-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_03_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "数学裁决通过，分别构造未来 ACT 为250、机会为1667与1666的边界",
+      "old_expected": "分别保存数学判定、实际签发或拒绝、额外质量三项结果，250/1667 须因覆盖不足拒发，250/1666 在其余实际门槛通过时才可签发 REV-B09-03：构造数学门全绿、250份ACT、1667次登记机会的隔离夹具，期望覆盖不足、实发拒绝、无ACTIVE与REAL。1666机会且其他门全部达标才可走隔离实发正路。另对 expectedPayoffPositive=false 分支作元件测试，端到端给缺模型、撤销、分母缺口三个反例。 F5-B09-02 正例：250个部署机会中当前候选38笔真实交易并结算，另一个候选同时有自己的真实交易；实测得到38/250，已结算与命中按自己记录独立对账。无部署史时原门可以首次发证；1个真实机会可立即留下已应用记录。 反例：38个布尔真没有trades、篡改原生交易、错证书、撤销后授权、影子冒领、把另一个候选的真实交易记录移给本候选、漏期或Q07用一个身份报99个资产均拒收。 F6-B09-02 两个不同合格机制、一个合格调参版、一个撤销及一个不足样本的隔离样例，逐项与逐对对账。重复证书、挪用分母、只靠不同哈希、没有共同日历仍报互补均拒收。首次合法应用沿原门，不以已有多资产或部署后频率为前置。",
+      "required_review_ids": [
+        "REV-B09-03",
+        "F5-B09-02",
+        "F6-B09-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_03_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-03-A03",
+      "old_issue_id": "R341-B09-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_03_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "250ACT无足够序贯/配对证据",
+      "old_expected": "保持ACCUMULATING或REJECTED，不自动授证",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_03_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-03-A04",
+      "old_issue_id": "R341-B09-03",
+      "level": "NATURAL",
+      "route": "EXTERNAL_DEVICE_OR_NATURAL_PROTOCOL",
+      "path": null,
+      "method_contract": null,
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "预注册后的独立自然机会持续积累",
+      "old_expected": "仅原始真实未来账符合各项门槛时标NATURAL_QUALITY_PASS；未达/拒绝/未观察均如实保留；Q05校准支持≥200与资产ACT≥250分别检验，≥37%是研究优先目标而非既有V1硬门槛",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": null
+    },
+    {
+      "old_case_id": "R341-B09-04-A01",
+      "old_issue_id": "R341-B09-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_04_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "隔离有效/过期/撤销/错模型/错K3证明",
+      "old_expected": "只有正确证明通过同一决策owner；任何错项拒绝 F3-B09-02 同一数据集依次跑无合法影子、有影子但不足支持、V2 wouldIssue=true、过期及撤销四种路径，调用前后逐真实键核对两套记录。夹具不能令 V2 启用、签发、撤销或触发一次真实动作；下一期重新评估留下可关联的输入摘要，生产没有合法影子则保留等待状态。 F4-B09-01 正例：隔离库从后台入口使证书在先、ACT 证明与 R932 选择器交换两种到达顺序；预算内两条路径均取得可复算的同一个赢家；连续两期合法 ACT 各有一次受控授权 BET、交易及结算。 反例：证明过晚、空结果已封、开关关闭、策略弃权、证书撤销或更高优先候选当选，分别回读具体原因与赢家；不得覆盖既有选择或放宽全局锁。",
+      "required_review_ids": [
+        "F3-B09-02",
+        "F4-B09-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_04_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-04-A02",
+      "old_issue_id": "R341-B09-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_04_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "freeze后发布新模型或证书撤销",
+      "old_expected": "已冻结身份不被重算；后续非法调用被拒绝，已授权结算仍按原冻结 F4-B09-02 正例：先提交合法交易，后撤销再开奖，原位置及 K3 的输赢仍精确结算一次；重放开奖和恢复回调数值不变，后续新请求按撤销状态处理。 反例：撤销先于交易提交、同目标完整原件冲突或换证换模，拒绝新 REAL 并留原始依据；无 REAL 时任何影子统计不能混入真实账。",
+      "required_review_ids": [
+        "F4-B09-02"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_04_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-04-A03",
+      "old_issue_id": "R341-B09-04",
+      "level": "DEVICE",
+      "route": "EXTERNAL_DEVICE_OR_NATURAL_PROTOCOL",
+      "path": null,
+      "method_contract": null,
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "生产无自然证书",
+      "old_expected": "不伪造REAL；显示真实HOLD/既定fallback原因",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": null
+    },
+    {
+      "old_case_id": "R341-B09-05-A01",
+      "old_issue_id": "R341-B09-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_05_a01",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "相同seed与中断恢复",
+      "old_expected": "结果/完整搜索轨迹相同；当前code/config指纹一致 F4-B09-04 正例：控制同一统计命中输入，在工厂无可用冠军或独立确认失败时，序贯可测且工厂相应阶段未通过；用可发现的受控植入数据沿原工厂保留出生/选择/确认/未来判定原件，计数守恒，并保留未获证的合法末态。 反例：仅传入预制命中序列便宣称创造/实盘获证，拿30%复写强度充当生成资产命中率，或新子代以旧globalIndex=1冒用自然预算，均不得签收相应结论。",
+      "required_review_ids": [
+        "F4-B09-04"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_05_a01",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-05-A02",
+      "old_issue_id": "R341-B09-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_05_a02",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "零信号与植入结构",
+      "old_expected": "按原登记六臂×20个种子对照完整120记录，保留各臂原表；原协议三个零假设臂按既定方式合算单侧误报上界，SIGNAL 按原协议核功效下界；独立运行强度扫描，另报34/37/40%各自的功效及区间。缺臂、重复种子凑数、统计阈值失守均不得签为原Q08达标。额外精度试验独立注册；保留原门槛与失败轨迹 F4-B09-03 正例：同seed的NULL_UNIFORM与SIGNAL_DISABLED逐期相同，打乱臂与原登记一致。三臂同一seed各误检一次，得到每臂1/20、原名义3/60、按组1/20，单侧95%上界0.2161061642。 反例：缺任何原件或键、异seed错置、同流冒充60条独立试验、按组事件报3或把名义上界充作分组上界，正式回执拒收。",
+      "required_review_ids": [
+        "F4-B09-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_05_a02",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "R341-B09-05-A03",
+      "old_issue_id": "R341-B09-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B09ContractTest.java",
+      "method_contract": "test_r341_b09_05_a03",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "模拟结果尝试写自然证书",
+      "old_expected": "强制拒绝、无生产表写入",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B09ContractTest#test_r341_b09_05_a03",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-01a",
+      "old_issue_id": "R341-B10-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_01a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "已有4.34GB且有充足物理空闲，工作集超额",
+      "old_expected": "进入DEBT；关键小事实/结算允许，可选大报表有理由延后；零原件删除。 REV-B10-02：从实际有分配页的 1,427,210,240 B 级现场规模库请求诊断/FULL_RAW，各自完成发布读回。另跑空间不足、并发、复制中进程死亡和复用坏快照，验证关键结算与预约守恒。 F3-B10-01 同一覆盖安装下复现1,427,210,240与1,892,921,344字节级快照，采样前/中/后分别记录同卷并存峰值、可用空间和释放情况；与主库增长分开，阈值/预约错误不能饿死结算。保留旧备份不变、dbstat截断、故障原件增至2952的反例。",
+      "required_review_ids": [
+        "REV-B10-02",
+        "F3-B10-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_01a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-01b",
+      "old_issue_id": "R341-B10-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_01b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "两个并发预约、写一半进程死亡、allocated不可读",
+      "old_expected": "总预约原子守恒；仅死亡租约未用部分回收；未知allocated保留null。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_01b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-02a",
+      "old_issue_id": "R341-B10-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_02a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "9份报告，其中一份唯一故障证据、一份共享、一份哈希等价副本",
+      "old_expected": "仅核验副本可自动回收；唯一原件和共享报告保留，空间不足给出保护原因。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_02a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-02b",
+      "old_issue_id": "R341-B10-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_02b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "清理快照/中间分卷时断电或I/O失败",
+      "old_expected": "发布结果仍可读，重启幂等续清；FULL_RAW缺原snapshot时拒绝清私有DB。 REV-B10-03：分别移去索引、损坏 ZIP、换未知格式、模拟 share 锁竞争与权限失败。源 hash 不变且 cleanup 待恢复，READY 独立。修复后只回收一次。旧格式、稀疏文件、损坏 job.json 和唯一 FAILED 快照分别重放。",
+      "required_review_ids": [
+        "REV-B10-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_02b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-02c",
+      "old_issue_id": "R341-B10-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_02c",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "缓存/审计热集持续增长",
+      "old_expected": "工作集在分类上限内或显示明确protected debt；审计回放数与归档前一致，实时预算不被大事务击穿。 REV-B10-01：预置16384条旧记录，三阶段重复写、归档中断、钉住原件、磁盘不足，随后解除压力。重启后计数/哈希守恒、无先删后存、未闭合原件保全；释放后新期计时可查，不以简单调高上限过关。",
+      "required_review_ids": [
+        "REV-B10-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_02c",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-03a",
+      "old_issue_id": "R341-B10-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_03a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "有匹配备份/哈希不符备份/确无原件各一个",
+      "old_expected": "匹配恢复一次；不符隔离；无源保持可解释缺失；统计分母与各状态加总一致。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_03a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-03b",
+      "old_issue_id": "R341-B10-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_03b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "GC声称零引用但闭包未知，或claim后新增pin",
+      "old_expected": "拒绝unlink并出明确原因；完整无根验证副本可回收；中断后不重复错误释放。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_03b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-03c",
+      "old_issue_id": "R341-B10-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_03c",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "556历史缺失仍未全部找回但新独立候选能完成训练链",
+      "old_expected": "B10工程可通过，历史恢复债务明确保留；受缺失依赖者仍禁止资格晋升。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_03c",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-04a",
+      "old_issue_id": "R341-B10-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_04a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "5000行但中间断10期；全部连续；跨日边界三组",
+      "old_expected": "分别精确输出缺口/连续；合法期号后继按现有TargetIssueResolver计算，不用整数+1。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_04a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-04b",
+      "old_issue_id": "R341-B10-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_04b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "开奖后补齐旧标签后重跑历史/未来任务",
+      "old_expected": "历史PIT任务拒绝晚到特征；新epoch只用于可用时间后的任务，旧frozen字节不变。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_04b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-05a",
+      "old_issue_id": "R341-B10-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_05a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "空间不够/已有唯一backup/持有读pin",
+      "old_expected": "安全延后并保留原件；无需Activity重开才能继续重试；不持有大写锁等条件。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_05a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B10-05b",
+      "old_issue_id": "R341-B10-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B10ContractTest.java",
+      "method_contract": "test_a_b10_05b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "swap边界中断后重启",
+      "old_expected": "恢复journal选择唯一可信库，原始5000开奖及不可替代证据内容守恒；成功后磁盘按实测减少。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B10ContractTest#test_a_b10_05b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-01a",
+      "old_issue_id": "R341-B11-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_01a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "缺表3个、其他查询成功、schemaPending=null",
+      "old_expected": "顶层明确至少3个来源不可用；未知仍null/未知；evidenceComplete可true但健康不PASS。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_01a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-01b",
+      "old_issue_id": "R341-B11-01",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_01b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "空表/真实0/超时/无权限/截断各一项",
+      "old_expected": "五种原因保留；UNKNOWN不画成0线，不自动按N/A关闭失败。 REV-B11-01：当期唯一帧 usableResearchProduct=false，旧版本同名视图有消费，原 SQL 两项均返回1；升级后已存帧1、当前可用0、当前有效消费0。破坏列名得到SOURCE_ERROR且值null，空表的成功COUNT才是0。",
+      "required_review_ids": [
+        "REV-B11-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_01b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-02a",
+      "old_issue_id": "R341-B11-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_02a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "新安装读到旧crash/旧Q08 120计划0完成/旧FTRL学习",
+      "old_expected": "当前进程不背旧crash；旧数据可见且明确历史，Q08仍UNKNOWN_STALE_SYNTHETIC_SOURCE，当前训练不虚增。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_02a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-02b",
+      "old_issue_id": "R341-B11-02",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_02b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "2成功、3超时、1未启动，混入shadow成功",
+      "old_expected": "成功P95的n=2；全机会n=6及类别齐全；shadow只在独立视图，不提高主路成功率。 REV-B11-02：仅有一笔探索影子命中、REAL记录为0时，影子K线可有一点，REAL动作/结算仍0；重复或歧义联结必须标识，不重复算一笔。从元数据、界面、导出三处核对role。 F3-B11-01 构造热 draws 仅一条有效赛前预测、两个历史已结算标签留存及一个无冻结开奖，旧查询能得3/1。新热集必须1/1；历史两条、无冻结一条各有独立归属。再覆盖无标签、无分母、同一期异角色、缺表；在线与导出同原件同结果，禁止截成100%或把异常记零。 F4-B11-01 正例：工程构造无资格、弃权、未被选中、合法胜者已出手、已出手待结算及应出手却漏用各一类；每个目标都能回读原因并与真实账和唯一选中者对齐。自然首次出现时复用相同对账。 反例：移去或换目标的 trade/receipt，加入正权重研发行、资格或 R35 普通影子行，不能抬高 REAL 计数；无合法机会时部署效果为待观察。 F6-B11-01 同一观察窗同时放入一个无支持候选、一个已训练参数版和两个独立结构。报告/UI各项逐键回算，失败/试验中/撤销/合格/已使用明确。不能把基础影子、其他资产或未知值并入。",
+      "required_review_ids": [
+        "REV-B11-02",
+        "F3-B11-01",
+        "F4-B11-01",
+        "F6-B11-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_02b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-03a",
+      "old_issue_id": "R341-B11-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_03a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "旧LIVE/7229 refs与当前缺表/0当前帧同时存在",
+      "old_expected": "旧内容可追溯但不当当前成果；当前缺表给真实R341票和初始化证据链，不能靠旧计数消警。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_03a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-03b",
+      "old_issue_id": "R341-B11-03",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_03b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "165对象共享多个根因且部分可读性未知",
+      "old_expected": "对象总数与工单数分开；UNKNOWN保留，已跑过但未验证字段不写成“从未执行”。 REV-B11-06：以旧 V51 全 UNTRAINED 和新模型回执并存构造期级对照；新模型不得覆盖旧模型证明。依次替换为错 target /错模型/跨窗/任意非空文本/缺原件/结构化有效真零；实时与冻结报告对同输入给相同层级，report 缺输入仍可出报告；完全通过夹具也不改变主链门。 F3-B11-03 对同一 need 分别提供全缺且范围完整、只缺一项、仅声明、显式阻塞和不可读取的 owner；再给重复对象、错误构建身份、伪造消费及成功的实际权重/消费回执。分类、相应施工路由、悬而未决证据逐项吻合；八项原登记仍逐项可查，未知与部分缺项不能自动生成新能力或通过自然资格。",
+      "required_review_ids": [
+        "REV-B11-06",
+        "F3-B11-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_03b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-04a",
+      "old_issue_id": "R341-B11-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_04a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "真实空、缺表、超时、旧帧、真实零值、非零值六类",
+      "old_expected": "显示态与reason准确；只有真实零值画0；其他图不受某张超时连带阻塞。 REV-B11-03：47图及16表逐ID核对；夹具某图超时另图有值，旧epoch不得回刷；零值+正support、全null点、残缺矩阵及两个快照切换各走对应状态。总数29、offset边界和语句失败见同批 A-B11-04b。打开/刷新页面前后冻结、出生、消费业务行不变。",
+      "required_review_ids": [
+        "REV-B11-03"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_04a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-04b",
+      "old_issue_id": "R341-B11-04",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_04b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "同一快照有29条匹配记录，limit=8，分别从offset=0和offset=29读取，再单独注入必需源缺失或取消",
+      "old_expected": "首屏shown=8、totalMatchingRows=29、hasMore=true。越界页shown=0、totalMatchingRows=29、hasMore=false。语句失败时总数未知，取消单列；打开页面不增加生产计数。 REV-B11-04：同一快照中输入29行：offset=0、limit=8，shown=8、totalMatchingRows=29、hasMore=true；offset=29，shown=0、totalMatchingRows=29、hasMore=false；必需源缺失时总数未知，取消单列，均不能显示total=0。打开页面前后生产写入数不变。",
+      "required_review_ids": [
+        "REV-B11-04"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_04b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-05a",
+      "old_issue_id": "R341-B11-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_05a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "相同场景重复上报、旧进程成功、新进程无证据",
+      "old_expected": "重复去重；旧成功不关闭新安装问题；工单保持FIELD_PENDING，原因可回查。 REV-B11-07：故意互换相同id不同组的20对矩阵别名，或用052/074/078的同一次缺失伪成三个独立发生；比对须发现。复用同SHA、删除注册ID/加入重复、将已执行WARN升为PASS、将旧job的case累加当改进均须失败。",
+      "required_review_ids": [
+        "REV-B11-07"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_05a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-05b",
+      "old_issue_id": "R341-B11-05",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_05b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "源码+单测齐全但无设备；设备有实际producer/consumer回执",
+      "old_expected": "前者ENGINEERING_VERIFIED/FIELD_PENDING；后者仅对应现场场景FIELD_VERIFIED，自然状态不自动变化。 F3-B11-02 让同一对象出现两次并改变水位、让矩阵的能力别名与矩阵本体指向同一产物、重启后重试已消费提案、提交未调用的文本处方，再替换角色和模型hash。逐项验证两个观察、一次业务动作、对应工程原件与自然待观测状态，核验只读、审计、负控制三类不获得研究或REAL授权；缺任何对象的实测记录要列出该键。 F3-B11-04 保留一次 DETECTED、一次 UNKNOWN、一次 INSUFFICIENT 和一次 CLEAR_IN_CAPTURED_SCOPE，逐条回查原规则动作。删除原始字段、移入另一个源码/窗口或把历史工单文字伪装成本次测量时不确认修复。真实可比较的新报告给出具体变化、原件定位及下一次条件；两份成功报告本身不增加自然机会。",
+      "required_review_ids": [
+        "F3-B11-02",
+        "F3-B11-04"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_05b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-06a",
+      "old_issue_id": "R341-B11-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_06a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "DIAGNOSTIC缺DB/APK/模型但96检查有状态",
+      "old_expected": "语义范围完整可true；字节全量false，明确不能独立复算所有模型；健康仍按失败项。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_06a",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B11-06b",
+      "old_issue_id": "R341-B11-06",
+      "level": "ENGINEERING",
+      "route": "NAMED_METHOD_PRESENT",
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/r341/R341B11ContractTest.java",
+      "method_contract": "test_a_b11_06b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "FULL_RAW声称DB但成员缺失或hash不符",
+      "old_expected": "发布/语义验证失败，保留源快照；不让B10清理原件。 REV-B11-05：压力窗口内同时导出和冻结/结算，注入重启、目的地短写、空间不足、权限失效。同一目标日历比较无导出基线，核对唯一快照或显式新采样、目标逐卷 hash 与 index、无后台饿死、失败不降级配置。",
+      "required_review_ids": [
+        "REV-B11-05"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "./gradlew",
+        ":app:connectedDebugAndroidTest",
+        "-Pr30Instrumentation=true",
+        "-Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r341.R341B11ContractTest#test_a_b11_06b",
+        "-Pandroid.testInstrumentationRunnerArguments.r30Sandbox=<R341_SCOPE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-01a",
+      "old_issue_id": "R341-B12-01",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_01a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "正确封印及三种篡改输入",
+      "old_expected": "正确通过；每种篡改拒绝；B01起始APK与B12最终APK身份可关联同一计划版本。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-01a",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-01b",
+      "old_issue_id": "R341-B12-01",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_01b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "构建后工作树改变或apk嵌入sourceCommit不符",
+      "old_expected": "封包拒绝且输出具体身份差异，不改旧门禁掩盖。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-01b",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-02a",
+      "old_issue_id": "R341-B12-02",
+      "level": "DEVICE",
+      "route": "EXTERNAL_DEVICE_OR_NATURAL_PROTOCOL",
+      "path": null,
+      "method_contract": null,
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "实际122可用且原签名凭据可用",
+      "old_expected": "可install -r且versionCode>577311122，原数据/保护证据保留；新process identity与APK一致。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": null
+    },
+    {
+      "old_case_id": "A-B12-02b",
+      "old_issue_id": "R341-B12-02",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_02b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "更高安装版本/缺设备/缺签名/签名不符",
+      "old_expected": "版本按真实上限递增；缺设备仅FIELD_PENDING；缺签名BUILD_BLOCKED；签名不符拒绝封包，绝不清库卸载。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-02b",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-03a",
+      "old_issue_id": "R341-B12-03",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_03a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "完整12批账本；漏一票/无log/仅脚本存在三种负例",
+      "old_expected": "完整工程实测覆盖才ENGINEERING_COMPLETE；负例拒绝，FIELD_PENDING不自动使已验工程退回未实施。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-03a",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-03b",
+      "old_issue_id": "R341-B12-03",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_03b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "无自然合格资产但受控端到端夹具可走完整工程链",
+      "old_expected": "工程链真实数据/模型/消费receipt闭合；生产主路仍按资格门控等待，不能虚构LIVE成功。 F3-B12-01 正例固定三轮及两个真实结构变化，由融合子代完成实际预测和结算；依次注入错期、同亲融合、错发布版本、无数值更新、重复反馈、迟冻、FUTURE泄漏和缺代，断言整链拒绝并指出首断。退出界面持续性与自然胜率分别按 DEVICE/NATURAL 取证。 F4-B12-02 正例：前后各两个完整调度周期；重启携带待办，已提交消息重投只读回一次；新的生产结果继续被消费。 反例：输入充分却每期WAIT、重用旧权重或公式、跳过期号、丢弃重启前积压、靠Activity唤醒或换源均须显式失败。 F5-B12-02 正例：在重启两侧的同一机会日历复算训练、发布、候选冻结、结算、反馈、研究及两次出生共20个不同提交，第三代在重启后的服务进程消费并结算。 反例：同APK但另一次运行、只替换数值权重、跨进程或目标、基础影子代替候选、漏掉候选结算等情况即使两个旧检查分别通过，也不能签收组合用例。 F6-B12-01 在四个完整调度周期至少生成并训练四个结构/行为互异的根，含三种单机制与重启后新组合。实际变异引入新的有效输入，实际融合删去任一父都改变 K3。首个根和独立供体已训练。纯调参、无效父、伪造分数、重发模板、错实例和漏日历均拒收。",
+      "required_review_ids": [
+        "F3-B12-01",
+        "F4-B12-02",
+        "F5-B12-02",
+        "F6-B12-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-03b",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-04a",
+      "old_issue_id": "R341-B12-04",
+      "level": "DEVICE",
+      "route": "EXTERNAL_DEVICE_OR_NATURAL_PROTOCOL",
+      "path": null,
+      "method_contract": null,
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "24h/72h无Activity定时唤起，包含受控故障",
+      "old_expected": "每个预登记机会均有状态或明确missing；重连/进程回收后推进；结果按实际SLO判通过/失败。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": null
+    },
+    {
+      "old_case_id": "A-B12-04b",
+      "old_issue_id": "R341-B12-04",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_04b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "受控回放夹具验证采样缺失、墙钟调整、跨boot、force-stop与无设备分支（不计真实运行时长）",
+      "old_expected": "缺失可见，跨boot不把单调时间相减；force-stop独列；无设备NOT_RUN/FIELD_PENDING。 F4-B12-01 正例：覆盖锁屏、网络恢复及正常系统重启；同机连续窗内按期回放无人工启动、真实服务赛前冻结及权威结算。 反例：拒绝空 boot、隐藏打开页面/force-stop、观察缺口、截去第二天期段、跨启动假时钟、只有终态或由 S0 代替缺失的预测影子。",
+      "required_review_ids": [
+        "F4-B12-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-04b",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-05a",
+      "old_issue_id": "R341-B12-05",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_05a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "工程全部通过但自然样本不足/无优势",
+      "old_expected": "ENGINEERING_COMPLETE成立，natural分别PENDING/REJECTED；主路资格门控正确，产品不宣传已有高胜率。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-05a",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-05b",
+      "old_issue_id": "R341-B12-05",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_05b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "候选变更或历史标签混入未来资格",
+      "old_expected": "旧证书不能授权新hash；时间泄漏/样本复用拒绝，保留拒绝原因及原始证据。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-05b",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-05c",
+      "old_issue_id": "R341-B12-05",
+      "level": "NATURAL",
+      "route": "EXTERNAL_DEVICE_OR_NATURAL_PROTOCOL",
+      "path": null,
+      "method_contract": null,
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "实际冻结候选收集至少250个有效未来ACT，按B09预注册协议评估；Q05校准support≥200另核",
+      "old_expected": "严格复用V1门槛：HR≥.34、ECE≤.04、worst720Block≥.26、maxLosingStreak≤6、ABI等价、原序贯合格、pairedLcbVsI00>0、pairedLcbVsNull>0及24h证书有效期。结果可QUALIFIED、REJECTED或NATURAL_PENDING；不保证必定合格。coverage/部署后ACT率分别报告，不追加互锁阻止第一份合法证书。",
+      "required_review_ids": [],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": null
+    },
+    {
+      "old_case_id": "A-B12-06a",
+      "old_issue_id": "R341-B12-06",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_06a",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "从空目录下载最终包并恢复source bundle",
+      "old_expected": "APK hash/签名/版本与清单一致；源码tree/HEAD与嵌入身份一致；全部工单证据能定位。 F5-B12-01 正例：前缀连续、版本逐批递增、源码和原签名匹配的交付可复验。 反例：中间缺一批或最终下载内容不同不得计为全部发布。",
+      "required_review_ids": [
+        "F5-B12-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-06a",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    },
+    {
+      "old_case_id": "A-B12-06b",
+      "old_issue_id": "R341-B12-06",
+      "level": "ENGINEERING",
+      "route": "B12_CASE_DISPATCH_PRESENT",
+      "path": "tools/r341/test_b12_contracts.py",
+      "method_contract": "test_a_b12_06b",
+      "current_execution": "NOT_RUN_IN_THIS_AUDIT",
+      "old_scenario": "URL坏链/缓存旧APK/缺源码/敏感材料/未执行真机场景",
+      "old_expected": "拒绝最终交付PASS并修复具体缺项；真实未执行项保持FIELD_PENDING，不造全绿。 REV-B12-01：下载端注入 HTTP 200 HTML、截短字节、同版本不同已签名包、缺祖先的源码归档，分别拒绝并保留具体原因。工程回执可直接在临时独立 HTTP 发布端重演；真实交付另从实际发布地址回下载并保存结果。",
+      "required_review_ids": [
+        "REV-B12-01"
+      ],
+      "new_rebind_rules": [
+        "保留原断言和拒例，不以新用例总数代替继承覆盖",
+        "新证据绑定实施源码/APK/计划/数据库/场景/输入hash/角色",
+        "已经证明正确且数值语义无变化的实现保留；当前回归只覆盖受影响链及既定门",
+        "DEVICE/NATURAL单独有原件才能通过，工程样例不能进入生产资格",
+        "第6版追加条件必须单独取原件；同名旧测试仅满足其真正执行的断言"
+      ],
+      "source_route": [
+        "python3",
+        "tools/r341/test_b12_contracts.py",
+        "--case",
+        "A-B12-06b",
+        "--repo",
+        "<ISOLATED_CURRENT_SOURCE>",
+        "--out",
+        "<CASE_EVIDENCE>"
+      ]
+    }
+  ]
+}

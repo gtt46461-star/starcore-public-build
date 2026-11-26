@@ -91,6 +91,8 @@ def main():
         if current := before.get(series):
             receipt.update({series+'PlanManifestSha256':current['planSha256'],
                             series+'PlanCommit':current['planCommit'], series+'Batch':current['batch']})
+    if field := before.get('fieldRepair173'):
+        receipt['fieldRepair173'] = field
     binding.write_json(out/'CI_BUILD_RECEIPT.json',receipt)
     print(json.dumps({'gradleRelease':receipt['gradleRelease'],'receipt':str(out/'CI_BUILD_RECEIPT.json'),
                       'log':str(log)},ensure_ascii=False))

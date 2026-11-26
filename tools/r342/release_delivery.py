@@ -16,6 +16,8 @@ import package_ci_candidate as package
 from publish_delivery_manifest import collect
 from verify_plan_binding import read, require, sha, write_json
 from build_identity import BASELINE, BASELINE_CODE, PLAN_COMMIT, SEAL
+sys.path.append(str(ROOT / 'tools/r343'))
+import field_delivery_contract as field_contract
 
 REPOSITORY = 'gtt46461-star/starcore-public-build'
 
@@ -30,6 +32,12 @@ def inspect_candidate(candidate, source, stage, run_id, sdk):
     build = read(candidate / 'CI_BUILD_RECEIPT.json')
     identity = read(candidate / 'build-identity-r334.json')
     field = identity['r342']
+    field173 = field_contract.bound_field(ROOT, identity=identity, build=build)
+    if field173:
+        require(report.get('fieldRepair173') == field173
+                and report.get('currentInstalledBaseline',{}).get('versionCode') == field_contract.BASELINE_CODE
+                and report.get('currentInstalledBaseline',{}).get('sha256') == field_contract.BASELINE_APK,
+                'FIELD173_PUBLICATION_IDENTITY_OR_BASELINE_MISSING')
     require(re.fullmatch(r'[0-9a-f]{40}', source) and re.fullmatch(r'B(?:0[1-9]|1[0-2])', stage)
             and run_id.isdecimal(), 'R342_PUBLICATION_CANDIDATE_REFERENCE_INVALID')
     require(field['sourceCommit'] == report['sourceCommit'] == build['sourceCommit'] == source
@@ -55,6 +63,7 @@ def inspect_candidate(candidate, source, stage, run_id, sdk):
     require(sha(raw) == report['engineeringEvidenceAttachment']['sha256']
             and raw.stat().st_size == report['engineeringEvidenceAttachment']['bytes'],
             'R342_PUBLICATION_TEST_ATTACHMENT_MISMATCH')
+    field_evidence = None
     with zipfile.ZipFile(raw) as archive:
         evidence = json.loads(archive.read('batch-receipt.json'))
         require(evidence['sourceCommit'] == source and evidence['apkSha256'] == exact['sha256']
@@ -66,6 +75,11 @@ def inspect_candidate(candidate, source, stage, run_id, sdk):
         require(originals and set(archive.namelist()) == {*originals, 'batch-receipt.json'}
                 and all(archive_member_sha(archive, name) == digest for name, digest in originals.items()),
                 'R342_PUBLICATION_ENGINEERING_ORIGINALS_INVALID')
+        if field173:
+            field_evidence = field_contract.verify_archive(
+                ROOT, field173, evidence, archive, apk_sha=exact['sha256'], run_id=run_id)
+            require(report.get('fieldEngineeringEvidence') == field_evidence,
+                    'FIELD173_PUBLICATION_ENGINEERING_BINDING_MISMATCH')
 
     source_zip = candidate / (prefix + '-source.zip')
     git_bundle = candidate / (prefix + '-source.bundle')
@@ -78,7 +92,9 @@ def inspect_candidate(candidate, source, stage, run_id, sdk):
     required = {apk.name, source_zip.name, git_bundle.name, raw.name, 'DELIVERY.json',
                 'CI_BUILD_RECEIPT.json', 'build-identity-r334.json', 'gradle-build.log'}
     archive_only = {'badging.txt', 'public-certificate.txt', 'baseline033-badging.txt',
-                    'baseline033-certificate.txt', 'baseline152-badging.txt', 'baseline152-certificate.txt'}
+                    'baseline033-certificate.txt'}
+    label = 'baseline173' if field173 else 'baseline152'
+    archive_only.update({label+'-badging.txt',label+'-certificate.txt'})
     with zipfile.ZipFile(total) as archive:
         require(required | archive_only == sums.keys()
                 and set(archive.namelist()) == {*sums, 'ZIP_MEMBERS_SHA256.json'}
@@ -95,10 +111,16 @@ def inspect_candidate(candidate, source, stage, run_id, sdk):
         'DELIVERY.json', 'CI_BUILD_RECEIPT.json', 'ZIP_MEMBERS_SHA256.json',
         'build-identity-r334.json', 'SHA256SUMS.txt', 'gradle-build.log'))]
     url = f"https://github.com/{REPOSITORY}/releases/download/r34.2-{stage}-{source[:12]}"
-    return {'series': 'R34.2', 'sourceCommit': source, 'planCommit': PLAN_COMMIT, 'planSha256': SEAL,
+    result = {'series': 'R34.2', 'sourceCommit': source,
+            'planCommit':field173['planCommit'] if field173 else PLAN_COMMIT,
+            'planSha256':field173['planSha256'] if field173 else SEAL,
             'batch': stage, 'buildRun': run_id, 'versionCode': field['versionCode'],
             'artifacts': [{'filename': p.name, 'url': f'{url}/{p.name}', 'bytes': p.stat().st_size,
                            'sha256': sha(p)} for p in assets]}
+    if field173:
+        result.update(fieldRepair173=field173,fieldEngineeringEvidence=field_evidence,
+                      legacyR342Plan={'planCommit':PLAN_COMMIT,'planSha256':SEAL})
+    return result
 
 
 def main():

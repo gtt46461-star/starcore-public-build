@@ -56,6 +56,15 @@ def collect(candidate,output,series='R34.1'):
     result = {"status":"DOWNLOAD_BYTES_VERIFIED","sourceCommit":candidate["sourceCommit"],"artifacts":artifacts}
     if series == 'R34.2':
         result.update({key:candidate[key] for key in ('series','batch','planCommit','planSha256','buildRun')})
+        if field := candidate.get('fieldRepair173'):
+            if (field.get('sourceCommit') != candidate['sourceCommit']
+                    or field.get('planCommit') != candidate['planCommit']
+                    or field.get('planSha256') != candidate['planSha256']
+                    or field.get('batch') != candidate['batch'] or field.get('apkSeries') != 'R34.2'
+                    or candidate.get('fieldEngineeringEvidence',{}).get('status') != 'ENGINEERING_CHECKS_PASSED'):
+                raise ValueError('FIELD173_READBACK_IDENTITY_MISMATCH')
+            result.update({key:candidate[key] for key in
+                           ('fieldRepair173','fieldEngineeringEvidence','legacyR342Plan')})
     return result
 
 

@@ -1,0 +1,982 @@
+--- a/.github/workflows/build-apk.yml
++++ b/.github/workflows/build-apk.yml
+@@ -362,10 +362,19 @@
+           printf 'SOURCE=%s\nSTAGE=%s\n' "$source" "$stage" >> "$GITHUB_ENV"
+           git init -q app-source
+           git -C app-source fetch -q --no-tags "https://github.com/${GITHUB_REPOSITORY}.git" construction/r342-repair-20261125
+-          git -C app-source merge-base --is-ancestor "$source" FETCH_HEAD
++          if ! git -C app-source merge-base --is-ancestor "$source" FETCH_HEAD; then
++            # A fixed additional construction ref; arbitrary dispatch refs cannot use the signer.
++            git -C app-source fetch -q --no-tags "https://github.com/${GITHUB_REPOSITORY}.git" construction/r343-repair-20261126
++            git -C app-source merge-base --is-ancestor "$source" FETCH_HEAD
++            git -C app-source merge-base --is-ancestor 4d1de9d83692635b5c5ce39144fece1c8a31c8ac "$source"
++          fi
+           git -C app-source merge-base --is-ancestor eb8f82a8bda8db22f1f122095217132f07053bcb "$source"
+           git -C app-source checkout -q --detach "$source"
+           jq -e --arg name "R34.2-$stage-" '.versionCode > 577311152 and (.versionName | startswith($name))' app-source/release/release_manifest.json
++          if [[ -f app-source/release/field173_plan_binding.json ]]; then
++            git -C app-source merge-base --is-ancestor 4d1de9d83692635b5c5ce39144fece1c8a31c8ac "$source"
++            jq -e '.versionCode > 577311173' app-source/release/release_manifest.json
++          fi
+       - uses: actions/setup-java@v4
+         with:
+           distribution: temurin
+@@ -430,7 +439,11 @@
+         run: |
+           set -euo pipefail
+           (cd "$RUNNER_TEMP/engineering" && zip -q "$RUNNER_TEMP/engineering-originals.zip" ./*)
+-          python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --r342-plan "$STARCORE_R342_PLAN_ROOT" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$RUNNER_TEMP/baseline152.apk" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json" --engineering-evidence "$RUNNER_TEMP/engineering-originals.zip"
++          cover_baseline="$RUNNER_TEMP/baseline152.apk"
++          if [[ -f release/field173_plan_binding.json ]]; then
++            cover_baseline="$RUNNER_TEMP/baseline173.apk"
++          fi
++          python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --r342-plan "$STARCORE_R342_PLAN_ROOT" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$cover_baseline" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json" --engineering-evidence "$RUNNER_TEMP/engineering-originals.zip"
+       - uses: actions/upload-artifact@v4
+         with:
+           name: r342-candidate-${{ steps.request.outputs.stage }}-${{ steps.request.outputs.source }}
+@@ -462,11 +475,15 @@
+       - uses: actions/checkout@v4
+         with:
+           ref: ${{ needs.r342-candidate-build.outputs.source }}
++          fetch-depth: 0
+           persist-credentials: false
+           sparse-checkout: |
+             tools/r33
+             tools/r341
+             tools/r342
++            tools/r343
++            release
++            construction/plans/STARCORE_R34_3_REPAIR_20261126
+       - uses: actions/setup-java@v4
+         with:
+           distribution: temurin
+@@ -485,6 +502,12 @@
+           set -euo pipefail
+           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'build-tools;36.0.0'
+           candidate="$RUNNER_TEMP/candidate"
++          if [[ -f release/field173_plan_binding.json ]]; then
++            field_plan_commit=$(jq -er .planCommit release/field173_plan_binding.json)
++            [[ "$field_plan_commit" =~ ^[a-f0-9]{40}$ ]]
++            git fetch -q --no-tags --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$field_plan_commit"
++            export STARCORE_FIELD173_PLAN_ROOT="$PWD/construction/plans/STARCORE_R34_3_REPAIR_20261126"
++          fi
+           (cd "$candidate" && sha256sum -c SHA256SUMS.txt)
+           python3 -B tools/r342/release_delivery.py --candidate "$candidate" --sdk-tools "$ANDROID_HOME/build-tools/36.0.0" --source "$SOURCE" --stage "$STAGE" --index "$RUNNER_TEMP/r342-index.json"
+           tag="r34.2-${STAGE}-${SOURCE:0:12}"
+--- a/tools/r33/package_ci_candidate.py
++++ b/tools/r33/package_ci_candidate.py
+@@ -11,6 +11,9 @@
+ import tempfile
+ import zipfile
+ import verify_plan_binding as binding
++import sys
++sys.path.append(str(Path(__file__).resolve().parents[1]/'r343'))
++import field_delivery_contract as field_contract
+ 
+ CERT='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
+ BASE_APK='8f0cb6e6eadbce5787cffde310a6cbf204d43962e636fd9ebedf6e66556fb763'
+@@ -208,8 +211,9 @@
+     if current_installed is None:
+         return 'COVER_INSTALL_UNVERIFIED'
+     require(current_installed['package'] == PACKAGE, 'CURRENT_BASELINE_PACKAGE_MISMATCH')
+-    baseline_error = ('EXACT_152_BASELINE_REQUIRED' if expected_installed['versionCode'] == 577311152
+-                      else 'EXACT_122_BASELINE_REQUIRED')
++    baseline_error = {577311173:'EXACT_173_BASELINE_REQUIRED',577311152:'EXACT_152_BASELINE_REQUIRED',
++                      577311122:'EXACT_122_BASELINE_REQUIRED'}.get(expected_installed['versionCode'],
++                                                                    'EXACT_BOUND_BASELINE_REQUIRED')
+     require(current_installed['versionCode'] == expected_installed['versionCode']
+             and current_installed['sha256'] == expected_installed['sha256'], baseline_error)
+     require(current_installed['signatureVerified'] is True
+@@ -257,6 +261,7 @@
+     require(args.build_log.is_file() and args.build_log.stat().st_size>0,'ORIGINAL_GRADLE_LOG_REQUIRED')
+     identity=binding.identity(repo,args.plan,repo/'release/r33_plan_binding.json',True,
+                               r34_plan=args.r34_plan,r341_plan=args.r341_plan,r342_plan=args.r342_plan)
++    field173 = field_contract.bound_field(repo, identity=identity)
+     manifest=binding.read(repo/'release/release_manifest.json')
+     choices=sorted((repo/'app/build/outputs/apk/release').glob('*.apk')) if args.apk is None else [args.apk]
+     require(len(choices)==1,'EXACTLY_ONE_RELEASE_APK_REQUIRED');apk=choices[0]
+@@ -265,7 +270,11 @@
+     field_series = next((series for series in ('r342', 'r341') if series in identity), None)
+     expected_installed = (binding.read(repo / f'release/{field_series}_plan_binding.json')['sourceApkEvidenceRef']
+                           if field_series else None)
+-    if field_series == 'r342':
++    if field173:
++        expected_installed = field173['sourceApkEvidenceRef']
++        require(args.current_installed_apk is not None, 'EXACT_173_BASELINE_REQUIRED')
++        require(args.engineering_evidence is not None, 'FIELD173_ENGINEERING_ORIGINALS_REQUIRED')
++    elif field_series == 'r342':
+         require(args.current_installed_apk is not None, 'EXACT_152_BASELINE_REQUIRED')
+     installed = inspect(args.current_installed_apk,args.aapt,args.apksigner) if args.current_installed_apk else None
+     cover = validate_pair(manifest,old,new,current_installed=installed[0] if installed else None,
+@@ -285,7 +294,10 @@
+                 and build.get(field_series+'PlanCommit') == current['planCommit']
+                 and build.get(field_series+'Batch') == current['batch'],
+                 field_series.upper()+'_BUILD_RECEIPT_PLAN_MISMATCH')
++    if field173:
++        field_contract.bound_field(repo, identity=identity, build=build)
+     engineering = None
++    field_evidence = None
+     if args.engineering_evidence:
+         require(field_series == 'r342', 'ENGINEERING_EVIDENCE_SERIES_MISMATCH')
+         with zipfile.ZipFile(args.engineering_evidence) as originals:
+@@ -303,6 +315,9 @@
+                     and engineering.get('buildRun') == build.get('ciRun')
+                     and engineering.get('status') == 'ENGINEERING_CHECKS_PASSED',
+                     'ENGINEERING_EVIDENCE_BINDING_MISMATCH')
++            if field173:
++                field_evidence = field_contract.verify_archive(
++                    repo, field173, engineering, originals, apk_sha=new['sha256'], run_id=build['ciRun'])
+     out.mkdir(parents=True,exist_ok=False)
+     series = field_series.upper() if field_series else 'R34' if 'r34' in identity else 'R33'
+     stem=f"STARCORE-{series}-{new['versionCode']}-{identity['source_commit'][:12]}"
+@@ -311,7 +326,7 @@
+     (out/'public-certificate.txt').write_text(signature);(out/'badging.txt').write_text(badging)
+     (out/'baseline033-certificate.txt').write_text(old_signature);(out/'baseline033-badging.txt').write_text(old_badging)
+     if installed:
+-        baseline_label = 'baseline152' if field_series == 'r342' else 'baseline122'
++        baseline_label = 'baseline173' if field173 else 'baseline152' if field_series == 'r342' else 'baseline122'
+         (out/f'{baseline_label}-certificate.txt').write_text(installed[1])
+         (out/f'{baseline_label}-badging.txt').write_text(installed[2])
+     shutil.copy2(args.build_log,out/'gradle-build.log')
+@@ -345,6 +360,10 @@
+         receipt.update(currentInstalledBaseline=installed[0] if installed else None, coverCompatibility=cover)
+     if field_series == 'r342':
+         receipt['engineeringAcceptance'] = 'SEPARATE_R342_BATCH_RECEIPT_REQUIRED'
++    if field173:
++        receipt['fieldRepair173'] = field173
++        receipt['fieldEngineeringEvidence'] = field_evidence
++        receipt['engineeringAcceptance'] = 'FIELD173_CURRENT_BATCH_ENGINEERING_PASSED_DEVICE_NATURAL_NOT_INFERRED'
+     if engineering:
+         raw = out/'engineering-originals.zip'
+         shutil.copy2(args.engineering_evidence, raw)
+--- a/tools/r33/run_release_build.py
++++ b/tools/r33/run_release_build.py
+@@ -91,6 +91,8 @@
+         if current := before.get(series):
+             receipt.update({series+'PlanManifestSha256':current['planSha256'],
+                             series+'PlanCommit':current['planCommit'], series+'Batch':current['batch']})
++    if field := before.get('fieldRepair173'):
++        receipt['fieldRepair173'] = field
+     binding.write_json(out/'CI_BUILD_RECEIPT.json',receipt)
+     print(json.dumps({'gradleRelease':receipt['gradleRelease'],'receipt':str(out/'CI_BUILD_RECEIPT.json'),
+                       'log':str(log)},ensure_ascii=False))
+--- a/tools/r341/publish_delivery_manifest.py
++++ b/tools/r341/publish_delivery_manifest.py
+@@ -56,6 +56,15 @@
+     result = {"status":"DOWNLOAD_BYTES_VERIFIED","sourceCommit":candidate["sourceCommit"],"artifacts":artifacts}
+     if series == 'R34.2':
+         result.update({key:candidate[key] for key in ('series','batch','planCommit','planSha256','buildRun')})
++        if field := candidate.get('fieldRepair173'):
++            if (field.get('sourceCommit') != candidate['sourceCommit']
++                    or field.get('planCommit') != candidate['planCommit']
++                    or field.get('planSha256') != candidate['planSha256']
++                    or field.get('batch') != candidate['batch'] or field.get('apkSeries') != 'R34.2'
++                    or candidate.get('fieldEngineeringEvidence',{}).get('status') != 'ENGINEERING_CHECKS_PASSED'):
++                raise ValueError('FIELD173_READBACK_IDENTITY_MISMATCH')
++            result.update({key:candidate[key] for key in
++                           ('fieldRepair173','fieldEngineeringEvidence','legacyR342Plan')})
+     return result
+ 
+ 
+--- a/tools/r342/ci_candidate_tests.py
++++ b/tools/r342/ci_candidate_tests.py
+@@ -12,6 +12,8 @@
+ sys.path.insert(0, str(ROOT / 'tools/r33'))
+ from verify_plan_binding import read, require, sha, write_json
+ from build_identity import BASELINE_CODE, BASELINE_APK, PLAN_COMMIT, SEAL
++sys.path.append(str(ROOT / 'tools/r343'))
++import field_delivery_contract as field_contract
+ 
+ PACKAGE = 'com.starcore.research.r13'
+ 
+@@ -33,21 +35,27 @@
+     return {'versionCode': int(package[1]), 'uid': int(uid[1]), 'apkSha256': digest}
+ 
+ 
+-def cover_install(serial, baseline, apk, release, originals, signed_reports=None):
+-    require(sha(baseline) == BASELINE_APK, 'COVER_EXACT_BASELINE_MISSING')
++def cover_install(serial, baseline, apk, release, originals, signed_reports=None, baseline_identity=None):
++    baseline_code = baseline_identity['versionCode'] if baseline_identity else BASELINE_CODE
++    baseline_sha = baseline_identity['sha256'] if baseline_identity else BASELINE_APK
++    baseline_source = baseline_identity['sourceCommit'] if baseline_identity else 'eb8f82a8bda8db22f1f122095217132f07053bcb'
++    require(sha(baseline) == baseline_sha, 'COVER_EXACT_BASELINE_MISSING')
+     require('Success' in adb(serial, 'install', baseline), 'COVER_BASELINE_INSTALL_FAILED')
+     before = installed(serial, originals / 'baseline-installed.txt')
+-    require(before['versionCode'] == BASELINE_CODE and before['apkSha256'] == BASELINE_APK,
++    require(before['versionCode'] == baseline_code and before['apkSha256'] == baseline_sha,
+             'COVER_BASELINE_IDENTITY_MISMATCH')
+     if signed_reports:
+-        signed_reports('baseline', 'COMPACT_DIAGNOSTIC', 'eb8f82a8bda8db22f1f122095217132f07053bcb')
++        signed_reports('baseline', 'COMPACT_DIAGNOSTIC', baseline_source)
+         adb(serial, 'shell', 'am', 'force-stop', PACKAGE)
+     require('Success' in adb(serial, 'install', '-r', apk), 'COVER_UPGRADE_INSTALL_FAILED')
+     after = installed(serial, originals / 'candidate-installed.txt')
+     require(after == {'uid': before['uid'], 'versionCode': release['versionCode'], 'apkSha256': sha(apk)},
+             'COVER_UPGRADE_IDENTITY_MISMATCH')
+-    write_json(originals / 'cover-install.json', {'serial': serial, 'before': before, 'after': after,
+-               'scope': 'DISPOSABLE_ANDROID_API34_ORIGINAL_SIGNATURE', 'status': 'PASS'})
++    cover = {'serial': serial, 'before': before, 'after': after,
++             'scope': 'DISPOSABLE_ANDROID_API34_ORIGINAL_SIGNATURE', 'status': 'PASS'}
++    if baseline_identity:
++        cover['baselineSourceCommit'] = baseline_source
++    write_json(originals / 'cover-install.json', cover)
+     if signed_reports:
+         for name, profile in [('candidate-1','COMPACT_DIAGNOSTIC'),('candidate-2','FULL_RAW'),
+                               ('candidate-3','COMPACT_DIAGNOSTIC')]:
+@@ -55,7 +63,7 @@
+     require('Success' in adb(serial, 'uninstall', PACKAGE), 'DISPOSABLE_BASELINE_UNINSTALL_FAILED')
+ 
+ 
+-def signed_report_campaign(serial, originals, apk_sha):
++def signed_report_campaign(serial, originals, apk_sha, baseline_apk_sha=BASELINE_APK):
+     import time
+     import zipfile
+     import report_ui_driver as driver
+@@ -88,7 +96,7 @@
+             record = driver.save_report(driver.wait_for_report(name),name)
+             require(record['rawEvidenceIncluded'] == (profile == 'FULL_RAW'), 'UNEXPECTED_REPORT_EVIDENCE_PROFILE')
+             zip_file = driver.OUT / record['file']
+-            expected_apk = BASELINE_APK if name == 'baseline' else apk_sha
++            expected_apk = baseline_apk_sha if name == 'baseline' else apk_sha
+             with zipfile.ZipFile(zip_file) as archive:
+                 manifest = json.loads(archive.read('source-manifest.json'))
+                 require(manifest['apkSha256'] == expected_apk, 'REPORT_INSTALLED_APK_DIGEST_MISMATCH')
+@@ -271,8 +279,12 @@
+     serial = subprocess.run(['adb', 'get-serialno'], capture_output=True, text=True, check=True).stdout.strip()
+     require(re.fullmatch(r'emulator-[0-9]+', serial), 'DISPOSABLE_ANDROID_CI_REQUIRED')
+     require(adb(serial, 'shell', 'getprop', 'ro.build.version.sdk') == '34', 'ANDROID_API_LEVEL_MISMATCH')
+-    campaign = signed_report_campaign(serial,originals,sha(apk)) if stage == 'B12' else None
+-    cover_install(serial, temp / 'baseline152.apk', apk, release, originals, campaign)
++    field = field_contract.bound_field(ROOT, build=build)
++    baseline_identity = field_contract.baseline(field) if field else None
++    baseline_name = baseline_identity['file'] if baseline_identity else 'baseline152.apk'
++    baseline_sha = baseline_identity['sha256'] if baseline_identity else BASELINE_APK
++    campaign = signed_report_campaign(serial,originals,sha(apk),baseline_sha) if stage == 'B12' else None
++    cover_install(serial, temp / baseline_name, apk, release, originals, campaign, baseline_identity)
+ 
+     old_plan = Path(os.environ['STARCORE_R341_PLAN_ROOT'])
+     host_cases = []
+@@ -292,7 +304,18 @@
+             inherited_b12 = observe_inherited_b12(old_plan,originals)
+     else:
+         raise ValueError('R342_STAGE_ANDROID_TESTS_NOT_IMPLEMENTED')
+-    write_json(originals / 'batch-receipt.json', {
++    field_evidence = None
++    if field:
++        subprocess.run([sys.executable, '-B', str(ROOT/'tools/r343/run_field_engineering.py'),
++                        '--repo', str(ROOT), '--out', str(originals),
++                        '--build-receipt', str(temp/'build/CI_BUILD_RECEIPT.json'), '--apk', str(apk)],
++                       check=True, cwd=ROOT)
++        field_receipt = read(originals/field_contract.RECEIPT)
++        field_evidence = field_contract.verify_receipt(
++            ROOT, field, field_receipt, field_contract.directory_reader(originals),
++            apk_sha=sha(apk), run_id=os.environ['GITHUB_RUN_ID'])
++        field_evidence['sha256'] = sha(originals/field_contract.RECEIPT)
++    receipt = {
+         'schema': 'STARCORE_R342_BATCH_ENGINEERING_1', 'status': 'ENGINEERING_CHECKS_PASSED',
+         'buildRun': os.environ['GITHUB_RUN_ID'], 'sourceCommit': source, 'batch': stage,
+         'versionCode': release['versionCode'], 'apkSha256': sha(apk), 'planSha256': SEAL,
+@@ -302,7 +325,11 @@
+         'vivoV2353A': 'NOT_RUN_DISPOSABLE_EMULATOR', 'physical24h': 'NOT_RUN',
+         'physical72h': 'NOT_RUN', 'natural': 'NOT_RUN',
+         'originals': {leaf.name: sha(leaf) for leaf in sorted(originals.iterdir()) if leaf.is_file()},
+-    })
++    }
++    if field:
++        receipt.update(fieldRepair173=field, fieldEngineeringEvidence=field_evidence,
++                       sourceTree=field['sourceTree'])
++    write_json(originals / 'batch-receipt.json', receipt)
+ 
+ 
+ if __name__ == '__main__':
+--- a/tools/r342/release_delivery.py
++++ b/tools/r342/release_delivery.py
+@@ -16,6 +16,8 @@
+ from publish_delivery_manifest import collect
+ from verify_plan_binding import read, require, sha, write_json
+ from build_identity import BASELINE, BASELINE_CODE, PLAN_COMMIT, SEAL
++sys.path.append(str(ROOT / 'tools/r343'))
++import field_delivery_contract as field_contract
+ 
+ REPOSITORY = 'gtt46461-star/starcore-public-build'
+ 
+@@ -30,6 +32,12 @@
+     build = read(candidate / 'CI_BUILD_RECEIPT.json')
+     identity = read(candidate / 'build-identity-r334.json')
+     field = identity['r342']
++    field173 = field_contract.bound_field(ROOT, identity=identity, build=build)
++    if field173:
++        require(report.get('fieldRepair173') == field173
++                and report.get('currentInstalledBaseline',{}).get('versionCode') == field_contract.BASELINE_CODE
++                and report.get('currentInstalledBaseline',{}).get('sha256') == field_contract.BASELINE_APK,
++                'FIELD173_PUBLICATION_IDENTITY_OR_BASELINE_MISSING')
+     require(re.fullmatch(r'[0-9a-f]{40}', source) and re.fullmatch(r'B(?:0[1-9]|1[0-2])', stage)
+             and run_id.isdecimal(), 'R342_PUBLICATION_CANDIDATE_REFERENCE_INVALID')
+     require(field['sourceCommit'] == report['sourceCommit'] == build['sourceCommit'] == source
+@@ -55,6 +63,7 @@
+     require(sha(raw) == report['engineeringEvidenceAttachment']['sha256']
+             and raw.stat().st_size == report['engineeringEvidenceAttachment']['bytes'],
+             'R342_PUBLICATION_TEST_ATTACHMENT_MISMATCH')
++    field_evidence = None
+     with zipfile.ZipFile(raw) as archive:
+         evidence = json.loads(archive.read('batch-receipt.json'))
+         require(evidence['sourceCommit'] == source and evidence['apkSha256'] == exact['sha256']
+@@ -66,6 +75,11 @@
+         require(originals and set(archive.namelist()) == {*originals, 'batch-receipt.json'}
+                 and all(archive_member_sha(archive, name) == digest for name, digest in originals.items()),
+                 'R342_PUBLICATION_ENGINEERING_ORIGINALS_INVALID')
++        if field173:
++            field_evidence = field_contract.verify_archive(
++                ROOT, field173, evidence, archive, apk_sha=exact['sha256'], run_id=run_id)
++            require(report.get('fieldEngineeringEvidence') == field_evidence,
++                    'FIELD173_PUBLICATION_ENGINEERING_BINDING_MISMATCH')
+ 
+     source_zip = candidate / (prefix + '-source.zip')
+     git_bundle = candidate / (prefix + '-source.bundle')
+@@ -78,7 +92,9 @@
+     required = {apk.name, source_zip.name, git_bundle.name, raw.name, 'DELIVERY.json',
+                 'CI_BUILD_RECEIPT.json', 'build-identity-r334.json', 'gradle-build.log'}
+     archive_only = {'badging.txt', 'public-certificate.txt', 'baseline033-badging.txt',
+-                    'baseline033-certificate.txt', 'baseline152-badging.txt', 'baseline152-certificate.txt'}
++                    'baseline033-certificate.txt'}
++    label = 'baseline173' if field173 else 'baseline152'
++    archive_only.update({label+'-badging.txt',label+'-certificate.txt'})
+     with zipfile.ZipFile(total) as archive:
+         require(required | archive_only == sums.keys()
+                 and set(archive.namelist()) == {*sums, 'ZIP_MEMBERS_SHA256.json'}
+@@ -95,10 +111,16 @@
+         'DELIVERY.json', 'CI_BUILD_RECEIPT.json', 'ZIP_MEMBERS_SHA256.json',
+         'build-identity-r334.json', 'SHA256SUMS.txt', 'gradle-build.log'))]
+     url = f"https://github.com/{REPOSITORY}/releases/download/r34.2-{stage}-{source[:12]}"
+-    return {'series': 'R34.2', 'sourceCommit': source, 'planCommit': PLAN_COMMIT, 'planSha256': SEAL,
++    result = {'series': 'R34.2', 'sourceCommit': source,
++            'planCommit':field173['planCommit'] if field173 else PLAN_COMMIT,
++            'planSha256':field173['planSha256'] if field173 else SEAL,
+             'batch': stage, 'buildRun': run_id, 'versionCode': field['versionCode'],
+             'artifacts': [{'filename': p.name, 'url': f'{url}/{p.name}', 'bytes': p.stat().st_size,
+                            'sha256': sha(p)} for p in assets]}
++    if field173:
++        result.update(fieldRepair173=field173,fieldEngineeringEvidence=field_evidence,
++                      legacyR342Plan={'planCommit':PLAN_COMMIT,'planSha256':SEAL})
++    return result
+ 
+ 
+ def main():
+--- /dev/null
++++ b/tools/r343/field_delivery_contract.py
+@@ -0,0 +1,274 @@
++"""Exact field-173 engineering evidence, shared by CI, packaging and publication.
++
++This contract verifies original runner observations. It never creates an engineering
++PASS from a plan entry and grants neither physical-device nor natural-quality credit.
++"""
++from pathlib import Path, PurePosixPath
++import hashlib
++import json
++import re
++
++import verify_plan_binding as binding
++
++BASELINE = '4d1de9d83692635b5c5ce39144fece1c8a31c8ac'
++BASELINE_CODE = 577311173
++BASELINE_APK = '9304472262455c12b4600708fb23480d698acf9f3ba710ddee86cda214ae8750'
++PLAN_PATH = 'construction/plans/STARCORE_R34_3_REPAIR_20261126'
++RUNNERS = 'release/field173_test_runners.json'
++RECEIPT = 'field173-engineering-receipt.json'
++RUNNER_ORIGINAL = 'field173-test-runners.json'
++MARKER = 'FIELD173_ENGINEERING_EVENT '
++MAX_ORIGINAL_BYTES = 16 << 20
++require = binding.require
++
++
++def digest(data):
++    return hashlib.sha256(data).hexdigest()
++
++
++def canonical(value):
++    return (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2)+'\n').encode()
++
++
++def bound_field(repo, *, identity=None, build=None):
++    repo = Path(repo).resolve()
++    release = binding.read(repo/'release/release_manifest.json')
++    advertised = (identity or {}).get('fieldRepair173') or (build or {}).get('fieldRepair173')
++    active = (repo/'release/field173_plan_binding.json').exists() or release.get('versionCode', 0) > BASELINE_CODE
++    if not active and advertised is None:
++        return None
++    require(active, 'FIELD173_UNBOUND_IDENTITY')
++    source = binding.git(repo, 'rev-parse', 'HEAD').decode().strip()
++    tree = binding.git(repo, 'rev-parse', 'HEAD^{tree}').decode().strip()
++    field = binding.release_owner(repo, 'r343').identity(repo, source, tree, release)
++    for record, source_key, tree_key in ((identity, 'source_commit', 'source_tree'),
++                                         (build, 'sourceCommit', 'sourceTree')):
++        if record is not None:
++            require(record.get('fieldRepair173') == field
++                    and record.get(source_key) == source and record.get(tree_key) == tree,
++                    'FIELD173_BUILD_IDENTITY_MISMATCH')
++    return field
++
++
++def baseline(field):
++    require(field['sourceBaseline'] == BASELINE
++            and field['sourceApkEvidenceRef'] == {'versionCode':BASELINE_CODE, 'sha256':BASELINE_APK},
++            'FIELD173_BASELINE_IDENTITY_MISMATCH')
++    return {'versionCode':BASELINE_CODE, 'sha256':BASELINE_APK,
++            'sourceCommit':BASELINE, 'file':'baseline173.apk'}
++
++
++def catalog(repo, field):
++    path = binding.safe(Path(repo)/PLAN_PATH, 'ACCEPTANCE_MATRIX.json')
++    raw = path.read_bytes()
++    rows = json.loads(raw)['cases']
++    engineering = [r for r in rows if r['level'] == 'ENGINEERING']
++    require(engineering and len({r['id'] for r in engineering}) == len(engineering),
++            'FIELD173_CASE_CATALOG_IDENTITY')
++    selected = {r['id']:r for r in engineering if r['batch'] == field['batch']}
++    require(selected and all(re.fullmatch(r'R343-[0-9]{3}-(POS|NEG|KEEP)', k)
++                            and r['issue_id'] == k.rsplit('-', 1)[0]
++                            and isinstance(r.get('assertions'), list) and r['assertions']
++                            and all(isinstance(a, str) and a for a in r['assertions'])
++                            for k, r in selected.items()), 'FIELD173_CURRENT_CASE_SET_EMPTY_OR_INVALID')
++    return selected, digest(raw)
++
++
++def pending_device_and_natural(repo):
++    rows = binding.read(binding.safe(Path(repo)/PLAN_PATH,'ACCEPTANCE_MATRIX.json'))['cases']
++    selected = [r for r in rows if r['level'] != 'ENGINEERING']
++    require(all(r['level'] in ('DEVICE','NATURAL') for r in selected), 'FIELD173_ACCEPTANCE_LEVEL')
++    return {r['id']:{'batch':r['batch'],'level':r['level'],
++                     'status':'NOT_RUN_BY_ENGINEERING_DRIVER'} for r in selected}
++
++
++def committed_bytes(repo, source, name):
++    require(isinstance(name, str) and name and not name.startswith('/') and '\\' not in name
++            and PurePosixPath(name).as_posix() == name and '..' not in PurePosixPath(name).parts,
++            'FIELD173_SOURCE_INPUT_PATH')
++    size = binding.git(repo, 'cat-file', '-s', source+':'+name).decode().strip()
++    require(size.isdecimal() and int(size) <= MAX_ORIGINAL_BYTES, 'FIELD173_INPUT_CAPACITY')
++    return binding.git(repo, 'show', source+':'+name)
++
++
++def runner_catalog(repo, field, cases):
++    raw = committed_bytes(repo, field['sourceCommit'], RUNNERS)
++    data = json.loads(raw)
++    require(set(data) == {'schema', 'batch', 'cases'}
++            and data['schema'] == 'STARCORE_FIELD173_TEST_RUNNERS_1'
++            and data['batch'] == field['batch'] and set(data['cases']) == set(cases),
++            'FIELD173_EXACT_CURRENT_RUNNER_SET_REQUIRED')
++    for case_id, spec in data['cases'].items():
++        require(set(spec) == {'argv', 'inputFiles', 'timeoutSeconds'}
++                and isinstance(spec['argv'], list) and 1 <= len(spec['argv']) <= 128
++                and all(isinstance(a,str) and a and '\x00' not in a and len(a) <= 4096 for a in spec['argv'])
++                and isinstance(spec['inputFiles'], list) and 1 <= len(spec['inputFiles']) <= 64
++                and len(set(spec['inputFiles'])) == len(spec['inputFiles'])
++                and type(spec['timeoutSeconds']) is int and 1 <= spec['timeoutSeconds'] <= 1200,
++                'FIELD173_RUNNER_SPEC_INVALID:'+case_id)
++        for name in spec['inputFiles']:
++            committed_bytes(repo, field['sourceCommit'], name)
++    return data['cases'], raw
++
++
++def original(read_bytes, name, expected=None):
++    require(isinstance(name,str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,240}', name),
++            'FIELD173_ORIGINAL_NAME_INVALID')
++    data = read_bytes(name)
++    require(len(data) <= MAX_ORIGINAL_BYTES, 'FIELD173_ORIGINAL_CAPACITY:'+name)
++    if expected is not None:
++        require(re.fullmatch('[0-9a-f]{64}', str(expected)) and digest(data) == expected,
++                'FIELD173_ORIGINAL_DIGEST_MISMATCH:'+name)
++    return data
++
++
++def directory_reader(root):
++    root=Path(root).resolve()
++    def read(name):
++        path=binding.safe(root,name)
++        require(path.is_file() and path.stat().st_size <= MAX_ORIGINAL_BYTES,
++                'FIELD173_ORIGINAL_CAPACITY:'+name)
++        return path.read_bytes()
++    return read
++
++
++def archive_reader(archive):
++    def read(name):
++        require(archive.getinfo(name).file_size <= MAX_ORIGINAL_BYTES,
++                'FIELD173_ORIGINAL_CAPACITY:'+name)
++        return archive.read(name)
++    return read
++
++
++def expected_scope(field, case_id, apk_sha, run_id):
++    return {'caseId':case_id, 'sourceCommit':field['sourceCommit'], 'sourceTree':field['sourceTree'],
++            'planCommit':field['planCommit'], 'planSha256':field['planSha256'],
++            'batch':field['batch'], 'apkSha256':apk_sha, 'buildRun':run_id}
++
++
++def events(stdout, context, minimum):
++    observed=[]
++    for line in stdout.decode('utf-8', errors='strict').splitlines():
++        _, found, value = line.partition(MARKER)
++        if not found:
++            continue
++        row=json.loads(value)
++        require(all(row.get(k) == context[k] for k in
++                    ('caseId','sourceCommit','sourceTree','planCommit','planSha256','batch',
++                     'apkSha256','buildRun','executionId')), 'FIELD173_RUNNER_EVENT_IDENTITY')
++        observed.append(row)
++    require([r.get('event') for r in observed] == ['CASE_ENTER','CASE_ASSERTIONS_COMPLETE'],
++            'FIELD173_ACTUAL_ASSERTIONS_NOT_OBSERVED')
++    count=observed[-1].get('assertionCount')
++    require(type(count) is int and count >= max(1,minimum)
++            and observed[-1].get('status') == 'PASS', 'FIELD173_ASSERTIONS_FAILED_OR_EMPTY')
++    return count
++
++
++def verify_case_output(case_id, context, reference, read_bytes):
++    data=original(read_bytes,reference['file'],reference['sha256'])
++    report=json.loads(data)
++    require(report.get('schema') == 'STARCORE_FIELD173_CASE_OUTPUT_1'
++            and all(report.get(k) == context[k] for k in
++                    ('caseId','sourceCommit','sourceTree','planCommit','planSha256','batch',
++                     'apkSha256','buildRun','executionId')),
++            'FIELD173_OUTPUT_IDENTITY:'+case_id)
++    scope=report.get('dataScope',{})
++    require(set(scope) == {'role','target','cutoff','databaseIdentity','notApplicableReason'}
++            and isinstance(scope['role'],str) and 1 <= len(scope['role']) <= 64
++            and (scope['target'] is None or isinstance(scope['target'],str) and 1 <= len(scope['target']) <= 64)
++            and (scope['cutoff'] is None or type(scope['cutoff']) is int and scope['cutoff'] >= 0)
++            and (scope['databaseIdentity'] is None or isinstance(scope['databaseIdentity'],str)
++                 and 1 <= len(scope['databaseIdentity']) <= 512)
++            and isinstance(scope['notApplicableReason'],str)
++            and (all(scope[k] is not None for k in ('target','cutoff','databaseIdentity'))
++                 or 1 <= len(scope['notApplicableReason']) <= 512), 'FIELD173_DATA_SCOPE_REQUIRED:'+case_id)
++    artifacts=report.get('artifacts')
++    require(isinstance(artifacts,list) and 1 <= len(artifacts) <= 64
++            and len({r['file'] for r in artifacts}) == len(artifacts)
++            and all(r.get('kind') in ('OUTPUT','READBACK') for r in artifacts),
++            'FIELD173_OUTPUT_ARTIFACTS_REQUIRED:'+case_id)
++    if scope['databaseIdentity'] is not None:
++        require(any(r['kind'] == 'READBACK' for r in artifacts), 'FIELD173_DATABASE_READBACK_REQUIRED:'+case_id)
++    for artifact in artifacts:
++        require(artifact['file'].startswith('field173-'+case_id+'-'),
++                'FIELD173_OUTPUT_BELONGS_TO_OTHER_CASE:'+case_id)
++        require(original(read_bytes,artifact['file'],artifact['sha256']),
++                'FIELD173_EMPTY_OUTPUT:'+case_id)
++    return report
++
++
++def verify_receipt(repo, field, receipt, read_bytes, *, apk_sha, run_id):
++    cases, catalog_sha = catalog(repo, field)
++    specs, runner_raw = runner_catalog(repo, field, cases)
++    require(receipt.get('schema') == 'STARCORE_FIELD173_BATCH_ENGINEERING_1'
++            and receipt.get('fieldRepair173') == field
++            and receipt.get('sourceCommit') == field['sourceCommit']
++            and receipt.get('sourceTree') == field['sourceTree']
++            and receipt.get('planCommit') == field['planCommit']
++            and receipt.get('planSha256') == field['planSha256']
++            and receipt.get('batch') == field['batch']
++            and receipt.get('apkSha256') == apk_sha and receipt.get('buildRun') == run_id
++            and receipt.get('catalogSha256') == catalog_sha
++            and receipt.get('runnerManifestSha256') == digest(runner_raw)
++            and receipt.get('status') == 'ENGINEERING_CHECKS_PASSED'
++            and receipt.get('physicalDevice') == 'NOT_INFERRED'
++            and receipt.get('naturalQuality') == 'NOT_PROVEN'
++            and receipt.get('pendingDeviceAndNatural') == pending_device_and_natural(repo)
++            and isinstance(receipt.get('cases'),dict) and set(receipt['cases']) == set(cases),
++            'FIELD173_ENGINEERING_RECEIPT_IDENTITY_OR_CASE_SET')
++    require(original(read_bytes,RUNNER_ORIGINAL,digest(runner_raw)) == runner_raw,
++            'FIELD173_RUNNER_ORIGINAL_SOURCE_MISMATCH')
++    for case_id, row in receipt['cases'].items():
++        spec=specs[case_id]
++        require(row.get('argv') == spec['argv'] and type(row.get('exitCode')) is int
++                and row['exitCode'] == 0 and row.get('status') == 'PASS',
++                'FIELD173_RUNNER_EXIT_OR_COMMAND:'+case_id)
++        require(set(row.get('inputOriginals',{})) == set(spec['inputFiles']),
++                'FIELD173_INPUT_SET:'+case_id)
++        inputs={}
++        for name, ref in row['inputOriginals'].items():
++            expected=committed_bytes(repo,field['sourceCommit'],name)
++            require(original(read_bytes,ref['file'],ref['sha256']) == expected,
++                    'FIELD173_INPUT_SOURCE_MISMATCH:'+case_id)
++            inputs[name]=digest(expected)
++        ctx=row['contextOriginal']; context=json.loads(original(read_bytes,ctx['file'],ctx['sha256']))
++        expected=expected_scope(field,case_id,apk_sha,run_id)
++        require(context.get('schema') == 'STARCORE_FIELD173_CASE_CONTEXT_1'
++                and all(context.get(k) == v for k,v in expected.items())
++                and re.fullmatch('[0-9a-f]{32}',str(context.get('executionId')))
++                and context.get('inputHashes') == inputs,
++                'FIELD173_INPUT_CONTEXT_IDENTITY:'+case_id)
++        argv_ref=row['argvOriginal']
++        require(json.loads(original(read_bytes,argv_ref['file'],argv_ref['sha256'])) == spec['argv'],
++                'FIELD173_ARGV_ORIGINAL_MISMATCH:'+case_id)
++        stdout=row['stdoutOriginal']; stderr=row['stderrOriginal']
++        observed=events(original(read_bytes,stdout['file'],stdout['sha256']),context,len(cases[case_id]['assertions']))
++        original(read_bytes,stderr['file'],stderr['sha256'])
++        verify_case_output(case_id,context,row['outputManifestOriginal'],read_bytes)
++        require(type(row.get('assertionCount')) is int and row['assertionCount'] == observed,
++                'FIELD173_ASSERTION_COUNT_MISMATCH:'+case_id)
++    return {'file':RECEIPT,'sha256':digest(canonical(receipt)),
++            'cases':sorted(cases),'status':'ENGINEERING_CHECKS_PASSED',
++            'physicalDevice':'NOT_INFERRED','naturalQuality':'NOT_PROVEN'}
++
++
++def verify_archive(repo, field, batch, archive, *, apk_sha, run_id):
++    require(batch.get('fieldRepair173') == field, 'FIELD173_BATCH_IDENTITY_REQUIRED')
++    require(RECEIPT in archive.namelist(), 'FIELD173_ENGINEERING_ORIGINALS_REQUIRED')
++    read=archive_reader(archive)
++    raw=original(read,RECEIPT); receipt=json.loads(raw)
++    result=verify_receipt(repo,field,receipt,read,apk_sha=apk_sha,run_id=run_id)
++    result['sha256']=digest(raw)
++    require(batch.get('fieldEngineeringEvidence') == result
++            and batch.get('originals',{}).get(RECEIPT) == result['sha256'],
++            'FIELD173_BATCH_EVIDENCE_REFERENCE_MISMATCH')
++    cover=json.loads(original(read,'cover-install.json',batch['originals'].get('cover-install.json')))
++    before,after=cover.get('before',{}),cover.get('after',{})
++    require(cover.get('status') == 'PASS' and cover.get('baselineSourceCommit') == BASELINE
++            and cover.get('scope') == 'DISPOSABLE_ANDROID_API34_ORIGINAL_SIGNATURE'
++            and before.get('versionCode') == BASELINE_CODE and before.get('apkSha256') == BASELINE_APK
++            and after.get('versionCode') == field['versionCode'] and after.get('apkSha256') == apk_sha
++            and type(before.get('uid')) is int and before['uid'] == after.get('uid'),
++            'FIELD173_EXACT_COVER_INSTALL_RECEIPT_REQUIRED')
++    return result
+--- /dev/null
++++ b/tools/r343/run_field_engineering.py
+@@ -0,0 +1,95 @@
++#!/usr/bin/env python3
++"""Execute committed new-field cases and retain exact inputs, commands and runner logs."""
++import argparse
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import uuid
++
++ROOT=Path(__file__).resolve().parents[2]
++sys.path.insert(1,str(ROOT/'tools/r33'))
++import verify_plan_binding as binding
++import field_delivery_contract as contract
++
++
++def execute(repo, destination, build, apk):
++    repo=Path(repo).resolve(); destination=Path(destination).resolve()
++    field=contract.bound_field(repo,build=build)
++    binding.require(field is not None and build.get('gradleRelease') == 'PASS'
++                    and build.get('apkSha256') == binding.sha(apk), 'FIELD173_CURRENT_BUILD_REQUIRED')
++    binding.require(not destination.is_relative_to(repo), 'FIELD173_EXTERNAL_ORIGINALS_REQUIRED')
++    binding.verify_checkout_bytes(repo,field['sourceCommit'])
++    cases,catalog_sha=contract.catalog(repo,field)
++    specs,runner_raw=contract.runner_catalog(repo,field,cases)
++    destination.mkdir(parents=True,exist_ok=True)
++    binding.require(not (destination/contract.RECEIPT).exists(), 'FIELD173_FRESH_RECEIPT_REQUIRED')
++    (destination/contract.RUNNER_ORIGINAL).write_bytes(runner_raw)
++    observations={}
++    def save(name,data):
++        path=destination/name
++        with path.open('xb') as out:out.write(data)
++        return {'file':name,'sha256':contract.digest(data)}
++    for case_id in sorted(cases):
++        spec=specs[case_id]; stem='field173-'+case_id
++        inputs={}; hashes={}
++        for index,name in enumerate(spec['inputFiles']):
++            data=contract.committed_bytes(repo,field['sourceCommit'],name)
++            inputs[name]=save(stem+'-input-'+str(index)+'.bin',data); hashes[name]=contract.digest(data)
++        context={'schema':'STARCORE_FIELD173_CASE_CONTEXT_1',
++                 **contract.expected_scope(field,case_id,build['apkSha256'],build['ciRun']),
++                 'executionId':uuid.uuid4().hex,'inputHashes':hashes}
++        context_ref=save(stem+'-context.json',contract.canonical(context))
++        argv_ref=save(stem+'-argv.json',contract.canonical(spec['argv']))
++        env=dict(os.environ)
++        output_manifest=destination/(stem+'-output-manifest.json')
++        binding.require(not output_manifest.exists(), 'FIELD173_FRESH_CASE_OUTPUT_REQUIRED')
++        env.update(STARCORE_FIELD173_CASE_CONTEXT=str(destination/context_ref['file']),
++                   STARCORE_FIELD173_CANDIDATE_APK=str(Path(apk).resolve()),
++                   STARCORE_FIELD173_CASE_OUTPUT=str(output_manifest))
++        stdout_name=stem+'-stdout.log'; stderr_name=stem+'-stderr.log'
++        with (destination/stdout_name).open('xb') as stdout,(destination/stderr_name).open('xb') as stderr:
++            try:
++                result=subprocess.run(spec['argv'],cwd=repo,env=env,stdout=stdout,stderr=stderr,
++                                      timeout=spec['timeoutSeconds'],shell=False)
++                code=result.returncode
++            except subprocess.TimeoutExpired:
++                code=124
++        reader=contract.directory_reader(destination)
++        out=reader(stdout_name); err=reader(stderr_name)
++        binding.require(code == 0, 'FIELD173_RUNNER_NONZERO:'+case_id)
++        count=contract.events(out,context,len(cases[case_id]['assertions']))
++        output_ref={'file':output_manifest.name,'sha256':contract.digest(reader(output_manifest.name))}
++        contract.verify_case_output(case_id,context,output_ref,reader)
++        observations[case_id]={'argv':spec['argv'],'exitCode':code,'status':'PASS','assertionCount':count,
++                              'inputOriginals':inputs,'contextOriginal':context_ref,'argvOriginal':argv_ref,
++                              'outputManifestOriginal':output_ref,
++                              'stdoutOriginal':{'file':stdout_name,'sha256':contract.digest(out)},
++                              'stderrOriginal':{'file':stderr_name,'sha256':contract.digest(err)}}
++    binding.verify_checkout_bytes(repo,field['sourceCommit'])
++    binding.require(contract.bound_field(repo,build=build) == field, 'FIELD173_SOURCE_CHANGED_DURING_TEST')
++    receipt={'schema':'STARCORE_FIELD173_BATCH_ENGINEERING_1','fieldRepair173':field,
++             'sourceCommit':field['sourceCommit'],'sourceTree':field['sourceTree'],
++             'planCommit':field['planCommit'],'planSha256':field['planSha256'],'batch':field['batch'],
++             'buildRun':build['ciRun'],'apkSha256':build['apkSha256'],'catalogSha256':catalog_sha,
++             'runnerManifestSha256':contract.digest(runner_raw),'status':'ENGINEERING_CHECKS_PASSED',
++             'physicalDevice':'NOT_INFERRED','naturalQuality':'NOT_PROVEN',
++             'pendingDeviceAndNatural':contract.pending_device_and_natural(repo),'cases':observations}
++    contract.verify_receipt(repo,field,receipt,contract.directory_reader(destination),
++                            apk_sha=build['apkSha256'],run_id=build['ciRun'])
++    save(contract.RECEIPT,contract.canonical(receipt))
++    return receipt
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--repo',type=Path,default=ROOT);p.add_argument('--out',type=Path,required=True)
++    p.add_argument('--build-receipt',type=Path,required=True);p.add_argument('--apk',type=Path,required=True)
++    a=p.parse_args(); result=execute(a.repo,a.out,binding.read(a.build_receipt),a.apk)
++    print(json.dumps({'fieldEngineering':'PASS','cases':len(result['cases']),
++                      'sourceCommit':result['sourceCommit'],'batch':result['batch'],
++                      'physicalDevice':'NOT_INFERRED','naturalQuality':'NOT_PROVEN'}))
++
++
++if __name__ == '__main__':main()
+--- /dev/null
++++ b/tools/r343/test_field_delivery_contract.py
+@@ -0,0 +1,240 @@
++#!/usr/bin/env python3
++"""Host-only synthetic fixtures for the field receipt gate; never device acceptance."""
++import copy
++import importlib.util
++import io
++import json
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++from types import SimpleNamespace
++import unittest
++from unittest.mock import patch
++import zipfile
++
++ROOT=Path(__file__).resolve().parents[2]
++sys.path.insert(1,str(ROOT/'tools/r33'))
++import verify_plan_binding as binding
++import field_delivery_contract as contract
++import run_field_engineering as runner
++
++
++SCRIPT=r'''import hashlib,json,os
++from pathlib import Path
++c=json.loads(Path(os.environ['STARCORE_FIELD173_CASE_CONTEXT']).read_text())
++print('FIELD173_ENGINEERING_EVENT '+json.dumps(dict(c,event='CASE_ENTER')))
++x=Path('fixture.json').read_bytes()
++assert json.loads(x)['value']==7
++assert hashlib.sha256(x).hexdigest()==c['inputHashes']['fixture.json']
++assert sorted([5,2,3])==[2,3,5]
++manifest=Path(os.environ['STARCORE_FIELD173_CASE_OUTPUT'])
++output=manifest.with_name('field173-'+c['caseId']+'-observed.json')
++output.write_text(json.dumps({'fixtureOnly':True,'observed':7}))
++scope={'role':'ENGINEERING_FIXTURE','target':None,'cutoff':None,'databaseIdentity':None,
++       'notApplicableReason':'Host verifier fixture; no application or database is executed.'}
++payload={k:c[k] for k in ('caseId','sourceCommit','sourceTree','planCommit','planSha256','batch','apkSha256','buildRun','executionId')}
++payload.update(schema='STARCORE_FIELD173_CASE_OUTPUT_1',dataScope=scope,
++               artifacts=[{'file':output.name,'kind':'OUTPUT','sha256':hashlib.sha256(output.read_bytes()).hexdigest()}])
++manifest.write_text(json.dumps(payload))
++print('FIELD173_ENGINEERING_EVENT '+json.dumps(dict(c,event='CASE_ASSERTIONS_COMPLETE',assertionCount=3,status='PASS')))
++'''
++
++
++class FieldGateTest(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.scratch=tempfile.TemporaryDirectory(prefix='field173-host-contract-')
++        cls.root=Path(cls.scratch.name); cls.repo=cls.root/'source';cls.repo.mkdir()
++        def put(name,data):
++            p=cls.repo/name;p.parent.mkdir(parents=True,exist_ok=True)
++            p.write_bytes(data if isinstance(data,bytes) else data.encode())
++        cases=[{'id':'R343-001-'+suffix,'issue_id':'R343-001','batch':'B01',
++                'level':'ENGINEERING','assertions':['fixture value','fixture input hash','fixture sort']}
++               for suffix in ('POS','NEG','KEEP')]
++        put(contract.PLAN_PATH+'/ACCEPTANCE_MATRIX.json',contract.canonical({'cases':cases}))
++        put('fixture.json',b'{"value":7}\n');put('fixture_runner.py',SCRIPT)
++        put('release/release_manifest.json',contract.canonical({'versionCode':577311174}))
++        spec={'argv':[sys.executable,'fixture_runner.py'],'inputFiles':['fixture.json'],'timeoutSeconds':10}
++        put(contract.RUNNERS,contract.canonical({'schema':'STARCORE_FIELD173_TEST_RUNNERS_1',
++            'batch':'B01','cases':{c['id']:spec for c in cases}}))
++        for args in [('init','-q'),('config','user.email','fixture@example.invalid'),
++                     ('config','user.name','Host Fixture'),('add','.'),('commit','-qm','synthetic receipt gate fixture')]:
++            subprocess.run(['git',*args],cwd=cls.repo,check=True,capture_output=True)
++        source=binding.git(cls.repo,'rev-parse','HEAD').decode().strip()
++        tree=binding.git(cls.repo,'rev-parse','HEAD^{tree}').decode().strip()
++        cls.field={'schema':'STARCORE_FIELD173_BUILD_IDENTITY_1','sourceCommit':source,'sourceTree':tree,
++                   'planCommit':'b'*40,'planSha256':'c'*64,'sourceBaseline':contract.BASELINE,
++                   'batch':'B01','versionCode':577311174,'versionName':'R34.2-B01-2026-11-26-577311174',
++                   'apkSeries':'R34.2','sourceApkEvidenceRef':{'versionCode':contract.BASELINE_CODE,'sha256':contract.BASELINE_APK}}
++        cls.apk=cls.root/'candidate-bytes.fixture';cls.apk.write_bytes(b'HOST FIXTURE; NOT AN APK')
++        cls.build={'sourceCommit':source,'sourceTree':tree,'fieldRepair173':cls.field,
++                   'apkSha256':binding.sha(cls.apk),'ciRun':'123456','gradleRelease':'PASS'}
++        cls.originals=cls.root/'originals'
++        with patch.object(contract,'bound_field',return_value=cls.field):
++            cls.receipt=runner.execute(cls.repo,cls.originals,cls.build,cls.apk)
++        cls.files={p.name:p.read_bytes() for p in cls.originals.iterdir() if p.is_file()}
++
++    @classmethod
++    def tearDownClass(cls):cls.scratch.cleanup()
++
++    def verify(self,receipt=None,files=None):
++        return contract.verify_receipt(self.repo,self.field,receipt or self.receipt,
++                (files or self.files).__getitem__,apk_sha=self.build['apkSha256'],run_id='123456')
++
++    def reject(self,receipt=None,files=None):
++        with self.assertRaises((ValueError,KeyError)):self.verify(receipt,files)
++
++    def test_actual_host_driver_runs_and_retains_three_synthetic_cases(self):
++        self.assertEqual(self.verify()['cases'],sorted(self.receipt['cases']))
++        self.assertEqual([r['assertionCount'] for r in self.receipt['cases'].values()],[3,3,3])
++
++    def test_wrong_source_plan_apk_run_or_batch_rejected(self):
++        for key,value in [('sourceCommit','0'*40),('sourceTree','0'*40),('planSha256','0'*64),
++                          ('planCommit','0'*40),('apkSha256','0'*64),('buildRun','999'),('batch','B02')]:
++            with self.subTest(key=key):
++                r=copy.deepcopy(self.receipt);r[key]=value;self.reject(r)
++
++    def test_missing_and_old_regression_cases_rejected(self):
++        r=copy.deepcopy(self.receipt);r['cases'].pop('R343-001-NEG');self.reject(r)
++        r=copy.deepcopy(self.receipt);r['cases']['R342-001']=r['cases'].pop('R343-001-POS');self.reject(r)
++
++    def test_nonzero_runner_exit_rejected(self):
++        r=copy.deepcopy(self.receipt);r['cases']['R343-001-POS']['exitCode']=1;self.reject(r)
++
++    def test_stale_command_or_missing_input_rejected(self):
++        r=copy.deepcopy(self.receipt);r['cases']['R343-001-POS']['argv']=['true'];self.reject(r)
++        r=copy.deepcopy(self.receipt);r['cases']['R343-001-POS']['inputOriginals']={};self.reject(r)
++
++    def test_tampered_input_original_rejected_even_if_local_hash_changes(self):
++        r=copy.deepcopy(self.receipt);files=dict(self.files)
++        ref=r['cases']['R343-001-POS']['inputOriginals']['fixture.json']
++        files[ref['file']]=b'{"value":8}\n';ref['sha256']=contract.digest(files[ref['file']]);self.reject(r,files)
++
++    def test_self_written_pass_without_runner_markers_rejected(self):
++        r=copy.deepcopy(self.receipt);files=dict(self.files);ref=r['cases']['R343-001-POS']['stdoutOriginal']
++        files[ref['file']]=b'PASS\n';ref['sha256']=contract.digest(files[ref['file']]);self.reject(r,files)
++
++    def test_zero_fractional_or_boolean_assertion_count_rejected(self):
++        context=json.loads(self.files[self.receipt['cases']['R343-001-POS']['contextOriginal']['file']])
++        for count in (0,1.5,True):
++            data='\n'.join(contract.MARKER+json.dumps(dict(context,event=event,assertionCount=count,status='PASS'))
++                           for event in ('CASE_ENTER','CASE_ASSERTIONS_COMPLETE')).encode()
++            with self.subTest(count=count),self.assertRaises(ValueError):contract.events(data,context,3)
++
++    def test_actual_event_wrong_execution_identity_rejected(self):
++        context=json.loads(self.files[self.receipt['cases']['R343-001-POS']['contextOriginal']['file']])
++        other=dict(context,executionId='f'*32)
++        data='\n'.join(contract.MARKER+json.dumps(dict(other,event=e,assertionCount=3,status='PASS'))
++                       for e in ('CASE_ENTER','CASE_ASSERTIONS_COMPLETE')).encode()
++        with self.assertRaises(ValueError):contract.events(data,context,3)
++
++    def test_missing_output_manifest_or_tampered_output_rejected(self):
++        r=copy.deepcopy(self.receipt);r['cases']['R343-001-POS'].pop('outputManifestOriginal');self.reject(r)
++        r=copy.deepcopy(self.receipt);files=dict(self.files)
++        ref=r['cases']['R343-001-POS']['outputManifestOriginal'];output=json.loads(files[ref['file']])
++        files[output['artifacts'][0]['file']]=b'changed';self.reject(r,files)
++
++    def test_database_scope_requires_readback(self):
++        row=self.receipt['cases']['R343-001-POS'];ctx=json.loads(self.files[row['contextOriginal']['file']])
++        ref=copy.deepcopy(row['outputManifestOriginal']);files=dict(self.files);output=json.loads(files[ref['file']])
++        output['dataScope']['databaseIdentity']='actual-fixture-db-id'
++        files[ref['file']]=contract.canonical(output);ref['sha256']=contract.digest(files[ref['file']])
++        with self.assertRaises(ValueError):contract.verify_case_output('R343-001-POS',ctx,ref,files.__getitem__)
++
++    def test_catalog_and_runner_manifest_hashes_are_required(self):
++        for key in ('catalogSha256','runnerManifestSha256'):
++            r=copy.deepcopy(self.receipt);r[key]='0'*64;self.reject(r)
++
++    def test_natural_or_device_credit_cannot_be_inferred(self):
++        for key in ('physicalDevice','naturalQuality'):
++            r=copy.deepcopy(self.receipt);r[key]='PASS';self.reject(r)
++
++    def test_archive_requires_exact_173_cover_and_uid(self):
++        reference=self.verify();reference['sha256']=contract.digest(self.files[contract.RECEIPT])
++        cover={'status':'PASS','baselineSourceCommit':contract.BASELINE,
++               'scope':'DISPOSABLE_ANDROID_API34_ORIGINAL_SIGNATURE',
++               'before':{'uid':10001,'versionCode':contract.BASELINE_CODE,'apkSha256':contract.BASELINE_APK},
++               'after':{'uid':10001,'versionCode':self.field['versionCode'],'apkSha256':self.build['apkSha256']}}
++        def check(value):
++            files=dict(self.files);files['cover-install.json']=contract.canonical(value)
++            batch={'fieldRepair173':self.field,'fieldEngineeringEvidence':reference,
++                   'originals':{name:contract.digest(raw) for name,raw in files.items()}}
++            memory=io.BytesIO()
++            with zipfile.ZipFile(memory,'w') as z:
++                for name,raw in files.items():z.writestr(name,raw)
++            with zipfile.ZipFile(io.BytesIO(memory.getvalue())) as z:
++                return contract.verify_archive(self.repo,self.field,batch,z,apk_sha=self.build['apkSha256'],run_id='123456')
++        self.assertEqual(check(cover)['status'],'ENGINEERING_CHECKS_PASSED')
++        for category in ('oldBaseline','wrongUid','wrongBaselineSource'):
++            bad=copy.deepcopy(cover)
++            if category=='oldBaseline':bad['before']['versionCode']=577311152
++            elif category=='wrongUid':bad['after']['uid']=10002
++            else:bad['baselineSourceCommit']='0'*40
++            with self.subTest(category=category),self.assertRaises(ValueError):check(bad)
++
++    def test_bound_build_cannot_drop_nested_identity(self):
++        owner=SimpleNamespace(identity=lambda *args:self.field)
++        with patch.object(binding,'release_owner',return_value=owner):
++            self.assertEqual(contract.bound_field(self.repo,build=self.build),self.field)
++            broken=copy.deepcopy(self.build);broken.pop('fieldRepair173')
++            with self.assertRaises(ValueError):contract.bound_field(self.repo,build=broken)
++
++    def test_old_unpinned_source_does_not_require_field_owner(self):
++        with tempfile.TemporaryDirectory() as scratch:
++            repo=Path(scratch);(repo/'release').mkdir()
++            (repo/'release/release_manifest.json').write_text('{"versionCode":577311173}')
++            with patch.object(binding,'release_owner',side_effect=AssertionError('Old path must not load new owner')):
++                self.assertIsNone(contract.bound_field(repo,identity={'r342':{}},build={}))
++
++    def test_package_checks_exact173_and_preserves_legacy152(self):
++        import package_ci_candidate as package
++        common={'package':package.PACKAGE,'certificateSha256':package.CERT,'signatureVerified':True}
++        formal=dict(common,versionCode=577311033,versionName='old033',sha256=package.BASE_APK)
++        new=dict(common,versionCode=577311174,versionName=self.field['versionName'],sha256='d'*64)
++        release={'versionCode':new['versionCode'],'versionName':new['versionName'],'applicationId':package.PACKAGE}
++        installed=dict(common,versionCode=contract.BASELINE_CODE,sha256=contract.BASELINE_APK)
++        expected=self.field['sourceApkEvidenceRef']
++        self.assertEqual(package.validate_pair(release,formal,new,current_installed=installed,
++                        expected_installed=expected),'APKS_COMPATIBLE_COVER_INSTALL_NOT_MEASURED')
++        old=dict(common,versionCode=577311152,sha256='2afc220e8942f7eda678b7ddd09ca16c48225c2f4f99167a9233a5e9bf1a8c38')
++        with self.assertRaisesRegex(ValueError,'EXACT_173_BASELINE_REQUIRED'):
++            package.validate_pair(release,formal,new,current_installed=old,expected_installed=expected)
++        self.assertEqual(package.validate_pair(release,formal,new,current_installed=old,
++                        expected_installed={'versionCode':old['versionCode'],'sha256':old['sha256']}),
++                         'APKS_COMPATIBLE_COVER_INSTALL_NOT_MEASURED')
++
++    def test_embedded_full_identity_cannot_lose_field(self):
++        import package_ci_candidate as package
++        identity={'source_commit':self.field['sourceCommit'],'source_tree':self.field['sourceTree'],
++                  'r342':{'sourceCommit':self.field['sourceCommit']},'fieldRepair173':self.field}
++        old={'source_commit':identity['source_commit'],'source_tree':identity['source_tree'],'source_dirty':False}
++        def make(path,current):
++            with zipfile.ZipFile(path,'w') as z:
++                z.writestr('assets/diagnostics/build-identity-r31.json',json.dumps(old))
++                z.writestr('assets/diagnostics/build-identity-r334.json',json.dumps(current))
++                z.writestr('assets/diagnostics/build-identity-r342.json',json.dumps(identity['r342']))
++        with tempfile.TemporaryDirectory() as scratch:
++            path=Path(scratch)/'synthetic-identity-container.zip';make(path,identity)
++            package.embedded(path,identity)
++            bad=copy.deepcopy(identity);bad.pop('fieldRepair173');make(path,bad)
++            with self.assertRaisesRegex(ValueError,'EMBEDDED_R334_PLAN_OR_SOURCE_MISMATCH'):
++                package.embedded(path,identity)
++
++    def test_public_byte_collector_retains_field_identity(self):
++        spec=importlib.util.spec_from_file_location('field_test_collect',ROOT/'tools/r341/publish_delivery_manifest.py')
++        collect=importlib.util.module_from_spec(spec);spec.loader.exec_module(collect)
++        body=b'HOST READBACK FIXTURE; NO PUBLICATION'
++        candidate={'series':'R34.2','sourceCommit':self.field['sourceCommit'],'batch':'B01',
++                   'planCommit':self.field['planCommit'],'planSha256':self.field['planSha256'],'buildRun':'123456',
++                   'fieldRepair173':self.field,'fieldEngineeringEvidence':{'status':'ENGINEERING_CHECKS_PASSED'},
++                   'legacyR342Plan':{'planCommit':'1'*40,'planSha256':'2'*64},
++                   'artifacts':[{'filename':'fixture.txt','bytes':len(body),'sha256':contract.digest(body),
++                    'url':'https://github.com/gtt46461-star/starcore-public-build/releases/download/r34.2-B01-'+self.field['sourceCommit'][:12]+'/fixture.txt'}]}
++        with tempfile.TemporaryDirectory() as scratch,patch.object(collect.urllib.request,'urlopen',return_value=io.BytesIO(body)):
++            result=collect.collect(candidate,Path(scratch)/'received','R34.2')
++        self.assertEqual(result['fieldRepair173'],self.field)
++        self.assertEqual(result['planSha256'],self.field['planSha256'])
++
++
++if __name__=='__main__':unittest.main(verbosity=2)

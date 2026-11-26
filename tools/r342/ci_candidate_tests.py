@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools/r33'))
 from verify_plan_binding import read, require, sha, write_json
 from build_identity import BASELINE_CODE, BASELINE_APK, PLAN_COMMIT, SEAL
+sys.path.append(str(ROOT / 'tools/r343'))
+import field_delivery_contract as field_contract
 
 PACKAGE = 'com.starcore.research.r13'
 
@@ -33,21 +35,27 @@ def installed(serial, destination):
     return {'versionCode': int(package[1]), 'uid': int(uid[1]), 'apkSha256': digest}
 
 
-def cover_install(serial, baseline, apk, release, originals, signed_reports=None):
-    require(sha(baseline) == BASELINE_APK, 'COVER_EXACT_BASELINE_MISSING')
+def cover_install(serial, baseline, apk, release, originals, signed_reports=None, baseline_identity=None):
+    baseline_code = baseline_identity['versionCode'] if baseline_identity else BASELINE_CODE
+    baseline_sha = baseline_identity['sha256'] if baseline_identity else BASELINE_APK
+    baseline_source = baseline_identity['sourceCommit'] if baseline_identity else 'eb8f82a8bda8db22f1f122095217132f07053bcb'
+    require(sha(baseline) == baseline_sha, 'COVER_EXACT_BASELINE_MISSING')
     require('Success' in adb(serial, 'install', baseline), 'COVER_BASELINE_INSTALL_FAILED')
     before = installed(serial, originals / 'baseline-installed.txt')
-    require(before['versionCode'] == BASELINE_CODE and before['apkSha256'] == BASELINE_APK,
+    require(before['versionCode'] == baseline_code and before['apkSha256'] == baseline_sha,
             'COVER_BASELINE_IDENTITY_MISMATCH')
     if signed_reports:
-        signed_reports('baseline', 'COMPACT_DIAGNOSTIC', 'eb8f82a8bda8db22f1f122095217132f07053bcb')
+        signed_reports('baseline', 'COMPACT_DIAGNOSTIC', baseline_source)
         adb(serial, 'shell', 'am', 'force-stop', PACKAGE)
     require('Success' in adb(serial, 'install', '-r', apk), 'COVER_UPGRADE_INSTALL_FAILED')
     after = installed(serial, originals / 'candidate-installed.txt')
     require(after == {'uid': before['uid'], 'versionCode': release['versionCode'], 'apkSha256': sha(apk)},
             'COVER_UPGRADE_IDENTITY_MISMATCH')
-    write_json(originals / 'cover-install.json', {'serial': serial, 'before': before, 'after': after,
-               'scope': 'DISPOSABLE_ANDROID_API34_ORIGINAL_SIGNATURE', 'status': 'PASS'})
+    cover = {'serial': serial, 'before': before, 'after': after,
+             'scope': 'DISPOSABLE_ANDROID_API34_ORIGINAL_SIGNATURE', 'status': 'PASS'}
+    if baseline_identity:
+        cover['baselineSourceCommit'] = baseline_source
+    write_json(originals / 'cover-install.json', cover)
     if signed_reports:
         for name, profile in [('candidate-1','COMPACT_DIAGNOSTIC'),('candidate-2','FULL_RAW'),
                               ('candidate-3','COMPACT_DIAGNOSTIC')]:
@@ -55,7 +63,7 @@ def cover_install(serial, baseline, apk, release, originals, signed_reports=None
     require('Success' in adb(serial, 'uninstall', PACKAGE), 'DISPOSABLE_BASELINE_UNINSTALL_FAILED')
 
 
-def signed_report_campaign(serial, originals, apk_sha):
+def signed_report_campaign(serial, originals, apk_sha, baseline_apk_sha=BASELINE_APK):
     import time
     import zipfile
     import report_ui_driver as driver
@@ -88,7 +96,7 @@ def signed_report_campaign(serial, originals, apk_sha):
             record = driver.save_report(driver.wait_for_report(name),name)
             require(record['rawEvidenceIncluded'] == (profile == 'FULL_RAW'), 'UNEXPECTED_REPORT_EVIDENCE_PROFILE')
             zip_file = driver.OUT / record['file']
-            expected_apk = BASELINE_APK if name == 'baseline' else apk_sha
+            expected_apk = baseline_apk_sha if name == 'baseline' else apk_sha
             with zipfile.ZipFile(zip_file) as archive:
                 manifest = json.loads(archive.read('source-manifest.json'))
                 require(manifest['apkSha256'] == expected_apk, 'REPORT_INSTALLED_APK_DIGEST_MISMATCH')
@@ -271,8 +279,12 @@ def main():
     serial = subprocess.run(['adb', 'get-serialno'], capture_output=True, text=True, check=True).stdout.strip()
     require(re.fullmatch(r'emulator-[0-9]+', serial), 'DISPOSABLE_ANDROID_CI_REQUIRED')
     require(adb(serial, 'shell', 'getprop', 'ro.build.version.sdk') == '34', 'ANDROID_API_LEVEL_MISMATCH')
-    campaign = signed_report_campaign(serial,originals,sha(apk)) if stage == 'B12' else None
-    cover_install(serial, temp / 'baseline152.apk', apk, release, originals, campaign)
+    field = field_contract.bound_field(ROOT, build=build)
+    baseline_identity = field_contract.baseline(field) if field else None
+    baseline_name = baseline_identity['file'] if baseline_identity else 'baseline152.apk'
+    baseline_sha = baseline_identity['sha256'] if baseline_identity else BASELINE_APK
+    campaign = signed_report_campaign(serial,originals,sha(apk),baseline_sha) if stage == 'B12' else None
+    cover_install(serial, temp / baseline_name, apk, release, originals, campaign, baseline_identity)
 
     old_plan = Path(os.environ['STARCORE_R341_PLAN_ROOT'])
     host_cases = []
@@ -292,7 +304,18 @@ def main():
             inherited_b12 = observe_inherited_b12(old_plan,originals)
     else:
         raise ValueError('R342_STAGE_ANDROID_TESTS_NOT_IMPLEMENTED')
-    write_json(originals / 'batch-receipt.json', {
+    field_evidence = None
+    if field:
+        subprocess.run([sys.executable, '-B', str(ROOT/'tools/r343/run_field_engineering.py'),
+                        '--repo', str(ROOT), '--out', str(originals),
+                        '--build-receipt', str(temp/'build/CI_BUILD_RECEIPT.json'), '--apk', str(apk)],
+                       check=True, cwd=ROOT)
+        field_receipt = read(originals/field_contract.RECEIPT)
+        field_evidence = field_contract.verify_receipt(
+            ROOT, field, field_receipt, field_contract.directory_reader(originals),
+            apk_sha=sha(apk), run_id=os.environ['GITHUB_RUN_ID'])
+        field_evidence['sha256'] = sha(originals/field_contract.RECEIPT)
+    receipt = {
         'schema': 'STARCORE_R342_BATCH_ENGINEERING_1', 'status': 'ENGINEERING_CHECKS_PASSED',
         'buildRun': os.environ['GITHUB_RUN_ID'], 'sourceCommit': source, 'batch': stage,
         'versionCode': release['versionCode'], 'apkSha256': sha(apk), 'planSha256': SEAL,
@@ -302,7 +325,11 @@ def main():
         'vivoV2353A': 'NOT_RUN_DISPOSABLE_EMULATOR', 'physical24h': 'NOT_RUN',
         'physical72h': 'NOT_RUN', 'natural': 'NOT_RUN',
         'originals': {leaf.name: sha(leaf) for leaf in sorted(originals.iterdir()) if leaf.is_file()},
-    })
+    }
+    if field:
+        receipt.update(fieldRepair173=field, fieldEngineeringEvidence=field_evidence,
+                       sourceTree=field['sourceTree'])
+    write_json(originals / 'batch-receipt.json', receipt)
 
 
 if __name__ == '__main__':

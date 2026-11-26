@@ -1,0 +1,112 @@
+package com.ethk3.novaonepro.r952;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.*;
+import com.ethk3.novaonepro.r952.CandidateCompilerR952.ExpertRef;
+import java.util.*;
+
+/** Evolution computes proposals; Director alone publishes a child and its TRAIN task. */
+public final class EvolutionControllerR952 {
+    private EvolutionControllerR952() {}
+    public static String evolveOne(DbStore store,String issue){return drainActionCP12(store,System.nanoTime()+100000000L)?"ACTION_DRAINED":"NO_READY_ACTION";}
+    /** Retired transaction-bound legacy child path: callers must use drainActionCP12. */
+    public static String evolveInTransaction(SQLiteDatabase db,String issue){throw new IllegalStateException("LEGACY_CHILD_WRITER_RETIRED_USE_DIRECTOR_ACTION");}
+    public static boolean drainActionCP12(final DbStore store,long deadlineNs) {
+        if(store==null||store.readable().inTransaction())throw new IllegalArgumentException("EVOLUTION_OUTSIDE_WRITER");
+        final ResearchTaskQueueR967.Lease lease=store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_CLAIM",db->claimEvolution(db),null);
+        if(lease==null)return false;
+        final boolean featureRepair,calibrationRepair;
+        try {
+            featureRepair=DevelopmentFeatureRepairR78.isAction(store.readable(),lease.authorityRef);
+            calibrationRepair=!featureRepair&&CalibrationRepairR75.isAction(store.readable(),lease.authorityRef);
+        }catch(RuntimeException infrastructure){
+            if(ResearchTrainingHookRegistryR952.retryInfrastructureCP12(store,lease,infrastructure))return true;
+            throw infrastructure;
+        }
+        if(featureRepair)return DevelopmentFeatureRepairR78.drainClaimed(store,lease,deadlineNs);
+        if(calibrationRepair)return CalibrationRepairR75.drainClaimed(store,lease,deadlineNs);
+        try(MemoryBudgetCP4.Lease temporary=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(Math.min(4L<<20,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().limit/2))) {
+            final Action action=readAction(store.readable(),lease);
+            if(!action.state.equals("PROPOSED")) {
+                Boolean done=store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_REPLAY",db->{if(!ResearchTaskQueueR967.owns(db,lease))return false;ResearchTaskQueueR967.complete(db,lease,V51ChecksumEngine.sha256("ACTION_ALREADY_TERMINAL|"+action.id+'|'+action.state));return true;},false);return Boolean.TRUE.equals(done);
+            }
+            if(action.type.equals("HOLD"))return terminal(store,lease,action,"WAIT_FUTURE",null,action.reason);
+            CandidateAstR952 parent=readParent(store.readable(),action.parent,action.parentHash),secondary=action.secondary.isEmpty()?null:readParent(store.readable(),action.secondary,action.secondaryHash);
+            List<AtomSpecCP4> registry=registry(store.readable(),parent.position,deadlineNs,temporary.bytes);
+            CandidateAstR952.Family requested=action.family.isEmpty()?null:CandidateAstR952.Family.valueOf(action.family);
+            final EvolutionTeachersCP12.Binding teacherBinding=action.operator.equals("NEW_FAMILY")&&Arrays.asList(CandidateAstR952.Family.BANDIT,CandidateAstR952.Family.EXPERT,CandidateAstR952.Family.ENSEMBLE).contains(requested)?EvolutionTeachersCP12.prepareCP12(store,action.id,action.issue,action.evidence,requested,parent.position,deadlineNs):null;
+            MutationGraphCP12.Proposal stored=readProposal(store.readable(),action);final MutationGraphCP12.Proposal proposal;
+            if(stored==null){
+                // Indexed existence lookup is bounded to <=32 graph attempts; no unbounded
+                // allocation of all historical candidate hashes.
+                Set<String> occupied=new java.util.AbstractSet<String>(){public int size(){return 0;}public Iterator<String> iterator(){return Collections.<String>emptyList().iterator();}public boolean contains(Object hash){try(Cursor c=store.readable().rawQuery("SELECT 1 FROM r952_candidate WHERE structural_hash=? LIMIT 1",new String[]{String.valueOf(hash)})){return c.moveToFirst();}}};
+                proposal=MutationGraphCP12.propose(parent,secondary,action.id,action.operator,registry,occupied,teacherBinding==null?action.experts:teacherBinding.refs,requested,deadlineNs,action.trainStd,action.preferredNodes);
+                if(proposal.ast==null)return terminal(store,lease,action,"NO_OP",null,proposal.reason);
+                // Persist the exact graph before file preparation. Every resumed lease uses
+                // this graph; changing roster membership cannot reset historical staging.
+                Boolean saved=store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_PROPOSAL",db->{if(!ResearchTaskQueueR967.owns(db,lease))return false;Action current=readAction(db,lease);if(!current.fingerprint.equals(action.fingerprint)||!current.state.equals("PROPOSED"))throw new IllegalStateException("PROPOSAL_ACTION_CAS");
+                    if(teacherBinding!=null)EvolutionTeachersCP12.insertCP12(db,teacherBinding,proposal.ast);
+                    db.execSQL("INSERT INTO research_action_proposal_cp12(action_id,parent_lifetime_id,ast_hash,ast_json,attempt,proposal_hash,created_at) VALUES(?,?,?,?,?,?,?)",new Object[]{action.id,action.parentLife,proposal.ast.structuralHash,proposal.ast.canonical,proposal.attempt,proposalHash(action,proposal),System.currentTimeMillis()});if(!ResearchTaskQueueR967.yield(db,lease,"PROPOSAL|"+proposal.ast.structuralHash,"PROPOSAL_READY",0))throw new IllegalStateException("PROPOSAL_QUEUE_CAS");return true;},false);return Boolean.TRUE.equals(saved);
+            }
+            proposal=stored;CandidateCompilerR952.compile(proposal.ast,proposal.ast.graphSpec.manifest,MutationGraphCP12.usedSpecs(proposal.ast,registry));
+            if(!lease.cursor.equals("PROPOSAL|"+proposal.ast.structuralHash))throw new IllegalStateException("PROPOSAL_CURSOR_MISMATCH");
+            check(deadlineNs);final String childId="CP12-C-"+proposal.ast.structuralHash;
+            String latest="";try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=c.getString(0);}
+            if(!TargetIssueResolver.isValid(latest))throw new DevelopmentProductionCP12.Wait("WAIT_HISTORY");
+            String registration=TargetIssueResolver.next(latest).targetIssue;
+            try(DevelopmentProductionCP12.PreparedProtocol prepared=ResearchDirectorR952.prepareTrainingProtocolCP5(store,proposal.ast,childId,action.id,registration)) {
+                check(deadlineNs);final ResearchDirectorR952.PreparedEvolution expectation=new ResearchDirectorR952.PreparedEvolution(childId,action.id,action.parent,action.id,action.parentHash,action.evidence,action.secondary,action.secondaryHash);
+                Boolean committed=store.coordinatorForResearchR952().runAtomicWrite("CP12_EVOLUTION_CHILD_TRAIN_COMMIT",db->{
+                    if(!ResearchTaskQueueR967.owns(db,lease))return false;Action current=readAction(db,lease);if(!current.fingerprint.equals(action.fingerprint)||!current.state.equals("PROPOSED"))throw new IllegalStateException("EVOLUTION_ACTION_CHANGED");
+                    if(teacherBinding!=null)EvolutionTeachersCP12.verifyCP12(db,teacherBinding,proposal.ast);
+                    Map<String,Object> intentFields=new TreeMap<>();if(teacherBinding!=null){intentFields.put("ast",proposal.ast.canonical);intentFields.put("teacher_binding_proof",teacherBinding.proof);intentFields.put("teacher_refs",teacherBinding.refsJson);intentFields.put("teacher_witnesses",teacherBinding.witnessesJson);}String preparedIntent=teacherBinding==null?proposal.ast.canonical:StrictCanonicalJson.writeContext(intentFields);
+                    KnowledgeLedgerR952.put(db,action.issue,action.parent,"CP12_EVOLUTION_PROPOSAL",preparedIntent);
+                    String train=ResearchDirectorR952.commitPreparedCandidateCP5(db,prepared,expectation);
+                    if(teacherBinding!=null&&!train.startsWith("NO_OP:"))ComputationReceiptR974.teacherLineageCP12(db,childId,action.id,teacherBinding,proposal.ast);
+                    // Both a real TRAIN id and a Director NO_OP outcome complete this action lease.
+                    ResearchTaskQueueR967.complete(db,lease,V51ChecksumEngine.sha256("EVOLUTION_COMMITTED|"+action.id+'|'+proposal.ast.structuralHash+'|'+train));
+                    db.execSQL("UPDATE research_finding_v2 SET state=CASE WHEN ? LIKE 'NO_OP:%' THEN 'HOLD' ELSE 'EVALUATING' END,updated_at=? WHERE finding_id=?",new Object[]{train,System.currentTimeMillis(),action.finding});return true;
+                },false);return Boolean.TRUE.equals(committed);
+            }
+        }catch(MutationGraphCP12.Wait wait){if(wait.reason.equals("WAIT_FROZEN_TEACHER")||wait.reason.equals("WAIT_ATOM_REGISTRATION")){Boolean waiting=store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_DEPENDENCY_WAIT",db->ResearchTaskQueueR967.waitInputCP12(db,lease,wait.reason,60000),false);return Boolean.TRUE.equals(waiting);}if(wait.reason.equals("WAIT_NUMERIC_PARENT_FEATURE"))return terminal(store,lease,readAction(store.readable(),lease),"WAIT_FUTURE",null,"BLOCKER_FIXED_NUMERIC_PARENT_FEATURE");defer(store,lease,wait.reason);return true;
+        }catch(DevelopmentProductionCP12.Wait wait){if(Arrays.asList("WAIT_BOUND_FEATURE_HISTORY","WAIT_HISTORY","WAIT_LONG_ORIGINAL_SUMMARY","WAIT_LONG_HISTORICAL_SOURCE_LATE","WAIT_LONG_SCALE_HISTORY").contains(wait.reason))return terminal(store,lease,readAction(store.readable(),lease),"WAIT_FUTURE",null,"BLOCKER_FIXED_HISTORICAL_COVERAGE:"+wait.reason);if(isTransientStorageCP12(wait.reason)){Boolean waiting=store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_STORAGE_WAIT",db->ResearchTaskQueueR967.waitInputCP12(db,lease,wait.reason,60000),false);return Boolean.TRUE.equals(waiting);}if(isDeterministicStorageCP12(wait.reason))return terminal(store,lease,readAction(store.readable(),lease),"REJECTED",null,wait.reason);defer(store,lease,wait.reason);return true;
+        }catch(ResearchWorkBudgetR927.Yield yield){defer(store,lease,"TIME_BUDGET_EXCEEDED");return true;
+        }catch(ResearchTaskQueueR967.Capacity capacity){defer(store,lease,"TASK_BACKPRESSURE");return true;
+        }catch(java.io.IOException io){defer(store,lease,"WAIT_INPUT_IO");return true;
+        }catch(RuntimeException invalid){
+            if("ALGORITHM_MEMORY_BUDGET".equals(invalid.getMessage())){defer(store,lease,"MEMORY_PRESSURE");return true;}
+            if(ResearchTrainingHookRegistryR952.retryInfrastructureCP12(store,lease,invalid))return true;
+            // Keep unknown runtime failures visible; only the former deterministic
+            // argument/state integrity domain may become an explicit rejection.
+            if(!(invalid instanceof IllegalArgumentException)&&!(invalid instanceof IllegalStateException))throw invalid;
+            // Integrity failures are visible terminal rejections, never synthetic child successes.
+            store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_REJECT",db->{if(!ResearchTaskQueueR967.owns(db,lease))return false;
+                db.execSQL("UPDATE research_action_v2 SET state='REJECTED',last_error=? WHERE action_id=? AND state='PROPOSED'",new Object[]{bounded(invalid.getMessage()),lease.authorityRef});db.execSQL("UPDATE research_finding_v2 SET state='ERROR',updated_at=? WHERE finding_id=(SELECT finding_id FROM research_action_v2 WHERE action_id=?)",new Object[]{System.currentTimeMillis(),lease.authorityRef});
+                ResearchTaskQueueR967.complete(db,lease,V51ChecksumEngine.sha256("REJECTED|"+lease.authorityRef+'|'+bounded(invalid.getMessage())));return true;},false);return true;
+        }
+    }
+    private static ResearchTaskQueueR967.Lease claimEvolution(SQLiteDatabase db){List<String> candidates=new ArrayList<>();long now=System.currentTimeMillis();try(Cursor c=db.rawQuery("SELECT t.candidate_id FROM "+ResearchTaskQueueR967.TABLE+" t JOIN research_action_v2 a ON a.action_id=t.authority_ref WHERE t.kind='RESEARCH_ACTION' AND a.operator<>'CREATE' AND NOT EXISTS(SELECT 1 FROM research_family_creation_cp12 creation WHERE creation.action_id=a.action_id) AND ((t.status IN('PENDING','YIELDED','WAIT_INPUT') AND t.available_at<=?) OR t.status='RUNNING') ORDER BY t.updated_at,t.target_issue,t.task_id LIMIT 32",new String[]{String.valueOf(now)})){while(c.moveToNext())candidates.add(c.getString(0));}for(String candidate:candidates){ResearchTaskQueueR967.Lease lease=ResearchTaskQueueR967.claimFor(db,"RESEARCH_ACTION",candidate,now);if(lease!=null)return lease;}return null;}
+    private static MutationGraphCP12.Proposal readProposal(SQLiteDatabase db,Action action){try(Cursor c=db.rawQuery("SELECT ast_hash,length(ast_json),attempt,proposal_hash FROM research_action_proposal_cp12 WHERE action_id=?",new String[]{action.id})){if(!c.moveToFirst())return null;if(c.getLong(1)>32768||c.getLong(1)<=0)throw new IllegalStateException("PROPOSAL_SIZE");String expected=c.getString(0),proof=c.getString(3);int attempt=c.getInt(2);try(Cursor value=db.rawQuery("SELECT ast_json FROM research_action_proposal_cp12 WHERE action_id=? AND proposal_hash=?",new String[]{action.id,proof})){if(!value.moveToFirst())throw new IllegalStateException("PROPOSAL_CHANGED");CandidateAstR952 ast=CandidateAstR952.parse(value.getString(0));MutationGraphCP12.Proposal p=new MutationGraphCP12.Proposal(ast,attempt,"DURABLE_PROPOSAL");if(!expected.equals(ast.structuralHash)||!proof.equals(proposalHash(action,p)))throw new IllegalStateException("PROPOSAL_HASH");return p;}}}
+    private static String proposalHash(Action action,MutationGraphCP12.Proposal p){return V51ChecksumEngine.sha256("CP12_ACTION_AST|"+action.id+'|'+action.evidence+'|'+action.protocol+'|'+p.attempt+'|'+p.ast.canonical);}
+    private static boolean terminal(DbStore store,ResearchTaskQueueR967.Lease lease,Action action,String state,String child,String reason){Boolean result=store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_TERMINAL",db->{if(!ResearchTaskQueueR967.owns(db,lease))return false;Action current=readAction(db,lease);if(!action.fingerprint.equals(current.fingerprint)||!current.state.equals("PROPOSED"))throw new IllegalStateException("ACTION_TERMINAL_CAS");db.execSQL("UPDATE research_action_v2 SET state=?,child_id=?,last_error=? WHERE action_id=? AND state='PROPOSED' AND evidence_hash=?",new Object[]{state,child,bounded(reason),action.id,action.evidence});if(changed(db)!=1)throw new IllegalStateException("ACTION_TERMINAL_CAS");db.execSQL("UPDATE research_finding_v2 SET state=?,updated_at=? WHERE finding_id=?",new Object[]{state.equals("REJECTED")?"ERROR":"HOLD",System.currentTimeMillis(),action.finding});ResearchTaskQueueR967.complete(db,lease,V51ChecksumEngine.sha256(action.id+'|'+state+'|'+bounded(reason)));return true;},false);return Boolean.TRUE.equals(result);}
+    private static boolean isTransientStorageCP12(String reason){return Arrays.asList("MODEL_STORAGE_CAPACITY","MODEL_STORAGE_LEGACY_OVER_BUDGET","TRAINING_WORKING_STORAGE_CAPACITY","TRAINING_WORKING_STORAGE_LEGACY_OVER_BUDGET","TRAINING_INPUT_STORAGE_CAPACITY","CAS_QUOTA").contains(reason);}
+    private static boolean isDeterministicStorageCP12(String reason){return Arrays.asList("MODEL_STORAGE_HASH_SIZE_CONFLICT","MODEL_STORAGE_SINGLE_PAYLOAD_BOUND","TRAINING_WORKING_SINGLE_PAYLOAD_BOUND").contains(reason);}
+    private static void defer(DbStore store,ResearchTaskQueueR967.Lease lease,String reason){defer(store,lease,reason,250);}
+    private static void defer(DbStore store,ResearchTaskQueueR967.Lease lease,String reason,long delayMs){ResearchWorkBudgetR927.finishLeaseReceiptR66(() -> store.coordinatorForResearchR952().runAtomicWrite("CP12_ACTION_YIELD",db->ResearchTaskQueueR967.yield(db,lease,lease.cursor,reason,delayMs),false));}
+    private static Action readAction(SQLiteDatabase db,ResearchTaskQueueR967.Lease lease){try(Cursor c=db.rawQuery("SELECT a.action_id,a.finding_id,a.action_type,a.operator,a.proposal_json,a.evidence_hash,a.parent_hashes_json,a.protocol_hash,a.state,ib.source_issue,f.candidate_version FROM research_action_v2 a JOIN research_finding_v2 f ON f.finding_id=a.finding_id JOIN research_action_input_boundary_cp12 ib ON ib.action_id=a.action_id WHERE a.action_id=?",new String[]{lease.authorityRef})){if(!c.moveToFirst())throw new IllegalStateException("ACTION_MISSING");Action a=new Action(c);if(!lease.candidate.equals(a.id)||!lease.sequence.equals(a.protocol)||!lease.inputHash.equals(a.protocol)||!lease.issue.equals(a.issue))throw new IllegalStateException("ACTION_TASK_IDENTITY");return a;}}
+    private static final class Action {
+        final String id,finding,type,operator,evidence,protocol,state,issue,parent,parentHash,secondary,secondaryHash,reason,family,fingerprint,parentLife;final Map<String,Double> trainStd=new TreeMap<>();final List<ExpertRef> experts=new ArrayList<>();final List<String> preferredNodes=new ArrayList<>();
+        Action(Cursor c){id=c.getString(0);finding=c.getString(1);type=c.getString(2);operator=c.getString(3);String json=c.getString(4);if(json.length()>65536)throw new IllegalStateException("ACTION_SIZE");Map<String,Object> p=StrictCanonicalJson.readContextObject(json);evidence=c.getString(5);protocol=c.getString(7);state=c.getString(8);issue=c.getString(9);parentLife=c.getString(10);if(!parentLife.equals(str(p,"parent_lifetime")))throw new IllegalStateException("ACTION_PARENT_LIFETIME");parent=str(p,"parent_id");parentHash=str(p,"parent_hash");secondary=str(p,"secondary_id");secondaryHash=str(p,"secondary_hash");reason=str(p,"reason");family=str(p,"new_family");Object std=p.get("train_std_by_node");if(!(std instanceof Map)||((Map<?,?>)std).size()>32)throw new IllegalArgumentException("ACTION_TRAIN_STD");for(Map.Entry<?,?> e:((Map<?,?>)std).entrySet()){double value=Double.parseDouble((String)e.getValue());if(!Double.isFinite(value)||value<=0)throw new IllegalArgumentException("ACTION_TRAIN_STD");trainStd.put((String)e.getKey(),value);}
+            Object preferred=p.get("preferred_subtree_nodes");if(preferred!=null){if(!(preferred instanceof List)||((List<?>)preferred).size()>32)throw new IllegalArgumentException("ACTION_ATTRIBUTION_TARGETS");for(Object node:(List<?>)preferred){if(!(node instanceof String)||!((String)node).matches("n[0-9]{1,3}")||preferredNodes.contains(node))throw new IllegalArgumentException("ACTION_ATTRIBUTION_TARGETS");preferredNodes.add((String)node);}}
+            if(!protocol.equals(V51ChecksumEngine.sha256(json)))throw new IllegalStateException("ACTION_PROTOCOL_HASH");TreeSet<String> hashes=new TreeSet<>();if(!parent.isEmpty())hashes.add(parentHash);if(!secondary.isEmpty())hashes.add(secondaryHash);if(!StrictCanonicalJson.writeContext(new ArrayList<>(hashes)).equals(c.getString(6)))throw new IllegalStateException("ACTION_PARENT_HASHES");
+            Object ex=p.get("experts");if(!(ex instanceof List))throw new IllegalStateException("ACTION_EXPERTS");for(Object o:(List<?>)ex){@SuppressWarnings("unchecked")Map<String,Object> e=(Map<String,Object>)o;experts.add(new ExpertRef(str(e,"freezeHash"),str(e,"modelHash"),str(e,"featureManifestHash"),((Number)e.get("position")).intValue()));}
+            fingerprint=V51ChecksumEngine.sha256(id+'|'+evidence+'|'+json+'|'+c.getString(6));}
+    }
+    private static CandidateAstR952 readParent(SQLiteDatabase db,String id,String expected){try(Cursor c=db.rawQuery("SELECT ast,structural_hash,state FROM r952_candidate WHERE candidate_id=?",new String[]{id})){if(!c.moveToFirst()||!expected.equals(c.getString(1))||Arrays.asList("QUARANTINED","QUALITY_PRUNED","RESOURCE_RETIRED").contains(c.getString(2)))throw new IllegalStateException("EVOLUTION_PARENT_CHANGED");CandidateAstR952 a=CandidateAstR952.parse(c.getString(0));if(!a.structuralHash.equals(expected))throw new IllegalStateException("EVOLUTION_PARENT_HASH");return a;}}
+    private static List<AtomSpecCP4> registry(SQLiteDatabase db,int position,long deadline,long byteLimit){List<AtomSpecCP4> out=new ArrayList<>();long bytes=0;try(Cursor c=db.rawQuery("SELECT a.atom_id,a.spec_hash,a.params_json,a.output_type,a.min_history,a.missing_policy,a.state FROM research_atom_spec_v2 a WHERE a.position=? AND a.state IN('DISCOVERED','OBSERVING','VALIDATED','ACTIVE','DOWNWEIGHTED') AND (a.spec_version<>'LONG_R80' OR EXISTS(SELECT 1 FROM "+LongCandidateLifecycleR81.SPEC+" p JOIN "+LongScaleSummaryR80.HEAD+" h ON h.epoch_hash=p.epoch_hash AND h.singleton=1 AND h.status='ACTIVE' WHERE p.atom_id=a.atom_id AND p.spec_hash=a.spec_hash)) ORDER BY a.atom_id LIMIT 4097",new String[]{String.valueOf(position)})){while(c.moveToNext()){check(deadline);bytes+=c.getString(2).length()*2L+512;if(out.size()>=4096||bytes>byteLimit)throw new DevelopmentProductionCP12.Wait("ATOM_REGISTRY_CAPACITY");out.add(AtomSpecCP4.fromRegistry(c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getInt(4),c.getString(5),c.getString(6)));}}return out;}
+    private static void check(long deadline){ResearchWorkBudgetR927.checkpoint();if(System.nanoTime()>=deadline)throw new DevelopmentProductionCP12.Wait("TIME_BUDGET_EXCEEDED");}
+    private static String str(Map<String,Object> p,String key){Object v=p.get(key);if(!(v instanceof String))throw new IllegalArgumentException("ACTION_FIELD:"+key);return (String)v;}
+    private static int changed(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){return c.moveToFirst()?c.getInt(0):0;}}
+    private static String bounded(String s){if(s==null)return "UNKNOWN_ERROR";return s.length()>256?s.substring(0,256):s;}
+}
