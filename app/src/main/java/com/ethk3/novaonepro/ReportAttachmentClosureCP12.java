@@ -95,7 +95,13 @@ public final class ReportAttachmentClosureCP12 {
             if(compact){
                 File metadata=new File(job,CheckpointReportAuditR32.MEMBER);JSONObject audit;
                 try(FileOutputStream auditFd=new FileOutputStream(metadata);Writer auditOut=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(metadata,auditFd,control),StandardCharsets.UTF_8),8192)){
-                    audit=CheckpointReportAuditR32.observe(r26Root,r26Roots,auditOut,control::shouldContinue);auditOut.flush();auditFd.getFD().sync();
+                    File files=app.getFilesDir();
+                    if(ReportInputsLeaseCP12.currentThreadHoldsInput(files)){
+                        File cursor=new File(ReportDirectoriesCP12.root(files),CheckpointAuditContinuationR343.FILE);
+                        audit=CheckpointReportAuditR32.observePage(r26Root,r26Roots,auditOut,control::shouldContinue,
+                                cursor,snapshotHash,RuntimeObservationScopeR341.databaseIdentity(copy),BuildConfig.SOURCE_COMMIT_R26);
+                    }else audit=CheckpointReportAuditR32.observe(r26Root,r26Roots,auditOut,control::shouldContinue);
+                    auditOut.flush();auditFd.getFD().sync();
                 }
                 descriptor(out,metadata.getName(),ReportArchiveCP4.hash(metadata,control),metadata.length(),"FILE",metadata.getCanonicalPath(),new File(app.getFilesDir(),"r32-checkpoint-report-metadata.lock").getCanonicalPath());
                 source.put("r26CheckpointAuditR32",audit).put("r26CheckpointObjects",audit.getLong("observedObjects")).put("r26CheckpointBytes",audit.getLong("observedBytes"))

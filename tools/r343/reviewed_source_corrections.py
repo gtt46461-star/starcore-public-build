@@ -16,15 +16,22 @@ def load_reviews(repo):
                 'FIELD173_CORRECTION_CATALOG')
     reviews = catalog['reviews']
     names = set()
+    previous_batch = ''
     for review in reviews:
         path = review['path']
-        sealed.need(path.startswith(sealed.JAVA) and path.endswith('.java') and path not in names,
+        key = (review['batch'], path, review['afterSha256'])
+        sealed.need(path.startswith(sealed.JAVA) and path.endswith('.java') and key not in names,
                     'FIELD173_CORRECTION_PATH:' + path)
-        names.add(path)
+        sealed.need(review['batch'] >= previous_batch, 'FIELD173_CORRECTION_BATCH_ORDER')
+        previous_batch = review['batch']
+        names.add(key)
         for name, digest in review['originals'].items():
             body = sealed.regular(repo, 'verification/r343/corrections/' + name).read_bytes()
             sealed.need(sealed.sha(body) == digest, 'FIELD173_CORRECTION_ORIGINAL:' + name)
         sealed.need(bool(review['reason']) and bool(review['issue']), 'FIELD173_CORRECTION_REVIEW:' + path)
+        if review.get('afterFile'):
+            sealed.need(review['originals'].get(review['afterFile']) == review['afterSha256'],
+                        'FIELD173_CORRECTION_AFTER_NOT_RETAINED:' + path)
     return reviews
 
 
@@ -41,13 +48,16 @@ def apply_group(args):
     group = next(group for group in spec['groups'] if group['id'] == args.group)
     current_paths = {row['path'] for row in group['files']}
     approved = {}
+    anchors = {}
     for entry in load_reviews(repo):
         if entry['batch'] >= group['batch']:
             continue
         name = entry['path']
         sealed.need(name not in current_paths, 'FIELD173_CORRECTION_NEEDS_REBASE:' + name)
-        reviewed_after(repo, entry)
+        anchors.setdefault(name, entry['beforeSha256'])
         approved[name] = entry
+    for entry in approved.values():
+        reviewed_after(repo, entry)
 
     # Retain every original group check. Only its prior-group byte check has an
     # additional permitted result, independently matched to a reviewed after hash.
@@ -62,7 +72,7 @@ def apply_group(args):
             if name in approved:
                 prior = [row['after_sha256'] for item in spec['groups'] if item['batch'] < group['batch']
                          for row in item['files'] if row['path'] == name]
-                if prior and prior[-1] == approved[name]['beforeSha256']:
+                if prior and prior[-1] == anchors[name]:
                     reviewed_after(repo, approved[name])
                     return
         base_require(condition, failure)
@@ -79,29 +89,33 @@ def rebind(args):
     reviews = [entry for entry in load_reviews(repo) if entry['batch'] <= args.batch]
     originals = sealed.reviewed_states
     original_pair = sealed.candidate_pair
-    corrections = {row['path']: row for row in reviews}
+    corrections = {(row['path'], row['afterSha256']): row for row in reviews}
 
     def reviewed_states(plan, baseline, batch):
         expected, states, groups = originals(plan, baseline, batch)
         patchset = sealed.unique(sealed.regular(plan, 'PATCHSET.json').read_bytes())
         stages = {group['id']: group['batch'] for group in patchset['groups']}
-        after = {review['path']: reviewed_after(repo, review) for review in reviews}
+        after = {}
+        for key, entry in corrections.items():
+            if entry.get('afterFile'):
+                after[key] = sealed.regular(repo, 'verification/r343/corrections/' + entry['afterFile']).read_bytes()
+            else:
+                after[key] = reviewed_after(repo, entry)
 
         def corrected(state, through):
             updated = dict(state)
             for row in reviews:
                 if row['batch'] <= through:
                     name = row['path']
-                    sealed.need(name in state and sealed.sha(state[name]) == row['beforeSha256'],
-                                'FIELD173_CORRECTION_BEFORE:' + name)
-                    updated[name] = after[name]
+                    digest = sealed.sha(updated[name]) if name in updated else None
+                    sealed.need(digest == row['beforeSha256'], 'FIELD173_CORRECTION_BEFORE:' + name)
+                    updated[name] = after[(name, row['afterSha256'])]
             return updated
 
         permitted = list(states)
-        for index, group in enumerate(groups):
-            stage = stages[group]
-            if index + 1 == len(groups) or stages[groups[index + 1]] != stage:
-                permitted.append(corrected(states[index + 1], stage))
+        for stage in sorted({stages[group] for group in groups} | {review['batch'] for review in reviews}):
+            group_count = sum(stages[group] <= stage for group in groups)
+            permitted.append(corrected(states[group_count], stage))
         corrected_expected = corrected(expected, batch)
         permitted.append(corrected_expected)
         return corrected_expected, permitted, groups
@@ -111,15 +125,17 @@ def rebind(args):
         proof_record = sealed.unique(proof)
         changed = False
         for row in proof_record['controlled_changes']:
-            review = corrections.get(row['path'])
-            if review and row['after_sha256'] == review['afterSha256']:
+            review = corrections.get((row['path'], row['after_sha256']))
+            if review:
                 row['reviewer'] = 'STARCORE R34.3-173 construction correction ' + review['issue']
                 row['rationale'] = review['reason']
                 changed = True
         return candidate, sealed.encode(proof_record) if changed else proof
 
     for review in reviews:
-        sealed.REVIEWED_EXISTING.setdefault(review['path'], (review['role'], review['reason']))
+        role_catalog = sealed.NEW_ROLES if review['beforeSha256'] is None else sealed.REVIEWED_EXISTING
+        role, _ = role_catalog.setdefault(review['path'], (review['role'], review['reason']))
+        sealed.need(role == review['role'], 'FIELD173_CORRECTION_ROLE_CHANGED:' + review['path'])
     sealed.reviewed_states = reviewed_states
     sealed.candidate_pair = reviewed_pair
     sys.argv[1:] = ['--repo', str(repo), '--plan', str(args.plan.resolve()), '--batch', args.batch]

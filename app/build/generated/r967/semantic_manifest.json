@@ -1,12 +1,12 @@
 {
   "revision": "R967_SEMANTIC_BUILD_V1",
-  "training_rule_sha256": "a465b1ddb05d37bcc4b76ea280030d9f1be2b29b0a71f5cd43b2e6a7a6b82ae6",
+  "training_rule_sha256": "4802ee3ffc7a74f5547ca77be6dc415c980c4850426b1dd71e4b1f659886ddb3",
   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
-  "manifest_sha256": "2b399dedb58a19c9c1ed9000d7e6e3440d443af99d3662dd055438ad1242b8cc",
-  "controlled_file_count": 1594,
-  "numeric_dependency_count": 1444,
-  "source_provenance_sha256": "8b43da17d20bf9c805ef91c2af73d5936810889c3d37321bb9bd3b5b74c6627c",
+  "manifest_sha256": "8f92644b219c71606cc021eeb9de9d0ab2adf7c7c3adcefa111b49a26321151a",
+  "controlled_file_count": 1595,
+  "numeric_dependency_count": 1445,
+  "source_provenance_sha256": "edfdb21f94838e0cf89b3730b3e20d336a424579a8e5d521cf6246a97f8fbd13",
   "dependencies": [
     [
       "app/build.gradle",
@@ -954,9 +954,14 @@
       "b8d268aa7aa0ce32c16bc15357cabbec35868383fe709eba9d57fdff0e3746c7"
     ],
     [
+      "app/src/main/java/com/ethk3/novaonepro/CheckpointAuditContinuationR343.java",
+      "NUMERIC",
+      "3b3a52efb1247f63892503f30479501613bdf5d521cece8f0872241235d5b5fa"
+    ],
+    [
       "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
       "NUMERIC",
-      "f461b56486b22fcb19049f5f65e2fe0940b9e59256e1a499b64a062b515ac162"
+      "f2d6093419a267fc1671f7c49b8939353012c2d1d5d6dcb6af79daee8685ed5d"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
@@ -2416,7 +2421,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
       "NUMERIC",
-      "7a2168919355d0e5b29fdd15314994059f920073b1c501eeef719457c8d6ba32"
+      "fbcc44a702de0a54bcecf13a60536fc21a785723fde7d5645ec291fb1b9d50c5"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/ReportBoundedSqlCP12.java",
@@ -7231,6 +7236,6 @@
   ],
   "compatible_predecessor_rule_sha256": "",
   "compatible_predecessor_rules_sha256": [],
-  "continuation_proof_sha256": "0eccd3d1ee1168d77123ca4f17c8368d81fb32912adfd4f8207eb561a8043c00",
+  "continuation_proof_sha256": "b243aa8919b572b1941e17b536e84db808f3f05b78cfc0cb6190e0b338466d21",
   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
 }

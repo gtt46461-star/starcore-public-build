@@ -357,12 +357,21 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "f461b56486b22fcb19049f5f65e2fe0940b9e59256e1a499b64a062b515ac162",
+      "after_sha256": "3b3a52efb1247f63892503f30479501613bdf5d521cece8f0872241235d5b5fa",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointAuditContinuationR343.java",
+      "rationale": "A real 8 MiB bounded audit always restarted at the same root on repeated compact exports, leaving the same hashes unread. Continue by exact source/database and root set with prior page observations distinctly historical. Bad source bytes remain corrupt, missing bytes remain missing, and prior audits never grant model or GC authority.",
+      "reviewer": "STARCORE R34.3-173 construction correction R343-017"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "f2d6093419a267fc1671f7c49b8939353012c2d1d5d6dcb6af79daee8685ed5d",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
-      "rationale": "Publish verified manifest child hashes and the first unresolved identity so missing or unverified checkpoint graphs can be traced without authorization to purge them.",
-      "reviewer": "STARCORE R34.2 B10 source review"
+      "rationale": "A real 8 MiB bounded audit always restarted at the same root on repeated compact exports, leaving the same hashes unread. Continue by exact source/database and root set with prior page observations distinctly historical. Bad source bytes remain corrupt, missing bytes remain missing, and prior audits never grant model or GC authority.",
+      "reviewer": "STARCORE R34.3-173 construction correction R343-017"
     },
     {
       "after_role": "PRESENTATION",
@@ -1149,12 +1158,12 @@
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "7a2168919355d0e5b29fdd15314994059f920073b1c501eeef719457c8d6ba32",
+      "after_sha256": "fbcc44a702de0a54bcecf13a60536fc21a785723fde7d5645ec291fb1b9d50c5",
       "before_role": "NUMERIC",
       "before_sha256": "1eae3bc0597be6dfd60274b8b8f30b20ab85c412ba0d6f32ef138c8476d07a8c",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
-      "rationale": "Original report closure carries the bounded writer snapshot view; retain its existing conservative numeric classification without granting live authority.",
-      "reviewer": "STARCORE R34.3-173 exact PATCHSET review"
+      "rationale": "A real 8 MiB bounded audit always restarted at the same root on repeated compact exports, leaving the same hashes unread. Continue by exact source/database and root set with prior page observations distinctly historical. Bad source bytes remain corrupt, missing bytes remain missing, and prior audits never grant model or GC authority.",
+      "reviewer": "STARCORE R34.3-173 construction correction R343-017"
     },
     {
       "after_role": "PRESENTATION",
@@ -6602,7 +6611,7 @@
       "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "847a114e94b066e4c7ef29dd12d1afa5a977ca708dca05f984236b747cef2216",
+  "current_controlled_roles_sha256": "f535f46712e02eb901229b855cffae5558027100959b4f9d293edf1b7666775c",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
@@ -6688,6 +6697,12 @@
       "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
       "reviewer": "Codex SU1 source integration",
       "role": "PRESENTATION"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointAuditContinuationR343.java",
+      "rationale": "A real 8 MiB bounded audit always restarted at the same root on repeated compact exports, leaving the same hashes unread. Continue by exact source/database and root set with prior page observations distinctly historical. Bad source bytes remain corrupt, missing bytes remain missing, and prior audits never grant model or GC authority.",
+      "reviewer": "STARCORE R34.3-173 explicit production leaf review",
+      "role": "NUMERIC"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
@@ -10046,7 +10061,7 @@
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "8b43da17d20bf9c805ef91c2af73d5936810889c3d37321bb9bd3b5b74c6627c",
+  "reviewed_input_provenance_sha256": "edfdb21f94838e0cf89b3730b3e20d336a424579a8e5d521cf6246a97f8fbd13",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
   "runtime_contract_sha256": "205ac5eaa6c913855cc89f6a0b6f11c3cdc5374e0749f1348e49720b24039004",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
