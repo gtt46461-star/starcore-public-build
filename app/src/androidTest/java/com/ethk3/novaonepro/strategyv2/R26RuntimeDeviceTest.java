@@ -81,9 +81,7 @@ public final class R26RuntimeDeviceTest {
                 // AutoFetchService's existing control loop requests the legacy owner before
                 // it starts R26. Recreate the persisted, upgraded service input without
                 // installing schema or task rows from instrumentation.
-                long schemaDeadline = SystemClock.elapsedRealtime() + 90_000L;
-                while (!store.ensureResearchSidecarR811() && SystemClock.elapsedRealtime() < schemaDeadline)
-                    SystemClock.sleep(20L);
+                Field173NativeEvidence.prepareResearchSchema(store);
                 DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
                 checks.require(coordinator.isR811ResearchSchemaReady(), ResearchSchemaCoordinatorR926.summary());
                 store.requestLegacySchemaMigrationR31();

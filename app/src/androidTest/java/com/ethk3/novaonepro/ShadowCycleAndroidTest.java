@@ -71,11 +71,7 @@ public final class ShadowCycleAndroidTest {
         Field173NativeEvidence.run((app, checks) -> {
             DbStore store = new DbStore(app);
             try {
-                long schemaDeadline = SystemClock.elapsedRealtime() + 60_000L;
-                while (!store.ensureResearchSidecarR811()) {
-                    checks.require(SystemClock.elapsedRealtime() < schemaDeadline, ResearchSchemaCoordinatorR926.summary());
-                    SystemClock.sleep(20L);
-                }
+                Field173NativeEvidence.prepareResearchSchema(store);
                 ArrayList<Models.Draw> history = new ArrayList<>();
                 long wall = System.currentTimeMillis();
                 for (int row = 1; row <= 240; row++) history.add(draw(row, wall - (240 - row) * 60_000L));
@@ -149,12 +145,7 @@ public final class ShadowCycleAndroidTest {
         assertNull("watchdog owner must release normally", AnalysisSingleFlightR36.shared().currentLease());
         DbStore store = new DbStore(context);
         try {
-            long schemaBy = SystemClock.elapsedRealtime() + 60000L;
-            while (!store.ensureResearchSidecarR811()) {
-                assertTrue(ResearchSchemaCoordinatorR926.summary(),
-                        SystemClock.elapsedRealtime() < schemaBy);
-                SystemClock.sleep(20L);
-            }
+            Field173NativeEvidence.prepareResearchSchema(store);
             ArrayList<Models.Draw> history = new ArrayList<>();
             long latest = System.currentTimeMillis();
             for (int row = 1; row <= 240; row++)

@@ -18,6 +18,17 @@ public final class Field173NativeEvidence {
         return StartupStageJournalR341.verifiedFailureOriginal(app, hash);
     }
 
+    /** Prepare a disposable database through the same bounded, journaled migration owner. */
+    public static void prepareResearchSchema(DbStore store) {
+        long end = android.os.SystemClock.elapsedRealtime() + 150_000L;
+        DatabaseCoordinator owner = store.coordinatorForResearchR952();
+        while (!ResearchSchemaCoordinatorR926.ensureToReady(owner, 8)) {
+            if (android.os.SystemClock.elapsedRealtime() >= end)
+                throw new AssertionError(ResearchSchemaCoordinatorR926.summary());
+            android.os.SystemClock.sleep(15L);
+        }
+    }
+
     @FunctionalInterface
     public interface CheckedCase {
         void run(Context app, Checks checks) throws Exception;
