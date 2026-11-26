@@ -113,6 +113,20 @@ public final class ModernSeedFactoryCP12 {
   Checkpoint checkpoint=readCheckpoint(db);
   return checkpoint!=null&&checkpoint.state.equals("COMPLETE")&&checkpoint.scan.fullyVerified()&&checkpoint.material.fullyVerified()&&checkpoint.baseRow==TOTAL;
  }
+ /** Per-family admission may use an already typed, immutable prefix after the
+  * ENTIRE raw asset has passed its pinned SHA. This never marks the catalog complete.
+  * During a legacy re-verification, rows beyond the verified material prefix remain
+  * unavailable until material_row catches the original base cursor. */
+ public static int verifiedMaterializedCountR343(SQLiteDatabase db){
+  Checkpoint checkpoint=readCheckpoint(db);
+  if(checkpoint==null||!checkpoint.scan.fullyVerified()
+      ||!(checkpoint.state.equals("MATERIALIZING")||checkpoint.state.equals("COMPLETE"))
+      ||checkpoint.material.row!=checkpoint.baseRow||checkpoint.baseRow<=0)return 0;
+  try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM research_molecule_seed_v2 WHERE compiler_revision=? AND state='VALIDATED'",new String[]{REVISION})){
+   need(c.moveToFirst()&&c.getInt(0)==checkpoint.baseRow,"SEED_MATERIALIZED_COUNT_DRIFT");
+   return c.getInt(0);
+  }
+ }
  private static boolean equalCursor(MoleculeSeedPageCP12.Cursor a,MoleculeSeedPageCP12.Cursor b){return a.row==b.row&&a.offset==b.offset&&a.prefix.equals(b.prefix)&&Arrays.equals(a.shaState(),b.shaState());}
  private static boolean same(Checkpoint a,Checkpoint b){return b!=null&&a.generation==b.generation&&a.legacy==b.legacy&&a.state.equals(b.state)&&a.baseRow==b.baseRow&&a.baseGeneration==b.baseGeneration&&equalCursor(a.scan,b.scan)&&equalCursor(a.material,b.material);}
  private static String scanCommit(SQLiteDatabase db,Checkpoint before,MoleculeSeedPageCP12.Page page){

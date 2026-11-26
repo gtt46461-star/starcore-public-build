@@ -24,7 +24,7 @@ public final class ResearchTaskQueueR967 {
 
     public static void schema(SQLiteDatabase db) {
         transaction(db);
-        if(TransactionSchemaCacheR941.readyCommitted(db,"R980_DURABLE_TASK_CONTROL_CAPACITY"))return;
+        if(TransactionSchemaCacheR941.readyCommitted(db,"R343_DURABLE_TASK_INFRA_RECOVERY"))return;
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE+"(task_id TEXT PRIMARY KEY,kind TEXT NOT NULL,candidate_id TEXT NOT NULL,target_issue TEXT NOT NULL,stream_seq TEXT NOT NULL,input_hash TEXT NOT NULL,authority_ref TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('PENDING','RUNNING','YIELDED','WAIT_INPUT','COMPLETED','EXPIRED','FAILED_TERMINAL')),cursor TEXT NOT NULL DEFAULT '',generation INTEGER NOT NULL DEFAULT 0,lease_owner TEXT NOT NULL DEFAULT '',lease_until INTEGER NOT NULL DEFAULT 0,available_at INTEGER NOT NULL DEFAULT 0,attempt_count INTEGER NOT NULL DEFAULT 0,last_error TEXT NOT NULL DEFAULT '',result_hash TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,UNIQUE(kind,candidate_id,target_issue,stream_seq))");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r967_task_ready ON "+TABLE+"(kind,status,available_at,updated_at)");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r967_task_order ON "+TABLE+"(kind,candidate_id,target_issue,status)");
@@ -43,7 +43,8 @@ public final class ResearchTaskQueueR967 {
         db.execSQL("CREATE TRIGGER IF NOT EXISTS r967_input_pin_active_delete BEFORE DELETE ON "+PIN+" WHEN EXISTS(SELECT 1 FROM "+TABLE+" t WHERE t.task_id=OLD.task_id AND t.status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL')) BEGIN SELECT RAISE(ABORT,'R967_PENDING_INPUT_PROTECTED'); END");
         db.execSQL("CREATE TABLE IF NOT EXISTS "+LANE+"(lane INTEGER PRIMARY KEY CHECK(lane>=0 AND lane<22),desired_issue TEXT NOT NULL,served_issue TEXT NOT NULL DEFAULT '',next_sequence INTEGER NOT NULL DEFAULT 0,active_task_id TEXT NOT NULL DEFAULT '',last_outcome TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL)");
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_r967_one_active_lane ON "+TABLE+"(kind,candidate_id) WHERE kind='MAINTENANCE' AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL')");
-        TransactionSchemaCacheR941.markCommitted(db,"R980_DURABLE_TASK_CONTROL_CAPACITY");
+        com.ethk3.novaonepro.r952.TrainingRecoveryR343.schema(db);
+        TransactionSchemaCacheR941.markCommitted(db,"R343_DURABLE_TASK_INFRA_RECOVERY");
     }
     public static String naturalKey(String kind,String candidate,String issue,String sequence) {
         required(kind);required(candidate);required(sequence);
@@ -189,7 +190,13 @@ public final class ResearchTaskQueueR967 {
             +" AND e.target_issue<t.target_issue AND e.status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL'))"
             +" AND (t.kind IN ('POST_TRAIN','MAINTENANCE') OR NOT EXISTS(SELECT 1 FROM "+TABLE
             +" e INDEXED BY idx_r975_task_terminal_block WHERE e.kind=t.kind AND e.candidate_id=t.candidate_id AND e.target_issue<t.target_issue"
-            +" AND e.status IN ('EXPIRED','FAILED_TERMINAL')))";
+            +" AND e.status IN ('EXPIRED','FAILED_TERMINAL')"
+            +" AND NOT EXISTS(SELECT 1 FROM "+com.ethk3.novaonepro.r952.TrainingRecoveryR343.TABLE+" r"
+            +" WHERE e.status='FAILED_TERMINAL' AND t.kind='TRAIN_CANDIDATE'"
+            +" AND r.failed_task_id=e.task_id AND r.successor_task_id=t.task_id"
+            +" AND r.candidate_id=t.candidate_id AND r.candidate_id=e.candidate_id"
+            +" AND r.protocol_hash=t.stream_seq AND r.protocol_hash=e.stream_seq"
+            +" AND r.input_hash=t.input_hash AND r.input_hash=e.input_hash)))";
     }
     public static boolean hasReady(SQLiteDatabase db,String kind,long now) {
         try(Cursor c=db.rawQuery("SELECT 1 FROM "+TABLE+" t WHERE "+readyPredicate()+" LIMIT 1",readyArgsCP4(kind,now))) {return c.moveToFirst()||hasExpiredOwnedCP4(db,kind); }

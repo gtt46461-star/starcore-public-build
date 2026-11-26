@@ -136,7 +136,7 @@ public final class ResearchTrainingHookRegistryR952 {
     /** The same research executor serves all kinds; this persistent wheel prevents starvation. */
     public static boolean drainTrainingSlotCP11(com.ethk3.novaonepro.DbStore store,long endNs) {
         if(store==null)return false;
-        boolean advanced=false;int empty=0;
+        boolean advanced=TrainingRecoveryR343.drainOne(store,endNs);int empty=0;
         // Spend the bounded TRAIN quantum on independent durable units. Keep the
         // persisted three-owner rotation so a legacy backlog cannot starve AST3/freezing.
         for(int turn=0;turn<12&&System.nanoTime()+50_000_000L<endNs;turn++){
@@ -223,6 +223,11 @@ public final class ResearchTrainingHookRegistryR952 {
             causes.add(current);
             try{current=current.getCause();}catch(RuntimeException unreadableCause){return "";}
         }
+        String typed=TrainingInfrastructurePolicyR343.reason(failure);
+        if(!typed.isEmpty())return typed;
+        // A declared integrity/BUG/unknown writer error cannot borrow a nested busy
+        // exception to escape its deterministic failure classification.
+        for(Throwable cause:causes)if(cause instanceof com.ethk3.novaonepro.strategyv2.FailureDispositionR31.ClassifiedFailure)return "";
         for(Throwable cause:causes){
             if(cause instanceof android.database.sqlite.SQLiteDatabaseLockedException
                     ||cause instanceof android.database.sqlite.SQLiteTableLockedException)return "INFRA_DB_BUSY";
@@ -241,7 +246,9 @@ public final class ResearchTrainingHookRegistryR952 {
             com.ethk3.novaonepro.ResearchTaskQueueR967.Lease lease,RuntimeException failure){
         final String reason=infrastructureWaitReasonCP12(failure);if(reason.isEmpty())return false;
         final boolean wait=!("INFRA_DB_BUSY".equals(reason)||"INFRA_CANCELLED".equals(reason));
-        final long delay="INFRA_CANCELLED".equals(reason)?250L:wait?60000L:1000L;
+        final boolean slowStorage=reason.equals("INFRA_STORAGE_FULL")||reason.equals("INFRA_DB_IO")
+                ||reason.equals("INFRA_DB_OPEN")||reason.equals("INFRA_DB_READ_ONLY")||reason.equals("INFRA_MISSING_SOURCE");
+        final long delay="INFRA_CANCELLED".equals(reason)?250L:slowStorage?60000L:1000L;
         com.ethk3.novaonepro.ResearchWorkBudgetR927.finishLeaseReceiptR66(() ->
             store.coordinatorForResearchR952().runAtomicWrite("CP12_INFRASTRUCTURE_WAIT",db->
                 wait?com.ethk3.novaonepro.ResearchTaskQueueR967.waitInputCP12(db,lease,reason,delay)

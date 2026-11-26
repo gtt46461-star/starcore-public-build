@@ -37,7 +37,8 @@ public final class ResearchMigrationRegistryR952 {
     /** The complete R952 research schema (the same predicate {@link #advanceR64} returns early on). */
     public static boolean ready(SQLiteDatabase db) {
         return TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
-                && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db);
+                && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)
+                && TrainingRecoveryR343.installed(db);
     }
 
     /** Original CP8 definitions only; callers receive a new array, never the DDL owner array. */
@@ -81,7 +82,8 @@ public final class ResearchMigrationRegistryR952 {
         if (db == null) throw new IllegalArgumentException("R952_MIGRATION_DB_NULL");
         try {
             if (TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
-                    && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) {
+                    && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)
+                    && TrainingRecoveryR343.installed(db)) {
                 installer.install(target -> {});
                 return true;
             }
@@ -308,6 +310,11 @@ public final class ResearchMigrationRegistryR952 {
             if (runPendingR64(db,completed,installer,"R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1", target -> {
                 com.ethk3.novaonepro.RetentionRevisionSchemaCP12.championProbabilitySchemaR82(target);
             })) return false;
+            if (runPendingR64(db,completed,installer,"R343_TRAIN_INFRA_RECOVERY_V1", target -> {
+                com.ethk3.novaonepro.ResearchTaskQueueR967.schema(target);
+                TrainingRecoveryR343.schema(target);
+            })) return false;
+            if (!TrainingRecoveryR343.installed(db))throw new IllegalStateException("R343_RECOVERY_SCHEMA_MISSING_AFTER_MIGRATION");
             if (!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) {
                 installer.install(ResearchMigrationRegistryR952::ensureChampionProbabilityR82); return false;
             }

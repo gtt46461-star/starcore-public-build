@@ -1,0 +1,57 @@
+{
+  "scope": "HOST_SQLITE_EXACT_RECOVERY_SELECTION_METHOD",
+  "source_sha256": "7fa41d089c829a7a833762c088f14d05f521b9972b6b985bf6ac8d755521b727",
+  "sqlite_version": "3.53.1",
+  "complete_original_metadata": {
+    "return": true,
+    "original_cas_stage_calls": 1,
+    "durable_hold_attempts": 0,
+    "select_queries": [
+      {
+        "sql": "SELECT t.task_id,t.candidate_id,t.stream_seq,t.input_hash,t.authority_ref,t.target_issue,t.last_error,t.status,t.cursor,c.structural_hash,c.state,a.state,a.last_error,c.ast,p.protocol_json,i.byte_count,p.train_n,p.validation_last,i.row_count,t.generation,t.updated_at,a.finding_id FROM v57_research_task_r967 t JOIN r952_candidate c ON c.candidate_id=t.candidate_id JOIN research_action_v2 a ON a.action_id=t.authority_ref AND a.child_id=c.candidate_id JOIN research_training_protocol_v2 p ON p.protocol_hash=t.stream_seq AND p.candidate_id=c.candidate_id AND p.input_hash=t.input_hash JOIN research_training_input_v2 i ON i.input_hash=t.input_hash WHERE t.task_id=? AND t.kind='TRAIN_CANDIDATE' AND c.future_n=0 AND c.may_create_real=0 AND NOT EXISTS(SELECT 1 FROM research_training_recovery_r343 r WHERE r.failed_task_id=t.task_id) AND NOT EXISTS(SELECT 1 FROM r952_artifact x WHERE x.candidate_id=c.candidate_id) AND NOT EXISTS(SELECT 1 FROM r952_learning_cursor l WHERE l.consumer_id=('R952:'||c.candidate_id)) AND NOT EXISTS(SELECT 1 FROM v57_research_task_r967 x WHERE x.candidate_id=c.candidate_id AND x.kind IN('TRAIN_CANDIDATE','FREEZE_CANDIDATE') AND x.task_id<>t.task_id)",
+        "bindings": [
+          "e3b213d36a7ed00285d3eb1d5b3c9cdb2ed7c27da335ecc0669430e6276230af"
+        ],
+        "rows": 1
+      }
+    ]
+  },
+  "missing_original_registry_row": {
+    "return": false,
+    "original_cas_stage_calls": 0,
+    "durable_hold_attempts": 0,
+    "select_queries": [
+      {
+        "sql": "SELECT t.task_id,t.candidate_id,t.stream_seq,t.input_hash,t.authority_ref,t.target_issue,t.last_error,t.status,t.cursor,c.structural_hash,c.state,a.state,a.last_error,c.ast,p.protocol_json,i.byte_count,p.train_n,p.validation_last,i.row_count,t.generation,t.updated_at,a.finding_id FROM v57_research_task_r967 t JOIN r952_candidate c ON c.candidate_id=t.candidate_id JOIN research_action_v2 a ON a.action_id=t.authority_ref AND a.child_id=c.candidate_id JOIN research_training_protocol_v2 p ON p.protocol_hash=t.stream_seq AND p.candidate_id=c.candidate_id AND p.input_hash=t.input_hash JOIN research_training_input_v2 i ON i.input_hash=t.input_hash WHERE t.task_id=? AND t.kind='TRAIN_CANDIDATE' AND c.future_n=0 AND c.may_create_real=0 AND NOT EXISTS(SELECT 1 FROM research_training_recovery_r343 r WHERE r.failed_task_id=t.task_id) AND NOT EXISTS(SELECT 1 FROM r952_artifact x WHERE x.candidate_id=c.candidate_id) AND NOT EXISTS(SELECT 1 FROM r952_learning_cursor l WHERE l.consumer_id=('R952:'||c.candidate_id)) AND NOT EXISTS(SELECT 1 FROM v57_research_task_r967 x WHERE x.candidate_id=c.candidate_id AND x.kind IN('TRAIN_CANDIDATE','FREEZE_CANDIDATE') AND x.task_id<>t.task_id)",
+        "bindings": [
+          "e3b213d36a7ed00285d3eb1d5b3c9cdb2ed7c27da335ecc0669430e6276230af"
+        ],
+        "rows": 0
+      },
+      {
+        "sql": "SELECT t.task_id,t.candidate_id,t.stream_seq,t.input_hash,t.authority_ref,t.target_issue,t.last_error,t.status,t.cursor,c.structural_hash,c.state,a.state,a.last_error,c.ast,p.protocol_json,i.byte_count,p.train_n,p.validation_last,i.row_count,t.generation,t.updated_at,a.finding_id FROM v57_research_task_r967 t JOIN r952_candidate c ON c.candidate_id=t.candidate_id JOIN research_action_v2 a ON a.action_id=t.authority_ref AND a.child_id=c.candidate_id JOIN research_training_protocol_v2 p ON p.protocol_hash=t.stream_seq AND p.candidate_id=c.candidate_id AND p.input_hash=t.input_hash JOIN research_training_input_v2 i ON i.input_hash=t.input_hash WHERE t.task_id=? AND t.kind='TRAIN_CANDIDATE' AND c.future_n=0 AND c.may_create_real=0 AND NOT EXISTS(SELECT 1 FROM research_training_recovery_r343 r WHERE r.failed_task_id=t.task_id) AND NOT EXISTS(SELECT 1 FROM r952_artifact x WHERE x.candidate_id=c.candidate_id) AND NOT EXISTS(SELECT 1 FROM r952_learning_cursor l WHERE l.consumer_id=('R952:'||c.candidate_id)) AND NOT EXISTS(SELECT 1 FROM v57_research_task_r967 x WHERE x.candidate_id=c.candidate_id AND x.kind IN('TRAIN_CANDIDATE','FREEZE_CANDIDATE') AND x.task_id<>t.task_id)",
+        "bindings": [
+          "cb45e8fea8dcd1299fbbf07aa0d0207e523d21b98b0cc3b494bd07a3abd7fb91"
+        ],
+        "rows": 0
+      },
+      {
+        "sql": "SELECT t.task_id,t.candidate_id,t.stream_seq,t.input_hash,t.authority_ref,t.target_issue,t.last_error,t.status,t.cursor,c.structural_hash,c.state,a.state,a.last_error,c.ast,p.protocol_json,i.byte_count,p.train_n,p.validation_last,i.row_count,t.generation,t.updated_at,a.finding_id FROM v57_research_task_r967 t JOIN r952_candidate c ON c.candidate_id=t.candidate_id JOIN research_action_v2 a ON a.action_id=t.authority_ref AND a.child_id=c.candidate_id JOIN research_training_protocol_v2 p ON p.protocol_hash=t.stream_seq AND p.candidate_id=c.candidate_id AND p.input_hash=t.input_hash JOIN research_training_input_v2 i ON i.input_hash=t.input_hash WHERE t.task_id=? AND t.kind='TRAIN_CANDIDATE' AND c.future_n=0 AND c.may_create_real=0 AND NOT EXISTS(SELECT 1 FROM research_training_recovery_r343 r WHERE r.failed_task_id=t.task_id) AND NOT EXISTS(SELECT 1 FROM r952_artifact x WHERE x.candidate_id=c.candidate_id) AND NOT EXISTS(SELECT 1 FROM r952_learning_cursor l WHERE l.consumer_id=('R952:'||c.candidate_id)) AND NOT EXISTS(SELECT 1 FROM v57_research_task_r967 x WHERE x.candidate_id=c.candidate_id AND x.kind IN('TRAIN_CANDIDATE','FREEZE_CANDIDATE') AND x.task_id<>t.task_id)",
+        "bindings": [
+          "1b2b6718fa182a34b2cb479ecadac9e093f2ebc71a9714ef807599d8c6c1ddd2"
+        ],
+        "rows": 0
+      },
+      {
+        "sql": "SELECT t.task_id,t.candidate_id,t.stream_seq,t.input_hash,t.authority_ref,t.target_issue,t.last_error,t.status,t.cursor,c.structural_hash,c.state,a.state,a.last_error,c.ast,p.protocol_json,i.byte_count,p.train_n,p.validation_last,i.row_count,t.generation,t.updated_at,a.finding_id FROM v57_research_task_r967 t JOIN r952_candidate c ON c.candidate_id=t.candidate_id JOIN research_action_v2 a ON a.action_id=t.authority_ref AND a.child_id=c.candidate_id JOIN research_training_protocol_v2 p ON p.protocol_hash=t.stream_seq AND p.candidate_id=c.candidate_id AND p.input_hash=t.input_hash JOIN research_training_input_v2 i ON i.input_hash=t.input_hash WHERE t.task_id=? AND t.kind='TRAIN_CANDIDATE' AND c.future_n=0 AND c.may_create_real=0 AND NOT EXISTS(SELECT 1 FROM research_training_recovery_r343 r WHERE r.failed_task_id=t.task_id) AND NOT EXISTS(SELECT 1 FROM r952_artifact x WHERE x.candidate_id=c.candidate_id) AND NOT EXISTS(SELECT 1 FROM r952_learning_cursor l WHERE l.consumer_id=('R952:'||c.candidate_id)) AND NOT EXISTS(SELECT 1 FROM v57_research_task_r967 x WHERE x.candidate_id=c.candidate_id AND x.kind IN('TRAIN_CANDIDATE','FREEZE_CANDIDATE') AND x.task_id<>t.task_id)",
+        "bindings": [
+          "50a155a379dd3897a692b8d0448d68228ddb097dd02bb6b29a3c88af6dc2a683"
+        ],
+        "rows": 0
+      }
+    ]
+  },
+  "original_terminal_unchanged": true,
+  "expected_missing_original_hold": "Per-task reason visible through production HOLD state",
+  "finding": "The missing original is excluded before eligibility and never records HOLD."
+}

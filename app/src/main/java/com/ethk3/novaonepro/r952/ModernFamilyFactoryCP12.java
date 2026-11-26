@@ -35,8 +35,10 @@ public final class ModernFamilyFactoryCP12 {
   need(!db.inTransaction()&&variant>=0&&variant<LIMIT,"FAMILY_PREPARE_INPUT");int position=variant%10+1,w=WINDOWS[variant/10];
   if(family==CandidateAstR952.Family.BANDIT||family==CandidateAstR952.Family.EXPERT||family==CandidateAstR952.Family.ENSEMBLE)return teachers(db,family,position);
   if(family==CandidateAstR952.Family.LINEAR||family==CandidateAstR952.Family.LOGISTIC||family==CandidateAstR952.Family.TREE||family==CandidateAstR952.Family.NEURAL||family==CandidateAstR952.Family.HYBRID){
-   guardComplete(db);
-   String raw=null;try(Cursor c=db.rawQuery("SELECT seed_hash,source_seed_id,source_hash,graph_json FROM research_molecule_seed_v2 WHERE compiler_revision=? AND state='VALIDATED' ORDER BY seed_hash LIMIT 1 OFFSET ?",new String[]{REVISION,Integer.toString(variant)})){if(c.moveToFirst())raw=StrictCanonicalJson.write(fields("graphHash",c.getString(0),"seedId",c.getString(1),"sourceSha256",c.getString(2),"graph",StrictCanonicalJson.readObject(c.getString(3))));}
+   guardVerifiedPrefixR343(db);
+   // Bind each new proposal to its intended position. Its exact selected seed and
+   // canonical AST are persisted before IO; later importer progress cannot replace it.
+   String raw=null;try(Cursor c=db.rawQuery("SELECT seed_hash,source_seed_id,source_hash,graph_json FROM research_molecule_seed_v2 WHERE compiler_revision=? AND state='VALIDATED' AND position=? ORDER BY seed_hash LIMIT 1 OFFSET ?",new String[]{REVISION,Integer.toString(position),Integer.toString(variant/10)})){if(c.moveToFirst())raw=StrictCanonicalJson.write(fields("graphHash",c.getString(0),"seedId",c.getString(1),"sourceSha256",c.getString(2),"graph",StrictCanonicalJson.readObject(c.getString(3))));}
    if(raw==null)throw new DevelopmentProductionCP12.Wait("WAIT_FEATURE_SEED");SeedRow seed=new SeedRow(raw,variant,db);
    CandidateAstR952 ast=learnedGraphCP12(seed.ast,family,variant,new Builder(db,seed.position),registered(db,seed.ast));return new Proposal(ast,seed.hash,registered(db,ast));
   }
@@ -190,7 +192,10 @@ public final class ModernFamilyFactoryCP12 {
    return register(store,proposal,family,variant,sourceIssue,TargetIssueResolver.next(latest).targetIssue,deadlineNs);
   }catch(IllegalStateException resource){if(!"ALGORITHM_MEMORY_BUDGET".equals(resource.getMessage()))throw resource;return holdCursor(store,family,variant,"MEMORY_PRESSURE");}
  }
- private static void guardComplete(SQLiteDatabase db){if(!ModernSeedFactoryCP12.completeCP12(db))throw new DevelopmentProductionCP12.Wait("WAIT_MOLECULE_CATALOG_VERIFICATION");}
+ private static void guardVerifiedPrefixR343(SQLiteDatabase db){
+  if(ModernSeedFactoryCP12.verifiedMaterializedCountR343(db)==0)
+   throw new DevelopmentProductionCP12.Wait("WAIT_MOLECULE_CATALOG_VERIFICATION");
+ }
  private static String developmentHistoryWaitR342(DbStore store,String latest,int required){
   // Preflight before committing the immutable selection cutoff. The trainer
   // still independently verifies the exact history, authority and attachments.
