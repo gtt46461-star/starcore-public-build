@@ -63,8 +63,20 @@ public final class Field173ChartGalleryCapture {
             DbStore store = new DbStore(app);
             try {
                 installDrawInputs(store, checks);
+                boolean exactRealReceiptPresent = scalar(store.readable(),
+                        "SELECT COUNT(*) FROM main.sqlite_master WHERE type='table' AND name='r974_exact_real_receipt'") == 1;
                 Map<String, String> produced = RepairAnalysisAndroidFixture.create(store);
                 checks.equal(18, produced.size(), "Original research producers issued per-ID outcomes");
+                checks.record("r18ExactRealReceiptTablePresent", exactRealReceiptPresent);
+                if (!exactRealReceiptPresent) {
+                    try (Cursor frame = store.readable().rawQuery(
+                            "SELECT payload_json FROM r30r1_chart_cache WHERE view_id='R18' ORDER BY updated_at DESC, frame_id DESC LIMIT 1", null)) {
+                        checks.require(frame.moveToFirst(), "R18 keeps a frame when its REAL receipt source is unavailable");
+                        Map<?, ?> payload = (Map<?, ?>) JsonR27.parse(frame.getString(0));
+                        checks.equal("MISSING_SOURCE:r974_exact_real_receipt", payload.get("reason"),
+                                "Native R18 frame distinguishes an unavailable source from a verified empty result");
+                    }
+                }
                 ResearchWriteQueueR27 queue = new ResearchWriteQueueR27(store);
                 checks.require(queue.submit("CHART_CACHE", ChartCacheR27.build(store.readable(), null), () -> false),
                         "Original legacy cache writer committed");

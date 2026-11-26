@@ -1,0 +1,91 @@
+INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.Field173ChartGalleryCapture
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.ethk3.novaonepro.Field173ChartGalleryCapture:
+INSTRUMENTATION_STATUS: test=galleryRefreshPreservesOriginalSourceRows
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: field173Event={"apkSha256":"9447ff74dabc39254fb074d11d2def85705af0fb8e166e028b2ea54fe09fe0b9","batch":"B10","buildRun":"45765843998","caseId":"R343-040-KEEP","executionId":"59a5abfece644dedacc5b1e56247d02d","planCommit":"b5bf9de3c9a000f4f2f920f6f2c4b849ba22ee59","planSha256":"fd4cf5ad72fcef5548597ba9627166464dce29c726e4d111972e09a07558988e","sourceCommit":"41086adc6de0cb19c2d47e9ae79b1109b333d952","sourceTree":"fcfcef11a7b431938588c2f28ed2302df972a295","event":"CASE_ENTER"}
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.Field173ChartGalleryCapture
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=android.database.sqlite.SQLiteException: no such table: r974_exact_real_receipt (code 1 SQLITE_ERROR): , while compiling: SELECT e.target_issue,e.candidate_id,e.model_hash,e.certificate_hash,e.proof_hash,e.authorization_hash,t._id,s.record_hash,t.settled,t.actual_number,t.hit,t.pnl,t.result,s.settlement_hash,q.draw_hash,q.settlement_hash,s.commit_at,d.open_time,d.first_seen_at,t.settled_at,t.settle_time FROM r974_exact_real_receipt e JOIN trades t ON t._id=e.trade_id AND t.target_issue=e.target_issue AND t.authorization_id=e.authorization_hash JOIN v57_shadow_observation_r35 s ON s.target_issue=e.target_issue AND s.authorization_hash=e.authorization_hash JOIN v51_decision_authorization a ON a.target_issue=e.target_issue AND a.authorization_hash=e.authorization_hash AND a.bundle_hash=s.bundle_hash AND a.contract_hash=s.contract_hash JOIN v57_research_mainline_contribution_r922 r ON r.target_issue=e.target_issue AND r.candidate_id=e.candidate_id AND r.rank1_hash=e.action_hash LEFT JOIN v57_settlement_task_r36 q ON q.target_issue=e.target_issue AND q.status='COMPLETED' LEFT JOIN draws d ON d.issue=e.target_issue AND d.dirty=0 WHERE s.game_code=? AND s.pre_draw_frozen=1 AND s.decision_action='BET' AND t.action='BET' AND t.stat_scope='REAL_TRADE' AND t.position=s.position AND t.n1=s.n1 AND t.n2=s.n2 AND t.n3=s.n3 AND r.applied=1 ORDER BY e.target_issue DESC LIMIT ?
+	at android.database.sqlite.SQLiteConnection.nativePrepareStatement(Native Method)
+	at android.database.sqlite.SQLiteConnection.acquirePreparedStatement(SQLiteConnection.java:1069)
+	at android.database.sqlite.SQLiteConnection.prepare(SQLiteConnection.java:673)
+	at android.database.sqlite.SQLiteSession.prepare(SQLiteSession.java:590)
+	at android.database.sqlite.SQLiteProgram.<init>(SQLiteProgram.java:62)
+	at android.database.sqlite.SQLiteQuery.<init>(SQLiteQuery.java:37)
+	at android.database.sqlite.SQLiteDirectCursorDriver.query(SQLiteDirectCursorDriver.java:46)
+	at android.database.sqlite.SQLiteDatabase.rawQueryWithFactory(SQLiteDatabase.java:1714)
+	at android.database.sqlite.SQLiteDatabase.rawQuery(SQLiteDatabase.java:1653)
+	at com.ethk3.novaonepro.BudgetedQueryR927.query(BudgetedQueryR927.java:24)
+	at com.ethk3.novaonepro.BudgetedQueryR927.query(BudgetedQueryR927.java:20)
+	at com.ethk3.novaonepro.ResearchMainlineContributionAuditR922.exactRealAttributionR34(ResearchMainlineContributionAuditR922.java:111)
+	at com.ethk3.novaonepro.strategyv2.ResearchObservatoryR30R1.stored(ResearchObservatoryR30R1.java:105)
+	at com.ethk3.novaonepro.strategyv2.RepairAnalysisAndroidFixture.create(RepairAnalysisAndroidFixture.java:14)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.lambda$collect$1(Field173ChartGalleryCapture.java:66)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture$$ExternalSyntheticLambda10.run(D8$$SyntheticClass:0)
+	at com.ethk3.novaonepro.Field173NativeEvidence.run(Field173NativeEvidence.java:79)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.collect(Field173ChartGalleryCapture.java:55)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.galleryRefreshPreservesOriginalSourceRows(Field173ChartGalleryCapture.java:51)
+
+INSTRUMENTATION_STATUS: stream=
+Error in galleryRefreshPreservesOriginalSourceRows(com.ethk3.novaonepro.Field173ChartGalleryCapture):
+android.database.sqlite.SQLiteException: no such table: r974_exact_real_receipt (code 1 SQLITE_ERROR): , while compiling: SELECT e.target_issue,e.candidate_id,e.model_hash,e.certificate_hash,e.proof_hash,e.authorization_hash,t._id,s.record_hash,t.settled,t.actual_number,t.hit,t.pnl,t.result,s.settlement_hash,q.draw_hash,q.settlement_hash,s.commit_at,d.open_time,d.first_seen_at,t.settled_at,t.settle_time FROM r974_exact_real_receipt e JOIN trades t ON t._id=e.trade_id AND t.target_issue=e.target_issue AND t.authorization_id=e.authorization_hash JOIN v57_shadow_observation_r35 s ON s.target_issue=e.target_issue AND s.authorization_hash=e.authorization_hash JOIN v51_decision_authorization a ON a.target_issue=e.target_issue AND a.authorization_hash=e.authorization_hash AND a.bundle_hash=s.bundle_hash AND a.contract_hash=s.contract_hash JOIN v57_research_mainline_contribution_r922 r ON r.target_issue=e.target_issue AND r.candidate_id=e.candidate_id AND r.rank1_hash=e.action_hash LEFT JOIN v57_settlement_task_r36 q ON q.target_issue=e.target_issue AND q.status='COMPLETED' LEFT JOIN draws d ON d.issue=e.target_issue AND d.dirty=0 WHERE s.game_code=? AND s.pre_draw_frozen=1 AND s.decision_action='BET' AND t.action='BET' AND t.stat_scope='REAL_TRADE' AND t.position=s.position AND t.n1=s.n1 AND t.n2=s.n2 AND t.n3=s.n3 AND r.applied=1 ORDER BY e.target_issue DESC LIMIT ?
+	at android.database.sqlite.SQLiteConnection.nativePrepareStatement(Native Method)
+	at android.database.sqlite.SQLiteConnection.acquirePreparedStatement(SQLiteConnection.java:1069)
+	at android.database.sqlite.SQLiteConnection.prepare(SQLiteConnection.java:673)
+	at android.database.sqlite.SQLiteSession.prepare(SQLiteSession.java:590)
+	at android.database.sqlite.SQLiteProgram.<init>(SQLiteProgram.java:62)
+	at android.database.sqlite.SQLiteQuery.<init>(SQLiteQuery.java:37)
+	at android.database.sqlite.SQLiteDirectCursorDriver.query(SQLiteDirectCursorDriver.java:46)
+	at android.database.sqlite.SQLiteDatabase.rawQueryWithFactory(SQLiteDatabase.java:1714)
+	at android.database.sqlite.SQLiteDatabase.rawQuery(SQLiteDatabase.java:1653)
+	at com.ethk3.novaonepro.BudgetedQueryR927.query(BudgetedQueryR927.java:24)
+	at com.ethk3.novaonepro.BudgetedQueryR927.query(BudgetedQueryR927.java:20)
+	at com.ethk3.novaonepro.ResearchMainlineContributionAuditR922.exactRealAttributionR34(ResearchMainlineContributionAuditR922.java:111)
+	at com.ethk3.novaonepro.strategyv2.ResearchObservatoryR30R1.stored(ResearchObservatoryR30R1.java:105)
+	at com.ethk3.novaonepro.strategyv2.RepairAnalysisAndroidFixture.create(RepairAnalysisAndroidFixture.java:14)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.lambda$collect$1(Field173ChartGalleryCapture.java:66)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture$$ExternalSyntheticLambda10.run(D8$$SyntheticClass:0)
+	at com.ethk3.novaonepro.Field173NativeEvidence.run(Field173NativeEvidence.java:79)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.collect(Field173ChartGalleryCapture.java:55)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.galleryRefreshPreservesOriginalSourceRows(Field173ChartGalleryCapture.java:51)
+
+INSTRUMENTATION_STATUS: test=galleryRefreshPreservesOriginalSourceRows
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 19.659
+There was 1 failure:
+1) galleryRefreshPreservesOriginalSourceRows(com.ethk3.novaonepro.Field173ChartGalleryCapture)
+android.database.sqlite.SQLiteException: no such table: r974_exact_real_receipt (code 1 SQLITE_ERROR): , while compiling: SELECT e.target_issue,e.candidate_id,e.model_hash,e.certificate_hash,e.proof_hash,e.authorization_hash,t._id,s.record_hash,t.settled,t.actual_number,t.hit,t.pnl,t.result,s.settlement_hash,q.draw_hash,q.settlement_hash,s.commit_at,d.open_time,d.first_seen_at,t.settled_at,t.settle_time FROM r974_exact_real_receipt e JOIN trades t ON t._id=e.trade_id AND t.target_issue=e.target_issue AND t.authorization_id=e.authorization_hash JOIN v57_shadow_observation_r35 s ON s.target_issue=e.target_issue AND s.authorization_hash=e.authorization_hash JOIN v51_decision_authorization a ON a.target_issue=e.target_issue AND a.authorization_hash=e.authorization_hash AND a.bundle_hash=s.bundle_hash AND a.contract_hash=s.contract_hash JOIN v57_research_mainline_contribution_r922 r ON r.target_issue=e.target_issue AND r.candidate_id=e.candidate_id AND r.rank1_hash=e.action_hash LEFT JOIN v57_settlement_task_r36 q ON q.target_issue=e.target_issue AND q.status='COMPLETED' LEFT JOIN draws d ON d.issue=e.target_issue AND d.dirty=0 WHERE s.game_code=? AND s.pre_draw_frozen=1 AND s.decision_action='BET' AND t.action='BET' AND t.stat_scope='REAL_TRADE' AND t.position=s.position AND t.n1=s.n1 AND t.n2=s.n2 AND t.n3=s.n3 AND r.applied=1 ORDER BY e.target_issue DESC LIMIT ?
+	at android.database.sqlite.SQLiteConnection.nativePrepareStatement(Native Method)
+	at android.database.sqlite.SQLiteConnection.acquirePreparedStatement(SQLiteConnection.java:1069)
+	at android.database.sqlite.SQLiteConnection.prepare(SQLiteConnection.java:673)
+	at android.database.sqlite.SQLiteSession.prepare(SQLiteSession.java:590)
+	at android.database.sqlite.SQLiteProgram.<init>(SQLiteProgram.java:62)
+	at android.database.sqlite.SQLiteQuery.<init>(SQLiteQuery.java:37)
+	at android.database.sqlite.SQLiteDirectCursorDriver.query(SQLiteDirectCursorDriver.java:46)
+	at android.database.sqlite.SQLiteDatabase.rawQueryWithFactory(SQLiteDatabase.java:1714)
+	at android.database.sqlite.SQLiteDatabase.rawQuery(SQLiteDatabase.java:1653)
+	at com.ethk3.novaonepro.BudgetedQueryR927.query(BudgetedQueryR927.java:24)
+	at com.ethk3.novaonepro.BudgetedQueryR927.query(BudgetedQueryR927.java:20)
+	at com.ethk3.novaonepro.ResearchMainlineContributionAuditR922.exactRealAttributionR34(ResearchMainlineContributionAuditR922.java:111)
+	at com.ethk3.novaonepro.strategyv2.ResearchObservatoryR30R1.stored(ResearchObservatoryR30R1.java:105)
+	at com.ethk3.novaonepro.strategyv2.RepairAnalysisAndroidFixture.create(RepairAnalysisAndroidFixture.java:14)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.lambda$collect$1(Field173ChartGalleryCapture.java:66)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture$$ExternalSyntheticLambda10.run(D8$$SyntheticClass:0)
+	at com.ethk3.novaonepro.Field173NativeEvidence.run(Field173NativeEvidence.java:79)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.collect(Field173ChartGalleryCapture.java:55)
+	at com.ethk3.novaonepro.Field173ChartGalleryCapture.galleryRefreshPreservesOriginalSourceRows(Field173ChartGalleryCapture.java:51)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
