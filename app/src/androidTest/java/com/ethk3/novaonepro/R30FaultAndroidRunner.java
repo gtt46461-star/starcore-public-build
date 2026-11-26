@@ -22,7 +22,8 @@ public final class R30FaultAndroidRunner extends AndroidJUnitRunner {
         // Disposable emulator only: an explicit test invocation can exercise the
         // real main/diagnostics process boundary with their common private root.
         routed.realService="true".equals(args.getString("r31qRealService"));
-        new ServiceHeartbeatStore(routed.application).setUserEnabled(false);
+        boolean coverProbe = routed.realService && args.getString("field173CoverProbe", "").matches("[a-f0-9]{32}");
+        if (!coverProbe) new ServiceHeartbeatStore(routed.application).setUserEnabled(false);
         super.onCreate(args);
     }
     static final class RoutedContext extends ContextWrapper {
