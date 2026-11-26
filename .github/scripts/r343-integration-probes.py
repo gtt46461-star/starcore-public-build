@@ -129,7 +129,7 @@ def run_probe(directory, serial, apk, field, run_id, index, probe):
     print(f'INTEGRATED_NATIVE {issue} {selector} {disposition} assertions={assertions}',flush=True)
     if failure:
         excerpt = (stderr + b'\n' + stdout).decode('utf-8',errors='replace').splitlines()
-        for line in [line for line in excerpt if re.search(r'Error|Exception|Expected|actual|FAILURES',line)][-6:]:
+        for line in [line for line in excerpt if re.search(r'Error|Exception|Expected|actual|FAILURES|R343_STARTUP_',line)][-24:]:
             print(line[:500],flush=True)
     return dict(expected, issue=issue, selector=selector, status=disposition, failure=failure,
                 assertionCount=assertions, junitTests=1 if ok else None, exitCode=exit_code,
