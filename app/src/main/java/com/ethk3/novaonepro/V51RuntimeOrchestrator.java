@@ -404,7 +404,14 @@ public final class V51RuntimeOrchestrator {
             // Do not call model/feature code inside it (construction/r30/B02_04_TX_AUDIT.md).
             lease.token.checkpoint("BEFORE_PREPARED_RESULT_R34");
             // Publish the complete restart input before entering the sole canonical transaction.
-            PreparedCanonicalStoreR335.save(store,request,result,snapshot);
+            RuntimeTraceR36.Mark preparedSaveMark = trace.begin("PREPARED_RESULT_SAVE");
+            try {
+                PreparedCanonicalStoreR335.save(store,request,result,snapshot);
+            } catch (java.io.IOException | RuntimeException | Error failure) {
+                trace.end(preparedSaveMark,false,failure.getClass().getSimpleName());
+                throw failure;
+            }
+            trace.end(preparedSaveMark,true,"VERIFIED_ORIGINAL_RETRY_INPUT");
             lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.COMMIT,1000L);
             checkpoint(requests,lease,"BEFORE_CANONICAL_COMMIT");
             RuntimeTraceR36.Mark commitMark = trace.begin("DB_CANONICAL_WAIT");

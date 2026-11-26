@@ -124,14 +124,11 @@ public final class PreparedCanonicalStoreR335 {
                     throw new IOException("R34_PREPARED_RESULT_IDENTITY_CONFLICT");
                 return;
             }
-            if(f.exists()||new File(dir,n+".bak").exists()){
-                Prepared existing=readPrepared(atomic,r);
-                if(!existing.snapshotHash.equals(snapshot.sha256)||!Arrays.equals(resultBytes,PreparedCanonicalCodecR335.encode(existing.result)))throw new IOException("R335_PREPARED_IDENTITY_CONFLICT");return;
-            }
             File files=store.contextForR26().getFilesDir().getCanonicalFile();StorageBudgetR31 budget=StorageBudgetR31.forFiles(files);
-            long bound=(long)resultBytes.length+snapshot.bytes.length+4096L;
-            try(StorageBudgetR31.Reservation grant=budget.reserve("r335-prepared:"+r.requestHash,r.generation,StorageBudgetR31.Category.CACHE,"files/"+DIRECTORY,bound,bound,true)){
-                grant.beforeChunk(bound);FileOutputStream sink=null;byte[] expected;
+            long logicalUpper=(long)resultBytes.length+snapshot.bytes.length+4096L;
+            long physicalBound=PreparedCanonicalAdmissionR343.physicalGrowthBound(logicalUpper);
+            try(StorageBudgetR31.Reservation grant=budget.reserve("r335-prepared:"+r.requestHash,r.generation,StorageBudgetR31.Category.CACHE,"files/"+DIRECTORY,physicalBound,physicalBound,true)){
+                grant.beforeChunk(logicalUpper);FileOutputStream sink=null;byte[] expected;
                 try{
                     if(TimeSourceR811.monoNowMs()>=r.deadlineMonoAt||System.currentTimeMillis()>=r.deadlineAt)throw new IOException("R335_PREPARED_EXPIRED");
                     sink=atomic.startWrite();java.security.MessageDigest digest=sha256();

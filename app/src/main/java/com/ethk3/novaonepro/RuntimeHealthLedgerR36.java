@@ -296,7 +296,8 @@ public final class RuntimeHealthLedgerR36 {
                     + RuntimeEventLedgerR926.TABLE_EVENT + " e JOIN " + RuntimeObservationScopeR341.EVENT_SCOPE
                     + " s ON s.event_id=e.event_id WHERE e.target_issue=d.issue AND e.event_type='CANONICAL'"
                     + " AND s.release_id=? AND s.source_commit=? AND s.database_identity=? AND e.game_code=?"
-                    + " AND s.sample_wall_at<d.open_time)"
+                    + " AND s.sample_wall_at<d.open_time),"
+                    + CoverageSettlementR343.labelReceiptExists(DbHelper.TABLE_R35_OOS_LABEL)
                     + " FROM (SELECT issue,open_time FROM draws "
                     + "WHERE dirty=0 AND open_time>0 AND issue>=? AND issue<=? ORDER BY issue DESC LIMIT 30) d "
                     + "LEFT JOIN " + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o ON o.target_issue=d.issue "
@@ -311,9 +312,11 @@ public final class RuntimeHealthLedgerR36 {
                     String terminal=safe(covered.getString(7));
                     if(frozen){
                         out.coverageFrozen++;
-                        if(covered.getInt(5)==1&&SettlementTaskStoreR36.COMPLETED.equals(terminal)
-                                &&safe(covered.getString(6)).matches("[a-f0-9]{64}")
-                                &&safe(covered.getString(6)).equals(safe(covered.getString(8))))out.coverageSettled++;
+                        // shadow.settlement_hash is an OOS label record hash; task.settlement_hash
+                        // hashes DRAW + OOS + REAL + terminal. Never compare those two domains.
+                        if(CoverageSettlementR343.closed(covered.getInt(5),terminal,
+                                covered.getString(6),covered.getString(8),covered.getInt(10)))
+                            out.coverageSettled++;
                     }else if(SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL.equals(terminal)){
                         out.coverageNoPredrawTerminal++;
                     }
