@@ -199,6 +199,41 @@ public final class R343WriterRuntimeInstrumentedTest {
         return draw;
     }
 
+    private static String seedArchivePressure(Context app, DbStore store, DatabaseCoordinator coordinator,
+                                               Checks checks) throws Exception {
+        WriterHoldFaultsR31.observe("R343_EXISTING_HOT_ORIGINAL", false, 1, 212, false, CommitOutcome.COMMITTED);
+        for (int turn = 0; turn < 10 && stat(WriterHoldFaultsR31.snapshot(), "pending") > 0; turn++) {
+            WriterHoldFaultsR31.drainControlSliceR32(store);
+        }
+        coordinator.runAtomicWriteOrThrowF01(fixtureMigration("FIELD_DEBT_BYTES"), db -> {
+            db.execSQL("UPDATE r31_runtime_fault SET byte_count=? WHERE operation=?",
+                    new Object[]{com.ethk3.novaonepro.strategyv2.ResearchPoolR27.MAX_FAULT_BYTES_R31,
+                            "R343_EXISTING_HOT_ORIGINAL"});
+            return null;
+        });
+        String event;
+        try (Cursor row = store.readable().rawQuery("SELECT event_id FROM r31_runtime_fault WHERE operation=?",
+                new String[]{"R343_EXISTING_HOT_ORIGINAL"})) {
+            checks.require(row.moveToFirst(), "The old hot original came from the actual drain");
+            event = row.getString(0);
+        }
+        File files = app.getFilesDir().getCanonicalFile();
+        File archive = new File(files, RuntimeFaultOriginalStoreR335.DIRECTORY);
+        checks.require(archive.mkdir(), "Fresh archive directory in the instrumented data directory");
+        File retained = new File(archive, "old-unrelated-original.row");
+        java.nio.file.Files.write(retained.toPath(), new byte[]{1, 7, 3});
+        android.system.Os.symlink(retained.getPath(), new File(archive, "old-unrelated-reference").getPath());
+        try (StorageBudgetR31.Reservation unused = StorageBudgetR31.forFiles(files).reserve(
+                "R343_FIELD_OLD_ARCHIVE_SCOPE", 0, StorageBudgetR31.Category.DIAGNOSTICS,
+                "files/" + RuntimeFaultOriginalStoreR335.DIRECTORY, 128L * 1024, false)) {
+            throw new AssertionError("The previous whole-directory scope unexpectedly ignored its sibling");
+        } catch (StorageBudgetR31.Rejected blocked) {
+            checks.equal("SCOPE_SYMLINK", blocked.reason, "Previous archive reservation fails on an unrelated entry");
+            checks.record("previousArchiveScopeError", blocked.reason);
+        }
+        return event;
+    }
+
     @Test public void fieldBackfillResumesAfterWriterFaultReadback() throws Exception {
         Field173NativeEvidence.run((app, checks) -> {
             DbStore store = new DbStore(app);
@@ -211,6 +246,9 @@ public final class R343WriterRuntimeInstrumentedTest {
                     return null;
                 });
 
+                String oldEvent = seedArchivePressure(app, store, coordinator, checks);
+                byte[] oldBody = RuntimeFaultOriginalStoreR335.hot(store.readable(), oldEvent);
+                String oldHash = FaultOriginalCodecR335.sha256(oldBody);
                 long opened = System.currentTimeMillis() - 1_000L;
                 Models.Draw previous = fixtureDraw("202611250100", opened - 60_000L);
                 Models.Draw target = fixtureDraw("202611250101", opened);
@@ -232,6 +270,21 @@ public final class R343WriterRuntimeInstrumentedTest {
                 checks.equal(0L, scalar(store, "SELECT COUNT(*) FROM draws WHERE issue='202611250101'"),
                         "Target is absent while backfill waits");
                 long before = stat(WriterHoldFaultsR31.snapshot(), "capacityLoss");
+                WriterHoldFaultsR31.drainControlSliceR32(store);
+                Map<String, Object> pressure = WriterHoldFaultsR31.snapshot();
+                checks.equal("BLOCKED_STORAGE", pressure.get("drainStatus"), "A full hot store waits for the archive owner");
+                checks.equal(4L, stat(pressure, "durableInFlightRows"), "The exact four-row outbox stays durable");
+                checks.require(DataRetentionGovernorR900.runFaultMaintenanceR335(store, SystemClock.elapsedRealtime() + 10_000L),
+                        "Existing maintenance owner services the request");
+                checks.equal(RuntimeFaultArchiveB01.State.VERIFIED_RETIRED, RuntimeFaultArchiveB01.observation().state,
+                        RuntimeFaultOriginalStoreR335.processDetail());
+                checks.equal(null, RuntimeFaultOriginalStoreR335.hot(store.readable(), oldEvent), "Verified hot original retired");
+                checks.require(java.util.Arrays.equals(oldBody, RuntimeFaultOriginalStoreR335.readFile(
+                                app.getFilesDir(), oldHash, oldBody.length)), "Cold original bytes agree with the old hot row");
+                checks.require(java.nio.file.Files.isSymbolicLink(new File(app.getFilesDir(),
+                                RuntimeFaultOriginalStoreR335.DIRECTORY + "/old-unrelated-reference").toPath()),
+                        "Other retained references are untouched");
+                SystemClock.sleep(Math.max(0L, stat(pressure, "nextDrainElapsedMs") - SystemClock.elapsedRealtime() + 10L));
                 for (int n = 0; n < 12 && stat(WriterHoldFaultsR31.snapshot(), "pending") > 0; n++) {
                     WriterHoldFaultsR31.drainControlSliceR32(store);
                 }
@@ -247,6 +300,7 @@ public final class R343WriterRuntimeInstrumentedTest {
                 checks.require(!RuntimeObservationScopeR341.UNRESOLVED.equals(identity), "Database identity resolves");
                 checks.database("FIXTURE_HISTORY_BACKFILL", target.issue, opened, identity);
                 checks.record("drain", drainFields(drained));
+                checks.record("verifiedArchivedOriginal", oldHash);
                 checks.record("historyReadback", Map.of("target", target.issue, "persistedEntries", 1,
                         "queueReceipts", 26, "losses", stat(drained, "capacityLoss")));
             } finally {

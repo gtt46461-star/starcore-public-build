@@ -129,33 +129,30 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
                     Work next=new Work();next.revision=Math.addExact(current.revision,1);next.fence=Math.addExact(current.fence,1);next.after=current.after;next.event=event;next.hash=hash;next.stage="PREPARING";next.owner=WriterHoldLedgerR30.PROCESS_SESSION;
                     tx.execSQL("UPDATE r335_fault_archive_work SET revision=?,selected_event=?,selected_hash=?,stage='PREPARING',owner_epoch=?,fence=?,updated_at=? WHERE singleton=1",new Object[]{next.revision,event,hash,next.owner,next.fence,System.currentTimeMillis()});return next;
                 });
-                File directory=new File(files,DIRECTORY);long growth=2L*body.length+65536L;
-                try(StorageBudgetR31.Reservation budget=StorageBudgetR31.forFiles(files).reserve("R335_FAULT_ORIGINAL",claim.fence,StorageBudgetR31.Category.DIAGNOSTICS,"files/"+DIRECTORY,growth,growth,false)){
-                    if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_CAS_PUBLICATION");
-                    File cas=publish(files,body,hash,budget);byte[] verified=readFile(files,hash,body.length);
-                    if(!Arrays.equals(body,verified))throw new IOException("R335_FAULT_CAS_ORIGINAL_CHANGED");
-                    if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_LOCATOR_COMMIT");
-                    String key="R335_FAULT_ORIGINAL:"+event+":"+hash;
-                    DatabaseCoordinator.CommitIdentityR31 identity=new DatabaseCoordinator.CommitIdentityR31(key,hash,"R335_FAULT_ARCHIVE_COMMIT",claim.owner,claim.fence,hash,0,FaultOriginalCodecR335.CODEC);
-                    store.coordinatorR36().runIdempotentAtomicWriteR31(context("R335_FAULT_ARCHIVE_COMMIT"),identity,tx->{
-                        Work current=work(tx);
-                        if(current.revision!=claim.revision||current.fence!=claim.fence||!current.owner.equals(claim.owner)||!current.hash.equals(hash)||!current.event.equals(event)||!"PREPARING".equals(current.stage))throw new IllegalStateException("R335_FAULT_ARCHIVE_FENCE");
-                        if(cancelled(deadline)||WriterHoldFaultsR31.retainsHotOriginalR33(event))throw new IllegalStateException("DEPENDENCY(R335_FAULT_ORIGINAL_PINNED)");
-                        byte[] actual=hot(tx,event);if(actual==null||!Arrays.equals(body,actual)||!independent(actual))throw new IllegalStateException("R335_FAULT_ARCHIVE_STALE_ORIGINAL");
-                        tx.execSQL("INSERT INTO r335_fault_original("+LOCATOR_COLUMNS+") VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{event,hash,body.length,FaultOriginalCodecR335.CODEC,DIRECTORY+"/"+hash+".row",values.get("owner_epoch"),values.get("task_id"),values.get("category"),values.get("last_wall_ms"),key,ReleaseManifestR926.MANIFEST_SHA256,System.currentTimeMillis()});
-                        tx.execSQL("DELETE FROM r31_runtime_fault WHERE event_id=?",new Object[]{event});
-                        if(scalar(tx,"SELECT changes()")!=1)throw new IllegalStateException("R335_FAULT_ARCHIVE_DELETE_COUNT");
-                        tx.execSQL("UPDATE r335_fault_archive_work SET revision=revision+1,after_event=?,selected_event='',selected_hash='',stage='COMPLETED',updated_at=? WHERE singleton=1",new Object[]{event,System.currentTimeMillis()});
-                        return 1;
-                    },1);
-                    // Independent connection, then independently re-read exact file bytes, before reporting release.
-                    try(SQLiteDatabase readback=SQLiteDatabase.openDatabase(db.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
-                        if(hot(readback,event)!=null)throw new IOException("R335_FAULT_READBACK_HOT_REMAINS");
-                        requireLocatorReceipt(readback,event,hash,body.length,key);
-                        if(!Arrays.equals(body,readFile(files,hash,body.length)))throw new IOException("R335_FAULT_READBACK_BODY_CHANGED");
-                    }
-                    lastDetail="VERIFIED_ORIGINAL_RETIRED:"+event+":"+hash;return RuntimeFaultArchiveB01.Page.committed(1);
+                if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_CAS_PUBLICATION");
+                publish(files,body,hash,claim.fence);byte[] verified=readFile(files,hash,body.length);
+                if(!Arrays.equals(body,verified))throw new IOException("R335_FAULT_CAS_ORIGINAL_CHANGED");
+                if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_LOCATOR_COMMIT");
+                String key="R335_FAULT_ORIGINAL:"+event+":"+hash;
+                DatabaseCoordinator.CommitIdentityR31 identity=new DatabaseCoordinator.CommitIdentityR31(key,hash,"R335_FAULT_ARCHIVE_COMMIT",claim.owner,claim.fence,hash,0,FaultOriginalCodecR335.CODEC);
+                store.coordinatorR36().runIdempotentAtomicWriteR31(context("R335_FAULT_ARCHIVE_COMMIT"),identity,tx->{
+                    Work current=work(tx);
+                    if(current.revision!=claim.revision||current.fence!=claim.fence||!current.owner.equals(claim.owner)||!current.hash.equals(hash)||!current.event.equals(event)||!"PREPARING".equals(current.stage))throw new IllegalStateException("R335_FAULT_ARCHIVE_FENCE");
+                    if(cancelled(deadline)||WriterHoldFaultsR31.retainsHotOriginalR33(event))throw new IllegalStateException("DEPENDENCY(R335_FAULT_ORIGINAL_PINNED)");
+                    byte[] actual=hot(tx,event);if(actual==null||!Arrays.equals(body,actual)||!independent(actual))throw new IllegalStateException("R335_FAULT_ARCHIVE_STALE_ORIGINAL");
+                    tx.execSQL("INSERT INTO r335_fault_original("+LOCATOR_COLUMNS+") VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{event,hash,body.length,FaultOriginalCodecR335.CODEC,DIRECTORY+"/"+hash+".row",values.get("owner_epoch"),values.get("task_id"),values.get("category"),values.get("last_wall_ms"),key,ReleaseManifestR926.MANIFEST_SHA256,System.currentTimeMillis()});
+                    tx.execSQL("DELETE FROM r31_runtime_fault WHERE event_id=?",new Object[]{event});
+                    if(scalar(tx,"SELECT changes()")!=1)throw new IllegalStateException("R335_FAULT_ARCHIVE_DELETE_COUNT");
+                    tx.execSQL("UPDATE r335_fault_archive_work SET revision=revision+1,after_event=?,selected_event='',selected_hash='',stage='COMPLETED',updated_at=? WHERE singleton=1",new Object[]{event,System.currentTimeMillis()});
+                    return 1;
+                },1);
+                // Independent connection, then independently re-read exact file bytes, before reporting release.
+                try(SQLiteDatabase readback=SQLiteDatabase.openDatabase(db.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
+                    if(hot(readback,event)!=null)throw new IOException("R335_FAULT_READBACK_HOT_REMAINS");
+                    requireLocatorReceipt(readback,event,hash,body.length,key);
+                    if(!Arrays.equals(body,readFile(files,hash,body.length)))throw new IOException("R335_FAULT_READBACK_BODY_CHANGED");
                 }
+                lastDetail="VERIFIED_ORIGINAL_RETIRED:"+event+":"+hash;return RuntimeFaultArchiveB01.Page.committed(1);
             }
         }catch(StorageBudgetR31.Rejected capacity){return retain(RuntimeFaultArchiveB01.State.BLOCKED_BUDGET,capacity.getMessage());}
         catch(IOException unavailable){return retain(RuntimeFaultArchiveB01.State.WAIT_VERIFIED,unavailable.getMessage());}
@@ -165,14 +162,31 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
         store.coordinatorR36().runAtomicWriteOrThrowF01(context("R335_FAULT_ARCHIVE_SKIP"),db->{Work current=work(db);if(current.revision!=old.revision)throw new IllegalStateException("R335_FAULT_SKIP_CAS");
             db.execSQL("UPDATE r335_fault_archive_work SET revision=revision+1,after_event=?,selected_event='',selected_hash='',stage=?,updated_at=? WHERE singleton=1",new Object[]{event,state,System.currentTimeMillis()});return 0;});
     }
-    private static File publish(File files,byte[] body,String hash,StorageBudgetR31.Reservation budget)throws IOException {
-        File root=new File(files,DIRECTORY);if(!root.isDirectory()&&!root.mkdir())throw new IOException("R335_FAULT_DIRECTORY");
+    private static void publish(File files,byte[] body,String hash,long fence)throws IOException {
+        File root=new File(files,DIRECTORY);
         File target=path(files,hash),partial=StorageBudgetR31.inside(root.getCanonicalFile(),hash+".new");
-        if(target.exists()){readFile(files,hash,body.length);return target;}
-        try(FileOutputStream output=new FileOutputStream(partial);OutputStream protectedOutput=budget.wrap(partial,output)){protectedOutput.write(body);protectedOutput.flush();output.getFD().sync();}
-        if(!Arrays.equals(body,StorageBudgetR31.readBounded(partial,FaultOriginalCodecR335.MAX_BYTES)))throw new IOException("R335_FAULT_PARTIAL_CHANGED");
-        if(!partial.renameTo(target))throw new IOException("R335_FAULT_ATOMIC_PUBLICATION");
-        syncDirectory(root);readFile(files,hash,body.length);return target;
+        if(target.exists())return;
+        StorageBudgetR31 storage=StorageBudgetR31.forFiles(files);
+        long growth=2L*body.length+65536L;
+        // The rename can move allocated blocks between the two names. Both names
+        // retain their own bounded lease until the final allocation is measured.
+        String objectScope="files/"+DIRECTORY+"/"+hash;
+        try(StorageBudgetR31.Reservation destination=storage.reserve("R335_FAULT_ORIGINAL",fence,
+                    StorageBudgetR31.Category.DIAGNOSTICS,objectScope+".row",growth,growth,false);
+                StorageBudgetR31.Reservation staging=storage.reserve("R335_FAULT_ORIGINAL_STAGING",fence,
+                    StorageBudgetR31.Category.DIAGNOSTICS,objectScope+".new",growth,growth,false)){
+            if(!root.isDirectory()){
+                if(!root.mkdir())throw new IOException("R335_FAULT_DIRECTORY");
+                syncDirectory(files);
+            }
+            try(FileOutputStream output=new FileOutputStream(partial);OutputStream protectedOutput=staging.wrap(partial,output)){
+                protectedOutput.write(body);protectedOutput.flush();output.getFD().sync();
+            }
+            if(!Arrays.equals(body,StorageBudgetR31.readBounded(partial,FaultOriginalCodecR335.MAX_BYTES)))throw new IOException("R335_FAULT_PARTIAL_CHANGED");
+            if(!partial.renameTo(target))throw new IOException("R335_FAULT_ATOMIC_PUBLICATION");
+            syncDirectory(root);
+            destination.reconcile();
+        }
     }
     static void syncDirectory(File root)throws IOException {
         FileDescriptor fd=null;try{fd=Os.open(root.getPath(),OsConstants.O_RDONLY,0);Os.fsync(fd);}catch(Exception e){throw new IOException("R335_FAULT_DIRECTORY_FSYNC",e);}finally{if(fd!=null)try{Os.close(fd);}catch(Exception e){throw new IOException("R335_FAULT_DIRECTORY_CLOSE",e);}}

@@ -9,6 +9,7 @@ import java.util.*;
 /** User-session research owner. Power, screen and network class are not eligibility inputs.
  * All writes use DbStore's existing coordinator; claims are durable and fenced. */
 public final class RuntimeCoordinatorR26 implements AutoCloseable {
+    private static final String MODERN_CONTINUITY_TASK = "modern-research-continuity";
     private static volatile RuntimeCoordinatorR26 active;
     private static final ThreadLocal<Claim> WRITING_CLAIM=new ThreadLocal<>();
     public static void checkThreadFence(SQLiteDatabase db){Claim c=WRITING_CLAIM.get();if(c!=null)requireFence(db,c);}
@@ -454,6 +455,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         Map<String, String> tasks = new LinkedHashMap<>();
         for (String id : new String[]{"schema", "schema-base", "lifecycle-schema", "kernel", "shadow-recover", "evidence-recover", "evidence-quality", "sealed-planner", "su1-certificate", "su2-mainline", "su2-certificate", "qualification", "aggregate-evidence", "feedback", "seed-incumbent", "incumbent-forecast"}) tasks.put(id, "P1");
         for (String id : new String[]{"calibration", "legacy-generation", "legacy-replay", "warm-candidates", ColdRebirthR34.TASK, "publish-models", "live-model-training", "live-forecast-preparation", "foundry-su2", "foundry-su1", "ablation", "campaign-audit"}) tasks.put(id, "P2");
+        tasks.put(MODERN_CONTINUITY_TASK, "P2");
         for (String id : new String[]{"artifact-retention", "archive", "retention", "diagnosis", "daily-close"}) tasks.put(id, "P3");
         for (int i = 1; i <= 16; i++) tasks.put(String.format(Locale.ROOT, "expert-E%02d", i), "P2");
         for (String id : RuntimeR27.taskIdsR341()) tasks.put(id, "R27");
@@ -469,9 +471,10 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             String schema = "R27".equals(lane) ? "R27_BASE" : "schema".equals(id) ? "R26_RUNTIME_BASE" : "STRATEGY_STORAGE";
             if (ColdRebirthR34.TASK.equals(id)) schema = "COLD_REBIRTH_SCHEMA";
             if ("r27-atomnet-archive".equals(id)) schema = "ATOMNET_ARCHIVE_SCHEMA";
+            if (MODERN_CONTINUITY_TASK.equals(id)) schema = "R811_RESEARCH_AND_CP12_OWNER_TABLES";
             String input = ColdRebirthR34.TASK.equals(id) ? "PRESERVED_PARENT_WITH_PIT_HISTORY"
                     : "r27-atomnet".equals(id) ? "PINNED_DATASET_AND_CHECKPOINT"
-                    : "r27-replay-dataset".equals(id) ? "CANONICAL_DRAW_HISTORY" : "TASK_SPECIFIC";
+                    : "r27-replay-dataset".equals(id) || MODERN_CONTINUITY_TASK.equals(id) ? "CANONICAL_DRAW_HISTORY" : "TASK_SPECIFIC";
             manifest.put(id, Arrays.asList(lane, schema, input));
         }
         return JsonR27.write(manifest);
@@ -697,10 +700,19 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         return db.rawQuery(sql,new String[]{lane,boot,elapsed,elapsed});
     }
     private boolean lifecycleReadyR335;
+    private long nextModernContinuityTurnElapsed;
     private Claim claim(){
         // R27-008: right after a new draw the incumbent forecast for the next target is prepared first, so the
         // freeze is a small write long before the open time instead of INCUMBENT_MISSING_AFTER_OPEN.
         if(strategyStorageReady){long seq=latestSequence();if(seq>0&&seq!=lastIncumbentSeq){Claim first=claimTask("incumbent-forecast","P1");if(first!=null){lastIncumbentSeq=seq;return first;}}}
+        long now = SystemClock.elapsedRealtime();
+        if (strategyStorageReady && store.coordinatorForResearchR952().isR811ResearchSchemaReady()
+                && now >= nextModernContinuityTurnElapsed && !RealtimePressureGateR811.hasActiveCriticalWork()
+                && !SettlementExecutionGateR819.isActive()) {
+            nextModernContinuityTurnElapsed = now + 1000L;
+            Claim modern = claimTask(MODERN_CONTINUITY_TASK, "P2");
+            if (modern != null) return modern;
+        }
         // R30-B01-06: once per scheduling round, a ready task that TaskLivenessR30 classifies STALLED is claimed first.
         if(strategyStorageReady&&stallRoundR30++%SLOTS.length==0){Claim boosted=claimStalledR30();if(boosted!=null)return boosted;}
         // Dependency-blocked tasks are not ready work. Polling forty of them between migration
@@ -954,6 +966,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
         if(c.task.startsWith("expert-"))return TaskContinuationR26.step(store,c,budget,seq+1);
         switch(c.task){
+            case MODERN_CONTINUITY_TASK: return runModernContinuity(c, budget);
             case "legacy-generation":return LegacyGenerationR26.step(store,c,budget);
             case "legacy-replay":return LegacyReplayContinuationR26.step(store,c,budget);
             case "artifact-retention":return ArtifactMaintenanceR26.step(store,c,budget);
@@ -995,6 +1008,34 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             default:throw new IllegalStateException("R26_UNKNOWN_TASK:"+c.task);
         }
         c.completedEventCursor=seq;return 1;
+    }
+
+    private long runModernContinuity(Claim claim, BudgetTokenSU1 budget) {
+        nextModernContinuityTurnElapsed = SystemClock.elapsedRealtime() + 1000L;
+        if (!store.coordinatorForResearchR952().isR811ResearchSchemaReady()) {
+            claim.reason("WAITING_LEGACY_RESEARCH_SCHEMA:" + ResearchSchemaCoordinatorR926.summary());
+            return 0;
+        }
+        budget.checkpointOrYield();
+        if (RealtimePressureGateR811.hasActiveCriticalWork() || SettlementExecutionGateR819.isActive()) {
+            claim.reason("YIELD_P0_PRESSURE");
+            return 0;
+        }
+        ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
+        if (!gate.passed) {
+            claim.reason("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
+            return 0;
+        }
+        long slice;
+        if (budget.tryConsume(850_000L)) slice = 850L;
+        else if (budget.tryConsume(600_000L)) slice = 600L;
+        else {
+            claim.reason("YIELD_CP12_REMAINING_SLICE");
+            return 0;
+        }
+        ResearchLearningContinuityR912.Result review = ResearchLearningContinuityR912.pulse(store, slice);
+        claim.reason((review.completedLanes > 0 ? "COOPERATIVE_" : "") + review.status);
+        return review.completedLanes;
     }
     /** One recoverable maintenance phase per service slice, never all old maintenance inside one writer. */
     private long retentionStepR30(Claim claim,BudgetTokenSU1 budget,long latest)throws Exception{

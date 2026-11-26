@@ -201,11 +201,13 @@ public final class WriterHoldFaultsR31 {
         }
     }
 
-    private static void requireQuota(SQLiteDatabase db, Event event) {
-        if (present(db, event)) return;
+    private static void requireQuota(SQLiteDatabase db, List<Event> newEvents) {
+        if (newEvents.isEmpty()) return;
+        long bytes = 0L;
+        for (Event event : newEvents) bytes += event.bytes;
         try (Cursor c = db.rawQuery("SELECT count(*),coalesce(sum(byte_count),0) FROM r31_runtime_fault", null)) {
-            if (!c.moveToFirst() || c.getLong(0) >= ResearchPoolR27.MAX_FAULT_SAMPLES_R31
-                    || c.getLong(1) + event.bytes > ResearchPoolR27.MAX_FAULT_BYTES_R31)
+            if (!c.moveToFirst() || c.getLong(0) > ResearchPoolR27.MAX_FAULT_SAMPLES_R31 - newEvents.size()
+                    || c.getLong(1) > ResearchPoolR27.MAX_FAULT_BYTES_R31 - bytes)
                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_PROTECTED_CAPACITY_DEBT)");
         }
     }
@@ -272,7 +274,7 @@ public final class WriterHoldFaultsR31 {
                 0,batchId,0,"R33_WRITER_HOLD_BATCH_V1");
             DatabaseCoordinator.WriteContext context=DatabaseCoordinator.WriteContext.of(
                 DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_WRITER_HOLD_FAULT")
-                    .withWorkload(batch.size(),bindBytes,batch.size()+1,0,true);
+                .withWorkload(batch.size(),bindBytes,3*batch.size()+2,0,true);
             synchronized (WriterHoldFaultsR31.class) {
                 drainStatus = retry ? "RESOLVE_RECEIPT" : "WRITE_RECEIPT";
             }
@@ -286,8 +288,10 @@ public final class WriterHoldFaultsR31 {
                 phaseR343("WRITE_RECEIPT");
                 outcome=coordinator.runIdempotentAtomicWriteR31(
                 context,identity,db->{
-                    for(Event event:batch){
-                        requireQuota(db,event);
+                    List<Event> newEvents = new ArrayList<>(batch.size());
+                    for (Event event : batch) if (!present(db, event)) newEvents.add(event);
+                    requireQuota(db, newEvents);
+                    for(Event event:newEvents){
                         db.execSQL("INSERT OR IGNORE INTO r31_runtime_fault("+COLUMNS+") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",event.row());
                         if(!present(db,event))throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_MISSING");
                     }

@@ -2661,6 +2661,7 @@ public final class AutoFetchService extends Service {
     }
 
     private volatile String lastSuffixRecheckTargetR342 = "";
+    private volatile long lastSuffixRecheckElapsedR343;
 
     private void startWorkR3610OffMain() {
         if (runtimeInitializationCancelled || userRequestedStopV5 || !heartbeatStateV8().isUserEnabled()) {
@@ -3471,6 +3472,9 @@ public final class AutoFetchService extends Service {
         if (!handler.post(() -> {
             try {
                 if (!running || userRequestedStopV5 || generation != fetchGenerationR31 || store == null) return;
+                // A latest response can already carry the exact minimum tail. Keep
+                // this bounded bootstrap ahead of the ordinary bulk history writer.
+                recoverPredrawSuffixFromPageR343(history);
                 ArrayList<Models.Draw> changed = new ArrayList<>();
                 for (Models.Draw draw : history) {
                     if (draw != null && (!DrawPollingReplayR67.alreadyDurable(store.getDrawByIssue(draw.issue), draw)
@@ -3483,6 +3487,31 @@ public final class AutoFetchService extends Service {
                 latestHistoryTicketR342.compareAndSet(ticket, null);
             }
         })) latestHistoryTicketR342.compareAndSet(ticket, null);
+    }
+
+    private void recoverPredrawSuffixFromPageR343(List<Models.Draw> history) {
+        final DbStore active = store;
+        if (active == null || !running || userRequestedStopV5) return;
+        try {
+            Models.Draw base = active.getLatestDraw();
+            if (base == null || !base.isValid()) return;
+            String target = AppConfig.nextIssueText(base.issue);
+            if (CanonicalObservationWriterR36.hasCanonical(active, target)) return;
+            DbStore.SuffixReceiptR342 suffix = active.savePredrawSuffixWithReceiptR342(history, target);
+            long now = TimeSourceR811.monoNowMs();
+            if (suffix.ready && running && active == store && !userRequestedStopV5
+                    && (!target.equals(lastSuffixRecheckTargetR342)
+                        || now - lastSuffixRecheckElapsedR343 >= ANALYSIS_RETRY_DELAY_MS)) {
+                lastSuffixRecheckElapsedR343 = now;
+                lastSuffixRecheckTargetR342 = target;
+                postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
+            }
+            if (!"ALREADY_DURABLE".equals(suffix.state)) {
+                active.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r342_predraw_suffix",suffix.observation()));
+            }
+        } catch (RuntimeException failure) {
+            recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);
+        }
     }
 
     private void saveApiResultDraws(Models.ApiResult result) {
@@ -3534,22 +3563,7 @@ public final class AutoFetchService extends Service {
                 if (durableLatestConsumerR57 != null) durableLatestConsumerR57.run();
             }
             if (writeHistoricalRows && result.draws != null && !result.draws.isEmpty()) {
-                if (historyPage) {
-                    try {
-                        Models.Draw base = store.getLatestDraw();
-                        if (base != null && base.isValid()) {
-                            String target = AppConfig.nextIssueText(base.issue);
-                            DbStore.SuffixReceiptR342 suffix = store.savePredrawSuffixWithReceiptR342(result.draws, target);
-                            if (suffix.ready && !target.equals(lastSuffixRecheckTargetR342)) {
-                                lastSuffixRecheckTargetR342 = target;
-                                postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
-                            }
-                            store.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r342_predraw_suffix",suffix.observation()));
-                        }
-                    } catch (RuntimeException failure) {
-                        recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);
-                    }
-                }
+                if (historyPage) recoverPredrawSuffixFromPageR343(result.draws);
                 try {
                     ArrayList<Models.Draw> changed = new ArrayList<Models.Draw>();
                     for(Models.Draw draw:result.draws) {

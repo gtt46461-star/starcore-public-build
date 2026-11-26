@@ -1,0 +1,493 @@
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/R343WriterRuntimeInstrumentedTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/R343WriterRuntimeInstrumentedTest.java
+index ab8f68d6..49268d49 100644
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/R343WriterRuntimeInstrumentedTest.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/R343WriterRuntimeInstrumentedTest.java
+@@ -199,6 +199,41 @@ public final class R343WriterRuntimeInstrumentedTest {
+         return draw;
+     }
+ 
++    private static String seedArchivePressure(Context app, DbStore store, DatabaseCoordinator coordinator,
++                                               Checks checks) throws Exception {
++        WriterHoldFaultsR31.observe("R343_EXISTING_HOT_ORIGINAL", false, 1, 212, false, CommitOutcome.COMMITTED);
++        for (int turn = 0; turn < 10 && stat(WriterHoldFaultsR31.snapshot(), "pending") > 0; turn++) {
++            WriterHoldFaultsR31.drainControlSliceR32(store);
++        }
++        coordinator.runAtomicWriteOrThrowF01(fixtureMigration("FIELD_DEBT_BYTES"), db -> {
++            db.execSQL("UPDATE r31_runtime_fault SET byte_count=? WHERE operation=?",
++                    new Object[]{com.ethk3.novaonepro.strategyv2.ResearchPoolR27.MAX_FAULT_BYTES_R31,
++                            "R343_EXISTING_HOT_ORIGINAL"});
++            return null;
++        });
++        String event;
++        try (Cursor row = store.readable().rawQuery("SELECT event_id FROM r31_runtime_fault WHERE operation=?",
++                new String[]{"R343_EXISTING_HOT_ORIGINAL"})) {
++            checks.require(row.moveToFirst(), "The old hot original came from the actual drain");
++            event = row.getString(0);
++        }
++        File files = app.getFilesDir().getCanonicalFile();
++        File archive = new File(files, RuntimeFaultOriginalStoreR335.DIRECTORY);
++        checks.require(archive.mkdir(), "Fresh archive directory in the instrumented data directory");
++        File retained = new File(archive, "old-unrelated-original.row");
++        java.nio.file.Files.write(retained.toPath(), new byte[]{1, 7, 3});
++        android.system.Os.symlink(retained.getPath(), new File(archive, "old-unrelated-reference").getPath());
++        try (StorageBudgetR31.Reservation unused = StorageBudgetR31.forFiles(files).reserve(
++                "R343_FIELD_OLD_ARCHIVE_SCOPE", 0, StorageBudgetR31.Category.DIAGNOSTICS,
++                "files/" + RuntimeFaultOriginalStoreR335.DIRECTORY, 128L * 1024, false)) {
++            throw new AssertionError("The previous whole-directory scope unexpectedly ignored its sibling");
++        } catch (StorageBudgetR31.Rejected blocked) {
++            checks.equal("SCOPE_SYMLINK", blocked.reason, "Previous archive reservation fails on an unrelated entry");
++            checks.record("previousArchiveScopeError", blocked.reason);
++        }
++        return event;
++    }
++
+     @Test public void fieldBackfillResumesAfterWriterFaultReadback() throws Exception {
+         Field173NativeEvidence.run((app, checks) -> {
+             DbStore store = new DbStore(app);
+@@ -211,6 +246,9 @@ public final class R343WriterRuntimeInstrumentedTest {
+                     return null;
+                 });
+ 
++                String oldEvent = seedArchivePressure(app, store, coordinator, checks);
++                byte[] oldBody = RuntimeFaultOriginalStoreR335.hot(store.readable(), oldEvent);
++                String oldHash = FaultOriginalCodecR335.sha256(oldBody);
+                 long opened = System.currentTimeMillis() - 1_000L;
+                 Models.Draw previous = fixtureDraw("202611250100", opened - 60_000L);
+                 Models.Draw target = fixtureDraw("202611250101", opened);
+@@ -232,6 +270,21 @@ public final class R343WriterRuntimeInstrumentedTest {
+                 checks.equal(0L, scalar(store, "SELECT COUNT(*) FROM draws WHERE issue='202611250101'"),
+                         "Target is absent while backfill waits");
+                 long before = stat(WriterHoldFaultsR31.snapshot(), "capacityLoss");
++                WriterHoldFaultsR31.drainControlSliceR32(store);
++                Map<String, Object> pressure = WriterHoldFaultsR31.snapshot();
++                checks.equal("BLOCKED_STORAGE", pressure.get("drainStatus"), "A full hot store waits for the archive owner");
++                checks.equal(4L, stat(pressure, "durableInFlightRows"), "The exact four-row outbox stays durable");
++                checks.require(DataRetentionGovernorR900.runFaultMaintenanceR335(store, SystemClock.elapsedRealtime() + 10_000L),
++                        "Existing maintenance owner services the request");
++                checks.equal(RuntimeFaultArchiveB01.State.VERIFIED_RETIRED, RuntimeFaultArchiveB01.observation().state,
++                        RuntimeFaultOriginalStoreR335.processDetail());
++                checks.equal(null, RuntimeFaultOriginalStoreR335.hot(store.readable(), oldEvent), "Verified hot original retired");
++                checks.require(java.util.Arrays.equals(oldBody, RuntimeFaultOriginalStoreR335.readFile(
++                                app.getFilesDir(), oldHash, oldBody.length)), "Cold original bytes agree with the old hot row");
++                checks.require(java.nio.file.Files.isSymbolicLink(new File(app.getFilesDir(),
++                                RuntimeFaultOriginalStoreR335.DIRECTORY + "/old-unrelated-reference").toPath()),
++                        "Other retained references are untouched");
++                SystemClock.sleep(Math.max(0L, stat(pressure, "nextDrainElapsedMs") - SystemClock.elapsedRealtime() + 10L));
+                 for (int n = 0; n < 12 && stat(WriterHoldFaultsR31.snapshot(), "pending") > 0; n++) {
+                     WriterHoldFaultsR31.drainControlSliceR32(store);
+                 }
+@@ -247,6 +300,7 @@ public final class R343WriterRuntimeInstrumentedTest {
+                 checks.require(!RuntimeObservationScopeR341.UNRESOLVED.equals(identity), "Database identity resolves");
+                 checks.database("FIXTURE_HISTORY_BACKFILL", target.issue, opened, identity);
+                 checks.record("drain", drainFields(drained));
++                checks.record("verifiedArchivedOriginal", oldHash);
+                 checks.record("historyReadback", Map.of("target", target.issue, "persistedEntries", 1,
+                         "queueReceipts", 26, "losses", stat(drained, "capacityLoss")));
+             } finally {
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+index abe8a06e..184278c1 100644
+--- a/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java
+@@ -67,6 +67,60 @@ public final class R26RuntimeDeviceTest {
+     private static void drain(RuntimeCoordinatorR26 runtime)throws Exception {java.lang.reflect.Field field=RuntimeCoordinatorR26.class.getDeclaredField("worker");field.setAccessible(true);Thread worker=(Thread)field.get(runtime);worker.join(10000);assertFalse("coordinator thread did not drain",worker.isAlive());assertFalse("stopped coordinator retained its CPU lease",runtime.isCpuLeaseHeld());}
+     static void remove(File f){File[] children=f.listFiles();if(children!=null)for(File child:children)remove(child);if(f.exists())assertTrue(f.delete());}
+ 
++    @Test public void activeRuntimeOwnsModernContinuityAndCommitsItsLane() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            final String task = "modern-research-continuity";
++            // The installed 189 owner registration lacked this turn. Merely
++            // calling the director from a test would not detect that regression.
++            checks.require(RuntimeCoordinatorR26.declaresTaskR341(task), "Current session declares its modern continuity task");
++            DbStore store = new DbStore(app);
++            RuntimeCoordinatorR26 runtime = null;
++            ServiceHeartbeatStore user = new ServiceHeartbeatStore(app);
++            try {
++                long first = TargetIssueResolver.sequenceOrdinalSU1("202611260400");
++                long start = System.currentTimeMillis() - 48L * 60_000L;
++                List<Models.Draw> draws = new ArrayList<>();
++                for (int index = 0; index < 48; index++) draws.add(draw(first, index, start));
++                checks.equal(48, store.saveDraws(draws), "Production history writer admits the consecutive fixture rows");
++                String latest = draws.get(draws.size() - 1).issue;
++                user.setUserEnabled(true);
++                runtime = new RuntimeCoordinatorR26(store);
++                SQLiteDatabase database = store.readable();
++                long deadline = System.nanoTime() + 180_000_000_000L;
++                long committed = 0;
++                String reason = "NOT_REGISTERED";
++                while (System.nanoTime() < deadline) {
++                    if (table(database, "r26_task")) {
++                        try (Cursor row = database.rawQuery("SELECT steps,blocked_reason FROM r26_task WHERE task_id=?",
++                                new String[]{task})) {
++                            if (row.moveToFirst()) {
++                                committed = row.getLong(0);
++                                reason = row.getString(1);
++                            }
++                        }
++                    }
++                    if (committed > 0 || !runtime.isRunning()) break;
++                    Thread.sleep(125L);
++                }
++                checks.require(committed > 0, "Normal R26 worker never committed its continuity turn: " + reason
++                        + " / " + ResearchSchemaCoordinatorR926.summary());
++                checks.require(scalar(database, "SELECT count(*) FROM v57_research_task_r967 WHERE kind='MAINTENANCE'"
++                        + " AND status='COMPLETED'") > 0, "CP12 produced a durable maintenance receipt, independent of the outer claim");
++                checks.equal(1L, scalar(database, "SELECT count(*) FROM r26_session WHERE user_enabled=1 AND state='RUNNING'"),
++                        "One running coordinator session retains the sole writer fence");
++                checks.database("SYNTHETIC_ANDROID_OWNER", latest, draws.get(draws.size() - 1).openTime,
++                        RuntimeObservationScopeR341.databaseIdentity(database));
++                checks.record("schedulerTask", task);
++                checks.record("committedOuterTurns", committed);
++                checks.record("sourceStatus", reason);
++            } finally {
++                user.setUserEnabled(false);
++                if (runtime != null) { runtime.close(); drain(runtime); }
++                store.close();
++            }
++        });
++    }
++
+     @Test public void allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()throws Exception {
+         Context original=InstrumentationRegistry.getInstrumentation().getTargetContext();assertNull("Fresh instrumentation process must not already own another database",DatabaseCoordinator.peek());Sandbox app=new Sandbox(original);DbStore store=null;RuntimeCoordinatorR26 runtime=null;JSONObject result=new JSONObject().put("scope","SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE").put("api",android.os.Build.VERSION.SDK_INT).put("engineeringWriteProbes",1000).put("fullPredrawOpportunitySloClaimed",false).put("restartKind","RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS").put("javaHeapLimitAtStart",Runtime.getRuntime().maxMemory()).put("targetLargeHeapFlag",(original.getApplicationInfo().flags&ApplicationInfo.FLAG_LARGE_HEAP)!=0);
+         try{
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+index 677e4245..5b7eb8e4 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+@@ -2661,6 +2661,7 @@ public final class AutoFetchService extends Service {
+     }
+ 
+     private volatile String lastSuffixRecheckTargetR342 = "";
++    private volatile long lastSuffixRecheckElapsedR343;
+ 
+     private void startWorkR3610OffMain() {
+         if (runtimeInitializationCancelled || userRequestedStopV5 || !heartbeatStateV8().isUserEnabled()) {
+@@ -3471,6 +3472,9 @@ public final class AutoFetchService extends Service {
+         if (!handler.post(() -> {
+             try {
+                 if (!running || userRequestedStopV5 || generation != fetchGenerationR31 || store == null) return;
++                // A latest response can already carry the exact minimum tail. Keep
++                // this bounded bootstrap ahead of the ordinary bulk history writer.
++                recoverPredrawSuffixFromPageR343(history);
+                 ArrayList<Models.Draw> changed = new ArrayList<>();
+                 for (Models.Draw draw : history) {
+                     if (draw != null && (!DrawPollingReplayR67.alreadyDurable(store.getDrawByIssue(draw.issue), draw)
+@@ -3485,6 +3489,31 @@ public final class AutoFetchService extends Service {
+         })) latestHistoryTicketR342.compareAndSet(ticket, null);
+     }
+ 
++    private void recoverPredrawSuffixFromPageR343(List<Models.Draw> history) {
++        final DbStore active = store;
++        if (active == null || !running || userRequestedStopV5) return;
++        try {
++            Models.Draw base = active.getLatestDraw();
++            if (base == null || !base.isValid()) return;
++            String target = AppConfig.nextIssueText(base.issue);
++            if (CanonicalObservationWriterR36.hasCanonical(active, target)) return;
++            DbStore.SuffixReceiptR342 suffix = active.savePredrawSuffixWithReceiptR342(history, target);
++            long now = TimeSourceR811.monoNowMs();
++            if (suffix.ready && running && active == store && !userRequestedStopV5
++                    && (!target.equals(lastSuffixRecheckTargetR342)
++                        || now - lastSuffixRecheckElapsedR343 >= ANALYSIS_RETRY_DELAY_MS)) {
++                lastSuffixRecheckElapsedR343 = now;
++                lastSuffixRecheckTargetR342 = target;
++                postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
++            }
++            if (!"ALREADY_DURABLE".equals(suffix.state)) {
++                active.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r342_predraw_suffix",suffix.observation()));
++            }
++        } catch (RuntimeException failure) {
++            recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);
++        }
++    }
++
+     private void saveApiResultDraws(Models.ApiResult result) {
+         saveApiResultDraws(result, null);
+     }
+@@ -3534,22 +3563,7 @@ public final class AutoFetchService extends Service {
+                 if (durableLatestConsumerR57 != null) durableLatestConsumerR57.run();
+             }
+             if (writeHistoricalRows && result.draws != null && !result.draws.isEmpty()) {
+-                if (historyPage) {
+-                    try {
+-                        Models.Draw base = store.getLatestDraw();
+-                        if (base != null && base.isValid()) {
+-                            String target = AppConfig.nextIssueText(base.issue);
+-                            DbStore.SuffixReceiptR342 suffix = store.savePredrawSuffixWithReceiptR342(result.draws, target);
+-                            if (suffix.ready && !target.equals(lastSuffixRecheckTargetR342)) {
+-                                lastSuffixRecheckTargetR342 = target;
+-                                postAnalysisForLatest("R32_PREDRAW_SUFFIX_RECHECK", true);
+-                            }
+-                            store.trySetTelemetryStatesR77(java.util.Collections.singletonMap("r342_predraw_suffix",suffix.observation()));
+-                        }
+-                    } catch (RuntimeException failure) {
+-                        recordCriticalCatchR926("R32_PREDRAW_SUFFIX_RETRY", "", failure);
+-                    }
+-                }
++                if (historyPage) recoverPredrawSuffixFromPageR343(result.draws);
+                 try {
+                     ArrayList<Models.Draw> changed = new ArrayList<Models.Draw>();
+                     for(Models.Draw draw:result.draws) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+index fe8e39da..724f1791 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+@@ -12,12 +12,16 @@ import org.json.JSONObject;
+ public final class ResearchLearningContinuityR912 {
+     public static final int CONTINUITY_LANES=22;
+     private static final String NEXT_LANE="r962_research_next_lane";
++    private static final java.util.concurrent.atomic.AtomicBoolean TURN_ACTIVE = new java.util.concurrent.atomic.AtomicBoolean();
+     private ResearchLearningContinuityR912(){}
+     public static Result pulse(DbStore store,long budgetMs) {
+-        ResearchWorkBudgetR927.Scope scope=ResearchWorkBudgetR927.enter(Math.min(1000L,Math.max(1L,budgetMs)));
+-        try{return pulseWithinR927(store,budgetMs);}
+-        catch(ResearchWorkBudgetR927.Yield y){return Result.fail("YIELD:"+y.getMessage());}
+-        finally{ResearchWorkBudgetR927.leave(scope);}
++        if (!TURN_ACTIVE.compareAndSet(false, true)) return Result.fail("YIELD_EXISTING_CP12_OWNER");
++        try {
++            ResearchWorkBudgetR927.Scope scope=ResearchWorkBudgetR927.enter(Math.min(1000L,Math.max(1L,budgetMs)));
++            try{return pulseWithinR927(store,budgetMs);}
++            catch(ResearchWorkBudgetR927.Yield y){return Result.fail("YIELD:"+y.getMessage());}
++            finally{ResearchWorkBudgetR927.leave(scope);}
++        } finally { TURN_ACTIVE.set(false); }
+     }
+     static String latest(DbStore store) {
+         try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){return c.moveToFirst()?c.getString(0):"";}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java
+index 3061e0cb..933b52b5 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java
+@@ -129,33 +129,30 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
+                     Work next=new Work();next.revision=Math.addExact(current.revision,1);next.fence=Math.addExact(current.fence,1);next.after=current.after;next.event=event;next.hash=hash;next.stage="PREPARING";next.owner=WriterHoldLedgerR30.PROCESS_SESSION;
+                     tx.execSQL("UPDATE r335_fault_archive_work SET revision=?,selected_event=?,selected_hash=?,stage='PREPARING',owner_epoch=?,fence=?,updated_at=? WHERE singleton=1",new Object[]{next.revision,event,hash,next.owner,next.fence,System.currentTimeMillis()});return next;
+                 });
+-                File directory=new File(files,DIRECTORY);long growth=2L*body.length+65536L;
+-                try(StorageBudgetR31.Reservation budget=StorageBudgetR31.forFiles(files).reserve("R335_FAULT_ORIGINAL",claim.fence,StorageBudgetR31.Category.DIAGNOSTICS,"files/"+DIRECTORY,growth,growth,false)){
+-                    if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_CAS_PUBLICATION");
+-                    File cas=publish(files,body,hash,budget);byte[] verified=readFile(files,hash,body.length);
+-                    if(!Arrays.equals(body,verified))throw new IOException("R335_FAULT_CAS_ORIGINAL_CHANGED");
+-                    if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_LOCATOR_COMMIT");
+-                    String key="R335_FAULT_ORIGINAL:"+event+":"+hash;
+-                    DatabaseCoordinator.CommitIdentityR31 identity=new DatabaseCoordinator.CommitIdentityR31(key,hash,"R335_FAULT_ARCHIVE_COMMIT",claim.owner,claim.fence,hash,0,FaultOriginalCodecR335.CODEC);
+-                    store.coordinatorR36().runIdempotentAtomicWriteR31(context("R335_FAULT_ARCHIVE_COMMIT"),identity,tx->{
+-                        Work current=work(tx);
+-                        if(current.revision!=claim.revision||current.fence!=claim.fence||!current.owner.equals(claim.owner)||!current.hash.equals(hash)||!current.event.equals(event)||!"PREPARING".equals(current.stage))throw new IllegalStateException("R335_FAULT_ARCHIVE_FENCE");
+-                        if(cancelled(deadline)||WriterHoldFaultsR31.retainsHotOriginalR33(event))throw new IllegalStateException("DEPENDENCY(R335_FAULT_ORIGINAL_PINNED)");
+-                        byte[] actual=hot(tx,event);if(actual==null||!Arrays.equals(body,actual)||!independent(actual))throw new IllegalStateException("R335_FAULT_ARCHIVE_STALE_ORIGINAL");
+-                        tx.execSQL("INSERT INTO r335_fault_original("+LOCATOR_COLUMNS+") VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{event,hash,body.length,FaultOriginalCodecR335.CODEC,DIRECTORY+"/"+hash+".row",values.get("owner_epoch"),values.get("task_id"),values.get("category"),values.get("last_wall_ms"),key,ReleaseManifestR926.MANIFEST_SHA256,System.currentTimeMillis()});
+-                        tx.execSQL("DELETE FROM r31_runtime_fault WHERE event_id=?",new Object[]{event});
+-                        if(scalar(tx,"SELECT changes()")!=1)throw new IllegalStateException("R335_FAULT_ARCHIVE_DELETE_COUNT");
+-                        tx.execSQL("UPDATE r335_fault_archive_work SET revision=revision+1,after_event=?,selected_event='',selected_hash='',stage='COMPLETED',updated_at=? WHERE singleton=1",new Object[]{event,System.currentTimeMillis()});
+-                        return 1;
+-                    },1);
+-                    // Independent connection, then independently re-read exact file bytes, before reporting release.
+-                    try(SQLiteDatabase readback=SQLiteDatabase.openDatabase(db.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
+-                        if(hot(readback,event)!=null)throw new IOException("R335_FAULT_READBACK_HOT_REMAINS");
+-                        requireLocatorReceipt(readback,event,hash,body.length,key);
+-                        if(!Arrays.equals(body,readFile(files,hash,body.length)))throw new IOException("R335_FAULT_READBACK_BODY_CHANGED");
+-                    }
+-                    lastDetail="VERIFIED_ORIGINAL_RETIRED:"+event+":"+hash;return RuntimeFaultArchiveB01.Page.committed(1);
++                if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_CAS_PUBLICATION");
++                publish(files,body,hash,claim.fence);byte[] verified=readFile(files,hash,body.length);
++                if(!Arrays.equals(body,verified))throw new IOException("R335_FAULT_CAS_ORIGINAL_CHANGED");
++                if(cancelled(deadline))return retain(RuntimeFaultArchiveB01.State.YIELDED,"BEFORE_LOCATOR_COMMIT");
++                String key="R335_FAULT_ORIGINAL:"+event+":"+hash;
++                DatabaseCoordinator.CommitIdentityR31 identity=new DatabaseCoordinator.CommitIdentityR31(key,hash,"R335_FAULT_ARCHIVE_COMMIT",claim.owner,claim.fence,hash,0,FaultOriginalCodecR335.CODEC);
++                store.coordinatorR36().runIdempotentAtomicWriteR31(context("R335_FAULT_ARCHIVE_COMMIT"),identity,tx->{
++                    Work current=work(tx);
++                    if(current.revision!=claim.revision||current.fence!=claim.fence||!current.owner.equals(claim.owner)||!current.hash.equals(hash)||!current.event.equals(event)||!"PREPARING".equals(current.stage))throw new IllegalStateException("R335_FAULT_ARCHIVE_FENCE");
++                    if(cancelled(deadline)||WriterHoldFaultsR31.retainsHotOriginalR33(event))throw new IllegalStateException("DEPENDENCY(R335_FAULT_ORIGINAL_PINNED)");
++                    byte[] actual=hot(tx,event);if(actual==null||!Arrays.equals(body,actual)||!independent(actual))throw new IllegalStateException("R335_FAULT_ARCHIVE_STALE_ORIGINAL");
++                    tx.execSQL("INSERT INTO r335_fault_original("+LOCATOR_COLUMNS+") VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{event,hash,body.length,FaultOriginalCodecR335.CODEC,DIRECTORY+"/"+hash+".row",values.get("owner_epoch"),values.get("task_id"),values.get("category"),values.get("last_wall_ms"),key,ReleaseManifestR926.MANIFEST_SHA256,System.currentTimeMillis()});
++                    tx.execSQL("DELETE FROM r31_runtime_fault WHERE event_id=?",new Object[]{event});
++                    if(scalar(tx,"SELECT changes()")!=1)throw new IllegalStateException("R335_FAULT_ARCHIVE_DELETE_COUNT");
++                    tx.execSQL("UPDATE r335_fault_archive_work SET revision=revision+1,after_event=?,selected_event='',selected_hash='',stage='COMPLETED',updated_at=? WHERE singleton=1",new Object[]{event,System.currentTimeMillis()});
++                    return 1;
++                },1);
++                // Independent connection, then independently re-read exact file bytes, before reporting release.
++                try(SQLiteDatabase readback=SQLiteDatabase.openDatabase(db.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
++                    if(hot(readback,event)!=null)throw new IOException("R335_FAULT_READBACK_HOT_REMAINS");
++                    requireLocatorReceipt(readback,event,hash,body.length,key);
++                    if(!Arrays.equals(body,readFile(files,hash,body.length)))throw new IOException("R335_FAULT_READBACK_BODY_CHANGED");
+                 }
++                lastDetail="VERIFIED_ORIGINAL_RETIRED:"+event+":"+hash;return RuntimeFaultArchiveB01.Page.committed(1);
+             }
+         }catch(StorageBudgetR31.Rejected capacity){return retain(RuntimeFaultArchiveB01.State.BLOCKED_BUDGET,capacity.getMessage());}
+         catch(IOException unavailable){return retain(RuntimeFaultArchiveB01.State.WAIT_VERIFIED,unavailable.getMessage());}
+@@ -165,14 +162,31 @@ public final class RuntimeFaultOriginalStoreR335 implements RuntimeFaultArchiveB
+         store.coordinatorR36().runAtomicWriteOrThrowF01(context("R335_FAULT_ARCHIVE_SKIP"),db->{Work current=work(db);if(current.revision!=old.revision)throw new IllegalStateException("R335_FAULT_SKIP_CAS");
+             db.execSQL("UPDATE r335_fault_archive_work SET revision=revision+1,after_event=?,selected_event='',selected_hash='',stage=?,updated_at=? WHERE singleton=1",new Object[]{event,state,System.currentTimeMillis()});return 0;});
+     }
+-    private static File publish(File files,byte[] body,String hash,StorageBudgetR31.Reservation budget)throws IOException {
+-        File root=new File(files,DIRECTORY);if(!root.isDirectory()&&!root.mkdir())throw new IOException("R335_FAULT_DIRECTORY");
++    private static void publish(File files,byte[] body,String hash,long fence)throws IOException {
++        File root=new File(files,DIRECTORY);
+         File target=path(files,hash),partial=StorageBudgetR31.inside(root.getCanonicalFile(),hash+".new");
+-        if(target.exists()){readFile(files,hash,body.length);return target;}
+-        try(FileOutputStream output=new FileOutputStream(partial);OutputStream protectedOutput=budget.wrap(partial,output)){protectedOutput.write(body);protectedOutput.flush();output.getFD().sync();}
+-        if(!Arrays.equals(body,StorageBudgetR31.readBounded(partial,FaultOriginalCodecR335.MAX_BYTES)))throw new IOException("R335_FAULT_PARTIAL_CHANGED");
+-        if(!partial.renameTo(target))throw new IOException("R335_FAULT_ATOMIC_PUBLICATION");
+-        syncDirectory(root);readFile(files,hash,body.length);return target;
++        if(target.exists())return;
++        StorageBudgetR31 storage=StorageBudgetR31.forFiles(files);
++        long growth=2L*body.length+65536L;
++        // The rename can move allocated blocks between the two names. Both names
++        // retain their own bounded lease until the final allocation is measured.
++        String objectScope="files/"+DIRECTORY+"/"+hash;
++        try(StorageBudgetR31.Reservation destination=storage.reserve("R335_FAULT_ORIGINAL",fence,
++                    StorageBudgetR31.Category.DIAGNOSTICS,objectScope+".row",growth,growth,false);
++                StorageBudgetR31.Reservation staging=storage.reserve("R335_FAULT_ORIGINAL_STAGING",fence,
++                    StorageBudgetR31.Category.DIAGNOSTICS,objectScope+".new",growth,growth,false)){
++            if(!root.isDirectory()){
++                if(!root.mkdir())throw new IOException("R335_FAULT_DIRECTORY");
++                syncDirectory(files);
++            }
++            try(FileOutputStream output=new FileOutputStream(partial);OutputStream protectedOutput=staging.wrap(partial,output)){
++                protectedOutput.write(body);protectedOutput.flush();output.getFD().sync();
++            }
++            if(!Arrays.equals(body,StorageBudgetR31.readBounded(partial,FaultOriginalCodecR335.MAX_BYTES)))throw new IOException("R335_FAULT_PARTIAL_CHANGED");
++            if(!partial.renameTo(target))throw new IOException("R335_FAULT_ATOMIC_PUBLICATION");
++            syncDirectory(root);
++            destination.reconcile();
++        }
+     }
+     static void syncDirectory(File root)throws IOException {
+         FileDescriptor fd=null;try{fd=Os.open(root.getPath(),OsConstants.O_RDONLY,0);Os.fsync(fd);}catch(Exception e){throw new IOException("R335_FAULT_DIRECTORY_FSYNC",e);}finally{if(fd!=null)try{Os.close(fd);}catch(Exception e){throw new IOException("R335_FAULT_DIRECTORY_CLOSE",e);}}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+index 9007f591..78b62470 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+@@ -9,6 +9,7 @@ import java.util.*;
+ /** User-session research owner. Power, screen and network class are not eligibility inputs.
+  * All writes use DbStore's existing coordinator; claims are durable and fenced. */
+ public final class RuntimeCoordinatorR26 implements AutoCloseable {
++    private static final String MODERN_CONTINUITY_TASK = "modern-research-continuity";
+     private static volatile RuntimeCoordinatorR26 active;
+     private static final ThreadLocal<Claim> WRITING_CLAIM=new ThreadLocal<>();
+     public static void checkThreadFence(SQLiteDatabase db){Claim c=WRITING_CLAIM.get();if(c!=null)requireFence(db,c);}
+@@ -454,6 +455,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+         Map<String, String> tasks = new LinkedHashMap<>();
+         for (String id : new String[]{"schema", "schema-base", "lifecycle-schema", "kernel", "shadow-recover", "evidence-recover", "evidence-quality", "sealed-planner", "su1-certificate", "su2-mainline", "su2-certificate", "qualification", "aggregate-evidence", "feedback", "seed-incumbent", "incumbent-forecast"}) tasks.put(id, "P1");
+         for (String id : new String[]{"calibration", "legacy-generation", "legacy-replay", "warm-candidates", ColdRebirthR34.TASK, "publish-models", "live-model-training", "live-forecast-preparation", "foundry-su2", "foundry-su1", "ablation", "campaign-audit"}) tasks.put(id, "P2");
++        tasks.put(MODERN_CONTINUITY_TASK, "P2");
+         for (String id : new String[]{"artifact-retention", "archive", "retention", "diagnosis", "daily-close"}) tasks.put(id, "P3");
+         for (int i = 1; i <= 16; i++) tasks.put(String.format(Locale.ROOT, "expert-E%02d", i), "P2");
+         for (String id : RuntimeR27.taskIdsR341()) tasks.put(id, "R27");
+@@ -469,9 +471,10 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+             String schema = "R27".equals(lane) ? "R27_BASE" : "schema".equals(id) ? "R26_RUNTIME_BASE" : "STRATEGY_STORAGE";
+             if (ColdRebirthR34.TASK.equals(id)) schema = "COLD_REBIRTH_SCHEMA";
+             if ("r27-atomnet-archive".equals(id)) schema = "ATOMNET_ARCHIVE_SCHEMA";
++            if (MODERN_CONTINUITY_TASK.equals(id)) schema = "R811_RESEARCH_AND_CP12_OWNER_TABLES";
+             String input = ColdRebirthR34.TASK.equals(id) ? "PRESERVED_PARENT_WITH_PIT_HISTORY"
+                     : "r27-atomnet".equals(id) ? "PINNED_DATASET_AND_CHECKPOINT"
+-                    : "r27-replay-dataset".equals(id) ? "CANONICAL_DRAW_HISTORY" : "TASK_SPECIFIC";
++                    : "r27-replay-dataset".equals(id) || MODERN_CONTINUITY_TASK.equals(id) ? "CANONICAL_DRAW_HISTORY" : "TASK_SPECIFIC";
+             manifest.put(id, Arrays.asList(lane, schema, input));
+         }
+         return JsonR27.write(manifest);
+@@ -697,10 +700,19 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+         return db.rawQuery(sql,new String[]{lane,boot,elapsed,elapsed});
+     }
+     private boolean lifecycleReadyR335;
++    private long nextModernContinuityTurnElapsed;
+     private Claim claim(){
+         // R27-008: right after a new draw the incumbent forecast for the next target is prepared first, so the
+         // freeze is a small write long before the open time instead of INCUMBENT_MISSING_AFTER_OPEN.
+         if(strategyStorageReady){long seq=latestSequence();if(seq>0&&seq!=lastIncumbentSeq){Claim first=claimTask("incumbent-forecast","P1");if(first!=null){lastIncumbentSeq=seq;return first;}}}
++        long now = SystemClock.elapsedRealtime();
++        if (strategyStorageReady && store.coordinatorForResearchR952().isR811ResearchSchemaReady()
++                && now >= nextModernContinuityTurnElapsed && !RealtimePressureGateR811.hasActiveCriticalWork()
++                && !SettlementExecutionGateR819.isActive()) {
++            nextModernContinuityTurnElapsed = now + 1000L;
++            Claim modern = claimTask(MODERN_CONTINUITY_TASK, "P2");
++            if (modern != null) return modern;
++        }
+         // R30-B01-06: once per scheduling round, a ready task that TaskLivenessR30 classifies STALLED is claimed first.
+         if(strategyStorageReady&&stallRoundR30++%SLOTS.length==0){Claim boosted=claimStalledR30();if(boosted!=null)return boosted;}
+         // Dependency-blocked tasks are not ready work. Polling forty of them between migration
+@@ -954,6 +966,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
+         if(c.task.startsWith("expert-"))return TaskContinuationR26.step(store,c,budget,seq+1);
+         switch(c.task){
++            case MODERN_CONTINUITY_TASK: return runModernContinuity(c, budget);
+             case "legacy-generation":return LegacyGenerationR26.step(store,c,budget);
+             case "legacy-replay":return LegacyReplayContinuationR26.step(store,c,budget);
+             case "artifact-retention":return ArtifactMaintenanceR26.step(store,c,budget);
+@@ -996,6 +1009,34 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+         }
+         c.completedEventCursor=seq;return 1;
+     }
++
++    private long runModernContinuity(Claim claim, BudgetTokenSU1 budget) {
++        nextModernContinuityTurnElapsed = SystemClock.elapsedRealtime() + 1000L;
++        if (!store.coordinatorForResearchR952().isR811ResearchSchemaReady()) {
++            claim.reason("WAITING_LEGACY_RESEARCH_SCHEMA:" + ResearchSchemaCoordinatorR926.summary());
++            return 0;
++        }
++        budget.checkpointOrYield();
++        if (RealtimePressureGateR811.hasActiveCriticalWork() || SettlementExecutionGateR819.isActive()) {
++            claim.reason("YIELD_P0_PRESSURE");
++            return 0;
++        }
++        ResearchRuntimeSqlGateR911.Report gate = ResearchRuntimeSqlGateR911.verifyAndPublish(store);
++        if (!gate.passed) {
++            claim.reason("WAITING_CP12_SQL_CONTRACT:" + gate.detail);
++            return 0;
++        }
++        long slice;
++        if (budget.tryConsume(850_000L)) slice = 850L;
++        else if (budget.tryConsume(600_000L)) slice = 600L;
++        else {
++            claim.reason("YIELD_CP12_REMAINING_SLICE");
++            return 0;
++        }
++        ResearchLearningContinuityR912.Result review = ResearchLearningContinuityR912.pulse(store, slice);
++        claim.reason((review.completedLanes > 0 ? "COOPERATIVE_" : "") + review.status);
++        return review.completedLanes;
++    }
+     /** One recoverable maintenance phase per service slice, never all old maintenance inside one writer. */
+     private long retentionStepR30(Claim claim,BudgetTokenSU1 budget,long latest)throws Exception{
+         // Existing permanent archive guards remain active while the dedicated
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
+index b66803b7..40bf2fec 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
+@@ -201,11 +201,13 @@ public final class WriterHoldFaultsR31 {
+         }
+     }
+ 
+-    private static void requireQuota(SQLiteDatabase db, Event event) {
+-        if (present(db, event)) return;
++    private static void requireQuota(SQLiteDatabase db, List<Event> newEvents) {
++        if (newEvents.isEmpty()) return;
++        long bytes = 0L;
++        for (Event event : newEvents) bytes += event.bytes;
+         try (Cursor c = db.rawQuery("SELECT count(*),coalesce(sum(byte_count),0) FROM r31_runtime_fault", null)) {
+-            if (!c.moveToFirst() || c.getLong(0) >= ResearchPoolR27.MAX_FAULT_SAMPLES_R31
+-                    || c.getLong(1) + event.bytes > ResearchPoolR27.MAX_FAULT_BYTES_R31)
++            if (!c.moveToFirst() || c.getLong(0) > ResearchPoolR27.MAX_FAULT_SAMPLES_R31 - newEvents.size()
++                    || c.getLong(1) > ResearchPoolR27.MAX_FAULT_BYTES_R31 - bytes)
+                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_PROTECTED_CAPACITY_DEBT)");
+         }
+     }
+@@ -272,7 +274,7 @@ public final class WriterHoldFaultsR31 {
+                 0,batchId,0,"R33_WRITER_HOLD_BATCH_V1");
+             DatabaseCoordinator.WriteContext context=DatabaseCoordinator.WriteContext.of(
+                 DatabaseCoordinator.WriteClass.RESEARCH_CONTROL,"R31_WRITER_HOLD_FAULT")
+-                    .withWorkload(batch.size(),bindBytes,batch.size()+1,0,true);
++                .withWorkload(batch.size(),bindBytes,3*batch.size()+2,0,true);
+             synchronized (WriterHoldFaultsR31.class) {
+                 drainStatus = retry ? "RESOLVE_RECEIPT" : "WRITE_RECEIPT";
+             }
+@@ -286,8 +288,10 @@ public final class WriterHoldFaultsR31 {
+                 phaseR343("WRITE_RECEIPT");
+                 outcome=coordinator.runIdempotentAtomicWriteR31(
+                 context,identity,db->{
+-                    for(Event event:batch){
+-                        requireQuota(db,event);
++                    List<Event> newEvents = new ArrayList<>(batch.size());
++                    for (Event event : batch) if (!present(db, event)) newEvents.add(event);
++                    requireQuota(db, newEvents);
++                    for(Event event:newEvents){
+                         db.execSQL("INSERT OR IGNORE INTO r31_runtime_fault("+COLUMNS+") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",event.row());
+                         if(!present(db,event))throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_MISSING");
+                     }

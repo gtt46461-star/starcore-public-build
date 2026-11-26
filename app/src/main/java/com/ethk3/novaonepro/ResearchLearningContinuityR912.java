@@ -12,12 +12,16 @@ import org.json.JSONObject;
 public final class ResearchLearningContinuityR912 {
     public static final int CONTINUITY_LANES=22;
     private static final String NEXT_LANE="r962_research_next_lane";
+    private static final java.util.concurrent.atomic.AtomicBoolean TURN_ACTIVE = new java.util.concurrent.atomic.AtomicBoolean();
     private ResearchLearningContinuityR912(){}
     public static Result pulse(DbStore store,long budgetMs) {
-        ResearchWorkBudgetR927.Scope scope=ResearchWorkBudgetR927.enter(Math.min(1000L,Math.max(1L,budgetMs)));
-        try{return pulseWithinR927(store,budgetMs);}
-        catch(ResearchWorkBudgetR927.Yield y){return Result.fail("YIELD:"+y.getMessage());}
-        finally{ResearchWorkBudgetR927.leave(scope);}
+        if (!TURN_ACTIVE.compareAndSet(false, true)) return Result.fail("YIELD_EXISTING_CP12_OWNER");
+        try {
+            ResearchWorkBudgetR927.Scope scope=ResearchWorkBudgetR927.enter(Math.min(1000L,Math.max(1L,budgetMs)));
+            try{return pulseWithinR927(store,budgetMs);}
+            catch(ResearchWorkBudgetR927.Yield y){return Result.fail("YIELD:"+y.getMessage());}
+            finally{ResearchWorkBudgetR927.leave(scope);}
+        } finally { TURN_ACTIVE.set(false); }
     }
     static String latest(DbStore store) {
         try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){return c.moveToFirst()?c.getString(0):"";}

@@ -67,6 +67,60 @@ public final class R26RuntimeDeviceTest {
     private static void drain(RuntimeCoordinatorR26 runtime)throws Exception {java.lang.reflect.Field field=RuntimeCoordinatorR26.class.getDeclaredField("worker");field.setAccessible(true);Thread worker=(Thread)field.get(runtime);worker.join(10000);assertFalse("coordinator thread did not drain",worker.isAlive());assertFalse("stopped coordinator retained its CPU lease",runtime.isCpuLeaseHeld());}
     static void remove(File f){File[] children=f.listFiles();if(children!=null)for(File child:children)remove(child);if(f.exists())assertTrue(f.delete());}
 
+    @Test public void activeRuntimeOwnsModernContinuityAndCommitsItsLane() throws Exception {
+        Field173NativeEvidence.run((app, checks) -> {
+            final String task = "modern-research-continuity";
+            // The installed 189 owner registration lacked this turn. Merely
+            // calling the director from a test would not detect that regression.
+            checks.require(RuntimeCoordinatorR26.declaresTaskR341(task), "Current session declares its modern continuity task");
+            DbStore store = new DbStore(app);
+            RuntimeCoordinatorR26 runtime = null;
+            ServiceHeartbeatStore user = new ServiceHeartbeatStore(app);
+            try {
+                long first = TargetIssueResolver.sequenceOrdinalSU1("202611260400");
+                long start = System.currentTimeMillis() - 48L * 60_000L;
+                List<Models.Draw> draws = new ArrayList<>();
+                for (int index = 0; index < 48; index++) draws.add(draw(first, index, start));
+                checks.equal(48, store.saveDraws(draws), "Production history writer admits the consecutive fixture rows");
+                String latest = draws.get(draws.size() - 1).issue;
+                user.setUserEnabled(true);
+                runtime = new RuntimeCoordinatorR26(store);
+                SQLiteDatabase database = store.readable();
+                long deadline = System.nanoTime() + 180_000_000_000L;
+                long committed = 0;
+                String reason = "NOT_REGISTERED";
+                while (System.nanoTime() < deadline) {
+                    if (table(database, "r26_task")) {
+                        try (Cursor row = database.rawQuery("SELECT steps,blocked_reason FROM r26_task WHERE task_id=?",
+                                new String[]{task})) {
+                            if (row.moveToFirst()) {
+                                committed = row.getLong(0);
+                                reason = row.getString(1);
+                            }
+                        }
+                    }
+                    if (committed > 0 || !runtime.isRunning()) break;
+                    Thread.sleep(125L);
+                }
+                checks.require(committed > 0, "Normal R26 worker never committed its continuity turn: " + reason
+                        + " / " + ResearchSchemaCoordinatorR926.summary());
+                checks.require(scalar(database, "SELECT count(*) FROM v57_research_task_r967 WHERE kind='MAINTENANCE'"
+                        + " AND status='COMPLETED'") > 0, "CP12 produced a durable maintenance receipt, independent of the outer claim");
+                checks.equal(1L, scalar(database, "SELECT count(*) FROM r26_session WHERE user_enabled=1 AND state='RUNNING'"),
+                        "One running coordinator session retains the sole writer fence");
+                checks.database("SYNTHETIC_ANDROID_OWNER", latest, draws.get(draws.size() - 1).openTime,
+                        RuntimeObservationScopeR341.databaseIdentity(database));
+                checks.record("schedulerTask", task);
+                checks.record("committedOuterTurns", committed);
+                checks.record("sourceStatus", reason);
+            } finally {
+                user.setUserEnabled(false);
+                if (runtime != null) { runtime.close(); drain(runtime); }
+                store.close();
+            }
+        });
+    }
+
     @Test public void allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()throws Exception {
         Context original=InstrumentationRegistry.getInstrumentation().getTargetContext();assertNull("Fresh instrumentation process must not already own another database",DatabaseCoordinator.peek());Sandbox app=new Sandbox(original);DbStore store=null;RuntimeCoordinatorR26 runtime=null;JSONObject result=new JSONObject().put("scope","SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE").put("api",android.os.Build.VERSION.SDK_INT).put("engineeringWriteProbes",1000).put("fullPredrawOpportunitySloClaimed",false).put("restartKind","RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS").put("javaHeapLimitAtStart",Runtime.getRuntime().maxMemory()).put("targetLargeHeapFlag",(original.getApplicationInfo().flags&ApplicationInfo.FLAG_LARGE_HEAP)!=0);
         try{
