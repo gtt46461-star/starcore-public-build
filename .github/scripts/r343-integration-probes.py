@@ -136,6 +136,18 @@ def run_probe(directory, serial, apk, field, run_id, index, probe):
     disposition = 'FAIL' if failure else 'PASS'
     print(f'INTEGRATED_NATIVE {issue} {selector} {disposition} assertions={assertions}',flush=True)
     if failure:
+        if method == 'activeRuntimeOwnsModernContinuityAndCommitsItsLane':
+            # Android routes System.out to logcat. Preserve the test's own
+            # bounded startup frames and signed readback for this exact process.
+            log = subprocess.run(native.adb(serial,'logcat','-d','-t','1800','-v','threadtime',
+                                  'System.out:I','STARCORE_R26:W','STARCORE_R31:W','*:S'),
+                                 check=False, capture_output=True, text=True, timeout=30)
+            relevant = [line for line in log.stdout.splitlines()
+                        if re.search(r'R343_STARTUP_|STARCORE_R26|STARCORE_R31',line)][-90:]
+            original(directory, stem+'-startup-logcat.log',
+                     ('\n'.join(relevant)+'\n').encode('utf-8'))
+            for line in relevant[-32:]:
+                print(line[:3600],flush=True)
         excerpt = (stderr + b'\n' + stdout).decode('utf-8',errors='replace').splitlines()
         for line in [line for line in excerpt if re.search(r'Error|Exception|Expected|actual|FAILURES|R343_STARTUP_',line)][-24:]:
             limit = 2400 if "R343_STARTUP_" in line else 500
