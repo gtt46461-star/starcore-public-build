@@ -54,11 +54,11 @@ jobs:
             and any(.steps[]; .name == "Resume a real report with its original snapshot on the signed APK" and .conclusion == "success")
             and any(.steps[]; .name == "Verify R26 startup and the two predraw regressions on the original-signed APK" and .conclusion == "success")
             and any(.steps[]; .name == "Verify cover upgrade, Android cases, and report exports on the same APK" and .conclusion == "failure")' "$RUNNER_TEMP/original-job.json"
-          gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$ORIGINAL_JOB/logs" > "$RUNNER_TEMP/original-job.log"
+          gh api --allow-escape-sequences "repos/$GITHUB_REPOSITORY/actions/jobs/$ORIGINAL_JOB/logs" > "$RUNNER_TEMP/original-job.log"
           grep -F 'ValueError: R343_INTEGRATED_UNEXPECTED_ATTACHMENT_MEMBER' "$RUNNER_TEMP/original-job.log"
           download() {
             local artifact=$1 digest=$2 output=$3
-            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact/zip" > "$output.zip"
+            gh api --allow-escape-sequences "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact/zip" > "$output.zip"
             printf '%s  %s\n' "$digest" "$output.zip" | sha256sum --check
             unzip -q "$output.zip" -d "$output"
           }
