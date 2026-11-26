@@ -9,6 +9,7 @@ public final class ReportTaskControlR69 {
     private ReportTaskControlR69() {}
     public static final int CHECKPOINT_MS_R30=100;
     private static final String BOOT_R30=readBootR30();
+    private static final String CANCEL_RECEIPT_R30="cancel-receipt-r30.json";
     static String readBootR30(){
         try(InputStream in=new FileInputStream("/proc/sys/kernel/random/boot_id")){byte[] b=new byte[64];int n=in.read(b);String value=n>0?new String(b,0,n,java.nio.charset.StandardCharsets.US_ASCII).trim():"";return value.matches("[0-9a-f-]{36}")?value:"UNKNOWN";}
         catch(IOException denied){return "UNKNOWN";}
@@ -36,7 +37,7 @@ public final class ReportTaskControlR69 {
     public static void finishCancellationR30(File root,File directory,ReportJobJournalCP12.Job job)throws Exception{
         if(!"CANCELLED".equals(job.stage)||!"FULL_REPORT".equals(job.mode))return;
         ReportPublicationCP12.cleanCancelledR30(directory);
-        File receipt=new File(directory,"cancel-receipt-r30.json");if(receipt.exists())return;
+        File receipt=new File(directory,CANCEL_RECEIPT_R30);if(receipt.exists())return;
         Long request=firstRequestNanosR30(root,job.requestId,job.jobId);long released=System.nanoTime();Long elapsed=request==null?null:(released-request)/1_000_000L;
         JSONObject row=new JSONObject().put("jobId",job.jobId).put("resourcesReleased",true).put("privateTemporaryFilesCleaned",!new File(directory,"published.json").exists())
             .put("cancelRequestToReleaseMs",elapsed==null?JSONObject.NULL:elapsed).put("targetMs",2000).put("targetMet",elapsed==null?JSONObject.NULL:elapsed<=2000)
@@ -147,13 +148,19 @@ public final class ReportTaskControlR69 {
                 if(jobs!=null)for(File directory:jobs){
                     id(directory.getName());ReportJobJournalCP12.Job job=readJob(directory);
                     if(!requests.contains(job.requestId)||!"FULL_REPORT".equals(job.mode))continue;
-                    boolean stopPrivateR30=!clear&&active(job.stage);
-                    if(clear||active(job.stage)){
+                    boolean wasActive=active(job.stage);
+                    boolean wasCancelled="CANCELLED".equals(job.stage);
+                    if(clear||wasActive){
                         job.stage="CANCELLED";job.lastReason=clear?"REPORT_REMOVED_BY_USER":"REPORT_USER_CANCEL";
                         job.updatedWallMs=System.currentTimeMillis();job.revision++;
-                        ReportJobJournalCP12.writeAtomic(new File(directory,"job.json"),job.json().toString());journal.acknowledge(job.requestId,job);
+                        ReportJobJournalCP12.writeAtomic(new File(directory,"job.json"),job.json().toString());
                     }
-                    if(stopPrivateR30)finishCancellationR30(root,directory,job);
+                    if(clear||wasActive||wasCancelled)journal.acknowledge(job.requestId,job);
+                    // Restart can find the terminal journal committed before its
+                    // private cleanup and receipt. Finish while its marker still
+                    // carries the original same-boot timestamp.
+                    if(!clear&&(wasActive||(wasCancelled&&!new File(directory,CANCEL_RECEIPT_R30).isFile())))
+                        finishCancellationR30(root,directory,job);
                     if(clear){journal.forgetCurrent(job.jobId);if(!ReportPublicationCP12.discardByUser(directory))waiting=true;}
                 }
                 result.put("stage",waiting?"WAITING_FOR_READERS":"CONTROL_DONE").put("clear",clear).put("requests",requests.size()).put("unreadableIntentsPreserved",body.optInt("unreadableIntentsPreserved",0));

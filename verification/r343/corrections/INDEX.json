@@ -238,6 +238,42 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java",
       "reason": "Verify report history format, source, release and database before promoting matching raw hash to historical evidence. Preserve UNKNOWN and no live claim when an independent snapshot freeze clock is absent.",
       "role": "PRESENTATION"
+    },
+    {
+      "afterFile": "B11-cancel-restore/ReportTaskControlR69.java.snapshot",
+      "afterSha256": "986ba9238de568184d34b4078b044ea42fd788f074ee1f795058889b6e9eef35",
+      "batch": "B11",
+      "beforeSha256": "0f9dd9e9a5d9ab58124702ecd9c4a9d326bbaa48cf2a0d48cbb23186fa2b9228",
+      "issue": "R343-042",
+      "originals": {
+        "B11-cancel-restore/B11-M16-followup.patch": "af42fca8d224f1fdda4d92abae1a6e92e71ed6e91e1e2f9240ae46f7119eccc2",
+        "B11-cancel-restore/ReportTaskControlR69.java.snapshot": "986ba9238de568184d34b4078b044ea42fd788f074ee1f795058889b6e9eef35",
+        "B11-cancel-restore/baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "B11-cancel-restore/baseline.log": "042676e808a947d2d044d391fd8df56579cae81b6f15cd6cd7d490916267b4c0",
+        "B11-cancel-restore/followup.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "B11-cancel-restore/followup.log": "b562a537c6e28a8dd5b8c49f26e342cdf63e802421b80284e0d69e6f26306bb3"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
+      "reason": "Keep the matching cancel command until cleanup records the original same-boot elapsed timestamp. The interrupted committed cancellation must recover its exact receipt while unrelated source and neighboring publication stay unchanged.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B11-ledger-links/LegacyContinuityR27.java.snapshot",
+      "afterSha256": "9c6f52d94b28c11ca33584793e233596d7ddf30c683598c3906c9690d70c9221",
+      "batch": "B11",
+      "beforeSha256": "1fcccded1e5e9dbae8ccedbea60694fe1672791119cbdf6d34b902fdcd803182",
+      "issue": "R343-042",
+      "originals": {
+        "B11-ledger-links/B11-042-followup.patch": "239bf5c7be8fbf1614d38401bbace0cb90212661f0f904d41c66e8a906fbd253",
+        "B11-ledger-links/LegacyContinuityR27.java.snapshot": "9c6f52d94b28c11ca33584793e233596d7ddf30c683598c3906c9690d70c9221",
+        "B11-ledger-links/baseline.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "B11-ledger-links/baseline.log": "7587ae8ad0d6998a3153df0f6e866bab326874293ed7cc6294c411ae84166a68",
+        "B11-ledger-links/followup.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "B11-ledger-links/followup.log": "941dde9de20707f2ae969ad2907ea0ec34b79f7e73ee77264c301934967ddb54"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java",
+      "reason": "Require every referenced file card to resolve when reporting ledger completeness. Preserve the original evidence and existing requirement statuses; added proof rejects a broken link and unsupported closure.",
+      "role": "NUMERIC"
     }
   ],
   "schema": "STARCORE_FIELD173_SOURCE_CORRECTIONS_1"

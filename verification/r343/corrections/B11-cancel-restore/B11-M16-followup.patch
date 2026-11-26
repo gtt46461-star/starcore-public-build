@@ -1,0 +1,228 @@
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/R343ReportCancellationCases.java b/app/src/androidTest/java/com/ethk3/novaonepro/R343ReportCancellationCases.java
+new file mode 100644
+--- /dev/null
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/R343ReportCancellationCases.java
+@@ -0,0 +1,145 @@
++package com.ethk3.novaonepro;
++
++import org.json.JSONArray;
++import org.json.JSONObject;
++
++import java.io.File;
++import java.io.IOException;
++import java.nio.charset.StandardCharsets;
++import java.nio.file.Files;
++import java.util.Locale;
++
++/** Tests the original restart drain ordering after a synthetic interruption at the durable job boundary. */
++public final class R343ReportCancellationCases {
++    private R343ReportCancellationCases() {}
++
++    public static JSONObject resumeCancelledReport(File files) throws Exception {
++        if (!files.isDirectory() && !files.mkdirs()) throw new IOException("REPORT_CANCELLATION_FIXTURE_ROOT");
++        File source = new File(files, "source-original.db");
++        String sourceContent = "original database bytes";
++        write(source, sourceContent);
++        JSONArray outcomes = new JSONArray();
++        ReportJobJournalCP12.Stage[] phases = {
++                ReportJobJournalCP12.Stage.BACKUP,
++                ReportJobJournalCP12.Stage.COMPRESSING,
++                ReportJobJournalCP12.Stage.VERIFYING};
++        int assertions = 0;
++        for (int index = 0; index < phases.length; index++) {
++            File working = new File(files, "phase-" + index);
++            if (!working.mkdir()) throw new IOException("REPORT_CANCELLATION_FIXTURE_PHASE");
++            ReportJobJournalCP12.Job cancelled = job(100 + index, 200 + index);
++            ReportJobJournalCP12.Job other = job(300 + index, 400 + index);
++            File cancelledDirectory;
++            File protectedPrior;
++            File marker;
++            long requested;
++            JSONObject originalMarker;
++            try (ReportJobJournalCP12 owner = ReportJobJournalCP12.tryClaim(working)) {
++                require(owner != null, "Initial export owner claimed", index);
++                owner.create(other);
++                advance(owner, other, ReportJobJournalCP12.Stage.READY_TO_SHARE);
++                protectedPrior = new File(owner.directory(other), "published.json");
++                write(protectedPrior, "prior published report");
++
++                owner.create(cancelled);
++                advance(owner, cancelled, phases[index]);
++                cancelledDirectory = owner.directory(cancelled);
++                write(new File(cancelledDirectory, "phase.partial"), "derived report bytes");
++                String command = ReportTaskControlR69.request(working, false);
++                require(!command.isEmpty(), "Initial durable control command", index);
++                marker = new File(owner.root(), "control-r69/cancel-" + cancelled.requestId + ".json");
++                originalMarker = new JSONObject(ReportJobJournalCP12.readAtomic(marker, 4096));
++                requested = originalMarker.getLong("requestedNanosR30");
++                require(requested > 0 && requested <= System.nanoTime(), "Original monotonic timestamp persisted", index);
++                cancelled.lastReason = "REPORT_USER_CANCEL";
++                owner.transition(cancelled, ReportJobJournalCP12.Stage.CANCELLED, System.currentTimeMillis());
++                // Do not finish cancellation here. This is the persistence boundary
++                // reached if the process dies after journal+ACK fsync.
++            }
++            File receipt = new File(cancelledDirectory, "cancel-receipt-r30.json");
++            require(!receipt.exists() && marker.isFile(), "Restart image keeps the original timestamp", index);
++            try (ReportJobJournalCP12 restarted = ReportJobJournalCP12.tryClaim(working)) {
++                require(restarted != null, "Restart reacquires sole export owner", index);
++                restarted.reconcileAcknowledgementsR31();
++                ReportTaskControlR69.applyPending(restarted);
++                ReportJobJournalCP12.Job current = restarted.current();
++                require(current != null && cancelled.jobId.equals(current.jobId), "Same exact cancelled job read back", index);
++                ReportTaskControlR69.finishCancellationR30(restarted.root(), restarted.directory(current), current);
++                require(!marker.exists(), "Completed command releases its marker", index);
++
++                JSONObject row = new JSONObject(ReportJobJournalCP12.readAtomic(receipt, 4096));
++                require(current.jobId.equals(row.getString("jobId")), "Receipt belongs to the original job", index);
++                require(row.getBoolean("resourcesReleased"), "Private resources released", index);
++                require(row.getBoolean("privateTemporaryFilesCleaned"), "Private temporary cleanup recorded", index);
++                require(!new File(cancelledDirectory, "phase.partial").exists(), "Task's private temporary file removed", index);
++                require("prior published report".equals(read(protectedPrior)), "Published neighbor report immutable", index);
++                require(sourceContent.equals(read(source)), "Source file immutable", index);
++                assertions += 13;
++
++                if ("UNKNOWN".equals(originalMarker.getString("bootR30"))) {
++                    require(row.isNull("cancelRequestToReleaseMs") && row.isNull("targetMet"),
++                            "Unavailable boot identity remains UNKNOWN", index);
++                    assertions++;
++                } else {
++                    require(!row.isNull("cancelRequestToReleaseMs"),
++                            "Same-boot original cancellation timestamp was lost across restart", index);
++                    long elapsed = row.getLong("cancelRequestToReleaseMs");
++                    long observedMax = (System.nanoTime() - requested) / 1_000_000;
++                    require(elapsed >= 0 && elapsed <= observedMax, "Receipt interval follows same-boot clock", index);
++                    require(row.getBoolean("targetMet") == (elapsed <= 2000), "Threshold is derived from observed interval", index);
++                    assertions += 3;
++                }
++                File ack = new File(restarted.root(), "requests/" + current.requestId + ".ack.json");
++                JSONObject acknowledgement = new JSONObject(ReportJobJournalCP12.readAtomic(ack, 8192));
++                require(current.jobId.equals(acknowledgement.optString("jobId")), "Recovered ACK retains job identity", index);
++                require("CANCELLED".equals(acknowledgement.getString("stage")), "Recovered ACK retains terminal stage", index);
++                File before = new File(cancelledDirectory, "cancel-receipt-r30.json");
++                String first = read(before);
++                ReportTaskControlR69.finishCancellationR30(restarted.root(), cancelledDirectory, current);
++                require(first.equals(read(before)), "Repeated recovery preserves receipt bytes", index);
++                assertions += 3;
++                ReportJobJournalCP12.Job retry = job(500 + index, 600 + index);
++                restarted.create(retry);
++                require(retry.jobId.equals(restarted.current().jobId), "Recovered owner can accept a new export", index);
++                assertions++;
++                outcomes.put(row.put("initialPhase", phases[index].name()).put("nextJobClaim", retry.jobId)
++                        .put("ackRevision", acknowledgement.getLong("revision")));
++            }
++        }
++        return new JSONObject().put("scope", "SYNTHETIC_DURABLE_JOB_REOPEN")
++                .put("assertions", assertions).put("phases", outcomes);
++    }
++
++    private static ReportJobJournalCP12.Job job(int id, int request) {
++        return new ReportJobJournalCP12.Job(hash(id), hash(request), hash(901), "FULL_REPORT", System.currentTimeMillis());
++    }
++
++    private static String hash(int value) {
++        return String.format(Locale.ROOT, "%064x", value);
++    }
++
++    private static void advance(ReportJobJournalCP12 owner, ReportJobJournalCP12.Job job,
++                                ReportJobJournalCP12.Stage target) throws Exception {
++        for (ReportJobJournalCP12.Stage stage : new ReportJobJournalCP12.Stage[]{
++                ReportJobJournalCP12.Stage.BACKUP, ReportJobJournalCP12.Stage.SNAPSHOT_DURABLE,
++                ReportJobJournalCP12.Stage.INDEXING, ReportJobJournalCP12.Stage.INDEX_DURABLE,
++                ReportJobJournalCP12.Stage.COMPRESSING, ReportJobJournalCP12.Stage.VERIFYING,
++                ReportJobJournalCP12.Stage.READY_TO_SHARE}) {
++            owner.transition(job, stage, System.currentTimeMillis());
++            if (stage == target) return;
++        }
++        throw new IllegalArgumentException(target.name());
++    }
++
++    private static void require(boolean passed, String assertion, int stage) {
++        if (!passed) throw new AssertionError("stageIndex=" + stage + " " + assertion);
++    }
++
++    private static void write(File path, String content) throws IOException {
++        Files.write(path.toPath(), content.getBytes(StandardCharsets.UTF_8));
++    }
++
++    private static String read(File path) throws IOException {
++        return new String(Files.readAllBytes(path.toPath()), StandardCharsets.UTF_8);
++    }
++}
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/R343ReportCancellationInstrumentedTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/R343ReportCancellationInstrumentedTest.java
+new file mode 100644
+--- /dev/null
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/R343ReportCancellationInstrumentedTest.java
+@@ -0,0 +1,29 @@
++package com.ethk3.novaonepro;
++
++import androidx.test.ext.junit.runners.AndroidJUnit4;
++import org.json.JSONArray;
++import org.json.JSONObject;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++
++import java.io.File;
++
++@RunWith(AndroidJUnit4.class)
++public final class R343ReportCancellationInstrumentedTest {
++    @Test
++    public void preservesCancellationTimeAtDurableRestartBoundary() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            File files = new File(app.getCacheDir(), "r343-cancel-boundary");
++            JSONObject result = R343ReportCancellationCases.resumeCancelledReport(files);
++            JSONArray phases = result.getJSONArray("phases");
++            checks.equal(3, phases.length(), "All three durable boundaries exercised");
++            checks.require(result.getInt("assertions") >= 54, "Readback and preservation assertions executed");
++            for (int i = 0; i < phases.length(); i++) {
++                JSONObject outcome = phases.getJSONObject(i);
++                checks.require(outcome.getBoolean("resourcesReleased"), "Receipt confirms cleanup");
++                checks.record(outcome.getString("initialPhase"), outcome);
++            }
++            checks.noDatabase("ENGINEERING_SYNTHETIC", "Real report journal control and filesystem with synthetic task state");
++        });
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java b/app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java
+@@ -9,6 +9,7 @@
+     private ReportTaskControlR69() {}
+     public static final int CHECKPOINT_MS_R30=100;
+     private static final String BOOT_R30=readBootR30();
++    private static final String CANCEL_RECEIPT_R30="cancel-receipt-r30.json";
+     static String readBootR30(){
+         try(InputStream in=new FileInputStream("/proc/sys/kernel/random/boot_id")){byte[] b=new byte[64];int n=in.read(b);String value=n>0?new String(b,0,n,java.nio.charset.StandardCharsets.US_ASCII).trim():"";return value.matches("[0-9a-f-]{36}")?value:"UNKNOWN";}
+         catch(IOException denied){return "UNKNOWN";}
+@@ -36,7 +37,7 @@
+     public static void finishCancellationR30(File root,File directory,ReportJobJournalCP12.Job job)throws Exception{
+         if(!"CANCELLED".equals(job.stage)||!"FULL_REPORT".equals(job.mode))return;
+         ReportPublicationCP12.cleanCancelledR30(directory);
+-        File receipt=new File(directory,"cancel-receipt-r30.json");if(receipt.exists())return;
++        File receipt=new File(directory,CANCEL_RECEIPT_R30);if(receipt.exists())return;
+         Long request=firstRequestNanosR30(root,job.requestId,job.jobId);long released=System.nanoTime();Long elapsed=request==null?null:(released-request)/1_000_000L;
+         JSONObject row=new JSONObject().put("jobId",job.jobId).put("resourcesReleased",true).put("privateTemporaryFilesCleaned",!new File(directory,"published.json").exists())
+             .put("cancelRequestToReleaseMs",elapsed==null?JSONObject.NULL:elapsed).put("targetMs",2000).put("targetMet",elapsed==null?JSONObject.NULL:elapsed<=2000)
+@@ -147,13 +148,19 @@
+                 if(jobs!=null)for(File directory:jobs){
+                     id(directory.getName());ReportJobJournalCP12.Job job=readJob(directory);
+                     if(!requests.contains(job.requestId)||!"FULL_REPORT".equals(job.mode))continue;
+-                    boolean stopPrivateR30=!clear&&active(job.stage);
+-                    if(clear||active(job.stage)){
++                    boolean wasActive=active(job.stage);
++                    boolean wasCancelled="CANCELLED".equals(job.stage);
++                    if(clear||wasActive){
+                         job.stage="CANCELLED";job.lastReason=clear?"REPORT_REMOVED_BY_USER":"REPORT_USER_CANCEL";
+                         job.updatedWallMs=System.currentTimeMillis();job.revision++;
+-                        ReportJobJournalCP12.writeAtomic(new File(directory,"job.json"),job.json().toString());journal.acknowledge(job.requestId,job);
++                        ReportJobJournalCP12.writeAtomic(new File(directory,"job.json"),job.json().toString());
+                     }
+-                    if(stopPrivateR30)finishCancellationR30(root,directory,job);
++                    if(clear||wasActive||wasCancelled)journal.acknowledge(job.requestId,job);
++                    // Restart can find the terminal journal committed before its
++                    // private cleanup and receipt. Finish while its marker still
++                    // carries the original same-boot timestamp.
++                    if(!clear&&(wasActive||(wasCancelled&&!new File(directory,CANCEL_RECEIPT_R30).isFile())))
++                        finishCancellationR30(root,directory,job);
+                     if(clear){journal.forgetCurrent(job.jobId);if(!ReportPublicationCP12.discardByUser(directory))waiting=true;}
+                 }
+                 result.put("stage",waiting?"WAITING_FOR_READERS":"CONTROL_DONE").put("clear",clear).put("requests",requests.size()).put("unreadableIntentsPreserved",body.optInt("unreadableIntentsPreserved",0));

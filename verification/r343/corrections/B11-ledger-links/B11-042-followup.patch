@@ -1,0 +1,139 @@
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/R343LedgerAuditCases.java b/app/src/androidTest/java/com/ethk3/novaonepro/R343LedgerAuditCases.java
+new file mode 100644
+--- /dev/null
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/R343LedgerAuditCases.java
+@@ -0,0 +1,47 @@
++package com.ethk3.novaonepro;
++
++import com.ethk3.novaonepro.strategyv2.LegacyContinuityR27;
++
++import org.json.JSONArray;
++import org.json.JSONObject;
++
++import java.util.Collections;
++import java.util.Map;
++
++/** Runs inherited ledger validation using the actual packaged asset and one exact edit. */
++public final class R343LedgerAuditCases {
++    private R343LedgerAuditCases() {}
++
++    public static Map<String, Object> unresolvedCardCase(String asset) throws Exception {
++        JSONObject altered = new JSONObject(asset);
++        JSONArray requirements = altered.getJSONArray("fileCards").getJSONObject(0).getJSONArray("requirements");
++        if (requirements.length() == 0) throw new AssertionError("Expected a card with real requirement links");
++        requirements.put(0, "MISSING-R343-REQUIREMENT-LINK");
++
++        Map<String, Object> result = LegacyContinuityR27.preservation(altered.toString(), Collections.emptyMap());
++        require(1832L, result.get("requirements"), "Requirement denominator must remain unchanged");
++        require(299L, result.get("fileCards"), "Card denominator must remain unchanged");
++        require(1L, result.get("unresolvedCardLinks"), "Exactly the changed reference is missing");
++        require(false, result.get("ledgerComplete"), "Unresolved card linkage must fail the inherited audit");
++        require("FAIL", result.get("status"), "Unresolved reference cannot look like a complete ledger");
++        return result;
++    }
++
++    public static Map<String, Object> unreceiptedCompletionCase(String asset) throws Exception {
++        JSONObject altered = new JSONObject(asset);
++        altered.getJSONArray("requirements").getJSONObject(0).put("closure", "VERIFIED");
++
++        Map<String, Object> result = LegacyContinuityR27.preservation(altered.toString(), Collections.emptyMap());
++        require(1832L, result.get("requirements"), "Requirement remains registered");
++        require(299L, result.get("fileCards"), "Card remains registered");
++        require(1L, result.get("completionClaimsWithoutReceipt"), "Exactly one unsupported claim is detected");
++        require(0L, result.get("regressionReceipts"), "Synthetic fixture produces no receipt");
++        require("FAIL", result.get("status"), "Unreceipted completion cannot become a parent verification");
++        return result;
++    }
++
++    static void require(Object expected, Object observed, String message) {
++        if (!expected.equals(observed)) throw new AssertionError(
++                message + " expected=" + expected + " observed=" + observed);
++    }
++}
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/R343LedgerAuditInstrumentedTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/R343LedgerAuditInstrumentedTest.java
+new file mode 100644
+--- /dev/null
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/R343LedgerAuditInstrumentedTest.java
+@@ -0,0 +1,70 @@
++package com.ethk3.novaonepro;
++
++import android.content.Context;
++import androidx.test.ext.junit.runners.AndroidJUnit4;
++
++import com.ethk3.novaonepro.strategyv2.LegacyContinuityR27;
++
++import org.json.JSONObject;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++
++import java.io.ByteArrayOutputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.nio.charset.StandardCharsets;
++import java.util.Map;
++
++@RunWith(AndroidJUnit4.class)
++public final class R343LedgerAuditInstrumentedTest {
++    @Test
++    public void preservesCurrentLedgerIdentityAndRejectsBrokenEvidence() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            Map<String, Object> inherited = LegacyContinuityR27.preservation(app);
++            checks.equal(1832L, inherited.get("requirements"), "Packaged inherited requirement count");
++            checks.equal(299L, inherited.get("fileCards"), "Packaged inherited file-card count");
++            checks.equal(0L, inherited.get("unresolvedCardLinks"), "Valid packaged links are all present");
++            checks.equal(0L, inherited.get("completionClaimsWithoutReceipt"), "Packaged audit has no false completion");
++            checks.equal("RECORDED_NOT_REVERIFIED", inherited.get("status"), "Inherited coverage is not promoted");
++            JSONObject generated = new JSONObject(asset(app, "diagnostics/construction-current-IDENTITY.json", 64 << 10));
++            checks.equal(BuildConfig.SOURCE_COMMIT_R26, generated.getString("sourceCommit"), "Current report ledger commit");
++            checks.equal(BuildConfig.SOURCE_TREE_R31, generated.getString("sourceTree"), "Current report ledger tree");
++            checks.equal(1832, generated.getInt("requirements"), "Current report ledger requirements");
++            checks.equal(299, generated.getInt("cards"), "Current report ledger file cards");
++            checks.equal(0, generated.getJSONObject("states").getInt("已验证"), "No verified parent without verified originals");
++            checks.equal(0, generated.getJSONObject("cardStates").getInt("已验证"), "No verified card without verified originals");
++
++            String requirements = asset(app, "diagnostics/construction-current-REQUIREMENTS_1832.csv", 16 << 20);
++            String cards = asset(app, "diagnostics/construction-current-CARDS_299.csv", 16 << 20);
++            checks.equal(generated.getString("requirementLedgerSha256"), V51ChecksumEngine.sha256(requirements),
++                    "Actual packaged report requirements match the current identity");
++            checks.equal(generated.getString("cardLedgerSha256"), V51ChecksumEngine.sha256(cards),
++                    "Actual packaged report file cards match the current identity");
++            String original = asset(app, LegacyContinuityR27.PRESERVATION_ASSET, 4 << 20);
++            Map<String, Object> link = R343LedgerAuditCases.unresolvedCardCase(original);
++            Map<String, Object> completion = R343LedgerAuditCases.unreceiptedCompletionCase(original);
++            checks.equal("FAIL", link.get("status"), "Wrong card input rejected");
++            checks.equal("FAIL", completion.get("status"), "Unsupported verification rejected");
++
++            checks.record("inheritedLedgerHash", inherited.get("assetSha256"));
++            checks.record("reportRequirementsHash", generated.getString("requirementLedgerSha256"));
++            checks.record("reportCardHash", generated.getString("cardLedgerSha256"));
++            checks.record("denominators", new JSONObject().put("requirements", inherited.get("requirements"))
++                    .put("cards", inherited.get("fileCards")).put("unresolvedTamper", link.get("unresolvedCardLinks"))
++                    .put("unreceiptedTamper", completion.get("completionClaimsWithoutReceipt")));
++            checks.noDatabase("ENGINEERING", "Reads exact installed APK assets through existing requirement audit");
++        });
++    }
++
++    private static String asset(Context app, String path, int limit) throws IOException {
++        try (InputStream input = app.getAssets().open(path); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
++            byte[] block = new byte[8192];
++            int read;
++            while ((read = input.read(block)) != -1) {
++                if (read > limit - output.size()) throw new IOException("R343_LEDGER_ASSET_BOUND:" + path);
++                output.write(block, 0, read);
++            }
++            return new String(output.toByteArray(), StandardCharsets.UTF_8);
++        }
++    }
++}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java
+@@ -99,7 +99,7 @@
+             Map<String, Object> c = (Map<String, Object>) o; if (!cardIds.add(String.valueOf(c.get("id")))) cardDuplicates++;
+             for (Object rid : (List<Object>) c.get("requirements")) { links++; if (!ids.contains(rid)) unresolvedLinks++; }
+         }
+-        boolean complete = reqs.size() == EXPECTED_REQUIREMENTS && cards.size() == EXPECTED_FILE_CARDS && duplicates == 0 && cardDuplicates == 0 && missingFields == 0;
++        boolean complete = reqs.size() == EXPECTED_REQUIREMENTS && cards.size() == EXPECTED_FILE_CARDS && duplicates == 0 && cardDuplicates == 0 && missingFields == 0 && unresolvedLinks == 0;
+         out.put("schema", root.get("schema")); out.put("requirementsRegistrySha256", root.get("requirementsRegistrySha256")); out.put("cardsRegistrySha256", root.get("cardsRegistrySha256"));
+         out.put("requirements", (long) reqs.size()); out.put("expectedRequirements", (long) EXPECTED_REQUIREMENTS); out.put("uniqueRequirementIds", (long) ids.size());
+         out.put("fileCards", (long) cards.size()); out.put("expectedFileCards", (long) EXPECTED_FILE_CARDS); out.put("duplicateIds", duplicates + cardDuplicates);

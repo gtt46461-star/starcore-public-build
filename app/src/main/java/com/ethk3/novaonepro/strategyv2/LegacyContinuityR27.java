@@ -99,7 +99,7 @@ public final class LegacyContinuityR27 {
             Map<String, Object> c = (Map<String, Object>) o; if (!cardIds.add(String.valueOf(c.get("id")))) cardDuplicates++;
             for (Object rid : (List<Object>) c.get("requirements")) { links++; if (!ids.contains(rid)) unresolvedLinks++; }
         }
-        boolean complete = reqs.size() == EXPECTED_REQUIREMENTS && cards.size() == EXPECTED_FILE_CARDS && duplicates == 0 && cardDuplicates == 0 && missingFields == 0;
+        boolean complete = reqs.size() == EXPECTED_REQUIREMENTS && cards.size() == EXPECTED_FILE_CARDS && duplicates == 0 && cardDuplicates == 0 && missingFields == 0 && unresolvedLinks == 0;
         out.put("schema", root.get("schema")); out.put("requirementsRegistrySha256", root.get("requirementsRegistrySha256")); out.put("cardsRegistrySha256", root.get("cardsRegistrySha256"));
         out.put("requirements", (long) reqs.size()); out.put("expectedRequirements", (long) EXPECTED_REQUIREMENTS); out.put("uniqueRequirementIds", (long) ids.size());
         out.put("fileCards", (long) cards.size()); out.put("expectedFileCards", (long) EXPECTED_FILE_CARDS); out.put("duplicateIds", duplicates + cardDuplicates);
