@@ -220,12 +220,12 @@ public final class Field173B01ContractTest {
             } finally {
                 db.endTransaction();
             }
-            Files.writeString(custodied.toPath(), nonce, StandardCharsets.UTF_8);
+            Files.write(custodied.toPath(), nonce.getBytes(StandardCharsets.UTF_8));
         } else {
             assertTrue(version(info) > 577311173L);
         }
         assertFalse(switches.isUserEnabled());
-        assertEquals(nonce, Files.readString(custodied.toPath(), StandardCharsets.UTF_8));
+        assertEquals(nonce, new String(Files.readAllBytes(custodied.toPath()), StandardCharsets.UTF_8));
         String database = RuntimeObservationScopeR341.databaseIdentity(db);
         assertNotNull(database);
         assertTrue(database.matches("[a-f0-9-]{36}"));
