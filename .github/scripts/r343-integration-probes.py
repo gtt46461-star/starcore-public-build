@@ -41,6 +41,38 @@ def original(directory, name, data):
     return native.write_original(directory/name, data)
 
 
+def start_attachment(directory, field, apk_sha, run_id):
+    receipt_path = directory/'batch-receipt.json'
+    draft = receipt_path.read_bytes()
+    receipt = json.loads(draft)
+    original_files = receipt['originals']
+    CONTRACT.require(receipt['status']=='ENGINEERING_CHECKS_PASSED' and receipt['fieldRepair173']==field
+                     and receipt['apkSha256']==apk_sha and receipt['buildRun']==run_id,
+                     'R343_INTEGRATED_BATCH_RECEIPT_IDENTITY')
+    CONTRACT.require(set(p.name for p in directory.iterdir()) == set(original_files) | {receipt_path.name},
+                     'R343_INTEGRATED_DRAFT_ATTACHMENT_FILE_SET')
+    CONTRACT.require(all(BINDING.sha(directory/name)==digest for name,digest in original_files.items()),
+                     'R343_INTEGRATED_DRAFT_ATTACHMENT_SHA')
+    return draft, receipt
+
+
+def finish_attachment(directory, draft, receipt):
+    receipt_path = directory/'batch-receipt.json'
+    CONTRACT.require(receipt_path.read_bytes()==draft and all(
+        BINDING.sha(directory/name)==digest for name,digest in receipt['originals'].items()),
+        'R343_INTEGRATED_BASE_ORIGINAL_CHANGED')
+    original(directory, 'r343-integrated-batch-receipt-before.json', draft)
+    additions = sorted(p for p in directory.iterdir() if p.name not in receipt['originals'] and p!=receipt_path)
+    CONTRACT.require(all(p.is_file() and not p.is_symlink() and re.fullmatch(
+        r'(?:field173-R343-INTEGRATION-[0-9]{2}-[a-zA-Z0-9_.-]+|r343-integrated-[a-z-]+\.json)',p.name)
+        for p in additions), 'R343_INTEGRATED_UNEXPECTED_ATTACHMENT_MEMBER')
+    updated = dict(receipt, originals={**receipt['originals'], **{p.name:BINDING.sha(p) for p in additions}})
+    staging = directory/'batch-receipt.json.next'
+    original(directory, staging.name, CONTRACT.canonical(updated))
+    os.replace(staging, receipt_path)
+    print(f'INTEGRATED_ORIGINALS_BOUND {len(additions)}',flush=True)
+
+
 def run_probe(directory, serial, apk, field, run_id, index, probe):
     issue, name, method, instrumented = probe
     cls = PACKAGE + name
@@ -109,6 +141,7 @@ def main():
     apk_sha = BINDING.sha(apk)
     run_id = os.environ['GITHUB_RUN_ID']
     CONTRACT.require(build['apkSha256']==apk_sha and build['ciRun']==run_id, 'R343_INTEGRATED_NATIVE_BUILD_CHANGED')
+    draft, batch_receipt = start_attachment(output, field, apk_sha, run_id)
     serial = subprocess.check_output(['adb','get-serialno'], text=True, timeout=20).strip()
     CONTRACT.require(re.fullmatch(r'emulator-[0-9]+', serial), 'R343_DISPOSABLE_ANDROID_REQUIRED')
     native.ensure_candidate_installed(serial, apk, apk_sha)
@@ -120,6 +153,7 @@ def main():
                'originalCaseGateCoverage':'SEPARATE','passed':passed,'total':len(result),'probes':result}
     original(output, 'r343-integrated-native-probes.json', CONTRACT.canonical(receipt))
     CONTRACT.require(passed==len(result), 'R343_INTEGRATED_NATIVE_PROBES_FAILED:' + str(len(result)-passed))
+    finish_attachment(output, draft, batch_receipt)
 
 
 if __name__ == '__main__':

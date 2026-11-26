@@ -467,6 +467,9 @@ jobs:
             cover_baseline="$RUNNER_TEMP/baseline173.apk"
           fi
           python3 -B tools/r33/package_ci_candidate.py --repo "$PWD" --r342-plan "$STARCORE_R342_PLAN_ROOT" --out "$RUNNER_TEMP/candidate" --baseline-apk "$RUNNER_TEMP/formal-033.apk" --current-installed-apk "$cover_baseline" --aapt "$ANDROID_HOME/build-tools/36.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" --build-log "$RUNNER_TEMP/build/gradle-build.log" --build-receipt "$RUNNER_TEMP/build/CI_BUILD_RECEIPT.json" --engineering-evidence "$RUNNER_TEMP/engineering-originals.zip"
+          if [[ "$STAGE" == B12 && -f release/field173_plan_binding.json ]]; then
+            python3 -B tools/r342/release_delivery.py --candidate "$RUNNER_TEMP/candidate" --sdk-tools "$ANDROID_HOME/build-tools/36.0.0" --source "$SOURCE" --stage "$STAGE" --index "$RUNNER_TEMP/r343-publication-precheck.json"
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: r342-candidate-${{ steps.request.outputs.stage }}-${{ steps.request.outputs.source }}
