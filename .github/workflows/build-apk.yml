@@ -446,7 +446,20 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
+      - name: Verify R26 startup and the two predraw regressions on the original-signed APK
+        if: env.STAGE == 'B12'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 8G
+          ram-size: 4096M
+          script: |
+            if [ -f app-source/release/field173_plan_binding.json ]; then python3 -B dispatch/.github/scripts/r343-integration-probes.py --startup-first; fi
+      - name: Verify cover upgrade, Android cases, and report exports on the same APK
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
@@ -456,7 +469,6 @@ jobs:
           ram-size: 4096M
           script: |
             set -e
-            if [ "$STAGE" = B12 ] && [ -f app-source/release/field173_plan_binding.json ]; then python3 -B dispatch/.github/scripts/r343-integration-probes.py --startup-first; fi
             python3 -B app-source/tools/r342/ci_candidate_tests.py
             if [ "$STAGE" = B12 ] && [ -f app-source/release/field173_plan_binding.json ]; then python3 -B dispatch/.github/scripts/r343-integration-probes.py; fi
       - name: Build exact source, restorable history and test evidence packages

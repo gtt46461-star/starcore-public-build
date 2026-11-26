@@ -166,8 +166,14 @@ def main():
         early.mkdir()
         native.ensure_candidate_installed(serial, apk, apk_sha)
         try:
-            initial = [run_probe(early, serial, apk, field, run_id, i, selectors[i])
-                       for i in sorted(early_indexes)]
+            initial = []
+            order = sorted(early_indexes, key=lambda i: (
+                selectors[i][2] != 'activeRuntimeOwnsModernContinuityAndCommitsItsLane', i))
+            for i in order:
+                case = run_probe(early, serial, apk, field, run_id, i, selectors[i])
+                initial.append(case)
+                if case['status'] != 'PASS':
+                    break
             checks = {p.name:BINDING.sha(p) for p in early.iterdir() if p.is_file()}
             original(early, 'bootstrap-originals.json', CONTRACT.canonical({
                 'field': field, 'apkSha256': apk_sha, 'run': run_id,
