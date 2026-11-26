@@ -65,12 +65,13 @@ public final class RetentionMigrationR34 {
     }
 
     private static boolean verifiedRun(SQLiteDatabase db, String planHash, long round) {
+        // SQLite gives COUNT(*) no type affinity. Android rawQuery binds the expected count as text.
         int units = SchemaUnitPlanR34.PROTECTED_TABLES_095.size();
         return scalar(db, "SELECT count(*) FROM r34_schema_unit_run WHERE plan_hash=? AND database_id=?"
                 + " AND definition_revision=? AND phase='DONE' AND next_index=? AND audit_round=?"
                 + " AND table_count=? AND (SELECT count(*) FROM r34_schema_unit_receipt r"
                 + " WHERE r.run_id=r34_schema_unit_run.run_id AND r.plan_hash=r34_schema_unit_run.plan_hash"
-                + " AND r.phase='VERIFY' AND r.audit_round=r34_schema_unit_run.audit_round)=?",
+                + " AND r.phase='VERIFY' AND r.audit_round=r34_schema_unit_run.audit_round)=CAST(? AS INTEGER)",
                 planHash, databaseId(db), REVISION, Integer.toString(units), Long.toString(round),
                 Integer.toString(units), Integer.toString(units)) == 1L;
     }

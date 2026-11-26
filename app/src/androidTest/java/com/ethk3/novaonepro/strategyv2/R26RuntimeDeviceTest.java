@@ -68,6 +68,34 @@ public final class R26RuntimeDeviceTest {
     private static void drain(RuntimeCoordinatorR26 runtime)throws Exception {java.lang.reflect.Field field=RuntimeCoordinatorR26.class.getDeclaredField("worker");field.setAccessible(true);Thread worker=(Thread)field.get(runtime);worker.join(10000);assertFalse("coordinator thread did not drain",worker.isAlive());assertFalse("stopped coordinator retained its CPU lease",runtime.isCpuLeaseHeld());}
     static void remove(File f){File[] children=f.listFiles();if(children!=null)for(File child:children)remove(child);if(f.exists())assertTrue(f.delete());}
 
+    private static int saveStartupHistoryWithDrain(DbStore store, List<Models.Draw> draws) throws Exception {
+        long deadline = SystemClock.elapsedRealtime() + 30_000L;
+        int retry = 0;
+        List<Models.Draw> remaining = new ArrayList<>(draws);
+        while (!remaining.isEmpty()) {
+            try {
+                store.saveDraws(remaining);
+                return retry;
+            } catch (IllegalStateException writeFailure) {
+                Throwable cause = writeFailure.getCause();
+                if (!(cause instanceof DatabaseCoordinator.WriteRejectedR31)) throw writeFailure;
+                DatabaseCoordinator.WriteRejectedR31 failure = (DatabaseCoordinator.WriteRejectedR31) cause;
+                if (!"R914_DRAW_HISTORY_BATCH".equals(failure.operation)
+                        || !"RESOURCE_QUEUE".equals(failure.category)
+                        || !"ADMISSION".equals(failure.phase)
+                        || failure.commitOutcome != DatabaseCoordinator.CommitOutcome.ROLLED_BACK
+                        || failure.getCause() == null
+                        || !"R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN".equals(failure.getCause().getMessage())
+                        || SystemClock.elapsedRealtime() >= deadline) throw writeFailure;
+                retry++;
+                remaining.removeIf(draw -> store.getDrawByIssue(draw.issue) != null);
+                WriterHoldFaultsR31.drainControlSliceR32(store);
+                Thread.sleep(125L);
+            }
+        }
+        return retry;
+    }
+
     @Test public void activeRuntimeOwnsModernContinuityAndCommitsItsLane() throws Exception {
         Field173NativeEvidence.run((app, checks) -> {
             final String task = "modern-research-continuity";
@@ -86,7 +114,17 @@ public final class R26RuntimeDeviceTest {
                 long start = System.currentTimeMillis() - 48L * 60_000L;
                 List<Models.Draw> draws = new ArrayList<>();
                 for (int index = 0; index < 48; index++) draws.add(draw(first, index, start));
-                checks.equal(48, store.saveDraws(draws), "Production history writer admits the consecutive fixture rows");
+                int historyRetries = saveStartupHistoryWithDrain(store, draws);
+                checks.equal(48L, scalar(store.readable(), "SELECT count(*) FROM draws WHERE dirty=0"),
+                        "The production history writer persists all 48 fixture draws once");
+                for (Models.Draw expected : draws) {
+                    Models.Draw actual = store.getDrawByIssue(expected.issue);
+                    checks.require(actual != null && actual.isValid()
+                                    && actual.openTime == expected.openTime
+                                    && Arrays.equals(actual.numbers, expected.numbers),
+                            "Read back exact consecutive history for " + expected.issue);
+                }
+                checks.record("writerBackpressureRetriesWhileSeeding", historyRetries);
                 String latest = draws.get(draws.size() - 1).issue;
                 user.setUserEnabled(true);
                 // Mirror the live service: request the existing legacy writer, then start

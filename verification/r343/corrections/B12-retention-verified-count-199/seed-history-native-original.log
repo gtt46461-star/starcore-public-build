@@ -1,0 +1,79 @@
+INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest:
+INSTRUMENTATION_STATUS: test=activeRuntimeOwnsModernContinuityAndCommitsItsLane
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: field173Event={"apkSha256":"70ce3d1ac407f96e5d14c0ecaae4a9c17e84b0e9e12566e063bebbd69fd2aefc","batch":"B12","buildRun":"45808375141","caseId":"R343-INTEGRATION-15","executionId":"e5993405ec794a4cbc66d37d30c4be15","planCommit":"b5bf9de3c9a000f4f2f920f6f2c4b849ba22ee59","planSha256":"fd4cf5ad72fcef5548597ba9627166464dce29c726e4d111972e09a07558988e","sourceCommit":"8888b87aa0232e24235914ac55dd88e41e2511e7","sourceTree":"433701a80032d24671772f72a3297a6b997d9dc7","event":"CASE_ENTER"}
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: R914_DRAW_HISTORY_BATCH_WRITE_FAILED|committedRows=8|fromOrdinal=8|chunkCount=8
+	at com.ethk3.novaonepro.DbStore.saveHistoryPageR32(DbStore.java:2639)
+	at com.ethk3.novaonepro.DbStore.saveDraws(DbStore.java:2525)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.lambda$activeRuntimeOwnsModernContinuityAndCommitsItsLane$0(R26RuntimeDeviceTest.java:89)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest$$ExternalSyntheticLambda1.run(D8$$SyntheticClass:0)
+	at com.ethk3.novaonepro.Field173NativeEvidence.run(Field173NativeEvidence.java:94)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.activeRuntimeOwnsModernContinuityAndCommitsItsLane(R26RuntimeDeviceTest.java:72)
+	... 32 trimmed
+Caused by: com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R914_DRAW_HISTORY_BATCH|category=RESOURCE_QUEUE|phase=ADMISSION|commitOutcome=ROLLED_BACK
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:1025)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:943)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:933)
+	at com.ethk3.novaonepro.DbStore.saveHistoryPageR32(DbStore.java:2601)
+	... 38 more
+Caused by: java.lang.IllegalStateException: R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN
+	... 42 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in activeRuntimeOwnsModernContinuityAndCommitsItsLane(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest):
+java.lang.IllegalStateException: R914_DRAW_HISTORY_BATCH_WRITE_FAILED|committedRows=8|fromOrdinal=8|chunkCount=8
+	at com.ethk3.novaonepro.DbStore.saveHistoryPageR32(DbStore.java:2639)
+	at com.ethk3.novaonepro.DbStore.saveDraws(DbStore.java:2525)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.lambda$activeRuntimeOwnsModernContinuityAndCommitsItsLane$0(R26RuntimeDeviceTest.java:89)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest$$ExternalSyntheticLambda1.run(D8$$SyntheticClass:0)
+	at com.ethk3.novaonepro.Field173NativeEvidence.run(Field173NativeEvidence.java:94)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.activeRuntimeOwnsModernContinuityAndCommitsItsLane(R26RuntimeDeviceTest.java:72)
+	... 32 trimmed
+Caused by: com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R914_DRAW_HISTORY_BATCH|category=RESOURCE_QUEUE|phase=ADMISSION|commitOutcome=ROLLED_BACK
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:1025)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:943)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:933)
+	at com.ethk3.novaonepro.DbStore.saveHistoryPageR32(DbStore.java:2601)
+	... 38 more
+Caused by: java.lang.IllegalStateException: R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN
+	... 42 more
+
+INSTRUMENTATION_STATUS: test=activeRuntimeOwnsModernContinuityAndCommitsItsLane
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 119.273
+There was 1 failure:
+1) activeRuntimeOwnsModernContinuityAndCommitsItsLane(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest)
+java.lang.IllegalStateException: R914_DRAW_HISTORY_BATCH_WRITE_FAILED|committedRows=8|fromOrdinal=8|chunkCount=8
+	at com.ethk3.novaonepro.DbStore.saveHistoryPageR32(DbStore.java:2639)
+	at com.ethk3.novaonepro.DbStore.saveDraws(DbStore.java:2525)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.lambda$activeRuntimeOwnsModernContinuityAndCommitsItsLane$0(R26RuntimeDeviceTest.java:89)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest$$ExternalSyntheticLambda1.run(D8$$SyntheticClass:0)
+	at com.ethk3.novaonepro.Field173NativeEvidence.run(Field173NativeEvidence.java:94)
+	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.activeRuntimeOwnsModernContinuityAndCommitsItsLane(R26RuntimeDeviceTest.java:72)
+	... 32 trimmed
+Caused by: com.ethk3.novaonepro.DatabaseCoordinator$WriteRejectedR31: F01_WRITE_FAILED|operation=R914_DRAW_HISTORY_BATCH|category=RESOURCE_QUEUE|phase=ADMISSION|commitOutcome=ROLLED_BACK
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:1025)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:943)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:933)
+	at com.ethk3.novaonepro.DbStore.saveHistoryPageR32(DbStore.java:2601)
+	... 38 more
+Caused by: java.lang.IllegalStateException: R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN
+	... 42 more
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
