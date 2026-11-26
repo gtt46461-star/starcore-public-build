@@ -25,6 +25,7 @@ jobs:
           payload = b''.join(Path(p).read_bytes() for p in parts)
           assert len(payload) == 19373875
           assert hashlib.sha256(payload).hexdigest() == '3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86'
+          report.parent.mkdir(parents=True, exist_ok=True)
           report.write_bytes(payload)
           manifest = report.parent.parent / 'MANIFEST_SHA256.json'
           assert hashlib.sha256(manifest.read_bytes()).hexdigest() == 'a057ddc2c3fda21e63ae8727391c175131f587f2b50a4863fe9fc5ba41fb97df'
