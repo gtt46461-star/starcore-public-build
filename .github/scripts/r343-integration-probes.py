@@ -50,6 +50,10 @@ BOOTSTRAP_REGRESSIONS = {
     'eachPredrawSettlesOnceAndFeedsTheNextCycle',
     'activeRuntimeOwnsModernContinuityAndCommitsItsLane',
 }
+REPORT_RESUME_ORIGINALS = {
+    'report-resume-installed.txt', 'signed-report-resume-before.json',
+    'signed-report-resume-readback.json', 'signed-report-resume-raw.zip.cms',
+}
 
 
 def original(directory, name, data):
@@ -174,6 +178,7 @@ def main():
     early = run_temp/'engineering-preflight'
     selectors = dict(enumerate(PROBES, 1))
     early_indexes = {i for i, p in selectors.items() if p[2] in BOOTSTRAP_REGRESSIONS}
+    report_resume = ROOT/'tools/r343/run_report_resume_probe.py'
     if sys.argv[1:] == ['--startup-first']:
         early.mkdir()
         native.ensure_candidate_installed(serial, apk, apk_sha)
@@ -186,6 +191,14 @@ def main():
                 initial.append(case)
                 if case['status'] != 'PASS':
                     break
+            if all(case['status']=='PASS' for case in initial) and report_resume.is_file():
+                for command in (('wm','size','480x850'), ('wm','density','195'),
+                                ('settings','put','system','screen_off_timeout','7200000'),
+                                ('svc','power','stayon','true')):
+                    subprocess.run(native.adb(serial, 'shell', *command), check=True, timeout=20)
+                subprocess.run([sys.executable, '-B', str(report_resume), '--originals', str(early),
+                                '--build-receipt', str(run_temp/'build/CI_BUILD_RECEIPT.json')],
+                               check=True, timeout=1200)
             checks = {p.name:BINDING.sha(p) for p in early.iterdir() if p.is_file()}
             original(early, 'bootstrap-originals.json', CONTRACT.canonical({
                 'field': field, 'apkSha256': apk_sha, 'run': run_id,
@@ -211,10 +224,14 @@ def main():
         CONTRACT.require(set(p.name for p in early.iterdir())==set(record['originals'])|{'bootstrap-originals.json'},
                          'R343_BOOTSTRAP_ORIGINAL_SET')
         for name, digest in record['originals'].items():
-            CONTRACT.require(re.fullmatch(r'field173-R343-INTEGRATION-[0-9]{2}-[a-zA-Z0-9_.-]+',name)
+            CONTRACT.require((re.fullmatch(r'field173-R343-INTEGRATION-[0-9]{2}-[a-zA-Z0-9_.-]+',name)
+                              or name in REPORT_RESUME_ORIGINALS)
                              and BINDING.sha(early/name)==digest and not (output/name).exists(),
                              'R343_BOOTSTRAP_ORIGINAL_SHA')
             shutil.copyfile(early/name, output/name)
+    if report_resume.is_file():
+        CONTRACT.require(all((output/name).is_file() for name in REPORT_RESUME_ORIGINALS),
+                         'R343_REPORT_RESUME_ORIGINALS_MISSING')
     result = [replayed[i] if i in replayed else run_probe(output, serial, apk, field, run_id, i, probe)
               for i,probe in selectors.items()]
     assert native.installed_apk_sha(serial) == apk_sha
