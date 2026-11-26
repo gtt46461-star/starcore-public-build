@@ -1,0 +1,440 @@
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java
+@@ -0,0 +1,29 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.LinkedHashMap;
++import java.util.Map;
++
++/** A fixed total with protected diagnostic indexes. Bulk evidence cannot starve graph identities. */
++final class ReportInlineBudgetR343 {
++    static final int TOTAL_BYTES = 768 * 1024;
++    private final Map<String, Integer> reserved = new LinkedHashMap<>();
++    private int remaining;
++
++    ReportInlineBudgetR343() {
++        reserved.put("chartObjectIndex", 16 * 1024);
++        reserved.put("repairFrameIndex", 32 * 1024);
++        reserved.put("researchCurrentHeadsR342", 32 * 1024);
++        reserved.put("researchCurrentActionsR342", 32 * 1024);
++        remaining = TOTAL_BYTES;
++        for (int bytes : reserved.values()) remaining -= bytes;
++    }
++
++    int take(String key, int requestedBytes) {
++        if (key == null || requestedBytes < 0) throw new IllegalArgumentException("REPORT_INLINE_BUDGET");
++        Integer protectedBytes = reserved.remove(key);
++        if (protectedBytes != null) return protectedBytes;
++        int allocated = Math.min(remaining, requestedBytes);
++        remaining -= allocated;
++        return allocated;
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java
+@@ -26,7 +26,7 @@
+         out.put("legacyCharts",category(29,old));
+         Map<String,Map<String,Object>> frames=new LinkedHashMap<>();for(Object x:list(data.get("repairFrameIndex"))){Map<String,Object> row=map(x);frames.put(String.valueOf(row.get("view_id")),row);}
+         List<Object> research=new ArrayList<>();for(Object x:list(JsonR27.parse(RESEARCH_CHARTS))){Map<String,Object> d=map(x);String id=String.valueOf(d.get("id"));Map<String,Object> frame=frames.get(id);boolean bound=MatrixRegistryR30.declared("com.ethk3.novaonepro.strategyv2.ResearchGraphSpecsR30R1","group");
+-            Number produced=number(facts.get("researchProduced:"+id)),consumed=number(facts.get("researchConsumed:"+id));Map<String,Object> r=state(id,"RESEARCH_CHART",d,bound,bound,null,produced==null?null:produced.longValue()>0);r.put("currentSourceProducedFrames",produced);r.put("consumed",consumed==null?null:consumed.longValue()>0);r.put("actualSourceConsumptionReceipts",consumed);r.put("consumptionScope","Original birth child and source-linked receipts; formal/read-only views do not drive optimization");r.put("runtimeReference",frame);r.put("notProducedReason",frame==null?"等待本图算法的真实有界分析产物；登记合同或空面板不算完成":null);research.add(r);}
++            Number produced=number(facts.get("researchProduced:"+id));Map<String,Object> consumption=ReportResearchConsumptionR343.view(data,id);Map<String,Object> r=state(id,"RESEARCH_CHART",d,bound,bound,null,produced==null?null:produced.longValue()>0);r.put("currentSourceProducedFrames",produced);r.put("consumed",ReportResearchConsumptionR343.consumed(consumption));r.put("actualSourceConsumptionReceipts",consumption.get("bornExact"));r.put("actualSourceNonBornActionReceipts",consumption.get("nonBornExact"));r.put("currentSourceNonBornActionRows",facts.get("researchConsumed:"+id));r.put("consumptionEvidenceR343",consumption);r.put("consumptionScope","Validated retained BORN and non-BORN receipts kept separate; bounded incomplete counts remain unknown; no effectiveness or REAL authority");r.put("runtimeReference",frame);r.put("notProducedReason",frame==null?"等待本图算法的真实有界分析产物；登记合同或空面板不算完成":null);research.add(r);}
+         out.put("researchCharts",category(18,research));
+         Map<String,Map<String,Object>> stats=new LinkedHashMap<>();for(Object x:list(data.get("matrixObjectIndex"))){Map<String,Object> row=map(x);stats.put("R930:"+row.get("kind"),row);}
+         List<Object> matrices=new ArrayList<>();for(MatrixRegistryR30.Definition d:MatrixRegistryR30.all()){
+@@ -54,13 +54,19 @@
+                 if(kind.equals("CAPABILITY")&&id.equals("ATOMNET")){Map<String,Object> modelCounters=new LinkedHashMap<>();for(String key:new String[]{"atomnetPublishedModels","atomnetConsumedPublishedModels","atomnetConsumedModels"})modelCounters.put(key,facts.get(key));Map<String,Object> neural=map(map(data.get("neuralTraining")).get("payload"));for(String key:new String[]{"materializedSamples","trainingSamplesProcessed","onlineSamples","publicationReady","consumable"})modelCounters.put(key,neural.get(key));Map<String,Object> modelEvidence=new LinkedHashMap<>();modelEvidence.put("id",id);modelEvidence.put("counters",modelCounters);modelEvidence.put("sourceStatus","NAMED_ATOMNET_SOURCES; MISSING_VALUES_REMAIN_NULL");modelEvidence.put("counterScope","PUBLICATION_AND_FORECAST_HASH_JOIN; TRAINING_FIELDS_ARE_PERSISTED_CACHE_OBSERVATIONS_NOT_WEIGHT_RECOMPUTATION");row.put("runtimeEvidenceR33",modelEvidence);Number p=number(facts.get("atomnetPublishedModels")),c=number(facts.get("atomnetConsumedPublishedModels"));row.put("produced",p==null?null:p.longValue()>0);row.put("consumed",c==null?null:c.longValue()>0);}
+                 if(kind.equals("CAPABILITY")&&id.startsWith("MATRIX:")){Map<String,Object> original=canonicalMatrices.get(id.substring(7));if(original!=null){Map<String,Object> alias=new LinkedHashMap<>();alias.put("id",id);alias.put("canonicalObjectReference","R30_REPORT.json#/objectIndex/matrices/objects[objectId="+id.substring(7)+"]");matrixAliases.put(id.substring(7),alias);alias.put("counterScope","ALIAS_OF_CANONICAL_MATRIX_NOT_AN_ADDITIONAL_PRODUCER");alias.put("retainedCount",original.get("retainedCount"));row.put("runtimeEvidenceR33",alias);for(String key:new String[]{"inputAvailable","produced","consumed"})row.put(key,original.get(key));}}
+                 Number current=number(row.get("currentSourceProducedFrames"));Map<String,Object> reference=map(row.get("runtimeReference"));
+-                Boolean committed=current==null?null:current.longValue()>0?Boolean.TRUE:null;
+-                if(reference.get("latestOriginalHash") instanceof String&&String.valueOf(reference.get("latestOriginalHash")).matches("[0-9a-f]{64}"))committed=Boolean.TRUE;
++                Boolean committed=current==null?null:current.longValue()>0;
++                // A retained hash has no current-source execution identity. Preserve it as inventory,
++                // never let an old matrix/frame override an observed current-source zero.
++                row.put("retainedOriginalHashPresent",reference.get("latestOriginalHash") instanceof String
++                        && String.valueOf(reference.get("latestOriginalHash")).matches("[0-9a-f]{64}"));
+                 Boolean implemented=row.get("implemented") instanceof Boolean?(Boolean)row.get("implemented"):null;
+                 Boolean consumed=row.get("consumed") instanceof Boolean?(Boolean)row.get("consumed"):null;
+                 String card=kind.equals("MATRIX")?"R31-B08-C01":kind.equals("RESEARCH_CHART")?"R31-B08-C04":kind.equals("CAPABILITY")?"R31-B07-C01":"R31-B09-C01";
+                 // A stored frame or object count does not establish finite values or an advantage.
+-                Map<String,Object> layers=layersR31(new ObjectFactsR31(id,kind,card,implemented,null,committed,null,consumed,null,true));
++                boolean consumerApplicable=!"LEGACY_CHART".equals(kind)
++                        && !("RESEARCH_CHART".equals(kind)
++                            && ResearchResultContractR31.consumptionKindOf(id)==ResearchResultContractR31.ConsumptionKind.FORMAL_READ_ONLY);
++                Map<String,Object> layers=layersR31(new ObjectFactsR31(id,kind,card,implemented,null,committed,null,consumed,null,consumerApplicable));
+                 layers.put("sourceSnapshot",ReportEvidenceProjectionR33.snapshot(watermark));layers.put("originalReference",reference);layers.put("inputAvailable",row.get("inputAvailable"));layers.put("deployment",row.get("callable"));
+                 row.put("lifecycleR31",layers);entries.add(layers);
+             }
+@@ -122,10 +128,10 @@
+     public static Map<String,Object> layersR31(ObjectFactsR31 f){
+         Map<String,Object> m=new LinkedHashMap<>();m.put("id",f.id);m.put("kind",f.kind);m.put("defined","YES");
+         m.put("implemented",layer(f.implemented,"YES","NO"));
+-        m.put("ran",f.running==null&&f.committed==null?"UNKNOWN":Boolean.TRUE.equals(f.committed)?"COMMITTED":Boolean.TRUE.equals(f.running)?"RUNNING_NO_COMMIT":"NOT_RUN");
++        m.put("ran",Boolean.TRUE.equals(f.committed)?"COMMITTED":Boolean.TRUE.equals(f.running)?"RUNNING_NO_COMMIT":f.running==null?"UNKNOWN":"NOT_RUN");
+         m.put("produced",!Boolean.TRUE.equals(f.committed)?(f.committed==null?"UNKNOWN":"NO"):layer(f.frameHasValues,"VALUES","EMPTY"));
+         m.put("consumed",!f.consumerApplicable?"NOT_APPLICABLE":layer(f.consumed,"YES","NO"));
+-        m.put("effective",!f.consumerApplicable?"NOT_APPLICABLE":!Boolean.TRUE.equals(f.consumed)?"NOT_CONSUMED":layer(f.advantage,"YES","NO_MEASURED_ADVANTAGE"));
++        m.put("effective",!f.consumerApplicable?"NOT_APPLICABLE":f.consumed==null?"UNKNOWN":!f.consumed?"NOT_CONSUMED":layer(f.advantage,"YES","NO_MEASURED_ADVANTAGE"));
+         boolean pass="YES".equals(m.get("implemented"))&&"COMMITTED".equals(m.get("ran"))&&"VALUES".equals(m.get("produced"))&&(!f.consumerApplicable||"YES".equals(m.get("effective")));
+         m.put("status",pass?"PASS":"NOT_PASS");m.put("card",f.card);
+         m.put("nextAction",pass?null:"SEE_CARD:"+f.card);return m;
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportResearchConsumptionR343.java
+@@ -0,0 +1,167 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import com.ethk3.novaonepro.BuildConfig;
++import java.util.*;
++
++/** Read-only, bounded original-receipt validation. Never writes receipts or authorizes REAL.
++ * BORN receipts and non-BORN actions retain separate denominators. A retained receipt is
++ * evidence of its original transaction, not proof of a current object state or quality. */
++final class ReportResearchConsumptionR343 {
++    private ReportResearchConsumptionR343() {}
++    static final int MAX_ROWS=512, MAX_CELL_CHARS=262144, MAX_TOTAL_CHARS=2*1024*1024;
++    static Map<String,Object> map(){return new LinkedHashMap<>();}
++    @SuppressWarnings("unchecked") static Map<String,Object> object(Object value){
++        if(!(value instanceof Map))throw new IllegalArgumentException("RECEIPT_OBJECT");
++        return (Map<String,Object>)value;
++    }
++    static String str(Map<?,?> m,String key){Object v=m.get(key);if(!(v instanceof String)||((String)v).isEmpty())throw new IllegalArgumentException("RECEIPT_STRING:"+key);return (String)v;}
++    static long num(Map<?,?> m,String key){
++        Object v=m.get(key);if(v instanceof Byte||v instanceof Short||v instanceof Integer||v instanceof Long)return ((Number)v).longValue();
++        if(v instanceof Float||v instanceof Double){double d=((Number)v).doubleValue();
++            if(Double.isFinite(d)&&d>=-0x1.0p63&&d<0x1.0p63&&d==Math.rint(d))return (long)d;}
++        throw new IllegalArgumentException("RECEIPT_EXACT_INTEGER:"+key);
++    }
++    static void require(boolean ok,String code){if(!ok)throw new IllegalArgumentException(code);}
++    static String reason(RuntimeException error){String text=error.getClass().getSimpleName()+":"+error.getMessage();return text.length()<=512?text:text.substring(0,512);}
++    static Map<String,Object> json(Map<?,?> row,String key){return object(JsonR27.parse(str(row,key)));}
++    static void equal(Object a,Object b,String code){require(Objects.equals(a,b),code);}
++    static String bounded(String expression,String alias){return "CASE WHEN length("+expression+")<="+MAX_CELL_CHARS+" THEN "+expression+" ELSE NULL END AS "+alias;}
++    static String viewKeys(){
++        // The nested projection bounds the value before CursorWindow sees it, even with malformed source rows.
++        return "(SELECT group_concat(bounded_key,'|') FROM (SELECT DISTINCT CASE WHEN length(v.measure_key)<=96 THEN v.measure_key ELSE '#OVERSIZE_VIEW_KEY#' END AS bounded_key"
++            +" FROM r30r1_research_measure v WHERE v.run_id=r.run_id AND (v.measure_key GLOB 'R[0-9][0-9]' OR v.measure_key LIKE 'MATRIX:%')"
++            +" ORDER BY bounded_key LIMIT 65)) AS original_views";
++    }
++    static boolean viewKeysPartial(Map<?,?> row){Object raw=row.get("original_views");if(!(raw instanceof String))return false;
++        String keys=(String)raw;return keys.contains("#OVERSIZE_VIEW_KEY#")||keys.split("\\|",-1).length>64;}
++
++    static String oversize(String... columns){List<String> parts=new ArrayList<>();for(String c:columns)parts.add("coalesce(length("+c+"),0)>"+MAX_CELL_CHARS);return "("+String.join(" OR ",parts)+") AS oversized";}
++
++    static final String BORN_SQL="SELECT m.run_id AS run,"+bounded("m.payload_json","payload")
++        +",r.source_commit AS source,r.dataset_hash AS dataset,r.source_revision AS revision,r.role AS role,"
++        +bounded("r.summary_json","original")+",c.proposal_id AS proposal,c.child_policy_hash AS child,c.source_generation AS generation,"
++        +"c.consumer_version AS consumer,c.receipt_hash AS receipt,p.state AS proposal_state,"
++        +bounded("p.payload_json","proposal_payload")+",p.payload_hash AS proposal_hash,"
++        +bounded("s.spec_json","policy_spec")+",s.dataset_hash AS policy_dataset,s.birth_generation AS policy_generation,"
++        +viewKeys()+","+oversize("m.payload_json","r.summary_json","p.payload_json","s.spec_json")
++        +" FROM r30r1_research_measure m JOIN r30r1_analysis_run r ON r.run_id=m.run_id"
++        +" LEFT JOIN r30r1_consume c ON m.measure_key='CONSUMED_BY:'||c.proposal_id AND m.parent_hash=c.child_policy_hash"
++        +" LEFT JOIN r30r1_proposal p ON p.proposal_id=c.proposal_id"
++        +" LEFT JOIN r27_policy s ON s.policy_hash=c.child_policy_hash"
++        +" WHERE m.kind='RESEARCH_SOURCE_CONSUMPTION' AND r.source_commit=? AND r.status='COMMITTED'"
++        +" ORDER BY r.recorded_at DESC,m.run_id,m.measure_key LIMIT "+(MAX_ROWS+1);
++    static final String ACTION_SQL="SELECT a.consume_key AS action_key,a.source_run AS run,a.view_id AS view,a.action_kind AS kind,"
++        +"a.role AS role,a.dataset_hash AS dataset,a.source_revision AS revision,a.source_commit AS source,a.source_abi AS abi,"
++        +"a.input_hash AS input,a.product_hash AS product,a.before_hash AS before_hash,a.after_hash AS after_hash,"
++        +"a.object_key AS object_key,a.action_budget AS budget,a.action_ordinal AS decision_ordinal,a.latest_label_ordinal AS latest_label,"
++        +bounded("a.applied_json","applied")+",a.applied_at AS applied_at,"+bounded("r.summary_json","original")+","+viewKeys()+","
++        +oversize("a.applied_json","r.summary_json")
++        +" FROM r33_research_applied a JOIN r30r1_analysis_run r ON r.run_id=a.source_run AND r.source_commit=a.source_commit"
++        +" AND r.dataset_hash=a.dataset_hash AND r.source_revision=a.source_revision AND r.role=a.role"
++        +" WHERE a.source_commit=? AND r.status='COMMITTED' ORDER BY a.applied_at DESC,a.consume_key LIMIT "+(MAX_ROWS+1);
++
++    static Map<String,Object> capture(SQLiteDatabase db){
++        Map<String,Object> out=map();out.put("schema","R343_CURRENT_SOURCE_ORIGINAL_CONSUMPTION_1");out.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);
++        out.put("scope","CURRENT_SOURCE_RETAINED_ORIGINAL_RECEIPTS; BORN_AND_NON_BORN_SEPARATE; NO_EFFECTIVENESS_OR_REAL_AUTHORITY");
++        out.put("maximumRowsPerKind",MAX_ROWS);out.put("maximumCellChars",MAX_CELL_CHARS);out.put("maximumTotalCharsPerKind",MAX_TOTAL_CHARS);
++        out.put("born",read(db,true));out.put("nonBorn",read(db,false));return out;
++    }
++    private static Map<String,Object> read(SQLiteDatabase db,boolean born){
++        Map<String,Object> out=map();Map<String,Long> counts=new LinkedHashMap<>();
++        for(ResearchGraphSpecsR30R1.Spec view:ResearchGraphSpecsR30R1.ALL)counts.put(view.id,0L);
++        int scanned=0,invalid=0,oversized=0,chars=0,otherBorn=0;boolean complete=true;Set<String> seen=new HashSet<>();List<Object> errors=new ArrayList<>();
++        try(Cursor c=db.rawQuery(born?BORN_SQL:ACTION_SQL,new String[]{BuildConfig.SOURCE_COMMIT_R26})){
++            while(c.moveToNext()){
++                if(scanned==MAX_ROWS){complete=false;out.put("limitReason","ROW_BOUND");break;}
++                scanned++;Map<String,Object> row=map();for(int i=0;i<c.getColumnCount();i++){
++                    Object value=c.isNull(i)?null:c.getType(i)==Cursor.FIELD_TYPE_INTEGER?c.getLong(i):c.getString(i);row.put(c.getColumnName(i),value);
++                    if(value instanceof String)chars+=((String)value).length();
++                }
++                if(chars>MAX_TOTAL_CHARS){complete=false;out.put("limitReason","CHAR_BOUND");break;}
++                if(num(row,"oversized")!=0||viewKeysPartial(row)){oversized++;complete=false;continue;}
++                try{
++                    // Typed generation-rule receipts have their own owner and no R01-R18 source-view contract.
++                    // Retain their raw count separately; never attribute them to an arbitrary chart.
++                    if(born&&json(row,"payload").containsKey("typedRule")){otherBorn++;continue;}
++                    String view=born?validateBorn(row):validateAction(row);
++                    String key=born?str(object(json(row,"payload").get("resultContractR31")),"consumeKey"):str(row,"action_key");
++                    if(seen.add(key))counts.put(view,counts.getOrDefault(view,0L)+1L);
++                }catch(RuntimeException rejected){invalid++;if(errors.size()<8){Map<String,Object> e=map();e.put("run",row.get("run"));e.put("reason",reason(rejected));errors.add(e);}}
++            }
++            out.put("status",complete?(invalid==0?"READ_OK":"INVALID_OR_UNVALIDATED_RECEIPTS_PRESENT"):"PARTIAL_VALIDATION");
++        }catch(RuntimeException unavailable){complete=false;out.put("status","UNKNOWN_SOURCE_UNAVAILABLE");out.put("reason",reason(unavailable));}
++        out.put("complete",complete);out.put("scannedRows",scanned);out.put("invalidOrUnvalidatedRows",invalid);out.put("oversizedRows",oversized);out.put("rejections",errors);
++        out.put("validatedReceiptLowerBoundsByView",counts);out.put("exactValidatedReceiptsByView",complete?counts:null);
++        out.put("unvalidatedTypedRuleRowsOutsideChartViews",otherBorn);out.put("qualityEffective",null);out.put("originalExecutionReplayed",false);return out;
++    }
++    static Map<String,Object> contract(Map<String,Object> row){
++        equal(BuildConfig.SOURCE_COMMIT_R26,row.get("source"),"SOURCE_COMMIT");
++        Map<String,Object> root=json(row,"original"),contract=object(root.get("sourceContract"));
++        equal(row.get("source"),contract.get("source"),"CONTRACT_COMMIT");equal(row.get("dataset"),contract.get("dataset"),"CONTRACT_DATASET");
++        require(num(row,"revision")==num(contract,"revision"),"CONTRACT_REVISION");equal(row.get("role"),contract.get("role"),"CONTRACT_ROLE");
++        equal(FrozenConfirmationR30.currentSemantics(),contract.get("abi"),"CONTRACT_ABI");return contract;
++    }
++    static void originalView(Map<String,Object> row,String view){
++        require(Arrays.asList(str(row,"original_views").split("\\|",-1)).contains(view),"ORIGINAL_VIEW_MISSING");
++        require(ResearchResultContractR31.consumptionKindOf(view)!=ResearchResultContractR31.ConsumptionKind.FORMAL_READ_ONLY,"FORMAL_VIEW_READ_ONLY");
++    }
++    static String validateBorn(Map<String,Object> row){
++        Map<String,Object> contract=contract(row),link=json(row,"payload"),typed=object(link.get("resultContractR31"));
++        require(Boolean.TRUE.equals(typed.get("validated")),"BORN_TYPED_RECEIPT_UNVALIDATED");
++        equal("ACTUAL_BORN_CONSUMPTION_NOT_EFFECTIVENESS",typed.get("state"),"BORN_TYPED_STATE");
++        equal("ACTUAL_ORIGINAL_BORN_CHILD_SAME_TRANSACTION_NOT_QUALITY_PROOF",link.get("scope"),"BORN_SCOPE");
++        String view=str(typed,"view"),proposal=str(row,"proposal"),child=str(row,"child"),consumer=str(row,"consumer");
++        originalView(row,view);equal("SELECT",row.get("role"),"BORN_SELECT_ROLE");
++        equal(proposal,link.get("proposalId"),"PROPOSAL_JOIN");equal(child,link.get("childPolicyHash"),"CHILD_JOIN");equal(consumer,link.get("consumer"),"CONSUMER_JOIN");
++        require(num(row,"generation")==num(link,"generation"),"GENERATION_JOIN");
++        String receipt=StatsR27.sha256(proposal+'|'+child+'|'+num(row,"generation")+'|'+consumer);
++        equal(receipt,row.get("receipt"),"BORN_RECEIPT_HASH");equal(receipt,link.get("receiptHash"),"BORN_LINK_HASH");
++        equal("CONSUMED",row.get("proposal_state"),"PROPOSAL_NOT_CONSUMED");equal(StatsR27.sha256(str(row,"proposal_payload")),row.get("proposal_hash"),"PROPOSAL_HASH");
++        equal(child,json(row,"proposal_payload").get("candidateHash"),"PROPOSAL_CANDIDATE_HASH");
++        PolicySpecR27 policy=PolicySpecR27.parse(str(row,"policy_spec"));equal(child,policy.policyHash(),"POLICY_HASH");
++        equal(row.get("dataset"),row.get("policy_dataset"),"POLICY_DATASET");require(num(row,"generation")==num(row,"policy_generation"),"POLICY_GENERATION");
++        Map<String,Object> receipts=object(typed.get("receipts"));equal(row.get("run"),receipts.get("source_run"),"SOURCE_RUN_JOIN");
++        equal(StatsR27.sha256(str(row,"original")),receipts.get("product_hash"),"SOURCE_ORIGINAL_HASH");equal(contract.get("input"),receipts.get("input_hash"),"SOURCE_INPUT_HASH");
++        equal(child,receipts.get("after_hash"),"AFTER_CHILD_HASH");equal(ResearchConsumptionStoreR31.VERSION+":"+consumer,receipts.get("consumer_version"),"TYPED_CONSUMER_VERSION");
++        String before=str(receipts,"before_hash");equal(policy.meta!=null&&!policy.meta.parents.isEmpty()?policy.meta.parents.get(0):StatsR27.sha256("R31_ABSENT_CANDIDATE_BEFORE_BIRTH|"+child),before,"ORIGINAL_PARENT_HASH");
++        equal("POSITION:"+policy.position,typed.get("target"),"TARGET_IDENTITY");equal(row.get("dataset"),typed.get("datasetHash"),"TYPED_DATASET");
++        require(num(typed,"latestLabelOrdinal")==num(contract,"through"),"LABEL_ORDINAL");
++        ResearchResultContractR31.Result result=new ResearchResultContractR31.Result(view,ResearchResultContractR31.ProductState.PRODUCED,
++            str(row,"dataset"),num(row,"revision"),str(contract,"abi"),str(row,"role"),str(typed,"target"),before,num(contract,"through"),receipts);
++        ResearchResultContractR31.Expect expected=new ResearchResultContractR31.Expect(str(row,"dataset"),num(row,"revision"),str(contract,"abi"),str(typed,"target"),before,num(typed,"decisionOrdinal"));
++        equal(ResearchResultContractR31.validateForConsumption(result,expected,consumer,child,Collections.emptySet()),typed.get("consumeKey"),"TYPED_CONSUME_KEY");
++        return view;
++    }
++    static String validateAction(Map<String,Object> row){
++        Map<String,Object> contract=contract(row);String view=str(row,"view"),run=str(row,"run"),kind=str(row,"kind");originalView(row,view);
++        require(Arrays.asList("BUDGET_APPLIED","DUPLICATE_REJECTED","REPLAY_PLAN_CREATED","MECHANISM_SKIPPED").contains(kind),"NON_BORN_ACTION_KIND");
++        equal(StatsR27.sha256(str(row,"original")),row.get("product"),"ACTION_ORIGINAL_HASH");equal(StatsR27.sha256(str(row,"applied")),row.get("after_hash"),"ACTION_APPLIED_HASH");
++        require(!str(row,"before_hash").equals(str(row,"after_hash"))&&num(row,"budget")>0,"ACTION_CHANGE_AND_BUDGET");
++        ResearchActionPolicyR33.hash(str(row,"before_hash"));ResearchActionPolicyR33.hash(str(row,"after_hash"));
++        equal(contract.get("input"),row.get("input"),"ACTION_INPUT");equal(contract.get("abi"),row.get("abi"),"ACTION_ABI");require(num(contract,"through")==num(row,"latest_label"),"ACTION_LABEL_ORDINAL");
++        Map<String,Object> original=json(row,"original");equal(view.startsWith("MATRIX:")?row.get("input"):view,original.get(view.startsWith("MATRIX:")?"matrixHash":"viewId"),"ACTION_VIEW_ORIGINAL");
++        equal(row.get("input"),original.get("inputHash"),"ACTION_ORIGINAL_INPUT");
++        ResearchActionPolicyR33.Source source=new ResearchActionPolicyR33.Source(view,run,str(row,"dataset"),str(row,"abi"),str(row,"source"),str(row,"role"),str(row,"input"),str(row,"product"),num(row,"revision"),num(row,"latest_label"),num(contract,"available"));
++        source.requireAction(str(row,"dataset"),num(row,"revision"),FrozenConfirmationR30.currentSemantics(),BuildConfig.SOURCE_COMMIT_R26,num(row,"decision_ordinal"),num(row,"applied_at"));
++        equal(StatsR27.sha256("R33_ACTION1|"+run+'|'+view+'|'+kind+'|'+str(row,"object_key")+'|'+str(row,"after_hash")),row.get("action_key"),"ACTION_KEY");return view;
++    }
++    static Map<String,Object> view(Map<String,Object> data,String id){
++        Object lifecycle=data.get("lifecycleEvidenceR31");if(!(lifecycle instanceof Map))return map();
++        Object receipt=((Map<?,?>)lifecycle).get("researchConsumptionR343");if(!(receipt instanceof Map))return map();
++        Object value=((Map<?,?>)receipt).get("value");if(!(value instanceof Map))return map();Map<String,Object> out=map();
++        for(String kind:new String[]{"born","nonBorn"}){
++            Object raw=((Map<?,?>)value).get(kind);if(!(raw instanceof Map))continue;Map<?,?> section=(Map<?,?>)raw;
++            Object exact=section.get("exactValidatedReceiptsByView"),lower=section.get("validatedReceiptLowerBoundsByView");
++            out.put(kind+"Exact",exact instanceof Map?((Map<?,?>)exact).get(id):null);out.put(kind+"LowerBound",lower instanceof Map?((Map<?,?>)lower).get(id):null);
++            out.put(kind+"Complete",section.get("complete"));out.put(kind+"Status",section.get("status"));
++        }
++        out.put("sourceScope",((Map<?,?>)receipt).get("sourceScope"));out.put("readStartedAt",((Map<?,?>)receipt).get("readStartedAt"));
++        out.put("projectionSha256",((Map<?,?>)receipt).get("originalProjectionSha256"));return out;
++    }
++    static Boolean consumed(Map<String,Object> evidence){
++        for(String key:new String[]{"bornLowerBound","nonBornLowerBound"}){Object n=evidence.get(key);if(n instanceof Number&&((Number)n).longValue()>0)return Boolean.TRUE;}
++        return Boolean.TRUE.equals(evidence.get("bornComplete"))&&Boolean.TRUE.equals(evidence.get("nonBornComplete"))?Boolean.FALSE:null;
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java
+@@ -15,14 +15,14 @@
+ public final class ReportSnapshotR30 {
+     private ReportSnapshotR30() {}
+     static final String READ_CLOCK="CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)";
+-    static final String[] TABLES={"r335_s5_refit_original","r335_checkpoint_recovery","r335_checkpoint_recovery_cursor","r335_fault_original","r335_fault_archive_work","r26_candidate","r26_consumption","r26_expert_audit","r26_expert_experiment","r31_startup_checkpoint_source","r31_startup_checkpoint_receipt","r31_gap_reference_batch","r31_gap_reference_item","r31_gap_reference_permit","r31_gap_reference_original","r31_mainline_freeze","r31_keep_row_retirement","r31_gc_checkpoint_scratch","r31_keep_cutover","r31_keep_retire_permit","r31_keep_mismatch_original","r31_keep_mismatch_permit","r31_gc_publication","r31_keep_checkpoint","r31_keep_original","r31_gc_artifact","r31_gc_edge","r31_gc_pin","r31_gc_receipt","r31_gc_status","r31_hypothesis_registry","r31_hypothesis_binding","r31_hypothesis_select","r31_hypothesis_outcome","r31_hypothesis_quota","r31_atomnet_publication","r30_atomnet_forecast","r31_history_import_run","r31_history_import_row","r31_atom_score_visible","r31_molecule_visible","r31_atom_contribution_visible","r31_atom_result_run","r31_atom_result_chunk","r31_atom_result_active","r31_feedback_event","r31_feedback_receipt","r31_frozen_feedback_effect","r31_fetch_timing","r31_commit_receipt","r31_task_lease","r31_recovery_clock","r31_runtime_fault","r31_task_control","r31_task_observation","r31_telemetry_counter","r29_gate_v2","r29_qual_calendar","r30r1_task_progress","r30r1_analysis_run","r30r1_research_measure","r30r1_proposal","r30r1_consume","r30r1_chart_cache","trades","r952_research_outbox","r30_research_chart_frame","draws","r27_history_import","r26_task","r26_progress","r26_work_total","r26_capability","r26_capability_source","r26_live_model","r26_evolution","r26_cohort","r26_certificate_revocation","r27_policy","r27_lineage","r30_behavior_dup","r27_generation","r27_evolution_cursor","r27_replay_dataset","r27_replay_score","r27_live_shadow","r27_live_frozen","r27_eprocess","r27_certificate","r27_calibration","r27_atom_score","r27_molecule","r27_expert_proposal","r27_ablation","r27_chart_cache","r27_legacy_export","r27_opportunity","r27_semantic_fingerprint","r27_abi_continuity","r29_qual_receipt","r29_qual_conflict","r29_qual_cursor","r29_qual_rebuild","r29_pending_draw","r29_model_checkpoint","r30_frozen_confirm","r30_confirm_read","r30_writer_hold","r30_issue_timeline","r30_pit_violation","r30_atom_contribution","r30_model_artifact","r30_model_surface","r30_model_call","r30_decision_explain","r30_decision_mismatch","r30_certificate_revocation_event","r30_revoked_policy","r30_revoked_certificate","r30_live_source_revision","research_matrix_snapshot_r930","su2_matrix_snapshot","su2_live_decision","su2_certificate","su2_mainline_choice","su2_storage_budget","su2_track_block","su2_diag_snapshot","su2_diag_state","su1_model_ablation","r30_retention_archive_index","r30_retention_run","r30_retention_file_action"};
++    static final String[] TABLES={"r33_research_input_head","r33_research_applied","r335_s5_refit_original","r335_checkpoint_recovery","r335_checkpoint_recovery_cursor","r335_fault_original","r335_fault_archive_work","r26_candidate","r26_consumption","r26_expert_audit","r26_expert_experiment","r31_startup_checkpoint_source","r31_startup_checkpoint_receipt","r31_gap_reference_batch","r31_gap_reference_item","r31_gap_reference_permit","r31_gap_reference_original","r31_mainline_freeze","r31_keep_row_retirement","r31_gc_checkpoint_scratch","r31_keep_cutover","r31_keep_retire_permit","r31_keep_mismatch_original","r31_keep_mismatch_permit","r31_gc_publication","r31_keep_checkpoint","r31_keep_original","r31_gc_artifact","r31_gc_edge","r31_gc_pin","r31_gc_receipt","r31_gc_status","r31_hypothesis_registry","r31_hypothesis_binding","r31_hypothesis_select","r31_hypothesis_outcome","r31_hypothesis_quota","r31_atomnet_publication","r30_atomnet_forecast","r31_history_import_run","r31_history_import_row","r31_atom_score_visible","r31_molecule_visible","r31_atom_contribution_visible","r31_atom_result_run","r31_atom_result_chunk","r31_atom_result_active","r31_feedback_event","r31_feedback_receipt","r31_frozen_feedback_effect","r31_fetch_timing","r31_commit_receipt","r31_task_lease","r31_recovery_clock","r31_runtime_fault","r31_task_control","r31_task_observation","r31_telemetry_counter","r29_gate_v2","r29_qual_calendar","r30r1_task_progress","r30r1_analysis_run","r30r1_research_measure","r30r1_proposal","r30r1_consume","r30r1_chart_cache","trades","r952_research_outbox","r30_research_chart_frame","draws","r27_history_import","r26_task","r26_progress","r26_work_total","r26_capability","r26_capability_source","r26_live_model","r26_evolution","r26_cohort","r26_certificate_revocation","r27_policy","r27_lineage","r30_behavior_dup","r27_generation","r27_evolution_cursor","r27_replay_dataset","r27_replay_score","r27_live_shadow","r27_live_frozen","r27_eprocess","r27_certificate","r27_calibration","r27_atom_score","r27_molecule","r27_expert_proposal","r27_ablation","r27_chart_cache","r27_legacy_export","r27_opportunity","r27_semantic_fingerprint","r27_abi_continuity","r29_qual_receipt","r29_qual_conflict","r29_qual_cursor","r29_qual_rebuild","r29_pending_draw","r29_model_checkpoint","r30_frozen_confirm","r30_confirm_read","r30_writer_hold","r30_issue_timeline","r30_pit_violation","r30_atom_contribution","r30_model_artifact","r30_model_surface","r30_model_call","r30_decision_explain","r30_decision_mismatch","r30_certificate_revocation_event","r30_revoked_policy","r30_revoked_certificate","r30_live_source_revision","research_matrix_snapshot_r930","su2_matrix_snapshot","su2_live_decision","su2_certificate","su2_mainline_choice","su2_storage_budget","su2_track_block","su2_diag_snapshot","su2_diag_state","su1_model_ablation","r30_retention_archive_index","r30_retention_run","r30_retention_file_action"};
+     static final class Table {
+         final String name;final LinkedHashMap<String,String> columns=new LinkedHashMap<>();final List<String> pk=new ArrayList<>();boolean withoutRowid,view;
+         Table(String name){this.name=name;}
+     }
+-    static final class Cell {String key,sql;boolean numeric;String table;List<String> fields;Cell(String key,String sql,boolean numeric){this.key=key;this.sql=sql;this.numeric=numeric;}}
++    static final class Cell {String key,sql;boolean numeric;String table;int inlineEncodedByteBudget=-1;List<String> fields;Cell(String key,String sql,boolean numeric){this.key=key;this.sql=sql;this.numeric=numeric;}}
+     static final class Query {
+-        int inlineRemaining=768*1024;boolean historyPublicationReadyR31;
++        final ReportInlineBudgetR343 inlineBudget=new ReportInlineBudgetR343();boolean historyPublicationReadyR31;
+         final Map<String,Table> tables;final List<Cell> cells=new ArrayList<>();final List<String> errors;
+         Query(Map<String,Table> tables,List<String> errors){this.tables=tables;this.errors=errors;}
+         boolean has(String table,String... columns){Table t=tables.get(table);if(t==null)return false;for(String c:columns)if(!t.columns.containsKey(c))return false;return true;}
+@@ -36,9 +36,12 @@
+             for(String field:t.columns.keySet())if((field.endsWith("_hash")||field.endsWith("_sha256"))&&!fields.contains(field)&&!t.columns.get(field).equalsIgnoreCase("BLOB"))fields.add(field);
+             if(fields.isEmpty()){add("data:"+key,"NULL",false);return;}
+             StringJoiner encoded=new StringJoiner("||';'||");for(String field:fields){String c=id(field);encoded.add("CASE WHEN "+c+" IS NULL THEN 'N:' WHEN length(CAST("+c+" AS BLOB))>"+maxCell+" THEN 'X:'||length(CAST("+c+" AS BLOB)) WHEN typeof("+c+")='real' THEN 'R:'||hex(printf('%!.17g',"+c+")) ELSE upper(substr(typeof("+c+"),1,1))||':'||hex(CAST("+c+" AS BLOB)) END");}
+-            int wantedBudget=key.equals("tasks")||key.equals("typedTaskProgress")?128*1024:key.equals("runtimeCaches")?64*1024:key.equals("repairFrameIndex")?32*1024:key.startsWith("research")?8*1024:16*1024;int budget=Math.max(0,Math.min(inlineRemaining,wantedBudget));inlineRemaining-=budget;
+-            String packed="group_concat(encoded,char(10))";String sql="(SELECT CASE WHEN sum(length(encoded))+count(*)-1>"+budget+" THEN 'CUT_V1:'||char(10)||substr("+packed+",1,"+budget+") ELSE "+packed+" END FROM (SELECT "+encoded+" AS encoded FROM "+id(table)+(where==null?"":" WHERE "+where)+(order==null?"":" ORDER BY "+order)+" LIMIT "+limit+"))";
+-            Cell cell=new Cell("data:"+key,sql,false);cell.fields=fields;cell.table=table;cells.add(cell);
++            int wantedBudget=key.equals("tasks")||key.equals("typedTaskProgress")?128*1024:key.equals("runtimeCaches")?64*1024:key.equals("repairFrameIndex")?32*1024:key.startsWith("research")?8*1024:16*1024;int budget=inlineBudget.take(key,wantedBudget);
++            // Encoding is ASCII hex plus ASCII tags/separators. length(encoded) equals UTF-8 bytes.
++            // The eight-byte CUT_V1 newline envelope is part of the allocation, not additional bytes.
++            int contentBudget=Math.max(0,budget-8);
++            String packed="group_concat(encoded,char(10))";String sql=budget<8?"''":"(SELECT CASE WHEN sum(length(encoded))+count(*)-1>"+budget+" THEN 'CUT_V1:'||char(10)||substr("+packed+",1,"+contentBudget+") ELSE "+packed+" END FROM (SELECT "+encoded+" AS encoded FROM "+id(table)+(where==null?"":" WHERE "+where)+(order==null?"":" ORDER BY "+order)+" LIMIT "+limit+"))";
++            Cell cell=new Cell("data:"+key,sql,false);cell.fields=fields;cell.table=table;cell.inlineEncodedByteBudget=budget;cells.add(cell);
+         }
+         String sql(){StringJoiner out=new StringJoiner(",","SELECT ","");for(int i=0;i<cells.size();i++)out.add(cells.get(i).sql+" AS v"+i);return out.toString();}
+     }
+@@ -70,7 +73,7 @@
+             Object encodedCensus=values.get("modelConsumptionCensus");facts.put("modelConsumptionCensusSha256",encodedCensus instanceof String&&!"OVERSIZE".equals(encodedCensus)?HashingSU1.text((String)encodedCensus):null);long inlineBytes=0;for(Cell cell:q.cells)if(cell.fields!=null&&values.get(cell.key) instanceof String)inlineBytes+=((String)values.get(cell.key)).getBytes(StandardCharsets.UTF_8).length;watermark.put("inlineRowsetEncodedBytes",inlineBytes);watermark.put("modelCensusEncodedBytes",encodedCensus instanceof String?((String)encodedCensus).getBytes(StandardCharsets.UTF_8).length:null);
+ 
+             List<Object> matrixIndexes=new ArrayList<>();for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")){Map<String,Object> index=new LinkedHashMap<>();index.put("kind",def.kind);index.put("retainedCount",values.get("matrixCount:"+def.id));index.put("sourceTable",def.table);index.put("latestOriginalHash",values.get("matrixHash:"+def.id));index.put("latestIssue",values.get("matrixIssue:"+def.id));matrixIndexes.add(index);}data.put("matrixObjectIndex",matrixIndexes);
+-            List<Object> rowsetIndexes=new ArrayList<>();for(Cell cell:q.cells)if(cell.fields!=null){String key=cell.key.substring(5);Map<String,Object> index=new LinkedHashMap<>();Object total=values.get("total:"+key);int shown=data.get(key) instanceof List?((List<?>)data.get(key)).size():0;index.put("key",key);index.put("sourceTable",cell.table);index.put("total",total);index.put("shown",shown);index.put("omitted",total instanceof Number?Math.max(0,((Number)total).longValue()-shown):null);index.put("fullOriginal","snapshot.db / catalog/"+cell.table);Object encoded=values.get(cell.key);boolean byteLimited=encoded instanceof String&&((String)encoded).startsWith("CUT_V1:\n");index.put("inlineByteBudgetExceeded",byteLimited);index.put("omissionReason",byteLimited?"DISPLAY_BYTE_BUDGET_COMPLETE_ROWS_ONLY_FULL_ORIGINAL_RETAINED":null);index.put("inlineCellsMayBeReferenceOnly",true);index.put("displayIsFullDenominator",!byteLimited&&total instanceof Number&&((Number)total).longValue()==shown);rowsetIndexes.add(index);}data.put("rowsetIndexes",rowsetIndexes);
++            List<Object> rowsetIndexes=new ArrayList<>();for(Cell cell:q.cells)if(cell.fields!=null){String key=cell.key.substring(5);Map<String,Object> index=new LinkedHashMap<>();Object total=values.get("total:"+key);int shown=data.get(key) instanceof List?((List<?>)data.get(key)).size():0;index.put("key",key);index.put("sourceTable",cell.table);index.put("total",total);index.put("shown",shown);index.put("omitted",total instanceof Number?Math.max(0,((Number)total).longValue()-shown):null);index.put("fullOriginal","snapshot.db / catalog/"+cell.table);Object encoded=values.get(cell.key);boolean byteLimited=(encoded instanceof String&&((String)encoded).startsWith("CUT_V1:\n"))||(cell.inlineEncodedByteBudget>=0&&cell.inlineEncodedByteBudget<8&&total instanceof Number&&((Number)total).longValue()>0);index.put("inlineByteBudgetExceeded",byteLimited);index.put("omissionReason",byteLimited?"DISPLAY_BYTE_BUDGET_COMPLETE_ROWS_ONLY_FULL_ORIGINAL_RETAINED":null);index.put("inlineCellsMayBeReferenceOnly",true);index.put("displayIsFullDenominator",!byteLimited&&total instanceof Number&&((Number)total).longValue()==shown);rowsetIndexes.add(index);}data.put("rowsetIndexes",rowsetIndexes);
+             Map<String,Object> marks=new LinkedHashMap<>();for(String name:TABLES){Table t=tables.get(name);Map<String,Object> mark=new LinkedHashMap<>();mark.put("available",t!=null);mark.put("rows",values.get("count:"+name));mark.put("maxRowid",values.get("rowid:"+name));mark.put("withoutRowid",t==null?null:t.withoutRowid);mark.put("objectType",t==null?null:t.view?"view":"table");if(t!=null&&t.view)mark.put("rowidReason","VIEW_HAS_NO_STABLE_ROWID");
+                 if(t!=null&&t.withoutRowid){Map<String,Object> keys=new LinkedHashMap<>();for(String key:t.pk)keys.put(key,values.get("pk:"+name+":"+key));mark.put("maxPrimaryKeyByColumn",keys);mark.put("rowidReason","WITHOUT_ROWID_NOT_APPLICABLE");}marks.put(name,mark);}
+             watermark.put("schemaVersion",schema);watermark.put("captureStartedAt",at);watermark.put("factsReadAt",values.get("factsReadAt"));watermark.put("captureFinishedAt",System.currentTimeMillis());watermark.put("latestIssue",values.get("latestIssue"));watermark.put("tables",marks);watermark.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);watermark.put("reportHostModel",Build.MODEL);
+@@ -113,6 +116,7 @@
+             lifecycle.put("hypothesisCreditR31",lifecycleReadR31(()->HypothesisStoreR31.report(db),lifecyclePinnedRead));
+             lifecycle.put("evidenceContractR31",lifecycleReadR31(()->EvidenceContractStoreR31.report(db),lifecyclePinnedRead));
+             lifecycle.put("researchConsumptionR31",lifecycleReadR31(()->ResearchConsumptionStoreR31.report(db),lifecyclePinnedRead));
++            lifecycle.put("researchConsumptionR343",lifecycleReadR31(()->ReportResearchConsumptionR343.capture(db),lifecyclePinnedRead));
+             lifecycle.put("researchConsumptionScope","SELECT_DEVELOPMENT_SOURCE_ABLATION_ONLY; NOT_NATURAL_OR_REAL_QUALITY");
+             lifecycle.put("storageCheckpointR31",lifecycleReadR31(()->com.ethk3.novaonepro.StorageReclaimR943.checkpointReportR31(db),lifecyclePinnedRead));
+             lifecycle.put("replayKnowledgeR31",lifecycleReadR31(()->ReplayKnowledgeStoreR31.report(db),lifecyclePinnedRead));
+@@ -322,14 +326,16 @@
+         q.rows("repairFrameIndex","r30r1_chart_cache",new String[]{"view_id","frame_id","run_id","payload_hash","updated_at"},"view_id",18,"frame_id=(SELECT f.frame_id FROM r30r1_chart_cache f WHERE f.view_id=r30r1_chart_cache.view_id ORDER BY f.updated_at DESC,f.frame_id LIMIT 1)",256);
+         for (ResearchGraphSpecsR30R1.Spec graph : ResearchGraphSpecsR30R1.ALL) {
+             boolean joinedRuns=q.has("r30r1_analysis_run","run_id","source_commit","dataset_hash","source_revision","role","status");
+-            boolean currentHead=joinedRuns&&q.has("r33_research_input_head","view_id","source_run","state");
++            boolean committedFrames=joinedRuns&&q.has("r30r1_chart_cache","view_id","frame_id","run_id","payload_hash");
+             boolean applied=joinedRuns&&q.has("r33_research_applied","source_run","view_id","source_commit",
+                     "dataset_hash","source_revision","role","product_hash","before_hash","after_hash");
+             String current=" AND r.status='COMMITTED' AND r.source_commit='"+BuildConfig.SOURCE_COMMIT_R26+"'";
+             String view="'"+graph.id+"'";
+-            q.add("researchProduced:"+graph.id,currentHead
+-                    ?"(SELECT count(*) FROM r33_research_input_head h JOIN r30r1_analysis_run r "
+-                        +"ON r.run_id=h.source_run WHERE h.view_id="+view+" AND h.state='PRODUCED'"+current+")":"NULL",true);
++            // R06 is written by ResearchStudyTask, and formal views use FORMAL_READ_ONLY heads.
++            // Count committed frame rows; the head state and finite-value validation remain independent.
++            q.add("researchProduced:"+graph.id,committedFrames
++                    ?"(SELECT count(*) FROM r30r1_chart_cache f JOIN r30r1_analysis_run r "
++                        +"ON r.run_id=f.run_id WHERE f.view_id="+view+" AND length(f.payload_hash)=64"+current+")":"NULL",true);
+             q.add("researchConsumed:"+graph.id,applied
+                     ?"(SELECT count(*) FROM r33_research_applied a JOIN r30r1_analysis_run r ON r.run_id=a.source_run "
+                         +"AND r.source_commit=a.source_commit AND r.dataset_hash=a.dataset_hash "
+--- /dev/null
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R343ChartEvidenceTest.java
+@@ -0,0 +1,59 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.*;
++import org.junit.Test;
++import static org.junit.Assert.*;
++
++/** Evidence visibility and semantic state tests; no device or strategy-quality claim. */
++public final class R343ChartEvidenceTest {
++    @Test public void bulkRowsCannotConsumeGraphIdentityReservations() {
++        ReportInlineBudgetR343 budget=new ReportInlineBudgetR343();
++        int total=0;
++        for(int i=0;i<100;i++)total+=budget.take("bulk:"+i,128*1024);
++        assertEquals(656*1024,total);
++        assertEquals(16*1024,budget.take("chartObjectIndex",16*1024));
++        assertEquals(32*1024,budget.take("repairFrameIndex",32*1024));
++        assertEquals(32*1024,budget.take("researchCurrentHeadsR342",8*1024));
++        assertEquals(32*1024,budget.take("researchCurrentActionsR342",8*1024));
++        assertEquals(0,budget.take("repairFrameIndex",32*1024));
++        assertEquals(0,budget.take("more",16*1024));
++    }
++    @Test public void publicationTablesAreVisibleToTheActualSnapshotMetadataReader() {
++        assertTrue(Arrays.asList(ReportSnapshotR30.TABLES).contains("r33_research_input_head"));
++        assertTrue(Arrays.asList(ReportSnapshotR30.TABLES).contains("r33_research_applied"));
++    }
++    @Test public void unknownConsumptionRemainsUnknownAndZeroIsNotUnknown() {
++        Map<String,Object> unknown=ReportObjectIndexR30.layersR31(new ReportObjectIndexR30.ObjectFactsR31(
++            "R01","RESEARCH_CHART","card",true,null,null,null,null,null,true));
++        assertEquals("UNKNOWN",unknown.get("effective"));
++        Map<String,Object> empty=ReportObjectIndexR30.layersR31(new ReportObjectIndexR30.ObjectFactsR31(
++            "R01","RESEARCH_CHART","card",true,null,false,null,false,null,true));
++        assertEquals("NO",empty.get("produced"));
++        assertEquals("UNKNOWN",empty.get("ran"));
++        assertEquals("NOT_CONSUMED",empty.get("effective"));
++        assertEquals("NOT_PASS",empty.get("status"));
++    }
++    @Test public void historicalHashCannotOverrideCurrentSourceZero() {
++        Map<String,Object> facts=new LinkedHashMap<>();facts.put("researchProduced:R01",0L);
++        Map<String,Object> oldFrame=new LinkedHashMap<>();oldFrame.put("view_id","R01");
++        oldFrame.put("latestOriginalHash",String.join("",Collections.nCopies(64,"a")));
++        Map<String,Object> data=new LinkedHashMap<>();data.put("repairFrameIndex",Collections.singletonList(oldFrame));
++        Map<String,Object> index=ReportObjectIndexR30.buildProductionR31(facts,Collections.emptyMap(),data);
++        for(Object raw:(List<?>)index.get("lifecycleEntriesR31")){
++            Map<?,?> row=(Map<?,?>)raw;if("R01".equals(row.get("id"))){
++                assertEquals("NO",row.get("produced"));assertEquals("UNKNOWN",row.get("ran"));return;
++            }
++        }
++        fail("R01 missing");
++    }
++    @Test public void formalReadOnlyChartsDoNotRequireAnOptimizerMutation() {
++        Map<String,Object> index=ReportObjectIndexR30.buildProductionR31(Collections.emptyMap(),Collections.emptyMap(),Collections.emptyMap());
++        Set<String> formal=new HashSet<>(Arrays.asList("R11","R14","R18"));
++        int seen=0;
++        for(Object raw:(List<?>)index.get("lifecycleEntriesR31")){
++            Map<?,?> row=(Map<?,?>)raw;
++            if(formal.contains(row.get("id"))){seen++;assertEquals("NOT_APPLICABLE",row.get("consumed"));assertEquals("NOT_APPLICABLE",row.get("effective"));assertEquals("NOT_PASS",row.get("status"));}
++        }
++        assertEquals(3,seen);
++    }
++}
+--- /dev/null
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R343ResearchConsumptionTest.java
+@@ -0,0 +1,52 @@
++package com.ethk3.novaonepro.strategyv2;
++import com.ethk3.novaonepro.BuildConfig;
++import java.util.*;
++import org.junit.Test;
++import static org.junit.Assert.*;
++public final class R343ResearchConsumptionTest {
++    static Map<String,Object> map(Object... pairs){Map<String,Object> m=new LinkedHashMap<>();for(int i=0;i<pairs.length;i+=2)m.put((String)pairs[i],pairs[i+1]);return m;}
++    static String hash(String x){return StatsR27.sha256(x);}
++    static Map<String,Object> contract(){return map("source",BuildConfig.SOURCE_COMMIT_R26,"dataset",hash("dataset"),"revision",3L,"role","SELECT","abi",FrozenConfirmationR30.currentSemantics(),"input",hash("input"),"through",100L,"available",1000L);}
++    static Map<String,Object> born(){
++        Map<String,Object> c=contract();String original=JsonR27.write(map("sourceContract",c,"viewId","R01"));
++        PolicySpecR27 policy=new PolicySpecR27(PolicyAstR27.op("zscore",PolicyAstR27.leaf("freq",1,32)),2,PolicySpecR27.Rule.ALWAYS,0,1,1,false,.01,0,new PolicySpecR27.Meta("I04","TEST",Collections.emptyList(),1,0,"fixture"));
++        String child=policy.policyHash(),proposal=hash("proposal"),consumer="fixture",run=hash("run");
++        String receipt=hash(proposal+'|'+child+"|1|"+consumer),before=hash("R31_ABSENT_CANDIDATE_BEFORE_BIRTH|"+child);
++        String proposalJson=JsonR27.write(map("candidateHash",child));
++        Map<String,Object> receipts=map("source_run",run,"input_hash",c.get("input"),"role","SELECT","abi",c.get("abi"),"source_revision",3L,
++            "consumer_version",ResearchConsumptionStoreR31.VERSION+":"+consumer,"before_hash",before,"after_hash",child,"budget",1L,"product_hash",hash(original));
++        String key=hash(ResearchResultContractR31.VERSION+'|'+run+'|'+consumer+'|'+child+'|'+hash(original));
++        Map<String,Object> typed=map("validated",true,"state","ACTUAL_BORN_CONSUMPTION_NOT_EFFECTIVENESS","view","R01","receipts",receipts,"consumeKey",key,
++            "target","POSITION:2","datasetHash",c.get("dataset"),"decisionOrdinal",101L,"latestLabelOrdinal",100L);
++        Map<String,Object> link=map("scope","ACTUAL_ORIGINAL_BORN_CHILD_SAME_TRANSACTION_NOT_QUALITY_PROOF","proposalId",proposal,"childPolicyHash",child,
++            "consumer",consumer,"generation",1L,"receiptHash",receipt,"resultContractR31",typed);
++        return map("run",run,"source",c.get("source"),"dataset",c.get("dataset"),"revision",3L,"role","SELECT","original",original,"payload",JsonR27.write(link),
++            "proposal",proposal,"child",child,"consumer",consumer,"generation",1L,"receipt",receipt,"proposal_state","CONSUMED","proposal_payload",proposalJson,
++            "proposal_hash",hash(proposalJson),"policy_spec",policy.fullJson(),"policy_dataset",c.get("dataset"),"policy_generation",1L,"original_views","R01");
++    }
++    static Map<String,Object> action(){
++        Map<String,Object> c=contract();String original=JsonR27.write(map("sourceContract",c,"viewId","R01","inputHash",c.get("input")));
++        String after="{\"budget\":2}",before=hash("{\"budget\":1}"),run=hash("run");
++        return map("run",run,"source",c.get("source"),"dataset",c.get("dataset"),"revision",3L,"role","SELECT","original",original,"view","R01","kind","BUDGET_APPLIED",
++            "product",hash(original),"input",c.get("input"),"abi",c.get("abi"),"before_hash",before,"after_hash",hash(after),"applied",after,"object_key","budget",
++            "budget",1L,"latest_label",100L,"decision_ordinal",101L,"applied_at",1001L,"action_key",hash("R33_ACTION1|"+run+"|R01|BUDGET_APPLIED|budget|"+hash(after)),"original_views","R01");
++    }
++    @Test public void validBornRequiresOriginalHashSourceAndActualChild(){assertEquals("R01",ReportResearchConsumptionR343.validateBorn(born()));}
++    @Test public void validNonBornRemainsIndependent(){assertEquals("R01",ReportResearchConsumptionR343.validateAction(action()));}
++    @Test public void wrongOriginalHashCannotCount(){Map<String,Object> r=born();r.put("original",r.get("original")+" ");reject(()->ReportResearchConsumptionR343.validateBorn(r));}
++    @Test public void oldSourceCannotCount(){Map<String,Object> r=born();r.put("source",hash("old source"));reject(()->ReportResearchConsumptionR343.validateBorn(r));}
++    @Test public void missingActualChildCannotCount(){Map<String,Object> r=born();r.remove("policy_spec");reject(()->ReportResearchConsumptionR343.validateBorn(r));}
++    @Test public void unchangedNonBornActionCannotCount(){Map<String,Object> r=action();r.put("before_hash",r.get("after_hash"));reject(()->ReportResearchConsumptionR343.validateAction(r));}
++    @Test public void partialZeroIsUnknownButAValidatedLowerBoundIsEvidence(){
++        Map<String,Object> partial=map("bornLowerBound",0L,"nonBornLowerBound",0L,"bornComplete",true,"nonBornComplete",false);
++        assertNull(ReportResearchConsumptionR343.consumed(partial));partial.put("nonBornLowerBound",1L);assertEquals(Boolean.TRUE,ReportResearchConsumptionR343.consumed(partial));
++        partial.put("nonBornLowerBound",0L);partial.put("nonBornComplete",true);assertEquals(Boolean.FALSE,ReportResearchConsumptionR343.consumed(partial));
++    }
++    @Test public void receiptIntegerFieldsRejectFractionsNonfiniteAndOverflow(){
++        for(double v:new double[]{1.5,Double.NaN,Double.POSITIVE_INFINITY,0x1.0p63})reject(()->ReportResearchConsumptionR343.num(map("n",v),"n"));
++        assertEquals(1L,ReportResearchConsumptionR343.num(map("n",1.0),"n"));
++        assertTrue(ReportResearchConsumptionR343.viewKeysPartial(map("original_views","#OVERSIZE_VIEW_KEY#")));
++        assertTrue(ReportResearchConsumptionR343.viewKeysPartial(map("original_views",String.join("|",Collections.nCopies(65,"R01")))));
++    }
++    static void reject(Runnable r){try{r.run();fail("invalid evidence counted");}catch(IllegalArgumentException expected){}}
++}

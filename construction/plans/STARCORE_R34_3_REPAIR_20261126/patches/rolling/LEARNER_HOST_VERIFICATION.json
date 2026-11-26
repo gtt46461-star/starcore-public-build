@@ -1,0 +1,75 @@
+{
+  "typed_infrastructure": {
+    "status": "PASS",
+    "cases": 25,
+    "scope": "pure Java typed cause classification"
+  },
+  "recovery_sql": {
+    "status": "PASS",
+    "assertions": 11,
+    "scope": "actual patched production DDL and queue predicate in SQLite, synthetic fixtures; not Android or real CAS recovery",
+    "predicate_sha256": "d58cc486a161e5d13f74d0ac23ba98b1adb1322807a4291f8d2a479fba857db1",
+    "sqlite_version": "3.53.1",
+    "android": "NOT_RUN",
+    "original_device_database": "NOT_AVAILABLE"
+  },
+  "rolling_sql": {
+    "status": "PASS",
+    "assertions": 44,
+    "source_sha256": "542c648d6c1336cd79ad92c06c9ae4ec54cf96f806eb096daf107616efd76428",
+    "ddl_statements": 30,
+    "sqlite_version": "3.53.1",
+    "scope": "actual learner DDL/guards and head CAS SQL, synthetic host SQLite; no Android owner, kernel throughput, actual report database or quality claim",
+    "android": "NOT_RUN"
+  },
+  "bound_sql": {
+    "status": "PASS",
+    "actual_source_builders": 2,
+    "sql_bind_counts": [
+      4,
+      3
+    ],
+    "scope": "actual parent selection/reason Java SQL methods compiled and prepared in synthetic SQLite; eligibility predicate separately exercised by publisher fixture; not Android",
+    "source_sha256": "095f8bb62ee0d85bb93d318702d94b01dd70d37b81c2c187c14041eb2d5832d4"
+  },
+  "kernel_final_shape_replay": {
+    "status": "PASS",
+    "model_kinds": 6,
+    "assertions_including_transition_bound": 62196,
+    "transitions": 62136,
+    "scope": "unmodified CP9 + exact extracted Modern/Model/codec production segments; test-only platform bindings; not Android/DB owner or quality",
+    "contract_assertions": 60
+  },
+  "patch_apply": {
+    "status": "PASS",
+    "checks": [
+      {
+        "stage": "research_core",
+        "git_apply_check": "PASS",
+        "actual_apply": "PASS",
+        "after_hashes_verified": 7
+      },
+      {
+        "stage": "research_rolling",
+        "git_apply_check": "PASS",
+        "actual_apply": "PASS",
+        "after_hashes_verified": 11
+      }
+    ],
+    "scope": "isolated affected-file copy of installed baseline; research_core then research_rolling; no source baseline mutated",
+    "publisher_patch": "separate runtime agent stage must be combined in B06"
+  },
+  "syntax": {
+    "status": "PASS",
+    "core_files": 7,
+    "rolling_files": 11
+  },
+  "android_build": "NOT_RUN",
+  "device_database_cas_recovery": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "diagnostic_typecheck": {
+    "status": "INCOMPLETE_PLATFORM_STUBS_NOT_A_BUILD_PASS",
+    "use": "Detected and corrected publisher package-private call errors; final excerpt diagnostics contained only missing historical Android APIs/BuildConfig fields",
+    "log": "typecheck/compile.log"
+  }
+}

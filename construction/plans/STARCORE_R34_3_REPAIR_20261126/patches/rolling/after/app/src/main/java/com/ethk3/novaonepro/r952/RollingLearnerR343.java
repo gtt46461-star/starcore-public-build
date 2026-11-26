@@ -1,0 +1,361 @@
+package com.ethk3.novaonepro.r952;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.*;
+import com.ethk3.novaonepro.r952.CandidateCompilerR952.Modern;
+import com.ethk3.novaonepro.r952.CandidateCompilerR952.ModelKind;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.util.*;
+
+/** Independent rolling-development learner. One original research queue and writer.
+ * Version/head updates are numerical development, never births or formal evidence.
+ * Bound/teacher/summary programs use the existing strict original-context extractor.
+ * A missing original source waits with its exact cursor, then records a dependency gap
+ * when a newer settled cutoff permits an independent retry. It is never filled
+ * from today's teacher. Publication has its own independent frozen-run adapter.
+ */
+public final class RollingLearnerR343 {
+    private RollingLearnerR343() {}
+    public static final String EVENT="research_rolling_event_r343",VERSION="research_rolling_version_r343",
+            HEAD="research_rolling_head_r343",FEATURE="research_rolling_feature_r343",OFFER="research_rolling_offer_r343";
+    public static final String KIND="R343_ROLLING_TRAIN";
+    private static final int INPUT_LIMIT=512<<10,MAX_ACTIVE=4;
+    private static final long WORKING_LIMIT=64L<<20;
+    private static final String ZERO=String.join("",Collections.nCopies(64,"0"));
+    public static void schema(SQLiteDatabase db){
+        need(db.inTransaction(),"ROLLING_SCHEMA_TX");
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+EVENT+"(target_issue TEXT PRIMARY KEY,draw_hash TEXT NOT NULL,settlement_hash TEXT NOT NULL,completed_at INTEGER NOT NULL,receipt_hash TEXT NOT NULL UNIQUE)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+HEAD+"(candidate_id TEXT PRIMARY KEY REFERENCES r952_candidate(candidate_id),version_id TEXT NOT NULL DEFAULT '',through_issue TEXT NOT NULL DEFAULT '',model_hash TEXT NOT NULL DEFAULT '',generation INTEGER NOT NULL DEFAULT 0,last_reason TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+VERSION+"(version_id TEXT PRIMARY KEY,candidate_id TEXT NOT NULL REFERENCES r952_candidate(candidate_id),predecessor TEXT NOT NULL,cutoff_issue TEXT NOT NULL,input_first_issue TEXT NOT NULL,ast_hash TEXT NOT NULL,protocol_hash TEXT NOT NULL UNIQUE,protocol_json TEXT NOT NULL,input_hash TEXT NOT NULL,input_bytes INTEGER NOT NULL CHECK(input_bytes BETWEEN 1 AND 524288),input_blob BLOB,train_n INTEGER NOT NULL CHECK(train_n BETWEEN 300 AND 1200),train_first TEXT NOT NULL,train_last TEXT NOT NULL,validation_first TEXT NOT NULL,validation_last TEXT NOT NULL,seed INTEGER NOT NULL,state TEXT NOT NULL CHECK(state IN('FEATURES','TRAINING','COMPLETE','FAILED','DEPENDENCY_GAP')),next_index INTEGER NOT NULL DEFAULT 0 CHECK(next_index BETWEEN 0 AND 1320),prefix_hash TEXT NOT NULL,checkpoint BLOB CHECK(checkpoint IS NULL OR length(checkpoint)<=262144),checkpoint_hash TEXT NOT NULL DEFAULT '',checkpoint_generation INTEGER NOT NULL DEFAULT 0,model_payload TEXT NOT NULL DEFAULT '' CHECK(length(CAST(model_payload AS BLOB))<=1048576),model_hash TEXT NOT NULL DEFAULT '',receipt_json TEXT NOT NULL DEFAULT '',receipt_hash TEXT NOT NULL DEFAULT '',optimizer_steps INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,UNIQUE(candidate_id,cutoff_issue),CHECK(validation_last=cutoff_issue))");
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS r343_rolling_one_active ON "+VERSION+"(candidate_id) WHERE state IN('FEATURES','TRAINING')");
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+FEATURE+"(version_id TEXT NOT NULL REFERENCES "+VERSION+"(version_id),row_index INTEGER NOT NULL CHECK(row_index BETWEEN 0 AND 1319),target_issue TEXT NOT NULL,actual INTEGER NOT NULL CHECK(actual BETWEEN 1 AND 10),raw_hash TEXT NOT NULL,payload BLOB NOT NULL CHECK(length(payload) BETWEEN 18 AND 8192),row_hash TEXT NOT NULL,source_json TEXT NOT NULL CHECK(length(CAST(source_json AS BLOB))<=65536),source_hash TEXT NOT NULL,PRIMARY KEY(version_id,row_index))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+OFFER+"(version_id TEXT PRIMARY KEY REFERENCES "+VERSION+"(version_id),candidate_id TEXT NOT NULL,cutoff_issue TEXT NOT NULL,model_hash TEXT NOT NULL,receipt_hash TEXT NOT NULL,status TEXT NOT NULL CHECK(status='NEEDS_INDEPENDENT_PUBLICATION_ADAPTER'),created_at INTEGER NOT NULL)");
+        for(String table:new String[]{EVENT,OFFER}){
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_no_update BEFORE UPDATE ON "+table+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_RECEIPT_IMMUTABLE'); END");
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_no_delete BEFORE DELETE ON "+table+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_RECEIPT_PERMANENT'); END");
+        }
+        db.execSQL("INSERT OR IGNORE INTO app_state(state_key,state_value,updated_at) VALUES('r343_rolling_canonical_epoch','0',0)");
+        for(String action:new String[]{"INSERT","UPDATE","DELETE"})
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_source_"+action+" AFTER "+action+" ON "+DbHelper.TABLE_R811_DRAW_CANONICAL+" BEGIN UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=0 WHERE state_key='r343_rolling_canonical_epoch'; END");
+        for(String action:new String[]{"INSERT","UPDATE","DELETE"})
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_raw_"+action+" AFTER "+action+" ON "+DbHelper.TABLE_DRAWS+" BEGIN UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=0 WHERE state_key='r343_rolling_canonical_epoch'; END");
+        for(String action:new String[]{"INSERT","DELETE"})
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_retained_"+action+" AFTER "+action+" ON "+DrawDependencyInputCP12.TABLE+" BEGIN UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=0 WHERE state_key='r343_rolling_canonical_epoch'; END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_offer_no_replace BEFORE INSERT ON "+OFFER+" WHEN EXISTS(SELECT 1 FROM "+OFFER+" WHERE version_id=NEW.version_id) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_OFFER_DUPLICATE'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_version_no_replace BEFORE INSERT ON "+VERSION+" WHEN EXISTS(SELECT 1 FROM "+VERSION+" WHERE version_id=NEW.version_id OR (candidate_id=NEW.candidate_id AND cutoff_issue=NEW.cutoff_issue) OR protocol_hash=NEW.protocol_hash) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_VERSION_DUPLICATE'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_version_no_delete BEFORE DELETE ON "+VERSION+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_VERSION_PERMANENT'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_terminal_identity BEFORE UPDATE OF state,next_index,prefix_hash,checkpoint_hash,checkpoint_generation,model_hash,receipt_json,receipt_hash,optimizer_steps ON "+VERSION+" WHEN OLD.state IN('COMPLETE','FAILED','DEPENDENCY_GAP') BEGIN SELECT RAISE(ABORT,'R343_ROLLING_TERMINAL_IMMUTABLE'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_terminal_payload BEFORE UPDATE OF input_blob,checkpoint,model_payload ON "+VERSION+" WHEN OLD.state IN('COMPLETE','FAILED','DEPENDENCY_GAP') AND ((NEW.input_blob IS NOT NULL AND (OLD.input_blob IS NULL OR NEW.input_blob<>OLD.input_blob)) OR (NEW.checkpoint IS NOT NULL AND (OLD.checkpoint IS NULL OR NEW.checkpoint<>OLD.checkpoint)) OR (NEW.model_payload<>'' AND NEW.model_payload<>OLD.model_payload)) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_TERMINAL_PAYLOAD'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_event_no_replace BEFORE INSERT ON "+EVENT+" WHEN EXISTS(SELECT 1 FROM "+EVENT+" WHERE target_issue=NEW.target_issue) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_EVENT_DUPLICATE'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_version_identity BEFORE UPDATE OF version_id,candidate_id,predecessor,cutoff_issue,input_first_issue,ast_hash,protocol_hash,protocol_json,input_hash,input_bytes,train_n,train_first,train_last,validation_first,validation_last,seed,created_at ON "+VERSION+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_VERSION_IMMUTABLE'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_feature_no_update BEFORE UPDATE ON "+FEATURE+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_FEATURE_IMMUTABLE'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_feature_no_replace BEFORE INSERT ON "+FEATURE+" WHEN EXISTS(SELECT 1 FROM "+FEATURE+" WHERE version_id=NEW.version_id AND row_index=NEW.row_index) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_FEATURE_DUPLICATE'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_active_input BEFORE UPDATE OF input_blob ON "+VERSION+" WHEN OLD.state IN('FEATURES','TRAINING') BEGIN SELECT RAISE(ABORT,'R343_ROLLING_ACTIVE_INPUT'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_active_feature BEFORE DELETE ON "+FEATURE+" WHEN EXISTS(SELECT 1 FROM "+VERSION+" v WHERE v.version_id=OLD.version_id AND v.state IN('FEATURES','TRAINING')) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_ACTIVE_FEATURE'); END");
+    }
+    public static boolean installed(SQLiteDatabase db){
+        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN(?,?,?,?,?)",new String[]{EVENT,VERSION,HEAD,FEATURE,OFFER})){return c.moveToFirst()&&c.getInt(0)==5;}
+    }
+    /** Called inside the already authenticated completed-settlement transaction.
+     * Repeated delivery requires the SAME draw/settlement identity. No training happens here. */
+    public static void settled(SQLiteDatabase db,Models.Draw draw,String settlement,long completed){
+        need(db.inTransaction()&&draw!=null&&draw.dirty==0&&draw.isValid(),"ROLLING_SETTLEMENT_INPUT");
+        String hash=DrawHashR36.sha256V2(draw);
+        try(Cursor c=db.rawQuery("SELECT status,settlement_hash,completed_at FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE target_issue=?",new String[]{draw.issue})){
+            need(c.moveToFirst()&&"COMPLETED".equals(c.getString(0))&&settlement.equals(c.getString(1))&&completed==c.getLong(2)&&completed>0,"ROLLING_SETTLEMENT_AUTHORITY");
+        }
+        String receipt=V51ChecksumEngine.sha256("R343_SETTLED_LEARNING_SOURCE|"+draw.issue+'|'+hash+'|'+settlement+'|'+completed);
+        try(Cursor c=db.rawQuery("SELECT receipt_hash FROM "+EVENT+" WHERE target_issue=?",new String[]{draw.issue})){
+            if(c.moveToFirst()){need(receipt.equals(c.getString(0)),"ROLLING_EVENT_REPLAY_DRIFT");return;}
+        }
+        db.execSQL("INSERT INTO "+EVENT+" VALUES(?,?,?,?,?)",new Object[]{draw.issue,hash,settlement,completed,receipt});
+    }
+    /** Called only in the Director's existing TRAIN quantum, never a new executor. */
+    public static boolean drainOne(DbStore store,long deadlineNs){
+        if(store==null||System.nanoTime()+100_000_000L>=deadlineNs||!installed(store.readable()))return false;
+        Boolean planTurn=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_CLAIM",db->{
+            String previous="0";try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r343_rolling_plan_turn'",null)){if(c.moveToFirst())previous=c.getString(0);}
+            boolean plan="0".equals(previous);db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r343_rolling_plan_turn',?,?)",new Object[]{plan?"1":"0",System.currentTimeMillis()});return plan;
+        },false);
+        if(Boolean.TRUE.equals(planTurn)){
+            if(catchUpOne(store,deadlineNs))return true;
+            if(planOne(store,deadlineNs))return true;
+        }
+        ResearchTaskQueueR967.Lease lease=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_CLAIM",db->ResearchTaskQueueR967.claim(db,KIND,System.currentTimeMillis()),null);
+        if(lease==null){
+            if(catchUpOne(store,deadlineNs))return true;
+            if(planOne(store,deadlineNs))return true;
+            return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_CLEANUP",RollingLearnerR343::cleanup,false));
+        }
+        try(MemoryBudgetCP4.Lease metadata=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(DevelopmentTrainerCP9.MAX_CHECKPOINT+(128L<<10))){
+            return trainSlice(store,lease,deadlineNs);
+        }
+        catch(ResearchWorkBudgetR927.Yield|RuntimeResourceAuditR927.BudgetExceeded pause){release(store,lease,"REALTIME_PRIORITY",250);return true;}
+        catch(DevelopmentProductionCP12.Wait wait){
+            if("WAIT_BOUND_FEATURE_HISTORY".equals(wait.reason)&&retireSupersededSourceGap(store,lease))return true;
+            release(store,lease,wait.reason,"WAIT_BOUND_FEATURE_HISTORY".equals(wait.reason)?10000:1000);return true;
+        }
+        catch(IOException io){release(store,lease,"WAIT_INPUT_IO",1000);return true;}
+        catch(RuntimeException failure){
+            if(ResearchTrainingHookRegistryR952.retryInfrastructureCP12(store,lease,failure))return true;
+            if("ALGORITHM_MEMORY_BUDGET".equals(failure.getMessage())){release(store,lease,"WAIT_RESOURCE",1000);return true;}
+            // The failed learner version is isolated. The original strategy and its
+            // independently frozen/certified model are never quarantined by this lane.
+            Boolean done=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FAILED",db->{
+                if(!ResearchTaskQueueR967.owns(db,lease))return false;
+                db.execSQL("UPDATE "+VERSION+" SET state='FAILED',updated_at=? WHERE version_id=? AND state IN('FEATURES','TRAINING')",new Object[]{System.currentTimeMillis(),lease.authorityRef});
+                need(ResearchTaskQueueR967.failTerminalCP12(db,lease,failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage())),"ROLLING_FAIL_LEASE");return true;
+            },false);
+            if(!Boolean.TRUE.equals(done))throw failure;return true;
+        }
+    }
+    private static boolean planOne(DbStore store,long deadlineNs){
+        SQLiteDatabase db=store.readable();String latest="";
+        try(Cursor c=db.rawQuery("SELECT target_issue FROM "+EVENT+" ORDER BY target_issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=c.getString(0);}
+        if(!TargetIssueResolver.isValid(latest)||System.nanoTime()+250_000_000L>=deadlineNs)return false;
+        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+VERSION+" WHERE state IN('FEATURES','TRAINING')",null)){c.moveToFirst();if(c.getInt(0)>=MAX_ACTIVE)return false;}
+        List<String[]> candidates=new ArrayList<>();
+        String sql="SELECT c.candidate_id,c.ast,c.structural_hash,COALESCE(h.version_id,''),COALESCE(NULLIF(h.through_issue,''),p.validation_last) FROM r952_candidate c JOIN research_training_protocol_v2 p ON p.candidate_id=c.candidate_id JOIN research_development_receipt_v2 d ON d.protocol_hash=p.protocol_hash LEFT JOIN "+HEAD+" h ON h.candidate_id=c.candidate_id WHERE (h.last_reason IS NULL OR h.last_reason='' OR h.updated_at<?) AND c.ast LIKE 'AST3:%' AND c.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND COALESCE(NULLIF(h.through_issue,''),p.validation_last)<? AND NOT EXISTS(SELECT 1 FROM "+VERSION+" v WHERE v.candidate_id=c.candidate_id AND (v.state IN('FEATURES','TRAINING') OR v.cutoff_issue=?)) ORDER BY COALESCE(h.updated_at,0),c.created_at,c.candidate_id LIMIT 16";
+        try(Cursor c=db.rawQuery(sql,new String[]{Long.toString(System.currentTimeMillis()-1000),latest,latest})){
+            while(c.moveToNext())candidates.add(new String[]{c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getString(4)});
+        }
+        for(String[] selected:candidates){
+            if(System.nanoTime()+250_000_000L>=deadlineNs)return false;
+            try{return planCandidate(store,selected,latest,deadlineNs);}
+            catch(DevelopmentProductionCP12.Wait wait){recordPlanWait(store,selected[0],wait.reason);}
+            catch(RuntimeException failure){
+                String reason=ResearchTrainingHookRegistryR952.infrastructureWaitReasonCP12(failure);
+                if(reason.isEmpty()&&!"ALGORITHM_MEMORY_BUDGET".equals(failure.getMessage()))throw failure;
+                recordPlanWait(store,selected[0],reason.isEmpty()?"WAIT_RESOURCE":reason);
+            }
+        }
+        return false;
+    }
+    private static boolean planCandidate(DbStore store,String[] identity,String cutoff,long deadlineNs){
+        SQLiteDatabase db=store.readable();
+        CandidateAstR952 ast=CandidateAstR952.parse(identity[1]);
+        CandidateCompilerR952.Program program=CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,DevelopmentProductionCP12.readSpecs(db,ast));
+        boolean bound=!ast.graphSpec.experts.isEmpty()||!ast.graphSpec.manifest.bindingHashes.isEmpty()
+                ||!ast.graphSpec.manifest.summarySpecRefs.isEmpty()||MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program);
+        if(bound){
+            try(Cursor c=db.rawQuery("SELECT protocol_json FROM "+VERSION+" WHERE state IN('FEATURES','TRAINING')",null)){
+                while(c.moveToNext())if(Boolean.TRUE.equals(StrictCanonicalJson.readContextObject(c.getString(0)).get("requiresOriginal")))throw new DevelopmentProductionCP12.Wait("ROLLING_BOUND_SLOT_BUSY");
+            }
+        }
+        LongSummaryBindingsR80.validateProtocolSources(db,summaryProtocol(db,ast));
+        long historyGeneration=DevelopmentProductionCP12.historyGeneration(db);
+        List<Models.Draw> history=DevelopmentProductionCP12.selectHistoryCP12(store.getDrawsBeforeIssue(TargetIssueResolver.next(cutoff).targetIssue,
+                DevelopmentProductionCP12.historyReadLimitR72(ast.graphSpec.manifest.requiredHistory,true)),ast.graphSpec.manifest.requiredHistory,true);
+        if(!history.get(history.size()-1).issue.equals(cutoff))throw new DevelopmentProductionCP12.Wait("STALE_HISTORY");
+        DevelopmentProductionCP12.verifyDevelopmentHistoryCP12(db,history,bound);
+        final long sourceEpoch=sourceEpochR343(db);
+        final String canonicalHash=canonicalRangeHash(db,history.get(0).issue,cutoff,history.size());
+        Map<String,Object> header=new TreeMap<>();header.put("revision","SCDEV1");header.put("game","PK10");header.put("build",AppConfig.VERSION_NAME);
+        header.put("sourceManifestHash",SourceManifestR815.SOURCE_TREE_SHA256);header.put("scheduleRevision","TARGET_ISSUE_RESOLVER_R980");header.put("bindings",Collections.emptyList());
+        DevelopmentInputCP9.Header h=new DevelopmentInputCP9.Header(StrictCanonicalJson.writeContext(header));
+        try {
+            DevelopmentInputCP9.Receipt declared=DevelopmentInputCP9.write(new OutputStream(){public void write(int b){}public void write(byte[] b,int o,int n){}},h,history);
+            if(declared.byteCount>INPUT_LIMIT)throw new DevelopmentProductionCP12.Wait("ROLLING_INPUT_BYTES_LIMIT");
+            try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(3*declared.byteCount+(256L<<10))){
+                ByteArrayOutputStream output=new ByteArrayOutputStream((int)declared.byteCount);
+                DevelopmentInputCP9.Receipt encoded=DevelopmentInputCP9.write(output,h,history);final byte[] input=output.toByteArray();
+                need(encoded.inputHash.equals(declared.inputHash)&&input.length==declared.byteCount,"ROLLING_INPUT_ENCODING");
+                String version=V51ChecksumEngine.sha256("R343_ROLLING_VERSION|"+identity[0]+'|'+identity[2]+'|'+identity[3]+'|'+cutoff+'|'+TrainingCodeIdentityR964.SHA256+'|'+encoded.inputHash);
+                long seed=ByteBuffer.wrap(DevelopmentProductionCP12.hexBytes(version)).getLong();
+                final DevelopmentInputCP9.Split split;
+                try(DevelopmentInputCP9.Input verified=DevelopmentInputCP9.read(new ByteArrayInputStream(input),input.length,encoded.inputHash,h,RuntimeMemoryGuardR811.algorithmModelBudget())){
+                    split=verified.split(ast.graphSpec.manifest.requiredHistory);
+                }
+                Map<String,Object> p=new TreeMap<>();p.put("revision","R343_ROLLING_DEV_1");p.put("header",h.canonical);p.put("versionId",version);p.put("candidateId",identity[0]);p.put("astHash",identity[2]);p.put("manifestHash",ast.graphSpec.manifest.hash);p.put("inputHash",encoded.inputHash);p.put("cutoffIssue",cutoff);p.put("boundFiles",Collections.emptyList());p.put("codeRevision",TrainingCodeIdentityR964.SHA256);p.put("seed",seed);p.put("trainFirst",history.get(split.trainFirst).issue);p.put("trainLast",history.get(split.trainEnd-1).issue);p.put("validationFirst",history.get(split.validationFirst).issue);p.put("validationLast",cutoff);p.put("trainN",split.trainN);p.put("requiresOriginal",bound);p.put("historyFirst",history.get(0).issue);p.put("historyLast",cutoff);p.put("historyCount",history.size());p.put("canonicalRangeHash",canonicalHash);p.putAll(summaryProtocol(db,ast));
+                String protocol=StrictCanonicalJson.writeContext(p),protocolHash=V51ChecksumEngine.sha256(protocol);
+                if(System.nanoTime()+40_000_000L>=deadlineNs)return false;
+                Boolean committed=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_PLAN",tx->{
+                    if(DevelopmentProductionCP12.historyGeneration(tx)!=historyGeneration||sourceEpochR343(tx)!=sourceEpoch)return false;
+                    LongSummaryBindingsR80.validateProtocolSources(tx,p);
+                    try(Cursor c=tx.rawQuery("SELECT ast,structural_hash,state FROM r952_candidate WHERE candidate_id=?",new String[]{identity[0]})){need(c.moveToFirst()&&identity[1].equals(c.getString(0))&&identity[2].equals(c.getString(1))&&!retired(c.getString(2)),"ROLLING_CANDIDATE_CAS");}
+                    try(Cursor c=tx.rawQuery("SELECT version_id FROM "+HEAD+" WHERE candidate_id=?",new String[]{identity[0]})){need((c.moveToFirst()?c.getString(0):"").equals(identity[3]),"ROLLING_HEAD_CAS");}
+                    if(bytes(tx)>WORKING_LIMIT-input.length)return false;
+                    long now=System.currentTimeMillis();String prefix=V51ChecksumEngine.sha256("R343_FEATURE_PREFIX|"+version+'|'+protocolHash+'|'+encoded.inputHash);
+                    tx.execSQL("INSERT INTO "+VERSION+"(version_id,candidate_id,predecessor,cutoff_issue,input_first_issue,ast_hash,protocol_hash,protocol_json,input_hash,input_bytes,input_blob,train_n,train_first,train_last,validation_first,validation_last,seed,state,prefix_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'FEATURES',?,?,?)",new Object[]{version,identity[0],identity[3],cutoff,history.get(0).issue,identity[2],protocolHash,protocol,encoded.inputHash,input.length,input,split.trainN,p.get("trainFirst"),p.get("trainLast"),p.get("validationFirst"),cutoff,seed,prefix,now,now});
+                    tx.execSQL("INSERT OR IGNORE INTO "+HEAD+"(candidate_id,updated_at) VALUES(?,?)",new Object[]{identity[0],now});
+                    ResearchTaskQueueR967.enqueue(tx,KIND,version,TargetIssueResolver.next(cutoff).targetIssue,protocolHash,encoded.inputHash,version);
+                    return true;
+                },false);
+                return Boolean.TRUE.equals(committed);
+            }
+        }catch(IOException invalid){throw new DevelopmentProductionCP12.Wait("WAIT_INPUT_IO",invalid);}
+    }
+    private static final class Version {
+        final String id,candidate,predecessor,cutoff,astHash,protocolHash,protocol,inputHash,state,prefix,checkpointHash,ast,firstValidation;
+        final byte[] input,checkpoint;final int trainN,next;final long seed,generation;
+        Version(Cursor c){id=c.getString(0);candidate=c.getString(1);predecessor=c.getString(2);cutoff=c.getString(3);astHash=c.getString(4);protocolHash=c.getString(5);protocol=c.getString(6);inputHash=c.getString(7);input=c.isNull(8)?null:c.getBlob(8);trainN=c.getInt(9);seed=c.getLong(10);state=c.getString(11);next=c.getInt(12);prefix=c.getString(13);checkpoint=c.isNull(14)?null:c.getBlob(14);checkpointHash=c.getString(15);generation=c.getLong(16);ast=c.getString(17);firstValidation=c.getString(18);}
+    }
+    private static Version read(SQLiteDatabase db,ResearchTaskQueueR967.Lease lease){
+        try(Cursor c=db.rawQuery("SELECT v.version_id,v.candidate_id,v.predecessor,v.cutoff_issue,v.ast_hash,v.protocol_hash,v.protocol_json,v.input_hash,"+(db.inTransaction()?"NULL":"CASE WHEN v.next_index<v.train_n+120 THEN v.input_blob ELSE NULL END")+",v.train_n,v.seed,v.state,v.next_index,v.prefix_hash,"+(db.inTransaction()?"NULL":"v.checkpoint")+",v.checkpoint_hash,v.checkpoint_generation,c.ast,v.validation_first FROM "+VERSION+" v JOIN r952_candidate c ON c.candidate_id=v.candidate_id WHERE v.version_id=? AND c.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED')",new String[]{lease.authorityRef})){
+            need(c.moveToFirst(),"ROLLING_VERSION_MISSING");Version v=new Version(c);
+            need(v.id.equals(lease.candidate)&&v.protocolHash.equals(lease.sequence)&&v.inputHash.equals(lease.inputHash)
+                    &&V51ChecksumEngine.sha256(v.protocol).equals(v.protocolHash)
+                    &&(db.inTransaction()||v.next==v.trainN+120||v.input!=null&&v.input.length<=INPUT_LIMIT),"ROLLING_VERSION_IDENTITY");return v;
+        }
+    }
+    private static boolean trainSlice(DbStore store,ResearchTaskQueueR967.Lease lease,long end)throws IOException{
+        Version v=read(store.readable(),lease);CandidateAstR952 ast=CandidateAstR952.parse(v.ast);need(ast.structuralHash.equals(v.astHash),"ROLLING_AST_HASH");
+        Map<String,Object> protocol=StrictCanonicalJson.readContextObject(v.protocol);
+        LongSummaryBindingsR80.validateProtocolSources(store.readable(),protocol);
+        CandidateCompilerR952.Program program=CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,DevelopmentProductionCP12.readSpecs(store.readable(),ast));
+        if(v.next<v.trainN+120){
+            need(v.checkpoint==null&&(v.next==0&&lease.cursor.isEmpty()||lease.cursor.equals("FEATURES|"+v.next+'|'+v.prefix)),"ROLLING_FEATURE_CURSOR");
+            List<DevelopmentTrainerCP9.Row> prepared=new ArrayList<>();List<byte[]> payloads=new ArrayList<>();List<String> hashes=new ArrayList<>(),sources=new ArrayList<>(),sourceHashes=new ArrayList<>();String prefix=v.prefix;long pageBytes=0;
+            try(MemoryBudgetCP4.Lease inputMemory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(INPUT_LIMIT);
+                MemoryBudgetCP4.Lease pageMemory=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(256L<<10);
+                DevelopmentInputCP9.Input input=DevelopmentInputCP9.read(new ByteArrayInputStream(v.input),v.input.length,v.inputHash,new DevelopmentInputCP9.Header((String)protocol.get("header")),RuntimeMemoryGuardR811.algorithmModelBudget());
+                DevelopmentProductionCP12.FeatureAtomHistoryR79 history=new DevelopmentProductionCP12.FeatureAtomHistoryR79(input,ast.position,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget())){
+                DevelopmentInputCP9.Split split=input.split(ast.graphSpec.manifest.requiredHistory);need(split.trainN==v.trainN,"ROLLING_SPLIT");
+                for(int i=v.next;i<v.trainN+120&&prepared.size()<32&&System.nanoTime()+75_000_000L<end;i++){
+                    ResearchWorkBudgetR927.checkpoint();int target=i<v.trainN?split.trainFirst+i:split.validationFirst+i-v.trainN;
+                    DevelopmentProductionCP12.RollingFeatureR343 raw=DevelopmentProductionCP12.rollingRowR343(store,program,protocol,input,target,v.protocolHash,history);
+                    DevelopmentTrainerCP9.Row row=raw.row;
+                    byte[] payload=DevelopmentProductionCP12.encode(row.valuesCopy(),row.presentCopy());
+                    long rowBytes=2048L+payload.length+2L*raw.sourceJson.length();
+                    if(pageBytes+rowBytes>(256L<<10))break;pageBytes+=rowBytes;
+                    String hash=DevelopmentProductionCP12.featureHashCP12(lease.id,lease.sequence,lease.inputHash,i,i<v.trainN?"TRAIN":"VALIDATION",row.issue,row.actual,raw.sourceHash,row.inputHash,payload);
+                    prepared.add(row);payloads.add(payload);sources.add(raw.sourceJson);sourceHashes.add(raw.sourceHash);hashes.add(hash);prefix=V51ChecksumEngine.sha256(prefix+'|'+hash);
+                }
+            }
+            if(prepared.isEmpty()){release(store,lease,"TIME_BUDGET_EXCEEDED",250);return true;}
+            final String nextPrefix=prefix;final int next=v.next+prepared.size();
+            return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FEATURES",db->{
+                need(ResearchTaskQueueR967.owns(db,lease),"ROLLING_FEATURE_LEASE");LongSummaryBindingsR80.validateProtocolSources(db,protocol);Version current=read(db,lease);need(current.next==v.next&&current.prefix.equals(v.prefix),"ROLLING_FEATURE_CAS");
+                long incoming=0;for(int j=0;j<payloads.size();j++)incoming+=payloads.get(j).length+2L*sources.get(j).length();if(bytes(db)>WORKING_LIMIT-incoming)throw new DevelopmentProductionCP12.Wait("ROLLING_STORAGE_CAPACITY");
+                for(int j=0;j<prepared.size();j++){DevelopmentTrainerCP9.Row row=prepared.get(j);db.execSQL("INSERT INTO "+FEATURE+" VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{v.id,v.next+j,row.issue,row.actual,row.inputHash,payloads.get(j),hashes.get(j),sources.get(j),sourceHashes.get(j)});}
+                db.execSQL("UPDATE "+VERSION+" SET next_index=?,prefix_hash=?,state=?,updated_at=? WHERE version_id=? AND next_index=? AND prefix_hash=?",new Object[]{next,nextPrefix,next==v.trainN+120?"TRAINING":"FEATURES",System.currentTimeMillis(),v.id,v.next,v.prefix});need(changes(db)==1,"ROLLING_FEATURE_CAS");
+                need(ResearchTaskQueueR967.yield(db,lease,"FEATURES|"+next+'|'+nextPrefix,"ROLLING_FEATURE_PAGE",250),"ROLLING_FEATURE_QUEUE");return true;
+            },false));
+        }
+        int width=ast.graphSpec.manifest.orderedFeatureIds.isEmpty()?ast.graphSpec.manifest.inputDimension:ast.graphSpec.manifest.orderedFeatureIds.size();
+        try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(DevelopmentTrainerCP9.estimatedDatasetBytesCP12(v.trainN,width))){
+            List<DevelopmentTrainerCP9.Row> rows=new ArrayList<>();String prefix=V51ChecksumEngine.sha256("R343_FEATURE_PREFIX|"+v.id+'|'+v.protocolHash+'|'+v.inputHash);
+            try(Cursor c=store.readable().rawQuery("SELECT row_index,target_issue,actual,raw_hash,payload,row_hash,source_hash FROM "+FEATURE+" WHERE version_id=? ORDER BY row_index",new String[]{v.id})){
+                while(c.moveToNext()){int i=rows.size();need(i==c.getInt(0)&&i<v.trainN+120,"ROLLING_ROW_ORDER");byte[] payload=c.getBlob(4);String hash=DevelopmentProductionCP12.featureHashCP12(lease.id,lease.sequence,lease.inputHash,i,i<v.trainN?"TRAIN":"VALIDATION",c.getString(1),c.getInt(2),c.getString(6),c.getString(3),payload);need(c.getString(6).matches("[0-9a-f]{64}"),"ROLLING_ORIGINAL_HASH");need(hash.equals(c.getString(5)),"ROLLING_ROW_HASH");prefix=V51ChecksumEngine.sha256(prefix+'|'+hash);rows.add(DevelopmentProductionCP12.decode(c.getString(1),c.getString(3),c.getInt(2),payload));}
+            }
+            need(rows.size()==v.trainN+120&&prefix.equals(v.prefix),"ROLLING_ROWS_PREFIX");
+            if(v.checkpoint!=null)need(TrainingCasCP12.hex(TrainingCasCP12.sha().digest(v.checkpoint)).equals(v.checkpointHash),"ROLLING_CHECKPOINT_HASH");
+            DevelopmentTrainerCP9.Dataset dataset=new DevelopmentTrainerCP9.Dataset(shape(ast,v),v.protocolHash,v.inputHash,ast.graphSpec.manifest.orderedFeatureIds,ast.graphSpec.manifest.missingPolicyPerFeature,rows,v.trainN);
+            try(ResearchTrainingHookRegistryR952.PreparedNumericsCP9 numerical=ResearchTrainingHookRegistryR952.prepareNumericsCP9(dataset,v.checkpoint,end,RuntimeMemoryGuardR811.algorithmModelBudget(),lease.cursor,v.checkpointHash)){
+                final byte[] checkpoint=numerical.checkpoint();final boolean complete=numerical.complete();
+                final String queueCursor=numerical.queueCursor(),checkpointHash=numerical.checkpointHash;
+                String receiptJson="",receiptHash="",modelPayload="",modelHash="";
+                if(complete){Map<String,Object> receipt=new TreeMap<>();receipt.put("revision","R343_ROLLING_DEV_RESULT_1");receipt.put("version",v.id);receipt.put("candidate",v.candidate);receipt.put("protocol",v.protocolHash);receipt.put("input",v.inputHash);receipt.put("ast",v.astHash);receipt.put("cutoff",v.cutoff);receipt.put("trainN",v.trainN);receipt.put("validationN",120);receipt.put("optimizerSteps",numerical.optimizerSteps());receipt.put("epochs",numerical.epochsExecuted());receipt.put("ce",Double.toHexString(numerical.validationCE()));receipt.put("brier",Double.toHexString(numerical.validationBrier()));receipt.put("predictionHash",numerical.orderedPredictionHash());receipt.put("changeKind",ast.graphSpec.modelKind==ModelKind.FIXED_GRAPH?"STATE_REFRESH":"NUMERICAL_UPDATE");receipt.put("newStrategyCount",0);receipt.put("formalFutureCount",0);receipt.put("realAuthority",false);
+                    CandidateCompilerR952.Model provisional=numerical.model(ZERO);
+                    receipt.put("normalizerHash",provisional.modern().normalizerHash);receipt.put("modelKind",ast.graphSpec.modelKind.name());
+                    receipt.put("manifestHash",ast.graphSpec.manifest.hash);receipt.put("weightsHash",FrozenCandidateAdapterR958.developmentWeightsHashCP8(provisional));
+                    receipt.put("trainFirst",protocol.get("trainFirst"));receipt.put("trainLast",protocol.get("trainLast"));receipt.put("validationFirst",v.firstValidation);receipt.put("validationLast",v.cutoff);
+                    receipt.put("canonicalRangeHash",protocol.get("canonicalRangeHash"));receipt.put("selectedEpoch",numerical.selectedEpoch()+1);receipt.put("codeRevision",TrainingCodeIdentityR964.SHA256);
+                    receiptJson=StrictCanonicalJson.writeContext(receipt);receiptHash=V51ChecksumEngine.sha256(receiptJson);CandidateCompilerR952.Model model=numerical.model(receiptHash);modelPayload=model.payload();modelHash=model.hash();}
+                final String resultJson=receiptJson,resultHash=receiptHash,payload=modelPayload,hash=modelHash;final long steps=numerical.optimizerSteps();
+                final long verifiedSourceEpoch=complete?verifySourceR343(store.readable(),protocol):-1;
+                return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_NUMERICS",db->{
+                    need(ResearchTaskQueueR967.owns(db,lease),"ROLLING_NUMERIC_LEASE");if(complete&&sourceEpochR343(db)!=verifiedSourceEpoch)throw new DevelopmentProductionCP12.Wait("ROLLING_SOURCE_CHANGED_DURING_COMMIT");LongSummaryBindingsR80.validateProtocolSources(db,protocol);Version current=read(db,lease);need(current.checkpointHash.equals(v.checkpointHash)&&current.generation==v.generation&&current.next==v.next,"ROLLING_CHECKPOINT_CAS");
+                    if(bytes(db)>WORKING_LIMIT-checkpoint.length-payload.length()*2L)throw new DevelopmentProductionCP12.Wait("ROLLING_STORAGE_CAPACITY");
+                    long now=System.currentTimeMillis();
+                    db.execSQL("UPDATE "+VERSION+" SET checkpoint=?,checkpoint_hash=?,checkpoint_generation=?,model_payload=?,model_hash=?,receipt_json=?,receipt_hash=?,optimizer_steps=?,state=?,updated_at=? WHERE version_id=? AND checkpoint_hash=? AND checkpoint_generation=?",new Object[]{checkpoint,checkpointHash,lease.generation,payload,hash,resultJson,resultHash,steps,complete?"COMPLETE":"TRAINING",now,v.id,v.checkpointHash,v.generation});need(changes(db)==1,"ROLLING_NUMERIC_CAS");
+                    if(!complete){need(ResearchTaskQueueR967.yield(db,lease,queueCursor,"ROLLING_NUMERICAL_SLICE",250),"ROLLING_NUMERIC_QUEUE");return true;}
+                    db.execSQL("UPDATE "+HEAD+" SET version_id=?,through_issue=?,model_hash=?,generation=generation+1,last_reason='',updated_at=? WHERE candidate_id=? AND version_id=?",new Object[]{v.id,v.cutoff,hash,now,v.candidate,v.predecessor});need(changes(db)==1,"ROLLING_HEAD_PREDECESSOR_CAS");
+                    ResearchTaskQueueR967.complete(db,lease,hash);
+                    db.execSQL("INSERT INTO "+OFFER+" VALUES(?,?,?,?,?,'NEEDS_INDEPENDENT_PUBLICATION_ADAPTER',?)",new Object[]{v.id,v.candidate,v.cutoff,hash,resultHash,now});
+                    return true;
+                },false));
+            }
+        }
+    }
+    private static Map<String,Object> summaryProtocol(SQLiteDatabase db,CandidateAstR952 ast){
+        Map<String,Object> result=new TreeMap<>();List<String> epochs=LongSummaryBindingsR80.epochsForAst(db,ast);
+        if(!epochs.isEmpty())result.put("summaryEpochHashes",epochs);return result;
+    }
+    private static Modern shape(CandidateAstR952 ast,Version v){
+        FeatureManifestR952 m=ast.graphSpec.manifest;int f=m.orderedFeatureIds.size(),d=m.inputDimension,e=ast.graphSpec.experts.size();double[] std=new double[f];Arrays.fill(std,1);
+        int[] tree=ast.graphSpec.modelKind==ModelKind.HISTOGRAM_TREE?new int[]{-1}:new int[0];int[] child=tree.length==0?new int[0]:new int[]{-1};double[] probabilities=new double[tree.length*10];Arrays.fill(probabilities,.1);
+        return new Modern(ast.graphSpec.modelKind,ast.family,d,f,e,v.trainN,v.seed,v.cutoff,m.hash,Modern.normalizerHash(m.orderedFeatureIds,new double[f],std),m.graphHash,ZERO,new double[f],std,new double[Modern.expectedWeights(ast.graphSpec.modelKind,d,f,e)],tree,new double[tree.length],child,child,probabilities,ast.graphSpec.experts);
+    }
+    /** Bounded cleanup in the same owner. Never erase a pending feature/checkpoint.
+     * Compact hashes/receipt rows are permanent; no availability claim survives pruning. */
+    public static boolean cleanup(SQLiteDatabase db){
+        need(db.inTransaction(),"ROLLING_CLEANUP_TX");
+        List<String> candidates=new ArrayList<>();
+        try(Cursor c=db.rawQuery("SELECT version_id FROM "+VERSION+" WHERE state IN('COMPLETE','FAILED','DEPENDENCY_GAP') AND (input_blob IS NOT NULL OR checkpoint IS NOT NULL OR model_payload<>'' OR EXISTS(SELECT 1 FROM "+FEATURE+" f WHERE f.version_id="+VERSION+".version_id)) ORDER BY updated_at LIMIT 16",null)){
+            while(c.moveToNext())candidates.add(c.getString(0));
+        }
+        for(String id:candidates){
+            boolean offered;
+            try(Cursor c=db.rawQuery("SELECT 1 FROM "+OFFER+" WHERE version_id=?",new String[]{id})){offered=c.moveToFirst();}
+            if(offered&&RollingFrozenPublisherR343.pinsRawVersion(db,id))continue;
+            db.execSQL("DELETE FROM "+FEATURE+" WHERE rowid IN(SELECT rowid FROM "+FEATURE+" WHERE version_id=? ORDER BY row_index LIMIT 64)",new Object[]{id});if(changes(db)>0)return true;
+            db.execSQL("UPDATE "+VERSION+" SET input_blob=NULL,checkpoint=NULL WHERE version_id=? AND (input_blob IS NOT NULL OR checkpoint IS NOT NULL)",new Object[]{id});if(changes(db)>0)return true;
+            db.execSQL("UPDATE "+VERSION+" SET model_payload='' WHERE version_id=? AND model_payload<>'' AND NOT EXISTS(SELECT 1 FROM "+HEAD+" h WHERE h.version_id=?)",new Object[]{id,id});if(changes(db)>0)return true;
+        }
+        return false;
+    }
+    /** Same original terminal source for missed deliveries after restart. Capture only
+     * the newest completed issue beyond the event watermark; live delivery records all
+     * other periods. The rolling input still includes every legal row in its cutoff. */
+    private static boolean catchUpOne(DbStore store,long deadline){
+        if(System.nanoTime()+100_000_000L>=deadline)return false;String[] row=null;
+        try(Cursor c=store.readable().rawQuery("SELECT t.target_issue,t.settlement_hash,t.completed_at FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t JOIN "+DrawDependencyInputCP12.SOURCE+" d ON d.issue=t.target_issue AND d.dirty=0 WHERE t.status='COMPLETED' AND t.completed_at>0 AND t.target_issue>COALESCE((SELECT MAX(target_issue) FROM "+EVENT+"),'') ORDER BY t.target_issue DESC LIMIT 1",null)){
+            if(c.moveToFirst())row=new String[]{c.getString(0),c.getString(1),c.getString(2)};
+        }
+        if(row==null)return false;final String[] terminal=row;final Models.Draw draw=store.getDrawByIssue(row[0]);
+        if(draw==null||!draw.isValid()||draw.dirty!=0)return false;
+        return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_EVENT",db->{settled(db,draw,terminal[1],Long.parseLong(terminal[2]));return true;},false));
+    }
+    private static void recordPlanWait(DbStore store,String candidate,String reason){
+        store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_PLAN_WAIT",db->{
+            long now=System.currentTimeMillis();db.execSQL("INSERT OR IGNORE INTO "+HEAD+"(candidate_id,updated_at) VALUES(?,?)",new Object[]{candidate,now});
+            db.execSQL("UPDATE "+HEAD+" SET last_reason=?,updated_at=? WHERE candidate_id=?",new Object[]{reason,now,candidate});return true;
+        },false);
+    }
+    /** Missing past PIT witnesses cannot be manufactured by later teachers. A newer
+     * settled cutoff permits a new independent attempt; the old gap stays terminal. */
+    private static boolean retireSupersededSourceGap(DbStore store,ResearchTaskQueueR967.Lease lease){
+        return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_SOURCE_GAP",db->{
+            if(!ResearchTaskQueueR967.owns(db,lease))return false;Version v=read(db,lease);
+            try(Cursor c=db.rawQuery("SELECT 1 FROM "+EVENT+" WHERE target_issue>? LIMIT 1",new String[]{v.cutoff})){if(!c.moveToFirst())return false;}
+            Map<String,Object> receipt=new TreeMap<>();receipt.put("revision","R343_ROLLING_SOURCE_GAP_1");receipt.put("version",v.id);receipt.put("candidate",v.candidate);receipt.put("cutoff",v.cutoff);receipt.put("cursor",lease.cursor);receipt.put("reason","MISSING_ORIGINAL_PIT_HISTORY_AT_FIXED_CUTOFF");receipt.put("newStrategyCount",0);receipt.put("formalFutureCount",0);receipt.put("realAuthority",false);
+            String json=StrictCanonicalJson.writeContext(receipt),hash=V51ChecksumEngine.sha256(json);long now=System.currentTimeMillis();
+            db.execSQL("UPDATE "+VERSION+" SET state='DEPENDENCY_GAP',receipt_json=?,receipt_hash=?,updated_at=? WHERE version_id=? AND state IN('FEATURES','TRAINING')",new Object[]{json,hash,now,v.id});need(changes(db)==1,"ROLLING_GAP_CAS");
+            need(ResearchTaskQueueR967.expireDependencyR343(db,lease,"ROLLING_ORIGINAL_SOURCE_GAP",hash),"ROLLING_GAP_QUEUE_CAS");
+            db.execSQL("UPDATE "+HEAD+" SET last_reason='WAIT_BOUND_FEATURE_HISTORY',updated_at=? WHERE candidate_id=?",new Object[]{now,v.candidate});return true;
+        },false));
+    }
+    public static long sourceEpochR343(SQLiteDatabase db){
+        try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r343_rolling_canonical_epoch'",null)){
+            need(c.moveToFirst(),"ROLLING_SOURCE_EPOCH_MISSING");return Long.parseLong(c.getString(0));
+        }
+    }
+    public static long verifySourceR343(SQLiteDatabase db,Map<String,Object> protocol){
+        long epoch=sourceEpochR343(db);Object count=protocol.get("historyCount");need(count instanceof Number,"ROLLING_HISTORY_COUNT");
+        String hash=canonicalRangeHash(db,(String)protocol.get("historyFirst"),(String)protocol.get("historyLast"),((Number)count).intValue());
+        need(hash.equals(protocol.get("canonicalRangeHash")),"ROLLING_CANONICAL_SOURCE_REVISED");return epoch;
+    }
+    private static String canonicalRangeHash(SQLiteDatabase db,String first,String last,int expected){
+        need(TargetIssueResolver.isValid(first)&&TargetIssueResolver.isValid(last)&&expected>=421&&expected<=5000,"ROLLING_SOURCE_RANGE");
+        String hash=V51ChecksumEngine.sha256("R343_CANONICAL_RANGE|"+first+'|'+last+'|'+expected);int count=0;
+        try(Cursor c=db.rawQuery("SELECT c.target_issue,c.status,c.canonical_draw_hash,d.dirty,d.open_time,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 FROM "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c LEFT JOIN "+DrawDependencyInputCP12.SOURCE+" d ON d.issue=c.target_issue WHERE c.target_issue>=? AND c.target_issue<=? ORDER BY c.target_issue",new String[]{first,last})){
+            while(c.moveToNext()){
+                if(!"CONFIRMED_CANONICAL_DRAW".equals(c.getString(1))||c.isNull(3)||c.getInt(3)!=0||c.getLong(4)<=0)throw new DevelopmentProductionCP12.Wait("WAIT_AUTHORITATIVE_DRAW");
+                Models.Draw draw=new Models.Draw();draw.issue=c.getString(0);draw.openTime=c.getLong(4);
+                for(int i=0;i<10;i++)draw.numbers[i]=c.getInt(5+i);
+                need(draw.isValid(),"ROLLING_RAW_DRAW_INVALID");String original=DrawHashR36.sha256V2(draw);
+                if(!original.equals(c.getString(2))&&!DrawHashR36.sha256(draw).equals(c.getString(2)))throw new DevelopmentProductionCP12.Wait("WAIT_AUTHORITATIVE_DRAW");
+                hash=V51ChecksumEngine.sha256(hash+'|'+draw.issue+'|'+draw.openTime+'|'+original);count++;
+            }
+        }
+        if(count!=expected)throw new DevelopmentProductionCP12.Wait("ROLLING_CANONICAL_RANGE_UNAVAILABLE");return hash;
+    }
+    private static long bytes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT COALESCE((SELECT SUM(COALESCE(length(input_blob),0)+COALESCE(length(checkpoint),0)+length(CAST(model_payload AS BLOB))) FROM "+VERSION+"),0)+COALESCE((SELECT SUM(length(payload)+length(CAST(source_json AS BLOB))) FROM "+FEATURE+"),0)",null)){need(c.moveToFirst(),"ROLLING_STORAGE_READ");return c.getLong(0);}}
+    private static void release(DbStore store,ResearchTaskQueueR967.Lease lease,String reason,long delay){ResearchWorkBudgetR927.finishLeaseReceiptR66(()->store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_WAIT",db->ResearchTaskQueueR967.yield(db,lease,lease.cursor,reason,delay),false));}
+    private static boolean retired(String s){return s.equals("QUARANTINED")||s.equals("QUALITY_PRUNED")||s.equals("RESOURCE_RETIRED");}
+    private static int changes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){return c.moveToFirst()?c.getInt(0):0;}}
+    private static void need(boolean b,String code){if(!b)throw new IllegalStateException(code);}
+}

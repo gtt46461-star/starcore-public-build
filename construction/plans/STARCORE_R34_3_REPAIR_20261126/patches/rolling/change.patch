@@ -1,0 +1,1078 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java
+@@ -110,10 +110,24 @@
+                 + "'r958_frozen_predraw','r952_research_outbox','atomic_tool_context_r943','r26_feedback','r31_feedback_event','r31_feedback_receipt',"
+                 + "'v57_algorithm_predraw_r908','v57_research_predraw_r817','research_new_asset_freeze_v41',"
+                 + "'research_fixed_pair_r932','research_candidate_cal_observation_r932','research_candidate_cal_study_r932',"
+-                + "'research_challenge_prediction_r932','research_legacy_asset_head_audit_r80','research_bound_source_r80','research_bound_cohort_r80','research_bound_input_r80','r80_probe_forecast','r80_probe_label','su1_live_target','su1_pending_settlement','su1_opportunity','su1_opportunity_outcome')",null)) {
++                + "'research_challenge_prediction_r932','research_legacy_asset_head_audit_r80','research_bound_source_r80','research_bound_cohort_r80','research_bound_input_r80','r80_probe_forecast','r80_probe_label','su1_live_target','su1_pending_settlement','su1_opportunity','su1_opportunity_outcome','research_rolling_version_r343','research_rolling_offer_r343','research_rolling_frozen_publication_r343','research_rolling_publication_reject_r343')",null)) {
+             while(schema.moveToNext())installed.add(schema.getString(0));
+         }
+         List<String> clauses = new ArrayList<>();
++        // R343: retain only exact original range dependencies outside the unchanged
++        // 5000-row hot window. Never synthesize draws or broaden normal history reads.
++        if(installed.contains("research_rolling_version_r343")){
++            String unfinished="v.state IN('FEATURES','TRAINING')";
++            if(installed.contains("research_rolling_offer_r343")){
++                String unresolved="EXISTS(SELECT 1 FROM research_rolling_offer_r343 o WHERE o.version_id=v.version_id)";
++                if(installed.contains("research_rolling_frozen_publication_r343"))unresolved+=" AND NOT EXISTS(SELECT 1 FROM research_rolling_frozen_publication_r343 p WHERE p.version_id=v.version_id)";
++                if(installed.contains("research_rolling_publication_reject_r343"))unresolved+=" AND NOT EXISTS(SELECT 1 FROM research_rolling_publication_reject_r343 r WHERE r.version_id=v.version_id)";
++                unfinished+=" OR (v.state='COMPLETE' AND "+unresolved+")";
++            }
++            // Exactly one issue placeholder per clause, matching Reference.count.
++            clauses.add("EXISTS(SELECT 1 FROM research_rolling_version_r343 v WHERE "+issue+" BETWEEN v.input_first_issue AND v.cutoff_issue AND ("+unfinished+"))");
++        }
++
+         // Native delivery still needs the original draw after the hot 5000-row window rotates.
+         // These are original-owner pins, not another history or training stream.
+         if(installed.contains("r26_feedback"))clauses.add("EXISTS(SELECT 1 FROM "+SOURCE+" d WHERE d.issue="+issue
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
+@@ -74,6 +74,11 @@
+                     "research_training_feature_cursor_cp12", "research_action_v2",
+                     "research_matrix_checkpoint_v2", "research_matrix_terminal_cp12",
+                     "research_task_checkpoint_v2", "research_development_receipt_v2",
++                    "research_training_recovery_r343", "research_rolling_event_r343",
++                    "research_rolling_version_r343", "research_rolling_head_r343",
++                    "research_rolling_feature_r343", "research_rolling_offer_r343",
++                    "research_rolling_frozen_publication_r343", "research_rolling_publication_reject_r343",
++                    "research_rolling_publication_page_r343",
+                     "research_artifact_identity_v2", "r967_frozen_evaluation_v2",
+                     "r952_learning_cursor", "r952_artifact", "r952_candidate_predraw",
+                     "r958_frozen_candidate", "r958_frozen_predraw",
+@@ -125,6 +130,11 @@
+             out.write("],\"multiHorizonProbeResearch\":"+MultiHorizonProbeR80.reportJson(snapshot,()->control.shouldContinue())+",\"researchSchedulerState\":[");first=true;
+             // Exact allow-list: never export unrelated app_state credentials or preferences.
+             String[] keys={"cp12_import_subslot","cp12_import_last_result","r975_director_priority",
++                    "cp11_training_subslot", "r343_rolling_plan_turn", "r343_rolling_canonical_epoch",
++                    "r343_recovery_hold_e3b213d36a7ed00285d3eb1d5b3c9cdb2ed7c27da335ecc0669430e6276230af",
++                    "r343_recovery_hold_cb45e8fea8dcd1299fbbf07aa0d0207e523d21b98b0cc3b494bd07a3abd7fb91",
++                    "r343_recovery_hold_1b2b6718fa182a34b2cb479ecadac9e093f2ebc71a9714ef807599d8c6c1ddd2",
++                    "r343_recovery_hold_50a155a379dd3897a692b8d0448d68228ddb097dd02bb6b29a3c88af6dc2a683",
+                     "r65_director_last_slot","r65_director_last_slot_at","r912_research_continuity_status",
+                     "r912_research_continuity_at","r908_research_tick_status","r908_research_tick_at",
+                     "r908_research_tick_cost_ms","r962_research_next_lane","r971_maintenance_turn",
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java
+@@ -95,7 +95,7 @@
+                 +" OR (j.snapshot_blob IS NOT NULL AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
+                 +" AND NOT EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 AND d.issue>=j.target_issue)"
+                 +" AND EXISTS(SELECT 1 FROM r952_candidate nc JOIN "+ResearchEvaluationRunR967.RUN+" nr ON nr.learner_id=nc.candidate_id"
+-                +" WHERE nc.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("nr.rule_hash")
++                +" WHERE nc.ast NOT LIKE 'AST3:%' AND nc.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("nr.rule_hash")
+                 +" AND nr.first_issue=(SELECT MAX(nr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" nr2 WHERE nr2.learner_id=nc.candidate_id AND nr2.first_issue<=j.target_issue)"
+                 +" AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw np WHERE np.candidate_id=nc.candidate_id AND np.target_issue=j.target_issue)))"
+                 +" ORDER BY j.target_issue DESC LIMIT "+limit;
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java
+@@ -145,6 +145,16 @@
+         boolean updated=changed(db)==1;
+         if(updated)ACTIVE_CP4.remove(lease.id,lease);
+         return updated;
++    }
++    /** A rolling source gap or superseded UNPUBLISHED offer. Preserve the terminal
++     * task and receipt; a later cutoff uses a DIFFERENT version id.
++     * This does not classify the base strategy or alter a numerical model cursor. */
++    public static boolean expireDependencyR343(SQLiteDatabase db,Lease lease,String reason,String receiptHash){
++        transaction(db);
++        if(lease==null||(!"R343_ROLLING_TRAIN".equals(lease.kind)&&!"R343_ROLLING_FREEZE".equals(lease.kind))||reason==null||receiptHash==null||!receiptHash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R343_DEPENDENCY_EXPIRY_IDENTITY");
++        if(!owns(db,lease))return false;
++        db.execSQL("UPDATE "+TABLE+" SET status='EXPIRED',lease_owner='',lease_until=0,available_at=0,last_error=?,result_hash=?,updated_at=? WHERE task_id=? AND generation=? AND cursor=? AND status='RUNNING' AND lease_owner=?",new Object[]{reason,receiptHash,System.currentTimeMillis(),lease.id,lease.generation,lease.cursor,lease.owner});
++        boolean updated=changed(db)==1;if(updated)ACTIVE_CP4.remove(lease.id,lease);return updated;
+     }
+     /** Resource HOLD keeps the exact durable cursor/pins without creating evidence. */
+     public static boolean waitInputCP12(SQLiteDatabase db,Lease lease,String reason,long delayMs){
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java
+@@ -152,7 +152,7 @@
+         String positionTail="%,\"position\":"+position+",\"version\":3}";
+         String target=TargetIssueResolver.next(source).targetIssue;List<FrozenCandidateAdapterR958.Frozen> parents=new ArrayList<>();
+         try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(3L<<20);
+-            Cursor c=db.rawQuery(parentSelectionSqlR81(),new String[]{positionTail,target,target,target,CandidateCalibrationR932.QUALITY_POLICY_HASH_CP12})){
++            Cursor c=db.rawQuery(parentSelectionSqlR81(db,target),new String[]{positionTail,target,target,CandidateCalibrationR932.QUALITY_POLICY_HASH_CP12})){
+             while(c.moveToNext()){ResearchWorkBudgetR927.checkpoint();FrozenCandidateAdapterR958.Frozen f=FrozenCandidateAdapterR958.load(db,c.getString(0));if(!eligibleParentR80(db,f,target)||f.ast.position!=position)continue;if(parents.isEmpty())parents.add(f);else if(f.ast.position==parents.get(0).ast.position&&!f.learner.equals(parents.get(0).learner)){parents.add(f);break;}}
+             if(parents.size()!=MAX_PARENTS)throw new DevelopmentProductionCP12.Wait("WAIT_BOUND_FROZEN_PARENTS_POSITION_"+position);
+             List<AtomSpecCP4> atoms=specs(db,parents.get(0).ast.position);Map<String,Object> selection=new TreeMap<>();selection.put("revision",REVISION);selection.put("role",ROLE);selection.put("sourceIssue",source);selection.put("position",parents.get(0).ast.position);selection.put("selectionPolicy","POSITION_FAIR_FITTED_NOT_QUALIFIED_DISTINCT_LEARNERS_R81");selection.put("featurePolicy","FIRST_COMPLETE_CONSECUTIVE_421_300_TRAIN_1_EMBARGO_120_VALIDATION");
+@@ -173,10 +173,10 @@
+             return readR80(db,selected);
+         }
+     }
+-    /** All cheap current-owner eligibility is applied before the 32-object materialization cap.
++    /** All cheap exact-frozen-lineage eligibility is applied before the 32-object materialization cap.
+      * Full AST/model/hash and parent eligibility are still rechecked after selection and in CAS. */
+-    static String parentSelectionSqlR81(){
+-        return "WITH eligible AS (SELECT f.candidate_id,f.learner_id,f.created_at FROM "+ResearchEvaluationRunR967.EVAL+" f JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash AND run.integrity_epoch=f.integrity_epoch JOIN r952_candidate learner ON learner.candidate_id=f.learner_id AND learner.structural_hash=run.ast_hash AND learner.ast=f.ast WHERE f.candidate_id LIKE '"+ResearchEvaluationRunR967.PREFIX+"%' AND f.ast LIKE 'AST3:%' AND f.ast LIKE ? AND f.created_issue<=? AND f.trained_until_issue<? AND length(CAST(f.ast AS BLOB))<=32768 AND length(CAST(f.model_payload AS BLOB))<=262144 AND instr(f.ast,'\"experts\":[],\"family\":')>0 AND instr(f.ast,'\"bindingHashes\":[]')>0 AND instr(f.ast,'\"matrixSpecRefs\":[]')>0 AND learner.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("f.rule_hash")+" AND run.first_issue=(SELECT MAX(rr.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) AND NOT EXISTS(SELECT 1 FROM "+PARENT+" old WHERE old.candidate_id=f.candidate_id) AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) AND NOT EXISTS(SELECT 1 FROM research_capture_reservation_v2 r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state IN('RESERVED','ACTIVE')) AND NOT EXISTS(SELECT 1 FROM "+FixedResearchWindowR932.WINDOW+" w WHERE w.candidate_key=('algorithm:'||f.candidate_id) AND w.state IN('OPEN','PAUSED')) AND NOT EXISTS(SELECT 1 FROM "+FixedWindowCertificatePublisherR932.TABLE+" cert WHERE cert.candidate_key=('algorithm:'||f.candidate_id) AND cert.certificate_hash<>'') AND NOT EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" active LEFT JOIN "+CandidateCalibrationR932.QUALITY_CP12+" qualified ON qualified.study_hash=active.study_hash WHERE active.candidate_key=('algorithm:'||f.candidate_id) AND (active.state IN('COLLECTING','READY') OR qualified.state='CALIBRATION_QUALIFIED')) AND EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" s JOIN "+CandidateCalibrationR932.QUALITY_CP12+" q ON q.study_hash=s.study_hash WHERE s.candidate_key=('algorithm:'||f.candidate_id) AND s.state='FROZEN' AND q.state='FITTED_BUT_NOT_QUALIFIED' AND q.policy_hash=?)) SELECT e.candidate_id FROM eligible e WHERE NOT EXISTS(SELECT 1 FROM eligible earlier WHERE earlier.learner_id=e.learner_id AND (earlier.created_at<e.created_at OR (earlier.created_at=e.created_at AND earlier.candidate_id<e.candidate_id))) ORDER BY e.created_at,e.candidate_id LIMIT 32";
++    static String parentSelectionSqlR81(SQLiteDatabase db,String target){
++        return "WITH eligible AS (SELECT f.candidate_id,f.learner_id,f.created_at FROM "+ResearchEvaluationRunR967.EVAL+" f JOIN r952_candidate learner ON learner.candidate_id=f.learner_id AND learner.ast=f.ast WHERE f.candidate_id LIKE '"+ResearchEvaluationRunR967.PREFIX+"%' AND f.ast LIKE 'AST3:%' AND f.ast LIKE ? AND f.created_issue<=? AND f.trained_until_issue<? AND length(CAST(f.ast AS BLOB))<=32768 AND length(CAST(f.model_payload AS BLOB))<=262144 AND instr(f.ast,'\"experts\":[],\"family\":')>0 AND instr(f.ast,'\"bindingHashes\":[]')>0 AND instr(f.ast,'\"matrixSpecRefs\":[]')>0 AND learner.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("f.rule_hash")+" AND "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)+" AND NOT EXISTS(SELECT 1 FROM "+PARENT+" old WHERE old.candidate_id=f.candidate_id) AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) AND NOT EXISTS(SELECT 1 FROM research_capture_reservation_v2 r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state IN('RESERVED','ACTIVE')) AND NOT EXISTS(SELECT 1 FROM "+FixedResearchWindowR932.WINDOW+" w WHERE w.candidate_key=('algorithm:'||f.candidate_id) AND w.state IN('OPEN','PAUSED')) AND NOT EXISTS(SELECT 1 FROM "+FixedWindowCertificatePublisherR932.TABLE+" cert WHERE cert.candidate_key=('algorithm:'||f.candidate_id) AND cert.certificate_hash<>'') AND NOT EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" active LEFT JOIN "+CandidateCalibrationR932.QUALITY_CP12+" qualified ON qualified.study_hash=active.study_hash WHERE active.candidate_key=('algorithm:'||f.candidate_id) AND (active.state IN('COLLECTING','READY') OR qualified.state='CALIBRATION_QUALIFIED')) AND EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" s JOIN "+CandidateCalibrationR932.QUALITY_CP12+" q ON q.study_hash=s.study_hash WHERE s.candidate_key=('algorithm:'||f.candidate_id) AND s.state='FROZEN' AND q.state='FITTED_BUT_NOT_QUALIFIED' AND q.policy_hash=?)) SELECT e.candidate_id FROM eligible e WHERE NOT EXISTS(SELECT 1 FROM eligible earlier WHERE earlier.learner_id=e.learner_id AND (earlier.created_at<e.created_at OR (earlier.created_at=e.created_at AND earlier.candidate_id<e.candidate_id))) ORDER BY e.created_at,e.candidate_id LIMIT 32";
+     }
+     private static Map<String,Object> fields(Object... pairs){Map<String,Object> out=new TreeMap<>();for(int i=0;i<pairs.length;i+=2)out.put((String)pairs[i],pairs[i+1]);return out;}
+     private static String latest(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT d.issue FROM draws d JOIN "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c ON c.target_issue=d.issue AND c.status='CONFIRMED_CANONICAL_DRAW' AND c.canonical_draw_hash=d.draw_hash_v2 JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=d.issue AND t.status='COMPLETED' AND t.completed_at>0 WHERE d.dirty=0 ORDER BY d.issue DESC LIMIT 1",null)){return c.moveToFirst()?c.getString(0):"";}}
+@@ -191,7 +191,7 @@
+     }
+     private static String parentReasonR80(SQLiteDatabase db,String cohortHash,String target){
+         int matched=0;
+-        try(Cursor p=db.rawQuery("SELECT p.candidate_id FROM "+PARENT+" p JOIN "+ResearchEvaluationRunR967.EVAL+" f ON f.candidate_id=p.candidate_id AND f.structural_hash=p.freeze_hash AND f.model_hash=p.model_hash AND f.learner_id=p.learner_id JOIN r952_candidate learner ON learner.candidate_id=p.learner_id AND learner.structural_hash=p.learner_ast_hash JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash AND run.ast_hash=p.learner_ast_hash AND run.integrity_epoch=f.integrity_epoch WHERE p.cohort_hash=? AND f.created_issue<=? AND f.trained_until_issue<? AND learner.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("f.rule_hash")+" AND run.first_issue=(SELECT MAX(rr.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED')) AND NOT EXISTS(SELECT 1 FROM research_capture_reservation_v2 r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state IN('RESERVED','ACTIVE')) AND NOT EXISTS(SELECT 1 FROM "+FixedResearchWindowR932.WINDOW+" w WHERE w.candidate_key=('algorithm:'||f.candidate_id) AND w.state IN('OPEN','PAUSED')) AND NOT EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" s LEFT JOIN "+CandidateCalibrationR932.QUALITY_CP12+" q ON q.study_hash=s.study_hash WHERE s.candidate_key=('algorithm:'||f.candidate_id) AND (s.state IN('COLLECTING','READY') OR q.state='CALIBRATION_QUALIFIED')) AND NOT EXISTS(SELECT 1 FROM "+FixedWindowCertificatePublisherR932.TABLE+" certificate WHERE certificate.candidate_key=('algorithm:'||f.candidate_id) AND certificate.certificate_hash<>'') AND EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" s JOIN "+CandidateCalibrationR932.QUALITY_CP12+" q ON q.study_hash=s.study_hash WHERE s.candidate_key=('algorithm:'||f.candidate_id) AND s.state='FROZEN' AND q.state='FITTED_BUT_NOT_QUALIFIED' AND q.policy_hash='"+CandidateCalibrationR932.QUALITY_POLICY_HASH_CP12+"')",new String[]{cohortHash,target,target,target})){while(p.moveToNext())matched++;}
++        try(Cursor p=db.rawQuery("SELECT p.candidate_id FROM "+PARENT+" p JOIN "+ResearchEvaluationRunR967.EVAL+" f ON f.candidate_id=p.candidate_id AND f.structural_hash=p.freeze_hash AND f.model_hash=p.model_hash AND f.learner_id=p.learner_id JOIN r952_candidate learner ON learner.candidate_id=p.learner_id AND learner.structural_hash=p.learner_ast_hash AND learner.ast=f.ast WHERE p.cohort_hash=? AND f.created_issue<=? AND f.trained_until_issue<? AND learner.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("f.rule_hash")+" AND "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)+" AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED')) AND NOT EXISTS(SELECT 1 FROM research_capture_reservation_v2 r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state IN('RESERVED','ACTIVE')) AND NOT EXISTS(SELECT 1 FROM "+FixedResearchWindowR932.WINDOW+" w WHERE w.candidate_key=('algorithm:'||f.candidate_id) AND w.state IN('OPEN','PAUSED')) AND NOT EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" s LEFT JOIN "+CandidateCalibrationR932.QUALITY_CP12+" q ON q.study_hash=s.study_hash WHERE s.candidate_key=('algorithm:'||f.candidate_id) AND (s.state IN('COLLECTING','READY') OR q.state='CALIBRATION_QUALIFIED')) AND NOT EXISTS(SELECT 1 FROM "+FixedWindowCertificatePublisherR932.TABLE+" certificate WHERE certificate.candidate_key=('algorithm:'||f.candidate_id) AND certificate.certificate_hash<>'') AND EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.STUDY+" s JOIN "+CandidateCalibrationR932.QUALITY_CP12+" q ON q.study_hash=s.study_hash WHERE s.candidate_key=('algorithm:'||f.candidate_id) AND s.state='FROZEN' AND q.state='FITTED_BUT_NOT_QUALIFIED' AND q.policy_hash='"+CandidateCalibrationR932.QUALITY_POLICY_HASH_CP12+"')",new String[]{cohortHash,target,target})){while(p.moveToNext())matched++;}
+         if(matched!=MAX_PARENTS)return "BOUND_PARENT_ELIGIBILITY_DRIFT";
+         return "";
+     }
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java
+@@ -187,7 +187,7 @@
+         int first=bound?loaded.size()-required:Math.max(suffix,loaded.size()-historyReadLimitR72(requiredHistory,false));
+         return Collections.unmodifiableList(new ArrayList<>(loaded.subList(first,loaded.size())));
+     }
+-    private static List<AtomSpecCP4> readSpecs(SQLiteDatabase db,CandidateAstR952 ast) {
++    static List<AtomSpecCP4> readSpecs(SQLiteDatabase db,CandidateAstR952 ast) {
+         List<AtomSpecCP4> specs=new ArrayList<>();Set<String> seen=new HashSet<>();
+         for(NodeSpec node:ast.graphSpec.nodes)if(node.kind==NodeKind.ATOM&&seen.add(node.source)){
+             try(Cursor c=db.rawQuery("SELECT atom_id,spec_hash,params_json,output_type,min_history,missing_policy,state FROM research_atom_spec_v2 WHERE atom_id=?",new String[]{node.source})){
+@@ -257,6 +257,24 @@
+         }
+         }
+     }
++    /** R343 independent learner uses the exact original PIT source decoder. */
++    static final class RollingFeatureR343 {
++        final DevelopmentTrainerCP9.Row row;final String sourceJson,sourceHash;
++        RollingFeatureR343(DevelopmentTrainerCP9.Row row,String sourceJson,String sourceHash){
++            this.row=row;this.sourceJson=sourceJson;this.sourceHash=sourceHash;
++        }
++    }
++    static RollingFeatureR343 rollingRowR343(DbStore store,Program program,
++            Map<String,Object> protocol,DevelopmentInputCP9.Input input,int targetIndex,
++            String protocolHash,FeatureAtomHistoryR79 history)throws IOException{
++        history.beforeExternalInputs(program);
++        HistoricalTrainingReceiptCP12.OriginalR343 original=HistoricalTrainingReceiptCP12.originalForRollingR343(
++                store.readable(),program,input.issue(targetIndex),input.openTime(targetIndex));
++        Map<String,Value> atoms=dataAtoms(program,input,targetIndex,original.decoded,history);
++        DevelopmentTrainerCP9.Row row=WorldFeatureComputationR974.rawTrainingRowCP11(program,input,targetIndex,protocolHash,
++                atoms,original.decoded.experts,original.decoded.hash,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget());
++        return new RollingFeatureR343(row,original.canonical,original.decoded.hash);
++    }
+     /** Before row decoding: conservative object/array/string overhead plus one SQL row
+      * and model-shape scratch. Dataset keeps row references; it never duplicates vectors. */
+     static long datasetBytesCP12(int trainN,int width){
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/HistoricalTrainingReceiptCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/HistoricalTrainingReceiptCP12.java
+@@ -80,6 +80,27 @@
+                     need(StrictCanonicalJson.writeContext(row).equals(line),"TRAIN_BOUND_NONCANONICAL");return decode(program,row,line,drawAt);}
+             }
+         }throw new DevelopmentProductionCP12.Wait("WAIT_BOUND_FEATURE_HISTORY");
++    }
++    /** Independent rolling owner: the SAME original receipt extractor and decoder.
++     * The serialized original is returned so that its version row can preserve it;
++     * no current teacher, postdraw context or fabricated historical label is allowed. */
++    static final class OriginalR343 {
++        final Row decoded;final String canonical;
++        OriginalR343(Row decoded,String canonical){this.decoded=decoded;this.canonical=canonical;}
++    }
++    static OriginalR343 originalForRollingR343(SQLiteDatabase db,Program program,String target,long drawAt){
++        if(program.manifest.bindingHashes.isEmpty()&&program.ast.graphSpec.experts.isEmpty()
++                &&!MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program)&&program.manifest.summarySpecRefs.isEmpty())
++            return new OriginalR343(new Row(Collections.emptyMap(),Collections.emptyList(),EMPTY),"");
++        String original=extract(db,program,target,drawAt);
++        need(original.getBytes(StandardCharsets.UTF_8).length<=MAX_LINE,"ROLLING_ORIGINAL_RECEIPT_SIZE");
++        Map<String,Object> row=StrictCanonicalJson.readContextObject(original);
++        need(StrictCanonicalJson.writeContext(row).equals(original)&&target.equals(str(row,"target"))
++                &&number(row,"drawAt")==drawAt&&program.manifest.hash.equals(str(row,"manifestHash")),"ROLLING_ORIGINAL_RECEIPT_IDENTITY");
++        return new OriginalR343(decode(program,row,original,drawAt),original);
++    }
++    static boolean originalHashR343(String canonical,String hash){
++        return canonical.isEmpty()?EMPTY.equals(hash):V51ChecksumEngine.sha256(canonical).equals(hash);
+     }
+     private static String extract(SQLiteDatabase db,Program program,String target,long drawAt) {
+         String derivedR81=BoundAtomLifecycleR80.extractDerivedR81(db,program,target,drawAt);
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java
+@@ -166,6 +166,7 @@
+             if(n>0)FeedbackMatrixRegistryR952.postDraw(db,draw.issue,settlementHash);
+             n+=FrozenCandidateAdapterR958.settle(db,draw,settlementHash);
+             n+=MultiHorizonProbeR80.settle(db,draw,settlementHash,completedAt);
++            RollingLearnerR343.settled(db,draw,settlementHash,completedAt);
+             return n;
+             } catch(RuntimeException bad) { failure[0]=bad; throw bad; }
+         }},null);
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java
+@@ -38,7 +38,7 @@
+     public static boolean ready(SQLiteDatabase db) {
+         return TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
+                 && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)
+-                && TrainingRecoveryR343.installed(db);
++                && TrainingRecoveryR343.installed(db) && RollingLearnerR343.installed(db) && RollingFrozenPublisherR343.installed(db);
+     }
+ 
+     /** Original CP8 definitions only; callers receive a new array, never the DDL owner array. */
+@@ -83,7 +83,7 @@
+         try {
+             if (TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
+                     && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)
+-                    && TrainingRecoveryR343.installed(db)) {
++                    && TrainingRecoveryR343.installed(db) && RollingLearnerR343.installed(db) && RollingFrozenPublisherR343.installed(db)) {
+                 installer.install(target -> {});
+                 return true;
+             }
+@@ -314,6 +314,11 @@
+                 com.ethk3.novaonepro.ResearchTaskQueueR967.schema(target);
+                 TrainingRecoveryR343.schema(target);
+             })) return false;
++            if (runPendingR64(db,completed,installer,"R343_ROLLING_LEARNER_V1", target -> {
++                RollingLearnerR343.schema(target);
++                RollingFrozenPublisherR343.schema(target);
++            })) return false;
++            if (!RollingLearnerR343.installed(db)||!RollingFrozenPublisherR343.installed(db))throw new IllegalStateException("R343_ROLLING_SCHEMA_MISSING_AFTER_MIGRATION");
+             if (!TrainingRecoveryR343.installed(db))throw new IllegalStateException("R343_RECOVERY_SCHEMA_MISSING_AFTER_MIGRATION");
+             if (!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) {
+                 installer.install(ResearchMigrationRegistryR952::ensureChampionProbabilityR82); return false;
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java
+@@ -138,18 +138,20 @@
+         if(store==null)return false;
+         boolean advanced=TrainingRecoveryR343.drainOne(store,endNs);int empty=0;
+         // Spend the bounded TRAIN quantum on independent durable units. Keep the
+-        // persisted three-owner rotation so a legacy backlog cannot starve AST3/freezing.
++        // persisted five-owner rotation so a legacy backlog cannot starve AST3/freezing.
+         for(int turn=0;turn<12&&System.nanoTime()+50_000_000L<endNs;turn++){
+             com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();
+             String kind=advanceTrainingSlotCP11(store,endNs);if(kind==null)return advanced;
+             if(drainTrainingKindR65(store,kind,endNs)){advanced=true;empty=0;}
+-            else if(++empty>=3)break;
++            else if(++empty>=5)break;
+         }
+         return advanced;
+     }
+     private static boolean drainTrainingKindR65(com.ethk3.novaonepro.DbStore store,String kind,long endNs){
+         if(System.nanoTime()>=endNs)return false;
+         if("LEGACY_OUTBOX".equals(kind))return ResearchOutboxR952.drainOne(store);
++        if(RollingLearnerR343.KIND.equals(kind))return RollingLearnerR343.drainOne(store,endNs);
++        if("R343_ROLLING_FREEZE".equals(kind))return RollingFrozenPublisherR343.drainOne(store,endNs);
+         com.ethk3.novaonepro.ResearchTaskQueueR967.Lease lease=store.coordinatorForResearchR952().runAtomicWrite(
+                 "CP12_CLAIM_"+kind,db->com.ethk3.novaonepro.ResearchTaskQueueR967.claim(db,kind,System.currentTimeMillis()),null);
+         if(lease==null)return false;
+@@ -191,7 +193,7 @@
+         return DevelopmentProductionCP12.prepareBatch(store,lease,deadlineNs);
+     }
+     private static String advanceTrainingSlotCP11(com.ethk3.novaonepro.DbStore store,long endNs) {
+-        final String[] kinds={"LEGACY_OUTBOX","TRAIN_CANDIDATE","FREEZE_CANDIDATE"};
++        final String[] kinds={"LEGACY_OUTBOX","TRAIN_CANDIDATE","FREEZE_CANDIDATE",RollingLearnerR343.KIND,"R343_ROLLING_FREEZE"};
+         return store.coordinatorForResearchR952().runAtomicWrite("CP12_TRAIN_SUBSLOT",db->{
+             int selected=0;try(android.database.Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='cp11_training_subslot'",null)) {
+                 if(c.moveToFirst())try{selected=Integer.parseInt(c.getString(0));}catch(NumberFormatException ignored){}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java
+@@ -0,0 +1,361 @@
++package com.ethk3.novaonepro.r952;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import com.ethk3.novaonepro.*;
++import com.ethk3.novaonepro.r952.CandidateCompilerR952.Modern;
++import com.ethk3.novaonepro.r952.CandidateCompilerR952.ModelKind;
++import java.io.*;
++import java.nio.ByteBuffer;
++import java.util.*;
++
++/** Independent rolling-development learner. One original research queue and writer.
++ * Version/head updates are numerical development, never births or formal evidence.
++ * Bound/teacher/summary programs use the existing strict original-context extractor.
++ * A missing original source waits with its exact cursor, then records a dependency gap
++ * when a newer settled cutoff permits an independent retry. It is never filled
++ * from today's teacher. Publication has its own independent frozen-run adapter.
++ */
++public final class RollingLearnerR343 {
++    private RollingLearnerR343() {}
++    public static final String EVENT="research_rolling_event_r343",VERSION="research_rolling_version_r343",
++            HEAD="research_rolling_head_r343",FEATURE="research_rolling_feature_r343",OFFER="research_rolling_offer_r343";
++    public static final String KIND="R343_ROLLING_TRAIN";
++    private static final int INPUT_LIMIT=512<<10,MAX_ACTIVE=4;
++    private static final long WORKING_LIMIT=64L<<20;
++    private static final String ZERO=String.join("",Collections.nCopies(64,"0"));
++    public static void schema(SQLiteDatabase db){
++        need(db.inTransaction(),"ROLLING_SCHEMA_TX");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+EVENT+"(target_issue TEXT PRIMARY KEY,draw_hash TEXT NOT NULL,settlement_hash TEXT NOT NULL,completed_at INTEGER NOT NULL,receipt_hash TEXT NOT NULL UNIQUE)");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+HEAD+"(candidate_id TEXT PRIMARY KEY REFERENCES r952_candidate(candidate_id),version_id TEXT NOT NULL DEFAULT '',through_issue TEXT NOT NULL DEFAULT '',model_hash TEXT NOT NULL DEFAULT '',generation INTEGER NOT NULL DEFAULT 0,last_reason TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL)");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+VERSION+"(version_id TEXT PRIMARY KEY,candidate_id TEXT NOT NULL REFERENCES r952_candidate(candidate_id),predecessor TEXT NOT NULL,cutoff_issue TEXT NOT NULL,input_first_issue TEXT NOT NULL,ast_hash TEXT NOT NULL,protocol_hash TEXT NOT NULL UNIQUE,protocol_json TEXT NOT NULL,input_hash TEXT NOT NULL,input_bytes INTEGER NOT NULL CHECK(input_bytes BETWEEN 1 AND 524288),input_blob BLOB,train_n INTEGER NOT NULL CHECK(train_n BETWEEN 300 AND 1200),train_first TEXT NOT NULL,train_last TEXT NOT NULL,validation_first TEXT NOT NULL,validation_last TEXT NOT NULL,seed INTEGER NOT NULL,state TEXT NOT NULL CHECK(state IN('FEATURES','TRAINING','COMPLETE','FAILED','DEPENDENCY_GAP')),next_index INTEGER NOT NULL DEFAULT 0 CHECK(next_index BETWEEN 0 AND 1320),prefix_hash TEXT NOT NULL,checkpoint BLOB CHECK(checkpoint IS NULL OR length(checkpoint)<=262144),checkpoint_hash TEXT NOT NULL DEFAULT '',checkpoint_generation INTEGER NOT NULL DEFAULT 0,model_payload TEXT NOT NULL DEFAULT '' CHECK(length(CAST(model_payload AS BLOB))<=1048576),model_hash TEXT NOT NULL DEFAULT '',receipt_json TEXT NOT NULL DEFAULT '',receipt_hash TEXT NOT NULL DEFAULT '',optimizer_steps INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,UNIQUE(candidate_id,cutoff_issue),CHECK(validation_last=cutoff_issue))");
++        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS r343_rolling_one_active ON "+VERSION+"(candidate_id) WHERE state IN('FEATURES','TRAINING')");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+FEATURE+"(version_id TEXT NOT NULL REFERENCES "+VERSION+"(version_id),row_index INTEGER NOT NULL CHECK(row_index BETWEEN 0 AND 1319),target_issue TEXT NOT NULL,actual INTEGER NOT NULL CHECK(actual BETWEEN 1 AND 10),raw_hash TEXT NOT NULL,payload BLOB NOT NULL CHECK(length(payload) BETWEEN 18 AND 8192),row_hash TEXT NOT NULL,source_json TEXT NOT NULL CHECK(length(CAST(source_json AS BLOB))<=65536),source_hash TEXT NOT NULL,PRIMARY KEY(version_id,row_index))");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+OFFER+"(version_id TEXT PRIMARY KEY REFERENCES "+VERSION+"(version_id),candidate_id TEXT NOT NULL,cutoff_issue TEXT NOT NULL,model_hash TEXT NOT NULL,receipt_hash TEXT NOT NULL,status TEXT NOT NULL CHECK(status='NEEDS_INDEPENDENT_PUBLICATION_ADAPTER'),created_at INTEGER NOT NULL)");
++        for(String table:new String[]{EVENT,OFFER}){
++            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_no_update BEFORE UPDATE ON "+table+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_RECEIPT_IMMUTABLE'); END");
++            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_no_delete BEFORE DELETE ON "+table+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_RECEIPT_PERMANENT'); END");
++        }
++        db.execSQL("INSERT OR IGNORE INTO app_state(state_key,state_value,updated_at) VALUES('r343_rolling_canonical_epoch','0',0)");
++        for(String action:new String[]{"INSERT","UPDATE","DELETE"})
++            db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_source_"+action+" AFTER "+action+" ON "+DbHelper.TABLE_R811_DRAW_CANONICAL+" BEGIN UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=0 WHERE state_key='r343_rolling_canonical_epoch'; END");
++        for(String action:new String[]{"INSERT","UPDATE","DELETE"})
++            db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_raw_"+action+" AFTER "+action+" ON "+DbHelper.TABLE_DRAWS+" BEGIN UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=0 WHERE state_key='r343_rolling_canonical_epoch'; END");
++        for(String action:new String[]{"INSERT","DELETE"})
++            db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_retained_"+action+" AFTER "+action+" ON "+DrawDependencyInputCP12.TABLE+" BEGIN UPDATE app_state SET state_value=CAST(state_value AS INTEGER)+1,updated_at=0 WHERE state_key='r343_rolling_canonical_epoch'; END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_offer_no_replace BEFORE INSERT ON "+OFFER+" WHEN EXISTS(SELECT 1 FROM "+OFFER+" WHERE version_id=NEW.version_id) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_OFFER_DUPLICATE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_version_no_replace BEFORE INSERT ON "+VERSION+" WHEN EXISTS(SELECT 1 FROM "+VERSION+" WHERE version_id=NEW.version_id OR (candidate_id=NEW.candidate_id AND cutoff_issue=NEW.cutoff_issue) OR protocol_hash=NEW.protocol_hash) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_VERSION_DUPLICATE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_version_no_delete BEFORE DELETE ON "+VERSION+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_VERSION_PERMANENT'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_terminal_identity BEFORE UPDATE OF state,next_index,prefix_hash,checkpoint_hash,checkpoint_generation,model_hash,receipt_json,receipt_hash,optimizer_steps ON "+VERSION+" WHEN OLD.state IN('COMPLETE','FAILED','DEPENDENCY_GAP') BEGIN SELECT RAISE(ABORT,'R343_ROLLING_TERMINAL_IMMUTABLE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_terminal_payload BEFORE UPDATE OF input_blob,checkpoint,model_payload ON "+VERSION+" WHEN OLD.state IN('COMPLETE','FAILED','DEPENDENCY_GAP') AND ((NEW.input_blob IS NOT NULL AND (OLD.input_blob IS NULL OR NEW.input_blob<>OLD.input_blob)) OR (NEW.checkpoint IS NOT NULL AND (OLD.checkpoint IS NULL OR NEW.checkpoint<>OLD.checkpoint)) OR (NEW.model_payload<>'' AND NEW.model_payload<>OLD.model_payload)) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_TERMINAL_PAYLOAD'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_event_no_replace BEFORE INSERT ON "+EVENT+" WHEN EXISTS(SELECT 1 FROM "+EVENT+" WHERE target_issue=NEW.target_issue) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_EVENT_DUPLICATE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_version_identity BEFORE UPDATE OF version_id,candidate_id,predecessor,cutoff_issue,input_first_issue,ast_hash,protocol_hash,protocol_json,input_hash,input_bytes,train_n,train_first,train_last,validation_first,validation_last,seed,created_at ON "+VERSION+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_VERSION_IMMUTABLE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_feature_no_update BEFORE UPDATE ON "+FEATURE+" BEGIN SELECT RAISE(ABORT,'R343_ROLLING_FEATURE_IMMUTABLE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_feature_no_replace BEFORE INSERT ON "+FEATURE+" WHEN EXISTS(SELECT 1 FROM "+FEATURE+" WHERE version_id=NEW.version_id AND row_index=NEW.row_index) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_FEATURE_DUPLICATE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_active_input BEFORE UPDATE OF input_blob ON "+VERSION+" WHEN OLD.state IN('FEATURES','TRAINING') BEGIN SELECT RAISE(ABORT,'R343_ROLLING_ACTIVE_INPUT'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_active_feature BEFORE DELETE ON "+FEATURE+" WHEN EXISTS(SELECT 1 FROM "+VERSION+" v WHERE v.version_id=OLD.version_id AND v.state IN('FEATURES','TRAINING')) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_ACTIVE_FEATURE'); END");
++    }
++    public static boolean installed(SQLiteDatabase db){
++        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN(?,?,?,?,?)",new String[]{EVENT,VERSION,HEAD,FEATURE,OFFER})){return c.moveToFirst()&&c.getInt(0)==5;}
++    }
++    /** Called inside the already authenticated completed-settlement transaction.
++     * Repeated delivery requires the SAME draw/settlement identity. No training happens here. */
++    public static void settled(SQLiteDatabase db,Models.Draw draw,String settlement,long completed){
++        need(db.inTransaction()&&draw!=null&&draw.dirty==0&&draw.isValid(),"ROLLING_SETTLEMENT_INPUT");
++        String hash=DrawHashR36.sha256V2(draw);
++        try(Cursor c=db.rawQuery("SELECT status,settlement_hash,completed_at FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE target_issue=?",new String[]{draw.issue})){
++            need(c.moveToFirst()&&"COMPLETED".equals(c.getString(0))&&settlement.equals(c.getString(1))&&completed==c.getLong(2)&&completed>0,"ROLLING_SETTLEMENT_AUTHORITY");
++        }
++        String receipt=V51ChecksumEngine.sha256("R343_SETTLED_LEARNING_SOURCE|"+draw.issue+'|'+hash+'|'+settlement+'|'+completed);
++        try(Cursor c=db.rawQuery("SELECT receipt_hash FROM "+EVENT+" WHERE target_issue=?",new String[]{draw.issue})){
++            if(c.moveToFirst()){need(receipt.equals(c.getString(0)),"ROLLING_EVENT_REPLAY_DRIFT");return;}
++        }
++        db.execSQL("INSERT INTO "+EVENT+" VALUES(?,?,?,?,?)",new Object[]{draw.issue,hash,settlement,completed,receipt});
++    }
++    /** Called only in the Director's existing TRAIN quantum, never a new executor. */
++    public static boolean drainOne(DbStore store,long deadlineNs){
++        if(store==null||System.nanoTime()+100_000_000L>=deadlineNs||!installed(store.readable()))return false;
++        Boolean planTurn=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_CLAIM",db->{
++            String previous="0";try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r343_rolling_plan_turn'",null)){if(c.moveToFirst())previous=c.getString(0);}
++            boolean plan="0".equals(previous);db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r343_rolling_plan_turn',?,?)",new Object[]{plan?"1":"0",System.currentTimeMillis()});return plan;
++        },false);
++        if(Boolean.TRUE.equals(planTurn)){
++            if(catchUpOne(store,deadlineNs))return true;
++            if(planOne(store,deadlineNs))return true;
++        }
++        ResearchTaskQueueR967.Lease lease=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_CLAIM",db->ResearchTaskQueueR967.claim(db,KIND,System.currentTimeMillis()),null);
++        if(lease==null){
++            if(catchUpOne(store,deadlineNs))return true;
++            if(planOne(store,deadlineNs))return true;
++            return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_CLEANUP",RollingLearnerR343::cleanup,false));
++        }
++        try(MemoryBudgetCP4.Lease metadata=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(DevelopmentTrainerCP9.MAX_CHECKPOINT+(128L<<10))){
++            return trainSlice(store,lease,deadlineNs);
++        }
++        catch(ResearchWorkBudgetR927.Yield|RuntimeResourceAuditR927.BudgetExceeded pause){release(store,lease,"REALTIME_PRIORITY",250);return true;}
++        catch(DevelopmentProductionCP12.Wait wait){
++            if("WAIT_BOUND_FEATURE_HISTORY".equals(wait.reason)&&retireSupersededSourceGap(store,lease))return true;
++            release(store,lease,wait.reason,"WAIT_BOUND_FEATURE_HISTORY".equals(wait.reason)?10000:1000);return true;
++        }
++        catch(IOException io){release(store,lease,"WAIT_INPUT_IO",1000);return true;}
++        catch(RuntimeException failure){
++            if(ResearchTrainingHookRegistryR952.retryInfrastructureCP12(store,lease,failure))return true;
++            if("ALGORITHM_MEMORY_BUDGET".equals(failure.getMessage())){release(store,lease,"WAIT_RESOURCE",1000);return true;}
++            // The failed learner version is isolated. The original strategy and its
++            // independently frozen/certified model are never quarantined by this lane.
++            Boolean done=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FAILED",db->{
++                if(!ResearchTaskQueueR967.owns(db,lease))return false;
++                db.execSQL("UPDATE "+VERSION+" SET state='FAILED',updated_at=? WHERE version_id=? AND state IN('FEATURES','TRAINING')",new Object[]{System.currentTimeMillis(),lease.authorityRef});
++                need(ResearchTaskQueueR967.failTerminalCP12(db,lease,failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage())),"ROLLING_FAIL_LEASE");return true;
++            },false);
++            if(!Boolean.TRUE.equals(done))throw failure;return true;
++        }
++    }
++    private static boolean planOne(DbStore store,long deadlineNs){
++        SQLiteDatabase db=store.readable();String latest="";
++        try(Cursor c=db.rawQuery("SELECT target_issue FROM "+EVENT+" ORDER BY target_issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=c.getString(0);}
++        if(!TargetIssueResolver.isValid(latest)||System.nanoTime()+250_000_000L>=deadlineNs)return false;
++        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+VERSION+" WHERE state IN('FEATURES','TRAINING')",null)){c.moveToFirst();if(c.getInt(0)>=MAX_ACTIVE)return false;}
++        List<String[]> candidates=new ArrayList<>();
++        String sql="SELECT c.candidate_id,c.ast,c.structural_hash,COALESCE(h.version_id,''),COALESCE(NULLIF(h.through_issue,''),p.validation_last) FROM r952_candidate c JOIN research_training_protocol_v2 p ON p.candidate_id=c.candidate_id JOIN research_development_receipt_v2 d ON d.protocol_hash=p.protocol_hash LEFT JOIN "+HEAD+" h ON h.candidate_id=c.candidate_id WHERE (h.last_reason IS NULL OR h.last_reason='' OR h.updated_at<?) AND c.ast LIKE 'AST3:%' AND c.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND COALESCE(NULLIF(h.through_issue,''),p.validation_last)<? AND NOT EXISTS(SELECT 1 FROM "+VERSION+" v WHERE v.candidate_id=c.candidate_id AND (v.state IN('FEATURES','TRAINING') OR v.cutoff_issue=?)) ORDER BY COALESCE(h.updated_at,0),c.created_at,c.candidate_id LIMIT 16";
++        try(Cursor c=db.rawQuery(sql,new String[]{Long.toString(System.currentTimeMillis()-1000),latest,latest})){
++            while(c.moveToNext())candidates.add(new String[]{c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getString(4)});
++        }
++        for(String[] selected:candidates){
++            if(System.nanoTime()+250_000_000L>=deadlineNs)return false;
++            try{return planCandidate(store,selected,latest,deadlineNs);}
++            catch(DevelopmentProductionCP12.Wait wait){recordPlanWait(store,selected[0],wait.reason);}
++            catch(RuntimeException failure){
++                String reason=ResearchTrainingHookRegistryR952.infrastructureWaitReasonCP12(failure);
++                if(reason.isEmpty()&&!"ALGORITHM_MEMORY_BUDGET".equals(failure.getMessage()))throw failure;
++                recordPlanWait(store,selected[0],reason.isEmpty()?"WAIT_RESOURCE":reason);
++            }
++        }
++        return false;
++    }
++    private static boolean planCandidate(DbStore store,String[] identity,String cutoff,long deadlineNs){
++        SQLiteDatabase db=store.readable();
++        CandidateAstR952 ast=CandidateAstR952.parse(identity[1]);
++        CandidateCompilerR952.Program program=CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,DevelopmentProductionCP12.readSpecs(db,ast));
++        boolean bound=!ast.graphSpec.experts.isEmpty()||!ast.graphSpec.manifest.bindingHashes.isEmpty()
++                ||!ast.graphSpec.manifest.summarySpecRefs.isEmpty()||MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program);
++        if(bound){
++            try(Cursor c=db.rawQuery("SELECT protocol_json FROM "+VERSION+" WHERE state IN('FEATURES','TRAINING')",null)){
++                while(c.moveToNext())if(Boolean.TRUE.equals(StrictCanonicalJson.readContextObject(c.getString(0)).get("requiresOriginal")))throw new DevelopmentProductionCP12.Wait("ROLLING_BOUND_SLOT_BUSY");
++            }
++        }
++        LongSummaryBindingsR80.validateProtocolSources(db,summaryProtocol(db,ast));
++        long historyGeneration=DevelopmentProductionCP12.historyGeneration(db);
++        List<Models.Draw> history=DevelopmentProductionCP12.selectHistoryCP12(store.getDrawsBeforeIssue(TargetIssueResolver.next(cutoff).targetIssue,
++                DevelopmentProductionCP12.historyReadLimitR72(ast.graphSpec.manifest.requiredHistory,true)),ast.graphSpec.manifest.requiredHistory,true);
++        if(!history.get(history.size()-1).issue.equals(cutoff))throw new DevelopmentProductionCP12.Wait("STALE_HISTORY");
++        DevelopmentProductionCP12.verifyDevelopmentHistoryCP12(db,history,bound);
++        final long sourceEpoch=sourceEpochR343(db);
++        final String canonicalHash=canonicalRangeHash(db,history.get(0).issue,cutoff,history.size());
++        Map<String,Object> header=new TreeMap<>();header.put("revision","SCDEV1");header.put("game","PK10");header.put("build",AppConfig.VERSION_NAME);
++        header.put("sourceManifestHash",SourceManifestR815.SOURCE_TREE_SHA256);header.put("scheduleRevision","TARGET_ISSUE_RESOLVER_R980");header.put("bindings",Collections.emptyList());
++        DevelopmentInputCP9.Header h=new DevelopmentInputCP9.Header(StrictCanonicalJson.writeContext(header));
++        try {
++            DevelopmentInputCP9.Receipt declared=DevelopmentInputCP9.write(new OutputStream(){public void write(int b){}public void write(byte[] b,int o,int n){}},h,history);
++            if(declared.byteCount>INPUT_LIMIT)throw new DevelopmentProductionCP12.Wait("ROLLING_INPUT_BYTES_LIMIT");
++            try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(3*declared.byteCount+(256L<<10))){
++                ByteArrayOutputStream output=new ByteArrayOutputStream((int)declared.byteCount);
++                DevelopmentInputCP9.Receipt encoded=DevelopmentInputCP9.write(output,h,history);final byte[] input=output.toByteArray();
++                need(encoded.inputHash.equals(declared.inputHash)&&input.length==declared.byteCount,"ROLLING_INPUT_ENCODING");
++                String version=V51ChecksumEngine.sha256("R343_ROLLING_VERSION|"+identity[0]+'|'+identity[2]+'|'+identity[3]+'|'+cutoff+'|'+TrainingCodeIdentityR964.SHA256+'|'+encoded.inputHash);
++                long seed=ByteBuffer.wrap(DevelopmentProductionCP12.hexBytes(version)).getLong();
++                final DevelopmentInputCP9.Split split;
++                try(DevelopmentInputCP9.Input verified=DevelopmentInputCP9.read(new ByteArrayInputStream(input),input.length,encoded.inputHash,h,RuntimeMemoryGuardR811.algorithmModelBudget())){
++                    split=verified.split(ast.graphSpec.manifest.requiredHistory);
++                }
++                Map<String,Object> p=new TreeMap<>();p.put("revision","R343_ROLLING_DEV_1");p.put("header",h.canonical);p.put("versionId",version);p.put("candidateId",identity[0]);p.put("astHash",identity[2]);p.put("manifestHash",ast.graphSpec.manifest.hash);p.put("inputHash",encoded.inputHash);p.put("cutoffIssue",cutoff);p.put("boundFiles",Collections.emptyList());p.put("codeRevision",TrainingCodeIdentityR964.SHA256);p.put("seed",seed);p.put("trainFirst",history.get(split.trainFirst).issue);p.put("trainLast",history.get(split.trainEnd-1).issue);p.put("validationFirst",history.get(split.validationFirst).issue);p.put("validationLast",cutoff);p.put("trainN",split.trainN);p.put("requiresOriginal",bound);p.put("historyFirst",history.get(0).issue);p.put("historyLast",cutoff);p.put("historyCount",history.size());p.put("canonicalRangeHash",canonicalHash);p.putAll(summaryProtocol(db,ast));
++                String protocol=StrictCanonicalJson.writeContext(p),protocolHash=V51ChecksumEngine.sha256(protocol);
++                if(System.nanoTime()+40_000_000L>=deadlineNs)return false;
++                Boolean committed=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_PLAN",tx->{
++                    if(DevelopmentProductionCP12.historyGeneration(tx)!=historyGeneration||sourceEpochR343(tx)!=sourceEpoch)return false;
++                    LongSummaryBindingsR80.validateProtocolSources(tx,p);
++                    try(Cursor c=tx.rawQuery("SELECT ast,structural_hash,state FROM r952_candidate WHERE candidate_id=?",new String[]{identity[0]})){need(c.moveToFirst()&&identity[1].equals(c.getString(0))&&identity[2].equals(c.getString(1))&&!retired(c.getString(2)),"ROLLING_CANDIDATE_CAS");}
++                    try(Cursor c=tx.rawQuery("SELECT version_id FROM "+HEAD+" WHERE candidate_id=?",new String[]{identity[0]})){need((c.moveToFirst()?c.getString(0):"").equals(identity[3]),"ROLLING_HEAD_CAS");}
++                    if(bytes(tx)>WORKING_LIMIT-input.length)return false;
++                    long now=System.currentTimeMillis();String prefix=V51ChecksumEngine.sha256("R343_FEATURE_PREFIX|"+version+'|'+protocolHash+'|'+encoded.inputHash);
++                    tx.execSQL("INSERT INTO "+VERSION+"(version_id,candidate_id,predecessor,cutoff_issue,input_first_issue,ast_hash,protocol_hash,protocol_json,input_hash,input_bytes,input_blob,train_n,train_first,train_last,validation_first,validation_last,seed,state,prefix_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'FEATURES',?,?,?)",new Object[]{version,identity[0],identity[3],cutoff,history.get(0).issue,identity[2],protocolHash,protocol,encoded.inputHash,input.length,input,split.trainN,p.get("trainFirst"),p.get("trainLast"),p.get("validationFirst"),cutoff,seed,prefix,now,now});
++                    tx.execSQL("INSERT OR IGNORE INTO "+HEAD+"(candidate_id,updated_at) VALUES(?,?)",new Object[]{identity[0],now});
++                    ResearchTaskQueueR967.enqueue(tx,KIND,version,TargetIssueResolver.next(cutoff).targetIssue,protocolHash,encoded.inputHash,version);
++                    return true;
++                },false);
++                return Boolean.TRUE.equals(committed);
++            }
++        }catch(IOException invalid){throw new DevelopmentProductionCP12.Wait("WAIT_INPUT_IO",invalid);}
++    }
++    private static final class Version {
++        final String id,candidate,predecessor,cutoff,astHash,protocolHash,protocol,inputHash,state,prefix,checkpointHash,ast,firstValidation;
++        final byte[] input,checkpoint;final int trainN,next;final long seed,generation;
++        Version(Cursor c){id=c.getString(0);candidate=c.getString(1);predecessor=c.getString(2);cutoff=c.getString(3);astHash=c.getString(4);protocolHash=c.getString(5);protocol=c.getString(6);inputHash=c.getString(7);input=c.isNull(8)?null:c.getBlob(8);trainN=c.getInt(9);seed=c.getLong(10);state=c.getString(11);next=c.getInt(12);prefix=c.getString(13);checkpoint=c.isNull(14)?null:c.getBlob(14);checkpointHash=c.getString(15);generation=c.getLong(16);ast=c.getString(17);firstValidation=c.getString(18);}
++    }
++    private static Version read(SQLiteDatabase db,ResearchTaskQueueR967.Lease lease){
++        try(Cursor c=db.rawQuery("SELECT v.version_id,v.candidate_id,v.predecessor,v.cutoff_issue,v.ast_hash,v.protocol_hash,v.protocol_json,v.input_hash,"+(db.inTransaction()?"NULL":"CASE WHEN v.next_index<v.train_n+120 THEN v.input_blob ELSE NULL END")+",v.train_n,v.seed,v.state,v.next_index,v.prefix_hash,"+(db.inTransaction()?"NULL":"v.checkpoint")+",v.checkpoint_hash,v.checkpoint_generation,c.ast,v.validation_first FROM "+VERSION+" v JOIN r952_candidate c ON c.candidate_id=v.candidate_id WHERE v.version_id=? AND c.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED')",new String[]{lease.authorityRef})){
++            need(c.moveToFirst(),"ROLLING_VERSION_MISSING");Version v=new Version(c);
++            need(v.id.equals(lease.candidate)&&v.protocolHash.equals(lease.sequence)&&v.inputHash.equals(lease.inputHash)
++                    &&V51ChecksumEngine.sha256(v.protocol).equals(v.protocolHash)
++                    &&(db.inTransaction()||v.next==v.trainN+120||v.input!=null&&v.input.length<=INPUT_LIMIT),"ROLLING_VERSION_IDENTITY");return v;
++        }
++    }
++    private static boolean trainSlice(DbStore store,ResearchTaskQueueR967.Lease lease,long end)throws IOException{
++        Version v=read(store.readable(),lease);CandidateAstR952 ast=CandidateAstR952.parse(v.ast);need(ast.structuralHash.equals(v.astHash),"ROLLING_AST_HASH");
++        Map<String,Object> protocol=StrictCanonicalJson.readContextObject(v.protocol);
++        LongSummaryBindingsR80.validateProtocolSources(store.readable(),protocol);
++        CandidateCompilerR952.Program program=CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,DevelopmentProductionCP12.readSpecs(store.readable(),ast));
++        if(v.next<v.trainN+120){
++            need(v.checkpoint==null&&(v.next==0&&lease.cursor.isEmpty()||lease.cursor.equals("FEATURES|"+v.next+'|'+v.prefix)),"ROLLING_FEATURE_CURSOR");
++            List<DevelopmentTrainerCP9.Row> prepared=new ArrayList<>();List<byte[]> payloads=new ArrayList<>();List<String> hashes=new ArrayList<>(),sources=new ArrayList<>(),sourceHashes=new ArrayList<>();String prefix=v.prefix;long pageBytes=0;
++            try(MemoryBudgetCP4.Lease inputMemory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(INPUT_LIMIT);
++                MemoryBudgetCP4.Lease pageMemory=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(256L<<10);
++                DevelopmentInputCP9.Input input=DevelopmentInputCP9.read(new ByteArrayInputStream(v.input),v.input.length,v.inputHash,new DevelopmentInputCP9.Header((String)protocol.get("header")),RuntimeMemoryGuardR811.algorithmModelBudget());
++                DevelopmentProductionCP12.FeatureAtomHistoryR79 history=new DevelopmentProductionCP12.FeatureAtomHistoryR79(input,ast.position,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget())){
++                DevelopmentInputCP9.Split split=input.split(ast.graphSpec.manifest.requiredHistory);need(split.trainN==v.trainN,"ROLLING_SPLIT");
++                for(int i=v.next;i<v.trainN+120&&prepared.size()<32&&System.nanoTime()+75_000_000L<end;i++){
++                    ResearchWorkBudgetR927.checkpoint();int target=i<v.trainN?split.trainFirst+i:split.validationFirst+i-v.trainN;
++                    DevelopmentProductionCP12.RollingFeatureR343 raw=DevelopmentProductionCP12.rollingRowR343(store,program,protocol,input,target,v.protocolHash,history);
++                    DevelopmentTrainerCP9.Row row=raw.row;
++                    byte[] payload=DevelopmentProductionCP12.encode(row.valuesCopy(),row.presentCopy());
++                    long rowBytes=2048L+payload.length+2L*raw.sourceJson.length();
++                    if(pageBytes+rowBytes>(256L<<10))break;pageBytes+=rowBytes;
++                    String hash=DevelopmentProductionCP12.featureHashCP12(lease.id,lease.sequence,lease.inputHash,i,i<v.trainN?"TRAIN":"VALIDATION",row.issue,row.actual,raw.sourceHash,row.inputHash,payload);
++                    prepared.add(row);payloads.add(payload);sources.add(raw.sourceJson);sourceHashes.add(raw.sourceHash);hashes.add(hash);prefix=V51ChecksumEngine.sha256(prefix+'|'+hash);
++                }
++            }
++            if(prepared.isEmpty()){release(store,lease,"TIME_BUDGET_EXCEEDED",250);return true;}
++            final String nextPrefix=prefix;final int next=v.next+prepared.size();
++            return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FEATURES",db->{
++                need(ResearchTaskQueueR967.owns(db,lease),"ROLLING_FEATURE_LEASE");LongSummaryBindingsR80.validateProtocolSources(db,protocol);Version current=read(db,lease);need(current.next==v.next&&current.prefix.equals(v.prefix),"ROLLING_FEATURE_CAS");
++                long incoming=0;for(int j=0;j<payloads.size();j++)incoming+=payloads.get(j).length+2L*sources.get(j).length();if(bytes(db)>WORKING_LIMIT-incoming)throw new DevelopmentProductionCP12.Wait("ROLLING_STORAGE_CAPACITY");
++                for(int j=0;j<prepared.size();j++){DevelopmentTrainerCP9.Row row=prepared.get(j);db.execSQL("INSERT INTO "+FEATURE+" VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{v.id,v.next+j,row.issue,row.actual,row.inputHash,payloads.get(j),hashes.get(j),sources.get(j),sourceHashes.get(j)});}
++                db.execSQL("UPDATE "+VERSION+" SET next_index=?,prefix_hash=?,state=?,updated_at=? WHERE version_id=? AND next_index=? AND prefix_hash=?",new Object[]{next,nextPrefix,next==v.trainN+120?"TRAINING":"FEATURES",System.currentTimeMillis(),v.id,v.next,v.prefix});need(changes(db)==1,"ROLLING_FEATURE_CAS");
++                need(ResearchTaskQueueR967.yield(db,lease,"FEATURES|"+next+'|'+nextPrefix,"ROLLING_FEATURE_PAGE",250),"ROLLING_FEATURE_QUEUE");return true;
++            },false));
++        }
++        int width=ast.graphSpec.manifest.orderedFeatureIds.isEmpty()?ast.graphSpec.manifest.inputDimension:ast.graphSpec.manifest.orderedFeatureIds.size();
++        try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(DevelopmentTrainerCP9.estimatedDatasetBytesCP12(v.trainN,width))){
++            List<DevelopmentTrainerCP9.Row> rows=new ArrayList<>();String prefix=V51ChecksumEngine.sha256("R343_FEATURE_PREFIX|"+v.id+'|'+v.protocolHash+'|'+v.inputHash);
++            try(Cursor c=store.readable().rawQuery("SELECT row_index,target_issue,actual,raw_hash,payload,row_hash,source_hash FROM "+FEATURE+" WHERE version_id=? ORDER BY row_index",new String[]{v.id})){
++                while(c.moveToNext()){int i=rows.size();need(i==c.getInt(0)&&i<v.trainN+120,"ROLLING_ROW_ORDER");byte[] payload=c.getBlob(4);String hash=DevelopmentProductionCP12.featureHashCP12(lease.id,lease.sequence,lease.inputHash,i,i<v.trainN?"TRAIN":"VALIDATION",c.getString(1),c.getInt(2),c.getString(6),c.getString(3),payload);need(c.getString(6).matches("[0-9a-f]{64}"),"ROLLING_ORIGINAL_HASH");need(hash.equals(c.getString(5)),"ROLLING_ROW_HASH");prefix=V51ChecksumEngine.sha256(prefix+'|'+hash);rows.add(DevelopmentProductionCP12.decode(c.getString(1),c.getString(3),c.getInt(2),payload));}
++            }
++            need(rows.size()==v.trainN+120&&prefix.equals(v.prefix),"ROLLING_ROWS_PREFIX");
++            if(v.checkpoint!=null)need(TrainingCasCP12.hex(TrainingCasCP12.sha().digest(v.checkpoint)).equals(v.checkpointHash),"ROLLING_CHECKPOINT_HASH");
++            DevelopmentTrainerCP9.Dataset dataset=new DevelopmentTrainerCP9.Dataset(shape(ast,v),v.protocolHash,v.inputHash,ast.graphSpec.manifest.orderedFeatureIds,ast.graphSpec.manifest.missingPolicyPerFeature,rows,v.trainN);
++            try(ResearchTrainingHookRegistryR952.PreparedNumericsCP9 numerical=ResearchTrainingHookRegistryR952.prepareNumericsCP9(dataset,v.checkpoint,end,RuntimeMemoryGuardR811.algorithmModelBudget(),lease.cursor,v.checkpointHash)){
++                final byte[] checkpoint=numerical.checkpoint();final boolean complete=numerical.complete();
++                final String queueCursor=numerical.queueCursor(),checkpointHash=numerical.checkpointHash;
++                String receiptJson="",receiptHash="",modelPayload="",modelHash="";
++                if(complete){Map<String,Object> receipt=new TreeMap<>();receipt.put("revision","R343_ROLLING_DEV_RESULT_1");receipt.put("version",v.id);receipt.put("candidate",v.candidate);receipt.put("protocol",v.protocolHash);receipt.put("input",v.inputHash);receipt.put("ast",v.astHash);receipt.put("cutoff",v.cutoff);receipt.put("trainN",v.trainN);receipt.put("validationN",120);receipt.put("optimizerSteps",numerical.optimizerSteps());receipt.put("epochs",numerical.epochsExecuted());receipt.put("ce",Double.toHexString(numerical.validationCE()));receipt.put("brier",Double.toHexString(numerical.validationBrier()));receipt.put("predictionHash",numerical.orderedPredictionHash());receipt.put("changeKind",ast.graphSpec.modelKind==ModelKind.FIXED_GRAPH?"STATE_REFRESH":"NUMERICAL_UPDATE");receipt.put("newStrategyCount",0);receipt.put("formalFutureCount",0);receipt.put("realAuthority",false);
++                    CandidateCompilerR952.Model provisional=numerical.model(ZERO);
++                    receipt.put("normalizerHash",provisional.modern().normalizerHash);receipt.put("modelKind",ast.graphSpec.modelKind.name());
++                    receipt.put("manifestHash",ast.graphSpec.manifest.hash);receipt.put("weightsHash",FrozenCandidateAdapterR958.developmentWeightsHashCP8(provisional));
++                    receipt.put("trainFirst",protocol.get("trainFirst"));receipt.put("trainLast",protocol.get("trainLast"));receipt.put("validationFirst",v.firstValidation);receipt.put("validationLast",v.cutoff);
++                    receipt.put("canonicalRangeHash",protocol.get("canonicalRangeHash"));receipt.put("selectedEpoch",numerical.selectedEpoch()+1);receipt.put("codeRevision",TrainingCodeIdentityR964.SHA256);
++                    receiptJson=StrictCanonicalJson.writeContext(receipt);receiptHash=V51ChecksumEngine.sha256(receiptJson);CandidateCompilerR952.Model model=numerical.model(receiptHash);modelPayload=model.payload();modelHash=model.hash();}
++                final String resultJson=receiptJson,resultHash=receiptHash,payload=modelPayload,hash=modelHash;final long steps=numerical.optimizerSteps();
++                final long verifiedSourceEpoch=complete?verifySourceR343(store.readable(),protocol):-1;
++                return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_NUMERICS",db->{
++                    need(ResearchTaskQueueR967.owns(db,lease),"ROLLING_NUMERIC_LEASE");if(complete&&sourceEpochR343(db)!=verifiedSourceEpoch)throw new DevelopmentProductionCP12.Wait("ROLLING_SOURCE_CHANGED_DURING_COMMIT");LongSummaryBindingsR80.validateProtocolSources(db,protocol);Version current=read(db,lease);need(current.checkpointHash.equals(v.checkpointHash)&&current.generation==v.generation&&current.next==v.next,"ROLLING_CHECKPOINT_CAS");
++                    if(bytes(db)>WORKING_LIMIT-checkpoint.length-payload.length()*2L)throw new DevelopmentProductionCP12.Wait("ROLLING_STORAGE_CAPACITY");
++                    long now=System.currentTimeMillis();
++                    db.execSQL("UPDATE "+VERSION+" SET checkpoint=?,checkpoint_hash=?,checkpoint_generation=?,model_payload=?,model_hash=?,receipt_json=?,receipt_hash=?,optimizer_steps=?,state=?,updated_at=? WHERE version_id=? AND checkpoint_hash=? AND checkpoint_generation=?",new Object[]{checkpoint,checkpointHash,lease.generation,payload,hash,resultJson,resultHash,steps,complete?"COMPLETE":"TRAINING",now,v.id,v.checkpointHash,v.generation});need(changes(db)==1,"ROLLING_NUMERIC_CAS");
++                    if(!complete){need(ResearchTaskQueueR967.yield(db,lease,queueCursor,"ROLLING_NUMERICAL_SLICE",250),"ROLLING_NUMERIC_QUEUE");return true;}
++                    db.execSQL("UPDATE "+HEAD+" SET version_id=?,through_issue=?,model_hash=?,generation=generation+1,last_reason='',updated_at=? WHERE candidate_id=? AND version_id=?",new Object[]{v.id,v.cutoff,hash,now,v.candidate,v.predecessor});need(changes(db)==1,"ROLLING_HEAD_PREDECESSOR_CAS");
++                    ResearchTaskQueueR967.complete(db,lease,hash);
++                    db.execSQL("INSERT INTO "+OFFER+" VALUES(?,?,?,?,?,'NEEDS_INDEPENDENT_PUBLICATION_ADAPTER',?)",new Object[]{v.id,v.candidate,v.cutoff,hash,resultHash,now});
++                    return true;
++                },false));
++            }
++        }
++    }
++    private static Map<String,Object> summaryProtocol(SQLiteDatabase db,CandidateAstR952 ast){
++        Map<String,Object> result=new TreeMap<>();List<String> epochs=LongSummaryBindingsR80.epochsForAst(db,ast);
++        if(!epochs.isEmpty())result.put("summaryEpochHashes",epochs);return result;
++    }
++    private static Modern shape(CandidateAstR952 ast,Version v){
++        FeatureManifestR952 m=ast.graphSpec.manifest;int f=m.orderedFeatureIds.size(),d=m.inputDimension,e=ast.graphSpec.experts.size();double[] std=new double[f];Arrays.fill(std,1);
++        int[] tree=ast.graphSpec.modelKind==ModelKind.HISTOGRAM_TREE?new int[]{-1}:new int[0];int[] child=tree.length==0?new int[0]:new int[]{-1};double[] probabilities=new double[tree.length*10];Arrays.fill(probabilities,.1);
++        return new Modern(ast.graphSpec.modelKind,ast.family,d,f,e,v.trainN,v.seed,v.cutoff,m.hash,Modern.normalizerHash(m.orderedFeatureIds,new double[f],std),m.graphHash,ZERO,new double[f],std,new double[Modern.expectedWeights(ast.graphSpec.modelKind,d,f,e)],tree,new double[tree.length],child,child,probabilities,ast.graphSpec.experts);
++    }
++    /** Bounded cleanup in the same owner. Never erase a pending feature/checkpoint.
++     * Compact hashes/receipt rows are permanent; no availability claim survives pruning. */
++    public static boolean cleanup(SQLiteDatabase db){
++        need(db.inTransaction(),"ROLLING_CLEANUP_TX");
++        List<String> candidates=new ArrayList<>();
++        try(Cursor c=db.rawQuery("SELECT version_id FROM "+VERSION+" WHERE state IN('COMPLETE','FAILED','DEPENDENCY_GAP') AND (input_blob IS NOT NULL OR checkpoint IS NOT NULL OR model_payload<>'' OR EXISTS(SELECT 1 FROM "+FEATURE+" f WHERE f.version_id="+VERSION+".version_id)) ORDER BY updated_at LIMIT 16",null)){
++            while(c.moveToNext())candidates.add(c.getString(0));
++        }
++        for(String id:candidates){
++            boolean offered;
++            try(Cursor c=db.rawQuery("SELECT 1 FROM "+OFFER+" WHERE version_id=?",new String[]{id})){offered=c.moveToFirst();}
++            if(offered&&RollingFrozenPublisherR343.pinsRawVersion(db,id))continue;
++            db.execSQL("DELETE FROM "+FEATURE+" WHERE rowid IN(SELECT rowid FROM "+FEATURE+" WHERE version_id=? ORDER BY row_index LIMIT 64)",new Object[]{id});if(changes(db)>0)return true;
++            db.execSQL("UPDATE "+VERSION+" SET input_blob=NULL,checkpoint=NULL WHERE version_id=? AND (input_blob IS NOT NULL OR checkpoint IS NOT NULL)",new Object[]{id});if(changes(db)>0)return true;
++            db.execSQL("UPDATE "+VERSION+" SET model_payload='' WHERE version_id=? AND model_payload<>'' AND NOT EXISTS(SELECT 1 FROM "+HEAD+" h WHERE h.version_id=?)",new Object[]{id,id});if(changes(db)>0)return true;
++        }
++        return false;
++    }
++    /** Same original terminal source for missed deliveries after restart. Capture only
++     * the newest completed issue beyond the event watermark; live delivery records all
++     * other periods. The rolling input still includes every legal row in its cutoff. */
++    private static boolean catchUpOne(DbStore store,long deadline){
++        if(System.nanoTime()+100_000_000L>=deadline)return false;String[] row=null;
++        try(Cursor c=store.readable().rawQuery("SELECT t.target_issue,t.settlement_hash,t.completed_at FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t JOIN "+DrawDependencyInputCP12.SOURCE+" d ON d.issue=t.target_issue AND d.dirty=0 WHERE t.status='COMPLETED' AND t.completed_at>0 AND t.target_issue>COALESCE((SELECT MAX(target_issue) FROM "+EVENT+"),'') ORDER BY t.target_issue DESC LIMIT 1",null)){
++            if(c.moveToFirst())row=new String[]{c.getString(0),c.getString(1),c.getString(2)};
++        }
++        if(row==null)return false;final String[] terminal=row;final Models.Draw draw=store.getDrawByIssue(row[0]);
++        if(draw==null||!draw.isValid()||draw.dirty!=0)return false;
++        return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_EVENT",db->{settled(db,draw,terminal[1],Long.parseLong(terminal[2]));return true;},false));
++    }
++    private static void recordPlanWait(DbStore store,String candidate,String reason){
++        store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_PLAN_WAIT",db->{
++            long now=System.currentTimeMillis();db.execSQL("INSERT OR IGNORE INTO "+HEAD+"(candidate_id,updated_at) VALUES(?,?)",new Object[]{candidate,now});
++            db.execSQL("UPDATE "+HEAD+" SET last_reason=?,updated_at=? WHERE candidate_id=?",new Object[]{reason,now,candidate});return true;
++        },false);
++    }
++    /** Missing past PIT witnesses cannot be manufactured by later teachers. A newer
++     * settled cutoff permits a new independent attempt; the old gap stays terminal. */
++    private static boolean retireSupersededSourceGap(DbStore store,ResearchTaskQueueR967.Lease lease){
++        return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_SOURCE_GAP",db->{
++            if(!ResearchTaskQueueR967.owns(db,lease))return false;Version v=read(db,lease);
++            try(Cursor c=db.rawQuery("SELECT 1 FROM "+EVENT+" WHERE target_issue>? LIMIT 1",new String[]{v.cutoff})){if(!c.moveToFirst())return false;}
++            Map<String,Object> receipt=new TreeMap<>();receipt.put("revision","R343_ROLLING_SOURCE_GAP_1");receipt.put("version",v.id);receipt.put("candidate",v.candidate);receipt.put("cutoff",v.cutoff);receipt.put("cursor",lease.cursor);receipt.put("reason","MISSING_ORIGINAL_PIT_HISTORY_AT_FIXED_CUTOFF");receipt.put("newStrategyCount",0);receipt.put("formalFutureCount",0);receipt.put("realAuthority",false);
++            String json=StrictCanonicalJson.writeContext(receipt),hash=V51ChecksumEngine.sha256(json);long now=System.currentTimeMillis();
++            db.execSQL("UPDATE "+VERSION+" SET state='DEPENDENCY_GAP',receipt_json=?,receipt_hash=?,updated_at=? WHERE version_id=? AND state IN('FEATURES','TRAINING')",new Object[]{json,hash,now,v.id});need(changes(db)==1,"ROLLING_GAP_CAS");
++            need(ResearchTaskQueueR967.expireDependencyR343(db,lease,"ROLLING_ORIGINAL_SOURCE_GAP",hash),"ROLLING_GAP_QUEUE_CAS");
++            db.execSQL("UPDATE "+HEAD+" SET last_reason='WAIT_BOUND_FEATURE_HISTORY',updated_at=? WHERE candidate_id=?",new Object[]{now,v.candidate});return true;
++        },false));
++    }
++    public static long sourceEpochR343(SQLiteDatabase db){
++        try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r343_rolling_canonical_epoch'",null)){
++            need(c.moveToFirst(),"ROLLING_SOURCE_EPOCH_MISSING");return Long.parseLong(c.getString(0));
++        }
++    }
++    public static long verifySourceR343(SQLiteDatabase db,Map<String,Object> protocol){
++        long epoch=sourceEpochR343(db);Object count=protocol.get("historyCount");need(count instanceof Number,"ROLLING_HISTORY_COUNT");
++        String hash=canonicalRangeHash(db,(String)protocol.get("historyFirst"),(String)protocol.get("historyLast"),((Number)count).intValue());
++        need(hash.equals(protocol.get("canonicalRangeHash")),"ROLLING_CANONICAL_SOURCE_REVISED");return epoch;
++    }
++    private static String canonicalRangeHash(SQLiteDatabase db,String first,String last,int expected){
++        need(TargetIssueResolver.isValid(first)&&TargetIssueResolver.isValid(last)&&expected>=421&&expected<=5000,"ROLLING_SOURCE_RANGE");
++        String hash=V51ChecksumEngine.sha256("R343_CANONICAL_RANGE|"+first+'|'+last+'|'+expected);int count=0;
++        try(Cursor c=db.rawQuery("SELECT c.target_issue,c.status,c.canonical_draw_hash,d.dirty,d.open_time,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 FROM "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c LEFT JOIN "+DrawDependencyInputCP12.SOURCE+" d ON d.issue=c.target_issue WHERE c.target_issue>=? AND c.target_issue<=? ORDER BY c.target_issue",new String[]{first,last})){
++            while(c.moveToNext()){
++                if(!"CONFIRMED_CANONICAL_DRAW".equals(c.getString(1))||c.isNull(3)||c.getInt(3)!=0||c.getLong(4)<=0)throw new DevelopmentProductionCP12.Wait("WAIT_AUTHORITATIVE_DRAW");
++                Models.Draw draw=new Models.Draw();draw.issue=c.getString(0);draw.openTime=c.getLong(4);
++                for(int i=0;i<10;i++)draw.numbers[i]=c.getInt(5+i);
++                need(draw.isValid(),"ROLLING_RAW_DRAW_INVALID");String original=DrawHashR36.sha256V2(draw);
++                if(!original.equals(c.getString(2))&&!DrawHashR36.sha256(draw).equals(c.getString(2)))throw new DevelopmentProductionCP12.Wait("WAIT_AUTHORITATIVE_DRAW");
++                hash=V51ChecksumEngine.sha256(hash+'|'+draw.issue+'|'+draw.openTime+'|'+original);count++;
++            }
++        }
++        if(count!=expected)throw new DevelopmentProductionCP12.Wait("ROLLING_CANONICAL_RANGE_UNAVAILABLE");return hash;
++    }
++    private static long bytes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT COALESCE((SELECT SUM(COALESCE(length(input_blob),0)+COALESCE(length(checkpoint),0)+length(CAST(model_payload AS BLOB))) FROM "+VERSION+"),0)+COALESCE((SELECT SUM(length(payload)+length(CAST(source_json AS BLOB))) FROM "+FEATURE+"),0)",null)){need(c.moveToFirst(),"ROLLING_STORAGE_READ");return c.getLong(0);}}
++    private static void release(DbStore store,ResearchTaskQueueR967.Lease lease,String reason,long delay){ResearchWorkBudgetR927.finishLeaseReceiptR66(()->store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_WAIT",db->ResearchTaskQueueR967.yield(db,lease,lease.cursor,reason,delay),false));}
++    private static boolean retired(String s){return s.equals("QUARANTINED")||s.equals("QUALITY_PRUNED")||s.equals("RESOURCE_RETIRED");}
++    private static int changes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){return c.moveToFirst()?c.getInt(0):0;}}
++    private static void need(boolean b,String code){if(!b)throw new IllegalStateException(code);}
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java
++++ b/app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java
+@@ -239,7 +239,7 @@
+     // of them to disappear starves freeze under continuous capture. prepare() revalidates
+     // the exact model/run hashes inside its transaction; no future evidence is inherited.
+     private static Cursor eligible(SQLiteDatabase db,String target) {
+-        return db.rawQuery("SELECT c.candidate_id,c.ast,c.structural_hash,l.trained_until_issue,a.model_payload,a.payload_hash,a.artifact_hash,r.run_hash,r.rule_hash,r.integrity_epoch,r.initial_updates FROM r952_candidate c JOIN r952_learning_cursor l ON l.consumer_id=('R952:'||c.candidate_id) JOIN r952_artifact a ON a.artifact_hash=l.artifact_hash AND a.candidate_id=c.candidate_id JOIN "+ResearchEvaluationRunR967.RUN+" r ON r.learner_id=c.candidate_id WHERE r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?) AND a.numeric_updates-r.initial_updates>=CAST(? AS INTEGER) AND a.numeric_updates-r.initial_updates-COALESCE((SELECT MAX(f.update_endpoint) FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash),0)>=CAST(? AS INTEGER) AND l.trained_until_issue<? AND c.ast NOT LIKE 'AST3:%' AND c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash AND f.update_endpoint=a.numeric_updates-r.initial_updates) AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE f.learner_id=c.candidate_id AND f.run_hash=r.run_hash AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<2 AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE f.rule_hash=r.rule_hash AND f.run_hash IN (SELECT rr.run_hash FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.first_issue=(SELECT MAX(rr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr2 WHERE rr2.learner_id=rr.learner_id)) AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<32 ORDER BY l.trained_until_issue,c.candidate_id LIMIT 1",new String[]{target,target,String.valueOf(MIN_TRAINING),String.valueOf(ResearchEvaluationRunR967.FREEZE_EVERY),target});
++        return db.rawQuery("SELECT c.candidate_id,c.ast,c.structural_hash,l.trained_until_issue,a.model_payload,a.payload_hash,a.artifact_hash,r.run_hash,r.rule_hash,r.integrity_epoch,r.initial_updates FROM r952_candidate c JOIN r952_learning_cursor l ON l.consumer_id=('R952:'||c.candidate_id) JOIN r952_artifact a ON a.artifact_hash=l.artifact_hash AND a.candidate_id=c.candidate_id JOIN "+ResearchEvaluationRunR967.RUN+" r ON r.learner_id=c.candidate_id WHERE r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?) AND a.numeric_updates-r.initial_updates>=CAST(? AS INTEGER) AND a.numeric_updates-r.initial_updates-COALESCE((SELECT MAX(f.update_endpoint) FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash),0)>=CAST(? AS INTEGER) AND l.trained_until_issue<? AND c.ast NOT LIKE 'AST3:%' AND c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash AND f.update_endpoint=a.numeric_updates-r.initial_updates) AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE f.learner_id=c.candidate_id AND "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)+" AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<2 AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)+" AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<32 ORDER BY l.trained_until_issue,c.candidate_id LIMIT 1",new String[]{target,target,String.valueOf(MIN_TRAINING),String.valueOf(ResearchEvaluationRunR967.FREEZE_EVERY),target});
+     }
+ 
+     /** Freeze prospectively after at least120 further numeric updates; backlog cannot skip all checkpoints; each version starts with no evaluation N. */
+@@ -272,7 +272,7 @@
+         final String target=snapshot.targetIssue;
+         String streamFilter=ResearchEvaluationRunR967.trainingIssue(target)?" AND f.candidate_id NOT LIKE '"+ResearchEvaluationRunR967.LEGACY_PREFIX+"%'":"";
+         ArrayList<String> ids=new ArrayList<String>();
+-        try(Cursor c=store.readable().rawQuery("SELECT f.candidate_id FROM "+ResearchEvaluationRunR967.ALL+" f WHERE f.created_issue<=?"+" AND (f.run_hash='' OR ("+TrainingContinuationR973.predicate("f.rule_hash")+" AND f.run_hash IN (SELECT rr.run_hash FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue=(SELECT MAX(rr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr2 WHERE rr2.learner_id=f.learner_id AND rr2.first_issue<='"+target+"'))))"+streamFilter+" AND (f.run_hash<>'' OR NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=f.learner_id AND r.first_issue<='"+target+"')) AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) AND (f.run_hash='' OR EXISTS(SELECT 1 FROM research_capture_reservation_v2 r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state='COMPLETE')) AND NOT EXISTS(SELECT 1 FROM "+PREDRAW+" p WHERE p.candidate_id=f.candidate_id AND p.target_issue=?)"+GlobalResearchScheduleR932.predicate(target,"'algorithm:'||f.candidate_id")+" ORDER BY f.candidate_id LIMIT 2",new String[]{target,target})) {
++        try(Cursor c=store.readable().rawQuery("SELECT f.candidate_id FROM "+ResearchEvaluationRunR967.ALL+" f WHERE f.created_issue<=?"+" AND (f.run_hash='' OR "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(store.readable(),"f",target)+")"+streamFilter+" AND (f.run_hash<>'' OR NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=f.learner_id AND r.first_issue<='"+target+"')) AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) AND (f.run_hash='' OR EXISTS(SELECT 1 FROM research_capture_reservation_v2 r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state='COMPLETE')) AND NOT EXISTS(SELECT 1 FROM "+PREDRAW+" p WHERE p.candidate_id=f.candidate_id AND p.target_issue=?)"+GlobalResearchScheduleR932.predicate(target,"'algorithm:'||f.candidate_id")+" ORDER BY f.candidate_id LIMIT 2",new String[]{target,target})) {
+             while(c.moveToNext())ids.add(c.getString(0));
+         }
+         int n=0;
+--- a/app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java
+@@ -72,11 +72,8 @@
+         if(active.size()>CAPTURE_ACTIVE_MAX_CP11)throw new IllegalStateException("CAPTURE_CAPACITY_CORRUPT");
+         for(CaptureReservationCP11 r:active){
+             boolean valid;
+-            try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash "
+-                    +"JOIN r952_candidate parent ON parent.candidate_id=f.learner_id WHERE ('algorithm:'||f.candidate_id)=? AND f.structural_hash=? "
+-                    +"AND run.first_issue=(SELECT MAX(rr.first_issue)FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) "
+-                    +"AND parent.structural_hash=run.ast_hash AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND "
+-                    +TrainingContinuationR973.predicate("f.rule_hash")+" LIMIT 1",new String[]{r.key,r.freeze,target})){valid=c.moveToFirst();}
++            try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE ('algorithm:'||f.candidate_id)=? AND f.structural_hash=? AND "
++                    +ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)+" LIMIT 1",new String[]{r.key,r.freeze})){valid=c.moveToFirst();}
+             if(!valid){retireReservationCP11(db,r,"CAPTURE_DEPENDENCY_RETIRED");continue;}
+             if(retireInvalidBoundReservationR80(db,r,target))continue;
+             String currentStudy=CandidateCalibrationR932.study(db,r.key,r.freeze,championBundle,selectorHash);
+@@ -119,12 +116,9 @@
+         if(resume)try{afterAt=Long.parseLong(position[0]);}catch(NumberFormatException invalid){resume=false;}
+         for(int pass=0;pass<2;pass++){
+         String predicate=resume?" AND (f.created_at>? OR (f.created_at=? AND f.candidate_id>?))":"";
+-        String[] args=resume?new String[]{target,target,target,Long.toString(afterAt),Long.toString(afterAt),position[1]}:new String[]{target,target,target};
++        String[] args=resume?new String[]{target,target,Long.toString(afterAt),Long.toString(afterAt),position[1]}:new String[]{target,target};
+         try(Cursor c=db.rawQuery("SELECT f.candidate_id,f.structural_hash,f.created_issue,f.created_at FROM "+ResearchEvaluationRunR967.EVAL+" f "
+-                +"JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash JOIN r952_candidate parent ON parent.candidate_id=f.learner_id "
+-                +"WHERE f.created_issue<=? AND f.trained_until_issue<? AND run.first_issue=(SELECT MAX(rr.first_issue)FROM "+ResearchEvaluationRunR967.RUN
+-                +" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) AND parent.structural_hash=run.ast_hash "
+-                +"AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("f.rule_hash")
++                +"WHERE f.created_issue<=? AND f.trained_until_issue<? AND "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)
+                 +" AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) "
+                 +"AND life.state IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) "
+                 +"AND NOT EXISTS(SELECT 1 FROM "+RESERVATION_CP11+" r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state IN('RESERVED','ACTIVE')) "
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java
+@@ -78,6 +78,61 @@
+     }
+     public static Run current(SQLiteDatabase db,String learner,String target){
+         try(Cursor c=db.rawQuery("SELECT run_hash,learner_id,first_issue,ast_hash,rule_hash,initial_payload,initial_updates,source_artifact,split_rule,integrity_epoch FROM "+RUN+" WHERE learner_id=? AND first_issue<=? ORDER BY first_issue DESC LIMIT 1",new String[]{learner,target})){return c.moveToFirst()?new Run(c):null;}
++    }
++    /** Frozen lineage and the mutable learner head are different identities.
++     * A later training run must not withdraw an already sealed evaluation window.
++     * The original current() contract remains unchanged for training consumers. */
++    public static Run exactFrozenRunR343(SQLiteDatabase db,String hash,String learner,String target){
++        if(hash==null||!hash.matches("[0-9a-f]{64}")||!TargetIssueResolver.isValid(target))return null;
++        try(Cursor c=db.rawQuery("SELECT run_hash,learner_id,first_issue,ast_hash,rule_hash,initial_payload,initial_updates,source_artifact,split_rule,integrity_epoch FROM "+RUN+" WHERE run_hash=? AND learner_id=? AND first_issue<=?",new String[]{hash,learner,target})){
++            if(c.moveToFirst())return new Run(c);
++        }
++        if(!com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db))return null;
++        String table=com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.TABLE;
++        try(Cursor c=db.rawQuery("SELECT p.run_hash,p.learner_id,p.first_issue,p.ast_hash,p.rule_hash,f.model_payload,p.initial_updates,p.source_artifact,p.split_rule,p.integrity_epoch FROM "+table+" p JOIN "+EVAL+" f ON f.candidate_id=p.frozen_id AND f.run_hash=p.run_hash AND f.learner_id=p.learner_id AND f.rule_hash=p.rule_hash AND f.integrity_epoch=p.integrity_epoch AND f.created_issue=p.first_issue AND f.model_hash=p.model_hash AND f.source_artifact=p.source_artifact WHERE p.run_hash=? AND p.learner_id=? AND p.first_issue<=?",new String[]{hash,learner,target})){
++            return c.moveToFirst()?new Run(c):null;
++        }
++    }
++    public static final class FrozenIdentityR343 {
++        public final String run,epoch;
++        private FrozenIdentityR343(String learner,String first,CandidateAstR952 ast,CandidateCompilerR952.Model model,String artifact){
++            epoch=originHash(learner,first,ast.structuralHash,TrainingCodeIdentityR964.SHA256,model.payload(),artifact);
++            run=runHash(learner,first,ast.structuralHash,TrainingCodeIdentityR964.SHA256,model.payload(),artifact,SPLIT,epoch);
++        }
++    }
++    /** Pure preparation; does not create or advance any original training RUN. */
++    public static FrozenIdentityR343 independentIdentityR343(String learner,String first,CandidateAstR952 ast,CandidateCompilerR952.Model model,String artifact){
++        if(learner==null||learner.isEmpty()||!TargetIssueResolver.isValid(first)||ast==null||model==null||ast.formatVersion!=3||model.isLegacy()||artifact==null||!artifact.matches("[0-9a-f]{64}")||model.modern().trainedUntil.compareTo(first)>=0)throw new IllegalArgumentException("R343_FROZEN_LINEAGE_IDENTITY");
++        return new FrozenIdentityR343(learner,first,ast,model,artifact);
++    }
++    /** Narrow bridge to the existing package-owned lifecycle; only a newly
++     * inserted rolling publication may enter NURSERY. Older states are never reset. */
++    public static void initializeRollingFrozenLifecycleR343(SQLiteDatabase db,String id){
++        if(!db.inTransaction()||id==null||!id.matches("R958-F-V3-[0-9a-f]{24}")||!com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db))throw new IllegalArgumentException("R343_PUBLICATION_LIFECYCLE_INPUT");
++        try(Cursor existing=db.rawQuery("SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" WHERE candidate_key=?",new String[]{"algorithm:"+id})){
++            if(existing.moveToFirst())throw new IllegalStateException("R343_PUBLICATION_LIFECYCLE_ALREADY_PRESENT");
++        }
++        try(Cursor c=db.rawQuery("SELECT f.structural_hash,f.created_issue,f.source_artifact FROM "+EVAL+" f JOIN "+com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.TABLE+" p ON p.frozen_id=f.candidate_id AND p.run_hash=f.run_hash AND p.first_issue=f.created_issue AND p.model_hash=f.model_hash AND p.source_artifact=f.source_artifact WHERE f.candidate_id=?",new String[]{id})){
++            if(!c.moveToFirst())throw new IllegalStateException("R343_PUBLICATION_LIFECYCLE_RECEIPT_MISSING");
++            String structure=c.getString(0),first=c.getString(1),artifact=c.getString(2);
++            if(drawn(db,first))throw new IllegalStateException("R343_PUBLICATION_LIFECYCLE_POSTDRAW");
++            ResearchLifecycleR932.enroll(db,"algorithm:"+id,structure,first,"C");
++            ResearchLifecycleR932.transition(db,"algorithm:"+id,ResearchLifecycleR932.State.NURSERY,"FROZEN_WAIT_CAPTURE_CAPACITY",first,artifact,0,0);
++        }
++    }
++    /** Bounded metadata predicate for capture/reservation/retention admission.
++     * It is not a substitute for Frozen/Run hash validation at the consumer.
++     * Target and alias are validated before embedding. No payload parsing in writer.
++     */
++    public static String frozenEligibilitySqlR343(SQLiteDatabase db,String alias,String target){
++        if(alias==null||!alias.matches("[A-Za-z_][A-Za-z0-9_]*")||!TargetIssueResolver.isValid(target))throw new IllegalArgumentException("R343_FROZEN_SQL_INPUT");
++        String f=alias+".",valid=" AND "+f+"rule_hash=rr.rule_hash AND "+f+"integrity_epoch=rr.integrity_epoch AND rr.first_issue<='"+target+"' AND parent.structural_hash=rr.ast_hash";
++        String original="EXISTS(SELECT 1 FROM "+RUN+" rr WHERE rr.run_hash="+f+"run_hash AND rr.learner_id="+f+"learner_id"+valid+")";
++        String independent="";
++        if(com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db)){
++            independent=" OR EXISTS(SELECT 1 FROM "+com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.TABLE+" rr WHERE rr.run_hash="+f+"run_hash AND rr.learner_id="+f+"learner_id AND rr.frozen_id="+f+"candidate_id AND rr.first_issue="+f+"created_issue AND rr.model_hash="+f+"model_hash AND rr.source_artifact="+f+"source_artifact AND rr.split_rule='"+SPLIT+"'"+valid+")";
++        }
++        return "("+f+"run_hash<>'' AND "+f+"created_issue<='"+target+"' AND "+f+"trained_until_issue<'"+target+"' AND "+TrainingContinuationR973.predicate(f+"rule_hash")+" AND EXISTS(SELECT 1 FROM r952_candidate parent WHERE parent.candidate_id="+f+"learner_id AND parent.ast="+f+"ast AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND ("+original+independent+")))";
+     }
+     /** Enrollment is explicit and prospective; no pending old event is re-labelled. */
+     public static int enroll(final DbStore store,final String target){
+@@ -190,8 +245,8 @@
+         if(!com.ethk3.novaonepro.r952.LongSummaryBindingsR80.frozenDependencyReasonR81(db,f.structure,target).isEmpty())return false;
+         if(versioned(f.id)){
+             if(!eligibleEvaluation(f.id,target))return false;
+-            Run run=current(db,f.learner,target);
+-            return run!=null&&f.run.equals(run.hash)&&TrainingContinuationR973.compatible(f.rule)&&f.epoch.equals(run.epoch)&&run.ast.equals(f.ast.structuralHash)&&parentCompatible(db,f.learner,run.ast);
++            Run run=exactFrozenRunR343(db,f.run,f.learner,target);
++            return run!=null&&f.createdIssue.compareTo(target)<=0&&f.trainedUntil.compareTo(target)<0&&f.run.equals(run.hash)&&f.rule.equals(run.rule)&&TrainingContinuationR973.compatible(f.rule)&&f.epoch.equals(run.epoch)&&run.ast.equals(f.ast.structuralHash)&&parentCompatible(db,f.learner,run.ast);
+         }
+         return current(db,f.learner,target)==null;
+     }
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
+@@ -27,6 +27,18 @@
+         new Definition("historical_seed_created_n0",HistoricalGenomeImportR967.USE,"COUNT(*)","state='CREATED_N0'","经唯一创建Owner登记的新研究种子；不是证书或真实训练数"),
+         new Definition("historical_seed_use_rejected",HistoricalGenomeImportR967.USE,"COUNT(*)","state='REJECTED'","创建前再次校验拒绝或重复；不合并旧成绩"),
+         new Definition("training_runs_v2",ResearchEvaluationRunR967.RUN,"COUNT(*)","","事前登记的独立训练流，不继承旧评价样本"),
++        new Definition("rolling_settlement_events_r343","research_rolling_event_r343","COUNT(*)","","经真实COMPLETED结算核对的滚动学习事件；不是训练完成数"),
++        new Definition("rolling_versions_active_r343","research_rolling_version_r343","COUNT(*)","state IN('FEATURES','TRAINING')","现代后台版本当前待完成；与旧冻结评价窗身份独立"),
++        new Definition("rolling_versions_complete_r343","research_rolling_version_r343","COUNT(*)","state='COMPLETE'","数值/固定图状态刷新完成的不可变版本数；不算新策略或正式Future"),
++        new Definition("rolling_optimizer_steps_r343","research_rolling_version_r343","COALESCE(SUM(optimizer_steps),0)","state='COMPLETE'","后台版本实际优化器步骤；固定图可为0，不等于质量改善"),
++        new Definition("rolling_versions_failed_r343","research_rolling_version_r343","COUNT(*)","state='FAILED'","独立后台版本失败；不改写旧模型证书或质量历史"),
++        new Definition("rolling_versions_source_gap_r343","research_rolling_version_r343","COUNT(*)","state='DEPENDENCY_GAP'","固定cutoff缺原始输入的终态回执；非训练完成、非统计失败"),
++        new Definition("rolling_raw_version_bytes_r343","research_rolling_version_r343","COALESCE(SUM(COALESCE(length(input_blob),0)+COALESCE(length(checkpoint),0)+length(CAST(model_payload AS BLOB))),0)","","仍保留的输入/checkpoint/model原件字节；hash数量不代替原件可用性"),
++        new Definition("rolling_raw_feature_bytes_r343","research_rolling_feature_r343","COALESCE(SUM(length(payload)+length(CAST(source_json AS BLOB))),0)","","仍保留的特征和PIT原始receipt字节，不是正式评价观测数"),
++        new Definition("rolling_frozen_published_r343","research_rolling_frozen_publication_r343","COUNT(*)","","经过原件和DONE checkpoint重放验证的独立冻结版本；仍需新CAL/Future/资格"),
++        new Definition("rolling_unpublished_superseded_r343","research_rolling_publication_reject_r343","COUNT(*)","reason='SUPERSEDED_UNPUBLISHED'","未进入正式冻结的旧后台版本被更新HEAD取代；旧已发布评价窗保持"),
++        new Definition("rolling_publication_rejected_r343","research_rolling_publication_reject_r343","COUNT(*)","reason<>'SUPERSEDED_UNPUBLISHED'","独立发布身份/原件校验拒绝；不冒充低胜率淘汰"),
++        new Definition("rolling_publication_pending_r343",ResearchTaskQueueR967.TABLE,"COUNT(*)","kind='R343_ROLLING_FREEZE' AND status NOT IN('COMPLETED','EXPIRED','FAILED_TERMINAL')","原队列中的独立发布等待任务；等待原件/资源/容量均不授予REAL"),
+         new Definition("frozen_versions_v2",ResearchEvaluationRunR967.EVAL,"COUNT(*)","","不可变评价版本，不等于合格算法数量"),
+         new Definition("online_future","r952_candidate_predraw","COUNT(*)","settled=1 AND evidence_role IN ('ONLINE_TRAINING','TRAIN_STREAM_V2') AND proof_error=''","在线角色的合法未来标签"),
+         new Definition("sealed_future","r958_frozen_predraw","COUNT(*)","settled=1 AND proof_error=''","封存评价标签，不允许训练反馈"),
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java
+@@ -0,0 +1,304 @@
++package com.ethk3.novaonepro.r952;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import com.ethk3.novaonepro.*;
++import java.io.ByteArrayInputStream;
++import java.io.IOException;
++import java.util.*;
++
++/** Publishes an independently frozen evaluation object from an immutable rolling
++ * development result. It owns no real-decision, certificate or statistical pass.
++ * It never changes the base learner's RUN, protocol, cursor or an older frozen row.
++ * All scheduling uses the original queue, TRAIN quantum and database writer.
++ */
++public final class RollingFrozenPublisherR343 {
++    private RollingFrozenPublisherR343() {}
++    public static final String TABLE="research_rolling_frozen_publication_r343";
++    public static final String REJECT="research_rolling_publication_reject_r343";
++    public static final String PAGE="research_rolling_publication_page_r343";
++    public static final String KIND="R343_ROLLING_FREEZE";
++    private static final int PAGE_ROWS=32, MAX_PENDING=32;
++    private static final String TERMINAL="('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')";
++
++    public static void schema(SQLiteDatabase db){
++        need(db.inTransaction(),"ROLLING_PUBLICATION_SCHEMA_TX");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE+"(version_id TEXT PRIMARY KEY REFERENCES "+RollingLearnerR343.VERSION+"(version_id),frozen_id TEXT NOT NULL UNIQUE REFERENCES "+ResearchEvaluationRunR967.EVAL+"(candidate_id),run_hash TEXT NOT NULL UNIQUE,learner_id TEXT NOT NULL,first_issue TEXT NOT NULL,ast_hash TEXT NOT NULL,rule_hash TEXT NOT NULL,initial_updates INTEGER NOT NULL CHECK(initial_updates BETWEEN 300 AND 1200),source_artifact TEXT NOT NULL UNIQUE,split_rule TEXT NOT NULL,integrity_epoch TEXT NOT NULL,model_hash TEXT NOT NULL,normalizer_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,protocol_hash TEXT NOT NULL,input_hash TEXT NOT NULL,training_receipt_hash TEXT NOT NULL,checkpoint_hash TEXT NOT NULL,feature_prefix_hash TEXT NOT NULL,publication_json TEXT NOT NULL,publication_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL)");
++        db.execSQL("CREATE INDEX IF NOT EXISTS r343_rolling_frozen_learner ON "+TABLE+"(learner_id,first_issue)");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+REJECT+"(version_id TEXT PRIMARY KEY REFERENCES "+RollingLearnerR343.VERSION+"(version_id),reason TEXT NOT NULL,receipt_json TEXT NOT NULL,receipt_hash TEXT NOT NULL UNIQUE,created_at INTEGER NOT NULL)");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+PAGE+"(version_id TEXT NOT NULL REFERENCES "+RollingLearnerR343.VERSION+"(version_id),first_index INTEGER NOT NULL CHECK(first_index>=0),end_index INTEGER NOT NULL CHECK(end_index>first_index AND end_index<=1320 AND end_index-first_index<=32),prefix_before TEXT NOT NULL,prefix_after TEXT NOT NULL,receipt_hash TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(version_id,first_index))");
++        for(String table:new String[]{TABLE,REJECT,PAGE}){
++            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_no_update BEFORE UPDATE ON "+table+" BEGIN SELECT RAISE(ABORT,'R343_PUBLICATION_IMMUTABLE'); END");
++            db.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_no_delete BEFORE DELETE ON "+table+" BEGIN SELECT RAISE(ABORT,'R343_PUBLICATION_RECEIPT_PERMANENT'); END");
++        }
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_publication_no_replace BEFORE INSERT ON "+TABLE+" WHEN EXISTS(SELECT 1 FROM "+TABLE+" WHERE version_id=NEW.version_id OR frozen_id=NEW.frozen_id OR run_hash=NEW.run_hash OR source_artifact=NEW.source_artifact OR publication_hash=NEW.publication_hash) BEGIN SELECT RAISE(ABORT,'R343_PUBLICATION_DUPLICATE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_publication_reject_no_replace BEFORE INSERT ON "+REJECT+" WHEN EXISTS(SELECT 1 FROM "+REJECT+" WHERE version_id=NEW.version_id OR receipt_hash=NEW.receipt_hash) BEGIN SELECT RAISE(ABORT,'R343_PUBLICATION_REJECT_DUPLICATE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_publication_page_no_replace BEFORE INSERT ON "+PAGE+" WHEN EXISTS(SELECT 1 FROM "+PAGE+" WHERE version_id=NEW.version_id AND first_index=NEW.first_index) BEGIN SELECT RAISE(ABORT,'R343_PUBLICATION_PAGE_DUPLICATE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_publication_outcome_exclusive BEFORE INSERT ON "+TABLE+" WHEN EXISTS(SELECT 1 FROM "+REJECT+" WHERE version_id=NEW.version_id) BEGIN SELECT RAISE(ABORT,'R343_PUBLICATION_OUTCOME_CONFLICT'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_publication_reject_exclusive BEFORE INSERT ON "+REJECT+" WHEN EXISTS(SELECT 1 FROM "+TABLE+" WHERE version_id=NEW.version_id) BEGIN SELECT RAISE(ABORT,'R343_PUBLICATION_OUTCOME_CONFLICT'); END");
++    }
++    public static boolean installed(SQLiteDatabase db){
++        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN(?,?,?)",new String[]{TABLE,REJECT,PAGE})){return c.moveToFirst()&&c.getInt(0)==3;}
++    }
++    /** Fail closed before migration and while an offer or active evaluation needs
++     * the original. A hash receipt never substitutes for retained raw bytes. */
++    public static boolean pinsRawVersion(SQLiteDatabase db,String version){
++        if(!installed(db))return true;
++        try(Cursor c=db.rawQuery("SELECT state FROM "+RollingLearnerR343.VERSION+" WHERE version_id=? AND NOT EXISTS(SELECT 1 FROM "+RollingLearnerR343.OFFER+" o WHERE o.version_id=?)",new String[]{version,version})){
++            if(c.moveToFirst()&&("FAILED".equals(c.getString(0))||"DEPENDENCY_GAP".equals(c.getString(0))))return false;
++        }
++        try(Cursor c=db.rawQuery("SELECT 1 FROM "+REJECT+" WHERE version_id=?",new String[]{version})){if(c.moveToFirst())return false;}
++        try(Cursor c=db.rawQuery("SELECT p.frozen_id,life.state FROM "+TABLE+" p LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||p.frozen_id) WHERE p.version_id=?",new String[]{version})){
++            if(!c.moveToFirst())return true;
++            return c.isNull(1)||!retired(c.getString(1));
++        }
++    }
++    /** Compact publication/page/rejection receipts are permanent. The learner's
++     * existing bounded cleanup owns raw retention and calls pinsRawVersion. */
++    public static boolean cleanup(SQLiteDatabase db){need(db.inTransaction(),"ROLLING_PUBLICATION_CLEANUP_TX");return false;}
++
++    public static boolean drainOne(DbStore store,long endNs){
++        if(store==null||System.nanoTime()+100_000_000L>=endNs||!installed(store.readable())||!RollingLearnerR343.installed(store.readable()))return false;
++        ResearchTaskQueueR967.Lease task=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FREEZE_CLAIM",db->ResearchTaskQueueR967.claim(db,KIND,System.currentTimeMillis()),null);
++        if(task==null){
++            try{return planOne(store);}catch(ResearchTaskQueueR967.Capacity|DevelopmentProductionCP12.Wait waiting){return false;}
++        }
++        try{
++            if(retireSuperseded(store,task))return true;
++            try(MemoryBudgetCP4.Lease metadata=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(metadataBytes(store.readable(),task))){
++            Offer offer=read(store.readable(),task);
++            if(verifyPage(store,task,offer,endNs))return true;
++            try(Prepared prepared=prepare(store,offer,endNs)){
++                return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FREEZE_COMMIT",db->commit(db,task,prepared),false));
++            }
++            }
++        }catch(ResearchWorkBudgetR927.Yield|RuntimeResourceAuditR927.BudgetExceeded waiting){release(store,task,"REALTIME_PRIORITY",250);return true;}
++        catch(DevelopmentProductionCP12.Wait waiting){release(store,task,waiting.reason,1000);return true;}
++        catch(IOException waiting){release(store,task,"WAIT_PUBLICATION_INPUT_IO",1000);return true;}
++        catch(RuntimeException failure){
++            if(ResearchTrainingHookRegistryR952.retryInfrastructureCP12(store,task,failure))return true;
++            if("ALGORITHM_MEMORY_BUDGET".equals(failure.getMessage())){release(store,task,"WAIT_RESOURCE",1000);return true;}
++            // A bad new version does not rewrite or retire the independently
++            // evaluated base/older version. Preserve a terminal rejection receipt.
++            String text=failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());
++            final String reason=text.length()>512?text.substring(0,512):text;
++            Boolean rejected=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FREEZE_REJECT",db->{
++                if(!ResearchTaskQueueR967.owns(db,task))return false;
++                Map<String,Object> r=new TreeMap<>();r.put("revision","R343_ROLLING_PUBLICATION_REJECT_1");r.put("version",task.authorityRef);r.put("task",task.id);r.put("protocol",task.sequence);r.put("input",task.inputHash);r.put("reason",reason);r.put("realAuthority",false);
++                String json=StrictCanonicalJson.writeContext(r);
++                db.execSQL("INSERT INTO "+REJECT+" VALUES(?,?,?,?,?)",new Object[]{task.authorityRef,reason,json,V51ChecksumEngine.sha256(json),System.currentTimeMillis()});
++                need(ResearchTaskQueueR967.failTerminalCP12(db,task,reason),"ROLLING_PUBLICATION_REJECT_LEASE");return true;
++            },false);
++            if(!Boolean.TRUE.equals(rejected))throw failure;return true;
++        }
++    }
++    private static boolean planOne(DbStore store){
++        return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FREEZE_PLAN",db->{
++            String[] obsolete=superseded(db,null);
++            if(obsolete!=null){insertSuperseded(db,obsolete,"");return true;}
++            try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+ResearchTaskQueueR967.TABLE+" WHERE kind=? AND status NOT IN('COMPLETED','EXPIRED','FAILED_TERMINAL')",new String[]{KIND})){need(c.moveToFirst(),"ROLLING_PUBLICATION_QUEUE_COUNT");if(c.getInt(0)>=MAX_PENDING)return false;}
++            try(Cursor c=db.rawQuery("SELECT o.version_id,o.cutoff_issue,v.protocol_hash,v.input_hash FROM "+RollingLearnerR343.OFFER+" o JOIN "+RollingLearnerR343.VERSION+" v ON v.version_id=o.version_id JOIN r952_candidate parent ON parent.candidate_id=o.candidate_id WHERE v.state='COMPLETE' AND parent.state NOT IN"+TERMINAL+" AND NOT EXISTS(SELECT 1 FROM "+TABLE+" p WHERE p.version_id=o.version_id) AND NOT EXISTS(SELECT 1 FROM "+REJECT+" x WHERE x.version_id=o.version_id) AND NOT EXISTS(SELECT 1 FROM "+ResearchTaskQueueR967.TABLE+" t WHERE t.kind=? AND t.authority_ref=o.version_id) AND NOT EXISTS(SELECT 1 FROM "+ResearchTaskQueueR967.TABLE+" t JOIN "+RollingLearnerR343.VERSION+" pending ON pending.version_id=t.authority_ref WHERE t.kind=? AND pending.candidate_id=o.candidate_id AND t.status NOT IN('COMPLETED','EXPIRED','FAILED_TERMINAL')) ORDER BY o.created_at,o.version_id LIMIT 1",new String[]{KIND,KIND})){
++                if(!c.moveToFirst())return false;
++                ResearchTaskQueueR967.enqueue(db,KIND,c.getString(0),TargetIssueResolver.next(c.getString(1)).targetIssue,c.getString(2),c.getString(3),c.getString(0));return true;
++            }
++        },false));
++    }
++    /** Supersession applies only before independent formal publication. It does
++     * not invalidate a result, transfer samples, or touch an older formal window. */
++    private static String[] superseded(SQLiteDatabase db,String version){
++        String filter=version==null?" AND NOT EXISTS(SELECT 1 FROM "+ResearchTaskQueueR967.TABLE+" t WHERE t.kind='"+KIND+"' AND t.authority_ref=o.version_id)":" AND o.version_id=?";
++        try(Cursor c=db.rawQuery("SELECT o.version_id,o.candidate_id,o.cutoff_issue,o.model_hash,o.receipt_hash,h.version_id,h.through_issue,h.model_hash FROM "+RollingLearnerR343.OFFER+" o JOIN "+RollingLearnerR343.VERSION+" v ON v.version_id=o.version_id AND v.state='COMPLETE' AND v.model_hash=o.model_hash AND v.receipt_hash=o.receipt_hash JOIN "+RollingLearnerR343.HEAD+" h ON h.candidate_id=o.candidate_id JOIN "+RollingLearnerR343.VERSION+" successor ON successor.version_id=h.version_id AND successor.candidate_id=h.candidate_id AND successor.state='COMPLETE' AND successor.model_hash=h.model_hash AND successor.cutoff_issue=h.through_issue WHERE h.version_id<>o.version_id AND h.through_issue>o.cutoff_issue AND NOT EXISTS(SELECT 1 FROM "+TABLE+" p WHERE p.version_id=o.version_id) AND NOT EXISTS(SELECT 1 FROM "+REJECT+" x WHERE x.version_id=o.version_id)"+filter+" ORDER BY o.created_at,o.version_id LIMIT 1",version==null?null:new String[]{version})){
++            if(!c.moveToFirst())return null;String[] row=new String[8];for(int i=0;i<row.length;i++)row[i]=c.getString(i);return row;
++        }
++    }
++    private static String insertSuperseded(SQLiteDatabase db,String[] row,String task){
++        Map<String,Object> r=new TreeMap<>();r.put("revision","R343_ROLLING_UNPUBLISHED_SUPERSEDED_1");r.put("version",row[0]);r.put("candidate",row[1]);r.put("cutoff",row[2]);r.put("model",row[3]);r.put("trainingReceipt",row[4]);r.put("replacement",row[5]);r.put("replacementCutoff",row[6]);r.put("replacementModel",row[7]);r.put("task",task);r.put("reason","SUPERSEDED_UNPUBLISHED");r.put("statisticalFailure",false);r.put("formalFutureCount",0);r.put("realAuthority",false);
++        String json=StrictCanonicalJson.writeContext(r),hash=V51ChecksumEngine.sha256(json);
++        db.execSQL("INSERT INTO "+REJECT+" VALUES(?,?,?,?,?)",new Object[]{row[0],"SUPERSEDED_UNPUBLISHED",json,hash,System.currentTimeMillis()});return hash;
++    }
++    private static boolean retireSuperseded(DbStore store,ResearchTaskQueueR967.Lease task){
++        if(superseded(store.readable(),task.authorityRef)==null)return false;
++        return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FREEZE_SUPERSEDE",db->{
++            need(ResearchTaskQueueR967.owns(db,task),"ROLLING_PUBLICATION_SUPERSEDE_LEASE");
++            String[] row=superseded(db,task.authorityRef);if(row==null)return false;
++            String receipt=insertSuperseded(db,row,task.id);
++            need(ResearchTaskQueueR967.expireDependencyR343(db,task,"SUPERSEDED_UNPUBLISHED",receipt),"ROLLING_PUBLICATION_SUPERSEDE_CAS");return true;
++        },false));
++    }
++    private static final class Offer {
++        final String version,candidate,cutoff,astHash,protocolHash,protocol,inputHash,prefix,checkpointHash,modelPayload,modelHash,receipt,receiptHash,ast;
++        final String trainFirst,trainLast,validationFirst,validationLast;
++        final int trainN,next;final long seed,generation,steps;final byte[] checkpoint,input;
++        Offer(Cursor c){
++            version=c.getString(0);candidate=c.getString(1);cutoff=c.getString(2);astHash=c.getString(3);protocolHash=c.getString(4);protocol=c.getString(5);inputHash=c.getString(6);trainN=c.getInt(7);seed=c.getLong(8);next=c.getInt(9);prefix=c.getString(10);checkpoint=c.getBlob(11);checkpointHash=c.getString(12);generation=c.getLong(13);modelPayload=c.getString(14);modelHash=c.getString(15);receipt=c.getString(16);receiptHash=c.getString(17);steps=c.getLong(18);ast=c.getString(19);input=c.getBlob(20);trainFirst=c.getString(21);trainLast=c.getString(22);validationFirst=c.getString(23);validationLast=c.getString(24);
++        }
++    }
++    private static long metadataBytes(SQLiteDatabase db,ResearchTaskQueueR967.Lease task){
++        try(Cursor c=db.rawQuery("SELECT length(CAST(v.model_payload AS BLOB)),length(CAST(c.ast AS BLOB)),length(CAST(v.receipt_json AS BLOB)),length(CAST(v.protocol_json AS BLOB)),length(v.checkpoint),length(v.input_blob) FROM "+RollingLearnerR343.VERSION+" v JOIN r952_candidate c ON c.candidate_id=v.candidate_id WHERE v.version_id=?",new String[]{task.authorityRef})){
++            need(c.moveToFirst(),"ROLLING_PUBLICATION_VERSION_MISSING");
++            int[] caps={262144,32768,8192,65536,DevelopmentTrainerCP9.MAX_CHECKPOINT,524288};long bytes=128L<<10;
++            for(int i=0;i<caps.length;i++){need(!c.isNull(i)&&c.getLong(i)>0&&c.getLong(i)<=caps[i],"ROLLING_PUBLICATION_RAW_SIZE_OR_MISSING");bytes+=(i<4?4L:1L)*c.getLong(i);}
++            return bytes;
++        }
++    }
++    private static Offer read(SQLiteDatabase db,ResearchTaskQueueR967.Lease task){
++        need(!db.inTransaction()&&KIND.equals(task.kind)&&task.candidate.equals(task.authorityRef),"ROLLING_PUBLICATION_TASK");
++        try(Cursor c=db.rawQuery("SELECT length(CAST(v.model_payload AS BLOB)),length(CAST(c.ast AS BLOB)),length(CAST(v.receipt_json AS BLOB)),length(CAST(v.protocol_json AS BLOB)),length(v.checkpoint),length(v.input_blob) FROM "+RollingLearnerR343.VERSION+" v JOIN r952_candidate c ON c.candidate_id=v.candidate_id WHERE v.version_id=?",new String[]{task.authorityRef})){
++            need(c.moveToFirst(),"ROLLING_PUBLICATION_VERSION_MISSING");
++            int[] caps={262144,32768,8192,65536,DevelopmentTrainerCP9.MAX_CHECKPOINT,524288};
++            for(int i=0;i<caps.length;i++)need(!c.isNull(i)&&c.getLong(i)>0&&c.getLong(i)<=caps[i],"ROLLING_PUBLICATION_RAW_SIZE_OR_MISSING");
++        }
++        String sql="SELECT v.version_id,v.candidate_id,v.cutoff_issue,v.ast_hash,v.protocol_hash,v.protocol_json,v.input_hash,v.train_n,v.seed,v.next_index,v.prefix_hash,v.checkpoint,v.checkpoint_hash,v.checkpoint_generation,v.model_payload,v.model_hash,v.receipt_json,v.receipt_hash,v.optimizer_steps,c.ast,v.input_blob,v.train_first,v.train_last,v.validation_first,v.validation_last FROM "+RollingLearnerR343.VERSION+" v JOIN "+RollingLearnerR343.OFFER+" o ON o.version_id=v.version_id AND o.candidate_id=v.candidate_id AND o.cutoff_issue=v.cutoff_issue AND o.model_hash=v.model_hash AND o.receipt_hash=v.receipt_hash JOIN r952_candidate c ON c.candidate_id=v.candidate_id AND c.structural_hash=v.ast_hash WHERE v.version_id=? AND v.state='COMPLETE' AND c.state NOT IN"+TERMINAL;
++        try(Cursor c=db.rawQuery(sql,new String[]{task.authorityRef})){
++            need(c.moveToFirst(),"ROLLING_PUBLICATION_OFFER_IDENTITY");Offer v=new Offer(c);need(!c.moveToNext(),"ROLLING_PUBLICATION_AMBIGUOUS");
++            need(task.sequence.equals(v.protocolHash)&&task.inputHash.equals(v.inputHash)&&task.issue.equals(TargetIssueResolver.next(v.cutoff).targetIssue)&&v.next==v.trainN+120,"ROLLING_PUBLICATION_TASK_IDENTITY");
++            String train=ResearchTaskQueueR967.naturalKey(RollingLearnerR343.KIND,v.version,task.issue,v.protocolHash);
++            try(Cursor done=db.rawQuery("SELECT status,result_hash,input_hash,authority_ref FROM "+ResearchTaskQueueR967.TABLE+" WHERE task_id=?",new String[]{train})){
++                need(done.moveToFirst()&&"COMPLETED".equals(done.getString(0))&&v.modelHash.equals(done.getString(1))&&v.inputHash.equals(done.getString(2))&&v.version.equals(done.getString(3)),"ROLLING_PUBLICATION_TRAIN_TASK_NOT_COMPLETE");
++            }
++            return v;
++        }
++    }
++    private static String initialPrefix(Offer v){return V51ChecksumEngine.sha256("R343_FEATURE_PREFIX|"+v.version+'|'+v.protocolHash+'|'+v.inputHash);}
++    private static String pageHash(Offer v,int first,int end,String before,String after){return V51ChecksumEngine.sha256("R343_PUBLICATION_ORIGINAL_PAGE_1|"+v.version+'|'+v.protocolHash+'|'+v.inputHash+'|'+v.modelHash+'|'+v.receiptHash+'|'+v.checkpointHash+'|'+first+'|'+end+'|'+before+'|'+after);}
++    /** At most 1320 compact page receipts, including deadline-shortened pages. No raw JSON retained. */
++    private static PagePosition pagePosition(SQLiteDatabase db,Offer v){
++        int at=0;String prefix=initialPrefix(v);
++        try(Cursor c=db.rawQuery("SELECT first_index,end_index,prefix_before,prefix_after,receipt_hash FROM "+PAGE+" WHERE version_id=? ORDER BY first_index LIMIT 1321",new String[]{v.version})){
++            while(c.moveToNext()){
++                int end=c.getInt(1);need(c.getInt(0)==at&&end>at&&end<=Math.min(at+PAGE_ROWS,v.next)&&prefix.equals(c.getString(2))&&pageHash(v,at,end,prefix,c.getString(3)).equals(c.getString(4)),"ROLLING_PUBLICATION_PAGE_CHAIN");
++                prefix=c.getString(3);at=end;
++            }
++        }
++        need(at<=v.next&&(at<v.next||prefix.equals(v.prefix)),"ROLLING_PUBLICATION_PAGE_PREFIX");return new PagePosition(at,prefix);
++    }
++    private static final class PagePosition{final int at;final String prefix;PagePosition(int at,String prefix){this.at=at;this.prefix=prefix;}}
++    private static boolean verifyPage(DbStore store,ResearchTaskQueueR967.Lease task,Offer v,long endNs){
++        PagePosition position=pagePosition(store.readable(),v);if(position.at==v.next)return false;
++        int at=position.at;String prefix=position.prefix;
++        String trainingTask=ResearchTaskQueueR967.naturalKey(RollingLearnerR343.KIND,v.version,TargetIssueResolver.next(v.cutoff).targetIssue,v.protocolHash);
++        try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(512L<<10);
++            Cursor c=store.readable().rawQuery("SELECT row_index,target_issue,actual,raw_hash,payload,row_hash,source_json,source_hash FROM "+RollingLearnerR343.FEATURE+" WHERE version_id=? AND row_index>=? ORDER BY row_index LIMIT 32",new String[]{v.version,Integer.toString(at)})){
++            while(c.moveToNext()&&System.nanoTime()+50_000_000L<endNs){
++                ResearchWorkBudgetR927.checkpoint();need(c.getInt(0)==at&&at<v.next,"ROLLING_PUBLICATION_ROW_ORDER");
++                byte[] payload=c.getBlob(4);String source=c.getString(6),sourceHash=c.getString(7);
++                need(HistoricalTrainingReceiptCP12.originalHashR343(source,sourceHash),"ROLLING_PUBLICATION_ORIGINAL_HASH");
++                String hash=DevelopmentProductionCP12.featureHashCP12(trainingTask,v.protocolHash,v.inputHash,at,at<v.trainN?"TRAIN":"VALIDATION",c.getString(1),c.getInt(2),sourceHash,c.getString(3),payload);
++                need(hash.equals(c.getString(5)),"ROLLING_PUBLICATION_ROW_HASH");
++                DevelopmentProductionCP12.decode(c.getString(1),c.getString(3),c.getInt(2),payload);
++                prefix=V51ChecksumEngine.sha256(prefix+'|'+hash);at++;
++            }
++        }
++        if(at==position.at){release(store,task,"TIME_BUDGET_EXCEEDED",250);return true;}
++        final int next=at;final String after=prefix,receipt=pageHash(v,position.at,next,position.prefix,after);
++        store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FREEZE_VERIFY",db->{
++            need(ResearchTaskQueueR967.owns(db,task),"ROLLING_PUBLICATION_PAGE_LEASE");metadataCas(db,v);
++            PagePosition current=pagePosition(db,v);need(current.at==position.at&&current.prefix.equals(position.prefix),"ROLLING_PUBLICATION_PAGE_CAS");
++            db.execSQL("INSERT INTO "+PAGE+" VALUES(?,?,?,?,?,?,?)",new Object[]{v.version,position.at,next,position.prefix,after,receipt,System.currentTimeMillis()});
++            need(ResearchTaskQueueR967.yield(db,task,"ORIGINALS|"+next+'|'+after,"ROLLING_PUBLICATION_ORIGINAL_PAGE",250),"ROLLING_PUBLICATION_PAGE_QUEUE");return true;
++        },false);
++        return true;
++    }
++    private static final class Prepared implements AutoCloseable {
++        final Offer offer;final CandidateAstR952 ast;final CandidateCompilerR952.Model model;
++        final Map<String,Object> protocol;final long sourceEpoch;final String target,artifact,run,epoch,structure,id,json,hash;
++        final LongSummaryBindingsR80.PreparedSourcesR81 sources;final MemoryBudgetCP4.Lease memory;
++        Prepared(Offer v,CandidateAstR952 ast,CandidateCompilerR952.Model model,Map<String,Object> protocol,long sourceEpoch,String target,LongSummaryBindingsR80.PreparedSourcesR81 sources,MemoryBudgetCP4.Lease memory){
++            offer=v;this.ast=ast;this.model=model;this.protocol=protocol;this.sourceEpoch=sourceEpoch;this.target=target;this.sources=sources;this.memory=memory;
++            artifact=V51ChecksumEngine.sha256("R343_ROLLING_FROZEN_SOURCE_1|"+v.version+'|'+v.protocolHash+'|'+v.inputHash+'|'+v.receiptHash+'|'+v.modelHash+'|'+v.checkpointHash+'|'+v.prefix);
++            ResearchEvaluationRunR967.FrozenIdentityR343 identity=ResearchEvaluationRunR967.independentIdentityR343(v.candidate,target,ast,model,artifact);
++            run=identity.run;epoch=identity.epoch;structure=ResearchEvaluationRunR967.evaluationHash(ast,model,TrainingCodeIdentityR964.SHA256,epoch);id=ResearchEvaluationRunR967.PREFIX+structure.substring(0,24);
++            Map<String,Object> r=new TreeMap<>();r.put("revision","R343_ROLLING_FROZEN_PUBLICATION_1");r.put("version",v.version);r.put("baseCandidate",v.candidate);r.put("frozen",id);r.put("run",run);r.put("epoch",epoch);r.put("firstFutureIssue",target);r.put("cutoff",v.cutoff);r.put("ast",v.astHash);r.put("model",v.modelHash);r.put("normalizer",model.modern().normalizerHash);r.put("manifest",ast.graphSpec.manifest.hash);r.put("protocol",v.protocolHash);r.put("input",v.inputHash);r.put("trainingReceipt",v.receiptHash);r.put("checkpoint",v.checkpointHash);r.put("featurePrefix",v.prefix);r.put("sourceEpochAtValidation",sourceEpoch);r.put("replay","CP9_DONE_CHECKPOINT_RESTORE_AND_FINISH");r.put("formalFutureCount",0);r.put("realAuthority",false);
++            json=StrictCanonicalJson.writeContext(r);hash=V51ChecksumEngine.sha256(json);
++        }
++        public void close(){memory.close();}
++    }
++    private static Prepared prepare(DbStore store,Offer v,long endNs)throws IOException{
++        Map<String,Object> protocol=canonical(v.protocol,v.protocolHash),receipt=canonical(v.receipt,v.receiptHash);
++        CandidateAstR952 ast=CandidateAstR952.parse(v.ast);CandidateCompilerR952.Model model=CandidateCompilerR952.Model.parse(v.modelPayload);
++        need(ast.formatVersion==3&&!model.isLegacy()&&ast.structuralHash.equals(v.astHash)&&model.hash().equals(v.modelHash)&&model.updates==v.trainN,"ROLLING_PUBLICATION_MODEL_IDENTITY");
++        CandidateCompilerR952.Modern modern=model.modern();modern.requireManifest(ast.graphSpec.manifest);
++        need(modern.kind==ast.graphSpec.modelKind&&modern.family==ast.family&&modern.seed==v.seed&&modern.trainedUntil.equals(v.cutoff)&&modern.developmentReceiptHash.equals(v.receiptHash),"ROLLING_PUBLICATION_MODEL_CONTRACT");
++        String[][] fields={{"revision","R343_ROLLING_DEV_RESULT_1"},{"version",v.version},{"candidate",v.candidate},{"protocol",v.protocolHash},{"input",v.inputHash},{"ast",v.astHash},{"cutoff",v.cutoff},{"normalizerHash",modern.normalizerHash},{"manifestHash",ast.graphSpec.manifest.hash},{"modelKind",modern.kind.name()},{"weightsHash",FrozenCandidateAdapterR958.developmentWeightsHashCP8(model)},{"codeRevision",TrainingCodeIdentityR964.SHA256},{"trainFirst",v.trainFirst},{"trainLast",v.trainLast},{"validationFirst",v.validationFirst},{"validationLast",v.validationLast}};
++        for(String[] pair:fields)need(pair[1].equals(receipt.get(pair[0])),"ROLLING_PUBLICATION_RECEIPT_IDENTITY");
++        need(number(receipt,"trainN")==v.trainN&&number(receipt,"validationN")==120&&number(receipt,"optimizerSteps")==v.steps&&number(receipt,"newStrategyCount")==0&&number(receipt,"formalFutureCount")==0&&Boolean.FALSE.equals(receipt.get("realAuthority")),"ROLLING_PUBLICATION_RECEIPT_COUNTS");
++        need("R343_ROLLING_DEV_1".equals(protocol.get("revision"))&&v.version.equals(protocol.get("versionId"))&&v.candidate.equals(protocol.get("candidateId"))&&v.astHash.equals(protocol.get("astHash"))&&v.inputHash.equals(protocol.get("inputHash"))&&ast.graphSpec.manifest.hash.equals(protocol.get("manifestHash"))&&TrainingCodeIdentityR964.SHA256.equals(protocol.get("codeRevision"))&&v.cutoff.equals(protocol.get("cutoffIssue"))&&number(protocol,"seed")==v.seed&&number(protocol,"trainN")==v.trainN,"ROLLING_PUBLICATION_PROTOCOL_IDENTITY");
++        need(v.trainFirst.equals(protocol.get("trainFirst"))&&v.trainLast.equals(protocol.get("trainLast"))&&v.validationFirst.equals(protocol.get("validationFirst"))&&v.validationLast.equals(protocol.get("validationLast")),"ROLLING_PUBLICATION_PROTOCOL_SPLIT");
++        need(protocol.get("canonicalRangeHash") instanceof String&&protocol.get("canonicalRangeHash").equals(receipt.get("canonicalRangeHash")),"ROLLING_PUBLICATION_CANONICAL_SOURCE_RECEIPT");
++        need(TrainingCasCP12.hex(TrainingCasCP12.sha().digest(v.checkpoint)).equals(v.checkpointHash),"ROLLING_PUBLICATION_CHECKPOINT_HASH");
++        CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,DevelopmentProductionCP12.readSpecs(store.readable(),ast));
++        LongSummaryBindingsR80.validateProtocolSources(store.readable(),protocol);
++        long sourceEpoch=RollingLearnerR343.verifySourceR343(store.readable(),protocol);
++        int width=modern.featureN==0?modern.inputDimension:modern.featureN;
++        MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(DevelopmentTrainerCP9.estimatedDatasetBytesCP12(v.trainN,width));boolean success=false;
++        try{
++            ArrayList<DevelopmentTrainerCP9.Row> rows=new ArrayList<>();
++            try(DevelopmentInputCP9.Input input=DevelopmentInputCP9.read(new ByteArrayInputStream(v.input),v.input.length,v.inputHash,new DevelopmentInputCP9.Header((String)protocol.get("header")),RuntimeMemoryGuardR811.algorithmModelBudget())){
++            DevelopmentInputCP9.Split split=input.split(ast.graphSpec.manifest.requiredHistory);
++            need(input.rowCount()==number(protocol,"historyCount")&&input.issue(0).equals(protocol.get("historyFirst"))&&input.issue(input.rowCount()-1).equals(protocol.get("historyLast")),"ROLLING_PUBLICATION_INPUT_RANGE");
++            need(split.trainN==v.trainN&&input.issue(split.trainFirst).equals(v.trainFirst)&&input.issue(split.trainEnd-1).equals(v.trainLast)&&input.issue(split.validationFirst).equals(v.validationFirst)&&input.issue(split.validationEnd-1).equals(v.cutoff),"ROLLING_PUBLICATION_INPUT_SPLIT");
++            String prefix=initialPrefix(v);
++            try(Cursor c=store.readable().rawQuery("SELECT row_index,target_issue,actual,raw_hash,payload,row_hash,source_hash FROM "+RollingLearnerR343.FEATURE+" WHERE version_id=? ORDER BY row_index LIMIT 1321",new String[]{v.version})){
++                String trainTask=ResearchTaskQueueR967.naturalKey(RollingLearnerR343.KIND,v.version,TargetIssueResolver.next(v.cutoff).targetIssue,v.protocolHash);
++                while(c.moveToNext()){
++                    checkpoint(endNs);int i=rows.size(),inputRow=i<v.trainN?split.trainFirst+i:split.validationFirst+i-v.trainN;
++                    need(i<v.next&&c.getInt(0)==i&&input.issue(inputRow).equals(c.getString(1))&&input.actual(inputRow,ast.position)==c.getInt(2),"ROLLING_PUBLICATION_DATASET_INPUT");
++                    byte[] payload=c.getBlob(4);String hash=DevelopmentProductionCP12.featureHashCP12(trainTask,v.protocolHash,v.inputHash,i,i<v.trainN?"TRAIN":"VALIDATION",c.getString(1),c.getInt(2),c.getString(6),c.getString(3),payload);need(hash.equals(c.getString(5)),"ROLLING_PUBLICATION_DATASET_HASH");prefix=V51ChecksumEngine.sha256(prefix+'|'+hash);
++                    rows.add(DevelopmentProductionCP12.decode(c.getString(1),c.getString(3),c.getInt(2),payload));
++                }
++            }
++            need(rows.size()==v.next&&prefix.equals(v.prefix)&&pagePosition(store.readable(),v).at==v.next,"ROLLING_PUBLICATION_DATASET_PREFIX");
++            } // Release SCDEV1's retained 2 MiB before allocating the numeric restore.
++            // CP9's shape identity excludes trained parameters and includes kind,
++            // seed, manifest, experts, cutoff, dimensions, missing policies and N.
++            DevelopmentTrainerCP9.Dataset dataset=new DevelopmentTrainerCP9.Dataset(modern,v.protocolHash,v.inputHash,ast.graphSpec.manifest.orderedFeatureIds,ast.graphSpec.manifest.missingPolicyPerFeature,rows,v.trainN);
++            try(MemoryBudgetCP4.Lease numerics=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(DevelopmentTrainerCP9.estimatedNumericsBytesCP12(dataset))){
++                checkpoint(endNs);DevelopmentTrainerCP9.State restored=DevelopmentTrainerCP9.restore(dataset,v.checkpoint);
++                need(restored.complete(),"ROLLING_PUBLICATION_CHECKPOINT_NOT_DONE");
++                double ce=restored.validationCE(),brier=restored.validationBrier();
++                need(Double.isFinite(ce)&&ce>=0&&ce<=35&&Double.isFinite(brier)&&brier>=0&&brier<=.2+1e-12&&v.steps>=0&&restored.executedEpochs()>=1&&restored.executedEpochs()<=20&&restored.optimizerSteps()==v.steps&&restored.executedEpochs()==number(receipt,"epochs")&&restored.selectedEpoch()+1==number(receipt,"selectedEpoch")&&Double.toHexString(ce).equals(receipt.get("ce"))&&Double.toHexString(brier).equals(receipt.get("brier"))&&restored.orderedPredictionHash().equals(receipt.get("predictionHash")),"ROLLING_PUBLICATION_CHECKPOINT_RECEIPT");
++                CandidateCompilerR952.Model replay=DevelopmentTrainerCP9.finish(dataset,restored,v.receiptHash);
++                need(replay.hash().equals(v.modelHash)&&replay.payload().equals(v.modelPayload),"ROLLING_PUBLICATION_CODEC_REPLAY");
++            }
++            checkpoint(endNs);String target=currentTarget(store.readable());
++            if(v.cutoff.compareTo(target)>=0)throw new DevelopmentProductionCP12.Wait("WAIT_FUTURE_PUBLICATION_TARGET");
++            LongSummaryBindingsR80.PreparedSourcesR81 sources=LongSummaryBindingsR80.prepareCurrentSourcesR81(store.readable(),ast,target);
++            Prepared p=new Prepared(v,ast,model,protocol,sourceEpoch,target,sources,memory);success=true;return p;
++        }finally{if(!success)memory.close();}
++    }
++    private static boolean commit(SQLiteDatabase db,ResearchTaskQueueR967.Lease task,Prepared p){
++        need(db.inTransaction()&&ResearchTaskQueueR967.owns(db,task),"ROLLING_PUBLICATION_COMMIT_LEASE");Offer v=p.offer;metadataCas(db,v);
++        if(!p.target.equals(currentTarget(db))||ResearchEvaluationRunR967.drawn(db,p.target))throw new DevelopmentProductionCP12.Wait("TARGET_SUPERSEDED");
++        if(RollingLearnerR343.sourceEpochR343(db)!=p.sourceEpoch)throw new DevelopmentProductionCP12.Wait("ROLLING_PUBLICATION_SOURCE_CHANGED");
++        LongSummaryBindingsR80.validateProtocolSources(db,p.protocol);p.sources.validateAtCommit(db);
++        String active=" FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE (life.state IS NULL OR life.state NOT IN"+TERMINAL+") AND "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",p.target);
++        try(Cursor c=db.rawQuery("SELECT COUNT(*)"+active+" AND f.learner_id=?",new String[]{v.candidate})){need(c.moveToFirst(),"ROLLING_PUBLICATION_CAPACITY");if(c.getInt(0)>=ResearchEvaluationRunR967.MAX_ACTIVE_PER_LEARNER)throw new DevelopmentProductionCP12.Wait("WAIT_FROZEN_LEARNER_CAPACITY");}
++        try(Cursor c=db.rawQuery("SELECT COUNT(*)"+active,null)){need(c.moveToFirst(),"ROLLING_PUBLICATION_CAPACITY");if(c.getInt(0)>=ResearchEvaluationRunR967.MAX_ACTIVE_GLOBAL)throw new DevelopmentProductionCP12.Wait("WAIT_FROZEN_GLOBAL_CAPACITY");}
++        long now=System.currentTimeMillis();
++        db.execSQL("INSERT INTO "+ResearchEvaluationRunR967.EVAL+"(candidate_id,learner_id,ast,model_payload,structural_hash,model_hash,trained_until_issue,created_issue,source_artifact,created_at,run_hash,rule_hash,integrity_epoch,update_endpoint) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,0)",new Object[]{p.id,v.candidate,p.ast.canonical,v.modelPayload,p.structure,v.modelHash,v.cutoff,p.target,p.artifact,now,p.run,TrainingCodeIdentityR964.SHA256,p.epoch});
++        db.execSQL("INSERT INTO "+TABLE+" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{v.version,p.id,p.run,v.candidate,p.target,v.astHash,TrainingCodeIdentityR964.SHA256,v.trainN,p.artifact,ResearchEvaluationRunR967.SPLIT,p.epoch,v.modelHash,p.model.modern().normalizerHash,p.ast.graphSpec.manifest.hash,v.protocolHash,v.inputHash,v.receiptHash,v.checkpointHash,v.prefix,p.json,p.hash,now});
++        ResearchEvaluationRunR967.initializeRollingFrozenLifecycleR343(db,p.id);
++        LongSummaryBindingsR80.registerFrozenSourcesR81(db,p.structure,p.sources.epochs);
++        MatrixSourceRouterCP12.registerFrozenPolicyMatricesCP12(db,p.structure);
++        MatrixSourceRouterCP12.registerFrozenAtomStudiesCP12(db,p.structure,p.ast,p.model);
++        Map<String,String> components=new TreeMap<>();components.put("ast",v.astHash);components.put("model",v.modelHash);components.put("features",p.ast.graphSpec.manifest.hash);components.put("development",v.receiptHash);components.put("protocol",v.protocolHash);
++        MatrixSourceRouterCP12.enqueueFreezeCP12(db,p.structure,p.target,v.receiptHash,components,now);
++        ResearchTaskQueueR967.complete(db,task,p.id);return true;
++    }
++    private static void metadataCas(SQLiteDatabase db,Offer v){
++        try(Cursor c=db.rawQuery("SELECT v.model_hash,v.receipt_hash,v.checkpoint_hash,v.checkpoint_generation,v.prefix_hash,v.next_index,v.protocol_hash,v.input_hash,v.ast_hash,c.state,o.model_hash,o.receipt_hash FROM "+RollingLearnerR343.VERSION+" v JOIN r952_candidate c ON c.candidate_id=v.candidate_id AND c.structural_hash=v.ast_hash JOIN "+RollingLearnerR343.OFFER+" o ON o.version_id=v.version_id AND o.candidate_id=v.candidate_id AND o.cutoff_issue=v.cutoff_issue WHERE v.version_id=? AND v.state='COMPLETE'",new String[]{v.version})){
++            need(c.moveToFirst()&&v.modelHash.equals(c.getString(0))&&v.receiptHash.equals(c.getString(1))&&v.checkpointHash.equals(c.getString(2))&&v.generation==c.getLong(3)&&v.prefix.equals(c.getString(4))&&v.next==c.getInt(5)&&v.protocolHash.equals(c.getString(6))&&v.inputHash.equals(c.getString(7))&&v.astHash.equals(c.getString(8))&&!retired(c.getString(9))&&v.modelHash.equals(c.getString(10))&&v.receiptHash.equals(c.getString(11)),"ROLLING_PUBLICATION_METADATA_CAS");
++        }
++    }
++    private static String currentTarget(SQLiteDatabase db){
++        try(Cursor c=db.rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){
++            if(!c.moveToFirst()||!TargetIssueResolver.isValid(c.getString(0)))throw new DevelopmentProductionCP12.Wait("WAIT_FUTURE_PUBLICATION_TARGET");return TargetIssueResolver.next(c.getString(0)).targetIssue;
++        }
++    }
++    private static Map<String,Object> canonical(String json,String hash){Map<String,Object> value=StrictCanonicalJson.readContextObject(json);need(V51ChecksumEngine.sha256(json).equals(hash)&&StrictCanonicalJson.writeContext(value).equals(json),"ROLLING_PUBLICATION_CANONICAL_HASH");return value;}
++    private static long number(Map<String,Object> map,String key){Object n=map.get(key);need(n instanceof Long,"ROLLING_PUBLICATION_NUMBER:"+key);return (Long)n;}
++    private static boolean retired(String state){return "QUARANTINED".equals(state)||"QUALITY_PRUNED".equals(state)||"RESOURCE_RETIRED".equals(state);}
++    private static void checkpoint(long end){ResearchWorkBudgetR927.checkpoint();if(System.nanoTime()+50_000_000L>=end)throw new DevelopmentProductionCP12.Wait("TIME_BUDGET_EXCEEDED");}
++    private static void release(DbStore store,ResearchTaskQueueR967.Lease task,String reason,long delay){ResearchWorkBudgetR927.finishLeaseReceiptR66(()->store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_FREEZE_WAIT",db->ResearchTaskQueueR967.yield(db,task,task.cursor,reason,delay),false));}
++    private static void need(boolean valid,String reason){if(!valid)throw new IllegalStateException(reason);}
++}

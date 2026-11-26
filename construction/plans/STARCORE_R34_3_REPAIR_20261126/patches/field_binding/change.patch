@@ -1,0 +1,224 @@
+--- a/tools/r33/verify_plan_binding.py
++++ b/tools/r33/verify_plan_binding.py
+@@ -248,6 +248,10 @@
+             'R341_BOUND_SOURCE_REQUIRES_RELEASE_SERIES')
+     require(not (repo/'release/r342_plan_binding.json').exists() or 'r342' in result,
+             'R342_BOUND_SOURCE_REQUIRES_RELEASE_SERIES')
++    # Supplemental field plan is sealed separately; keep the original series gates.
++    if release.get('versionCode', 0) > 577311173 or (repo/'release/field173_plan_binding.json').exists():
++        result['fieldRepair173'] = release_owner(repo, 'r343').identity(
++            repo, head, result['source_tree'], release)
+     return result
+ 
+ 
+--- a/tools/r342/ci_plan_inputs.sh
++++ b/tools/r342/ci_plan_inputs.sh
+@@ -47,3 +47,14 @@
+     printf 'STARCORE_R341_PLAN_ROOT=%s\n' "$PWD/previous-plan/$r341"
+     printf 'STARCORE_R342_PLAN_ROOT=%s\n' "$PWD/current-plan/$r342"
+ } >> "$GITHUB_ENV"
++
++# New field repair keeps all historical seals and adds its exact 173-source plan.
++if [[ -f "$repo/release/field173_plan_binding.json" ]]; then
++    field_plan=construction/plans/STARCORE_R34_3_REPAIR_20261126
++    field_commit=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["planCommit"])' "$repo/release/field173_plan_binding.json")
++    [[ "$field_commit" =~ ^[a-f0-9]{40}$ ]]
++    sealed_checkout field173-plan "$field_commit" "$field_plan"
++    python3 -B "field173-plan/$field_plan/tools/verify_plan.py" --plan "$PWD/field173-plan/$field_plan" --source-repo "$repo" --out "$RUNNER_TEMP/engineering/field173-plan.json"
++    printf 'STARCORE_FIELD173_PLAN_ROOT=%s\n' "$PWD/field173-plan/$field_plan" >> "$GITHUB_ENV"
++    public_file "$release/r34.2-B12-4d1de9d83692/STARCORE-R342-577311173-4d1de9d83692-release.apk" "$RUNNER_TEMP/baseline173.apk" 9304472262455c12b4600708fb23480d698acf9f3ba710ddee86cda214ae8750
++fi
+--- /dev/null
++++ b/tools/r343/build_identity.py
+@@ -0,0 +1,63 @@
++"""Supplemental 173 field-repair identity; original R34.2 release series is preserved."""
++from pathlib import Path
++import hashlib
++import os
++import re
++from verify_plan_binding import git, read, require, safe, sha
++
++BASELINE = '4d1de9d83692635b5c5ce39144fece1c8a31c8ac'
++BASELINE_CODE = 577311173
++BASELINE_APK = '9304472262455c12b4600708fb23480d698acf9f3ba710ddee86cda214ae8750'
++REPORT_SHA256 = '3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86'
++PLAN_PATH = 'construction/plans/STARCORE_R34_3_REPAIR_20261126'
++BINDING = 'release/field173_plan_binding.json'
++SCHEMA = 'STARCORE_FIELD173_PLAN_BINDING_1'
++
++def verify_plan(root, seal):
++    root=Path(root).resolve()
++    manifest=safe(root,'MANIFEST_SHA256.json')
++    require(sha(manifest)==seal,'FIELD173_PLAN_SEAL_MISMATCH')
++    content=read(manifest)
++    require(content['schema']=='STARCORE_R343_PLAN_MANIFEST_1'
++            and content['source_commit']==BASELINE,'FIELD173_PLAN_BASELINE_MISMATCH')
++    expected={'MANIFEST_SHA256.json'}
++    for row in content['files']:
++        name=row['path']; leaf=safe(root,name)
++        require(name not in expected and leaf.is_file() and leaf.stat().st_size==row['bytes']
++                and sha(leaf)==row['sha256'],'FIELD173_PLAN_MEMBER_MISMATCH:'+name)
++        expected.add(name)
++    actual={p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file()
++            and '__pycache__' not in p.parts and p.suffix not in ('.pyc','.pyo')}
++    require(expected==actual and len(expected)==content['file_count']+1,'FIELD173_PLAN_MEMBER_SET')
++    require(sha(safe(root,'report/ORIGINAL_DIAGNOSTIC_173.zip'))==REPORT_SHA256,
++            'FIELD173_ORIGINAL_REPORT_MISMATCH')
++
++def identity(repo, head, tree, version, plan_root=None):
++    repo=Path(repo).resolve(); pin=read(safe(repo,BINDING))
++    require(set(pin)=={'schema','planCommit','planSha256','sourceBaseline','reportSha256'},
++            'FIELD173_BINDING_FIELDS')
++    require(pin['schema']==SCHEMA and pin['sourceBaseline']==BASELINE
++            and pin['reportSha256']==REPORT_SHA256
++            and re.fullmatch('[0-9a-f]{40}',pin['planCommit'])
++            and re.fullmatch('[0-9a-f]{64}',pin['planSha256']),'FIELD173_BINDING_INVALID')
++    git(repo,'merge-base','--is-ancestor',BASELINE,head)
++    raw=git(repo,'show',pin['planCommit']+':'+PLAN_PATH+'/MANIFEST_SHA256.json')
++    require(hashlib.sha256(raw).hexdigest()==pin['planSha256'],'FIELD173_GIT_PLAN_PIN_MISMATCH')
++    external=plan_root or os.environ.get('STARCORE_FIELD173_PLAN_ROOT')
++    require(external,'STARCORE_FIELD173_PLAN_ROOT_REQUIRED')
++    for root in {str(safe(repo,PLAN_PATH)),str(Path(external).resolve())}: verify_plan(root,pin['planSha256'])
++    for prior in ('r33','r34','r341','r342'):
++        name='release/'+prior+'_plan_binding.json'
++        require(safe(repo,name).read_bytes()==git(repo,'show',BASELINE+':'+name),
++                'FIELD173_HISTORICAL_BINDING_CHANGED:'+prior)
++    code=version['versionCode']
++    match=re.fullmatch(r'R34\.2-(B(?:0[1-9]|1[0-2]))-(\d{4}-\d\d-\d\d)-(\d+)',version['versionName'])
++    require(type(code) is int and BASELINE_CODE<code<=2100000000 and match
++            and int(match[3])==code and version['applicationId']=='com.starcore.research.r13',
++            'FIELD173_RELEASE_VERSION_MISMATCH')
++    return {**pin,'schema':'STARCORE_FIELD173_BUILD_IDENTITY_1','planRevision':'R34.3-173',
++            'apkSeries':'R34.2','sourceCommit':head,'sourceTree':tree,
++            'batch':match[1],'versionCode':code,'versionName':version['versionName'],
++            'sourceApkEvidenceRef':{'versionCode':BASELINE_CODE,'sha256':BASELINE_APK},
++            'engineeringAcceptance':'SEPARATE_CURRENT_BATCH_RECEIPT_REQUIRED',
++            'deviceAcceptance':'NOT_INFERRED','naturalQuality':'NOT_INFERRED'}
+--- /dev/null
++++ b/tools/r343/prepare_field_batch.py
+@@ -0,0 +1,125 @@
++#!/usr/bin/env python3
++"""Pin a reviewed field plan and prepare one batch version; does not commit or sign."""
++import argparse
++from datetime import date, datetime
++import hashlib
++import json
++from pathlib import Path
++import re
++import sys
++from zoneinfo import ZoneInfo
++sys.path.insert(1,str(Path(__file__).resolve().parents[1]/'r33'))
++from verify_plan_binding import git,read,require,safe,sha
++import build_identity as field
++import advance_release_version as advance
++
++
++def journal_preflight(repo,journal,batch,installed,highest):
++    """Read-only wrapper validation; the original advance API owns all four writes."""
++    journal=Path(journal).absolute()
++    require(not journal.is_symlink() and not journal.resolve().is_relative_to(repo),
++            'FRESH_EXTERNAL_VERSION_JOURNAL_REQUIRED')
++    receipt=read(advance.regular(journal,'JOURNAL.json'))
++    code=receipt.get('versionCode'); name=receipt.get('versionName','')
++    require(receipt.get('schema')=='STARCORE_R335_VERSION_JOURNAL_1'
++            and receipt.get('repo')==str(repo) and receipt.get('stage')==batch
++            and type(code) is int and max(installed,highest,field.BASELINE_CODE)<code<=2100000000,
++            'FIELD173_RESUME_VERSION_OR_BATCH_CONFLICT')
++    match=re.fullmatch(r'R34\.2-'+re.escape(batch)+r'-(\d{4}-\d\d-\d\d)-'+str(code),name)
++    require(match,'FIELD173_JOURNAL_RELEASE_SERIES_MISMATCH'); date.fromisoformat(match[1])
++    rows=receipt.get('files',[])
++    require(len(rows)==4 and tuple(row.get('path') for row in rows)==advance.FILES,
++            'EXACT_FOUR_VERSION_FILES_REQUIRED')
++    all_before=True; bodies=[]
++    for row in rows:
++        name=row['path']; target=advance.regular(repo,name)
++        after=advance.regular(journal,'after/'+name).read_bytes()
++        before=advance.regular(journal,'before/'+name).read_bytes()
++        require(advance.sha(after)==row['afterSha256'] and advance.sha(before)==row['beforeSha256'],
++                'JOURNAL_BYTES_MISMATCH')
++        actual=advance.sha(target.read_bytes())
++        require(actual in (row['beforeSha256'],row['afterSha256']),
++                'IDENTITY_DIVERGED_RETAIN_USER_EDIT:'+name)
++        all_before=all_before and actual==row['beforeSha256']; bodies.append(after)
++    version=json.loads(bodies[0]); before_version=read(advance.regular(journal,'before/'+advance.FILES[0]))
++    require(type(version.get('versionCode')) is int and version['versionCode']==code
++            and version.get('versionName')==receipt['versionName']
++            and version.get('applicationId')=='com.starcore.research.r13'
++            and before_version.get('versionCode')==receipt.get('previousVersionCode'),
++            'FIELD173_JOURNAL_MANIFEST_IDENTITY')
++    # Validate the complete proposed four-file set before any binding/version write.
++    # Use the original generator; this wrapper creates no alternate version format.
++    generator=advance.generator(repo); digest=advance.sha(bodies[0])
++    expected=(bodies[0],generator.prop_text(version,digest).encode(),
++              generator.java_text(version,digest).encode(),generator.host_build_config_text(version,digest).encode())
++    require(tuple(bodies)==expected,'FIELD173_JOURNAL_GENERATED_IDENTITIES_MISMATCH')
++    return receipt,all_before
++
++
++def apply_field_batch(repo,journal,pin,batch,installed,highest,day,resume=False):
++    """Reuse the original lock, prepare and apply_locked; never discard user edits."""
++    repo=Path(repo).resolve(); journal=Path(journal).absolute()
++    require(re.fullmatch('B(?:0[1-9]|1[0-2])',batch)
++            and type(installed) is int and installed>=field.BASELINE_CODE
++            and type(highest) is int and highest>=field.BASELINE_CODE,
++            'FIELD173_VERSION_OBSERVATIONS_REQUIRED')
++    with advance.repo_version_lock(repo):
++        location=safe(repo,field.BINDING)
++        if location.exists(): require(read(location)==pin,'FIELD173_EXISTING_PIN_CONFLICT')
++        current=read(advance.regular(repo,advance.FILES[0]))
++        require(type(current['versionCode']) is int and current['versionCode']>=field.BASELINE_CODE,
++                'FIELD173_VERSION_OBSERVATIONS_REQUIRED')
++        if not resume:
++            advance.prepare(repo,journal,installed,batch,day,'R34.2',highest)
++        receipt,all_before=journal_preflight(repo,journal,batch,installed,highest)
++        plan_record=journal/'FIELD173_PLAN.json'
++        if plan_record.exists() or plan_record.is_symlink():
++            require(read(advance.regular(journal,'FIELD173_PLAN.json'))==pin,
++                    'FIELD173_JOURNAL_PLAN_MISMATCH')
++        else:
++            # Crash after prepare() sealed JOURNAL but before this wrapper sealed
++            # its plan. Recovery is allowed only while every controlled identity
++            # remains exactly BEFORE and there is no completed-apply claim.
++            # A pre-existing identical pin from an earlier batch is valid.
++            require(all_before and not (journal/'APPLIED.json').exists(),
++                    'FIELD173_MISSING_PLAN_REQUIRES_UNAPPLIED_JOURNAL')
++            advance.atomic(plan_record,(json.dumps(pin,ensure_ascii=False,indent=2)+'\n').encode())
++        if not location.exists():
++            advance.atomic(location,(json.dumps(pin,ensure_ascii=False,indent=2)+'\n').encode())
++        result=advance.apply_locked(repo,journal)
++        actual=read(advance.regular(repo,advance.FILES[0]))
++        require(result['versionCode']==receipt['versionCode']==actual['versionCode']
++                and result['versionName']==receipt['versionName']==actual['versionName'],
++                'FIELD173_APPLIED_IDENTITY_MISMATCH')
++        return result
++
++
++def main():
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2])
++    parser.add_argument('--plan',type=Path,required=True)
++    parser.add_argument('--plan-commit',required=True)
++    parser.add_argument('--batch',required=True)
++    parser.add_argument('--installed-version',type=int,required=True)
++    parser.add_argument('--highest-known-version-code',type=int,required=True)
++    parser.add_argument('--journal',type=Path,required=True)
++    parser.add_argument('--resume',action='store_true')
++    args=parser.parse_args(); repo=args.repo.resolve()
++    require(re.fullmatch('[0-9a-f]{40}',args.plan_commit) and re.fullmatch('B(?:0[1-9]|1[0-2])',args.batch),
++            'FIELD173_PREPARATION_ARGUMENT')
++    head=git(repo,'rev-parse','HEAD').decode().strip()
++    git(repo,'merge-base','--is-ancestor',field.BASELINE,head)
++    seal=sha(args.plan/'MANIFEST_SHA256.json'); field.verify_plan(args.plan,seal)
++    raw=git(repo,'show',args.plan_commit+':'+field.PLAN_PATH+'/MANIFEST_SHA256.json')
++    require(hashlib.sha256(raw).hexdigest()==seal,'FIELD173_GIT_PLAN_PIN_MISMATCH')
++    # The complete plan is an explicit source input. Copy with git restore before this command.
++    field.verify_plan(repo/field.PLAN_PATH,seal)
++    pin={'schema':field.SCHEMA,'planCommit':args.plan_commit,'planSha256':seal,
++         'sourceBaseline':field.BASELINE,'reportSha256':field.REPORT_SHA256}
++    day=datetime.now(ZoneInfo('Asia/Shanghai')).date().isoformat()
++    result=apply_field_batch(repo,args.journal,pin,args.batch,args.installed_version,
++                             args.highest_known_version_code,day,args.resume)
++    print('FIELD173_BATCH_PREPARED:'+args.batch+':'+str(result['versionCode'])+'; COMMIT_AND_CURRENT_TESTS_REQUIRED')
++
++
++if __name__=='__main__':main()
