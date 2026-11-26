@@ -23,6 +23,8 @@ PROBES = (
     ('R343-015', 'r952.R343HistoryContinuityInstrumentedTest', 'verifiedBackfillAdvancesSourceWithoutChangingFrozenReplay', True),
     ('R343-015', 'r342.R342B04ContractTest', 'test_r342_012', False),
     ('R343-017', 'R343CheckpointAuditPagingInstrumentedTest', 'secondPinnedSnapshotVerifiesDeferredBodiesWithoutPromotingHistoricalBytes', True),
+    ('R343-010', 'ShadowCycleAndroidTest', 'canonicalCommitReopensCaptureOnTheSameDraw', True),
+    ('R343-043', 'ShadowCycleAndroidTest', 'eachPredrawSettlesOnceAndFeedsTheNextCycle', False),
     ('R343-021', 'r952.R343TrainingNativeTest', 'dependencyWaitKeepsOriginalTaskAndCursor', True),
     ('R343-023', 'r952.R343TrainingNativeTest', 'originalTerminalMissingCandidateStaysOnHold', True),
     ('R343-026', 'r952.R343RollingNativeTest', 'cleanupContinuesPastPinnedPageWithoutErasingHeadOrActiveInput', True),
