@@ -2,6 +2,9 @@ package com.ethk3.novaonepro.strategyv2;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import com.ethk3.novaonepro.DatabaseCoordinator;
+import com.ethk3.novaonepro.LifecycleSchemaR31;
 import com.ethk3.novaonepro.BuildConfig;
 import java.util.*;
 
@@ -133,9 +136,94 @@ public final class ResearchConsumptionStoreR31 {
             db.execSQL("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{run,"SOURCE_ABLATION:"+proposal,ABLATION,child,"SELECT_ONLY_SAME_ALLOCATED_BUDGET",measurement.get("fromOrdinal"),measurement.get("throughOrdinal"),measurement.getOrDefault("evaluatedCalendarIssues",0),measurement.get("meanGain"),measurement.get("lower95"),measurement.get("upper95"),json});
         }
     }
+    private static final String TYPED_RULE_CATALOG_R343 = "SELECT count(*),count(CASE WHEN abi=? THEN 1 END) FROM "
+            + AtomPublicationStoreR31.RULES_R342;
+    private static final String TYPED_RULE_TRANSFER_R343 = "SELECT p.proposal_id,p.state,p.run_id,a.dataset_hash,"
+            + "g.rule_id,CASE WHEN json_valid(p.payload_json) THEN json_extract(p.payload_json,'$.candidateHash') END AS child_hash"
+            + " FROM r30r1_proposal p JOIN r30r1_analysis_run a ON a.run_id=p.run_id"
+            + " JOIN " + AtomPublicationStoreR31.RULES_R342 + " g ON g.rule_id=CASE"
+            + " WHEN json_valid(p.payload_json) THEN json_extract(p.payload_json,'$.typedRule') END"
+            + " WHERE p.kind='TYPED_GENERATION_RULE' AND a.status='COMMITTED' AND a.role='SELECT'"
+            + " AND a.source_commit=? AND a.dataset_hash=CASE WHEN json_valid(p.payload_json)"
+            + " THEN json_extract(p.payload_json,'$.ruleTransferDataset') END"
+            + " AND a.dataset_hash<>g.dataset_hash AND a.from_ordinal>g.through_ordinal";
+    private static final String TYPED_RULE_BORN_R343 = "SELECT u.child_hash,u.dataset_hash,u.created_at FROM "
+            + AtomPublicationStoreR31.RULE_USES_R342 + " u"
+            + " JOIN transfer p ON p.proposal_id=u.proposal_id AND p.run_id=u.source_run"
+            + " AND p.rule_id=u.rule_id AND p.child_hash=u.child_hash AND p.dataset_hash=u.dataset_hash"
+            + " JOIN r30r1_consume c ON c.proposal_id=u.proposal_id AND c.child_policy_hash=u.child_hash"
+            + " AND c.source_generation=u.generation AND c.consumer_version='ORIGINAL_BIRTH_GATE_R30_REPAIR1'"
+            + " JOIN r30r1_research_measure m ON m.run_id=u.source_run AND m.measure_key='CONSUMED_BY:'||u.proposal_id"
+            + " AND m.kind='RESEARCH_SOURCE_CONSUMPTION' AND m.parent_hash=u.child_hash"
+            + " AND m.block_id='ORIGINAL_BIRTH_GATE_RECEIPT'"
+            + " WHERE p.state='CONSUMED' AND CASE WHEN json_valid(m.payload_json) THEN"
+            + " json_extract(m.payload_json,'$.typedRuleUseReceipt')=u.receipt_hash"
+            + " AND json_extract(m.payload_json,'$.receiptHash')=c.receipt_hash END";
+    private static final String TYPED_RULE_PROPOSALS_R343 = "WITH transfer AS (" + TYPED_RULE_TRANSFER_R343
+            + ") SELECT count(*),count(DISTINCT dataset_hash) FROM transfer";
+    private static final String TYPED_RULE_RESULTS_R343 = "WITH transfer AS (" + TYPED_RULE_TRANSFER_R343
+            + "), born AS (" + TYPED_RULE_BORN_R343 + ") SELECT"
+            + " (SELECT count(DISTINCT child_hash) FROM born),"
+            + " (SELECT count(DISTINCT b.child_hash) FROM born b JOIN r27_replay_score s"
+            + " ON s.policy_hash=b.child_hash AND s.dataset_hash=b.dataset_hash AND s.split=?"
+            + " AND s.n_sched>0 AND s.computed_at>=b.created_at)";
+
+    /** Retained originals for R343-028. Missing observations have no numeric denominator. */
+    static Map<String,Object> typedRuleReportR343(SQLiteDatabase db) {
+        Map<String,Object> stages = map();
+        stages.put("eligibleDonorPairs", typedRuleStageR343(null, "DONOR_PAIR_ATTEMPT_NOT_PERSISTED"));
+        stages.put("incompatibleTypedSlotPairs", typedRuleStageR343(null, "INDUCTION_REJECTION_NOT_PERSISTED"));
+        stages.put("rawChildProposals", typedRuleStageR343(null, "PRE_STAGE_GENERATOR_OUTPUT_NOT_PERSISTED"));
+        stages.put("independentFutureResults", typedRuleStageR343(null, "NO_RULE_USE_TO_INDEPENDENT_FUTURE_BINDING"));
+        Map<String,Object> result = map();
+        result.put("schema", "R343_TYPED_GENERATION_EVIDENCE_V1");
+        result.put("sourceCommit", BuildConfig.SOURCE_COMMIT_R26);
+        result.put("scope", "RETAINED_RULE_CATALOG_ALL_SOURCES_AND_CURRENT_SOURCE_TRANSFERS");
+        result.put("developmentScope", "RETAINED_TARGET_DATASET_H_SELECT_SCORE_AT_OR_AFTER_USE");
+        result.put("stages", stages);
+        boolean ready = false;
+        try {
+            LifecycleSchemaR31.requireDefinitions(db, AtomPublicationStoreR31.ruleDdlR342(), "R342_TYPED_RULE");
+            ready = true;
+        } catch (DatabaseCoordinator.SchemaPendingR31 missing) {
+            // An incomplete schema cannot prove an observed empty set.
+        }
+        readTypedRuleStagesR343(db, ready, stages, TYPED_RULE_CATALOG_R343,
+                new String[]{FrozenConfirmationR30.currentSemantics()}, "retainedRulesAllSources", "retainedRulesCurrentAbi");
+        readTypedRuleStagesR343(db, ready, stages, TYPED_RULE_PROPOSALS_R343,
+                new String[]{BuildConfig.SOURCE_COMMIT_R26}, "persistedTransferProposals", "distinctTransferDatasets");
+        readTypedRuleStagesR343(db, ready, stages, TYPED_RULE_RESULTS_R343,
+                new String[]{BuildConfig.SOURCE_COMMIT_R26, SplitR27.SELECT}, "exactConsumedChildren", "childrenWithRetainedDevScores");
+        return result;
+    }
+
+    private static void readTypedRuleStagesR343(SQLiteDatabase db, boolean ready, Map<String,Object> stages,
+            String sql, String[] args, String... keys) {
+        String reason = ready ? "ORIGINAL_READ_FAILED" : "ORIGINAL_SCHEMA_UNAVAILABLE";
+        if (ready) {
+            try (Cursor row = db.rawQuery(sql, args)) {
+                if (row.moveToFirst()) {
+                    for (int i = 0; i < keys.length; i++) stages.put(keys[i], typedRuleStageR343(row.getLong(i), null));
+                    return;
+                }
+            } catch (SQLiteException unreadable) {
+                // Preserve the observations obtained from the other original tables.
+            }
+        }
+        for (String key : keys) stages.put(key, typedRuleStageR343(null, reason));
+    }
+
+    private static Map<String,Object> typedRuleStageR343(Long count, String reason) {
+        Map<String,Object> stage = map();
+        stage.put("count", count);
+        stage.put("status", count == null ? "UNKNOWN" : "OBSERVED_RETAINED_ROWS");
+        if (reason != null) stage.put("reason", reason);
+        return stage;
+    }
+
     /** Bounded read-only report consumer. Unknown schema is never zero success. */
     public static Map<String,Object> report(SQLiteDatabase db){
-        Map<String,Object> out=map();out.put("version",VERSION);out.put("nonBornActions",nonBornReportR335(db));out.put("state","UNKNOWN");out.put("scope","CURRENT_SOURCE_SELECT_RESEARCH_ACTIONS_NOT_REAL_OR_NATURAL_QUALITY");
+        Map<String,Object> out=map();out.put("version",VERSION);out.put("nonBornActions",nonBornReportR335(db));out.put("typedGenerationR343",typedRuleReportR343(db));out.put("state","UNKNOWN");out.put("scope","CURRENT_SOURCE_SELECT_RESEARCH_ACTIONS_NOT_REAL_OR_NATURAL_QUALITY");
         try(Cursor c=db.rawQuery("SELECT count(*),sum(CASE WHEN json_extract(m.payload_json,'$.resultContractR31.validated')=1 THEN 1 ELSE 0 END) FROM r30r1_research_measure m JOIN r30r1_analysis_run r ON r.run_id=m.run_id WHERE m.kind='RESEARCH_SOURCE_CONSUMPTION' AND r.source_commit=?",new String[]{BuildConfig.SOURCE_COMMIT_R26})){
             if(c.moveToFirst()){out.put("sourceConsumptionReceipts",c.getLong(0));out.put("validatedActionReceipts",c.isNull(1)?0:c.getLong(1));out.put("state","OBSERVED_RECEIPTS_ONLY");}
         }catch(RuntimeException unavailable){out.put("reason","ACTION_RECEIPTS_UNAVAILABLE");return out;}

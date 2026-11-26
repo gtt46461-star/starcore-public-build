@@ -48,7 +48,7 @@ public final class AtomPublicationStoreR31 {
 
     private static final String RULE_DONOR_SQL = "SELECT p.policy_hash,p.spec_json,s.dataset_hash,s.n_sched,"
             + "s.n_act,s.hits,s.paired_u_mean,s.paired_u_lcb FROM r27_replay_score s "
-            + "JOIN r27_policy p ON p.policy_hash=s.policy_hash WHERE s.split='SELECT' "
+            + "JOIN r27_policy p ON p.policy_hash=s.policy_hash WHERE s.split='"+SplitR27.SELECT+"' "
             + "AND s.dataset_hash=? AND s.n_sched>=30 AND s.n_act>0 AND s.paired_u_lcb>0 ";
 
     static TypedGenerationRuleR342 prepareRuleR342(SQLiteDatabase db, EvalContextR27 context) {

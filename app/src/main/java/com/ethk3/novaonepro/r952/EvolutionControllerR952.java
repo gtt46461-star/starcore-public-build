@@ -57,12 +57,15 @@ public final class EvolutionControllerR952 {
             String registration=TargetIssueResolver.next(latest).targetIssue;
             try(DevelopmentProductionCP12.PreparedProtocol prepared=ResearchDirectorR952.prepareTrainingProtocolCP5(store,proposal.ast,childId,action.id,registration)) {
                 check(deadlineNs);final ResearchDirectorR952.PreparedEvolution expectation=new ResearchDirectorR952.PreparedEvolution(childId,action.id,action.parent,action.id,action.parentHash,action.evidence,action.secondary,action.secondaryHash);
+                final String creationClassification=CreationChangeKindR343.receipt(parent,proposal.ast,secondary,action.id,action.operator,action.evidence,registry);
+                check(deadlineNs);
                 Boolean committed=store.coordinatorForResearchR952().runAtomicWrite("CP12_EVOLUTION_CHILD_TRAIN_COMMIT",db->{
                     if(!ResearchTaskQueueR967.owns(db,lease))return false;Action current=readAction(db,lease);if(!current.fingerprint.equals(action.fingerprint)||!current.state.equals("PROPOSED"))throw new IllegalStateException("EVOLUTION_ACTION_CHANGED");
                     if(teacherBinding!=null)EvolutionTeachersCP12.verifyCP12(db,teacherBinding,proposal.ast);
                     Map<String,Object> intentFields=new TreeMap<>();if(teacherBinding!=null){intentFields.put("ast",proposal.ast.canonical);intentFields.put("teacher_binding_proof",teacherBinding.proof);intentFields.put("teacher_refs",teacherBinding.refsJson);intentFields.put("teacher_witnesses",teacherBinding.witnessesJson);}String preparedIntent=teacherBinding==null?proposal.ast.canonical:StrictCanonicalJson.writeContext(intentFields);
                     KnowledgeLedgerR952.put(db,action.issue,action.parent,"CP12_EVOLUTION_PROPOSAL",preparedIntent);
                     String train=ResearchDirectorR952.commitPreparedCandidateCP5(db,prepared,expectation);
+                    if(!train.startsWith("NO_OP:"))KnowledgeLedgerR952.put(db,action.issue,childId,"R343_CREATION_CLASSIFICATION",creationClassification);
                     if(teacherBinding!=null&&!train.startsWith("NO_OP:"))ComputationReceiptR974.teacherLineageCP12(db,childId,action.id,teacherBinding,proposal.ast);
                     // Both a real TRAIN id and a Director NO_OP outcome complete this action lease.
                     ResearchTaskQueueR967.complete(db,lease,V51ChecksumEngine.sha256("EVOLUTION_COMMITTED|"+action.id+'|'+proposal.ast.structuralHash+'|'+train));
