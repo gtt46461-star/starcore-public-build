@@ -54,6 +54,10 @@ REPORT_RESUME_ORIGINALS = {
     'report-resume-installed.txt', 'signed-report-resume-before.json',
     'signed-report-resume-readback.json', 'signed-report-resume-raw.zip.cms',
 }
+REPORT_RESUME_TRACE = {
+    'runner.log', 'stage-trace.jsonl', 'final-observed.json', 'report-logcat.log',
+    'original-build-receipt.json',
+}
 
 
 def original(directory, name, data):
@@ -182,18 +186,16 @@ def main():
     resume_originals = run_temp/'engineering-report-resume'
     if sys.argv[1:] == ['--report-resume']:
         CONTRACT.require(report_resume.is_file(), 'R343_REPORT_RESUME_RUNNER_MISSING')
-        resume_originals.mkdir()
-        native.ensure_candidate_installed(serial, apk, apk_sha)
+        environment = dict(os.environ, APK=str(apk),
+                           ORIGINAL_BUILD=str(run_temp/'build/CI_BUILD_RECEIPT.json'),
+                           REPORT_RESUME_OUTPUT=str(resume_originals))
         try:
-            for command in (('wm','size','480x850'), ('wm','density','195'),
-                            ('settings','put','system','screen_off_timeout','7200000'),
-                            ('svc','power','stayon','true')):
-                subprocess.run(native.adb(serial, 'shell', *command), check=True, timeout=20)
-            subprocess.run([sys.executable, '-B', str(report_resume), '--originals', str(resume_originals),
-                            '--build-receipt', str(run_temp/'build/CI_BUILD_RECEIPT.json')],
-                           check=True, timeout=1200)
+            # Use exactly the device preparation used by the independently passed
+            # original APK. This case uses the real UI, so no test APK is installed.
+            subprocess.run([sys.executable, '-B', str(Path(__file__).with_name('report-resume-diagnostic.py'))],
+                           env=environment, check=True, timeout=1200)
             checks = {p.name:BINDING.sha(p) for p in resume_originals.iterdir() if p.is_file()}
-            CONTRACT.require(set(checks)==REPORT_RESUME_ORIGINALS, 'R343_REPORT_RESUME_ORIGINAL_SET')
+            CONTRACT.require(set(checks)==REPORT_RESUME_ORIGINALS|REPORT_RESUME_TRACE, 'R343_REPORT_RESUME_ORIGINAL_SET')
             original(resume_originals, 'resume-originals.json', CONTRACT.canonical({
                 'field': field, 'apkSha256': apk_sha, 'run': run_id, 'originals': checks,
             }))
@@ -244,7 +246,7 @@ def main():
     if report_resume.is_file():
         evidence = BINDING.read(resume_originals/'resume-originals.json')
         CONTRACT.require(evidence['field']==field and evidence['apkSha256']==apk_sha and evidence['run']==run_id
-                         and set(evidence['originals'])==REPORT_RESUME_ORIGINALS,
+                         and set(evidence['originals'])==REPORT_RESUME_ORIGINALS|REPORT_RESUME_TRACE,
                          'R343_REPORT_RESUME_ORIGINALS_IDENTITY')
         for name, digest in evidence['originals'].items():
             CONTRACT.require(BINDING.sha(resume_originals/name)==digest and not (output/name).exists(),

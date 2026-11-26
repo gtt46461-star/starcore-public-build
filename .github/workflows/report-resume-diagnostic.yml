@@ -26,7 +26,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: r343-signed-build-original-B12-73ed8c6931d230f105ed3fbc05f48e76fa43cab5
-          run-id: 45898443873
+          run-id: 45901680267
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/signed-original
       - name: Verify the existing exact original APK
@@ -38,7 +38,7 @@ jobs:
           [[ ${#files[@]} -eq 1 && ${#receipts[@]} -eq 1 ]]
           test "$(git -C app-source rev-parse HEAD)" = "$SOURCE"
           sha="$(sha256sum "${files[0]}" | cut -d' ' -f1)"
-          jq -e --arg sha "$sha" --arg source "$SOURCE" '.sourceCommit==$source and .apkSha256==$sha and .gradleRelease=="PASS" and .ciRun=="45898443873"' "${receipts[0]}"
+          jq -e --arg sha "$sha" --arg source "$SOURCE" '.sourceCommit==$source and .apkSha256==$sha and .gradleRelease=="PASS" and .ciRun=="45901680267"' "${receipts[0]}"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "${files[0]}" | grep -F 'certificate SHA-256 digest: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
           printf 'APK=%s\nORIGINAL_BUILD=%s\n' "${files[0]}" "${receipts[0]}" >> "$GITHUB_ENV"
       - name: Enable KVM for the disposable Android emulator

@@ -11,7 +11,7 @@ import time
 
 serial = subprocess.check_output(['adb','get-serialno'],text=True).strip()
 assert re.fullmatch('emulator-[0-9]+',serial)
-output = Path(os.environ['RUNNER_TEMP'])/'resume-diagnostic'
+output = Path(os.environ.get('REPORT_RESUME_OUTPUT', str(Path(os.environ['RUNNER_TEMP'])/'resume-diagnostic')))
 output.mkdir()
 source = Path.cwd()/'app-source'
 root = '/data/user/0/com.starcore.research.r13/files/r981_reports'
