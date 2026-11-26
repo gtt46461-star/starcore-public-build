@@ -1,453 +1,93 @@
 {
   "schema": "STARCORE_FIELD173_TEST_RUNNERS_1",
-  "batch": "B10",
+  "batch": "B12",
   "cases": {
-    "R343-035-KEEP": {
+    "R343-044-POS": {
       "argv": [
         "python3",
         "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#reportReadKeepsExistingRows"
+        "tools/r343/run_b12_field_report_case.py",
+        "reportPositive"
       ],
       "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "tools/r343/run_b12_field_report_case.py",
         "tools/r343/run_native_field_case.py",
+        "tools/r342/ci_candidate_tests.py",
+        "tools/r342/report_ui_driver.py",
+        "tools/r33/run_release_build.py",
+        "tools/r33/package_ci_candidate.py",
         "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
+        "app/src/androidTest/java/com/ethk3/novaonepro/Field173B12ReportTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R341ReportTestCases.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R342ReportAssertions.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/ACCEPTANCE_MATRIX.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/CHECK_ACTIONS_96.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/METRIC_ACTIONS_44.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/object_coverage_165.json"
       ],
-      "timeoutSeconds": 600
+      "timeoutSeconds": 900
     },
-    "R343-035-NEG": {
+    "R343-044-NEG": {
       "argv": [
         "python3",
         "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#missingSourceHasNoCount"
+        "tools/r343/run_b12_field_report_case.py",
+        "reportNegative"
       ],
       "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "tools/r343/run_b12_field_report_case.py",
         "tools/r343/run_native_field_case.py",
+        "tools/r342/ci_candidate_tests.py",
+        "tools/r342/report_ui_driver.py",
+        "tools/r33/run_release_build.py",
+        "tools/r33/package_ci_candidate.py",
         "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
+        "app/src/androidTest/java/com/ethk3/novaonepro/Field173B12ReportTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R341ReportTestCases.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R342ReportAssertions.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/ACCEPTANCE_MATRIX.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/CHECK_ACTIONS_96.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/METRIC_ACTIONS_44.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/object_coverage_165.json"
       ],
-      "timeoutSeconds": 600
+      "timeoutSeconds": 900
     },
-    "R343-035-POS": {
+    "R343-044-KEEP": {
       "argv": [
         "python3",
         "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#measuredEmptySource"
+        "tools/r343/run_b12_field_report_case.py",
+        "reportPreservation"
       ],
       "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "tools/r343/run_b12_field_report_case.py",
         "tools/r343/run_native_field_case.py",
+        "tools/r342/ci_candidate_tests.py",
+        "tools/r342/report_ui_driver.py",
+        "tools/r33/run_release_build.py",
+        "tools/r33/package_ci_candidate.py",
         "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
+        "app/src/androidTest/java/com/ethk3/novaonepro/Field173B12ReportTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R341ReportTestCases.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R342ReportAssertions.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckMetricCrosswalkR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportAssessmentR33.java",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/ACCEPTANCE_MATRIX.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/CHECK_ACTIONS_96.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/METRIC_ACTIONS_44.json",
+        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/object_coverage_165.json"
       ],
-      "timeoutSeconds": 600
-    },
-    "R343-036-KEEP": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.strategyv2.Field173ReportBudgetTest#reportBudgetPreservesOriginalRowsAndFrameHashes"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/Field173ReportBudgetTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-036-NEG": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.strategyv2.Field173ReportBudgetTest#oversizedIndexKeepsExactOmittedDenominator"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/Field173ReportBudgetTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-036-POS": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.strategyv2.Field173ReportBudgetTest#identityIndexesSurviveProductionQueryBudget"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/Field173ReportBudgetTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-037-KEEP": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#formalFramesDoNotClaimOptimizerEffect"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-037-NEG": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#oldOwnerFrameIsNotCurrent"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-037-POS": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#currentFrameWithoutOptimizerHead"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-038-KEEP": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.strategyv2.R343ConsumptionReportInstrumentedTest#r343_038_preservation"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R343ConsumptionReportInstrumentedTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportResearchConsumptionR343.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-038-NEG": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.strategyv2.R343ConsumptionReportInstrumentedTest#r343_038_negative"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R343ConsumptionReportInstrumentedTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportResearchConsumptionR343.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-038-POS": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.strategyv2.R343ConsumptionReportInstrumentedTest#r343_038_positive"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R343ConsumptionReportInstrumentedTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportResearchConsumptionR343.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-039-KEEP": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#formalReadOnlyDoesNotPassWithoutFiniteValues"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-039-NEG": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#unknownFrameCountDoesNotBecomeZero"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-039-POS": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173ChartReportTest#retainedOldFrameDoesNotSayCommitted"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartReportTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionSchemaR33.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-040-KEEP": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/collect_field173_gallery.py"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
-        "tools/r343/collect_field173_gallery.py",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30GalleryCaptureR30.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/RepairAnalysisAndroidFixture.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
-        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
-        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/chart_source_mapping_63.json"
-      ],
-      "timeoutSeconds": 850
-    },
-    "R343-040-NEG": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/collect_field173_gallery.py"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
-        "tools/r343/collect_field173_gallery.py",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30GalleryCaptureR30.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/RepairAnalysisAndroidFixture.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
-        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
-        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/chart_source_mapping_63.json"
-      ],
-      "timeoutSeconds": 850
-    },
-    "R343-040-POS": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/collect_field173_gallery.py"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java",
-        "tools/r343/collect_field173_gallery.py",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30GalleryCaptureR30.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/RepairAnalysisAndroidFixture.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
-        "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
-        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchActivityR30R1.java",
-        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
-        "construction/plans/STARCORE_R34_3_REPAIR_20261126/coverage/chart_source_mapping_63.json"
-      ],
-      "timeoutSeconds": 850
-    },
-    "R343-041-KEEP": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173WriterSnapshotTest#preserveLiveTtlAndSnapshotReadOnlyScope"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173WriterSnapshotTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-041-NEG": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173WriterSnapshotTest#corruptAndWrongScopeHistoryStayUnverified"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173WriterSnapshotTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java"
-      ],
-      "timeoutSeconds": 600
-    },
-    "R343-041-POS": {
-      "argv": [
-        "python3",
-        "-B",
-        "tools/r343/run_native_field_case.py",
-        "com.ethk3.novaonepro.Field173WriterSnapshotTest#readHistoricalOriginalAfterLiveExpiry"
-      ],
-      "inputFiles": [
-        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
-        "tools/r343/run_native_field_case.py",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173NativeEvidence.java",
-        "app/src/androidTest/java/com/ethk3/novaonepro/Field173WriterSnapshotTest.java",
-        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
-        "app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java"
-      ],
-      "timeoutSeconds": 600
+      "timeoutSeconds": 900
     }
   }
 }
