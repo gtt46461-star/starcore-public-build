@@ -95,6 +95,10 @@ public final class DatabaseCoordinator {
         registerR31(registry,WriteClass.RETENTION,"RETENTION_CP12*","R26_RETENTION_PHASE_*","R26_ARTIFACT_RETENTION","R914_DRAW_HISTORY_TRIM*");
         registerR31(registry,WriteClass.REPORT,"R27_CHART_CACHE","R27_HEALTH","R27_OBSERVERS");
         registerR31(registry,WriteClass.RESEARCH_DATA,"R914_DRAW_HISTORY_BATCH","R26_*","R27_*","R36_DEFERRED*","R909_SETTLEMENT_POST_COMMIT_SIDECAR*");
+        registerR31(registry,WriteClass.RESEARCH_DATA,"R343_TRAIN_INFRA_RECOVERY");
+        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R343_ROLLING_CLAIM","R343_ROLLING_WAIT","R343_ROLLING_PLAN_WAIT","R343_ROLLING_FREEZE_CLAIM","R343_ROLLING_FREEZE_WAIT");
+        registerR31(registry,WriteClass.RESEARCH_DATA,"R343_ROLLING_PLAN","R343_ROLLING_FEATURES","R343_ROLLING_NUMERICS","R343_ROLLING_FAILED","R343_ROLLING_EVENT","R343_ROLLING_SOURCE_GAP","R343_ROLLING_CLEANUP");
+        registerR31(registry,WriteClass.RESEARCH_DATA,"R343_ROLLING_FREEZE_PLAN","R343_ROLLING_FREEZE_VERIFY","R343_ROLLING_FREEZE_COMMIT","R343_ROLLING_FREEZE_REJECT","R343_ROLLING_FREEZE_SUPERSEDE");
         // R31-B02-C01: every literal operation in the production tree is registered explicitly. These kept their
         // pre-R31 non-critical priority (the R914 critical set above is unchanged); registration only replaces
         // UNKNOWN_PRIORITY with a declared class. Operations built at run time still report UNKNOWN_PRIORITY.
@@ -1017,7 +1021,7 @@ public final class DatabaseCoordinator {
                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
             if(research&&!reentrant&&!serviceSlot
                     &&com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.deferResearch())
-                throw new WriteRejectedR31("DEPENDENCY",operation,"ADMISSION",CommitOutcome.ROLLED_BACK,
+                throw new WriteRejectedR31("RESOURCE_QUEUE",operation,"ADMISSION",CommitOutcome.ROLLED_BACK,
                         new IllegalStateException("R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN"));
             for(int retry=0;retry<=AppConfig.DB_LOCK_RETRY_COUNT;retry++) {
                 long acquireStarted=TimeSourceR811.monoNowMs(),heldSince=-1,localWait=-1;

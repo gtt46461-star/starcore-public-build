@@ -25,27 +25,36 @@ public final class StartupCheckpointIdentityR31 {
     public static String[] ddlR31(){return DDL.clone();}
     private static String q(String value){return "\""+value.replace("\"","\"\"")+"\"";}
     private static String exact(String value){return value==null?"":value.trim().replaceFirst("^(CREATE (?:TABLE|TRIGGER)) IF NOT EXISTS ","$1 ");}
-    private static boolean exists(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE name=?",new String[]{name})){return c.moveToFirst();}}
+    private static boolean exists(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE name=?",new String[]{name})){return c.moveToFirst();}}
     private static void definitions(SQLiteDatabase db){
         for(String sql:DDL){java.util.regex.Matcher definition=java.util.regex.Pattern.compile("^CREATE (TABLE|TRIGGER) IF NOT EXISTS ([A-Za-z0-9_]+)").matcher(sql);if(!definition.find())throw new AssertionError("R31_STARTUP_DDL_HEADER");String type=definition.group(1).toLowerCase(Locale.ROOT),name=definition.group(2);
-            try(Cursor c=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{name})){if(!c.moveToFirst()||!type.equals(c.getString(0))||!exact(sql).equals(exact(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","EXACT_DEFINITION:"+name);}
+            try(Cursor c=db.rawQuery("SELECT type,sql FROM main.sqlite_master WHERE name=?",new String[]{name})){if(!c.moveToFirst()||!type.equals(c.getString(0))||!exact(sql).equals(exact(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","EXACT_DEFINITION:"+name);}
         }
     }
     public static boolean ready(SQLiteDatabase db){
         if(!exists(db,SOURCE)||!exists(db,"r31_startup_checkpoint_source"))return false;definitions(db);columns(db);
-        try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM r31_startup_checkpoint_source WHERE singleton=1",null)){return c.moveToFirst()&&"integer".equals(c.getString(1))&&c.getLong(0)>=0;}
+        try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM main.r31_startup_checkpoint_source WHERE singleton=1",null)){return c.moveToFirst()&&"integer".equals(c.getString(1))&&c.getLong(0)>=0;}
     }
     /** DML only, after this owner's DDL units; no source mutation or payload copy. */
-    public static void seedWithinMigrationR31(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_MIGRATION_WRITER");definitions(db);db.execSQL("INSERT OR IGNORE INTO r31_startup_checkpoint_source VALUES(1,0)");}
-    private static long generation(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM r31_startup_checkpoint_source WHERE singleton=1",null)){if(!c.moveToFirst()||!"integer".equals(c.getString(1))||c.getLong(0)<0)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_GENERATION_UNKNOWN");return c.getLong(0);}}
+    public static void seedWithinMigrationR31(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_MIGRATION_WRITER");definitions(db);db.execSQL("INSERT OR IGNORE INTO main.r31_startup_checkpoint_source VALUES(1,0)");}
+    private static long generation(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM main.r31_startup_checkpoint_source WHERE singleton=1",null)){if(!c.moveToFirst()||!"integer".equals(c.getString(1))||c.getLong(0)<0)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_GENERATION_UNKNOWN");return c.getLong(0);}}
     private static long schema(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA main.schema_version",null)){if(!c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SCHEMA_UNKNOWN");return c.getLong(0);}}
     private static String identity(SQLiteDatabase db){
         String main=null;try(Cursor c=db.rawQuery("PRAGMA database_list",null)){while(c.moveToNext()){String name=c.getString(1);if("main".equals(name))main=c.getString(2);else if(!"temp".equals(name))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_ATTACHED_DATABASE");}}
-        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_temp_master WHERE type <> 'table' OR name NOT IN ('r335_extension_catalog','r335_extension_seal','r335_extension_journal') LIMIT 1",null)){if(c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_TEMP_SCHEMA");}
+        // Android pools connections, so a legitimate migration scratch table may appear
+        // on the writer but not on a preparation reader. Accept only the exact owned
+        // scratch-table contracts; a shadow table, trigger or altered shape still fails.
+        try (Cursor c=db.rawQuery("SELECT type,name,tbl_name,sql FROM sqlite_temp_master ORDER BY type,name",null)) {
+            while (c.moveToNext()) {
+                if (!StartupTempSchemaR343.allowed(c.getString(0),c.getString(1),c.getString(2),c.getString(3)))
+                    throw new IllegalStateException("R31_STARTUP_CHECKPOINT_TEMP_SCHEMA:"
+                            + c.getString(0) + ":" + c.getString(1));
+            }
+        }
         if(main==null)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_DATABASE_UNKNOWN");return main.isEmpty()?"MEMORY@"+System.identityHashCode(db):main;
     }
     private static LinkedHashMap<String,String> columns(SQLiteDatabase db){
-        String create;try(Cursor c=db.rawQuery("SELECT CASE WHEN length(CAST(sql AS BLOB))<=65536 THEN sql ELSE NULL END FROM sqlite_master WHERE type='table' AND name=?",new String[]{SOURCE})){if(!c.moveToFirst()||c.isNull(0))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SOURCE_MISSING_OR_CONTRACT_BOUND");create=c.getString(0);}
+        String create;try(Cursor c=db.rawQuery("SELECT CASE WHEN length(CAST(sql AS BLOB))<=65536 THEN sql ELSE NULL END FROM main.sqlite_master WHERE type='table' AND name=?",new String[]{SOURCE})){if(!c.moveToFirst()||c.isNull(0))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SOURCE_MISSING_OR_CONTRACT_BOUND");create=c.getString(0);}
         LinkedHashMap<String,String> result=new LinkedHashMap<>();
         try(Cursor c=db.rawQuery("PRAGMA main.table_info("+q(SOURCE)+")",null)){while(c.moveToNext()){String name=c.getString(1);if(name==null||name.length()>512||result.containsKey(name)||result.size()>=253)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_COLUMN_BOUND");if(c.getInt(5)!=("owner".equals(name)?1:0))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SINGLE_OWNER_PRIMARY_KEY_REQUIRED");List<Object> fields=new ArrayList<>();for(int i=0;i<c.getColumnCount();i++)fields.add(c.isNull(i)?null:c.getString(i));result.put(name,JsonR27.write(fields));}}
         if(!result.keySet().containsAll(Arrays.asList("owner","feature_abi","dataset_hash","trained_through","state_hash","artifact","updated_at")))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SOURCE_CONTRACT");
@@ -72,7 +81,7 @@ public final class StartupCheckpointIdentityR31 {
         public void requireWithin(SQLiteDatabase db){
             if(!db.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_COMMIT_WRITER_REQUIRED");
             if(!database.equals(identity(db))||!ready(db)||revision!=generation(db)||schemaVersion!=schema(db)||!columnContract.equals(columns(db)))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","R31_STARTUP_CHECKPOINT_SOURCE_CHANGED");
-            for(Match match:matches)try(Cursor c=db.rawQuery("SELECT 1 FROM r31_keep_original WHERE archive_table=? AND row_id=? AND row_hash=? AND bytes=? AND state='MIGRATED_ORIGINAL_RETAINED'",new String[]{ARCHIVE,Long.toString(match.row),match.hash,Long.toString(match.bytes)})){if(!c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_CAS_METADATA_CHANGED");}
+            for(Match match:matches)try(Cursor c=db.rawQuery("SELECT 1 FROM main.r31_keep_original WHERE archive_table=? AND row_id=? AND row_hash=? AND bytes=? AND state='MIGRATED_ORIGINAL_RETAINED'",new String[]{ARCHIVE,Long.toString(match.row),match.hash,Long.toString(match.bytes)})){if(!c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_CAS_METADATA_CHANGED");}
         }
         /** Caller adds AND NOT (<this>) to the original complete legacy equality
          * predicate, in the same writer callback immediately after requireWithin. */
@@ -84,9 +93,9 @@ public final class StartupCheckpointIdentityR31 {
          * transaction. This records actual consumption, with no model payload. */
         public void recordWithin(SQLiteDatabase db,String processNonce,long actualNewRows){
             requireWithin(db);if(processNonce==null||processNonce.isEmpty()||actualNewRows<0||actualNewRows>sourceRows-matches.size())throw new IllegalArgumentException("R31_STARTUP_CHECKPOINT_RECEIPT_COUNTS");
-            try(Cursor c=db.rawQuery("SELECT retained_rows FROM r30_retention_boot_checkpoint WHERE process_nonce=?",new String[]{processNonce})){if(!c.moveToFirst()||c.getLong(0)!=actualNewRows)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_BOOT_RECEIPT_REQUIRED");}
+            try(Cursor c=db.rawQuery("SELECT retained_rows FROM main.r30_retention_boot_checkpoint WHERE process_nonce=?",new String[]{processNonce})){if(!c.moveToFirst()||c.getLong(0)!=actualNewRows)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_BOOT_RECEIPT_REQUIRED");}
             List<Object> refs=new ArrayList<>();for(Match match:matches){Map<String,Object> ref=new LinkedHashMap<>();ref.put("archive",ARCHIVE);ref.put("rowId",match.row);ref.put("rowHash",match.hash);ref.put("bytes",match.bytes);refs.add(ref);}
-            db.execSQL("INSERT INTO r31_startup_checkpoint_receipt VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{processNonce,revision,schemaVersion,StatsR27.sha256(JsonR27.write(columnContract)),sourceRows,matches.size(),actualNewRows,examinedOriginalRows,comparedOriginalBytes,JsonR27.write(refs),System.currentTimeMillis()});
+            db.execSQL("INSERT INTO main.r31_startup_checkpoint_receipt VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{processNonce,revision,schemaVersion,StatsR27.sha256(JsonR27.write(columnContract)),sourceRows,matches.size(),actualNewRows,examinedOriginalRows,comparedOriginalBytes,JsonR27.write(refs),System.currentTimeMillis()});
         }
         public Map<String,Object> evidence(){Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","ACTUAL_COMPLETE_TYPED_SOURCE_CAS_COMPARISON_NOT_STATE_HASH_EQUALITY");out.put("sourceRows",sourceRows);out.put("matchedSourceRows",matches.size());out.put("examinedOriginalRows",examinedOriginalRows);out.put("comparedOriginalBytes",comparedOriginalBytes);out.put("sourceGeneration",revision);out.put("sourceSchemaVersion",schemaVersion);out.put("writerCasReads",0);out.put("permanentPayloadCopies",0);out.put("wholeApplicationOrNaturalQualityProven",false);
             out.put("unavailableColdRows",unavailableRows);
@@ -102,7 +111,7 @@ public final class StartupCheckpointIdentityR31 {
         Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","LAST_16_REAL_PROCESS_STARTUP_CHECKPOINT_RECEIPTS");out.put("readOnly",true);out.put("naturalQuality","NOT_PROVEN");
         out.put("checkpointDependenciesR341", CheckpointDependencyR341.export(db, null));
         if(!exists(db,"r31_startup_checkpoint_receipt")){out.put("status","NOT_READY_STARTUP_CHECKPOINT_RECEIPTS");out.put("receipts",null);return out;}
-        List<Object> rows=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT process_nonce,source_generation,source_schema_version,column_contract_hash,source_rows,cas_matched_rows,actual_new_archive_rows,compared_original_rows,compared_original_bytes,committed_at FROM r31_startup_checkpoint_receipt ORDER BY committed_at DESC,process_nonce LIMIT 16",null)){while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();for(int i=0;i<c.getColumnCount();i++)row.put(c.getColumnName(i),i==0||i==3?c.getString(i):c.getLong(i));rows.add(row);}}
+        List<Object> rows=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT process_nonce,source_generation,source_schema_version,column_contract_hash,source_rows,cas_matched_rows,actual_new_archive_rows,compared_original_rows,compared_original_bytes,committed_at FROM main.r31_startup_checkpoint_receipt ORDER BY committed_at DESC,process_nonce LIMIT 16",null)){while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();for(int i=0;i<c.getColumnCount();i++)row.put(c.getColumnName(i),i==0||i==3?c.getString(i):c.getLong(i));rows.add(row);}}
         out.put("status",rows.isEmpty()?"NO_COMMITTED_CAS_AWARE_STARTUP_OBSERVED":"ACTUAL_COMMITTED_STARTUP_CONSUMPTION");out.put("receipts",rows);return out;
     }
     public static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot)throws IOException{return prepare(read,verifiedCasRoot,null);}
@@ -115,7 +124,7 @@ public final class StartupCheckpointIdentityR31 {
     private static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot,BudgetTokenSU1 budget,boolean preserveHotOnMissing)throws IOException{
         if(read.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_PREPARE_OUTSIDE_WRITER");if(!ready(read))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","SOURCE_GUARD_NOT_READY");
         String database=identity(read);long version=schema(read),revision=generation(read);LinkedHashMap<String,String> contract=columns(read);LinkedHashSet<String> names=new LinkedHashSet<>(contract.keySet());names.remove("\u0000CREATE_SQL");
-        LinkedHashSet<String> owners=new LinkedHashSet<>();try(Cursor c=read.rawQuery("SELECT typeof(owner),owner FROM r29_model_checkpoint WHERE length(artifact)>0 ORDER BY owner LIMIT 65",null)){while(c.moveToNext()){if(!"text".equals(c.getString(0))||c.getString(1)==null||c.getString(1).length()>4096)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_STORAGE_CLASS_OR_BOUND");owners.add(c.getString(1));if(owners.size()>MAX_OWNERS)throw new IOException("R31_STARTUP_CHECKPOINT_SOURCE_ROW_BOUND");}}
+        LinkedHashSet<String> owners=new LinkedHashSet<>();try(Cursor c=read.rawQuery("SELECT typeof(owner),owner FROM main.r29_model_checkpoint WHERE length(artifact)>0 ORDER BY owner LIMIT 65",null)){while(c.moveToNext()){if(!"text".equals(c.getString(0))||c.getString(1)==null||c.getString(1).length()>4096)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_STORAGE_CLASS_OR_BOUND");owners.add(c.getString(1));if(owners.size()>MAX_OWNERS)throw new IOException("R31_STARTUP_CHECKPOINT_SOURCE_ROW_BOUND");}}
         if (!owners.isEmpty() && !exists(read,"r31_keep_original"))
             throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","CAS_METADATA_NOT_READY");
         File root = verifiedCasRoot;
@@ -126,7 +135,7 @@ public final class StartupCheckpointIdentityR31 {
         try(MemoryBudgetR31.Lease memory=admission.lease){
             while(found.size()<owners.size()){
                 checkpoint(budget);List<Match> page=new ArrayList<>();
-                try(Cursor c=read.rawQuery("SELECT row_id,row_hash,bytes FROM r31_keep_original WHERE archive_table=? AND state='MIGRATED_ORIGINAL_RETAINED' AND row_id>? ORDER BY row_id LIMIT 64",new String[]{ARCHIVE,Long.toString(after)})){while(c.moveToNext()){String hash=c.getString(1);long size=c.getLong(2);if(c.getLong(0)<=after||hash==null||!hash.matches("[0-9a-f]{64}")||size<1||size>KeepMigrationStoreR31.MAX_ROW_BYTES)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_METADATA");page.add(new Match(null,c.getLong(0),hash,size));}}
+                try(Cursor c=read.rawQuery("SELECT row_id,row_hash,bytes FROM main.r31_keep_original WHERE archive_table=? AND state='MIGRATED_ORIGINAL_RETAINED' AND row_id>? ORDER BY row_id LIMIT 64",new String[]{ARCHIVE,Long.toString(after)})){while(c.moveToNext()){String hash=c.getString(1);long size=c.getLong(2);if(c.getLong(0)<=after||hash==null||!hash.matches("[0-9a-f]{64}")||size<1||size>KeepMigrationStoreR31.MAX_ROW_BYTES)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_METADATA");page.add(new Match(null,c.getLong(0),hash,size));}}
                 if(page.isEmpty())break;
                 for(Match original:page){checkpoint(budget);if(++examined>MAX_CAS_ROWS||totalBytes>KeepMigrationStoreR31.MAX_ROOT_BYTES-original.bytes)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_SCAN_BOUND");totalBytes+=original.bytes;after=original.row;
                     String owner;
@@ -161,16 +170,16 @@ public final class StartupCheckpointIdentityR31 {
                 if((name.equals("__r30_id")||name.equals("__r30_at"))&&!type.equals("integer")||name.equals("__r30_reason")&&!type.equals("text"))throw new IOException("R31_STARTUP_CHECKPOINT_CAS_METADATA_STORAGE_CLASS");
                 if(name.equals("owner")){
                     if(!type.equals("text"))throw new IOException("R31_STARTUP_CHECKPOINT_CAS_OWNER_TYPE");long length=in.readLong();if(length<0||length>65536)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_BOUND");byte[] bytes=new byte[(int)length];in.readFully(bytes);owner=java.nio.charset.StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT).decode(java.nio.ByteBuffer.wrap(bytes)).toString();if(!owners.contains(owner)||found.contains(owner))equal=false;
-                    if(equal)try(Cursor c=read.rawQuery("SELECT typeof(owner),CAST(owner AS BLOB) FROM r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||!"text".equals(c.getString(0))||!Arrays.equals(bytes,c.getBlob(1)))equal=false;}continue;
+                    if(equal)try(Cursor c=read.rawQuery("SELECT typeof(owner),CAST(owner AS BLOB) FROM main.r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||!"text".equals(c.getString(0))||!Arrays.equals(bytes,c.getBlob(1)))equal=false;}continue;
                 }
                 String actualType=null;long actualLength=-1;
-                if(source&&owner!=null&&equal)try(Cursor c=read.rawQuery("SELECT typeof("+q(name)+"),length(CAST("+q(name)+" AS BLOB)) FROM r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst())equal=false;else{actualType=c.getString(0);actualLength=c.isNull(1)?-1:c.getLong(1);if(!type.equals(actualType))equal=false;}}
+                if(source&&owner!=null&&equal)try(Cursor c=read.rawQuery("SELECT typeof("+q(name)+"),length(CAST("+q(name)+" AS BLOB)) FROM main.r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst())equal=false;else{actualType=c.getString(0);actualLength=c.isNull(1)?-1:c.getLong(1);if(!type.equals(actualType))equal=false;}}
                 if(source&&owner==null)equal=false;
                 if(type.equals("null"))continue;
-                if(type.equals("integer")||type.equals("real")){long stored=in.readLong();if(source&&equal)try(Cursor c=read.rawQuery("SELECT "+q(name)+" FROM r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||stored!=(type.equals("integer")?c.getLong(0):Double.doubleToRawLongBits(c.getDouble(0))))equal=false;}continue;}
+                if(type.equals("integer")||type.equals("real")){long stored=in.readLong();if(source&&equal)try(Cursor c=read.rawQuery("SELECT "+q(name)+" FROM main.r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||stored!=(type.equals("integer")?c.getLong(0):Double.doubleToRawLongBits(c.getDouble(0))))equal=false;}continue;}
                 if(!type.equals("text")&&!type.equals("blob"))throw new IOException("R31_STARTUP_CHECKPOINT_CAS_STORAGE_CLASS");long length=in.readLong();if(length<0||length>KeepMigrationStoreR31.MAX_ROW_BYTES)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_VALUE_BOUND");if(source&&equal&&length!=actualLength)equal=false;
                 for(long offset=0;offset<length;offset+=CHUNK){checkpoint(budget);int n=(int)Math.min(CHUNK,length-offset);in.readFully(buffer,0,n);
-                    if(source&&equal)try(Cursor c=read.rawQuery("SELECT substr(CAST("+q(name)+" AS BLOB),?,?) FROM r29_model_checkpoint WHERE owner=?",new String[]{Long.toString(offset+1),Integer.toString(n),owner})){if(!c.moveToFirst())equal=false;else{byte[] actual=c.getBlob(0);if(actual==null||actual.length!=n)equal=false;else for(int k=0;k<n;k++)if(actual[k]!=buffer[k]){equal=false;break;}}}
+                    if(source&&equal)try(Cursor c=read.rawQuery("SELECT substr(CAST("+q(name)+" AS BLOB),?,?) FROM main.r29_model_checkpoint WHERE owner=?",new String[]{Long.toString(offset+1),Integer.toString(n),owner})){if(!c.moveToFirst())equal=false;else{byte[] actual=c.getBlob(0);if(actual==null||actual.length!=n)equal=false;else for(int k=0;k<n;k++)if(actual[k]!=buffer[k]){equal=false;break;}}}
                 }
             }
             if(in.read()!=-1)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_TRAILING_BYTES");

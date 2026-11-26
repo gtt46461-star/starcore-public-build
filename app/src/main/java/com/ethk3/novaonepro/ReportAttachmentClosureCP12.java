@@ -70,7 +70,7 @@ public final class ReportAttachmentClosureCP12 {
                 .put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26).put("snapshotSha256",snapshotHash)
                 .put("metadataMember",compact?"DIAGNOSTIC_SCOPE.json":"attachments.jsonl")
                 .put("state",compact?"ORIGINAL_BYTES_NOT_INCLUDED":"VERIFY_MEMBER_HASHES_ON_READBACK"));
-        source.put("mainWriterFaultsR342", new JSONObject(MainWriterFaultProjectionR342.fromSnapshot(app, copy)));
+        source.put("mainWriterFaultsR342", new JSONObject(MainWriterFaultProjectionR342.fromSnapshot(app, copy, snapshotHash)));
         String sourcePreparation = request.optString("reportSourcePreparation");
         if (!sourcePreparation.isEmpty()) source.put("reportSourcePreparation", sourcePreparation);
         source.put("omittedPayloads", compact ? "installed APK; raw SQLite; model/training/retention binaries; historical duplicate ledgers" : "NONE");

@@ -40,6 +40,32 @@ public final class WriterHoldFaultsR31 {
     private static int admitting;
     private static long lastDrainWallR33,lastDrainMsR33;
     private static String lastFailure = "", lastOutcome = "NOT_RUN";
+    private static long drainAttemptsR343, lastControlTickWallR343, phaseStartedNsR343;
+    private static int attemptedRowsR343, readBackRowsR343;
+    private static String drainPhaseR343 = "NOT_RUN", failurePhaseR343 = "", failureCategoryR343 = "";
+    private static final LinkedHashMap<String,Long> phaseMsR343 = new LinkedHashMap<>();
+
+    private static synchronized void beginDrainAttemptR343() {
+        drainAttemptsR343++;
+        attemptedRowsR343 = 0;
+        readBackRowsR343 = 0;
+        failurePhaseR343 = "";
+        failureCategoryR343 = "";
+        phaseMsR343.clear();
+        drainPhaseR343 = "READ_OUTBOX";
+        phaseStartedNsR343 = System.nanoTime();
+    }
+
+    private static synchronized void phaseR343(String next) {
+        long now = System.nanoTime();
+        if (phaseStartedNsR343 != 0L) {
+            long elapsed = Math.max(0L, (now - phaseStartedNsR343) / 1_000_000L);
+            Long previous = phaseMsR343.get(drainPhaseR343);
+            phaseMsR343.put(drainPhaseR343, (previous == null ? 0L : previous) + elapsed);
+        }
+        drainPhaseR343 = next;
+        phaseStartedNsR343 = now;
+    }
     private static final String COLUMNS = "event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count";
 
     private static final class Event {
@@ -195,14 +221,19 @@ public final class WriterHoldFaultsR31 {
     private static int drainBatchR33(DbStore store,int maximum) {
         if(store==null||!DRAINING.compareAndSet(false,true))return 0;
         final long started=android.os.SystemClock.elapsedRealtime();
+        boolean attempted = false;
+        synchronized (WriterHoldFaultsR31.class) { lastControlTickWallR343 = System.currentTimeMillis(); }
         try {
             if (!RuntimeFaultOriginalStoreR335.mainProcess(store.contextForR26())) return 0;
             final File outbox = new File(store.contextForR26().getNoBackupFilesDir(), "r342-writer-fault-inflight.json");
             synchronized(WriterHoldFaultsR31.class){
                 if(started<nextDrainElapsed)return 0;
             }
+            attempted = true;
+            beginDrainAttemptR343();
             final List<Event> batch = readInFlight(outbox);
             final boolean retry = !batch.isEmpty();
+            phaseR343("SELECT_QUEUE");
             if (!retry) synchronized (WriterHoldFaultsR31.class) {
                 for (Event event : PENDING) {
                     batch.add(event);
@@ -210,9 +241,11 @@ public final class WriterHoldFaultsR31 {
                 }
                 if (batch.isEmpty()) {
                     if (!"COMMITTED_READ_BACK".equals(drainStatus)) drainStatus = "IDLE";
+                    phaseR343("NO_PENDING");
                     return 0;
                 }
             }
+            phaseR343("BOUND_BIND_BYTES");
             long bindBytes=4096;
             for(Event event:batch)bindBytes+=HoldLedgerFlushR30.bindBytesR31(event.row());
             long bindLimit=Math.min(HoldLedgerFlushR30.bindCapR31(),com.ethk3.novaonepro.WriteBudgetR341.MAX_BIND_BYTES);
@@ -220,7 +253,12 @@ public final class WriterHoldFaultsR31 {
                 Event removed=batch.remove(batch.size()-1);bindBytes-=HoldLedgerFlushR30.bindBytesR31(removed.row());
             }
             if(bindBytes>bindLimit)throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_BIND_CAPACITY)");
-            if (!retry) writeInFlight(outbox, batch);
+            synchronized (WriterHoldFaultsR31.class) { attemptedRowsR343 = batch.size(); }
+            if (!retry) {
+                phaseR343("WRITE_OUTBOX");
+                writeInFlight(outbox, batch);
+            }
+            phaseR343("VERIFY_SCHEMA");
             synchronized (WriterHoldFaultsR31.class) { drainStatus = "VERIFY_SCHEMA"; }
             SQLiteDatabase read=store.readable();
             if(read.inTransaction())throw new IllegalStateException("R31_WRITER_HOLD_FAULT_DRAIN_REQUIRES_SEPARATE_TRANSACTION");
@@ -239,11 +277,14 @@ public final class WriterHoldFaultsR31 {
                 drainStatus = retry ? "RESOLVE_RECEIPT" : "WRITE_RECEIPT";
             }
             DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
+            phaseR343("RESOLVE_RECEIPT");
             DatabaseCoordinator.CommitOutcome outcome = retry ? coordinator.resolveCommitReceiptR31(identity)
                     : DatabaseCoordinator.CommitOutcome.ROLLED_BACK;
             if (outcome == DatabaseCoordinator.CommitOutcome.UNKNOWN)
                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
-            if (outcome == DatabaseCoordinator.CommitOutcome.ROLLED_BACK) outcome=coordinator.runIdempotentAtomicWriteR31(
+            if (outcome == DatabaseCoordinator.CommitOutcome.ROLLED_BACK) {
+                phaseR343("WRITE_RECEIPT");
+                outcome=coordinator.runIdempotentAtomicWriteR31(
                 context,identity,db->{
                     for(Event event:batch){
                         requireQuota(db,event);
@@ -252,13 +293,17 @@ public final class WriterHoldFaultsR31 {
                     }
                     return batch.size();
                 },batch.size()).outcome;
+            }
             if(outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED&&outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED)
                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
+            phaseR343("READ_BACK_EVENTS");
             for (Event event : batch) {
                 if (!present(read, event) && !matchesColdOriginal(store, read, event)) {
                     throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_RECEIPT_WITHOUT_EVENT");
                 }
+                synchronized (WriterHoldFaultsR31.class) { readBackRowsR343++; }
             }
+            phaseR343("VALIDATE_QUEUE");
             if (WriterHoldLedgerR30.PROCESS_SESSION.equals(batch.get(0).processSession)) {
                 synchronized (WriterHoldFaultsR31.class) {
                     java.util.Iterator<Event> head = PENDING.iterator();
@@ -269,6 +314,7 @@ public final class WriterHoldFaultsR31 {
                     }
                 }
             }
+            phaseR343("RETIRE_OUTBOX");
             new AtomicFile(outbox).delete();
             if (outbox.exists() || new File(outbox.getPath()+".bak").exists()) {
                 throw new IOException("R342_FAULT_OUTBOX_RETIRE_FAILED");
@@ -284,7 +330,9 @@ public final class WriterHoldFaultsR31 {
                 durableInFlightRows = 0; recoveredDifferentProcess = false; durableInFlightHash = null;
                 lastBatchReceipt = identity.commitKey; lastBatchPayload = identity.payloadHash; lastBatchRows = batch.size();
             }
+            phaseR343("RELEASE_MEMORY");
             for(Event event:released)event.memory.close();
+            phaseR343("COMPLETED");
             return batch.size();
         }catch(RuntimeException|IOException unavailable){
             Error fatal=FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;
@@ -292,6 +340,8 @@ public final class WriterHoldFaultsR31 {
             boolean protectedDebt = com.ethk3.novaonepro.RuntimeFaultArchiveB01.isProtectedDebt(unavailable);
             synchronized(WriterHoldFaultsR31.class){
                 drainFailures++;lastFailure=detail;
+                failurePhaseR343 = drainPhaseR343;
+                failureCategoryR343 = FailureDispositionR31.classify(unavailable).category;
                 drainStatus = retryStatus(unavailable, protectedDebt);
                 long delay = 250L << Math.min(3, consecutiveDrainFailures++);
                 long jitter = java.util.concurrent.ThreadLocalRandom.current().nextLong(101L);
@@ -301,7 +351,14 @@ public final class WriterHoldFaultsR31 {
                 com.ethk3.novaonepro.RuntimeFaultArchiveB01.request(store,"r31_runtime_fault",detail);
             return 0;
         }finally{
-            synchronized(WriterHoldFaultsR31.class){lastDrainWallR33=System.currentTimeMillis();lastDrainMsR33=android.os.SystemClock.elapsedRealtime()-started;}
+            synchronized(WriterHoldFaultsR31.class){
+                if (attempted) {
+                    phaseR343(drainPhaseR343);
+                    phaseStartedNsR343 = 0L;
+                    lastDrainWallR33=System.currentTimeMillis();
+                    lastDrainMsR33=android.os.SystemClock.elapsedRealtime()-started;
+                }
+            }
             DRAINING.set(false);
         }
     }
@@ -417,6 +474,19 @@ public final class WriterHoldFaultsR31 {
         out.put("observerProcessSession",WriterHoldLedgerR30.PROCESS_SESSION);
         out.put("observationWallMs",System.currentTimeMillis());
         out.put("lastDrainWallMs",lastDrainWallR33);out.put("lastDrainMs",lastDrainMsR33);
+        out.put("lastControlTickWallMs", lastControlTickWallR343);
+        out.put("drainAttempts", drainAttemptsR343);
+        out.put("drainActive", DRAINING.get());
+        out.put("drainPhase", drainPhaseR343);
+        out.put("drainPhaseDurationsMs", new LinkedHashMap<>(phaseMsR343));
+        out.put("activePhaseElapsedMs", phaseStartedNsR343 == 0L ? null
+                : Math.max(0L, (System.nanoTime()-phaseStartedNsR343)/1_000_000L));
+        out.put("lastDrainFailurePhase", failurePhaseR343);
+        out.put("lastDrainFailureCategory", failureCategoryR343);
+        out.put("attemptedRows", attemptedRowsR343);
+        out.put("readBackRows", readBackRowsR343);
+        out.put("maximumDrainRows", DRAIN_ROWS);
+        out.put("drainTimingContract", "ATTEMPT_ONLY; COOLDOWN_TICKS_DO_NOT_REFRESH_LAST_DRAIN; NO_HARD_REALTIME_CLAIM");
         out.put("oldestPendingWallMs",PENDING.isEmpty()?null:PENDING.peekFirst().wall);
         out.put("oldestPendingAgeMs",PENDING.isEmpty()?0L:android.os.SystemClock.elapsedRealtime()-PENDING.peekFirst().elapsed);
         out.put("drainStatus",drainStatus); out.put("nextDrainElapsedMs",nextDrainElapsed);

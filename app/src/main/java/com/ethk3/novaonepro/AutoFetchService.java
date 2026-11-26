@@ -2561,8 +2561,13 @@ public final class AutoFetchService extends Service {
         StartupStageJournalR341 startup = StartupStageJournalR341.open(getApplicationContext(), "research");
         String dependency = com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.startupDependencyRevisionR342(store);
         if (startup.hasDeterministicFailureLimit(dependency)) {
-            heartbeatStateV8().markResearchStartupR342("CIRCUIT_OPEN", "THREE_MATCHING_STARTUP_BUGS:" + dependency);
-            return;
+            if (!startup.reserveDeterministicProbeR343(dependency)) {
+                heartbeatStateV8().markResearchStartupR342("CIRCUIT_OPEN",
+                        "THREE_MATCHING_STARTUP_BUGS; " + startup.deterministicProbeStatusR343() + ":" + dependency);
+                return;
+            }
+            heartbeatStateV8().markResearchStartupR342("CIRCUIT_PROBE",
+                    "ONE_DURABLE_STARTUP_RETRY; READY_REQUIRES_SESSION_AND_WORKERS:" + dependency);
         }
         continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store, dependency);
     }

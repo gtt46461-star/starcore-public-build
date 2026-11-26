@@ -29,11 +29,16 @@ public final class StartupStageJournalR341 {
     private static final int LIMIT = 256 * 1024 - EMERGENCY_BYTES;
     private static final int ORIGINAL_BUDGET = 2 * 1024 * 1024;
     private static final String SCHEMA = "R341_STARTUP_FRAME_1";
+    private static final String PROTECTED_CAPACITY = "R341_JOURNAL_PROTECTED_CAPACITY";
+
+    private static final class ProtectedCapacity extends IOException {
+        ProtectedCapacity() { super(PROTECTED_CAPACITY); }
+    }
 
     public enum Stage {
         SERVICE_INITIALIZE, CRITICAL_OPEN, OWNER_DISPATCH, OWNER_BEGIN, CHECKPOINT_PREPARE,
         CHECKPOINT_PRESERVE, RUNTIME_BASE, RETENTION_PLAN, RETENTION_UNIT,
-        CHECKPOINT_POST_MIGRATION, UPGRADE_TRANSFORM, SESSION_REGISTER, OWNER_READY
+        CHECKPOINT_POST_MIGRATION, UPGRADE_TRANSFORM, SESSION_REGISTER, OWNER_READY, CIRCUIT_PROBE
     }
 
     public enum Outcome {
@@ -80,6 +85,7 @@ public final class StartupStageJournalR341 {
     private final RuntimeObservationScopeR341 identity;
     private volatile String error = "";
     private volatile long lastSequence;
+    private volatile String circuitProbeStateR343 = "NOT_CHECKED";
 
     private StartupStageJournalR341(File directory, String owner,
             RuntimeObservationScopeR341.Clock clock, RuntimeObservationScopeR341 identity) {
@@ -302,26 +308,97 @@ public final class StartupStageJournalR341 {
     }
 
     public boolean hasDeterministicFailureLimit(String startDependency) {
-        try {
-            List<Map<String, Object>> frames = read(data).frames;
-            String last = null;
-            int count = 0;
-            for (int i = frames.size() - 1; i >= 0; i--) {
-                Map<String, Object> frame = frames.get(i);
-                if (!identity.sourceCommit.equals(frame.get("sourceCommit")) ||
-                        !"OWNER_BEGIN".equals(frame.get("stage")) || !"END".equals(frame.get("record"))) continue;
-                if (startDependency != null && !startDependency.equals(frame.get("inputHash"))) return false;
-                if (!"BUG".equals(frame.get("outcome"))) return false;
-                String fingerprint = (String) frame.get("causeChainHash");
-                if (fingerprint == null || (last != null && !last.equals(fingerprint))) return false;
-                last = fingerprint;
-                if (++count == 3) return true;
-            }
-        } catch (IOException unavailable) {
-            return false;
+        try { return hasDeterministicFailureLimit(read(data).frames, startDependency); }
+        catch (IOException unavailable) { return false; }
+    }
+
+    private boolean hasDeterministicFailureLimit(List<Map<String,Object>> frames, String startDependency) {
+        String last = null;
+        int count = 0;
+        for (int i = frames.size() - 1; i >= 0; i--) {
+            Map<String,Object> frame = frames.get(i);
+            if (!identity.sourceCommit.equals(frame.get("sourceCommit")) ||
+                    !"OWNER_BEGIN".equals(frame.get("stage")) || !"END".equals(frame.get("record"))) continue;
+            if (startDependency != null && !startDependency.equals(frame.get("inputHash"))) return false;
+            if (!"BUG".equals(frame.get("outcome"))) return false;
+            String fingerprint = (String) frame.get("causeChainHash");
+            if (fingerprint == null || (last != null && !last.equals(fingerprint))) return false;
+            last = fingerprint;
+            if (++count == 3) return true;
         }
         return false;
     }
+
+    /** A repeated startup bug remains visible, with one durable half-open attempt
+     * every five minutes, at most three reservations for one source/dependency.
+     * A changed source/dependency is still re-armed immediately.
+     * Both BEGIN and END reserve the slot, so an interrupted probe cannot hot-loop. */
+    public boolean reserveDeterministicProbeR343(String startDependency) {
+        circuitProbeStateR343 = "UNAVAILABLE";
+        if (startDependency == null || !startDependency.matches("[a-f0-9]{64}")) return false;
+        // Check and reserve under the same process/file lock; do not nest begin()/end()
+        // locks or allow two processes to observe the same unreserved probe slot.
+        return locked(false, () -> {
+            Readback current = read(data);
+            if (!hasDeterministicFailureLimit(current.frames, startDependency)) {
+                circuitProbeStateR343 = "DEPENDENCY_REARMED";
+                return true;
+            }
+            int previousProbes = 0;
+            for (int i = current.frames.size()-1; i >= 0; i--) {
+                Map<String,Object> frame = current.frames.get(i);
+                if (identity.sourceCommit.equals(frame.get("sourceCommit"))
+                        && startDependency.equals(frame.get("inputHash"))
+                        && "CIRCUIT_PROBE".equals(frame.get("stage"))) {
+                    Object count = frame.get("probeAttempt");
+                    previousProbes = count instanceof Number ? ((Number) count).intValue()
+                            : com.ethk3.novaonepro.strategyv2.StartupProbePolicyR343.MAX_PROBES_PER_DEPENDENCY;
+                    break;
+                }
+            }
+            if (!com.ethk3.novaonepro.strategyv2.StartupProbePolicyR343.hasProbeBudget(previousProbes)) {
+                circuitProbeStateR343 = "PROBE_LIMIT_REACHED_DEPENDENCY_CHANGE_REQUIRED";
+                return false;
+            }
+            Map<String,Object> latest = null;
+            for (int i = current.frames.size()-1; i >= 0; i--) {
+                Map<String,Object> frame = current.frames.get(i);
+                if (!identity.sourceCommit.equals(frame.get("sourceCommit"))
+                        || !startDependency.equals(frame.get("inputHash"))) continue;
+                boolean failure = "OWNER_BEGIN".equals(frame.get("stage"))
+                        && "END".equals(frame.get("record")) && "BUG".equals(frame.get("outcome"));
+                boolean probe = "CIRCUIT_PROBE".equals(frame.get("stage"));
+                if (failure || probe) { latest = frame; break; }
+            }
+            String previousBoot = latest == null ? null : (String) latest.get("bootId");
+            Object elapsed = latest == null ? null : latest.get("monoAt");
+            long previousMono = elapsed instanceof Number ? ((Number) elapsed).longValue() : -1L;
+            if (!com.ethk3.novaonepro.strategyv2.StartupProbePolicyR343.due(
+                    identity.bootId, clock.monotonic(), previousBoot, previousMono)) {
+                circuitProbeStateR343 = "COOLDOWN";
+                return false;
+            }
+            Token probe = new Token("research-circuit", UUID.randomUUID().toString(),
+                    Stage.CIRCUIT_PROBE, startDependency);
+            Map<String,Object> begin = base(probe, "BEGIN");
+            begin.put("probeAttempt", previousProbes + 1);
+            try {
+                write(current, begin);
+                Map<String,Object> end = base(probe, "END");
+                end.put("probeAttempt", previousProbes + 1);
+                end.put("outcome", Outcome.VERIFIED.name());
+                end.put("evidenceRef", "ONE_BOUNDED_STARTUP_RETRY_NOT_OWNER_READY_OR_QUALITY");
+                write(current, end);
+            } catch (ProtectedCapacity full) {
+                circuitProbeStateR343 = "PROBE_JOURNAL_PROTECTED_CAPACITY";
+                throw full;
+            }
+            circuitProbeStateR343 = "PROBE_RESERVED";
+            return true;
+        });
+    }
+
+    public String deterministicProbeStatusR343() { return circuitProbeStateR343; }
 
     private Map<String, Object> base(Token token, String record) {
         Map<String, Object> frame = new LinkedHashMap<>(identity.exportEnvelope());
@@ -355,7 +432,8 @@ public final class StartupStageJournalR341 {
             try (RandomAccessFile file = new RandomAccessFile(lock, "rw"); FileLock guard = file.getChannel().lock()) {
                 return operation.run();
             } catch (IOException unavailable) {
-                error = unavailable.getClass().getSimpleName();
+                error = unavailable instanceof ProtectedCapacity ? PROTECTED_CAPACITY
+                        : unavailable.getClass().getSimpleName();
                 try (RandomAccessFile reserve = new RandomAccessFile(emergency, "rw")) {
                     if (reserve.length() == EMERGENCY_BYTES) {
                         byte[] marker = ("OBSERVABILITY_DEGRADED|lastSequence=" + lastSequence + "|type=" + error)
@@ -399,18 +477,39 @@ public final class StartupStageJournalR341 {
             attempts.add((String) current.frames.get(i).get("attempt"));
         }
         Set<String> open = openTokens(current.frames).keySet();
+        // Keep the current failure run and the latest reservation for every
+        // dependency of this source. A returning dependency keeps its budget.
+        Set<String> circuitTokens = new LinkedHashSet<>();
+        Set<String> probeDependencies = new LinkedHashSet<>();
+        int ownerEnds = 0;
+        for (int i = current.frames.size()-1; i >= 0; i--) {
+            Map<String,Object> frame = current.frames.get(i);
+            if (!identity.sourceCommit.equals(frame.get("sourceCommit"))) continue;
+            if (ownerEnds < 3 && "OWNER_BEGIN".equals(frame.get("stage")) && "END".equals(frame.get("record"))) {
+                circuitTokens.add((String) frame.get("token"));
+                ownerEnds++;
+            }
+            if ("CIRCUIT_PROBE".equals(frame.get("stage"))) {
+                Object dependency = frame.get("inputHash");
+                if (dependency instanceof String && ((String) dependency).matches("[a-f0-9]{64}")
+                        && probeDependencies.add((String) dependency)) {
+                    circuitTokens.add((String) frame.get("token"));
+                }
+            }
+        }
         Set<String> firstFaults = new LinkedHashSet<>();
         List<Map<String, Object>> kept = new ArrayList<>();
         long required = 0;
         for (Map<String, Object> item : current.frames) {
             boolean firstFault = ("BUG".equals(item.get("outcome")) || "FATAL".equals(item.get("outcome"))
                     || "MISSING_SOURCE".equals(item.get("outcome"))) && firstFaults.add((String) item.get("stage"));
-            if (!attempts.contains(item.get("attempt")) && !open.contains(item.get("token")) && !firstFault) continue;
+            if (!attempts.contains(item.get("attempt")) && !open.contains(item.get("token"))
+                    && !circuitTokens.contains(item.get("token")) && !firstFault) continue;
             kept.add(item);
             required += bytes(item).length + 8;
         }
         next.put("omittedAtRotation", current.frames.size() - kept.size());
-        if (required + bytes(next).length + 8 > LIMIT) throw new IOException("R341_JOURNAL_PROTECTED_CAPACITY");
+        if (required + bytes(next).length + 8 > LIMIT) throw new ProtectedCapacity();
         File part = File.createTempFile("r341-rotation-", ".frames", data.getParentFile());
         try {
             try (RandomAccessFile file = new RandomAccessFile(part, "rw")) {

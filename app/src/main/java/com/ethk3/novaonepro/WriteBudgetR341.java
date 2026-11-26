@@ -56,7 +56,7 @@ public final class WriteBudgetR341 {
     }
 
     DatabaseCoordinator.WriteRejectedR31 rejected() {
-        String category = "DEADLINE".equals(admission) ? "TEMP_TIMEOUT" : "RESOURCE_WAIT";
+        String category = "DEADLINE".equals(admission) ? "TEMP_TIMEOUT" : "RESOURCE_QUEUE";
         return new DatabaseCoordinator.WriteRejectedR31(category, context.operation, "ADMISSION",
                 DatabaseCoordinator.CommitOutcome.ROLLED_BACK, new IllegalStateException(admission));
     }

@@ -52,31 +52,24 @@ final class MainWriterFaultProjectionR342 {
     }
 
     static Map<String, Object> fromSnapshot(Context context, SQLiteDatabase db) {
-        long now = android.os.SystemClock.elapsedRealtime();
-        int observer = android.os.Process.myPid();
-        try (Cursor row = db.rawQuery("SELECT state_value FROM " + DbHelper.TABLE_APP_STATE
-                + " WHERE state_key=? AND length(CAST(state_value AS BLOB))<=24576", new String[]{KEY})) {
-            if (!row.moveToFirst()) return unavailable(observer, "MAIN_PROJECTION_MISSING");
-            String actualProcess = context.getApplicationInfo().processName;
-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            List<ActivityManager.RunningAppProcessInfo> processes = am == null ? null : am.getRunningAppProcesses();
-            int producer = 0;
-            if (processes != null) {
-                for (ActivityManager.RunningAppProcessInfo process : processes) {
-                    if (actualProcess.equals(process.processName) && process.uid == context.getApplicationInfo().uid) {
-                        producer = process.pid;
-                        break;
-                    }
-                }
-            }
-            Object start = JsonR27.parse(new ServiceHeartbeatStore(context).processStartScopeR341());
-            String epoch = start instanceof Map ? (String) ((Map<?, ?>) start).get("processEpoch") : null;
-            return validate(row.getString(0), observer, producer, epoch, bootIdentity(context, epoch),
-                    RuntimeObservationScopeR341.databaseIdentity(db), now);
+        return fromSnapshot(context,db,null);
+    }
+
+    static Map<String, Object> fromSnapshot(Context context, SQLiteDatabase db, String snapshotHash) {
+        int observer=android.os.Process.myPid();
+        try (Cursor row=db.rawQuery("SELECT state_value FROM " + DbHelper.TABLE_APP_STATE
+                + " WHERE state_key=? AND length(CAST(state_value AS BLOB))<=24576",new String[]{KEY})) {
+            if (!row.moveToFirst()) return unavailable(observer,"MAIN_PROJECTION_MISSING");
+            // The legacy report job stores wall time only, not an independently
+            // measured SQL pin monotonic interval. Preserve historical evidence;
+            // never validate a frozen row against current export elapsed time.
+            return WriterFaultSnapshotViewR343.project(row.getString(0),observer,snapshotHash,
+                    ReleaseManifestR926.MANIFEST_SHA256,BuildConfig.SOURCE_COMMIT_R26,
+                    RuntimeObservationScopeR341.databaseIdentity(db),null);
         } catch (android.os.OperationCanceledException cancelled) {
             throw cancelled;
         } catch (RuntimeException unavailable) {
-            return unavailable(observer, "MAIN_PROJECTION_SOURCE_UNAVAILABLE");
+            return unavailable(observer,"MAIN_PROJECTION_SOURCE_UNAVAILABLE");
         }
     }
 

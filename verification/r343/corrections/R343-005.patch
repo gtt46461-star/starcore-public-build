@@ -1,0 +1,90 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java
+@@ -29,6 +29,11 @@
+     private static final int LIMIT = 256 * 1024 - EMERGENCY_BYTES;
+     private static final int ORIGINAL_BUDGET = 2 * 1024 * 1024;
+     private static final String SCHEMA = "R341_STARTUP_FRAME_1";
++    private static final String PROTECTED_CAPACITY = "R341_JOURNAL_PROTECTED_CAPACITY";
++
++    private static final class ProtectedCapacity extends IOException {
++        ProtectedCapacity() { super(PROTECTED_CAPACITY); }
++    }
+ 
+     public enum Stage {
+         SERVICE_INITIALIZE, CRITICAL_OPEN, OWNER_DISPATCH, OWNER_BEGIN, CHECKPOINT_PREPARE,
+@@ -377,12 +382,17 @@
+                     Stage.CIRCUIT_PROBE, startDependency);
+             Map<String,Object> begin = base(probe, "BEGIN");
+             begin.put("probeAttempt", previousProbes + 1);
+-            write(current, begin);
+-            Map<String,Object> end = base(probe, "END");
+-            end.put("probeAttempt", previousProbes + 1);
+-            end.put("outcome", Outcome.VERIFIED.name());
+-            end.put("evidenceRef", "ONE_BOUNDED_STARTUP_RETRY_NOT_OWNER_READY_OR_QUALITY");
+-            write(current, end);
++            try {
++                write(current, begin);
++                Map<String,Object> end = base(probe, "END");
++                end.put("probeAttempt", previousProbes + 1);
++                end.put("outcome", Outcome.VERIFIED.name());
++                end.put("evidenceRef", "ONE_BOUNDED_STARTUP_RETRY_NOT_OWNER_READY_OR_QUALITY");
++                write(current, end);
++            } catch (ProtectedCapacity full) {
++                circuitProbeStateR343 = "PROBE_JOURNAL_PROTECTED_CAPACITY";
++                throw full;
++            }
+             circuitProbeStateR343 = "PROBE_RESERVED";
+             return true;
+         });
+@@ -422,7 +432,8 @@
+             try (RandomAccessFile file = new RandomAccessFile(lock, "rw"); FileLock guard = file.getChannel().lock()) {
+                 return operation.run();
+             } catch (IOException unavailable) {
+-                error = unavailable.getClass().getSimpleName();
++                error = unavailable instanceof ProtectedCapacity ? PROTECTED_CAPACITY
++                        : unavailable.getClass().getSimpleName();
+                 try (RandomAccessFile reserve = new RandomAccessFile(emergency, "rw")) {
+                     if (reserve.length() == EMERGENCY_BYTES) {
+                         byte[] marker = ("OBSERVABILITY_DEGRADED|lastSequence=" + lastSequence + "|type=" + error)
+@@ -466,11 +477,11 @@
+             attempts.add((String) current.frames.get(i).get("attempt"));
+         }
+         Set<String> open = openTokens(current.frames).keySet();
+-        // Circuit decisions need the latest three owner outcomes and last probe,
+-        // even when unrelated stage attempts trigger journal rotation.
++        // Keep the current failure run and the latest reservation for every
++        // dependency of this source. A returning dependency keeps its budget.
+         Set<String> circuitTokens = new LinkedHashSet<>();
++        Set<String> probeDependencies = new LinkedHashSet<>();
+         int ownerEnds = 0;
+-        boolean probeKept = false;
+         for (int i = current.frames.size()-1; i >= 0; i--) {
+             Map<String,Object> frame = current.frames.get(i);
+             if (!identity.sourceCommit.equals(frame.get("sourceCommit"))) continue;
+@@ -478,11 +489,13 @@
+                 circuitTokens.add((String) frame.get("token"));
+                 ownerEnds++;
+             }
+-            if (!probeKept && "CIRCUIT_PROBE".equals(frame.get("stage"))) {
+-                circuitTokens.add((String) frame.get("token"));
+-                probeKept = true;
++            if ("CIRCUIT_PROBE".equals(frame.get("stage"))) {
++                Object dependency = frame.get("inputHash");
++                if (dependency instanceof String && ((String) dependency).matches("[a-f0-9]{64}")
++                        && probeDependencies.add((String) dependency)) {
++                    circuitTokens.add((String) frame.get("token"));
++                }
+             }
+-            if (ownerEnds == 3 && probeKept) break;
+         }
+         Set<String> firstFaults = new LinkedHashSet<>();
+         List<Map<String, Object>> kept = new ArrayList<>();
+@@ -496,7 +509,7 @@
+             required += bytes(item).length + 8;
+         }
+         next.put("omittedAtRotation", current.frames.size() - kept.size());
+-        if (required + bytes(next).length + 8 > LIMIT) throw new IOException("R341_JOURNAL_PROTECTED_CAPACITY");
++        if (required + bytes(next).length + 8 > LIMIT) throw new ProtectedCapacity();
+         File part = File.createTempFile("r341-rotation-", ".frames", data.getParentFile());
+         try {
+             try (RandomAccessFile file = new RandomAccessFile(part, "rw")) {
