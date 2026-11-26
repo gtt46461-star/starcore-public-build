@@ -81,6 +81,27 @@ public final class HistoricalTrainingReceiptCP12 {
             }
         }throw new DevelopmentProductionCP12.Wait("WAIT_BOUND_FEATURE_HISTORY");
     }
+    /** Independent rolling owner: the SAME original receipt extractor and decoder.
+     * The serialized original is returned so that its version row can preserve it;
+     * no current teacher, postdraw context or fabricated historical label is allowed. */
+    static final class OriginalR343 {
+        final Row decoded;final String canonical;
+        OriginalR343(Row decoded,String canonical){this.decoded=decoded;this.canonical=canonical;}
+    }
+    static OriginalR343 originalForRollingR343(SQLiteDatabase db,Program program,String target,long drawAt){
+        if(program.manifest.bindingHashes.isEmpty()&&program.ast.graphSpec.experts.isEmpty()
+                &&!MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program)&&program.manifest.summarySpecRefs.isEmpty())
+            return new OriginalR343(new Row(Collections.emptyMap(),Collections.emptyList(),EMPTY),"");
+        String original=extract(db,program,target,drawAt);
+        need(original.getBytes(StandardCharsets.UTF_8).length<=MAX_LINE,"ROLLING_ORIGINAL_RECEIPT_SIZE");
+        Map<String,Object> row=StrictCanonicalJson.readContextObject(original);
+        need(StrictCanonicalJson.writeContext(row).equals(original)&&target.equals(str(row,"target"))
+                &&number(row,"drawAt")==drawAt&&program.manifest.hash.equals(str(row,"manifestHash")),"ROLLING_ORIGINAL_RECEIPT_IDENTITY");
+        return new OriginalR343(decode(program,row,original,drawAt),original);
+    }
+    static boolean originalHashR343(String canonical,String hash){
+        return canonical.isEmpty()?EMPTY.equals(hash):V51ChecksumEngine.sha256(canonical).equals(hash);
+    }
     private static String extract(SQLiteDatabase db,Program program,String target,long drawAt) {
         String derivedR81=BoundAtomLifecycleR80.extractDerivedR81(db,program,target,drawAt);
         if(derivedR81!=null){

@@ -277,7 +277,9 @@ public final class ResearchSchemaCoordinatorR926 {
                 SchemaDomainCoordinatorR926.researchContract(), "R952_EXTENSION")
                 && com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
                 && ChampionProbabilityEvidenceR82.installed(db)
-                && com.ethk3.novaonepro.r952.TrainingRecoveryR343.installed(db);
+                && com.ethk3.novaonepro.r952.TrainingRecoveryR343.installed(db)
+                && com.ethk3.novaonepro.r952.RollingLearnerR343.installed(db)
+                && com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db);
     }
 
     public static boolean ensureToReady(DatabaseCoordinator owner, int maxSteps) {

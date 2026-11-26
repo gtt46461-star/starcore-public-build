@@ -1,0 +1,22 @@
+BASELINE_REPRODUCED|RETIRED_PARENT_UNPLANNABLE|NO_LATER_HEAD|RAW_PIN_STUCK
+{
+  "status": "PASS",
+  "scope": "HOST_SOURCE_SQL_SYNTHETIC",
+  "sqlite": "3.53.1",
+  "plan": [
+    "SEARCH v USING INDEX sqlite_autoindex_research_rolling_version_r343_1 (version_id=?)",
+    "CORRELATED SCALAR SUBQUERY 1",
+    "SEARCH p USING COVERING INDEX sqlite_autoindex_research_rolling_frozen_publication_r343_1 (version_id=?)",
+    "CORRELATED SCALAR SUBQUERY 2",
+    "SEARCH x USING COVERING INDEX sqlite_autoindex_research_rolling_publication_reject_r343_1 (version_id=?)",
+    "CORRELATED SCALAR SUBQUERY 3",
+    "SEARCH t USING COVERING INDEX idx_r975_post_authority (kind=? AND authority_ref=?)",
+    "SEARCH o USING INDEX sqlite_autoindex_research_rolling_offer_r343_1 (version_id=?)",
+    "SEARCH parent USING INDEX sqlite_autoindex_r952_candidate_1 (candidate_id=?)"
+  ],
+  "formalBytesUnchanged": true,
+  "queuedPinUnchanged": true,
+  "rollbackRemovesRejection": true,
+  "rawPinAfterReceipt": false,
+  "noUnpublishedReselection": true
+}

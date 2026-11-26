@@ -187,7 +187,7 @@ public final class DevelopmentProductionCP12 {
         int first=bound?loaded.size()-required:Math.max(suffix,loaded.size()-historyReadLimitR72(requiredHistory,false));
         return Collections.unmodifiableList(new ArrayList<>(loaded.subList(first,loaded.size())));
     }
-    private static List<AtomSpecCP4> readSpecs(SQLiteDatabase db,CandidateAstR952 ast) {
+    static List<AtomSpecCP4> readSpecs(SQLiteDatabase db,CandidateAstR952 ast) {
         List<AtomSpecCP4> specs=new ArrayList<>();Set<String> seen=new HashSet<>();
         for(NodeSpec node:ast.graphSpec.nodes)if(node.kind==NodeKind.ATOM&&seen.add(node.source)){
             try(Cursor c=db.rawQuery("SELECT atom_id,spec_hash,params_json,output_type,min_history,missing_policy,state FROM research_atom_spec_v2 WHERE atom_id=?",new String[]{node.source})){
@@ -256,6 +256,24 @@ public final class DevelopmentProductionCP12 {
             }
         }
         }
+    }
+    /** R343 independent learner uses the exact original PIT source decoder. */
+    static final class RollingFeatureR343 {
+        final DevelopmentTrainerCP9.Row row;final String sourceJson,sourceHash;
+        RollingFeatureR343(DevelopmentTrainerCP9.Row row,String sourceJson,String sourceHash){
+            this.row=row;this.sourceJson=sourceJson;this.sourceHash=sourceHash;
+        }
+    }
+    static RollingFeatureR343 rollingRowR343(DbStore store,Program program,
+            Map<String,Object> protocol,DevelopmentInputCP9.Input input,int targetIndex,
+            String protocolHash,FeatureAtomHistoryR79 history)throws IOException{
+        history.beforeExternalInputs(program);
+        HistoricalTrainingReceiptCP12.OriginalR343 original=HistoricalTrainingReceiptCP12.originalForRollingR343(
+                store.readable(),program,input.issue(targetIndex),input.openTime(targetIndex));
+        Map<String,Value> atoms=dataAtoms(program,input,targetIndex,original.decoded,history);
+        DevelopmentTrainerCP9.Row row=WorldFeatureComputationR974.rawTrainingRowCP11(program,input,targetIndex,protocolHash,
+                atoms,original.decoded.experts,original.decoded.hash,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget());
+        return new RollingFeatureR343(row,original.canonical,original.decoded.hash);
     }
     /** Before row decoding: conservative object/array/string overhead plus one SQL row
      * and model-shape scratch. Dataset keeps row references; it never duplicates vectors. */

@@ -146,6 +146,16 @@ public final class ResearchTaskQueueR967 {
         if(updated)ACTIVE_CP4.remove(lease.id,lease);
         return updated;
     }
+    /** A rolling source gap or superseded UNPUBLISHED offer. Preserve the terminal
+     * task and receipt; a later cutoff uses a DIFFERENT version id.
+     * This does not classify the base strategy or alter a numerical model cursor. */
+    public static boolean expireDependencyR343(SQLiteDatabase db,Lease lease,String reason,String receiptHash){
+        transaction(db);
+        if(lease==null||(!"R343_ROLLING_TRAIN".equals(lease.kind)&&!"R343_ROLLING_FREEZE".equals(lease.kind))||reason==null||receiptHash==null||!receiptHash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R343_DEPENDENCY_EXPIRY_IDENTITY");
+        if(!owns(db,lease))return false;
+        db.execSQL("UPDATE "+TABLE+" SET status='EXPIRED',lease_owner='',lease_until=0,available_at=0,last_error=?,result_hash=?,updated_at=? WHERE task_id=? AND generation=? AND cursor=? AND status='RUNNING' AND lease_owner=?",new Object[]{reason,receiptHash,System.currentTimeMillis(),lease.id,lease.generation,lease.cursor,lease.owner});
+        boolean updated=changed(db)==1;if(updated)ACTIVE_CP4.remove(lease.id,lease);return updated;
+    }
     /** Resource HOLD keeps the exact durable cursor/pins without creating evidence. */
     public static boolean waitInputCP12(SQLiteDatabase db,Lease lease,String reason,long delayMs){
         transaction(db);if(lease==null||reason==null)throw new IllegalArgumentException("R967_WAIT_INPUT");

@@ -110,10 +110,24 @@ public final class DrawDependencyInputCP12 {
                 + "'r958_frozen_predraw','r952_research_outbox','atomic_tool_context_r943','r26_feedback','r31_feedback_event','r31_feedback_receipt',"
                 + "'v57_algorithm_predraw_r908','v57_research_predraw_r817','research_new_asset_freeze_v41',"
                 + "'research_fixed_pair_r932','research_candidate_cal_observation_r932','research_candidate_cal_study_r932',"
-                + "'research_challenge_prediction_r932','research_legacy_asset_head_audit_r80','research_bound_source_r80','research_bound_cohort_r80','research_bound_input_r80','r80_probe_forecast','r80_probe_label','su1_live_target','su1_pending_settlement','su1_opportunity','su1_opportunity_outcome')",null)) {
+                + "'research_challenge_prediction_r932','research_legacy_asset_head_audit_r80','research_bound_source_r80','research_bound_cohort_r80','research_bound_input_r80','r80_probe_forecast','r80_probe_label','su1_live_target','su1_pending_settlement','su1_opportunity','su1_opportunity_outcome','research_rolling_version_r343','research_rolling_offer_r343','research_rolling_frozen_publication_r343','research_rolling_publication_reject_r343')",null)) {
             while(schema.moveToNext())installed.add(schema.getString(0));
         }
         List<String> clauses = new ArrayList<>();
+        // R343: retain only exact original range dependencies outside the unchanged
+        // 5000-row hot window. Never synthesize draws or broaden normal history reads.
+        if(installed.contains("research_rolling_version_r343")){
+            String unfinished="v.state IN('FEATURES','TRAINING')";
+            if(installed.contains("research_rolling_offer_r343")){
+                String unresolved="EXISTS(SELECT 1 FROM research_rolling_offer_r343 o WHERE o.version_id=v.version_id)";
+                if(installed.contains("research_rolling_frozen_publication_r343"))unresolved+=" AND NOT EXISTS(SELECT 1 FROM research_rolling_frozen_publication_r343 p WHERE p.version_id=v.version_id)";
+                if(installed.contains("research_rolling_publication_reject_r343"))unresolved+=" AND NOT EXISTS(SELECT 1 FROM research_rolling_publication_reject_r343 r WHERE r.version_id=v.version_id)";
+                unfinished+=" OR (v.state='COMPLETE' AND "+unresolved+")";
+            }
+            // Exactly one issue placeholder per clause, matching Reference.count.
+            clauses.add("EXISTS(SELECT 1 FROM research_rolling_version_r343 v WHERE "+issue+" BETWEEN v.input_first_issue AND v.cutoff_issue AND ("+unfinished+"))");
+        }
+
         // Native delivery still needs the original draw after the hot 5000-row window rotates.
         // These are original-owner pins, not another history or training stream.
         if(installed.contains("r26_feedback"))clauses.add("EXISTS(SELECT 1 FROM "+SOURCE+" d WHERE d.issue="+issue

@@ -166,6 +166,7 @@ public final class ResearchDirectorR952 {
             if(n>0)FeedbackMatrixRegistryR952.postDraw(db,draw.issue,settlementHash);
             n+=FrozenCandidateAdapterR958.settle(db,draw,settlementHash);
             n+=MultiHorizonProbeR80.settle(db,draw,settlementHash,completedAt);
+            RollingLearnerR343.settled(db,draw,settlementHash,completedAt);
             return n;
             } catch(RuntimeException bad) { failure[0]=bad; throw bad; }
         }},null);

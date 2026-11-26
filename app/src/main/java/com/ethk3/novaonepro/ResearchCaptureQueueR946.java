@@ -95,7 +95,7 @@ public final class ResearchCaptureQueueR946 {
                 +" OR (j.snapshot_blob IS NOT NULL AND length(j.snapshot_hash)=64 AND length(j.target_issue)=12"
                 +" AND NOT EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" d WHERE d.dirty=0 AND d.issue>=j.target_issue)"
                 +" AND EXISTS(SELECT 1 FROM r952_candidate nc JOIN "+ResearchEvaluationRunR967.RUN+" nr ON nr.learner_id=nc.candidate_id"
-                +" WHERE nc.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("nr.rule_hash")
+                +" WHERE nc.ast NOT LIKE 'AST3:%' AND nc.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("nr.rule_hash")
                 +" AND nr.first_issue=(SELECT MAX(nr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" nr2 WHERE nr2.learner_id=nc.candidate_id AND nr2.first_issue<=j.target_issue)"
                 +" AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw np WHERE np.candidate_id=nc.candidate_id AND np.target_issue=j.target_issue)))"
                 +" ORDER BY j.target_issue DESC LIMIT "+limit;

@@ -1,0 +1,67 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java b/app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java
+@@ -52,6 +52,45 @@
+             if(!c.moveToFirst())return true;
+             return c.isNull(1)||!retired(c.getString(1));
+         }
++    }
++    /** The bounded learner cleanup already owns this resident version. A retired
++     * parent cannot enqueue another formal publication. Resolve the offer only
++     * when the publication task never existed and no formal run has consumed it. */
++    static boolean rejectRetiredUnpublishedR343(SQLiteDatabase db,String version){
++        need(db.inTransaction(),"ROLLING_RETIRED_OFFER_TX");
++        if(!installed(db))return false;
++        String sql="SELECT o.candidate_id,parent.state,o.cutoff_issue,o.model_hash,o.receipt_hash"
++                +" FROM "+RollingLearnerR343.OFFER+" o"
++                +" JOIN "+RollingLearnerR343.VERSION+" v ON v.version_id=o.version_id AND v.state='COMPLETE'"
++                +" AND v.candidate_id=o.candidate_id AND v.cutoff_issue=o.cutoff_issue"
++                +" AND v.model_hash=o.model_hash AND v.receipt_hash=o.receipt_hash"
++                +" JOIN r952_candidate parent ON parent.candidate_id=o.candidate_id AND parent.structural_hash=v.ast_hash"
++                +" WHERE o.version_id=? AND parent.state IN"+TERMINAL
++                +" AND NOT EXISTS(SELECT 1 FROM "+TABLE+" p WHERE p.version_id=o.version_id)"
++                +" AND NOT EXISTS(SELECT 1 FROM "+REJECT+" x WHERE x.version_id=o.version_id)"
++                +" AND NOT EXISTS(SELECT 1 FROM "+ResearchTaskQueueR967.TABLE
++                +" t INDEXED BY idx_r975_post_authority WHERE t.kind=? AND t.authority_ref=o.version_id)";
++        Map<String,Object> receipt=new TreeMap<>();
++        final String reason="PARENT_RETIRED_UNPUBLISHED";
++        try(Cursor c=db.rawQuery(sql,new String[]{version,KIND})){
++            if(!c.moveToFirst())return false;
++            receipt.put("revision","R343_ROLLING_PARENT_RETIRED_1");
++            receipt.put("version",version);
++            receipt.put("candidate",c.getString(0));
++            receipt.put("candidateState",c.getString(1));
++            receipt.put("cutoff",c.getString(2));
++            receipt.put("model",c.getString(3));
++            receipt.put("trainingReceipt",c.getString(4));
++            receipt.put("reason",reason);
++            receipt.put("publicationTaskExisted",false);
++            receipt.put("statisticalFailure",false);
++            receipt.put("formalFutureCount",0);
++            receipt.put("realAuthority",false);
++        }
++        String json=StrictCanonicalJson.writeContext(receipt);
++        db.execSQL("INSERT INTO "+REJECT+" VALUES(?,?,?,?,?)",
++                new Object[]{version,reason,json,V51ChecksumEngine.sha256(json),System.currentTimeMillis()});
++        return true;
+     }
+     /** Compact publication/page/rejection receipts are permanent. The learner's
+      * existing bounded cleanup owns raw retention and calls pinsRawVersion. */
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java b/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java
+@@ -309,7 +309,13 @@
+             if("FEATURES".equals(candidate[1])||"TRAINING".equals(candidate[1]))continue;
+             boolean offered;
+             try(Cursor c=db.rawQuery("SELECT 1 FROM "+OFFER+" WHERE version_id=?",new String[]{id})){offered=c.moveToFirst();}
+-            if(offered&&RollingFrozenPublisherR343.pinsRawVersion(db,id))continue;
++            if(offered&&RollingFrozenPublisherR343.pinsRawVersion(db,id)){
++                if(RollingFrozenPublisherR343.rejectRetiredUnpublishedR343(db,id)){
++                    changed=true;
++                    break;
++                }
++                continue;
++            }
+             db.execSQL("DELETE FROM "+FEATURE+" WHERE rowid IN(SELECT rowid FROM "+FEATURE+" WHERE version_id=? ORDER BY row_index LIMIT 64)",new Object[]{id});
+             if(changes(db)>0){changed=true;break;}
+             db.execSQL("UPDATE "+VERSION+" SET input_blob=NULL,checkpoint=NULL WHERE version_id=? AND (input_blob IS NOT NULL OR checkpoint IS NOT NULL)",new Object[]{id});

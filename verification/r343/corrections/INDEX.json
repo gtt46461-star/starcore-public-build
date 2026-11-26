@@ -92,6 +92,102 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/r952/TrainingRecoveryR343.java",
       "reason": "The existing schema stamp predates training recovery. Require the actual recovery table at startup and record a typed wait when an original allowlisted task exists but original input evidence is absent. Preserve terminal source rows and qualification.",
       "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B06-recovery-accounting/ResearchSchemaCoordinatorR926.java.snapshot",
+      "afterSha256": "46669a19011c0a9f76b29bf3ae384a245dfa51609b61c8739cee5e2569f1a280",
+      "batch": "B06",
+      "beforeSha256": "8eed5dcb25f9239a83f532e08ffe67182022b50ff2398b9f4efaaca665bf8516",
+      "issue": "R343-026",
+      "originals": {
+        "B06-recovery-accounting/ResearchSchemaCoordinatorR926.java.snapshot": "46669a19011c0a9f76b29bf3ae384a245dfa51609b61c8739cee5e2569f1a280",
+        "B06-recovery-accounting/b06-followup.patch": "34bc767fcf3a6a6d72007363c74f1bcac2dd5a59dfc517068b6cf526c0b18146",
+        "B06-recovery-accounting/result.log": "d8c6f770ff6d5cb6a93b094907c022eabcd58c4ffef0480f87f32b6c6ac75902",
+        "B06-recovery-accounting/scan_bound.log": "0d17dc4df2c62dce4c31e3a99a56cd57cc04c5c17c83ec0ea99fc88f7757da26"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
+      "reason": "Require bounded rolling startup reconciliation. Count resident learning bytes inside existing mutations and page the legacy state with exact cursor and pins, eliminating a lifetime scan in the write path without dropping original evidence.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B06-recovery-accounting/RollingLearnerR343.java.snapshot",
+      "afterSha256": "1c3bac2fe513bc7ab41b92d94e52d494bf47a5f0067487d981a0217920d16b60",
+      "batch": "B06",
+      "beforeSha256": "d57b96904d3357e9cac8cc97b63c835aabc0f952bee48447c4bb38569042bbf6",
+      "issue": "R343-026",
+      "originals": {
+        "B06-recovery-accounting/RollingLearnerR343.java.snapshot": "1c3bac2fe513bc7ab41b92d94e52d494bf47a5f0067487d981a0217920d16b60",
+        "B06-recovery-accounting/b06-followup.patch": "34bc767fcf3a6a6d72007363c74f1bcac2dd5a59dfc517068b6cf526c0b18146",
+        "B06-recovery-accounting/result.log": "d8c6f770ff6d5cb6a93b094907c022eabcd58c4ffef0480f87f32b6c6ac75902",
+        "B06-recovery-accounting/scan_bound.log": "0d17dc4df2c62dce4c31e3a99a56cd57cc04c5c17c83ec0ea99fc88f7757da26"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "reason": "Require bounded rolling startup reconciliation. Count resident learning bytes inside existing mutations and page the legacy state with exact cursor and pins, eliminating a lifetime scan in the write path without dropping original evidence.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B06-recovery-accounting/ResearchMigrationRegistryR952.java.snapshot",
+      "afterSha256": "f86676e493d440354841812e2e47a74b1384bce7e5b790a779f03ada1bb179c9",
+      "batch": "B06",
+      "beforeSha256": "ac9d873f3290fb614c6452086f12b6cea4fd16dde45f5cb9f6de25364fa6ab92",
+      "issue": "R343-026",
+      "originals": {
+        "B06-recovery-accounting/ResearchMigrationRegistryR952.java.snapshot": "f86676e493d440354841812e2e47a74b1384bce7e5b790a779f03ada1bb179c9",
+        "B06-recovery-accounting/b06-followup.patch": "34bc767fcf3a6a6d72007363c74f1bcac2dd5a59dfc517068b6cf526c0b18146",
+        "B06-recovery-accounting/result.log": "d8c6f770ff6d5cb6a93b094907c022eabcd58c4ffef0480f87f32b6c6ac75902",
+        "B06-recovery-accounting/scan_bound.log": "0d17dc4df2c62dce4c31e3a99a56cd57cc04c5c17c83ec0ea99fc88f7757da26"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java",
+      "reason": "Require bounded rolling startup reconciliation. Count resident learning bytes inside existing mutations and page the legacy state with exact cursor and pins, eliminating a lifetime scan in the write path without dropping original evidence.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B06-recovery-accounting/RollingStorageAccountingR343.java.snapshot",
+      "afterSha256": "9d356d3d41c37d5ee0f2dbd931b72436fd9546ebbc5189c0ef276a55931845b8",
+      "batch": "B06",
+      "beforeSha256": null,
+      "issue": "R343-026",
+      "originals": {
+        "B06-recovery-accounting/RollingStorageAccountingR343.java.snapshot": "9d356d3d41c37d5ee0f2dbd931b72436fd9546ebbc5189c0ef276a55931845b8",
+        "B06-recovery-accounting/b06-followup.patch": "34bc767fcf3a6a6d72007363c74f1bcac2dd5a59dfc517068b6cf526c0b18146",
+        "B06-recovery-accounting/result.log": "d8c6f770ff6d5cb6a93b094907c022eabcd58c4ffef0480f87f32b6c6ac75902",
+        "B06-recovery-accounting/scan_bound.log": "0d17dc4df2c62dce4c31e3a99a56cd57cc04c5c17c83ec0ea99fc88f7757da26"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/RollingStorageAccountingR343.java",
+      "reason": "Require bounded rolling startup reconciliation. Count resident learning bytes inside existing mutations and page the legacy state with exact cursor and pins, eliminating a lifetime scan in the write path without dropping original evidence.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B06-retired-offer/RollingFrozenPublisherR343.java.snapshot",
+      "afterSha256": "f0a313506c9f3a85152a03a56ad0733e492e2d4321c7b4b5c1903f06c8804194",
+      "batch": "B06",
+      "beforeSha256": "b8d75310873f33930b83598e7381f791f4e2d3d92b28a866980edca32aa3ecf5",
+      "issue": "R343-026",
+      "originals": {
+        "B06-retired-offer/B06-026-retired-offer.patch": "561d8d88fd47bd99616454d2a1efed80e497179254487fd943c97e1b0f25bf49",
+        "B06-retired-offer/RollingFrozenPublisherR343.java.snapshot": "f0a313506c9f3a85152a03a56ad0733e492e2d4321c7b4b5c1903f06c8804194",
+        "B06-retired-offer/host.log": "89f6e4096143c5b6e30d51e5c5d23c2d342cc8226c1c2b380bfc223c03d3f36a",
+        "B06-retired-offer/host_reproduction.py": "3ff2e1afcfe6f4ad7c8bb5036c34207b162502101a0163d2b50cf514296c3489"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+      "reason": "Reclaim raw inputs of a verified retired-parent unpublished offer with an immutable zero-future rejection. Keep queued or actually published windows, their original qualification boundaries, and indexed bounded scanning.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B06-retired-offer/RollingLearnerR343.java.snapshot",
+      "afterSha256": "24bab7a500fd340bced51508157da8f5bdc601e748a95c3ac7b5e121f3649bbe",
+      "batch": "B06",
+      "beforeSha256": "1c3bac2fe513bc7ab41b92d94e52d494bf47a5f0067487d981a0217920d16b60",
+      "issue": "R343-026",
+      "originals": {
+        "B06-retired-offer/B06-026-retired-offer.patch": "561d8d88fd47bd99616454d2a1efed80e497179254487fd943c97e1b0f25bf49",
+        "B06-retired-offer/RollingLearnerR343.java.snapshot": "24bab7a500fd340bced51508157da8f5bdc601e748a95c3ac7b5e121f3649bbe",
+        "B06-retired-offer/host.log": "89f6e4096143c5b6e30d51e5c5d23c2d342cc8226c1c2b380bfc223c03d3f36a",
+        "B06-retired-offer/host_reproduction.py": "3ff2e1afcfe6f4ad7c8bb5036c34207b162502101a0163d2b50cf514296c3489"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "reason": "Reclaim raw inputs of a verified retired-parent unpublished offer with an immutable zero-future rejection. Keep queued or actually published windows, their original qualification boundaries, and indexed bounded scanning.",
+      "role": "NUMERIC"
     }
   ],
   "schema": "STARCORE_FIELD173_SOURCE_CORRECTIONS_1"

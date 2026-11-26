@@ -72,11 +72,8 @@ public final class GlobalResearchScheduleR932 {
         if(active.size()>CAPTURE_ACTIVE_MAX_CP11)throw new IllegalStateException("CAPTURE_CAPACITY_CORRUPT");
         for(CaptureReservationCP11 r:active){
             boolean valid;
-            try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash "
-                    +"JOIN r952_candidate parent ON parent.candidate_id=f.learner_id WHERE ('algorithm:'||f.candidate_id)=? AND f.structural_hash=? "
-                    +"AND run.first_issue=(SELECT MAX(rr.first_issue)FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) "
-                    +"AND parent.structural_hash=run.ast_hash AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND "
-                    +TrainingContinuationR973.predicate("f.rule_hash")+" LIMIT 1",new String[]{r.key,r.freeze,target})){valid=c.moveToFirst();}
+            try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE ('algorithm:'||f.candidate_id)=? AND f.structural_hash=? AND "
+                    +ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)+" LIMIT 1",new String[]{r.key,r.freeze})){valid=c.moveToFirst();}
             if(!valid){retireReservationCP11(db,r,"CAPTURE_DEPENDENCY_RETIRED");continue;}
             if(retireInvalidBoundReservationR80(db,r,target))continue;
             String currentStudy=CandidateCalibrationR932.study(db,r.key,r.freeze,championBundle,selectorHash);
@@ -119,12 +116,9 @@ public final class GlobalResearchScheduleR932 {
         if(resume)try{afterAt=Long.parseLong(position[0]);}catch(NumberFormatException invalid){resume=false;}
         for(int pass=0;pass<2;pass++){
         String predicate=resume?" AND (f.created_at>? OR (f.created_at=? AND f.candidate_id>?))":"";
-        String[] args=resume?new String[]{target,target,target,Long.toString(afterAt),Long.toString(afterAt),position[1]}:new String[]{target,target,target};
+        String[] args=resume?new String[]{target,target,Long.toString(afterAt),Long.toString(afterAt),position[1]}:new String[]{target,target};
         try(Cursor c=db.rawQuery("SELECT f.candidate_id,f.structural_hash,f.created_issue,f.created_at FROM "+ResearchEvaluationRunR967.EVAL+" f "
-                +"JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash JOIN r952_candidate parent ON parent.candidate_id=f.learner_id "
-                +"WHERE f.created_issue<=? AND f.trained_until_issue<? AND run.first_issue=(SELECT MAX(rr.first_issue)FROM "+ResearchEvaluationRunR967.RUN
-                +" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) AND parent.structural_hash=run.ast_hash "
-                +"AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("f.rule_hash")
+                +"WHERE f.created_issue<=? AND f.trained_until_issue<? AND "+ResearchEvaluationRunR967.frozenEligibilitySqlR343(db,"f",target)
                 +" AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) "
                 +"AND life.state IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) "
                 +"AND NOT EXISTS(SELECT 1 FROM "+RESERVATION_CP11+" r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state IN('RESERVED','ACTIVE')) "

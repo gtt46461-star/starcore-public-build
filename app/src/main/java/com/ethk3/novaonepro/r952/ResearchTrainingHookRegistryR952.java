@@ -138,18 +138,20 @@ public final class ResearchTrainingHookRegistryR952 {
         if(store==null)return false;
         boolean advanced=TrainingRecoveryR343.drainOne(store,endNs);int empty=0;
         // Spend the bounded TRAIN quantum on independent durable units. Keep the
-        // persisted three-owner rotation so a legacy backlog cannot starve AST3/freezing.
+        // persisted five-owner rotation so a legacy backlog cannot starve AST3/freezing.
         for(int turn=0;turn<12&&System.nanoTime()+50_000_000L<endNs;turn++){
             com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();
             String kind=advanceTrainingSlotCP11(store,endNs);if(kind==null)return advanced;
             if(drainTrainingKindR65(store,kind,endNs)){advanced=true;empty=0;}
-            else if(++empty>=3)break;
+            else if(++empty>=5)break;
         }
         return advanced;
     }
     private static boolean drainTrainingKindR65(com.ethk3.novaonepro.DbStore store,String kind,long endNs){
         if(System.nanoTime()>=endNs)return false;
         if("LEGACY_OUTBOX".equals(kind))return ResearchOutboxR952.drainOne(store);
+        if(RollingLearnerR343.KIND.equals(kind))return RollingLearnerR343.drainOne(store,endNs);
+        if("R343_ROLLING_FREEZE".equals(kind))return RollingFrozenPublisherR343.drainOne(store,endNs);
         com.ethk3.novaonepro.ResearchTaskQueueR967.Lease lease=store.coordinatorForResearchR952().runAtomicWrite(
                 "CP12_CLAIM_"+kind,db->com.ethk3.novaonepro.ResearchTaskQueueR967.claim(db,kind,System.currentTimeMillis()),null);
         if(lease==null)return false;
@@ -191,7 +193,7 @@ public final class ResearchTrainingHookRegistryR952 {
         return DevelopmentProductionCP12.prepareBatch(store,lease,deadlineNs);
     }
     private static String advanceTrainingSlotCP11(com.ethk3.novaonepro.DbStore store,long endNs) {
-        final String[] kinds={"LEGACY_OUTBOX","TRAIN_CANDIDATE","FREEZE_CANDIDATE"};
+        final String[] kinds={"LEGACY_OUTBOX","TRAIN_CANDIDATE","FREEZE_CANDIDATE",RollingLearnerR343.KIND,"R343_ROLLING_FREEZE"};
         return store.coordinatorForResearchR952().runAtomicWrite("CP12_TRAIN_SUBSLOT",db->{
             int selected=0;try(android.database.Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='cp11_training_subslot'",null)) {
                 if(c.moveToFirst())try{selected=Integer.parseInt(c.getString(0));}catch(NumberFormatException ignored){}

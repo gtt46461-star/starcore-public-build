@@ -79,6 +79,61 @@ public final class ResearchEvaluationRunR967 {
     public static Run current(SQLiteDatabase db,String learner,String target){
         try(Cursor c=db.rawQuery("SELECT run_hash,learner_id,first_issue,ast_hash,rule_hash,initial_payload,initial_updates,source_artifact,split_rule,integrity_epoch FROM "+RUN+" WHERE learner_id=? AND first_issue<=? ORDER BY first_issue DESC LIMIT 1",new String[]{learner,target})){return c.moveToFirst()?new Run(c):null;}
     }
+    /** Frozen lineage and the mutable learner head are different identities.
+     * A later training run must not withdraw an already sealed evaluation window.
+     * The original current() contract remains unchanged for training consumers. */
+    public static Run exactFrozenRunR343(SQLiteDatabase db,String hash,String learner,String target){
+        if(hash==null||!hash.matches("[0-9a-f]{64}")||!TargetIssueResolver.isValid(target))return null;
+        try(Cursor c=db.rawQuery("SELECT run_hash,learner_id,first_issue,ast_hash,rule_hash,initial_payload,initial_updates,source_artifact,split_rule,integrity_epoch FROM "+RUN+" WHERE run_hash=? AND learner_id=? AND first_issue<=?",new String[]{hash,learner,target})){
+            if(c.moveToFirst())return new Run(c);
+        }
+        if(!com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db))return null;
+        String table=com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.TABLE;
+        try(Cursor c=db.rawQuery("SELECT p.run_hash,p.learner_id,p.first_issue,p.ast_hash,p.rule_hash,f.model_payload,p.initial_updates,p.source_artifact,p.split_rule,p.integrity_epoch FROM "+table+" p JOIN "+EVAL+" f ON f.candidate_id=p.frozen_id AND f.run_hash=p.run_hash AND f.learner_id=p.learner_id AND f.rule_hash=p.rule_hash AND f.integrity_epoch=p.integrity_epoch AND f.created_issue=p.first_issue AND f.model_hash=p.model_hash AND f.source_artifact=p.source_artifact WHERE p.run_hash=? AND p.learner_id=? AND p.first_issue<=?",new String[]{hash,learner,target})){
+            return c.moveToFirst()?new Run(c):null;
+        }
+    }
+    public static final class FrozenIdentityR343 {
+        public final String run,epoch;
+        private FrozenIdentityR343(String learner,String first,CandidateAstR952 ast,CandidateCompilerR952.Model model,String artifact){
+            epoch=originHash(learner,first,ast.structuralHash,TrainingCodeIdentityR964.SHA256,model.payload(),artifact);
+            run=runHash(learner,first,ast.structuralHash,TrainingCodeIdentityR964.SHA256,model.payload(),artifact,SPLIT,epoch);
+        }
+    }
+    /** Pure preparation; does not create or advance any original training RUN. */
+    public static FrozenIdentityR343 independentIdentityR343(String learner,String first,CandidateAstR952 ast,CandidateCompilerR952.Model model,String artifact){
+        if(learner==null||learner.isEmpty()||!TargetIssueResolver.isValid(first)||ast==null||model==null||ast.formatVersion!=3||model.isLegacy()||artifact==null||!artifact.matches("[0-9a-f]{64}")||model.modern().trainedUntil.compareTo(first)>=0)throw new IllegalArgumentException("R343_FROZEN_LINEAGE_IDENTITY");
+        return new FrozenIdentityR343(learner,first,ast,model,artifact);
+    }
+    /** Narrow bridge to the existing package-owned lifecycle; only a newly
+     * inserted rolling publication may enter NURSERY. Older states are never reset. */
+    public static void initializeRollingFrozenLifecycleR343(SQLiteDatabase db,String id){
+        if(!db.inTransaction()||id==null||!id.matches("R958-F-V3-[0-9a-f]{24}")||!com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db))throw new IllegalArgumentException("R343_PUBLICATION_LIFECYCLE_INPUT");
+        try(Cursor existing=db.rawQuery("SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" WHERE candidate_key=?",new String[]{"algorithm:"+id})){
+            if(existing.moveToFirst())throw new IllegalStateException("R343_PUBLICATION_LIFECYCLE_ALREADY_PRESENT");
+        }
+        try(Cursor c=db.rawQuery("SELECT f.structural_hash,f.created_issue,f.source_artifact FROM "+EVAL+" f JOIN "+com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.TABLE+" p ON p.frozen_id=f.candidate_id AND p.run_hash=f.run_hash AND p.first_issue=f.created_issue AND p.model_hash=f.model_hash AND p.source_artifact=f.source_artifact WHERE f.candidate_id=?",new String[]{id})){
+            if(!c.moveToFirst())throw new IllegalStateException("R343_PUBLICATION_LIFECYCLE_RECEIPT_MISSING");
+            String structure=c.getString(0),first=c.getString(1),artifact=c.getString(2);
+            if(drawn(db,first))throw new IllegalStateException("R343_PUBLICATION_LIFECYCLE_POSTDRAW");
+            ResearchLifecycleR932.enroll(db,"algorithm:"+id,structure,first,"C");
+            ResearchLifecycleR932.transition(db,"algorithm:"+id,ResearchLifecycleR932.State.NURSERY,"FROZEN_WAIT_CAPTURE_CAPACITY",first,artifact,0,0);
+        }
+    }
+    /** Bounded metadata predicate for capture/reservation/retention admission.
+     * It is not a substitute for Frozen/Run hash validation at the consumer.
+     * Target and alias are validated before embedding. No payload parsing in writer.
+     */
+    public static String frozenEligibilitySqlR343(SQLiteDatabase db,String alias,String target){
+        if(alias==null||!alias.matches("[A-Za-z_][A-Za-z0-9_]*")||!TargetIssueResolver.isValid(target))throw new IllegalArgumentException("R343_FROZEN_SQL_INPUT");
+        String f=alias+".",valid=" AND "+f+"rule_hash=rr.rule_hash AND "+f+"integrity_epoch=rr.integrity_epoch AND rr.first_issue<='"+target+"' AND parent.structural_hash=rr.ast_hash";
+        String original="EXISTS(SELECT 1 FROM "+RUN+" rr WHERE rr.run_hash="+f+"run_hash AND rr.learner_id="+f+"learner_id"+valid+")";
+        String independent="";
+        if(com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db)){
+            independent=" OR EXISTS(SELECT 1 FROM "+com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.TABLE+" rr WHERE rr.run_hash="+f+"run_hash AND rr.learner_id="+f+"learner_id AND rr.frozen_id="+f+"candidate_id AND rr.first_issue="+f+"created_issue AND rr.model_hash="+f+"model_hash AND rr.source_artifact="+f+"source_artifact AND rr.split_rule='"+SPLIT+"'"+valid+")";
+        }
+        return "("+f+"run_hash<>'' AND "+f+"created_issue<='"+target+"' AND "+f+"trained_until_issue<'"+target+"' AND "+TrainingContinuationR973.predicate(f+"rule_hash")+" AND EXISTS(SELECT 1 FROM r952_candidate parent WHERE parent.candidate_id="+f+"learner_id AND parent.ast="+f+"ast AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND ("+original+independent+")))";
+    }
     /** Enrollment is explicit and prospective; no pending old event is re-labelled. */
     public static int enroll(final DbStore store,final String target){
         if(store==null||!TargetIssueResolver.isValid(target))throw new IllegalArgumentException("R969_RUN_TARGET");
@@ -190,8 +245,8 @@ public final class ResearchEvaluationRunR967 {
         if(!com.ethk3.novaonepro.r952.LongSummaryBindingsR80.frozenDependencyReasonR81(db,f.structure,target).isEmpty())return false;
         if(versioned(f.id)){
             if(!eligibleEvaluation(f.id,target))return false;
-            Run run=current(db,f.learner,target);
-            return run!=null&&f.run.equals(run.hash)&&TrainingContinuationR973.compatible(f.rule)&&f.epoch.equals(run.epoch)&&run.ast.equals(f.ast.structuralHash)&&parentCompatible(db,f.learner,run.ast);
+            Run run=exactFrozenRunR343(db,f.run,f.learner,target);
+            return run!=null&&f.createdIssue.compareTo(target)<=0&&f.trainedUntil.compareTo(target)<0&&f.run.equals(run.hash)&&f.rule.equals(run.rule)&&TrainingContinuationR973.compatible(f.rule)&&f.epoch.equals(run.epoch)&&run.ast.equals(f.ast.structuralHash)&&parentCompatible(db,f.learner,run.ast);
         }
         return current(db,f.learner,target)==null;
     }

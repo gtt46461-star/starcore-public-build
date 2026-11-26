@@ -74,6 +74,11 @@ public final class ReportDiagnosticEvidenceR64 {
                     "research_training_feature_cursor_cp12", "research_action_v2",
                     "research_matrix_checkpoint_v2", "research_matrix_terminal_cp12",
                     "research_task_checkpoint_v2", "research_development_receipt_v2",
+                    "research_training_recovery_r343", "research_rolling_event_r343",
+                    "research_rolling_version_r343", "research_rolling_head_r343",
+                    "research_rolling_feature_r343", "research_rolling_offer_r343",
+                    "research_rolling_frozen_publication_r343", "research_rolling_publication_reject_r343",
+                    "research_rolling_publication_page_r343",
                     "research_artifact_identity_v2", "r967_frozen_evaluation_v2",
                     "r952_learning_cursor", "r952_artifact", "r952_candidate_predraw",
                     "r958_frozen_candidate", "r958_frozen_predraw",
@@ -125,6 +130,11 @@ public final class ReportDiagnosticEvidenceR64 {
             out.write("],\"multiHorizonProbeResearch\":"+MultiHorizonProbeR80.reportJson(snapshot,()->control.shouldContinue())+",\"researchSchedulerState\":[");first=true;
             // Exact allow-list: never export unrelated app_state credentials or preferences.
             String[] keys={"cp12_import_subslot","cp12_import_last_result","r975_director_priority",
+                    "cp11_training_subslot", "r343_rolling_plan_turn", "r343_rolling_cleanup_after", "r343_rolling_canonical_epoch",
+                    "r343_recovery_hold_e3b213d36a7ed00285d3eb1d5b3c9cdb2ed7c27da335ecc0669430e6276230af",
+                    "r343_recovery_hold_cb45e8fea8dcd1299fbbf07aa0d0207e523d21b98b0cc3b494bd07a3abd7fb91",
+                    "r343_recovery_hold_1b2b6718fa182a34b2cb479ecadac9e093f2ebc71a9714ef807599d8c6c1ddd2",
+                    "r343_recovery_hold_50a155a379dd3897a692b8d0448d68228ddb097dd02bb6b29a3c88af6dc2a683",
                     "r65_director_last_slot","r65_director_last_slot_at","r912_research_continuity_status",
                     "r912_research_continuity_at","r908_research_tick_status","r908_research_tick_at",
                     "r908_research_tick_cost_ms","r962_research_next_lane","r971_maintenance_turn",

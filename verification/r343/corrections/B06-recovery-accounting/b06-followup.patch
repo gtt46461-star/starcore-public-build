@@ -1,0 +1,556 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java b/app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java
+@@ -277,7 +277,9 @@
+                 SchemaDomainCoordinatorR926.researchContract(), "R952_EXTENSION")
+                 && com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
+                 && ChampionProbabilityEvidenceR82.installed(db)
+-                && com.ethk3.novaonepro.r952.TrainingRecoveryR343.installed(db);
++                && com.ethk3.novaonepro.r952.TrainingRecoveryR343.installed(db)
++                && com.ethk3.novaonepro.r952.RollingLearnerR343.installed(db)
++                && com.ethk3.novaonepro.r952.RollingFrozenPublisherR343.installed(db);
+     }
+ 
+     public static boolean ensureToReady(DatabaseCoordinator owner, int maxSteps) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java b/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java
+@@ -56,7 +56,7 @@
+         db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_rolling_active_feature BEFORE DELETE ON "+FEATURE+" WHEN EXISTS(SELECT 1 FROM "+VERSION+" v WHERE v.version_id=OLD.version_id AND v.state IN('FEATURES','TRAINING')) BEGIN SELECT RAISE(ABORT,'R343_ROLLING_ACTIVE_FEATURE'); END");
+     }
+     public static boolean installed(SQLiteDatabase db){
+-        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN(?,?,?,?,?)",new String[]{EVENT,VERSION,HEAD,FEATURE,OFFER})){return c.moveToFirst()&&c.getInt(0)==5;}
++        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN(?,?,?,?,?)",new String[]{EVENT,VERSION,HEAD,FEATURE,OFFER})){return c.moveToFirst()&&c.getInt(0)==5&&RollingStorageAccountingR343.installed(db);}
+     }
+     /** Called inside the already authenticated completed-settlement transaction.
+      * Repeated delivery requires the SAME draw/settlement identity. No training happens here. */
+@@ -75,6 +75,9 @@
+     /** Called only in the Director's existing TRAIN quantum, never a new executor. */
+     public static boolean drainOne(DbStore store,long deadlineNs){
+         if(store==null||System.nanoTime()+100_000_000L>=deadlineNs||!installed(store.readable()))return false;
++        if(RollingStorageAccountingR343.liveBytes(store.readable())<0)
++            return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite(
++                    "R343_ROLLING_CLEANUP",RollingStorageAccountingR343::reconcileOne,false));
+         Boolean planTurn=store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_CLAIM",db->{
+             String previous="0";try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r343_rolling_plan_turn'",null)){if(c.moveToFirst())previous=c.getString(0);}
+             boolean plan="0".equals(previous);db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r343_rolling_plan_turn',?,?)",new Object[]{plan?"1":"0",System.currentTimeMillis()});return plan;
+@@ -179,7 +182,7 @@
+                     LongSummaryBindingsR80.validateProtocolSources(tx,p);
+                     try(Cursor c=tx.rawQuery("SELECT ast,structural_hash,state FROM r952_candidate WHERE candidate_id=?",new String[]{identity[0]})){need(c.moveToFirst()&&identity[1].equals(c.getString(0))&&identity[2].equals(c.getString(1))&&!retired(c.getString(2)),"ROLLING_CANDIDATE_CAS");}
+                     try(Cursor c=tx.rawQuery("SELECT version_id FROM "+HEAD+" WHERE candidate_id=?",new String[]{identity[0]})){need((c.moveToFirst()?c.getString(0):"").equals(identity[3]),"ROLLING_HEAD_CAS");}
+-                    if(bytes(tx)>WORKING_LIMIT-input.length||!queueHasCapacityR343(tx))return false;
++                    if(!writeWaitReasonR343(tx,input.length,false,0).isEmpty()||!queueHasCapacityR343(tx))return false;
+                     long now=System.currentTimeMillis();String prefix=V51ChecksumEngine.sha256("R343_FEATURE_PREFIX|"+version+'|'+protocolHash+'|'+encoded.inputHash);
+                     tx.execSQL("INSERT INTO "+VERSION+"(version_id,candidate_id,predecessor,cutoff_issue,input_first_issue,ast_hash,protocol_hash,protocol_json,input_hash,input_bytes,input_blob,train_n,train_first,train_last,validation_first,validation_last,seed,state,prefix_hash,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'FEATURES',?,?,?)",new Object[]{version,identity[0],identity[3],cutoff,history.get(0).issue,identity[2],protocolHash,protocol,encoded.inputHash,input.length,input,split.trainN,p.get("trainFirst"),p.get("trainLast"),p.get("validationFirst"),cutoff,seed,prefix,now,now});
+                     tx.execSQL("INSERT OR IGNORE INTO "+HEAD+"(candidate_id,updated_at) VALUES(?,?)",new Object[]{identity[0],now});
+@@ -293,13 +296,17 @@
+         try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r343_rolling_cleanup_after'",null)){
+             if(c.moveToFirst())after=c.getString(0);
+         }
+-        List<String> candidates=new ArrayList<>();
+-        try(Cursor c=db.rawQuery("SELECT version_id FROM "+VERSION+" WHERE version_id>? AND state IN('COMPLETE','FAILED','DEPENDENCY_GAP') AND (input_blob IS NOT NULL OR checkpoint IS NOT NULL OR (model_payload<>'' AND NOT EXISTS(SELECT 1 FROM "+HEAD+" h WHERE h.version_id="+VERSION+".version_id)) OR EXISTS(SELECT 1 FROM "+FEATURE+" f WHERE f.version_id="+VERSION+".version_id)) ORDER BY version_id LIMIT 16",new String[]{after})){
+-            while(c.moveToNext())candidates.add(c.getString(0));
++        if(RollingStorageAccountingR343.liveBytes(db)<0)return false;
++        List<String[]> candidates=new ArrayList<>();
++        String page="SELECT version_id FROM "+RollingStorageAccountingR343.RESIDENT+" WHERE version_id>? ORDER BY version_id LIMIT 16";
++        try(Cursor c=db.rawQuery("SELECT p.version_id,v.state,v.candidate_id FROM ("+page+") p JOIN "+VERSION+" v ON v.version_id=p.version_id ORDER BY p.version_id",new String[]{after})){
++            while(c.moveToNext())candidates.add(new String[]{c.getString(0),c.getString(1),c.getString(2)});
+         }
+         String visited=after;boolean changed=false;
+-        for(String id:candidates){
++        for(String[] candidate:candidates){
++            String id=candidate[0];
+             visited=id;
++            if("FEATURES".equals(candidate[1])||"TRAINING".equals(candidate[1]))continue;
+             boolean offered;
+             try(Cursor c=db.rawQuery("SELECT 1 FROM "+OFFER+" WHERE version_id=?",new String[]{id})){offered=c.moveToFirst();}
+             if(offered&&RollingFrozenPublisherR343.pinsRawVersion(db,id))continue;
+@@ -307,7 +314,7 @@
+             if(changes(db)>0){changed=true;break;}
+             db.execSQL("UPDATE "+VERSION+" SET input_blob=NULL,checkpoint=NULL WHERE version_id=? AND (input_blob IS NOT NULL OR checkpoint IS NOT NULL)",new Object[]{id});
+             if(changes(db)>0){changed=true;break;}
+-            db.execSQL("UPDATE "+VERSION+" SET model_payload='' WHERE version_id=? AND model_payload<>'' AND NOT EXISTS(SELECT 1 FROM "+HEAD+" h WHERE h.version_id=?)",new Object[]{id,id});
++            db.execSQL("UPDATE "+VERSION+" SET model_payload='' WHERE version_id=? AND model_payload<>'' AND NOT EXISTS(SELECT 1 FROM "+HEAD+" h WHERE h.candidate_id=? AND h.version_id=?)",new Object[]{id,candidate[2],id});
+             if(changes(db)>0){changed=true;break;}
+         }
+         // Advance past pinned rows too. A fixed oldest-16 scan cannot reach later
+@@ -327,7 +334,9 @@
+     static String writeWaitReasonR343(SQLiteDatabase db,long incoming,boolean checkSource,long expectedEpoch){
+         need(incoming>=0,"ROLLING_INCOMING_BYTES");
+         if(checkSource&&sourceEpochR343(db)!=expectedEpoch)return "ROLLING_SOURCE_CHANGED_DURING_COMMIT";
+-        if(incoming>WORKING_LIMIT||bytes(db)>WORKING_LIMIT-incoming)return "ROLLING_STORAGE_CAPACITY";
++        long live=RollingStorageAccountingR343.liveBytes(db);
++        if(live<0)return "ROLLING_STORAGE_RECONCILIATION";
++        if(incoming>WORKING_LIMIT||live>WORKING_LIMIT-incoming)return "ROLLING_STORAGE_CAPACITY";
+         return "";
+     }
+     /** Called in the original writer before enqueue and before any version insert. */
+@@ -393,7 +402,6 @@
+         }
+         if(count!=expected)throw new DevelopmentProductionCP12.Wait("ROLLING_CANONICAL_RANGE_UNAVAILABLE");return hash;
+     }
+-    private static long bytes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT COALESCE((SELECT SUM(COALESCE(length(input_blob),0)+COALESCE(length(checkpoint),0)+length(CAST(model_payload AS BLOB))) FROM "+VERSION+"),0)+COALESCE((SELECT SUM(length(payload)+length(CAST(source_json AS BLOB))) FROM "+FEATURE+"),0)",null)){need(c.moveToFirst(),"ROLLING_STORAGE_READ");return c.getLong(0);}}
+     private static void release(DbStore store,ResearchTaskQueueR967.Lease lease,String reason,long delay){ResearchWorkBudgetR927.finishLeaseReceiptR66(()->store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_WAIT",db->ResearchTaskQueueR967.yield(db,lease,lease.cursor,reason,delay),false));}
+     private static boolean retired(String s){return s.equals("QUARANTINED")||s.equals("QUALITY_PRUNED")||s.equals("RESOURCE_RETIRED");}
+     private static int changes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){return c.moveToFirst()?c.getInt(0):0;}}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java b/app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java
+@@ -318,7 +318,10 @@
+                 RollingLearnerR343.schema(target);
+                 RollingFrozenPublisherR343.schema(target);
+             })) return false;
+-            if (!RollingLearnerR343.installed(db)||!RollingFrozenPublisherR343.installed(db))throw new IllegalStateException("R343_ROLLING_SCHEMA_MISSING_AFTER_MIGRATION");
++            if (runPendingR64(db,completed,installer,"R343_ROLLING_BOUNDED_CAPACITY_V1",
++                    RollingStorageAccountingR343::schema)) return false;
++            if (!RollingLearnerR343.installed(db)||!RollingFrozenPublisherR343.installed(db))
++                throw new IllegalStateException("R343_ROLLING_SCHEMA_MISSING_AFTER_MIGRATION");
+             if (!TrainingRecoveryR343.installed(db))throw new IllegalStateException("R343_RECOVERY_SCHEMA_MISSING_AFTER_MIGRATION");
+             if (!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) {
+                 installer.install(ResearchMigrationRegistryR952::ensureChampionProbabilityR82); return false;
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/RollingStorageAccountingR343.java b/app/src/main/java/com/ethk3/novaonepro/r952/RollingStorageAccountingR343.java
+new file mode 100644
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/RollingStorageAccountingR343.java
+@@ -0,0 +1,153 @@
++package com.ethk3.novaonepro.r952;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import java.util.ArrayList;
++import java.util.List;
++
++/** Derived rolling working-set accounting. The original rows and receipts remain authoritative. */
++final class RollingStorageAccountingR343 {
++    static final String CAPACITY = "research_rolling_capacity_r343";
++    static final String RESIDENT = "research_rolling_resident_r343";
++    private static final int VERSION_PAGE = 8;
++    private static final int FEATURE_PAGE = 32;
++    private static final String VERSION = RollingLearnerR343.VERSION;
++    private static final String FEATURE = RollingLearnerR343.FEATURE;
++    private static final String VERSION_BYTES = "COALESCE(length(%1$sinput_blob),0)"
++            + "+COALESCE(length(%1$scheckpoint),0)+length(CAST(%1$smodel_payload AS BLOB))";
++    private static final String FEATURE_BYTES = "length(%1$spayload)+length(CAST(%1$ssource_json AS BLOB))";
++
++    private RollingStorageAccountingR343() {}
++
++    static void schema(SQLiteDatabase db) {
++        if (!db.inTransaction()) throw new IllegalStateException("ROLLING_ACCOUNTING_SCHEMA_TX");
++        db.execSQL("CREATE TABLE IF NOT EXISTS " + CAPACITY
++                + "(singleton INTEGER PRIMARY KEY CHECK(singleton=1),"
++                + "live_bytes INTEGER NOT NULL DEFAULT 0 CHECK(live_bytes>=0),"
++                + "phase INTEGER NOT NULL CHECK(phase BETWEEN 0 AND 2),"
++                + "version_after TEXT NOT NULL DEFAULT '',"
++                + "feature_after_version TEXT NOT NULL DEFAULT '',"
++                + "feature_after_index INTEGER NOT NULL DEFAULT -1)");
++        db.execSQL("CREATE TABLE IF NOT EXISTS " + RESIDENT
++                + "(version_id TEXT PRIMARY KEY REFERENCES " + VERSION + "(version_id),"
++                + "version_bytes INTEGER NOT NULL DEFAULT 0 CHECK(version_bytes>=0),"
++                + "feature_bytes INTEGER NOT NULL DEFAULT 0 CHECK(feature_bytes>=0))");
++        db.execSQL("INSERT OR IGNORE INTO " + CAPACITY + "(singleton,phase)"
++                + " SELECT 1,CASE WHEN EXISTS(SELECT 1 FROM " + VERSION + ") THEN 0 ELSE 2 END");
++
++        String versionCovered = "(SELECT phase>0 OR NEW.version_id<=version_after FROM " + CAPACITY + ")";
++        String newVersionBytes = qualified(VERSION_BYTES, "NEW.");
++        String previousVersionBytes = qualified(VERSION_BYTES, "OLD.");
++        track(db, "version_insert", "INSERT", VERSION, versionCovered, "NEW.version_id",
++                "version_bytes", newVersionBytes);
++        track(db, "version_update", "UPDATE OF input_blob,checkpoint,model_payload", VERSION,
++                versionCovered, "NEW.version_id", "version_bytes", newVersionBytes + "-(" + previousVersionBytes + ")");
++
++        track(db, "feature_insert", "INSERT", FEATURE, featureCovered("NEW"), "NEW.version_id",
++                "feature_bytes", qualified(FEATURE_BYTES, "NEW."));
++        track(db, "feature_delete", "DELETE", FEATURE, featureCovered("OLD"), "OLD.version_id",
++                "feature_bytes", "-(" + qualified(FEATURE_BYTES, "OLD.") + ")");
++    }
++
++    private static String featureCovered(String row) {
++        return "(SELECT phase=2 OR (phase=1 AND (" + row + ".version_id," + row
++                + ".row_index)<=(feature_after_version,feature_after_index)) FROM " + CAPACITY + ")";
++    }
++
++    private static String qualified(String expression, String qualifier) {
++        return expression.replace("%1$s", qualifier);
++    }
++
++    private static void track(SQLiteDatabase db, String name, String event, String table, String covered,
++                              String versionId, String column, String delta) {
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS r343_resident_" + name + " AFTER " + event + " ON " + table
++                + " WHEN " + covered + " AND (" + delta + ")<>0 BEGIN "
++                + "INSERT OR IGNORE INTO " + RESIDENT + "(version_id) VALUES(" + versionId + ");"
++                + "UPDATE " + RESIDENT + " SET " + column + "=" + column + "+(" + delta + ") WHERE version_id=" + versionId + ";"
++                + "UPDATE " + CAPACITY + " SET live_bytes=live_bytes+(" + delta + ") WHERE singleton=1;"
++                + "DELETE FROM " + RESIDENT + " WHERE version_id=" + versionId
++                + " AND version_bytes=0 AND feature_bytes=0; END");
++    }
++
++    static boolean installed(SQLiteDatabase db) {
++        try (Cursor cursor = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN(?,?)",
++                new String[]{CAPACITY, RESIDENT})) {
++            return cursor.moveToFirst() && cursor.getInt(0) == 2;
++        }
++    }
++
++    /** -1 while bounded legacy reconciliation still owns the accounting cursor. */
++    static long liveBytes(SQLiteDatabase db) {
++        try (Cursor cursor = db.rawQuery("SELECT phase,live_bytes FROM " + CAPACITY + " WHERE singleton=1", null)) {
++            if (!cursor.moveToFirst()) throw new IllegalStateException("ROLLING_ACCOUNTING_MISSING");
++            return cursor.getInt(0) == 2 ? cursor.getLong(1) : -1;
++        }
++    }
++
++    /** Uses ordered primary-key seeks. Changes to the covered prefix are counted by the same
++     * transaction's triggers. Inserts or deletes ahead of it are read in their committed state.
++     * An interrupted page rolls back the cursor and all derived bytes together. */
++    static boolean reconcileOne(SQLiteDatabase db) {
++        if (!db.inTransaction()) throw new IllegalStateException("ROLLING_ACCOUNTING_RECONCILE_TX");
++        try (Cursor cursor = db.rawQuery("SELECT phase,version_after,feature_after_version,feature_after_index FROM "
++                + CAPACITY + " WHERE singleton=1", null)) {
++            if (!cursor.moveToFirst()) throw new IllegalStateException("ROLLING_ACCOUNTING_MISSING");
++            int phase = cursor.getInt(0);
++            if (phase == 0) return reconcileVersions(db, cursor.getString(1));
++            if (phase == 1) return reconcileFeatures(db, cursor.getString(2), cursor.getInt(3));
++            return false;
++        }
++    }
++
++    private static boolean reconcileVersions(SQLiteDatabase db, String after) {
++        List<ResidentRow> rows = new ArrayList<>(VERSION_PAGE);
++        try (Cursor cursor = db.rawQuery("SELECT version_id," + qualified(VERSION_BYTES, "") + " FROM " + VERSION
++                + " WHERE version_id>? ORDER BY version_id LIMIT " + VERSION_PAGE, new String[]{after})) {
++            while (cursor.moveToNext()) rows.add(new ResidentRow(cursor.getString(0), -1, cursor.getLong(1)));
++        }
++        long bytes = addRows(db, rows, "version_bytes");
++        String next = rows.isEmpty() ? after : rows.get(rows.size() - 1).version;
++        db.execSQL("UPDATE " + CAPACITY + " SET live_bytes=live_bytes+?, phase=?,version_after=? WHERE singleton=1",
++                new Object[]{bytes, rows.size() < VERSION_PAGE ? 1 : 0, next});
++        return true;
++    }
++
++    private static boolean reconcileFeatures(SQLiteDatabase db, String after, int index) {
++        List<ResidentRow> rows = new ArrayList<>(FEATURE_PAGE);
++        try (Cursor cursor = db.rawQuery("SELECT version_id,row_index," + qualified(FEATURE_BYTES, "") + " FROM " + FEATURE
++                        + " WHERE (version_id,row_index)>(?,?) ORDER BY version_id,row_index LIMIT " + FEATURE_PAGE,
++                new String[]{after, Integer.toString(index)})) {
++            while (cursor.moveToNext()) rows.add(new ResidentRow(cursor.getString(0), cursor.getInt(1), cursor.getLong(2)));
++        }
++        long bytes = addRows(db, rows, "feature_bytes");
++        ResidentRow next = rows.isEmpty() ? new ResidentRow(after, index, 0) : rows.get(rows.size() - 1);
++        db.execSQL("UPDATE " + CAPACITY + " SET live_bytes=live_bytes+?,phase=?,feature_after_version=?,"
++                        + "feature_after_index=? WHERE singleton=1",
++                new Object[]{bytes, rows.size() < FEATURE_PAGE ? 2 : 1, next.version, next.index});
++        return true;
++    }
++
++    private static long addRows(SQLiteDatabase db, List<ResidentRow> rows, String column) {
++        long bytes = 0;
++        for (ResidentRow row : rows) {
++            if (row.bytes == 0) continue;
++            db.execSQL("INSERT OR IGNORE INTO " + RESIDENT + "(version_id) VALUES(?)", new Object[]{row.version});
++            db.execSQL("UPDATE " + RESIDENT + " SET " + column + "=" + column + "+? WHERE version_id=?",
++                    new Object[]{row.bytes, row.version});
++            bytes += row.bytes;
++        }
++        return bytes;
++    }
++
++    private static final class ResidentRow {
++        final String version;
++        final int index;
++        final long bytes;
++
++        ResidentRow(String version, int index, long bytes) {
++            this.version = version;
++            this.index = index;
++            this.bytes = bytes;
++        }
++    }
++}
+diff --git a/app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java b/app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java
+new file mode 100644
+--- /dev/null
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java
+@@ -0,0 +1,283 @@
++package com.ethk3.novaonepro.r952;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteConstraintException;
++import android.database.sqlite.SQLiteDatabase;
++
++import androidx.test.ext.junit.runners.AndroidJUnit4;
++
++import com.ethk3.novaonepro.DatabaseCoordinator;
++import com.ethk3.novaonepro.DbHelper;
++import com.ethk3.novaonepro.DbStore;
++import com.ethk3.novaonepro.DrawHashR36;
++import com.ethk3.novaonepro.Field173NativeEvidence;
++import com.ethk3.novaonepro.Models;
++import com.ethk3.novaonepro.ResearchTaskQueueR967;
++import com.ethk3.novaonepro.TargetIssueResolver;
++
++import org.junit.Test;
++import org.junit.runner.RunWith;
++
++import java.util.Locale;
++
++import static com.ethk3.novaonepro.r952.R343TrainingNativeTest.TARGET;
++import static com.ethk3.novaonepro.r952.R343TrainingNativeTest.addCandidate;
++import static com.ethk3.novaonepro.r952.R343TrainingNativeTest.database;
++import static com.ethk3.novaonepro.r952.R343TrainingNativeTest.draw;
++import static com.ethk3.novaonepro.r952.R343TrainingNativeTest.hash;
++import static com.ethk3.novaonepro.r952.R343TrainingNativeTest.open;
++import static org.junit.Assert.assertThrows;
++
++@RunWith(AndroidJUnit4.class)
++public final class R343RollingNativeTest {
++    @Test
++    public void settlementEventIsSingleAndImmutable() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            DbStore store = open(app);
++            try {
++                SQLiteDatabase db = store.readable();
++                checks.require(RollingLearnerR343.installed(db), "Rolling schema installed by startup migration");
++                DatabaseCoordinator owner = store.coordinatorForResearchR952();
++                String latest = owner.runAtomicWriteOrThrowF01("R343_TEST_SETTLED_EVENTS", write -> {
++                    String target = TARGET;
++                    String last = "";
++                    for (int index = 0; index < 10; index++) {
++                        Models.Draw row = draw(target, index);
++                        String drawHash = DrawHashR36.sha256V2(row);
++                        String settlement = hash("R343 settlement fixture|" + row.issue);
++                        long completed = row.openTime + 1_000;
++                        write.execSQL("INSERT INTO " + DbHelper.TABLE_R36_SETTLEMENT_TASK
++                                        + "(target_issue,draw_issue,status,created_at,updated_at,completed_at,draw_hash,settlement_hash)"
++                                        + " VALUES(?,?,'COMPLETED',?,?,?,?,?)",
++                                new Object[]{target, target, completed, completed, completed, drawHash, settlement});
++                        RollingLearnerR343.settled(write, row, settlement, completed);
++                        RollingLearnerR343.settled(write, row, settlement, completed);
++                        last = target;
++                        target = TargetIssueResolver.next(target).targetIssue;
++                    }
++                    return last;
++                });
++                checks.equal(10L, scalar(db, "SELECT count(*) FROM " + RollingLearnerR343.EVENT, null),
++                        "Duplicate delivery does not create a second rolling event");
++                try (Cursor latestEvent = db.rawQuery("SELECT draw_hash,settlement_hash,completed_at,receipt_hash FROM "
++                        + RollingLearnerR343.EVENT + " WHERE target_issue=?", new String[]{latest})) {
++                    checks.require(latestEvent.moveToFirst(), "Latest event retained");
++                    checks.equal(DrawHashR36.sha256V2(draw(latest, 9)), latestEvent.getString(0), "Draw identity retained");
++                    checks.equal(hash("R343 settlement fixture|" + latest), latestEvent.getString(1), "Settlement identity retained");
++                    checks.equal(draw(latest, 9).openTime + 1_000, latestEvent.getLong(2), "Settlement completion retained");
++                    checks.record("latestReceipt", latestEvent.getString(3));
++                }
++                assertThrows(IllegalStateException.class, () ->
++                        owner.runAtomicWriteOrThrowF01("R343_TEST_WRONG_SETTLEMENT", write -> {
++                            RollingLearnerR343.settled(write, draw(latest, 9), hash("wrong"), draw(latest, 9).openTime + 1_000);
++                            return null;
++                        }));
++                checks.equal(10L, scalar(db, "SELECT count(*) FROM " + RollingLearnerR343.EVENT, null),
++                        "Wrong settlement authority creates no event");
++                assertThrows(SQLiteConstraintException.class, () -> db.execSQL("UPDATE " + RollingLearnerR343.EVENT
++                        + " SET completed_at=completed_at+1 WHERE target_issue=?", new Object[]{latest}));
++                checks.equal(draw(latest, 9).openTime + 1_000, scalar(db, "SELECT completed_at FROM "
++                        + RollingLearnerR343.EVENT + " WHERE target_issue=?", new String[]{latest}), "Event bytes remain immutable");
++                checks.record("latestTarget", latest);
++                checks.record("recordedEvents", 10);
++                database(checks, db, latest);
++            } finally {
++                store.close();
++            }
++        });
++    }
++
++    @Test
++    public void staleSourceAndFullWorkingBudgetYieldWithinOriginalWriter() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            DbStore store = open(app);
++            try {
++                DatabaseCoordinator owner = store.coordinatorForResearchR952();
++                for (boolean checkSource : new boolean[]{true, false}) {
++                    String label = checkSource ? "source" : "storage";
++                    String candidate = "fixture-budget-" + label;
++                    String selected = owner.runAtomicWriteOrThrowF01("R343_TEST_ROLLING_YIELD", db -> {
++                        String task = ResearchTaskQueueR967.enqueue(db, RollingLearnerR343.KIND, candidate, TARGET,
++                                "fixture-protocol-" + label, hash(label), candidate);
++                        db.execSQL("UPDATE " + ResearchTaskQueueR967.TABLE + " SET cursor=? WHERE task_id=?",
++                                new Object[]{"FEATURES|32|fixture-prefix", task});
++                        ResearchTaskQueueR967.Lease lease = ResearchTaskQueueR967.claimFor(
++                                db, RollingLearnerR343.KIND, candidate, System.currentTimeMillis());
++                        checks.require(lease != null, "Original rolling task authority obtained");
++                        long epoch = RollingLearnerR343.sourceEpochR343(db);
++                        String reason = RollingLearnerR343.writeWaitReasonR343(
++                                db, checkSource ? 18 : (64L << 20) + 1, checkSource, epoch + 1);
++                        checks.equal(checkSource ? "ROLLING_SOURCE_CHANGED_DURING_COMMIT" : "ROLLING_STORAGE_CAPACITY",
++                                reason, "Transient wait diagnosed inside the original writer");
++                        checks.require(RollingLearnerR343.waitWithinR343(db, lease, reason), "Original writer persists yield");
++                        return task;
++                    });
++                    try (Cursor row = store.readable().rawQuery("SELECT status,cursor,last_error,lease_owner FROM "
++                            + ResearchTaskQueueR967.TABLE + " WHERE task_id=?", new String[]{selected})) {
++                        checks.require(row.moveToFirst(), "Original lease read back");
++                        checks.equal("YIELDED", row.getString(0), "Expected wait is not a writer fault");
++                        checks.equal("FEATURES|32|fixture-prefix", row.getString(1), "Wait does not advance the feature cursor");
++                        checks.equal("", row.getString(3), "Owner released by the same transaction");
++                        checks.record(label + "Wait", row.getString(2));
++                    }
++                }
++                checks.equal(0L, scalar(store.readable(), "SELECT COUNT(*) FROM " + RollingLearnerR343.OFFER, null),
++                        "Waiting tasks create no independent publication offer");
++                database(checks, store.readable(), TARGET);
++            } finally {
++                store.close();
++            }
++        });
++    }
++
++    @Test
++    public void cleanupContinuesPastPinnedPageWithoutErasingHeadOrActiveInput() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            String cutoff = TARGET;
++            String reclaimable = "v17";
++            DbStore store = open(app);
++            try {
++                DatabaseCoordinator owner = store.coordinatorForResearchR952();
++                owner.runAtomicWriteOrThrowF01("R343_TEST_ROLLING_PIN_SEED", db -> {
++                    for (int index = 1; index <= 19; index++) {
++                        String version = String.format(Locale.ROOT, "v%02d", index);
++                        String candidate = "r343-cleanup-fixture-" + version;
++                        addCandidate(db, candidate, "NURSERY");
++                        addVersion(db, version, candidate, cutoff,
++                                index == 19 ? "FEATURES" : index == 17 ? "FAILED" : "COMPLETE");
++                        if (index <= 16) {
++                            db.execSQL("INSERT INTO " + RollingLearnerR343.OFFER
++                                            + " VALUES(?,?,?,?,?,'NEEDS_INDEPENDENT_PUBLICATION_ADAPTER',0)",
++                                    new Object[]{version, candidate, cutoff, hash("model|" + version), hash("receipt|" + version)});
++                            checks.require(RollingFrozenPublisherR343.pinsRawVersion(db, version),
++                                    "Independent unsuperseded offer pins " + version);
++                        } else if (index == 18) {
++                            db.execSQL("INSERT INTO " + RollingLearnerR343.HEAD + "(candidate_id,version_id,updated_at) VALUES(?,?,0)",
++                                    new Object[]{candidate, version});
++                        }
++                    }
++                    for (int index = 0; index < 65; index++) {
++                        db.execSQL("INSERT INTO " + RollingLearnerR343.FEATURE + " VALUES(?,?,?,?,?,?,?,?,?)",
++                                new Object[]{reclaimable, index, cutoff, 1, hash("raw|" + index), new byte[18],
++                                        hash("feature|" + index), "{}", hash("original")});
++                    }
++                    return null;
++                });
++                checks.equal(false, owner.runAtomicWriteOrThrowF01("R343_TEST_ROLLING_PIN_PAGE", RollingLearnerR343::cleanup),
++                        "First bounded pass skips all pending publications");
++                checks.equal("v16", store.getState("r343_rolling_cleanup_after", ""), "Cursor advances through pinned page");
++                SQLiteDatabase db = store.readable();
++                try (SQLiteDatabase reopened = SQLiteDatabase.openDatabase(db.getPath(), null,
++                        SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
++                     Cursor cursor = reopened.rawQuery("SELECT state_value FROM app_state WHERE state_key=?",
++                             new String[]{"r343_rolling_cleanup_after"})) {
++                    checks.require(cursor.moveToFirst(), "A new SQLite reader finds the committed cleanup cursor");
++                    checks.equal("v16", cursor.getString(0), "Committed cleanup cursor is visible to new readers");
++                }
++                checks.equal(true, owner.runAtomicWriteOrThrowF01(
++                        "R343_TEST_ROLLING_PIN_RESUME", RollingLearnerR343::cleanup), "Reopened cleanup reaches version 17");
++                checks.equal(1L, scalar(db, "SELECT COUNT(*) FROM " + RollingLearnerR343.FEATURE + " WHERE version_id=?",
++                        new String[]{reclaimable}), "One committed cleanup removes at most 64 feature rows");
++                checks.equal(16L, scalar(db, "SELECT count(*) FROM " + RollingLearnerR343.VERSION
++                        + " WHERE version_id<='v16' AND input_blob IS NOT NULL", null), "All pending originals remain available");
++                checks.equal(4L, scalar(db, "SELECT length(model_payload) FROM " + RollingLearnerR343.VERSION
++                        + " WHERE version_id='v18'", null), "HEAD model remains available");
++                checks.equal(4L, scalar(db, "SELECT length(input_blob) FROM " + RollingLearnerR343.VERSION
++                        + " WHERE version_id='v19'", null), "Active input remains available");
++                checks.record("lastScannedVersion", store.getState("r343_rolling_cleanup_after", ""));
++                checks.record("remainingFeatures", scalar(db, "SELECT COUNT(*) FROM " + RollingLearnerR343.FEATURE
++                        + " WHERE version_id=?", new String[]{reclaimable}));
++                database(checks, db, cutoff);
++            } finally {
++                store.close();
++            }
++        });
++    }
++
++    @Test
++    public void legacyAccountingResumesWithExactPrefixAfterRollback() throws Exception {
++        Field173NativeEvidence.run((app, checks) -> {
++            DbStore store = open(app);
++            try {
++                DatabaseCoordinator owner = store.coordinatorForResearchR952();
++                SQLiteDatabase db = store.readable();
++                owner.runAtomicWriteOrThrowF01("R343_TEST_LEGACY_ROLLING_STORAGE", write -> {
++                    // Reproduce a candidate upgraded from the sealed rolling schema.
++                    for (String suffix : new String[]{"version_insert", "version_update", "feature_insert", "feature_delete"}) {
++                        write.execSQL("DROP TRIGGER r343_resident_" + suffix);
++                    }
++                    write.execSQL("DROP TABLE " + RollingStorageAccountingR343.RESIDENT);
++                    write.execSQL("DROP TABLE " + RollingStorageAccountingR343.CAPACITY);
++                    for (int index = 0; index < 12; index++) {
++                        String version = String.format(Locale.ROOT, "v%02d", index);
++                        String candidate = "fixture-legacy-accounting-" + version;
++                        addCandidate(write, candidate, "NURSERY");
++                        addVersion(write, version, candidate, TARGET, "FAILED");
++                        for (int row = 0; row < 8; row++) addFeature(write, version, row);
++                    }
++                    RollingStorageAccountingR343.schema(write);
++                    return null;
++                });
++                checks.equal(-1L, RollingStorageAccountingR343.liveBytes(db), "Legacy bytes are withheld until exact");
++                assertThrows(IllegalStateException.class, () -> owner.runAtomicWriteOrThrowF01("R343_TEST_RECONCILE_ROLLBACK", write -> {
++                    RollingStorageAccountingR343.reconcileOne(write);
++                    throw new IllegalStateException("ROLLBACK_RECONCILIATION_PAGE");
++                }));
++                checks.equal(0L, scalar(db, "SELECT live_bytes FROM " + RollingStorageAccountingR343.CAPACITY, null),
++                        "Page and cursor do not survive rollback");
++                checks.equal(true, owner.runAtomicWriteOrThrowF01("R343_TEST_RECONCILE_FIRST", RollingStorageAccountingR343::reconcileOne),
++                        "First page scans only eight version payloads");
++                checks.equal(64L, scalar(db, "SELECT live_bytes FROM " + RollingStorageAccountingR343.CAPACITY, null),
++                        "First page counted exactly eight original eight-byte payloads");
++                owner.runAtomicWriteOrThrowF01("R343_TEST_RECONCILE_MUTATION", write -> {
++                    write.execSQL("UPDATE " + RollingLearnerR343.VERSION + " SET input_blob=NULL WHERE version_id='v00'");
++                    addFeature(write, "v00", 8);
++                    return null;
++                });
++                for (int page = 0; page < 8 && RollingStorageAccountingR343.liveBytes(db) < 0; page++) {
++                    owner.runAtomicWriteOrThrowF01("R343_TEST_RECONCILE_RESUME", RollingStorageAccountingR343::reconcileOne);
++                }
++                long expected = 12 * 8 - 4 + 97 * 22;
++                checks.equal(expected, RollingStorageAccountingR343.liveBytes(db),
++                        "Reconciliation reads actual legacy bytes and counts covered mutations once");
++                owner.runAtomicWriteOrThrowF01("R343_TEST_RECONCILE_DELETE", write -> {
++                    write.execSQL("DELETE FROM " + RollingLearnerR343.FEATURE + " WHERE version_id='v00' AND row_index=8");
++                    return null;
++                });
++                checks.equal(expected - 22, RollingStorageAccountingR343.liveBytes(db),
++                        "A committed raw deletion releases only its exact stored UTF-8 byte count");
++                checks.equal(12L, scalar(db, "SELECT count(*) FROM " + RollingLearnerR343.VERSION, null),
++                        "All compact immutable version rows remain");
++                checks.record("bytesBeforeDeletion", expected);
++                checks.record("bytesAfterDeletion", RollingStorageAccountingR343.liveBytes(db));
++                database(checks, db, TARGET);
++            } finally {
++                store.close();
++            }
++        });
++    }
++
++    private static void addFeature(SQLiteDatabase db, String version, int row) {
++        db.execSQL("INSERT INTO " + RollingLearnerR343.FEATURE + " VALUES(?,?,?,?,?,?,?,?,?)",
++                new Object[]{version, row, TARGET, 1, hash(version + "|raw|" + row), new byte[18],
++                        hash(version + "|feature|" + row), "\"é\"", hash("original")});
++    }
++
++    private static void addVersion(SQLiteDatabase db, String version, String candidate, String cutoff, String state) {
++        db.execSQL("INSERT INTO " + RollingLearnerR343.VERSION
++                        + "(version_id,candidate_id,predecessor,cutoff_issue,input_first_issue,ast_hash,protocol_hash,"
++                        + "protocol_json,input_hash,input_bytes,input_blob,train_n,train_first,train_last,"
++                        + "validation_first,validation_last,seed,state,prefix_hash,model_payload,created_at,updated_at)"
++                        + " VALUES(?,?,'',?,?,?,?,?,?,?,?,300,?,?,?,?,0,?,?,?,0,0)",
++                new Object[]{version, candidate, cutoff, cutoff, hash(candidate), hash("protocol|" + version),
++                        "{}", hash("input|" + version), 4, new byte[4], cutoff, cutoff, cutoff, cutoff, state,
++                        hash("prefix|" + version), "test"});
++    }
++
++    static long scalar(SQLiteDatabase db, String sql, String[] args) {
++        try (Cursor c = db.rawQuery(sql, args)) {
++            if (!c.moveToFirst()) throw new AssertionError("Expected scalar row");
++            return c.getLong(0);
++        }
++    }
++}
