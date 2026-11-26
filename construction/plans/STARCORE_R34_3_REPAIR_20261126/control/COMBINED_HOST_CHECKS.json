@@ -1,0 +1,327 @@
+{
+  "status": "HOST_CHECKS_PASSED",
+  "source_baseline": "4d1de9d83692635b5c5ce39144fece1c8a31c8ac",
+  "checks": [
+    {
+      "id": "runtime",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/runtime_patch/tests/run_runtime_policy_checks.py",
+        "--baseline",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/source-installed"
+      ],
+      "exit_code": 0,
+      "seconds": 1.738,
+      "log": "runtime.log",
+      "log_sha256": "56bbd75f8e473d9f8bee05b24740a2fc7ec9f0f629e9edfd2b03356afe9f4951",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "prepared-storage-compile",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-d",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/prepared-storage-classes",
+        "/workspace/scratch/d324c6ac1328/repo-public/construction/plans/STARCORE_R34_3_REPAIR_20261126/patches/prepared_storage/after/app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalAdmissionR343.java",
+        "/workspace/scratch/d324c6ac1328/repo-public/construction/plans/STARCORE_R34_3_REPAIR_20261126/patches/prepared_storage/after/verification/r343/PreparedCanonicalAdmissionR343Test.java"
+      ],
+      "exit_code": 0,
+      "seconds": 0.596,
+      "log": "prepared-storage-compile.log",
+      "log_sha256": "f04f09ab4626d62167f5d0224bd1107cb33e66e4ce6dc20bfb1e752ad3479706",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "prepared-storage",
+      "argv": [
+        "java",
+        "-cp",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/prepared-storage-classes",
+        "com.ethk3.novaonepro.PreparedCanonicalAdmissionR343Test"
+      ],
+      "exit_code": 0,
+      "seconds": 0.031,
+      "log": "prepared-storage.log",
+      "log_sha256": "3b959c18d4452b7848f2ce294092b8238050bbc24af291595a5ecc3c7d4d85e2",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "coverage-java-compile",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-d",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/coverage-java-classes",
+        "/workspace/scratch/d324c6ac1328/repo-public/construction/plans/STARCORE_R34_3_REPAIR_20261126/patches/coverage/after/app/src/main/java/com/ethk3/novaonepro/CoverageSettlementR343.java",
+        "/workspace/scratch/d324c6ac1328/repo-public/construction/plans/STARCORE_R34_3_REPAIR_20261126/patches/coverage/after/verification/r343/CoverageSettlementR343Test.java"
+      ],
+      "exit_code": 0,
+      "seconds": 0.461,
+      "log": "coverage-java-compile.log",
+      "log_sha256": "f04f09ab4626d62167f5d0224bd1107cb33e66e4ce6dc20bfb1e752ad3479706",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "coverage-java",
+      "argv": [
+        "java",
+        "-cp",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/coverage-java-classes",
+        "com.ethk3.novaonepro.CoverageSettlementR343Test"
+      ],
+      "exit_code": 0,
+      "seconds": 0.034,
+      "log": "coverage-java.log",
+      "log_sha256": "05f7921fa3db47aa931ad879d8f2af9120317acc0f7065402cce1735e1cce047",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "coverage-sql",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/repo-public/construction/plans/STARCORE_R34_3_REPAIR_20261126/patches/coverage/after/verification/r343/check_coverage_sql.py",
+        "--classes",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/coverage-java-classes"
+      ],
+      "exit_code": 0,
+      "seconds": 0.076,
+      "log": "coverage-sql.log",
+      "log_sha256": "471e9b94b50432732dbcccaffb2d204ed4ea4186f9fd4e1d8c353d091ad03d34",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "training-classification-compile",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-d",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/training-classification-classes",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/research_patch/after/app/src/main/java/com/ethk3/novaonepro/r952/TrainingInfrastructurePolicyR343.java",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/research_patch/tests/TrainingInfrastructurePolicyR343Test.java",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/source-installed/app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java"
+      ],
+      "exit_code": 0,
+      "seconds": 0.666,
+      "log": "training-classification-compile.log",
+      "log_sha256": "90b7388f6f7548ac03d5cb0471cfea50154a8c0300e28b54ce751c01a9d652e1",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "training-classification",
+      "argv": [
+        "java",
+        "-cp",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/training-classification-classes",
+        "com.ethk3.novaonepro.r952.TrainingInfrastructurePolicyR343Test"
+      ],
+      "exit_code": 0,
+      "seconds": 0.054,
+      "log": "training-classification.log",
+      "log_sha256": "b221a6282d8fd6d52796714766e38c443a488d75729d97ec1f8d586a7bca1d90",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "training-recovery-sql",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/research_patch/tests/test_recovery_sql.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.034,
+      "log": "training-recovery-sql.log",
+      "log_sha256": "8e232888f09e89a4a0c0bcd8d94f85d43ef9ca59880ffb2fd18bb968d73b2620",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "rolling-learner-sql",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/research_patch/tests/test_rolling_sql.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.036,
+      "log": "rolling-learner-sql.log",
+      "log_sha256": "a0f7e986fd682cb3eb6e1351138e2f4b8c15f1b500f3246e1861a188428431c3",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "rolling-publication-sql",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/rolling_patch/tests/test_frozen_lineage_sql.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.801,
+      "log": "rolling-publication-sql.log",
+      "log_sha256": "aa8a806ef25c51e985db9a934f056f727088985a782aa84132c593c28099713f",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "rolling-bound-sql",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/research_patch/tests/test_bound_sql_r343.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.62,
+      "log": "rolling-bound-sql.log",
+      "log_sha256": "99c930fe7b958cd24d2874b8083dce3603c24fba3dde72277e552fca7c818efb",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "rolling-six-kernels",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/research_patch/tests/run_rolling_kernel.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.655,
+      "log": "rolling-six-kernels.log",
+      "log_sha256": "8a50423dc65df4074cb3deee084fd7b70a686299bd757f84a3cf0cfff87f91ae",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "chart-budget-compile",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-d",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/chart-budget-classes",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/charts_patch/after/app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/charts_patch/verification/src/com/ethk3/novaonepro/strategyv2/BudgetMain.java"
+      ],
+      "exit_code": 0,
+      "seconds": 0.477,
+      "log": "chart-budget-compile.log",
+      "log_sha256": "f04f09ab4626d62167f5d0224bd1107cb33e66e4ce6dc20bfb1e752ad3479706",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "chart-budget",
+      "argv": [
+        "java",
+        "-cp",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/chart-budget-classes",
+        "com.ethk3.novaonepro.strategyv2.BudgetMain"
+      ],
+      "exit_code": 0,
+      "seconds": 0.072,
+      "log": "chart-budget.log",
+      "log_sha256": "ad9f5a3d5a918c2a598dbc196f48a0b1839fdcea6b2f52075292a0b19d444d80",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "chart-receipts",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/charts_patch/verification/run_host_receipts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.977,
+      "log": "chart-receipts.log",
+      "log_sha256": "87ada17a89d63d27b693300e57131951ea4044716ae81452e8fe41c0e3a53053",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "delivery-gates",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/delivery_patch/after/tools/r343/test_field_delivery_contract.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.766,
+      "log": "delivery-gates.log",
+      "log_sha256": "bedf2c0b120328e31be6c29b492f17cbf92527f6614c6ebecb31ccce06f1ef48",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "creation-classification",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/creation_patch/tests/test_creation_classifier.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.875,
+      "log": "creation-classification.log",
+      "log_sha256": "8f78e92befe07fb06732386b60fc351571baebc74c3972810c6afb636d65aaaf",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "four-file-version-recovery",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-B",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/field_binding_patch/tests/test_prepare_transaction.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.225,
+      "log": "four-file-version-recovery.log",
+      "log_sha256": "66529cfac447039ee42cb18f3e3f16b80734002b1029f50794f6554691adc394",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "all-java-syntax-compile",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-source",
+        "17",
+        "-target",
+        "17",
+        "-d",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/all-java-syntax-classes",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/audit/runtime_patch/tests/ParseChangedJava.java"
+      ],
+      "exit_code": 0,
+      "seconds": 0.538,
+      "log": "all-java-syntax-compile.log",
+      "log_sha256": "f04f09ab4626d62167f5d0224bd1107cb33e66e4ce6dc20bfb1e752ad3479706",
+      "scope": "HOST_CONTRACT_ONLY"
+    },
+    {
+      "id": "all-java-syntax",
+      "argv": [
+        "java",
+        "-cp",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/all-java-syntax-classes",
+        "ParseChangedJava",
+        "/workspace/scratch/d324c6ac1328/audit/final_host_run2/workspace/merged_after"
+      ],
+      "exit_code": 0,
+      "seconds": 0.593,
+      "log": "all-java-syntax.log",
+      "log_sha256": "f298506610a2e3750fea0fe0b0142703f565eb48e386439470b654552b8f88d6",
+      "scope": "HOST_CONTRACT_ONLY"
+    }
+  ],
+  "android_build": "NOT_RUN",
+  "device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}

@@ -1,0 +1,4538 @@
+{
+  "schema": "STARCORE_FIELD173_ACCEPTANCE_1",
+  "source_baseline": "4d1de9d83692635b5c5ce39144fece1c8a31c8ac",
+  "count": 138,
+  "engineering_count": 132,
+  "cases": [
+    {
+      "id": "R343-001-POS",
+      "issue_id": "R343-001",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "所有修改before SHA对应173或前批真实后态",
+        "旧57项都有当前处置及新卡链接",
+        "旧封印内容字节不变，CURRENT_FINAL_PLAN唯一指向本方案",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "release/release_manifest.json",
+        "release/r342_plan_binding.json"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-001-NEG",
+      "issue_id": "R343-001",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "所有修改before SHA对应173或前批真实后态",
+        "旧57项都有当前处置及新卡链接",
+        "旧封印内容字节不变，CURRENT_FINAL_PLAN唯一指向本方案",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "release/release_manifest.json",
+        "release/r342_plan_binding.json"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-001-KEEP",
+      "issue_id": "R343-001",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "所有修改before SHA对应173或前批真实后态",
+        "旧57项都有当前处置及新卡链接",
+        "旧封印内容字节不变，CURRENT_FINAL_PLAN唯一指向本方案",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "release/release_manifest.json",
+        "release/r342_plan_binding.json"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-002-POS",
+      "issue_id": "R343-002",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "旧R33/R34/R341/R342封印不变且原构建测试继续",
+        "fieldRepair173的计划commit/manifest/report/173源码身份全部一致",
+        "篡改单个计划文件、旧source、错APK身份均拒绝",
+        "新APK同包同签名code更高，173覆盖安装UID/数据库和用户真实开关保留",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。",
+        "B01—B12累积源码均通过原R967 build；纯工具/版本批训练rule不漂移，新增生产叶子均有显式角色；未知路径、篡改受控源码/角色/policy/封印、伪造journal和用户额外编辑全部拒绝，合法中断可恢复；这些主机身份检查不代替Android构建。"
+      ],
+      "source_paths": [
+        "tools/r342/build_identity.py",
+        "tools/r33/verify_plan_binding.py",
+        "tools/r342/ci_plan_inputs.sh",
+        "scripts/r967_semantic_identity.py"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-002-NEG",
+      "issue_id": "R343-002",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "旧R33/R34/R341/R342封印不变且原构建测试继续",
+        "fieldRepair173的计划commit/manifest/report/173源码身份全部一致",
+        "篡改单个计划文件、旧source、错APK身份均拒绝",
+        "新APK同包同签名code更高，173覆盖安装UID/数据库和用户真实开关保留",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。",
+        "R967未知新增生产叶子、任意非审查源码、改动原角色/policy、伪造语义journal、错published plan pin、双份计划不一致均拒绝；不能靠自动重新分类全仓库绕门。"
+      ],
+      "source_paths": [
+        "tools/r342/build_identity.py",
+        "tools/r33/verify_plan_binding.py",
+        "tools/r342/ci_plan_inputs.sh",
+        "scripts/r967_semantic_identity.py"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-002-KEEP",
+      "issue_id": "R343-002",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "旧R33/R34/R341/R342封印不变且原构建测试继续",
+        "fieldRepair173的计划commit/manifest/report/173源码身份全部一致",
+        "篡改单个计划文件、旧source、错APK身份均拒绝",
+        "新APK同包同签名code更高，173覆盖安装UID/数据库和用户真实开关保留",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。",
+        "原1589角色、R81/SU1历史证明、四代旧封印与统计合同原字节保留；版本或工具单独变化不改训练rule；新语义资格从本域原规则重新取得。"
+      ],
+      "source_paths": [
+        "tools/r342/build_identity.py",
+        "tools/r33/verify_plan_binding.py",
+        "tools/r342/ci_plan_inputs.sh",
+        "scripts/r967_semantic_identity.py"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-003-POS",
+      "issue_id": "R343-003",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "96checks逐个有处置归属；所有required指标必须有实际证据或明确未通过原因，不能批量改state。",
+        "报告checksum仅保证内容一致，不证明业务正确；版本/快照身份混合用例必须拒绝拼成一个分母。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-003-NEG",
+      "issue_id": "R343-003",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "96checks逐个有处置归属；所有required指标必须有实际证据或明确未通过原因，不能批量改state。",
+        "报告checksum仅保证内容一致，不证明业务正确；版本/快照身份混合用例必须拒绝拼成一个分母。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-003-KEEP",
+      "issue_id": "R343-003",
+      "batch": "B01",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "96checks逐个有处置归属；所有required指标必须有实际证据或明确未通过原因，不能批量改state。",
+        "报告checksum仅保证内容一致，不证明业务正确；版本/快照身份混合用例必须拒绝拼成一个分母。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-004-POS",
+      "issue_id": "R343-004",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "宿主SQLite重现原谓词失败；新helper接受实际4张自有表且拒绝x TEXT/影子checkpoint/trigger。",
+        "Android真实WAL连接池：准备读和提交写均可完成；非空CAS、热原件缺冷源、source generation变化、未知TEMP shadow反例均保持原拒绝/等待语义。",
+        "当前新source journal产生OWNER_READY及后续真实task numeric receipt，连续两次进程重启不再出现本TEMP错误。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-004-NEG",
+      "issue_id": "R343-004",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "宿主SQLite重现原谓词失败；新helper接受实际4张自有表且拒绝x TEXT/影子checkpoint/trigger。",
+        "Android真实WAL连接池：准备读和提交写均可完成；非空CAS、热原件缺冷源、source generation变化、未知TEMP shadow反例均保持原拒绝/等待语义。",
+        "当前新source journal产生OWNER_READY及后续真实task numeric receipt，连续两次进程重启不再出现本TEMP错误。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-004-KEEP",
+      "issue_id": "R343-004",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "宿主SQLite重现原谓词失败；新helper接受实际4张自有表且拒绝x TEXT/影子checkpoint/trigger。",
+        "Android真实WAL连接池：准备读和提交写均可完成；非空CAS、热原件缺冷源、source generation变化、未知TEMP shadow反例均保持原拒绝/等待语义。",
+        "当前新source journal产生OWNER_READY及后续真实task numeric receipt，连续两次进程重启不再出现本TEMP错误。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-005-POS",
+      "issue_id": "R343-005",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "纯Java验证299999ms未到、300000ms到期、时钟逆序拒绝、未知boot拒绝、3次预算上限。",
+        "Androidjournal测试3次相同BUG、5min预约、立即重复拒绝、重开journal拒绝、重复BUG后再次冷却、强制轮转后上限仍有效。",
+        "旧owner非TERMINATED时不能创建第二owner；probe失败不会直接打开REAL或写成功训练收据。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-005-NEG",
+      "issue_id": "R343-005",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "纯Java验证299999ms未到、300000ms到期、时钟逆序拒绝、未知boot拒绝、3次预算上限。",
+        "Androidjournal测试3次相同BUG、5min预约、立即重复拒绝、重开journal拒绝、重复BUG后再次冷却、强制轮转后上限仍有效。",
+        "旧owner非TERMINATED时不能创建第二owner；probe失败不会直接打开REAL或写成功训练收据。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-005-KEEP",
+      "issue_id": "R343-005",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "纯Java验证299999ms未到、300000ms到期、时钟逆序拒绝、未知boot拒绝、3次预算上限。",
+        "Androidjournal测试3次相同BUG、5min预约、立即重复拒绝、重开journal拒绝、重复BUG后再次冷却、强制轮转后上限仍有效。",
+        "旧owner非TERMINATED时不能创建第二owner；probe失败不会直接打开REAL或写成功训练收据。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-006-POS",
+      "issue_id": "R343-006",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "旧数据overlay升级后无整库重建，3表以及域seal存在且精确合约一致。",
+        "迁移单位可中断恢复，live freeze可优先；新表有相应生产者真实写入后才验收业务能力。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-006-NEG",
+      "issue_id": "R343-006",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "旧数据overlay升级后无整库重建，3表以及域seal存在且精确合约一致。",
+        "迁移单位可中断恢复，live freeze可优先；新表有相应生产者真实写入后才验收业务能力。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-006-KEEP",
+      "issue_id": "R343-006",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "旧数据overlay升级后无整库重建，3表以及域seal存在且精确合约一致。",
+        "迁移单位可中断恢复，live freeze可优先；新表有相应生产者真实写入后才验收业务能力。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleSchemaR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-007-POS",
+      "issue_id": "R343-007",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "实际FailureDisposition宿主测试确认旧RESOURCE_WAIT会consumeFaultBudget，新RESOURCE_QUEUE不会；UNKNOWN仍requiresCommitResolution，COMMITTED仍alreadyCommitted。",
+        "设备/现有unit验证65行或>64KiB切片拒绝归WAIT_RESOURCE；调用者拆片而非无限重试同一个超大切片。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-007-NEG",
+      "issue_id": "R343-007",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "实际FailureDisposition宿主测试确认旧RESOURCE_WAIT会consumeFaultBudget，新RESOURCE_QUEUE不会；UNKNOWN仍requiresCommitResolution，COMMITTED仍alreadyCommitted。",
+        "设备/现有unit验证65行或>64KiB切片拒绝归WAIT_RESOURCE；调用者拆片而非无限重试同一个超大切片。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-007-KEEP",
+      "issue_id": "R343-007",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "实际FailureDisposition宿主测试确认旧RESOURCE_WAIT会consumeFaultBudget，新RESOURCE_QUEUE不会；UNKNOWN仍requiresCommitResolution，COMMITTED仍alreadyCommitted。",
+        "设备/现有unit验证65行或>64KiB切片拒绝归WAIT_RESOURCE；调用者拆片而非无限重试同一个超大切片。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureDispositionR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-008-POS",
+      "issue_id": "R343-008",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "注入pending>=24、锁忙、schema缺失、磁盘配额、outbox截断、提交后ACK丢失、进程重启，事件不丢、不重复业务、不把未知commit当rollback。",
+        "在受控生产速率低于排空能力的真机序列中pending降至<24，R914_DRAW_HISTORY_BATCH/FTRL后续获得真实提交；capacityLoss和序号缺口仍如实呈现。",
+        "同一单写者、live freeze仍优先、旧4行inflight完整可恢复。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-008-NEG",
+      "issue_id": "R343-008",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "注入pending>=24、锁忙、schema缺失、磁盘配额、outbox截断、提交后ACK丢失、进程重启，事件不丢、不重复业务、不把未知commit当rollback。",
+        "在受控生产速率低于排空能力的真机序列中pending降至<24，R914_DRAW_HISTORY_BATCH/FTRL后续获得真实提交；capacityLoss和序号缺口仍如实呈现。",
+        "同一单写者、live freeze仍优先、旧4行inflight完整可恢复。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-008-KEEP",
+      "issue_id": "R343-008",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "注入pending>=24、锁忙、schema缺失、磁盘配额、outbox截断、提交后ACK丢失、进程重启，事件不丢、不重复业务、不把未知commit当rollback。",
+        "在受控生产速率低于排空能力的真机序列中pending降至<24，R914_DRAW_HISTORY_BATCH/FTRL后续获得真实提交；capacityLoss和序号缺口仍如实呈现。",
+        "同一单写者、live freeze仍优先、旧4行inflight完整可恢复。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-009-POS",
+      "issue_id": "R343-009",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "冷却期间control tick推进，drainAttempts和lastDrainWall不推进；执行尝试时阶段与时间正确增加。",
+        "报告长于12s时冻结样本标明其观测时间与年龄；拿不到主进程新样本仍UNKNOWN，不能借用报告进程的PENDING队列。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-009-NEG",
+      "issue_id": "R343-009",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "冷却期间control tick推进，drainAttempts和lastDrainWall不推进；执行尝试时阶段与时间正确增加。",
+        "报告长于12s时冻结样本标明其观测时间与年龄；拿不到主进程新样本仍UNKNOWN，不能借用报告进程的PENDING队列。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-009-KEEP",
+      "issue_id": "R343-009",
+      "batch": "B02",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "冷却期间control tick推进，drainAttempts和lastDrainWall不推进；执行尝试时阶段与时间正确增加。",
+        "报告长于12s时冻结样本标明其观测时间与年龄；拿不到主进程新样本仍UNKNOWN，不能借用报告进程的PENDING队列。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-010-POS",
+      "issue_id": "R343-010",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "当前新source连续120/4320真实期报告eligible、covered、excluded-with-reason、missed四个整数可对账；不能混用historical窗口。",
+        "同issue首写冻结不可变、maxConcurrency=1，拒绝late overwrite与事后标OOS。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-010-NEG",
+      "issue_id": "R343-010",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "当前新source连续120/4320真实期报告eligible、covered、excluded-with-reason、missed四个整数可对账；不能混用historical窗口。",
+        "同issue首写冻结不可变、maxConcurrency=1，拒绝late overwrite与事后标OOS。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。",
+        "构造距截止4秒和5秒边界，分别核predraw与M05分母；不把8/30直接当M05实测值。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-010-KEEP",
+      "issue_id": "R343-010",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "当前新source连续120/4320真实期报告eligible、covered、excluded-with-reason、missed四个整数可对账；不能混用historical窗口。",
+        "同issue首写冻结不可变、maxConcurrency=1，拒绝late overwrite与事后标OOS。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-011-POS",
+      "issue_id": "R343-011",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "注入physical growth边界和commit/ACK间断，prepared仍一次有效绑定且真实校验预算。",
+        "当前source120+真实期输出p50/p95/p99、每段互斥时长、未测样本数；request→durable目标5s使用相同分母。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-011-NEG",
+      "issue_id": "R343-011",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "注入physical growth边界和commit/ACK间断，prepared仍一次有效绑定且真实校验预算。",
+        "当前source120+真实期输出p50/p95/p99、每段互斥时长、未测样本数；request→durable目标5s使用相同分母。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-011-KEEP",
+      "issue_id": "R343-011",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "注入physical growth边界和commit/ACK间断，prepared仍一次有效绑定且真实校验预算。",
+        "当前source120+真实期输出p50/p95/p99、每段互斥时长、未测样本数；request→durable目标5s使用相同分母。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-012-POS",
+      "issue_id": "R343-012",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "fixture一期开出后分批生成0..1199唯一ordinal共1200条；重复/崩溃/恢复仍无重复或漏号。",
+        "新source backlog可证收敛，old backlog分开统计；FULL只有所有要求子证据真实就绪才PASS。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-012-NEG",
+      "issue_id": "R343-012",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "fixture一期开出后分批生成0..1199唯一ordinal共1200条；重复/崩溃/恢复仍无重复或漏号。",
+        "新source backlog可证收敛，old backlog分开统计；FULL只有所有要求子证据真实就绪才PASS。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-012-KEEP",
+      "issue_id": "R343-012",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "fixture一期开出后分批生成0..1199唯一ordinal共1200条；重复/崩溃/恢复仍无重复或漏号。",
+        "新source backlog可证收敛，old backlog分开统计；FULL只有所有要求子证据真实就绪才PASS。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-013-POS",
+      "issue_id": "R343-013",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "补源前没有hit/miss造假；重复提供相同开奖至多一个结算/标签，冲突开奖阻断。",
+        "GLOBAL_PENDING=4缺源+最新正常等待能与局部2379/2379解释一致。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-013-NEG",
+      "issue_id": "R343-013",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "补源前没有hit/miss造假；重复提供相同开奖至多一个结算/标签，冲突开奖阻断。",
+        "GLOBAL_PENDING=4缺源+最新正常等待能与局部2379/2379解释一致。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-013-KEEP",
+      "issue_id": "R343-013",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "补源前没有hit/miss造假；重复提供相同开奖至多一个结算/标签，冲突开奖阻断。",
+        "GLOBAL_PENDING=4缺源+最新正常等待能与局部2379/2379解释一致。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-014-POS",
+      "issue_id": "R343-014",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "fixture分别构造正确OOS hash与正确不同task hash，应计coveredSettled=1；错draw、错frozen、缺receipt、task未COMPLETED、时间越界均不计。",
+        "新报告8/30覆盖与已覆盖的实际settled数可对账；修诊断不能将22个无赛前预测改为覆盖。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-014-NEG",
+      "issue_id": "R343-014",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "fixture分别构造正确OOS hash与正确不同task hash，应计coveredSettled=1；错draw、错frozen、缺receipt、task未COMPLETED、时间越界均不计。",
+        "新报告8/30覆盖与已覆盖的实际settled数可对账；修诊断不能将22个无赛前预测改为覆盖。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-014-KEEP",
+      "issue_id": "R343-014",
+      "batch": "B03",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "fixture分别构造正确OOS hash与正确不同task hash，应计coveredSettled=1；错draw、错frozen、缺receipt、task未COMPLETED、时间越界均不计。",
+        "新报告8/30覆盖与已覆盖的实际settled数可对账；修诊断不能将22个无赛前预测改为覆盖。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-015-POS",
+      "issue_id": "R343-015",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "跨日、合法停盘、单缺期、多缺期、最新后缀不足requiredHistory反例；训练样本不跨未知边界。",
+        "回补关闭后真正缺源仍WAIT_HISTORY且不得制造开奖标签。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-015-NEG",
+      "issue_id": "R343-015",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "跨日、合法停盘、单缺期、多缺期、最新后缀不足requiredHistory反例；训练样本不跨未知边界。",
+        "回补关闭后真正缺源仍WAIT_HISTORY且不得制造开奖标签。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-015-KEEP",
+      "issue_id": "R343-015",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "跨日、合法停盘、单缺期、多缺期、最新后缀不足requiredHistory反例；训练样本不跨未知边界。",
+        "回补关闭后真正缺源仍WAIT_HISTORY且不得制造开奖标签。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-016-POS",
+      "issue_id": "R343-016",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "对用户规模等价副本测24h/72h各表与DB/WAL/冷存储增长，明确每小时净增长和存储配额，活跃数据不误删。",
+        "并发冻结、CAS读、归档、进程中断恢复后引用闭包完整；缺源时不授权GC。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-016-NEG",
+      "issue_id": "R343-016",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "对用户规模等价副本测24h/72h各表与DB/WAL/冷存储增长，明确每小时净增长和存储配额，活跃数据不误删。",
+        "并发冻结、CAS读、归档、进程中断恢复后引用闭包完整；缺源时不授权GC。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-016-KEEP",
+      "issue_id": "R343-016",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "对用户规模等价副本测24h/72h各表与DB/WAL/冷存储增长，明确每小时净增长和存储配额，活跃数据不误删。",
+        "并发冻结、CAS读、归档、进程中断恢复后引用闭包完整；缺源时不授权GC。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-017-POS",
+      "issue_id": "R343-017",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "所有模型被消费的checkpoint必须有实际原字节hash/child closure；故意缺文件与错hash仍阻断使用/清理。",
+        "报告区分missing、not_run、corrupt、unreadable，恢复数只能来自实际字节。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-017-NEG",
+      "issue_id": "R343-017",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "所有模型被消费的checkpoint必须有实际原字节hash/child closure；故意缺文件与错hash仍阻断使用/清理。",
+        "报告区分missing、not_run、corrupt、unreadable，恢复数只能来自实际字节。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-017-KEEP",
+      "issue_id": "R343-017",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "所有模型被消费的checkpoint必须有实际原字节hash/child closure；故意缺文件与错hash仍阻断使用/清理。",
+        "报告区分missing、not_run、corrupt、unreadable，恢复数只能来自实际字节。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-018-POS",
+      "issue_id": "R343-018",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "真机亮屏/熄屏/Doze/网络切换/429分别记录slotmiss、HTTP、接收、数据库持久化四种分母；未观测阶段不输出0。",
+        "请求不并发重入；恢复后先最新权威期与最小依赖suffix再有界回填。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-018-NEG",
+      "issue_id": "R343-018",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "真机亮屏/熄屏/Doze/网络切换/429分别记录slotmiss、HTTP、接收、数据库持久化四种分母；未观测阶段不输出0。",
+        "请求不并发重入；恢复后先最新权威期与最小依赖suffix再有界回填。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-018-KEEP",
+      "issue_id": "R343-018",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "真机亮屏/熄屏/Doze/网络切换/429分别记录slotmiss、HTTP、接收、数据库持久化四种分母；未观测阶段不输出0。",
+        "请求不并发重入；恢复后先最新权威期与最小依赖suffix再有界回填。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-019-POS",
+      "issue_id": "R343-019",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "ownerHeartbeat之外至少有真实已提交task/model/settlement进度；失败恢复有恢复原因、耗时和重建单owner证明。",
+        "24/72h未实际完成不得写PASS或由短跑外推。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-019-NEG",
+      "issue_id": "R343-019",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "ownerHeartbeat之外至少有真实已提交task/model/settlement进度；失败恢复有恢复原因、耗时和重建单owner证明。",
+        "24/72h未实际完成不得写PASS或由短跑外推。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-019-KEEP",
+      "issue_id": "R343-019",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "ownerHeartbeat之外至少有真实已提交task/model/settlement进度；失败恢复有恢复原因、耗时和重建单owner证明。",
+        "24/72h未实际完成不得写PASS或由短跑外推。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-020-POS",
+      "issue_id": "R343-020",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "旧栈反例注入不出现未捕获等待异常；真机新release logcat+exitReasons与event index对账。",
+        "滑动与图表更新下测p95/p99/max frame/bind，具体慢栈确定后再改对应binder。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-020-NEG",
+      "issue_id": "R343-020",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "旧栈反例注入不出现未捕获等待异常；真机新release logcat+exitReasons与event index对账。",
+        "滑动与图表更新下测p95/p99/max frame/bind，具体慢栈确定后再改对应binder。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-020-KEEP",
+      "issue_id": "R343-020",
+      "batch": "B04",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "旧栈反例注入不出现未捕获等待异常；真机新release logcat+exitReasons与event index对账。",
+        "滑动与图表更新下测p95/p99/max frame/bind，具体慢栈确定后再改对应binder。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-021-POS",
+      "issue_id": "R343-021",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "inject实际DEPENDENCY+ROLLED_BACK：任务WAIT_INPUT或YIELDED、候选未QUARANTINED、原cursor相同",
+        "INTEGRITY/BUG/hash失败、循环cause、>32深cause不得误入依赖恢复",
+        "writer恢复后同任务继续真实feature生成到数值训练，再写development receipt",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-021-NEG",
+      "issue_id": "R343-021",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "inject实际DEPENDENCY+ROLLED_BACK：任务WAIT_INPUT或YIELDED、候选未QUARANTINED、原cursor相同",
+        "INTEGRITY/BUG/hash失败、循环cause、>32深cause不得误入依赖恢复",
+        "writer恢复后同任务继续真实feature生成到数值训练，再写development receipt",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-021-KEEP",
+      "issue_id": "R343-021",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "inject实际DEPENDENCY+ROLLED_BACK：任务WAIT_INPUT或YIELDED、候选未QUARANTINED、原cursor相同",
+        "INTEGRITY/BUG/hash失败、循环cause、>32深cause不得误入依赖恢复",
+        "writer恢复后同任务继续真实feature生成到数值训练，再写development receipt",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-022-POS",
+      "issue_id": "R343-022",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "原四FAILED_TERMINAL行逐列不变、recovery4或每条明确HOLD；successor每条恰一",
+        "同一升级重复执行不增加恢复次数",
+        "QUALITY_PRUNED/非allowlist/额外terminal/错误输入/已有数值artifact任何一项均不可恢复",
+        "完整事务中后一步失败回滚：无恢复receipt、无successor、原state不变",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-022-NEG",
+      "issue_id": "R343-022",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "原四FAILED_TERMINAL行逐列不变、recovery4或每条明确HOLD；successor每条恰一",
+        "同一升级重复执行不增加恢复次数",
+        "QUALITY_PRUNED/非allowlist/额外terminal/错误输入/已有数值artifact任何一项均不可恢复",
+        "完整事务中后一步失败回滚：无恢复receipt、无successor、原state不变",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-022-KEEP",
+      "issue_id": "R343-022",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "原四FAILED_TERMINAL行逐列不变、recovery4或每条明确HOLD；successor每条恰一",
+        "同一升级重复执行不增加恢复次数",
+        "QUALITY_PRUNED/非allowlist/额外terminal/错误输入/已有数值artifact任何一项均不可恢复",
+        "完整事务中后一步失败回滚：无恢复receipt、无successor、原state不变",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-023-POS",
+      "issue_id": "R343-023",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "原始asset未全SHA验证时所有learned等待",
+        "raw全部验证且仅1203 materialized时有对应position的learned可prepare/register；目录仍MATERIALIZING",
+        "恢复已提案时AST/sourceHash稳定；不同位置不能错误地生成同position",
+        "seed哈希/typed dependency不匹配拒绝，无绕过编译",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-023-NEG",
+      "issue_id": "R343-023",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "原始asset未全SHA验证时所有learned等待",
+        "raw全部验证且仅1203 materialized时有对应position的learned可prepare/register；目录仍MATERIALIZING",
+        "恢复已提案时AST/sourceHash稳定；不同位置不能错误地生成同position",
+        "seed哈希/typed dependency不匹配拒绝，无绕过编译",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-023-KEEP",
+      "issue_id": "R343-023",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "原始asset未全SHA验证时所有learned等待",
+        "raw全部验证且仅1203 materialized时有对应position的learned可prepare/register；目录仍MATERIALIZING",
+        "恢复已提案时AST/sourceHash稳定；不同位置不能错误地生成同position",
+        "seed哈希/typed dependency不匹配拒绝，无绕过编译",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-024-POS",
+      "issue_id": "R343-024",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "2066合法suffix可满足300train+120validation+embargo+required的family产生真实训练完成",
+        "断口位于suffix内则拒绝且报告准确位置；不在suffix内无需整体拒绝",
+        "checkpoint包含dataset hash且输入变化不得恢复旧optimizer",
+        "不能以历史回测命中率直接REAL",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-024-NEG",
+      "issue_id": "R343-024",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "2066合法suffix可满足300train+120validation+embargo+required的family产生真实训练完成",
+        "断口位于suffix内则拒绝且报告准确位置；不在suffix内无需整体拒绝",
+        "checkpoint包含dataset hash且输入变化不得恢复旧optimizer",
+        "不能以历史回测命中率直接REAL",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-024-KEEP",
+      "issue_id": "R343-024",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "2066合法suffix可满足300train+120validation+embargo+required的family产生真实训练完成",
+        "断口位于suffix内则拒绝且报告准确位置；不在suffix内无需整体拒绝",
+        "checkpoint包含dataset hash且输入变化不得恢复旧optimizer",
+        "不能以历史回测命中率直接REAL",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-025-POS",
+      "issue_id": "R343-025",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "持续观察每活跃task有cursor/optimizersteps增长或精确等待/终态",
+        "最新版本真实训练吞吐/延迟有时间窗口和分位数，不以queryOK代替SLO",
+        "maintenance再多时不能把TRAIN0呈现成功",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-025-NEG",
+      "issue_id": "R343-025",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "持续观察每活跃task有cursor/optimizersteps增长或精确等待/终态",
+        "最新版本真实训练吞吐/延迟有时间窗口和分位数，不以queryOK代替SLO",
+        "maintenance再多时不能把TRAIN0呈现成功",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-025-KEEP",
+      "issue_id": "R343-025",
+      "batch": "B05",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "持续观察每活跃task有cursor/optimizersteps增长或精确等待/终态",
+        "最新版本真实训练吞吐/延迟有时间窗口和分位数，不以queryOK代替SLO",
+        "maintenance再多时不能把TRAIN0呈现成功",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-026-POS",
+      "issue_id": "R343-026",
+      "batch": "B06",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "已有44项实际DDL/HEAD CAS/immutable/REPLACE/rollback/source epoch SQLite断言通过，语法通过；不是Android owner执行证据。",
+        "至少10期真实连续结算event幂等；每次选取cutoff有SCDEV实际连续样本，learner HEAD有真实数值receipt和optimizersteps，固定图记STATE_REFRESH。",
+        "对每个feature/numerical/head/pub事务边界强杀后恢复，原checkpoint不跳过、不重复推进；持续训练与中断恢复最终hash相同。",
+        "旧frozen/model/normalizer/run/证书逐列不变且旧Future继续；新版本无旧证书继承、无未来信息回填。",
+        "128MiB预算、单writer耗时、分族service间隔、超时及原件容量须设备测量；无真实数据库/Android验证不能标施工完成。",
+        "六类未改CP9内核在final model shape上重建Dataset并恢复DONE checkpoint/finish，60项结果/拒绝断言及62136数值转移PASS；这些是生产数值片段host测试，不替代Android或原件生产owner。",
+        "现代完成DEV且无legacy predraw时，不单独触发legacy recover；真实modern frozen待capture仍经reservation/task可恢复",
+        "legacy pending candidate仍正常恢复",
+        "旧兼容frozen在后继滚动head产生后仍可作为合法原绑定源",
+        "独立publication frozen满足原bound条件时可被发现；qualified或有正式义务模型仍不被占用",
+        "两个查询prepare参数数目和前后资格负例回归",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-026-NEG",
+      "issue_id": "R343-026",
+      "batch": "B06",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "已有44项实际DDL/HEAD CAS/immutable/REPLACE/rollback/source epoch SQLite断言通过，语法通过；不是Android owner执行证据。",
+        "至少10期真实连续结算event幂等；每次选取cutoff有SCDEV实际连续样本，learner HEAD有真实数值receipt和optimizersteps，固定图记STATE_REFRESH。",
+        "对每个feature/numerical/head/pub事务边界强杀后恢复，原checkpoint不跳过、不重复推进；持续训练与中断恢复最终hash相同。",
+        "旧frozen/model/normalizer/run/证书逐列不变且旧Future继续；新版本无旧证书继承、无未来信息回填。",
+        "128MiB预算、单writer耗时、分族service间隔、超时及原件容量须设备测量；无真实数据库/Android验证不能标施工完成。",
+        "六类未改CP9内核在final model shape上重建Dataset并恢复DONE checkpoint/finish，60项结果/拒绝断言及62136数值转移PASS；这些是生产数值片段host测试，不替代Android或原件生产owner。",
+        "现代完成DEV且无legacy predraw时，不单独触发legacy recover；真实modern frozen待capture仍经reservation/task可恢复",
+        "legacy pending candidate仍正常恢复",
+        "旧兼容frozen在后继滚动head产生后仍可作为合法原绑定源",
+        "独立publication frozen满足原bound条件时可被发现；qualified或有正式义务模型仍不被占用",
+        "两个查询prepare参数数目和前后资格负例回归",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。",
+        "在真实原writer入口注入target/source变化、候选/全局冻结容量满和工作容量满：任务由原lease有界yield，原cursor不变，无新增frozen行，不把正常等待登记writer BUG。",
+        "前16个终态版本均有合法pin时，第17个可回收版本最终被访问；单次删除≤64特征行，游标重启保持；旧冻结、HEAD模型和活动输入字节保持。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-026-KEEP",
+      "issue_id": "R343-026",
+      "batch": "B06",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "已有44项实际DDL/HEAD CAS/immutable/REPLACE/rollback/source epoch SQLite断言通过，语法通过；不是Android owner执行证据。",
+        "至少10期真实连续结算event幂等；每次选取cutoff有SCDEV实际连续样本，learner HEAD有真实数值receipt和optimizersteps，固定图记STATE_REFRESH。",
+        "对每个feature/numerical/head/pub事务边界强杀后恢复，原checkpoint不跳过、不重复推进；持续训练与中断恢复最终hash相同。",
+        "旧frozen/model/normalizer/run/证书逐列不变且旧Future继续；新版本无旧证书继承、无未来信息回填。",
+        "128MiB预算、单writer耗时、分族service间隔、超时及原件容量须设备测量；无真实数据库/Android验证不能标施工完成。",
+        "六类未改CP9内核在final model shape上重建Dataset并恢复DONE checkpoint/finish，60项结果/拒绝断言及62136数值转移PASS；这些是生产数值片段host测试，不替代Android或原件生产owner。",
+        "现代完成DEV且无legacy predraw时，不单独触发legacy recover；真实modern frozen待capture仍经reservation/task可恢复",
+        "legacy pending candidate仍正常恢复",
+        "旧兼容frozen在后继滚动head产生后仍可作为合法原绑定源",
+        "独立publication frozen满足原bound条件时可被发现；qualified或有正式义务模型仍不被占用",
+        "两个查询prepare参数数目和前后资格负例回归",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。",
+        "原有lease/fence、不可变冻结、HEAD模型、原输入pin与真实完整性失败语义保留；正常等待不能清空fault账本。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchCaptureQueueR946.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/BoundAtomLifecycleR80.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-027-POS",
+      "issue_id": "R343-027",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "单改window/weight/threshold不得NEW_MECHANISM计数增加",
+        "相同计算式交换可交换子项/节点重命名不得重复",
+        "结构新子代必须有完整AST差异、可执行hash、parent谱系、原数值/特征输入、DEV实际receipt",
+        "连续观察多个轮次creation/evaluation/wait/failure水位都能追溯，不以daemon线程存在验收",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-027-NEG",
+      "issue_id": "R343-027",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "单改window/weight/threshold不得NEW_MECHANISM计数增加",
+        "相同计算式交换可交换子项/节点重命名不得重复",
+        "结构新子代必须有完整AST差异、可执行hash、parent谱系、原数值/特征输入、DEV实际receipt",
+        "连续观察多个轮次creation/evaluation/wait/failure水位都能追溯，不以daemon线程存在验收",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-027-KEEP",
+      "issue_id": "R343-027",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "单改window/weight/threshold不得NEW_MECHANISM计数增加",
+        "相同计算式交换可交换子项/节点重命名不得重复",
+        "结构新子代必须有完整AST差异、可执行hash、parent谱系、原数值/特征输入、DEV实际receipt",
+        "连续观察多个轮次creation/evaluation/wait/failure水位都能追溯，不以daemon线程存在验收",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-028-POS",
+      "issue_id": "R343-028",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "规则不可从同dataset或begin<=through迁移",
+        "两个纯参数不同shape相同的父不能归纳新rule",
+        "规则重复执行无重复rule/use；强杀后可从持久化rule恢复",
+        "规则归纳并不授予新子代质量或继承alpha",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-028-NEG",
+      "issue_id": "R343-028",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "规则不可从同dataset或begin<=through迁移",
+        "两个纯参数不同shape相同的父不能归纳新rule",
+        "规则重复执行无重复rule/use；强杀后可从持久化rule恢复",
+        "规则归纳并不授予新子代质量或继承alpha",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-028-KEEP",
+      "issue_id": "R343-028",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "规则不可从同dataset或begin<=through迁移",
+        "两个纯参数不同shape相同的父不能归纳新rule",
+        "规则重复执行无重复rule/use；强杀后可从持久化rule恢复",
+        "规则归纳并不授予新子代质量或继承alpha",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-029-POS",
+      "issue_id": "R343-029",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "F01–F24都有实际kernel入口及调用覆盖证据，不能仅registrations24",
+        "ABI不兼容旧checkpoint不能装作当前训练完成",
+        "是否具备质量只看该新身份的独立证据",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-029-NEG",
+      "issue_id": "R343-029",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "F01–F24都有实际kernel入口及调用覆盖证据，不能仅registrations24",
+        "ABI不兼容旧checkpoint不能装作当前训练完成",
+        "是否具备质量只看该新身份的独立证据",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-029-KEEP",
+      "issue_id": "R343-029",
+      "batch": "B07",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "F01–F24都有实际kernel入口及调用覆盖证据，不能仅registrations24",
+        "ABI不兼容旧checkpoint不能装作当前训练完成",
+        "是否具备质量只看该新身份的独立证据",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FormulaIdentityR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-030-POS",
+      "issue_id": "R343-030",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "同position精确2/3distinctteacher满足后teacher族创建继续",
+        "损坏/错误position/过期teacher拒绝",
+        "bound source真正captured_at<target openTime；缺历史只wait不填充",
+        "parent-child谱系和future对比同identity",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-030-NEG",
+      "issue_id": "R343-030",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "同position精确2/3distinctteacher满足后teacher族创建继续",
+        "损坏/错误position/过期teacher拒绝",
+        "bound source真正captured_at<target openTime；缺历史只wait不填充",
+        "parent-child谱系和future对比同identity",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-030-KEEP",
+      "issue_id": "R343-030",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "同position精确2/3distinctteacher满足后teacher族创建继续",
+        "损坏/错误position/过期teacher拒绝",
+        "bound source真正captured_at<target openTime；缺历史只wait不填充",
+        "parent-child谱系和future对比同identity",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-031-POS",
+      "issue_id": "R343-031",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "20项逐项具有当前源产物/消费或具体合法等待原因",
+        "同一input重复交付不重复更新checkpoint",
+        "清理/投影并发不删除活跃pin源",
+        "矩阵消融只用同目标同角色冻结对照，不能用49快照宣称20矩阵有效",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSourceRouterCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-031-NEG",
+      "issue_id": "R343-031",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "20项逐项具有当前源产物/消费或具体合法等待原因",
+        "同一input重复交付不重复更新checkpoint",
+        "清理/投影并发不删除活跃pin源",
+        "矩阵消融只用同目标同角色冻结对照，不能用49快照宣称20矩阵有效",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSourceRouterCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-031-KEEP",
+      "issue_id": "R343-031",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "20项逐项具有当前源产物/消费或具体合法等待原因",
+        "同一input重复交付不重复更新checkpoint",
+        "清理/投影并发不删除活跃pin源",
+        "矩阵消融只用同目标同角色冻结对照，不能用49快照宣称20矩阵有效",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSourceRouterCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-032-POS",
+      "issue_id": "R343-032",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "不同h target映射跨日正确",
+        "同target组件缺一不可创建共识",
+        "进程恢复重复settle不增加样本",
+        "持续新机会完整记账；缺口与旧版本单列",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-032-NEG",
+      "issue_id": "R343-032",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "不同h target映射跨日正确",
+        "同target组件缺一不可创建共识",
+        "进程恢复重复settle不增加样本",
+        "持续新机会完整记账；缺口与旧版本单列",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-032-KEEP",
+      "issue_id": "R343-032",
+      "batch": "B08",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "不同h target映射跨日正确",
+        "同target组件缺一不可创建共识",
+        "进程恢复重复settle不增加样本",
+        "持续新机会完整记账；缺口与旧版本单列",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/MultiHorizonProbeR80.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-033-POS",
+      "issue_id": "R343-033",
+      "batch": "B09",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "每个阶段有同一身份可连接的原始receipt，原概率与postdraw label时间严格",
+        "自然资产未通过独立资格时real仍0且原因准确；通过后有实际entry/settlement/contribution",
+        "旧shadow总体HR/Wilson不能冒作新candidate未来表现",
+        "不能保证未来高胜率/稳定盈利；软件验收与自然质量验收分别给证据",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-033-NEG",
+      "issue_id": "R343-033",
+      "batch": "B09",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "每个阶段有同一身份可连接的原始receipt，原概率与postdraw label时间严格",
+        "自然资产未通过独立资格时real仍0且原因准确；通过后有实际entry/settlement/contribution",
+        "旧shadow总体HR/Wilson不能冒作新candidate未来表现",
+        "不能保证未来高胜率/稳定盈利；软件验收与自然质量验收分别给证据",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-033-KEEP",
+      "issue_id": "R343-033",
+      "batch": "B09",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "每个阶段有同一身份可连接的原始receipt，原概率与postdraw label时间严格",
+        "自然资产未通过独立资格时real仍0且原因准确；通过后有实际entry/settlement/contribution",
+        "旧shadow总体HR/Wilson不能冒作新candidate未来表现",
+        "不能保证未来高胜率/稳定盈利；软件验收与自然质量验收分别给证据",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-034-POS",
+      "issue_id": "R343-034",
+      "batch": "B09",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "四域生产接线正例及过期/撤销/跨目标/错模型/错误校准/缺原件/超时/用户关闭/重复REAL反例",
+        "自然证书合格时真实冻结和结算贡献可追溯",
+        "未经资格资产不得出手，工程通过与自然效果分开验收",
+        "不可承诺每代必强、未来胜率下界或稳定盈利",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-034-NEG",
+      "issue_id": "R343-034",
+      "batch": "B09",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "四域生产接线正例及过期/撤销/跨目标/错模型/错误校准/缺原件/超时/用户关闭/重复REAL反例",
+        "自然证书合格时真实冻结和结算贡献可追溯",
+        "未经资格资产不得出手，工程通过与自然效果分开验收",
+        "不可承诺每代必强、未来胜率下界或稳定盈利",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-034-KEEP",
+      "issue_id": "R343-034",
+      "batch": "B09",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "四域生产接线正例及过期/撤销/跨目标/错模型/错误校准/缺原件/超时/用户关闭/重复REAL反例",
+        "自然证书合格时真实冻结和结算贡献可追溯",
+        "未经资格资产不得出手，工程通过与自然效果分开验收",
+        "不可承诺每代必强、未来胜率下界或稳定盈利",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-035-POS",
+      "issue_id": "R343-035",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "有表0行应报告0或原件计数0；缺表必须UNKNOWN；本版报告不能依赖某设备偶然已有内存注册。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-035-NEG",
+      "issue_id": "R343-035",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "有表0行应报告0或原件计数0；缺表必须UNKNOWN；本版报告不能依赖某设备偶然已有内存注册。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-035-KEEP",
+      "issue_id": "R343-035",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "有表0行应报告0或原件计数0；缺表必须UNKNOWN；本版报告不能依赖某设备偶然已有内存注册。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-036-POS",
+      "issue_id": "R343-036",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "先用100个大rowset耗尽普通预算，四个索引仍有保留额；总分配≤768KiB。",
+        "同报告chartObjectIndex14和repairFrameIndex17必须全部可见，超界时保留明确omitted而不伪造。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-036-NEG",
+      "issue_id": "R343-036",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "先用100个大rowset耗尽普通预算，四个索引仍有保留额；总分配≤768KiB。",
+        "同报告chartObjectIndex14和repairFrameIndex17必须全部可见，超界时保留明确omitted而不伪造。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-036-KEEP",
+      "issue_id": "R343-036",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "先用100个大rowset耗尽普通预算，四个索引仍有保留额；总分配≤768KiB。",
+        "同报告chartObjectIndex14和repairFrameIndex17必须全部可见，超界时保留明确omitted而不伪造。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-037-POS",
+      "issue_id": "R343-037",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "R06有当前COMMITTED帧且无head时计1。",
+        "R11/R14/R18的FORMAL_READ_ONLY head有当前帧应计1，消费N/A。",
+        "旧source帧不计本版；当前缺数据不从历史hash补成当前COMMITTED。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-037-NEG",
+      "issue_id": "R343-037",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "R06有当前COMMITTED帧且无head时计1。",
+        "R11/R14/R18的FORMAL_READ_ONLY head有当前帧应计1，消费N/A。",
+        "旧source帧不计本版；当前缺数据不从历史hash补成当前COMMITTED。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-037-KEEP",
+      "issue_id": "R343-037",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "R06有当前COMMITTED帧且无head时计1。",
+        "R11/R14/R18的FORMAL_READ_ONLY head有当前帧应计1，消费N/A。",
+        "旧source帧不计本版；当前缺数据不从历史hash补成当前COMMITTED。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-038-POS",
+      "issue_id": "R343-038",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "有效BORN回执计入born列，r33预算动作只计nonBorn列。",
+        "错source/错hash/缺child/未验证legacy/错目标/未来标签/错误consumeKey不得计有效。",
+        "扫描不完整且0样本=>UNKNOWN；已验证正数只称下界。",
+        "实际消费与同预算消融/独立未来品质及REAL权限分开。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-038-NEG",
+      "issue_id": "R343-038",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "有效BORN回执计入born列，r33预算动作只计nonBorn列。",
+        "错source/错hash/缺child/未验证legacy/错目标/未来标签/错误consumeKey不得计有效。",
+        "扫描不完整且0样本=>UNKNOWN；已验证正数只称下界。",
+        "实际消费与同预算消融/独立未来品质及REAL权限分开。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-038-KEEP",
+      "issue_id": "R343-038",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "有效BORN回执计入born列，r33预算动作只计nonBorn列。",
+        "错source/错hash/缺child/未验证legacy/错目标/未来标签/错误consumeKey不得计有效。",
+        "扫描不完整且0样本=>UNKNOWN；已验证正数只称下界。",
+        "实际消费与同预算消融/独立未来品质及REAL权限分开。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchActionStoreR33.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-039-POS",
+      "issue_id": "R343-039",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "old hash+currentSource0不能产生当前COMMITTED。",
+        "未知与0两测试结果不同。",
+        "formal3不能因没有optimizer mutation而报业务未消费故障；也不能因此自动PASS。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-039-NEG",
+      "issue_id": "R343-039",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "old hash+currentSource0不能产生当前COMMITTED。",
+        "未知与0两测试结果不同。",
+        "formal3不能因没有optimizer mutation而报业务未消费故障；也不能因此自动PASS。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-039-KEEP",
+      "issue_id": "R343-039",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "old hash+currentSource0不能产生当前COMMITTED。",
+        "未知与0两测试结果不同。",
+        "formal3不能因没有optimizer mutation而报业务未消费故障；也不能因此自动PASS。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-040-POS",
+      "issue_id": "R343-040",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "逐图47个id记录sourceRows/filterRows/finitePoints/cacheABI/frameHash/UI截图；逐表16个执行保存SQL与pagination receipt。",
+        "仅真实适用输入齐备的producer应要求有数据；只读正式证明不足须明确原因。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-040-NEG",
+      "issue_id": "R343-040",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "逐图47个id记录sourceRows/filterRows/finitePoints/cacheABI/frameHash/UI截图；逐表16个执行保存SQL与pagination receipt。",
+        "仅真实适用输入齐备的producer应要求有数据；只读正式证明不足须明确原因。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-040-KEEP",
+      "issue_id": "R343-040",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "逐图47个id记录sourceRows/filterRows/finitePoints/cacheABI/frameHash/UI截图；逐表16个执行保存SQL与pagination receipt。",
+        "仅真实适用输入齐备的producer应要求有数据；只读正式证明不足须明确原因。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartRegistryR31.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-041-POS",
+      "issue_id": "R343-041",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "没有可信freeze mono原件的延迟导出返回UNKNOWN、pending=null，且可读取哈希匹配的历史原件；不输出AS_OF_VERIFIED或CURRENT_HEALTHY。",
+        "调用真实MainWriterFaultProjectionR342.fromSnapshot；不以helper具备能力代替生产端已有冻结时钟原件。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-041-NEG",
+      "issue_id": "R343-041",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "历史payload被改、原件hash不匹配或scope错误时不得作为已验证历史原件；LIVE样本换boot或超过12秒仍拒绝。",
+        "用样本自己的时间当独立冻结时刻必须拒绝；当前生产调用没有独立锚点时不允许宣称AS_OF已验证。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-041-KEEP",
+      "issue_id": "R343-041",
+      "batch": "B10",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "保留LIVE和报告快照的不同语义，history原件存在不代替当期排空进度，不改变实际fault队列和写入所有者。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-042-POS",
+      "issue_id": "R343-042",
+      "batch": "B11",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "1832需求和299卡一个不漏保留。",
+        "每项已验证必须有可复验原件；未有自然未来样本如实待验证，不写完美完成。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-042-NEG",
+      "issue_id": "R343-042",
+      "batch": "B11",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "1832需求和299卡一个不漏保留。",
+        "每项已验证必须有可复验原件；未有自然未来样本如实待验证，不写完美完成。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-042-KEEP",
+      "issue_id": "R343-042",
+      "batch": "B11",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "1832需求和299卡一个不漏保留。",
+        "每项已验证必须有可复验原件；未有自然未来样本如实待验证，不写完美完成。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RepairEffectLedgerR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-043-POS",
+      "issue_id": "R343-043",
+      "batch": "B11",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "Owner冲突注入拒绝；研究补丁不能新增绕过DecisionGate的REAL写入口。",
+        "将旧6算法/静态种子/新增CP12 family登记/真实43updates按source和语义区分，对接策略审计资产谱系。",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ProductionOwnerCatalogR811.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-043-NEG",
+      "issue_id": "R343-043",
+      "batch": "B11",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "Owner冲突注入拒绝；研究补丁不能新增绕过DecisionGate的REAL写入口。",
+        "将旧6算法/静态种子/新增CP12 family登记/真实43updates按source和语义区分，对接策略审计资产谱系。",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ProductionOwnerCatalogR811.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-043-KEEP",
+      "issue_id": "R343-043",
+      "batch": "B11",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "Owner冲突注入拒绝；研究补丁不能新增绕过DecisionGate的REAL写入口。",
+        "将旧6算法/静态种子/新增CP12 family登记/真实43updates按source和语义区分，对接策略审计资产谱系。",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "app/src/main/java/com/ethk3/novaonepro/ProductionOwnerCatalogR811.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-044-POS",
+      "issue_id": "R343-044",
+      "batch": "B12",
+      "level": "ENGINEERING",
+      "scenario": "POSITIVE",
+      "assertions": [
+        "按96/44/165和全部继承台账逐项有证据或明确未过原因",
+        "没有未实现生产接口/假数据填表/吞错/空返回伪装闭环",
+        "已验证标记必须绑定当前源码、APK、数据库/boot/role/window与原件SHA",
+        "现实缺口完整报告且继续可执行工作，不能用“完美”代替未测证据",
+        "从本卡确定输入与既有生产Owner真实执行，取输出原件与回读身份；不得只调新增helper。"
+      ],
+      "source_paths": [
+        "tools/r342/ci_candidate_tests.py",
+        "tools/r33/run_release_build.py",
+        "tools/r33/package_ci_candidate.py"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-044-NEG",
+      "issue_id": "R343-044",
+      "batch": "B12",
+      "level": "ENGINEERING",
+      "scenario": "NEGATIVE",
+      "assertions": [
+        "按96/44/165和全部继承台账逐项有证据或明确未过原因",
+        "没有未实现生产接口/假数据填表/吞错/空返回伪装闭环",
+        "已验证标记必须绑定当前源码、APK、数据库/boot/role/window与原件SHA",
+        "现实缺口完整报告且继续可执行工作，不能用“完美”代替未测证据",
+        "至少破坏一个本卡最关键前置条件（错身份/重复/缺原件/晚标签/预算/坏hash），断言拒绝、等待或精确终态，不产生不合法输出。"
+      ],
+      "source_paths": [
+        "tools/r342/ci_candidate_tests.py",
+        "tools/r33/run_release_build.py",
+        "tools/r33/package_ci_candidate.py"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "R343-044-KEEP",
+      "issue_id": "R343-044",
+      "batch": "B12",
+      "level": "ENGINEERING",
+      "scenario": "PRESERVATION",
+      "assertions": [
+        "按96/44/165和全部继承台账逐项有证据或明确未过原因",
+        "没有未实现生产接口/假数据填表/吞错/空返回伪装闭环",
+        "已验证标记必须绑定当前源码、APK、数据库/boot/role/window与原件SHA",
+        "现实缺口完整报告且继续可执行工作，不能用“完美”代替未测证据",
+        "在同一固定输入上复核本卡受影响的既有成熟行为，记录前后差异；唯一Owner/PIT/固定K3/分账/原件保护不得改变。"
+      ],
+      "source_paths": [
+        "tools/r342/ci_candidate_tests.py",
+        "tools/r33/run_release_build.py",
+        "tools/r33/package_ci_candidate.py"
+      ],
+      "runner_status": "EXISTING_OR_NEW_PRODUCTION_TEST_REQUIRED",
+      "execution_this_audit": "NOT_RUN_PRODUCTION_SCENARIO",
+      "natural_status": "NOT_PROVEN",
+      "required_originals": [
+        "runner argv",
+        "native stdout/stderr or native test XML",
+        "nonzero executed assertion count",
+        "input manifest and hash",
+        "output/readback manifest and hash",
+        "sourceCommit",
+        "planSha256",
+        "apkSha256",
+        "CI build run or explicit physical run",
+        "database identity where applicable",
+        "role and target/cutoff"
+      ]
+    },
+    {
+      "id": "FIELD173-DEVICE-UPGRADE",
+      "batch": "B01",
+      "level": "DEVICE",
+      "assertions": [
+        "确切173 APK覆盖安装；同签名同包名、UID保留、库与原件不丢；原数据可恢复备份"
+      ],
+      "execution_this_audit": "NOT_RUN",
+      "natural_status": "NOT_PROVEN"
+    },
+    {
+      "id": "FIELD173-DEVICE-24H",
+      "batch": "B04",
+      "level": "DEVICE",
+      "assertions": [
+        "真实设备连续24小时分槽和事件原件；锁屏/网络/系统回收场景、丢期与恢复可复算"
+      ],
+      "execution_this_audit": "NOT_RUN",
+      "natural_status": "NOT_PROVEN"
+    },
+    {
+      "id": "FIELD173-DEVICE-72H",
+      "batch": "B12",
+      "level": "DEVICE",
+      "assertions": [
+        "真实设备连续72小时同版本统计；不把模拟器或累计旧样本充当前观测"
+      ],
+      "execution_this_audit": "NOT_RUN",
+      "natural_status": "NOT_PROVEN"
+    },
+    {
+      "id": "FIELD173-UI-47",
+      "batch": "B10",
+      "level": "DEVICE",
+      "assertions": [
+        "47个id各一组真实数据状态、series/finitePoints及截图；16逻辑表原SQL和分页证据"
+      ],
+      "execution_this_audit": "NOT_RUN",
+      "natural_status": "NOT_PROVEN"
+    },
+    {
+      "id": "FIELD173-NATURAL-QUALITY",
+      "batch": "B09",
+      "level": "NATURAL",
+      "assertions": [
+        "按四域各自协议完成独立未来和校准、配对/控制/资源/风险/过期合同，不混分母"
+      ],
+      "execution_this_audit": "NOT_RUN",
+      "natural_status": "NOT_PROVEN"
+    },
+    {
+      "id": "FIELD173-NATURAL-MAINLINE",
+      "batch": "B12",
+      "level": "NATURAL",
+      "assertions": [
+        "自然合格策略当期事前被唯一主链消费，确切freeze/certificate/model hash、REAL结算和贡献回执可复算"
+      ],
+      "execution_this_audit": "NOT_RUN",
+      "natural_status": "NOT_PROVEN"
+    }
+  ]
+}

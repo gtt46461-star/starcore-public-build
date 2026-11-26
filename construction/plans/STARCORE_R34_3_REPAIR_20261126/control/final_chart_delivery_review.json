@@ -1,0 +1,217 @@
+{
+  "schema": "STARCORE_R343_INDEPENDENT_CHART_DELIVERY_REVIEW_1",
+  "reviewedAtUtc": "2026-11-26T03:52:18.879495+00:00",
+  "scope": "Source/documentation/coverage and package integration review; not production/device/natural acceptance.",
+  "sourceBaseline": "4d1de9d83692635b5c5ce39144fece1c8a31c8ac",
+  "planPath": "/workspace/scratch/d324c6ac1328/repo-public/construction/plans/STARCORE_R34_3_REPAIR_20261126",
+  "checks": [
+    {
+      "name": "96 diagnostic IDs preserved with valid current issue links",
+      "result": "CONFIRMED",
+      "evidence": {
+        "count": 96
+      }
+    },
+    {
+      "name": "44 metrics preserved with valid current issue links",
+      "result": "CONFIRMED",
+      "evidence": {
+        "count": 44,
+        "reportStatuses": {
+          "INSUFFICIENT": 35,
+          "RECORDED_UNVALIDATED": 5,
+          "BLOCKED": 1,
+          "UNKNOWN_SOURCE_MISSING": 1,
+          "NOT_DEPLOYED": 1,
+          "UNKNOWN_STALE_SYNTHETIC_SOURCE": 1
+        }
+      }
+    },
+    {
+      "name": "165 unique object identities and no unresolved source binding",
+      "result": "CONFIRMED",
+      "evidence": {
+        "categories": {
+          "legacyCharts": 29,
+          "researchCharts": 18,
+          "matrices": 20,
+          "capabilities": 82,
+          "logicalTables": 16
+        },
+        "sourceBindingWarnings": []
+      }
+    },
+    {
+      "name": "63 graph/table entries are the exact 47+16 subset",
+      "result": "CONFIRMED",
+      "evidence": {
+        "categories": {
+          "legacyCharts": 29,
+          "researchCharts": 18,
+          "logicalTables": 16
+        }
+      }
+    },
+    {
+      "name": "57 prior issue contracts preserved with explicit current mappings",
+      "result": "CONFIRMED",
+      "evidence": {
+        "count": 57,
+        "sourceCommit": "4d1de9d83692635b5c5ce39144fece1c8a31c8ac"
+      }
+    },
+    {
+      "name": "132 native engineering scenarios remain unexecuted and separate from 6 other levels",
+      "result": "CONFIRMED",
+      "evidence": {
+        "engineeringPerBatch": {
+          "B01": 9,
+          "B02": 18,
+          "B03": 15,
+          "B04": 18,
+          "B05": 15,
+          "B06": 3,
+          "B07": 9,
+          "B08": 9,
+          "B09": 6,
+          "B10": 21,
+          "B11": 6,
+          "B12": 3
+        },
+        "device": 4,
+        "natural": 2,
+        "productionExecution": "NOT_RUN_PRODUCTION_SCENARIO"
+      }
+    },
+    {
+      "name": "field identity and delivery code install first in B01",
+      "result": "CONFIRMED",
+      "evidence": {
+        "order": [
+          "field_binding",
+          "delivery",
+          "runtime",
+          "prepared_storage",
+          "coverage",
+          "research_core",
+          "rolling",
+          "creation",
+          "charts"
+        ],
+        "fileSteps": 65,
+        "b06FileSteps": 16
+      }
+    },
+    {
+      "name": "field_binding complete after files match reviewed implementation",
+      "result": "CONFIRMED",
+      "evidence": {
+        "count": 4,
+        "mismatches": []
+      }
+    },
+    {
+      "name": "delivery complete after files match reviewed implementation",
+      "result": "CONFIRMED",
+      "evidence": {
+        "count": 9,
+        "mismatches": []
+      }
+    },
+    {
+      "name": "object_coverage_165.json R06 independent producer does not require input head",
+      "result": "CONFIRMED",
+      "evidence": {
+        "path": "RuntimeR27 ResearchStudyTaskR30R1 -> paired replay -> ResearchStoreR30R1.paired -> r30r1_analysis_run + r30r1_research_measure + r30r1_chart_cache (no r33 input head written by this owner) -> ResearchWorkbenchRepositoryR30R1.readFrame -> research UI",
+        "branch": {
+          "class": "ResearchStoreR30R1",
+          "requestedClass": "ResearchStoreR30R1",
+          "requestedMethod": "paired",
+          "method": "paired",
+          "constructorOrClassBinding": false,
+          "sourcePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "exists": true,
+          "line": 62,
+          "locatorKind": "DECLARATION_OR_FIRST_SOURCE_OCCURRENCE"
+        }
+      }
+    },
+    {
+      "name": "chart_source_mapping_63.json R06 independent producer does not require input head",
+      "result": "CONFIRMED",
+      "evidence": {
+        "path": "RuntimeR27 ResearchStudyTaskR30R1 -> paired replay -> ResearchStoreR30R1.paired -> r30r1_analysis_run + r30r1_research_measure + r30r1_chart_cache (no r33 input head written by this owner) -> ResearchWorkbenchRepositoryR30R1.readFrame -> research UI",
+        "branch": {
+          "class": "ResearchStoreR30R1",
+          "requestedClass": "ResearchStoreR30R1",
+          "requestedMethod": "paired",
+          "method": "paired",
+          "constructorOrClassBinding": false,
+          "sourcePath": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "exists": true,
+          "line": 62,
+          "locatorKind": "DECLARATION_OR_FIRST_SOURCE_OCCURRENCE"
+        }
+      }
+    },
+    {
+      "name": "B10 reports character budget in its actual unit",
+      "result": "CONFIRMED",
+      "evidence": {
+        "actualReaderContract": "512 rows per kind; 262144 characters per field; 2Mi characters per kind. Encoded SQL inline budget is separate."
+      }
+    },
+    {
+      "name": "CH issue Markdown exposes concrete source locations",
+      "result": "CONFIRMED",
+      "evidence": {
+        "placeholderCount": 0
+      }
+    },
+    {
+      "name": "CH11 preserves all three source references",
+      "result": "CONFIRMED",
+      "evidence": {
+        "sourceCount": 3
+      }
+    },
+    {
+      "name": "construction prompt includes actual required prepare CLI flags",
+      "result": "CONFIRMED",
+      "evidence": {
+        "requiredFlags": [
+          "--plan",
+          "--plan-commit",
+          "--batch",
+          "--installed-version",
+          "--highest-known-version-code",
+          "--journal"
+        ],
+        "missingFlags": []
+      }
+    }
+  ],
+  "snapshotFileHashes": {
+    "ISSUES.json": "5f442df142216f6a5d6279175722ae076cb2346d130a17abd9e88c8245384fac",
+    "PATCHSET.json": "f1546d46ef2db10f037549e1f5b21d527d7383be20fd86302d9ae8fc26aeb4c1",
+    "ACCEPTANCE_MATRIX.json": "4ef557ebb07c3c1895a607c256c13de72ba805b7f4c78f4ee000c64745aaf1c8",
+    "CODEX_EXECUTE.md": "ea918948be77d6f026d111a4cfcd25dd08abeb35401a77464c23ffa9125d00dd",
+    "batches/B10.md": "97504f632a92261cfb850bba1e4e4d1c3dd888920f591d9bc9409e3bbd846538",
+    "coverage/object_coverage_165.json": "f830662527c652d2e4893944a296051e35df4f15204c0eb1fb0deb1d40abe9ec",
+    "coverage/chart_source_mapping_63.json": "fc18dfb6c8281022e9a11478ee933bb1ad6e01f1afb328b04989619957746077"
+  },
+  "confirmedCorrections": [
+    "B10 consumer scan cap is characters, not bytes.",
+    "R06 owner is ResearchStudyTaskR30R1 / ResearchStoreR30R1.paired; no r33 input-head write or required head acceptance.",
+    "CH source locations must display baselineLines when no named anchor is supplied.",
+    "The new batch prepare command needs installed-version, highest-known-version-code and external journal in addition to plan/batch identity."
+  ],
+  "limits": [
+    "Eight nonempty logical tables do not identify eight rendered UI panels. No 47-panel screenshots were obtained.",
+    "Current 0, unknown count, historical frame hash, truncated lower bound, and formal read-only consumer applicability remain separate.",
+    "Baseline 173 and fieldRepair173 are current repair identities; original R342/152 seal is preserved historical inheritance. APK series stays R34.2.",
+    "132 production scenarios, Android compilation/instrumentation, actual 173 cover install, physical 24/72h, natural quality and REAL mainline contribution were not executed or proven in this review.",
+    "19 delivery host-test groups and synthetic Python subprocesses verify evidence gates only; they are not the 132 production scenarios."
+  ],
+  "result": "STATIC_REVIEW_CONFIRMED_WITH_EXPLICIT_LIMITS"
+}

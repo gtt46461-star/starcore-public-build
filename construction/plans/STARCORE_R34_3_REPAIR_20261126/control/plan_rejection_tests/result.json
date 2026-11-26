@@ -1,0 +1,252 @@
+{
+  "schema": "STARCORE_R343_PLAN_REJECTION_TEST_1",
+  "status": "PASS",
+  "source_commit": "4d1de9d83692635b5c5ce39144fece1c8a31c8ac",
+  "original_report_sha256": "3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86",
+  "verifier_sha256": "d7ab10e71fa10142478778a3dee73d52021d6e3c18c7efe3afa0f81b872f6184",
+  "test_script_sha256": "2f7b4a7f7377c3c98147c56c1ce921924c7ce60b9c8e2e6f11914f7578b7bd79",
+  "input_plan_inventory_sha256": "f305b5e9f6497695a71eeba994794cc39b72fb9e6803bc6c846722e48dc6f8c4",
+  "scope": "Unmodified verify_plan.py CLI: sealed positive plus eight isolated negative fixtures; semantic negatives validly resealed.",
+  "android": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "cases": [
+    {
+      "id": "sealed_positive",
+      "expected": "ACCEPTED",
+      "resealed": true,
+      "manifest_valid_before_invocation": true,
+      "returncode": 0,
+      "result": {
+        "sealed_members": 364,
+        "report_payload_hashes": 67,
+        "issues": 44,
+        "coverage": {
+          "checks": 96,
+          "metrics": 44,
+          "objects": 165,
+          "charts_and_tables": 63,
+          "old_issues": 57,
+          "report_requirements": 1832,
+          "report_cards": 299,
+          "engineering_scenarios": 132,
+          "device_natural_contracts": 6
+        },
+        "patches": {
+          "groups": 9,
+          "file_steps": 65,
+          "unique_files": 62
+        },
+        "markdown_links": "PASS",
+        "baseline_source_anchors": 125,
+        "cumulative_git_apply": "PASS",
+        "status": "PLAN_INTEGRITY_AND_SCOPED_HOST_CHECKS_PASSED",
+        "android": "NOT_RUN",
+        "physical_device": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.658565,
+      "stdout_sha256": "6c75e540ffa629ec0fb8c634b4a33f820203c82f5e4bdc4a111d4cbc199f3b2a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "member_tamper",
+      "expected": "REJECTED",
+      "expected_error_token": "MEMBER_HASH:README.md",
+      "resealed": false,
+      "manifest_valid_before_invocation": false,
+      "mutation": {
+        "path": "README.md",
+        "before_sha256": "8ef9b5d1109a3f9473e8e948b1361ce90fa03f31cd33f3917bd61fe7bde2e0c7",
+        "after_sha256": "b31533ae338a1851586a5781fac1e4fe9b17be2a297bd46afd8ffc30f4de207e"
+      },
+      "returncode": 1,
+      "result": {
+        "status": "REJECTED",
+        "error": "MEMBER_HASH:README.md",
+        "type": "ValueError"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.036867,
+      "stdout_sha256": "5fae6f2bf4fa2e8917388407b32ebed4a2b29f511ee3db9398a193c364f9bcce",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "missing_original_report",
+      "expected": "REJECTED",
+      "expected_error_token": "ORIGINAL_DIAGNOSTIC_173.zip",
+      "resealed": true,
+      "manifest_valid_before_invocation": true,
+      "mutation": {
+        "path": "report/ORIGINAL_DIAGNOSTIC_173.zip",
+        "removed_sha256": "3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86"
+      },
+      "returncode": 1,
+      "result": {
+        "status": "REJECTED",
+        "error": "[Errno 2] No such file or directory: '/workspace/scratch/d324c6ac1328/audit/final_plan_rejection_tests/plan-rejection-fixtures-na78j_xw/missing_original_report/report/ORIGINAL_DIAGNOSTIC_173.zip'",
+        "type": "FileNotFoundError"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.101384,
+      "stdout_sha256": "efc7a2c0045bcb0df1437595c5c2701d153e699fd47b190cc5c81fb65b28af87",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "extra_member",
+      "expected": "REJECTED",
+      "expected_error_token": "MEMBER_SET",
+      "resealed": false,
+      "manifest_valid_before_invocation": false,
+      "mutation": {
+        "path": "NEGATIVE_TEST_UNMANIFESTED.txt"
+      },
+      "returncode": 1,
+      "result": {
+        "status": "REJECTED",
+        "error": "MEMBER_SET",
+        "type": "ValueError"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.191783,
+      "stdout_sha256": "efc1a64b2fd4e22fda7e4aeb1bce2e22e553fdcc3156029b20b5b3b0190b5298",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "missing_diagnostic_check",
+      "expected": "REJECTED",
+      "expected_error_token": "CHECK_SET",
+      "resealed": true,
+      "manifest_valid_before_invocation": true,
+      "mutation": {
+        "path": "coverage/CHECK_ACTIONS_96.json",
+        "removed_id": "RSEC-001",
+        "remaining_checks": 95
+      },
+      "returncode": 1,
+      "result": {
+        "status": "REJECTED",
+        "error": "CHECK_SET",
+        "type": "ValueError"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.175498,
+      "stdout_sha256": "29a44a5e78855f973d052029d3d77596b8374dff6f4e0a691c769772ca8341c3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "invalid_issue_source_anchor",
+      "expected": "REJECTED",
+      "expected_error_token": "ISSUE_SOURCE_ANCHOR:",
+      "resealed": true,
+      "manifest_valid_before_invocation": true,
+      "mutation": {
+        "path": "ISSUES.json",
+        "issue_id": "R343-001",
+        "source_path": "release/release_manifest.json",
+        "unchanged_source_sha256": "125dc790a4110a3e29ff60f538ed0a9589ae2010139d1af8a82e1ea4167e8478",
+        "old_anchor": "versionCode",
+        "new_anchor": "__R343_NEGATIVE_ANCHOR_MUST_NOT_EXIST_742be659d3734ccf__"
+      },
+      "returncode": 1,
+      "result": {
+        "status": "REJECTED",
+        "error": "ISSUE_SOURCE_ANCHOR:release/release_manifest.json:__R343_NEGATIVE_ANCHOR_MUST_NOT_EXIST_742be659d3734ccf__",
+        "type": "ValueError"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.428693,
+      "stdout_sha256": "76f8d90952af65fc37c8ee01d3ab76ffb80d5c6456049134158192dbc7ee427b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "incorrect_cumulative_before",
+      "expected": "REJECTED",
+      "expected_error_token": "CUMULATIVE_BEFORE:",
+      "resealed": true,
+      "manifest_valid_before_invocation": true,
+      "mutation": {
+        "path": "PATCHSET.json",
+        "group": "rolling",
+        "source_path": "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "previous_group_after_sha256": "773ce9675fa98035849d34e2e3c22a962e8905fa4b2155cca92239c2888c1b29",
+        "wrong_but_locally_valid_before_sha256": "c9c56e33277b7496f95a61e21ae1f43eff70828fb6c36ef0ad00a337bdbbe13a",
+        "individual_before_file_hash_valid": true
+      },
+      "returncode": 1,
+      "result": {
+        "status": "REJECTED",
+        "error": "CUMULATIVE_BEFORE:app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+        "type": "ValueError"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.249721,
+      "stdout_sha256": "c7e9a1b542c5f5e2107f15d6633e560feb130a36660936b78e28076455e3dded",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "missing_engineering_case",
+      "expected": "REJECTED",
+      "expected_error_token": "ACCEPTANCE_COUNT",
+      "resealed": true,
+      "manifest_valid_before_invocation": true,
+      "mutation": {
+        "path": "ACCEPTANCE_MATRIX.json",
+        "removed_id": "R343-001-POS",
+        "remaining_engineering": 131,
+        "remaining_total": 137
+      },
+      "returncode": 1,
+      "result": {
+        "status": "REJECTED",
+        "error": "ACCEPTANCE_COUNT",
+        "type": "ValueError"
+      },
+      "stderr": "",
+      "elapsed_seconds": 0.201269,
+      "stdout_sha256": "da1e597b0aadd098cb9cdfd1f7814cfd56ed1b9e476ed33e9ee5a72ac710d451",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_written": true,
+      "status": "PASS"
+    },
+    {
+      "id": "output_inside_sealed_plan",
+      "expected": "REJECTED",
+      "expected_error_token": "OUTPUT_MUST_BE_OUTSIDE_SEALED_PLAN",
+      "resealed": false,
+      "manifest_valid_before_invocation": true,
+      "mutation": {
+        "attempted_output": "negative_test_output.json",
+        "mutation": "CLI --out only"
+      },
+      "returncode": 1,
+      "result": null,
+      "stderr": "Traceback (most recent call last):\n  File \"/workspace/scratch/d324c6ac1328/audit/final_plan_rejection_tests/plan-rejection-fixtures-na78j_xw/output_inside_sealed_plan/tools/verify_plan.py\", line 132, in <module>\n    if __name__=='__main__':main()\n                            ^^^^^^\n  File \"/workspace/scratch/d324c6ac1328/audit/final_plan_rejection_tests/plan-rejection-fixtures-na78j_xw/output_inside_sealed_plan/tools/verify_plan.py\", line 124, in main\n    if a.out:require(not a.out.resolve().is_relative_to(a.plan.resolve()),'OUTPUT_MUST_BE_OUTSIDE_SEALED_PLAN')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/scratch/d324c6ac1328/audit/final_plan_rejection_tests/plan-rejection-fixtures-na78j_xw/output_inside_sealed_plan/tools/verify_plan.py\", line 12, in require\n    if not ok:raise ValueError(msg)\n              ^^^^^^^^^^^^^^^^^^^^^\nValueError: OUTPUT_MUST_BE_OUTSIDE_SEALED_PLAN\n",
+      "elapsed_seconds": 0.034717,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "2526023e3aa74a0efbd725239a90db8eb44005c5682d7f8ac39dc98dc90b81ae",
+      "output_written": false,
+      "status": "PASS"
+    }
+  ],
+  "positive_accepted": 1,
+  "negative_rejected_at_expected_gate": 8,
+  "semantic_rejections_after_valid_reseal": 5,
+  "input_plan_inventory_unchanged": true,
+  "source_repository_status_unchanged": true
+}

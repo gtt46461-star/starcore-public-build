@@ -1,0 +1,101 @@
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalAdmissionR343.java
+@@ -0,0 +1,22 @@
++package com.ethk3.novaonepro;
++
++/** Conservative pre-admission for AtomicFile's physical envelope.
++ * Logical stream size and physical allocation are different quantities.
++ * The existing StorageBudget still measures and enforces the actual delta.
++ * This bound is NOT a claim about every filesystem's allocation behavior. */
++final class PreparedCanonicalAdmissionR343 {
++    static final long MAX_LOGICAL_BYTES = 16L * 1024 * 1024;
++    static final long ALLOCATION_SLAB_BYTES = 64L * 1024;
++    private PreparedCanonicalAdmissionR343() {}
++
++    static long physicalGrowthBound(long logicalUpperBound) {
++        if (logicalUpperBound < 1 || logicalUpperBound > MAX_LOGICAL_BYTES)
++            throw new IllegalArgumentException("R343_PREPARED_LOGICAL_BOUND");
++        long slabs = Math.addExact(logicalUpperBound, ALLOCATION_SLAB_BYTES - 1)
++                / ALLOCATION_SLAB_BYTES;
++        long rounded = Math.multiplyExact(slabs, ALLOCATION_SLAB_BYTES);
++        // Reserve for at most two atomic file images plus directory allocation.
++        // No existing file is deleted or accepted merely because this is granted.
++        return Math.addExact(Math.multiplyExact(rounded, 2L), ALLOCATION_SLAB_BYTES);
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java
++++ b/app/src/main/java/com/ethk3/novaonepro/PreparedCanonicalStoreR335.java
+@@ -124,14 +124,11 @@
+                     throw new IOException("R34_PREPARED_RESULT_IDENTITY_CONFLICT");
+                 return;
+             }
+-            if(f.exists()||new File(dir,n+".bak").exists()){
+-                Prepared existing=readPrepared(atomic,r);
+-                if(!existing.snapshotHash.equals(snapshot.sha256)||!Arrays.equals(resultBytes,PreparedCanonicalCodecR335.encode(existing.result)))throw new IOException("R335_PREPARED_IDENTITY_CONFLICT");return;
+-            }
+             File files=store.contextForR26().getFilesDir().getCanonicalFile();StorageBudgetR31 budget=StorageBudgetR31.forFiles(files);
+-            long bound=(long)resultBytes.length+snapshot.bytes.length+4096L;
+-            try(StorageBudgetR31.Reservation grant=budget.reserve("r335-prepared:"+r.requestHash,r.generation,StorageBudgetR31.Category.CACHE,"files/"+DIRECTORY,bound,bound,true)){
+-                grant.beforeChunk(bound);FileOutputStream sink=null;byte[] expected;
++            long logicalUpper=(long)resultBytes.length+snapshot.bytes.length+4096L;
++            long physicalBound=PreparedCanonicalAdmissionR343.physicalGrowthBound(logicalUpper);
++            try(StorageBudgetR31.Reservation grant=budget.reserve("r335-prepared:"+r.requestHash,r.generation,StorageBudgetR31.Category.CACHE,"files/"+DIRECTORY,physicalBound,physicalBound,true)){
++                grant.beforeChunk(logicalUpper);FileOutputStream sink=null;byte[] expected;
+                 try{
+                     if(TimeSourceR811.monoNowMs()>=r.deadlineMonoAt||System.currentTimeMillis()>=r.deadlineAt)throw new IOException("R335_PREPARED_EXPIRED");
+                     sink=atomic.startWrite();java.security.MessageDigest digest=sha256();
+--- a/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java
+@@ -315,7 +315,7 @@
+         /** Caller invokes only after its actual streams/native work have terminated, never from Future.cancel(). */
+         public synchronized void close()throws IOException{
+             if(closed)return;IOException failure=null;
+-            try{final long measured=accountedScopeBytes(inside(root,scope));owned("FINISH",state->{Row row=require(state);long actual=measured;boolean exceeded=Math.max(0,actual-row.baseline)>row.bound;state.active.remove(id);receipt(state,row,exceeded?"FINISHED_BOUND_EXCEEDED_FILES_PRESERVED":"FINISHED",actual);writeState(state);if(exceeded)throw new Rejected("FINISHED_PHYSICAL_GROWTH_BOUND_EXCEEDED");return null;});}
++            try{final long measured=accountedScopeBytes(inside(root,scope));owned("FINISH",state->{Row row=require(state);long actual=measured;boolean exceeded=Math.max(0,actual-row.baseline)>row.bound;state.active.remove(id);receipt(state,row,exceeded?"FINISHED_BOUND_EXCEEDED_FILES_PRESERVED":"FINISHED",actual);writeState(state);if(exceeded){Map<String,Object> facts=new LinkedHashMap<>();facts.put("scope","EXACT_OWNER_FINISH_MEASUREMENT");facts.put("relativeScope",row.scope);facts.put("baselineAccountedBytes",row.baseline);facts.put("actualAccountedBytes",actual);facts.put("actualAdditionalBytes",Math.max(0,actual-row.baseline));facts.put("promisedGrowthBytes",row.bound);facts.put("chargedWriteBytes",row.charged);facts.put("filesPreserved",true);throw new Rejected("FINISHED_PHYSICAL_GROWTH_BOUND_EXCEEDED").facts(facts);}return null;});}
+             catch(IOException error){failure=error;}
+             finally{closed=true;OPEN.remove(key);try{lifetime.release();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}try{io.close();}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}File leaseFile=new File(key);if(leaseFile.exists()&&!leaseFile.delete()){IOException error=new IOException("STORAGE_OWNER_METADATA_CLEANUP_PENDING");if(failure==null)failure=error;else failure.addSuppressed(error);}}
+             if(failure!=null)throw failure;
+--- a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
+@@ -404,7 +404,14 @@
+             // Do not call model/feature code inside it (construction/r30/B02_04_TX_AUDIT.md).
+             lease.token.checkpoint("BEFORE_PREPARED_RESULT_R34");
+             // Publish the complete restart input before entering the sole canonical transaction.
+-            PreparedCanonicalStoreR335.save(store,request,result,snapshot);
++            RuntimeTraceR36.Mark preparedSaveMark = trace.begin("PREPARED_RESULT_SAVE");
++            try {
++                PreparedCanonicalStoreR335.save(store,request,result,snapshot);
++            } catch (java.io.IOException | RuntimeException | Error failure) {
++                trace.end(preparedSaveMark,false,failure.getClass().getSimpleName());
++                throw failure;
++            }
++            trace.end(preparedSaveMark,true,"VERIFIED_ORIGINAL_RETRY_INPUT");
+             lease.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.COMMIT,1000L);
+             checkpoint(requests,lease,"BEFORE_CANONICAL_COMMIT");
+             RuntimeTraceR36.Mark commitMark = trace.begin("DB_CANONICAL_WAIT");
+--- /dev/null
++++ b/verification/r343/PreparedCanonicalAdmissionR343Test.java
+@@ -0,0 +1,23 @@
++package com.ethk3.novaonepro;
++
++public final class PreparedCanonicalAdmissionR343Test {
++    public static void main(String[] args) {
++        long previous=0;
++        for (long size : new long[]{1,4095,4096,4097,65535,65536,65537,1048575,1048576,16777216}) {
++            long bound=PreparedCanonicalAdmissionR343.physicalGrowthBound(size);
++            if(bound<size || bound<previous || bound>2*16777216L+65536L)
++                throw new AssertionError("envelope: "+size);
++            // A data image, an atomic companion, and a directory allocation fit.
++            long rounded=((size+65535L)/65536L)*65536L;
++            if (bound < rounded*2+65536L) throw new AssertionError("atomic copies");
++            previous=bound;
++        }
++        for (long invalid : new long[]{Long.MIN_VALUE,-1,0,16777217L,Long.MAX_VALUE}) {
++            boolean refused=false;
++            try{PreparedCanonicalAdmissionR343.physicalGrowthBound(invalid);}
++            catch(IllegalArgumentException expected){refused=true;}
++            if(!refused)throw new AssertionError("invalid size accepted");
++        }
++        System.out.println("PASS: R343 prepared physical envelope boundary/overflow cases; not Android allocation certification");
++    }
++}

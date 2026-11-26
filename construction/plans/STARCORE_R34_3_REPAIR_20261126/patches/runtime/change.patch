@@ -1,0 +1,823 @@
+--- /dev/null
++++ b/app/src/androidTest/java/com/ethk3/novaonepro/R343RuntimeRepairInstrumentedTest.java
+@@ -0,0 +1,98 @@
++package com.ethk3.novaonepro;
++
++import android.content.Context;
++import android.database.sqlite.SQLiteDatabase;
++import androidx.test.core.app.ApplicationProvider;
++import androidx.test.ext.junit.runners.AndroidJUnit4;
++import com.ethk3.novaonepro.strategyv2.StartupCheckpointIdentityR31;
++import com.ethk3.novaonepro.strategyv2.StartupProbePolicyR343;
++import java.io.File;
++import java.util.UUID;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import static org.junit.Assert.*;
++
++/** Disposable real Android SQLite tests; never use the installed user's database. */
++@RunWith(AndroidJUnit4.class)
++public final class R343RuntimeRepairInstrumentedTest {
++    @Test public void legitimateTempCacheFlushDoesNotBlockCheckpoint() throws Exception {
++        Context app = ApplicationProvider.getApplicationContext();
++        File path = new File(app.getCacheDir(), "r343-startup-" + UUID.randomUUID() + ".db");
++        try (SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(path, null)) {
++            db.enableWriteAheadLogging();
++            db.beginTransaction();
++            try {
++                db.execSQL("CREATE TABLE r29_model_checkpoint(owner TEXT PRIMARY KEY,feature_abi TEXT,dataset_hash TEXT,trained_through INTEGER,state_hash TEXT,artifact BLOB,updated_at INTEGER)");
++                for (String ddl : StartupCheckpointIdentityR31.ddlR31()) db.execSQL(ddl);
++                StartupCheckpointIdentityR31.seedWithinMigrationR31(db);
++                db.execSQL("CREATE TEMP TABLE IF NOT EXISTS r31q_ddl_cache_flush(x INTEGER)");
++                db.setTransactionSuccessful();
++            } finally { db.endTransaction(); }
++            StartupCheckpointIdentityR31.Prepared prepared = StartupCheckpointIdentityR31.prepare(db, null);
++            assertEquals(0, prepared.sourceRows);
++            db.beginTransaction();
++            try {
++                prepared.requireWithin(db);
++                db.execSQL("CREATE TEMP TABLE r29_model_checkpoint(owner TEXT)");
++                try {
++                    prepared.requireWithin(db);
++                    fail("Unexpected TEMP shadow must remain blocked");
++                } catch (IllegalStateException blocked) {
++                    assertTrue(blocked.getMessage().startsWith("R31_STARTUP_CHECKPOINT_TEMP_SCHEMA:"));
++                }
++                db.setTransactionSuccessful();
++            } finally { db.endTransaction(); }
++        } finally { SQLiteDatabase.deleteDatabase(path); }
++    }
++
++    private static final class Clock implements RuntimeObservationScopeR341.Clock {
++        long elapsed = 1000L;
++        @Override public long wall() { return 1_700_000_000_000L + elapsed; }
++        @Override public long monotonic() { return elapsed; }
++    }
++
++    @Test public void circuitProbeIsDurableAndCannotHotLoop() {
++        Context app = ApplicationProvider.getApplicationContext();
++        Clock clock = new Clock();
++        String source = "0123456789012345678901234567890123456789";
++        String hash = "0123456789012345678901234567890123456789012345678901234567890123";
++        RuntimeObservationScopeR341 scope = new RuntimeObservationScopeR341(hash, source,
++                "test-process", "test-boot", "test-db", clock.wall(), clock.monotonic(), null);
++        File root = new File(app.getCacheDir(), "r343-circuit-" + UUID.randomUUID());
++        StartupStageJournalR341 journal = StartupStageJournalR341.open(root,"research",clock,scope);
++        for (int i=0; i<3; i++) {
++            StartupStageJournalR341.Token begin = journal.begin("owner","attempt-"+i,
++                    StartupStageJournalR341.Stage.OWNER_BEGIN,hash);
++            assertTrue(journal.recordUncaught(begin,new IllegalStateException("FIXTURE_DETERMINISTIC_BUG")).durable);
++        }
++        assertTrue(journal.hasDeterministicFailureLimit(hash));
++        assertFalse(journal.reserveDeterministicProbeR343(hash));
++        clock.elapsed += StartupProbePolicyR343.RETRY_MS;
++        assertTrue(journal.reserveDeterministicProbeR343(hash));
++        assertFalse(journal.reserveDeterministicProbeR343(hash));
++        StartupStageJournalR341 reopened = StartupStageJournalR341.open(root,"research",clock,scope);
++        assertFalse(reopened.reserveDeterministicProbeR343(hash));
++        // Real repeated BUG outcomes do not become READY and renew the cooldown.
++        for (int probe=2; probe<=StartupProbePolicyR343.MAX_PROBES_PER_DEPENDENCY; probe++) {
++            StartupStageJournalR341.Token failed = reopened.begin("owner","probe-failed-"+probe,
++                    StartupStageJournalR341.Stage.OWNER_BEGIN,hash);
++            assertTrue(reopened.recordUncaught(failed,new IllegalStateException("FIXTURE_DETERMINISTIC_BUG")).durable);
++            assertTrue(reopened.hasDeterministicFailureLimit(hash));
++            assertFalse(reopened.reserveDeterministicProbeR343(hash));
++            clock.elapsed += StartupProbePolicyR343.RETRY_MS;
++            assertTrue(reopened.reserveDeterministicProbeR343(hash));
++        }
++        // Force journal rotation with unrelated stages. Failure history and the
++        // finite reservation counter must survive compaction and process reopen.
++        for (int i=0; i<400; i++) {
++            StartupStageJournalR341.Token noise = reopened.begin("fixture","noise-"+i,
++                    StartupStageJournalR341.Stage.RUNTIME_BASE,hash);
++            assertTrue(reopened.end(noise,StartupStageJournalR341.Outcome.VERIFIED,"fixture",0L).durable);
++        }
++        StartupStageJournalR341 rotated = StartupStageJournalR341.open(root,"research",clock,scope);
++        assertTrue(rotated.hasDeterministicFailureLimit(hash));
++        clock.elapsed += StartupProbePolicyR343.RETRY_MS;
++        assertFalse(rotated.reserveDeterministicProbeR343(hash));
++        assertEquals("PROBE_LIMIT_REACHED_DEPENDENCY_CHANGE_REQUIRED", rotated.deterministicProbeStatusR343());
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+@@ -2561,8 +2561,13 @@
+         StartupStageJournalR341 startup = StartupStageJournalR341.open(getApplicationContext(), "research");
+         String dependency = com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.startupDependencyRevisionR342(store);
+         if (startup.hasDeterministicFailureLimit(dependency)) {
+-            heartbeatStateV8().markResearchStartupR342("CIRCUIT_OPEN", "THREE_MATCHING_STARTUP_BUGS:" + dependency);
+-            return;
++            if (!startup.reserveDeterministicProbeR343(dependency)) {
++                heartbeatStateV8().markResearchStartupR342("CIRCUIT_OPEN",
++                        "THREE_MATCHING_STARTUP_BUGS; " + startup.deterministicProbeStatusR343() + ":" + dependency);
++                return;
++            }
++            heartbeatStateV8().markResearchStartupR342("CIRCUIT_PROBE",
++                    "ONE_DURABLE_STARTUP_RETRY; READY_REQUIRES_SESSION_AND_WORKERS:" + dependency);
+         }
+         continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store, dependency);
+     }
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+@@ -95,6 +95,10 @@
+         registerR31(registry,WriteClass.RETENTION,"RETENTION_CP12*","R26_RETENTION_PHASE_*","R26_ARTIFACT_RETENTION","R914_DRAW_HISTORY_TRIM*");
+         registerR31(registry,WriteClass.REPORT,"R27_CHART_CACHE","R27_HEALTH","R27_OBSERVERS");
+         registerR31(registry,WriteClass.RESEARCH_DATA,"R914_DRAW_HISTORY_BATCH","R26_*","R27_*","R36_DEFERRED*","R909_SETTLEMENT_POST_COMMIT_SIDECAR*");
++        registerR31(registry,WriteClass.RESEARCH_DATA,"R343_TRAIN_INFRA_RECOVERY");
++        registerR31(registry,WriteClass.RESEARCH_CONTROL,"R343_ROLLING_CLAIM","R343_ROLLING_WAIT","R343_ROLLING_PLAN_WAIT","R343_ROLLING_FREEZE_CLAIM","R343_ROLLING_FREEZE_WAIT");
++        registerR31(registry,WriteClass.RESEARCH_DATA,"R343_ROLLING_PLAN","R343_ROLLING_FEATURES","R343_ROLLING_NUMERICS","R343_ROLLING_FAILED","R343_ROLLING_EVENT","R343_ROLLING_SOURCE_GAP","R343_ROLLING_CLEANUP");
++        registerR31(registry,WriteClass.RESEARCH_DATA,"R343_ROLLING_FREEZE_PLAN","R343_ROLLING_FREEZE_VERIFY","R343_ROLLING_FREEZE_COMMIT","R343_ROLLING_FREEZE_REJECT","R343_ROLLING_FREEZE_SUPERSEDE");
+         // R31-B02-C01: every literal operation in the production tree is registered explicitly. These kept their
+         // pre-R31 non-critical priority (the R914 critical set above is unchanged); registration only replaces
+         // UNKNOWN_PRIORITY with a declared class. Operations built at run time still report UNKNOWN_PRIORITY.
+@@ -1017,7 +1021,7 @@
+                 serviceSlot=RESEARCH_SERVICE_SLOT_R31.compareAndSet(false,true);
+             if(research&&!reentrant&&!serviceSlot
+                     &&com.ethk3.novaonepro.strategyv2.WriterHoldFaultsR31.deferResearch())
+-                throw new WriteRejectedR31("DEPENDENCY",operation,"ADMISSION",CommitOutcome.ROLLED_BACK,
++                throw new WriteRejectedR31("RESOURCE_QUEUE",operation,"ADMISSION",CommitOutcome.ROLLED_BACK,
+                         new IllegalStateException("R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN"));
+             for(int retry=0;retry<=AppConfig.DB_LOCK_RETRY_COUNT;retry++) {
+                 long acquireStarted=TimeSourceR811.monoNowMs(),heldSince=-1,localWait=-1;
+--- a/app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java
+@@ -52,31 +52,24 @@
+     }
+ 
+     static Map<String, Object> fromSnapshot(Context context, SQLiteDatabase db) {
+-        long now = android.os.SystemClock.elapsedRealtime();
+-        int observer = android.os.Process.myPid();
+-        try (Cursor row = db.rawQuery("SELECT state_value FROM " + DbHelper.TABLE_APP_STATE
+-                + " WHERE state_key=? AND length(CAST(state_value AS BLOB))<=24576", new String[]{KEY})) {
+-            if (!row.moveToFirst()) return unavailable(observer, "MAIN_PROJECTION_MISSING");
+-            String actualProcess = context.getApplicationInfo().processName;
+-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+-            List<ActivityManager.RunningAppProcessInfo> processes = am == null ? null : am.getRunningAppProcesses();
+-            int producer = 0;
+-            if (processes != null) {
+-                for (ActivityManager.RunningAppProcessInfo process : processes) {
+-                    if (actualProcess.equals(process.processName) && process.uid == context.getApplicationInfo().uid) {
+-                        producer = process.pid;
+-                        break;
+-                    }
+-                }
+-            }
+-            Object start = JsonR27.parse(new ServiceHeartbeatStore(context).processStartScopeR341());
+-            String epoch = start instanceof Map ? (String) ((Map<?, ?>) start).get("processEpoch") : null;
+-            return validate(row.getString(0), observer, producer, epoch, bootIdentity(context, epoch),
+-                    RuntimeObservationScopeR341.databaseIdentity(db), now);
++        return fromSnapshot(context,db,null);
++    }
++
++    static Map<String, Object> fromSnapshot(Context context, SQLiteDatabase db, String snapshotHash) {
++        int observer=android.os.Process.myPid();
++        try (Cursor row=db.rawQuery("SELECT state_value FROM " + DbHelper.TABLE_APP_STATE
++                + " WHERE state_key=? AND length(CAST(state_value AS BLOB))<=24576",new String[]{KEY})) {
++            if (!row.moveToFirst()) return unavailable(observer,"MAIN_PROJECTION_MISSING");
++            // The legacy report job stores wall time only, not an independently
++            // measured SQL pin monotonic interval. Preserve historical evidence;
++            // never validate a frozen row against current export elapsed time.
++            return WriterFaultSnapshotViewR343.project(row.getString(0),observer,snapshotHash,
++                    ReleaseManifestR926.MANIFEST_SHA256,BuildConfig.SOURCE_COMMIT_R26,
++                    RuntimeObservationScopeR341.databaseIdentity(db),null);
+         } catch (android.os.OperationCanceledException cancelled) {
+             throw cancelled;
+         } catch (RuntimeException unavailable) {
+-            return unavailable(observer, "MAIN_PROJECTION_SOURCE_UNAVAILABLE");
++            return unavailable(observer,"MAIN_PROJECTION_SOURCE_UNAVAILABLE");
+         }
+     }
+ 
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java
+@@ -70,7 +70,7 @@
+                 .put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26).put("snapshotSha256",snapshotHash)
+                 .put("metadataMember",compact?"DIAGNOSTIC_SCOPE.json":"attachments.jsonl")
+                 .put("state",compact?"ORIGINAL_BYTES_NOT_INCLUDED":"VERIFY_MEMBER_HASHES_ON_READBACK"));
+-        source.put("mainWriterFaultsR342", new JSONObject(MainWriterFaultProjectionR342.fromSnapshot(app, copy)));
++        source.put("mainWriterFaultsR342", new JSONObject(MainWriterFaultProjectionR342.fromSnapshot(app, copy, snapshotHash)));
+         String sourcePreparation = request.optString("reportSourcePreparation");
+         if (!sourcePreparation.isEmpty()) source.put("reportSourcePreparation", sourcePreparation);
+         source.put("omittedPayloads", compact ? "installed APK; raw SQLite; model/training/retention binaries; historical duplicate ledgers" : "NONE");
+--- a/app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java
+@@ -33,7 +33,7 @@
+     public enum Stage {
+         SERVICE_INITIALIZE, CRITICAL_OPEN, OWNER_DISPATCH, OWNER_BEGIN, CHECKPOINT_PREPARE,
+         CHECKPOINT_PRESERVE, RUNTIME_BASE, RETENTION_PLAN, RETENTION_UNIT,
+-        CHECKPOINT_POST_MIGRATION, UPGRADE_TRANSFORM, SESSION_REGISTER, OWNER_READY
++        CHECKPOINT_POST_MIGRATION, UPGRADE_TRANSFORM, SESSION_REGISTER, OWNER_READY, CIRCUIT_PROBE
+     }
+ 
+     public enum Outcome {
+@@ -80,6 +80,7 @@
+     private final RuntimeObservationScopeR341 identity;
+     private volatile String error = "";
+     private volatile long lastSequence;
++    private volatile String circuitProbeStateR343 = "NOT_CHECKED";
+ 
+     private StartupStageJournalR341(File directory, String owner,
+             RuntimeObservationScopeR341.Clock clock, RuntimeObservationScopeR341 identity) {
+@@ -302,26 +303,92 @@
+     }
+ 
+     public boolean hasDeterministicFailureLimit(String startDependency) {
+-        try {
+-            List<Map<String, Object>> frames = read(data).frames;
+-            String last = null;
+-            int count = 0;
+-            for (int i = frames.size() - 1; i >= 0; i--) {
+-                Map<String, Object> frame = frames.get(i);
+-                if (!identity.sourceCommit.equals(frame.get("sourceCommit")) ||
+-                        !"OWNER_BEGIN".equals(frame.get("stage")) || !"END".equals(frame.get("record"))) continue;
+-                if (startDependency != null && !startDependency.equals(frame.get("inputHash"))) return false;
+-                if (!"BUG".equals(frame.get("outcome"))) return false;
+-                String fingerprint = (String) frame.get("causeChainHash");
+-                if (fingerprint == null || (last != null && !last.equals(fingerprint))) return false;
+-                last = fingerprint;
+-                if (++count == 3) return true;
+-            }
+-        } catch (IOException unavailable) {
+-            return false;
++        try { return hasDeterministicFailureLimit(read(data).frames, startDependency); }
++        catch (IOException unavailable) { return false; }
++    }
++
++    private boolean hasDeterministicFailureLimit(List<Map<String,Object>> frames, String startDependency) {
++        String last = null;
++        int count = 0;
++        for (int i = frames.size() - 1; i >= 0; i--) {
++            Map<String,Object> frame = frames.get(i);
++            if (!identity.sourceCommit.equals(frame.get("sourceCommit")) ||
++                    !"OWNER_BEGIN".equals(frame.get("stage")) || !"END".equals(frame.get("record"))) continue;
++            if (startDependency != null && !startDependency.equals(frame.get("inputHash"))) return false;
++            if (!"BUG".equals(frame.get("outcome"))) return false;
++            String fingerprint = (String) frame.get("causeChainHash");
++            if (fingerprint == null || (last != null && !last.equals(fingerprint))) return false;
++            last = fingerprint;
++            if (++count == 3) return true;
+         }
+         return false;
+     }
++
++    /** A repeated startup bug remains visible, with one durable half-open attempt
++     * every five minutes, at most three reservations for one source/dependency.
++     * A changed source/dependency is still re-armed immediately.
++     * Both BEGIN and END reserve the slot, so an interrupted probe cannot hot-loop. */
++    public boolean reserveDeterministicProbeR343(String startDependency) {
++        circuitProbeStateR343 = "UNAVAILABLE";
++        if (startDependency == null || !startDependency.matches("[a-f0-9]{64}")) return false;
++        // Check and reserve under the same process/file lock; do not nest begin()/end()
++        // locks or allow two processes to observe the same unreserved probe slot.
++        return locked(false, () -> {
++            Readback current = read(data);
++            if (!hasDeterministicFailureLimit(current.frames, startDependency)) {
++                circuitProbeStateR343 = "DEPENDENCY_REARMED";
++                return true;
++            }
++            int previousProbes = 0;
++            for (int i = current.frames.size()-1; i >= 0; i--) {
++                Map<String,Object> frame = current.frames.get(i);
++                if (identity.sourceCommit.equals(frame.get("sourceCommit"))
++                        && startDependency.equals(frame.get("inputHash"))
++                        && "CIRCUIT_PROBE".equals(frame.get("stage"))) {
++                    Object count = frame.get("probeAttempt");
++                    previousProbes = count instanceof Number ? ((Number) count).intValue()
++                            : com.ethk3.novaonepro.strategyv2.StartupProbePolicyR343.MAX_PROBES_PER_DEPENDENCY;
++                    break;
++                }
++            }
++            if (!com.ethk3.novaonepro.strategyv2.StartupProbePolicyR343.hasProbeBudget(previousProbes)) {
++                circuitProbeStateR343 = "PROBE_LIMIT_REACHED_DEPENDENCY_CHANGE_REQUIRED";
++                return false;
++            }
++            Map<String,Object> latest = null;
++            for (int i = current.frames.size()-1; i >= 0; i--) {
++                Map<String,Object> frame = current.frames.get(i);
++                if (!identity.sourceCommit.equals(frame.get("sourceCommit"))
++                        || !startDependency.equals(frame.get("inputHash"))) continue;
++                boolean failure = "OWNER_BEGIN".equals(frame.get("stage"))
++                        && "END".equals(frame.get("record")) && "BUG".equals(frame.get("outcome"));
++                boolean probe = "CIRCUIT_PROBE".equals(frame.get("stage"));
++                if (failure || probe) { latest = frame; break; }
++            }
++            String previousBoot = latest == null ? null : (String) latest.get("bootId");
++            Object elapsed = latest == null ? null : latest.get("monoAt");
++            long previousMono = elapsed instanceof Number ? ((Number) elapsed).longValue() : -1L;
++            if (!com.ethk3.novaonepro.strategyv2.StartupProbePolicyR343.due(
++                    identity.bootId, clock.monotonic(), previousBoot, previousMono)) {
++                circuitProbeStateR343 = "COOLDOWN";
++                return false;
++            }
++            Token probe = new Token("research-circuit", UUID.randomUUID().toString(),
++                    Stage.CIRCUIT_PROBE, startDependency);
++            Map<String,Object> begin = base(probe, "BEGIN");
++            begin.put("probeAttempt", previousProbes + 1);
++            write(current, begin);
++            Map<String,Object> end = base(probe, "END");
++            end.put("probeAttempt", previousProbes + 1);
++            end.put("outcome", Outcome.VERIFIED.name());
++            end.put("evidenceRef", "ONE_BOUNDED_STARTUP_RETRY_NOT_OWNER_READY_OR_QUALITY");
++            write(current, end);
++            circuitProbeStateR343 = "PROBE_RESERVED";
++            return true;
++        });
++    }
++
++    public String deterministicProbeStatusR343() { return circuitProbeStateR343; }
+ 
+     private Map<String, Object> base(Token token, String record) {
+         Map<String, Object> frame = new LinkedHashMap<>(identity.exportEnvelope());
+@@ -399,13 +466,32 @@
+             attempts.add((String) current.frames.get(i).get("attempt"));
+         }
+         Set<String> open = openTokens(current.frames).keySet();
++        // Circuit decisions need the latest three owner outcomes and last probe,
++        // even when unrelated stage attempts trigger journal rotation.
++        Set<String> circuitTokens = new LinkedHashSet<>();
++        int ownerEnds = 0;
++        boolean probeKept = false;
++        for (int i = current.frames.size()-1; i >= 0; i--) {
++            Map<String,Object> frame = current.frames.get(i);
++            if (!identity.sourceCommit.equals(frame.get("sourceCommit"))) continue;
++            if (ownerEnds < 3 && "OWNER_BEGIN".equals(frame.get("stage")) && "END".equals(frame.get("record"))) {
++                circuitTokens.add((String) frame.get("token"));
++                ownerEnds++;
++            }
++            if (!probeKept && "CIRCUIT_PROBE".equals(frame.get("stage"))) {
++                circuitTokens.add((String) frame.get("token"));
++                probeKept = true;
++            }
++            if (ownerEnds == 3 && probeKept) break;
++        }
+         Set<String> firstFaults = new LinkedHashSet<>();
+         List<Map<String, Object>> kept = new ArrayList<>();
+         long required = 0;
+         for (Map<String, Object> item : current.frames) {
+             boolean firstFault = ("BUG".equals(item.get("outcome")) || "FATAL".equals(item.get("outcome"))
+                     || "MISSING_SOURCE".equals(item.get("outcome"))) && firstFaults.add((String) item.get("stage"));
+-            if (!attempts.contains(item.get("attempt")) && !open.contains(item.get("token")) && !firstFault) continue;
++            if (!attempts.contains(item.get("attempt")) && !open.contains(item.get("token"))
++                    && !circuitTokens.contains(item.get("token")) && !firstFault) continue;
+             kept.add(item);
+             required += bytes(item).length + 8;
+         }
+--- a/app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java
++++ b/app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java
+@@ -56,7 +56,7 @@
+     }
+ 
+     DatabaseCoordinator.WriteRejectedR31 rejected() {
+-        String category = "DEADLINE".equals(admission) ? "TEMP_TIMEOUT" : "RESOURCE_WAIT";
++        String category = "DEADLINE".equals(admission) ? "TEMP_TIMEOUT" : "RESOURCE_QUEUE";
+         return new DatabaseCoordinator.WriteRejectedR31(category, context.operation, "ADMISSION",
+                 DatabaseCoordinator.CommitOutcome.ROLLED_BACK, new IllegalStateException(admission));
+     }
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java
+@@ -0,0 +1,96 @@
++package com.ethk3.novaonepro;
++
++import com.ethk3.novaonepro.strategyv2.JsonR27;
++import com.ethk3.novaonepro.strategyv2.StatsR27;
++import java.util.LinkedHashMap;
++import java.util.Map;
++import java.util.Objects;
++
++/** A frozen SQL row is historical evidence. It cannot prove a currently live main owner. */
++final class WriterFaultSnapshotViewR343 {
++    private static final long TTL_MS = 12_000L;
++    private WriterFaultSnapshotViewR343() {}
++
++    /** Optional independently captured report/native pin bracket. Never construct
++     * this from the writer sample itself or from export-time wall-clock guesses.
++     * The current exporter has no such receipt and passes null, intentionally. */
++    static final class Anchor {
++        final String snapshot, release, source, boot, database;
++        final long earliestPinMono, latestPinMono;
++        Anchor(String snapshot, String release, String source, String boot, String database,
++                long earliestPinMono, long latestPinMono) {
++            this.snapshot=snapshot; this.release=release; this.source=source;
++            this.boot=boot; this.database=database;
++            this.earliestPinMono=earliestPinMono; this.latestPinMono=latestPinMono;
++        }
++    }
++
++    static Map<String,Object> project(String raw, int observer, String snapshot, String release,
++            String source, String database, Anchor anchor) {
++        Map<String,Object> out = unknown(observer, "SNAPSHOT_CLOCK_ANCHOR_UNAVAILABLE");
++        try {
++            Map<?,?> envelope = (Map<?,?>) JsonR27.parse(raw);
++            String original = (String) envelope.get("original");
++            if (original == null || !StatsR27.sha256(original).equals(envelope.get("sha256")))
++                return unknown(observer,"MAIN_PROJECTION_HASH_MISMATCH");
++            Map<?,?> sample = (Map<?,?>) JsonR27.parse(original);
++            // Preserve exact hash-verified bytes even when freshness/owner identity
++            // cannot be joined. Consumers must not promote this nested historical value.
++            out.put("historicalOriginalJson", original);
++            out.put("historicalOriginalSha256", envelope.get("sha256"));
++            out.put("historicalEvidenceScope", "HASH_VERIFIED_ROW_FROM_IMMUTABLE_SQL_SNAPSHOT; NOT_CURRENT_MAIN_STATE");
++            out.put("snapshotSha256", snapshot);
++            if (!"R342_MAIN_WRITER_FAULT_PROJECTION_1".equals(sample.get("format"))
++                    || !Objects.equals(release,sample.get("releaseId"))
++                    || !Objects.equals(source,sample.get("sourceCommit"))
++                    || database == null || "UNRESOLVED".equals(database)
++                    || !database.equals(sample.get("databaseIdentity"))) {
++                out.put("reason","SNAPSHOT_WRITER_SOURCE_IDENTITY_UNVERIFIED");
++                return out;
++            }
++            if (anchor == null) return out;
++            if (snapshot == null || !snapshot.matches("[a-f0-9]{64}")
++                    || !snapshot.equals(anchor.snapshot) || !Objects.equals(release,anchor.release)
++                    || !Objects.equals(source,anchor.source) || !database.equals(anchor.database)
++                    || anchor.boot == null || "UNRESOLVED".equals(anchor.boot)
++                    || !anchor.boot.equals(sample.get("bootId"))
++                    || anchor.earliestPinMono < 0 || anchor.latestPinMono < anchor.earliestPinMono) {
++                out.put("reason","SNAPSHOT_CLOCK_ANCHOR_IDENTITY_OR_ORDER_UNVERIFIED");
++                return out;
++            }
++            long sampled=((Number)sample.get("sampleElapsedMs")).longValue();
++            long expires=((Number)sample.get("validUntilElapsedMs")).longValue();
++            int producer=((Number)sample.get("producerPid")).intValue();
++            Object epoch=sample.get("processEpoch");
++            if (sampled<=0 || sampled>Long.MAX_VALUE-TTL_MS || expires!=sampled+TTL_MS
++                    || producer<=0 || !(epoch instanceof String) || ((String)epoch).isEmpty()) {
++                out.put("reason","SNAPSHOT_WRITER_SAMPLE_INVALID");
++                return out;
++            }
++            if (sampled>anchor.earliestPinMono || expires<anchor.latestPinMono) {
++                out.put("reason",expires<anchor.earliestPinMono ? "WRITER_SAMPLE_EXPIRED_BEFORE_SNAPSHOT"
++                        : "SNAPSHOT_PIN_INTERVAL_NOT_FULLY_FRESH");
++                return out;
++            }
++            for (Map.Entry<?,?> entry : sample.entrySet()) out.put((String)entry.getKey(),entry.getValue());
++            out.remove("reason");
++            out.put("observerPid",observer);
++            out.put("observationState","OBSERVED_AS_OF_SNAPSHOT_INTERVAL");
++            out.put("evidenceScope","SQL_SNAPSHOT_AS_OF_INDEPENDENT_PIN_INTERVAL; NOT_LIVE_FRESH");
++            out.put("snapshotPinEarliestMonoMs",anchor.earliestPinMono);
++            out.put("snapshotPinLatestMonoMs",anchor.latestPinMono);
++            return out;
++        } catch (RuntimeException invalid) {
++            out.put("reason","MAIN_PROJECTION_INVALID");
++            return out;
++        }
++    }
++
++    private static Map<String,Object> unknown(int observer,String reason) {
++        Map<String,Object> out=new LinkedHashMap<>();
++        out.put("observerPid",observer);out.put("producerPid",null);
++        out.put("pending",null);out.put("admitting",null);
++        out.put("observationState","UNKNOWN");out.put("reason",reason);
++        return out;
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupCheckpointIdentityR31.java
+@@ -25,27 +25,36 @@
+     public static String[] ddlR31(){return DDL.clone();}
+     private static String q(String value){return "\""+value.replace("\"","\"\"")+"\"";}
+     private static String exact(String value){return value==null?"":value.trim().replaceFirst("^(CREATE (?:TABLE|TRIGGER)) IF NOT EXISTS ","$1 ");}
+-    private static boolean exists(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE name=?",new String[]{name})){return c.moveToFirst();}}
++    private static boolean exists(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE name=?",new String[]{name})){return c.moveToFirst();}}
+     private static void definitions(SQLiteDatabase db){
+         for(String sql:DDL){java.util.regex.Matcher definition=java.util.regex.Pattern.compile("^CREATE (TABLE|TRIGGER) IF NOT EXISTS ([A-Za-z0-9_]+)").matcher(sql);if(!definition.find())throw new AssertionError("R31_STARTUP_DDL_HEADER");String type=definition.group(1).toLowerCase(Locale.ROOT),name=definition.group(2);
+-            try(Cursor c=db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?",new String[]{name})){if(!c.moveToFirst()||!type.equals(c.getString(0))||!exact(sql).equals(exact(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","EXACT_DEFINITION:"+name);}
++            try(Cursor c=db.rawQuery("SELECT type,sql FROM main.sqlite_master WHERE name=?",new String[]{name})){if(!c.moveToFirst()||!type.equals(c.getString(0))||!exact(sql).equals(exact(c.getString(1))))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","EXACT_DEFINITION:"+name);}
+         }
+     }
+     public static boolean ready(SQLiteDatabase db){
+         if(!exists(db,SOURCE)||!exists(db,"r31_startup_checkpoint_source"))return false;definitions(db);columns(db);
+-        try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM r31_startup_checkpoint_source WHERE singleton=1",null)){return c.moveToFirst()&&"integer".equals(c.getString(1))&&c.getLong(0)>=0;}
++        try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM main.r31_startup_checkpoint_source WHERE singleton=1",null)){return c.moveToFirst()&&"integer".equals(c.getString(1))&&c.getLong(0)>=0;}
+     }
+     /** DML only, after this owner's DDL units; no source mutation or payload copy. */
+-    public static void seedWithinMigrationR31(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_MIGRATION_WRITER");definitions(db);db.execSQL("INSERT OR IGNORE INTO r31_startup_checkpoint_source VALUES(1,0)");}
+-    private static long generation(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM r31_startup_checkpoint_source WHERE singleton=1",null)){if(!c.moveToFirst()||!"integer".equals(c.getString(1))||c.getLong(0)<0)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_GENERATION_UNKNOWN");return c.getLong(0);}}
++    public static void seedWithinMigrationR31(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_MIGRATION_WRITER");definitions(db);db.execSQL("INSERT OR IGNORE INTO main.r31_startup_checkpoint_source VALUES(1,0)");}
++    private static long generation(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT generation,typeof(generation) FROM main.r31_startup_checkpoint_source WHERE singleton=1",null)){if(!c.moveToFirst()||!"integer".equals(c.getString(1))||c.getLong(0)<0)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_GENERATION_UNKNOWN");return c.getLong(0);}}
+     private static long schema(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA main.schema_version",null)){if(!c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SCHEMA_UNKNOWN");return c.getLong(0);}}
+     private static String identity(SQLiteDatabase db){
+         String main=null;try(Cursor c=db.rawQuery("PRAGMA database_list",null)){while(c.moveToNext()){String name=c.getString(1);if("main".equals(name))main=c.getString(2);else if(!"temp".equals(name))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_ATTACHED_DATABASE");}}
+-        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_temp_master WHERE type <> 'table' OR name NOT IN ('r335_extension_catalog','r335_extension_seal','r335_extension_journal') LIMIT 1",null)){if(c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_TEMP_SCHEMA");}
++        // Android pools connections, so a legitimate migration scratch table may appear
++        // on the writer but not on a preparation reader. Accept only the exact owned
++        // scratch-table contracts; a shadow table, trigger or altered shape still fails.
++        try (Cursor c=db.rawQuery("SELECT type,name,tbl_name,sql FROM sqlite_temp_master ORDER BY type,name",null)) {
++            while (c.moveToNext()) {
++                if (!StartupTempSchemaR343.allowed(c.getString(0),c.getString(1),c.getString(2),c.getString(3)))
++                    throw new IllegalStateException("R31_STARTUP_CHECKPOINT_TEMP_SCHEMA:"
++                            + c.getString(0) + ":" + c.getString(1));
++            }
++        }
+         if(main==null)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_DATABASE_UNKNOWN");return main.isEmpty()?"MEMORY@"+System.identityHashCode(db):main;
+     }
+     private static LinkedHashMap<String,String> columns(SQLiteDatabase db){
+-        String create;try(Cursor c=db.rawQuery("SELECT CASE WHEN length(CAST(sql AS BLOB))<=65536 THEN sql ELSE NULL END FROM sqlite_master WHERE type='table' AND name=?",new String[]{SOURCE})){if(!c.moveToFirst()||c.isNull(0))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SOURCE_MISSING_OR_CONTRACT_BOUND");create=c.getString(0);}
++        String create;try(Cursor c=db.rawQuery("SELECT CASE WHEN length(CAST(sql AS BLOB))<=65536 THEN sql ELSE NULL END FROM main.sqlite_master WHERE type='table' AND name=?",new String[]{SOURCE})){if(!c.moveToFirst()||c.isNull(0))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SOURCE_MISSING_OR_CONTRACT_BOUND");create=c.getString(0);}
+         LinkedHashMap<String,String> result=new LinkedHashMap<>();
+         try(Cursor c=db.rawQuery("PRAGMA main.table_info("+q(SOURCE)+")",null)){while(c.moveToNext()){String name=c.getString(1);if(name==null||name.length()>512||result.containsKey(name)||result.size()>=253)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_COLUMN_BOUND");if(c.getInt(5)!=("owner".equals(name)?1:0))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SINGLE_OWNER_PRIMARY_KEY_REQUIRED");List<Object> fields=new ArrayList<>();for(int i=0;i<c.getColumnCount();i++)fields.add(c.isNull(i)?null:c.getString(i));result.put(name,JsonR27.write(fields));}}
+         if(!result.keySet().containsAll(Arrays.asList("owner","feature_abi","dataset_hash","trained_through","state_hash","artifact","updated_at")))throw new IllegalStateException("R31_STARTUP_CHECKPOINT_SOURCE_CONTRACT");
+@@ -72,7 +81,7 @@
+         public void requireWithin(SQLiteDatabase db){
+             if(!db.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_COMMIT_WRITER_REQUIRED");
+             if(!database.equals(identity(db))||!ready(db)||revision!=generation(db)||schemaVersion!=schema(db)||!columnContract.equals(columns(db)))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","R31_STARTUP_CHECKPOINT_SOURCE_CHANGED");
+-            for(Match match:matches)try(Cursor c=db.rawQuery("SELECT 1 FROM r31_keep_original WHERE archive_table=? AND row_id=? AND row_hash=? AND bytes=? AND state='MIGRATED_ORIGINAL_RETAINED'",new String[]{ARCHIVE,Long.toString(match.row),match.hash,Long.toString(match.bytes)})){if(!c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_CAS_METADATA_CHANGED");}
++            for(Match match:matches)try(Cursor c=db.rawQuery("SELECT 1 FROM main.r31_keep_original WHERE archive_table=? AND row_id=? AND row_hash=? AND bytes=? AND state='MIGRATED_ORIGINAL_RETAINED'",new String[]{ARCHIVE,Long.toString(match.row),match.hash,Long.toString(match.bytes)})){if(!c.moveToFirst())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_CAS_METADATA_CHANGED");}
+         }
+         /** Caller adds AND NOT (<this>) to the original complete legacy equality
+          * predicate, in the same writer callback immediately after requireWithin. */
+@@ -84,9 +93,9 @@
+          * transaction. This records actual consumption, with no model payload. */
+         public void recordWithin(SQLiteDatabase db,String processNonce,long actualNewRows){
+             requireWithin(db);if(processNonce==null||processNonce.isEmpty()||actualNewRows<0||actualNewRows>sourceRows-matches.size())throw new IllegalArgumentException("R31_STARTUP_CHECKPOINT_RECEIPT_COUNTS");
+-            try(Cursor c=db.rawQuery("SELECT retained_rows FROM r30_retention_boot_checkpoint WHERE process_nonce=?",new String[]{processNonce})){if(!c.moveToFirst()||c.getLong(0)!=actualNewRows)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_BOOT_RECEIPT_REQUIRED");}
++            try(Cursor c=db.rawQuery("SELECT retained_rows FROM main.r30_retention_boot_checkpoint WHERE process_nonce=?",new String[]{processNonce})){if(!c.moveToFirst()||c.getLong(0)!=actualNewRows)throw new IllegalStateException("R31_STARTUP_CHECKPOINT_BOOT_RECEIPT_REQUIRED");}
+             List<Object> refs=new ArrayList<>();for(Match match:matches){Map<String,Object> ref=new LinkedHashMap<>();ref.put("archive",ARCHIVE);ref.put("rowId",match.row);ref.put("rowHash",match.hash);ref.put("bytes",match.bytes);refs.add(ref);}
+-            db.execSQL("INSERT INTO r31_startup_checkpoint_receipt VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{processNonce,revision,schemaVersion,StatsR27.sha256(JsonR27.write(columnContract)),sourceRows,matches.size(),actualNewRows,examinedOriginalRows,comparedOriginalBytes,JsonR27.write(refs),System.currentTimeMillis()});
++            db.execSQL("INSERT INTO main.r31_startup_checkpoint_receipt VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{processNonce,revision,schemaVersion,StatsR27.sha256(JsonR27.write(columnContract)),sourceRows,matches.size(),actualNewRows,examinedOriginalRows,comparedOriginalBytes,JsonR27.write(refs),System.currentTimeMillis()});
+         }
+         public Map<String,Object> evidence(){Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","ACTUAL_COMPLETE_TYPED_SOURCE_CAS_COMPARISON_NOT_STATE_HASH_EQUALITY");out.put("sourceRows",sourceRows);out.put("matchedSourceRows",matches.size());out.put("examinedOriginalRows",examinedOriginalRows);out.put("comparedOriginalBytes",comparedOriginalBytes);out.put("sourceGeneration",revision);out.put("sourceSchemaVersion",schemaVersion);out.put("writerCasReads",0);out.put("permanentPayloadCopies",0);out.put("wholeApplicationOrNaturalQualityProven",false);
+             out.put("unavailableColdRows",unavailableRows);
+@@ -102,7 +111,7 @@
+         Map<String,Object> out=new LinkedHashMap<>();out.put("version",VERSION);out.put("scope","LAST_16_REAL_PROCESS_STARTUP_CHECKPOINT_RECEIPTS");out.put("readOnly",true);out.put("naturalQuality","NOT_PROVEN");
+         out.put("checkpointDependenciesR341", CheckpointDependencyR341.export(db, null));
+         if(!exists(db,"r31_startup_checkpoint_receipt")){out.put("status","NOT_READY_STARTUP_CHECKPOINT_RECEIPTS");out.put("receipts",null);return out;}
+-        List<Object> rows=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT process_nonce,source_generation,source_schema_version,column_contract_hash,source_rows,cas_matched_rows,actual_new_archive_rows,compared_original_rows,compared_original_bytes,committed_at FROM r31_startup_checkpoint_receipt ORDER BY committed_at DESC,process_nonce LIMIT 16",null)){while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();for(int i=0;i<c.getColumnCount();i++)row.put(c.getColumnName(i),i==0||i==3?c.getString(i):c.getLong(i));rows.add(row);}}
++        List<Object> rows=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT process_nonce,source_generation,source_schema_version,column_contract_hash,source_rows,cas_matched_rows,actual_new_archive_rows,compared_original_rows,compared_original_bytes,committed_at FROM main.r31_startup_checkpoint_receipt ORDER BY committed_at DESC,process_nonce LIMIT 16",null)){while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();for(int i=0;i<c.getColumnCount();i++)row.put(c.getColumnName(i),i==0||i==3?c.getString(i):c.getLong(i));rows.add(row);}}
+         out.put("status",rows.isEmpty()?"NO_COMMITTED_CAS_AWARE_STARTUP_OBSERVED":"ACTUAL_COMMITTED_STARTUP_CONSUMPTION");out.put("receipts",rows);return out;
+     }
+     public static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot)throws IOException{return prepare(read,verifiedCasRoot,null);}
+@@ -115,7 +124,7 @@
+     private static Prepared prepare(SQLiteDatabase read,File verifiedCasRoot,BudgetTokenSU1 budget,boolean preserveHotOnMissing)throws IOException{
+         if(read.inTransaction())throw new IllegalStateException("R31_STARTUP_CHECKPOINT_PREPARE_OUTSIDE_WRITER");if(!ready(read))throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","SOURCE_GUARD_NOT_READY");
+         String database=identity(read);long version=schema(read),revision=generation(read);LinkedHashMap<String,String> contract=columns(read);LinkedHashSet<String> names=new LinkedHashSet<>(contract.keySet());names.remove("\u0000CREATE_SQL");
+-        LinkedHashSet<String> owners=new LinkedHashSet<>();try(Cursor c=read.rawQuery("SELECT typeof(owner),owner FROM r29_model_checkpoint WHERE length(artifact)>0 ORDER BY owner LIMIT 65",null)){while(c.moveToNext()){if(!"text".equals(c.getString(0))||c.getString(1)==null||c.getString(1).length()>4096)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_STORAGE_CLASS_OR_BOUND");owners.add(c.getString(1));if(owners.size()>MAX_OWNERS)throw new IOException("R31_STARTUP_CHECKPOINT_SOURCE_ROW_BOUND");}}
++        LinkedHashSet<String> owners=new LinkedHashSet<>();try(Cursor c=read.rawQuery("SELECT typeof(owner),owner FROM main.r29_model_checkpoint WHERE length(artifact)>0 ORDER BY owner LIMIT 65",null)){while(c.moveToNext()){if(!"text".equals(c.getString(0))||c.getString(1)==null||c.getString(1).length()>4096)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_STORAGE_CLASS_OR_BOUND");owners.add(c.getString(1));if(owners.size()>MAX_OWNERS)throw new IOException("R31_STARTUP_CHECKPOINT_SOURCE_ROW_BOUND");}}
+         if (!owners.isEmpty() && !exists(read,"r31_keep_original"))
+             throw new DatabaseCoordinator.SchemaPendingR31("R31_STARTUP_CHECKPOINT","CAS_METADATA_NOT_READY");
+         File root = verifiedCasRoot;
+@@ -126,7 +135,7 @@
+         try(MemoryBudgetR31.Lease memory=admission.lease){
+             while(found.size()<owners.size()){
+                 checkpoint(budget);List<Match> page=new ArrayList<>();
+-                try(Cursor c=read.rawQuery("SELECT row_id,row_hash,bytes FROM r31_keep_original WHERE archive_table=? AND state='MIGRATED_ORIGINAL_RETAINED' AND row_id>? ORDER BY row_id LIMIT 64",new String[]{ARCHIVE,Long.toString(after)})){while(c.moveToNext()){String hash=c.getString(1);long size=c.getLong(2);if(c.getLong(0)<=after||hash==null||!hash.matches("[0-9a-f]{64}")||size<1||size>KeepMigrationStoreR31.MAX_ROW_BYTES)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_METADATA");page.add(new Match(null,c.getLong(0),hash,size));}}
++                try(Cursor c=read.rawQuery("SELECT row_id,row_hash,bytes FROM main.r31_keep_original WHERE archive_table=? AND state='MIGRATED_ORIGINAL_RETAINED' AND row_id>? ORDER BY row_id LIMIT 64",new String[]{ARCHIVE,Long.toString(after)})){while(c.moveToNext()){String hash=c.getString(1);long size=c.getLong(2);if(c.getLong(0)<=after||hash==null||!hash.matches("[0-9a-f]{64}")||size<1||size>KeepMigrationStoreR31.MAX_ROW_BYTES)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_METADATA");page.add(new Match(null,c.getLong(0),hash,size));}}
+                 if(page.isEmpty())break;
+                 for(Match original:page){checkpoint(budget);if(++examined>MAX_CAS_ROWS||totalBytes>KeepMigrationStoreR31.MAX_ROOT_BYTES-original.bytes)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_SCAN_BOUND");totalBytes+=original.bytes;after=original.row;
+                     String owner;
+@@ -161,16 +170,16 @@
+                 if((name.equals("__r30_id")||name.equals("__r30_at"))&&!type.equals("integer")||name.equals("__r30_reason")&&!type.equals("text"))throw new IOException("R31_STARTUP_CHECKPOINT_CAS_METADATA_STORAGE_CLASS");
+                 if(name.equals("owner")){
+                     if(!type.equals("text"))throw new IOException("R31_STARTUP_CHECKPOINT_CAS_OWNER_TYPE");long length=in.readLong();if(length<0||length>65536)throw new IOException("R31_STARTUP_CHECKPOINT_OWNER_BOUND");byte[] bytes=new byte[(int)length];in.readFully(bytes);owner=java.nio.charset.StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT).decode(java.nio.ByteBuffer.wrap(bytes)).toString();if(!owners.contains(owner)||found.contains(owner))equal=false;
+-                    if(equal)try(Cursor c=read.rawQuery("SELECT typeof(owner),CAST(owner AS BLOB) FROM r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||!"text".equals(c.getString(0))||!Arrays.equals(bytes,c.getBlob(1)))equal=false;}continue;
++                    if(equal)try(Cursor c=read.rawQuery("SELECT typeof(owner),CAST(owner AS BLOB) FROM main.r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||!"text".equals(c.getString(0))||!Arrays.equals(bytes,c.getBlob(1)))equal=false;}continue;
+                 }
+                 String actualType=null;long actualLength=-1;
+-                if(source&&owner!=null&&equal)try(Cursor c=read.rawQuery("SELECT typeof("+q(name)+"),length(CAST("+q(name)+" AS BLOB)) FROM r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst())equal=false;else{actualType=c.getString(0);actualLength=c.isNull(1)?-1:c.getLong(1);if(!type.equals(actualType))equal=false;}}
++                if(source&&owner!=null&&equal)try(Cursor c=read.rawQuery("SELECT typeof("+q(name)+"),length(CAST("+q(name)+" AS BLOB)) FROM main.r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst())equal=false;else{actualType=c.getString(0);actualLength=c.isNull(1)?-1:c.getLong(1);if(!type.equals(actualType))equal=false;}}
+                 if(source&&owner==null)equal=false;
+                 if(type.equals("null"))continue;
+-                if(type.equals("integer")||type.equals("real")){long stored=in.readLong();if(source&&equal)try(Cursor c=read.rawQuery("SELECT "+q(name)+" FROM r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||stored!=(type.equals("integer")?c.getLong(0):Double.doubleToRawLongBits(c.getDouble(0))))equal=false;}continue;}
++                if(type.equals("integer")||type.equals("real")){long stored=in.readLong();if(source&&equal)try(Cursor c=read.rawQuery("SELECT "+q(name)+" FROM main.r29_model_checkpoint WHERE owner=?",new String[]{owner})){if(!c.moveToFirst()||stored!=(type.equals("integer")?c.getLong(0):Double.doubleToRawLongBits(c.getDouble(0))))equal=false;}continue;}
+                 if(!type.equals("text")&&!type.equals("blob"))throw new IOException("R31_STARTUP_CHECKPOINT_CAS_STORAGE_CLASS");long length=in.readLong();if(length<0||length>KeepMigrationStoreR31.MAX_ROW_BYTES)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_VALUE_BOUND");if(source&&equal&&length!=actualLength)equal=false;
+                 for(long offset=0;offset<length;offset+=CHUNK){checkpoint(budget);int n=(int)Math.min(CHUNK,length-offset);in.readFully(buffer,0,n);
+-                    if(source&&equal)try(Cursor c=read.rawQuery("SELECT substr(CAST("+q(name)+" AS BLOB),?,?) FROM r29_model_checkpoint WHERE owner=?",new String[]{Long.toString(offset+1),Integer.toString(n),owner})){if(!c.moveToFirst())equal=false;else{byte[] actual=c.getBlob(0);if(actual==null||actual.length!=n)equal=false;else for(int k=0;k<n;k++)if(actual[k]!=buffer[k]){equal=false;break;}}}
++                    if(source&&equal)try(Cursor c=read.rawQuery("SELECT substr(CAST("+q(name)+" AS BLOB),?,?) FROM main.r29_model_checkpoint WHERE owner=?",new String[]{Long.toString(offset+1),Integer.toString(n),owner})){if(!c.moveToFirst())equal=false;else{byte[] actual=c.getBlob(0);if(actual==null||actual.length!=n)equal=false;else for(int k=0;k<n;k++)if(actual[k]!=buffer[k]){equal=false;break;}}}
+                 }
+             }
+             if(in.read()!=-1)throw new IOException("R31_STARTUP_CHECKPOINT_CAS_TRAILING_BYTES");
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupProbePolicyR343.java
+@@ -0,0 +1,19 @@
++package com.ethk3.novaonepro.strategyv2;
++
++/** Pure clock policy. A probe permits one initialization attempt, never READY or REAL. */
++public final class StartupProbePolicyR343 {
++    private StartupProbePolicyR343() {}
++    public static final long RETRY_MS = 300_000L;
++    public static final int MAX_PROBES_PER_DEPENDENCY = 3;
++
++    public static boolean hasProbeBudget(int previousAttempts) {
++        return previousAttempts >= 0 && previousAttempts < MAX_PROBES_PER_DEPENDENCY;
++    }
++
++    public static boolean due(String boot, long now, String previousBoot, long previousMono) {
++        if (boot == null || boot.isEmpty() || "UNRESOLVED".equals(boot) || now < 0) return false;
++        // A fresh boot can make one durable probe. It cannot inherit elapsed time.
++        if (previousBoot == null || !boot.equals(previousBoot)) return true;
++        return previousMono >= 0 && now >= previousMono && now - previousMono >= RETRY_MS;
++    }
++}
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/StartupTempSchemaR343.java
+@@ -0,0 +1,30 @@
++package com.ethk3.novaonepro.strategyv2;
++
++import java.util.Collections;
++import java.util.LinkedHashMap;
++import java.util.Map;
++
++/** Exact contracts of connection-local migration workspaces, never model data. */
++public final class StartupTempSchemaR343 {
++    private StartupTempSchemaR343() {}
++
++    private static final Map<String,String> TABLES;
++    static {
++        Map<String,String> tables = new LinkedHashMap<>();
++        tables.put("r31q_ddl_cache_flush", "CREATE TABLE r31q_ddl_cache_flush(x INTEGER)");
++        tables.put("r335_extension_catalog", "CREATE TABLE r335_extension_catalog(original_id INTEGER PRIMARY KEY,type,name,tbl_name,sql)");
++        tables.put("r335_extension_seal", "CREATE TABLE r335_extension_seal(domain TEXT,revision INTEGER,contract_hash TEXT,fingerprint TEXT,state TEXT)");
++        tables.put("r335_extension_journal", "CREATE TABLE r335_extension_journal(step_id TEXT,status TEXT,domain TEXT,revision INTEGER)");
++        TABLES = Collections.unmodifiableMap(tables);
++    }
++
++    public static boolean allowed(String type, String name, String table, String sql) {
++        if (!"table".equals(type) || name == null || !name.equals(table) || sql == null) return false;
++        String expected = TABLES.get(name);
++        // sqlite_master omits TEMP/IF NOT EXISTS in normal SQLite builds; accept
++        // either emitted form but no changed columns, constraints or table names.
++        String actual = sql.trim().replaceFirst("^CREATE TEMP TABLE ", "CREATE TABLE ")
++                .replaceFirst("^CREATE TABLE IF NOT EXISTS ", "CREATE TABLE ");
++        return expected != null && expected.equals(actual);
++    }
++}
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java
+@@ -40,6 +40,32 @@
+     private static int admitting;
+     private static long lastDrainWallR33,lastDrainMsR33;
+     private static String lastFailure = "", lastOutcome = "NOT_RUN";
++    private static long drainAttemptsR343, lastControlTickWallR343, phaseStartedNsR343;
++    private static int attemptedRowsR343, readBackRowsR343;
++    private static String drainPhaseR343 = "NOT_RUN", failurePhaseR343 = "", failureCategoryR343 = "";
++    private static final LinkedHashMap<String,Long> phaseMsR343 = new LinkedHashMap<>();
++
++    private static synchronized void beginDrainAttemptR343() {
++        drainAttemptsR343++;
++        attemptedRowsR343 = 0;
++        readBackRowsR343 = 0;
++        failurePhaseR343 = "";
++        failureCategoryR343 = "";
++        phaseMsR343.clear();
++        drainPhaseR343 = "READ_OUTBOX";
++        phaseStartedNsR343 = System.nanoTime();
++    }
++
++    private static synchronized void phaseR343(String next) {
++        long now = System.nanoTime();
++        if (phaseStartedNsR343 != 0L) {
++            long elapsed = Math.max(0L, (now - phaseStartedNsR343) / 1_000_000L);
++            Long previous = phaseMsR343.get(drainPhaseR343);
++            phaseMsR343.put(drainPhaseR343, (previous == null ? 0L : previous) + elapsed);
++        }
++        drainPhaseR343 = next;
++        phaseStartedNsR343 = now;
++    }
+     private static final String COLUMNS = "event_id,task_id,owner_epoch,fence,operation,phase,category,root_fingerprint,minute_bucket,cause_chain_json,stack,stack_hash,last_cause_chain_json,last_stack,last_stack_hash,commit_outcome,boot_id,first_wall_ms,last_wall_ms,first_elapsed_ms,last_elapsed_ms,occurrences,byte_count";
+ 
+     private static final class Event {
+@@ -195,14 +221,19 @@
+     private static int drainBatchR33(DbStore store,int maximum) {
+         if(store==null||!DRAINING.compareAndSet(false,true))return 0;
+         final long started=android.os.SystemClock.elapsedRealtime();
++        boolean attempted = false;
++        synchronized (WriterHoldFaultsR31.class) { lastControlTickWallR343 = System.currentTimeMillis(); }
+         try {
+             if (!RuntimeFaultOriginalStoreR335.mainProcess(store.contextForR26())) return 0;
+             final File outbox = new File(store.contextForR26().getNoBackupFilesDir(), "r342-writer-fault-inflight.json");
+             synchronized(WriterHoldFaultsR31.class){
+                 if(started<nextDrainElapsed)return 0;
+             }
++            attempted = true;
++            beginDrainAttemptR343();
+             final List<Event> batch = readInFlight(outbox);
+             final boolean retry = !batch.isEmpty();
++            phaseR343("SELECT_QUEUE");
+             if (!retry) synchronized (WriterHoldFaultsR31.class) {
+                 for (Event event : PENDING) {
+                     batch.add(event);
+@@ -210,9 +241,11 @@
+                 }
+                 if (batch.isEmpty()) {
+                     if (!"COMMITTED_READ_BACK".equals(drainStatus)) drainStatus = "IDLE";
++                    phaseR343("NO_PENDING");
+                     return 0;
+                 }
+             }
++            phaseR343("BOUND_BIND_BYTES");
+             long bindBytes=4096;
+             for(Event event:batch)bindBytes+=HoldLedgerFlushR30.bindBytesR31(event.row());
+             long bindLimit=Math.min(HoldLedgerFlushR30.bindCapR31(),com.ethk3.novaonepro.WriteBudgetR341.MAX_BIND_BYTES);
+@@ -220,7 +253,12 @@
+                 Event removed=batch.remove(batch.size()-1);bindBytes-=HoldLedgerFlushR30.bindBytesR31(removed.row());
+             }
+             if(bindBytes>bindLimit)throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_BIND_CAPACITY)");
+-            if (!retry) writeInFlight(outbox, batch);
++            synchronized (WriterHoldFaultsR31.class) { attemptedRowsR343 = batch.size(); }
++            if (!retry) {
++                phaseR343("WRITE_OUTBOX");
++                writeInFlight(outbox, batch);
++            }
++            phaseR343("VERIFY_SCHEMA");
+             synchronized (WriterHoldFaultsR31.class) { drainStatus = "VERIFY_SCHEMA"; }
+             SQLiteDatabase read=store.readable();
+             if(read.inTransaction())throw new IllegalStateException("R31_WRITER_HOLD_FAULT_DRAIN_REQUIRES_SEPARATE_TRANSACTION");
+@@ -239,11 +277,14 @@
+                 drainStatus = retry ? "RESOLVE_RECEIPT" : "WRITE_RECEIPT";
+             }
+             DatabaseCoordinator coordinator = store.coordinatorForResearchR952();
++            phaseR343("RESOLVE_RECEIPT");
+             DatabaseCoordinator.CommitOutcome outcome = retry ? coordinator.resolveCommitReceiptR31(identity)
+                     : DatabaseCoordinator.CommitOutcome.ROLLED_BACK;
+             if (outcome == DatabaseCoordinator.CommitOutcome.UNKNOWN)
+                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
+-            if (outcome == DatabaseCoordinator.CommitOutcome.ROLLED_BACK) outcome=coordinator.runIdempotentAtomicWriteR31(
++            if (outcome == DatabaseCoordinator.CommitOutcome.ROLLED_BACK) {
++                phaseR343("WRITE_RECEIPT");
++                outcome=coordinator.runIdempotentAtomicWriteR31(
+                 context,identity,db->{
+                     for(Event event:batch){
+                         requireQuota(db,event);
+@@ -252,13 +293,17 @@
+                     }
+                     return batch.size();
+                 },batch.size()).outcome;
++            }
+             if(outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED&&outcome!=DatabaseCoordinator.CommitOutcome.COMMITTED_DIAGNOSTIC_FAILED)
+                 throw new IllegalStateException("DEPENDENCY(WRITER_HOLD_FAULT_COMMIT_UNKNOWN)");
++            phaseR343("READ_BACK_EVENTS");
+             for (Event event : batch) {
+                 if (!present(read, event) && !matchesColdOriginal(store, read, event)) {
+                     throw new IllegalStateException("R31_INTEGRITY_WRITER_HOLD_FAULT_RECEIPT_WITHOUT_EVENT");
+                 }
+-            }
++                synchronized (WriterHoldFaultsR31.class) { readBackRowsR343++; }
++            }
++            phaseR343("VALIDATE_QUEUE");
+             if (WriterHoldLedgerR30.PROCESS_SESSION.equals(batch.get(0).processSession)) {
+                 synchronized (WriterHoldFaultsR31.class) {
+                     java.util.Iterator<Event> head = PENDING.iterator();
+@@ -269,6 +314,7 @@
+                     }
+                 }
+             }
++            phaseR343("RETIRE_OUTBOX");
+             new AtomicFile(outbox).delete();
+             if (outbox.exists() || new File(outbox.getPath()+".bak").exists()) {
+                 throw new IOException("R342_FAULT_OUTBOX_RETIRE_FAILED");
+@@ -284,7 +330,9 @@
+                 durableInFlightRows = 0; recoveredDifferentProcess = false; durableInFlightHash = null;
+                 lastBatchReceipt = identity.commitKey; lastBatchPayload = identity.payloadHash; lastBatchRows = batch.size();
+             }
++            phaseR343("RELEASE_MEMORY");
+             for(Event event:released)event.memory.close();
++            phaseR343("COMPLETED");
+             return batch.size();
+         }catch(RuntimeException|IOException unavailable){
+             Error fatal=FailureDispositionR31.processFatalCause(unavailable);if(fatal!=null)throw fatal;
+@@ -292,6 +340,8 @@
+             boolean protectedDebt = com.ethk3.novaonepro.RuntimeFaultArchiveB01.isProtectedDebt(unavailable);
+             synchronized(WriterHoldFaultsR31.class){
+                 drainFailures++;lastFailure=detail;
++                failurePhaseR343 = drainPhaseR343;
++                failureCategoryR343 = FailureDispositionR31.classify(unavailable).category;
+                 drainStatus = retryStatus(unavailable, protectedDebt);
+                 long delay = 250L << Math.min(3, consecutiveDrainFailures++);
+                 long jitter = java.util.concurrent.ThreadLocalRandom.current().nextLong(101L);
+@@ -301,7 +351,14 @@
+                 com.ethk3.novaonepro.RuntimeFaultArchiveB01.request(store,"r31_runtime_fault",detail);
+             return 0;
+         }finally{
+-            synchronized(WriterHoldFaultsR31.class){lastDrainWallR33=System.currentTimeMillis();lastDrainMsR33=android.os.SystemClock.elapsedRealtime()-started;}
++            synchronized(WriterHoldFaultsR31.class){
++                if (attempted) {
++                    phaseR343(drainPhaseR343);
++                    phaseStartedNsR343 = 0L;
++                    lastDrainWallR33=System.currentTimeMillis();
++                    lastDrainMsR33=android.os.SystemClock.elapsedRealtime()-started;
++                }
++            }
+             DRAINING.set(false);
+         }
+     }
+@@ -417,6 +474,19 @@
+         out.put("observerProcessSession",WriterHoldLedgerR30.PROCESS_SESSION);
+         out.put("observationWallMs",System.currentTimeMillis());
+         out.put("lastDrainWallMs",lastDrainWallR33);out.put("lastDrainMs",lastDrainMsR33);
++        out.put("lastControlTickWallMs", lastControlTickWallR343);
++        out.put("drainAttempts", drainAttemptsR343);
++        out.put("drainActive", DRAINING.get());
++        out.put("drainPhase", drainPhaseR343);
++        out.put("drainPhaseDurationsMs", new LinkedHashMap<>(phaseMsR343));
++        out.put("activePhaseElapsedMs", phaseStartedNsR343 == 0L ? null
++                : Math.max(0L, (System.nanoTime()-phaseStartedNsR343)/1_000_000L));
++        out.put("lastDrainFailurePhase", failurePhaseR343);
++        out.put("lastDrainFailureCategory", failureCategoryR343);
++        out.put("attemptedRows", attemptedRowsR343);
++        out.put("readBackRows", readBackRowsR343);
++        out.put("maximumDrainRows", DRAIN_ROWS);
++        out.put("drainTimingContract", "ATTEMPT_ONLY; COOLDOWN_TICKS_DO_NOT_REFRESH_LAST_DRAIN; NO_HARD_REALTIME_CLAIM");
+         out.put("oldestPendingWallMs",PENDING.isEmpty()?null:PENDING.peekFirst().wall);
+         out.put("oldestPendingAgeMs",PENDING.isEmpty()?0L:android.os.SystemClock.elapsedRealtime()-PENDING.peekFirst().elapsed);
+         out.put("drainStatus",drainStatus); out.put("nextDrainElapsedMs",nextDrainElapsed);

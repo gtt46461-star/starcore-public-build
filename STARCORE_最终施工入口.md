@@ -1,10 +1,9 @@
 # STARCORE 最终施工入口
 
-本轮唯一当前方案为 **R34.2（2026-11-25，文档修订1）**，以已安装577311152源码为底座。
+当前唯一方案为 **R34.3-173 修订2（2026-11-26）**，以安装577311173、源码`4d1de9d83692635b5c5ce39144fece1c8a31c8ac`为底座。
 
-[进入完整汇总方案](construction/plans/STARCORE_R34_2_REPAIR_20261125/CONSTRUCTION_PLAN.md) · [全部57项逐项详细问题](construction/plans/STARCORE_R34_2_REPAIR_20261125/ISSUES.md) · [交给执行者的唯一任务书](construction/plans/STARCORE_R34_2_REPAIR_20261125/CODEX_EXECUTE.md) · [12批施工顺序](construction/plans/STARCORE_R34_2_REPAIR_20261125/BATCH_INDEX.md)
+[完整施工方案](construction/plans/STARCORE_R34_3_REPAIR_20261126/CONSTRUCTION_PLAN.md) · [44项问题](construction/plans/STARCORE_R34_3_REPAIR_20261126/ISSUES.md) · [完整执行提示词](construction/plans/STARCORE_R34_3_REPAIR_20261126/CODEX_EXECUTE.md) · [12批施工](construction/plans/STARCORE_R34_3_REPAIR_20261126/BATCH_INDEX.md) · [原始报告](construction/plans/STARCORE_R34_3_REPAIR_20261126/report/ORIGINAL_DIAGNOSTIC_173.zip)
 
-当前权威入口与全部附录统一见[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。保留旧R34.1与更早历史要求，按152当前源码增量修改，禁止旧整文件覆盖和新竞争owner。
+所有入口与附录见[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。保留旧验收与成熟能力，精确补丁按before/after哈希串行施工；APK继续R34.2系列并绑定field173计划。
 
-本次只更新方案，实际应用修复、APK、设备与自然未来各层分别验收。
-
+本轮10组67步64文件，补齐构建语义身份、滚动等待/回收和逐指标职责；完成方案、补丁准备和24条主机命令范围内的验证；实际应用施工、Android、设备长稳和自然质量分别验收，不假报软件完工。

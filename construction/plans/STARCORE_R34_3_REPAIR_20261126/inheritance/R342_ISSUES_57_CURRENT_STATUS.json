@@ -1,0 +1,666 @@
+{
+  "count": 57,
+  "source_commit": "4d1de9d83692635b5c5ce39144fece1c8a31c8ac",
+  "rows": [
+    {
+      "old_issue_id": "R342-001",
+      "old_title": "当前唯一方案仍以122为底座，必须对152已完成改动作无损重绑",
+      "current_173_assessment": "本轮绑定真实173；旧152/122整文件后态不能覆盖173。",
+      "related_current_issues": [
+        "R343-001"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-002",
+      "old_title": "新R34.2版本身份必须扩展构建链，不能直接改版本名",
+      "current_173_assessment": "R34.2构建系列已实现，保留旧封印并新增field173绑定。",
+      "related_current_issues": [
+        "R343-002"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-003",
+      "old_title": "启动错误分类与故障原件不足，可能把依赖或资源等待错误归为 BUG",
+      "current_173_assessment": "typed启动异常原件已实现；仍有RESOURCE_WAIT未注册及训练误分类。",
+      "related_current_issues": [
+        "R343-007",
+        "R343-021"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-004",
+      "old_title": "writer 故障证据积压触发研究写入背压，同时挡住普通历史回补与前瞻冻结前置动作",
+      "current_173_assessment": "独立Looper和4条/64KiB排空已实现；真实卡点需分阶段取证。",
+      "related_current_issues": [
+        "R343-008"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-005",
+      "old_title": "故障排空报告读取的是诊断进程静态队列，无法说明主运行进程已解除背压",
+      "current_173_assessment": "主writer投影已实现；本报告时点已过期且UNKNOWN，不能当积压为0。",
+      "related_current_issues": [
+        "R343-009"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-006",
+      "old_title": "故障冷原件已索引但只有部分做了hash和receipt核验",
+      "current_173_assessment": "故障原件11396条仅3214完成验证，8182因预算未验证。",
+      "related_current_issues": [
+        "R343-017"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-007",
+      "old_title": "研究 owner 在 checkpoint 保存阶段失败，并达到同因三次 BUG 停启条件",
+      "current_173_assessment": "确定根因是第四张合法TEMP表与三表白名单冲突。",
+      "related_current_issues": [
+        "R343-004",
+        "R343-005"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-008",
+      "old_title": "服务心跳存在但研究健康长期陈旧，尝试时间不能替代实际进度",
+      "current_173_assessment": "当前研究owner确实STALE，先修启动再核执行。",
+      "related_current_issues": [
+        "R343-004"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-009",
+      "old_title": "三项关键研究来源表在诊断快照缺失，部分“全局schema READY”不代表能力就绪",
+      "current_173_assessment": "三表DDL存在，但迁移所有者未走到完成。",
+      "related_current_issues": [
+        "R343-006"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-010",
+      "old_title": "8409 条研究任务大多只是维护，缺少真实训练和研究动作任务的可交付进度",
+      "current_173_assessment": "现代TRAIN为5项其中4错误终结；13847总任务含13799维护与43旧更新，不能混计。",
+      "related_current_issues": [
+        "R343-021",
+        "R343-025"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-011",
+      "old_title": "研究公平服务和数值能力必须按当前版本真实提交衡量，旧会话与空推进不能验收",
+      "current_173_assessment": "六槽公平调度已存在；恢复后测队列时延，不能先重写调度。",
+      "related_current_issues": [
+        "R343-025",
+        "R343-026"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-012",
+      "old_title": "历史引导出现等待，多期在历史已绑定后仍未形成 canonical，逐期断点待闭合",
+      "current_173_assessment": "已有赛前历史通道，当前覆盖仍8/30；需要验证真实时限和故障背压。",
+      "related_current_issues": [
+        "R343-010"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-013",
+      "old_title": "近 30 期前瞻覆盖只有 1 期；“已有义务结算零滞后”掩盖未建义务",
+      "current_173_assessment": "本报告8/30；旧1/30不是同一窗口，不能直接宣称提升。",
+      "related_current_issues": [
+        "R343-010"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-014",
+      "old_title": "延后证据积压 1632，当前号码/全动作曲面未落齐",
+      "current_173_assessment": "延后证据待处理2268；保留事前快照，不开奖后重算1200动作。",
+      "related_current_issues": [
+        "R343-012"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-015",
+      "old_title": "一秒采集目标漏时隙 444，当前调度稳定性未达证明",
+      "current_173_assessment": "本报告1832槽536 missed tick；勿套旧444分母。",
+      "related_current_issues": [
+        "R343-018"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-016",
+      "old_title": "分析 PASS 只有 1 个有效计时样本，不能证明实时出号整体不卡",
+      "current_173_assessment": "本版8个单调时钟样本P95=41672ms；旧200样本2706ms另域。",
+      "related_current_issues": [
+        "R343-011"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-017",
+      "old_title": "界面存在可测掉帧，但目前缺少定位每次卡顿的完整因果链",
+      "current_173_assessment": "173已有frame诊断调整，仍需真机jank证据。",
+      "related_current_issues": [
+        "R343-020"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-018",
+      "old_title": "后台权限当前可用，24h/72h持续运行与设备恢复尚未验证",
+      "current_173_assessment": "24/72小时仍NOT_RUN；权限具备不等于稳定运行。",
+      "related_current_issues": [
+        "R343-019"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-019",
+      "old_title": "崩溃/长卡记录跨版本且滚动窗口不完备，不能直接算本版本故障或零故障",
+      "current_173_assessment": "累计2次旧版crash，本版记录0；不能据此保证全时段无崩溃。",
+      "related_current_issues": [
+        "R343-020"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-020",
+      "old_title": "全部 15 个现代策略家族被全量 4200 分子目录完成条件串联阻塞",
+      "current_173_assessment": "15家族依赖已部分分离，5个learned族仍被4200全目录门阻挡。",
+      "related_current_issues": [
+        "R343-023"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-021",
+      "old_title": "历史库有缺口，现代快训、回放和多周期研究的有效连续输入必须逐家族判断",
+      "current_173_assessment": "CP12连续后缀已实现并选出2066；R26其它合同分别保留。",
+      "related_current_issues": [
+        "R343-015",
+        "R343-024"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-022",
+      "old_title": "历史快速训练在输入登记、协议和任务注册之前就中断，尚未到可归因的数值训练阶段",
+      "current_173_assessment": "现代5协议已创建、部分特征已生产，但开发训练完成/冻结仍0。",
+      "related_current_issues": [
+        "R343-021",
+        "R343-022",
+        "R343-024",
+        "R343-033"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-023",
+      "old_title": "回放数据集没有给研究子任务持续提供可用输入，进化被依赖链挡住",
+      "current_173_assessment": "R26可恢复流程已存在；启动/写入阻断未解除前不能声称回放通过。",
+      "related_current_issues": [
+        "R343-004",
+        "R343-005",
+        "R343-024"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-024",
+      "old_title": "50 个旧候选与 12 个专家实验被 ABI 保全后，没有完成独立新身份的冷启再训练",
+      "current_173_assessment": "冷重生schema已实现，现场迁移未完成；保留旧ABI和角色。",
+      "related_current_issues": [
+        "R343-006",
+        "R343-029"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-025",
+      "old_title": "固定 40 个基础变体没有闭合为持续发现新结构的方法与算法生产",
+      "current_173_assessment": "40变体与17变异操作确实存在，不能当持续新机制或质量已证明。",
+      "related_current_issues": [
+        "R343-027"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-026",
+      "old_title": "第6版要求的新思路族“生成规则归纳→发布→异段迁移→恢复消费”未找到完整实现",
+      "current_173_assessment": "TypedGenerationRule真实实现和迁移消费已在173，现场产出未证。",
+      "related_current_issues": [
+        "R343-028"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-027",
+      "old_title": "现代训练链当前只保留一个旧 RECENCY_BLEND 候选，不能代表多机制策略已经运行",
+      "current_173_assessment": "现代已注册5、提议2，不能沿用旧只有1的结论。",
+      "related_current_issues": [
+        "R343-023",
+        "R343-026"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-028",
+      "old_title": "25350个原子规格没有转化为已准入、已绑定的训练特征和边际贡献证据",
+      "current_173_assessment": "25350原子及1203已验证分子已存在；注册不是实际使用。",
+      "related_current_issues": [
+        "R343-023",
+        "R343-030"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-029",
+      "old_title": "分子仍处扫描阶段，合法双组件与分子协同研究没有可消费原件",
+      "current_173_assessment": "4200原始目录SHA已核，只有1203物化；应按族局部就绪。",
+      "related_current_issues": [
+        "R343-023",
+        "R343-027"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-030",
+      "old_title": "81/82静态可调用中唯一缺件是F23教师未绑定，需局部修复而非重写全部家族",
+      "current_173_assessment": "F23/教师依赖仍需真实冻结教师，不能伪造绑定。",
+      "related_current_issues": [
+        "R343-029",
+        "R343-030"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-031",
+      "old_title": "AtomNet 已有物化和发布，但本次不能证明梯度更新→完整模型→预测消费闭环",
+      "current_173_assessment": "AtomNet梯度步能力表迁移未达；现有数值helper不证明端到端。",
+      "related_current_issues": [
+        "R343-006",
+        "R343-029"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-032",
+      "old_title": "已工作的在线数值训练没有追到最新数据，25次历史成功不能替代当前持续运行",
+      "current_173_assessment": "43数值更新来自legacy bootstrap；现代AST3持续学习缺owner。",
+      "related_current_issues": [
+        "R343-026"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-033",
+      "old_title": "训练流25次结算与正式独立未来资格是两套证据，正式冻结观察仍空",
+      "current_173_assessment": "正式未来为0；不能把43训练流更新充正式样本。",
+      "related_current_issues": [
+        "R343-033"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-034",
+      "old_title": "父子同期配对、固定窗口和独立确认没有运行，尚不能证明任何一代提升",
+      "current_173_assessment": "父子同目标配对窗口0，尚未达到优劣判定。",
+      "related_current_issues": [
+        "R343-027",
+        "R343-033"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-035",
+      "old_title": "20个注册矩阵没有保留的类型化生产/消费，不能用另一路25个R952快照抵充",
+      "current_173_assessment": "20typed矩阵与R952的49快照/47反馈不同，不能互相顶替。",
+      "related_current_issues": [
+        "R343-031"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-036",
+      "old_title": "17个矩阵输入在投影前过期，输入保留期与真实消费服务没有协调",
+      "current_173_assessment": "当前167输入=160DONE+7待归档，旧17已不适用；输入pin实现保留。",
+      "related_current_issues": [
+        "R343-031"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-037",
+      "old_title": "长期摘要持续更新但没有进入新策略出生与冻结输入，1043不是进化代数",
+      "current_173_assessment": "长周期1730条，多个epoch但子代来源0；记录数不等于代际。",
+      "related_current_issues": [
+        "R343-030"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-038",
+      "old_title": "538条研究测量中517条是输入失效事件，不能当538次完成研究，需查明版本反复失效",
+      "current_173_assessment": "旧517失效不是本版同域事实；按本报告lifetime重新核验。",
+      "related_current_issues": [
+        "R343-003",
+        "R343-029"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-039",
+      "old_title": "失败诊断没有生成可验证的假设→行动→子代→结果回流，已安装不是已执行",
+      "current_173_assessment": "失败假设/规则输出为0，上游正式反馈不足；恢复合法依赖后验证。",
+      "related_current_issues": [
+        "R343-027",
+        "R343-030"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-040",
+      "old_title": "已有出生和50次演化尝试没有完成真正代际记录与可复验的改善归因",
+      "current_173_assessment": "50进化尝试、确认代际0；不能把尝试变成成功计数。",
+      "related_current_issues": [
+        "R343-027",
+        "R343-028"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-041",
+      "old_title": "互补融合缺同目标双父件与共同失败/增益验证，不能只平均概率称融合进化",
+      "current_173_assessment": "融合实现存在；缺少满足冻结、配对、证据条件的父代，须局部等待。",
+      "related_current_issues": [
+        "R343-027",
+        "R343-030"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-042",
+      "old_title": "多周期探针与绑定研究没有持续观测，只有4条未运行记录和大量未记账机会",
+      "current_173_assessment": "探针7机会与从旧首锚点累计2849预定不能当173错过率；同目标融合0。",
+      "related_current_issues": [
+        "R343-032"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-043",
+      "old_title": "候选概率校准及冻结漂移策略缺件，概率值尚不具备已验证的质量含义",
+      "current_173_assessment": "校准0；保留既有校准协议、独立窗口和覆盖门。",
+      "related_current_issues": [
+        "R343-033",
+        "R343-034"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-044",
+      "old_title": "研究到证书、选择器、唯一主链冻结与结算的最后一段没有完成",
+      "current_173_assessment": "四证书域主链桥存在，无合格证书下零REAL不是应取消门槛的理由。",
+      "related_current_issues": [
+        "R343-033",
+        "R343-034"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-045",
+      "old_title": "总体占用约10.97GB，5000期开奖保留上限没有控制派生/报告/备份体积",
+      "current_173_assessment": "快照4.345GB；不能沿用旧总目录10.97GB而不注明时点。",
+      "related_current_issues": [
+        "R343-016"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-046",
+      "old_title": "checkpoint引用闭包不完整：556缺原件、18未字节验证、574子集合未知",
+      "current_173_assessment": "检查点556缺失/18未验/574未知，不能GC。",
+      "related_current_issues": [
+        "R343-017"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-047",
+      "old_title": "冷归档完成不等于物理空间已回收，当前没有可验证的GC释放闭环",
+      "current_173_assessment": "freePages=0，归档计数不等于物理可回收。",
+      "related_current_issues": [
+        "R343-016",
+        "R343-017"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-048",
+      "old_title": "数据库对象体积只截到前1024个名称，当前无法准确定位全部大表/索引",
+      "current_173_assessment": "173已经分页扫描StorageCensus；不要重修旧1024截断。",
+      "related_current_issues": [
+        "R343-016"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-049",
+      "old_title": "修复生效账仅覆盖2项工单且只保存首次事件，无法62项持续回查",
+      "current_173_assessment": "173 RepairEffectLedger已多事件，局部修复状态仍不覆盖1832父需求。",
+      "related_current_issues": [
+        "R343-042"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-050",
+      "old_title": "18个研究方向没有本次源码的可用产物与精确消费回执，读图不能替代算法闭环",
+      "current_173_assessment": "展示缺口已拆为白名单、预算、四图漏计和BORN消费漏计等真实原因。",
+      "related_current_issues": [
+        "R343-035",
+        "R343-036",
+        "R343-037",
+        "R343-038",
+        "R343-039"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-051",
+      "old_title": "生命周期报告的晋级权重说明与实际证书协议不一致",
+      "current_173_assessment": "173 AlgorithmLifecycle已改权重scope，不能沿用旧静态说明缺陷结论。",
+      "related_current_issues": [
+        "R343-029",
+        "R343-043"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-052",
+      "old_title": "K3九层失败诊断仍依赖静态PROVEN和文本关键词，不能准确归因当前运行模型",
+      "current_173_assessment": "RSEC066已动态反映100/100与0/1200；不是旧常量PROVEN问题。",
+      "related_current_issues": [
+        "R343-012",
+        "R343-043"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-053",
+      "old_title": "96项检查完成与语义封包成功不等于96项能力通过",
+      "current_173_assessment": "96检测执行完，不等于96业务PASS。",
+      "related_current_issues": [
+        "R343-003"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-054",
+      "old_title": "44项工程/质量指标没有已验证通过项，静态handler声明不能算运行效果",
+      "current_173_assessment": "44指标没有一个PASS。",
+      "related_current_issues": [
+        "R343-003",
+        "R343-034"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-055",
+      "old_title": "多时点和多进程观测并存，需要范围对齐才能判断矛盾或改善",
+      "current_173_assessment": "保持进程、时钟、source、数据库和role分母；不合并不同时段。",
+      "related_current_issues": [
+        "R343-003"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-056",
+      "old_title": "工程闭环和自然质量尚未验收，不能把升级目标写成高胜率或代代必强承诺",
+      "current_173_assessment": "质量仍未证明，禁止保证每代变好或高胜率。",
+      "related_current_issues": [
+        "R343-034",
+        "R343-044"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    },
+    {
+      "old_issue_id": "R342-057",
+      "old_title": "本包为DIAGNOSTIC，没有数据库/APK/模型训练原字节，外部复现能力受限",
+      "current_173_assessment": "诊断ZIP无SQLite/APK/模型原字节；API已核 release APK元数据，未独立下载APK。",
+      "related_current_issues": [
+        "R343-001",
+        "R343-003"
+      ],
+      "mapping_basis": "TITLE_ROOT_CAUSE_AND_CURRENT_SOURCE_REVIEW",
+      "old_acceptance_preserved": true,
+      "current_acceptance": "NOT_RUN_UNLESS_SEPARATELY_IDENTIFIED_HOST_TEST"
+    }
+  ]
+}

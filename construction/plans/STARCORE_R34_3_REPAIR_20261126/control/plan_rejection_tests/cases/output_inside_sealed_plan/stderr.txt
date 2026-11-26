@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/d324c6ac1328/audit/final_plan_rejection_tests/plan-rejection-fixtures-na78j_xw/output_inside_sealed_plan/tools/verify_plan.py", line 132, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/scratch/d324c6ac1328/audit/final_plan_rejection_tests/plan-rejection-fixtures-na78j_xw/output_inside_sealed_plan/tools/verify_plan.py", line 124, in main
+    if a.out:require(not a.out.resolve().is_relative_to(a.plan.resolve()),'OUTPUT_MUST_BE_OUTSIDE_SEALED_PLAN')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/d324c6ac1328/audit/final_plan_rejection_tests/plan-rejection-fixtures-na78j_xw/output_inside_sealed_plan/tools/verify_plan.py", line 12, in require
+    if not ok:raise ValueError(msg)
+              ^^^^^^^^^^^^^^^^^^^^^
+ValueError: OUTPUT_MUST_BE_OUTSIDE_SEALED_PLAN
