@@ -130,7 +130,8 @@ def run_probe(directory, serial, apk, field, run_id, index, probe):
     if failure:
         excerpt = (stderr + b'\n' + stdout).decode('utf-8',errors='replace').splitlines()
         for line in [line for line in excerpt if re.search(r'Error|Exception|Expected|actual|FAILURES|R343_STARTUP_',line)][-24:]:
-            print(line[:500],flush=True)
+            limit = 2400 if "R343_STARTUP_" in line else 500
+            print(line[:limit],flush=True)
     return dict(expected, issue=issue, selector=selector, status=disposition, failure=failure,
                 assertionCount=assertions, junitTests=1 if ok else None, exitCode=exit_code,
                 source=source_ref,context=context_ref,command=command,stdout=stdout_ref,stderr=stderr_ref,readback=readback)
