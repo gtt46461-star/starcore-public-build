@@ -40,7 +40,12 @@ jobs:
           target: default
           disable-animations: true
           ram-size: 4096M
-          script: ./gradlew --no-daemon --max-workers=4 :app:connectedDebugAndroidTest -Pr30Instrumentation=true -Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.Field173ChartGalleryCapture#staleFrameAndMissingTableRemainExplicitInNativeGallery -Pandroid.testInstrumentationRunnerArguments.r30Sandbox=R343_57731121157731121157731121110101
+          script: >-
+            ./gradlew --no-daemon --max-workers=4 :app:connectedDebugAndroidTest
+            -Pr30Instrumentation=true
+            -Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.Field173ChartGalleryCapture#staleFrameAndMissingTableRemainExplicitInNativeGallery
+            -Pandroid.testInstrumentationRunnerArguments.r30Sandbox=R343_57731121157731121157731121110101
+            -Pandroid.testInstrumentationRunnerArguments.field173Context=$(python3 -c 'import base64; print(base64.urlsafe_b64encode(b"{\"sourceCommit\":\"5c7f1b36eaee6036df280e85835bb0fb4ce0b40d\"}").decode())')
       - uses: actions/upload-artifact@v4
         if: always()
         with:
