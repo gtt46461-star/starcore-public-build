@@ -26,19 +26,25 @@ baseline = tmp/'installed-204.apk'
 candidate = tmp/'candidate-tested.apk'
 assert serial.startswith('emulator-') and ci.adb(serial,'shell','getprop','ro.kernel.qemu') == '1'
 old_sha = os.environ['BASELINE_SHA']
-old_source = '85678fcfd12816aec8b47474cd2349350a5684d7'
 new_source = os.environ['SOURCE']
 assert ci.sha(baseline)==old_sha
 assert 'Success' in ci.adb(serial,'install',baseline)
 before=ci.installed(serial,out/'before.txt')
 assert before['versionCode']==577311204 and before['apkSha256']==old_sha
-capture=ci.signed_report_campaign(serial,out,old_sha,old_sha)
-capture('baseline','COMPACT_DIAGNOSTIC',old_source)
-ci.adb(serial,'shell','am','force-stop',pkg)
+ci.signed_report_campaign(serial,out,old_sha,old_sha)
 db = json.loads((source/'release/release_manifest.json').read_text())['databaseName']
 assert '/' not in db
 live = f'/data/user/0/{pkg}/databases/{db}'
 local = tmp/db
+ci.adb(serial,'shell','pm','grant',pkg,'android.permission.POST_NOTIFICATIONS')
+ci.adb(serial,'shell','am','start','-W','-n',ui.ACTIVITY)
+for attempt in range(45):
+    if subprocess.run(['adb','-s',serial,'shell','test','-s',live]).returncode==0:
+        break
+    time.sleep(2)
+else:
+    raise AssertionError('Installed baseline did not open its database')
+ci.adb(serial,'shell','am','force-stop',pkg)
 identity = ci.adb(serial,'shell','stat','-c','%u:%g',live)
 assert identity.replace(':','').isdigit()
 for suffix in ['', '-wal', '-shm']:
@@ -46,18 +52,6 @@ for suffix in ['', '-wal', '-shm']:
         ci.adb(serial,'pull',live+suffix,str(local)+suffix)
 pairs=[(f'test-{a:03}',f'test-{b:03}',(a+b)/480.0,100,'202611270384') for a in range(240) for b in range(a+1,240)]
 with closing(sqlite3.connect(local)) as c:
-    c.executemany("INSERT INTO v57_atom_edge_r925(left_atom,right_atom,correlation,support_issues,last_issue) VALUES(?,?,?,?,?)",pairs)
-    # Two actual report ledgers at the cardinalities observed in the sealed 173 original.
-    # The fixture values are synthetic and use a separate game key.
-    event='v57_runtime_event_r926'
-    fetch='v57_fetch_ledger_r925'
-    c.execute("""WITH RECURSIVE n(i) AS (VALUES(1) UNION ALL SELECT i+1 FROM n WHERE i<718660)
-      INSERT INTO v57_runtime_event_r926(event_id,dedup_key,game_code,target_issue,epoch_id,attempt_id,event_type,stage,state_rank,payload_text,payload_hash,source,created_at)
-      SELECT printf('F207E%d',i),printf('F207D%d',i),'report-fixture','000','fixture','fixture','fixture',
-             printf('F207_STAGE_%02d',i%23),0,printf('%0300d',i)||lower(hex(randomblob(320))),'fixture','offline-regression',i FROM n""")
-    c.execute("""WITH RECURSIVE n(i) AS (VALUES(1) UNION ALL SELECT i+1 FROM n WHERE i<164173)
-      INSERT INTO v57_fetch_ledger_r925(request_id,method,endpoint,request_at,status,source_line)
-      SELECT printf('F207F%d',i),'FIXTURE','offline',i,printf('F207_STATUS_%02d',i%8),printf('%0188d',i)||lower(hex(randomblob(256))) FROM n""")
     import io, hashlib
     original=source/'construction/plans/STARCORE_R34_3_REPAIR_20261126/report/ORIGINAL_DIAGNOSTIC_173.zip'
     assert ci.sha(original)=='3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86'
@@ -65,7 +59,7 @@ with closing(sqlite3.connect(local)) as c:
         archive_scope=json.loads(archive.read('DIAGNOSTIC_SCOPE.json'))
         selected={section['table'] for section in archive_scope['recentEvidence'] if section['table'].startswith(('r80_probe_','research_long_'))}
         # MultiHorizonProbe's read-only retained-original accounting joins the archive registry.
-        selected.add('research_evidence_archive_v2')
+        selected.update({'research_evidence_archive_v2','v57_atom_edge_r925','v57_runtime_event_r926','v57_fetch_ledger_r925'})
         ddl={}
         for member in sorted(n for n in archive.namelist() if re.fullmatch(r'catalog-\d+\.jsonl',n)):
             for line in archive.open(member):
@@ -79,6 +73,18 @@ with closing(sqlite3.connect(local)) as c:
                 sql=''.join(text for pos,text in sorted(chunks))
                 assert sql.upper().startswith('CREATE ') and kind.upper() in sql.upper()[:30]
                 c.execute(sql)
+    c.executemany("INSERT INTO v57_atom_edge_r925(left_atom,right_atom,correlation,support_issues,last_issue) VALUES(?,?,?,?,?)",pairs)
+    # Two actual report ledgers at the cardinalities observed in the sealed 173 original.
+    # The fixture values are synthetic and use a separate game key.
+    event='v57_runtime_event_r926'
+    fetch='v57_fetch_ledger_r925'
+    c.execute("""WITH RECURSIVE n(i) AS (VALUES(1) UNION ALL SELECT i+1 FROM n WHERE i<718660)
+      INSERT INTO v57_runtime_event_r926(event_id,dedup_key,game_code,target_issue,epoch_id,attempt_id,event_type,stage,state_rank,payload_text,payload_hash,source,created_at)
+      SELECT printf('F207E%d',i),printf('F207D%d',i),'report-fixture','000','fixture','fixture','fixture',
+             printf('F207_STAGE_%02d',i%23),0,printf('%0300d',i)||lower(hex(randomblob(320))),'fixture','offline-regression',i FROM n""")
+    c.execute("""WITH RECURSIVE n(i) AS (VALUES(1) UNION ALL SELECT i+1 FROM n WHERE i<164173)
+      INSERT INTO v57_fetch_ledger_r925(request_id,method,endpoint,request_at,status,source_line)
+      SELECT printf('F207F%d',i),'FIXTURE','offline',i,printf('F207_STATUS_%02d',i%8),printf('%0188d',i)||lower(hex(randomblob(256))) FROM n""")
     archived={}
     projected_blobs=0
     projected_blob_bytes=0
@@ -166,11 +172,13 @@ with tarfile.open(tree,'w') as tar:
     for number in range(315):
         request=hashlib.sha256(('closed-fixture-%d'%number).encode()).hexdigest()
         entry=tarfile.TarInfo(request+'.ack.json')
-        payload=json.dumps(dict(requestId=request,jobId=request,stage='FAILED',reason='DISPOSABLE_CLOSED_FIXTURE')).encode()
+        payload=json.dumps(dict(requestId=request,jobId=request,stage='FAILED',reason='DISPOSABLE_CLOSED_FIXTURE',failureDetailR32='test terminal receipt '*264)).encode()
         entry.size=len(payload)
         tar.addfile(entry,io.BytesIO(payload))
 ci.adb(serial,'push',str(tree),'/data/local/tmp/field-history.tar')
 requests=f'/data/user/0/{pkg}/files/r981_reports/requests'
+ci.adb(serial,'shell','mkdir','-p',requests)
+ci.adb(serial,'shell','chown','-R',identity,f'/data/user/0/{pkg}/files/r981_reports')
 ci.adb(serial,'shell','tar','-xf','/data/local/tmp/field-history.tar','-C',requests)
 ci.adb(serial,'shell','chown','-R',identity,requests)
 ci.adb(serial,'shell','restorecon','-R',requests)
