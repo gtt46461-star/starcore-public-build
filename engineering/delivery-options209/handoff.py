@@ -39,47 +39,50 @@ for tick in range(30):
 else:
     raise AssertionError('Android share chooser was not foreground')
 ui.adb('shell','input','keyevent','KEYCODE_BACK')
-folder='StarcoreReport209'
+folder='00_StarcoreReport209'
 for directory in ['/sdcard','/sdcard/Download','/sdcard/Documents']:
     ui.adb('shell','mkdir','-p',directory+'/'+folder)
 assert ui.tap(reopen(),"保存到文件夹")
 def choose_folder():
-    navigated=False
+    import re
+
+    def click(node):
+        left,top,right,bottom=map(int,re.findall('[0-9]+',node.get('bounds')))
+        ui.adb('shell','input','tap',str((left+right)//2),str((top+bottom)//2))
+
+    provider_root_labels={'Alarms','Android','Movies','Music','Pictures','Podcasts','Notifications','Ringtones'}
     for tick in range(22):
-        xml,tree=ui.ui()
+        _,tree=ui.ui()
         nodes=list(tree.iter('node'))
-        labels=[n.get('text','') or n.get('content-desc','') for n in nodes]
-        if folder in labels and ui.tap(tree,folder):
+        labels={n.get('text') or n.get('content-desc','') for n in nodes}
+        folder_row=next((n for n in nodes if n.get('resource-id','').endswith(':id/title') and n.get('text')==folder),None)
+        if folder_row is not None:
+            click(folder_row)
             time.sleep(1)
             _,inside=ui.ui()
-            if ui.tap(inside,'Use this folder') or ui.tap(inside,'使用此文件夹'):
-                time.sleep(1)
-                _,confirm=ui.ui()
-                # A persisted tree grant can return directly to the app. Other DocumentsUI
-                # builds put the affirmative action in the standard dialog positive button.
+            observed=list(inside.iter('node'))
+            still_root=len(provider_root_labels & {n.get('text') for n in observed})>=4
+            selector=next((n for n in observed if n.get('enabled')=='true' and n.get('text','').casefold() in {'use this folder','使用此文件夹'}),None)
+            if selector is not None and not still_root:
+                click(selector)
                 for retry in range(10):
-                    nodes=list(confirm.iter('node'))
-                    labels=[(n.get('resource-id',''),n.get('text','')) for n in nodes if n.get('text')]
-                    print('TREE_CONFIRM',labels[-10:],flush=True)
-                    if not any(n.get('package','').endswith('documentsui') for n in nodes):break
-                    ok=next((n for n in nodes if n.get('enabled')=='true' and
-                        (n.get('resource-id','').endswith(':id/button1') or
-                         n.get('text','').casefold() in {'allow','允许','ok','确定','使用此文件夹','use this folder','select'})),None)
-                    if ok is not None:
-                        import re
-                        left,top,right,bottom=map(int,re.findall('[0-9]+',ok.get('bounds','')))
-                        ui.adb('shell','input','tap',str((left+right)//2),str((top+bottom)//2))
                     time.sleep(1)
                     _,confirm=ui.ui()
+                    nodes=list(confirm.iter('node'))
+                    if not any(n.get('package','').endswith('documentsui') for n in nodes):return
+                    positive=next((n for n in nodes if n.get('enabled')=='true' and
+                        n.get('text','').casefold() in {'allow','允许','ok','确定','select'}),None)
+                    if positive is not None:
+                        click(positive)
                 return
-        if tick in (2,8,15):
+        elif tick in (2,8,15):
             ui.tap(tree,'Show roots') or ui.tap(tree,'Open navigation drawer') or ui.tap(tree,'显示根目录')
-        elif ('Downloads' in labels or '下载' in labels) and not navigated:
-            navigated=ui.tap(tree,'Downloads') or ui.tap(tree,'下载')
+        elif 'Downloads' in labels or '下载' in labels:
+            ui.tap(tree,'Downloads') or ui.tap(tree,'下载')
         else:
-            ui.adb('shell','input','swipe','250','740','250','230','250')
+            ui.adb('shell','input','swipe','250','720','250','260','250')
         time.sleep(1)
-    raise AssertionError('Cannot navigate DocumentsUI to dedicated test directory: '+str(labels))
+    raise AssertionError('DocumentsUI did not enter the test folder: '+str(sorted(labels)))
 choose_folder()
 for tick in range(120):
     choices=ui.adb('shell','find','/sdcard/'+folder,'/sdcard/Download/'+folder,'/sdcard/Documents/'+folder,'-type','f',check=False).splitlines()
