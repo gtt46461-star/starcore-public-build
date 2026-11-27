@@ -91,6 +91,20 @@ for i, options in enumerate(([("now","new","db","g"), ("missing","new","db","g")
         db.execute("DELETE FROM draws")
         assert db.execute(old[i]).fetchall()==db.execute(new[i]).fetchall()
         db.execute("ROLLBACK TO empty")
+# The Android workload puts many wide, newer diagnostics for other games after the
+# last eligible request. SQLite must get to the game index before reading those pages.
+db.execute("ALTER TABLE event ADD COLUMN payload TEXT DEFAULT ''")
+db.executescript("""
+WITH RECURSIVE i(n) AS (SELECT 320004 UNION ALL SELECT n+1 FROM i WHERE n<540004)
+INSERT INTO event SELECT n,'fixture'||n,'unrelated','000','fixture','fixture',n,printf('%0900d',n) FROM i;
+""")
+field_args=("g",319500,42)
+assert sorted(db.execute(old[2],field_args).fetchall(),key=repr)==sorted(db.execute(new[2],field_args).fetchall(),key=repr)
+plan=[x[3] for x in db.execute("EXPLAIN QUERY PLAN "+new[2],field_args)]
+print("Sparse game",*plan,sep=" | ",flush=True)
+assert any("e USING INDEX idx_r926_event_issue (game_code=?)" in part for part in plan),plan
+db.execute("DELETE FROM event WHERE game_code='unrelated'")
+
 db.executescript("DROP INDEX r341_observation_release; DROP INDEX idx_r926_event_attempt; DROP INDEX idx_r927_resource_attempt;")
 assert db.execute(old[0],("now","new","db","g")).fetchall()==db.execute(new[0],("now","new","db","g")).fetchall()
 # The unindexed fallback is for legacy snapshots with small historical data.

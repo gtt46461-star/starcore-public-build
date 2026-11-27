@@ -37,20 +37,16 @@ public final class RuntimeAttemptObservabilityR926 {
     }
 
     private static final String EVENTS = RuntimeEventLedgerR926.TABLE_EVENT;
-    // Take the latest distinct requested attempts in sequence order, then probe each
-    // attempt's indexed evidence. A historical request from another game or before
-    // the release boundary cannot hide a current request for the same attempt.
+    // Select the release's requests from the game index before sorting by sequence.
+    // A reverse row-id scan reads unrelated games and their payload pages before the limit.
     private static final String ACCEPTANCE_WINDOW = "SELECT r.attempt_id,t.sample_class,"
             + "EXISTS(SELECT 1 FROM " + EVENTS + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='REJECTED'),"
             + "EXISTS(SELECT 1 FROM " + EVENTS + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='CANONICAL')"
             + ",COALESCE((SELECT max(q.status<>'CANONICAL_COMMITTED') FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id),0)"
             + ",COALESCE((SELECT max(q.status='CANONICAL_COMMITTED') FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id),0)"
-            + " FROM (SELECT e.attempt_id FROM " + EVENTS + " e NOT INDEXED"
+            + " FROM (SELECT e.attempt_id,MAX(e.seq) AS last_seq FROM " + EVENTS + " e"
             + " WHERE e.event_type='REQUESTED' AND e.game_code=? AND e.created_at>=? AND e.attempt_id<>''"
-            + " AND NOT EXISTS(SELECT 1 FROM " + EVENTS + " n"
-            + " WHERE n.attempt_id=e.attempt_id AND n.seq>e.seq AND n.game_code=e.game_code"
-            + " AND n.event_type='REQUESTED' AND n.created_at>=?2)"
-            + " ORDER BY e.seq DESC LIMIT 120) r"
+            + " GROUP BY e.attempt_id ORDER BY last_seq DESC LIMIT 120) r"
             + " LEFT JOIN v57_prediction_timing_r925 t ON t.attempt_id=r.attempt_id AND t.release_code=?";
 
     /** Latest requested attempts are the denominator; failed/missing/rehydrated samples block PASS. */
