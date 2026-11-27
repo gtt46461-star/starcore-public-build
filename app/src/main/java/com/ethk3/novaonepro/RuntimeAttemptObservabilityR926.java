@@ -36,21 +36,29 @@ public final class RuntimeAttemptObservabilityR926 {
         return b.toString();
     }
 
+    private static final String EVENTS = RuntimeEventLedgerR926.TABLE_EVENT;
+    // Take the latest distinct requested attempts in sequence order, then probe each
+    // attempt's indexed evidence. A historical request from another game or before
+    // the release boundary cannot hide a current request for the same attempt.
+    private static final String ACCEPTANCE_WINDOW = "SELECT r.attempt_id,t.sample_class,"
+            + "EXISTS(SELECT 1 FROM " + EVENTS + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='REJECTED'),"
+            + "EXISTS(SELECT 1 FROM " + EVENTS + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='CANONICAL')"
+            + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q INDEXED BY idx_r927_resource_attempt WHERE q.attempt_id=r.attempt_id AND q.status<>'CANONICAL_COMMITTED')"
+            + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q INDEXED BY idx_r927_resource_attempt WHERE q.attempt_id=r.attempt_id AND q.status='CANONICAL_COMMITTED')"
+            + " FROM (SELECT e.attempt_id FROM " + EVENTS + " e NOT INDEXED"
+            + " WHERE e.event_type='REQUESTED' AND e.game_code=? AND e.created_at>=? AND e.attempt_id<>''"
+            + " AND NOT EXISTS(SELECT 1 FROM " + EVENTS + " n INDEXED BY idx_r926_event_attempt"
+            + " WHERE n.attempt_id=e.attempt_id AND n.seq>e.seq AND n.game_code=e.game_code"
+            + " AND n.event_type='REQUESTED' AND n.created_at>=?2)"
+            + " ORDER BY e.seq DESC LIMIT 120) r"
+            + " LEFT JOIN v57_prediction_timing_r925 t ON t.attempt_id=r.attempt_id AND t.release_code=?";
+
     /** Latest requested attempts are the denominator; failed/missing/rehydrated samples block PASS. */
     static String acceptanceWindow(DbStore store) {
         SQLiteDatabase db = store.readable();
         long since = releaseStartedAt(db);
         if (since <= 0L) return "RELEASE_EPOCH_MISSING";
-        String events = RuntimeEventLedgerR926.TABLE_EVENT;
-        Cursor c = db.rawQuery("SELECT r.attempt_id,t.sample_class,"
-                + "EXISTS(SELECT 1 FROM " + events + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='REJECTED'),"
-                + "EXISTS(SELECT 1 FROM " + events + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='CANONICAL')"
-                + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id AND q.status<>'CANONICAL_COMMITTED')"
-                + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id AND q.status='CANONICAL_COMMITTED')"
-                + " FROM (SELECT attempt_id,MAX(seq) seq FROM " + events
-                + " WHERE event_type='REQUESTED' AND game_code=? AND created_at>=? AND attempt_id<>''"
-                + " GROUP BY attempt_id ORDER BY seq DESC LIMIT 120) r"
-                + " LEFT JOIN v57_prediction_timing_r925 t ON t.attempt_id=r.attempt_id AND t.release_code=?",
+        Cursor c = db.rawQuery(ACCEPTANCE_WINDOW,
                 new String[]{ReleaseManifestR926.GAME_CODE, String.valueOf(since), String.valueOf(BuildConfig.VERSION_CODE)});
         int n=0, failed=0;
         try { while(c.moveToNext()) { n++; if(!"WARM_MONOTONIC".equals(c.getString(1)) || c.getInt(2)>0 || c.getInt(3)==0 || c.getInt(4)>0 || c.getInt(5)==0) failed++; } }
@@ -229,16 +237,7 @@ static String acceptanceWindowSnapshotCP4(com.ethk3.novaonepro.ReportReadContext
         SQLiteDatabase db = store.readable();
         long since = releaseStartedAtSnapshotCP4(report, db);
         if (since <= 0L) return "RELEASE_EPOCH_MISSING";
-        String events = RuntimeEventLedgerR926.TABLE_EVENT;
-        Cursor c = report.select("SELECT r.attempt_id,t.sample_class,"
-                + "EXISTS(SELECT 1 FROM " + events + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='REJECTED'),"
-                + "EXISTS(SELECT 1 FROM " + events + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='CANONICAL')"
-                + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id AND q.status<>'CANONICAL_COMMITTED')"
-                + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id AND q.status='CANONICAL_COMMITTED')"
-                + " FROM (SELECT attempt_id,MAX(seq) seq FROM " + events
-                + " WHERE event_type='REQUESTED' AND game_code=? AND created_at>=? AND attempt_id<>''"
-                + " GROUP BY attempt_id ORDER BY seq DESC LIMIT 120) r"
-                + " LEFT JOIN v57_prediction_timing_r925 t ON t.attempt_id=r.attempt_id AND t.release_code=?",
+        Cursor c = report.select(ACCEPTANCE_WINDOW,
                 new String[]{ReleaseManifestR926.GAME_CODE, String.valueOf(since), String.valueOf(BuildConfig.VERSION_CODE)});
         int n=0, failed=0;
         try { while(c.moveToNext()) { n++; if(!"WARM_MONOTONIC".equals(c.getString(1)) || c.getInt(2)>0 || c.getInt(3)==0 || c.getInt(4)>0 || c.getInt(5)==0) failed++; } }

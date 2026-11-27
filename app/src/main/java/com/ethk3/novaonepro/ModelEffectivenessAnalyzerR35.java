@@ -950,8 +950,8 @@ public final class ModelEffectivenessAnalyzerR35 {
 
 public Analysis analyzeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
         RuntimeHealthLedgerR36.BusinessTruth business =
-                RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report, store);
-        RuntimeSummary runtime = readRuntimeSnapshotCP4(report, store);
+                report.memo("business-truth", () -> RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report, store));
+        RuntimeSummary runtime = report.memo("model-runtime", () -> readRuntimeSnapshotCP4(report, store));
         Metrics metrics = readMetricsSnapshotCP4(report, store);
         Coverage coverage = readCoverageSnapshotCP4(report, store, 30);
         CountResult pending =

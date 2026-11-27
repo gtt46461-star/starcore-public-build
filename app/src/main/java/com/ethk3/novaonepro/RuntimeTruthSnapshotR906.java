@@ -823,10 +823,13 @@ public final class RuntimeTruthSnapshotR906 {
         return b.length()==0?"NO_SAMPLE:NO_SETTLEMENT_TASK":b.toString();
     }
 
-    private static final String COVERAGE_R341 = "WITH hot AS (SELECT issue FROM "+DbHelper.TABLE_DRAWS
-            +" WHERE dirty=0), eligible AS (SELECT s.target_issue,s.settled FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION
-            +" s JOIN hot h ON h.issue=s.target_issue WHERE s.pre_draw_frozen=1), task AS (SELECT t.status FROM "
-            +DbHelper.TABLE_R36_SETTLEMENT_TASK+" t JOIN hot h ON h.issue=t.target_issue) SELECT "
+    // Drive the joins from the small evidence ledgers into the draw issue index.
+    // Materializing all clean draws first forces temporary tables on field-sized histories.
+    private static final String COVERAGE_R341 = "WITH eligible AS (SELECT s.target_issue,s.settled FROM "
+            +DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s CROSS JOIN "+DbHelper.TABLE_DRAWS
+            +" h ON h.issue=s.target_issue AND h.dirty=0 WHERE s.pre_draw_frozen=1), task AS (SELECT t.status FROM "
+            +DbHelper.TABLE_R36_SETTLEMENT_TASK+" t CROSS JOIN "+DbHelper.TABLE_DRAWS
+            +" h ON h.issue=t.target_issue AND h.dirty=0) SELECT "
             +"(SELECT count(*) FROM eligible),"
             +"(SELECT count(*) FROM eligible e WHERE e.settled=1 AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_R35_OOS_LABEL
             +" l WHERE l.target_issue=e.target_issue AND l.strict_oos=1)),"
@@ -834,9 +837,11 @@ public final class RuntimeTruthSnapshotR906 {
             +"(SELECT count(*) FROM task WHERE status IN ('FAILED_TERMINAL','INVALID_DRAW_TERMINAL')),"
             +"(SELECT count(*) FROM task),"
             +"(SELECT count(*) FROM task WHERE status IN ('COMPLETED','NO_PREDRAW_CANONICAL_TERMINAL','FAILED_TERMINAL','INVALID_DRAW_TERMINAL')),"
-            +"(SELECT min(issue) FROM hot),(SELECT max(issue) FROM hot),"
+            +"(SELECT min(issue) FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0),"
+            +"(SELECT max(issue) FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0),"
             +"(SELECT count(*) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION
-            +" s WHERE s.pre_draw_frozen=1 AND s.settled=1 AND NOT EXISTS(SELECT 1 FROM hot h WHERE h.issue=s.target_issue)"
+            +" s WHERE s.pre_draw_frozen=1 AND s.settled=1 AND NOT EXISTS(SELECT 1 FROM "+DbHelper.TABLE_DRAWS
+            +" h WHERE h.issue=s.target_issue AND h.dirty=0)"
             +" AND EXISTS(SELECT 1 FROM "+DbHelper.TABLE_R35_OOS_LABEL+" l WHERE l.target_issue=s.target_issue AND l.strict_oos=1))";
 
     private static SettlementCoverageTruthR906 readCoverageR341(Cursor c){

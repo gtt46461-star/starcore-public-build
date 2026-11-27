@@ -4000,7 +4000,8 @@ public StageArtifact collectRuntimeSnapshotCP4(com.ethk3.novaonepro.ReportReadCo
         if (store == null) return readErrorSnapshotCP4(report, Stage.RUNTIME, context, "STORE_NULL", "DbStore");
         AutoFetchService.B13RuntimeHealth health = AutoFetchService.b13HealthSnapshotCP4(report, store);
         RuntimeHealthLedgerR36.BusinessTruth business = context.businessTruth;
-        ModelEffectivenessAnalyzerR35.RuntimeSummary runtime = context.model.runtime;
+        ModelEffectivenessAnalyzerR35.RuntimeSummary runtime = report.memo("model-runtime",
+                () -> ModelEffectivenessAnalyzerR35.readRuntimeSnapshotCP4(report, store));
         String durable = AnalysisRequestStoreR36.diagnosticSnapshotCP4(report, context.targetIssue);
         ArrayList<Metric> metrics = new ArrayList<Metric>();
         metrics.add(latestAttemptMetricR76(runtime));
@@ -4207,10 +4208,11 @@ public StageArtifact collectDataSnapshotCP4(com.ethk3.novaonepro.ReportReadConte
     }
 
 public StageArtifact stageSnapshotCP12(com.ethk3.novaonepro.ReportReadContextCP4 report,Stage stage){
-      ModelEffectivenessAnalyzerR35.Analysis model=report.memo("model-analysis",()->new ModelEffectivenessAnalyzerR35().analyzeSnapshotCP4(report,report));
-      RuntimeHealthLedgerR36.BusinessTruth truth=report.memo("business-truth",()->RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report,report));
-      String target=truth.latestDrawIssue.length()==0?report.state("target_issue",""):AppConfig.nextIssueText(truth.latestDrawIssue);
-      DiagnosisContext context=new DiagnosisContext(report.nowMs(),target,model,truth);
+      ModelEffectivenessAnalyzerR35.Analysis model = stage == Stage.CALIBRATION
+              ? report.memo("model-analysis", () -> new ModelEffectivenessAnalyzerR35().analyzeSnapshotCP4(report, report)) : null;
+      RuntimeHealthLedgerR36.BusinessTruth truth = stage == Stage.RUNTIME
+              ? report.memo("business-truth", () -> RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report, report)) : null;
+      DiagnosisContext context = new DiagnosisContext(report.nowMs(), snapshotDiagnosisTarget(report), model, truth);
       switch(stage){
 case DATA:return collectDataSnapshotCP4(report,report,context);
 case RUNTIME:return collectRuntimeSnapshotCP4(report,report,context);
@@ -4232,8 +4234,11 @@ default:throw new IllegalArgumentException("REPORT_STAGE_UNKNOWN");}
 public DiagnosisBundle diagnosisSnapshotCP12(com.ethk3.novaonepro.ReportReadContextCP4 report){
       java.util.List<StageArtifact> stages=new java.util.ArrayList<>();
       for(Stage stage:Stage.values())stages.add(report.memo("diagnosis-stage-"+stage.name(),()->stageSnapshotCP12(report,stage)));
-      RuntimeHealthLedgerR36.BusinessTruth truth=report.memo("business-truth",()->RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report,report));
-      String target=truth.latestDrawIssue.length()==0?report.state("target_issue",""):AppConfig.nextIssueText(truth.latestDrawIssue);
-      return assemble(report.nowMs(),target,stages);
+      return assemble(report.nowMs(), snapshotDiagnosisTarget(report), stages);
+    }
+
+    private static String snapshotDiagnosisTarget(ReportReadContextCP4 report) {
+        String latest = safe(report.getLatestDrawIssue());
+        return latest.isEmpty() ? report.state("target_issue", "") : AppConfig.nextIssueText(latest);
     }
 }
