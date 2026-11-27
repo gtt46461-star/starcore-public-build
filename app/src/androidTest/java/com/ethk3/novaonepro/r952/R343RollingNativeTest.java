@@ -14,6 +14,7 @@ import com.ethk3.novaonepro.Field173NativeEvidence;
 import com.ethk3.novaonepro.Models;
 import com.ethk3.novaonepro.ResearchTaskQueueR967;
 import com.ethk3.novaonepro.TargetIssueResolver;
+import com.ethk3.novaonepro.TrainingCodeIdentityR964;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -251,6 +252,82 @@ public final class R343RollingNativeTest {
                 checks.record("bytesBeforeDeletion", expected);
                 checks.record("bytesAfterDeletion", RollingStorageAccountingR343.liveBytes(db));
                 database(checks, db, TARGET);
+            } finally {
+                store.close();
+            }
+        });
+    }
+
+    @Test
+    public void oldRollingCheckpointWaitsForNewSettlementWithoutRelabellingTraining() throws Exception {
+        Field173NativeEvidence.run((app, checks) -> {
+            DbStore store = open(app);
+            try {
+                DatabaseCoordinator owner = store.coordinatorForResearchR952();
+                String candidate = "fixture-old-rolling-rule";
+                String version = hash(candidate + "|version");
+                String prior = hash("prior training engine");
+                checks.require(!prior.equals(TrainingCodeIdentityR964.SHA256), "A distinct prior rule");
+                String protocol = "{\"codeRevision\":\"" + prior + "\"}";
+                String protocolHash = hash(protocol);
+                String inputHash = hash("immutable prior input");
+                String next = TargetIssueResolver.next(TARGET).targetIssue;
+                String task = owner.runAtomicWriteOrThrowF01("R343_TEST_OLD_ROLLING_RULE", db -> {
+                    addCandidate(db, candidate, "NURSERY");
+                    db.execSQL("INSERT INTO " + RollingLearnerR343.VERSION
+                                    + "(version_id,candidate_id,predecessor,cutoff_issue,input_first_issue,ast_hash,protocol_hash,"
+                                    + "protocol_json,input_hash,input_bytes,input_blob,train_n,train_first,train_last,"
+                                    + "validation_first,validation_last,seed,state,prefix_hash,checkpoint,checkpoint_hash,next_index,created_at,updated_at)"
+                                    + " VALUES(?,?,'',?,?,?,?,?,?,?,?,300,?,?,?,?,0,'TRAINING',?,?,?,420,0,0)",
+                            new Object[]{version, candidate, TARGET, TARGET, hash(candidate), protocolHash, protocol,
+                                    inputHash, 4, new byte[]{1,2,3,4}, TARGET, TARGET, TARGET, TARGET,
+                                    hash("feature prefix"), new byte[]{5,6,7,8}, hash("prior checkpoint")});
+                    return ResearchTaskQueueR967.enqueue(db, RollingLearnerR343.KIND, version, next,
+                            protocolHash, inputHash, version);
+                });
+                SQLiteDatabase db = store.readable();
+                checks.require(RollingLearnerR343.drainOne(store, System.nanoTime()+5_000_000_000L),
+                        "Original rolling owner services the old checkpoint");
+                try (Cursor state = db.rawQuery("SELECT status,last_error FROM " + ResearchTaskQueueR967.TABLE
+                        + " WHERE task_id=?", new String[]{task})) {
+                    checks.require(state.moveToFirst(), "Prior task remains durable");
+                    checks.equal("YIELDED", state.getString(0), "Wait until there is an independent cutoff");
+                    checks.equal("WAIT_ROLLING_CODE_REVISION", state.getString(1), "Old rule is a typed dependency");
+                }
+                owner.runAtomicWriteOrThrowF01("R343_TEST_NEW_ROLLING_SETTLEMENT", write -> {
+                    Models.Draw row = draw(next, 0);
+                    String settlement = hash("independent settlement|" + next);
+                    long completed = row.openTime + 1_000;
+                    write.execSQL("INSERT INTO " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                                    + "(target_issue,draw_issue,status,created_at,updated_at,completed_at,draw_hash,settlement_hash)"
+                                    + " VALUES(?,?,'COMPLETED',?,?,?,?,?)",
+                            new Object[]{next, next, completed, completed, completed, DrawHashR36.sha256V2(row), settlement});
+                    RollingLearnerR343.settled(write, row, settlement, completed);
+                    write.execSQL("UPDATE " + ResearchTaskQueueR967.TABLE + " SET available_at=0 WHERE task_id=?",
+                            new Object[]{task});
+                    return null;
+                });
+                checks.require(RollingLearnerR343.drainOne(store, System.nanoTime()+5_000_000_000L),
+                        "The original owner frees the active slot once a newer authentic cutoff exists");
+                try (Cursor row = db.rawQuery("SELECT state,protocol_hash,hex(checkpoint),optimizer_steps,receipt_json FROM "
+                        + RollingLearnerR343.VERSION + " WHERE version_id=?", new String[]{version})) {
+                    checks.require(row.moveToFirst(), "Old version and original bytes remain readable");
+                    checks.equal("DEPENDENCY_GAP", row.getString(0), "New planning can select this candidate");
+                    checks.equal(protocolHash, row.getString(1), "Old protocol remains sealed");
+                    checks.equal("05060708", row.getString(2), "Checkpoint bytes retained");
+                    checks.equal(0L, row.getLong(3), "No numerical steps under mismatched code");
+                    org.json.JSONObject receipt = new org.json.JSONObject(row.getString(4));
+                    checks.equal(prior, receipt.getString("recordedRule"), "Retirement binds the original rule");
+                    checks.equal(TrainingCodeIdentityR964.SHA256, receipt.getString("currentRule"), "New build rule is separate");
+                    checks.equal(false, receipt.getBoolean("realAuthority"), "No authorization is manufactured");
+                }
+                checks.equal(1L, scalar(db, "SELECT COUNT(*) FROM " + ResearchTaskQueueR967.TABLE
+                        + " WHERE task_id=? AND status='EXPIRED' AND last_error='ROLLING_CODE_REVISION_SUPERSEDED'",
+                        new String[]{task}), "Lease expired through the existing fenced owner");
+                checks.equal(0L, scalar(db, "SELECT COUNT(*) FROM " + RollingLearnerR343.OFFER, null),
+                        "No invalid publication offer can reach formal evaluation");
+                checks.record("preservedVersion", version);
+                database(checks, db, next);
             } finally {
                 store.close();
             }

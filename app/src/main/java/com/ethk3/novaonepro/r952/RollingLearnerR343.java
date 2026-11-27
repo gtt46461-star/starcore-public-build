@@ -100,7 +100,7 @@ public final class RollingLearnerR343 {
         }
         catch(ResearchWorkBudgetR927.Yield|RuntimeResourceAuditR927.BudgetExceeded pause){release(store,lease,"REALTIME_PRIORITY",250);return true;}
         catch(DevelopmentProductionCP12.Wait wait){
-            if("WAIT_BOUND_FEATURE_HISTORY".equals(wait.reason)&&retireSupersededSourceGap(store,lease))return true;
+            if("WAIT_BOUND_FEATURE_HISTORY".equals(wait.reason)&&retireSupersededGap(store,lease,null))return true;
             release(store,lease,wait.reason,"WAIT_BOUND_FEATURE_HISTORY".equals(wait.reason)?10000:1000);return true;
         }
         catch(IOException io){release(store,lease,"WAIT_INPUT_IO",1000);return true;}
@@ -207,8 +207,18 @@ public final class RollingLearnerR343 {
         }
     }
     private static boolean trainSlice(DbStore store,ResearchTaskQueueR967.Lease lease,long end)throws IOException{
-        Version v=read(store.readable(),lease);CandidateAstR952 ast=CandidateAstR952.parse(v.ast);need(ast.structuralHash.equals(v.astHash),"ROLLING_AST_HASH");
+        Version v=read(store.readable(),lease);
         Map<String,Object> protocol=StrictCanonicalJson.readContextObject(v.protocol);
+        Object recordedRule=protocol.get("codeRevision");
+        need(recordedRule instanceof String && ((String)recordedRule).matches("[0-9a-f]{64}"),
+                "ROLLING_PROTOCOL_CODE_REVISION");
+        if(!TrainingCodeIdentityR964.SHA256.equals(recordedRule)){
+            if(retireSupersededGap(store,lease,(String)recordedRule)) return true;
+            release(store,lease,"WAIT_ROLLING_CODE_REVISION",1000);
+            return true;
+        }
+        CandidateAstR952 ast=CandidateAstR952.parse(v.ast);
+        need(ast.structuralHash.equals(v.astHash),"ROLLING_AST_HASH");
         LongSummaryBindingsR80.validateProtocolSources(store.readable(),protocol);
         CandidateCompilerR952.Program program=CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,DevelopmentProductionCP12.readSpecs(store.readable(),ast));
         if(v.next<v.trainN+120){
@@ -370,17 +380,39 @@ public final class RollingLearnerR343 {
             db.execSQL("UPDATE "+HEAD+" SET last_reason=?,updated_at=? WHERE candidate_id=?",new Object[]{reason,now,candidate});return true;
         },false);
     }
-    /** Missing past PIT witnesses cannot be manufactured by later teachers. A newer
-     * settled cutoff permits a new independent attempt; the old gap stays terminal. */
-    private static boolean retireSupersededSourceGap(DbStore store,ResearchTaskQueueR967.Lease lease){
+    /** A newer authenticated settlement permits an independent attempt. The old
+     * version keeps its original protocol and records why it could not continue. */
+    private static boolean retireSupersededGap(DbStore store,ResearchTaskQueueR967.Lease lease,String priorRule){
         return Boolean.TRUE.equals(store.coordinatorForResearchR952().runAtomicWrite("R343_ROLLING_SOURCE_GAP",db->{
-            if(!ResearchTaskQueueR967.owns(db,lease))return false;Version v=read(db,lease);
-            try(Cursor c=db.rawQuery("SELECT 1 FROM "+EVENT+" WHERE target_issue>? LIMIT 1",new String[]{v.cutoff})){if(!c.moveToFirst())return false;}
-            Map<String,Object> receipt=new TreeMap<>();receipt.put("revision","R343_ROLLING_SOURCE_GAP_1");receipt.put("version",v.id);receipt.put("candidate",v.candidate);receipt.put("cutoff",v.cutoff);receipt.put("cursor",lease.cursor);receipt.put("reason","MISSING_ORIGINAL_PIT_HISTORY_AT_FIXED_CUTOFF");receipt.put("newStrategyCount",0);receipt.put("formalFutureCount",0);receipt.put("realAuthority",false);
-            String json=StrictCanonicalJson.writeContext(receipt),hash=V51ChecksumEngine.sha256(json);long now=System.currentTimeMillis();
-            db.execSQL("UPDATE "+VERSION+" SET state='DEPENDENCY_GAP',receipt_json=?,receipt_hash=?,updated_at=? WHERE version_id=? AND state IN('FEATURES','TRAINING')",new Object[]{json,hash,now,v.id});need(changes(db)==1,"ROLLING_GAP_CAS");
-            need(ResearchTaskQueueR967.expireDependencyR343(db,lease,"ROLLING_ORIGINAL_SOURCE_GAP",hash),"ROLLING_GAP_QUEUE_CAS");
-            db.execSQL("UPDATE "+HEAD+" SET last_reason='WAIT_BOUND_FEATURE_HISTORY',updated_at=? WHERE candidate_id=?",new Object[]{now,v.candidate});return true;
+            if(!ResearchTaskQueueR967.owns(db,lease))return false;
+            Version v=read(db,lease);
+            try(Cursor c=db.rawQuery("SELECT 1 FROM "+EVENT+" WHERE target_issue>? LIMIT 1",new String[]{v.cutoff})){
+                if(!c.moveToFirst()) return false;
+            }
+            boolean codeChanged=priorRule!=null;
+            String taskReason=codeChanged?"ROLLING_CODE_REVISION_SUPERSEDED":"ROLLING_ORIGINAL_SOURCE_GAP";
+            String waitReason=codeChanged?"WAIT_ROLLING_CODE_REVISION":"WAIT_BOUND_FEATURE_HISTORY";
+            Map<String,Object> receipt=new TreeMap<>();
+            receipt.put("revision",codeChanged?"R343_ROLLING_CODE_REVISION_GAP_1":"R343_ROLLING_SOURCE_GAP_1");
+            receipt.put("version",v.id);
+            receipt.put("candidate",v.candidate);
+            receipt.put("cutoff",v.cutoff);
+            receipt.put("cursor",lease.cursor);
+            receipt.put("reason",codeChanged?"TRAINING_CODE_CHANGED_AT_FIXED_CUTOFF":"MISSING_ORIGINAL_PIT_HISTORY_AT_FIXED_CUTOFF");
+            if(codeChanged){
+                receipt.put("recordedRule",priorRule);
+                receipt.put("currentRule",TrainingCodeIdentityR964.SHA256);
+            }
+            receipt.put("newStrategyCount",0);
+            receipt.put("formalFutureCount",0);
+            receipt.put("realAuthority",false);
+            String json=StrictCanonicalJson.writeContext(receipt),hash=V51ChecksumEngine.sha256(json);
+            long now=System.currentTimeMillis();
+            db.execSQL("UPDATE "+VERSION+" SET state='DEPENDENCY_GAP',receipt_json=?,receipt_hash=?,updated_at=? WHERE version_id=? AND state IN('FEATURES','TRAINING')",new Object[]{json,hash,now,v.id});
+            need(changes(db)==1,"ROLLING_GAP_CAS");
+            need(ResearchTaskQueueR967.expireDependencyR343(db,lease,taskReason,hash),"ROLLING_GAP_QUEUE_CAS");
+            db.execSQL("UPDATE "+HEAD+" SET last_reason=?,updated_at=? WHERE candidate_id=?",new Object[]{waitReason,now,v.candidate});
+            return true;
         },false));
     }
     public static long sourceEpochR343(SQLiteDatabase db){
