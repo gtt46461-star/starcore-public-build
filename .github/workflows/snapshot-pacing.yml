@@ -1,0 +1,42 @@
+name: Measure pinned SQLite backup and verify concurrent writes
+on:
+  push:
+    branches: ['repair/r343-export-paced-backup-20261127']
+    paths:
+      - 'engineering/snapshot-pacing/**'
+      - '.github/workflows/snapshot-pacing.yml'
+permissions:
+  contents: read
+jobs:
+  native-backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            app/src/main/cpp
+            engineering/snapshot-pacing
+      - name: Compile both backup implementations with the same vendored SQLite and zstd
+        run: |
+          set -euo pipefail
+          root="$PWD/app/src/main/cpp"
+          work="$RUNNER_TEMP/snapshot-pacing"
+          mkdir -p "$work/original" "$work/current"
+          git fetch --no-tags --depth=1 origin 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
+          git show 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d:app/src/main/cpp/report_native_cp4.c > "$work/original/report_native_cp4.c"
+          cp "$root/report_native_cp4.c" "$work/current/"
+          flags=(-std=c11 -O2 -DSQLITE_THREADSAFE=1 -DSQLITE_TEMP_STORE=1 -DSQLITE_DEFAULT_MEMSTATUS=1 -DSQLITE_OMIT_LOAD_EXTENSION=1 -DZSTD_DISABLE_ASM=1)
+          gcc "${flags[@]}" -c "$root/vendor/sqlite3.c" -o "$work/sqlite.o"
+          for c in "$root"/vendor/zstd/lib/{common,compress,decompress}/*.c; do
+            gcc "${flags[@]}" -c "$c" -o "$work/$(basename "$c").o"
+          done
+          for version in original current; do
+            gcc "${flags[@]}" -I"$work/$version" -I"$root" engineering/snapshot-pacing/backup_probe.c "$work"/*.o -o "$work/$version/backup" -ldl -lm -pthread
+          done
+      - name: Copy and hash the same database, test cancellation and a concurrent WAL commit
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/snapshot-pacing"
+          python3 -B engineering/snapshot-pacing/check.py "$work" "$work/original/backup" "$work/current/backup"
