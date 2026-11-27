@@ -8,7 +8,7 @@ import sys
 
 parent = "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
 source = os.environ["REPAIR_INPUT"]
-paths = ["app/src/main/java/com/ethk3/novaonepro/V51ChecksumEngine.java"]
+paths = ["app/src/main/java/com/ethk3/novaonepro/V51ChecksumEngine.java","app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java","app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java"]
 reason = "Use the same UTF-8 input bytes and SHA-256 provider with reusable per-thread digest and lowercase hex encoding."
 def git(*args):
     return subprocess.check_output(["git",*args])

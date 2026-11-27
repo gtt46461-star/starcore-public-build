@@ -288,6 +288,7 @@ public final class DeferredEvidenceSnapshotR36 {
                 }
             }
 
+            RuntimeTraceR36.Mark measured = trace==null?null:trace.begin("ACTION_SNAPSHOT_ROWS_PROFILE");
             out.writeInt(1200);
             for (int i = 0; i < result.actions.length; i++) {
                 V51Models.PositionAction action = result.actions[i];
@@ -323,9 +324,13 @@ public final class DeferredEvidenceSnapshotR36 {
                 writeUtf(out, actionRecordHash);
             }
 
+            if(measured!=null)trace.end(measured,true,"");
+            measured=trace==null?null:trace.begin("UPSTREAM_TRAINING_PROOF_PROFILE");
             ArrayList<String> proofs=runtimeProofs(result);
             out.writeInt(proofs.size());
             for(String proof:proofs)writeUtf(out,proof);
+            if(measured!=null)trace.end(measured,true,"");
+            measured=trace==null?null:trace.begin("SNAPSHOT_TAIL_PROFILE");
             out.writeInt(spans.size());
             for (int i = 0; i < spans.size(); i++) {
                 RuntimeTraceR36.Span span = spans.get(i);
@@ -338,6 +343,7 @@ public final class DeferredEvidenceSnapshotR36 {
             out.flush();
             gzip.finish();
             out.close();
+            if(measured!=null)trace.end(measured,true,"");
             byte[] bytes = raw.toByteArray();
             if (bytes.length > AppConfig.R36_SNAPSHOT_MAX_BYTES)
                 throw new IllegalStateException("SNAPSHOT_TOO_LARGE:" + bytes.length);

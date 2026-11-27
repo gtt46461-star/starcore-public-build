@@ -174,8 +174,11 @@ public final class V51RuntimeOrchestrator {
 
             mark = trace.begin("SELECTION_POLICY");
             V51Models.StateTrajectorySnapshot state = states[rankOne.position - 1];
+            RuntimeTraceR36.Mark measured = trace.begin("DOMAIN_CERTIFICATE_PROFILE");
             V51Models.DomainCertificate domain =
                     new V51DomainCertificateEngine().certify(store, state, input.history, context.baseIssue);
+            trace.end(measured,true,"");
+            measured=trace.begin("TIANSHU_EVIDENCE_PROFILE");
             /* Deterministic active call: no elapsed-time skip branch. */
             V51TianshuEvidenceBridge.Result tianshu =
                     new V51TianshuEvidenceBridgeR923()
@@ -186,6 +189,8 @@ public final class V51RuntimeOrchestrator {
                                     rankOne,
                                     state,
                                     numberModel.matrix.probability[rankOne.position - 1]);
+            trace.end(measured,true,"");
+            measured=trace.begin("SELECTION_FEATURES_PROFILE");
             double bridgeCounter = Math.max(tianshu.risk, 1.0d - tianshu.confidence);
             double falsifier =
                     new V51FalsifierExpert()
@@ -262,6 +267,8 @@ public final class V51RuntimeOrchestrator {
             V51SelectiveRiskController.Result policy =
                     new V51SelectiveRiskController()
                             .decide(selected, consensus[rankOne.position - 1], stability);
+            trace.end(measured,true,"");
+            measured=trace.begin("CANDIDATE_GATE_PROFILE");
             V51CandidateRealGateR915.Evaluation candidateEvaluation;
             // R947: Selection Policy is latency critical. Preserve the exact fail-closed decision
             // semantics, but defer transient rollback cleanup writes until after canonical commit.
@@ -291,6 +298,7 @@ public final class V51RuntimeOrchestrator {
                 // The governed-shadow diagnostic is persisted post-canonical with the rest of
                 // the non-authoritative telemetry; it must never acquire the write lock here.
             }
+            trace.end(measured,true,"");
             selected =
                     new V51Models.SelectedActionEnvelope(
                             context,
