@@ -155,6 +155,14 @@ public final class ResearchDashboardR924 {
     }
 
 public static String[] captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, boolean detail) {
+        if (detail && report == store) {
+            return report.memo("research-dashboard-detail", () -> collectSnapshotSections(report, store, true)).clone();
+        }
+        return collectSnapshotSections(report, store, detail);
+    }
+
+    private static String[] collectSnapshotSections(ReportReadContextCP4 report, ReportReadContextCP4 store, boolean detail) {
+        report.checkStep("研究面板与漏斗");
         String[] out = new String[4];
         if (store != null && !SchemaDomainCoordinatorR926.matchesSnapshotCP4(report, store.readable(),SchemaDomainCoordinatorR926.researchContract())) {
             String status = "\n研究数据库正在初始化：" + ResearchSchemaCoordinatorR926.summary()
@@ -164,6 +172,7 @@ public static String[] captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContext
         }
         ResearchFunnelR967.Snapshot summary=ResearchFunnelR967.captureSnapshotCP4(report, store);
         for (int i = 0; i < out.length; i++) {
+            report.checkStep("研究面板 " + (i + 1) + "/" + out.length);
             try { out[i] = summary.render()+"\n\n【分时读取的详细视图；不作为上方统一漏斗分母】\n"+sectionSnapshotCP4(report, store, i, detail); }
             catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);}
         }
@@ -293,7 +302,13 @@ public static String compactSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
 
 public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
         com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report);
-        for (String section : captureSnapshotCP4(report, store, true)) b.append(section).append("\n\n");
+        appendReportSnapshotCP4(report, store, b);
         return b.toString();
+    }
+
+    static void appendReportSnapshotCP4(ReportReadContextCP4 report, ReportReadContextCP4 store, ReportTextCP12 out) {
+        for (String section : captureSnapshotCP4(report, store, true)) {
+            out.append(section).append("\n\n");
+        }
     }
 }

@@ -110,6 +110,14 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
       return thread;
      });
  private CancellationSignal checkSignal;
+ private java.util.function.Consumer<String> checkProgress = step -> {};
+ void setCheckProgress(java.util.function.Consumer<String> progress) {
+  checkProgress = java.util.Objects.requireNonNull(progress);
+ }
+ void checkStep(String step) {
+  checkpoint();
+  if (checkSignal != null) checkProgress.accept(step);
+ }
 
  ReportCatalogCP4.CheckResult runCheck(String id, ReportCatalogCP4.CheckRunner runner,
          ReportCatalogCP4.SnapshotQuery input, long budgetMs) throws Exception {

@@ -1,0 +1,238 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+index 40bdc99b..1cf29157 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+@@ -144,10 +144,19 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
+   if(!file.isFile())return "PAUSED".equals(jobStage)?"｜任务已保留，等待重试":backupProgressText(app,id);
+   JSONObject progress=new JSONObject(ReportJobJournalCP12.readAtomic(file,4096));
+   String stage=progress.getString("stage");
++  long nowElapsed = android.os.SystemClock.elapsedRealtime();
++  long sampled = progress.optLong("sampledElapsedMs", -1);
++  String check = progress.optString("activeCheck");
++  String step = progress.optString("checkStep");
++  boolean oldSample = sampled >= 0 && nowElapsed - sampled >= 30_000L
++      && jobStage.equals(stage) && "INDEXING".equals(stage);
++  String checkText = check.isEmpty() ? "" : (oldSample ? "，上次记录 " : "，正在处理 ") + check
++      + (step.isEmpty() ? "" : " / " + step);
+   return describeStageProgress(jobStage,updatedWallMs,stage,progress.optLong("startedWallMs"),
+-      progress.optLong("hashedBytes"),progress.optLong("sampledElapsedMs",-1),android.os.SystemClock.elapsedRealtime())
++      progress.optLong("hashedBytes"),sampled,nowElapsed)
+       +("INDEXING".equals(stage)&&!progress.optString("indexSection").isEmpty()
+-          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项"+(progress.optString("activeCheck").isEmpty()?"":"，正在处理 "+progress.optString("activeCheck")):"")
++          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项"+checkText:"")
++      +(oldSample ? "｜上次进度更新于 " + ((nowElapsed - sampled) / 1000L) + " 秒前" : "")
+       +("BACKUP".equals(stage)?backupProgressText(app,id):"");
+  }catch(Exception unavailable){return "｜阶段信息可用，详细进度暂不可用";}
+  }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java b/app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java
+index 87d37427..175e7d9f 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java
+@@ -136,7 +136,8 @@ public final class ReportCheckRegistryCP12 {
+  return result("OBSERVED","OBSERVED",out.toString());}
+  case "RSEC-007":{out.append(AtomicToolWorldR943.reportSnapshotCP4(ctx,ctx,true));
+  return result("OBSERVED","OBSERVED",out.toString());}
+- case "RSEC-010":{out.append(UnifiedSoftwareStatusR923.captureSnapshotCP4(ctx,ctx));
++ case "RSEC-010":{UnifiedSoftwareStatusR923.appendSnapshotCP4(ctx,ctx,out);
++ ctx.checkStep("写入统一总览");
+  return result("OBSERVED","OBSERVED",out.toString());}
+  case "RSEC-012":{out.append(ResearchPipelineStatusR941.captureSnapshotCP4(ctx,ctx));
+  return result("OBSERVED","OBSERVED",out.toString());}
+@@ -150,7 +151,8 @@ public final class ReportCheckRegistryCP12 {
+  return result("OBSERVED","OBSERVED",out.toString());}
+  case "RSEC-009":{out.append(V57CompleteDiagnosticReportEngine.overallSnapshotCP4(ctx,model(ctx)));
+  return result(model(ctx).modelStatus,health(model(ctx).modelStatus),out.toString());}
+- case "RSEC-011":{for(String section:ResearchDashboardR924.captureSnapshotCP4(ctx,ctx,true))out.append(section).append("\n\n");
++ case "RSEC-011":{ctx.checkStep("写入详细研究面板");
++ ResearchDashboardR924.appendReportSnapshotCP4(ctx,ctx,out);
+  return result("OBSERVED","OBSERVED",out.toString());}
+  case "RSEC-013":{RuntimeTruthSnapshotR906.appendGenesisAssetsSnapshotCP4(ctx,out,ctx.readable(),12);
+  return result("OBSERVED","OBSERVED",out.toString());}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index 8c6437a5..2d8168b7 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -393,6 +393,7 @@ public final class ReportExportServiceCP4 extends Service {
+                             new ReportReadContextCP4.RuntimeObservationCP4(ReportJobJournalCP12.readAtomic(new File(directory,"runtime-observation.json"),65536)),
+                             new ReportReadContextCP4.SourceManifestCP4(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),cancellation,3*MiB)) {
+                         active.readCancellationR30=cancellation;
++                        ctx.setCheckProgress(active::onCheckStep);
+                         try {
+                             catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->{
+                                 active.checkpoint();
+@@ -834,7 +835,8 @@ public final class ReportExportServiceCP4 extends Service {
+         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;private long lastRead;
+         private final StageTiming timing=new StageTiming();
+         private long stageStarted,stageStartedWall,hashedBytes,backupPages;
+-        private String indexSection="", activeCheck="";
++        private String indexSection = "", activeCheck = "", checkStep = "";
++        private long checkStepStartedElapsed = 0L;
+         private long completedIndexEntries;
+         private String progressStageR31="CLAIMED";
+         private final Thread executingOwnerR341=Thread.currentThread();
+@@ -862,6 +864,8 @@ public final class ReportExportServiceCP4 extends Service {
+         ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();timing.enter(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
+         void enter(String stage,long milliseconds)throws IOException{checkpoint();closePhaseR31();progressStageR31=stage;stageStarted=SystemClock.elapsedRealtime();
+             stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;indexSection="";activeCheck="";completedIndexEntries=0;
++            checkStep = "";
++            checkStepStartedElapsed = 0L;
+             timing.enter(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
+             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31 budget=com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.processBudget();
+             budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP,SQLITE_BACKUP_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER,NATIVE_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");
+@@ -875,20 +879,32 @@ public final class ReportExportServiceCP4 extends Service {
+             if(!entering&&now<nextProgressR31[0])return;
+             try{sampleR31(0,new JSONObject().put("stage",progressStageR31).put("startedWallMs",stageStartedWall)
+                     .put("sampledElapsedMs",now).put("hashedBytes",hashedBytes)
+-                    .put("activeCheck",activeCheck).put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
++                    .put("activeCheck",activeCheck).put("checkStep",checkStep).put("checkStepStartedElapsedMs",checkStepStartedElapsed)
++                    .put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
+                     .put("cumulativeRealtimeParkedMs",stageParkedMsR341),now,entering);}
+             catch(org.json.JSONException error){android.util.Log.w("ReportExportCP12","UI stage sample format unavailable",error);}
+         }
+         void onCheckStart(String id,long completed) {
+             activeCheck=id;
++            checkStep = "";
++            checkStepStartedElapsed = 0L;
+             indexSection="检测项";
+             completedIndexEntries=completed;
+             long now=SystemClock.elapsedRealtime();
+             timing.progress(now);
+             sampleStage(now,false);
+         }
++        void onCheckStep(String step) {
++            if (activeCheck.isEmpty() || step.equals(checkStep)) return;
++            long now = SystemClock.elapsedRealtime();
++            checkStep = step;
++            checkStepStartedElapsed = now;
++            sampleStage(now, true);
++        }
+         void onIndexSection(String section) {
+             activeCheck="";
++            checkStep = "";
++            checkStepStartedElapsed = 0L;
+             indexSection=section;
+             completedIndexEntries=0;
+             long now=SystemClock.elapsedRealtime();
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java
+index db9404d6..f8321a16 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java
+@@ -110,6 +110,14 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
+       return thread;
+      });
+  private CancellationSignal checkSignal;
++ private java.util.function.Consumer<String> checkProgress = step -> {};
++ void setCheckProgress(java.util.function.Consumer<String> progress) {
++  checkProgress = java.util.Objects.requireNonNull(progress);
++ }
++ void checkStep(String step) {
++  checkpoint();
++  if (checkSignal != null) checkProgress.accept(step);
++ }
+ 
+  ReportCatalogCP4.CheckResult runCheck(String id, ReportCatalogCP4.CheckRunner runner,
+          ReportCatalogCP4.SnapshotQuery input, long budgetMs) throws Exception {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java b/app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java
+index 6f58dca7..f7c0b4ef 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java
+@@ -155,6 +155,14 @@ public final class ResearchDashboardR924 {
+     }
+ 
+ public static String[] captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, boolean detail) {
++        if (detail && report == store) {
++            return report.memo("research-dashboard-detail", () -> collectSnapshotSections(report, store, true)).clone();
++        }
++        return collectSnapshotSections(report, store, detail);
++    }
++
++    private static String[] collectSnapshotSections(ReportReadContextCP4 report, ReportReadContextCP4 store, boolean detail) {
++        report.checkStep("研究面板与漏斗");
+         String[] out = new String[4];
+         if (store != null && !SchemaDomainCoordinatorR926.matchesSnapshotCP4(report, store.readable(),SchemaDomainCoordinatorR926.researchContract())) {
+             String status = "\n研究数据库正在初始化：" + ResearchSchemaCoordinatorR926.summary()
+@@ -164,6 +172,7 @@ public static String[] captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContext
+         }
+         ResearchFunnelR967.Snapshot summary=ResearchFunnelR967.captureSnapshotCP4(report, store);
+         for (int i = 0; i < out.length; i++) {
++            report.checkStep("研究面板 " + (i + 1) + "/" + out.length);
+             try { out[i] = summary.render()+"\n\n【分时读取的详细视图；不作为上方统一漏斗分母】\n"+sectionSnapshotCP4(report, store, i, detail); }
+             catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);}
+         }
+@@ -293,7 +302,13 @@ public static String compactSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
+ 
+ public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+         com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report);
+-        for (String section : captureSnapshotCP4(report, store, true)) b.append(section).append("\n\n");
++        appendReportSnapshotCP4(report, store, b);
+         return b.toString();
+     }
++
++    static void appendReportSnapshotCP4(ReportReadContextCP4 report, ReportReadContextCP4 store, ReportTextCP12 out) {
++        for (String section : captureSnapshotCP4(report, store, true)) {
++            out.append(section).append("\n\n");
++        }
++    }
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/UnifiedSoftwareStatusR923.java b/app/src/main/java/com/ethk3/novaonepro/UnifiedSoftwareStatusR923.java
+index 05d7d823..061da508 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/UnifiedSoftwareStatusR923.java
++++ b/app/src/main/java/com/ethk3/novaonepro/UnifiedSoftwareStatusR923.java
+@@ -212,7 +212,17 @@ public final class UnifiedSoftwareStatusR923 {
+     }
+ 
+ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+-        if (store == null) return VERSION + "\nSTATUS=READ_ERROR|reason=STORE_NULL";
++        ReportTextCP12 out = new ReportTextCP12(report, 8192);
++        appendSnapshotCP4(report, store, out);
++        return out.toString();
++    }
++
++    static void appendSnapshotCP4(ReportReadContextCP4 report, ReportReadContextCP4 store, ReportTextCP12 b) {
++        if (store == null) {
++            b.append(VERSION).append("\nSTATUS=READ_ERROR|reason=STORE_NULL");
++            return;
++        }
++        report.checkStep("资产与结算统计");
+         SQLiteDatabase db;
+         try {
+             db = store.readable();
+@@ -277,7 +287,7 @@ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
+         int researchQueueFailed = countSnapshotCP4(report, db, "SELECT COUNT(1) FROM "
+                 + DbHelper.TABLE_R815_RESEARCH_QUEUE + " WHERE state='FAILED'");
+ 
+-        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 8192);
++        report.checkStep("后台运行与预测覆盖");
+         b.append(VERSION)
+                 .append("\nSTATUS=RUNTIME_OBSERVATION_NOT_MODEL_GUARANTEE")
+                 .append("\nIdentity=").append(V51BuildManifest.VERSION_NAME).append('/')
+@@ -297,7 +307,9 @@ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
+                 .append(stateSnapshotCP4(report, store, "r923_freeze_snapshot_status", "WAIT_FIRST_FULL_DIAGNOSIS"))
+                 .append("\nHotPathStageTrace=")
+                 .append(stateSnapshotCP4(report, store, "r923_hot_path_stage_trace", "WAIT_FIRST_CANONICAL_COMMIT"))
+-                .append("\n\n[真实出手与连续未中]\n")
++                .append("\n\n[真实出手与连续未中]\n");
++        report.checkStep("实际出手合同与频率");
++        b
+                 .append(ControlledFrequencyDiagnosticR923.captureSnapshotCP4(report, store).summary())
+                 .append("\nREALContract=")
+                 .append(ControlledRealContractAuditR922.captureSnapshotCP4(report, store).summary())
+@@ -354,14 +366,15 @@ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
+                 .append("\nResearchQueuePending=").append(renderSnapshotCP4(report, researchQueuePending))
+                 .append("|failed=").append(renderSnapshotCP4(report, researchQueueFailed))
+                 .append("\n\n").append(ResearchReadinessR924.captureSnapshotCP4(report, store))
+-                .append("\n\n").append(ResearchDashboardR924.reportSnapshotCP4(report, store))
+-                .append("\n\n[F06概率与修复证据]\n").append(f06ReceiptSummarySnapshot(report))
++                .append("\n\n");
++        ResearchDashboardR924.appendReportSnapshotCP4(report, store, b);
++        report.checkStep("F06 概率与修复证据");
++        b.append("\n\n[F06概率与修复证据]\n").append(f06ReceiptSummarySnapshot(report))
+                 .append("\n\n[验收边界]\n")
+                 .append("Code/host/build=由本次发布包证据给出；后台存活、真实P95、连续三日覆盖、"
+                         + "未来OOS胜率与15%观察目标必须安装本APK后在物理设备重新采样。\n")
+                 .append("NoGuaranteedWin=TRUE|NoGuaranteedThirdHitAfterTwoMisses=TRUE|"
+                         + "NoPauseOnTwoMisses=TRUE|NoQuotaOrFrequencyDebt=TRUE");
+-        return b.toString();
+     }
+ 
+ public static String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, int value) {

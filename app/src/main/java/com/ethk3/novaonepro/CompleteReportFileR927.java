@@ -144,10 +144,19 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
   if(!file.isFile())return "PAUSED".equals(jobStage)?"｜任务已保留，等待重试":backupProgressText(app,id);
   JSONObject progress=new JSONObject(ReportJobJournalCP12.readAtomic(file,4096));
   String stage=progress.getString("stage");
+  long nowElapsed = android.os.SystemClock.elapsedRealtime();
+  long sampled = progress.optLong("sampledElapsedMs", -1);
+  String check = progress.optString("activeCheck");
+  String step = progress.optString("checkStep");
+  boolean oldSample = sampled >= 0 && nowElapsed - sampled >= 30_000L
+      && jobStage.equals(stage) && "INDEXING".equals(stage);
+  String checkText = check.isEmpty() ? "" : (oldSample ? "，上次记录 " : "，正在处理 ") + check
+      + (step.isEmpty() ? "" : " / " + step);
   return describeStageProgress(jobStage,updatedWallMs,stage,progress.optLong("startedWallMs"),
-      progress.optLong("hashedBytes"),progress.optLong("sampledElapsedMs",-1),android.os.SystemClock.elapsedRealtime())
+      progress.optLong("hashedBytes"),sampled,nowElapsed)
       +("INDEXING".equals(stage)&&!progress.optString("indexSection").isEmpty()
-          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项"+(progress.optString("activeCheck").isEmpty()?"":"，正在处理 "+progress.optString("activeCheck")):"")
+          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项"+checkText:"")
+      +(oldSample ? "｜上次进度更新于 " + ((nowElapsed - sampled) / 1000L) + " 秒前" : "")
       +("BACKUP".equals(stage)?backupProgressText(app,id):"");
  }catch(Exception unavailable){return "｜阶段信息可用，详细进度暂不可用";}
  }

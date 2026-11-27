@@ -136,7 +136,8 @@ public final class ReportCheckRegistryCP12 {
  return result("OBSERVED","OBSERVED",out.toString());}
  case "RSEC-007":{out.append(AtomicToolWorldR943.reportSnapshotCP4(ctx,ctx,true));
  return result("OBSERVED","OBSERVED",out.toString());}
- case "RSEC-010":{out.append(UnifiedSoftwareStatusR923.captureSnapshotCP4(ctx,ctx));
+ case "RSEC-010":{UnifiedSoftwareStatusR923.appendSnapshotCP4(ctx,ctx,out);
+ ctx.checkStep("写入统一总览");
  return result("OBSERVED","OBSERVED",out.toString());}
  case "RSEC-012":{out.append(ResearchPipelineStatusR941.captureSnapshotCP4(ctx,ctx));
  return result("OBSERVED","OBSERVED",out.toString());}
@@ -150,7 +151,8 @@ public final class ReportCheckRegistryCP12 {
  return result("OBSERVED","OBSERVED",out.toString());}
  case "RSEC-009":{out.append(V57CompleteDiagnosticReportEngine.overallSnapshotCP4(ctx,model(ctx)));
  return result(model(ctx).modelStatus,health(model(ctx).modelStatus),out.toString());}
- case "RSEC-011":{for(String section:ResearchDashboardR924.captureSnapshotCP4(ctx,ctx,true))out.append(section).append("\n\n");
+ case "RSEC-011":{ctx.checkStep("写入详细研究面板");
+ ResearchDashboardR924.appendReportSnapshotCP4(ctx,ctx,out);
  return result("OBSERVED","OBSERVED",out.toString());}
  case "RSEC-013":{RuntimeTruthSnapshotR906.appendGenesisAssetsSnapshotCP4(ctx,out,ctx.readable(),12);
  return result("OBSERVED","OBSERVED",out.toString());}
