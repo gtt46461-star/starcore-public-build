@@ -95,8 +95,8 @@ final class ChartsRepositoryR27 {
             if (!(parsed instanceof Map) || !(((Map<?, ?>) parsed).get("points") instanceof List)) return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "本图缓存帧版本不符，等待重建。", "STALE_FRAME_ABI", null, null);
             Map<String, Object> m = (Map<String, Object>) parsed;
             String latest=null;try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null,cancel)){if(issue.moveToFirst())latest=issue.getString(0);}
-            String invalid=com.ethk3.novaonepro.strategyv2.ChartCacheR27.validateR31(m,latest,c.getLong(1),System.currentTimeMillis());
-            boolean historical="STALE_SOURCE_WATERMARK".equals(invalid) && TargetIssueResolver.isValid(String.valueOf(m.get("sourceIssue")));
+            String invalid=ChartCacheR27.validateForDisplayR31(m,latest,c.getLong(1),System.currentTimeMillis());
+            boolean historical=verifiedHistory(invalid,m,latest);
             if(invalid!=null&&!historical)return new Panel(PAGE,id,"STATUS","r27_chart_cache","",invalid+"；等待真实源帧重新生成。",invalid,null,null);
             List<Point> pts = new ArrayList<>();
             for (Object o : (List<Object>) m.get("points")) {
@@ -113,8 +113,9 @@ final class ChartsRepositoryR27 {
             String window = m.get("window") + "｜更新于" + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(new java.util.Date(c.getLong(1)));
             String note = m.get("note") + "\n数据来源：" + m.get("source");
             if(historical) {
+                note+="\n历史缓存截至 "+m.get("sourceIssue")+" 期，来源版本 "+m.get("buildVersionCode")+"。当期状态："+status+"。";
+                if(latest!=null)note+=" 最新已见 "+latest+" 期。";
                 status="HISTORICAL_FRAME";
-                note+="\n历史实测，数据截至 "+m.get("sourceIssue")+" 期，最新已见 "+latest+" 期。";
             }
             if (pts.size() > POINTS_PER_PAGE_R30) { // R30-B02-05 paging
                 int total = pts.size();
@@ -127,6 +128,14 @@ final class ChartsRepositoryR27 {
             return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "读取失败：" + schemaPending.getClass().getSimpleName() + "；不按0处理。", "READ_ERROR", null, null);
         }
     }
+    private static boolean verifiedHistory(String status, Map<String,Object> frame, String latest) {
+        if (!"HISTORICAL_BUILD_FRAME".equals(status) && !"STALE_SOURCE_WATERMARK".equals(status)) {
+            return false;
+        }
+        String issue = String.valueOf(frame.get("sourceIssue"));
+        return TargetIssueResolver.isValid(issue) && (latest == null || issue.compareTo(latest) <= 0);
+    }
+
     private static final class HistoricalSnapshot extends java.util.LinkedHashMap<String,Object> {
         HistoricalSnapshot(Map<String,Object> verified) { super(verified); }
     }
@@ -148,13 +157,10 @@ final class ChartsRepositoryR27 {
             try(Cursor issue=db.rawQuery("SELECT max(issue) FROM draws WHERE dirty=0",null,cancel)){
                 if (issue.moveToFirst()) latest=issue.getString(0);
             }
-            String invalid=ChartCacheR27.validateR31(packet,latest,c.getLong(1),System.currentTimeMillis());
-            if (invalid!=null && !"STALE_SOURCE_WATERMARK".equals(invalid)) return snapshotError(invalid);
+            String invalid=ChartCacheR27.validateForDisplayR31(packet,latest,c.getLong(1),System.currentTimeMillis());
             if (!"R30_CHART_SNAPSHOT_1".equals(packet.get("version"))) return snapshotError("R30_CHART_PACKET_VERSION");
             if (invalid==null) return packet;
-            String sourceIssue=String.valueOf(packet.get("sourceIssue"));
-            if (TargetIssueResolver.isValid(sourceIssue) && (latest==null || sourceIssue.compareTo(latest)<=0))
-                return new HistoricalSnapshot(packet);
+            if (verifiedHistory(invalid,packet,latest)) return new HistoricalSnapshot(packet);
             return snapshotError(invalid);
         }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
         catch(RuntimeException malformed){return snapshotError("READ_ERROR");}
@@ -192,7 +198,7 @@ final class ChartsRepositoryR27 {
             String status=String.valueOf(panel.get("status"));
             if(frame instanceof HistoricalSnapshot){
                 window+="｜截至 "+frame.get("sourceIssue")+" 期";
-                note+="\n历史实测。该期采集状态："+status+"。";
+                note+="\n历史缓存。该期采集状态："+status+"。";
                 status="HISTORICAL_FRAME";
             }
             return new Panel(PAGE,String.valueOf(panel.get("title")),String.valueOf(panel.get("kind")),String.valueOf(panel.get("source")),window,note,status,points,null,refs,series);

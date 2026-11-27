@@ -56,6 +56,36 @@ public final class R31FamilyContinuationInstrumentedTest {
         assertNull("A previous test leaked an execution token onto its caller", ExecutionBudgetR26.current());
     }
 
+    @Test public void parkedOwnerCannotOccupyPeerContinuationSlot() throws Exception {
+        requireSandbox();
+        ResearchPoolR27.installComputeBudgetR31();
+        for (String prefix : new String[]{"starcore-r30-prepared-", "starcore-r26-"}) {
+            String peer = prefix.startsWith("starcore-r30") ? "starcore-r26-" : "starcore-r30-prepared-";
+            List<CooperativeContinuationR26<Integer>> owned = new ArrayList<>();
+            String owner = "capacity-" + UUID.randomUUID();
+            try {
+                for (int slot = 0; slot < 3; slot++)
+                    owned.add(parkedContinuation(prefix + slot, owner));
+                try (CooperativeContinuationR26<Integer> excess = parkedContinuation(prefix + "excess", owner)) {
+                    fail("One owner occupied all continuation slots before its peer requested work");
+                } catch (CooperativeContinuationR26.CapacityUnavailable expected) { }
+                owned.add(parkedContinuation(peer + "peer", owner));
+                assertEquals("Peer work can finish with three parked continuations",
+                        Integer.valueOf(1), owned.get(3).slice(200).result);
+            } finally {
+                for (CooperativeContinuationR26<Integer> work : owned) work.close();
+                for (CooperativeContinuationR26<Integer> work : owned)
+                    assertTrue("Capacity fixture worker terminated", work.awaitTermination(JOIN_MS));
+                CooperativeContinuationR26.reapTerminated();
+            }
+        }
+    }
+
+    private static CooperativeContinuationR26<Integer> parkedContinuation(String name, String owner) {
+        return new CooperativeContinuationR26<>(name, () -> 1, () -> false, null,
+                System::nanoTime, owner);
+    }
+
     private static void requireEngineeringRows(ReplayDatasetR27 data) {
         assertTrue("Fixture scope is 120-250 engineering rows", data.size() >= 120 && data.size() <= 250);
         assertEquals("No invalid or duplicate fixture row may disappear", 0, data.rejectedRows);

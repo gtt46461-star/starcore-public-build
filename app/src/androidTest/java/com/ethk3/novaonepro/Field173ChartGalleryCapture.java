@@ -114,10 +114,22 @@ public final class Field173ChartGalleryCapture {
                     }
                     checks.equal(tablesVersion, scalar(db, "PRAGMA data_version"), "All paged SQL runs saw a stable source read");
                     if ("STALE_AND_MISSING".equals(scenario)) {
-                        checks.equal("STALE_FRAME_ABI", find(chartRows, "p01_three_scores").get("status"),
-                                "Legacy chart receives a real prior-version frame and rejects it");
-                        checks.equal(0, find(chartRows, "p01_three_scores").get("repositoryFinitePoints"),
-                                "Stale-frame error does not manufacture plotted output");
+                        checks.equal("HISTORICAL_FRAME", find(chartRows, "p01_three_scores").get("status"),
+                                "A verified compatible frame remains visible as historical after upgrade");
+                        Map<String,Object> runtime = find(chartRows, "p13_runtime_health");
+                        checks.equal("HISTORICAL_FRAME", runtime.get("status"), "Prior runtime frame remains historical");
+                        checks.require(((Number) runtime.get("rendererFinitePoints")).longValue() > 0,
+                                "The actual Android renderer plots available values from a valid prior frame");
+                        try (Cursor c = db.rawQuery("SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id='p01_three_scores' AND key='panel'", null)) {
+                            checks.require(c.moveToFirst(), "Prior frame remains in the original chart cache");
+                            Map<String,Object> data = (Map<String,Object>) JsonR27.parse(c.getString(0));
+                            long now = System.currentTimeMillis();
+                            checks.equal("STALE_FRAME_ABI", ChartCacheR27.validateR31(data, TARGET, c.getLong(1), now),
+                                    "Historical chart stays inadmissible as current report or decision evidence");
+                            data.put("payloadSha256", "corrupted");
+                            checks.equal("READ_ERROR_FRAME_HASH", ChartCacheR27.validateForDisplayR31(data, TARGET, c.getLong(1), now),
+                                    "An old frame with a mismatched hash stays unreadable");
+                        }
                     }
                     for (String ready : List.of("r83_number_line", "R01", "R02", "R03")) {
                         Map<String, Object> screen = find(chartRows, ready);
@@ -176,17 +188,19 @@ public final class Field173ChartGalleryCapture {
     @SuppressWarnings("unchecked")
     private static void staleLegacyFrameAndHideOneTable(DbStore store) {
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_CHART_SCREENSHOT_FIXTURE", db -> {
-            Map<String, Object> previous;
-            try (Cursor row = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
-                    new String[]{"p01_three_scores"})) {
-                if (!row.moveToFirst()) throw new AssertionError("Exact legacy panel cache frame missing");
-                previous = (Map<String, Object>) JsonR27.parse(row.getString(0));
+            for (String id : List.of("p01_three_scores", "p13_runtime_health")) {
+                Map<String, Object> previous;
+                try (Cursor row = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key='panel'",
+                        new String[]{id})) {
+                    if (!row.moveToFirst()) throw new AssertionError("Exact legacy panel cache frame missing " + id);
+                    previous = (Map<String, Object>) JsonR27.parse(row.getString(0));
+                }
+                previous.put("buildVersionCode", (long) BuildConfig.VERSION_CODE - 1);
+                previous.remove("payloadSha256");
+                previous.put("payloadSha256", StatsR27.sha256(JsonR27.write(previous)));
+                db.execSQL("UPDATE r27_chart_cache SET payload_json=? WHERE panel_id=? AND key='panel'",
+                        new Object[]{JsonR27.write(previous), id});
             }
-            previous.put("buildVersionCode", (long) BuildConfig.VERSION_CODE - 1);
-            previous.remove("payloadSha256");
-            previous.put("payloadSha256", StatsR27.sha256(JsonR27.write(previous)));
-            db.execSQL("UPDATE r27_chart_cache SET payload_json=? WHERE panel_id=? AND key='panel'",
-                    new Object[]{JsonR27.write(previous), "p01_three_scores"});
             db.execSQL("ALTER TABLE r27_expert_proposal RENAME TO r343_fixture_hidden_expert_proposal");
             return 0;
         });

@@ -64,10 +64,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public static final int BACKGROUND_PRIORITY = android.os.Process.THREAD_PRIORITY_BACKGROUND + 1;
     public static int defaultThreads() { int cores = Runtime.getRuntime().availableProcessors(); return Math.max(1, Math.min(2, cores - 1)); }
     private static final int CONTINUATION_LIMIT_R31=4,HELPER_LIMIT_R31=2;
-    private enum ComputeLane {
-        R26, R27, HELPER;
-        long waitingUntil;  // elapsedRealtime, guarded by COMPUTE_OWNERS_R31
-    }
+    private enum ComputeLane { R26, R27, HELPER }
 
     private static final Map<String,ComputeLane> COMPUTE_OWNERS_R31 = new java.util.LinkedHashMap<>();
 
@@ -78,35 +75,25 @@ public final class ResearchPoolR27 implements AutoCloseable {
         }
     }
 
-    /** Call with the owner map locked. A waiting lane with no work admitted gets the next released slot. */
-    private static boolean hasComputeRoom(ComputeLane lane, long now) {
-        int mine = java.util.Collections.frequency(COMPUTE_OWNERS_R31.values(), lane);
-        if (lane == ComputeLane.HELPER) return mine < HELPER_LIMIT_R31;
-
-        ComputeLane peer = lane == ComputeLane.R27 ? ComputeLane.R26 : ComputeLane.R27;
-        int theirs = java.util.Collections.frequency(COMPUTE_OWNERS_R31.values(), peer);
-        int free = CONTINUATION_LIMIT_R31 - mine - theirs;
-        if (free > 0 && (free > 1 || theirs > 0 || peer.waitingUntil <= now)) return true;
-        // The regular retry backoff can exceed one service interval. A stopped requester expires after two.
-        lane.waitingUntil = now + 2 * CooperativeContinuationR26.SLICE_MS;
-        return false;
+    /** Parked continuations still own their permits. Keep one slot for each
+     * research owner even if its first admission request has not arrived yet. */
+    private static boolean hasComputeRoom(ComputeLane lane) {
+        int owned = java.util.Collections.frequency(COMPUTE_OWNERS_R31.values(), lane);
+        if (lane == ComputeLane.HELPER) return owned < HELPER_LIMIT_R31;
+        int continuations = COMPUTE_OWNERS_R31.size()
+                - java.util.Collections.frequency(COMPUTE_OWNERS_R31.values(), ComputeLane.HELPER);
+        return continuations < CONTINUATION_LIMIT_R31 && owned < CONTINUATION_LIMIT_R31 - 1;
     }
 
     private static CooperativeContinuationR26.ComputePermit acquireComputeR31(String key, ComputeLane lane) {
         synchronized (COMPUTE_OWNERS_R31) {
-            if (COMPUTE_OWNERS_R31.containsKey(key) || !hasComputeRoom(lane, SystemClock.elapsedRealtime())) return null;
+            if (COMPUTE_OWNERS_R31.containsKey(key) || !hasComputeRoom(lane)) return null;
             COMPUTE_OWNERS_R31.put(key, lane);
-            lane.waitingUntil = 0;
         }
         java.util.concurrent.atomic.AtomicBoolean released = new java.util.concurrent.atomic.AtomicBoolean();
         return () -> {
             if (!released.compareAndSet(false, true)) return;
-            synchronized (COMPUTE_OWNERS_R31) {
-                COMPUTE_OWNERS_R31.remove(key);
-                if (!COMPUTE_OWNERS_R31.containsValue(ComputeLane.R26) && !COMPUTE_OWNERS_R31.containsValue(ComputeLane.R27)) {
-                    ComputeLane.R26.waitingUntil = ComputeLane.R27.waitingUntil = 0;
-                }
-            }
+            synchronized (COMPUTE_OWNERS_R31) { COMPUTE_OWNERS_R31.remove(key); }
         };
     }
     private static final java.util.concurrent.ConcurrentHashMap<String,HelperWorkR31> HELPER_WORK_R31=new java.util.concurrent.ConcurrentHashMap<>();
