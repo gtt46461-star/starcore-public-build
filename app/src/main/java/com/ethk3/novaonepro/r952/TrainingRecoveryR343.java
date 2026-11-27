@@ -22,7 +22,8 @@ public final class TrainingRecoveryR343 {
         {"e3b213d36a7ed00285d3eb1d5b3c9cdb2ed7c27da335ecc0669430e6276230af","CP12-FAMILY-872002fb10d1f206e96eae54","68d2ab3bb4937fa695f7e25fbedd42b3153e7f8be7691167c405e234184128d5","2bac10f86871fbee7b0c7eae5111b48499f7b1fe6714fe0f122e8efb720cf004","1f60e3a7e4f9491351ae8b74ffc7cb55891c5c449e39646dcd20f474189ee5cd"},
         {"cb45e8fea8dcd1299fbbf07aa0d0207e523d21b98b0cc3b494bd07a3abd7fb91","CP12-FAMILY-f0f49290b8fcab8188deb631","b615b8587cb245d475cf973bf57b9dedfa7a3f345102d4f782456f64dcd20218","735ed22d0d458606994911222372c46d6021cc6c7fa40e84351102316e4f5aa7","42fc320e62d76b1920d9c538b49bff5e8cf3d0e0d2911dbd4f0a367a8b5a8583"},
         {"1b2b6718fa182a34b2cb479ecadac9e093f2ebc71a9714ef807599d8c6c1ddd2","CP12-FAMILY-5cf823977a24cef2b339f9d6","93df87de2cbcba870994e1de94401aef64d686f8f070b320e1809d8966392a12","735ed22d0d458606994911222372c46d6021cc6c7fa40e84351102316e4f5aa7","b874033b66b662adb70c33fec951ef1d6761e209541f0fffde7b90607d0c583c"},
-        {"50a155a379dd3897a692b8d0448d68228ddb097dd02bb6b29a3c88af6dc2a683","CP12-FAMILY-3df5c0a347965ee5d558bf6a","6e2798118f779d82da802ba62ac272c40df9bb427f87f3015001a4874e0b89a3","642b4f9808a50c5ccfdbe348bbc7b9a70f8a37dab11a300ae8515582a30bb622","7e88ef547202dc6452311ee7a71914cec00646ac7ab6b8b81361fd5ff59b69e2"}
+        {"50a155a379dd3897a692b8d0448d68228ddb097dd02bb6b29a3c88af6dc2a683","CP12-FAMILY-3df5c0a347965ee5d558bf6a","6e2798118f779d82da802ba62ac272c40df9bb427f87f3015001a4874e0b89a3","642b4f9808a50c5ccfdbe348bbc7b9a70f8a37dab11a300ae8515582a30bb622","7e88ef547202dc6452311ee7a71914cec00646ac7ab6b8b81361fd5ff59b69e2"},
+        {"678d059b7207c6f2ec712c0cdd906dbc201357a61632236b8019af0c67ce740f","CP12-FAMILY-ebfcc38e32ef9155cf4cbae7","ab1473934a4326bf05eeef4ed8e5dd015a0b4dddff7aeed7791e52e6dc5594da","129c749b58ccfe9884070607d83b7ec51e2f742481495c0d24d2050c7b012f01","1b75dcb6745bbff2bbc0d669159523e34fae306e1f2ce6b1304cfa8c9eb1370d"}
     };
     public static void schema(SQLiteDatabase db){
         need(db.inTransaction(),"RECOVERY_SCHEMA_TX");
@@ -120,7 +121,7 @@ public final class TrainingRecoveryR343 {
         need(V51ChecksumEngine.sha256(StrictCanonicalJson.writeContext(protocol)).equals(row[2])
                 &&row[3].equals(protocol.get("inputHash"))&&row[9].equals(protocol.get("astHash"))
                 &&ast.graphSpec.manifest.hash.equals(protocol.get("manifestHash")),"RECOVERY_PROTOCOL_HASH");
-        // These four audited tasks have data-only fixed graphs. Any changed external
+        // These audited tasks have data-only fixed graphs. Any changed external
         // dependency must be investigated; this upgrade never invents its receipt.
         need(ast.graphSpec.experts.isEmpty()&&ast.graphSpec.manifest.bindingHashes.isEmpty()
                 &&ast.graphSpec.manifest.summarySpecRefs.isEmpty()

@@ -136,19 +136,20 @@ public final class ResearchTrainingHookRegistryR952 {
     /** The same research executor serves all kinds; this persistent wheel prevents starvation. */
     public static boolean drainTrainingSlotCP11(com.ethk3.novaonepro.DbStore store,long endNs) {
         if(store==null)return false;
-        boolean advanced=TrainingRecoveryR343.drainOne(store,endNs);int empty=0;
-        // Spend the bounded TRAIN quantum on independent durable units. Keep the
-        // persisted five-owner rotation so a legacy backlog cannot starve AST3/freezing.
+        boolean advanced=false;int empty=0;
+        // Give historical verification its own durable turn. Spending it before
+        // every pass can exhaust the runway before an already queued task is claimed.
         for(int turn=0;turn<12&&System.nanoTime()+50_000_000L<endNs;turn++){
             com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();
             String kind=advanceTrainingSlotCP11(store,endNs);if(kind==null)return advanced;
             if(drainTrainingKindR65(store,kind,endNs)){advanced=true;empty=0;}
-            else if(++empty>=5)break;
+            else if(++empty>=TRAINING_SLOTS.length)break;
         }
         return advanced;
     }
     private static boolean drainTrainingKindR65(com.ethk3.novaonepro.DbStore store,String kind,long endNs){
         if(System.nanoTime()>=endNs)return false;
+        if("INFRASTRUCTURE_RECOVERY".equals(kind))return TrainingRecoveryR343.drainOne(store,endNs);
         if("LEGACY_OUTBOX".equals(kind))return ResearchOutboxR952.drainOne(store);
         if(RollingLearnerR343.KIND.equals(kind))return RollingLearnerR343.drainOne(store,endNs);
         if("R343_ROLLING_FREEZE".equals(kind))return RollingFrozenPublisherR343.drainOne(store,endNs);
@@ -192,13 +193,15 @@ public final class ResearchTrainingHookRegistryR952 {
             com.ethk3.novaonepro.ResearchTaskQueueR967.Lease lease,long deadlineNs) {
         return DevelopmentProductionCP12.prepareBatch(store,lease,deadlineNs);
     }
+    private static final String[] TRAINING_SLOTS={"LEGACY_OUTBOX","TRAIN_CANDIDATE","FREEZE_CANDIDATE",
+            RollingLearnerR343.KIND,RollingFrozenPublisherR343.KIND,"INFRASTRUCTURE_RECOVERY"};
+
     private static String advanceTrainingSlotCP11(com.ethk3.novaonepro.DbStore store,long endNs) {
-        final String[] kinds={"LEGACY_OUTBOX","TRAIN_CANDIDATE","FREEZE_CANDIDATE",RollingLearnerR343.KIND,"R343_ROLLING_FREEZE"};
         return store.coordinatorForResearchR952().runAtomicWrite("CP12_TRAIN_SUBSLOT",db->{
             int selected=0;try(android.database.Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='cp11_training_subslot'",null)) {
                 if(c.moveToFirst())try{selected=Integer.parseInt(c.getString(0));}catch(NumberFormatException ignored){}
             }
-            if(selected<0||selected>=kinds.length)selected=0;
+            if(selected<0||selected>=TRAINING_SLOTS.length)selected=0;
             // Preserve the next owner when prior work leaves only an unusable tail.
             // Otherwise LEGACY_OUTBOX can repeatedly consume the full slice, while
             // TRAIN_CANDIDATE is advanced past before decoding its pinned input.
@@ -206,8 +209,8 @@ public final class ResearchTrainingHookRegistryR952 {
             long minimumNs=selected==0?125_000_000L:250_000_000L;
             if(endNs-System.nanoTime()<minimumNs
                     ||com.ethk3.novaonepro.ResearchWorkBudgetR927.remainingMs()<minimumNs/1_000_000L)return null;
-            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp11_training_subslot',?,?)",new Object[]{Integer.toString((selected+1)%kinds.length),System.currentTimeMillis()});
-            return kinds[selected];
+            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp11_training_subslot',?,?)",new Object[]{Integer.toString((selected+1)%TRAINING_SLOTS.length),System.currentTimeMillis()});
+            return TRAINING_SLOTS[selected];
         },null);
     }
     /** Pure failure classification. Never matches messages, generic SQLiteException,
