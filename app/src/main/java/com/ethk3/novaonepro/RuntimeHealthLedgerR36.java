@@ -283,7 +283,7 @@ public final class RuntimeHealthLedgerR36 {
             // Start with the exact release scope. The event-side game index can otherwise
             // drive this join through all historical events on a device with missing statistics.
             String scope = "SELECT min(e.target_issue) FROM " + RuntimeObservationScopeR341.EVENT_SCOPE
-                    + " s INDEXED BY r341_observation_release CROSS JOIN " + RuntimeEventLedgerR926.TABLE_EVENT
+                    + " s CROSS JOIN " + RuntimeEventLedgerR926.TABLE_EVENT
                     + " e ON e.event_id=s.event_id "
                     + "WHERE s.release_id=? AND s.source_commit=? AND s.database_identity=? AND e.game_code=? "
                     + "AND length(e.target_issue)=12 AND e.target_issue NOT GLOB '*[^0-9]*'";
@@ -296,7 +296,7 @@ public final class RuntimeHealthLedgerR36 {
             if (!TargetIssueResolver.isValid(first)) return;
             String rows = "SELECT d.issue,d.open_time,o.pre_draw_frozen,o.commit_at,o.snapshot_hash,o.settled,"
                     + "o.settlement_hash,t.status,t.settlement_hash,EXISTS(SELECT 1 FROM "
-                    + RuntimeEventLedgerR926.TABLE_EVENT + " e INDEXED BY idx_r926_event_issue CROSS JOIN "
+                    + RuntimeEventLedgerR926.TABLE_EVENT + " e CROSS JOIN "
                     + RuntimeObservationScopeR341.EVENT_SCOPE
                     + " s ON s.event_id=e.event_id WHERE e.target_issue=d.issue AND e.event_type='CANONICAL'"
                     + " AND s.release_id=? AND s.source_commit=? AND s.database_identity=? AND e.game_code=?"
