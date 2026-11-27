@@ -11,7 +11,7 @@ parent="5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
 tables={
     "RuntimeEventLedgerR926.TABLE_EVENT":"event", "RuntimeObservationScopeR341.EVENT_SCOPE":"scope",
     "DbHelper.TABLE_DRAWS":"draws", "DbHelper.TABLE_R35_SHADOW_OBSERVATION":"shadow",
-    "DbHelper.TABLE_R36_SETTLEMENT_TASK":"task", "DbHelper.TABLE_R35_OOS_LABEL":"label",
+    "DbHelper.TABLE_R36_SETTLEMENT_TASK":"settlement_task", "DbHelper.TABLE_R35_OOS_LABEL":"label",
     "EVENTS":"event", "events":"event",
 }
 def source(name, original=False):
@@ -42,7 +42,7 @@ CREATE TABLE scope (event_id TEXT PRIMARY KEY,release_id TEXT,source_commit TEXT
 CREATE INDEX r341_observation_release ON scope(release_id,source_commit,database_identity,sample_wall_at);
 CREATE TABLE draws (_id INTEGER PRIMARY KEY,issue TEXT UNIQUE,dirty INTEGER);
 CREATE TABLE shadow (target_issue TEXT PRIMARY KEY,pre_draw_frozen INTEGER,settled INTEGER);
-CREATE TABLE task (target_issue TEXT PRIMARY KEY,status TEXT);
+CREATE TABLE settlement_task (target_issue TEXT PRIMARY KEY,status TEXT);
 CREATE TABLE label (target_issue TEXT PRIMARY KEY,strict_oos INTEGER);
 CREATE TABLE v57_attempt_resource_r927 (attempt_id TEXT,status TEXT,started_at INTEGER,process_id TEXT,release_code INTEGER);
 CREATE INDEX idx_r927_resource_attempt ON v57_attempt_resource_r927(attempt_id,started_at);
@@ -65,7 +65,7 @@ INSERT INTO scope SELECT event_id, 'now','new','db',created_at FROM event WHERE 
 INSERT INTO shadow SELECT issue, _id%23!=0,_id%7!=0 FROM draws WHERE _id BETWEEN 1210000 AND 1219500;
 INSERT INTO shadow VALUES('000001220001',1,1);
 INSERT INTO label SELECT target_issue,CAST(target_issue AS INTEGER)%5!=0 FROM shadow;
-INSERT INTO task SELECT target_issue, CASE CAST(target_issue AS INTEGER)%5 WHEN 0 THEN 'COMPLETED' WHEN 1 THEN 'NO_PREDRAW_CANONICAL_TERMINAL' WHEN 2 THEN 'FAILED_TERMINAL' WHEN 3 THEN 'INVALID_DRAW_TERMINAL' ELSE 'PENDING' END FROM shadow;
+INSERT INTO settlement_task SELECT target_issue, CASE CAST(target_issue AS INTEGER)%5 WHEN 0 THEN 'COMPLETED' WHEN 1 THEN 'NO_PREDRAW_CANONICAL_TERMINAL' WHEN 2 THEN 'FAILED_TERMINAL' WHEN 3 THEN 'INVALID_DRAW_TERMINAL' ELSE 'PENDING' END FROM shadow;
 INSERT INTO v57_attempt_resource_r927 SELECT attempt_id,CASE event_type WHEN 'CANONICAL' THEN 'CANONICAL_COMMITTED' ELSE 'CANCELLED' END,created_at,'process',1 FROM event WHERE seq%4=1;
 INSERT INTO v57_prediction_timing_r925 SELECT DISTINCT attempt_id,'WARM_MONOTONIC',42 FROM event WHERE seq>315000 AND seq%3=0;
 INSERT INTO v57_prediction_timing_r925 VALUES('a106665','COLD',42);
