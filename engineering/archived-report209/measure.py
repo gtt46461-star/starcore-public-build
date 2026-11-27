@@ -47,3 +47,18 @@ with zipfile.ZipFile(path) as outer, zipfile.ZipFile(io.BytesIO(outer.read(outer
                 for name in re.findall(r'report-text-[a-f0-9]{64}\.txt',ref):
                     m=original.getinfo(name)
                     print('FIELD_CHECK_TEXT',m.filename,m.file_size,m.compress_size)
+
+    report=json.loads(original.read('R26_REPORT.json'))
+    for section in report['sections']:
+        print('R26_SAMPLE',section.get('sectionId'),section.get('elapsedMs'),section.get('status'),section.get('availableRows'),section.get('exportedRows'))
+    print('R26_ASSESSMENT', {k:report['strategyAssessment'].get(k) for k in ('totalPolicies','exportedPolicies','omittedPolicies')} if 'strategyAssessment' in report else report.get('strategyAssessmentError'))
+    for row in scope['tables']:
+        if row['table'].startswith('r31_atom') or row['table'].startswith(('r27_','r26_failure')):
+            if row['rows']>0:
+                print('R26_SOURCE_CARDINALITY',row['table'],row['rows'])
+    for member in original.namelist():
+        if not member.startswith('catalog-'): continue
+        for line in original.open(member):
+            row=json.loads(line)
+            if row.get('name') in {'r31_atom_score_visible','r31_atom_contribution_visible'}:
+                print('R26_QUERY_SCHEMA',str(row)[:1600])
