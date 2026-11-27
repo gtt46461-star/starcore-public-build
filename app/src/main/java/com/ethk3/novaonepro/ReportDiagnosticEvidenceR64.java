@@ -10,6 +10,22 @@ import org.json.JSONObject;
 public final class ReportDiagnosticEvidenceR64 {
     private static final java.util.Set<String> GROUP_COLUMNS = new java.util.HashSet<>(
             java.util.Arrays.asList("state","status","kind","stage","settled","terminal_code","failure_class"));
+    static final class Column {
+        final String name,type;
+        final int notNull,primaryKeyOrder;
+        Column(Cursor c) {
+            name=c.getString(1);type=c.getString(2);notNull=c.getInt(3);primaryKeyOrder=c.getInt(5);
+        }
+    }
+    private static java.util.List<Column> columns(SQLiteDatabase db,String table,ReportCatalogCP4.Result catalog) {
+        java.util.List<Column> cached=catalog==null?null:catalog.columns(db,table);
+        if(cached!=null)return cached;
+        java.util.List<Column> result=new java.util.ArrayList<>();
+        try(Cursor c=db.rawQuery("PRAGMA table_info("+ident(table)+")",null)){
+            while(c.moveToNext())result.add(new Column(c));
+        }
+        return result;
+    }
     private ReportDiagnosticEvidenceR64() {}
     public static File write(SQLiteDatabase snapshot, File job, String hash,
             ReportNativeCP4.Control control) throws Exception {
@@ -51,14 +67,10 @@ public final class ReportDiagnosticEvidenceR64 {
                     row.put("rows",count);
                     org.json.JSONArray schema = new org.json.JSONArray();
                     java.util.ArrayList<String> groupColumns = new java.util.ArrayList<>();
-                    try (Cursor columns = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
-                        while (columns.moveToNext()) {
-                            String column = columns.getString(1);
-                            schema.put(new JSONObject().put("name",column).put("type",columns.getString(2))
-                                    .put("notNull",columns.getInt(3)!=0).put("primaryKeyOrder",columns.getInt(5)));
-                            if (count == 0 || !GROUP_COLUMNS.contains(column)) continue;
-                            groupColumns.add(column);
-                        }
+                    for(Column column:columns(snapshot,table,catalog)){
+                        schema.put(new JSONObject().put("name",column.name).put("type",column.type)
+                                .put("notNull",column.notNull!=0).put("primaryKeyOrder",column.primaryKeyOrder));
+                        if(count>0 && GROUP_COLUMNS.contains(column.name))groupColumns.add(column.name);
                     }
                     row.put("columns",schema);
                     String header=row.toString();out.write(header.substring(0,header.length()-1));out.write(",\"states\":[");
@@ -122,12 +134,7 @@ public final class ReportDiagnosticEvidenceR64 {
                     continue;
                 }
                 java.util.ArrayList<String> columns = new java.util.ArrayList<>();
-                try (Cursor info = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
-                    while (info.moveToNext()) {
-                        String column = info.getString(1);
-                        columns.add(column);
-                    }
-                }
+                for(Column column:columns(snapshot,table,catalog))columns.add(column.name);
                 if (columns.isEmpty()) continue;
                 if (!first) out.write(','); first = false;
                 // Bounded projections keep large checkpoint/model metadata out of

@@ -1,0 +1,218 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+index 9af43974..80a2424b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+@@ -8,7 +8,7 @@ public final class CompleteReportFileR927 {
+  private static final java.util.concurrent.atomic.AtomicLong POLL_SESSION=new java.util.concurrent.atomic.AtomicLong();
+  private CompleteReportFileR927(){}
+  public static void openExportMenu(Activity activity,Button button,TextView status){if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
+-  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"生成并保存到手机（含数据库和训练附件）","生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存","取回已生成的 ZIP"},(dialog,index)->{
++  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"生成并保存精简报告 ZIP","生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存","取回已生成的 ZIP"},(dialog,index)->{
+    if(index==0){chooseSafDestination(activity,null,"STARCORE_FULL_REPORT.zip",button,status);return;}
+    if(index==7){recoverReady(activity,button,status);return;}
+    int which=index-1;
+@@ -207,8 +207,8 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
+     if(jobId==null){
+      if(!persistable)throw new IOException("所选位置不支持后台持续写入，请选择手机下载目录");
+      long session=POLL_SESSION.incrementAndGet();
+-     String id=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,true,uri);
+-     show(activity,button.get(),status.get(),"已选好保存位置，正在生成含数据库和训练附件的 ZIP。",true);
++     String id=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,false,uri);
++     show(activity,button.get(),status.get(),"已选好保存位置，正在生成精简报告 ZIP。",true);
+      poll(app,id,new WeakReference<>(activity),button,status,0,session,true);
+     }else{
+      String id=ReportExportServiceCP4.requestSafTransfer(app,jobId,getArguments().getString("volumeName"),uri);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/MainActivity.java b/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+index 34e7f78f..85ade5cc 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+@@ -9218,7 +9218,7 @@ public final class MainActivity extends Activity {
+             panel.addView(summary);
+ 
+             final Button copy = new Button(this);
+-            copy.setText("导出完整报告（含数据库和训练附件）");
++            copy.setText("导出完整报告（精简 ZIP）");
+             panel.addView(copy);
+             final Button forensic = new Button(this);
+             forensic.setText("查看运行、结算与真实出手详情");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+index 72eb5fc3..135e3f8c 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+@@ -117,8 +117,28 @@ public final class ReportCatalogCP4 {
+             }
+         }
+     }
++    /** Reuse complete table_info results on this immutable handle. Uncached tables use PRAGMA directly. */
++    private static final class ColumnCache {
++        final Map<String,List<ReportDiagnosticEvidenceR64.Column>> tables=new HashMap<>();
++        long remaining;
++        ColumnCache(boolean compact){remaining=compact?2L*1024*1024:0;}
++        void collect(SQLiteDatabase db,JsonPages out,String table,Progress progress)throws IOException {
++            List<ReportDiagnosticEvidenceR64.Column> columns=remaining>0?new ArrayList<>():null;
++            pragma(out,db,"table_info",table,progress,columns);
++            if(columns==null)return;
++            long size=96L+2L*table.length();
++            for(ReportDiagnosticEvidenceR64.Column c:columns)
++                size+=96L+2L*c.name.length()+(c.type==null?0L:2L*c.type.length());
++            if(size<=remaining){tables.put(table,columns);remaining-=size;}
++        }
++    }
+     public static final class Result {
+         private final SQLiteDatabase snapshot;
++        private final ColumnCache columnCache;
++        List<ReportDiagnosticEvidenceR64.Column> columns(SQLiteDatabase source,String table) {
++            if (snapshot != source) throw new IllegalArgumentException("REPORT_CATALOG_SNAPSHOT_MISMATCH");
++            return columnCache.tables.get(table);
++        }
+         private final Map<String,Long> tableCounts;
+         Long tableCount(SQLiteDatabase source,String table) {
+             if (snapshot != source) throw new IllegalArgumentException("REPORT_CATALOG_SNAPSHOT_MISMATCH");
+@@ -129,8 +149,9 @@ public final class ReportCatalogCP4 {
+         public final String scope;
+         public final List<File> indexFiles;
+         public final boolean evidenceCatalogComplete, checksComplete, allChecksPassed;
+-        private Result(SQLiteDatabase snapshot,Map<String,Long> tableCounts,long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
++        private Result(SQLiteDatabase snapshot,Map<String,Long> tableCounts,ColumnCache columnCache,long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
+                 boolean evidenceCatalogComplete,boolean checksComplete,boolean allChecksPassed) {
++            this.columnCache=columnCache;
+             this.snapshot=snapshot;
+             this.tableCounts=Collections.unmodifiableMap(tableCounts);
+             if(tables>Integer.MAX_VALUE)throw new IllegalArgumentException("TOO_MANY_TABLES");
+@@ -141,6 +162,7 @@ public final class ReportCatalogCP4 {
+             this.evidenceCatalogComplete=evidenceCatalogComplete;this.checksComplete=checksComplete;this.allChecksPassed=allChecksPassed;
+         }
+         private Result(Result r,List<File> files) {
++            this.columnCache=r.columnCache;
+             this.snapshot=r.snapshot;
+             this.tableCounts=r.tableCounts;
+             this.objects=r.objects;this.tables=r.tables;this.rows=r.rows;this.checks=r.checks;
+@@ -231,6 +253,10 @@ public final class ReportCatalogCP4 {
+                 || !snapshotSha256.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("SNAPSHOT_IDENTITY");
+         if (checks == null || pages == null || progress == null) throw new IllegalArgumentException("NULL_ARGUMENT");
+         Map<String,Long> tableCounts=new HashMap<>();
++        boolean compactForCache=false;
++        try { compactForCache=context.compactDiagnosticR64(); }
++        catch(ReportReadContextCP4.ReportReadFailureCP4 unavailable){/* The catalog records profile errors at its existing validation site. */}
++        ColumnCache columnCache=new ColumnCache(compactForCache);
+         progress.checkpoint("CATALOG_START",0);
+         long objectCount=0, tableCount=0, rowCount=0, checkCount=0, uncomputed=0, errors=0;
+         boolean evidenceOK=true, checksOK=true, allPassed=true;
+@@ -279,7 +305,7 @@ public final class ReportCatalogCP4 {
+                                 tableCounts.put(name,n);
+                                 rowCount+=n;
+                                 out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
+-                                pragma(out,snapshot,"table_info",name,progress);
++                                columnCache.collect(snapshot,out,name,progress);
+                                 pragma(out,snapshot,"index_list",name,progress);
+                                 pragma(out,snapshot,"foreign_key_list",name,progress);
+                             } catch(RuntimeException failure) {
+@@ -335,13 +361,18 @@ public final class ReportCatalogCP4 {
+                     "evidence_catalog_complete",evidenceOK,"checks_complete",checksOK,"all_checks_passed",checksOK&&allPassed,
+                     "evidence_archive_complete","OWNER_MUST_VERIFY_ALL_MEMBER_HASHES"));
+         }
+-        return new Result(snapshot,tableCounts,objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
++        return new Result(snapshot,tableCounts,columnCache,objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
+     }
+     private static void pragma(JsonPages out,SQLiteDatabase db,String operation,String name,Progress progress) throws IOException {
++        pragma(out,db,operation,name,progress,null);
++    }
++    private static void pragma(JsonPages out,SQLiteDatabase db,String operation,String name,Progress progress,
++                               List<ReportDiagnosticEvidenceR64.Column> columns) throws IOException {
+         // operation comes solely from the four fixed call sites above.
+         try(Cursor c=query(db,"PRAGMA "+operation+"("+ident(name)+")",null)) {
+             long n=0;while(c.moveToNext()) {
+                 progress.checkpoint("SCHEMA_PRAGMA",n++);
++                if(columns!=null)columns.add(new ReportDiagnosticEvidenceR64.Column(c));
+                 StringBuilder b=new StringBuilder(1024);b.append('{');field(b,"kind","pragma_row");b.append(',');field(b,"operation",operation);b.append(',');field(b,"object_name",name);b.append(',');field(b,"pragma_schema",2);
+                 Set<String> fieldNames=new HashSet<String>();Collections.addAll(fieldNames,"kind","operation","object_name","pragma_schema");
+                 for(int j=0;j<c.getColumnCount();j++) {String columnName=c.getColumnName(j);if(columnName==null||!fieldNames.add(columnName))throw new IOException("CATALOG_DUPLICATE_PRAGMA_FIELD");b.append(',');quote(b,columnName);b.append(':');
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java b/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
+index 36943199..b60da729 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
+@@ -10,6 +10,22 @@ import org.json.JSONObject;
+ public final class ReportDiagnosticEvidenceR64 {
+     private static final java.util.Set<String> GROUP_COLUMNS = new java.util.HashSet<>(
+             java.util.Arrays.asList("state","status","kind","stage","settled","terminal_code","failure_class"));
++    static final class Column {
++        final String name,type;
++        final int notNull,primaryKeyOrder;
++        Column(Cursor c) {
++            name=c.getString(1);type=c.getString(2);notNull=c.getInt(3);primaryKeyOrder=c.getInt(5);
++        }
++    }
++    private static java.util.List<Column> columns(SQLiteDatabase db,String table,ReportCatalogCP4.Result catalog) {
++        java.util.List<Column> cached=catalog==null?null:catalog.columns(db,table);
++        if(cached!=null)return cached;
++        java.util.List<Column> result=new java.util.ArrayList<>();
++        try(Cursor c=db.rawQuery("PRAGMA table_info("+ident(table)+")",null)){
++            while(c.moveToNext())result.add(new Column(c));
++        }
++        return result;
++    }
+     private ReportDiagnosticEvidenceR64() {}
+     public static File write(SQLiteDatabase snapshot, File job, String hash,
+             ReportNativeCP4.Control control) throws Exception {
+@@ -51,14 +67,10 @@ public final class ReportDiagnosticEvidenceR64 {
+                     row.put("rows",count);
+                     org.json.JSONArray schema = new org.json.JSONArray();
+                     java.util.ArrayList<String> groupColumns = new java.util.ArrayList<>();
+-                    try (Cursor columns = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
+-                        while (columns.moveToNext()) {
+-                            String column = columns.getString(1);
+-                            schema.put(new JSONObject().put("name",column).put("type",columns.getString(2))
+-                                    .put("notNull",columns.getInt(3)!=0).put("primaryKeyOrder",columns.getInt(5)));
+-                            if (count == 0 || !GROUP_COLUMNS.contains(column)) continue;
+-                            groupColumns.add(column);
+-                        }
++                    for(Column column:columns(snapshot,table,catalog)){
++                        schema.put(new JSONObject().put("name",column.name).put("type",column.type)
++                                .put("notNull",column.notNull!=0).put("primaryKeyOrder",column.primaryKeyOrder));
++                        if(count>0 && GROUP_COLUMNS.contains(column.name))groupColumns.add(column.name);
+                     }
+                     row.put("columns",schema);
+                     String header=row.toString();out.write(header.substring(0,header.length()-1));out.write(",\"states\":[");
+@@ -122,12 +134,7 @@ public final class ReportDiagnosticEvidenceR64 {
+                     continue;
+                 }
+                 java.util.ArrayList<String> columns = new java.util.ArrayList<>();
+-                try (Cursor info = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
+-                    while (info.moveToNext()) {
+-                        String column = info.getString(1);
+-                        columns.add(column);
+-                    }
+-                }
++                for(Column column:columns(snapshot,table,catalog))columns.add(column.name);
+                 if (columns.isEmpty()) continue;
+                 if (!first) out.write(','); first = false;
+                 // Bounded projections keep large checkpoint/model metadata out of
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java b/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
+index 1f400db3..58e22a21 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
+@@ -68,8 +68,11 @@ public final class ReportMetadataStreamR81 {
+         // Keep a single row within the prior CursorWindow budget. Most ledger text can
+         // travel in the same row instead of opening a second cursor for each cell.
+         int inlineBytes=Math.max(INLINE_BYTES,Math.min(8192,(384*1024)/columns.size()));
+-        for(String column:columns) {
+-            sql.append(',').append(descriptor(ident(column),inlineBytes));
++        String[] identifiers=new String[columns.size()], keys=new String[columns.size()];
++        for(int i=0;i<columns.size();i++) {
++            identifiers[i]=ident(columns.get(i));
++            keys[i]=JSONObject.quote(columns.get(i))+":";
++            sql.append(',').append(descriptor(identifiers[i],inlineBytes));
+         }
+         sql.append(" FROM ").append(id);
+         // Android refills a CursorWindow by executing its SELECT again. Seek bounded
+@@ -101,8 +104,8 @@ public final class ReportMetadataStreamR81 {
+                     CellSource cell=rowid==null?new CellSource(" FROM "+id+" ORDER BY "+order.sql+" LIMIT 1 OFFSET ?",Long.toString(offset+count)):new CellSource(" FROM "+id+" WHERE "+rowid+"=?",Long.toString(key));
+                     if(count>0)out.write(',');out.write('{');
+                     for(int i=0;i<columns.size();i++) {
+-                        if(i>0)out.write(',');out.write(JSONObject.quote(columns.get(i)));out.write(':');
+-                        writeValue(db,cell,ident(columns.get(i)),rows.getString(i+1),encoding,out,control);
++                        if(i>0)out.write(',');out.write(keys[i]);
++                        writeValue(db,cell,identifiers[i],rows.getString(i+1),encoding,out,control);
+                     }
+                     out.write('}');count++;pageRows++;
+                     if((count&127)==0)control.onIndexProgress(table,count);

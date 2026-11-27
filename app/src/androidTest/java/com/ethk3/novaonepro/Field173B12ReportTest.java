@@ -60,6 +60,14 @@ public final class Field173B12ReportTest {
             }
             String hash = ReportArchiveCP4.hash(image, () -> true);
             try (SQLiteDatabase snapshot = SQLiteDatabase.openDatabase(image.getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
+                try(android.database.Cursor columns=snapshot.rawQuery("PRAGMA table_info(scope_cells)",null)) {
+                    checks.require(columns.moveToFirst(),"Native schema row available");
+                    ReportDiagnosticEvidenceR64.Column id=new ReportDiagnosticEvidenceR64.Column(columns);
+                    checks.require("id".equals(id.name) && "INTEGER".equals(id.type) && id.primaryKeyOrder==1,"Compact catalog preserves type and key order");
+                    checks.require(columns.moveToNext(),"Nullable state schema available");
+                    ReportDiagnosticEvidenceR64.Column status=new ReportDiagnosticEvidenceR64.Column(columns);
+                    checks.require("status".equals(status.name) && status.notNull==0 && status.primaryKeyOrder==0,"Compact catalog preserves nullability");
+                }
                 java.io.StringWriter cells=new java.io.StringWriter();
                 long count=ReportMetadataStreamR81.writeRows(snapshot,"scope_cells",java.util.Arrays.asList("id","value","body"),cells,()->true);
                 org.json.JSONArray evidence=new org.json.JSONArray("["+cells+"]");
