@@ -1,0 +1,77 @@
+name: Android 14 retrieve a ready report during a newer generation
+on:
+  push:
+    branches: ['repair/report-scope-205-20261127']
+    paths: ['engineering/verify-history/handoff.py', '.github/workflows/ready-history-205.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      SOURCE: a5b4c26275e7ce74b6a178fe3bbc8ea861a80b5e
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: engineering/verify-history
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: a5b4c26275e7ce74b6a178fe3bbc8ea861a80b5e
+          path: source
+          sparse-checkout: |
+            release
+            tools
+          persist-credentials: false
+      - name: Fetch verified baseline and wait for the exact signed build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="r34.2-B12-85678fcfd128"
+          name="STARCORE-R342-577311204-85678fcfd128-release.apk"
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --output "$RUNNER_TEMP/installed-204.apk"
+          digest=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" --jq ".assets[] | select(.name==\"$name\") | .digest")
+          actual=$(sha256sum "$RUNNER_TEMP/installed-204.apk" | cut -d' ' -f1)
+          [[ "$digest" == "sha256:$actual" ]]
+          echo "BASELINE_SHA=$actual" >> "$GITHUB_ENV"
+          asset="r343-signed-build-original-B12-$SOURCE"
+          for i in $(seq 1 100); do
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/45967223094/artifacts" --jq "[.artifacts[]|select(.name==\"$asset\")]|length") || count=0
+            if [[ "$count" == 1 ]]; then break; fi
+            sleep 30
+          done
+          for i in 1 2 3 4; do
+            if gh run download 45967223094 --repo "$GITHUB_REPOSITORY" --name "$asset" --dir "$RUNNER_TEMP/received-$i"; then mv "$RUNNER_TEMP/received-$i" "$RUNNER_TEMP/signed"; break; fi
+            sleep 10
+          done
+          mapfile -t apks < <(find "$RUNNER_TEMP/signed" -name '*.apk')
+          mapfile -t receipts < <(find "$RUNNER_TEMP/signed" -name 'CI_BUILD_RECEIPT.json')
+          [[ ${#apks[@]} == 1 && ${#receipts[@]} == 1 ]]
+          sha=$(sha256sum "${apks[0]}" | cut -d' ' -f1)
+          jq -e --arg sha "$sha" --arg src "$SOURCE" '.sourceClean and .sourceCommit==$src and .gradleRelease=="PASS" and .apkSha256==$sha' "${receipts[0]}"
+          cp "${apks[0]}" "$RUNNER_TEMP/candidate-205.apk"
+          rm -r "$RUNNER_TEMP/signed"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Upgrade the baseline and time the report through Android DocumentsUI
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 30G
+          ram-size: 4096M
+          script: python3 -B engineering/verify-history/handoff.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-205-historical-android-readback
+          path: ${{ runner.temp }}/history-evidence/historical-readback.json
+          if-no-files-found: warn
