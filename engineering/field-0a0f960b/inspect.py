@@ -217,6 +217,21 @@ with ExitStack() as stack:
             rows=[r for r in rows if r.get("kind") in ("TRAIN_CANDIDATE","FREEZE_CANDIDATE","R343_ROLLING_TRAIN","R343_ROLLING_FREEZE")]
         safe_keys={"task_id","candidate_id","stream_seq","input_hash","authority_ref","protocol_hash","failed_task_id","successor_task_id","source_hash","ast_hash","id","current","target_issue","state","status","kind","source_issue","cutoff_issue","cursor","created_at","updated_at","lease_until","available_at","attempt_count","last_error","last_reason","next_row","scan_row","material_row","base_row","epoch","generation","next_variant","family","train_n","validation_last","row_count"}
         emit("TARGET_LEDGER",{"table":name,"rows":[{k:context_value(v) for k,v in row.items() if k in safe_keys} for row in rows[:30]]})
+    safe_task_ids={"modern-research-continuity","cold-rebirth-r34","warm-candidates","live-model-training","feedback","r27-chart-cache","r27-evolution","r27-replay-dataset","r27-live","lifecycle-schema","schema","r27-atomnet","r27-eval","r27-health"}
+    for name in ("r26_task","v57_research_lane_cursor_r967","research_family_creation_cp12","r952_candidate","v57_deferred_evidence_job"):
+        rows=[r for r in recent.get(name,{}).get("rows",[]) if isinstance(r,dict)]
+        if name=="r26_task":
+            rows=[r for r in rows if r.get("task_id") in safe_task_ids]
+        elif name=="v57_research_lane_cursor_r967":
+            rows=[r for r in rows if str(r.get("lane")) in {"0","1","6","9","13","17","18"}]
+        elif name=="v57_deferred_evidence_job":
+            emit("DEFERRED_REASON_COUNTS",Counter(context_value(r.get("last_error","")) for r in rows).most_common(16))
+            rows=[]
+        for row in rows:
+            if name=="r952_candidate" and row.get("candidate_id") not in {"CP12-FAMILY-ebfcc38e32ef9155cf4cbae7","CP12-FAMILY-872002fb10d1f206e96eae54"}: continue
+            fields={k:context_value(v) for k,v in row.items() if k in {"task_id","candidate_id","status","state","last_error","last_outcome","last_served","last_progress","updated_at","lane","wait_kind","wait_detail","wait_since","blocked_reason","cursor","desired_issue","served_issue","active_task_id","steps","fence","family","creation_kind","reason","next_variant","created_issue"}}
+            if row.get("task_id") in safe_task_ids: fields["task_id"]=row["task_id"]
+            emit("OWNER_STATUS",{"table":name,"fields":fields})
     for component in r26.get("sections",[]):
         ident=component.get("sectionId")
         metrics=component.get("metrics",[])
