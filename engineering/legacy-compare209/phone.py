@@ -58,7 +58,7 @@ with closing(sqlite3.connect(local)) as c:
         archive_scope=json.loads(archive.read('DIAGNOSTIC_SCOPE.json'))
         selected={section['table'] for section in archive_scope['recentEvidence'] if section['table'].startswith(('r80_probe_','research_long_'))}
         # MultiHorizonProbe's read-only retained-original accounting joins the archive registry.
-        selected.update({'research_evidence_archive_v2','v57_atom_edge_r925','v57_runtime_event_r926','v57_fetch_ledger_r925'})
+        selected.update({'research_evidence_archive_v2','research_evidence_archive_member_v2','research_evidence_locator_v2','v57_atom_edge_r925','v57_runtime_event_r926','v57_fetch_ledger_r925'})
         ddl={}
         for member in sorted(n for n in archive.namelist() if re.fullmatch(r'catalog-\d+\.jsonl',n)):
             for line in archive.open(member):
@@ -72,6 +72,8 @@ with closing(sqlite3.connect(local)) as c:
                 sql=''.join(text for pos,text in sorted(chunks))
                 assert sql.upper().startswith('CREATE ') and kind.upper() in sql.upper()[:30]
                 c.execute(sql)
+    for table in selected:
+        assert c.execute('SELECT 1 FROM sqlite_master WHERE type=\'table\' AND name=?',(table,)).fetchone(),table
     c.executemany("INSERT INTO v57_atom_edge_r925(left_atom,right_atom,correlation,support_issues,last_issue) VALUES(?,?,?,?,?)",pairs)
     # Two actual report ledgers at the cardinalities observed in the sealed 173 original.
     # The fixture values are synthetic and use a separate game key.
