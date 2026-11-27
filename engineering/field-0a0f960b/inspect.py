@@ -199,7 +199,7 @@ with ExitStack() as stack:
         if isinstance(item,dict):
             key=item.get("key",item.get("state_key",item.get("name","")))
             if re.match(r"(r343_|r65_|r912_|r908_|r975_|r962_|r971_|r980_|cp1[12]_)",key):
-                emit("SCHEDULER_VALUE",{"key":key,"fields":sorted(item), "status":item.get("status"),"values":{k:context_value(item[k]) for k in ("value","state_value","text","display","preview","typedValue","valuePreview","utf8","detail","reason","typed_value") if k in item}})
+                emit("SCHEDULER_VALUE",{"key":key,"fields":sorted(item), "updatedAt":item.get("updatedAt"), "status":item.get("status"),"values":{k:context_value(item[k]) for k in ("value","state_value","text","display","preview","typedValue","valuePreview","utf8","detail","reason","typed_value") if k in item}})
     for name in ("research_molecule_seed_v2","research_training_input_v2","v57_research_lane_cursor_r967","v57_runtime_event_r926","v57_runtime_event_scope_r341"):
         datum=recent.get(name,{})
         rows=[r for r in datum.get("rows",[]) if isinstance(r,dict)]
@@ -229,6 +229,6 @@ with ExitStack() as stack:
             row=json.loads(raw)
             if row.get("kind")=="check_result" and row.get("execution_state")!="EXECUTED":
                 emit("FIELD_CHECK_CAUSE",{"id":row.get("id"),"reasons":context_value({k:v for k,v in row.items() if k in ("reason","failure","error","exception","errorChain","details","source")}),
-                     "frames":re.findall(r"\bcom\.ethk3\.novaonepro\.[A-Za-z0-9_$.]+(?=\([A-Za-z0-9_]+\.java)",str(row.get("error_detail","")))[:12],
+                     "frames":re.findall(r"\bcom\.ethk3\.novaonepro\.[A-Za-z0-9_$.]+\([A-Za-z0-9_]+\.java:[0-9]+\)",str(row.get("error_detail","")))[:36],
                      "errorCodes":list(dict.fromkeys(exact_codes.findall(str(row.get("error_detail","")))))[:12],
                      "detailKeys":list(row["error_detail"]) if isinstance(row.get("error_detail"),dict) else []})
