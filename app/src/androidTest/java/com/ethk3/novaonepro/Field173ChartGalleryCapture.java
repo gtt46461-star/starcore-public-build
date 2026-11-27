@@ -114,10 +114,18 @@ public final class Field173ChartGalleryCapture {
                     }
                     checks.equal(tablesVersion, scalar(db, "PRAGMA data_version"), "All paged SQL runs saw a stable source read");
                     if ("STALE_AND_MISSING".equals(scenario)) {
-                        checks.equal("STALE_FRAME_ABI", find(chartRows, "p01_three_scores").get("status"),
-                                "Legacy chart receives a real prior-version frame and rejects it");
-                        checks.equal(0, find(chartRows, "p01_three_scores").get("repositoryFinitePoints"),
-                                "Stale-frame error does not manufacture plotted output");
+                        checks.equal("HISTORICAL_FRAME", find(chartRows, "p01_three_scores").get("status"),
+                                "A verified compatible frame remains visible as historical after upgrade");
+                        try (Cursor c = db.rawQuery("SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id='p01_three_scores' AND key='panel'", null)) {
+                            checks.require(c.moveToFirst(), "Prior frame remains in the original chart cache");
+                            Map<String,Object> data = (Map<String,Object>) JsonR27.parse(c.getString(0));
+                            long now = System.currentTimeMillis();
+                            checks.equal("STALE_FRAME_ABI", ChartCacheR27.validateR31(data, TARGET, c.getLong(1), now),
+                                    "Historical chart stays inadmissible as current report or decision evidence");
+                            data.put("payloadSha256", "corrupted");
+                            checks.equal("READ_ERROR_FRAME_HASH", ChartCacheR27.validateForDisplayR31(data, TARGET, c.getLong(1), now),
+                                    "An old frame with a mismatched hash stays unreadable");
+                        }
                     }
                     for (String ready : List.of("r83_number_line", "R01", "R02", "R03")) {
                         Map<String, Object> screen = find(chartRows, ready);

@@ -37,11 +37,29 @@ public final class ChartCacheR27 {
         panel.remove("payloadSha256");panel.put("payloadSha256",StatsR27.sha256(JsonR27.write(panel)));
     }
     public static String validateR31(Map<String,Object> panel,String latestIssue,long updatedAt,long now) {
-        if(!FRAME_SCHEMA_R31.equals(panel.get("frameSchema"))||!Long.valueOf(BuildConfig.VERSION_CODE).equals(panel.get("buildVersionCode")))return "STALE_FRAME_ABI";
-        Map<String,Object> original=new LinkedHashMap<>(panel);Object hash=original.remove("payloadSha256");
-        if(!(hash instanceof String)||!hash.equals(StatsR27.sha256(JsonR27.write(original))))return "READ_ERROR_FRAME_HASH";
-        if(updatedAt>now+5000L)return "UNKNOWN_CLOCK_EPOCH";
-        if(now-updatedAt>90000L||latestIssue==null||!latestIssue.equals(panel.get("sourceIssue")))return "STALE_SOURCE_WATERMARK";
+        return validateFrame(panel, latestIssue, updatedAt, now, false);
+    }
+
+    public static String validateForDisplayR31(Map<String,Object> panel,String latestIssue,long updatedAt,long now) {
+        return validateFrame(panel, latestIssue, updatedAt, now, true);
+    }
+
+    private static String validateFrame(Map<String,Object> panel,String latestIssue,long updatedAt,long now,
+                                        boolean displayHistory) {
+        Object version = panel.get("buildVersionCode");
+        if (!FRAME_SCHEMA_R31.equals(panel.get("frameSchema")) || !(version instanceof Long))
+            return "STALE_FRAME_ABI";
+        long build = (Long) version;
+        if (build <= 0 || build > BuildConfig.VERSION_CODE
+                || (!displayHistory && build != BuildConfig.VERSION_CODE)) return "STALE_FRAME_ABI";
+        Map<String,Object> original = new LinkedHashMap<>(panel);
+        Object hash = original.remove("payloadSha256");
+        if (!(hash instanceof String) || !hash.equals(StatsR27.sha256(JsonR27.write(original))))
+            return "READ_ERROR_FRAME_HASH";
+        if (updatedAt > now + 5000L) return "UNKNOWN_CLOCK_EPOCH";
+        if (build < BuildConfig.VERSION_CODE) return "HISTORICAL_BUILD_FRAME";
+        if (now - updatedAt > 90000L || latestIssue == null || !latestIssue.equals(panel.get("sourceIssue")))
+            return "STALE_SOURCE_WATERMARK";
         return null;
     }
     static Map<String, Object> panel(String title, String kind, String source, String window, String note, List<Object> points) {
