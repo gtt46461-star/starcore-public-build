@@ -1,0 +1,63 @@
+name: Android 14 compact ZIP generation, delivery dialog and public save 207
+on:
+  push:
+    branches: ['repair/report-208-field-snapshot']
+    paths: ['engineering/field-baseline/phone.py', '.github/workflows/field-baseline-207.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      SOURCE: 71caea623e3787ee42fbdf5e72f4b1a7997ef8e1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: engineering/field-baseline
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 71caea623e3787ee42fbdf5e72f4b1a7997ef8e1
+          path: source
+          sparse-checkout: |
+            release
+            tools
+          persist-credentials: false
+      - name: Fetch verified baseline and wait for the exact signed build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="r34.2-B12-85678fcfd128"
+          name="STARCORE-R342-577311204-85678fcfd128-release.apk"
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --output "$RUNNER_TEMP/installed-204.apk"
+          digest=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" --jq ".assets[] | select(.name==\"$name\") | .digest")
+          actual=$(sha256sum "$RUNNER_TEMP/installed-204.apk" | cut -d' ' -f1)
+          [[ "$digest" == "sha256:$actual" ]]
+          echo "BASELINE_SHA=$actual" >> "$GITHUB_ENV"
+          gh release download 'r34.2-B12-71caea623e37' --repo "$GITHUB_REPOSITORY" --pattern 'STARCORE-R342-577311207-71caea623e37-release.apk' --output "$RUNNER_TEMP/candidate-207.apk"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Upgrade the baseline and time the report through Android DocumentsUI
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 30G
+          ram-size: 4096M
+          script: python3 -B engineering/field-baseline/phone.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compact-report-207-android-readback
+          path: |
+            ${{ runner.temp }}/large-report-evidence/field-size-android-readback.json
+            ${{ runner.temp }}/large-report-evidence/sampled-stage-transitions.json
+          if-no-files-found: warn
