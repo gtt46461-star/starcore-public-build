@@ -1,0 +1,28 @@
+name: Stop superseded preselected-destination candidate
+on:
+  push:
+    branches: ['repair/compact-delivery-dialog-207']
+    paths: ['.github/workflows/stop-superseded-206.yml']
+permissions:
+  actions: write
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stop the three superseded candidate workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          stop_run() {
+            run_id=$1
+            expected=$2
+            data=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id")
+            [[ "$(jq -r .head_sha <<< "$data")" == "$expected" ]]
+            if [[ "$(jq -r .status <<< "$data")" != completed ]]; then
+              gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/cancel"
+            fi
+          }
+          stop_run 45969763403 eea778b8011ca9edfc9c62091ed7d0538fe3737f
+          stop_run 45970016816 bce410d1128c8a5d082a725bb42a815a5680b35e
+          stop_run 45970016768 bce410d1128c8a5d082a725bb42a815a5680b35e

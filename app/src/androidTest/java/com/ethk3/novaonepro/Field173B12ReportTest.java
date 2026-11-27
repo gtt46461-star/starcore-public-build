@@ -27,6 +27,8 @@ public final class Field173B12ReportTest {
 
     private void run(String mode) throws Exception {
         Field173NativeEvidence.run((app, checks) -> {
+            checks.require(java.util.Arrays.equals(CompleteReportFileR927.deliveryActions(true,false),
+                    new String[]{"一次保存完整ZIP文件","分享完整ZIP","保存到文件夹"}),"Published compact single-ZIP delivery actions");
             checks.equal(96, CheckMetricCrosswalkR31.checks().size(), "Registered check denominator");
             checks.equal(44, CheckMetricCrosswalkR31.definitions().size(), "Registered metric denominator");
             Map<String,Object> rows = new LinkedHashMap<>();
