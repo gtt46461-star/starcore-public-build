@@ -2143,21 +2143,44 @@ public static String fingerprintSnapshotCP4(com.ethk3.novaonepro.ReportReadConte
         if (db == null || contract == null) return "";
         Set<String> wanted = new HashSet<String>(Arrays.asList(contract.objects));
         ArrayList<String> rows = new ArrayList<String>();
-        Cursor c = report.select("SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master"
-                + " WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name", null);
-        try {
-            while (c.moveToNext()) {
-                String name = safeSnapshotCP4(report, c.getString(1));
-                String table = safeSnapshotCP4(report, c.getString(2));
-                if (!wanted.contains(name) && !wanted.contains(table)) continue;
-                rows.add(safeSnapshotCP4(report, c.getString(0)) + '|' + name + '|' + table + '|' + safeSnapshotCP4(report, c.getString(3)));
+        long lastRow = 0;
+        boolean first = true;
+        // CursorWindow refills can restart a SELECT. Limit each batch on the
+        // immutable schema's rowid so a refill never repeats the entire scan.
+        while (true) {
+            report.checkpoint();
+            String predicate = first ? "" : " AND rowid>?";
+            String[] args = first ? null : new String[] {Long.toString(lastRow)};
+            int count = 0;
+            try (Cursor c = report.select("SELECT rowid,type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master"
+                    + " WHERE name NOT LIKE 'sqlite_%'" + predicate + " ORDER BY rowid LIMIT 64", args)) {
+                while (c.moveToNext()) {
+                    count++;
+                    lastRow = c.getLong(0);
+                    String name = safeSnapshotCP4(report, c.getString(2));
+                    String table = safeSnapshotCP4(report, c.getString(3));
+                    if (wanted.contains(name) || wanted.contains(table)) {
+                        rows.add(safeSnapshotCP4(report, c.getString(1)) + '|' + name + '|' + table + '|' + safeSnapshotCP4(report, c.getString(4)));
+                    }
+                }
             }
-        } finally { c.close(); }
+            if (count < 64) break;
+            first = false;
+        }
         Collections.sort(rows);
-        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, contract.domain).append('|').append(contract.revision)
-                .append('|').append(contract.contractHash);
-        for (String row : rows) b.append('\n').append(row.length()).append(':').append(row);
-        return com.ethk3.novaonepro.ReportTextCP12.sha256(report, b.toString());
+        try {
+            java.security.MessageDigest sha = java.security.MessageDigest.getInstance("SHA-256");
+            java.nio.charset.Charset utf8 = java.nio.charset.StandardCharsets.UTF_8;
+            sha.update((contract.domain + '|' + contract.revision + '|' + contract.contractHash).getBytes(utf8));
+            for (String row : rows) {
+                report.checkpoint();
+                sha.update(("\n" + row.length() + ":").getBytes(utf8));
+                sha.update(row.getBytes(utf8));
+            }
+            return ReportArchiveCP4.hex(sha.digest());
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new AssertionError(impossible);
+        }
     }
 
 public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String s) { return s == null ? "" : s.trim(); }

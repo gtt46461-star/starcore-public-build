@@ -136,7 +136,7 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
   return describeStageProgress(jobStage,updatedWallMs,stage,progress.optLong("startedWallMs"),
       progress.optLong("hashedBytes"),progress.optLong("sampledElapsedMs",-1),android.os.SystemClock.elapsedRealtime())
       +("INDEXING".equals(stage)&&!progress.optString("indexSection").isEmpty()
-          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项":"")
+          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项"+(progress.optString("activeCheck").isEmpty()?"":"，正在处理 "+progress.optString("activeCheck")):"")
       +("BACKUP".equals(stage)?backupProgressText(app,id):"");
  }catch(Exception unavailable){return "｜阶段信息可用，详细进度暂不可用";}
  }

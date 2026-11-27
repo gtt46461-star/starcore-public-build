@@ -61,6 +61,22 @@ public final class Field173B12ReportTest {
                             "Opened SQLite image retains original value");
                 }
                 if (mode.equals("NEG")) {
+                    try (ReportReadContextCP4 reader = context(snapshot, hash, compact)) {
+                        try {
+                            reader.runCheck("slow-test-query", input -> {
+                                reader.scalarLong("WITH RECURSIVE n(x) AS (VALUES(0) UNION ALL SELECT x+1 FROM n WHERE x<1000000000) SELECT sum(x) FROM n", null);
+                                return null;
+                            }, null, 100);
+                            throw new AssertionError("Slow SQL exceeded its deadline without a timeout");
+                        } catch (ReportReadContextCP4.ReportReadFailureCP4 expected) {
+                            checks.require(expected.code.startsWith("REPORT_CHECK_TIMEOUT|slow-test-query|"), "SQLite check cancelled with its own identity");
+                            checks.record("timedOutCheck", expected.code);
+                        }
+                        ReportCatalogCP4.CheckResult next = reader.runCheck("following-check", input ->
+                                new ReportCatalogCP4.CheckResult("OBSERVED","OBSERVED", Long.toString(reader.scalarLong(
+                                        "SELECT value FROM report_payload WHERE key=?",new String[]{"expected"}))), null, 2000);
+                        checks.equal("37", next.evidence, "Next check reads the same snapshot after timeout");
+                    }
                     JSONObject corrupt = selection(hash, false);
                     corrupt.getJSONObject("reproductionR342").put("sourceCommit", "4d1de9d83692635b5c5ce39144fece1c8a31c8ac");
                     try (SQLiteDatabase reread = readOnly(image);

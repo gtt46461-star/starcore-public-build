@@ -1,0 +1,266 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+index a10bb844..afcf366c 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+@@ -136,7 +136,7 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
+   return describeStageProgress(jobStage,updatedWallMs,stage,progress.optLong("startedWallMs"),
+       progress.optLong("hashedBytes"),progress.optLong("sampledElapsedMs",-1),android.os.SystemClock.elapsedRealtime())
+       +("INDEXING".equals(stage)&&!progress.optString("indexSection").isEmpty()
+-          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项":"")
++          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项"+(progress.optString("activeCheck").isEmpty()?"":"，正在处理 "+progress.optString("activeCheck")):"")
+       +("BACKUP".equals(stage)?backupProgressText(app,id):"");
+  }catch(Exception unavailable){return "｜阶段信息可用，详细进度暂不可用";}
+  }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+index aded8321..c5ad5358 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+@@ -283,17 +283,22 @@ public final class ReportCatalogCP4 {
+                 out.line(obj("kind","catalog_error","reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
+             }
+             // No derived rate is manufactured from a schema count. Checks retain original semantics in their registered adapters.
++            long checkPhaseStart=android.os.SystemClock.elapsedRealtime();
+             SnapshotQuery input=new SnapshotQuery(snapshot); Set<String> ids=new HashSet<String>();
+             for(CheckSpec check:checks) {
+-                progress.checkpoint("CHECK",checkCount);
+                 if(check==null || !ids.add(check.id))throw new IOException("CHECK_ID_NULL_OR_DUPLICATE");
++                progress.checkpoint("CHECK:"+check.id,checkCount);
+                 if(++checkCount>MAX_CHECKS)throw new IOException("CHECK_REGISTRY_TOO_LARGE");
+                 out.line(obj("kind","check_contract","id",check.id,"section",check.section,"source_path",check.sourcePath,
+                         "source_method",check.sourceMethod,"query_contract",check.queryContract,"evidence_member",context.compactDiagnosticR64()?"DIAGNOSTIC_SCOPE.json":check.evidenceMember,
+                         "required",check.required,"check_kind",check.kind.name()));
+                 if(check.runner==null)throw new IOException("REPORT_UNBOUND_CANONICAL_HANDLER");
+                 try {
+-                    CheckResult result=check.runner.run(input);
++                    // Share three minutes across the expensive checks. Always attempt every
++                    // remaining handler with at least a second of its own.
++                    long spent=android.os.SystemClock.elapsedRealtime()-checkPhaseStart;
++                    long budgetMs=Math.max(1000L,Math.min(20000L,180000L-spent));
++                    CheckResult result=context.runCheck(check.id,check.runner,input,budgetMs);
+                     if(result==null)throw new IllegalStateException("NULL_CHECK_RESULT");
+                     boolean complete=hasCompleteResult(check,result);
+                     if(ReportCheckRegistryCP12.sourceReadFailedR341(result))context.recordSourceFailureR341("CHECK:"+check.id,result.domainOutcome+"|"+result.reason);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index ff43f591..c5049d39 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -396,7 +396,8 @@ public final class ReportExportServiceCP4 extends Service {
+                             catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->{
+                                 active.checkpoint();
+                                 if("SCHEMA_OBJECT".equals(phase))active.onIndexProgress("数据库结构",completed);
+-                                if("CHECK".equals(phase))active.onIndexProgress("检测项",completed);
++                                if(phase.startsWith("CHECK:"))active.onCheckStart(phase.substring(6),completed);
++                                if("CATALOG_END".equals(phase))active.onCheckStart("",completed);
+                             });
+                         } finally { active.readCancellationR30=null; }
+                         ctx.finishArtifacts();
+@@ -807,7 +808,7 @@ public final class ReportExportServiceCP4 extends Service {
+         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;private long lastRead;
+         private final StageTiming timing=new StageTiming();
+         private long stageStarted,stageStartedWall,hashedBytes,backupPages;
+-        private String indexSection="";
++        private String indexSection="", activeCheck="";
+         private long completedIndexEntries;
+         private String progressStageR31="CLAIMED";
+         private final Thread executingOwnerR341=Thread.currentThread();
+@@ -834,7 +835,7 @@ public final class ReportExportServiceCP4 extends Service {
+         ActiveControl(ReportJobJournalCP12.Job job,File root){this(job,root,job.jobId);}
+         ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();timing.enter(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
+         void enter(String stage,long milliseconds)throws IOException{checkpoint();closePhaseR31();progressStageR31=stage;stageStarted=SystemClock.elapsedRealtime();
+-            stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;indexSection="";completedIndexEntries=0;
++            stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;indexSection="";activeCheck="";completedIndexEntries=0;
+             timing.enter(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
+             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31 budget=com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.processBudget();
+             budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP,SQLITE_BACKUP_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER,NATIVE_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");
+@@ -848,10 +849,18 @@ public final class ReportExportServiceCP4 extends Service {
+             if(!entering&&now<nextProgressR31[0])return;
+             try{sampleR31(0,new JSONObject().put("stage",progressStageR31).put("startedWallMs",stageStartedWall)
+                     .put("sampledElapsedMs",now).put("hashedBytes",hashedBytes)
+-                    .put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
++                    .put("activeCheck",activeCheck).put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
+                     .put("cumulativeRealtimeParkedMs",stageParkedMsR341),now,entering);}
+             catch(org.json.JSONException error){android.util.Log.w("ReportExportCP12","UI stage sample format unavailable",error);}
+         }
++        void onCheckStart(String id,long completed) {
++            activeCheck=id;
++            indexSection="检测项";
++            completedIndexEntries=completed;
++            long now=SystemClock.elapsedRealtime();
++            timing.progress(now);
++            sampleStage(now,true);
++        }
+         @Override public void onIndexProgress(String section,long completed) {
+             long now=SystemClock.elapsedRealtime();
+             if(section.equals(indexSection) && completed>completedIndexEntries)timing.progress(now);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java
+index fe261c2a..db9404d6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java
+@@ -103,18 +103,59 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
+    throw new ReportReadFailureCP4("REPORT_ASSET_REFERENCE_MISSING", missing);
+   }
+  }
+- public void checkpoint(){if(closed||cancellation.isCanceled()||Thread.currentThread().isInterrupted())throw new ReportReadFailureCP4("REPORT_CONTEXT_CANCELLED");}
++ private final java.util.concurrent.ScheduledThreadPoolExecutor checkTimer =
++     new java.util.concurrent.ScheduledThreadPoolExecutor(1, task -> {
++      Thread thread = new Thread(task, "report-check-deadline");
++      thread.setDaemon(true);
++      return thread;
++     });
++ private CancellationSignal checkSignal;
++
++ ReportCatalogCP4.CheckResult runCheck(String id, ReportCatalogCP4.CheckRunner runner,
++         ReportCatalogCP4.SnapshotQuery input, long budgetMs) throws Exception {
++  checkpoint();
++  final CancellationSignal local = new CancellationSignal();
++  long started = android.os.SystemClock.elapsedRealtime();
++  checkSignal = local;
++  cancellation.setOnCancelListener(local::cancel);
++  checkTimer.setRemoveOnCancelPolicy(true);
++  java.util.concurrent.ScheduledFuture<?> timeout =
++      checkTimer.schedule(local::cancel, budgetMs, java.util.concurrent.TimeUnit.MILLISECONDS);
++  boolean finished = false;
++  try {
++   ReportCatalogCP4.CheckResult result = runner.run(input);
++   checkpoint();
++   if (android.os.SystemClock.elapsedRealtime() - started >= budgetMs) local.cancel();
++   local.throwIfCanceled();
++   finished = true;
++   return result;
++  } catch (Exception problem) {
++   if (!cancellation.isCanceled() && local.isCanceled()) {
++    throw new ReportReadFailureCP4("REPORT_CHECK_TIMEOUT|" + id + "|budgetMs=" + budgetMs, problem);
++   }
++   throw problem;
++  } finally {
++   timeout.cancel(false);
++   cancellation.setOnCancelListener(null);
++   checkSignal = null;
++   if (!finished) {
++    for (ReportTextCP12 renderer : new ArrayList<>(renderers)) renderer.abort();
++   }
++  }
++ }
++ private CancellationSignal querySignal() { return checkSignal == null ? cancellation : checkSignal; }
++ public void checkpoint(){if(checkSignal!=null)checkSignal.throwIfCanceled();if(closed||cancellation.isCanceled()||Thread.currentThread().isInterrupted())throw new ReportReadFailureCP4("REPORT_CONTEXT_CANCELLED");}
+  public SQLiteDatabase readable(){checkpoint();return snapshot;}public SQLiteDatabase snapshotReadOnly(){return readable();}
+  public CancellationSignal cancellationSignal(){return cancellation;}
+  public String snapshotSha256(){return snapshotSha;}
+  public long nowMs(){return snapshotAt;}public RuntimeObservationCP4 observation(){return runtime;}public SourceManifestCP4 sourceManifest(){return source;}
+  public String getState(String key,String fallback){return state(key,fallback);}
+  public String state(String key,String fallback){checkpoint();if(key==null||key.isEmpty())return fallback;
+-  try(Cursor c=snapshot.rawQuery("SELECT length(CAST(state_value AS BLOB)) FROM app_state WHERE state_key=?",new String[]{key},cancellation)){if(!c.moveToFirst())return fallback;if(c.isNull(0)||c.getLong(0)>16384)throw new ReportReadFailureCP4("REPORT_VALUE_REQUIRES_RAW_REFERENCE");}
+-  try(Cursor c=snapshot.rawQuery("SELECT state_value FROM app_state WHERE state_key=?",new String[]{key},cancellation)){if(!c.moveToFirst())throw new ReportReadFailureCP4("REPORT_STATE_DISAPPEARED");return c.getString(0);}
++  try(Cursor c=snapshot.rawQuery("SELECT length(CAST(state_value AS BLOB)) FROM app_state WHERE state_key=?",new String[]{key},querySignal())){if(!c.moveToFirst())return fallback;if(c.isNull(0)||c.getLong(0)>16384)throw new ReportReadFailureCP4("REPORT_VALUE_REQUIRES_RAW_REFERENCE");}
++  try(Cursor c=snapshot.rawQuery("SELECT state_value FROM app_state WHERE state_key=?",new String[]{key},querySignal())){if(!c.moveToFirst())throw new ReportReadFailureCP4("REPORT_STATE_DISAPPEARED");return c.getString(0);}
+  }
+  public String startupSchemaSummaryR363(){try{return new JSONObject(runtime.json).getString("schemaStartupSummary");}catch(Exception error){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",error);}}
+- public Cursor select(String sql,String[] args){checkpoint();if(sql==null||!sql.trim().toUpperCase(java.util.Locale.ROOT).matches("^(SELECT|WITH|PRAGMA)\\b.*")||sql.indexOf(';')>=0)throw new ReportReadFailureCP4("REPORT_SELECT_REQUIRED");return snapshot.rawQuery(sql,args,cancellation);}
++ public Cursor select(String sql,String[] args){checkpoint();if(sql==null||!sql.trim().toUpperCase(java.util.Locale.ROOT).matches("^(SELECT|WITH|PRAGMA)\\b.*")||sql.indexOf(';')>=0)throw new ReportReadFailureCP4("REPORT_SELECT_REQUIRED");return snapshot.rawQuery(sql,args,querySignal());}
+  public long scalarLong(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst()||c.getColumnCount()!=1||c.isNull(0)||c.getType(0)!=Cursor.FIELD_TYPE_INTEGER)throw new ReportReadFailureCP4("REPORT_SCALAR_UNKNOWN");long v=c.getLong(0);if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}catch(RuntimeException failure){if(!(failure instanceof android.os.OperationCanceledException))recordSourceFailureR341("SQL_INTEGER:"+V51ChecksumEngine.sha256(sql==null?"":sql),failure.getMessage());throw failure;}}
+  public Double scalarDouble(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst())return null;if(c.getColumnCount()!=1)throw new ReportReadFailureCP4("REPORT_SCALAR_SHAPE");int type=c.getType(0);if(type!=Cursor.FIELD_TYPE_NULL&&type!=Cursor.FIELD_TYPE_FLOAT&&type!=Cursor.FIELD_TYPE_INTEGER)throw new ReportReadFailureCP4("REPORT_SCALAR_UNKNOWN");Double v=c.isNull(0)?null:c.getDouble(0);if(v!=null&&!Double.isFinite(v))throw new ReportReadFailureCP4("REPORT_NON_FINITE");if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}catch(RuntimeException failure){if(!(failure instanceof android.os.OperationCanceledException))recordSourceFailureR341("SQL_REAL:"+V51ChecksumEngine.sha256(sql==null?"":sql),failure.getMessage());throw failure;}}
+  public interface Factory<T>{T create();}
+@@ -131,7 +172,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
+  public void finishArtifacts()throws java.io.IOException{if(artifactManifest!=null){artifactManifest.flush();artifactFd.getFD().sync();artifactManifest.close();artifactManifest=null;artifactFd=null;}}
+  public void trackRenderer(ReportTextCP12 renderer){if(renderers.size()>=32)throw new ReportReadFailureCP4("REPORT_OPEN_RENDER_LIMIT");renderers.add(renderer);}
+  public void releaseRenderer(ReportTextCP12 renderer){renderers.remove(renderer);}
+- public void close(){try{for(ReportTextCP12 renderer:new java.util.ArrayList<ReportTextCP12>(renderers))renderer.abort();renderers.clear();finishArtifacts();}catch(java.io.IOException error){throw new ReportReadFailureCP4("REPORT_RENDER_MANIFEST_CLOSE",error);}finally{closed=true;}} // Service owns and closes the supplied SQLite connection exactly once.
++ public void close(){checkTimer.shutdownNow();try{for(ReportTextCP12 renderer:new java.util.ArrayList<ReportTextCP12>(renderers))renderer.abort();renderers.clear();finishArtifacts();}catch(java.io.IOException error){throw new ReportReadFailureCP4("REPORT_RENDER_MANIFEST_CLOSE",error);}finally{closed=true;}} // Service owns and closes the supplied SQLite connection exactly once.
+     private void closeCursor(Cursor c) {
+         if (c != null) {
+             try {
+@@ -177,8 +218,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
+ 
+         try {
+             c =
+-                    readable()
+-                            .rawQuery(
++                    select(
+                                     "SELECT COUNT(*) AS bet_count, SUM(hit) AS hit_count, SUM(pnl)"
+                                         + " AS pnl FROM "
+                                             + DbHelper.TABLE_TRADES
+@@ -202,8 +242,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
+ 
+         try {
+             c =
+-                    readable()
+-                            .rawQuery(
++                    select(
+                                     "SELECT COUNT(1),"
+                                             + "COALESCE(SUM(CASE WHEN settled=1 THEN 1 ELSE 0 END),0),"
+                                             + "COALESCE(SUM(CASE WHEN settled=1 AND hit_label=1 THEN 1 ELSE 0 END),0)"
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java b/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
+index ff5c83f8..2f8c7a2d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
+@@ -100,7 +100,7 @@ public final class ResearchFunnelR967 {
+ 
+ public static Snapshot captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+         if(store==null)return failureSnapshotCP4(report, report.nowMs(),"STORE_NULL");
+-        try{return captureSnapshotCP4(report, store.readable());}catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++        try{return report.memo("research-funnel-summary",()->captureSnapshotCP4(report, store.readable()));}catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
+     }
+ 
+ static Snapshot captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java b/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
+index 8f9708e3..21508b31 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
+@@ -2143,21 +2143,44 @@ public static String fingerprintSnapshotCP4(com.ethk3.novaonepro.ReportReadConte
+         if (db == null || contract == null) return "";
+         Set<String> wanted = new HashSet<String>(Arrays.asList(contract.objects));
+         ArrayList<String> rows = new ArrayList<String>();
+-        Cursor c = report.select("SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master"
+-                + " WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name", null);
+-        try {
+-            while (c.moveToNext()) {
+-                String name = safeSnapshotCP4(report, c.getString(1));
+-                String table = safeSnapshotCP4(report, c.getString(2));
+-                if (!wanted.contains(name) && !wanted.contains(table)) continue;
+-                rows.add(safeSnapshotCP4(report, c.getString(0)) + '|' + name + '|' + table + '|' + safeSnapshotCP4(report, c.getString(3)));
++        long lastRow = 0;
++        boolean first = true;
++        // CursorWindow refills can restart a SELECT. Limit each batch on the
++        // immutable schema's rowid so a refill never repeats the entire scan.
++        while (true) {
++            report.checkpoint();
++            String predicate = first ? "" : " AND rowid>?";
++            String[] args = first ? null : new String[] {Long.toString(lastRow)};
++            int count = 0;
++            try (Cursor c = report.select("SELECT rowid,type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master"
++                    + " WHERE name NOT LIKE 'sqlite_%'" + predicate + " ORDER BY rowid LIMIT 64", args)) {
++                while (c.moveToNext()) {
++                    count++;
++                    lastRow = c.getLong(0);
++                    String name = safeSnapshotCP4(report, c.getString(2));
++                    String table = safeSnapshotCP4(report, c.getString(3));
++                    if (wanted.contains(name) || wanted.contains(table)) {
++                        rows.add(safeSnapshotCP4(report, c.getString(1)) + '|' + name + '|' + table + '|' + safeSnapshotCP4(report, c.getString(4)));
++                    }
++                }
+             }
+-        } finally { c.close(); }
++            if (count < 64) break;
++            first = false;
++        }
+         Collections.sort(rows);
+-        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, contract.domain).append('|').append(contract.revision)
+-                .append('|').append(contract.contractHash);
+-        for (String row : rows) b.append('\n').append(row.length()).append(':').append(row);
+-        return com.ethk3.novaonepro.ReportTextCP12.sha256(report, b.toString());
++        try {
++            java.security.MessageDigest sha = java.security.MessageDigest.getInstance("SHA-256");
++            java.nio.charset.Charset utf8 = java.nio.charset.StandardCharsets.UTF_8;
++            sha.update((contract.domain + '|' + contract.revision + '|' + contract.contractHash).getBytes(utf8));
++            for (String row : rows) {
++                report.checkpoint();
++                sha.update(("\n" + row.length() + ":").getBytes(utf8));
++                sha.update(row.getBytes(utf8));
++            }
++            return ReportArchiveCP4.hex(sha.digest());
++        } catch (java.security.NoSuchAlgorithmException impossible) {
++            throw new AssertionError(impossible);
++        }
+     }
+ 
+ public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String s) { return s == null ? "" : s.trim(); }

@@ -283,17 +283,22 @@ public final class ReportCatalogCP4 {
                 out.line(obj("kind","catalog_error","reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
             }
             // No derived rate is manufactured from a schema count. Checks retain original semantics in their registered adapters.
+            long checkPhaseStart=android.os.SystemClock.elapsedRealtime();
             SnapshotQuery input=new SnapshotQuery(snapshot); Set<String> ids=new HashSet<String>();
             for(CheckSpec check:checks) {
-                progress.checkpoint("CHECK",checkCount);
                 if(check==null || !ids.add(check.id))throw new IOException("CHECK_ID_NULL_OR_DUPLICATE");
+                progress.checkpoint("CHECK:"+check.id,checkCount);
                 if(++checkCount>MAX_CHECKS)throw new IOException("CHECK_REGISTRY_TOO_LARGE");
                 out.line(obj("kind","check_contract","id",check.id,"section",check.section,"source_path",check.sourcePath,
                         "source_method",check.sourceMethod,"query_contract",check.queryContract,"evidence_member",context.compactDiagnosticR64()?"DIAGNOSTIC_SCOPE.json":check.evidenceMember,
                         "required",check.required,"check_kind",check.kind.name()));
                 if(check.runner==null)throw new IOException("REPORT_UNBOUND_CANONICAL_HANDLER");
                 try {
-                    CheckResult result=check.runner.run(input);
+                    // Share three minutes across the expensive checks. Always attempt every
+                    // remaining handler with at least a second of its own.
+                    long spent=android.os.SystemClock.elapsedRealtime()-checkPhaseStart;
+                    long budgetMs=Math.max(1000L,Math.min(20000L,180000L-spent));
+                    CheckResult result=context.runCheck(check.id,check.runner,input,budgetMs);
                     if(result==null)throw new IllegalStateException("NULL_CHECK_RESULT");
                     boolean complete=hasCompleteResult(check,result);
                     if(ReportCheckRegistryCP12.sourceReadFailedR341(result))context.recordSourceFailureR341("CHECK:"+check.id,result.domainOutcome+"|"+result.reason);

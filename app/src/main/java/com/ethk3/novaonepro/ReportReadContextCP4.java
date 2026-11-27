@@ -103,18 +103,59 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
    throw new ReportReadFailureCP4("REPORT_ASSET_REFERENCE_MISSING", missing);
   }
  }
- public void checkpoint(){if(closed||cancellation.isCanceled()||Thread.currentThread().isInterrupted())throw new ReportReadFailureCP4("REPORT_CONTEXT_CANCELLED");}
+ private final java.util.concurrent.ScheduledThreadPoolExecutor checkTimer =
+     new java.util.concurrent.ScheduledThreadPoolExecutor(1, task -> {
+      Thread thread = new Thread(task, "report-check-deadline");
+      thread.setDaemon(true);
+      return thread;
+     });
+ private CancellationSignal checkSignal;
+
+ ReportCatalogCP4.CheckResult runCheck(String id, ReportCatalogCP4.CheckRunner runner,
+         ReportCatalogCP4.SnapshotQuery input, long budgetMs) throws Exception {
+  checkpoint();
+  final CancellationSignal local = new CancellationSignal();
+  long started = android.os.SystemClock.elapsedRealtime();
+  checkSignal = local;
+  cancellation.setOnCancelListener(local::cancel);
+  checkTimer.setRemoveOnCancelPolicy(true);
+  java.util.concurrent.ScheduledFuture<?> timeout =
+      checkTimer.schedule(local::cancel, budgetMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+  boolean finished = false;
+  try {
+   ReportCatalogCP4.CheckResult result = runner.run(input);
+   checkpoint();
+   if (android.os.SystemClock.elapsedRealtime() - started >= budgetMs) local.cancel();
+   local.throwIfCanceled();
+   finished = true;
+   return result;
+  } catch (Exception problem) {
+   if (!cancellation.isCanceled() && local.isCanceled()) {
+    throw new ReportReadFailureCP4("REPORT_CHECK_TIMEOUT|" + id + "|budgetMs=" + budgetMs, problem);
+   }
+   throw problem;
+  } finally {
+   timeout.cancel(false);
+   cancellation.setOnCancelListener(null);
+   checkSignal = null;
+   if (!finished) {
+    for (ReportTextCP12 renderer : new ArrayList<>(renderers)) renderer.abort();
+   }
+  }
+ }
+ private CancellationSignal querySignal() { return checkSignal == null ? cancellation : checkSignal; }
+ public void checkpoint(){if(checkSignal!=null)checkSignal.throwIfCanceled();if(closed||cancellation.isCanceled()||Thread.currentThread().isInterrupted())throw new ReportReadFailureCP4("REPORT_CONTEXT_CANCELLED");}
  public SQLiteDatabase readable(){checkpoint();return snapshot;}public SQLiteDatabase snapshotReadOnly(){return readable();}
  public CancellationSignal cancellationSignal(){return cancellation;}
  public String snapshotSha256(){return snapshotSha;}
  public long nowMs(){return snapshotAt;}public RuntimeObservationCP4 observation(){return runtime;}public SourceManifestCP4 sourceManifest(){return source;}
  public String getState(String key,String fallback){return state(key,fallback);}
  public String state(String key,String fallback){checkpoint();if(key==null||key.isEmpty())return fallback;
-  try(Cursor c=snapshot.rawQuery("SELECT length(CAST(state_value AS BLOB)) FROM app_state WHERE state_key=?",new String[]{key},cancellation)){if(!c.moveToFirst())return fallback;if(c.isNull(0)||c.getLong(0)>16384)throw new ReportReadFailureCP4("REPORT_VALUE_REQUIRES_RAW_REFERENCE");}
-  try(Cursor c=snapshot.rawQuery("SELECT state_value FROM app_state WHERE state_key=?",new String[]{key},cancellation)){if(!c.moveToFirst())throw new ReportReadFailureCP4("REPORT_STATE_DISAPPEARED");return c.getString(0);}
+  try(Cursor c=snapshot.rawQuery("SELECT length(CAST(state_value AS BLOB)) FROM app_state WHERE state_key=?",new String[]{key},querySignal())){if(!c.moveToFirst())return fallback;if(c.isNull(0)||c.getLong(0)>16384)throw new ReportReadFailureCP4("REPORT_VALUE_REQUIRES_RAW_REFERENCE");}
+  try(Cursor c=snapshot.rawQuery("SELECT state_value FROM app_state WHERE state_key=?",new String[]{key},querySignal())){if(!c.moveToFirst())throw new ReportReadFailureCP4("REPORT_STATE_DISAPPEARED");return c.getString(0);}
  }
  public String startupSchemaSummaryR363(){try{return new JSONObject(runtime.json).getString("schemaStartupSummary");}catch(Exception error){throw new ReportReadFailureCP4("OBSERVATION_UNAVAILABLE",error);}}
- public Cursor select(String sql,String[] args){checkpoint();if(sql==null||!sql.trim().toUpperCase(java.util.Locale.ROOT).matches("^(SELECT|WITH|PRAGMA)\\b.*")||sql.indexOf(';')>=0)throw new ReportReadFailureCP4("REPORT_SELECT_REQUIRED");return snapshot.rawQuery(sql,args,cancellation);}
+ public Cursor select(String sql,String[] args){checkpoint();if(sql==null||!sql.trim().toUpperCase(java.util.Locale.ROOT).matches("^(SELECT|WITH|PRAGMA)\\b.*")||sql.indexOf(';')>=0)throw new ReportReadFailureCP4("REPORT_SELECT_REQUIRED");return snapshot.rawQuery(sql,args,querySignal());}
  public long scalarLong(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst()||c.getColumnCount()!=1||c.isNull(0)||c.getType(0)!=Cursor.FIELD_TYPE_INTEGER)throw new ReportReadFailureCP4("REPORT_SCALAR_UNKNOWN");long v=c.getLong(0);if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}catch(RuntimeException failure){if(!(failure instanceof android.os.OperationCanceledException))recordSourceFailureR341("SQL_INTEGER:"+V51ChecksumEngine.sha256(sql==null?"":sql),failure.getMessage());throw failure;}}
  public Double scalarDouble(String sql,String[] args){try(Cursor c=select(sql,args)){if(!c.moveToFirst())return null;if(c.getColumnCount()!=1)throw new ReportReadFailureCP4("REPORT_SCALAR_SHAPE");int type=c.getType(0);if(type!=Cursor.FIELD_TYPE_NULL&&type!=Cursor.FIELD_TYPE_FLOAT&&type!=Cursor.FIELD_TYPE_INTEGER)throw new ReportReadFailureCP4("REPORT_SCALAR_UNKNOWN");Double v=c.isNull(0)?null:c.getDouble(0);if(v!=null&&!Double.isFinite(v))throw new ReportReadFailureCP4("REPORT_NON_FINITE");if(c.moveToNext())throw new ReportReadFailureCP4("REPORT_SCALAR_MULTIPLE_ROWS");return v;}catch(RuntimeException failure){if(!(failure instanceof android.os.OperationCanceledException))recordSourceFailureR341("SQL_REAL:"+V51ChecksumEngine.sha256(sql==null?"":sql),failure.getMessage());throw failure;}}
  public interface Factory<T>{T create();}
@@ -131,7 +172,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
  public void finishArtifacts()throws java.io.IOException{if(artifactManifest!=null){artifactManifest.flush();artifactFd.getFD().sync();artifactManifest.close();artifactManifest=null;artifactFd=null;}}
  public void trackRenderer(ReportTextCP12 renderer){if(renderers.size()>=32)throw new ReportReadFailureCP4("REPORT_OPEN_RENDER_LIMIT");renderers.add(renderer);}
  public void releaseRenderer(ReportTextCP12 renderer){renderers.remove(renderer);}
- public void close(){try{for(ReportTextCP12 renderer:new java.util.ArrayList<ReportTextCP12>(renderers))renderer.abort();renderers.clear();finishArtifacts();}catch(java.io.IOException error){throw new ReportReadFailureCP4("REPORT_RENDER_MANIFEST_CLOSE",error);}finally{closed=true;}} // Service owns and closes the supplied SQLite connection exactly once.
+ public void close(){checkTimer.shutdownNow();try{for(ReportTextCP12 renderer:new java.util.ArrayList<ReportTextCP12>(renderers))renderer.abort();renderers.clear();finishArtifacts();}catch(java.io.IOException error){throw new ReportReadFailureCP4("REPORT_RENDER_MANIFEST_CLOSE",error);}finally{closed=true;}} // Service owns and closes the supplied SQLite connection exactly once.
     private void closeCursor(Cursor c) {
         if (c != null) {
             try {
@@ -177,8 +218,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
 
         try {
             c =
-                    readable()
-                            .rawQuery(
+                    select(
                                     "SELECT COUNT(*) AS bet_count, SUM(hit) AS hit_count, SUM(pnl)"
                                         + " AS pnl FROM "
                                             + DbHelper.TABLE_TRADES
@@ -202,8 +242,7 @@ public final class ReportReadContextCP4 implements java.io.Closeable,ReportTextC
 
         try {
             c =
-                    readable()
-                            .rawQuery(
+                    select(
                                     "SELECT COUNT(1),"
                                             + "COALESCE(SUM(CASE WHEN settled=1 THEN 1 ELSE 0 END),0),"
                                             + "COALESCE(SUM(CASE WHEN settled=1 AND hit_label=1 THEN 1 ELSE 0 END),0)"

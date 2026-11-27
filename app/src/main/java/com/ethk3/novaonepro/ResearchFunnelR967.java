@@ -100,7 +100,7 @@ public final class ResearchFunnelR967 {
 
 public static Snapshot captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
         if(store==null)return failureSnapshotCP4(report, report.nowMs(),"STORE_NULL");
-        try{return captureSnapshotCP4(report, store.readable());}catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
+        try{return report.memo("research-funnel-summary",()->captureSnapshotCP4(report, store.readable()));}catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
     }
 
 static Snapshot captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
