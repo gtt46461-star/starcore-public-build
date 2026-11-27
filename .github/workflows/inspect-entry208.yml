@@ -1,0 +1,29 @@
+name: Inspect 208 Android entry and receipt evidence
+on:
+  push:
+    branches: ['repair/report-209-control-headroom']
+    paths: ['.github/workflows/inspect-entry208.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read captured entry state and confirmed report receipts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 45985563631 --repo "$GITHUB_REPOSITORY" --name r342-run-45985563631-originals --dir "$RUNNER_TEMP/previous"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          base=Path(os.environ['RUNNER_TEMP'])/'previous'
+          print('FILES',[(p.name,p.stat().st_size) for p in base.rglob('*') if p.is_file() and ('last' in p.name or 'progress' in p.name or p.name.endswith('.xml') or 'readback' in p.name)][-80:])
+          for p in sorted(base.rglob('*last.xml')):
+              try:
+                  nodes=ET.parse(p).getroot()
+                  print(p.name, [n.get('text','')[:110] for n in nodes.iter('node') if n.get('text')][-25:])
+              except Exception as e:print(e)
+          PY
