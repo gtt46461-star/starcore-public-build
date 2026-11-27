@@ -147,6 +147,7 @@ public final class ReportDiagnosticEvidenceR64 {
                 if(exportedRows!=(bounded?5000:totalRows))throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
                 out.write("],\"exportedRows\":"+exportedRows+",\"totalRows\":"+totalRows+",\"complete\":"+(exportedRows==totalRows)+"}");
             }
+            control.onIndexProgress("多周期研究汇总",0);
             out.write("],\"multiHorizonProbeResearch\":"+MultiHorizonProbeR80.reportJson(snapshot,()->control.shouldContinue())+",\"researchSchedulerState\":[");first=true;
             // Exact allow-list: never export unrelated app_state credentials or preferences.
             String[] keys={"cp12_import_subslot","cp12_import_last_result","r975_director_priority",
@@ -166,6 +167,7 @@ public final class ReportDiagnosticEvidenceR64 {
                     "draw_save_error","draw_history_backfill_error","r80_probe_last_status","r80_bound_source_last_status",
                     "r81_bound_position_cursor","r81_bound_maintenance_turn","r81_bound_progress_cursor",
                     "r81_bound_position_status_1","r81_bound_position_status_2","r81_bound_position_status_3","r81_bound_position_status_4","r81_bound_position_status_5","r81_bound_position_status_6","r81_bound_position_status_7","r81_bound_position_status_8","r81_bound_position_status_9","r81_bound_position_status_10"};
+            control.onIndexProgress("研究调度状态",0);
             for(String key:keys){
                 checkpoint(control);if(!first)out.write(',');first=false;
                 ReportMetadataStreamR81.writeState(snapshot,key,out,control);
@@ -190,6 +192,7 @@ public final class ReportDiagnosticEvidenceR64 {
                 try{file=frame.cursor.next();}catch(IOException failed){complete=false;unreadable++;incomplete=failed.getMessage();frame.close();pending.pop();continue;}
                 if(file==null){frame.close();pending.pop();continue;}
                 if(++entries>200000){complete=false;incomplete="ENTRY_BUDGET_200000";break;}
+                if((entries & 255)==0)control.onIndexProgress("应用文件清单",entries);
                 String relative=file.getAbsolutePath().substring(root.getPath().length()+1);JSONObject row=new JSONObject().put("kind","file").put("path",relative);
                 if(!file.getCanonicalFile().equals(file.getAbsoluteFile()))row.put("state","LINK_NOT_FOLLOWED");
                 else if(file.equals(own))row.put("state","CURRENT_EXPORT_TEMPORARIES");

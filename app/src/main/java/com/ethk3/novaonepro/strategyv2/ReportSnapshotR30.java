@@ -27,10 +27,15 @@ public final class ReportSnapshotR30 {
         Query(Map<String,Table> tables,List<String> errors){this.tables=tables;this.errors=errors;}
         boolean has(String table,String... columns){Table t=tables.get(table);if(t==null)return false;for(String c:columns)if(!t.columns.containsKey(c))return false;return true;}
         void add(String key,String sql,boolean numeric){cells.add(new Cell(key,sql,numeric));}
-        void count(String key,String table){add(key,has(table)?"(SELECT count(*) FROM "+id(table)+")":"NULL",true);}
+        java.util.function.Function<String,Long> immutableCounts;
+        String countSql(String table){
+            Long exact=immutableCounts==null?null:immutableCounts.apply(table);
+            return exact==null?"(SELECT count(*) FROM "+id(table)+")":Long.toString(exact);
+        }
+        void count(String key,String table){add(key,has(table)?countSql(table):"NULL",true);}
         void rows(String key,String table,String[] wanted,String order,int limit,String where,int maxCell){
             Table t=tables.get(table);if(t==null){add("data:"+key,"NULL",false);return;}
-            add("total:"+key,"(SELECT count(*) FROM "+id(table)+(where==null?"":" WHERE "+where)+")",true);
+            add("total:"+key,where==null?countSql(table):"(SELECT count(*) FROM "+id(table)+" WHERE "+where+")",true);
             List<String> fields=new ArrayList<>();for(String field:wanted)if(t.columns.containsKey(field)&&!t.columns.get(field).equalsIgnoreCase("BLOB"))fields.add(field);
             for(String pk:t.pk)if(!fields.contains(pk)&&!t.columns.get(pk).equalsIgnoreCase("BLOB"))fields.add(pk);
             for(String field:t.columns.keySet())if((field.endsWith("_hash")||field.endsWith("_sha256"))&&!fields.contains(field)&&!t.columns.get(field).equalsIgnoreCase("BLOB"))fields.add(field);
@@ -48,12 +53,19 @@ public final class ReportSnapshotR30 {
     public static ReportR27.R30Input capture(SQLiteDatabase db){return capture(db,null);}
     public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source){return capture(db,source,null);}
     public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source,android.os.CancellationSignal cancellation){
+        return capture(db,source,cancellation,null);
+    }
+    /** Unfiltered counts taken from this report's immutable catalog. Filtered counts execute their original predicates. */
+    public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source,android.os.CancellationSignal cancellation,
+            java.util.function.Function<String,Long> immutableCounts){
+        if(immutableCounts!=null&&!db.isReadOnly())throw new IllegalArgumentException("REPORT_COUNTS_REQUIRE_IMMUTABLE_COPY");
         Map<String,Object> facts=new LinkedHashMap<>(),watermark=new LinkedHashMap<>(),data=new LinkedHashMap<>();List<String> errors=new ArrayList<>();boolean own=false;
         try {
             if(db.inTransaction())throw new IllegalStateException("REPORT_READ_CALLED_IN_EXISTING_TRANSACTION");
             if(Build.VERSION.SDK_INT>=35){db.beginTransactionReadOnly();own=true;}
             watermark.put("readMode",own?"PUBLIC_READ_ONLY_DEFERRED":"IMPLICIT_DEFERRED_SINGLE_SELECT");watermark.put("readOnlyConnection",db.isReadOnly());
             long schema=schema(db),at=System.currentTimeMillis();Map<String,Table> tables=metadata(db);Query q=new Query(tables,errors);
+            q.immutableCounts=immutableCounts;
             q.historyPublicationReadyR31=q.has("r27_history_import","issue","ordinal","numbers","status","db_numbers")&&q.has("r31_history_import_run","job_id","status","publish_seq")&&q.has("r31_history_import_row","job_id","issue","ordinal","numbers","status","db_numbers","duplicate_conflicts")&&HistoryImportR27.publicationSchemaReadyReadOnlyR31(db);
             q.add("schemaVersion","(SELECT schema_version FROM pragma_schema_version)",true);
             q.add("factsReadAt",READ_CLOCK,true);
