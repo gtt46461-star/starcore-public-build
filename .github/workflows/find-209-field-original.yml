@@ -1,0 +1,20 @@
+name: Locate the new 209 field report by repository metadata
+on:
+  push:
+    branches: ['repair/report-rsec010-snapshot']
+    paths: ['.github/workflows/find-209-field-original.yml']
+permissions:
+  contents: read
+jobs:
+  locate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: List the newest repository assets and touched archive paths
+        run: |
+          set -eu
+          gh api "/repos/$GITHUB_REPOSITORY/releases?per_page=30" --jq '.[] | select(.created_at>"2026-11-27T11:00") | {tag_name,created_at,html_url,assets:[.assets[]|{name,size,url:browser_download_url}]}'
+          gh api "/repos/$GITHUB_REPOSITORY/events?per_page=100" --jq '.[] | select(.created_at>"2026-11-27T12:35" and (.type=="PushEvent" or .type=="CreateEvent" or .type=="ReleaseEvent")) | {type,created_at,actor:.actor.login,ref:.payload.ref,head:.payload.head,release:.payload.release.tag_name}'
+          gh api "/repos/$GITHUB_REPOSITORY/commits?since=2026-11-27T12:35:00Z" --jq '.[] | {sha,msg:.commit.message}'
