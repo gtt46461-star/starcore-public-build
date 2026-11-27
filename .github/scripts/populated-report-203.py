@@ -1,4 +1,5 @@
 """Measure a real signed Android report against a field-sized synthetic freelist."""
+from contextlib import closing
 import hashlib
 import json
 import os
@@ -43,17 +44,19 @@ for suffix in ['', '-wal', '-shm']:
     if subprocess.run(['adb','-s',serial,'shell','test','-f',live+suffix]).returncode==0:
         ci.adb(serial,'pull',live+suffix,str(local)+suffix)
 sys.path.insert(0,str(source/'verification/r343/corrections/B12-report-indexing-203'))
-from populated_fixture import populate,check_archive
+from populated_fixture import check_archive
 field=source/'construction/plans/STARCORE_R34_3_REPAIR_20261126/report/ORIGINAL_DIAGNOSTIC_173.zip'
 archive=tmp/'faults.tar.gz'
-count=populate(local,field,archive)
-assert count==11396
+# The fixture commit and all sqlite handles must close before journal-mode changes.
+populate_script = "import sys;sys.path.insert(0,sys.argv[1]);from populated_fixture import populate;assert populate(*sys.argv[2:])==11396"
+subprocess.run([sys.executable,"-B","-c",populate_script,sys.path[0],local,field,archive],check=True)
+count=11396
 ci.adb(serial,'push',archive,'/data/local/tmp/index-fixture.tar.gz')
 data='/data/user/0/'+pkg+'/files'
 ci.adb(serial,'shell','tar','-xzf','/data/local/tmp/index-fixture.tar.gz','-C',data)
 ci.adb(serial,'shell','chown','-R',identity,data+'/r335-fault-originals')
 ci.adb(serial,'shell','restorecon','-R',data+'/r335-fault-originals')
-with sqlite3.connect(local) as c:
+with closing(sqlite3.connect(local)) as c:
     c.execute('PRAGMA wal_checkpoint(TRUNCATE)').fetchall()
     c.execute('PRAGMA journal_mode=DELETE').fetchall()
     c.execute('VACUUM')
@@ -76,7 +79,7 @@ with local.open('r+b') as f:
         f.seek((start-1)*page)
         f.write(struct.pack('>'+str(len(leaves)+2)+'I',end if end<=pages else 0,len(leaves),*leaves))
         start=end
-with sqlite3.connect(f'file:{local}?mode=ro',uri=True) as c:
+with closing(sqlite3.connect(f'file:{local}?mode=ro',uri=True)) as c:
     assert c.execute('PRAGMA quick_check').fetchall()==[('ok',)]
     assert c.execute('PRAGMA page_count').fetchone()==(pages,)
 # This is the stopped, disposable, offline emulator seeded by the baseline APK.
