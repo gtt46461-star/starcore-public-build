@@ -113,8 +113,9 @@ final class ChartsRepositoryR27 {
             String window = m.get("window") + "｜更新于" + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(new java.util.Date(c.getLong(1)));
             String note = m.get("note") + "\n数据来源：" + m.get("source");
             if(historical) {
+                note+="\n历史缓存截至 "+m.get("sourceIssue")+" 期，来源版本 "+m.get("buildVersionCode")+"。当期状态："+status+"。";
+                if(latest!=null)note+=" 最新已见 "+latest+" 期。";
                 status="HISTORICAL_FRAME";
-                note+="\n历史实测，数据截至 "+m.get("sourceIssue")+" 期，来源版本 "+m.get("buildVersionCode")+"。";
             }
             if (pts.size() > POINTS_PER_PAGE_R30) { // R30-B02-05 paging
                 int total = pts.size();
@@ -197,7 +198,7 @@ final class ChartsRepositoryR27 {
             String status=String.valueOf(panel.get("status"));
             if(frame instanceof HistoricalSnapshot){
                 window+="｜截至 "+frame.get("sourceIssue")+" 期";
-                note+="\n历史实测。该期采集状态："+status+"。";
+                note+="\n历史缓存。该期采集状态："+status+"。";
                 status="HISTORICAL_FRAME";
             }
             return new Panel(PAGE,String.valueOf(panel.get("title")),String.valueOf(panel.get("kind")),String.valueOf(panel.get("source")),window,note,status,points,null,refs,series);
