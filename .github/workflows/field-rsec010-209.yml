@@ -1,0 +1,66 @@
+name: Measure the released 209 with the same long dashboard input
+on:
+  push:
+    branches: ['repair/report-rsec010-snapshot']
+    paths: ['engineering/field-rsec010-210/phone.py', '.github/workflows/field-rsec010-209.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      VERSION: '577311209'
+      SOURCE: ab2695b1b7e764fe4fd057183d2007f35a720a63
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: engineering/field-rsec010-210
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ab2695b1b7e764fe4fd057183d2007f35a720a63
+          path: source
+          sparse-checkout: |
+            construction/plans/STARCORE_R34_3_REPAIR_20261126/report
+            release
+            tools
+          persist-credentials: false
+      - name: Fetch verified baseline and wait for the exact signed build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="r34.2-B12-85678fcfd128"
+          name="STARCORE-R342-577311204-85678fcfd128-release.apk"
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$name" --output "$RUNNER_TEMP/installed-204.apk"
+          digest=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" --jq ".assets[] | select(.name==\"$name\") | .digest")
+          actual=$(sha256sum "$RUNNER_TEMP/installed-204.apk" | cut -d' ' -f1)
+          [[ "$digest" == "sha256:$actual" ]]
+          echo "BASELINE_SHA=$actual" >> "$GITHUB_ENV"
+          gh release download 'r34.2-B12-ab2695b1b7e7' --repo "$GITHUB_REPOSITORY" --pattern 'STARCORE-R342-577311209-ab2695b1b7e7-release.apk' --output "$RUNNER_TEMP/candidate-tested.apk"
+          [[ "$(sha256sum "$RUNNER_TEMP/candidate-tested.apk" | cut -d' ' -f1)" == 2055f03345ef27686c63e3ac02b76fc2615ba9260e2d5046634243be66d946e7 ]]
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Upgrade the baseline and time the report through Android DocumentsUI
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          disk-size: 30G
+          ram-size: 4096M
+          script: python3 -B engineering/field-rsec010-210/phone.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rsec010-parent-baseline-readback-577311209
+          path: |
+            ${{ runner.temp }}/large-report-evidence/field-size-android-readback.json
+            ${{ runner.temp }}/large-report-evidence/sampled-stage-transitions.json
+          if-no-files-found: warn
