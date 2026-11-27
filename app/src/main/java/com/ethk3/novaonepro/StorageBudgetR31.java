@@ -36,8 +36,9 @@ public final class StorageBudgetR31 {
             normalHard=normal;transientHard=transientBytes;freeFloor=floor;metadataHeadroom=metadata;this.version=version;requireAllocated=VERSION.equals(version);
             this.capacityDriven=capacityDriven;
         }
+        public static final long REPORT_HISTORY_BYTES=2048L*8192, REPORT_PROGRESS_BYTES=2L<<20;
         public static Config production(){
-            return new Config(NORMAL_DISK_BYTES, TRANSIENT_DISK_BYTES, FREE_FLOOR_BYTES, 2*MiB, VERSION,true);
+            return new Config(NORMAL_DISK_BYTES, TRANSIENT_DISK_BYTES, FREE_FLOOR_BYTES, REPORT_HISTORY_BYTES+REPORT_PROGRESS_BYTES, VERSION,true);
         }
         String hash(){return sha((version+"|"+normalHard+"|"+transientHard+"|"+freeFloor+"|"+metadataHeadroom+(capacityDriven?"|FREE_DISK":"")).getBytes(StandardCharsets.UTF_8));}
     }
