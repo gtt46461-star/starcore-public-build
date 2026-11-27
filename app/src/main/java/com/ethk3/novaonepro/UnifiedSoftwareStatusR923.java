@@ -212,7 +212,17 @@ public final class UnifiedSoftwareStatusR923 {
     }
 
 public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
-        if (store == null) return VERSION + "\nSTATUS=READ_ERROR|reason=STORE_NULL";
+        ReportTextCP12 out = new ReportTextCP12(report, 8192);
+        appendSnapshotCP4(report, store, out);
+        return out.toString();
+    }
+
+    static void appendSnapshotCP4(ReportReadContextCP4 report, ReportReadContextCP4 store, ReportTextCP12 b) {
+        if (store == null) {
+            b.append(VERSION).append("\nSTATUS=READ_ERROR|reason=STORE_NULL");
+            return;
+        }
+        report.checkStep("资产与结算统计");
         SQLiteDatabase db;
         try {
             db = store.readable();
@@ -277,7 +287,7 @@ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
         int researchQueueFailed = countSnapshotCP4(report, db, "SELECT COUNT(1) FROM "
                 + DbHelper.TABLE_R815_RESEARCH_QUEUE + " WHERE state='FAILED'");
 
-        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 8192);
+        report.checkStep("后台运行与预测覆盖");
         b.append(VERSION)
                 .append("\nSTATUS=RUNTIME_OBSERVATION_NOT_MODEL_GUARANTEE")
                 .append("\nIdentity=").append(V51BuildManifest.VERSION_NAME).append('/')
@@ -297,7 +307,9 @@ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
                 .append(stateSnapshotCP4(report, store, "r923_freeze_snapshot_status", "WAIT_FIRST_FULL_DIAGNOSIS"))
                 .append("\nHotPathStageTrace=")
                 .append(stateSnapshotCP4(report, store, "r923_hot_path_stage_trace", "WAIT_FIRST_CANONICAL_COMMIT"))
-                .append("\n\n[真实出手与连续未中]\n")
+                .append("\n\n[真实出手与连续未中]\n");
+        report.checkStep("实际出手合同与频率");
+        b
                 .append(ControlledFrequencyDiagnosticR923.captureSnapshotCP4(report, store).summary())
                 .append("\nREALContract=")
                 .append(ControlledRealContractAuditR922.captureSnapshotCP4(report, store).summary())
@@ -354,14 +366,15 @@ public static String captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP
                 .append("\nResearchQueuePending=").append(renderSnapshotCP4(report, researchQueuePending))
                 .append("|failed=").append(renderSnapshotCP4(report, researchQueueFailed))
                 .append("\n\n").append(ResearchReadinessR924.captureSnapshotCP4(report, store))
-                .append("\n\n").append(ResearchDashboardR924.reportSnapshotCP4(report, store))
-                .append("\n\n[F06概率与修复证据]\n").append(f06ReceiptSummarySnapshot(report))
+                .append("\n\n");
+        ResearchDashboardR924.appendReportSnapshotCP4(report, store, b);
+        report.checkStep("F06 概率与修复证据");
+        b.append("\n\n[F06概率与修复证据]\n").append(f06ReceiptSummarySnapshot(report))
                 .append("\n\n[验收边界]\n")
                 .append("Code/host/build=由本次发布包证据给出；后台存活、真实P95、连续三日覆盖、"
                         + "未来OOS胜率与15%观察目标必须安装本APK后在物理设备重新采样。\n")
                 .append("NoGuaranteedWin=TRUE|NoGuaranteedThirdHitAfterTwoMisses=TRUE|"
                         + "NoPauseOnTwoMisses=TRUE|NoQuotaOrFrequencyDebt=TRUE");
-        return b.toString();
     }
 
 public static String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, int value) {

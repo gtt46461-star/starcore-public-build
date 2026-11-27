@@ -393,6 +393,7 @@ public final class ReportExportServiceCP4 extends Service {
                             new ReportReadContextCP4.RuntimeObservationCP4(ReportJobJournalCP12.readAtomic(new File(directory,"runtime-observation.json"),65536)),
                             new ReportReadContextCP4.SourceManifestCP4(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),cancellation,3*MiB)) {
                         active.readCancellationR30=cancellation;
+                        ctx.setCheckProgress(active::onCheckStep);
                         try {
                             catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->{
                                 active.checkpoint();
@@ -834,7 +835,8 @@ public final class ReportExportServiceCP4 extends Service {
         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;private long lastRead;
         private final StageTiming timing=new StageTiming();
         private long stageStarted,stageStartedWall,hashedBytes,backupPages;
-        private String indexSection="", activeCheck="";
+        private String indexSection = "", activeCheck = "", checkStep = "";
+        private long checkStepStartedElapsed = 0L;
         private long completedIndexEntries;
         private String progressStageR31="CLAIMED";
         private final Thread executingOwnerR341=Thread.currentThread();
@@ -862,6 +864,8 @@ public final class ReportExportServiceCP4 extends Service {
         ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();timing.enter(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
         void enter(String stage,long milliseconds)throws IOException{checkpoint();closePhaseR31();progressStageR31=stage;stageStarted=SystemClock.elapsedRealtime();
             stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;indexSection="";activeCheck="";completedIndexEntries=0;
+            checkStep = "";
+            checkStepStartedElapsed = 0L;
             timing.enter(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31 budget=com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.processBudget();
             budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP,SQLITE_BACKUP_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER,NATIVE_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");
@@ -875,20 +879,32 @@ public final class ReportExportServiceCP4 extends Service {
             if(!entering&&now<nextProgressR31[0])return;
             try{sampleR31(0,new JSONObject().put("stage",progressStageR31).put("startedWallMs",stageStartedWall)
                     .put("sampledElapsedMs",now).put("hashedBytes",hashedBytes)
-                    .put("activeCheck",activeCheck).put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
+                    .put("activeCheck",activeCheck).put("checkStep",checkStep).put("checkStepStartedElapsedMs",checkStepStartedElapsed)
+                    .put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
                     .put("cumulativeRealtimeParkedMs",stageParkedMsR341),now,entering);}
             catch(org.json.JSONException error){android.util.Log.w("ReportExportCP12","UI stage sample format unavailable",error);}
         }
         void onCheckStart(String id,long completed) {
             activeCheck=id;
+            checkStep = "";
+            checkStepStartedElapsed = 0L;
             indexSection="检测项";
             completedIndexEntries=completed;
             long now=SystemClock.elapsedRealtime();
             timing.progress(now);
             sampleStage(now,false);
         }
+        void onCheckStep(String step) {
+            if (activeCheck.isEmpty() || step.equals(checkStep)) return;
+            long now = SystemClock.elapsedRealtime();
+            checkStep = step;
+            checkStepStartedElapsed = now;
+            sampleStage(now, true);
+        }
         void onIndexSection(String section) {
             activeCheck="";
+            checkStep = "";
+            checkStepStartedElapsed = 0L;
             indexSection=section;
             completedIndexEntries=0;
             long now=SystemClock.elapsedRealtime();
