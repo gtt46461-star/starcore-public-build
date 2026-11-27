@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 110
     env:
+      TEST_REPORT_PROFILE: COMPACT_DIAGNOSTIC
       SOURCE: 85678fcfd12816aec8b47474cd2349350a5684d7
     steps:
       - uses: actions/checkout@v4

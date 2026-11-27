@@ -9,6 +9,7 @@ import struct
 import subprocess
 import sys
 import time
+import threading
 import zipfile
 
 source = Path('source').resolve()
@@ -84,14 +85,46 @@ assert 'Success' in ci.adb(serial,'install','-r',candidate)
 after=ci.installed(serial,out/'after.txt')
 assert after=={'versionCode':577311204,'uid':before['uid'],'apkSha256':ci.sha(candidate)}
 capture=ci.signed_report_campaign(serial,out,ci.sha(candidate),old_sha)
+profile=os.environ.get('TEST_REPORT_PROFILE','FULL_RAW')
+assert profile in ('FULL_RAW','COMPACT_DIAGNOSTIC')
+stop=threading.Event()
+events={}
+root='/data/user/0/'+pkg+'/files/r981_reports'
+def observe():
+    while not stop.is_set():
+        try:
+            current=json.loads(ci.adb(serial,'shell','cat',root+'/current-job.json'))['jobId']
+            if re.fullmatch('[a-f0-9]{64}',current):
+                job=root+'/jobs/'+current
+                sample=json.loads(ci.adb(serial,'shell','cat',job+'/stage-progress.json'))
+                stage=sample['stage']
+                started=sample.get('startedWallMs',0)
+                if started:
+                    events.setdefault(current,{})[stage]=started
+                journal=json.loads(ci.adb(serial,'shell','cat',job+'/job.json'))
+                if journal.get('stage')=='READY_TO_SHARE':
+                    events.setdefault(current,{})['READY_TO_SHARE']=journal['updatedWallMs']
+        except (KeyError,ValueError,RuntimeError,subprocess.SubprocessError):
+            pass
+        stop.wait(0.75)
+monitor=threading.Thread(target=observe,daemon=True)
+monitor.start()
 start=time.monotonic()
-capture('candidate-sized','FULL_RAW',new_source)
+try:
+    capture('candidate-sized',profile,new_source)
+finally:
+    stop.set()
+    monitor.join(timeout=6)
+    (out/'sampled-stage-transitions.json').write_text(json.dumps(events,indent=2))
 elapsed=time.monotonic()-start
 result=json.loads((out/'signed-report-readbacks.json').read_text())['reports'][-1]
 assert result['status']=='VERIFIED_ANDROID_SAF_ZIP' and result['sourceCommit']==new_source
 with zipfile.ZipFile(ui.OUT/result['file']) as reopened:
     manifest=json.loads(reopened.read('source-manifest.json'))
-    assert result['rawEvidenceIncluded'] and result['snapshotQuickCheck']=='ok' and 'snapshot.db' in reopened.namelist()
+    if profile=='FULL_RAW':
+        assert result['rawEvidenceIncluded'] and result['snapshotQuickCheck']=='ok' and 'snapshot.db' in reopened.namelist()
+    else:
+        assert not result['rawEvidenceIncluded'] and 'DIAGNOSTIC_SCOPE.json' in reopened.namelist()
     checks={}
     for member in sorted(reopened.namelist()):
         if re.fullmatch(r'catalog-\d+\.jsonl',member):
@@ -99,10 +132,10 @@ with zipfile.ZipFile(ui.OUT/result['file']) as reopened:
                 row=json.loads(line)
                 if row.get('kind')=='check_result':checks[row['id']]=row['execution_state']
     assert len(checks)==96 and 'RSEC-011' in checks
-    assert result['snapshotBytes']>=size
+    if profile=='FULL_RAW':assert result['snapshotBytes']>=size
 
 assert manifest['snapshotBytes']>=size and manifest['snapshotSha256']==result['snapshotSha256']
-receipt={'dashboardCheck':checks['RSEC-011'],'allCheckStates':checks,'fixtureRows':len(pairs),'verifiedSnapshotBytes':manifest['snapshotBytes'],'exportedZipBytes':result['bytes'],'scope':'API34_EMULATOR_203_TO_204_FULL_RAW_28680_SYNTHETIC_EDGES_AND_FREE_PAGES','source':new_source,'before':before,'after':after,'sourceBytesBeforeLaunch':size,'populatedPagesBeforePadding':used,'secondsFromUiEntryThroughReopenAndEvidenceEncryption':round(elapsed,2),'underTwentyMinutes':elapsed<1200,'checks':result['checks'],'metrics':result['metrics'],'jobId':result['jobId'],'physicalDevice':False}
+receipt={'profile':profile,'stageStartsWallMs':events.get(result['jobId'],{}),'dashboardCheck':checks['RSEC-011'],'allCheckStates':checks,'fixtureRows':len(pairs),'verifiedSnapshotBytes':manifest['snapshotBytes'],'exportedZipBytes':result['bytes'],'scope':'API34_EMULATOR_203_TO_204_28680_SYNTHETIC_EDGES_AND_FREE_PAGES','source':new_source,'before':before,'after':after,'sourceBytesBeforeLaunch':size,'populatedPagesBeforePadding':used,'secondsFromUiEntryThroughReopenAndEvidenceEncryption':round(elapsed,2),'underTwentyMinutes':elapsed<1200,'checks':result['checks'],'metrics':result['metrics'],'jobId':result['jobId'],'physicalDevice':False}
 (out/'field-size-android-readback.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt),flush=True)
 
