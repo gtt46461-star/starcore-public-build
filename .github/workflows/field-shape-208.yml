@@ -1,0 +1,17 @@
+name: Inspect the archived handset evidence for the report repair
+on:
+  push:
+    branches: ['repair/report-208-field-snapshot']
+    paths: ['engineering/report208/field.py', '.github/workflows/field-shape-208.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            engineering/report208
+            construction/plans/STARCORE_R34_3_REPAIR_20261126/report
+      - run: python3 engineering/report208/field.py
