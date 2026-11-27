@@ -19,6 +19,12 @@ public final class Field173B12ReportTest {
     @Test public void reportNegative() throws Exception { run("NEG"); }
     @Test public void reportPreservation() throws Exception { run("KEEP"); }
 
+    private static String scopeText(int length) {
+        StringBuilder value=new StringBuilder(length);
+        for(int i=0;i<length;i++)value.append("字段/\u2605".charAt(i%4));
+        return value.toString()+"尾";
+    }
+
     private void run(String mode) throws Exception {
         Field173NativeEvidence.run((app, checks) -> {
             checks.equal(96, CheckMetricCrosswalkR31.checks().size(), "Registered check denominator");
@@ -44,6 +50,9 @@ public final class Field173B12ReportTest {
                     RuntimeObservationScopeR341.installWithinTransaction(db);
                     db.execSQL("CREATE TABLE report_payload(key TEXT PRIMARY KEY, value INTEGER NOT NULL)");
                     db.execSQL("INSERT INTO report_payload VALUES('expected', 37)");
+                    db.execSQL("CREATE TABLE scope_cells(id INTEGER PRIMARY KEY,status TEXT COLLATE NOCASE,value,body BLOB)");
+                    for(int i=1;i<=5;i++)db.execSQL("INSERT INTO scope_cells VALUES(?,?,?,zeroblob(913))",
+                            new Object[]{i,i==1?"SYNC":"sync",i==1?null:i==2?"":scopeText(i==3?511:i==4?4097:32771)});
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
@@ -51,6 +60,17 @@ public final class Field173B12ReportTest {
             }
             String hash = ReportArchiveCP4.hash(image, () -> true);
             try (SQLiteDatabase snapshot = SQLiteDatabase.openDatabase(image.getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
+                java.io.StringWriter cells=new java.io.StringWriter();
+                long count=ReportMetadataStreamR81.writeRows(snapshot,"scope_cells",java.util.Arrays.asList("id","value","body"),cells,()->true);
+                org.json.JSONArray evidence=new org.json.JSONArray("["+cells+"]");
+                checks.equal(5L,count,"Row count through inline and streaming paths");
+                checks.require(evidence.getJSONObject(0).isNull("value") && evidence.getJSONObject(1).getString("value").isEmpty(),"Null and empty string remain distinct");
+                for(int i=2;i<5;i++)checks.equal(scopeText(i==2?511:i==3?4097:32771),evidence.getJSONObject(i).getString("value"),"Exact mixed-width text row "+i);
+                checks.equal("[BINARY_PAYLOAD_NOT_INCLUDED bytes=913]",evidence.getJSONObject(4).getString("body"),"Binary descriptor");
+                java.io.StringWriter groups=new java.io.StringWriter();
+                ReportMetadataStreamR81.writeGroups(snapshot,"scope_cells","status",groups,()->true,false);
+                org.json.JSONArray grouped=new org.json.JSONArray("["+groups+"]");
+                checks.require(grouped.length()==1 && grouped.getJSONObject(0).getLong("rows")==5 && "SYNC".equals(grouped.getJSONObject(0).getString("value")),"Exact grouped state and binary-minimum representative");
                 String database = RuntimeObservationScopeR341.databaseIdentity(snapshot);
                 checks.require(database.matches("[a-f0-9-]{36}"), "Actual immutable observation database");
                 checks.databaseWithoutTarget("PINNED_REPORT_SQLITE", database, "Report profile and rows have no draw target or PIT cutoff");

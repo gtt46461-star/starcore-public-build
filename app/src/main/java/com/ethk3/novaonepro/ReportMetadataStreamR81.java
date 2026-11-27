@@ -38,12 +38,18 @@ public final class ReportMetadataStreamR81 {
     /** Last rows in stable table order. A WITHOUT ROWID primary key is not a time stamp. */
     static long writeLastRows(SQLiteDatabase db,String table,List<String> columns,Writer out,
             ReportNativeCP4.Control control,int limit)throws IOException {
+        return writeLastRows(db,table,columns,out,control,limit,-1L);
+    }
+    static long writeLastRows(SQLiteDatabase db,String table,List<String> columns,Writer out,
+            ReportNativeCP4.Control control,int limit,long knownCount)throws IOException {
         if(limit<1)throw new IOException("REPORT_METADATA_LIMIT");
         Layout order=layout(db,table);long from=Long.MIN_VALUE,offset=0;
         if(order.rowid!=null){
             try(Cursor cut=db.rawQuery("SELECT "+order.rowid+" FROM "+ident(table)+" ORDER BY "+order.rowid+" DESC LIMIT 1 OFFSET ?",new String[]{Integer.toString(limit-1)})){
                 if(cut.moveToFirst())from=cut.getLong(0);
             }
+        }else if(knownCount>=0){
+            offset=Math.max(0L,knownCount-limit);
         }else{
             try(Cursor count=db.rawQuery("SELECT COUNT(*) FROM "+ident(table),null)){
                 if(!count.moveToFirst())throw new IOException("REPORT_METADATA_COUNT");offset=Math.max(0,count.getLong(0)-limit);
@@ -59,8 +65,11 @@ public final class ReportMetadataStreamR81 {
         check(control);Charset encoding=encoding(db);String id=ident(table),rowid=order.rowid;
         if(rowid==null&&fromRowid!=Long.MIN_VALUE)throw new IOException("REPORT_METADATA_ROWID_RANGE_UNAVAILABLE");
         StringBuilder sql=new StringBuilder("SELECT ").append(rowid==null?"0":rowid);
+        // Keep a single row within the prior CursorWindow budget. Most ledger text can
+        // travel in the same row instead of opening a second cursor for each cell.
+        int inlineBytes=Math.max(INLINE_BYTES,Math.min(8192,(384*1024)/columns.size()));
         for(String column:columns) {
-            sql.append(',').append(descriptor(ident(column)));
+            sql.append(',').append(descriptor(ident(column),inlineBytes));
         }
         sql.append(" FROM ").append(id);
         // Android refills a CursorWindow by executing its SELECT again. Seek bounded
@@ -140,11 +149,14 @@ public final class ReportMetadataStreamR81 {
     }
 
     private static String descriptor(String c) {
+        return descriptor(c,INLINE_BYTES);
+    }
+    private static String descriptor(String c,int inlineBytes) {
         String bytes="length(CAST("+c+" AS BLOB))";
         // Prefixes are transport tags, not metadata values. Even a value beginning
         // with N/B/L/S is unambiguous, because every inline value receives S.
         return "CASE WHEN "+c+" IS NULL THEN 'N' WHEN typeof("+c+")='blob' THEN 'B'||"+bytes
-            +" WHEN "+bytes+">"+INLINE_BYTES+" THEN 'L'||"+bytes+" ELSE 'S'||CAST("+c+" AS TEXT) END";
+            +" WHEN "+bytes+">"+inlineBytes+" THEN 'L'||"+bytes+" ELSE 'S'||CAST("+c+" AS TEXT) END";
     }
     private static void writeValue(SQLiteDatabase db,CellSource cell,String column,
             String value,Charset encoding,Writer out,ReportNativeCP4.Control control)throws IOException {
