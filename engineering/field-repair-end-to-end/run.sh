@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd app-source
+for attempt in 1 2 3; do
+  if ./gradlew --no-daemon --max-workers=4 :app:connectedDebugAndroidTest -Pr30Instrumentation=true -Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.Field173CoverageAndroidTest#actualSettlementAndScopedCoverageUseSeparateHashes -Pandroid.testInstrumentationRunnerArguments.r30Sandbox=R343_57731121157731121157731121110101; then break; fi
+  if [ "$attempt" = 3 ]; then exit 1; fi
+  sleep 25
+done
+export SOURCE="$(git rev-parse HEAD)"
+export VERSION="$(jq -er '.versionCode' release/release_manifest.json)"
+cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/candidate-tested.apk"
+ln -s app-source ../source
+cd ..
+python3 -B app-source/engineering/field-repair-end-to-end/phone.py
