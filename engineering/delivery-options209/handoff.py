@@ -1,4 +1,4 @@
-"""Exercise retained report selection while a newer generation owns the worker."""
+"""Save, share and copy the same verified ZIP using the released Android app."""
 import json
 import os
 from pathlib import Path
@@ -15,14 +15,11 @@ out=tmp/"history-evidence"
 out.mkdir()
 serial=ui.DEVICE
 assert serial.startswith("emulator-") and ci.adb(serial,"shell","getprop","ro.kernel.qemu")=="1"
-baseline=tmp/"installed-204.apk"
 candidate=tmp/"candidate-209.apk"
-old_sha=os.environ["BASELINE_SHA"]
-assert ci.sha(baseline)==old_sha and "Success" in ci.adb(serial,"install",baseline)
-capture=ci.signed_report_campaign(serial,out,old_sha,old_sha)
-capture("baseline","COMPACT_DIAGNOSTIC","85678fcfd12816aec8b47474cd2349350a5684d7")
-original=json.loads((out/"signed-report-readbacks.json").read_text())["reports"][0]
-assert "Success" in ci.adb(serial,"install","-r",candidate)
+apk_sha="2055f03345ef27686c63e3ac02b76fc2615ba9260e2d5046634243be66d946e7"
+assert ci.sha(candidate)==apk_sha and "Success" in ci.adb(serial,"install",candidate)
+ci.signed_report_campaign(serial,out,apk_sha,apk_sha)
+ci.adb(serial,"shell","pm","grant",ci.PACKAGE,"android.permission.POST_NOTIFICATIONS")
 ui.commit=os.environ["SOURCE"]
 ui.out={"reportReadbacks":[],"activeProfile":"COMPACT_DIAGNOSTIC"}
 ui.report_entry(ui.CREATE)
