@@ -8,11 +8,20 @@ import sys
 
 parent = "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
 source = os.environ["REPAIR_INPUT"]
-paths = [
-  "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
-  "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java"
-]
-reason = "Retire an incompatible rolling run only after authenticated later settlement, preserving its original checkpoint and formal publication rules."
+reasons = {
+  "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java": "Check the persisted numerical rule before training and retire it only after an authenticated later settlement.",
+  "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java": "Reopen the existing Director lane for pending rolling learner and freeze work on the same draw.",
+  "app/src/main/java/com/ethk3/novaonepro/r952/TrainingRecoveryR343.java": "Use the verified sealed field task identity with the original file, protocol, and quarantined-source checks.",
+  "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java": "Rotate historical input verification within the existing TRAIN owner instead of doing it ahead of every ready task.",
+  "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java": "Select the same release-scoped event and predraw receipt through a bounded join order.",
+  "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java": "Count the same retained draws and strict label evidence without materializing all history.",
+  "app/src/main/java/com/ethk3/novaonepro/RuntimeAttemptObservabilityR926.java": "Read matching recent distinct attempts and authoritative resource observations with indexed probes.",
+  "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java": "Reuse the exact immutable snapshot business truth and runtime window across report sections.",
+  "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java": "Scope report computation to the chapters that need model and business inputs.",
+  "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java": "Use the existing native durability flush before finalizing the same verified snapshot.",
+  "app/src/main/cpp/report_native_cp4.c": "Pace native backup scheduling while preserving the cancellation, storage, and realtime callbacks."
+}
+paths = list(reasons)
 def git(*args):
     return subprocess.check_output(["git",*args])
 def sha(raw):
@@ -20,7 +29,7 @@ def sha(raw):
 def document(path,data):
     Path(path).write_text(json.dumps(data,indent=2,sort_keys=True,ensure_ascii=False)+"\n")
 assert git("rev-parse","HEAD").decode().strip() == parent
-for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java", "app/src/androidTest/java/com/ethk3/novaonepro/ResearchContinuationAndroidTest.java"]:
+for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java","app/src/androidTest/java/com/ethk3/novaonepro/ResearchContinuationAndroidTest.java"]:
     raw=git("show",source+":"+path)
     assert raw != Path(path).read_bytes(), path
     Path(path).write_bytes(raw)
@@ -32,7 +41,7 @@ v=json.loads(proof.read_text())
 allowed=set(paths) | {"app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java","release/release_manifest.json","release/release_identity.properties"}
 baseline={row["path"]:row for row in json.loads(Path("release/r81_controlled_source_baseline.json").read_text())["files"]}
 review_by_path={entry["path"]:entry for entry in v["controlled_changes"]}
-reviewer="STARCORE rolling training checkpoint correction"
+reviewer="STARCORE 0a0f960b field repair"
 for path in sorted(allowed & classified.keys()):
     actual=sha(Path(path).read_bytes())
     before=baseline.get(path,{})
@@ -44,7 +53,7 @@ for path in sorted(allowed & classified.keys()):
     else:
         review_by_path[path]=dict(path=path,before_sha256=before.get("sha256",""),after_sha256=actual,
                                   before_role=before.get("role",""),after_role=role,reviewer=reviewer,
-                                  rationale=reason if path in paths else
+                                  rationale=reasons[path] if path in paths else
                                   "Verified unchanged release binding while restoring the original test entry.")
 v["controlled_changes"]=list(review_by_path.values())
 provenance=[[path,sha(Path(path).read_bytes())] for path,entry in sorted(classified.items()) if entry["role"]!="PROVENANCE"]

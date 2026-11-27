@@ -1,0 +1,63 @@
+name: Verify report coverage and research continuity through Android 14
+on:
+  push:
+    branches: ['repair/r343-rolling-rule-boundary-20261127']
+    paths: ['engineering/rolling-rule/**', '.github/workflows/field-repair-android.yml']
+permissions:
+  contents: read
+jobs:
+  chart:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: app-source
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare the reviewed test build
+        working-directory: app-source
+        env:
+          REPAIR_INPUT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          cp engineering/rolling-rule/test_bindings.py "$RUNNER_TEMP/rolling-bindings.py"
+          git fetch --no-tags --unshallow origin 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
+          git fetch --no-tags --depth=1 origin b5bf9de3c9a000f4f2f920f6f2c4b849ba22ee59
+          git switch --detach 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
+          python3 -B "$RUNNER_TEMP/rolling-bindings.py"
+          git diff --check
+          git add -u -- app/src release app/build/generated/r967 app/build/generated/source/r967
+          git -c user.name=CI -c user.email=ci@example.invalid commit -m "Compile the reviewed rolling learner in the disposable emulator"
+          test -z "$(git status --porcelain -- app/src/main release)"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - name: Read the existing sealed plan bindings
+        run: bash app-source/tools/r342/ci_plan_inputs.sh
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Check coverage, report contracts, original training records, and rolling restart
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          script: >-
+            cd app-source && ./gradlew --no-daemon --max-workers=4 :app:connectedDebugAndroidTest
+            -Pr30Instrumentation=true
+            -Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.r952.R343RollingNativeTest#oldRollingCheckpointWaitsForNewSettlementWithoutRelabellingTraining,com.ethk3.novaonepro.ResearchContinuationAndroidTest#rollingTasksReopenDirectorWithoutANewDraw,com.ethk3.novaonepro.Field173CoverageAndroidTest#actualSettlementAndScopedCoverageUseSeparateHashes,com.ethk3.novaonepro.r952.R343TrainingNativeTest#originalTerminalMissingCandidateStaysOnHold,com.ethk3.novaonepro.Field173B12ReportTest#reportPositive
+            -Pandroid.testInstrumentationRunnerArguments.r30Sandbox=R343_57731121157731121157731121110101
+            -Pandroid.testInstrumentationRunnerArguments.field173Context=$(python3 -c 'import base64,json,subprocess; print(base64.urlsafe_b64encode(json.dumps({"sourceCommit":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()}).encode()).decode())')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rolling-rule-android-test
+          path: app-source/app/build/outputs/androidTest-results/connected
+          if-no-files-found: warn
