@@ -30,6 +30,9 @@ jobs:
           git switch --detach 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
           python3 -B "$RUNNER_TEMP/chart-bindings.py"
           git diff --check
+          git add -u -- app/src release app/build/generated/r967 app/build/generated/source/r967
+          git -c user.name=CI -c user.email=ci@example.invalid commit -m "Compile the reviewed chart delta in the disposable emulator"
+          test -z "$(git status --porcelain -- app/src/main release)"
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - name: Read the existing sealed plan bindings
         run: bash app-source/tools/r342/ci_plan_inputs.sh
@@ -51,7 +54,7 @@ jobs:
             -Pr30Instrumentation=true
             -Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.Field173ChartGalleryCapture#staleFrameAndMissingTableRemainExplicitInNativeGallery
             -Pandroid.testInstrumentationRunnerArguments.r30Sandbox=R343_57731121157731121157731121110101
-            -Pandroid.testInstrumentationRunnerArguments.field173Context=$(python3 -c 'import base64; print(base64.urlsafe_b64encode(b"{\"sourceCommit\":\"5c7f1b36eaee6036df280e85835bb0fb4ce0b40d\"}").decode())')
+            -Pandroid.testInstrumentationRunnerArguments.field173Context=$(python3 -c 'import base64,json,subprocess; print(base64.urlsafe_b64encode(json.dumps({"sourceCommit":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()}).encode()).decode())')
       - uses: actions/upload-artifact@v4
         if: always()
         with:
