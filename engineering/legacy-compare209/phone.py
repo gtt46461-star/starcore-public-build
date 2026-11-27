@@ -257,9 +257,15 @@ with zipfile.ZipFile(ui.OUT/result['file']) as reopened:
         with zipfile.ZipFile(io.BytesIO(outer.read(outer.namelist()[0]))) as historical:
             old_names=set(historical.namelist())
             current_names=set(reopened.namelist())
-            def optional_member(name):
-                return bool(re.match(r'(report-text-|construction-current-|software-audit-|startup-failure-|catalog-\\d)',name))
-            legacy_fixed={name for name in old_names if not optional_member(name)}
+            legacy_fixed={
+                'ARCHIVE_MANIFEST.jsonl', 'DIAGNOSTIC_SCOPE.json', 'FILE_STATE.jsonl',
+                'R26_FROZEN_SURFACE.json', 'R26_POLICY_IDENTITIES.jsonl', 'R26_REPORT.json', 'R27_REPORT.md',
+                'R30_REPORT.json', 'R30_REPORT.md', 'R31_SEMANTIC_RECEIPT.json', 'REPORT_DETAILS.txt',
+                'STORAGE_CENSUS.txt', 'STRATEGY_MATRICES.json', 'UPGRADE_DIAGNOSIS.json', 'UPGRADE_DIAGNOSIS.md',
+                'attachments.jsonl', 'source-manifest.json',
+            }
+            assert legacy_fixed <= old_names
+            print('CONDITIONAL_MEMBERS_NOT_IN_FIXTURE', sorted(old_names-current_names-legacy_fixed), flush=True)
             missing=sorted(legacy_fixed-current_names)
             old_scope=json.loads(historical.read('DIAGNOSTIC_SCOPE.json'))
             new_scope=json.loads(reopened.read('DIAGNOSTIC_SCOPE.json'))
@@ -278,7 +284,7 @@ with zipfile.ZipFile(ui.OUT/result['file']) as reopened:
             def catalog_ids(z):
                 result=set()
                 for name in z.namelist():
-                    if re.fullmatch(r'catalog-\\d+\\.jsonl',name):
+                    if re.fullmatch(r'catalog-\d+\.jsonl',name):
                         for line in z.open(name):
                             row=json.loads(line)
                             if row.get('kind')=='check_result':result.add(row['id'])
@@ -286,7 +292,7 @@ with zipfile.ZipFile(ui.OUT/result['file']) as reopened:
             old_ids=catalog_ids(historical)
             new_ids=catalog_ids(reopened)
             print('LEGACY_CHECKS',len(old_ids),len(new_ids),sorted(old_ids-new_ids),flush=True)
-            assert not old_ids-new_ids,old_ids-new_ids
+            assert len(old_ids)==len(new_ids)==96 and not old_ids-new_ids,old_ids-new_ids
             print('ZIP_COMPARISON',json.dumps({'historicalBytes':19670861,'historicalMembers':len(old_names),'actualSavedBytes':result['bytes'],'actualSavedMembers':len(current_names),'fixedMembersCovered':len(legacy_fixed),'requiredChecksCovered':len(old_ids),'physicalDevice':False}),flush=True)
     manifest=json.loads(reopened.read('source-manifest.json'))
     if profile=='FULL_RAW':
