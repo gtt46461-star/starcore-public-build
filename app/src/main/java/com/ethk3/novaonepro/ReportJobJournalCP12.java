@@ -322,6 +322,23 @@ public final class ReportJobJournalCP12 implements Closeable {
         }catch(Exception damaged){android.util.Log.w("ReportJournalCP12","Unrelated ACK unavailable during history lookup");}
         return latest;
     }
+    /** Select a retained publication independently of a newer running report. */
+    static Job latestReadyZip(File files)throws Exception {
+        File root=ReportDirectoriesCP12.root(files);
+        Job latest=null;
+        for(File directory:DirectoryCursorR31.children(ReportArchiveVerifierCP12.inside(root,"jobs"),1024)) {
+            try {
+                File published=ReportPublicationCP12.job(files,directory.getName());
+                Job job=Job.parse(readAtomic(new File(published,"job.json"),MAX_JSON));
+                if(!"FULL_REPORT".equals(job.mode))continue;
+                if(latest!=null && (job.createdWallMs<latest.createdWallMs ||
+                        job.createdWallMs==latest.createdWallMs && job.jobId.compareTo(latest.jobId)<=0))continue;
+                ReportPublicationCP12.delivery(published);
+                latest=job;
+            }catch(IOException|org.json.JSONException unavailable){/* incomplete or pruned job */}
+        }
+        return latest;
+    }
     /** Select a matching live request without cancelling another profile or reopening a completed report. */
     static String reusableFullRequestR335(File root, boolean raw, String submitted) throws Exception {
         if (submitted != null) {

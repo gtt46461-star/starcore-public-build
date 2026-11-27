@@ -1,0 +1,497 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+index afcf366c..9af43974 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+@@ -8,7 +8,10 @@ public final class CompleteReportFileR927 {
+  private static final java.util.concurrent.atomic.AtomicLong POLL_SESSION=new java.util.concurrent.atomic.AtomicLong();
+  private CompleteReportFileR927(){}
+  public static void openExportMenu(Activity activity,Button button,TextView status){if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
+-  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存"},(dialog,which)->{
++  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"生成并保存到手机（含数据库和训练附件）","生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存","取回已生成的 ZIP"},(dialog,index)->{
++   if(index==0){chooseSafDestination(activity,null,"STARCORE_FULL_REPORT.zip",button,status);return;}
++   if(index==7){recoverReady(activity,button,status);return;}
++   int which=index-1;
+    if(which==0){export(activity,button,status,false);return;}if(which==5){controlReports(activity,button,status,true);return;}if(which==4){export(activity,button,status,true);return;}if(which==2){showLastFailure(activity);return;}if(which==3){cancelLatest(activity,button,status);return;}recover(activity,button,status);
+   }).show();
+  }
+@@ -42,6 +45,16 @@ public final class CompleteReportFileR927 {
+    poll(app,state.getString("requestId"),weak,b,s,0,session);
+   }catch(Exception error){Activity current=weak.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),"上次报告无法取回："+error.getMessage(),true);});}});
+  }
++ private static void recoverReady(Activity activity,Button button,TextView status){
++  final long session=POLL_SESSION.incrementAndGet();
++  Context app=activity.getApplicationContext();WeakReference<Activity>a=new WeakReference<>(activity);
++  WeakReference<Button>b=new WeakReference<>(button);WeakReference<TextView>s=new WeakReference<>(status);
++  UI_IO.execute(()->{try{
++   ReportJobJournalCP12.Job job=ReportJobJournalCP12.latestReadyZip(app.getFilesDir());
++   if(job==null)throw new IOException("没有找到已生成且仍保留的完整报告");
++   poll(app,job.requestId,a,b,s,0,session);
++  }catch(Exception error){Activity current=a.get();if(current!=null)current.runOnUiThread(()->{if(session==POLL_SESSION.get())show(current,b.get(),s.get(),error.getMessage(),true);});}});
++ }
+  private static void showLastFailure(Activity activity){final Context app=activity.getApplicationContext();WeakReference<Activity> weak=new WeakReference<>(activity);
+   UI_IO.execute(()->{ReportJobJournalCP12.FailureDetailR31 detail;try{File root=ReportDirectoriesCP12.root(app.getFilesDir());JSONObject state=ReportJobJournalCP12.latestFullReportStateR31(root,true);
+    if(state!=null)detail=ReportJobJournalCP12.failureDetailR31(root,state);
+@@ -85,13 +98,19 @@ public final class CompleteReportFileR927 {
+    }
+   });
+  }
+- private static void poll(Context app,String request,WeakReference<Activity> a,WeakReference<Button>b,WeakReference<TextView>s,int attempt,long session){UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;Activity activity=a.get();
++ private static void poll(Context app,String request,WeakReference<Activity> a,WeakReference<Button>b,WeakReference<TextView>s,int attempt,long session){poll(app,request,a,b,s,attempt,session,false);}
++ private static void poll(Context app,String request,WeakReference<Activity> a,WeakReference<Button>b,WeakReference<TextView>s,int attempt,long session,boolean saving){UI_IO.schedule(()->{if(session!=POLL_SESSION.get())return;Activity activity=a.get();
+    if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
+    try{
+    File root=ReportDirectoriesCP12.root(app.getFilesDir());File ack=new File(root,"requests/"+request+".ack.json");JSONObject authority=ReportJobJournalCP12.requestStateR31(root,request);if(!ack.exists()&&authority==null){
+     if(attempt%8==0&&new File(root,"requests/"+request+".json").isFile())try{ReportExportServiceCP4.resumeExport(app,request);}catch(RuntimeException pending){android.util.Log.w("CompleteReport","Persisted request waiting for foreground service",pending);}
+-String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw new IOException("REPORT_REQUEST_FAILED_BEFORE_DURABLE_ACK: "+failure);if(attempt>0&&attempt%8==0&&activity!=null){final long waited=attempt*750L/1000L;activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),"正在采集报告输入或等待导出服务确认（已等待 "+waited+" 秒，尚未取得持久回执）。若超过1分钟仍无进展，请点“快速诊断”复制结果发送。",true);});}if(attempt<1200){poll(app,request,a,b,s,attempt+1,session);return;}throw new IOException("REPORT_REQUEST_ACK_TIMEOUT");}
++String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw new IOException("REPORT_REQUEST_FAILED_BEFORE_DURABLE_ACK: "+failure);if(attempt>0&&attempt%8==0&&activity!=null){final long waited=attempt*750L/1000L;activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),"正在采集报告输入或等待导出服务确认（已等待 "+waited+" 秒，尚未取得持久回执）。若超过1分钟仍无进展，请点“快速诊断”复制结果发送。",true);});}if(attempt<1200){poll(app,request,a,b,s,attempt+1,session,saving);return;}throw new IOException("REPORT_REQUEST_ACK_TIMEOUT");}
+    JSONObject value=authority!=null?authority:new JSONObject(ReportJobJournalCP12.readAtomic(ack,65536));String stage=value.getString("stage"),reason=value.optString("reason","");
++   if(stage.equals("READY_TO_SHARE") && saving){
++    activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),"ZIP 已生成，正在保存到所选位置。",true);});
++    pollSaf(app,ReportExportServiceCP4.plannedSaveId(value.getString("jobId")),a,0,s,session);
++    return;
++   }
+    if(stage.equals("READY_TO_SHARE")){String id=value.getString("jobId");File job=ReportPublicationCP12.job(app.getFilesDir(),id);JSONObject index=ReportPublicationCP12.delivery(job);ReportPublicationCP12.grant(job,System.currentTimeMillis());ArrayList<Uri> volumes=new ArrayList<>();JSONArray files=index.getJSONArray("files");boolean single="SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format"));boolean r30Parts=ReportPublicationCP12.ZIP_PART_FORMAT_R30.equals(index.optString("format"));if(!single)volumes.add(uri(app,id,"index.json"));for(int i=0;i<files.length();i++)volumes.add(uri(app,id,files.getJSONObject(i).getString("name")));boolean healthy=index.getBoolean("allChecksPassed");if(activity!=null)activity.runOnUiThread(()->{if(session!=POLL_SESSION.get()||activity.isFinishing()||activity.isDestroyed())return;show(activity,b.get(),s.get(),"完整报告已生成｜"+files.length()+(r30Parts?"个ZIP分卷（按索引合并）｜":"个完整文件｜")+String.format(Locale.ROOT,"%.2f MB",index.optLong("totalVolumeBytes")/(1024.0*1024.0))+"｜证据完整="+index.optBoolean("evidenceComplete")+"｜检查执行完整="+index.optBoolean("checksComplete")+"｜全部健康检查通过="+healthy,true);Intent share=new Intent(Intent.ACTION_SEND_MULTIPLE).setType(single?"application/zip":"application/octet-stream").putParcelableArrayListExtra(Intent.EXTRA_STREAM,volumes).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);ClipData clip=ClipData.newRawUri("STARCORE report",volumes.get(0));for(int i=1;i<volumes.size();i++)clip.addItem(new ClipData.Item(volumes.get(i)));share.setClipData(clip);if(activity.isFinishing()||activity.isDestroyed())return;new AlertDialog.Builder(activity).setTitle("完整检测报告交付").setItems(deliveryActions(single,r30Parts),(dialog,which)->{
+       try {
+        if(single||r30Parts){
+@@ -108,15 +127,15 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
+    if(stage.equals("FAILED")||stage.equals("CANCELLED"))throw new IOException(stage+":"+reason);
+    String progressText=value.has("jobId")?stageProgressText(app,value.getString("jobId"),stage,value.optLong("updatedWallMs")):"";
+    final String pendingText="检测报告状态="+stage+progressText+(reason.isEmpty()?"":"｜原因="+reason)+"｜可点击取回或取消";
+-   activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),pendingText,true);});
+-   poll(app,request,a,b,s,nextDeliveryPoll(attempt),session);
++   activity.runOnUiThread(()->{if(session==POLL_SESSION.get() && s.get()!=null)show(activity,b.get(),s.get(),pendingText,true);});
++   poll(app,request,a,b,s,nextDeliveryPoll(attempt),session,saving);
+   }catch(Exception error){
+    // The worker has its own durable job. A control lease or changing disk
+    // census can delay publication without invalidating the verified archive.
+    if(ReportPublicationCP12.retryDelivery(error)){
+     if(activity!=null)activity.runOnUiThread(()->{if(session==POLL_SESSION.get())show(activity,b.get(),s.get(),
+         "报告任务已保留，正在重试交付。",true);});
+-    poll(app,request,a,b,s,nextDeliveryPoll(attempt),session);
++    poll(app,request,a,b,s,nextDeliveryPoll(attempt),session,saving);
+     return;
+    }
+    if(activity!=null)activity.runOnUiThread(()->show(activity,b.get(),s.get(),"完整报告未交付："+error.getMessage(),true));}},attempt<1200?750:5000,TimeUnit.MILLISECONDS);}
+@@ -152,23 +171,74 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
+  }
+  private static Uri uri(Context app,String id,String name){return new Uri.Builder().scheme("content").authority(app.getPackageName()+".diagnostic.reports").appendPath("r981").appendPath(id).appendPath(name).build();}
+  static String backupProgressText(Context app,String id)throws Exception{if(!id.matches("[0-9a-f]{64}"))throw new IOException("REPORT_PROGRESS_JOB_ID");File file=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),"jobs/"+id+"/backup-progress.json");if(!file.isFile())return "";JSONObject progress=new JSONObject(ReportJobJournalCP12.readAtomic(file,4096));return "｜数据库快照块（不是报告页数） "+progress.optLong("copiedPages")+"/"+progress.optLong("totalPages")+"｜耗时 "+(progress.optLong("elapsedMs")/1000)+" 秒";}
+- private static void show(Activity activity,Button button,TextView status,String message,boolean enabled){if(activity.isFinishing()||activity.isDestroyed())return;if(button!=null)button.setEnabled(true);if(status!=null)status.setText(ReportJobJournalCP12.redactFailureR31(message));else Toast.makeText(activity,ReportJobJournalCP12.redactFailureR31(message),Toast.LENGTH_LONG).show();}
++ private static void show(Activity activity,Button button,TextView status,String message,boolean enabled){if(activity.isFinishing()||activity.isDestroyed())return;if(button!=null&&!button.isEnabled())button.setEnabled(true);String text=ReportJobJournalCP12.redactFailureR31(message);
++  if(status!=null){if(!android.text.TextUtils.equals(status.getText(),text))status.setText(text);}else Toast.makeText(activity,text,Toast.LENGTH_LONG).show();}
+  static String fileHash(File file)throws Exception{return ReportArchiveCP4.hash(file,()->true);}
+  static void writePayload(DbStore store,Writer out)throws Exception{throw new IOException("REPORT_EXPORT_OWNER_SERVICE_ONLY");}
+  static void writePayload(DbStore store,Writer out,android.content.res.AssetManager assets)throws Exception{throw new IOException("REPORT_EXPORT_OWNER_SERVICE_ONLY");}
+ 
+  /** Actual SAF picker caller. Android Fragment dispatches its result independently of MainActivity overrides. */
+  private static void chooseSafVolume(Activity activity,String jobId,ArrayList<Uri> volumes){String[] names=new String[volumes.size()];for(int i=0;i<names.length;i++)names[i]=volumes.get(i).getLastPathSegment();new AlertDialog.Builder(activity).setTitle("选择保存分卷（全部卷共同组成完整报告）").setItems(names,(d,index)->chooseSafDestination(activity,jobId,names[index])).show();}
+- private static void chooseSafDestination(Activity activity,String jobId,String volumeName){String tag="report-saf-picker-cp12";if(activity.getFragmentManager().findFragmentByTag(tag)!=null){Toast.makeText(activity,"文件选择仍在进行。",Toast.LENGTH_SHORT).show();return;}SafVolumePicker picker=new SafVolumePicker();Bundle args=new Bundle();args.putString("jobId",jobId);args.putString("volumeName",volumeName);picker.setArguments(args);activity.getFragmentManager().beginTransaction().add(picker,tag).commit();}
++ private static void chooseSafDestination(Activity activity,String jobId,String volumeName){chooseSafDestination(activity,jobId,volumeName,null,null);}
++ private static void chooseSafDestination(Activity activity,String jobId,String volumeName,Button button,TextView status){String tag="report-saf-picker-cp12";if(activity.getFragmentManager().findFragmentByTag(tag)!=null){Toast.makeText(activity,"文件选择仍在进行。",Toast.LENGTH_SHORT).show();return;}SafVolumePicker picker=new SafVolumePicker();picker.button=new WeakReference<>(button);picker.status=new WeakReference<>(status);Bundle args=new Bundle();args.putString("jobId",jobId);args.putString("volumeName",volumeName);picker.setArguments(args);activity.getFragmentManager().beginTransaction().add(picker,tag).commit();}
+  public static final class SafVolumePicker extends Fragment{
++  private WeakReference<Button> button=new WeakReference<>(null);
++  private WeakReference<TextView> status=new WeakReference<>(null);
+   private boolean launched;public SafVolumePicker(){}
+   @Override public void onCreate(Bundle state){super.onCreate(state);launched=state!=null&&state.getBoolean("launched",false);}
+   @Override public void onSaveInstanceState(Bundle state){super.onSaveInstanceState(state);state.putBoolean("launched",launched);}
+   @Override public void onResume(){super.onResume();if(launched)return;launched=true;boolean all="*".equals(getArguments().getString("volumeName"));Intent picker=all?new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE):new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType(getArguments().getString("volumeName").endsWith(".zip")?"application/zip":"application/octet-stream").putExtra(Intent.EXTRA_TITLE,getArguments().getString("volumeName"));picker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);try{startActivityForResult(picker,981);}catch(Exception unavailable){Toast.makeText(getActivity(),"文件选择不可用："+unavailable.getMessage(),Toast.LENGTH_LONG).show();remove();}}
+-  @Override public void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request!=981)return;Activity activity=getActivity();try{if(result==Activity.RESULT_OK&&data!=null&&data.getData()!=null){Uri uri=data.getData();int flags=data.getFlags()&(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);if(flags!=(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION))throw new IOException("SAF_URI_READ_WRITE_GRANT_REQUIRED");if((data.getFlags()&Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)!=0){if(flags==(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION))activity.getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);else if(flags==Intent.FLAG_GRANT_WRITE_URI_PERMISSION)activity.getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_WRITE_URI_PERMISSION);else if(flags==Intent.FLAG_GRANT_READ_URI_PERMISSION)activity.getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);else throw new IOException("SAF_URI_GRANT_EMPTY");}String id=ReportExportServiceCP4.requestSafTransfer(activity,getArguments().getString("jobId"),getArguments().getString("volumeName"),uri);Toast.makeText(activity,"报告保存已排队；每个文件保存后都会回读核验。",Toast.LENGTH_LONG).show();pollSaf(activity.getApplicationContext(),id,new WeakReference<>(activity),0);}else if(activity!=null)Toast.makeText(activity,"已取消文件选择；报告尚未保存。",Toast.LENGTH_LONG).show();}catch(Exception failure){if(activity!=null)Toast.makeText(activity,"保存请求失败："+failure.getMessage(),Toast.LENGTH_LONG).show();}finally{remove();}}
++  @Override public void onActivityResult(int request,int result,Intent data){
++   super.onActivityResult(request,result,data);
++   if(request!=981)return;
++   Activity activity=getActivity();
++   try{
++    if(activity==null)return;
++    if(result!=Activity.RESULT_OK || data==null || data.getData()==null){
++     Toast.makeText(activity,"已取消选择保存位置。",Toast.LENGTH_SHORT).show();return;
++    }
++    Uri uri=data.getData();
++    int readWrite=Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
++    if((data.getFlags()&readWrite)!=readWrite)throw new IOException("SAF_URI_READ_WRITE_GRANT_REQUIRED");
++    boolean persistable=(data.getFlags()&Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)!=0;
++    if(persistable)activity.getContentResolver().takePersistableUriPermission(uri,readWrite);
++    String jobId=getArguments().getString("jobId");
++    Context app=activity.getApplicationContext();
++    if(jobId==null){
++     if(!persistable)throw new IOException("所选位置不支持后台持续写入，请选择手机下载目录");
++     long session=POLL_SESSION.incrementAndGet();
++     String id=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,true,uri);
++     show(activity,button.get(),status.get(),"已选好保存位置，正在生成含数据库和训练附件的 ZIP。",true);
++     poll(app,id,new WeakReference<>(activity),button,status,0,session,true);
++    }else{
++     String id=ReportExportServiceCP4.requestSafTransfer(app,jobId,getArguments().getString("volumeName"),uri);
++     Toast.makeText(activity,"报告保存已排队，写入后会回读核验。",Toast.LENGTH_LONG).show();
++     pollSaf(app,id,new WeakReference<>(activity),0,new WeakReference<>(null),0);
++    }
++   }catch(Exception failure){if(activity!=null)show(activity,button.get(),status.get(),"保存请求失败："+failure.getMessage(),true);}
++   finally{remove();}
++  }
+   private void remove(){if(isAdded())getFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();}
+  }
+- private static void pollSaf(Context app,String id,WeakReference<Activity> weak,int attempts){UI_IO.schedule(()->{try{File ack=new File(app.getFilesDir(),"r981_reports/requests/"+id+".ack.json");if(!ack.exists()){if(attempts<1200){pollSaf(app,id,weak,attempts+1);return;}throw new IOException("REPORT_SAF_ACK_TIMEOUT|后台任务可能仍在运行，尚未取得保存回读凭据");}JSONObject state=new JSONObject(ReportJobJournalCP12.readAtomic(ack,8192));String stage=state.optString("state",state.optString("stage",""));if(stage.equals("VERIFIED_READBACK")||stage.equals("FAILED")||stage.equals("CANCELLED")){Activity activity=weak.get();if(activity!=null)activity.runOnUiThread(()->show(activity,null,null,stage.equals("VERIFIED_READBACK")?state.optBoolean("allVolumesSaved")?"完整报告已全部保存并核验。":"分卷已保存并核验。":"分卷保存失败："+state.optString("reason",stage),true));}else if(attempts<1200)pollSaf(app,id,weak,attempts+1);else throw new IOException("REPORT_SAF_PENDING_TIMEOUT|state="+stage+"|后台任务仍保留，尚未完成保存回读核验");}catch(Exception error){Activity activity=weak.get();if(activity!=null)activity.runOnUiThread(()->show(activity,null,null,"保存状态读取失败："+error.getMessage(),true));}},750,TimeUnit.MILLISECONDS);}
++ private static void pollSaf(Context app,String id,WeakReference<Activity> weak,int attempts,WeakReference<TextView> status,long session){
++  UI_IO.schedule(()->{
++   Activity activity=weak.get();
++   if(activity==null || activity.isDestroyed() || activity.isFinishing() || (session!=0&&session!=POLL_SESSION.get()))return;
++   try{
++    File ack=new File(app.getFilesDir(),"r981_reports/requests/"+id+".ack.json");
++    if(ack.isFile()){
++     JSONObject value=new JSONObject(ReportJobJournalCP12.readAtomic(ack,8192));
++     String stage=value.optString("state",value.optString("stage",""));
++     if("VERIFIED_READBACK".equals(stage)||"FAILED".equals(stage)||"CANCELLED".equals(stage)){
++      String message="VERIFIED_READBACK".equals(stage)?(value.optBoolean("allVolumesSaved")?"完整 ZIP 已保存到所选位置，并已回读核验。":"所选文件已保存并回读核验。"):"报告保存未完成："+value.optString("reason",stage)+"。可从“取回已生成的 ZIP”重新保存。";
++      activity.runOnUiThread(()->{if(session==0||session==POLL_SESSION.get())show(activity,null,status.get(),message,true);});
++      return;
++     }
++    }
++    pollSaf(app,id,weak,nextDeliveryPoll(attempts),status,session);
++   }catch(Exception error){activity.runOnUiThread(()->{if(session==0||session==POLL_SESSION.get())show(activity,null,status.get(),"保存状态读取失败："+error.getMessage(),true);});}
++  },attempts<1200?750:5000,TimeUnit.MILLISECONDS);
++ }
+ 
+  /**
+   * R31Q quick diagnostic. It does not use the report export service, the diagnostics process, the
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+index c5ad5358..72eb5fc3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+@@ -18,6 +18,8 @@ import java.io.FilterWriter;
+ import java.util.ArrayList;
+ import java.util.Collections;
+ import java.util.List;
++import java.util.Map;
++import java.util.HashMap;
+ import java.security.MessageDigest;
+ import java.nio.charset.StandardCharsets;
+ import java.util.HashSet;
+@@ -116,13 +118,21 @@ public final class ReportCatalogCP4 {
+         }
+     }
+     public static final class Result {
++        private final SQLiteDatabase snapshot;
++        private final Map<String,Long> tableCounts;
++        Long tableCount(SQLiteDatabase source,String table) {
++            if (snapshot != source) throw new IllegalArgumentException("REPORT_CATALOG_SNAPSHOT_MISMATCH");
++            return tableCounts.get(table);
++        }
+         public final long objects, rows, checks, unevaluated, queryErrors;
+         public final int tables;
+         public final String scope;
+         public final List<File> indexFiles;
+         public final boolean evidenceCatalogComplete, checksComplete, allChecksPassed;
+-        private Result(long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
++        private Result(SQLiteDatabase snapshot,Map<String,Long> tableCounts,long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
+                 boolean evidenceCatalogComplete,boolean checksComplete,boolean allChecksPassed) {
++            this.snapshot=snapshot;
++            this.tableCounts=Collections.unmodifiableMap(tableCounts);
+             if(tables>Integer.MAX_VALUE)throw new IllegalArgumentException("TOO_MANY_TABLES");
+             this.objects=objects;this.tables=(int)tables;this.rows=rows;this.checks=checks;
+             this.scope="COMPLETE_DIAGNOSTICS_FROM_IMMUTABLE_SNAPSHOT";
+@@ -131,6 +141,8 @@ public final class ReportCatalogCP4 {
+             this.evidenceCatalogComplete=evidenceCatalogComplete;this.checksComplete=checksComplete;this.allChecksPassed=allChecksPassed;
+         }
+         private Result(Result r,List<File> files) {
++            this.snapshot=r.snapshot;
++            this.tableCounts=r.tableCounts;
+             this.objects=r.objects;this.tables=r.tables;this.rows=r.rows;this.checks=r.checks;
+             this.unevaluated=r.unevaluated;this.queryErrors=r.queryErrors;
+             this.evidenceCatalogComplete=r.evidenceCatalogComplete;this.checksComplete=r.checksComplete;this.allChecksPassed=r.allChecksPassed;
+@@ -218,6 +230,7 @@ public final class ReportCatalogCP4 {
+         if (snapshotId == null || snapshotId.length() == 0 || snapshotSha256 == null
+                 || !snapshotSha256.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("SNAPSHOT_IDENTITY");
+         if (checks == null || pages == null || progress == null) throw new IllegalArgumentException("NULL_ARGUMENT");
++        Map<String,Long> tableCounts=new HashMap<>();
+         progress.checkpoint("CATALOG_START",0);
+         long objectCount=0, tableCount=0, rowCount=0, checkCount=0, uncomputed=0, errors=0;
+         boolean evidenceOK=true, checksOK=true, allPassed=true;
+@@ -263,6 +276,7 @@ public final class ReportCatalogCP4 {
+                             try {
+                                 long n=scalar(snapshot,"SELECT COUNT(*) FROM "+ident(name));
+                                 if(n<0 || rowCount>Long.MAX_VALUE-n)throw new IllegalStateException("COUNT_OVERFLOW");
++                                tableCounts.put(name,n);
+                                 rowCount+=n;
+                                 out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
+                                 pragma(out,snapshot,"table_info",name,progress);
+@@ -321,7 +335,7 @@ public final class ReportCatalogCP4 {
+                     "evidence_catalog_complete",evidenceOK,"checks_complete",checksOK,"all_checks_passed",checksOK&&allPassed,
+                     "evidence_archive_complete","OWNER_MUST_VERIFY_ALL_MEMBER_HASHES"));
+         }
+-        return new Result(objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
++        return new Result(snapshot,tableCounts,objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
+     }
+     private static void pragma(JsonPages out,SQLiteDatabase db,String operation,String name,Progress progress) throws IOException {
+         // operation comes solely from the four fixed call sites above.
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java b/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
+index e66df61e..36943199 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
+@@ -8,9 +8,16 @@ import org.json.JSONObject;
+ 
+ /** Compact evidence derived only from the same immutable snapshot as the 96 checks. */
+ public final class ReportDiagnosticEvidenceR64 {
++    private static final java.util.Set<String> GROUP_COLUMNS = new java.util.HashSet<>(
++            java.util.Arrays.asList("state","status","kind","stage","settled","terminal_code","failure_class"));
+     private ReportDiagnosticEvidenceR64() {}
+     public static File write(SQLiteDatabase snapshot, File job, String hash,
+             ReportNativeCP4.Control control) throws Exception {
++        return write(snapshot,job,hash,control,null);
++    }
++
++    static File write(SQLiteDatabase snapshot, File job, String hash,
++            ReportNativeCP4.Control control, ReportCatalogCP4.Result catalog) throws Exception {
+         if (!snapshot.isReadOnly()) throw new IOException("R64_REPORT_READONLY_REQUIRED");
+         File result = new File(job, "DIAGNOSTIC_SCOPE.json");
+         try (FileOutputStream fd = new FileOutputStream(result);
+@@ -24,6 +31,7 @@ public final class ReportDiagnosticEvidenceR64 {
+                     + "\"coverage\":\"All checks use the full immutable database. All schema objects, table counts, grouped task states and current construction ledgers are retained."
+                     + " Static calls are not proof of runtime execution. Selected research and period metadata include every row and every text column without truncation; binary cells are described by byte length and existing registry hashes. Raw payloads are not required to evaluate these checks.\","
+                     + "\"omitted\":[\"APK binary\",\"raw SQLite\",\"training/model/retention payloads\",\"historical duplicate ledgers\"],\"tables\":[");
++            java.util.Map<String,Long> tableCounts = new java.util.HashMap<>();
+             boolean first = true;long completedTables=0;
+             control.onIndexProgress("表结构和分组",0);
+             try (Cursor names = snapshot.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)) {
+@@ -32,10 +40,15 @@ public final class ReportDiagnosticEvidenceR64 {
+                     String table = names.getString(0);
+                     if (!first) out.write(','); first = false;
+                     JSONObject row = new JSONObject().put("table", table);
+-                    try (Cursor n = snapshot.rawQuery("SELECT COUNT(*) FROM " + ident(table), null)) {
+-                        if (!n.moveToFirst()) throw new IOException("R64_REPORT_COUNT_MISSING");
+-                        row.put("rows", n.getLong(0));
++                    Long count = catalog == null ? null : catalog.tableCount(snapshot,table);
++                    if (count == null) {
++                        try (Cursor n = snapshot.rawQuery("SELECT COUNT(*) FROM " + ident(table), null)) {
++                            if (!n.moveToFirst()) throw new IOException("R64_REPORT_COUNT_MISSING");
++                            count = n.getLong(0);
++                        }
+                     }
++                    tableCounts.put(table,count);
++                    row.put("rows",count);
+                     org.json.JSONArray schema = new org.json.JSONArray();
+                     java.util.ArrayList<String> groupColumns = new java.util.ArrayList<>();
+                     try (Cursor columns = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
+@@ -43,7 +56,7 @@ public final class ReportDiagnosticEvidenceR64 {
+                             String column = columns.getString(1);
+                             schema.put(new JSONObject().put("name",column).put("type",columns.getString(2))
+                                     .put("notNull",columns.getInt(3)!=0).put("primaryKeyOrder",columns.getInt(5)));
+-                            if (!column.matches("state|status|kind|stage|settled|terminal_code|failure_class")) continue;
++                            if (count == 0 || !GROUP_COLUMNS.contains(column)) continue;
+                             groupColumns.add(column);
+                         }
+                     }
+@@ -102,12 +115,11 @@ public final class ReportDiagnosticEvidenceR64 {
+                     com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.SPEC,
+                     com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.FROZEN_SOURCE}) {
+                 checkpoint(control);
+-                try (Cursor exists = snapshot.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", new String[]{table})) {
+-                    if (!exists.moveToFirst()) {
+-                        if(!first)out.write(',');first=false;
+-                        out.write(new JSONObject().put("table",table).put("status","MISSING_SCHEMA").put("complete",false).toString());
+-                        continue;
+-                    }
++                Long totalRows = tableCounts.get(table);
++                if (totalRows == null) {
++                    if(!first)out.write(',');first=false;
++                    out.write(new JSONObject().put("table",table).put("status","MISSING_SCHEMA").put("complete",false).toString());
++                    continue;
+                 }
+                 java.util.ArrayList<String> columns = new java.util.ArrayList<>();
+                 try (Cursor info = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
+@@ -122,10 +134,9 @@ public final class ReportDiagnosticEvidenceR64 {
+                 // CursorWindow. Text is streamed losslessly from this same snapshot.
+                 // R13-P33: above 20,000 rows export the last 5,000 in explicit stable table order;
+                 // the full table remains available through the explicit raw-evidence export.
+-                long totalRows;try(Cursor total=snapshot.rawQuery("SELECT COUNT(*) FROM "+ident(table),null)){if(!total.moveToFirst())throw new IOException("R66_METADATA_ROW_COUNT_MISSING:"+table);totalRows=total.getLong(0);}
+                 boolean bounded=totalRows>20000;
+                 out.write("{\"table\":"+JSONObject.quote(table)+",\"columns\":"+new org.json.JSONArray(columns).toString()+",\"scope\":"+JSONObject.quote(bounded?"LAST_5000_IN_STABLE_TABLE_ORDER":"ALL_ROWS_FULL_METADATA_TEXT")+",\"rowOrder\":"+JSONObject.quote(ReportMetadataStreamR81.rowOrder(snapshot,table))+",\"rows\":[");
+-                long exportedRows=bounded?ReportMetadataStreamR81.writeLastRows(snapshot,table,columns,out,control,5000):ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control);
++                long exportedRows=totalRows==0?0:bounded?ReportMetadataStreamR81.writeLastRows(snapshot,table,columns,out,control,5000,totalRows):ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control);
+                 if(exportedRows!=(bounded?5000:totalRows))throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
+                 out.write("],\"exportedRows\":"+exportedRows+",\"totalRows\":"+totalRows+",\"complete\":"+(exportedRows==totalRows)+"}");
+             }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index c5049d39..148459ac 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -64,12 +64,18 @@ public final class ReportExportServiceCP4 extends Service {
+         return requestExport(context,mode,false);
+     }
+     public static String requestExport(Context context,ExportMode mode,boolean includeRawEvidence) {
++        return requestExport(context,mode,includeRawEvidence,null);
++    }
++    static String requestExport(Context context,ExportMode mode,boolean includeRawEvidence,Uri saveDestination) {
+         if(mode!=ExportMode.FULL_REPORT)throw new IllegalArgumentException("REPORT_MODE");
++        if(saveDestination!=null && (!"content".equals(saveDestination.getScheme()) || saveDestination.toString().length()>2048))
++            throw new IllegalArgumentException("REPORT_SAF_DESTINATION");
+         final Context app=context.getApplicationContext();final String id=id("FULL_REPORT");final long generation=USER_REQUEST_GENERATION.get();
+         try{REQUESTS.execute(()->{boolean durable=false;try{
+             JSONObject request=new JSONObject();request.put("revision","REPORT_REQUEST_CP12_1");request.put("requestId",id);request.put("mode","FULL_REPORT");
+             request.put("releaseHash",ReleaseManifestR926.MANIFEST_SHA256);request.put("createdWallMs",System.currentTimeMillis());
+             request.put("includeRawEvidence",includeRawEvidence);
++            if(saveDestination!=null)request.put("saveZipDestination",saveDestination.toString());
+             File root=requestRoot(app);
+             request.put("submissionState","PERSISTED_WAITING_FOR_SERVICE");request.put("observationState","UNKNOWN_NOT_COLLECTED");
+             // This envelope is consumable before any optional observer runs.
+@@ -301,6 +307,12 @@ public final class ReportExportServiceCP4 extends Service {
+                 if(mode.equals("SAF_TRANSFER")){runSafRequest(request,journal.root());return;}
+                 if(job!=null&&(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY"))&&job.requestId.equals(requestId)){ActiveControl ready=new ActiveControl(job,journal.root());try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),ready)){verifyReady(job,journal.directory(job),ready);enqueueCleanupR31(journal,job);journal.acknowledge(requestId,job);clearPending(journal.root(),request);}catch(Exception callback){if(!ready.validatedDeliveryR31)throw callback;android.util.Log.w("ReportExportCP12","Verified READY replay callback pending",callback);}finally{ready.releaseResourcesR31();}runCleanupR31(journal);return;}
+                 job=journal.recoverOrCreateR31(requestId,request.getString("releaseHash"),mode);ReportPublicationCP12.pruneTerminal(journal.root(),job.jobId);clearPending(journal.root(),request);}
++            if ("FULL_REPORT".equals(job.mode) && isActive(job) && job.releaseHash.equals(ReleaseManifestR926.MANIFEST_SHA256)
++                    && request.has("saveZipDestination")) {
++                // The claimed generation owns the worker until its archive reaches a terminal state.
++                // A restart before enrollment returns here with the original durable parent envelope.
++                enqueuePlannedSave(journal.root(),job,request);
++            }
+             journal.acknowledge(job.requestId,job);ActiveControl active=new ActiveControl(job,journal.root());control=active;foreground("报告采集与核验进行中");
+             final long resourceDelayR335=ReportResourceWaitR335.remaining(job.resourceWaitR335,
+                     ReportTaskControlR69.readBootR30(),SystemClock.elapsedRealtime());
+@@ -407,7 +419,7 @@ public final class ReportExportServiceCP4 extends Service {
+                     if(request.optBoolean("includeRawEvidence", false)) {
+                         ReportMemberPlanCP12.append(members,"snapshot.db","snapshot.db",job.snapshotSha,job.snapshotBytes);
+                     } else {
+-                        File scope = ReportDiagnosticEvidenceR64.write(copy, directory, job.snapshotSha, active);
++                        File scope = ReportDiagnosticEvidenceR64.write(copy, directory, job.snapshotSha, active, catalog);
+                         ReportMemberPlanCP12.append(members,scope.getName(),scope.getName(),ReportArchiveCP4.hash(scope,active),scope.length());
+                     }
+                     File inventory=ReportDiagnosticEvidenceR64.writeFileInventory(getFilesDir().getParentFile(),directory,active);
+@@ -820,7 +832,7 @@ public final class ReportExportServiceCP4 extends Service {
+         private void sampleR31(int slot,JSONObject value,long now,boolean finalSample){
+             if(now<nextProgressR31[slot]&&(!finalSample||progressFailuresR31[slot]>0))return;
+             String name=slot==0?"stage-progress.json":"backup-progress.json";
+-            try{ReportJobJournalCP12.writeAtomic(new File(root,"jobs/"+job.jobId+"/"+name),value.toString());nextProgressR31[slot]=SystemClock.elapsedRealtime()+1000;}
++            try{ReportJobJournalCP12.writeAtomic(new File(root,"jobs/"+job.jobId+"/"+name),value.toString());nextProgressR31[slot]=SystemClock.elapsedRealtime()+(slot==0?3000L:1000L);}
+             catch(IOException|RuntimeException error){
+                 progressFailuresR31[slot]++;if(firstProgressFailureR31[slot]==null)firstProgressFailureR31[slot]=error;
+                 nextProgressR31[slot]=SystemClock.elapsedRealtime()+5000;
+@@ -859,7 +871,7 @@ public final class ReportExportServiceCP4 extends Service {
+             completedIndexEntries=completed;
+             long now=SystemClock.elapsedRealtime();
+             timing.progress(now);
+-            sampleStage(now,true);
++            sampleStage(now,false);
+         }
+         @Override public void onIndexProgress(String section,long completed) {
+             long now=SystemClock.elapsedRealtime();
+@@ -954,7 +966,7 @@ public final class ReportExportServiceCP4 extends Service {
+                 return new BufferedOutputStream(new FilterOutputStream(admitted){
+                     @Override public void write(int value)throws IOException{checkpoint();out.write(value);timing.progress(SystemClock.elapsedRealtime());}
+                     @Override public void write(byte[] bytes,int offset,int count)throws IOException{checkpoint();out.write(bytes,offset,count);if(count>0)timing.progress(SystemClock.elapsedRealtime());}
+-                },65536);
++                },"DIAGNOSTIC_SCOPE.json".equals(file.getName()) ? 512*1024 : 65536);
+             }
+             catch(IOException|RuntimeException|Error error){try{sink.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
+         }
+@@ -1021,6 +1033,25 @@ public final class ReportExportServiceCP4 extends Service {
+ 
+     private static boolean isRetryable(String reason){return reason.startsWith("REPORT_RESOURCE_WAIT|")||reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.startsWith("REPORT_MEMORY_BUDGET_WAIT")||reason.equals("IOException");}
+ 
++    static String plannedSaveId(String jobId) {
++        return RetentionArchiveProtocolCP12.sha(("SAVE_PUBLISHED_ZIP|"+jobId).getBytes(StandardCharsets.UTF_8));
++    }
++    private static void enqueuePlannedSave(File root,ReportJobJournalCP12.Job job,JSONObject parent)throws Exception {
++        String transfer=plannedSaveId(job.jobId);
++        if(new File(root,"requests/"+transfer+".ack.json").isFile())return;
++        File envelope=new File(root,"requests/"+transfer+".json");
++        if(!envelope.isFile()) {
++            JSONObject child=new JSONObject().put("requestId",transfer).put("mode","SAF_TRANSFER")
++                    .put("jobId",job.jobId).put("volumeName","STARCORE_FULL_REPORT.zip")
++                    .put("destination",parent.getString("saveZipDestination")).put("state","PENDING").put("attempt",0);
++            ReportJobJournalCP12.writeAtomic(envelope,child.toString());
++        }
++        try { ReportRequestQueueCP12.enqueue(root,transfer,"SAF_TRANSFER"); }
++        catch(IOException full) {
++            // The child envelope is durable and reconciled when a queue slot opens.
++            if(!"REPORT_QUEUE_FULL".equals(full.getMessage()))throw full;
++        }
++    }
+     public static String requestSafTransfer(Context context,String jobId,String volumeName,Uri destination){final Context app=context.getApplicationContext();final String transfer=id("SAF_TRANSFER");final long generation=USER_REQUEST_GENERATION.get();
+         try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!(volumeName.equals("*")||volumeName.matches("STARCORE_FULL_REPORT\\.zip|STARCORE_FULL_REPORT\\.zip\\.part[0-9]{2,3}|index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest")))throw new IOException("REPORT_SAF_REQUEST");if(volumeName.equals("*")&&!(destination.getPathSegments().size()==2&&"tree".equals(destination.getPathSegments().get(0))&&!android.provider.DocumentsContract.getTreeDocumentId(destination).isEmpty()))throw new IOException("REPORT_SAF_TREE_REQUIRED");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);enqueueUserRequest(root,transfer,"SAF_TRANSFER",request,generation);kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;
+     }
+@@ -1044,7 +1075,7 @@ public final class ReportExportServiceCP4 extends Service {
+                 if(joined)ReportPublicationCP12.saveJoinedZipR34(sourceJob,index,safDestination(this,destination),active);
+                 else transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,destination,active);
+                 active.checkpoint();
+-                state.put("state","VERIFIED_READBACK");state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
++                state.put("state","VERIFIED_READBACK");state.put("allVolumesSaved",name.equals("STARCORE_FULL_REPORT.zip"));state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
+                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.remove(root,transfer);
+             }
+         }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);recordSafStorageFailure(state,error,reason);
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java b/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java
+index b9467929..f0a08743 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java
+@@ -322,6 +322,23 @@ public final class ReportJobJournalCP12 implements Closeable {
+         }catch(Exception damaged){android.util.Log.w("ReportJournalCP12","Unrelated ACK unavailable during history lookup");}
+         return latest;
+     }
++    /** Select a retained publication independently of a newer running report. */
++    static Job latestReadyZip(File files)throws Exception {
++        File root=ReportDirectoriesCP12.root(files);
++        Job latest=null;
++        for(File directory:DirectoryCursorR31.children(ReportArchiveVerifierCP12.inside(root,"jobs"),1024)) {
++            try {
++                File published=ReportPublicationCP12.job(files,directory.getName());
++                Job job=Job.parse(readAtomic(new File(published,"job.json"),MAX_JSON));
++                if(!"FULL_REPORT".equals(job.mode))continue;
++                if(latest!=null && (job.createdWallMs<latest.createdWallMs ||
++                        job.createdWallMs==latest.createdWallMs && job.jobId.compareTo(latest.jobId)<=0))continue;
++                ReportPublicationCP12.delivery(published);
++                latest=job;
++            }catch(IOException|org.json.JSONException unavailable){/* incomplete or pruned job */}
++        }
++        return latest;
++    }
+     /** Select a matching live request without cancelling another profile or reopening a completed report. */
+     static String reusableFullRequestR335(File root, boolean raw, String submitted) throws Exception {
+         if (submitted != null) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java b/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
+index 98f75c75..1f400db3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
+@@ -38,12 +38,18 @@ public final class ReportMetadataStreamR81 {
+     /** Last rows in stable table order. A WITHOUT ROWID primary key is not a time stamp. */
+     static long writeLastRows(SQLiteDatabase db,String table,List<String> columns,Writer out,
+             ReportNativeCP4.Control control,int limit)throws IOException {
++        return writeLastRows(db,table,columns,out,control,limit,-1L);
++    }
++    static long writeLastRows(SQLiteDatabase db,String table,List<String> columns,Writer out,
++            ReportNativeCP4.Control control,int limit,long knownCount)throws IOException {
+         if(limit<1)throw new IOException("REPORT_METADATA_LIMIT");
+         Layout order=layout(db,table);long from=Long.MIN_VALUE,offset=0;
+         if(order.rowid!=null){
+             try(Cursor cut=db.rawQuery("SELECT "+order.rowid+" FROM "+ident(table)+" ORDER BY "+order.rowid+" DESC LIMIT 1 OFFSET ?",new String[]{Integer.toString(limit-1)})){
+                 if(cut.moveToFirst())from=cut.getLong(0);
+             }
++        }else if(knownCount>=0){
++            offset=Math.max(0L,knownCount-limit);
+         }else{
+             try(Cursor count=db.rawQuery("SELECT COUNT(*) FROM "+ident(table),null)){
+                 if(!count.moveToFirst())throw new IOException("REPORT_METADATA_COUNT");offset=Math.max(0,count.getLong(0)-limit);
+@@ -59,8 +65,11 @@ public final class ReportMetadataStreamR81 {
+         check(control);Charset encoding=encoding(db);String id=ident(table),rowid=order.rowid;
+         if(rowid==null&&fromRowid!=Long.MIN_VALUE)throw new IOException("REPORT_METADATA_ROWID_RANGE_UNAVAILABLE");
+         StringBuilder sql=new StringBuilder("SELECT ").append(rowid==null?"0":rowid);
++        // Keep a single row within the prior CursorWindow budget. Most ledger text can
++        // travel in the same row instead of opening a second cursor for each cell.
++        int inlineBytes=Math.max(INLINE_BYTES,Math.min(8192,(384*1024)/columns.size()));
+         for(String column:columns) {
+-            sql.append(',').append(descriptor(ident(column)));
++            sql.append(',').append(descriptor(ident(column),inlineBytes));
+         }
+         sql.append(" FROM ").append(id);
+         // Android refills a CursorWindow by executing its SELECT again. Seek bounded
+@@ -140,11 +149,14 @@ public final class ReportMetadataStreamR81 {
+     }
+ 
+     private static String descriptor(String c) {
++        return descriptor(c,INLINE_BYTES);
++    }
++    private static String descriptor(String c,int inlineBytes) {
+         String bytes="length(CAST("+c+" AS BLOB))";
+         // Prefixes are transport tags, not metadata values. Even a value beginning
+         // with N/B/L/S is unambiguous, because every inline value receives S.
+         return "CASE WHEN "+c+" IS NULL THEN 'N' WHEN typeof("+c+")='blob' THEN 'B'||"+bytes
+-            +" WHEN "+bytes+">"+INLINE_BYTES+" THEN 'L'||"+bytes+" ELSE 'S'||CAST("+c+" AS TEXT) END";
++            +" WHEN "+bytes+">"+inlineBytes+" THEN 'L'||"+bytes+" ELSE 'S'||CAST("+c+" AS TEXT) END";
+     }
+     private static void writeValue(SQLiteDatabase db,CellSource cell,String column,
+             String value,Charset encoding,Writer out,ReportNativeCP4.Control control)throws IOException {

@@ -18,6 +18,8 @@ import java.io.FilterWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -116,13 +118,21 @@ public final class ReportCatalogCP4 {
         }
     }
     public static final class Result {
+        private final SQLiteDatabase snapshot;
+        private final Map<String,Long> tableCounts;
+        Long tableCount(SQLiteDatabase source,String table) {
+            if (snapshot != source) throw new IllegalArgumentException("REPORT_CATALOG_SNAPSHOT_MISMATCH");
+            return tableCounts.get(table);
+        }
         public final long objects, rows, checks, unevaluated, queryErrors;
         public final int tables;
         public final String scope;
         public final List<File> indexFiles;
         public final boolean evidenceCatalogComplete, checksComplete, allChecksPassed;
-        private Result(long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
+        private Result(SQLiteDatabase snapshot,Map<String,Long> tableCounts,long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
                 boolean evidenceCatalogComplete,boolean checksComplete,boolean allChecksPassed) {
+            this.snapshot=snapshot;
+            this.tableCounts=Collections.unmodifiableMap(tableCounts);
             if(tables>Integer.MAX_VALUE)throw new IllegalArgumentException("TOO_MANY_TABLES");
             this.objects=objects;this.tables=(int)tables;this.rows=rows;this.checks=checks;
             this.scope="COMPLETE_DIAGNOSTICS_FROM_IMMUTABLE_SNAPSHOT";
@@ -131,6 +141,8 @@ public final class ReportCatalogCP4 {
             this.evidenceCatalogComplete=evidenceCatalogComplete;this.checksComplete=checksComplete;this.allChecksPassed=allChecksPassed;
         }
         private Result(Result r,List<File> files) {
+            this.snapshot=r.snapshot;
+            this.tableCounts=r.tableCounts;
             this.objects=r.objects;this.tables=r.tables;this.rows=r.rows;this.checks=r.checks;
             this.unevaluated=r.unevaluated;this.queryErrors=r.queryErrors;
             this.evidenceCatalogComplete=r.evidenceCatalogComplete;this.checksComplete=r.checksComplete;this.allChecksPassed=r.allChecksPassed;
@@ -218,6 +230,7 @@ public final class ReportCatalogCP4 {
         if (snapshotId == null || snapshotId.length() == 0 || snapshotSha256 == null
                 || !snapshotSha256.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("SNAPSHOT_IDENTITY");
         if (checks == null || pages == null || progress == null) throw new IllegalArgumentException("NULL_ARGUMENT");
+        Map<String,Long> tableCounts=new HashMap<>();
         progress.checkpoint("CATALOG_START",0);
         long objectCount=0, tableCount=0, rowCount=0, checkCount=0, uncomputed=0, errors=0;
         boolean evidenceOK=true, checksOK=true, allPassed=true;
@@ -263,6 +276,7 @@ public final class ReportCatalogCP4 {
                             try {
                                 long n=scalar(snapshot,"SELECT COUNT(*) FROM "+ident(name));
                                 if(n<0 || rowCount>Long.MAX_VALUE-n)throw new IllegalStateException("COUNT_OVERFLOW");
+                                tableCounts.put(name,n);
                                 rowCount+=n;
                                 out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
                                 pragma(out,snapshot,"table_info",name,progress);
@@ -321,7 +335,7 @@ public final class ReportCatalogCP4 {
                     "evidence_catalog_complete",evidenceOK,"checks_complete",checksOK,"all_checks_passed",checksOK&&allPassed,
                     "evidence_archive_complete","OWNER_MUST_VERIFY_ALL_MEMBER_HASHES"));
         }
-        return new Result(objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
+        return new Result(snapshot,tableCounts,objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
     }
     private static void pragma(JsonPages out,SQLiteDatabase db,String operation,String name,Progress progress) throws IOException {
         // operation comes solely from the four fixed call sites above.

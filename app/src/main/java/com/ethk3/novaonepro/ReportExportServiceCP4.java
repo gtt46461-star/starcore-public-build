@@ -64,12 +64,18 @@ public final class ReportExportServiceCP4 extends Service {
         return requestExport(context,mode,false);
     }
     public static String requestExport(Context context,ExportMode mode,boolean includeRawEvidence) {
+        return requestExport(context,mode,includeRawEvidence,null);
+    }
+    static String requestExport(Context context,ExportMode mode,boolean includeRawEvidence,Uri saveDestination) {
         if(mode!=ExportMode.FULL_REPORT)throw new IllegalArgumentException("REPORT_MODE");
+        if(saveDestination!=null && (!"content".equals(saveDestination.getScheme()) || saveDestination.toString().length()>2048))
+            throw new IllegalArgumentException("REPORT_SAF_DESTINATION");
         final Context app=context.getApplicationContext();final String id=id("FULL_REPORT");final long generation=USER_REQUEST_GENERATION.get();
         try{REQUESTS.execute(()->{boolean durable=false;try{
             JSONObject request=new JSONObject();request.put("revision","REPORT_REQUEST_CP12_1");request.put("requestId",id);request.put("mode","FULL_REPORT");
             request.put("releaseHash",ReleaseManifestR926.MANIFEST_SHA256);request.put("createdWallMs",System.currentTimeMillis());
             request.put("includeRawEvidence",includeRawEvidence);
+            if(saveDestination!=null)request.put("saveZipDestination",saveDestination.toString());
             File root=requestRoot(app);
             request.put("submissionState","PERSISTED_WAITING_FOR_SERVICE");request.put("observationState","UNKNOWN_NOT_COLLECTED");
             // This envelope is consumable before any optional observer runs.
@@ -301,6 +307,12 @@ public final class ReportExportServiceCP4 extends Service {
                 if(mode.equals("SAF_TRANSFER")){runSafRequest(request,journal.root());return;}
                 if(job!=null&&(job.stage.equals("READY_TO_SHARE")||job.stage.equals("RETENTION_READY"))&&job.requestId.equals(requestId)){ActiveControl ready=new ActiveControl(job,journal.root());try(ReportIoR31.Scope outputScope=ReportIoR31.bind(journal.directory(job),ready)){verifyReady(job,journal.directory(job),ready);enqueueCleanupR31(journal,job);journal.acknowledge(requestId,job);clearPending(journal.root(),request);}catch(Exception callback){if(!ready.validatedDeliveryR31)throw callback;android.util.Log.w("ReportExportCP12","Verified READY replay callback pending",callback);}finally{ready.releaseResourcesR31();}runCleanupR31(journal);return;}
                 job=journal.recoverOrCreateR31(requestId,request.getString("releaseHash"),mode);ReportPublicationCP12.pruneTerminal(journal.root(),job.jobId);clearPending(journal.root(),request);}
+            if ("FULL_REPORT".equals(job.mode) && isActive(job) && job.releaseHash.equals(ReleaseManifestR926.MANIFEST_SHA256)
+                    && request.has("saveZipDestination")) {
+                // The claimed generation owns the worker until its archive reaches a terminal state.
+                // A restart before enrollment returns here with the original durable parent envelope.
+                enqueuePlannedSave(journal.root(),job,request);
+            }
             journal.acknowledge(job.requestId,job);ActiveControl active=new ActiveControl(job,journal.root());control=active;foreground("报告采集与核验进行中");
             final long resourceDelayR335=ReportResourceWaitR335.remaining(job.resourceWaitR335,
                     ReportTaskControlR69.readBootR30(),SystemClock.elapsedRealtime());
@@ -407,7 +419,7 @@ public final class ReportExportServiceCP4 extends Service {
                     if(request.optBoolean("includeRawEvidence", false)) {
                         ReportMemberPlanCP12.append(members,"snapshot.db","snapshot.db",job.snapshotSha,job.snapshotBytes);
                     } else {
-                        File scope = ReportDiagnosticEvidenceR64.write(copy, directory, job.snapshotSha, active);
+                        File scope = ReportDiagnosticEvidenceR64.write(copy, directory, job.snapshotSha, active, catalog);
                         ReportMemberPlanCP12.append(members,scope.getName(),scope.getName(),ReportArchiveCP4.hash(scope,active),scope.length());
                     }
                     File inventory=ReportDiagnosticEvidenceR64.writeFileInventory(getFilesDir().getParentFile(),directory,active);
@@ -820,7 +832,7 @@ public final class ReportExportServiceCP4 extends Service {
         private void sampleR31(int slot,JSONObject value,long now,boolean finalSample){
             if(now<nextProgressR31[slot]&&(!finalSample||progressFailuresR31[slot]>0))return;
             String name=slot==0?"stage-progress.json":"backup-progress.json";
-            try{ReportJobJournalCP12.writeAtomic(new File(root,"jobs/"+job.jobId+"/"+name),value.toString());nextProgressR31[slot]=SystemClock.elapsedRealtime()+1000;}
+            try{ReportJobJournalCP12.writeAtomic(new File(root,"jobs/"+job.jobId+"/"+name),value.toString());nextProgressR31[slot]=SystemClock.elapsedRealtime()+(slot==0?3000L:1000L);}
             catch(IOException|RuntimeException error){
                 progressFailuresR31[slot]++;if(firstProgressFailureR31[slot]==null)firstProgressFailureR31[slot]=error;
                 nextProgressR31[slot]=SystemClock.elapsedRealtime()+5000;
@@ -859,7 +871,7 @@ public final class ReportExportServiceCP4 extends Service {
             completedIndexEntries=completed;
             long now=SystemClock.elapsedRealtime();
             timing.progress(now);
-            sampleStage(now,true);
+            sampleStage(now,false);
         }
         @Override public void onIndexProgress(String section,long completed) {
             long now=SystemClock.elapsedRealtime();
@@ -954,7 +966,7 @@ public final class ReportExportServiceCP4 extends Service {
                 return new BufferedOutputStream(new FilterOutputStream(admitted){
                     @Override public void write(int value)throws IOException{checkpoint();out.write(value);timing.progress(SystemClock.elapsedRealtime());}
                     @Override public void write(byte[] bytes,int offset,int count)throws IOException{checkpoint();out.write(bytes,offset,count);if(count>0)timing.progress(SystemClock.elapsedRealtime());}
-                },65536);
+                },"DIAGNOSTIC_SCOPE.json".equals(file.getName()) ? 512*1024 : 65536);
             }
             catch(IOException|RuntimeException|Error error){try{sink.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
         }
@@ -1021,6 +1033,25 @@ public final class ReportExportServiceCP4 extends Service {
 
     private static boolean isRetryable(String reason){return reason.startsWith("REPORT_RESOURCE_WAIT|")||reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.startsWith("REPORT_MEMORY_BUDGET_WAIT")||reason.equals("IOException");}
 
+    static String plannedSaveId(String jobId) {
+        return RetentionArchiveProtocolCP12.sha(("SAVE_PUBLISHED_ZIP|"+jobId).getBytes(StandardCharsets.UTF_8));
+    }
+    private static void enqueuePlannedSave(File root,ReportJobJournalCP12.Job job,JSONObject parent)throws Exception {
+        String transfer=plannedSaveId(job.jobId);
+        if(new File(root,"requests/"+transfer+".ack.json").isFile())return;
+        File envelope=new File(root,"requests/"+transfer+".json");
+        if(!envelope.isFile()) {
+            JSONObject child=new JSONObject().put("requestId",transfer).put("mode","SAF_TRANSFER")
+                    .put("jobId",job.jobId).put("volumeName","STARCORE_FULL_REPORT.zip")
+                    .put("destination",parent.getString("saveZipDestination")).put("state","PENDING").put("attempt",0);
+            ReportJobJournalCP12.writeAtomic(envelope,child.toString());
+        }
+        try { ReportRequestQueueCP12.enqueue(root,transfer,"SAF_TRANSFER"); }
+        catch(IOException full) {
+            // The child envelope is durable and reconciled when a queue slot opens.
+            if(!"REPORT_QUEUE_FULL".equals(full.getMessage()))throw full;
+        }
+    }
     public static String requestSafTransfer(Context context,String jobId,String volumeName,Uri destination){final Context app=context.getApplicationContext();final String transfer=id("SAF_TRANSFER");final long generation=USER_REQUEST_GENERATION.get();
         try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!(volumeName.equals("*")||volumeName.matches("STARCORE_FULL_REPORT\\.zip|STARCORE_FULL_REPORT\\.zip\\.part[0-9]{2,3}|index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest")))throw new IOException("REPORT_SAF_REQUEST");if(volumeName.equals("*")&&!(destination.getPathSegments().size()==2&&"tree".equals(destination.getPathSegments().get(0))&&!android.provider.DocumentsContract.getTreeDocumentId(destination).isEmpty()))throw new IOException("REPORT_SAF_TREE_REQUIRED");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);enqueueUserRequest(root,transfer,"SAF_TRANSFER",request,generation);kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;
     }
@@ -1044,7 +1075,7 @@ public final class ReportExportServiceCP4 extends Service {
                 if(joined)ReportPublicationCP12.saveJoinedZipR34(sourceJob,index,safDestination(this,destination),active);
                 else transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,destination,active);
                 active.checkpoint();
-                state.put("state","VERIFIED_READBACK");state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
+                state.put("state","VERIFIED_READBACK");state.put("allVolumesSaved",name.equals("STARCORE_FULL_REPORT.zip"));state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.remove(root,transfer);
             }
         }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);recordSafStorageFailure(state,error,reason);

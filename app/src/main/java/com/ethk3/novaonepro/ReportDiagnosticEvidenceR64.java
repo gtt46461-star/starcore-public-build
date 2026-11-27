@@ -8,9 +8,16 @@ import org.json.JSONObject;
 
 /** Compact evidence derived only from the same immutable snapshot as the 96 checks. */
 public final class ReportDiagnosticEvidenceR64 {
+    private static final java.util.Set<String> GROUP_COLUMNS = new java.util.HashSet<>(
+            java.util.Arrays.asList("state","status","kind","stage","settled","terminal_code","failure_class"));
     private ReportDiagnosticEvidenceR64() {}
     public static File write(SQLiteDatabase snapshot, File job, String hash,
             ReportNativeCP4.Control control) throws Exception {
+        return write(snapshot,job,hash,control,null);
+    }
+
+    static File write(SQLiteDatabase snapshot, File job, String hash,
+            ReportNativeCP4.Control control, ReportCatalogCP4.Result catalog) throws Exception {
         if (!snapshot.isReadOnly()) throw new IOException("R64_REPORT_READONLY_REQUIRED");
         File result = new File(job, "DIAGNOSTIC_SCOPE.json");
         try (FileOutputStream fd = new FileOutputStream(result);
@@ -24,6 +31,7 @@ public final class ReportDiagnosticEvidenceR64 {
                     + "\"coverage\":\"All checks use the full immutable database. All schema objects, table counts, grouped task states and current construction ledgers are retained."
                     + " Static calls are not proof of runtime execution. Selected research and period metadata include every row and every text column without truncation; binary cells are described by byte length and existing registry hashes. Raw payloads are not required to evaluate these checks.\","
                     + "\"omitted\":[\"APK binary\",\"raw SQLite\",\"training/model/retention payloads\",\"historical duplicate ledgers\"],\"tables\":[");
+            java.util.Map<String,Long> tableCounts = new java.util.HashMap<>();
             boolean first = true;long completedTables=0;
             control.onIndexProgress("表结构和分组",0);
             try (Cursor names = snapshot.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)) {
@@ -32,10 +40,15 @@ public final class ReportDiagnosticEvidenceR64 {
                     String table = names.getString(0);
                     if (!first) out.write(','); first = false;
                     JSONObject row = new JSONObject().put("table", table);
-                    try (Cursor n = snapshot.rawQuery("SELECT COUNT(*) FROM " + ident(table), null)) {
-                        if (!n.moveToFirst()) throw new IOException("R64_REPORT_COUNT_MISSING");
-                        row.put("rows", n.getLong(0));
+                    Long count = catalog == null ? null : catalog.tableCount(snapshot,table);
+                    if (count == null) {
+                        try (Cursor n = snapshot.rawQuery("SELECT COUNT(*) FROM " + ident(table), null)) {
+                            if (!n.moveToFirst()) throw new IOException("R64_REPORT_COUNT_MISSING");
+                            count = n.getLong(0);
+                        }
                     }
+                    tableCounts.put(table,count);
+                    row.put("rows",count);
                     org.json.JSONArray schema = new org.json.JSONArray();
                     java.util.ArrayList<String> groupColumns = new java.util.ArrayList<>();
                     try (Cursor columns = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
@@ -43,7 +56,7 @@ public final class ReportDiagnosticEvidenceR64 {
                             String column = columns.getString(1);
                             schema.put(new JSONObject().put("name",column).put("type",columns.getString(2))
                                     .put("notNull",columns.getInt(3)!=0).put("primaryKeyOrder",columns.getInt(5)));
-                            if (!column.matches("state|status|kind|stage|settled|terminal_code|failure_class")) continue;
+                            if (count == 0 || !GROUP_COLUMNS.contains(column)) continue;
                             groupColumns.add(column);
                         }
                     }
@@ -102,12 +115,11 @@ public final class ReportDiagnosticEvidenceR64 {
                     com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.SPEC,
                     com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.FROZEN_SOURCE}) {
                 checkpoint(control);
-                try (Cursor exists = snapshot.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", new String[]{table})) {
-                    if (!exists.moveToFirst()) {
-                        if(!first)out.write(',');first=false;
-                        out.write(new JSONObject().put("table",table).put("status","MISSING_SCHEMA").put("complete",false).toString());
-                        continue;
-                    }
+                Long totalRows = tableCounts.get(table);
+                if (totalRows == null) {
+                    if(!first)out.write(',');first=false;
+                    out.write(new JSONObject().put("table",table).put("status","MISSING_SCHEMA").put("complete",false).toString());
+                    continue;
                 }
                 java.util.ArrayList<String> columns = new java.util.ArrayList<>();
                 try (Cursor info = snapshot.rawQuery("PRAGMA table_info(" + ident(table) + ")", null)) {
@@ -122,10 +134,9 @@ public final class ReportDiagnosticEvidenceR64 {
                 // CursorWindow. Text is streamed losslessly from this same snapshot.
                 // R13-P33: above 20,000 rows export the last 5,000 in explicit stable table order;
                 // the full table remains available through the explicit raw-evidence export.
-                long totalRows;try(Cursor total=snapshot.rawQuery("SELECT COUNT(*) FROM "+ident(table),null)){if(!total.moveToFirst())throw new IOException("R66_METADATA_ROW_COUNT_MISSING:"+table);totalRows=total.getLong(0);}
                 boolean bounded=totalRows>20000;
                 out.write("{\"table\":"+JSONObject.quote(table)+",\"columns\":"+new org.json.JSONArray(columns).toString()+",\"scope\":"+JSONObject.quote(bounded?"LAST_5000_IN_STABLE_TABLE_ORDER":"ALL_ROWS_FULL_METADATA_TEXT")+",\"rowOrder\":"+JSONObject.quote(ReportMetadataStreamR81.rowOrder(snapshot,table))+",\"rows\":[");
-                long exportedRows=bounded?ReportMetadataStreamR81.writeLastRows(snapshot,table,columns,out,control,5000):ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control);
+                long exportedRows=totalRows==0?0:bounded?ReportMetadataStreamR81.writeLastRows(snapshot,table,columns,out,control,5000,totalRows):ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control);
                 if(exportedRows!=(bounded?5000:totalRows))throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
                 out.write("],\"exportedRows\":"+exportedRows+",\"totalRows\":"+totalRows+",\"complete\":"+(exportedRows==totalRows)+"}");
             }
