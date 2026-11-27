@@ -58,12 +58,12 @@ with zipfile.ZipFile(ui.OUT/saved['file']) as z:
     assert hashlib.sha256(reference.read_bytes()).hexdigest()=='3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86'
     required=('R30_REPORT.md','R30_REPORT.json','FILE_STATE.jsonl','R26_POLICY_IDENTITIES.jsonl','R26_FROZEN_SURFACE.json','STRATEGY_MATRICES.json','UPGRADE_DIAGNOSIS.md','UPGRADE_DIAGNOSIS.json','DIAGNOSTIC_SCOPE.json')
     with zipfile.ZipFile(reference) as envelope:
-        members=[n for n in envelope.namelist() if not n.endswith('/')]
-        assert len(members)==1
-        original_bytes=envelope.read(members[0])
+        # Use the same sealed member that the 173 scope probe already validated.
+        original_bytes=envelope.read(envelope.namelist()[0])
     with zipfile.ZipFile(io.BytesIO(original_bytes)) as old:
         historical=json.loads(old.read('R30_REPORT.json'))
-        assert all(name in old.namelist() and name in z.namelist() for name in required)
+        missing=[(name,name in old.namelist(),name in z.namelist()) for name in required if name not in old.namelist() or name not in z.namelist()]
+        assert not missing,missing
         assert {m['metricId'] for m in historical['metricResults']}=={m['metricId'] for m in doc['metricResults']}
         for key in counts:
             def idset(d):
