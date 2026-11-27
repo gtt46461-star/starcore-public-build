@@ -64,6 +64,8 @@ with closing(sqlite3.connect(local)) as c:
     with zipfile.ZipFile(original) as outer, zipfile.ZipFile(io.BytesIO(outer.read(outer.namelist()[0]))) as archive:
         archive_scope=json.loads(archive.read('DIAGNOSTIC_SCOPE.json'))
         selected={section['table'] for section in archive_scope['recentEvidence'] if section['table'].startswith(('r80_probe_','research_long_'))}
+        # MultiHorizonProbe's read-only retained-original accounting joins the archive registry.
+        selected.add('research_evidence_archive_v2')
         ddl={}
         for member in sorted(n for n in archive.namelist() if re.fullmatch(r'catalog-\d+\.jsonl',n)):
             for line in archive.open(member):
@@ -218,7 +220,20 @@ try:
         assert 'snapshot.db' not in zip_saved.namelist() and 'installed-app.apk' not in zip_saved.namelist()
         assert 'DIAGNOSTIC_SCOPE.json' in zip_saved.namelist()
     result=dict(candidate,sourceCommit=new_source)
-
+except Exception:
+    print('STAGE_TIMES',json.dumps(events),flush=True)
+    link=root+'/current-job.json'
+    try:
+        job_id=json.loads(ci.adb(serial,'shell','cat',link))['jobId']
+        ack=json.loads(ci.adb(serial,'shell','cat',root+'/requests/'+job_id+'.ack.json'))
+        print('EXPORT_FAILURE',json.dumps({key:ack.get(key) for key in ('stage','reason','failurePhaseR32','failureDetailR32','reportSourcePreparation')}),flush=True)
+    except Exception as probe:
+        print('EVIDENCE_READ',str(probe)[:300],flush=True)
+    recent=ui.OUT/'field207-compact-progress.json'
+    if recent.is_file():
+        status=json.loads(recent.read_text())
+        print('DELIVERY_STATUS',str(status[-1])[:2000],flush=True)
+    raise
 finally:
     stop.set()
     monitor.join(timeout=6)
