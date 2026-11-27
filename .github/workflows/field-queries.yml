@@ -1,0 +1,21 @@
+name: Compare field coverage queries before and after the repair
+on:
+  push:
+    branches: ['repair/r343-rolling-rule-boundary-20261127']
+    paths: ['engineering/field-queries/**', '.github/workflows/field-queries.yml']
+permissions:
+  contents: read
+jobs:
+  sqlite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            engineering/field-queries
+            app/src/main/java/com/ethk3/novaonepro
+      - run: git fetch --depth=1 origin 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
+      - run: python3 -B engineering/field-queries/check.py
