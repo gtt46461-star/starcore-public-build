@@ -70,6 +70,19 @@ public final class Field173B12ReportTest {
                     ReportDiagnosticEvidenceR64.Column status=new ReportDiagnosticEvidenceR64.Column(columns);
                     checks.require("status".equals(status.name) && status.notNull==0 && status.primaryKeyOrder==0,"Compact catalog preserves nullability");
                 }
+                java.io.StringWriter space = new java.io.StringWriter();
+                StorageCensusSU2.writeSqliteSpaceR342(snapshot,space,new CancellationSignal());
+                JSONObject spaceReport=new JSONObject(space.toString());
+                checks.equal(spaceReport.getInt("objectDenominator"),spaceReport.getInt("objectsEnumerated"),"Every rooted object enumerated");
+                if(spaceReport.getBoolean("dbstatObjectCoverageComplete")){
+                    org.json.JSONArray objects=spaceReport.getJSONArray("dbstatObjects");
+                    for(int item=0;item<objects.length();item++){
+                        JSONObject entry=objects.getJSONObject(item);
+                        try(android.database.Cursor old=snapshot.rawQuery("SELECT sum(pgsize) FROM dbstat WHERE name=?",new String[]{entry.getString("object")})){
+                            checks.require(old.moveToFirst()&&!old.isNull(0)&&entry.getLong("btreePageBytes")==old.getLong(0),"Exact per-object storage bytes");
+                        }
+                    }
+                }
                 java.io.StringWriter cells=new java.io.StringWriter();
                 long count=ReportMetadataStreamR81.writeRows(snapshot,"scope_cells",java.util.Arrays.asList("id","value","body"),cells,()->true);
                 org.json.JSONArray evidence=new org.json.JSONArray("["+cells+"]");

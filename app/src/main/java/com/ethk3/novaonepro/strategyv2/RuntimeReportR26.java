@@ -65,12 +65,12 @@ public final class RuntimeReportR26 {
         return chapter;
     }
 
-    private static JSONArray subsequentChapters(SQLiteDatabase db,JSONObject source,JSONObject report)throws JSONException {
+    private static JSONArray subsequentChapters(SQLiteDatabase db,JSONObject source,JSONObject report,List<Map<String,Object>> captured)throws JSONException {
         JSONArray chapters=new JSONArray();
         String state="INSUFFICIENT",reason="R27 schema not initialised in this capture";
         if(SchemaR27.ready(db)){
             try{
-                for(Map<String,Object> chapter:ReportDataR27.chapters(db)){
+                for(Map<String,Object> chapter:captured==null?ReportDataR27.chapters(db):captured){
                     chapters.put(bindSnapshot(new JSONObject(JsonR27.write(chapter)),source));
                 }
                 return chapters;
@@ -137,20 +137,32 @@ public final class RuntimeReportR26 {
         try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='draws'",null)){if(c.moveToFirst())try(Cursor d=db.rawQuery("SELECT issue FROM draws ORDER BY issue DESC LIMIT 1",null)){if(d.moveToFirst())facts.put("asOfIssue",d.getString(0));}}
         JSONArray never=new JSONArray();try(Cursor c=db.rawQuery("SELECT mechanism,state,reason FROM r26_capability WHERE last_progress=0 ORDER BY mechanism",null)){while(c.moveToNext())never.put(new JSONObject().put("mechanism",c.getString(0)).put("state",c.getString(1)).put("reason",c.getString(2)));}facts.put("neverProgressed",never);return facts;
     }
-    public static String json(SQLiteDatabase db,JSONObject source){try{
+    public static String json(SQLiteDatabase db,JSONObject source){
+        return json(db,source,null);
+    }
+    public static String json(SQLiteDatabase db,JSONObject source,List<Map<String,Object>> capturedR27){try{
         long start=System.nanoTime();JSONObject root=new JSONObject();root.put("schema","R26_REPORT_2");root.put("metricRegistrySha256",ReportMetricContractR26.REGISTRY_SHA256);root.put("snapshotHash",source.opt("snapshotSha256"));root.put("sourceCommit",source.opt("sourceCommit"));root.put("apkHash",source.opt("apkSha256"));root.put("overallAcceptance","INCOMPLETE");root.put("naturalQuality","INSUFFICIENT");root.put("physicalDevice","NOT_RUN");JSONArray sections=new JSONArray();
         JSONObject facts=new JSONObject();try{facts=facts(db);}catch(Exception error){root.put("captureFactsError",error.toString());}
-        if(RuntimeSchemaR26.ready(db))try{root.put("strategyAssessment",StrategyAssessmentR26.snapshot(db));}catch(Exception error){root.put("strategyAssessmentError",error.toString());}
+        boolean runtimeReady=RuntimeSchemaR26.ready(db), r27Ready=SchemaR27.ready(db);
+        if(runtimeReady)try{root.put("strategyAssessment",StrategyAssessmentR26.snapshot(db));}catch(Exception error){root.put("strategyAssessmentError",error.toString());}
         if(facts.has("serviceTotals"))root.put("committedResearchService",facts.get("serviceTotals"));
-        JSONArray r27Chapters=subsequentChapters(db,source,root);
+        JSONArray r27Chapters=subsequentChapters(db,source,root,capturedR27);
         JSONObject r27Truth=r27Chapters.optJSONObject(0);
         if(r27Truth!=null&&!r27Truth.has("conclusionTemplate"))r27Truth=null;
         root.put("r27Schema",ReportR27.SCHEMA);
         for(String[] spec:SECTIONS){long chapterStart=System.nanoTime();JSONObject s=bindSnapshot(new JSONObject(),source);s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_2");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("asOfIssue",facts.opt("asOfIssue")==null?JSONObject.NULL:facts.get("asOfIssue"));s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
-            String sql=query(spec[0]);boolean r27Source=sql==null&&ReportDataR27.query(spec[0])!=null&&SchemaR27.ready(db);if(r27Source)sql=ReportDataR27.query(spec[0]);
+            String sql=query(spec[0]);boolean r27Source=sql==null&&ReportDataR27.query(spec[0])!=null&&r27Ready;if(r27Source)sql=ReportDataR27.query(spec[0]);
             JSONArray data=new JSONArray();long expectedRows=0;String status="NOT_RUN",reason="Full chapter acceptance evidence has not been collected; existing report catalog is retained";
             if(spec[0].equals("DEVICE"))reason=ReportDataR27.DEVICE_REASON;
-            if(sql!=null&&RuntimeSchemaR26.ready(db))try{try(Cursor count=db.rawQuery("SELECT count(*) FROM ("+sql+")",null)){if(count.moveToFirst())expectedRows=count.getLong(0);}data=rows(db,sql);status="PARTIAL";reason="Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation";}catch(Exception e){status="ERROR";reason=e.toString();JSONArray chain=new JSONArray();for(Throwable x=e;x!=null;x=x.getCause())chain.put(x.getClass().getName()+":"+x.getMessage());s.put("errorChain",chain);}
+            if(sql!=null&&runtimeReady)try{
+                // Small grouped results are common. Keep the exact denominator without evaluating them twice.
+                data=rows(db,sql);
+                expectedRows=data.length();
+                if(expectedRows==64)try(Cursor count=db.rawQuery("SELECT count(*) FROM ("+sql+")",null)){
+                    if(!count.moveToFirst())throw new IllegalStateException("REPORT_SECTION_COUNT_MISSING");
+                    expectedRows=count.getLong(0);
+                }
+                status="PARTIAL";reason="Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation";}catch(Exception e){status="ERROR";reason=e.toString();JSONArray chain=new JSONArray();for(Throwable x=e;x!=null;x=x.getCause())chain.put(x.getClass().getName()+":"+x.getMessage());s.put("errorChain",chain);}
             if(r27Source&&status.equals("PARTIAL")&&data.length()==0){status="INSUFFICIENT";reason="R27 data source is empty for this capture: "+sql;}
             if(spec[0].equals("CONCLUSION")&&r27Truth!=null){status="PARTIAL";reason="R27-01 data-selected conclusion template plus separate engineering/quality/mainline flags; never PASS";data.put(new JSONObject().put("conclusionTemplate",r27Truth.opt("conclusionTemplate")).put("conclusion",r27Truth.opt("conclusion")).put("engineeringPass",false).put("qualityPass",false).put("mainlinePass",false).put("reading","engineering/quality/mainline/device are signed separately (docs/12 12.4)"));}
             s.put("status",status);s.put("reason",reason);s.put("denominator",data.length());s.put("expectedRows",spec[0].equals("FAMILIES")?24:spec[0].equals("EXPERTS")?16:spec[0].equals("FAIR_CAPABILITY_SERVICE")?40:expectedRows);s.put("availableRows",expectedRows);s.put("exportedRows",data.length());s.put("omittedRows",Math.max(0,expectedRows-data.length()));boolean inventory=spec[0].equals("FAMILIES")||spec[0].equals("EXPERTS")||spec[0].equals("FAIR_CAPABILITY_SERVICE");s.put("missingInventoryRows",inventory?Math.max(0,s.getLong("expectedRows")-expectedRows):0);s.put("unexpectedInventoryRows",inventory?Math.max(0,expectedRows-s.getLong("expectedRows")):0);s.put("truncated",s.getLong("omittedRows")>0);s.put("metrics",data);s.put("requiredMetrics",new JSONArray(ReportMetricContractR26.metrics(spec[0])));if(spec[0].equals("FAMILIES")||spec[0].equals("EXPERTS")||spec[0].equals("FAIR_CAPABILITY_SERVICE")){s.put("capabilityNumericalAbi",facts.opt("capabilityNumericalAbi")==null?JSONObject.NULL:facts.get("capabilityNumericalAbi"));s.put("capabilityMatchesCaptureRule",!facts.has("capabilityNumericalAbi")||source.isNull("generatedRuleSha256")?JSONObject.NULL:facts.getString("capabilityNumericalAbi").equals(source.optString("generatedRuleSha256")));}s.put("metricResults",metricResults(spec[0],data,source,facts));if(spec[0].equals("EXPERTS"))s.put("rowGranularity","ONE_REGISTERED_EXPERT_WITH_LATEST_EXPERIMENT_AND_AUDIT; full history remains in SQLite snapshot");if((spec[0].equals("PERFORMANCE")||spec[0].equals("SLO_BUDGET"))&&facts.has("performance")){s.put("measurementPopulation","RESEARCH_SLICE_CPU_MS");s.put("metricDefinition",facts.getJSONObject("performance").getString("scope"));}s.put("elapsedMs",(System.nanoTime()-chapterStart)/1000000);sections.put(s);if(spec[0].equals("IDENTITY"))for(int r=0;r<r27Chapters.length();r++)sections.put(r27Chapters.get(r));

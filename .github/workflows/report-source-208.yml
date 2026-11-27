@@ -1,0 +1,33 @@
+name: Prepare verified report source 208
+on:
+  push:
+    branches: ['repair/report-208-field-snapshot']
+    paths: ['engineering/report208/**', '.github/workflows/report-source-208.yml']
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Generate production bindings from the exact 207 parent
+        env:
+          REPAIR_INPUT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          parent=71caea623e3787ee42fbdf5e72f4b1a7997ef8e1
+          branch=construction/r343-repair-20261126
+          git fetch -q --depth=1 origin "refs/heads/$branch"
+          [[ "$(git rev-parse FETCH_HEAD)" == "$parent" ]]
+          cp engineering/report208/prepare.py "$RUNNER_TEMP/prepare.py"
+          git switch --detach "$parent"
+          python3 -B "$RUNNER_TEMP/prepare.py"
+          git diff --check
+          git add -A -- app/src release verification/r343/corrections verification/r36-stubs
+          git add --force app/build/generated/r967/semantic_manifest.json app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+          git -c user.name='STARCORE release engineering' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Reuse immutable snapshot evidence in compressed reports and expose delivery progress'
+          git push origin "HEAD:refs/heads/$branch"
+          echo "SOURCE=$(git rev-parse HEAD)"

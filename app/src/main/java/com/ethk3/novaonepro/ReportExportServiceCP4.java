@@ -374,6 +374,7 @@ public final class ReportExportServiceCP4 extends Service {
                     CheckpointSourceScopeR31 checkpointSource=openCheckpointSourceR31(copy,getFilesDir());
                     com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ReaderRootLease keepSource=openKeepSourceR31(copy,getFilesDir())) {
                     if(!copy.isReadOnly())throw new IOException("REPORT_READONLY_SNAPSHOT_REQUIRED");
+                    active.onIndexSection("快照附件与来源");
                     if(snapshotValid)ReportAttachmentClosureCP12.appendComplete(directory,members,active);
                     else {
                         // The initial intent may have been claimed before its
@@ -402,6 +403,7 @@ public final class ReportExportServiceCP4 extends Service {
                         } finally { active.readCancellationR30=null; }
                         ctx.finishArtifacts();
                         catalogSourceFailures=ctx.sourceFailuresR341();
+                        active.onIndexSection("写入检测目录");
                         File readable=ReportCatalogCP4.writeReadableSummary(directory,catalog,active);ReportMemberPlanCP12.append(members,readable.getName(),readable.getName(),ReportArchiveCP4.hash(readable,active),readable.length());
                     }
                     if(request.optBoolean("includeRawEvidence", false)) {
@@ -410,23 +412,36 @@ public final class ReportExportServiceCP4 extends Service {
                         File scope = ReportDiagnosticEvidenceR64.write(copy, directory, job.snapshotSha, active, catalog);
                         ReportMemberPlanCP12.append(members,scope.getName(),scope.getName(),ReportArchiveCP4.hash(scope,active),scope.length());
                     }
+                    active.onIndexSection("应用文件清单");
                     File inventory=ReportDiagnosticEvidenceR64.writeFileInventory(getFilesDir().getParentFile(),directory,active);
                     // R13-P31: byte census by category on the first page of every report
                     File census=new File(directory,"STORAGE_CENSUS.txt");android.os.CancellationSignal spaceCancellation=new android.os.CancellationSignal();active.readCancellationR30=spaceCancellation;
                     try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(census,new java.io.FileOutputStream(census)),StandardCharsets.UTF_8)){
+                        active.onIndexSection("统计应用存储");
                         w.write(StorageCensusSU2.measure(getFilesDir().getParentFile(),java.util.Collections.<String>emptyList(),()->!active.shouldContinue()).line());w.write('\n');active.checkpoint();
+                        active.onIndexSection("统计快照数据库空间");
                         StorageCensusSU2.writeSqliteSpaceR342(copy,w,spaceCancellation);w.write('\n');
                     }finally{active.readCancellationR30=null;}
                     ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
-                    File r26Report=new File(directory,"R26_REPORT.json");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Report,new java.io.FileOutputStream(r26Report)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536))));}
-                    ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
-                    // R27-051: readable automatic R27 chapters and the summary used for "compare with previous report".
+                    active.onIndexSection("计算策略章节");
                     File r27Summary=new File(new File(getFilesDir(),"r27"),"last_report_summary.json");
                     File r27Report=new File(directory,"R27_REPORT.md");
+                    java.util.List<java.util.Map<String,Object>> r27Chapters=null;
+                    Exception r27ReadFailure=null;
                     try{
-                        if(r27Summary.isFile())com.ethk3.novaonepro.strategyv2.ReportDataR27.previousSummary=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(readR27Summary(r27Summary));
-                        java.util.List<java.util.Map<String,Object>> r27Chapters=com.ethk3.novaonepro.strategyv2.ReportDataR27.chapters(copy);
+                        com.ethk3.novaonepro.strategyv2.ReportDataR27.previousSummary=r27Summary.isFile()
+                            ?(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(readR27Summary(r27Summary)):null;
+                        r27Chapters=com.ethk3.novaonepro.strategyv2.ReportDataR27.chapters(copy);
+                    }catch(Exception failure){r27ReadFailure=failure;}
+                    active.onIndexSection("汇总运行与策略证据");
+                    File r26Report=new File(directory,"R26_REPORT.json");
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Report,new java.io.FileOutputStream(r26Report)),StandardCharsets.UTF_8)){
+                        w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(
+                                ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),r27Chapters));
+                    }
+                    ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
+                    try{
+                        if(r27ReadFailure!=null)throw r27ReadFailure;
                         try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r27Report,new java.io.FileOutputStream(r27Report)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdown(r27Chapters));}
                         Object summary=r27Chapters.isEmpty()?null:r27Chapters.get(0).get("summary");
                         if(summary!=null){r27Summary.getParentFile().mkdirs();ReportJobJournalCP12.writeAtomic(r27Summary,com.ethk3.novaonepro.strategyv2.JsonR27.write(summary));}
@@ -441,6 +456,7 @@ public final class ReportExportServiceCP4 extends Service {
                     performedChecks.put("catalogComplete",catalog.evidenceCatalogComplete);performedChecks.put("allPassed",catalog.allChecksPassed);
                     performedChecks.put("queryErrors",catalog.queryErrors);r30Source.put("checksR341",performedChecks);
                     r30Source.put("resourceObservationB01",ReportResourceObservationB01.readForReport(journal.root(),job));
+                    active.onIndexSection("读取运行故障样本");
                     r30Source.put("runtimeFaultHotColdR335",RuntimeFaultOriginalStoreR335.reportSample(copy,getFilesDir()));
                     r30Source.put("checkpointCasSource",checkpointSource.observation());
                     File r30Previous=new File(new File(getFilesDir(),"r30"),"last_successful_report_summary.json");
@@ -448,8 +464,12 @@ public final class ReportExportServiceCP4 extends Service {
                     catch(Exception unreadablePrevious){java.util.Map<String,Object> previousFailure=new java.util.LinkedHashMap<>();previousFailure.put("readStatus","UNKNOWN_PREVIOUS_SUMMARY_UNREADABLE");previousFailure.put("failureType",unreadablePrevious.getClass().getSimpleName());r30Source.put("previousSuccessfulReport",previousFailure);}
                     active.checkpoint();android.os.CancellationSignal r30ReadCancellation=new android.os.CancellationSignal();active.readCancellationR30=r30ReadCancellation;
                     java.util.List<java.util.Map<String,Object>> r30Chapters;
-                    try{r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.chapters(copy,r30Source,r30ReadCancellation);}finally{active.readCancellationR30=null;}
+                    active.onIndexSection("计算诊断指标与升级方向");
+                    try{r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.fromSnapshotR30(
+                            com.ethk3.novaonepro.strategyv2.ReportSnapshotR30.capture(copy,r30Source,r30ReadCancellation,
+                                    table->catalog.tableCount(copy,table)));}finally{active.readCancellationR30=null;}
                     active.checkpoint();
+                    active.onIndexSection("生成详细报告");
                     File r30Json=new File(directory,"R30_REPORT.json"),r30Markdown=new File(directory,"R30_REPORT.md");
                     java.util.Map<String,Object> r31Document=com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters);
                     ReportSemanticVerifierR31.validateDocument(r31Document,job);
@@ -458,18 +478,21 @@ public final class ReportExportServiceCP4 extends Service {
                     try(java.io.Writer w=new java.io.BufferedWriter(new java.io.OutputStreamWriter(active.protectOutput(r30Markdown,new java.io.FileOutputStream(r30Markdown)),StandardCharsets.UTF_8),16384)){ReportJsonWriterR31.markdownR30(r33ExportChapters,w);}
                     ReportMemberPlanCP12.append(members,r30Json.getName(),r30Json.getName(),ReportArchiveCP4.hash(r30Json,active),r30Json.length());
                     ReportMemberPlanCP12.append(members,r30Markdown.getName(),r30Markdown.getName(),ReportArchiveCP4.hash(r30Markdown,active),r30Markdown.length());
+                    active.onIndexSection("核对报告完整性");
                     File r31Receipt=ReportSemanticVerifierR31.writeReceipt(directory,r31Document,catalog,job,request.optBoolean("includeRawEvidence",false),active);
                     ReportMemberPlanCP12.append(members,r31Receipt.getName(),r31Receipt.getName(),ReportArchiveCP4.hash(r31Receipt,active),r31Receipt.length());
                     job.semanticVerificationR31="REQUIRES_ZIP_READBACK";
                     File r30SummaryCandidate=new File(directory,"R30_SUCCESSFUL_SUMMARY_CANDIDATE.json");
                     ReportJsonWriterR31.writeReportArtifactAtomic(r30SummaryCandidate,r30Chapters.get(11).get("successfulSummaryCandidate"));
                     ReportMemberPlanCP12.append(members,r30SummaryCandidate.getName(),r30SummaryCandidate.getName(),ReportArchiveCP4.hash(r30SummaryCandidate,active),r30SummaryCandidate.length());
+                    active.onIndexSection("策略身份清单");
                     File r26Identities=new File(directory,"R26_POLICY_IDENTITIES.jsonl");
                     com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
                     ReportMemberPlanCP12.append(members,r26Identities.getName(),r26Identities.getName(),ReportArchiveCP4.hash(r26Identities,active),r26Identities.length());
                     File r26Surface=new File(directory,"R26_FROZEN_SURFACE.json");
                     try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Surface,new java.io.FileOutputStream(r26Surface)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.FrozenSurfaceStoreR26.exportJson(copy));}
                     ReportMemberPlanCP12.append(members,r26Surface.getName(),r26Surface.getName(),ReportArchiveCP4.hash(r26Surface,active),r26Surface.length());
+                    active.onIndexSection("生成升级诊断");
                     String[] su2Diagnosis=com.ethk3.novaonepro.strategyv2.DiagnosisStoreSU2.report(copy);
                     @SuppressWarnings("unchecked")
                     java.util.Map<String,Object> repairDetail = (java.util.Map<String,Object>) r30Chapters.get(11).get("capabilityRepairR32");
@@ -477,10 +500,12 @@ public final class ReportExportServiceCP4 extends Service {
                     for(int su2i=0;su2i<2;su2i++){File diag=new File(directory,su2i==0?"UPGRADE_DIAGNOSIS.md":"UPGRADE_DIAGNOSIS.json");
                         try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(diag,new java.io.FileOutputStream(diag)),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
                         ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}
+                    active.onIndexSection("生成策略矩阵");
                     File su2Matrices=new File(directory,"STRATEGY_MATRICES.json");
                     try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(su2Matrices,new java.io.FileOutputStream(su2Matrices)),StandardCharsets.UTF_8)){ReportJsonWriterR31.write(com.ethk3.novaonepro.strategyv2.MatrixRegistryStoreR30.exportR34(copy),w);}
                     ReportMemberPlanCP12.append(members,su2Matrices.getName(),su2Matrices.getName(),ReportArchiveCP4.hash(su2Matrices,active),su2Matrices.length());
                     ReportMemberPlanCP12.append(members,inventory.getName(),inventory.getName(),ReportArchiveCP4.hash(inventory,active),inventory.length());
+                    active.onIndexSection("核对压缩成员");
                     for(File page:catalog.indexFiles)ReportMemberPlanCP12.append(members,page.getName(),"catalog/"+page.getName(),ReportArchiveCP4.hash(page,active),page.length());
                     File renderRefs=new File(directory,"render-artifacts.jsonl");if(renderRefs.exists())try(ReportArchiveVerifierCP12.LineReader refs=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(renderRefs),8192)){byte[] line;while((line=refs.next())!=null){active.checkpoint();members.write(new String(line,StandardCharsets.UTF_8));}}
                     members.flush();fd.getFD().sync();
@@ -489,6 +514,7 @@ public final class ReportExportServiceCP4 extends Service {
                 job.allChecksPassed=catalog.allChecksPassed;
                 journal.transition(job,ReportJobJournalCP12.Stage.INDEX_DURABLE,System.currentTimeMillis());
                 // Android snapshot connection is closed before the next native allocation stage.
+                active.onIndexSection("整理压缩清单");
                 File sorted=ReportMemberPlanCP12.sort(directory,memberInput,active);long plannedRaw=0,plannedMembers=0;
                 try(ReportArchiveVerifierCP12.LineReader plan=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)){byte[] row;while((row=plan.next())!=null){active.checkpoint();JSONObject member=new JSONObject(new String(row,StandardCharsets.UTF_8));plannedRaw=Math.addExact(plannedRaw,member.getLong("bytes"));plannedMembers++;}}
                 active.reserveArchiveWorkspaceR335(ReportPhaseBudgetR31.archiveFuture(plannedRaw,plannedMembers));
@@ -860,6 +886,14 @@ public final class ReportExportServiceCP4 extends Service {
             long now=SystemClock.elapsedRealtime();
             timing.progress(now);
             sampleStage(now,false);
+        }
+        @Override public void onIndexSection(String section) {
+            activeCheck="";
+            indexSection=section;
+            completedIndexEntries=0;
+            long now=SystemClock.elapsedRealtime();
+            timing.progress(now);
+            sampleStage(now,true);
         }
         @Override public void onIndexProgress(String section,long completed) {
             long now=SystemClock.elapsedRealtime();

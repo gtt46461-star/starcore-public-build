@@ -71,7 +71,7 @@ public final class StorageCensusSU2 {
         if(scopes==null||scopes.size()>65)throw new IllegalArgumentException("STORAGE_SCOPE_BOUND");for(String scope:scopes){if(scope==null||scope.isEmpty()||scope.startsWith("/")||scope.contains("..")||scope.indexOf('\\')>=0)throw new IllegalArgumentException("STORAGE_SCOPE_PATH");c.scopeBytes.put(scope,0L);c.allocatedScopeBytes.put(scope,0L);}
         PriorityQueue<Entry> top = new PriorityQueue<>(8, Comparator.comparingLong(a -> a.bytes));
         File canonicalRoot;try{canonicalRoot=appDataDir.getCanonicalFile();}catch(java.io.IOException|SecurityException unresolved){c.truncated=true;c.incompleteReasons.add("ROOT_CANONICAL_PATH_UNRESOLVED");c.sampleFinishedAt=System.currentTimeMillis();c.finishedMonotonicNanos=System.nanoTime();return c;}
-        recordAllocated(c,canonicalRoot,"");
+        recordAllocated(c,"",Allocated.bytes(canonicalRoot));
         final class Frame {final DirectoryCursorR31 cursor;final String relative;final int depth;Frame(File directory,String relative,int depth)throws java.io.IOException{cursor=DirectoryCursorR31.open(directory);this.relative=relative;this.depth=depth;}}
         Deque<Frame> stack=new ArrayDeque<>();
         try {
@@ -85,10 +85,16 @@ public final class StorageCensusSU2 {
                 String r=frame.relative.isEmpty()?k.getName():frame.relative+"/"+k.getName();
                 try {
                     if(!k.getAbsoluteFile().equals(k.getCanonicalFile())){if(r.equals("lib"))c.excludedInstallationLinks++;else{c.truncated=true;c.incompleteReasons.add("SYMLINK_NOT_FOLLOWED");}continue;}
-                    recordAllocated(c,k,r);
-                    if(k.isDirectory()){if(frame.depth>=12){c.truncated=true;c.incompleteReasons.add("DEPTH_BUDGET_12");}else stack.push(new Frame(k,r,frame.depth+1));continue;}
-                    if(!k.isFile()){c.truncated=true;c.incompleteReasons.add("UNRESOLVED_FILE_TYPE");continue;}
-                    long len=k.length();String cat=category(r);c.bytes.put(cat,Math.addExact(c.bytes.get(cat),len));c.total=Math.addExact(c.total,len);
+                    EntryStat stat=Allocated.readEntry(k);
+                    // lstat supplies the type, length and blocks from one observation on Android.
+                    // The canonical ancestor check above still applies to each entry.
+                    if(stat!=null&&stat.kind==0120000){
+                        c.truncated=true;c.incompleteReasons.add("SYMLINK_NOT_FOLLOWED");continue;
+                    }
+                    recordAllocated(c,r,stat==null?Allocated.bytes(k):stat.allocated);
+                    if(stat==null?k.isDirectory():stat.kind==0040000){if(frame.depth>=12){c.truncated=true;c.incompleteReasons.add("DEPTH_BUDGET_12");}else stack.push(new Frame(k,r,frame.depth+1));continue;}
+                    if(!(stat==null?k.isFile():stat.kind==0100000)){c.truncated=true;c.incompleteReasons.add("UNRESOLVED_FILE_TYPE");continue;}
+                    long len=stat==null?k.length():stat.length;String cat=category(r);c.bytes.put(cat,Math.addExact(c.bytes.get(cat),len));c.total=Math.addExact(c.total,len);
                     c.protectionBytes.merge(protection(r,cat),len,Math::addExact);
                     for(String scope:c.scopeBytes.keySet())if(r.equals(scope)||r.startsWith(scope+"/"))c.scopeBytes.put(scope,Math.addExact(c.scopeBytes.get(scope),len));
                     c.detailBytes.merge(detail(r),len,Long::sum);top.add(new Entry(r,len));if(top.size()>8)top.poll();
@@ -103,20 +109,41 @@ public final class StorageCensusSU2 {
     }
     /** Native kernel allocation on Android. Host/JDK absence is UNKNOWN, never invented as file length. */
     static long allocatedBytes(File file){return Allocated.bytes(file);}
-    private static void recordAllocated(Census census,File file,String relative){
-        long bytes=Allocated.bytes(file);if(bytes<0){census.allocatedBytesKnown=false;return;}
+    private static void recordAllocated(Census census,String relative,long bytes){
+        if(bytes<0){census.allocatedBytesKnown=false;return;}
         try{census.allocatedFileAndDirectoryBytes=Math.addExact(census.allocatedFileAndDirectoryBytes,bytes);
             String category=relative.isEmpty()?"OTHER":category(relative);
             census.allocatedCategories.put(category,Math.addExact(census.allocatedCategories.get(category),bytes));
             for(String scope:census.allocatedScopeBytes.keySet())if(relative.equals(scope)||relative.startsWith(scope+"/"))census.allocatedScopeBytes.put(scope,Math.addExact(census.allocatedScopeBytes.get(scope),bytes));
         }catch(ArithmeticException overflow){census.allocatedBytesKnown=false;census.incompleteReasons.add("ALLOCATED_BYTES_OVERFLOW");}
     }
+    private static final class EntryStat {
+        final int kind;final long length,allocated;
+        EntryStat(int kind,long length,long allocated){this.kind=kind;this.length=length;this.allocated=allocated;}
+    }
     private static final class Allocated {
+        static final java.lang.reflect.Method LSTAT;
+        static final java.lang.reflect.Field MODE,SIZE;
         static final java.lang.reflect.Method STAT;static final java.lang.reflect.Field BLOCKS;
         static{java.lang.reflect.Method stat=null;java.lang.reflect.Field blocks=null;
             String vm=System.getProperty("java.vm.name","").toLowerCase(Locale.ROOT),runtime=System.getProperty("java.runtime.name","").toLowerCase(Locale.ROOT);
             if(vm.contains("dalvik")||runtime.contains("android"))try{stat=Class.forName("android.system.Os").getMethod("stat",String.class);blocks=Class.forName("android.system.StructStat").getField("st_blocks");}catch(ReflectiveOperationException|LinkageError|SecurityException unavailable){stat=null;blocks=null;}
+            java.lang.reflect.Method lstat=null;java.lang.reflect.Field mode=null,size=null;
+            if(stat!=null&&blocks!=null)try{
+                mode=blocks.getDeclaringClass().getField("st_mode");
+                size=blocks.getDeclaringClass().getField("st_size");
+                lstat=stat.getDeclaringClass().getMethod("lstat",String.class);
+            }catch(ReflectiveOperationException|SecurityException unavailable){lstat=null;}
+            LSTAT=lstat;MODE=mode;SIZE=size;
             STAT=stat;BLOCKS=blocks;
+        }
+        static EntryStat readEntry(File file)throws java.io.IOException {
+            if(LSTAT==null)return null;
+            try{
+                Object stat=LSTAT.invoke(null,file.getPath());
+                long blocks=BLOCKS.getLong(stat);
+                return new EntryStat(MODE.getInt(stat)&0170000,SIZE.getLong(stat),blocks<0?-1:Math.multiplyExact(blocks,512L));
+            }catch(ReflectiveOperationException failure){throw new java.io.IOException("ENTRY_STAT_FAILED",failure);}
         }
         static long bytes(File file){if(STAT==null)return -1;try{long blocks=BLOCKS.getLong(STAT.invoke(null,file.getPath()));return blocks<0?-1:Math.multiplyExact(blocks,512L);}catch(ReflectiveOperationException|RuntimeException unavailable){return -1;}}
     }
@@ -137,6 +164,11 @@ public final class StorageCensusSU2 {
             dbstatSupported=false;
             meta.put("dbstatReason",unavailable.getClass().getSimpleName());
         }
+        boolean aggregate=false;
+        if(dbstatSupported)try(android.database.Cursor probe=copy.rawQuery(
+                "SELECT aggregate FROM dbstat WHERE aggregate=1 LIMIT 0",null,cancellation)){
+            probe.moveToFirst();aggregate=true;
+        }catch(android.database.sqlite.SQLiteException legacy){/* SQLite versions before aggregate mode. */}
         out.write("{\"dbstatObjects\":[");
         String after="";
         while(observed<total){
@@ -153,8 +185,9 @@ public final class StorageCensusSU2 {
                 List<String> names=new ArrayList<>(page.size());
                 for(String[] object:page)names.add(object[0]);
                 String placeholders=String.join(",",Collections.nCopies(names.size(),"?"));
-                try(android.database.Cursor sizes=copy.rawQuery("SELECT name,sum(pgsize) FROM dbstat "
-                        +"WHERE name IN ("+placeholders+") GROUP BY name",names.toArray(new String[0]),cancellation)){
+                String sizesSql=aggregate?"SELECT name,pgsize FROM dbstat WHERE aggregate=1 AND name IN ("+placeholders+")"
+                        :"SELECT name,sum(pgsize) FROM dbstat WHERE name IN ("+placeholders+") GROUP BY name";
+                try(android.database.Cursor sizes=copy.rawQuery(sizesSql,names.toArray(new String[0]),cancellation)){
                     while(sizes.moveToNext())pageBytes.put(sizes.getString(0),sizes.getLong(1));
                 }catch(android.database.sqlite.SQLiteException unavailable){
                     dbstatSupported=false;
