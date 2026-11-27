@@ -38,7 +38,7 @@ jobs:
             sleep 30
           done
           for i in 1 2 3 4; do
-            if gh run download 45925134691 --repo "$GITHUB_REPOSITORY" --name "$asset" --dir "$RUNNER_TEMP/signed" --clobber; then break; fi
+            if gh run download 45925134691 --repo "$GITHUB_REPOSITORY" --name "$asset" --dir "$RUNNER_TEMP/received-$i"; then mv "$RUNNER_TEMP/received-$i" "$RUNNER_TEMP/signed"; break; fi
             sleep 10
           done
           mapfile -t apks < <(find "$RUNNER_TEMP/signed" -name '*.apk')
