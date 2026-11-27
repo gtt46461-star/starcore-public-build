@@ -238,6 +238,15 @@ with ExitStack() as stack:
         if ident in ("CONTINUOUS_RUNTIME","BACKGROUND","FAILURES","EVOLUTION","TRAINING","FREEZE") and isinstance(metrics,list):
             clean=[{k:context_value(v) for k,v in r.items() if k in {"task_id","status","lane","cursor","steps","last_progress","blocked_reason","message","recorded_at","error_class","dev_n","val_n","policy_hash","attempts","structuralCandidates"}} for r in metrics if isinstance(r,dict)]
             emit("PHYSICAL_R26_SECTION",{"id":ident,"available":component.get("availableRows"),"metrics":clean})
+            if ident=="CONTINUOUS_RUNTIME":
+                for row in metrics:
+                    if row.get("task_id") in safe_task_ids:
+                        reason=row.get("blocked_reason","")
+                        emit("R26_TASK_OWNER",{"task":row["task_id"],"state":row.get("status"),"steps":row.get("steps"),"cursor":row.get("cursor"),"lastProgress":row.get("last_progress"),"reason":context_value(reason),
+                          "reasonTokens":re.findall(r"\b[A-Z][A-Z0-9_]{3,70}\b",reason)[:12] if isinstance(reason,str) else []})
+    for item in scope.get("tables",[]):
+        if str(item.get("name",item.get("table",""))).startswith("r34_cold"):
+            emit("COLD_LEDGER",{"table":item.get("name",item.get("table")),"rows":item.get("rows",item.get("rowCount")),"fields":sorted(item)})
     for m in members:
         if not re.fullmatch(r"catalog-\d+\.jsonl", m.filename): continue
         for raw in archive.open(m):
