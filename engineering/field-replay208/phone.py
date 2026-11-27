@@ -63,6 +63,20 @@ with closing(sqlite3.connect(local)) as c:
     assert ci.sha(original)=='3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86'
     with zipfile.ZipFile(original) as outer, zipfile.ZipFile(io.BytesIO(outer.read(outer.namelist()[0]))) as archive:
         archive_scope=json.loads(archive.read('DIAGNOSTIC_SCOPE.json'))
+        selected={section['table'] for section in archive_scope['recentEvidence'] if section['table'].startswith(('r80_probe_','research_long_'))}
+        ddl={}
+        for member in sorted(n for n in archive.namelist() if re.fullmatch(r'catalog-\d+\.jsonl',n)):
+            for line in archive.open(member):
+                row=json.loads(line)
+                if row['kind']=='schema_object' and row['type'] in ('table','index') and row['table'] in selected and not row['sql_null']:
+                    ddl[row['type'],row['name']]=[]
+                elif row['kind']=='schema_sql_chunk' and (row['type'],row['name']) in ddl:
+                    ddl[row['type'],row['name']].append((row['start_char'],row['text']))
+        for (kind,name),chunks in sorted(ddl.items(),key=lambda item:item[0][0]!='table'):
+            if not c.execute('SELECT 1 FROM sqlite_master WHERE type=? AND name=?',(kind,name)).fetchone():
+                sql=''.join(text for pos,text in sorted(chunks))
+                assert sql.upper().startswith('CREATE ') and kind.upper() in sql.upper()[:30]
+                c.execute(sql)
     archived={}
     for section in archive_scope['recentEvidence']:
         name=section['table']
