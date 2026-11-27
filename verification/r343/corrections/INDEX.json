@@ -601,6 +601,121 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportSchemaSourceProviderR335.java",
       "reason": "The signed 200 APK report job remained CLAIMED at PREPARE_REGISTERED_REPORT_SOURCES through the 240-second trace, before it acquired a database snapshot. Bound each synchronous provider request and the whole optional preparation window, check cancellation while waiting, permit at most one outstanding provider operation, and record the actual failure reason before continuing from an intact database with the original report checks.",
       "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-report-large-backup-202/DeferredWaitR34.java.snapshot",
+      "afterSha256": "a76ae35fdb2f3c4d81bca813a7fa1076e2b5933fe5b1312fee345363a8f74d24",
+      "batch": "B12",
+      "beforeSha256": "901c5d5621d52ee9d59d4dbd6562f4e8b78032485dde3143f07aa8224dd16630",
+      "issue": "R343-044",
+      "originals": {
+        "B12-report-large-backup-202/DeferredWaitR34.java.before.snapshot": "901c5d5621d52ee9d59d4dbd6562f4e8b78032485dde3143f07aa8224dd16630",
+        "B12-report-large-backup-202/DeferredWaitR34.java.snapshot": "a76ae35fdb2f3c4d81bca813a7fa1076e2b5933fe5b1312fee345363a8f74d24",
+        "B12-report-large-backup-202/FieldSizeCopy.java": "4aa7bd480555f15bb05db462558afc01078d5eb10d3fbf482ef03979e24ec086",
+        "B12-report-large-backup-202/WriterAdmissionProbe.java": "586b43370b3ef85b48431cb52c5be154efdc058a85852725c7ad852e70c4b2f2",
+        "B12-report-large-backup-202/copy-fixture.log": "fc0a14e7565b0c747f3d753e34e33fe29eb7187997ed2793d3031718f11fd89c",
+        "B12-report-large-backup-202/field-db.log": "37a170289194174bc48b552f15e023e105f4bec8977bab0431fbfa9c38bb52dc",
+        "B12-report-large-backup-202/fielddb.py": "445aacd4fdae3b5c5281244324340de692237caa3b564b72de309f29510dd947",
+        "B12-report-large-backup-202/large-snapshot-probe.log": "318524bb2f038d4e2fb0d63fc31064222dc376e98c5cf5bab5dd03979676e064",
+        "B12-report-large-backup-202/production.patch": "c3b261b8ce13f0781be34a9bfcc79bc86ab92912fed1641664db87cde58c18f5",
+        "B12-report-large-backup-202/writer-after.log": "7defa4703dd66a6155290ad88c5fd424d3e9352150619d89b07df3edd1d268a1",
+        "B12-report-large-backup-202/writer-before.log": "a755f86fee728e6a5da1a4efb9236f87412e962328443e4899757c090d1c8777"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java",
+      "reason": "Field 201 reported 2,289.6 MiB hashed, a stale input-pin error, two missing request bodies and repeated rolled-back R36 writer admissions. Reuse the pinned-copy capacity grant with per-step free-space checks and final block reconciliation, bind archive members to planned hashes, retain exact FIFO failure ownership and recognize the current explicit writer queue wait. Preserve verification, cancellation and independent failure receipts.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-report-large-backup-202/ReportArchiveCP4.java.snapshot",
+      "afterSha256": "6fd6c7e98a2318ffce33c779019860c156f8171be89b5edcef0c60997f06caff",
+      "batch": "B12",
+      "beforeSha256": "973dd2c8c148146e15656fb2b6202d57d02956b71932c4f6bbe166b997541b46",
+      "issue": "R343-044",
+      "originals": {
+        "B12-report-large-backup-202/FieldSizeCopy.java": "4aa7bd480555f15bb05db462558afc01078d5eb10d3fbf482ef03979e24ec086",
+        "B12-report-large-backup-202/ReportArchiveCP4.java.before.snapshot": "973dd2c8c148146e15656fb2b6202d57d02956b71932c4f6bbe166b997541b46",
+        "B12-report-large-backup-202/ReportArchiveCP4.java.snapshot": "6fd6c7e98a2318ffce33c779019860c156f8171be89b5edcef0c60997f06caff",
+        "B12-report-large-backup-202/WriterAdmissionProbe.java": "586b43370b3ef85b48431cb52c5be154efdc058a85852725c7ad852e70c4b2f2",
+        "B12-report-large-backup-202/copy-fixture.log": "fc0a14e7565b0c747f3d753e34e33fe29eb7187997ed2793d3031718f11fd89c",
+        "B12-report-large-backup-202/field-db.log": "37a170289194174bc48b552f15e023e105f4bec8977bab0431fbfa9c38bb52dc",
+        "B12-report-large-backup-202/fielddb.py": "445aacd4fdae3b5c5281244324340de692237caa3b564b72de309f29510dd947",
+        "B12-report-large-backup-202/large-snapshot-probe.log": "318524bb2f038d4e2fb0d63fc31064222dc376e98c5cf5bab5dd03979676e064",
+        "B12-report-large-backup-202/production.patch": "c3b261b8ce13f0781be34a9bfcc79bc86ab92912fed1641664db87cde58c18f5",
+        "B12-report-large-backup-202/writer-after.log": "7defa4703dd66a6155290ad88c5fd424d3e9352150619d89b07df3edd1d268a1",
+        "B12-report-large-backup-202/writer-before.log": "a755f86fee728e6a5da1a4efb9236f87412e962328443e4899757c090d1c8777"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java",
+      "reason": "Field 201 reported 2,289.6 MiB hashed, a stale input-pin error, two missing request bodies and repeated rolled-back R36 writer admissions. Reuse the pinned-copy capacity grant with per-step free-space checks and final block reconciliation, bind archive members to planned hashes, retain exact FIFO failure ownership and recognize the current explicit writer queue wait. Preserve verification, cancellation and independent failure receipts.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-report-large-backup-202/ReportExportServiceCP4.java.snapshot",
+      "afterSha256": "b7b706e897a9bc7f3028d7de31b8042fa2a10addde4969dc773b8162e9f72288",
+      "batch": "B12",
+      "beforeSha256": "ada130ae9249303e639ff24792b9e80d89bf85f0268847c9ae0d7e69f6c5fa81",
+      "issue": "R343-044",
+      "originals": {
+        "B12-report-large-backup-202/FieldSizeCopy.java": "4aa7bd480555f15bb05db462558afc01078d5eb10d3fbf482ef03979e24ec086",
+        "B12-report-large-backup-202/ReportExportServiceCP4.java.before.snapshot": "ada130ae9249303e639ff24792b9e80d89bf85f0268847c9ae0d7e69f6c5fa81",
+        "B12-report-large-backup-202/ReportExportServiceCP4.java.snapshot": "b7b706e897a9bc7f3028d7de31b8042fa2a10addde4969dc773b8162e9f72288",
+        "B12-report-large-backup-202/WriterAdmissionProbe.java": "586b43370b3ef85b48431cb52c5be154efdc058a85852725c7ad852e70c4b2f2",
+        "B12-report-large-backup-202/copy-fixture.log": "fc0a14e7565b0c747f3d753e34e33fe29eb7187997ed2793d3031718f11fd89c",
+        "B12-report-large-backup-202/field-db.log": "37a170289194174bc48b552f15e023e105f4bec8977bab0431fbfa9c38bb52dc",
+        "B12-report-large-backup-202/fielddb.py": "445aacd4fdae3b5c5281244324340de692237caa3b564b72de309f29510dd947",
+        "B12-report-large-backup-202/large-snapshot-probe.log": "318524bb2f038d4e2fb0d63fc31064222dc376e98c5cf5bab5dd03979676e064",
+        "B12-report-large-backup-202/production.patch": "c3b261b8ce13f0781be34a9bfcc79bc86ab92912fed1641664db87cde58c18f5",
+        "B12-report-large-backup-202/writer-after.log": "7defa4703dd66a6155290ad88c5fd424d3e9352150619d89b07df3edd1d268a1",
+        "B12-report-large-backup-202/writer-before.log": "a755f86fee728e6a5da1a4efb9236f87412e962328443e4899757c090d1c8777"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "reason": "Field 201 reported 2,289.6 MiB hashed, a stale input-pin error, two missing request bodies and repeated rolled-back R36 writer admissions. Reuse the pinned-copy capacity grant with per-step free-space checks and final block reconciliation, bind archive members to planned hashes, retain exact FIFO failure ownership and recognize the current explicit writer queue wait. Preserve verification, cancellation and independent failure receipts.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-report-large-backup-202/ReportRequestQueueCP12.java.snapshot",
+      "afterSha256": "be8d9ae4b27fb2d17effa8f84cc75dbd1c0e5867f96331e97ef8e662aea6f4ed",
+      "batch": "B12",
+      "beforeSha256": "9429b7424603ab4b6ec3bcf3c67cb2aeb1555b7ba725b4895595c5355b1df6e7",
+      "issue": "R343-044",
+      "originals": {
+        "B12-report-large-backup-202/FieldSizeCopy.java": "4aa7bd480555f15bb05db462558afc01078d5eb10d3fbf482ef03979e24ec086",
+        "B12-report-large-backup-202/ReportRequestQueueCP12.java.before.snapshot": "9429b7424603ab4b6ec3bcf3c67cb2aeb1555b7ba725b4895595c5355b1df6e7",
+        "B12-report-large-backup-202/ReportRequestQueueCP12.java.snapshot": "be8d9ae4b27fb2d17effa8f84cc75dbd1c0e5867f96331e97ef8e662aea6f4ed",
+        "B12-report-large-backup-202/WriterAdmissionProbe.java": "586b43370b3ef85b48431cb52c5be154efdc058a85852725c7ad852e70c4b2f2",
+        "B12-report-large-backup-202/copy-fixture.log": "fc0a14e7565b0c747f3d753e34e33fe29eb7187997ed2793d3031718f11fd89c",
+        "B12-report-large-backup-202/field-db.log": "37a170289194174bc48b552f15e023e105f4bec8977bab0431fbfa9c38bb52dc",
+        "B12-report-large-backup-202/fielddb.py": "445aacd4fdae3b5c5281244324340de692237caa3b564b72de309f29510dd947",
+        "B12-report-large-backup-202/large-snapshot-probe.log": "318524bb2f038d4e2fb0d63fc31064222dc376e98c5cf5bab5dd03979676e064",
+        "B12-report-large-backup-202/production.patch": "c3b261b8ce13f0781be34a9bfcc79bc86ab92912fed1641664db87cde58c18f5",
+        "B12-report-large-backup-202/writer-after.log": "7defa4703dd66a6155290ad88c5fd424d3e9352150619d89b07df3edd1d268a1",
+        "B12-report-large-backup-202/writer-before.log": "a755f86fee728e6a5da1a4efb9236f87412e962328443e4899757c090d1c8777"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
+      "reason": "Field 201 reported 2,289.6 MiB hashed, a stale input-pin error, two missing request bodies and repeated rolled-back R36 writer admissions. Reuse the pinned-copy capacity grant with per-step free-space checks and final block reconciliation, bind archive members to planned hashes, retain exact FIFO failure ownership and recognize the current explicit writer queue wait. Preserve verification, cancellation and independent failure receipts.",
+      "role": "NUMERIC"
+    },
+    {
+      "afterFile": "B12-report-large-backup-202/StorageBudgetR31.java.snapshot",
+      "afterSha256": "d27f7c8b9168888b55ef72bdd575e5a34059a98f6de886fbeedb86140ec9463d",
+      "batch": "B12",
+      "beforeSha256": "441e41cfa95109b4602646d590c97e22d81d10f580d1a6dc618c44e24fe84511",
+      "issue": "R343-044",
+      "originals": {
+        "B12-report-large-backup-202/FieldSizeCopy.java": "4aa7bd480555f15bb05db462558afc01078d5eb10d3fbf482ef03979e24ec086",
+        "B12-report-large-backup-202/StorageBudgetR31.java.before.snapshot": "441e41cfa95109b4602646d590c97e22d81d10f580d1a6dc618c44e24fe84511",
+        "B12-report-large-backup-202/StorageBudgetR31.java.snapshot": "d27f7c8b9168888b55ef72bdd575e5a34059a98f6de886fbeedb86140ec9463d",
+        "B12-report-large-backup-202/WriterAdmissionProbe.java": "586b43370b3ef85b48431cb52c5be154efdc058a85852725c7ad852e70c4b2f2",
+        "B12-report-large-backup-202/copy-fixture.log": "fc0a14e7565b0c747f3d753e34e33fe29eb7187997ed2793d3031718f11fd89c",
+        "B12-report-large-backup-202/field-db.log": "37a170289194174bc48b552f15e023e105f4bec8977bab0431fbfa9c38bb52dc",
+        "B12-report-large-backup-202/fielddb.py": "445aacd4fdae3b5c5281244324340de692237caa3b564b72de309f29510dd947",
+        "B12-report-large-backup-202/large-snapshot-probe.log": "318524bb2f038d4e2fb0d63fc31064222dc376e98c5cf5bab5dd03979676e064",
+        "B12-report-large-backup-202/production.patch": "c3b261b8ce13f0781be34a9bfcc79bc86ab92912fed1641664db87cde58c18f5",
+        "B12-report-large-backup-202/writer-after.log": "7defa4703dd66a6155290ad88c5fd424d3e9352150619d89b07df3edd1d268a1",
+        "B12-report-large-backup-202/writer-before.log": "a755f86fee728e6a5da1a4efb9236f87412e962328443e4899757c090d1c8777"
+      },
+      "path": "app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java",
+      "reason": "Field 201 reported 2,289.6 MiB hashed, a stale input-pin error, two missing request bodies and repeated rolled-back R36 writer admissions. Reuse the pinned-copy capacity grant with per-step free-space checks and final block reconciliation, bind archive members to planned hashes, retain exact FIFO failure ownership and recognize the current explicit writer queue wait. Preserve verification, cancellation and independent failure receipts.",
+      "role": "NUMERIC"
     }
   ],
   "schema": "STARCORE_FIELD173_SOURCE_CORRECTIONS_1"

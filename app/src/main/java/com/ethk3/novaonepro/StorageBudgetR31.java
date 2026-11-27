@@ -252,6 +252,13 @@ public final class StorageBudgetR31 {
                 row.charged=add(row.charged,bytes);writeState(state);return null;
             });
         }
+        /** Recheck external disk use within an already admitted pinned copy. */
+        synchronized void checkBackupFreeSpace(long remaining)throws IOException {
+            if(closed||!lifetime.isValid())throw new Rejected("OWNER_CLOSED").context(owner,fence,"BACKUP_SPACE");
+            if(remaining<0)throw new IllegalArgumentException("STORAGE_CHUNK");
+            if(add(add(remaining,config.freeFloor),config.metadataHeadroom)>available())
+                throw new Rejected("FREE_SPACE_RESERVE").context(owner,fence,"BACKUP_SPACE");
+        }
         /** Reserve a measured next phase before materialization; no physical bytes are reclaimed here. */
         public synchronized void ensureAdditional(long futureBytes,long maximumWritten,boolean transientWork)throws IOException{
             long retryDeadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(5);

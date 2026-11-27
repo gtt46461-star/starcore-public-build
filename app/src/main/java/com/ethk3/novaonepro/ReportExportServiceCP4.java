@@ -278,7 +278,6 @@ public final class ReportExportServiceCP4 extends Service {
             if(journal==null)return;
             journal.reconcileAcknowledgementsR31();
             ReportRequestQueueCP12.reconcileRequestsR31(journal.root());
-            String queued=ReportRequestQueueCP12.head(journal.root());if(queued!=null)currentRequest=queued;
             ReportTaskControlR69.applyPending(journal);
             ReportJobJournalCP12.Job publishedCleanup=journal.current();if(publishedCleanup!=null&&publishedCleanup.stage.equals("READY_TO_SHARE"))enqueueCleanupR31(journal,publishedCleanup);
             runCleanupR31(journal);
@@ -290,7 +289,12 @@ public final class ReportExportServiceCP4 extends Service {
             }
             requireDiagnosticProcess();ReportNativeCP4.loadForDiagnosticProcess(processName(),getPackageName());JSONObject request=null;
             if(job!=null&&isActive(job)){currentRequest=job.requestId;request=loadRequest(journal.root(),job.requestId);}
-            else {request=nextRequest(journal.root());if(request==null)return;
+            else {
+                String selected=ReportRequestQueueCP12.nextId(journal.root());
+                if(selected==null)return;
+                currentRequest=selected;
+                request=loadRequest(journal.root(),selected);
+                if(!selected.equals(request.getString("requestId")))throw new IOException("REPORT_REQUEST_INTENT_IDENTITY");
                 long now=System.currentTimeMillis();
                 if(observationPreparationPendingR31(request,now)){observationDelayR31=Math.max(1L,5000L-(now-request.optLong("createdWallMs",0)));return;}
                 String requestId=request.getString("requestId"),mode=request.getString("mode");requireHash(requestId);
@@ -358,7 +362,7 @@ public final class ReportExportServiceCP4 extends Service {
                     // Native backup pins BEGIN + schema_version before copying pages. Its
                     // read view is the start, not the end of a potentially two-minute copy.
                     job.snapshotWallMs=System.currentTimeMillis();
-                    active.backupTargetR31=snapshot;ReportNativeCP4.backup(getDatabasePath(AppConfig.DB_NAME),snapshot,SQLITE_BACKUP_BUDGET,active);
+                    active.copyPinnedSnapshot(getDatabasePath(AppConfig.DB_NAME),snapshot);
                     active.enter("SNAPSHOT_HASH",120000);
                     sync(snapshot);job.snapshotSha=ReportArchiveCP4.hash(snapshot,active);job.snapshotBytes=snapshot.length();
                     journal.transition(job,ReportJobJournalCP12.Stage.SNAPSHOT_DURABLE,System.currentTimeMillis());
@@ -484,8 +488,7 @@ public final class ReportExportServiceCP4 extends Service {
                 active.enter("COMPRESSING",120000);journal.transition(job,ReportJobJournalCP12.Stage.COMPRESSING,System.currentTimeMillis());
                 try(ReportArchiveCP4 writer=new ReportArchiveCP4(archive,job.jobId,active);ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {
                     byte[] line;while((line=rows.next())!=null){active.checkpoint();JSONObject member=new JSONObject(new String(line,StandardCharsets.UTF_8));File input=ReportArchiveVerifierCP12.inside(directory,member.getString("path"));
-                        if(input.length()!=member.getLong("bytes")||!member.getString("sha256").equals(ReportArchiveCP4.hash(input,active)))throw new IOException("REPORT_MEMBER_CHANGED");
-                        writer.add(member.getString("name"),input,NATIVE_BUDGET,active);}
+                        writer.addPlanned(member.getString("name"),input,member.getLong("bytes"),member.getString("sha256"),NATIVE_BUDGET,active);}
                     writer.finish(job.evidenceComplete,job.checksComplete,request.optBoolean("includeRawEvidence",false)?"FULL_REPORT_SINGLE_SNAPSHOT_AND_FROZEN_ATTACHMENTS":"COMPLETE_DIAGNOSTIC_R64_RAW_PAYLOADS_EXCLUDED");
                 }
                 journal.transition(job,ReportJobJournalCP12.Stage.VERIFYING,System.currentTimeMillis());publish(job,journal,directory,archive,active);journal.acknowledge(job.requestId,job);
@@ -568,7 +571,9 @@ public final class ReportExportServiceCP4 extends Service {
             active.enter("PREPARE_REGISTERED_REPORT_SOURCES",120000L);
             job.reportSourcePreparation=ReportSchemaSourceProviderR335.prepareBeforeSnapshot(this,active::checkpoint);
         }
-        return ReportInputsLeaseCP12.acquire(getFilesDir());
+        ReportInputsLeaseCP12 pin=ReportInputsLeaseCP12.acquire(getFilesDir());
+        if ("REPORT_INPUT_LEASE_BUSY".equals(job.lastReason)) job.lastReason="";
+        return pin;
     }
 
     private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal,ActiveControl active,boolean verifiedSnapshotReusable)throws Exception {
@@ -690,10 +695,6 @@ public final class ReportExportServiceCP4 extends Service {
         if(!"FULL_REPORT".equals(request.optString("mode"))||!"UNKNOWN_NOT_COLLECTED".equals(request.optString("observationState")))return false;
         long created=request.optLong("createdWallMs",0);
         return created>0&&wallNow>=created&&wallNow-created<5000;
-    }
-    private static JSONObject nextRequest(File root)throws Exception{
-        String id=ReportRequestQueueCP12.interactiveHead(root);if(id==null)id=ReportRequestQueueCP12.head(root);
-        return id==null?null:loadRequest(root,id);
     }
     /** At most one live preparation timer; no journal, SQLite or input lease is held. */
     boolean scheduleObservationRetryR31(long delayMs){
@@ -852,7 +853,7 @@ public final class ReportExportServiceCP4 extends Service {
             // BUSY/LOCKED retain the native bounded retry policy.
             if(nativeCode!=0&&nativeCode!=101&&nativeCode!=5&&nativeCode!=6)
                 stopR31("REPORT_BACKUP_FAILED|native="+nativeCode,new ReportNativeCP4.Failure("BACKUP",nativeCode));
-            try{settleBackupChunkR31();}catch(IOException|IllegalArgumentException|ArithmeticException failed){stopR31("REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED",failed);}
+            try{if(!copyingPinnedSnapshot)settleBackupChunkR31();}catch(IOException|IllegalArgumentException|ArithmeticException failed){stopR31("REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED",failed);}
             long now=SystemClock.elapsedRealtime();
             long copiedPages=Math.max(0L,totalPages-remainingPages);
             if((nativeCode==0||nativeCode==101)&&copiedPages>backupPages){backupPages=copiedPages;timing.progress(now);}
@@ -872,10 +873,32 @@ public final class ReportExportServiceCP4 extends Service {
             catch(IOException|IllegalArgumentException failed){throw new IOException("REPORT_BACKUP_ACCOUNTING|admitted="+backupChargeR31+"|before="+backupBeforeR31+"|after="+after+"|growth="+growth+"|reason="+(failed instanceof StorageBudgetR31.Rejected?((StorageBudgetR31.Rejected)failed).reason:failed.getClass().getSimpleName()),failed);}
             backupChargeR31=0;
         }
+        private boolean copyingPinnedSnapshot, pageCopyGrant;
+        private void copyPinnedSnapshot(File source,File target)throws IOException {
+            backupTargetR31=target;
+            copyingPinnedSnapshot=true;
+            try {
+                ReportNativeCP4.backup(source,target,SQLITE_BACKUP_BUDGET,this);
+                // Native has closed, normalized and synced the exclusive destination.
+                settleBackupChunkR31();
+            } finally {
+                copyingPinnedSnapshot=false;
+                pageCopyGrant=false;
+            }
+        }
         @Override public synchronized void beforeBackupChunk(long bytes)throws IOException{checkpoint();if(storageReservationR31==null)return;try{
-            // The native create/header grant has no matching progress callback.
-            // Settle it before replacing it with the first page-copy grant.
-            settleBackupChunkR31();backupBeforeR31=backupPhysicalR31();storageReservationR31.beforeChunk(bytes);backupChargeR31=bytes;
+            // Native reports the entire unallocated tail of the same pinned snapshot
+            // before each 100-page step. The first grant covers only file creation.
+            if(copyingPinnedSnapshot && pageCopyGrant && bytes<=backupChargeR31){
+                storageReservationR31.checkBackupFreeSpace(bytes);
+                return;
+            }
+            boolean pastHeader=backupChargeR31>0;
+            settleBackupChunkR31();
+            backupBeforeR31=backupPhysicalR31();
+            storageReservationR31.beforeChunk(bytes);
+            backupChargeR31=bytes;
+            pageCopyGrant=copyingPinnedSnapshot && pastHeader;
         }catch(IOException|RuntimeException error){stopR31(classify(error),error);throw error;}}
         @Override public boolean hasDiskAdmissionR31(){return storageReservationR31!=null;}
         @Override public void beforeOutputBytesR31(File file,long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");if(!shouldContinue())throw new InterruptedIOException(stopReason);storageReservationR31.beforeChunk(bytes);}

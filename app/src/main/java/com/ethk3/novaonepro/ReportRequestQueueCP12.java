@@ -7,6 +7,17 @@ public final class ReportRequestQueueCP12 {
  private interface Work<T>{T run(JSONObject queue)throws Exception;}
  public static void enqueue(File root,String id,String mode)throws Exception{hash(id);if(!mode.equals("FULL_REPORT")&&!mode.equals("RETENTION_PAGE")&&!mode.equals("SAF_TRANSFER"))throw new IOException("REPORT_QUEUE_MODE");locked(root,queue->{JSONArray rows=queue.getJSONArray("requests");for(int i=0;i<rows.length();i++)if(rows.getJSONObject(i).getString("requestId").equals(id))return null;if(rows.length()>=32)throw new IOException("REPORT_QUEUE_FULL");JSONObject item=new JSONObject();item.put("requestId",id);item.put("mode",mode);item.put("createdWallMs",System.currentTimeMillis());rows.put(item);return null;});}
  public static String head(File root)throws Exception{return locked(root,queue->{JSONArray rows=queue.getJSONArray("requests");return rows.length()==0?null:rows.getJSONObject(0).getString("requestId");});}
+ /** Pick from one locked FIFO snapshot so read failures stay attached to the selected request. */
+ public static String nextId(File root)throws Exception {
+  return locked(root,queue->{
+   JSONArray rows=queue.getJSONArray("requests");
+   for(int i=0;i<rows.length();i++){
+    JSONObject row=rows.getJSONObject(i);
+    if(!"RETENTION_PAGE".equals(row.getString("mode")))return row.getString("requestId");
+   }
+   return rows.length()==0?null:rows.getJSONObject(0).getString("requestId");
+  });
+ }
  public static JSONArray pending(File root)throws Exception{return locked(root,q->new JSONArray(q.getJSONArray("requests").toString()));}
  public static boolean hasInteractive(File root){return new File(root,"interactive-pending-r69.json").isFile();}
  public static String interactiveHead(File root)throws Exception{return locked(root,q->{JSONArray rows=q.getJSONArray("requests");for(int i=0;i<rows.length();i++){JSONObject r=rows.getJSONObject(i);if(!"RETENTION_PAGE".equals(r.getString("mode")))return r.getString("requestId");}return null;});}
@@ -23,6 +34,7 @@ public final class ReportRequestQueueCP12 {
   java.util.Arrays.sort(files,java.util.Comparator.comparingLong(File::lastModified).thenComparing(File::getName));
   int admitted=0;
   for(File file:files){if(!file.getName().matches("[0-9a-f]{64}\\.json"))continue;
+   if(new File(directory,file.getName().substring(0,64)+".ack.json").exists())continue;
    try{JSONObject request=new JSONObject(ReportJobJournalCP12.readAtomic(file,65536));String id=request.getString("requestId");hash(id);
     if(!file.getName().equals(id+".json"))throw new IOException("REPORT_REQUEST_INTENT_IDENTITY");
     if(ReportJobJournalCP12.findRequestR31(root,id)!=null)continue;

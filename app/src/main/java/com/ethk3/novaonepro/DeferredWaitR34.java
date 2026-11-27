@@ -10,7 +10,7 @@ public final class DeferredWaitR34 {
     public static boolean isWriterBackpressure(String error) {
         return error != null
                 && error.contains(WRITER_BACKLOG)
-                && error.contains("category=DEPENDENCY")
+                && (error.contains("category=DEPENDENCY|") || error.contains("category=RESOURCE_QUEUE|"))
                 && error.contains("phase=ADMISSION")
                 && error.contains("commitOutcome=ROLLED_BACK");
     }

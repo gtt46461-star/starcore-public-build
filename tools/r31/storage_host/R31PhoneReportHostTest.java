@@ -79,6 +79,25 @@ public final class R31PhoneReportHostTest {
                 try{enter(active,"SNAPSHOT_HASH");throw new AssertionError("FINAL_REFUND_FAILURE_CLEARED_ON_ENTER");}catch(InterruptedIOException expected){need(expected.getCause()==first,"ORIGINAL_REFUND_CAUSE_NOT_PROPAGATED");}
                 need(first==get(active,"stopCauseR31"),"FIRST_STOP_CAUSE_REPLACED");
             }finally{release(active);}
+            Object pinned=active(job,root);
+            File pinnedTarget=new File(directory,"pinned.db");
+            StorageBudgetR31.Reservation pinnedGrant=budget.reserve("pinned-copy",101,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,2L<<30,8L<<30,true);
+            set(pinned,"storageReservationR31",pinnedGrant);
+            long copyStart=System.nanoTime();
+            try {
+                Method copy=pinned.getClass().getDeclaredMethod("copyPinnedSnapshot",File.class,File.class);
+                copy.setAccessible(true);
+                copy.invoke(pinned,source,pinnedTarget);
+                long copyMillis=(System.nanoTime()-copyStart)/1000000L;
+                need(get(pinned,"stopReason").equals("") && (long)get(pinned,"backupChargeR31")==0,"PINNED_COPY_ADMISSION_UNSETTLED");
+                Map<?,?> owner=(Map<?,?>)((List<?>)budget.snapshot().get("owners")).get(0);
+                need(((Number)owner.get("chargedWriteBytes")).longValue()==StorageCensusSU2.allocatedBytes(pinnedTarget),"PINNED_FINAL_ACCOUNTING");
+                need(pinnedTarget.length()==snapshot.length() && ReportArchiveCP4.hash(pinnedTarget).equals(job.snapshotSha),"PINNED_BACKUP_CHANGED");
+                System.out.println("PINNED_NATIVE_COPY_VERIFIED bytes="+pinnedTarget.length()+" copyMs="+copyMillis);
+            } finally {
+                release(pinned);
+                Files.deleteIfExists(pinnedTarget.toPath());
+            }
             Object cancelled=active(job,root);((AtomicBoolean)get(cancelled,"cancel")).set(true);((ReportNativeCP4.Control)cancelled).onBackupProgress(165824,0,101);
             try{enter(cancelled,"SNAPSHOT_HASH");throw new AssertionError("USER_CANCEL_IGNORED");}catch(InterruptedIOException expected){need("REPORT_USER_CANCEL".equals(expected.getMessage()),"USER_CANCEL_REASON_LOST");}finally{release(cancelled);}
             Object rejected=active(job,root);StorageBudgetR31.Reservation small=budget.reserve("undersized",99,StorageBudgetR31.Category.REPORT_WORKSPACE,"files/r981_reports/jobs/"+job.jobId,1,4,true);set(rejected,"storageReservationR31",small);set(rejected,"backupTargetR31",new File(directory,"reject.db"));
@@ -99,6 +118,12 @@ public final class R31PhoneReportHostTest {
                 allocationControl.onBackupProgress(100,50,0);need(allocationControl.shouldContinue(),"DUPLICATE_PROGRESS_RECONCILED_TWICE");
             }finally{release(allocation);}
         }
+        File queueRoot=new File(app,"isolated-fifo");
+        ReportRequestQueueCP12.enqueue(queueRoot,id(200),"RETENTION_PAGE");
+        ReportRequestQueueCP12.enqueue(queueRoot,id(201),"FULL_REPORT");
+        need(ReportRequestQueueCP12.nextId(queueRoot).equals(id(201)),"SELECTED_WRONG_MISSING_BODY_OWNER");
+        ReportRequestQueueCP12.remove(queueRoot,id(201));
+        need(ReportRequestQueueCP12.nextId(queueRoot).equals(id(200)),"LOST_UNRELATED_RETENTION_REQUEST");
         // Independent phone layout: only a retention job remains, both failed
         // FULL_REPORT ACKs and recovery ZIPs survive, failures/ never existed.
         File historyFiles=new File(app,"history/files"),historyRoot=ReportDirectoriesCP12.root(historyFiles);

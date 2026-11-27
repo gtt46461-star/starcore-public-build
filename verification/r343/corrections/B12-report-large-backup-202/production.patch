@@ -1,0 +1,201 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java b/app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java
+index f88a092f..cf0ffdc3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DeferredWaitR34.java
+@@ -10,7 +10,7 @@ public final class DeferredWaitR34 {
+     public static boolean isWriterBackpressure(String error) {
+         return error != null
+                 && error.contains(WRITER_BACKLOG)
+-                && error.contains("category=DEPENDENCY")
++                && (error.contains("category=DEPENDENCY|") || error.contains("category=RESOURCE_QUEUE|"))
+                 && error.contains("phase=ADMISSION")
+                 && error.contains("commitOutcome=ROLLED_BACK");
+     }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java
+index 92fc19ef..982c2fc7 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java
+@@ -18,9 +18,13 @@ public final class ReportArchiveCP4 implements Closeable {
+   try{line("{\"kind\":\"header\",\"format\":\"STARCORE_REPORT_CP4\",\"report_id\":"+q(reportId)+",\"codec\":\"zstd-1.5.7-window19\",\"part_bytes\":"+PART_BYTES+"}",true);}catch(IOException|RuntimeException|Error failed){try{manifest.close();}catch(IOException close){failed.addSuppressed(close);}throw failed;}
+  }
+  public void add(String logicalName,File immutableFile,long nativeBudget,ReportNativeCP4.Control control) throws Exception {
++  addPlanned(logicalName,immutableFile,immutableFile.length(),hash(immutableFile,control),nativeBudget,control);
++ }
++ void addPlanned(String logicalName,File immutableFile,long size,String sha,long nativeBudget,ReportNativeCP4.Control control) throws Exception {
+   if(finished||memberRunning||!logicalName.matches("[A-Za-z0-9_.-]{1,120}"))throw new IOException("REPORT_MEMBER_STATE");
+   if(lastMember!=null&&lastMember.compareTo(logicalName)>=0)throw new IOException("REPORT_MEMBER_NAME_ORDER");
+-  memberRunning=true;long size=immutableFile.length();String sha=hash(immutableFile,control);int first=nextPart;
++  if(size!=immutableFile.length())throw new IOException("REPORT_MEMBER_CHANGED");
++  memberRunning=true;int first=nextPart;
+   try(Parts out=new Parts(logicalName,control)){
+    ReportNativeCP4.compress(immutableFile,out,nativeBudget,control);out.finishPart();
+    if(size!=immutableFile.length()||!sha.equals(hash(immutableFile,control)))throw new IOException("REPORT_MEMBER_CHANGED");
+@@ -62,7 +66,7 @@ public final class ReportArchiveCP4 implements Closeable {
+  public static String hash(File f,ReportNativeCP4.Control control)throws Exception {
+   MessageDigest digest=MessageDigest.getInstance("SHA-256");
+   try(InputStream in=new FileInputStream(f)) {
+-   byte[] buffer=new byte[32768];
++   byte[] buffer=new byte[f.length()>=256L*1024*1024?256*1024:32768];
+    for(int count;(count=in.read(buffer))!=-1;) {
+     if(count==0)continue;
+     if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new IOException("REPORT_CANCELLED");
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index 8ff380a9..088987e0 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -278,7 +278,6 @@ public final class ReportExportServiceCP4 extends Service {
+             if(journal==null)return;
+             journal.reconcileAcknowledgementsR31();
+             ReportRequestQueueCP12.reconcileRequestsR31(journal.root());
+-            String queued=ReportRequestQueueCP12.head(journal.root());if(queued!=null)currentRequest=queued;
+             ReportTaskControlR69.applyPending(journal);
+             ReportJobJournalCP12.Job publishedCleanup=journal.current();if(publishedCleanup!=null&&publishedCleanup.stage.equals("READY_TO_SHARE"))enqueueCleanupR31(journal,publishedCleanup);
+             runCleanupR31(journal);
+@@ -290,7 +289,12 @@ public final class ReportExportServiceCP4 extends Service {
+             }
+             requireDiagnosticProcess();ReportNativeCP4.loadForDiagnosticProcess(processName(),getPackageName());JSONObject request=null;
+             if(job!=null&&isActive(job)){currentRequest=job.requestId;request=loadRequest(journal.root(),job.requestId);}
+-            else {request=nextRequest(journal.root());if(request==null)return;
++            else {
++                String selected=ReportRequestQueueCP12.nextId(journal.root());
++                if(selected==null)return;
++                currentRequest=selected;
++                request=loadRequest(journal.root(),selected);
++                if(!selected.equals(request.getString("requestId")))throw new IOException("REPORT_REQUEST_INTENT_IDENTITY");
+                 long now=System.currentTimeMillis();
+                 if(observationPreparationPendingR31(request,now)){observationDelayR31=Math.max(1L,5000L-(now-request.optLong("createdWallMs",0)));return;}
+                 String requestId=request.getString("requestId"),mode=request.getString("mode");requireHash(requestId);
+@@ -358,7 +362,7 @@ public final class ReportExportServiceCP4 extends Service {
+                     // Native backup pins BEGIN + schema_version before copying pages. Its
+                     // read view is the start, not the end of a potentially two-minute copy.
+                     job.snapshotWallMs=System.currentTimeMillis();
+-                    active.backupTargetR31=snapshot;ReportNativeCP4.backup(getDatabasePath(AppConfig.DB_NAME),snapshot,SQLITE_BACKUP_BUDGET,active);
++                    active.copyPinnedSnapshot(getDatabasePath(AppConfig.DB_NAME),snapshot);
+                     active.enter("SNAPSHOT_HASH",120000);
+                     sync(snapshot);job.snapshotSha=ReportArchiveCP4.hash(snapshot,active);job.snapshotBytes=snapshot.length();
+                     journal.transition(job,ReportJobJournalCP12.Stage.SNAPSHOT_DURABLE,System.currentTimeMillis());
+@@ -484,8 +488,7 @@ public final class ReportExportServiceCP4 extends Service {
+                 active.enter("COMPRESSING",120000);journal.transition(job,ReportJobJournalCP12.Stage.COMPRESSING,System.currentTimeMillis());
+                 try(ReportArchiveCP4 writer=new ReportArchiveCP4(archive,job.jobId,active);ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {
+                     byte[] line;while((line=rows.next())!=null){active.checkpoint();JSONObject member=new JSONObject(new String(line,StandardCharsets.UTF_8));File input=ReportArchiveVerifierCP12.inside(directory,member.getString("path"));
+-                        if(input.length()!=member.getLong("bytes")||!member.getString("sha256").equals(ReportArchiveCP4.hash(input,active)))throw new IOException("REPORT_MEMBER_CHANGED");
+-                        writer.add(member.getString("name"),input,NATIVE_BUDGET,active);}
++                        writer.addPlanned(member.getString("name"),input,member.getLong("bytes"),member.getString("sha256"),NATIVE_BUDGET,active);}
+                     writer.finish(job.evidenceComplete,job.checksComplete,request.optBoolean("includeRawEvidence",false)?"FULL_REPORT_SINGLE_SNAPSHOT_AND_FROZEN_ATTACHMENTS":"COMPLETE_DIAGNOSTIC_R64_RAW_PAYLOADS_EXCLUDED");
+                 }
+                 journal.transition(job,ReportJobJournalCP12.Stage.VERIFYING,System.currentTimeMillis());publish(job,journal,directory,archive,active);journal.acknowledge(job.requestId,job);
+@@ -568,7 +571,9 @@ public final class ReportExportServiceCP4 extends Service {
+             active.enter("PREPARE_REGISTERED_REPORT_SOURCES",120000L);
+             job.reportSourcePreparation=ReportSchemaSourceProviderR335.prepareBeforeSnapshot(this,active::checkpoint);
+         }
+-        return ReportInputsLeaseCP12.acquire(getFilesDir());
++        ReportInputsLeaseCP12 pin=ReportInputsLeaseCP12.acquire(getFilesDir());
++        if ("REPORT_INPUT_LEASE_BUSY".equals(job.lastReason)) job.lastReason="";
++        return pin;
+     }
+ 
+     private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal,ActiveControl active,boolean verifiedSnapshotReusable)throws Exception {
+@@ -691,10 +696,6 @@ public final class ReportExportServiceCP4 extends Service {
+         long created=request.optLong("createdWallMs",0);
+         return created>0&&wallNow>=created&&wallNow-created<5000;
+     }
+-    private static JSONObject nextRequest(File root)throws Exception{
+-        String id=ReportRequestQueueCP12.interactiveHead(root);if(id==null)id=ReportRequestQueueCP12.head(root);
+-        return id==null?null:loadRequest(root,id);
+-    }
+     /** At most one live preparation timer; no journal, SQLite or input lease is held. */
+     boolean scheduleObservationRetryR31(long delayMs){
+         return scheduleOwnerRetryR335(Math.max(1L,Math.min(5000L,delayMs)));
+@@ -852,7 +853,7 @@ public final class ReportExportServiceCP4 extends Service {
+             // BUSY/LOCKED retain the native bounded retry policy.
+             if(nativeCode!=0&&nativeCode!=101&&nativeCode!=5&&nativeCode!=6)
+                 stopR31("REPORT_BACKUP_FAILED|native="+nativeCode,new ReportNativeCP4.Failure("BACKUP",nativeCode));
+-            try{settleBackupChunkR31();}catch(IOException|IllegalArgumentException|ArithmeticException failed){stopR31("REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED",failed);}
++            try{if(!copyingPinnedSnapshot)settleBackupChunkR31();}catch(IOException|IllegalArgumentException|ArithmeticException failed){stopR31("REPORT_STORAGE_BUDGET_RECONCILIATION_FAILED",failed);}
+             long now=SystemClock.elapsedRealtime();
+             long copiedPages=Math.max(0L,totalPages-remainingPages);
+             if((nativeCode==0||nativeCode==101)&&copiedPages>backupPages){backupPages=copiedPages;timing.progress(now);}
+@@ -872,10 +873,32 @@ public final class ReportExportServiceCP4 extends Service {
+             catch(IOException|IllegalArgumentException failed){throw new IOException("REPORT_BACKUP_ACCOUNTING|admitted="+backupChargeR31+"|before="+backupBeforeR31+"|after="+after+"|growth="+growth+"|reason="+(failed instanceof StorageBudgetR31.Rejected?((StorageBudgetR31.Rejected)failed).reason:failed.getClass().getSimpleName()),failed);}
+             backupChargeR31=0;
+         }
++        private boolean copyingPinnedSnapshot, pageCopyGrant;
++        private void copyPinnedSnapshot(File source,File target)throws IOException {
++            backupTargetR31=target;
++            copyingPinnedSnapshot=true;
++            try {
++                ReportNativeCP4.backup(source,target,SQLITE_BACKUP_BUDGET,this);
++                // Native has closed, normalized and synced the exclusive destination.
++                settleBackupChunkR31();
++            } finally {
++                copyingPinnedSnapshot=false;
++                pageCopyGrant=false;
++            }
++        }
+         @Override public synchronized void beforeBackupChunk(long bytes)throws IOException{checkpoint();if(storageReservationR31==null)return;try{
+-            // The native create/header grant has no matching progress callback.
+-            // Settle it before replacing it with the first page-copy grant.
+-            settleBackupChunkR31();backupBeforeR31=backupPhysicalR31();storageReservationR31.beforeChunk(bytes);backupChargeR31=bytes;
++            // Native reports the entire unallocated tail of the same pinned snapshot
++            // before each 100-page step. The first grant covers only file creation.
++            if(copyingPinnedSnapshot && pageCopyGrant && bytes<=backupChargeR31){
++                storageReservationR31.checkBackupFreeSpace(bytes);
++                return;
++            }
++            boolean pastHeader=backupChargeR31>0;
++            settleBackupChunkR31();
++            backupBeforeR31=backupPhysicalR31();
++            storageReservationR31.beforeChunk(bytes);
++            backupChargeR31=bytes;
++            pageCopyGrant=copyingPinnedSnapshot && pastHeader;
+         }catch(IOException|RuntimeException error){stopR31(classify(error),error);throw error;}}
+         @Override public boolean hasDiskAdmissionR31(){return storageReservationR31!=null;}
+         @Override public void beforeOutputBytesR31(File file,long bytes)throws IOException{if(storageReservationR31==null)throw new IOException("REPORT_DISK_ADMISSION_MISSING");if(!shouldContinue())throw new InterruptedIOException(stopReason);storageReservationR31.beforeChunk(bytes);}
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java b/app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java
+index 300a810c..8cc232fd 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java
+@@ -7,6 +7,17 @@ public final class ReportRequestQueueCP12 {
+  private interface Work<T>{T run(JSONObject queue)throws Exception;}
+  public static void enqueue(File root,String id,String mode)throws Exception{hash(id);if(!mode.equals("FULL_REPORT")&&!mode.equals("RETENTION_PAGE")&&!mode.equals("SAF_TRANSFER"))throw new IOException("REPORT_QUEUE_MODE");locked(root,queue->{JSONArray rows=queue.getJSONArray("requests");for(int i=0;i<rows.length();i++)if(rows.getJSONObject(i).getString("requestId").equals(id))return null;if(rows.length()>=32)throw new IOException("REPORT_QUEUE_FULL");JSONObject item=new JSONObject();item.put("requestId",id);item.put("mode",mode);item.put("createdWallMs",System.currentTimeMillis());rows.put(item);return null;});}
+  public static String head(File root)throws Exception{return locked(root,queue->{JSONArray rows=queue.getJSONArray("requests");return rows.length()==0?null:rows.getJSONObject(0).getString("requestId");});}
++ /** Pick from one locked FIFO snapshot so read failures stay attached to the selected request. */
++ public static String nextId(File root)throws Exception {
++  return locked(root,queue->{
++   JSONArray rows=queue.getJSONArray("requests");
++   for(int i=0;i<rows.length();i++){
++    JSONObject row=rows.getJSONObject(i);
++    if(!"RETENTION_PAGE".equals(row.getString("mode")))return row.getString("requestId");
++   }
++   return rows.length()==0?null:rows.getJSONObject(0).getString("requestId");
++  });
++ }
+  public static JSONArray pending(File root)throws Exception{return locked(root,q->new JSONArray(q.getJSONArray("requests").toString()));}
+  public static boolean hasInteractive(File root){return new File(root,"interactive-pending-r69.json").isFile();}
+  public static String interactiveHead(File root)throws Exception{return locked(root,q->{JSONArray rows=q.getJSONArray("requests");for(int i=0;i<rows.length();i++){JSONObject r=rows.getJSONObject(i);if(!"RETENTION_PAGE".equals(r.getString("mode")))return r.getString("requestId");}return null;});}
+@@ -23,6 +34,7 @@ public final class ReportRequestQueueCP12 {
+   java.util.Arrays.sort(files,java.util.Comparator.comparingLong(File::lastModified).thenComparing(File::getName));
+   int admitted=0;
+   for(File file:files){if(!file.getName().matches("[0-9a-f]{64}\\.json"))continue;
++   if(new File(directory,file.getName().substring(0,64)+".ack.json").exists())continue;
+    try{JSONObject request=new JSONObject(ReportJobJournalCP12.readAtomic(file,65536));String id=request.getString("requestId");hash(id);
+     if(!file.getName().equals(id+".json"))throw new IOException("REPORT_REQUEST_INTENT_IDENTITY");
+     if(ReportJobJournalCP12.findRequestR31(root,id)!=null)continue;
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java b/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java
+index 4b6703eb..e75edc34 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StorageBudgetR31.java
+@@ -252,6 +252,13 @@ public final class StorageBudgetR31 {
+                 row.charged=add(row.charged,bytes);writeState(state);return null;
+             });
+         }
++        /** Recheck external disk use within an already admitted pinned copy. */
++        synchronized void checkBackupFreeSpace(long remaining)throws IOException {
++            if(closed||!lifetime.isValid())throw new Rejected("OWNER_CLOSED").context(owner,fence,"BACKUP_SPACE");
++            if(remaining<0)throw new IllegalArgumentException("STORAGE_CHUNK");
++            if(add(add(remaining,config.freeFloor),config.metadataHeadroom)>available())
++                throw new Rejected("FREE_SPACE_RESERVE").context(owner,fence,"BACKUP_SPACE");
++        }
+         /** Reserve a measured next phase before materialization; no physical bytes are reclaimed here. */
+         public synchronized void ensureAdditional(long futureBytes,long maximumWritten,boolean transientWork)throws IOException{
+             long retryDeadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(5);

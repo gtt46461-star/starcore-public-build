@@ -18,9 +18,13 @@ public final class ReportArchiveCP4 implements Closeable {
   try{line("{\"kind\":\"header\",\"format\":\"STARCORE_REPORT_CP4\",\"report_id\":"+q(reportId)+",\"codec\":\"zstd-1.5.7-window19\",\"part_bytes\":"+PART_BYTES+"}",true);}catch(IOException|RuntimeException|Error failed){try{manifest.close();}catch(IOException close){failed.addSuppressed(close);}throw failed;}
  }
  public void add(String logicalName,File immutableFile,long nativeBudget,ReportNativeCP4.Control control) throws Exception {
+  addPlanned(logicalName,immutableFile,immutableFile.length(),hash(immutableFile,control),nativeBudget,control);
+ }
+ void addPlanned(String logicalName,File immutableFile,long size,String sha,long nativeBudget,ReportNativeCP4.Control control) throws Exception {
   if(finished||memberRunning||!logicalName.matches("[A-Za-z0-9_.-]{1,120}"))throw new IOException("REPORT_MEMBER_STATE");
   if(lastMember!=null&&lastMember.compareTo(logicalName)>=0)throw new IOException("REPORT_MEMBER_NAME_ORDER");
-  memberRunning=true;long size=immutableFile.length();String sha=hash(immutableFile,control);int first=nextPart;
+  if(size!=immutableFile.length())throw new IOException("REPORT_MEMBER_CHANGED");
+  memberRunning=true;int first=nextPart;
   try(Parts out=new Parts(logicalName,control)){
    ReportNativeCP4.compress(immutableFile,out,nativeBudget,control);out.finishPart();
    if(size!=immutableFile.length()||!sha.equals(hash(immutableFile,control)))throw new IOException("REPORT_MEMBER_CHANGED");
@@ -62,7 +66,7 @@ public final class ReportArchiveCP4 implements Closeable {
  public static String hash(File f,ReportNativeCP4.Control control)throws Exception {
   MessageDigest digest=MessageDigest.getInstance("SHA-256");
   try(InputStream in=new FileInputStream(f)) {
-   byte[] buffer=new byte[32768];
+   byte[] buffer=new byte[f.length()>=256L*1024*1024?256*1024:32768];
    for(int count;(count=in.read(buffer))!=-1;) {
     if(count==0)continue;
     if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new IOException("REPORT_CANCELLED");
