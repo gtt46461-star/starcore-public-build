@@ -30,19 +30,15 @@ assert ci.sha(baseline)==old_sha
 assert 'Success' in ci.adb(serial,'install',baseline)
 before=ci.installed(serial,out/'before.txt')
 assert before['versionCode']==577311204 and before['apkSha256']==old_sha
-ci.signed_report_campaign(serial,out,old_sha,old_sha)
-db = json.loads((source/'release/release_manifest.json').read_text())['databaseName']
+assert 'Success' in ci.adb(serial,'install','-r',candidate)
+after=ci.installed(serial,out/'after.txt')
+assert after=={'versionCode':int(os.environ['VERSION']),'uid':before['uid'],'apkSha256':ci.sha(candidate)}
+warmup=ci.signed_report_campaign(serial,out,ci.sha(candidate),old_sha)
+warmup('seed','COMPACT_DIAGNOSTIC',new_source)
+db=json.loads((source/'release/release_manifest.json').read_text())['databaseName']
 assert '/' not in db
-live = f'/data/user/0/{pkg}/databases/{db}'
-local = tmp/db
-ci.adb(serial,'shell','pm','grant',pkg,'android.permission.POST_NOTIFICATIONS')
-ci.adb(serial,'shell','am','start','-W','-n',ui.ACTIVITY)
-for attempt in range(45):
-    if subprocess.run(['adb','-s',serial,'shell','test','-s',live]).returncode==0:
-        break
-    time.sleep(2)
-else:
-    raise AssertionError('Installed baseline did not open its database')
+live=f'/data/user/0/{pkg}/databases/{db}'
+local=tmp/db
 ci.adb(serial,'shell','am','force-stop',pkg)
 identity = ci.adb(serial,'shell','stat','-c','%u:%g',live)
 assert identity.replace(':','').isdigit()
@@ -132,6 +128,9 @@ with closing(sqlite3.connect(local)) as c:
 print('ARCHIVED_METADATA',len(archived),sum(len(row['rows']) for row in archived.values()),projected_blobs,projected_blob_bytes,flush=True)
 assert page==4096 and 100000 < used < 1150000
 with closing(sqlite3.connect(local)) as c:
+    core={'app_state','research_evidence_archive_v2','research_evidence_locator_v2'}
+    exists={name for name, in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    assert core<=exists, sorted(core-exists)
     seed_check=c.execute('PRAGMA quick_check').fetchall()
     assert seed_check==[('ok',)],seed_check[:10]
     c.execute('PRAGMA journal_mode=OFF')
@@ -151,7 +150,7 @@ with closing(sqlite3.connect(local)) as c:
     assert check==[('ok',)],check[:10]
 size=local.stat().st_size
 assert target<=size<=target+(1<<20) and size==pages*page,(target,size,pages)
-# This is the stopped, disposable, offline emulator seeded by the baseline APK.
+# This is a stopped, disposable emulator after a verified setup export.
 assert ci.adb(serial,'shell','getprop','ro.kernel.qemu')=='1'
 ci.adb(serial,'shell','rm','-f',live+'-wal',live+'-shm')
 subprocess.run(['adb','-s',serial,'push','-z','lz4',str(local),live],check=True,timeout=600)
@@ -189,10 +188,6 @@ ci.adb(serial,'shell','chown','-R',identity,requests)
 ci.adb(serial,'shell','restorecon','-R',requests)
 control_stats=ci.adb(serial,'shell','du','-sk',requests)
 print('CONTROL_FIXTURE',control_stats,flush=True)
-assert 'Success' in ci.adb(serial,'install','-r',candidate)
-after=ci.installed(serial,out/'after.txt')
-assert after=={'versionCode':int(os.environ['VERSION']),'uid':before['uid'],'apkSha256':ci.sha(candidate)}
-capture=ci.signed_report_campaign(serial,out,ci.sha(candidate),old_sha)
 profile='COMPACT_DIAGNOSTIC'
 stop=threading.Event()
 events={}
