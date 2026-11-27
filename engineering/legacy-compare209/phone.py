@@ -121,7 +121,9 @@ with closing(sqlite3.connect(local)) as c:
     assert c.execute("SELECT COUNT(*) FROM v57_atom_edge_r925 WHERE left_atom LIKE 'test-%'").fetchone()[0]==len(pairs)
     c.execute('PRAGMA wal_checkpoint(TRUNCATE)').fetchall()
     c.execute('PRAGMA journal_mode=DELETE').fetchall()
+    c.execute('PRAGMA auto_vacuum=NONE')
     c.execute('VACUUM')
+    assert c.execute('PRAGMA auto_vacuum').fetchone()==(0,)
     assert c.execute('PRAGMA freelist_count').fetchone()==(0,)
     used=c.execute('PRAGMA page_count').fetchone()[0]
     page=c.execute('PRAGMA page_size').fetchone()[0]
@@ -224,6 +226,7 @@ try:
     actions=[node.get('text') for node in dialog.iter('node') if node.get('text') in expected]
     assert actions==expected,actions
     candidate=ui.save_report(dialog,'field207-compact')
+    print('FIELD_ZIP_READBACK', candidate['bytes'], candidate['sha256'], events.get(candidate['jobId'],{}), flush=True)
     assert candidate['status']=='VERIFIED_ANDROID_SAF_ZIP' and not candidate['rawEvidenceIncluded']
     with zipfile.ZipFile(ui.OUT/candidate['file']) as zip_saved:
         source_manifest=json.loads(zip_saved.read('source-manifest.json'))
