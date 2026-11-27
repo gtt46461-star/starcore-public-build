@@ -25,7 +25,21 @@ public final class Field173CoverageAndroidTest {
         DbStore store = new DbStore(ApplicationProvider.getApplicationContext());
         try {
             R30FaultMatrixTest.seed(store);
-            R30FaultMatrixTest.freeze(store);
+            try {
+                R30FaultMatrixTest.freeze(store);
+            } catch (AnalysisSingleFlightR36.CancelledBeforeCommitException failed) {
+                String sql="SELECT stage_samples FROM v57_attempt_resource_r927 WHERE target_issue=? ORDER BY started_at DESC LIMIT 1";
+                StringBuilder timings=new StringBuilder();
+                try (android.database.Cursor rows=store.readable().rawQuery(sql, ISSUE)) {
+                    if (rows.moveToFirst()) {
+                        java.util.regex.Matcher span=java.util.regex.Pattern.compile(
+                                "[A-Z][A-Z0-9_]+:[0-9]+/[-0-9]+:(?:OK|FAILED|OVER_BUDGET)")
+                                .matcher(rows.getString(0));
+                        while (span.find() && timings.length() < 2600) timings.append(span.group()).append(' ');
+                    }
+                }
+                throw new AssertionError(failed.getMessage()+"|MEASURED_PHASES="+timings,failed);
+            }
             SystemClock.sleep(30L);
             R30FaultMatrixTest.actual(store);
             R30FaultMatrixTest.settle(store);

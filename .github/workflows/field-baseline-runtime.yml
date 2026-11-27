@@ -1,8 +1,8 @@
-name: Reproduce the prediction deadline on untouched signed-release source 577311211
+name: Measure the completed phases preceding the original prediction deadline
 on:
   push:
     branches: ['repair/report-rsec010-snapshot']
-    paths: ['.github/workflows/field-baseline-runtime.yml']
+    paths: ['.github/workflows/field-baseline-runtime.yml','app/src/androidTest/java/com/ethk3/novaonepro/Field173CoverageAndroidTest.java']
 permissions:
   contents: read
 jobs:
@@ -26,7 +26,11 @@ jobs:
           set -euo pipefail
           git fetch --no-tags --unshallow origin 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
           git fetch --no-tags --depth=1 origin b5bf9de3c9a000f4f2f920f6f2c4b849ba22ee59
+          cp "app/src/androidTest/java/com/ethk3/novaonepro/Field173CoverageAndroidTest.java" "$RUNNER_TEMP/predraw-case.java"
           git switch --detach 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
+          cp "$RUNNER_TEMP/predraw-case.java" "app/src/androidTest/java/com/ethk3/novaonepro/Field173CoverageAndroidTest.java"
+          git add "app/src/androidTest/java/com/ethk3/novaonepro/Field173CoverageAndroidTest.java"
+          git -c user.name=CI -c user.email=ci@example.invalid commit -m "Read the phase receipts only after baseline prediction stops"
           test -z "$(git status --porcelain -- app/src/main release)"
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - name: Read the existing sealed plan bindings
