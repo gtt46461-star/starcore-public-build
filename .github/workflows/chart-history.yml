@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 4
+          fetch-depth: 1
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -23,6 +23,7 @@ jobs:
         run: |
           set -euo pipefail
           cp engineering/chart-history/test_bindings.py "$RUNNER_TEMP/chart-bindings.py"
+          git fetch --depth=1 origin 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
           git switch --detach 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
           python3 -B "$RUNNER_TEMP/chart-bindings.py"
           git diff --check
