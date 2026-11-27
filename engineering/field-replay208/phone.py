@@ -78,6 +78,8 @@ with closing(sqlite3.connect(local)) as c:
                 assert sql.upper().startswith('CREATE ') and kind.upper() in sql.upper()[:30]
                 c.execute(sql)
     archived={}
+    projected_blobs=0
+    projected_blob_bytes=0
     for section in archive_scope['recentEvidence']:
         name=section['table']
         if not name.startswith(('research_long_','r80_probe_')) or not section.get('rows'):continue
@@ -87,9 +89,25 @@ with closing(sqlite3.connect(local)) as c:
         definition={r[1] for r in c.execute('pragma table_info('+name+')')}
         assert set(columns)<=definition,(name,columns,definition)
         rows=[tuple(row[key] for key in columns) for row in section['rows']]
-        assert all(not isinstance(x,str) or not x.startswith('[BINARY_PAYLOAD_NOT_INCLUDED') for row in rows for x in row)
+        # The historical compact ZIP preserves binary lengths only. In this disposable DB,
+        # create equal-length synthetic BLOBs so the exported descriptors can be compared exactly.
         c.execute('DELETE FROM '+name)
-        c.executemany('INSERT INTO '+name+'('+','.join(columns)+') VALUES('+','.join('?' for _ in columns)+')',rows)
+        for row in rows:
+            params=[]
+            placeholders=[]
+            for value in row:
+                match=re.fullmatch(r'\[BINARY_PAYLOAD_NOT_INCLUDED bytes=(\d+)\]',value) if isinstance(value,str) else None
+                if match:
+                    length=int(match[1])
+                    assert 0<=length<=128*1024*1024
+                    projected_blobs+=1
+                    projected_blob_bytes+=length
+                    placeholders.append('zeroblob(?)')
+                    params.append(length)
+                else:
+                    placeholders.append('?')
+                    params.append(value)
+            c.execute('INSERT INTO '+name+'('+','.join(columns)+') VALUES('+','.join(placeholders)+')',params)
         archived[name]=section
     assert len(archived['research_long_source_token_r80']['rows'])==1 and len(archived['research_long_snapshot_r80']['rows'])==1730
     c.commit()
@@ -100,7 +118,7 @@ with closing(sqlite3.connect(local)) as c:
     assert c.execute('PRAGMA freelist_count').fetchone()==(0,)
     used=c.execute('PRAGMA page_count').fetchone()[0]
     page=c.execute('PRAGMA page_size').fetchone()[0]
-assert page==4096 and 100000 < used < 600000
+assert page==4096 and 100000 < used < 1150000
 size=4913827840
 pages=size//page
 skip=0x40000000//page+1
@@ -255,7 +273,7 @@ for attempt in range(90):
 assert saved and saved['actualBytes']==result['bytes'] and saved['allVolumesSaved'] and saved['volumeName']=='STARCORE_FULL_REPORT.zip',saved
 assert 0 < result['bytes'] < manifest['snapshotBytes']
 assert manifest['snapshotBytes']>=size and manifest['snapshotSha256']==result['snapshotSha256']
-receipt={'profile':profile,'publicSaveReadback':saved['state'],'publicSha256':saved['actualSha256'],'dialogActions':actions,'rawDatabaseIncluded':False,'includedCompactScope':True,'stageStartsWallMs':events.get(result['jobId'],{}),'dashboardCheck':checks['RSEC-011'],'allCheckStates':checks,'fixtureEventRows':718660,'fixtureFetchRows':164173,'fixtureEdgeRows':len(pairs),'verifiedSnapshotBytes':manifest['snapshotBytes'],'exportedZipBytes':result['bytes'],'scope':'API34_SYNTHETIC_LOAD_WITH_SEALED_173_LONG_AND_PROBE_METADATA','archivedRows':{n:len(v['rows']) for n,v in archived.items()},'fileFixtureEntries':17233,'historicalAcks':315,'sampledIndexSections':list(sections.get(result['jobId'],{})),'source':new_source,'before':before,'after':after,'sourceBytesBeforeLaunch':size,'populatedPagesBeforePadding':used,'secondsFromUiEntryThroughReadback':round(elapsed,2),'underTwentyMinutes':elapsed<1200,'checks':result['checks'],'metrics':result['metrics'],'jobId':result['jobId'],'physicalDevice':False}
+receipt={'profile':profile,'publicSaveReadback':saved['state'],'publicSha256':saved['actualSha256'],'dialogActions':actions,'rawDatabaseIncluded':False,'includedCompactScope':True,'stageStartsWallMs':events.get(result['jobId'],{}),'dashboardCheck':checks['RSEC-011'],'allCheckStates':checks,'fixtureEventRows':718660,'fixtureFetchRows':164173,'fixtureEdgeRows':len(pairs),'verifiedSnapshotBytes':manifest['snapshotBytes'],'exportedZipBytes':result['bytes'],'scope':'API34_SYNTHETIC_LOAD_WITH_SEALED_173_LONG_AND_PROBE_METADATA','archivedRows':{n:len(v['rows']) for n,v in archived.items()},'syntheticBinaryCells':projected_blobs,'syntheticBinaryBytes':projected_blob_bytes,'fileFixtureEntries':17233,'historicalAcks':315,'sampledIndexSections':list(sections.get(result['jobId'],{})),'source':new_source,'before':before,'after':after,'sourceBytesBeforeLaunch':size,'populatedPagesBeforePadding':used,'secondsFromUiEntryThroughReadback':round(elapsed,2),'underTwentyMinutes':elapsed<1200,'checks':result['checks'],'metrics':result['metrics'],'jobId':result['jobId'],'physicalDevice':False}
 (out/'field-size-android-readback.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt),flush=True)
 
