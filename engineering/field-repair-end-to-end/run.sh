@@ -10,7 +10,10 @@ for attempt in 1 2 3; do
 done
 export SOURCE="$(git rev-parse HEAD)"
 export VERSION="$(jq -er '.versionCode' release/release_manifest.json)"
-cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/candidate-tested.apk"
+shopt -s nullglob
+apks=(app/build/outputs/apk/debug/*.apk)
+[[ ${#apks[@]} == 1 ]]
+cp "${apks[0]}" "$RUNNER_TEMP/candidate-tested.apk"
 ln -s app-source ../source
 cd ..
 python3 -B "$RUNNER_TEMP/phone.py"
