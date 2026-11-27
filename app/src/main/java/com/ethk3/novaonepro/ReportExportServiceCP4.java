@@ -436,14 +436,24 @@ public final class ReportExportServiceCP4 extends Service {
                     }catch(Exception failure){r27ReadFailure=failure;}
                     active.onIndexSection("汇总运行与策略证据");
                     File r26Report=new File(directory,"R26_REPORT.json");
-                    try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r26Report,new java.io.FileOutputStream(r26Report)),StandardCharsets.UTF_8)){
-                        w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(
-                                ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),r27Chapters));
+                    android.os.CancellationSignal r26Cancellation = new android.os.CancellationSignal();
+                    active.readCancellationR30 = r26Cancellation;
+                    try (java.io.Writer w = new java.io.BufferedWriter(new java.io.OutputStreamWriter(
+                            active.protectOutput(r26Report,new java.io.FileOutputStream(r26Report)),StandardCharsets.UTF_8),16384)) {
+                        com.ethk3.novaonepro.strategyv2.RuntimeReportR26.writeSnapshot(copy, new org.json.JSONObject(
+                                ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),
+                                r27Chapters, r26Cancellation, active::onLegacyReportStep, w);
+                    } finally {
+                        active.readCancellationR30 = null;
                     }
+                    active.onIndexSection("校验 R26 报告文件");
                     ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
+                    active.onIndexSection("写入 R27 研究附章");
                     try{
                         if(r27ReadFailure!=null)throw r27ReadFailure;
-                        try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r27Report,new java.io.FileOutputStream(r27Report)),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdown(r27Chapters));}
+                        try(java.io.Writer w=new java.io.BufferedWriter(new java.io.OutputStreamWriter(active.protectOutput(r27Report,new java.io.FileOutputStream(r27Report)),StandardCharsets.UTF_8),16384)){
+                            ReportJsonWriterR31.markdownR27(r27Chapters,w);
+                        }
                         Object summary=r27Chapters.isEmpty()?null:r27Chapters.get(0).get("summary");
                         if(summary!=null){r27Summary.getParentFile().mkdirs();ReportJobJournalCP12.writeAtomic(r27Summary,com.ethk3.novaonepro.strategyv2.JsonR27.write(summary));}
                     }catch(Exception r27Failure){try(java.io.Writer w=new java.io.OutputStreamWriter(active.protectOutput(r27Report,new java.io.FileOutputStream(r27Report)),StandardCharsets.UTF_8)){w.write("# R27 报告生成失败\n\n"+r27Failure);}}
@@ -894,6 +904,17 @@ public final class ReportExportServiceCP4 extends Service {
             timing.progress(now);
             sampleStage(now,false);
         }
+        void onLegacyReportStep(String step) {
+            if (!step.startsWith("R26 / ")) {
+                onIndexSection(step);
+                return;
+            }
+            indexSection = step;
+            completedIndexEntries++;
+            long now = SystemClock.elapsedRealtime();
+            timing.progress(now);
+            sampleStage(now, false);
+        }
         void onCheckStep(String step) {
             if (activeCheck.isEmpty() || step.equals(checkStep)) return;
             long now = SystemClock.elapsedRealtime();
@@ -1005,10 +1026,14 @@ public final class ReportExportServiceCP4 extends Service {
                 // The UTF-8 encoder emits small chunks. Coalesce them before
                 // durable admission, while every actual sink write (including
                 // close-time flush) still checks cancellation and its grant.
+                String name = file.getName();
+                int outputBufferBytes = name.equals("DIAGNOSTIC_SCOPE.json") ? 512 * 1024
+                        : name.startsWith("R26_REPORT.") || name.startsWith("R27_REPORT.") || name.startsWith("R30_REPORT.")
+                        ? 256 * 1024 : 65536;
                 return new BufferedOutputStream(new FilterOutputStream(admitted){
                     @Override public void write(int value)throws IOException{checkpoint();out.write(value);timing.progress(SystemClock.elapsedRealtime());}
                     @Override public void write(byte[] bytes,int offset,int count)throws IOException{checkpoint();out.write(bytes,offset,count);if(count>0)timing.progress(SystemClock.elapsedRealtime());}
-                },"DIAGNOSTIC_SCOPE.json".equals(file.getName()) ? 512*1024 : 65536);
+                }, outputBufferBytes);
             }
             catch(IOException|RuntimeException|Error error){try{sink.close();}catch(IOException close){error.addSuppressed(close);}throw error;}
         }

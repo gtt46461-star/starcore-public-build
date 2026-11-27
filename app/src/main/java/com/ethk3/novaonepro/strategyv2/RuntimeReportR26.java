@@ -2,6 +2,11 @@ package com.ethk3.novaonepro.strategyv2;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.CancellationSignal;
+import com.ethk3.novaonepro.ReportJsonWriterR31;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.function.Consumer;
 import com.ethk3.novaonepro.ReleaseManifestR926;
 import org.json.*;
 import java.util.*;
@@ -87,11 +92,29 @@ public final class RuntimeReportR26 {
         }
         return chapters;
     }
-    private static JSONArray rows(SQLiteDatabase db,String sql)throws JSONException {
-        JSONArray out=new JSONArray();try(Cursor c=db.rawQuery(sql,null)){while(out.length()<64&&c.moveToNext()){
+    private static final int REPORT_ROWS = 64;
+
+    private static final class RowWindow {
+        final JSONArray rows;
+        final boolean hasMore;
+        RowWindow(JSONArray rows, boolean hasMore) {
+            this.rows = rows;
+            this.hasMore = hasMore;
+        }
+    }
+
+    private static RowWindow rows(SQLiteDatabase db, String sql, CancellationSignal cancellation) throws JSONException {
+        // Android's first CursorWindow fill counts the entire statement result.
+        // Bound that native result to the displayed rows plus one lookahead row.
+        JSONArray out = new JSONArray();
+        try (Cursor c = db.rawQuery("SELECT * FROM (" + sql + ") LIMIT " + (REPORT_ROWS + 1), null, cancellation)) {
+            while (c.moveToNext()) {
+                if (out.length() == REPORT_ROWS) return new RowWindow(out, true);
             if(Thread.currentThread().isInterrupted())throw new IllegalStateException("REPORT_CANCELLED");
             JSONObject row=new JSONObject();for(int i=0;i<c.getColumnCount();i++){Object v=c.isNull(i)?JSONObject.NULL:c.getType(i)==Cursor.FIELD_TYPE_INTEGER?c.getLong(i):c.getType(i)==Cursor.FIELD_TYPE_FLOAT?c.getDouble(i):c.getString(i);row.put(c.getColumnName(i),v);}out.put(row);
-        }}return out;
+            }
+        }
+        return new RowWindow(out, false);
     }
     private static String query(String id){switch(id){
         case "CONTINUOUS_RUNTIME":case "BACKGROUND":return "SELECT task_id,lane,cursor,status,blocked_reason,last_progress,steps,last_cpu_ms FROM r26_task ORDER BY task_id";
@@ -114,60 +137,120 @@ public final class RuntimeReportR26 {
         default:return null;
     }}
     public static String json(SQLiteDatabase db){return json(db,new JSONObject());}
-    private static JSONObject facts(SQLiteDatabase db)throws JSONException {
+    private static JSONObject facts(SQLiteDatabase db, CancellationSignal cancellation)throws JSONException {
         JSONObject facts=new JSONObject();if(!RuntimeSchemaR26.ready(db))return facts;
-        try(Cursor present=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_capability_source'",null)){if(present.moveToFirst())try(Cursor binding=db.rawQuery("SELECT numerical_abi FROM r26_capability_source WHERE singleton=1",null)){if(binding.moveToFirst())facts.put("capabilityNumericalAbi",binding.getString(0));}}
+        try(Cursor present=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_capability_source'",null,cancellation)){if(present.moveToFirst())try(Cursor binding=db.rawQuery("SELECT numerical_abi FROM r26_capability_source WHERE singleton=1",null,cancellation)){if(binding.moveToFirst())facts.put("capabilityNumericalAbi",binding.getString(0));}}
         facts.put("serviceTotals",ServiceTotalsR26.snapshot(db));
-        try(Cursor installed=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_training_step'",null)){if(installed.moveToFirst()){
+        try(Cursor installed=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_training_step'",null,cancellation)){if(installed.moveToFirst()){
             boolean statistics=StatisticalTrainingStepStoreR26.installed(db);
-            facts.put("trainingStepDiagnostics",rows(db,statistics?StatisticalTrainingStepStoreR26.reportRows():"SELECT policy_hash,campaign_id,sample_ordinal,member_key,source_hash,source_kind,kernel_update,loss_before,loss_after,gradient_norm,parameter_delta_norm,input_hash,objective,before_state_hash,after_state_hash,gap_reset,optimizer,scope,batch_checkpoint,receipt_hash FROM r26_training_step ORDER BY rowid DESC LIMIT 64"));
+            facts.put("trainingStepDiagnostics",rows(db,statistics?StatisticalTrainingStepStoreR26.reportRows():"SELECT policy_hash,campaign_id,sample_ordinal,member_key,source_hash,source_kind,kernel_update,loss_before,loss_after,gradient_norm,parameter_delta_norm,input_hash,objective,before_state_hash,after_state_hash,gap_reset,optimizer,scope,batch_checkpoint,receipt_hash FROM r26_training_step ORDER BY rowid DESC LIMIT 64", cancellation).rows);
             JSONObject summary=new JSONObject().put("scope","Measured gradient or sufficient-statistic kernels only; other kernels are not inferred. Combined last8192 update details; folded counts are events, not qualification. Statistical updates have no fabricated gradient.");
             String measured="SELECT policy_hash,campaign_id,sample_ordinal FROM r26_training_step"+(statistics?" UNION ALL SELECT policy_hash,campaign_id,sample_ordinal FROM "+StatisticalTrainingStepStoreR26.TABLE:"");
-            try(Cursor c=db.rawQuery("SELECT count(*) FROM ("+measured+")",null)){if(c.moveToFirst())summary.put("retainedKernelUpdates",c.getLong(0));}
-            try(Cursor c=db.rawQuery("SELECT count(*) FROM (SELECT policy_hash,campaign_id,sample_ordinal FROM ("+measured+") GROUP BY policy_hash,campaign_id,sample_ordinal)",null)){if(c.moveToFirst())summary.put("retainedPolicySamples",c.getLong(0));}
-            try(Cursor c=db.rawQuery("SELECT coalesce(sum(folded),0) FROM r26_retention_total WHERE kind IN ('training_step_details','statistic_training_step_details')",null)){summary.put("omittedOldUpdateDetails",c.moveToFirst()?c.getLong(0):0);}facts.put("trainingStepSummary",summary);
+            try(Cursor c=db.rawQuery("SELECT count(*) FROM ("+measured+")",null,cancellation)){if(c.moveToFirst())summary.put("retainedKernelUpdates",c.getLong(0));}
+            try(Cursor c=db.rawQuery("SELECT count(*) FROM (SELECT policy_hash,campaign_id,sample_ordinal FROM ("+measured+") GROUP BY policy_hash,campaign_id,sample_ordinal)",null,cancellation)){if(c.moveToFirst())summary.put("retainedPolicySamples",c.getLong(0));}
+            try(Cursor c=db.rawQuery("SELECT coalesce(sum(folded),0) FROM r26_retention_total WHERE kind IN ('training_step_details','statistic_training_step_details')",null,cancellation)){summary.put("omittedOldUpdateDetails",c.moveToFirst()?c.getLong(0):0);}facts.put("trainingStepSummary",summary);
         }}
-        facts.put("sessions",rows(db,"SELECT * FROM r26_session ORDER BY heartbeat DESC,session_id LIMIT 32"));
-        facts.put("tasks",rows(db,"SELECT task_id,lane,cursor,status,last_progress,last_cpu_ms,last_served,next_at,blocked_reason FROM r26_task ORDER BY task_id"));
+        facts.put("sessions",rows(db,"SELECT * FROM r26_session ORDER BY heartbeat DESC,session_id LIMIT 32", cancellation).rows);
+        facts.put("tasks",rows(db,"SELECT task_id,lane,cursor,status,last_progress,last_cpu_ms,last_served,next_at,blocked_reason FROM r26_task ORDER BY task_id", cancellation).rows);
         facts.put("taskLivenessR30",taskLivenessR30(db));
         List<Long> cpu=new ArrayList<>();long total=0,first=Long.MAX_VALUE,last=0;
-        try(Cursor c=db.rawQuery("SELECT cpu_ms,recorded_at FROM r26_progress ORDER BY receipt_id DESC LIMIT 4096",null)){while(c.moveToNext()){long ms=c.getLong(0);if(ms<0)throw new IllegalStateException("REPORT_NEGATIVE_CPU_RECEIPT");cpu.add(ms);total=Math.addExact(total,ms);first=Math.min(first,c.getLong(1));last=Math.max(last,c.getLong(1));}}
+        try(Cursor c=db.rawQuery("SELECT cpu_ms,recorded_at FROM r26_progress ORDER BY receipt_id DESC LIMIT 4096",null,cancellation)){while(c.moveToNext()){long ms=c.getLong(0);if(ms<0)throw new IllegalStateException("REPORT_NEGATIVE_CPU_RECEIPT");cpu.add(ms);total=Math.addExact(total,ms);first=Math.min(first,c.getLong(1));last=Math.max(last,c.getLong(1));}}
         Collections.sort(cpu);JSONObject performance=new JSONObject().put("metric","RESEARCH_SLICE_CPU_MS").put("n",cpu.size()).put("cpuTotalMs",total).put("window",new JSONObject().put("selection","LAST_4096_PERSISTED_RESEARCH_SLICE_RECEIPTS").put("firstRecordedAt",cpu.isEmpty()?JSONObject.NULL:first).put("lastRecordedAt",cpu.isEmpty()?JSONObject.NULL:last)).put("scope","Retained research task CPU including owned numerical workers; receipts may span sessions/source versions and do not record per-slice device/ABI; not P0 elapsed, writer wait, resume latency or a device SLO acceptance");
         if(!cpu.isEmpty())performance.put("P50",cpu.get((int)Math.ceil(cpu.size()*.50)-1)).put("P95",cpu.get((int)Math.ceil(cpu.size()*.95)-1)).put("P99",cpu.get((int)Math.ceil(cpu.size()*.99)-1)).put("max",cpu.get(cpu.size()-1));facts.put("performance",performance);
-        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='draws'",null)){if(c.moveToFirst())try(Cursor d=db.rawQuery("SELECT issue FROM draws ORDER BY issue DESC LIMIT 1",null)){if(d.moveToFirst())facts.put("asOfIssue",d.getString(0));}}
-        JSONArray never=new JSONArray();try(Cursor c=db.rawQuery("SELECT mechanism,state,reason FROM r26_capability WHERE last_progress=0 ORDER BY mechanism",null)){while(c.moveToNext())never.put(new JSONObject().put("mechanism",c.getString(0)).put("state",c.getString(1)).put("reason",c.getString(2)));}facts.put("neverProgressed",never);return facts;
+        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='draws'",null,cancellation)){if(c.moveToFirst())try(Cursor d=db.rawQuery("SELECT issue FROM draws ORDER BY issue DESC LIMIT 1",null,cancellation)){if(d.moveToFirst())facts.put("asOfIssue",d.getString(0));}}
+        JSONArray never=new JSONArray();try(Cursor c=db.rawQuery("SELECT mechanism,state,reason FROM r26_capability WHERE last_progress=0 ORDER BY mechanism",null,cancellation)){while(c.moveToNext())never.put(new JSONObject().put("mechanism",c.getString(0)).put("state",c.getString(1)).put("reason",c.getString(2)));}facts.put("neverProgressed",never);return facts;
     }
     public static String json(SQLiteDatabase db,JSONObject source){
         return json(db,source,null);
     }
-    public static String json(SQLiteDatabase db,JSONObject source,List<Map<String,Object>> capturedR27){try{
-        long start=System.nanoTime();JSONObject root=new JSONObject();root.put("schema","R26_REPORT_2");root.put("metricRegistrySha256",ReportMetricContractR26.REGISTRY_SHA256);root.put("snapshotHash",source.opt("snapshotSha256"));root.put("sourceCommit",source.opt("sourceCommit"));root.put("apkHash",source.opt("apkSha256"));root.put("overallAcceptance","INCOMPLETE");root.put("naturalQuality","INSUFFICIENT");root.put("physicalDevice","NOT_RUN");JSONArray sections=new JSONArray();
-        JSONObject facts=new JSONObject();try{facts=facts(db);}catch(Exception error){root.put("captureFactsError",error.toString());}
+    public static String json(SQLiteDatabase db, JSONObject source, List<Map<String,Object>> capturedR27) {
+        try {
+            return document(db, source, capturedR27, null, step -> {}).toString(2);
+        } catch (JSONException failure) {
+            throw new IllegalStateException("R26_REPORT_ENVELOPE", failure);
+        }
+    }
+
+    public static void writeSnapshot(SQLiteDatabase db, JSONObject source, List<Map<String,Object>> capturedR27,
+            CancellationSignal cancellation, Consumer<String> progress, Writer out) throws IOException {
+        if (!db.isReadOnly()) throw new IllegalArgumentException("R26_REPORT_SNAPSHOT_READONLY");
+        try {
+            JSONObject report = document(db, source, capturedR27, cancellation, progress);
+            cancellation.throwIfCanceled();
+            progress.accept("写入 R26 策略报告");
+            ReportJsonWriterR31.write(report, out);
+        } catch (JSONException failure) {
+            throw new IOException("R26_REPORT_ENVELOPE", failure);
+        }
+    }
+
+    private static JSONObject document(SQLiteDatabase db, JSONObject source, List<Map<String,Object>> capturedR27,
+            CancellationSignal cancellation, Consumer<String> progress) throws JSONException {
+        JSONObject root=new JSONObject();root.put("schema","R26_REPORT_2");root.put("metricRegistrySha256",ReportMetricContractR26.REGISTRY_SHA256);root.put("snapshotHash",source.opt("snapshotSha256"));root.put("sourceCommit",source.opt("sourceCommit"));root.put("apkHash",source.opt("apkSha256"));root.put("overallAcceptance","INCOMPLETE");root.put("naturalQuality","INSUFFICIENT");root.put("physicalDevice","NOT_RUN");JSONArray sections=new JSONArray();
+        progress.accept("读取 R26 运行与训练收据");
+        JSONObject facts = new JSONObject();
+        try {
+            facts = facts(db, cancellation);
+        } catch (Exception error) {
+            if (cancellation != null) cancellation.throwIfCanceled();
+            root.put("captureFactsError", error.toString());
+        }
         boolean runtimeReady=RuntimeSchemaR26.ready(db), r27Ready=SchemaR27.ready(db);
-        if(runtimeReady)try{root.put("strategyAssessment",StrategyAssessmentR26.snapshot(db));}catch(Exception error){root.put("strategyAssessmentError",error.toString());}
+        if (runtimeReady) {
+            progress.accept("核对 R26 策略与资格证据");
+            try {
+                root.put("strategyAssessment", StrategyAssessmentR26.snapshot(db, cancellation));
+            } catch (Exception error) {
+                if (cancellation != null) cancellation.throwIfCanceled();
+                root.put("strategyAssessmentError", error.toString());
+            }
+        }
         if(facts.has("serviceTotals"))root.put("committedResearchService",facts.get("serviceTotals"));
+        progress.accept("绑定 R27 历史附章");
         JSONArray r27Chapters=subsequentChapters(db,source,root,capturedR27);
+        if (cancellation != null) cancellation.throwIfCanceled();
         JSONObject r27Truth=r27Chapters.optJSONObject(0);
         if(r27Truth!=null&&!r27Truth.has("conclusionTemplate"))r27Truth=null;
         root.put("r27Schema",ReportR27.SCHEMA);
-        for(String[] spec:SECTIONS){long chapterStart=System.nanoTime();JSONObject s=bindSnapshot(new JSONObject(),source);s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_2");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("asOfIssue",facts.opt("asOfIssue")==null?JSONObject.NULL:facts.get("asOfIssue"));s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
+        Map<String, RowWindow> sectionRows = new HashMap<>();
+        Map<String, Long> sectionCounts = new HashMap<>();
+        for(String[] spec:SECTIONS){
+            if (cancellation != null) cancellation.throwIfCanceled();
+            progress.accept("R26 / " + spec[1]);
+            long chapterStart=System.nanoTime();JSONObject s=bindSnapshot(new JSONObject(),source);s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_2");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("asOfIssue",facts.opt("asOfIssue")==null?JSONObject.NULL:facts.get("asOfIssue"));s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
             String sql=query(spec[0]);boolean r27Source=sql==null&&ReportDataR27.query(spec[0])!=null&&r27Ready;if(r27Source)sql=ReportDataR27.query(spec[0]);
             JSONArray data=new JSONArray();long expectedRows=0;String status="NOT_RUN",reason="Full chapter acceptance evidence has not been collected; existing report catalog is retained";
             if(spec[0].equals("DEVICE"))reason=ReportDataR27.DEVICE_REASON;
             if(sql!=null&&runtimeReady)try{
-                // Small grouped results are common. Keep the exact denominator without evaluating them twice.
-                data=rows(db,sql);
-                expectedRows=data.length();
-                if(expectedRows==64)try(Cursor count=db.rawQuery("SELECT count(*) FROM ("+sql+")",null)){
-                    if(!count.moveToFirst())throw new IllegalStateException("REPORT_SECTION_COUNT_MISSING");
-                    expectedRows=count.getLong(0);
+                RowWindow window = sectionRows.get(sql);
+                if (window == null) {
+                    window = rows(db, sql, cancellation);
+                    sectionRows.put(sql, window);
                 }
-                status="PARTIAL";reason="Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation";}catch(Exception e){status="ERROR";reason=e.toString();JSONArray chain=new JSONArray();for(Throwable x=e;x!=null;x=x.getCause())chain.put(x.getClass().getName()+":"+x.getMessage());s.put("errorChain",chain);}
+                data = window.rows;
+                expectedRows = data.length();
+                if (window.hasMore) {
+                    Long count = sectionCounts.get(sql);
+                    if (count == null) {
+                        try (Cursor c = db.rawQuery("SELECT count(*) FROM (" + sql + ")", null, cancellation)) {
+                            if (!c.moveToFirst()) throw new IllegalStateException("REPORT_SECTION_COUNT_MISSING");
+                            count = c.getLong(0);
+                        }
+                        sectionCounts.put(sql, count);
+                    }
+                    expectedRows = count;
+                }
+                status="PARTIAL";reason="Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation";
+            } catch (Exception error) {
+                if (cancellation != null) cancellation.throwIfCanceled();
+                status="ERROR";reason=error.toString();JSONArray chain=new JSONArray();
+                for(Throwable x=error;x!=null;x=x.getCause())chain.put(x.getClass().getName()+":"+x.getMessage());s.put("errorChain",chain);
+            }
             if(r27Source&&status.equals("PARTIAL")&&data.length()==0){status="INSUFFICIENT";reason="R27 data source is empty for this capture: "+sql;}
             if(spec[0].equals("CONCLUSION")&&r27Truth!=null){status="PARTIAL";reason="R27-01 data-selected conclusion template plus separate engineering/quality/mainline flags; never PASS";data.put(new JSONObject().put("conclusionTemplate",r27Truth.opt("conclusionTemplate")).put("conclusion",r27Truth.opt("conclusion")).put("engineeringPass",false).put("qualityPass",false).put("mainlinePass",false).put("reading","engineering/quality/mainline/device are signed separately (docs/12 12.4)"));}
             s.put("status",status);s.put("reason",reason);s.put("denominator",data.length());s.put("expectedRows",spec[0].equals("FAMILIES")?24:spec[0].equals("EXPERTS")?16:spec[0].equals("FAIR_CAPABILITY_SERVICE")?40:expectedRows);s.put("availableRows",expectedRows);s.put("exportedRows",data.length());s.put("omittedRows",Math.max(0,expectedRows-data.length()));boolean inventory=spec[0].equals("FAMILIES")||spec[0].equals("EXPERTS")||spec[0].equals("FAIR_CAPABILITY_SERVICE");s.put("missingInventoryRows",inventory?Math.max(0,s.getLong("expectedRows")-expectedRows):0);s.put("unexpectedInventoryRows",inventory?Math.max(0,expectedRows-s.getLong("expectedRows")):0);s.put("truncated",s.getLong("omittedRows")>0);s.put("metrics",data);s.put("requiredMetrics",new JSONArray(ReportMetricContractR26.metrics(spec[0])));if(spec[0].equals("FAMILIES")||spec[0].equals("EXPERTS")||spec[0].equals("FAIR_CAPABILITY_SERVICE")){s.put("capabilityNumericalAbi",facts.opt("capabilityNumericalAbi")==null?JSONObject.NULL:facts.get("capabilityNumericalAbi"));s.put("capabilityMatchesCaptureRule",!facts.has("capabilityNumericalAbi")||source.isNull("generatedRuleSha256")?JSONObject.NULL:facts.getString("capabilityNumericalAbi").equals(source.optString("generatedRuleSha256")));}s.put("metricResults",metricResults(spec[0],data,source,facts));if(spec[0].equals("EXPERTS"))s.put("rowGranularity","ONE_REGISTERED_EXPERT_WITH_LATEST_EXPERIMENT_AND_AUDIT; full history remains in SQLite snapshot");if((spec[0].equals("PERFORMANCE")||spec[0].equals("SLO_BUDGET"))&&facts.has("performance")){s.put("measurementPopulation","RESEARCH_SLICE_CPU_MS");s.put("metricDefinition",facts.getJSONObject("performance").getString("scope"));}s.put("elapsedMs",(System.nanoTime()-chapterStart)/1000000);sections.put(s);if(spec[0].equals("IDENTITY"))for(int r=0;r<r27Chapters.length();r++)sections.put(r27Chapters.get(r));
-        }root.put("sections",sections);root.put("expectedSections",40+r27Chapters.length());root.put("exportedSections",sections.length());root.put("independentOpportunitiesAreNotActionCount",true);return root.toString(2);
-    }catch(JSONException e){throw new IllegalStateException("R26_REPORT_ENVELOPE",e);}}
+        }root.put("sections",sections);root.put("expectedSections",40+r27Chapters.length());root.put("exportedSections",sections.length());root.put("independentOpportunitiesAreNotActionCount",true);return root;
+    }
     /** Each required metric has an explicit value or named missing-evidence state; no omitted contract fields. */
     private static JSONObject metricResults(String id,JSONArray rows,JSONObject source,JSONObject facts)throws JSONException {
         Map<String,Object> values=new HashMap<>();Map<String,String> definitions=new HashMap<>();String ref="R26_REPORT.json#"+id;

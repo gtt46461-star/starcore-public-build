@@ -55,7 +55,32 @@ public final class ReportJsonWriterR31 {
 
     @SuppressWarnings("unchecked")
     public static void write(Object value,Writer out)throws IOException {
-        if(value==null){out.write("null");return;}
+        if(value==null || value==org.json.JSONObject.NULL){out.write("null");return;}
+        if(value instanceof org.json.JSONObject){
+            org.json.JSONObject object=(org.json.JSONObject)value;
+            out.write('{');
+            boolean first=true;
+            for(java.util.Iterator<String> keys=object.keys();keys.hasNext();){
+                String key=keys.next();
+                if(!first)out.write(',');
+                first=false;
+                string(key,out);
+                out.write(':');
+                write(object.opt(key),out);
+            }
+            out.write('}');
+            return;
+        }
+        if(value instanceof org.json.JSONArray){
+            org.json.JSONArray items=(org.json.JSONArray)value;
+            out.write('[');
+            for(int i=0;i<items.length();i++){
+                if(i>0)out.write(',');
+                write(items.opt(i),out);
+            }
+            out.write(']');
+            return;
+        }
         if(value instanceof String){string((String)value,out);return;}
         if(value instanceof Boolean||value instanceof Number){out.write(JsonR27.write(value));return;}
         if(value instanceof Map){
@@ -107,6 +132,15 @@ public final class ReportJsonWriterR31 {
     /** Readable Markdown from the identical chapter list, with every data member retained. */
     public static void markdownR30(List<Map<String,Object>> chapters,Writer out)throws IOException {
         out.write("# STARCORE R30 检测报告（同一只读快照）\n\n12章来自同一只读事实快照。缺来源保持 UNKNOWN，零样本保持 INSUFFICIENT；已记录不能代替自然质量和真机验收。\n");
+        markdownChapters(chapters,out);
+    }
+
+    public static void markdownR27(List<Map<String,Object>> chapters,Writer out)throws IOException {
+        out.write("# STARCORE R27 检测报告（自动生成）\n\n空数据只显示 INSUFFICIENT；本报告不含人工撰写的通过结论，所有结论由数据自动选择。\n");
+        markdownChapters(chapters,out);
+    }
+
+    private static void markdownChapters(List<Map<String,Object>> chapters,Writer out)throws IOException {
         for(Map<String,Object> chapter:chapters){
             out.write("\n## ");out.write(String.valueOf(chapter.get("sectionId")));out.write(' ');out.write(String.valueOf(chapter.get("title")));
             out.write("\n\n状态：");out.write(String.valueOf(chapter.get("status")));out.write("（");out.write(String.valueOf(chapter.get("reason")));out.write("）\n\n");
