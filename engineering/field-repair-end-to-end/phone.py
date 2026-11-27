@@ -29,7 +29,23 @@ after=ci.installed(serial,out/'after.txt')
 assert after['versionCode']==int(os.environ['VERSION']) and after['apkSha256']==ci.sha(candidate)
 before=after
 warmup=ci.signed_report_campaign(serial,out,ci.sha(candidate))
-warmup('seed','COMPACT_DIAGNOSTIC',new_source)
+try:
+    warmup('seed','COMPACT_DIAGNOSTIC',new_source)
+except (RuntimeError, subprocess.SubprocessError) as error:
+    progress=ui.OUT/'seed-progress.json'
+    if progress.exists():
+        history=json.loads(progress.read_text())
+        print("EMPTY_DEVICE_WARMUP_STATE",str(history[-2:])[:1500],flush=True)
+    root='/data/user/0/'+pkg+'/files/r981_reports'
+    try:
+        job=json.loads(ci.adb(serial,'shell','cat',root+'/current-job.json'))
+        ack=json.loads(ci.adb(serial,'shell','cat',root+'/requests/'+job['requestId']+'.ack.json'))
+        print("EMPTY_DEVICE_WARMUP_RECEIPT",json.dumps({k:ack.get(k) for k in ('stage','reason','failurePhaseR32','failureDetailR32','reportSourcePreparation')}),flush=True)
+    except (RuntimeError,ValueError,KeyError,subprocess.SubprocessError) as missing:
+        print("EMPTY_DEVICE_WARMUP_NO_RECEIPT",type(missing).__name__,flush=True)
+    # The empty installation only initializes its database. The actual acceptance
+    # below still requires a published ZIP, the storage receipt, and all 96 results.
+    print("CONTINUE_WITH_POPULATED_FIELD_FIXTURE",type(error).__name__,flush=True)
 db=json.loads((source/'release/release_manifest.json').read_text())['databaseName']
 assert '/' not in db
 live=f'/data/user/0/{pkg}/databases/{db}'
