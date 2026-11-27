@@ -59,11 +59,11 @@ with closing(sqlite3.connect(local)) as c:
         for member in sorted(n for n in archive.namelist() if re.fullmatch(r'catalog-\d+\.jsonl',n)):
             for line in archive.open(member):
                 row=json.loads(line)
-                if row['kind']=='schema_object' and row['type'] in ('table','index') and row['table'] in selected and not row['sql_null']:
+                if row['kind']=='schema_object' and row['type']=='table' and row['table'] in selected and not row['sql_null']:
                     ddl[row['type'],row['name']]=[]
                 elif row['kind']=='schema_sql_chunk' and (row['type'],row['name']) in ddl:
                     ddl[row['type'],row['name']].append((row['start_char'],row['text']))
-        for (kind,name),chunks in sorted(ddl.items(),key=lambda item:item[0][0]!='table'):
+        for (kind,name),chunks in ddl.items():
             if not c.execute('SELECT 1 FROM sqlite_master WHERE type=? AND name=?',(kind,name)).fetchone():
                 sql=''.join(text for pos,text in sorted(chunks))
                 assert sql.upper().startswith('CREATE ') and kind.upper() in sql.upper()[:30]
