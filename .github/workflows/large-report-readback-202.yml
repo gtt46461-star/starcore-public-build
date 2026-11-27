@@ -33,11 +33,14 @@ jobs:
           curl -fsSL --retry 3 "https://github.com/$GITHUB_REPOSITORY/releases/download/r34.2-B12-752846983da5/STARCORE-R342-577311201-752846983da5-release.apk" -o "$RUNNER_TEMP/installed-201.apk"
           asset="r343-signed-build-original-B12-$SOURCE"
           for i in $(seq 1 100); do
-            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/45925134691/artifacts" --jq "[.artifacts[]|select(.name==\"$asset\")]|length")
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/45925134691/artifacts" --jq "[.artifacts[]|select(.name==\"$asset\")]|length") || count=0
             if [[ "$count" == 1 ]]; then break; fi
             sleep 30
           done
-          gh run download 45925134691 --repo "$GITHUB_REPOSITORY" --name "$asset" --dir "$RUNNER_TEMP/signed"
+          for i in 1 2 3 4; do
+            if gh run download 45925134691 --repo "$GITHUB_REPOSITORY" --name "$asset" --dir "$RUNNER_TEMP/signed" --clobber; then break; fi
+            sleep 10
+          done
           mapfile -t apks < <(find "$RUNNER_TEMP/signed" -name '*.apk')
           mapfile -t receipts < <(find "$RUNNER_TEMP/signed" -name 'CI_BUILD_RECEIPT.json')
           [[ ${#apks[@]} == 1 && ${#receipts[@]} == 1 ]]

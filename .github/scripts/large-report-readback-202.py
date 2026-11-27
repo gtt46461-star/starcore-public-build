@@ -8,6 +8,7 @@ import struct
 import subprocess
 import sys
 import time
+import zipfile
 
 source = Path('source').resolve()
 sys.path.insert(0, str(source/'tools/r342'))
@@ -70,7 +71,7 @@ with sqlite3.connect(f'file:{local}?mode=ro',uri=True) as c:
 # This is the stopped, disposable, offline emulator seeded by the baseline APK.
 assert ci.adb(serial,'shell','getprop','ro.kernel.qemu')=='1'
 ci.adb(serial,'shell','rm','-f',live+'-wal',live+'-shm')
-ci.adb(serial,'push','-z','brotli',local,live)
+subprocess.run(['adb','-s',serial,'push','-z','lz4',str(local),live],check=True,timeout=600)
 ci.adb(serial,'shell','chown',identity,live)
 ci.adb(serial,'shell','restorecon',live)
 assert int(ci.adb(serial,'shell','stat','-c','%s',live))==size
@@ -83,6 +84,9 @@ capture('candidate-sized','COMPACT_DIAGNOSTIC',new_source)
 elapsed=time.monotonic()-start
 result=json.loads((out/'signed-report-readbacks.json').read_text())['reports'][-1]
 assert result['status']=='VERIFIED_ANDROID_SAF_ZIP' and result['sourceCommit']==new_source
-receipt={'scope':'API34_EMULATOR_UPGRADE_201_TO_202_WITH_SYNTHETIC_FREE_PAGES','source':new_source,'before':before,'after':after,'sourceBytesBeforeLaunch':size,'populatedPagesBeforePadding':used,'secondsFromUiEntryThroughReopenAndEvidenceEncryption':round(elapsed,2),'underTwentyMinutes':elapsed<1200,'checks':result['checks'],'metrics':result['metrics'],'jobId':result['jobId'],'physicalDevice':False}
+with zipfile.ZipFile(ui.OUT/result['file']) as reopened:
+    manifest=json.loads(reopened.read('source-manifest.json'))
+assert manifest['snapshotBytes']>=size and manifest['snapshotSha256']==result['snapshotSha256']
+receipt={'verifiedSnapshotBytes':manifest['snapshotBytes'],'exportedZipBytes':result['bytes'],'scope':'API34_EMULATOR_UPGRADE_201_TO_202_WITH_SYNTHETIC_FREE_PAGES','source':new_source,'before':before,'after':after,'sourceBytesBeforeLaunch':size,'populatedPagesBeforePadding':used,'secondsFromUiEntryThroughReopenAndEvidenceEncryption':round(elapsed,2),'underTwentyMinutes':elapsed<1200,'checks':result['checks'],'metrics':result['metrics'],'jobId':result['jobId'],'physicalDevice':False}
 (out/'field-size-android-readback.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt),flush=True)
