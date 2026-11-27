@@ -41,12 +41,12 @@ jobs:
           echo "BASELINE_SHA=$actual" >> "$GITHUB_ENV"
           asset="r343-signed-build-original-B12-$SOURCE"
           for i in $(seq 1 100); do
-            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/46004596314/artifacts" --jq "[.artifacts[]|select(.name==\"$asset\")]|length") || count=0
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/46004596322/artifacts" --jq "[.artifacts[]|select(.name==\"$asset\")]|length") || count=0
             if [[ "$count" == 1 ]]; then break; fi
             sleep 30
           done
           for i in 1 2 3 4; do
-            if gh run download 46004596314 --repo "$GITHUB_REPOSITORY" --name "$asset" --dir "$RUNNER_TEMP/received-$i"; then mv "$RUNNER_TEMP/received-$i" "$RUNNER_TEMP/signed"; break; fi
+            if gh run download 46004596322 --repo "$GITHUB_REPOSITORY" --name "$asset" --dir "$RUNNER_TEMP/received-$i"; then mv "$RUNNER_TEMP/received-$i" "$RUNNER_TEMP/signed"; break; fi
             sleep 10
           done
           mapfile -t apks < <(find "$RUNNER_TEMP/signed" -name '*.apk')
@@ -74,7 +74,7 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: field-android-readback-577311210
+          name: rsec010-detail-android-readback-577311210
           path: |
             ${{ runner.temp }}/large-report-evidence/field-size-android-readback.json
             ${{ runner.temp }}/large-report-evidence/sampled-stage-transitions.json
