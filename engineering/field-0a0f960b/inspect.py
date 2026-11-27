@@ -204,6 +204,16 @@ with ExitStack() as stack:
         datum=recent.get(name,{})
         rows=[r for r in datum.get("rows",[]) if isinstance(r,dict)]
         emit("EXTRA_TABLE",{"name":name,"rows":len(rows),"groups":Counter(str(r.get("status",r.get("state",""))) for r in rows),"columns":sorted(set().union(*(r.keys() for r in rows)))})
+    resource=recent.get("v57_attempt_resource_r927",{})
+    records=[r for r in resource.get("rows",[]) if str(r.get("release_code"))=="577311209"]
+    timings={}
+    for r in records:
+        spans=r.get("stage_samples","")
+        if not isinstance(spans,str): continue
+        for name,ms,unused,outcome in re.findall(r"\b([A-Z0-9_]+):([0-9]+)/(-?[0-9]+):(FAILED|OVER_BUDGET|OK);",spans):
+            timings.setdefault(name,[]).append(int(ms))
+    emit("FROZEN_TIMING_EVIDENCE",{"attempts":len(records),"ledgerRows":resource.get("totalRows"),"status":Counter(r.get("status","") for r in records),
+        "stages":{k:{"n":len(v),"p95":sorted(v)[int((len(v)-1)*.95)],"max":max(v)} for k,v in timings.items()}})
     emit("FIELD_SCHEDULER_STATE",context_value(scheduler))
     emit("CAPTURE_IDENTITY_AUDIT",context_value({k:v for k,v in src.items() if k in ("reportSourcePreparation","verifiedInstallationR341","mainWriterFaultsR342","r341SqlObservationScope","r26CheckpointAuditR32","r26CheckpointByteValidation","generatedRuleSha256","runtimeObservedAt")}))
     emit("PHYSICAL_R30_HEALTH",context_value(r30.get("sourceHealthR341",{})))
