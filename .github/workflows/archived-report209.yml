@@ -1,0 +1,19 @@
+name: Archived phone report size and chapter inventory
+on:
+  push:
+    branches: ['repair/report-209-control-headroom']
+    paths: ['engineering/archived-report209/measure.py', '.github/workflows/archived-report209.yml']
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            engineering/archived-report209
+            construction/plans/STARCORE_R34_3_REPAIR_20261126/report
+          persist-credentials: false
+      - name: Inspect original saved ZIP and retained chapters
+        run: python3 engineering/archived-report209/measure.py construction/plans/STARCORE_R34_3_REPAIR_20261126/report/ORIGINAL_DIAGNOSTIC_173.zip
