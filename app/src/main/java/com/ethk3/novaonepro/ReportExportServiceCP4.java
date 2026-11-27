@@ -364,7 +364,8 @@ public final class ReportExportServiceCP4 extends Service {
                     job.snapshotWallMs=System.currentTimeMillis();
                     active.copyPinnedSnapshot(getDatabasePath(AppConfig.DB_NAME),snapshot);
                     active.enter("SNAPSHOT_HASH",120000);
-                    sync(snapshot);job.snapshotSha=ReportArchiveCP4.hash(snapshot,active);job.snapshotBytes=snapshot.length();
+                    // The original native copy closes and fsyncs the destination before success.
+                    job.snapshotSha=ReportArchiveCP4.hash(snapshot,active);job.snapshotBytes=snapshot.length();
                     journal.transition(job,ReportJobJournalCP12.Stage.SNAPSHOT_DURABLE,System.currentTimeMillis());
                 }
                 active.enter("INDEXING",120000);journal.transition(job,ReportJobJournalCP12.Stage.INDEXING,System.currentTimeMillis());
@@ -793,7 +794,6 @@ public final class ReportExportServiceCP4 extends Service {
         if(Build.VERSION.SDK_INT>=23)alarms.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,due,callback);else alarms.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,due,callback);
     }
     private static void deleteFile(File file)throws IOException{if(file.exists()&&!file.delete())throw new IOException("REPORT_TEMP_CLEANUP");}
-    private static void sync(File file)throws IOException{try(RandomAccessFile io=new RandomAccessFile(file,"rw")){io.getFD().sync();}}
     private static String boundedReason(String value){if(value==null)return "REPORT_UNCLASSIFIED_FAILURE";return value.length()<=512?value:value.substring(0,512);}
     private static boolean storageFull(Throwable error){for(int depth=0;error!=null&&depth<16;depth++,error=error.getCause())if(error instanceof android.system.ErrnoException&&((android.system.ErrnoException)error).errno==android.system.OsConstants.ENOSPC)return true;return false;}
     private static String classify(Throwable error){

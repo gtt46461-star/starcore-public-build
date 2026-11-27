@@ -71,6 +71,8 @@ static int cp4_backup_impl(const char *source,const char *dest,int64_t memory,in
  if(sqlite3_prepare_v2(src,"PRAGMA page_size",-1,&bounds,0)==SQLITE_OK&&sqlite3_step(bounds)==SQLITE_ROW){int n=sqlite3_column_int(bounds,0);if(n>=512&&n<=65536){page_size=n;page_size_known=1;}}sqlite3_finalize(bounds);bounds=0;
  if(sqlite3_prepare_v2(src,"PRAGMA page_count",-1,&bounds,0)==SQLITE_OK&&sqlite3_step(bounds)==SQLITE_ROW){int n=sqlite3_column_int(bounds,0);if(n>0){total_pages=n;page_count_known=1;}}sqlite3_finalize(bounds);
  if(admit&&(!page_size_known||!page_count_known)){rc=CP4_VERIFY;goto cleanup;}
+ int steps_since_yield=0;
+ int64_t last_yield=now_ms();
  for(;;){
   if(!allowed(check,opaque,end)){rc=CP4_CANCEL;break;}
   /* One 100-page step may flush dirty pages retained by earlier steps when
@@ -91,10 +93,18 @@ static int cp4_backup_impl(const char *source,const char *dest,int64_t memory,in
    if(!busy_since)busy_since=now_ms();
    /* A lock that never makes progress is a failure, not an unlimited size/time cap. */
    if(now_ms()-busy_since>=30000)break;
-   nap_ms(25);continue;
+   nap_ms(25);steps_since_yield=0;last_yield=now_ms();continue;
   }
   if(rc!=SQLITE_OK)break;
-  busy_since=0;nap_ms(1); /* Yield CPU while preserving the fixed WAL snapshot. */
+  busy_since=0;
+  /* Every 100 pages still checks cancellation and free space. Yield after
+   * either eight successful chunks or 20 ms of copying, rather than parking
+   * once for every chunk in a large pinned snapshot. */
+  if(++steps_since_yield>=8 || now_ms()-last_yield>=20){
+   nap_ms(1);
+   steps_since_yield=0;
+   last_yield=now_ms();
+  }
  }
  {int finish=sqlite3_backup_finish(backup);backup=0;if(rc==SQLITE_OK)rc=finish;}
  if(!done && rc==SQLITE_OK)rc=CP4_VERIFY;
