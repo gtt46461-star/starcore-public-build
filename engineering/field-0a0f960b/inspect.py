@@ -194,7 +194,17 @@ with ExitStack() as stack:
             match=re.search(r"no such column: ([A-Za-z0-9_.]+)",value)
             if match: tokens.append("NO_SUCH_COLUMN:"+match.group(1))
         return "|".join(dict.fromkeys(tokens)) or "OTHER_TEXT"
-    emit("FIELD_SCHEDULER_STATE",context_value(scope.get("researchSchedulerState",{})))
+    scheduler=scope.get("researchSchedulerState",[])
+    for item in scheduler:
+        if isinstance(item,dict):
+            key=item.get("key",item.get("state_key",item.get("name","")))
+            if re.match(r"(r343_|r65_|r912_|r908_|r975_|r962_|r971_|r980_|cp1[12]_)",key):
+                emit("SCHEDULER_VALUE",{"key":key,"fields":sorted(item), "status":item.get("status"),"values":{k:context_value(item[k]) for k in ("value","state_value","text","display","preview","typedValue","valuePreview","utf8","detail","reason","typed_value") if k in item}})
+    for name in ("research_molecule_seed_v2","research_training_input_v2","v57_research_lane_cursor_r967","v57_runtime_event_r926","v57_runtime_event_scope_r341"):
+        datum=recent.get(name,{})
+        rows=[r for r in datum.get("rows",[]) if isinstance(r,dict)]
+        emit("EXTRA_TABLE",{"name":name,"rows":len(rows),"groups":Counter(str(r.get("status",r.get("state",""))) for r in rows),"columns":sorted(set().union(*(r.keys() for r in rows)))})
+    emit("FIELD_SCHEDULER_STATE",context_value(scheduler))
     emit("CAPTURE_IDENTITY_AUDIT",context_value({k:v for k,v in src.items() if k in ("reportSourcePreparation","verifiedInstallationR341","mainWriterFaultsR342","r341SqlObservationScope","r26CheckpointAuditR32","r26CheckpointByteValidation","generatedRuleSha256","runtimeObservedAt")}))
     emit("PHYSICAL_R30_HEALTH",context_value(r30.get("sourceHealthR341",{})))
     emit("PHYSICAL_R30_ACCEPTANCE",context_value(r30.get("evidenceAssessmentR33",{})))
@@ -218,4 +228,7 @@ with ExitStack() as stack:
         for raw in archive.open(m):
             row=json.loads(raw)
             if row.get("kind")=="check_result" and row.get("execution_state")!="EXECUTED":
-                emit("FIELD_CHECK_CAUSE",{"id":row.get("id"),"reasons":context_value({k:v for k,v in row.items() if k in ("reason","failure","error","exception","errorChain","details","source")})})
+                emit("FIELD_CHECK_CAUSE",{"id":row.get("id"),"reasons":context_value({k:v for k,v in row.items() if k in ("reason","failure","error","exception","errorChain","details","source")}),
+                     "frames":re.findall(r"\bcom\.ethk3\.novaonepro\.[A-Za-z0-9_$.]+(?=\([A-Za-z0-9_]+\.java)",str(row.get("error_detail","")))[:12],
+                     "errorCodes":list(dict.fromkeys(exact_codes.findall(str(row.get("error_detail","")))))[:12],
+                     "detailKeys":list(row["error_detail"]) if isinstance(row.get("error_detail"),dict) else []})
