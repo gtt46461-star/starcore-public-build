@@ -57,7 +57,11 @@ with zipfile.ZipFile(ui.OUT/saved['file']) as z:
     reference=Path('source/construction/plans/STARCORE_R34_3_REPAIR_20261126/report/ORIGINAL_DIAGNOSTIC_173.zip')
     assert hashlib.sha256(reference.read_bytes()).hexdigest()=='3fb241b3181dccd4d149cf91471d86532919f77d943847ff8ce348cce5ec4d86'
     required=('R30_REPORT.md','R30_REPORT.json','FILE_STATE.jsonl','R26_POLICY_IDENTITIES.jsonl','R26_FROZEN_SURFACE.json','STRATEGY_MATRICES.json','UPGRADE_DIAGNOSIS.md','UPGRADE_DIAGNOSIS.json','DIAGNOSTIC_SCOPE.json')
-    with zipfile.ZipFile(reference) as old:
+    with zipfile.ZipFile(reference) as envelope:
+        members=[n for n in envelope.namelist() if not n.endswith('/')]
+        assert len(members)==1
+        original_bytes=envelope.read(members[0])
+    with zipfile.ZipFile(io.BytesIO(original_bytes)) as old:
         historical=json.loads(old.read('R30_REPORT.json'))
         assert all(name in old.namelist() and name in z.namelist() for name in required)
         assert {m['metricId'] for m in historical['metricResults']}=={m['metricId'] for m in doc['metricResults']}
