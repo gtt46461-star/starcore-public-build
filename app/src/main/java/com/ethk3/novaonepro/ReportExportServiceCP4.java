@@ -887,7 +887,7 @@ public final class ReportExportServiceCP4 extends Service {
             timing.progress(now);
             sampleStage(now,false);
         }
-        @Override public void onIndexSection(String section) {
+        void onIndexSection(String section) {
             activeCheck="";
             indexSection=section;
             completedIndexEntries=0;
@@ -897,6 +897,10 @@ public final class ReportExportServiceCP4 extends Service {
         }
         @Override public void onIndexProgress(String section,long completed) {
             long now=SystemClock.elapsedRealtime();
+            if(completed==0 && !section.equals(indexSection) && ("多周期研究汇总".equals(section)||"研究调度状态".equals(section))){
+                onIndexSection(section);
+                return;
+            }
             if(section.equals(indexSection) && completed>completedIndexEntries)timing.progress(now);
             indexSection=section;
             completedIndexEntries=completed;

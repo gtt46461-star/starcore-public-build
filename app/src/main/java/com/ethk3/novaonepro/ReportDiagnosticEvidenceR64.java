@@ -147,7 +147,7 @@ public final class ReportDiagnosticEvidenceR64 {
                 if(exportedRows!=(bounded?5000:totalRows))throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
                 out.write("],\"exportedRows\":"+exportedRows+",\"totalRows\":"+totalRows+",\"complete\":"+(exportedRows==totalRows)+"}");
             }
-            control.onIndexSection("多周期研究汇总");
+            control.onIndexProgress("多周期研究汇总",0);
             out.write("],\"multiHorizonProbeResearch\":"+MultiHorizonProbeR80.reportJson(snapshot,()->control.shouldContinue())+",\"researchSchedulerState\":[");first=true;
             // Exact allow-list: never export unrelated app_state credentials or preferences.
             String[] keys={"cp12_import_subslot","cp12_import_last_result","r975_director_priority",
@@ -167,7 +167,7 @@ public final class ReportDiagnosticEvidenceR64 {
                     "draw_save_error","draw_history_backfill_error","r80_probe_last_status","r80_bound_source_last_status",
                     "r81_bound_position_cursor","r81_bound_maintenance_turn","r81_bound_progress_cursor",
                     "r81_bound_position_status_1","r81_bound_position_status_2","r81_bound_position_status_3","r81_bound_position_status_4","r81_bound_position_status_5","r81_bound_position_status_6","r81_bound_position_status_7","r81_bound_position_status_8","r81_bound_position_status_9","r81_bound_position_status_10"};
-            control.onIndexSection("研究调度状态");
+            control.onIndexProgress("研究调度状态",0);
             for(String key:keys){
                 checkpoint(control);if(!first)out.write(',');first=false;
                 ReportMetadataStreamR81.writeState(snapshot,key,out,control);
