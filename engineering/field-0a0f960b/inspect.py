@@ -1,0 +1,171 @@
+from collections import Counter
+from contextlib import ExitStack
+from pathlib import Path
+import hashlib
+import io
+import json
+import re
+import sys
+import zipfile
+
+
+def emit(label, obj):
+    print(label, json.dumps(obj, ensure_ascii=False, sort_keys=True), flush=True)
+
+
+def selected(obj, keys):
+    return {key: obj.get(key) for key in keys if key in obj}
+
+
+def status_table(row):
+    counts = {}
+    for state in row.get("states", []):
+        value = str(state.get("value"))
+        col = state.get("column")
+        if col in {"status","state","kind","stage","terminal_code","failure_class"} and re.fullmatch(r"[A-Z0-9_:/|.-]{1,100}", value):
+            counts.setdefault(col, {})[value] = state.get("rows")
+    return {"table": row["table"], "rows": row["rows"], "groups": counts}
+
+
+path=Path(sys.argv[1])
+with ExitStack() as stack:
+    archive=stack.enter_context(zipfile.ZipFile(path))
+    if "DIAGNOSTIC_SCOPE.json" not in archive.namelist():
+        matches=[item for item in archive.infolist() if item.filename.rsplit("/",1)[-1]=="STARCORE_FULL_REPORT.zip"]
+        assert len(matches)==1 and matches[0].file_size <= 160_000_000
+        archive=stack.enter_context(zipfile.ZipFile(io.BytesIO(archive.read(matches[0]))))
+    members=archive.infolist()
+    assert len(members)==len({m.filename for m in members})
+    assert sum(m.file_size for m in members)<=750_000_000
+    assert archive.testzip() is None
+    def doc(name):
+        return json.loads(archive.read(name))
+    src=doc("source-manifest.json")
+    sem=doc("R31_SEMANTIC_RECEIPT.json")
+    scope=doc("DIAGNOSTIC_SCOPE.json")
+    r26=doc("R26_REPORT.json")
+    r30=doc("R30_REPORT.json")
+    assert src["sourceCommit"]==scope["sourceCommit"]==sem["sourceCommit"]
+    assert src["snapshotSha256"]==scope["snapshotSha256"]==sem["snapshotSha256"]
+    assert hashlib.sha256(archive.read("R30_REPORT.json")).hexdigest()==sem["reportSha256"]
+    emit("REPORT_IDENTITY",selected(src,["sourceCommit","snapshotSha256","snapshotBytes","apkSha256","versionCode","appVersionCode","reportProfile"]))
+    emit("CHECK_OUTCOMES",Counter((str(x.get("executionState",x.get("execution_state","UNSPECIFIED")))) for x in sem["checks"].values()) if isinstance(sem["checks"],dict) else list(selected(x,["id","execution_state","executionState"]) for x in sem["checks"] if isinstance(x,dict)))
+    tables={t["table"]:t for t in scope["tables"]}
+    table_groups={
+        "CREATE":r"family_creation|ablation|creation|genome|r952_candidate$|research_action_v2|r27_(generation|policy|lineage)$|r975_evolution_review$",
+        "TRAIN":r"training_|r952_artifact|r952_learning_cursor|r27_atomnet_epoch|r26_training_step|research_rolling_(feature|version|event|head)|research_task_r967",
+        "CAPTURE":r"selected_evidence|deferred_evidence|settlement_task|canonical|v57_shadow_observation|analysis_request",
+        "QUALIFICATION":r"research_certificate|calibration|r958_frozen_predraw|r967_frozen_evaluation|fixed_window|mainline_contribution",
+        "CHART":r"chart_cache|r30r1_(input_head|chart|research_applied)|r27_brier_pair",
+    }
+    for tag, pattern in table_groups.items():
+        rows=[status_table(t) for name,t in tables.items() if re.search(pattern,name)]
+        emit(tag, rows)
+    emit("R30_CHAPTERS",[selected(x,["sectionId","status","reason","evidenceLevel"]) for x in r30["chapters"]])
+    emit("R30_METRICS",[selected(x,["id","metricId","kind","value","status","sampleCount","denominator","missingReason","evidenceLevel"]) for x in r30["metricResults"]])
+    emit("R30_TABLES",[selected(x,["id","totalMatchingRows","status","shown","sourceVersionStatus","readOnly"]) for x in r30["researchTables"]])
+    idx=r30.get("objectIndex",{})
+    if isinstance(idx,dict):
+        for k,value in idx.items():
+            if re.search(r"chart|research",k,re.I):
+                if isinstance(value,dict):
+                    emit("R30_INDEX",{"key":k,"summary":selected(value,["totalRows","totalObjects","status","inlineByteBudgetExceeded","displayIsFullDenominator","availableRows","exportedRows","fullOriginal"]),"keys":list(value)})
+                elif isinstance(value,list):
+                    emit("R30_INDEX",{"key":k,"count":len(value)})
+    diag=doc("UPGRADE_DIAGNOSIS.json")
+    findings=diag.get("findings",diag.get("diagnosis",{}).get("findings",[]))
+    if isinstance(findings,list):
+        emit("UPGRADE_FINDINGS",[selected(x,["id","status","priority","severity","action","conclusion"]) for x in findings])
+    assess=r26.get("strategyAssessment",{})
+    emit("R26_STRATEGY",selected(assess,["totalPolicies","exportedPolicies","omittedPolicies","evolution"]))
+    for x in r26["sections"]:
+        if x.get("sectionId") in {"TRAINING","PERFORMANCE","RECOVERY","BACKGROUND","CONTINUOUS_RUNTIME","R27_03_CONTINUOUS_RUNTIME","R29_12_ACCEPTANCE_GAPS"}:
+            emit("R26_TRACK",selected(x,["sectionId","elapsedMs","availableRows","exportedRows","status","reason"]))
+
+    emit("ACTUAL_MEMBER_SIZES", [[m.filename,m.file_size,m.compress_size] for m in members])
+    emit("CAPTURE_ROOTS", {"scope":sorted(scope), "identity":sorted(src), "r26":sorted(r26), "r30":sorted(r30)})
+    focused = re.compile(r"(research_(training|task_checkpoint|development_receipt|working_storage|family|atom_catalog_import|molecule_import|rolling|action|feedback|formal|fixed|evolution|teacher|long)|r952_(candidate|artifact|learning|research_outbox|matrix)|r26_(task$|capability$|candidate$|checkpoint|training_step|evolution|live_model)|r27_(policy$|generation$|task_error$|lineage$)|v57_(settlement_task|deferred_evidence|analysis_request|research_task|research_lane_cursor|draw_canonical)|r967_frozen|runtime_owner|schema_migration|r33_research)")
+    def safe_reason(value):
+        if not isinstance(value,str) or not value:
+            return None
+        if re.fullmatch(r"[A-Z][A-Z0-9_:.|-]{0,140}",value):
+            return value
+        codes = re.findall(r"(?:reason|category|phase|cause|state|operation|status|commitOutcome)=([A-Z][A-Z0-9_]{2,120})",value)
+        known = re.findall(r"\b(?:WAIT[A-Z0-9_]+|YIELD[A-Z0-9_]+|R[0-9]+_[A-Z][A-Z0-9_]{3,105}|[A-Z][A-Z0-9_]+_MISSING|[A-Z][A-Z0-9_]+_FAILED)\b",value)
+        return "|".join(dict.fromkeys((codes+known)[:12])) or "OTHER_TEXT"
+    numeric = {"lane","cursor","next_index","next_row","rows","train_n","validation_n","future_n","optimizer_steps","attempt_count","next_sequence","fence","steps","last_progress","updated_at","created_at","last_committed_at","last_progress_at","lease_until","min_ready","next_elapsed_ms","actual","model_updates","numeric_updates","generation","ready_count","window_end","max_ready_target"}
+    enums = {"kind","status","state","operation","phase","failure_class","terminal_code","terminal_kind","last_error","reason","outcome","blocked_reason","wait_detail","wait_kind","last_reason","last_outcome","dependency","result_state","proof_error","training_abi","family","role","problem_type","source_kind","task_kind","error_class","message"}
+    issues = {"desired_issue","served_issue","target_issue","last_issue","cutoff_issue","through_issue","first_issue","validation_last","source_issue","completed_input_ordinal","work_cursor","known_latest"}
+    ids = {"task_id","candidate_id","version_id","policy_hash","protocol_hash","receipt_hash","rule_hash","artifact_hash","authority_ref","sourceCommit","parent_id"}
+    def allowed(key,value):
+        if value is None or isinstance(value,bool):
+            return value
+        if key in issues:
+            text = str(value)
+            if re.fullmatch(r"[0-9]{1,15}",text): return value
+            return safe_reason(value)
+        if key in numeric:
+            if isinstance(value,(int,float)): return value
+            if isinstance(value,str) and re.fullmatch(r"[A-Z_]+[|][0-9]+",value): return value
+            if isinstance(value,str):
+                match=re.match(r"^([A-Z_]+)\|([0-9]+)\|",value)
+                if match: return match.group(1)+"|"+match.group(2)
+            return None
+        if key in ids:
+            if isinstance(value,str) and (re.fullmatch(r"[0-9a-f]{12,64}",value)
+                or re.fullmatch(r"(?:R952-C-|lane:|r26-|r27-)[a-zA-Z0-9_:-]{1,72}",value)):
+                return value[:28]
+            return None
+        if key in enums: return safe_reason(value)
+        return None
+    def brief(row):
+        return {k:allowed(k,v) for k,v in row.items()
+                if k in numeric|enums|issues|ids and allowed(k,v) is not None}
+    for name,row in sorted(tables.items()):
+        if focused.search(name):
+            entry=status_table(row)
+            # Report high-cardinality dimensions as counts, without ever logging raw witness text.
+            entry["groups"]={col:dict(Counter(values).most_common(24))
+                             for col,values in entry["groups"].items()}
+            emit("FIELD_TABLE",entry)
+    recent={x["table"]:x for x in scope.get("recentEvidence",[]) if "table" in x}
+    detailed={"research_family_cursor_cp12","research_family_creation_cp12","research_action_v2","research_training_recovery_r343","research_rolling_version_r343","research_rolling_head_r343","research_rolling_offer_r343","research_rolling_frozen_publication_r343","research_rolling_publication_reject_r343","research_training_feature_cursor_cp12","research_development_receipt_v2","r952_candidate","r26_task","v57_research_lane_cursor_r967","v57_schema_migration_journal_r926","v57_analysis_request_r36","v57_deferred_evidence_job","v57_settlement_task_r36"}
+    for name,row in sorted(recent.items()):
+        if not focused.search(name): continue
+        rows=[r for r in row.get("rows",[]) if isinstance(r,dict)]
+        counts={key:dict(Counter(reason for r in rows
+                       if (reason:=safe_reason(r.get(key))) is not None).most_common(24))
+                for key in enums if any(key in r for r in rows)}
+        emit("FIELD_ROWS",{"table":name,"total":row.get("totalRows",len(rows)),"n":len(rows),
+                           "columns":sorted(set().union(*(r.keys() for r in rows))),"groups":counts})
+        if name=="v57_research_task_r967":
+            for kind in ["TRAIN_CANDIDATE","FREEZE_CANDIDATE","R343_ROLLING_TRAIN","R343_ROLLING_FREEZE","RESEARCH_ACTION","POST_TRAIN"]:
+                work=[r for r in rows if r.get("kind")==kind]
+                emit("FIELD_WORK_BY_KIND",{"kind":kind,"rows":len(work),
+                         "states":Counter(r.get("status","") for r in work),
+                         "detail":[brief(r) for r in work[:15]]})
+        elif name in detailed:
+            limit=22 if name not in {"v57_deferred_evidence_job","v57_settlement_task_r36","v57_analysis_request_r36"} else 5
+            emit("FIELD_WITNESSES",{"table":name,"rows":[brief(r) for r in rows[:limit]]})
+    for key,val in r26.items():
+        if key in {"facts","strategyAssessment","r27Summary","committedResearchService","captureFactsError","strategyAssessmentError","asOfIssue"}:
+            emit("R26_ROOT_DETAIL",{"key":key,"keys":sorted(val) if isinstance(val,dict) else [],"type":type(val).__name__})
+            if key=="facts" and isinstance(val,dict):
+                for component in ("tasks","taskLivenessR30","trainingStepSummary","neverProgressed"):
+                    datum=val.get(component)
+                    if isinstance(datum,list):
+                        emit("R26_OWNER",{"key":component,"count":len(datum),"rows":[brief(r) for r in datum[:64] if isinstance(r,dict)]})
+                    elif isinstance(datum,dict):
+                        emit("R26_OWNER",{"key":component,"keys":sorted(datum),"numeric":{k:v for k,v in datum.items() if isinstance(v,(int,bool,float))}})
+            if key=="strategyAssessment" and isinstance(val,dict):
+                emit("R26_ASSESSMENT",{"count":val.get("totalPolicies"),"evolution":val.get("evolution"),"policies":[brief(r) for r in val.get("policies",[]) if isinstance(r,dict)]})
+    for m in members:
+        if not re.fullmatch(r"catalog-\d+\.jsonl",m.filename): continue
+        for raw in archive.open(m):
+            row=json.loads(raw)
+            if row.get("kind")!="check_result": continue
+            ident=row.get("id","")
+            if not re.fullmatch(r"RSEC-[0-9]{3}",str(ident)): continue
+            emit("FIELD_CHECK",{"id":ident,**{k:safe_reason(row.get(k)) for k in
+                 ("execution_state","outcome","domain_outcome","health","status","reason") if k in row},
+                 "evidenceBytes":len(str(row.get("evidence","")).encode())})

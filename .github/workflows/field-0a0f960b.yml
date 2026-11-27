@@ -1,0 +1,29 @@
+name: Audit archive 0a0f960b against its original Android research ledgers
+on:
+  push:
+    branches: ['repair/report-rsec010-snapshot']
+    paths: ['engineering/field-0a0f960b/**', '.github/workflows/field-0a0f960b.yml']
+permissions:
+  contents: read
+jobs:
+  field:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: engineering/field-0a0f960b
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 6e762807be3b36affccaeab230d44d540a16f8c8
+          path: report-original
+          sparse-checkout: construction/evidence/STARCORE_REPORT_20261127_0a0f960b
+          persist-credentials: false
+      - name: Restore the original bytes and verify both archive layers
+        run: |
+          source_path="report-original/construction/evidence/STARCORE_REPORT_20261127_0a0f960b/"
+          python3 -B "$source_path/restore_report.py"
+          export ORIGINAL="$source_path/raw/STARCORE-0a0f960b3e7e03c93806dcdc5c5fd49282eef1a2f7b.zip"
+          python3 -B -m zipfile -t "$ORIGINAL"
+          python3 -B engineering/field-0a0f960b/inspect.py "$ORIGINAL"
