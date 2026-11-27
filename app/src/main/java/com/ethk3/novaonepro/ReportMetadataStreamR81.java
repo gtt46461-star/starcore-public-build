@@ -62,20 +62,46 @@ public final class ReportMetadataStreamR81 {
         for(String column:columns) {
             sql.append(',').append(descriptor(ident(column)));
         }
-        sql.append(" FROM ").append(id);if(fromRowid!=Long.MIN_VALUE)sql.append(" WHERE ").append(rowid).append(">=").append(fromRowid);sql.append(" ORDER BY ").append(order.sql);if(offset>0)sql.append(" LIMIT -1 OFFSET ").append(offset);
-        long count=0;
-        try(Cursor rows=db.rawQuery(sql.toString(),null)) {
-            while(rows.moveToNext()) {
-                check(control);long key=rows.getLong(0);
-                CellSource cell=rowid==null?new CellSource(" FROM "+id+" ORDER BY "+order.sql+" LIMIT 1 OFFSET ?",Long.toString(offset+count)):new CellSource(" FROM "+id+" WHERE "+rowid+"=?",Long.toString(key));
-                if(count>0)out.write(',');out.write('{');
-                for(int i=0;i<columns.size();i++) {
-                    if(i>0)out.write(',');out.write(JSONObject.quote(columns.get(i)));out.write(':');
-                    writeValue(db,cell,ident(columns.get(i)),rows.getString(i+1),encoding,out,control);
+        sql.append(" FROM ").append(id);
+        // Android refills a CursorWindow by executing its SELECT again. Seek bounded
+        // pages on the immutable rowid so wide evidence rows never replay earlier pages.
+        String base=sql.toString(),tail=" ORDER BY "+order.sql;
+        int pageSize=Math.min(128,Math.max(1,2048/columns.size()));
+        long count=0,lastKey=fromRowid;
+        control.onIndexProgress(table,0);
+        for(;;) {
+            String statement;
+            String[] args=null;
+            if(rowid==null) {
+                statement=base+tail+(offset>0?" LIMIT -1 OFFSET "+offset:"");
+            } else {
+                String predicate="";
+                if(count>0 || fromRowid!=Long.MIN_VALUE) {
+                    predicate=" WHERE "+rowid+(count==0?">=?":">?");
+                    args=new String[]{Long.toString(lastKey)};
                 }
-                out.write('}');count++;
+                statement=base+predicate+tail+" LIMIT "+pageSize;
             }
+            int pageRows=0;
+            try(Cursor rows=db.rawQuery(statement,args)) {
+                while(rows.moveToNext()) {
+                    check(control);
+                    long key=rows.getLong(0);
+                    if(rowid!=null && count>0 && key<=lastKey)throw new IOException("REPORT_METADATA_ROWID_NOT_ADVANCING");
+                    lastKey=key;
+                    CellSource cell=rowid==null?new CellSource(" FROM "+id+" ORDER BY "+order.sql+" LIMIT 1 OFFSET ?",Long.toString(offset+count)):new CellSource(" FROM "+id+" WHERE "+rowid+"=?",Long.toString(key));
+                    if(count>0)out.write(',');out.write('{');
+                    for(int i=0;i<columns.size();i++) {
+                        if(i>0)out.write(',');out.write(JSONObject.quote(columns.get(i)));out.write(':');
+                        writeValue(db,cell,ident(columns.get(i)),rows.getString(i+1),encoding,out,control);
+                    }
+                    out.write('}');count++;pageRows++;
+                    if((count&127)==0)control.onIndexProgress(table,count);
+                }
+            }
+            if(rowid==null || pageRows<pageSize || lastKey==Long.MAX_VALUE)break;
         }
+        control.onIndexProgress(table,count);
         return count;
     }
 

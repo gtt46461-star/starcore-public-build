@@ -24,7 +24,8 @@ public final class ReportDiagnosticEvidenceR64 {
                     + "\"coverage\":\"All checks use the full immutable database. All schema objects, table counts, grouped task states and current construction ledgers are retained."
                     + " Static calls are not proof of runtime execution. Selected research and period metadata include every row and every text column without truncation; binary cells are described by byte length and existing registry hashes. Raw payloads are not required to evaluate these checks.\","
                     + "\"omitted\":[\"APK binary\",\"raw SQLite\",\"training/model/retention payloads\",\"historical duplicate ledgers\"],\"tables\":[");
-            boolean first = true;
+            boolean first = true;long completedTables=0;
+            control.onIndexProgress("表结构和分组",0);
             try (Cursor names = snapshot.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)) {
                 while (names.moveToNext()) {
                     checkpoint(control);
@@ -51,6 +52,7 @@ public final class ReportDiagnosticEvidenceR64 {
                     boolean precedingGroups=false;
                     for(String column:groupColumns)if(ReportMetadataStreamR81.writeGroups(snapshot,table,column,out,control,precedingGroups)>0)precedingGroups=true;
                     out.write("]}");
+                    control.onIndexProgress("表结构和分组",++completedTables);
                 }
             }
             out.write("],\"recentEvidence\":["); first = true;

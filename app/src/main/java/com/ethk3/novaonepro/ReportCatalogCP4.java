@@ -34,6 +34,15 @@ public final class ReportCatalogCP4 {
     public static void cancelActive() { CancellationSignal c=ACTIVE_CANCEL.get();if(c!=null)c.cancel(); }
     private static Cursor query(SQLiteDatabase db,String sql,String[] args) { return db.rawQuery(sql,args,ACTIVE_CANCEL.get()); }
 
+    private static final class SchemaHeader {
+        final String type,name,table;
+        final long rowid,rootPage,sqlChars;
+        SchemaHeader(Cursor c) {
+            rowid=c.getLong(0);type=c.getString(1);name=c.getString(2);table=c.getString(3);
+            rootPage=c.getLong(4);sqlChars=c.isNull(5)?-1:c.getLong(5);
+        }
+    }
+
     /** Caller checks cancellation, available space and durable job ownership. Throw on cancellation. */
     public interface Progress { void checkpoint(String phase, long completed) throws IOException; }
     /** Root archive owner supplies buffered file writers, then records their hashes in the immutable manifest. */
@@ -224,45 +233,49 @@ public final class ReportCatalogCP4 {
             try {
                 String previousType="",previousName="";
                 while(true) {
-                    progress.checkpoint("SCHEMA_OBJECT",objectCount);
-                    String type,name,table;long sqlChars,rootPage;boolean sqlNull;
-                    // Close this window before opening any DDL fragment/count/PRAGMA cursor.
-                    try(Cursor c=query(snapshot,"SELECT type,name,tbl_name,rootpage,length(sql) FROM sqlite_master WHERE type>? OR (type=? AND name>?) ORDER BY type,name LIMIT 1",
+                    List<SchemaHeader> page=new ArrayList<>(64);
+                    try(Cursor c=query(snapshot,"SELECT rowid,type,name,tbl_name,rootpage,length(sql) FROM sqlite_master WHERE type>? OR (type=? AND name>?) ORDER BY type,name LIMIT 64",
                             new String[]{previousType,previousType,previousName})) {
-                        if(!c.moveToFirst())break;
-                        type=c.getString(0);name=c.getString(1);table=c.getString(2);rootPage=c.getLong(3);
-                        sqlNull=c.isNull(4);sqlChars=sqlNull?0:c.getLong(4);
+                        while(c.moveToNext())page.add(new SchemaHeader(c));
                     }
-                    previousType=type;previousName=name;
-                    out.line(obj("kind","schema_object","type",type,"name",name,"table",table,
-                            "rootpage",rootPage,"sql_chars",sqlChars,"sql_null",sqlNull));
-                    // Read only bounded schema fragments, never full payload rows or full DDL strings.
-                    for(long pos=1;pos<=sqlChars;pos+=SQL_CHUNK_CHARS) {
-                        progress.checkpoint("SCHEMA_SQL_CHUNK",pos);
-                        try(Cursor s=query(snapshot,"SELECT substr(sql,?,?) FROM sqlite_master WHERE type=? AND name=?",
-                                new String[]{Long.toString(pos),Integer.toString(SQL_CHUNK_CHARS),type,name})) {
-                            if(!s.moveToFirst())throw new IOException("SCHEMA_OBJECT_DISAPPEARED");
-                            out.line(obj("kind","schema_sql_chunk","type",type,"name",name,"start_char",pos,"text",s.getString(0)));
+                    if(page.isEmpty())break;
+                    for(SchemaHeader header:page) {
+                        progress.checkpoint("SCHEMA_OBJECT",objectCount);
+                        String type=header.type,name=header.name,table=header.table;
+                        long rootPage=header.rootPage,sqlChars=header.sqlChars;
+                        boolean sqlNull=sqlChars<0;
+                        if(sqlNull)sqlChars=0;
+                        previousType=type;previousName=name;
+                        out.line(obj("kind","schema_object","type",type,"name",name,"table",table,
+                                "rootpage",rootPage,"sql_chars",sqlChars,"sql_null",sqlNull));
+                        // Read only bounded schema fragments, never full payload rows or full DDL strings.
+                        for(long pos=1;pos<=sqlChars;pos+=SQL_CHUNK_CHARS) {
+                            progress.checkpoint("SCHEMA_SQL_CHUNK",pos);
+                            try(Cursor s=query(snapshot,"SELECT substr(sql,?,?) FROM sqlite_master WHERE rowid=?",
+                                    new String[]{Long.toString(pos),Integer.toString(SQL_CHUNK_CHARS),Long.toString(header.rowid)})) {
+                                if(!s.moveToFirst())throw new IOException("SCHEMA_OBJECT_DISAPPEARED");
+                                out.line(obj("kind","schema_sql_chunk","type",type,"name",name,"start_char",pos,"text",s.getString(0)));
+                            }
                         }
-                    }
-                    objectCount++;
-                    if("table".equals(type)) {
-                        tableCount++;
-                        try {
-                            long n=scalar(snapshot,"SELECT COUNT(*) FROM "+ident(name));
-                            if(n<0 || rowCount>Long.MAX_VALUE-n)throw new IllegalStateException("COUNT_OVERFLOW");
-                            rowCount+=n;
-                            out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
-                            pragma(out,snapshot,"table_info",name,progress);
-                            pragma(out,snapshot,"index_list",name,progress);
-                            pragma(out,snapshot,"foreign_key_list",name,progress);
-                        } catch(RuntimeException failure) {
-                            errors++;evidenceOK=false;
-                            out.line(obj("kind","table_error","table",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
+                        objectCount++;
+                        if("table".equals(type)) {
+                            tableCount++;
+                            try {
+                                long n=scalar(snapshot,"SELECT COUNT(*) FROM "+ident(name));
+                                if(n<0 || rowCount>Long.MAX_VALUE-n)throw new IllegalStateException("COUNT_OVERFLOW");
+                                rowCount+=n;
+                                out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
+                                pragma(out,snapshot,"table_info",name,progress);
+                                pragma(out,snapshot,"index_list",name,progress);
+                                pragma(out,snapshot,"foreign_key_list",name,progress);
+                            } catch(RuntimeException failure) {
+                                errors++;evidenceOK=false;
+                                out.line(obj("kind","table_error","table",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
+                            }
+                        } else if("index".equals(type)) {
+                            try { pragma(out,snapshot,"index_info",name,progress); }
+                            catch(RuntimeException failure){errors++;evidenceOK=false;out.line(obj("kind","index_error","name",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));}
                         }
-                    } else if("index".equals(type)) {
-                        try { pragma(out,snapshot,"index_info",name,progress); }
-                        catch(RuntimeException failure){errors++;evidenceOK=false;out.line(obj("kind","index_error","name",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));}
                     }
                 }
             } catch(RuntimeException failure) {

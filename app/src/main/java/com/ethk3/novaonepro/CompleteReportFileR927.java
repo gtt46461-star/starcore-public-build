@@ -135,6 +135,8 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
   String stage=progress.getString("stage");
   return describeStageProgress(jobStage,updatedWallMs,stage,progress.optLong("startedWallMs"),
       progress.optLong("hashedBytes"),progress.optLong("sampledElapsedMs",-1),android.os.SystemClock.elapsedRealtime())
+      +("INDEXING".equals(stage)&&!progress.optString("indexSection").isEmpty()
+          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项":"")
       +("BACKUP".equals(stage)?backupProgressText(app,id):"");
  }catch(Exception unavailable){return "｜阶段信息可用，详细进度暂不可用";}
  }
@@ -279,6 +281,13 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
          if (current.isFile()) r.append(ReportJobJournalCP12.readAtomic(current, 4096));
          else r.append("ABSENT");
          r.append('\n');
+         if(current.isFile()) {
+             String id=new JSONObject(ReportJobJournalCP12.readAtomic(current,4096)).optString("jobId");
+             if(id.matches("[0-9a-f]{64}")) {
+                 File sample=ReportArchiveVerifierCP12.inside(root,"jobs/"+id+"/stage-progress.json");
+                 if(sample.isFile())r.append("stage-progress.json=").append(ReportJobJournalCP12.readAtomic(sample,4096)).append('\n');
+             }
+         }
          File lock = new File(root, "job.lock");
          r.append("job.lock exists=").append(lock.isFile()).append(" mtime=").append(lock.lastModified()).append('\n');
          for (String name : new String[] {"request-queue.json", "interactive-pending-r69.json"}) {

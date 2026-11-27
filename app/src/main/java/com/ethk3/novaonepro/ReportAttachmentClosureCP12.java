@@ -90,6 +90,7 @@ public final class ReportAttachmentClosureCP12 {
                 }
             }
             File installed=new File(app.getApplicationInfo().sourceDir).getCanonicalFile();if(!installed.isFile())throw new IOException("REPORT_INSTALLED_APK_MISSING");source.put("installedApkBytes",installed.length());source.put("installedApkIncluded",!compact);if(!compact){descriptor(out,"installed-app.apk",apkBefore,installed.length(),"INSTALLED_APK",installed.getPath(),"");source.put("installedApkMember","installed-app.apk");}
+            control.onIndexProgress("检查点原件",0);
             File r26Root=new File(app.getFilesDir(),"r26-checkpoints");
             com.ethk3.novaonepro.strategyv2.CheckpointClosureR324.RootSource r26Roots=sink->com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26.forEachHashR324(copy,sink);
             if(compact){
@@ -199,6 +200,7 @@ public final class ReportAttachmentClosureCP12 {
             }
             out.flush();fd.getFD().sync();
         }
+        control.onIndexProgress("附件清单",0);
         File sorted=ReportMemberPlanCP12.sort(job,plans,control);total=0;long missingCopyBytes=0,plannedMembers=0,missingMembers=0;
         try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {byte[] line;while((line=rows.next())!=null){
             checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));long bytes=row.getLong("bytes");total=Math.addExact(total,bytes);plannedMembers++;
@@ -319,22 +321,45 @@ public final class ReportAttachmentClosureCP12 {
         File metadata=new File(job,"r335-fault-originals.jsonl");long originals=0,bytes=0,verified=0,missing=0,unverified=0,checked=0;
         boolean ready=RuntimeFaultOriginalStoreR335.ready(snapshot);String after="";
         try(FileOutputStream fd=new FileOutputStream(metadata);Writer rows=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(metadata,fd,control),StandardCharsets.UTF_8),8192)){
-            while(ready){
-                checkpoint(control);String event,hash,path;long length;
-                try(Cursor c=snapshot.rawQuery("SELECT event_id,original_hash,original_bytes,relative_path FROM r335_fault_original WHERE event_id>? ORDER BY event_id LIMIT 1",new String[]{after})){
-                    if(!c.moveToFirst())break;event=c.getString(0);hash=c.getString(1);length=c.getLong(2);path=c.getString(3);
+            // Page only locator metadata. Original bytes stay bounded to one file and
+            // receipt/hot presence come from the same immutable snapshot as the locator.
+            control.onIndexProgress("故障原件",0);
+            while(ready) {
+                checkpoint(control);
+                try(Cursor c=snapshot.rawQuery("SELECT o.event_id,o.original_hash,o.original_bytes,o.relative_path,o.codec,"
+                        +"r.payload_hash,r.operator_version,h.event_id FROM r335_fault_original o "
+                        +"LEFT JOIN r31_commit_receipt r ON r.commit_key=o.receipt_key "
+                        +"LEFT JOIN r31_runtime_fault h ON h.event_id=o.event_id "
+                        +"WHERE o.event_id>? ORDER BY o.event_id LIMIT 128",new String[]{after})) {
+                    if(!c.moveToFirst())break;
+                    do {
+                        checkpoint(control);
+                        String event=c.getString(0),hash=c.getString(1),path=c.getString(3);
+                        long length=c.getLong(2);
+                        after=event;originals++;String state="UNKNOWN";File original=null;
+                        try{
+                            requireHash(hash);if(length<1||length>FaultOriginalCodecR335.MAX_BYTES||!(RuntimeFaultOriginalStoreR335.DIRECTORY+"/"+hash+".row").equals(path))throw new IOException("REPORT_FAULT_LOCATOR_IDENTITY");
+                            bytes=Math.addExact(bytes,length);original=RuntimeFaultOriginalStoreR335.path(files,hash);
+                            if(!original.isFile()||original.length()!=length)throw new IOException("REPORT_FAULT_BODY_MISSING_OR_BYTES");
+                            if(compact&&checked+length>8*MiB){state="PRESENT_NOT_HASHED_COMPACT_BYTE_BUDGET";unverified++;}
+                            else {
+                                checked=Math.addExact(checked,length);
+                                if(!FaultOriginalCodecR335.CODEC.equals(c.getString(4)) || !hash.equals(c.getString(5))
+                                        || !FaultOriginalCodecR335.CODEC.equals(c.getString(6)))throw new IOException("R335_FAULT_LOCATOR_RECEIPT_INTEGRITY");
+                                byte[] cold=RuntimeFaultOriginalStoreR335.readFile(files,hash,length);
+                                if(!c.isNull(7) && !Arrays.equals(cold,RuntimeFaultOriginalStoreR335.hot(snapshot,event)))
+                                    throw new IOException("R335_FAULT_HOT_COLD_IDENTITY_CONFLICT");
+                                if(!event.equals(FaultOriginalCodecR335.values(cold).get("event_id")))throw new IOException("R335_FAULT_ORIGINAL_EVENT_ID");
+                                state="EXACT_ORIGINAL_HASH_AND_RECEIPT_VERIFIED";
+                                verified++;
+                            }
+                        }catch(IOException invalid){if(!compact)throw invalid;state="UNAVAILABLE:"+invalid.getMessage();missing++;}
+                        JSONObject row=new JSONObject().put("eventId",event).put("originalSha256",hash).put("bytes",length).put("relativePath",path).put("codec",FaultOriginalCodecR335.CODEC).put("availability",state).put("bodyIncluded",!compact);
+                        rows.write(row.toString());rows.write('\n');
+                        if(!compact)descriptor(plans,"r335-fault-original-"+hash+".row",hash,length,"R335_FAULT_ORIGINAL",original.getPath(),"");
+                    } while(c.moveToNext());
                 }
-                after=event;originals++;String state="UNKNOWN";File original=null;
-                try{
-                    requireHash(hash);if(length<1||length>FaultOriginalCodecR335.MAX_BYTES||!(RuntimeFaultOriginalStoreR335.DIRECTORY+"/"+hash+".row").equals(path))throw new IOException("REPORT_FAULT_LOCATOR_IDENTITY");
-                    bytes=Math.addExact(bytes,length);original=RuntimeFaultOriginalStoreR335.path(files,hash);
-                    if(!original.isFile()||original.length()!=length)throw new IOException("REPORT_FAULT_BODY_MISSING_OR_BYTES");
-                    if(compact&&checked+length>8*MiB){state="PRESENT_NOT_HASHED_COMPACT_BYTE_BUDGET";unverified++;}
-                    else {checked=Math.addExact(checked,length);if(RuntimeFaultOriginalStoreR335.readHotCold(snapshot,files,event)==null)throw new IOException("REPORT_FAULT_ORIGINAL_DISAPPEARED");state="EXACT_ORIGINAL_HASH_AND_RECEIPT_VERIFIED";verified++;}
-                }catch(IOException invalid){if(!compact)throw invalid;state="UNAVAILABLE:"+invalid.getMessage();missing++;}
-                JSONObject row=new JSONObject().put("eventId",event).put("originalSha256",hash).put("bytes",length).put("relativePath",path).put("codec",FaultOriginalCodecR335.CODEC).put("availability",state).put("bodyIncluded",!compact);
-                rows.write(row.toString());rows.write('\n');
-                if(!compact)descriptor(plans,"r335-fault-original-"+hash+".row",hash,length,"R335_FAULT_ORIGINAL",original.getPath(),"");
+                control.onIndexProgress("故障原件",originals);
             }
             rows.flush();fd.getFD().sync();
         }
@@ -362,6 +387,7 @@ public final class ReportAttachmentClosureCP12 {
         long objects=0,bytes=0,verified=0,unavailable=0,notRun=0,remaining=8L*MiB;
         try(FileOutputStream fd=new FileOutputStream(metadata);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(metadata,fd,control),StandardCharsets.UTF_8),8192)) {
             String after="";
+            control.onIndexProgress("保留原件",0);
             while(registered) {
                 checkpoint(control);
                 List<com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ArtifactRef> page=com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.snapshotArtifactPage(snapshot,after,64);
@@ -378,6 +404,7 @@ public final class ReportAttachmentClosureCP12 {
                     JSONObject row=new JSONObject().put("sha256",reference.hash).put("bytes",reference.bytes).put("scope",reference.scope).put("availability",availability).put("bodyIncluded",!compact);
                     out.write(row.toString());out.write('\n');
                 }
+                control.onIndexProgress("保留原件",objects);
             }
             out.flush();fd.getFD().sync();
         }
@@ -395,28 +422,35 @@ public final class ReportAttachmentClosureCP12 {
     }
     static JSONObject observeR80Archives(SQLiteDatabase snapshot,File files,File report,ReportNativeCP4.Control control,boolean compact)throws Exception {
         final long byteBudget=8L*MiB;long[] remaining={byteBudget};
-        long pages=0,rows=0,bytes=0,verified=0,unavailable=0,notRun=0;String last="";
+        long pages=0,rows=0,bytes=0,verified=0,unavailable=0,notRun=0;
         boolean present=hasTable(snapshot,"research_evidence_archive_v2");
         try(FileOutputStream fd=new FileOutputStream(report);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(report,fd,control),StandardCharsets.UTF_8),8192)) {
-            while(present) {
-                checkpoint(control);String id,table,hash,path;long rowCount,locators;
-                try(Cursor c=snapshot.rawQuery("SELECT a.archive_id,a.source_table,a.archive_hash,a.relative_path,a.row_count,(SELECT COUNT(*) FROM research_evidence_locator_v2 l WHERE l.archive_id=a.archive_id) FROM research_evidence_archive_v2 a WHERE a.archive_id>? AND a.source_table IN('r80_probe_input','r80_probe_forecast','r80_probe_label','r80_probe_opportunity','research_bound_source_r80','research_bound_input_r80') AND a.state IN('VERIFIED','REFERENCED','PRUNED') ORDER BY a.archive_id LIMIT 1",new String[]{last})) {
-                    if(!c.moveToFirst())break;id=c.getString(0);table=c.getString(1);hash=c.getString(2);path=c.getString(3);rowCount=c.getLong(4);locators=c.getLong(5);
-                }
-                last=id;pages++;rows=Math.addExact(rows,rowCount);String status;long size=0;
-                if(hash==null||!hash.matches("[0-9a-f]{64}")||!("retention-cas-cp12/"+hash+".scrow").equals(path))status="INVALID_REGISTRY_IDENTITY";
-                else {
-                    File original=ReportArchiveVerifierCP12.inside(files.getCanonicalFile(),path);
-                    if(!original.isFile())status="MISSING_ARCHIVE";
-                    else try(SharedLease lease=shared(new File(original.getParentFile(),hash+".lock"))) {
-                        size=original.length();
-                        String observedHash=compact?boundedArchiveHashR80(original,remaining,control):ReportArchiveCP4.hash(original,control);
-                        status=observedHash==null?"NOT_RUN_COMPACT_BYTE_BUDGET":hash.equals(observedHash)?"VERIFIED_BYTES":"CORRUPT_HASH_MISMATCH";
+            if(present)try(Cursor c=snapshot.rawQuery(
+                    "SELECT a.archive_id,a.source_table,a.archive_hash,a.relative_path,a.row_count,coalesce(l.n,0) "
+                    +"FROM research_evidence_archive_v2 a LEFT JOIN "
+                    +"(SELECT archive_id,count(*) AS n FROM research_evidence_locator_v2 GROUP BY archive_id) l ON l.archive_id=a.archive_id "
+                    +"WHERE a.archive_id>'' AND a.source_table IN('r80_probe_input','r80_probe_forecast','r80_probe_label','r80_probe_opportunity','research_bound_source_r80','research_bound_input_r80') "
+                    +"AND a.state IN('VERIFIED','REFERENCED','PRUNED') ORDER BY a.archive_id",null)) {
+                while(c.moveToNext()) {
+                    checkpoint(control);
+                    String id=c.getString(0),table=c.getString(1),hash=c.getString(2),path=c.getString(3);
+                    long rowCount=c.getLong(4),locators=c.getLong(5);
+                    pages++;rows=Math.addExact(rows,rowCount);String status;long size=0;
+                    if(hash==null||!hash.matches("[0-9a-f]{64}")||!("retention-cas-cp12/"+hash+".scrow").equals(path))status="INVALID_REGISTRY_IDENTITY";
+                    else {
+                        File original=ReportArchiveVerifierCP12.inside(files.getCanonicalFile(),path);
+                        if(!original.isFile())status="MISSING_ARCHIVE";
+                        else try(SharedLease lease=shared(new File(original.getParentFile(),hash+".lock"))) {
+                            size=original.length();
+                            String observedHash=compact?boundedArchiveHashR80(original,remaining,control):ReportArchiveCP4.hash(original,control);
+                            status=observedHash==null?"NOT_RUN_COMPACT_BYTE_BUDGET":hash.equals(observedHash)?"VERIFIED_BYTES":"CORRUPT_HASH_MISMATCH";
+                        }
                     }
+                    bytes=Math.addExact(bytes,size);if(status.equals("VERIFIED_BYTES"))verified++;else if(status.equals("NOT_RUN_COMPACT_BYTE_BUDGET"))notRun++;else unavailable++;
+                    JSONObject row=new JSONObject().put("archiveId",id).put("sourceTable",table).put("expectedSha256",hash).put("relativePath",path).put("registeredRows",rowCount).put("auditLocators",locators).put("observedBytes",size).put("availability",status).put("bodyIncludedInCompact",false);
+                    out.write(row.toString());out.write('\n');
+                    if((pages&127)==0)control.onIndexProgress("研究归档",pages);
                 }
-                bytes=Math.addExact(bytes,size);if(status.equals("VERIFIED_BYTES"))verified++;else if(status.equals("NOT_RUN_COMPACT_BYTE_BUDGET"))notRun++;else unavailable++;
-                JSONObject row=new JSONObject().put("archiveId",id).put("sourceTable",table).put("expectedSha256",hash).put("relativePath",path).put("registeredRows",rowCount).put("auditLocators",locators).put("observedBytes",size).put("availability",status).put("bodyIncludedInCompact",false);
-                out.write(row.toString());out.write('\n');
             }
             out.flush();fd.getFD().sync();
         }

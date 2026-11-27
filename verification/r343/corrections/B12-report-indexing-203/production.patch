@@ -1,0 +1,473 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+index 3d5fc62e..a10bb844 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java
+@@ -135,6 +135,8 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
+   String stage=progress.getString("stage");
+   return describeStageProgress(jobStage,updatedWallMs,stage,progress.optLong("startedWallMs"),
+       progress.optLong("hashedBytes"),progress.optLong("sampledElapsedMs",-1),android.os.SystemClock.elapsedRealtime())
++      +("INDEXING".equals(stage)&&!progress.optString("indexSection").isEmpty()
++          ?"｜"+progress.optString("indexSection")+" 已处理 "+progress.optLong("completedIndexEntries")+" 项":"")
+       +("BACKUP".equals(stage)?backupProgressText(app,id):"");
+  }catch(Exception unavailable){return "｜阶段信息可用，详细进度暂不可用";}
+  }
+@@ -279,6 +281,13 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
+          if (current.isFile()) r.append(ReportJobJournalCP12.readAtomic(current, 4096));
+          else r.append("ABSENT");
+          r.append('\n');
++         if(current.isFile()) {
++             String id=new JSONObject(ReportJobJournalCP12.readAtomic(current,4096)).optString("jobId");
++             if(id.matches("[0-9a-f]{64}")) {
++                 File sample=ReportArchiveVerifierCP12.inside(root,"jobs/"+id+"/stage-progress.json");
++                 if(sample.isFile())r.append("stage-progress.json=").append(ReportJobJournalCP12.readAtomic(sample,4096)).append('\n');
++             }
++         }
+          File lock = new File(root, "job.lock");
+          r.append("job.lock exists=").append(lock.isFile()).append(" mtime=").append(lock.lastModified()).append('\n');
+          for (String name : new String[] {"request-queue.json", "interactive-pending-r69.json"}) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java b/app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java
+index 14a4b905..aba1d935 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java
++++ b/app/src/main/java/com/ethk3/novaonepro/FaultOriginalCodecR335.java
+@@ -69,7 +69,13 @@ public final class FaultOriginalCodecR335 {
+         }
+     }
+     public static String sha256(byte[] bytes){
+-        try {StringBuilder out=new StringBuilder(64);for(byte b:MessageDigest.getInstance("SHA-256").digest(bytes))out.append(String.format(Locale.ROOT,"%02x",b&255));return out.toString();}
++        try {byte[] b=MessageDigest.getInstance("SHA-256").digest(bytes);
++        char[] out=new char[2*b.length];
++        for(int i=0;i<b.length;i++) {
++            out[2*i]="0123456789abcdef".charAt((b[i]&255)>>>4);
++            out[2*i+1]="0123456789abcdef".charAt(b[i]&15);
++        }
++        return new String(out);}
+         catch(NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
+     }
+     public static Map<String,Object> values(byte[] bytes)throws IOException {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java
+index 982c2fc7..bbb2c8af 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java
+@@ -76,6 +76,12 @@ public final class ReportArchiveCP4 implements Closeable {
+   }
+   return hex(digest.digest());
+  }
+- static String hex(byte[] b){StringBuilder s=new StringBuilder(b.length*2);for(byte x:b)s.append(String.format(Locale.ROOT,"%02x",x&255));return s.toString();}
++ static String hex(byte[] b){
++        char[] out=new char[2*b.length];
++        for(int i=0;i<b.length;i++) {
++            out[2*i]="0123456789abcdef".charAt((b[i]&255)>>>4);
++            out[2*i+1]="0123456789abcdef".charAt(b[i]&15);
++        }
++        return new String(out);}
+  static String q(String s){StringBuilder b=new StringBuilder("\"");for(int i=0;i<s.length();i++){char c=s.charAt(i);if(c=='"'||c=='\\')b.append('\\').append(c);else if(c<32)b.append(String.format(Locale.ROOT,"\\u%04x",(int)c));else b.append(c);}return b.append('"').toString();}
+ }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java b/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java
+index ab5cd67b..ace58151 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java
+@@ -90,6 +90,7 @@ public final class ReportAttachmentClosureCP12 {
+                 }
+             }
+             File installed=new File(app.getApplicationInfo().sourceDir).getCanonicalFile();if(!installed.isFile())throw new IOException("REPORT_INSTALLED_APK_MISSING");source.put("installedApkBytes",installed.length());source.put("installedApkIncluded",!compact);if(!compact){descriptor(out,"installed-app.apk",apkBefore,installed.length(),"INSTALLED_APK",installed.getPath(),"");source.put("installedApkMember","installed-app.apk");}
++            control.onIndexProgress("检查点原件",0);
+             File r26Root=new File(app.getFilesDir(),"r26-checkpoints");
+             com.ethk3.novaonepro.strategyv2.CheckpointClosureR324.RootSource r26Roots=sink->com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26.forEachHashR324(copy,sink);
+             if(compact){
+@@ -199,6 +200,7 @@ public final class ReportAttachmentClosureCP12 {
+             }
+             out.flush();fd.getFD().sync();
+         }
++        control.onIndexProgress("附件清单",0);
+         File sorted=ReportMemberPlanCP12.sort(job,plans,control);total=0;long missingCopyBytes=0,plannedMembers=0,missingMembers=0;
+         try(ReportArchiveVerifierCP12.LineReader rows=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)) {byte[] line;while((line=rows.next())!=null){
+             checkpoint(control);JSONObject row=new JSONObject(new String(line,StandardCharsets.UTF_8));long bytes=row.getLong("bytes");total=Math.addExact(total,bytes);plannedMembers++;
+@@ -319,22 +321,45 @@ public final class ReportAttachmentClosureCP12 {
+         File metadata=new File(job,"r335-fault-originals.jsonl");long originals=0,bytes=0,verified=0,missing=0,unverified=0,checked=0;
+         boolean ready=RuntimeFaultOriginalStoreR335.ready(snapshot);String after="";
+         try(FileOutputStream fd=new FileOutputStream(metadata);Writer rows=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(metadata,fd,control),StandardCharsets.UTF_8),8192)){
+-            while(ready){
+-                checkpoint(control);String event,hash,path;long length;
+-                try(Cursor c=snapshot.rawQuery("SELECT event_id,original_hash,original_bytes,relative_path FROM r335_fault_original WHERE event_id>? ORDER BY event_id LIMIT 1",new String[]{after})){
+-                    if(!c.moveToFirst())break;event=c.getString(0);hash=c.getString(1);length=c.getLong(2);path=c.getString(3);
++            // Page only locator metadata. Original bytes stay bounded to one file and
++            // receipt/hot presence come from the same immutable snapshot as the locator.
++            control.onIndexProgress("故障原件",0);
++            while(ready) {
++                checkpoint(control);
++                try(Cursor c=snapshot.rawQuery("SELECT o.event_id,o.original_hash,o.original_bytes,o.relative_path,o.codec,"
++                        +"r.payload_hash,r.operator_version,h.event_id FROM r335_fault_original o "
++                        +"LEFT JOIN r31_commit_receipt r ON r.commit_key=o.receipt_key "
++                        +"LEFT JOIN r31_runtime_fault h ON h.event_id=o.event_id "
++                        +"WHERE o.event_id>? ORDER BY o.event_id LIMIT 128",new String[]{after})) {
++                    if(!c.moveToFirst())break;
++                    do {
++                        checkpoint(control);
++                        String event=c.getString(0),hash=c.getString(1),path=c.getString(3);
++                        long length=c.getLong(2);
++                        after=event;originals++;String state="UNKNOWN";File original=null;
++                        try{
++                            requireHash(hash);if(length<1||length>FaultOriginalCodecR335.MAX_BYTES||!(RuntimeFaultOriginalStoreR335.DIRECTORY+"/"+hash+".row").equals(path))throw new IOException("REPORT_FAULT_LOCATOR_IDENTITY");
++                            bytes=Math.addExact(bytes,length);original=RuntimeFaultOriginalStoreR335.path(files,hash);
++                            if(!original.isFile()||original.length()!=length)throw new IOException("REPORT_FAULT_BODY_MISSING_OR_BYTES");
++                            if(compact&&checked+length>8*MiB){state="PRESENT_NOT_HASHED_COMPACT_BYTE_BUDGET";unverified++;}
++                            else {
++                                checked=Math.addExact(checked,length);
++                                if(!FaultOriginalCodecR335.CODEC.equals(c.getString(4)) || !hash.equals(c.getString(5))
++                                        || !FaultOriginalCodecR335.CODEC.equals(c.getString(6)))throw new IOException("R335_FAULT_LOCATOR_RECEIPT_INTEGRITY");
++                                byte[] cold=RuntimeFaultOriginalStoreR335.readFile(files,hash,length);
++                                if(!c.isNull(7) && !Arrays.equals(cold,RuntimeFaultOriginalStoreR335.hot(snapshot,event)))
++                                    throw new IOException("R335_FAULT_HOT_COLD_IDENTITY_CONFLICT");
++                                if(!event.equals(FaultOriginalCodecR335.values(cold).get("event_id")))throw new IOException("R335_FAULT_ORIGINAL_EVENT_ID");
++                                state="EXACT_ORIGINAL_HASH_AND_RECEIPT_VERIFIED";
++                                verified++;
++                            }
++                        }catch(IOException invalid){if(!compact)throw invalid;state="UNAVAILABLE:"+invalid.getMessage();missing++;}
++                        JSONObject row=new JSONObject().put("eventId",event).put("originalSha256",hash).put("bytes",length).put("relativePath",path).put("codec",FaultOriginalCodecR335.CODEC).put("availability",state).put("bodyIncluded",!compact);
++                        rows.write(row.toString());rows.write('\n');
++                        if(!compact)descriptor(plans,"r335-fault-original-"+hash+".row",hash,length,"R335_FAULT_ORIGINAL",original.getPath(),"");
++                    } while(c.moveToNext());
+                 }
+-                after=event;originals++;String state="UNKNOWN";File original=null;
+-                try{
+-                    requireHash(hash);if(length<1||length>FaultOriginalCodecR335.MAX_BYTES||!(RuntimeFaultOriginalStoreR335.DIRECTORY+"/"+hash+".row").equals(path))throw new IOException("REPORT_FAULT_LOCATOR_IDENTITY");
+-                    bytes=Math.addExact(bytes,length);original=RuntimeFaultOriginalStoreR335.path(files,hash);
+-                    if(!original.isFile()||original.length()!=length)throw new IOException("REPORT_FAULT_BODY_MISSING_OR_BYTES");
+-                    if(compact&&checked+length>8*MiB){state="PRESENT_NOT_HASHED_COMPACT_BYTE_BUDGET";unverified++;}
+-                    else {checked=Math.addExact(checked,length);if(RuntimeFaultOriginalStoreR335.readHotCold(snapshot,files,event)==null)throw new IOException("REPORT_FAULT_ORIGINAL_DISAPPEARED");state="EXACT_ORIGINAL_HASH_AND_RECEIPT_VERIFIED";verified++;}
+-                }catch(IOException invalid){if(!compact)throw invalid;state="UNAVAILABLE:"+invalid.getMessage();missing++;}
+-                JSONObject row=new JSONObject().put("eventId",event).put("originalSha256",hash).put("bytes",length).put("relativePath",path).put("codec",FaultOriginalCodecR335.CODEC).put("availability",state).put("bodyIncluded",!compact);
+-                rows.write(row.toString());rows.write('\n');
+-                if(!compact)descriptor(plans,"r335-fault-original-"+hash+".row",hash,length,"R335_FAULT_ORIGINAL",original.getPath(),"");
++                control.onIndexProgress("故障原件",originals);
+             }
+             rows.flush();fd.getFD().sync();
+         }
+@@ -362,6 +387,7 @@ public final class ReportAttachmentClosureCP12 {
+         long objects=0,bytes=0,verified=0,unavailable=0,notRun=0,remaining=8L*MiB;
+         try(FileOutputStream fd=new FileOutputStream(metadata);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(metadata,fd,control),StandardCharsets.UTF_8),8192)) {
+             String after="";
++            control.onIndexProgress("保留原件",0);
+             while(registered) {
+                 checkpoint(control);
+                 List<com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.ArtifactRef> page=com.ethk3.novaonepro.strategyv2.KeepMigrationStoreR31.snapshotArtifactPage(snapshot,after,64);
+@@ -378,6 +404,7 @@ public final class ReportAttachmentClosureCP12 {
+                     JSONObject row=new JSONObject().put("sha256",reference.hash).put("bytes",reference.bytes).put("scope",reference.scope).put("availability",availability).put("bodyIncluded",!compact);
+                     out.write(row.toString());out.write('\n');
+                 }
++                control.onIndexProgress("保留原件",objects);
+             }
+             out.flush();fd.getFD().sync();
+         }
+@@ -395,28 +422,35 @@ public final class ReportAttachmentClosureCP12 {
+     }
+     static JSONObject observeR80Archives(SQLiteDatabase snapshot,File files,File report,ReportNativeCP4.Control control,boolean compact)throws Exception {
+         final long byteBudget=8L*MiB;long[] remaining={byteBudget};
+-        long pages=0,rows=0,bytes=0,verified=0,unavailable=0,notRun=0;String last="";
++        long pages=0,rows=0,bytes=0,verified=0,unavailable=0,notRun=0;
+         boolean present=hasTable(snapshot,"research_evidence_archive_v2");
+         try(FileOutputStream fd=new FileOutputStream(report);Writer out=new BufferedWriter(new OutputStreamWriter(ReportIoR31.protect(report,fd,control),StandardCharsets.UTF_8),8192)) {
+-            while(present) {
+-                checkpoint(control);String id,table,hash,path;long rowCount,locators;
+-                try(Cursor c=snapshot.rawQuery("SELECT a.archive_id,a.source_table,a.archive_hash,a.relative_path,a.row_count,(SELECT COUNT(*) FROM research_evidence_locator_v2 l WHERE l.archive_id=a.archive_id) FROM research_evidence_archive_v2 a WHERE a.archive_id>? AND a.source_table IN('r80_probe_input','r80_probe_forecast','r80_probe_label','r80_probe_opportunity','research_bound_source_r80','research_bound_input_r80') AND a.state IN('VERIFIED','REFERENCED','PRUNED') ORDER BY a.archive_id LIMIT 1",new String[]{last})) {
+-                    if(!c.moveToFirst())break;id=c.getString(0);table=c.getString(1);hash=c.getString(2);path=c.getString(3);rowCount=c.getLong(4);locators=c.getLong(5);
+-                }
+-                last=id;pages++;rows=Math.addExact(rows,rowCount);String status;long size=0;
+-                if(hash==null||!hash.matches("[0-9a-f]{64}")||!("retention-cas-cp12/"+hash+".scrow").equals(path))status="INVALID_REGISTRY_IDENTITY";
+-                else {
+-                    File original=ReportArchiveVerifierCP12.inside(files.getCanonicalFile(),path);
+-                    if(!original.isFile())status="MISSING_ARCHIVE";
+-                    else try(SharedLease lease=shared(new File(original.getParentFile(),hash+".lock"))) {
+-                        size=original.length();
+-                        String observedHash=compact?boundedArchiveHashR80(original,remaining,control):ReportArchiveCP4.hash(original,control);
+-                        status=observedHash==null?"NOT_RUN_COMPACT_BYTE_BUDGET":hash.equals(observedHash)?"VERIFIED_BYTES":"CORRUPT_HASH_MISMATCH";
++            if(present)try(Cursor c=snapshot.rawQuery(
++                    "SELECT a.archive_id,a.source_table,a.archive_hash,a.relative_path,a.row_count,coalesce(l.n,0) "
++                    +"FROM research_evidence_archive_v2 a LEFT JOIN "
++                    +"(SELECT archive_id,count(*) AS n FROM research_evidence_locator_v2 GROUP BY archive_id) l ON l.archive_id=a.archive_id "
++                    +"WHERE a.archive_id>'' AND a.source_table IN('r80_probe_input','r80_probe_forecast','r80_probe_label','r80_probe_opportunity','research_bound_source_r80','research_bound_input_r80') "
++                    +"AND a.state IN('VERIFIED','REFERENCED','PRUNED') ORDER BY a.archive_id",null)) {
++                while(c.moveToNext()) {
++                    checkpoint(control);
++                    String id=c.getString(0),table=c.getString(1),hash=c.getString(2),path=c.getString(3);
++                    long rowCount=c.getLong(4),locators=c.getLong(5);
++                    pages++;rows=Math.addExact(rows,rowCount);String status;long size=0;
++                    if(hash==null||!hash.matches("[0-9a-f]{64}")||!("retention-cas-cp12/"+hash+".scrow").equals(path))status="INVALID_REGISTRY_IDENTITY";
++                    else {
++                        File original=ReportArchiveVerifierCP12.inside(files.getCanonicalFile(),path);
++                        if(!original.isFile())status="MISSING_ARCHIVE";
++                        else try(SharedLease lease=shared(new File(original.getParentFile(),hash+".lock"))) {
++                            size=original.length();
++                            String observedHash=compact?boundedArchiveHashR80(original,remaining,control):ReportArchiveCP4.hash(original,control);
++                            status=observedHash==null?"NOT_RUN_COMPACT_BYTE_BUDGET":hash.equals(observedHash)?"VERIFIED_BYTES":"CORRUPT_HASH_MISMATCH";
++                        }
+                     }
++                    bytes=Math.addExact(bytes,size);if(status.equals("VERIFIED_BYTES"))verified++;else if(status.equals("NOT_RUN_COMPACT_BYTE_BUDGET"))notRun++;else unavailable++;
++                    JSONObject row=new JSONObject().put("archiveId",id).put("sourceTable",table).put("expectedSha256",hash).put("relativePath",path).put("registeredRows",rowCount).put("auditLocators",locators).put("observedBytes",size).put("availability",status).put("bodyIncludedInCompact",false);
++                    out.write(row.toString());out.write('\n');
++                    if((pages&127)==0)control.onIndexProgress("研究归档",pages);
+                 }
+-                bytes=Math.addExact(bytes,size);if(status.equals("VERIFIED_BYTES"))verified++;else if(status.equals("NOT_RUN_COMPACT_BYTE_BUDGET"))notRun++;else unavailable++;
+-                JSONObject row=new JSONObject().put("archiveId",id).put("sourceTable",table).put("expectedSha256",hash).put("relativePath",path).put("registeredRows",rowCount).put("auditLocators",locators).put("observedBytes",size).put("availability",status).put("bodyIncludedInCompact",false);
+-                out.write(row.toString());out.write('\n');
+             }
+             out.flush();fd.getFD().sync();
+         }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+index 5e87ff78..aded8321 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+@@ -34,6 +34,15 @@ public final class ReportCatalogCP4 {
+     public static void cancelActive() { CancellationSignal c=ACTIVE_CANCEL.get();if(c!=null)c.cancel(); }
+     private static Cursor query(SQLiteDatabase db,String sql,String[] args) { return db.rawQuery(sql,args,ACTIVE_CANCEL.get()); }
+ 
++    private static final class SchemaHeader {
++        final String type,name,table;
++        final long rowid,rootPage,sqlChars;
++        SchemaHeader(Cursor c) {
++            rowid=c.getLong(0);type=c.getString(1);name=c.getString(2);table=c.getString(3);
++            rootPage=c.getLong(4);sqlChars=c.isNull(5)?-1:c.getLong(5);
++        }
++    }
++
+     /** Caller checks cancellation, available space and durable job ownership. Throw on cancellation. */
+     public interface Progress { void checkpoint(String phase, long completed) throws IOException; }
+     /** Root archive owner supplies buffered file writers, then records their hashes in the immutable manifest. */
+@@ -224,45 +233,49 @@ public final class ReportCatalogCP4 {
+             try {
+                 String previousType="",previousName="";
+                 while(true) {
+-                    progress.checkpoint("SCHEMA_OBJECT",objectCount);
+-                    String type,name,table;long sqlChars,rootPage;boolean sqlNull;
+-                    // Close this window before opening any DDL fragment/count/PRAGMA cursor.
+-                    try(Cursor c=query(snapshot,"SELECT type,name,tbl_name,rootpage,length(sql) FROM sqlite_master WHERE type>? OR (type=? AND name>?) ORDER BY type,name LIMIT 1",
++                    List<SchemaHeader> page=new ArrayList<>(64);
++                    try(Cursor c=query(snapshot,"SELECT rowid,type,name,tbl_name,rootpage,length(sql) FROM sqlite_master WHERE type>? OR (type=? AND name>?) ORDER BY type,name LIMIT 64",
+                             new String[]{previousType,previousType,previousName})) {
+-                        if(!c.moveToFirst())break;
+-                        type=c.getString(0);name=c.getString(1);table=c.getString(2);rootPage=c.getLong(3);
+-                        sqlNull=c.isNull(4);sqlChars=sqlNull?0:c.getLong(4);
++                        while(c.moveToNext())page.add(new SchemaHeader(c));
+                     }
+-                    previousType=type;previousName=name;
+-                    out.line(obj("kind","schema_object","type",type,"name",name,"table",table,
+-                            "rootpage",rootPage,"sql_chars",sqlChars,"sql_null",sqlNull));
+-                    // Read only bounded schema fragments, never full payload rows or full DDL strings.
+-                    for(long pos=1;pos<=sqlChars;pos+=SQL_CHUNK_CHARS) {
+-                        progress.checkpoint("SCHEMA_SQL_CHUNK",pos);
+-                        try(Cursor s=query(snapshot,"SELECT substr(sql,?,?) FROM sqlite_master WHERE type=? AND name=?",
+-                                new String[]{Long.toString(pos),Integer.toString(SQL_CHUNK_CHARS),type,name})) {
+-                            if(!s.moveToFirst())throw new IOException("SCHEMA_OBJECT_DISAPPEARED");
+-                            out.line(obj("kind","schema_sql_chunk","type",type,"name",name,"start_char",pos,"text",s.getString(0)));
++                    if(page.isEmpty())break;
++                    for(SchemaHeader header:page) {
++                        progress.checkpoint("SCHEMA_OBJECT",objectCount);
++                        String type=header.type,name=header.name,table=header.table;
++                        long rootPage=header.rootPage,sqlChars=header.sqlChars;
++                        boolean sqlNull=sqlChars<0;
++                        if(sqlNull)sqlChars=0;
++                        previousType=type;previousName=name;
++                        out.line(obj("kind","schema_object","type",type,"name",name,"table",table,
++                                "rootpage",rootPage,"sql_chars",sqlChars,"sql_null",sqlNull));
++                        // Read only bounded schema fragments, never full payload rows or full DDL strings.
++                        for(long pos=1;pos<=sqlChars;pos+=SQL_CHUNK_CHARS) {
++                            progress.checkpoint("SCHEMA_SQL_CHUNK",pos);
++                            try(Cursor s=query(snapshot,"SELECT substr(sql,?,?) FROM sqlite_master WHERE rowid=?",
++                                    new String[]{Long.toString(pos),Integer.toString(SQL_CHUNK_CHARS),Long.toString(header.rowid)})) {
++                                if(!s.moveToFirst())throw new IOException("SCHEMA_OBJECT_DISAPPEARED");
++                                out.line(obj("kind","schema_sql_chunk","type",type,"name",name,"start_char",pos,"text",s.getString(0)));
++                            }
+                         }
+-                    }
+-                    objectCount++;
+-                    if("table".equals(type)) {
+-                        tableCount++;
+-                        try {
+-                            long n=scalar(snapshot,"SELECT COUNT(*) FROM "+ident(name));
+-                            if(n<0 || rowCount>Long.MAX_VALUE-n)throw new IllegalStateException("COUNT_OVERFLOW");
+-                            rowCount+=n;
+-                            out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
+-                            pragma(out,snapshot,"table_info",name,progress);
+-                            pragma(out,snapshot,"index_list",name,progress);
+-                            pragma(out,snapshot,"foreign_key_list",name,progress);
+-                        } catch(RuntimeException failure) {
+-                            errors++;evidenceOK=false;
+-                            out.line(obj("kind","table_error","table",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
++                        objectCount++;
++                        if("table".equals(type)) {
++                            tableCount++;
++                            try {
++                                long n=scalar(snapshot,"SELECT COUNT(*) FROM "+ident(name));
++                                if(n<0 || rowCount>Long.MAX_VALUE-n)throw new IllegalStateException("COUNT_OVERFLOW");
++                                rowCount+=n;
++                                out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
++                                pragma(out,snapshot,"table_info",name,progress);
++                                pragma(out,snapshot,"index_list",name,progress);
++                                pragma(out,snapshot,"foreign_key_list",name,progress);
++                            } catch(RuntimeException failure) {
++                                errors++;evidenceOK=false;
++                                out.line(obj("kind","table_error","table",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
++                            }
++                        } else if("index".equals(type)) {
++                            try { pragma(out,snapshot,"index_info",name,progress); }
++                            catch(RuntimeException failure){errors++;evidenceOK=false;out.line(obj("kind","index_error","name",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));}
+                         }
+-                    } else if("index".equals(type)) {
+-                        try { pragma(out,snapshot,"index_info",name,progress); }
+-                        catch(RuntimeException failure){errors++;evidenceOK=false;out.line(obj("kind","index_error","name",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));}
+                     }
+                 }
+             } catch(RuntimeException failure) {
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java b/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
+index e373785e..e66df61e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java
+@@ -24,7 +24,8 @@ public final class ReportDiagnosticEvidenceR64 {
+                     + "\"coverage\":\"All checks use the full immutable database. All schema objects, table counts, grouped task states and current construction ledgers are retained."
+                     + " Static calls are not proof of runtime execution. Selected research and period metadata include every row and every text column without truncation; binary cells are described by byte length and existing registry hashes. Raw payloads are not required to evaluate these checks.\","
+                     + "\"omitted\":[\"APK binary\",\"raw SQLite\",\"training/model/retention payloads\",\"historical duplicate ledgers\"],\"tables\":[");
+-            boolean first = true;
++            boolean first = true;long completedTables=0;
++            control.onIndexProgress("表结构和分组",0);
+             try (Cursor names = snapshot.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", null)) {
+                 while (names.moveToNext()) {
+                     checkpoint(control);
+@@ -51,6 +52,7 @@ public final class ReportDiagnosticEvidenceR64 {
+                     boolean precedingGroups=false;
+                     for(String column:groupColumns)if(ReportMetadataStreamR81.writeGroups(snapshot,table,column,out,control,precedingGroups)>0)precedingGroups=true;
+                     out.write("]}");
++                    control.onIndexProgress("表结构和分组",++completedTables);
+                 }
+             }
+             out.write("],\"recentEvidence\":["); first = true;
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index 088987e0..ff43f591 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -391,7 +391,15 @@ public final class ReportExportServiceCP4 extends Service {
+                     try(ReportReadContextCP4 ctx=new ReportReadContextCP4(copy,job.jobId,job.snapshotSha,job.snapshotWallMs,
+                             new ReportReadContextCP4.RuntimeObservationCP4(ReportJobJournalCP12.readAtomic(new File(directory,"runtime-observation.json"),65536)),
+                             new ReportReadContextCP4.SourceManifestCP4(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),cancellation,3*MiB)) {
+-                        catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->active.checkpoint());ctx.finishArtifacts();
++                        active.readCancellationR30=cancellation;
++                        try {
++                            catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->{
++                                active.checkpoint();
++                                if("SCHEMA_OBJECT".equals(phase))active.onIndexProgress("数据库结构",completed);
++                                if("CHECK".equals(phase))active.onIndexProgress("检测项",completed);
++                            });
++                        } finally { active.readCancellationR30=null; }
++                        ctx.finishArtifacts();
+                         catalogSourceFailures=ctx.sourceFailuresR341();
+                         File readable=ReportCatalogCP4.writeReadableSummary(directory,catalog,active);ReportMemberPlanCP12.append(members,readable.getName(),readable.getName(),ReportArchiveCP4.hash(readable,active),readable.length());
+                     }
+@@ -799,6 +807,8 @@ public final class ReportExportServiceCP4 extends Service {
+         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;private long lastRead;
+         private final StageTiming timing=new StageTiming();
+         private long stageStarted,stageStartedWall,hashedBytes,backupPages;
++        private String indexSection="";
++        private long completedIndexEntries;
+         private String progressStageR31="CLAIMED";
+         private final Thread executingOwnerR341=Thread.currentThread();
+         private volatile long realtimeQuietAfterR341;
+@@ -824,7 +834,7 @@ public final class ReportExportServiceCP4 extends Service {
+         ActiveControl(ReportJobJournalCP12.Job job,File root){this(job,root,job.jobId);}
+         ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();timing.enter(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
+         void enter(String stage,long milliseconds)throws IOException{checkpoint();closePhaseR31();progressStageR31=stage;stageStarted=SystemClock.elapsedRealtime();
+-            stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;
++            stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;indexSection="";completedIndexEntries=0;
+             timing.enter(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
+             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31 budget=com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.processBudget();
+             budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP,SQLITE_BACKUP_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER,NATIVE_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");
+@@ -838,9 +848,17 @@ public final class ReportExportServiceCP4 extends Service {
+             if(!entering&&now<nextProgressR31[0])return;
+             try{sampleR31(0,new JSONObject().put("stage",progressStageR31).put("startedWallMs",stageStartedWall)
+                     .put("sampledElapsedMs",now).put("hashedBytes",hashedBytes)
++                    .put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
+                     .put("cumulativeRealtimeParkedMs",stageParkedMsR341),now,entering);}
+             catch(org.json.JSONException error){android.util.Log.w("ReportExportCP12","UI stage sample format unavailable",error);}
+         }
++        @Override public void onIndexProgress(String section,long completed) {
++            long now=SystemClock.elapsedRealtime();
++            if(section.equals(indexSection) && completed>completedIndexEntries)timing.progress(now);
++            indexSection=section;
++            completedIndexEntries=completed;
++            sampleStage(now,false);
++        }
+         @Override public void onHashedBytes(long bytes) {
+             if(bytes<=0L)return;
+             long now=SystemClock.elapsedRealtime();
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java b/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
+index a940329d..98f75c75 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java
+@@ -62,20 +62,46 @@ public final class ReportMetadataStreamR81 {
+         for(String column:columns) {
+             sql.append(',').append(descriptor(ident(column)));
+         }
+-        sql.append(" FROM ").append(id);if(fromRowid!=Long.MIN_VALUE)sql.append(" WHERE ").append(rowid).append(">=").append(fromRowid);sql.append(" ORDER BY ").append(order.sql);if(offset>0)sql.append(" LIMIT -1 OFFSET ").append(offset);
+-        long count=0;
+-        try(Cursor rows=db.rawQuery(sql.toString(),null)) {
+-            while(rows.moveToNext()) {
+-                check(control);long key=rows.getLong(0);
+-                CellSource cell=rowid==null?new CellSource(" FROM "+id+" ORDER BY "+order.sql+" LIMIT 1 OFFSET ?",Long.toString(offset+count)):new CellSource(" FROM "+id+" WHERE "+rowid+"=?",Long.toString(key));
+-                if(count>0)out.write(',');out.write('{');
+-                for(int i=0;i<columns.size();i++) {
+-                    if(i>0)out.write(',');out.write(JSONObject.quote(columns.get(i)));out.write(':');
+-                    writeValue(db,cell,ident(columns.get(i)),rows.getString(i+1),encoding,out,control);
++        sql.append(" FROM ").append(id);
++        // Android refills a CursorWindow by executing its SELECT again. Seek bounded
++        // pages on the immutable rowid so wide evidence rows never replay earlier pages.
++        String base=sql.toString(),tail=" ORDER BY "+order.sql;
++        int pageSize=Math.min(128,Math.max(1,2048/columns.size()));
++        long count=0,lastKey=fromRowid;
++        control.onIndexProgress(table,0);
++        for(;;) {
++            String statement;
++            String[] args=null;
++            if(rowid==null) {
++                statement=base+tail+(offset>0?" LIMIT -1 OFFSET "+offset:"");
++            } else {
++                String predicate="";
++                if(count>0 || fromRowid!=Long.MIN_VALUE) {
++                    predicate=" WHERE "+rowid+(count==0?">=?":">?");
++                    args=new String[]{Long.toString(lastKey)};
++                }
++                statement=base+predicate+tail+" LIMIT "+pageSize;
++            }
++            int pageRows=0;
++            try(Cursor rows=db.rawQuery(statement,args)) {
++                while(rows.moveToNext()) {
++                    check(control);
++                    long key=rows.getLong(0);
++                    if(rowid!=null && count>0 && key<=lastKey)throw new IOException("REPORT_METADATA_ROWID_NOT_ADVANCING");
++                    lastKey=key;
++                    CellSource cell=rowid==null?new CellSource(" FROM "+id+" ORDER BY "+order.sql+" LIMIT 1 OFFSET ?",Long.toString(offset+count)):new CellSource(" FROM "+id+" WHERE "+rowid+"=?",Long.toString(key));
++                    if(count>0)out.write(',');out.write('{');
++                    for(int i=0;i<columns.size();i++) {
++                        if(i>0)out.write(',');out.write(JSONObject.quote(columns.get(i)));out.write(':');
++                        writeValue(db,cell,ident(columns.get(i)),rows.getString(i+1),encoding,out,control);
++                    }
++                    out.write('}');count++;pageRows++;
++                    if((count&127)==0)control.onIndexProgress(table,count);
+                 }
+-                out.write('}');count++;
+             }
++            if(rowid==null || pageRows<pageSize || lastKey==Long.MAX_VALUE)break;
+         }
++        control.onIndexProgress(table,count);
+         return count;
+     }
+ 
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java
+index 5f67517b..a890f220 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java
+@@ -48,6 +48,7 @@ public final class ReportNativeCP4 {
+   boolean shouldContinue();
+   default void onBackupProgress(long totalPages,long remainingPages,int nativeCode) {}
+   default void onHashedBytes(long bytes) {}
++  default void onIndexProgress(String section,long completed) {}
+   default boolean hasDiskAdmissionR31(){return false;}
+   default void beforeOutputBytesR31(File file,long bytes)throws IOException {}
+   default void reserveFutureBytesR31(long bytes)throws IOException {}

@@ -69,7 +69,13 @@ public final class FaultOriginalCodecR335 {
         }
     }
     public static String sha256(byte[] bytes){
-        try {StringBuilder out=new StringBuilder(64);for(byte b:MessageDigest.getInstance("SHA-256").digest(bytes))out.append(String.format(Locale.ROOT,"%02x",b&255));return out.toString();}
+        try {byte[] b=MessageDigest.getInstance("SHA-256").digest(bytes);
+        char[] out=new char[2*b.length];
+        for(int i=0;i<b.length;i++) {
+            out[2*i]="0123456789abcdef".charAt((b[i]&255)>>>4);
+            out[2*i+1]="0123456789abcdef".charAt(b[i]&15);
+        }
+        return new String(out);}
         catch(NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
     }
     public static Map<String,Object> values(byte[] bytes)throws IOException {

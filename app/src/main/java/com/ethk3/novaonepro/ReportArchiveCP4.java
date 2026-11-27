@@ -76,6 +76,12 @@ public final class ReportArchiveCP4 implements Closeable {
   }
   return hex(digest.digest());
  }
- static String hex(byte[] b){StringBuilder s=new StringBuilder(b.length*2);for(byte x:b)s.append(String.format(Locale.ROOT,"%02x",x&255));return s.toString();}
+ static String hex(byte[] b){
+        char[] out=new char[2*b.length];
+        for(int i=0;i<b.length;i++) {
+            out[2*i]="0123456789abcdef".charAt((b[i]&255)>>>4);
+            out[2*i+1]="0123456789abcdef".charAt(b[i]&15);
+        }
+        return new String(out);}
  static String q(String s){StringBuilder b=new StringBuilder("\"");for(int i=0;i<s.length();i++){char c=s.charAt(i);if(c=='"'||c=='\\')b.append('\\').append(c);else if(c<32)b.append(String.format(Locale.ROOT,"\\u%04x",(int)c));else b.append(c);}return b.append('"').toString();}
 }

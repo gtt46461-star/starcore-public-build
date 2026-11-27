@@ -391,7 +391,15 @@ public final class ReportExportServiceCP4 extends Service {
                     try(ReportReadContextCP4 ctx=new ReportReadContextCP4(copy,job.jobId,job.snapshotSha,job.snapshotWallMs,
                             new ReportReadContextCP4.RuntimeObservationCP4(ReportJobJournalCP12.readAtomic(new File(directory,"runtime-observation.json"),65536)),
                             new ReportReadContextCP4.SourceManifestCP4(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536)),cancellation,3*MiB)) {
-                        catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->active.checkpoint());ctx.finishArtifacts();
+                        active.readCancellationR30=cancellation;
+                        try {
+                            catalog=ReportCatalogCP4.write(ctx,directory,(phase,completed)->{
+                                active.checkpoint();
+                                if("SCHEMA_OBJECT".equals(phase))active.onIndexProgress("数据库结构",completed);
+                                if("CHECK".equals(phase))active.onIndexProgress("检测项",completed);
+                            });
+                        } finally { active.readCancellationR30=null; }
+                        ctx.finishArtifacts();
                         catalogSourceFailures=ctx.sourceFailuresR341();
                         File readable=ReportCatalogCP4.writeReadableSummary(directory,catalog,active);ReportMemberPlanCP12.append(members,readable.getName(),readable.getName(),ReportArchiveCP4.hash(readable,active),readable.length());
                     }
@@ -799,6 +807,8 @@ public final class ReportExportServiceCP4 extends Service {
         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile Throwable stopCauseR31;private long lastRead;
         private final StageTiming timing=new StageTiming();
         private long stageStarted,stageStartedWall,hashedBytes,backupPages;
+        private String indexSection="";
+        private long completedIndexEntries;
         private String progressStageR31="CLAIMED";
         private final Thread executingOwnerR341=Thread.currentThread();
         private volatile long realtimeQuietAfterR341;
@@ -824,7 +834,7 @@ public final class ReportExportServiceCP4 extends Service {
         ActiveControl(ReportJobJournalCP12.Job job,File root){this(job,root,job.jobId);}
         ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;stageStarted=SystemClock.elapsedRealtime();timing.enter(stageStarted,120000,job.mode.equals("FULL_REPORT"));}
         void enter(String stage,long milliseconds)throws IOException{checkpoint();closePhaseR31();progressStageR31=stage;stageStarted=SystemClock.elapsedRealtime();
-            stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;
+            stageStartedWall=System.currentTimeMillis();hashedBytes=0;backupPages=0;indexSection="";completedIndexEntries=0;
             timing.enter(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
             com.ethk3.novaonepro.strategyv2.MemoryBudgetR31 budget=com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.processBudget();
             budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_BACKUP,SQLITE_BACKUP_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");budget.registerNativeCapacity(com.ethk3.novaonepro.strategyv2.MemoryBudgetR31.Kind.NATIVE_DECODER,NATIVE_BUDGET,"EXISTING_STAGE_BUDGET_NOT_DEVICE_CALIBRATION");
@@ -838,8 +848,16 @@ public final class ReportExportServiceCP4 extends Service {
             if(!entering&&now<nextProgressR31[0])return;
             try{sampleR31(0,new JSONObject().put("stage",progressStageR31).put("startedWallMs",stageStartedWall)
                     .put("sampledElapsedMs",now).put("hashedBytes",hashedBytes)
+                    .put("indexSection",indexSection).put("completedIndexEntries",completedIndexEntries)
                     .put("cumulativeRealtimeParkedMs",stageParkedMsR341),now,entering);}
             catch(org.json.JSONException error){android.util.Log.w("ReportExportCP12","UI stage sample format unavailable",error);}
+        }
+        @Override public void onIndexProgress(String section,long completed) {
+            long now=SystemClock.elapsedRealtime();
+            if(section.equals(indexSection) && completed>completedIndexEntries)timing.progress(now);
+            indexSection=section;
+            completedIndexEntries=completed;
+            sampleStage(now,false);
         }
         @Override public void onHashedBytes(long bytes) {
             if(bytes<=0L)return;
