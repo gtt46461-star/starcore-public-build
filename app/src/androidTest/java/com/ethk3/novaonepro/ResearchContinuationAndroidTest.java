@@ -3,11 +3,14 @@ package com.ethk3.novaonepro;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.SystemClock;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.ethk3.novaonepro.r952.AtomCatalogImportCP12;
 import com.ethk3.novaonepro.r952.ModernSeedFactoryCP12;
+import com.ethk3.novaonepro.r952.RollingFrozenPublisherR343;
+import com.ethk3.novaonepro.r952.RollingLearnerR343;
 import java.util.ArrayList;
 import java.util.Locale;
 import org.junit.Test;
@@ -21,6 +24,43 @@ public final class ResearchContinuationAndroidTest {
         try (Cursor c = store.readable().rawQuery("SELECT COUNT(*) FROM " + table, null)) {
             assertTrue(c.moveToFirst());
             return c.getLong(0);
+        }
+    }
+
+    @Test public void rollingTasksReopenDirectorWithoutANewDraw() {
+        String issue = "202609100010";
+        for (String kind : new String[]{RollingLearnerR343.KIND, RollingFrozenPublisherR343.KIND}) {
+            try (SQLiteDatabase db = SQLiteDatabase.create(null)) {
+                db.beginTransaction();
+                try {
+                    db.execSQL("CREATE TABLE r952_research_outbox(state TEXT NOT NULL)");
+                    ResearchTaskQueueR967.schema(db);
+                    db.execSQL("INSERT INTO "+ResearchTaskQueueR967.LANE
+                            +"(lane,desired_issue,served_issue,updated_at) VALUES(13,?,?,0)",
+                            new String[]{issue,issue});
+                    assertFalse(ResearchLearningContinuityR912.hasUnfinishedR952(db));
+                    String task = ResearchTaskQueueR967.enqueue(db,kind,"candidate",issue,
+                            "protocol","input","version");
+                    db.execSQL("UPDATE "+ResearchTaskQueueR967.TABLE
+                            +" SET status='YIELDED',available_at=? WHERE task_id=?",
+                            new Object[]{System.currentTimeMillis()+60_000,task});
+                    boolean online = ResearchLearningContinuityR912.hasUnfinishedR952(db);
+                    assertTrue("A delayed rolling task must keep the Director scheduled: "+kind,online);
+                    ResearchLearningContinuityR912.ensureDesired(db,issue,false,online,false);
+                    try (Cursor lane = db.rawQuery("SELECT served_issue,active_task_id FROM "
+                            +ResearchTaskQueueR967.LANE+" WHERE lane=13",null)) {
+                        assertTrue(lane.moveToFirst());
+                        assertEquals(issue,lane.getString(0));
+                        assertFalse("Reopen the identical draw watermark",lane.getString(1).isEmpty());
+                    }
+                    db.execSQL("UPDATE "+ResearchTaskQueueR967.TABLE+" SET status='COMPLETED' WHERE task_id=?",
+                            new String[]{task});
+                    assertFalse("Terminal rows remain as history", ResearchLearningContinuityR912.hasUnfinishedR952(db));
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+            }
         }
     }
 

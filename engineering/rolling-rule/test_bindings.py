@@ -9,7 +9,8 @@ import sys
 parent = "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
 source = os.environ["REPAIR_INPUT"]
 paths = [
-  "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java"
+  "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+  "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java"
 ]
 reason = "Retire an incompatible rolling run only after authenticated later settlement, preserving its original checkpoint and formal publication rules."
 def git(*args):
@@ -19,7 +20,7 @@ def sha(raw):
 def document(path,data):
     Path(path).write_text(json.dumps(data,indent=2,sort_keys=True,ensure_ascii=False)+"\n")
 assert git("rev-parse","HEAD").decode().strip() == parent
-for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java"]:
+for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java", "app/src/androidTest/java/com/ethk3/novaonepro/ResearchContinuationAndroidTest.java"]:
     raw=git("show",source+":"+path)
     assert raw != Path(path).read_bytes(), path
     Path(path).write_bytes(raw)

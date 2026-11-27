@@ -2,6 +2,8 @@ package com.ethk3.novaonepro;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.r952.RollingFrozenPublisherR343;
+import com.ethk3.novaonepro.r952.RollingLearnerR343;
 import org.json.JSONObject;
 
 /**
@@ -199,7 +201,14 @@ public final class ResearchLearningContinuityR912 {
         // for the draw and stranded the backlog until a later watermark happened to reopen it.
         try(Cursor c=db.rawQuery("SELECT 1 FROM r952_research_outbox WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED') LIMIT 1",null)){if(c.moveToFirst())return true;}
         if(!exists(db,ResearchTaskQueueR967.TABLE))return false;
-        try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchTaskQueueR967.TABLE+" WHERE kind IN('POST_TRAIN','TRAIN_CANDIDATE','FREEZE_CANDIDATE','RESEARCH_ACTION') AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL') LIMIT 1",null)){return c.moveToFirst();}
+        // The rolling learner and independent freeze share the Director's TRAIN turn.
+        // A yielded lease must keep lane 13 pending even when the draw has not changed.
+        try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchTaskQueueR967.TABLE
+                +" WHERE kind IN('POST_TRAIN','TRAIN_CANDIDATE','FREEZE_CANDIDATE','RESEARCH_ACTION',?,?)"
+                +" AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL') LIMIT 1",
+                new String[]{RollingLearnerR343.KIND,RollingFrozenPublisherR343.KIND})){
+            return c.moveToFirst();
+        }
     }
     /** Do not serve lane13 after only TRAIN: the other five wheel owners must run
      * even when no legacy outbox rows exist to keep the lane awake. */
