@@ -2,7 +2,7 @@ name: Verify report coverage and research continuity through Android 14
 on:
   push:
     branches: ['repair/r343-rolling-rule-boundary-20261127']
-    paths: ['engineering/field-repair-android/**', '.github/workflows/field-repair-android.yml']
+    paths: ['engineering/field-repair-android/**', '.github/workflows/field-repair-android.yml', 'app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java']
 permissions:
   contents: read
 jobs:
@@ -18,6 +18,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
       - name: Prepare the reviewed test build
         working-directory: app-source
         env:
@@ -41,7 +42,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Check coverage, report contracts, original training records, and rolling restart
+      - name: Check the original Android report, candidate, chart, and permit owners
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34

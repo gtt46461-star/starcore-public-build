@@ -283,7 +283,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
             Long nb = notBefore.get(t.id()); if (nb != null && nb > now) continue;
             if (!prepared.containsKey(t.id())) {
                 if (newSlotAvailable == null) {
-                    synchronized (COMPUTE_OWNERS_R31) { newSlotAvailable = hasComputeRoom(ComputeLane.R27,now); }
+                    synchronized (COMPUTE_OWNERS_R31) { newSlotAvailable = hasComputeRoom(ComputeLane.R27); }
                 }
                 if (!newSlotAvailable) continue;
             }
