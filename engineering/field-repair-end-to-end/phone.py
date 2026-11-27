@@ -363,7 +363,16 @@ with zipfile.ZipFile(ui.OUT/result['file']) as reopened:
             for line in reopened.open(member):
                 row=json.loads(line)
                 if row.get('kind')=='check_result':checks[row['id']]=row['execution_state']
-    assert len(checks)==96 and all(value=='EXECUTED' for value in checks.values()), checks
+    failures={ident:state for ident,state in checks.items() if state!='EXECUTED'}
+    for name in reopened.namelist():
+        if not re.fullmatch(r"catalog-\d+\.jsonl",name): continue
+        for line in reopened.open(name):
+            entry=json.loads(line)
+            if entry.get("kind")!="check_result" or entry.get("id") not in failures: continue
+            detail=str(entry.get("error_detail",""))
+            trace=detail.replace("\\n","\n").splitlines()
+            print("READBACK_FAILED_CHECK",entry["id"],entry.get("reason"),"\n".join(trace[:32])[:7000],flush=True)
+    print("READBACK_CHECK_SUMMARY",len(checks),len(failures),json.dumps(failures),round(elapsed,2),flush=True)
     check_rows={}
     for member in reopened.namelist():
         if re.fullmatch(r'catalog-\d+\.jsonl',member):
@@ -424,6 +433,7 @@ assert manifest['snapshotBytes']>=size and manifest['snapshotSha256']==result['s
 receipt={'profile':profile,'publicSaveReadback':saved['state'],'publicSha256':saved['actualSha256'],'dialogActions':actions,'rawDatabaseIncluded':False,'includedCompactScope':True,'stageStartsWallMs':events.get(result['jobId'],{}),'dashboardCheck':checks['RSEC-011'],'allCheckStates':checks,'fixtureEventRows':718660,'fixtureFetchRows':164173,'fixtureEdgeRows':len(pairs),'verifiedSnapshotBytes':manifest['snapshotBytes'],'exportedZipBytes':result['bytes'],'scope':'API34_SYNTHETIC_LOAD_WITH_SEALED_173_LONG_AND_PROBE_METADATA','archivedRows':{n:len(v['rows']) for n,v in archived.items()},'syntheticBinaryCells':projected_blobs,'syntheticBinaryBytes':projected_blob_bytes,'fileFixtureEntries':17233,'historicalAcks':315,'sampledIndexSections':list(sections.get(result['jobId'],{})),'source':new_source,'before':before,'after':after,'sourceBytesBeforeLaunch':size,'populatedPagesBeforePadding':used,'secondsFromUiEntryThroughReadback':round(elapsed,2),'underTwentyMinutes':elapsed<1200,'checks':result['checks'],'metrics':result['metrics'],'jobId':result['jobId'],'physicalDevice':False}
 (out/'field-size-android-readback.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print(json.dumps(receipt),flush=True)
+assert len(checks)==96 and not failures,failures
 
 with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as summary:
     summary.write('\n```json\n'+json.dumps(receipt)+'\n```\n')
