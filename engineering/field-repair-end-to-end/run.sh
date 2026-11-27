@@ -13,4 +13,4 @@ export VERSION="$(jq -er '.versionCode' release/release_manifest.json)"
 cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/candidate-tested.apk"
 ln -s app-source ../source
 cd ..
-python3 -B app-source/engineering/field-repair-end-to-end/phone.py
+python3 -B "$RUNNER_TEMP/phone.py"
