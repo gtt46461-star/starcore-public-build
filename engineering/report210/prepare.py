@@ -46,7 +46,7 @@ allowed=set(paths) | {"app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR92
 baseline={row["path"]:row for row in json.loads(Path("release/r81_controlled_source_baseline.json").read_text())["files"]}
 review_by_path={entry["path"]:entry for entry in v["controlled_changes"]}
 reviewer="STARCORE B12 RSEC-010 report correction"
-for path in sorted(allowed):
+for path in sorted(allowed & classified.keys()):
     actual=sha(Path(path).read_bytes())
     before=baseline.get(path,{})
     role=classified[path]["role"]
