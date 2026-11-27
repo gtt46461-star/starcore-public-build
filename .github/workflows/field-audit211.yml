@@ -1,0 +1,18 @@
+name: Read the verified field report across charts, creation and training
+on:
+  push:
+    branches: ['repair/report-rsec010-snapshot']
+    paths: ['engineering/field-audit211/inspect.py', '.github/workflows/field-audit211.yml']
+permissions:
+  contents: read
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            engineering/field-audit211
+            construction/plans/STARCORE_R34_3_REPAIR_20261126/report
+      - name: Analyze the sealed historical field ZIP
+        run: python3 -B engineering/field-audit211/inspect.py construction/plans/STARCORE_R34_3_REPAIR_20261126/report/ORIGINAL_DIAGNOSTIC_173.zip
