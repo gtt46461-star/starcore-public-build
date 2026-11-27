@@ -58,7 +58,22 @@ def choose_folder():
             if ui.tap(inside,'Use this folder') or ui.tap(inside,'使用此文件夹'):
                 time.sleep(1)
                 _,confirm=ui.ui()
-                if not (ui.tap(confirm,'Allow') or ui.tap(confirm,'允许')):raise AssertionError('Directory permission confirmation missing')
+                # A persisted tree grant can return directly to the app. Other DocumentsUI
+                # builds put the affirmative action in the standard dialog positive button.
+                for retry in range(10):
+                    nodes=list(confirm.iter('node'))
+                    labels=[(n.get('resource-id',''),n.get('text','')) for n in nodes if n.get('text')]
+                    print('TREE_CONFIRM',labels[-10:],flush=True)
+                    if not any(n.get('package','').endswith('documentsui') for n in nodes):break
+                    ok=next((n for n in nodes if n.get('enabled')=='true' and
+                        (n.get('resource-id','').endswith(':id/button1') or
+                         n.get('text','').casefold() in {'allow','允许','ok','确定','使用此文件夹','use this folder','select'})),None)
+                    if ok is not None:
+                        import re
+                        left,top,right,bottom=map(int,re.findall('[0-9]+',ok.get('bounds','')))
+                        ui.adb('shell','input','tap',str((left+right)//2),str((top+bottom)//2))
+                    time.sleep(1)
+                    _,confirm=ui.ui()
                 return
         if tick in (2,8,15):
             ui.tap(tree,'Show roots') or ui.tap(tree,'Open navigation drawer') or ui.tap(tree,'显示根目录')
