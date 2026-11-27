@@ -153,24 +153,23 @@ public final class ReportSchemaSourceProviderR335 extends ContentProvider {
             cancellation.check();
             long remaining = prepareUntil - SystemClock.elapsedRealtime();
             if (remaining <= 0) return "REGISTERED_SOURCE_PREPARATION_WINDOW_ELAPSED";
-            Bundle reply;
             try {
-                reply = awaitOwnerCall(OWNER_CALLS,
+                Bundle reply = awaitOwnerCall(OWNER_CALLS,
                         () -> context.getContentResolver().call(uri, STEP, ReleaseManifestR926.MANIFEST_SHA256, null),
                         cancellation, Math.min(remaining, OWNER_CALL_MS));
-            } catch (TimeoutException timedOut) {
-                return "REGISTERED_SOURCE_OWNER_CALL_TIMED_OUT";
-            } catch (RejectedExecutionException stillRunning) {
-                return "REGISTERED_SOURCE_OWNER_CALL_STILL_RUNNING";
+                if (reply == null || reply.getString("status") == null)
+                    return "REGISTERED_SOURCE_OWNER_NO_RESPONSE";
+                String status = reply.getString("status");
+                if (!PENDING.equals(status)) return status;
+            } catch (TimeoutException | RejectedExecutionException initializing) {
+                // A cold Binder call can outlive its individual wait. Keep the existing
+                // preparation window open for that same owner to finish the core schema.
             } catch (ExecutionException failed) {
                 Throwable failure = failed.getCause();
                 if (failure instanceof Error) throw (Error) failure;
                 android.util.Log.w("ReportSchema", "Business-process schema owner unavailable", failure);
                 return "REGISTERED_SOURCE_OWNER_UNAVAILABLE_" + failure.getClass().getSimpleName();
             }
-            if (reply == null || reply.getString("status") == null) return "REGISTERED_SOURCE_OWNER_NO_RESPONSE";
-            String status = reply.getString("status");
-            if (!PENDING.equals(status)) return status;
             try { Thread.sleep(100L); }
             catch (InterruptedException interrupted) {
                 Thread.currentThread().interrupt();

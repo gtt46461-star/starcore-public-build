@@ -22,7 +22,8 @@ reasons = {
   "app/src/main/cpp/report_native_cp4.c": "Pace native backup scheduling while preserving the cancellation, storage, and realtime callbacks.",
   "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java": "Keep the most recent valid chart frame while preserving its original source and freshness status.",
   "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java": "Select a valid retained chart frame without treating a stale frame as current evidence.",
-  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "Keep a lane reserve within the original four continuation permits while observing worker termination before release."
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "Keep a lane reserve within the original four continuation permits while observing worker termination before release.",
+  "app/src/main/java/com/ethk3/novaonepro/ReportSchemaSourceProviderR335.java": "Keep the existing source preparation window available for the original migration owner after one cold Binder timeout."
 }
 paths = list(reasons)
 def git(*args):

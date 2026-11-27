@@ -43,9 +43,7 @@ except (RuntimeError, subprocess.SubprocessError) as error:
         print("EMPTY_DEVICE_WARMUP_RECEIPT",json.dumps({k:ack.get(k) for k in ('stage','reason','failurePhaseR32','failureDetailR32','reportSourcePreparation')}),flush=True)
     except (RuntimeError,ValueError,KeyError,subprocess.SubprocessError) as missing:
         print("EMPTY_DEVICE_WARMUP_NO_RECEIPT",type(missing).__name__,flush=True)
-    # The empty installation only initializes its database. The actual acceptance
-    # below still requires a published ZIP, the storage receipt, and all 96 results.
-    print("CONTINUE_WITH_POPULATED_FIELD_FIXTURE",type(error).__name__,flush=True)
+    raise
 db=json.loads((source/'release/release_manifest.json').read_text())['databaseName']
 assert '/' not in db
 live=f'/data/user/0/{pkg}/databases/{db}'
