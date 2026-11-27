@@ -251,6 +251,15 @@ with ExitStack() as stack:
         if not re.fullmatch(r"catalog-\d+\.jsonl", m.filename): continue
         for raw in archive.open(m):
             row=json.loads(raw)
+            if row.get("kind")=="check_result" and row.get("id") in {"RSEC-068","RSEC-069","RSEC-071","RSEC-073"}:
+                evidence=str(row.get("evidence",""))
+                candidates=[line for line in evidence.splitlines() if re.search(r"(HARD_BLOCK|WATCH|LOCKED|^[^=]{2,64}=[^=]{1,140}$|owner|ablation|binding|缺|拦截|不一致|风险)",line,re.I)]
+                safe_rows=[]
+                for line in candidates[:45]:
+                    if re.search(r"(https?://|/(data|storage|sdcard)/|[A-Z0-9_]*KEY=|token=|bearer)",line,re.I): continue
+                    if len(line)>265: continue
+                    safe_rows.append(line)
+                emit("AUDIT_FINDING",{"id":row["id"],"lines":safe_rows})
             if row.get("kind")=="check_result" and row.get("execution_state")!="EXECUTED":
                 emit("FIELD_CHECK_CAUSE",{"id":row.get("id"),"reasons":context_value({k:v for k,v in row.items() if k in ("reason","failure","error","exception","errorChain","details","source")}),
                      "frames":re.findall(r"\bcom\.ethk3\.novaonepro\.[A-Za-z0-9_$.]+\([A-Za-z0-9_]+\.java:[0-9]+\)",str(row.get("error_detail","")))[:36],
