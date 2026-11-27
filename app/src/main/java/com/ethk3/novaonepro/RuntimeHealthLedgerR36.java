@@ -280,13 +280,18 @@ public final class RuntimeHealthLedgerR36 {
         try {
             String databaseIdentity = RuntimeObservationScopeR341.databaseIdentity(db);
             if (RuntimeObservationScopeR341.UNRESOLVED.equals(databaseIdentity)) return;
-            // Start with the exact release scope. The event-side game index can otherwise
-            // drive this join through all historical events on a device with missing statistics.
-            String scope = "SELECT min(e.target_issue) FROM " + RuntimeObservationScopeR341.EVENT_SCOPE
-                    + " s CROSS JOIN " + RuntimeEventLedgerR926.TABLE_EVENT
-                    + " e ON e.event_id=s.event_id "
-                    + "WHERE s.release_id=? AND s.source_commit=? AND s.database_identity=? AND e.game_code=? "
-                    + "AND length(e.target_issue)=12 AND e.target_issue NOT GLOB '*[^0-9]*'";
+            // The first valid game event, if it has the exact release scope, is already
+            // the lower bound. Otherwise probe from the scope index, not the event history.
+            String scope = "SELECT COALESCE((SELECT first.target_issue FROM (SELECT e.event_id,e.target_issue FROM "
+                    + RuntimeEventLedgerR926.TABLE_EVENT
+                    + " e WHERE e.game_code=?4 AND length(e.target_issue)=12"
+                    + " AND e.target_issue NOT GLOB '*[^0-9]*' ORDER BY e.target_issue LIMIT 1) first"
+                    + " CROSS JOIN " + RuntimeObservationScopeR341.EVENT_SCOPE + " s ON s.event_id=first.event_id"
+                    + " WHERE s.release_id=?1 AND s.source_commit=?2 AND s.database_identity=?3),"
+                    + " (SELECT min(e.target_issue) FROM " + RuntimeObservationScopeR341.EVENT_SCOPE
+                    + " s CROSS JOIN " + RuntimeEventLedgerR926.TABLE_EVENT + " e ON e.event_id=s.event_id"
+                    + " WHERE s.release_id=?1 AND s.source_commit=?2 AND s.database_identity=?3 AND e.game_code=?4"
+                    + " AND length(e.target_issue)=12 AND e.target_issue NOT GLOB '*[^0-9]*'))";
             String[] identity = {ReleaseManifestR926.MANIFEST_SHA256, BuildConfig.SOURCE_COMMIT_R26,
                     databaseIdentity, ReleaseManifestR926.GAME_CODE};
             String first;
