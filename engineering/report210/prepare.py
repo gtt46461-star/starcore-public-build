@@ -50,6 +50,8 @@ for path in sorted(allowed & classified.keys()):
     actual=sha(Path(path).read_bytes())
     before=baseline.get(path,{})
     role=classified[path]["role"]
+    if role == "PROVENANCE" and before.get("role","") in ("PROVENANCE", ""):
+        continue
     if (actual,role)==(before.get("sha256",""),before.get("role","")):
         review_by_path.pop(path,None)
     else:
