@@ -26,6 +26,7 @@ jobs:
           set -euo pipefail
           cp engineering/chart-history/test_bindings.py "$RUNNER_TEMP/chart-bindings.py"
           git fetch --no-tags --unshallow origin 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
+          git fetch --no-tags --depth=1 origin b5bf9de3c9a000f4f2f920f6f2c4b849ba22ee59
           git switch --detach 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d
           python3 -B "$RUNNER_TEMP/chart-bindings.py"
           git diff --check
@@ -55,5 +56,5 @@ jobs:
         if: always()
         with:
           name: chart-history-android-test
-          path: app/build/outputs/androidTest-results/connected
+          path: app-source/app/build/outputs/androidTest-results/connected
           if-no-files-found: warn
