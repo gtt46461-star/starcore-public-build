@@ -5,7 +5,6 @@ import json
 import os
 from pathlib import Path
 import sqlite3
-import struct
 import subprocess
 import sys
 import time
@@ -128,24 +127,26 @@ with closing(sqlite3.connect(local)) as c:
     page=c.execute('PRAGMA page_size').fetchone()[0]
 print('ARCHIVED_METADATA',len(archived),sum(len(row['rows']) for row in archived.values()),projected_blobs,projected_blob_bytes,flush=True)
 assert page==4096 and 100000 < used < 1150000
-size=4913827840
-pages=size//page
-skip=0x40000000//page+1
-with local.open('r+b') as f:
-    f.truncate(size)
-    f.seek(28)
-    start=used+1+(used+1==skip)
-    f.write(struct.pack('>III',pages,start,pages-used-int(used<skip<=pages)))
-    while start<=pages:
-        end=min(pages+1,start+1+page//4-8)
-        leaves=[i for i in range(start+1,end) if i!=skip]
-        if end==skip:end+=1
-        f.seek((start-1)*page)
-        f.write(struct.pack('>'+str(len(leaves)+2)+'I',end if end<=pages else 0,len(leaves),*leaves))
-        start=end
-with closing(sqlite3.connect(f'file:{local}?mode=ro',uri=True)) as c:
-    assert c.execute('PRAGMA quick_check').fetchall()==[('ok',)]
-    assert c.execute('PRAGMA page_count').fetchone()==(pages,)
+with closing(sqlite3.connect(local)) as c:
+    seed_check=c.execute('PRAGMA quick_check').fetchall()
+    assert seed_check==[('ok',)],seed_check[:10]
+    c.execute('PRAGMA journal_mode=OFF')
+    c.execute('PRAGMA synchronous=OFF')
+    # Let SQLite build its own free list, including its reserved lock-byte page.
+    c.execute('CREATE TABLE fixture_storage_padding(value BLOB)')
+    target=4913827840
+    while True:
+        remaining=target-c.execute('PRAGMA page_count').fetchone()[0]*page
+        if remaining<=0:
+            break
+        c.execute('INSERT INTO fixture_storage_padding VALUES (zeroblob(?))',(min(32<<20,remaining),))
+    c.execute('DROP TABLE fixture_storage_padding')
+    c.commit()
+    pages=c.execute('PRAGMA page_count').fetchone()[0]
+    check=c.execute('PRAGMA quick_check').fetchall()
+    assert check==[('ok',)],check[:10]
+size=local.stat().st_size
+assert target<=size<=target+(1<<20) and size==pages*page,(target,size,pages)
 # This is the stopped, disposable, offline emulator seeded by the baseline APK.
 assert ci.adb(serial,'shell','getprop','ro.kernel.qemu')=='1'
 ci.adb(serial,'shell','rm','-f',live+'-wal',live+'-shm')
