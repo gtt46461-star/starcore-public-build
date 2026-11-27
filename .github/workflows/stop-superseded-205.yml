@@ -1,0 +1,28 @@
+name: Stop superseded raw-default candidate
+on:
+  push:
+    branches: ['repair/compact-phone-206-20261127']
+    paths: ['.github/workflows/stop-superseded-205.yml']
+permissions:
+  actions: write
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stop the three superseded candidate workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          stop_run() {
+            run_id=$1
+            expected=$2
+            data=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id")
+            [[ "$(jq -r .head_sha <<< "$data")" == "$expected" ]]
+            if [[ "$(jq -r .status <<< "$data")" != completed ]]; then
+              gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/cancel"
+            fi
+          }
+          stop_run 45967223094 85a913f58481586a0e0eb6c787774d56ed931b48
+          stop_run 45967638478 8fe8cac526eecf7e457a68a312738a93742f4150
+          stop_run 45968032730 00a2e748ad2364efcc711436c76a5115f856a5ac
