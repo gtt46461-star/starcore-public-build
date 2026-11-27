@@ -244,6 +244,11 @@ with ExitStack() as stack:
                         reason=row.get("blocked_reason","")
                         emit("R26_TASK_OWNER",{"task":row["task_id"],"state":row.get("status"),"steps":row.get("steps"),"cursor":row.get("cursor"),"lastProgress":row.get("last_progress"),"reason":context_value(reason),
                           "reasonTokens":re.findall(r"\b[A-Z][A-Z0-9_]{3,70}\b",reason)[:12] if isinstance(reason,str) else []})
+    training_inputs=set(["2bac10f86871fbee7b0c7eae5111b48499f7b1fe6714fe0f122e8efb720cf004","735ed22d0d458606994911222372c46d6021cc6c7fa40e84351102316e4f5aa7","642b4f9808a50c5ccfdbe348bbc7b9a70f8a37dab11a300ae8515582a30bb622","129c749b58ccfe9884070607d83b7ec51e2f742481495c0d24d2050c7b012f01"])
+    for row in (json.loads(line) for line in archive.open("FILE_STATE.jsonl")):
+        leaf=str(row.get("path","")).rsplit("/",1)[-1]
+        if leaf[:64] in training_inputs:
+            emit("ORIGINAL_TRAINING_INPUT",{"sha256InName":leaf[:64],"suffix":leaf[64:],"state":row.get("state"),"bytes":row.get("bytes",row.get("size"))})
     for item in scope.get("tables",[]):
         if str(item.get("name",item.get("table",""))).startswith("r34_cold"):
             emit("COLD_LEDGER",{"table":item.get("name",item.get("table")),"rows":item.get("rows",item.get("rowCount")),"fields":sorted(item)})
@@ -255,7 +260,7 @@ with ExitStack() as stack:
                 evidence=str(row.get("evidence",""))
                 candidates=[line for line in evidence.splitlines() if re.search(r"(HARD_BLOCK|WATCH|LOCKED|^[^=]{2,64}=[^=]{1,140}$|owner|ablation|binding|缺|拦截|不一致|风险)",line,re.I)]
                 safe_rows=[]
-                for line in candidates[:45]:
+                for line in candidates[:120] if row["id"]=="RSEC-071" else candidates[:35]:
                     if re.search(r"(https?://|/(data|storage|sdcard)/|[A-Z0-9_]*KEY=|token=|bearer)",line,re.I): continue
                     if len(line)>265: continue
                     safe_rows.append(line)
