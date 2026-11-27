@@ -1,0 +1,30 @@
+name: Compare the archived handset report with the compact evidence exporter
+on:
+  push:
+    branches: [repair/report-scope-205-20261127]
+    paths: [.github/workflows/report-scope-inspection.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: construction/plans/STARCORE_R34_3_REPAIR_20261126/report
+          persist-credentials: false
+      - name: Read section sizes and table counts from the original report
+        run: |
+          python3 - <<'PY'
+          import collections,io,json,zipfile
+          from pathlib import Path
+          src=Path('construction/plans/STARCORE_R34_3_REPAIR_20261126/report/ORIGINAL_DIAGNOSTIC_173.zip')
+          with zipfile.ZipFile(src) as a,zipfile.ZipFile(io.BytesIO(a.read(a.namelist()[0]))) as z:
+              print('LARGEST',sorted(((m.filename,m.file_size) for m in z.infolist()),key=lambda item:-item[1])[:10])
+              meta=json.loads(z.read('DIAGNOSTIC_SCOPE.json'))
+              tables=meta['tables']
+              print('TABLES',len(tables),'EMPTY',sum(t['rows']==0 for t in tables))
+              print('NEAR815',[(t['table'],t['rows'],len(t['states'])) for t in tables[805:835]])
+              print('LARGEST_GROUPS',sorted(((t['table'],len(t['states']),t['rows']) for t in tables),key=lambda x:-x[1])[:12])
+              print('RECENT_ROWS',sorted(((t['table'],t.get('exportedRows',0),t.get('totalRows',0)) for t in meta['recentEvidence']),key=lambda x:-x[1])[:10])
+          PY
