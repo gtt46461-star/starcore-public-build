@@ -9218,7 +9218,7 @@ public final class MainActivity extends Activity {
             panel.addView(summary);
 
             final Button copy = new Button(this);
-            copy.setText("导出完整报告（含数据库和训练附件）");
+            copy.setText("导出完整报告（精简 ZIP）");
             panel.addView(copy);
             final Button forensic = new Button(this);
             forensic.setText("查看运行、结算与真实出手详情");

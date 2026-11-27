@@ -117,8 +117,28 @@ public final class ReportCatalogCP4 {
             }
         }
     }
+    /** Reuse complete table_info results on this immutable handle. Uncached tables use PRAGMA directly. */
+    private static final class ColumnCache {
+        final Map<String,List<ReportDiagnosticEvidenceR64.Column>> tables=new HashMap<>();
+        long remaining;
+        ColumnCache(boolean compact){remaining=compact?2L*1024*1024:0;}
+        void collect(SQLiteDatabase db,JsonPages out,String table,Progress progress)throws IOException {
+            List<ReportDiagnosticEvidenceR64.Column> columns=remaining>0?new ArrayList<>():null;
+            pragma(out,db,"table_info",table,progress,columns);
+            if(columns==null)return;
+            long size=96L+2L*table.length();
+            for(ReportDiagnosticEvidenceR64.Column c:columns)
+                size+=96L+2L*c.name.length()+(c.type==null?0L:2L*c.type.length());
+            if(size<=remaining){tables.put(table,columns);remaining-=size;}
+        }
+    }
     public static final class Result {
         private final SQLiteDatabase snapshot;
+        private final ColumnCache columnCache;
+        List<ReportDiagnosticEvidenceR64.Column> columns(SQLiteDatabase source,String table) {
+            if (snapshot != source) throw new IllegalArgumentException("REPORT_CATALOG_SNAPSHOT_MISMATCH");
+            return columnCache.tables.get(table);
+        }
         private final Map<String,Long> tableCounts;
         Long tableCount(SQLiteDatabase source,String table) {
             if (snapshot != source) throw new IllegalArgumentException("REPORT_CATALOG_SNAPSHOT_MISMATCH");
@@ -129,8 +149,9 @@ public final class ReportCatalogCP4 {
         public final String scope;
         public final List<File> indexFiles;
         public final boolean evidenceCatalogComplete, checksComplete, allChecksPassed;
-        private Result(SQLiteDatabase snapshot,Map<String,Long> tableCounts,long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
+        private Result(SQLiteDatabase snapshot,Map<String,Long> tableCounts,ColumnCache columnCache,long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
                 boolean evidenceCatalogComplete,boolean checksComplete,boolean allChecksPassed) {
+            this.columnCache=columnCache;
             this.snapshot=snapshot;
             this.tableCounts=Collections.unmodifiableMap(tableCounts);
             if(tables>Integer.MAX_VALUE)throw new IllegalArgumentException("TOO_MANY_TABLES");
@@ -141,6 +162,7 @@ public final class ReportCatalogCP4 {
             this.evidenceCatalogComplete=evidenceCatalogComplete;this.checksComplete=checksComplete;this.allChecksPassed=allChecksPassed;
         }
         private Result(Result r,List<File> files) {
+            this.columnCache=r.columnCache;
             this.snapshot=r.snapshot;
             this.tableCounts=r.tableCounts;
             this.objects=r.objects;this.tables=r.tables;this.rows=r.rows;this.checks=r.checks;
@@ -231,6 +253,10 @@ public final class ReportCatalogCP4 {
                 || !snapshotSha256.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("SNAPSHOT_IDENTITY");
         if (checks == null || pages == null || progress == null) throw new IllegalArgumentException("NULL_ARGUMENT");
         Map<String,Long> tableCounts=new HashMap<>();
+        boolean compactForCache=false;
+        try { compactForCache=context.compactDiagnosticR64(); }
+        catch(ReportReadContextCP4.ReportReadFailureCP4 unavailable){/* The catalog records profile errors at its existing validation site. */}
+        ColumnCache columnCache=new ColumnCache(compactForCache);
         progress.checkpoint("CATALOG_START",0);
         long objectCount=0, tableCount=0, rowCount=0, checkCount=0, uncomputed=0, errors=0;
         boolean evidenceOK=true, checksOK=true, allPassed=true;
@@ -279,7 +305,7 @@ public final class ReportCatalogCP4 {
                                 tableCounts.put(name,n);
                                 rowCount+=n;
                                 out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
-                                pragma(out,snapshot,"table_info",name,progress);
+                                columnCache.collect(snapshot,out,name,progress);
                                 pragma(out,snapshot,"index_list",name,progress);
                                 pragma(out,snapshot,"foreign_key_list",name,progress);
                             } catch(RuntimeException failure) {
@@ -335,13 +361,18 @@ public final class ReportCatalogCP4 {
                     "evidence_catalog_complete",evidenceOK,"checks_complete",checksOK,"all_checks_passed",checksOK&&allPassed,
                     "evidence_archive_complete","OWNER_MUST_VERIFY_ALL_MEMBER_HASHES"));
         }
-        return new Result(snapshot,tableCounts,objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
+        return new Result(snapshot,tableCounts,columnCache,objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
     }
     private static void pragma(JsonPages out,SQLiteDatabase db,String operation,String name,Progress progress) throws IOException {
+        pragma(out,db,operation,name,progress,null);
+    }
+    private static void pragma(JsonPages out,SQLiteDatabase db,String operation,String name,Progress progress,
+                               List<ReportDiagnosticEvidenceR64.Column> columns) throws IOException {
         // operation comes solely from the four fixed call sites above.
         try(Cursor c=query(db,"PRAGMA "+operation+"("+ident(name)+")",null)) {
             long n=0;while(c.moveToNext()) {
                 progress.checkpoint("SCHEMA_PRAGMA",n++);
+                if(columns!=null)columns.add(new ReportDiagnosticEvidenceR64.Column(c));
                 StringBuilder b=new StringBuilder(1024);b.append('{');field(b,"kind","pragma_row");b.append(',');field(b,"operation",operation);b.append(',');field(b,"object_name",name);b.append(',');field(b,"pragma_schema",2);
                 Set<String> fieldNames=new HashSet<String>();Collections.addAll(fieldNames,"kind","operation","object_name","pragma_schema");
                 for(int j=0;j<c.getColumnCount();j++) {String columnName=c.getColumnName(j);if(columnName==null||!fieldNames.add(columnName))throw new IOException("CATALOG_DUPLICATE_PRAGMA_FIELD");b.append(',');quote(b,columnName);b.append(':');

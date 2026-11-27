@@ -68,8 +68,11 @@ public final class ReportMetadataStreamR81 {
         // Keep a single row within the prior CursorWindow budget. Most ledger text can
         // travel in the same row instead of opening a second cursor for each cell.
         int inlineBytes=Math.max(INLINE_BYTES,Math.min(8192,(384*1024)/columns.size()));
-        for(String column:columns) {
-            sql.append(',').append(descriptor(ident(column),inlineBytes));
+        String[] identifiers=new String[columns.size()], keys=new String[columns.size()];
+        for(int i=0;i<columns.size();i++) {
+            identifiers[i]=ident(columns.get(i));
+            keys[i]=JSONObject.quote(columns.get(i))+":";
+            sql.append(',').append(descriptor(identifiers[i],inlineBytes));
         }
         sql.append(" FROM ").append(id);
         // Android refills a CursorWindow by executing its SELECT again. Seek bounded
@@ -101,8 +104,8 @@ public final class ReportMetadataStreamR81 {
                     CellSource cell=rowid==null?new CellSource(" FROM "+id+" ORDER BY "+order.sql+" LIMIT 1 OFFSET ?",Long.toString(offset+count)):new CellSource(" FROM "+id+" WHERE "+rowid+"=?",Long.toString(key));
                     if(count>0)out.write(',');out.write('{');
                     for(int i=0;i<columns.size();i++) {
-                        if(i>0)out.write(',');out.write(JSONObject.quote(columns.get(i)));out.write(':');
-                        writeValue(db,cell,ident(columns.get(i)),rows.getString(i+1),encoding,out,control);
+                        if(i>0)out.write(',');out.write(keys[i]);
+                        writeValue(db,cell,identifiers[i],rows.getString(i+1),encoding,out,control);
                     }
                     out.write('}');count++;pageRows++;
                     if((count&127)==0)control.onIndexProgress(table,count);

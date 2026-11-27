@@ -8,7 +8,7 @@ public final class CompleteReportFileR927 {
  private static final java.util.concurrent.atomic.AtomicLong POLL_SESSION=new java.util.concurrent.atomic.AtomicLong();
  private CompleteReportFileR927(){}
  public static void openExportMenu(Activity activity,Button button,TextView status){if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
-  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"生成并保存到手机（含数据库和训练附件）","生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存","取回已生成的 ZIP"},(dialog,index)->{
+  new AlertDialog.Builder(activity).setTitle("完整检测报告").setItems(new String[]{"生成并保存精简报告 ZIP","生成当前完整报告","取回上次报告或继续生成","查看上次导出失败详情","取消未完成的完整报告","另存完整原始备份（体积大）","停止任务并删除旧报告缓存","取回已生成的 ZIP"},(dialog,index)->{
    if(index==0){chooseSafDestination(activity,null,"STARCORE_FULL_REPORT.zip",button,status);return;}
    if(index==7){recoverReady(activity,button,status);return;}
    int which=index-1;
@@ -207,8 +207,8 @@ String failure=ReportRequestStatusR31.failure(request);if(failure!=null)throw ne
     if(jobId==null){
      if(!persistable)throw new IOException("所选位置不支持后台持续写入，请选择手机下载目录");
      long session=POLL_SESSION.incrementAndGet();
-     String id=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,true,uri);
-     show(activity,button.get(),status.get(),"已选好保存位置，正在生成含数据库和训练附件的 ZIP。",true);
+     String id=ReportExportServiceCP4.requestExport(app,ReportExportServiceCP4.ExportMode.FULL_REPORT,false,uri);
+     show(activity,button.get(),status.get(),"已选好保存位置，正在生成精简报告 ZIP。",true);
      poll(app,id,new WeakReference<>(activity),button,status,0,session,true);
     }else{
      String id=ReportExportServiceCP4.requestSafTransfer(app,jobId,getArguments().getString("volumeName"),uri);
