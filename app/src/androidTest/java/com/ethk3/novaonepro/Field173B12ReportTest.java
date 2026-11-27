@@ -29,6 +29,36 @@ public final class Field173B12ReportTest {
         Field173NativeEvidence.run((app, checks) -> {
             checks.require(java.util.Arrays.equals(CompleteReportFileR927.deliveryActions(true,false),
                     new String[]{"一次保存完整ZIP文件","分享完整ZIP","保存到文件夹"}),"Published compact single-ZIP delivery actions");
+            File controls=new File(app.getCacheDir(),"field209-controls-"+mode+"-"+System.nanoTime());
+            File requests=new File(controls,"requests");
+            checks.require(requests.mkdirs(),"History regression directory created");
+            try{
+                StorageBudgetR31 budget=new StorageBudgetR31(app.getFilesDir().getCanonicalFile().getParentFile());
+                // Retained receipts account for more than the old shared 2 MiB.
+                byte[] receipt=new byte[8192];
+                for(int n=0;n<315;n++)try(java.io.FileOutputStream out=new java.io.FileOutputStream(
+                        new File(requests,String.format(java.util.Locale.ROOT,"%064x.ack.json",n)))){
+                    out.write(receipt);
+                }
+                String id=String.format(java.util.Locale.ROOT,"%064x",400);
+                File request=new File(requests,id+".json");
+                try(java.io.Closeable permit=ReportControlBudgetR31.admit(controls,request,1024,budget)){
+                    checks.require(permit!=null,"New full report admitted with retained history");
+                }
+                File job=new File(controls,"jobs/"+id);
+                checks.require(job.mkdirs(),"Progress regression directory created");
+                try(java.io.Closeable permit=ReportControlBudgetR31.admit(controls,new File(job,"stage-progress.json"),512,budget)){
+                    checks.require(permit!=null,"Progress admitted separately from historical requests");
+                }
+            }finally{
+                File[] children=requests.listFiles();
+                if(children!=null)for(File child:children)child.delete();
+                requests.delete();
+                File jobs=new File(controls,"jobs");
+                children=jobs.listFiles();
+                if(children!=null)for(File child:children)child.delete();
+                jobs.delete();new File(controls,"control-budget.lock").delete();controls.delete();
+            }
             checks.equal(96, CheckMetricCrosswalkR31.checks().size(), "Registered check denominator");
             checks.equal(44, CheckMetricCrosswalkR31.definitions().size(), "Registered metric denominator");
             Map<String,Object> rows = new LinkedHashMap<>();

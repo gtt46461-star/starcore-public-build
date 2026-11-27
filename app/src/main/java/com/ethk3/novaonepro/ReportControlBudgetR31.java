@@ -12,7 +12,14 @@ import java.util.concurrent.locks.*;
 final class ReportControlBudgetR31 {
     private ReportControlBudgetR31() {}
     private static final ReentrantLock JVM=new ReentrantLock(true);
-    private static final long QUOTA=2L<<20,RECORD_LIMIT=65536;
+    private static final long LEGACY_QUOTA=2L<<20, RECORD_LIMIT=65536;
+    // The durable history may contain 2,048 directory entries. Small files can use
+    // two 4 KiB blocks each on Android filesystems. Progress has its own allowance.
+    static final long HISTORY_QUOTA=StorageBudgetR31.Config.REPORT_HISTORY_BYTES, PROGRESS_QUOTA=StorageBudgetR31.Config.REPORT_PROGRESS_BYTES;
+    static final long RESERVED_HEADROOM=HISTORY_QUOTA+PROGRESS_QUOTA;
+    private static final String[] JOB_RECORDS={"job.json","share-until.json"};
+    private static final String[] JOB_SAMPLES={"stage-progress.json","backup-progress.json","resource-observation-b01.json"};
+    private static final String[] ATOMIC_SUFFIXES={"",".bak",".new"};
     static final class Busy extends IOException {
         Busy() { super("REPORT_CONTROL_BUSY"); }
     }
@@ -51,36 +58,13 @@ final class ReportControlBudgetR31 {
                 if(System.nanoTime()>=deadline)throw new Busy();
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(5));
             }
-            long used=0;int entries=0;
-            // User stop/clear must be durable before a new export is submitted.
-            // Its exact command/status/cancel records share this same precharged
-            // quota; count every existing child, including AtomicFile .bak/.new.
-            for(String name:new String[]{"requests","cancel-commands","quarantine","control-r69"}) {
-                File directory=new File(root,name);if(!directory.exists())continue;
-                try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(directory)) {
-                    File child;while((child=cursor.next())!=null) {
-                        if(++entries>2048||!child.getAbsoluteFile().equals(child.getCanonicalFile()))throw new IOException("REPORT_CONTROL_SCOPE");
-                        used=Math.addExact(used,accountedControlEntry(child));
-                    }
-                }
-            }
-            // The job journal must be durable before its bulk workspace can
-            // be admitted. Charge only this fixed control record (and atomic
-            // backup/new versions), never report payloads, to the same existing
-            // metadata headroom and quota. Do not census bulk job directories.
-            File jobs=new File(root,"jobs");
-            if(jobs.exists())try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(jobs)) {
-                File job;while((job=cursor.next())!=null) {
-                    if(++entries>2048||!job.getName().matches("[0-9a-f]{64}")||!job.getAbsoluteFile().equals(job.getCanonicalFile())||!job.isDirectory())throw new IOException("REPORT_CONTROL_SCOPE");
-                    for(String name:new String[]{"job.json","share-until.json","stage-progress.json","backup-progress.json","resource-observation-b01.json"})
-                        for(String suffix:new String[]{"",".bak",".new"})used=Math.addExact(used,accountedControlEntryIfPresent(new File(job,name+suffix)));
-                }
-            }
-            for(String name:new String[]{"request-queue","interactive-pending-r69","current-job","cancel"})
-                for(String suffix:new String[]{".json",".json.bak",".json.new"})used=Math.addExact(used,accounted(new File(root,name+suffix)));
-            // The base/backup can coexist with the new version until fd.sync.
+            boolean split=budget.controlHeadroomR31()>=RESERVED_HEADROOM;
+            boolean history=!split||!progress;
+            boolean samples=!split||progress;
+            long used=usage(root,history,samples);
+            long quota=split?(progress?PROGRESS_QUOTA:HISTORY_QUOTA):Math.min(LEGACY_QUOTA,budget.controlHeadroomR31());
             long growth=Math.max(4096L,((bytes+4095L)/4096L)*4096L);
-            if(Math.addExact(used,growth)>Math.min(QUOTA,budget.controlHeadroomR31()))throw new IOException("REPORT_CONTROL_QUOTA");
+            if(Math.addExact(used,growth)>quota)throw new IOException("REPORT_CONTROL_QUOTA");
             if(budget.controlAvailableR31()<budget.controlFloorR31()+growth)throw new IOException("REPORT_CONTROL_FREE_SPACE");
             final RandomAccessFile ownedIo=io;final FileLock ownedLease=lease;
             return ()->{try{ownedLease.release();}finally{try{ownedIo.close();}finally{JVM.unlock();}}};
@@ -89,6 +73,43 @@ final class ReportControlBudgetR31 {
             if(io!=null)try{io.close();}catch(IOException e){error.addSuppressed(e);}
             if(entered)JVM.unlock();throw error;
         }
+    }
+    private static long usage(File root,boolean history,boolean samples)throws IOException {
+        long used=0;
+        int entries=0;
+        if(history){
+            for(String name:new String[]{"requests","cancel-commands","quarantine","control-r69"}){
+                File directory=new File(root,name);
+                if(!directory.exists())continue;
+                try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(directory)){
+                    File child;
+                    while((child=cursor.next())!=null){
+                        if(++entries>2048||!child.getAbsoluteFile().equals(child.getCanonicalFile()))throw new IOException("REPORT_CONTROL_SCOPE");
+                        used=Math.addExact(used,accountedControlEntry(child));
+                    }
+                }
+            }
+            for(String name:new String[]{"request-queue","interactive-pending-r69","current-job","cancel"})
+                for(String suffix:new String[]{".json",".json.bak",".json.new"})
+                    used=Math.addExact(used,accounted(new File(root,name+suffix)));
+        }
+        File jobs=new File(root,"jobs");
+        if(jobs.exists())try(DirectoryCursorR31 cursor=DirectoryCursorR31.open(jobs)){
+            File job;
+            while((job=cursor.next())!=null){
+                if(++entries>2048||!job.getName().matches("[0-9a-f]{64}")||!job.getAbsoluteFile().equals(job.getCanonicalFile())||!job.isDirectory())
+                    throw new IOException("REPORT_CONTROL_SCOPE");
+                if(history)used=Math.addExact(used,jobRecordBytes(job,JOB_RECORDS));
+                if(samples)used=Math.addExact(used,jobRecordBytes(job,JOB_SAMPLES));
+            }
+        }
+        return used;
+    }
+    private static long jobRecordBytes(File job,String[] names)throws IOException {
+        long bytes=0;
+        for(String name:names)for(String suffix:ATOMIC_SUFFIXES)
+            bytes=Math.addExact(bytes,accountedControlEntryIfPresent(new File(job,name+suffix)));
+        return bytes;
     }
     private static long accountedControlEntryIfPresent(File file)throws IOException {
         return file.exists()?accountedControlEntry(file):0;
