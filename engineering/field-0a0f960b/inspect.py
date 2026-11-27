@@ -169,3 +169,53 @@ with ExitStack() as stack:
             emit("FIELD_CHECK",{"id":ident,**{k:safe_reason(row.get(k)) for k in
                  ("execution_state","outcome","domain_outcome","health","status","reason") if k in row},
                  "evidenceBytes":len(str(row.get("evidence","")).encode())})
+
+    dimensions = re.compile(r"(train|task|claim|learner|direct|recover|continu|checkpoint|molecule|action|post|loop|roll|create|evolu|settle|analysis|finish|stage|blocked|wait|reason|status|sample|health|queue|elapsed|duration|compat|storage|ready|fault|hold|budget|lane|issue|source|watermark|time|owner|write|code|result|commit)",re.I)
+    exact_codes=re.compile(r"[A-Za-z][A-Za-z0-9_.:$-]+Exception|SQLITE_[A-Z0-9_]+|REPORT_[A-Z0-9_]+|(?:RESEARCH|R343|R952|WAIT|YIELD|CKPT|TRAIN|SEED|V51|R955|F01)_[A-Z0-9_]{2,90}")
+    def context_value(value,depth=0):
+        if depth>5: return "DEPTH_LIMIT"
+        if isinstance(value,dict):
+            return {k:context_value(v,depth+1) for k,v in value.items() if dimensions.search(k)}
+        if isinstance(value,list):
+            return [context_value(v,depth+1) for v in value[:70]]
+        if value is None or isinstance(value,(int,float,bool)): return value
+        if not isinstance(value,str): return None
+        if re.fullmatch(r"[0-9a-f]{10,64}|(?:CP12-FAMILY-|R952-C-)[0-9a-f]+",value): return value
+        if re.fullmatch(r"[A-Z0-9_./:-]{1,120}",value):return value
+        tokens=exact_codes.findall(value)
+        result=safe_reason(value)
+        if result and result!="OTHER_TEXT": tokens.append(result)
+        for field, n in re.findall(r"([a-zA-Z][a-zA-Z0-9_]{0,40})=([0-9]{1,16})",value):
+            if dimensions.search(field): tokens.append(field+"="+n)
+        if "no such table" in value:
+            match=re.search(r"no such table: ([A-Za-z0-9_]+)",value)
+            if match: tokens.append("NO_SUCH_TABLE:"+match.group(1))
+        if "no such column" in value:
+            match=re.search(r"no such column: ([A-Za-z0-9_.]+)",value)
+            if match: tokens.append("NO_SUCH_COLUMN:"+match.group(1))
+        return "|".join(dict.fromkeys(tokens)) or "OTHER_TEXT"
+    emit("FIELD_SCHEDULER_STATE",context_value(scope.get("researchSchedulerState",{})))
+    emit("CAPTURE_IDENTITY_AUDIT",context_value({k:v for k,v in src.items() if k in ("reportSourcePreparation","verifiedInstallationR341","mainWriterFaultsR342","r341SqlObservationScope","r26CheckpointAuditR32","r26CheckpointByteValidation","generatedRuleSha256","runtimeObservedAt")}))
+    emit("PHYSICAL_R30_HEALTH",context_value(r30.get("sourceHealthR341",{})))
+    emit("PHYSICAL_R30_ACCEPTANCE",context_value(r30.get("evidenceAssessmentR33",{})))
+    for name in ("research_molecule_import_checkpoint_cp12","research_molecule_import_cp12","research_atom_catalog_import_cp12",
+                 "research_training_recovery_r343","research_training_protocol_v2","research_training_input_v2","research_training_feature_cursor_cp12",
+                 "v57_research_task_r967","research_family_cursor_cp12","research_rolling_event_r343"):
+        p=recent.get(name,{})
+        rows=[r for r in p.get("rows",[]) if isinstance(r,dict)]
+        if name=="v57_research_task_r967":
+            rows=[r for r in rows if r.get("kind") in ("TRAIN_CANDIDATE","FREEZE_CANDIDATE","R343_ROLLING_TRAIN","R343_ROLLING_FREEZE")]
+        safe_keys={"task_id","candidate_id","stream_seq","input_hash","authority_ref","protocol_hash","failed_task_id","successor_task_id","source_hash","ast_hash","id","current","target_issue","state","status","kind","source_issue","cutoff_issue","cursor","created_at","updated_at","lease_until","available_at","attempt_count","last_error","last_reason","next_row","scan_row","material_row","base_row","epoch","generation","next_variant","family","train_n","validation_last","row_count"}
+        emit("TARGET_LEDGER",{"table":name,"rows":[{k:context_value(v) for k,v in row.items() if k in safe_keys} for row in rows[:30]]})
+    for component in r26.get("sections",[]):
+        ident=component.get("sectionId")
+        metrics=component.get("metrics",[])
+        if ident in ("CONTINUOUS_RUNTIME","BACKGROUND","FAILURES","EVOLUTION","TRAINING","FREEZE") and isinstance(metrics,list):
+            clean=[{k:context_value(v) for k,v in r.items() if k in {"task_id","status","lane","cursor","steps","last_progress","blocked_reason","message","recorded_at","error_class","dev_n","val_n","policy_hash","attempts","structuralCandidates"}} for r in metrics if isinstance(r,dict)]
+            emit("PHYSICAL_R26_SECTION",{"id":ident,"available":component.get("availableRows"),"metrics":clean})
+    for m in members:
+        if not re.fullmatch(r"catalog-\d+\.jsonl", m.filename): continue
+        for raw in archive.open(m):
+            row=json.loads(raw)
+            if row.get("kind")=="check_result" and row.get("execution_state")!="EXECUTED":
+                emit("FIELD_CHECK_CAUSE",{"id":row.get("id"),"reasons":context_value({k:v for k,v in row.items() if k in ("reason","failure","error","exception","errorChain","details","source")})})
