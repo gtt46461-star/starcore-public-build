@@ -1,0 +1,43 @@
+{
+  "schema": "STARCORE_R344_TOOL_GAP_REPRODUCTION_1",
+  "tested_version": "7947177eb26a5508e8c34c1159cb179ccbe15a89",
+  "findings": [
+    {
+      "id": "T01",
+      "finding": "candidate --output can overwrite a source file while claiming application_source_changed=false",
+      "reproduced": true,
+      "fixture": "synthetic source/patch in isolated temporary directory"
+    },
+    {
+      "id": "T02",
+      "finding": "candidate hash gates disabled by Python optimization",
+      "reproduced": true,
+      "normal_exit": 1,
+      "optimized_exit": 0
+    },
+    {
+      "id": "T03",
+      "finding": "unpack hash/length gates disabled by Python optimization",
+      "reproduced": true,
+      "normal_exit": 1,
+      "optimized_exit": 0
+    },
+    {
+      "id": "T04",
+      "finding": "missing mandatory distribution manifest and candidate catalog can still return overall verification_pass=true",
+      "reproduced": true,
+      "optional_not_run": [
+        "PATCHSET.json",
+        "MANIFEST.json"
+      ]
+    },
+    {
+      "id": "T05",
+      "finding": "verifier --output can overwrite frozen README after issuing PASS",
+      "reproduced": true
+    }
+  ],
+  "all_operations_in_disposable_copies": true,
+  "application_modified": false,
+  "product_tests": "NOT_RUN"
+}

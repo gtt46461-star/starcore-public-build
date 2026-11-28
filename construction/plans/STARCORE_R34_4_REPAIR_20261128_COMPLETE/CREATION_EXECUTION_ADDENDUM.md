@@ -242,3 +242,11 @@ C03 只解决精确分类错配；它不代替 B02 故障原件排空或 B03 公
 - [RollingLearnerR343](https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java)：`settled/planOne/trainSlice` 的真实结算、开发模型与版本条件。
 
 本附约列出的场景与交付要求须在施工时实际执行。它不声明应用已修复，不替代 Android/现场验收，也不授予任何自然质量或交易资格。
+
+## 第二轮逐卡接线与租约边界
+
+R031必须验首次FREEZE_CANDIDATE真正提交到R958/R967冻结评价，不能只验入队；可保留FROZEN_WAIT_CAPTURE_CAPACITY等待后续容量。R043/R044分别验R27/V1与现代R958/R967→R932预约/原始CAL241→immutable CALIBRATION_QUALIFIED→固定正式窗口/矩阵/alpha→R929签发→UnifiedResearchChoice→R974现代分支。raw CAL按自身合法采集条件推进，不反向等待自身校准质量或证书；CAL241、R27 minActs250、正式窗口机会数及报告支持数不得互换。既有owner与原门保留，工程夹具只签工程路径。
+
+R344-034的正常重启恢复按原回收条件由新进程重新claim同task/version/protocol/input，获得新owner及递增task generation后从已提交cursor/checkpoint继续；旧lease迟到/重放单列必须拒绝的负例。任务租约generation与rolling版本/checkpoint generation分开核CAS，不能为了续算保留过期lease，也不能重复已提交optimizer步。
+
+详见更新后的R344-031、R344-034、R344-043、R344-044及两份主合同；不新增owner，不改变原B06/B07/B08/B09依赖DAG。

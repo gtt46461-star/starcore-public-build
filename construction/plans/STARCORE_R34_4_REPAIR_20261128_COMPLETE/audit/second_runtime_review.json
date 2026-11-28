@@ -1,0 +1,212 @@
+{
+  "schema": "STARCORE_SECOND_RUNTIME_EXECUTABILITY_REVIEW_1",
+  "reviewed_publication_commit_reference": "7947177eb26a5508e8c34c1159cb179ccbe15a89",
+  "reviewed_plan_manifest_sha256": "c0fe9f689b6ba8c492c7c36e69ba9b801cff70b222f6792d74f77d06b0d8499e",
+  "application_source_reference": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "scope": "Targeted execution-order, source/plan isolation, batch handoff, cancellation and signed-report contract review. Local publication directory is a staging directory, not a Git checkout; actual command probes used isolated clean Git fixtures. No Android execution or application modification.",
+  "reviewed_files": [
+    {"path": "CODEX_EXECUTE.md", "bytes": 21719, "sha256": "8d93093b8f39f7969f07a7da6c2fab6cbc2e91eb558d9dd7ad16078a9b6a222f"},
+    {"path": "B00_EXECUTION_ADDENDUM.md", "bytes": 31466, "sha256": "f4132e22167c1aaf50c885042a9f73bf0de010ef4c3610024a975d3ec4923b19"},
+    {"path": "BATCHES.json", "bytes": 14993, "sha256": "0525eb0548b4d4f98aa85b4afec77d0ccce299677f0f5d0dbc30598ac84fa53a"},
+    {"path": "contracts/EXPORT_AND_STORAGE.md", "bytes": 11375, "sha256": "e2aee3024b3e5ef3770d1956f311f87aad0af9d7d028b563992bb77fdf86c0fb"}
+  ],
+  "execution_boundary": {
+    "android_build": "NOT_RUN",
+    "signed_apk": "NOT_BUILT_OR_INSPECTED",
+    "device": "NOT_RUN",
+    "natural_quality": "NOT_PROVEN",
+    "publication_and_link_full_checks": "NOT_REPEATED",
+    "application_source_changed": false,
+    "publication_changed_by_this_review": false,
+    "temporary_fixtures_removed": true
+  },
+  "findings": [
+    {
+      "id": "SR01",
+      "priority": "P1",
+      "title": "启动Bash未失败即停，SHA检查失败仍解包且最终退出0",
+      "certainty": "REPRODUCED_WITH_EXACT_DOCUMENTED_FIRST_BLOCK",
+      "locations": ["CODEX_EXECUTE.md:29-38", "CODEX_EXECUTE.md:42-50"],
+      "evidence": [
+        "两段Bash均无set -e/显式失败退出；第一段最后一个命令是unpack_report.py。",
+        "复制当前计划到独立Git夹具，仅将MANIFEST.sha256改为64个0并提交；git status干净。逐字执行第一段，sha256sum输出MANIFEST.json: FAILED，后续verify_plan和unpack_report仍运行，已实际解包，Bash退出0。"
+      ],
+      "impact": "调用方可将脚本退出0误判为启动验证通过；单独工具返回失败不能保护后续命令顺序。",
+      "minimal_fix": [
+        "把初始化、原件准备、资料验证、基线创建和候选检查合并为同一Bash执行单元，首行set -euo pipefail；或每步显式检查退出码后exit。",
+        "不要让两段代码依赖不同工具调用之间隐式保留shell变量；若分进程执行，显式传递已验证目录与pin上下文。"
+      ],
+      "acceptance": [
+        "错误MANIFEST摘要时退出非0，verify_plan/unpack_report均不得在该失败之后执行。",
+        "缺原件、缺源commit或任一基线检查失败时，本阶段后续命令不执行；保留首个错误。"
+      ],
+      "preserve": ["现有逐工具真实退出码", "外部回执目录", "失败后不删除已有输入和原件"]
+    },
+    {
+      "id": "SR02",
+      "priority": "P1",
+      "title": "PLAN_COMMIT仅赋当前HEAD，没有独立预期pin或工作树字节门",
+      "certainty": "CONFIRMED_EXECUTABLE_CONTRACT_GAP",
+      "locations": ["CODEX_EXECUTE.md:21", "CODEX_EXECUTE.md:30-36"],
+      "evidence": [
+        "文字要求固定准确计划commit，但实际命令PLAN_COMMIT=$(git rev-parse HEAD)只记录当前值，后续未校验对外已确认的预期commit。",
+        "同一隔离夹具的非发布commit ce2ca8263e76ce001bf236cd9d01e94ef1052c0d 被直接赋为PLAN_COMMIT；没有命令将其与指定发布commit比较。",
+        "后续新CODEX已加入外部expected和git status门，但另一实际Git夹具证明：assume-unchanged跟踪文件修改后，HEAD仍等于expected，限定计划目录status仍为空，而文件字节与HEAD不同。"
+      ],
+      "impact": "错误计划checkout或本地修改可被当作计划输入；B00身份可能在错误输入上自洽。",
+      "minimal_fix": [
+        "从发布入口/调用参数显式传入EXPECTED_PLAN_COMMIT，验证40位hex并与HEAD一致；不能用HEAD生成expected。",
+        "先核封印计划的受控跟踪字节与该commit一致、不存在未提交替换；不能仅依赖git status，因为assume-unchanged/skip-worktree等索引提示可能隐藏字节修改。执行计划Python前，从可信Git对象核manifest和启动脚本/依赖模块，或批量核plan/package所有跟踪blob。原件物化仅允许清单指定路径和固定hash。",
+        "记录预期/实际commit、实际MANIFEST SHA及验证结果到外部初始化上下文，再启动基线/施工。"
+      ],
+      "acceptance": ["错误但语法合法的预期commit拒绝", "计划受控文件被本地改动时拒绝，包含assume-unchanged/skip-worktree提示情形", "合法固定commit和受控原件物化可继续"],
+      "preserve": ["计划commit与应用source commit分开", "物化原ZIP不改历史包", "原计划矩阵冻结"]
+    },
+    {
+      "id": "SR03",
+      "priority": "P1",
+      "title": "从稀疏计划checkout创建的基线工作树仍可能缺应用源码",
+      "certainty": "REPRODUCED_WITH_REAL_GIT_WORKTREE_OPERATIONS",
+      "locations": ["CODEX_EXECUTE.md:47-49", "CODEX_EXECUTE.md:52-54"],
+      "evidence": [
+        "原命令仅git worktree add --detach，没有显式关闭新工作树的稀疏检出。",
+        "Git 2.56.1隔离夹具中，干净稀疏checkout只选择construction；按原命令创建baseline后，git status仍干净，sparse-checkout list仍为construction，app/src/main/java/Example.java不存在。",
+        "在baseline执行git sparse-checkout disable后该源文件出现，工作树仍干净。"
+      ],
+      "impact": "常见的计划专用稀疏checkout会导致1407Java/源hash验证失败；干净不等于源码完整。",
+      "minimal_fix": [
+        "创建BASELINE_DIR后执行git -C \"$BASELINE_DIR\" sparse-checkout disable，再进行准确211源校验。",
+        "实际修复树建立后也核完整展开，保留其合法后代差异；不放宽1407基线或hash校验来迁就缺文件。"
+      ],
+      "acceptance": ["从只检出construction的干净计划工作树执行初始化，准确211基线仍具备全部所需应用/构建文件", "禁用稀疏仅用于对应新工作树，方案pin不变"],
+      "preserve": ["原只读基线", "独立施工树", "准确文件并集与hash"]
+    },
+    {
+      "id": "SR04",
+      "priority": "P1",
+      "title": "B01完整专项门包含B02故障排空实现，形成验收循环",
+      "certainty": "CONFIRMED_CROSS_BATCH_CONTRACT_CYCLE",
+      "locations": [
+        "CODEX_EXECUTE.md:103",
+        "B00_EXECUTION_ADDENDUM.md:23,145-155",
+        "contracts/EXPORT_AND_STORAGE.md:73-83",
+        "BATCHES.json#/batches/1/exit",
+        "BATCHES.json#/batches/2/depends_on",
+        "BATCHES.json#/batches/2/steps/2",
+        "BATCHES.json#/batches/2/exit/1",
+        "batches/B01.md:42-46",
+        "batches/B02.md:42,45-49"
+      ],
+      "evidence": [
+        "CODEX要求B01即覆盖全部10组；附约fault满行要求排空/归档实际前进，报告专项合同同义。",
+        "实际故障控制槽、共享热配额、mutable producer退役和真实pending下降归B02；B02工程依赖B01。",
+        "因此B01若把完整fault排空正例作为签收/发布前置，就必须先实施B02，形成B01验收等待B02、B02等待B01的循环。"
+      ],
+      "minimal_fix": [
+        "保留10场景及最终强验收，只把同一个fault满场景分成阶段断言。B01验证容量受限时诚实等待/可取消/不递归放大/不丢原件；排空实际前进标PENDING_B02，不阻B01工程交接。",
+        "B02必须补验真实封存/readback/控制槽/准入与pending下降，再用B02同一签名release报告读回闭合该场景；不能沿用B01原件冒签。",
+        "以上阶段语义同步写入CODEX、B00附约C07及4.2、报告专项合同fault行、BATCHES的B01/B02出口和对应两张batch卡。实际台账在既有signed_release_export_evidence中记录两阶段及交接引用，不改应用状态枚举。"
+      ],
+      "acceptance": [
+        "尚未实施B02 drain的B01版本可以证明原件保全/可取消/诚实资源等待并完成B01工程交接；排空子断言仍未通过。",
+        "B02工程签收必须观察真实fault原件封存/readback及pending下降；不得清队列、删原件或把WAIT写PASS。",
+        "B02以后的相关回归同时保留两阶段断言。"
+      ],
+      "preserve": ["原DAG不改", "10场景不删", "原fault配额及关键事务保护", "B02最终真实排空门"]
+    },
+    {
+      "id": "SR05",
+      "priority": "P1",
+      "title": "B01要求取消及低空间导出均可分享，与原状态机冲突",
+      "certainty": "CONFIRMED_PLAN_TEXT_CONFLICT_WITH_EXACT_211_SOURCE",
+      "locations": ["BATCHES.json#/batches/1/exit/1", "batches/B01.md:45"],
+      "evidence": [
+        "现出口写正常、取消、超时、重试、低空间导出均保持可分享。",
+        "ReportExportServiceCP4.java:555-568：用户取消进入CANCELLED；资源等待进入PAUSED。",
+        "ReportJobJournalCP12.java:476-491：CANCELLED恢复为TERMINAL，且不可迁移到其他stage。",
+        "ReportPublicationCP12.java:27,140：job/grant要求READY_TO_SHARE；131-134取消清理保留已发布ZIP，但未发布取消作业只保留取消相关记录。"
+      ],
+      "impact": "施工方为满足文字门可能忽略用户取消、给CANCELLED作业伪造READY、发布半成品，或在物理空间不足时绕过容量门。",
+      "minimal_fix": [
+        "将出口分清：正常完成及局部检查失败/超时可交付诚实诊断；用户取消生成中的作业则确认资源退出并持久CANCELLED，不要求该取消作业生成可分享新ZIP。",
+        "取消后的重试按现有合法新请求/作业路径执行；不得把终态CANCELLED强行改回INDEXING/READY。",
+        "低空间进入诚实资源等待/PAUSED或明确失败，条件恢复后再续跑；已READY的完整交付物仍按原引用保护可读，不因cleanup/ack失败倒退。"
+      ],
+      "acceptance": ["取消未发布作业无半成品READY，旧worker退出和取消原件可核", "新合法重试真实完成后才有新READY", "磁盘不足时不强制创建归档，不删活引用原件", "已合法READY在后续回调失败时不倒退"],
+      "preserve": ["用户取消含义", "原job Stage枚举和终态", "失败检查可导出的原合同", "已验证READY的可分享性"]
+    }
+  ],
+  "clarifications": [
+    {
+      "id": "SC01",
+      "title": "B00的APK身份门不得提前要求B01业务scope和SQL pin锚修复",
+      "classification": "EXPLICIT_BOUNDARY_RECOMMENDED_NOT_A_PROVEN_CURRENT_HARD_CYCLE",
+      "locations": ["CODEX_EXECUTE.md:101", "B00_EXECUTION_ADDENDUM.md:130-142", "contracts/EXPORT_AND_STORAGE.md:92-94", "issues/R344-006.md", "issues/R344-008.md"],
+      "evidence": [
+        "B00附约:132已明确不要求预先修完B01、允许真实READ_ERROR/UNKNOWN；因此不认定已有必现反锁。",
+        "原211报告r341BusinessScope只有300字符且JSON截断；mainWriterFaultsR342为UNKNOWN/SNAPSHOT_CLOCK_ANCHOR_UNAVAILABLE，producerPid=null。这些是B01的R344-006/008处理对象。",
+        "CODEX:101的逐批身份验证同时列snapshot/attempt/boot/PID/database，若执行器误设所有业务观察字段非空/完整门，将把B01修复反设为B00前置。"
+      ],
+      "minimal_wording": "B00必须核真实APK/source/包名/签名与已有可核归档身份一致；原业务观察scope截断、生产者未知和SQL pin锚缺失作为已知诊断缺陷如实导出，不造值、不当健康PASS，也不把尚待B01新增或修复的字段设为B00发布前置。B01按R344-006/008补齐后再执行其独立正反验收；旧无锚job仍可按原协议导出。"
+    }
+  ],
+  "verified_nonissues": [
+    "CODEX:66与B00附约:91已明确B00只完成本批runner，未来业务实现不是B00前置。",
+    "ReportCatalogCP4.java:61-62确认execution_state仅EXECUTED/READ_ERROR/CANCELLED；报告合同:31,39正确将UNAVAILABLE/PAUSED/NOT_STARTED限制为内部容器/进度，不建议再改变外部枚举。",
+    "ReportReadContextCP4.java:122-153当前runner同步执行、每次新建CancellationSignal且finally清理；无证据要求把旧实现描述为复用失效signal。未来异步化应继续坚持worker退出/连接独占/活引用要求。",
+    "签名release与debug/host、模拟器与真机、自然质量的证据层级已经明确；未发现需要降低签名/原APK/下载读回门的理由。"
+  ],
+  "probes": [
+    {
+      "id": "P1_STARTUP_FAIL_FAST",
+      "executed": true,
+      "fixture": "Isolated Git repository containing copied current plan payload; intentionally wrong manifest checksum committed, clean status before execution.",
+      "command_under_test": "Exact first bash block extracted from reviewed CODEX_EXECUTE.md, executed by bash --noprofile --norc -x -c without injected error handling.",
+      "fixture_head": "ce2ca8263e76ce001bf236cd9d01e94ef1052c0d",
+      "clean_before_execution": true,
+      "shell_exit_code": 0,
+      "sha_failure_seen": true,
+      "unpack_executed_after_failure": true,
+      "unpacked_directory_created": true,
+      "plan_result": {"verification_pass": true, "source_verification": "NOT_RUN", "product_acceptance": "NOT_RUN_NOT_IMPLIED_BY_PLAN_PASS", "failure_count": 0},
+      "essential_stdout": ["MANIFEST.json: FAILED", "{\"verified\": true, \"payloads_verified\": 56, \"raw_database_included\": false, \"installed_apk_included\": false, \"model_training_originals_included\": false}"],
+      "boundary": "This is an injected-fault reproduction of command sequencing, not a pass or failure claim about the genuine 7947177 release or Android."
+    },
+    {
+      "id": "P2_SPARSE_WORKTREE",
+      "executed": true,
+      "git_version": "git version 2.56.1",
+      "fixture": "Small isolated repository with construction and app/src; clean sparse checkout selecting construction.",
+      "original_operation": "git worktree add --detach <baseline> <exact-fixture-commit>",
+      "before_fix": {"worktree_status": "clean", "sparse_paths": ["construction"], "app_java_present": false},
+      "minimal_fix_operation": "git -C <baseline> sparse-checkout disable",
+      "after_fix": {"worktree_status": "clean", "app_java_present": true},
+      "boundary": "Actual Git behavior was exercised; project source checkout, 1407-file verification and Android build were not run in this probe."
+    },
+    {
+      "id": "P3_PIN_WORKTREE_BYTES",
+      "executed": true,
+      "fixture": "Small isolated Git repository; a tracked plan tool was marked assume-unchanged and then edited.",
+      "head_matches_expected": true,
+      "scoped_status_is_empty": true,
+      "actual_file_differs_from_HEAD": true,
+      "index_hint_used": "assume-unchanged",
+      "boundary": "No published plan file or real checkout index was modified. This demonstrates only that status is not a byte-identity proof."
+    }
+  ],
+  "followup_readback": {
+    "scope": "Read-only inspection of coordinator's in-progress CODEX section 3 before resealing; no full init rerun against stale manifest.",
+    "SR01": "Text updated to one Bash with set -euo pipefail; awaiting focused post-seal negative test.",
+    "SR02": "External expected commit, HEAD equality and scoped status added; actual tracked-byte guard still required as demonstrated by P3.",
+    "SR03": "Explicit sparse-checkout disable and baseline HEAD/status checks added; awaiting focused post-seal execution.",
+    "android_product_status": "NOT_RUN"
+  },
+  "not_duplicated": ["Coordinator-owned assert/PYTHONOPTIMIZE hardening", "Coordinator-owned output-overwrite protection", "Coordinator-owned mandatory MANIFEST/PATCHSET checks", "Completed 369-link and 33-publication check campaigns"],
+  "source_links": [
+    "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+    "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+    "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+    "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+    "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java"
+  ]
+}

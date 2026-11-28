@@ -62,3 +62,14 @@ MANIFEST.json列出本计划全部应封存文件的路径、字节和SHA256；�
 本次工作区重新从原ZIP恢复资料，没有211应用工作树。`validation/PLAN_CHECK.json`对当前完整计划/原报告/候选清单/文件SHA重新核验，源码层为NOT_RUN、候选执行为NOT_RUN，不冒充历史源锚/主机测试重新运行。原历史日志按原范围保留。当前新增还原/物化脚本结果见`validation/PUBLICATION_CHECK.json`；它只验证资料交付，不验证Android产品。
 
 完整MANIFEST包含自动还原的原诊断；必须先运行`tools/prepare_evidence.py`。执行输出与版本journal放在冻结计划外。APK构建、设备安装、5GB库实跑、自然未来与实际盈利均未在本次资料上传中验证。
+
+## 修订2：已复现缺口与真实关闭范围
+
+第二轮确认14项资料工具/执行合同缺口，修订说明见[REVISION_2.md](REVISION_2.md)。当前152个源码锚为原136个加16个已存在的211 owner；新增源字节均按精确211读取并与原1407清单核对。原1407文件清单未改，当前没有重新声称完整应用源码/Android通过。
+
+- `validation/SECOND_PLAN_TOOL_REGRESSION.json`：19项实际工具I/O回归通过，含禁止覆盖源码/计划/已有回执、symlink输出拒绝、普通及优化模式的损坏hash拒绝、缺必需清单/空候选/错清单摘要拒绝、真实原报告56载荷解包读回及无bytecode污染。回执记录实际测试工具SHA和临时清单SHA；最终清单另行封存核验。
+- `validation/SECOND_CANDIDATE_CUMULATIVE.json`：重新下载并核SHA的6个211候选前态输入，5候选在临时副本累计应用通过，7个声明后态文件正确，输入未改。这只证明局部补丁适用性，不等于完整1407源码复核、编译或设备运行。
+- `audit/second_strategy_merge_check.json`与`audit/second_coverage_merge_check.json`：分别13组及16组定向合入检查通过；46卡当前条款及ACCEPTANCE同步，原报告/原发现未改，既有native桥接保全。
+- 开工Bash的计划pin、独立Git blob字节、失败即停及原包物化正反例记录在`validation/SECOND_BOOTSTRAP_REGRESSION.json`；仅资料前置，真实211完整checkout/构建部分不冒签。
+
+本版验证器要求MANIFEST、其SHA封印和完整5候选目录；所有验证输出只能写到冻结计划/明确source之外的新位置。历史ZIP中的旧脚本保留审计原字节，施工使用本修订2目录的现行工具。由封包步骤把外部验证回执放入预留的PLAN_CHECK位置，不由只读验证器覆写冻结输入。Android、正式APK、用户设备、5GB库实跑与自然未来仍为待验。

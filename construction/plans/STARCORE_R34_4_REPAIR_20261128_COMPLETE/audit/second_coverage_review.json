@@ -1,0 +1,120 @@
+{
+  "schema": "R344_SECOND_COVERAGE_REVIEW_1",
+  "reviewed_publication_commit": "7947177eb26a5508e8c34c1159cb179ccbe15a89",
+  "application_source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "status": "ONE_CONFIRMED_PLAN_COVERAGE_GAP",
+  "scope": [
+    "原50发现→46卡语义继承",
+    "96/44/165/826/1832/299生产/消费/验收覆盖的实际含义",
+    "ACCEPTANCE可执行边界",
+    "B08与B09依赖分层"
+  ],
+  "excluded_work": [
+    "不重跑已完成包字节/清单/相对链接/数量核验",
+    "不运行应用、Android、原库或自然质量试验",
+    "不修改publication、应用或远端"
+  ],
+  "merge_review": {
+    "status": "NO_SEMANTIC_LOSS_FOUND",
+    "method": "逐个原audit record的repair/construction_actions、acceptance/verification/preserve_and_acceptance、preserve/must_preserve与当前卡比对，再人工核实所有文本差异；不以计数代替语义。",
+    "reviewed_exceptions": [
+      {
+        "issue": "R344-001",
+        "reason": "main发布措辞随已获全部授权更新；仍禁止以旧main应用树施工。"
+      },
+      {
+        "issue": "R344-025",
+        "reason": "完整root闭包只约束自身旧模型的恢复/使用/退役，不再全局阻塞独立新实验；原hash、状态、GC保护保留。"
+      },
+      {
+        "issue": "R344-028",
+        "reason": "区分有精确原件的ColdRebirth与无旧parent的独立新基础实验；旧state验证未删除。"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "CV2-01",
+      "priority": "P1",
+      "classification": "PLAN_PRODUCER_ROUTE_AND_ACCEPTANCE_OMISSION",
+      "title": "20矩阵清单已保留，但038/M25未分清18普通typed、1配对反事实、1SU2 checkpoint的实际执行责任",
+      "confirmed": true,
+      "application_bug_claim": false,
+      "locations": [
+        "ISSUES.json#/issues/37/repair/0",
+        "ISSUES.json#/issues/37/source_files",
+        "coverage/METRIC_RESPONSIBILITY.json[metric_id=M25]/required_current_proof",
+        "coverage/FULL_REPORT_COVERAGE.json#/objects/matrices/objects/19/owner_observations",
+        "batches/B08.md#施工顺序"
+      ],
+      "evidence": [
+        "MatrixRegistryR30.all注册19个R930合同+1个SU2；MatrixResearchR30R1.step:144-145只纳入R930且排除COUNTERFACTUAL，即18项。",
+        "ResearchStudyTaskR30R1.step:57-59只有完成RETRAIN_REMOVED调用ResearchStore.paired；paired:80-92按实际blocks创建COUNTERFACTUAL并写原矩阵桥接。",
+        "LegacyGenerationR26:65-87,101以原campaign完成和F15 committee为SU2生产条件，MatrixSnapshotSU2.capture及MatrixStoreSU2.prepare/project/markAvailable有独立产物与提交后可见合同；MatrixStore.maintain:32-65按已冻结action消费。",
+        "当前038只列MatrixResearch/MatrixRegistry/MatrixSnapshotFeedback三个文件；M25仅继承这三个加长档案文件，proof为泛SIGNED_HASHED_MEASUREMENT_RECEIPT；SU2原报告owner observation还指向r27-matrices-r1，不能据此归因SU2。"
+      ],
+      "impact": "仅按统一dataset→MatrixResearch施工会漏两条独立生产链，或误把SU2受阻归给R27 replay；总数20和统一回执不足以证明M25逐对象可追溯。",
+      "minimal_correction": "不增加根因工单，补038/B08/M25三路合同及5个已核211新源锚，沿现有生产/消费/持久化接口逐路验收；原20注册/native bridge/R952保留。",
+      "amendments_file": "audit/second_coverage_amendments.json",
+      "tests_to_execute_in_product_phase": [
+        "M25三路正反例：18普通R930按原dependency逐项生产或明确等待；COUNTERFACTUAL仅在RETRAIN_REMOVED实际完成且原blocks条件满足后出现；SU2仅在其原campaign完成且有合法F15 committee时形成checkpoint。缺source/学生/committee的状态逐路明确，某路不足不阻其它可运行路。",
+        "COUNTERFACTUAL负例：未完成runner、MASK_FROZEN、错parent/child或source revision不得成为已生产的正式反事实矩阵；合法已完成配对的原hash、block支持、角色、时间边界逐键读回。",
+        "SU2正反例核genome_key+checkpoint_sequence、原factors/state与提交后available_at；重复publication幂等。maintain只按同genome的已冻结act=1且hit非空的原action有界前进，无action不补计消费；缺history保留__MISSING_SOURCE/解释级状态，source generation变化不得错误推进。",
+        "R930合法typed提交后analysis_run、research_measure和research_matrix_snapshot_r930三处原hash/role/revision一致且ReportObjectIndex可读回；故障发生在提交前不得留下单边已生产，重复提交不增造原件；原native矩阵与R952历史记录保持原作用及身份。",
+        "每个20原ID独立产出M25工程/现场/质量分层结果；只有索引行、缓存或retainedCount不能签消费或有效。真实依赖不足可以保持PENDING且给具体下一动作，不将全部SU2/反事实/自然证据形成设为B09工程开工前置。"
+      ]
+    }
+  ],
+  "shared_findings_not_double_counted": [
+    {
+      "owner": "strategy_pipeline_audit",
+      "finding_id": "S2-ST02",
+      "subject": "AST3现代冻结/校准/固定窗/证书路径与R27路径分开签收",
+      "coverage_impact": "根据兄弟审计精确211源码，将其结论同步M26/Q05/Q07/M28等实际适用的metric/check owner；本审计不重复计一个缺陷，也不独立宣称已重核其全部源码。"
+    },
+    {
+      "owner": "runtime_export_audit",
+      "subject": "B01 fault满场景不应以B02真实drain前进为B01退出前置",
+      "coverage_impact": "B01工程状态/取消/不放大与B02实际drain分层；最终共用ACCEPTANCE保留，不改成已完成。"
+    }
+  ],
+  "coverage_adjudication": [
+    {
+      "collection": "96检查",
+      "result": "读取/producer责任分离已存在；COMPOSITION_ONLY三项不虚造producer。仅M17-only读层/静态登记检查producer为空，不据此推断新业务bug；产品执行仍逐check核真实输出，不能给96整体PASS。"
+    },
+    {
+      "collection": "44指标",
+      "result": "原target/role/window/minimumSample与证据状态保留。M25的三路producer/验收确有上述具体遗漏；其他泛SIGNED_HASHED证明与原definition/卡联用，不单独把每个泛标记算新根因。"
+    },
+    {
+      "collection": "165对象",
+      "result": "18研究图有逐producer/input/consumer/验收；29旧图和16逻辑表有原真实源和039逐对象UI/错误/分页回归；82能力有035六状态分层且矩阵alias不重复生产。20矩阵需要上述18+1+1补充。"
+    },
+    {
+      "collection": "826表",
+      "result": "原表/行数/状态/evidence_ref为全库清点，不等于826个独立功能；空表没有被自动判bug。B02预算治理、B10状态与下一动作合同存在；没有找到额外可由当前证据证实的漏修业务表。"
+    },
+    {
+      "collection": "1832需求/299卡",
+      "result": "CSV明确RETAINED_CONTRACT_NOT_AUTO_ACCEPTED，002与B10要求逐条owner/原件或保持未检查；未声称全部已验。当前需要在真实施工账本逐项关闭，不能因条数保留而批量完成。"
+    }
+  ],
+  "gates_review": {
+    "B08_B09_cycle": "NO_CURRENT_CYCLE_FOUND",
+    "evidence": "B08工程退出明确ENGINEERING_READY；R11/R14/R18现场结果保留PENDING_B09，不阻B09开工；B09自然消费才需要B04 PIT/owner/deadline/settlement工程回归，不等72h或所有旧root。",
+    "preserve_in_amendment": "矩阵新增三路验收不要求所有自然action先出现；缺输入按各路WAITING/PENDING记账，工程正负例独立验。",
+    "additional_impossible_gate_found_in_this_scope": false
+  },
+  "rejected_hypotheses": [
+    {
+      "claim": "typed矩阵只写r30r1_research_measure，ReportObjectIndex只读native表，因此producer恢复后索引必为0",
+      "status": "WITHDRAWN_DISPROVED",
+      "counterevidence": "MatrixTensorR30R1.append:50-53已经在同一Batch写analysis_run、research_measure和research_matrix_snapshot_r930。ReportSnapshotR30:287-292及ReportObjectIndexR30:31-35可读其原native桥接。",
+      "action": "禁止根据该已排除假设新增投影修复或重写原表。"
+    }
+  ],
+  "evidence_strength": "13必要Java文件通过GitHub按精确211 commit读取，字节与既有1407基线的SHA/size逐项相符；仅验证这些文件，不声称完整源码检出或产品运行通过。",
+  "source_evidence_receipt": "audit/second_coverage_sources_211/SOURCE_RECEIPT.json",
+  "validation_current_status": "PLAN_REVIEW_ONLY_PRODUCT_ACCEPTANCE_PENDING"
+}

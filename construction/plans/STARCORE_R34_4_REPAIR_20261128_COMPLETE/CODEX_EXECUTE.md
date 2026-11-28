@@ -22,36 +22,104 @@
 
 必须先读：README、CONSTRUCTION_PLAN、ISSUES.json及46张卡、BATCHES.json及12个批次、三份contracts、ACCEPTANCE_MATRIX、PATCHSET、CANDIDATES、SOURCE_ANCHORS、FILE_MODIFICATION_MATRIX、SELF_CHECK、coverage、inheritance，并读取本轮必执行附约 `B00_EXECUTION_ADDENDUM.md` 与 `CREATION_EXECUTION_ADDENDUM.md`。新附约补足执行链，不减少原卡验收或保全要求。
 
-## 3. 可直接执行的资料检查入口
+## 3. 失败即停、固定提交的实际开工命令
 
-在完整方案的固定提交工作树中执行。`REPO_DIR`是该工作树；脚本不访问网络、不改应用。运行回执输出目录位于方案外，避免污染冻结清单。prepare_evidence是唯一的原件补齐步骤：按固定hash写回方案内evidence/ORIGINAL_DIAGNOSTIC_211.zip，已有不同字节会拒绝覆盖。
+以下是一个完整Bash脚本，必须作为同一次Bash会话执行。先把本次交付回执给出的40位计划commit设为环境变量 `EXPECTED_PLAN_COMMIT`；它必须来自已核交付身份，不能把当前HEAD自行赋成expected而冒称核过pin。若使用稀疏计划checkout，下列命令会给新211基线显式关闭稀疏检出，避免“Git干净但app/src未展开”。
+
+在本次完整方案的固定提交工作树中运行。发现该计划/分片目录有本地更改或未跟踪输入时停止，另建干净方案worktree，保留用户原改动，不自动reset、clean或stash。不能用git status替代字节证明；下列独立Git blob核验会拒绝被assume-unchanged/skip-worktree隐藏的改动。运行回执在方案外的新目录；prepare_evidence只按固定hash补齐被忽略的原诊断，不覆盖不同原件。所有验证工具的 `--output` 都拒绝覆盖已有文件，且不能写入冻结计划或明确传入的应用源码目录。
 
 ```bash
+set -euo pipefail
+: "${EXPECTED_PLAN_COMMIT:?请先设置交付回执中的40位计划commit}"
+if [[ ! "$EXPECTED_PLAN_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+  printf '%s\n' 'EXPECTED_PLAN_COMMIT必须是完整40位commit' >&2
+  exit 2
+fi
 REPO_DIR="$(git rev-parse --show-toplevel)"
-PLAN_DIR="$REPO_DIR/construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE"
+PLAN_REL="construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE"
+PACKAGE_REL="construction/packages/STARCORE_R34_4_211_20261128"
+PLAN_DIR="$REPO_DIR/$PLAN_REL"
 PLAN_COMMIT="$(git -C "$REPO_DIR" rev-parse HEAD)"
+if [[ "$PLAN_COMMIT" != "$EXPECTED_PLAN_COMMIT" ]]; then
+  printf '%s\n' '计划工作树HEAD与交付pin不一致，停止并保留现场' >&2
+  exit 2
+fi
+PLAN_STATUS="$(git -C "$REPO_DIR" status --porcelain=v1 --untracked-files=all -- "$PLAN_REL" "$PACKAGE_REL")"
+if [[ -n "$PLAN_STATUS" ]]; then
+  printf '%s\n' '计划或分片目录存在本地变化；另建干净工作树，不覆盖这些变化' >&2
+  exit 2
+fi
+# status可能忽略assume-unchanged/skip-worktree，执行计划Python前直接核Git blob字节。
+python3 -B - "$REPO_DIR" "$EXPECTED_PLAN_COMMIT" "$PLAN_REL" "$PACKAGE_REL" <<'PY_CHECK_GIT_BYTES'
+import hashlib
+from pathlib import Path
+import subprocess
+import sys
+repo, expected = Path(sys.argv[1]).resolve(), sys.argv[2]
+records = subprocess.check_output(['git', '-C', str(repo), 'ls-tree', '-r', '-z', expected, '--', *sys.argv[3:]])
+checked = 0
+for record in records.split(b'\0'):
+    if not record:
+        continue
+    metadata, raw_path = record.split(b'\t', 1)
+    mode, kind, expected_blob = metadata.split()
+    if kind != b'blob' or mode not in (b'100644', b'100755'):
+        raise SystemExit('计划输入不是普通Git文件')
+    relative = Path(raw_path.decode('utf-8'))
+    if relative.is_absolute() or '..' in relative.parts:
+        raise SystemExit('计划文件路径不合法')
+    path = repo
+    for component in relative.parts:
+        path = path / component
+        if path.is_symlink():
+            raise SystemExit('计划输入含工作树symlink: ' + str(relative))
+    if not path.is_file():
+        raise SystemExit('计划跟踪文件缺失: ' + str(relative))
+    size = path.stat().st_size
+    digest = hashlib.sha1(b'blob ' + str(size).encode('ascii') + b'\0')
+    read_bytes = 0
+    with path.open('rb') as stream:
+        while data := stream.read(1024 * 1024):
+            digest.update(data)
+            read_bytes += len(data)
+    if read_bytes != size or digest.hexdigest().encode('ascii') != expected_blob:
+        raise SystemExit('工作字节与固定Git blob不一致: ' + str(relative))
+    checked += 1
+if checked == 0:
+    raise SystemExit('固定提交没有所需计划文件')
+print('计划/分片Git blob逐文件核验:', checked)
+PY_CHECK_GIT_BYTES
 EVIDENCE_DIR="$(mktemp -d -t starcore-r344-evidence-XXXXXX)"
-python3 "$PLAN_DIR/tools/prepare_evidence.py" --repo-root "$REPO_DIR"
 (cd "$PLAN_DIR" && sha256sum -c MANIFEST.sha256)
-python3 "$PLAN_DIR/tools/verify_plan.py" --output "$EVIDENCE_DIR/plan-check.json"
-python3 "$PLAN_DIR/tools/unpack_report.py" --output "$EVIDENCE_DIR/original-report"
-```
-
-这一步无source参数时只验证资料，`source_verification="NOT_RUN"`（reason为`SOURCE_ROOT_NOT_PROVIDED`）不能算源码通过。另建干净211只读基线用于原锚和候选检查，施工树单独建分支；不能在已经修改的施工树上硬跑“逐字节等于211”后修改验证器使它通过。
-
-```bash
+python3 -B "$PLAN_DIR/tools/prepare_evidence.py" --repo-root "$REPO_DIR"
+python3 -B "$PLAN_DIR/tools/verify_plan.py" --output "$EVIDENCE_DIR/plan-check.json"
+python3 -B "$PLAN_DIR/tools/unpack_report.py" --output "$EVIDENCE_DIR/original-report"
 APP_BASE="5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
+if ! git -C "$REPO_DIR" cat-file -e "$APP_BASE^{commit}"; then
+  git -C "$REPO_DIR" fetch --no-tags origin "$APP_BASE"
+fi
 WORK_PARENT="$(mktemp -d -t starcore-r344-work-XXXXXX)"
 BASELINE_DIR="$WORK_PARENT/baseline-211"
-git -C "$REPO_DIR" cat-file -e "$APP_BASE^{commit}"
 git -C "$REPO_DIR" worktree add --detach "$BASELINE_DIR" "$APP_BASE"
-python3 "$PLAN_DIR/tools/verify_plan.py" --source-root "$BASELINE_DIR" --output "$EVIDENCE_DIR/baseline-check.json"
-python3 "$PLAN_DIR/tools/check_candidates.py" --source-root "$BASELINE_DIR" --output "$EVIDENCE_DIR/candidate-check.json"
+git -C "$BASELINE_DIR" sparse-checkout disable
+if [[ "$(git -C "$BASELINE_DIR" rev-parse HEAD)" != "$APP_BASE" ]]; then
+  printf '%s\n' '应用只读基线HEAD错误' >&2
+  exit 2
+fi
+if [[ -n "$(git -C "$BASELINE_DIR" status --porcelain=v1 --untracked-files=all)" ]]; then
+  printf '%s\n' '211只读基线有本地改动，保留现场并停止' >&2
+  exit 2
+fi
+python3 -B "$PLAN_DIR/tools/verify_plan.py" --source-root "$BASELINE_DIR" --output "$EVIDENCE_DIR/baseline-check.json"
+python3 -B "$PLAN_DIR/tools/check_candidates.py" --source-root "$BASELINE_DIR" --output "$EVIDENCE_DIR/candidate-check.json"
+printf '计划commit：%s\n只读211基线：%s\n验证原件：%s\n' "$PLAN_COMMIT" "$BASELINE_DIR" "$EVIDENCE_DIR"
 ```
 
-若本地缺准确commit，先从该仓库取回该对象并核身份。核实无更晚已交付后代后，以211新建独立施工分支和工作树；否则以已核后代施工。`check_candidates.py`只在临时副本累计应用5组补丁，不修改基线。它通过不代表Android产品通过。
+任何命令失败都停止本段，不把最后一条命令成功当整个初始化通过。先解释失败原因并修复实际输入/环境，再使用新输出目录重跑；不能放宽源hash、忽略缺文件、伪造状态或删除用户改动求通过。资料检查通过而源码未检查时，结果仍为 `source_verification="NOT_RUN"`、`SOURCE_ROOT_NOT_PROVIDED`，不能算源码通过；MANIFEST与PATCHSET现为必需输入，缺失返回失败。
 
-完成初始化后，将本轮施工分支、干净基线、当前应用树、冻结计划、外部版本journal、构建/测试输出分开保存。源码和必要回执按仓库既有结构提交，原计划和其验收待定状态保持冻结；实际进度写新的执行台账。
+干净211仅用于精确基线与五候选检查。核实实际安装/已交付合法后代后，再从正确应用提交建立独立施工分支；新施工worktree也显式执行 `sparse-checkout disable` 并核完整源树，不在main旧应用目录施工。`check_candidates.py`只在临时副本累计应用五候选，核7个声明文件的后态与源前态不变；优化模式也不能关闭hash检查。它通过不代表Android运行或产品完工。
+
+冻结计划、干净基线、当前施工树、外部版本journal和构建/测试输出分别保存。实际新进度写执行台账，不改冻结矩阵中的产品待验状态来冒签。完整基线不可得时，精确下载的个别源码可用于局部候选检查，但只能标“局部源字节验证”，不能替代1407基线与全应用构建。
 
 ## 4. B00必须先把本轮构建和交付工具真正接通
 
@@ -98,9 +166,11 @@ B00先完成46卡到执行合同的映射、case catalog/runner驱动基础设�
 
 原96检查、44指标、章节、附件、index/archive manifest、单ZIP/分卷、DIAGNOSTIC/FULL_RAW、取消/重试/SAF分享全部保留。检查有失败、UNKNOWN或业务未通过也必须能形成诚实诊断；不得以“全PASS”“checksComplete”“训练完成”作为导出前置。外部catalog仍为`EXECUTED / READ_ERROR / CANCELLED`，内部状态通过原兼容字段表达。
 
-每个拟交付批次都用**该批真正签名release APK**走原UI入口→导出作业→ZIP/index→SAF保存→URI实际读回，验证CRC、成员长度/SHA、语义回执及source/APK/snapshot/attempt/boot/PID/database身份。debug、底层zip库测试、旧B12回执不能代替。至少执行正常导出、重复导出、取消后重试及分享后读回。
+每个拟交付批次都用**该批真正签名release APK**走原UI入口→导出作业→ZIP/index→SAF保存→URI实际读回，验证CRC、成员长度/SHA、语义回执及source/APK/snapshot/attempt/boot/PID/database身份。debug、底层zip库测试、旧B12回执不能代替。B00必须核真实APK/source/包名/签名及已有可核归档身份；旧业务scope截断、producer未知或SQL pin锚缺失作为既有诊断缺陷如实导出，不填造、不当健康PASS，也不把B01才修复的业务字段提前设为B00交接前置。B01按R344-006/008单独验收；旧无sidecar作业仍按原协议导出。用户取消是终态语义，取消后的重试走合法新作业，不强行复活CANCELLED；低盘可为PAUSED/明确失败，正常可导出与每种异常都生成新ZIP不能混同。至少执行正常导出、重复导出、取消后重试及分享后读回。
 
 B01、B02及以后任何影响导出路径的变更，必须覆盖专项10组：连续5次正常导出；慢查询/共享依赖失败；取消后重试；写ZIP中进程终止；分享后进程退出；低盘/配额；fault满；当前/历史scope；原大库实际执行；新旧profile与单/分卷/SAF兼容。原5GB库缺失就该项标未测，不能拿小夹具冒充大库验证。
+
+专项10场景按子断言的实现归属签收，不改变原B01→B02依赖。B01必须验证同批签名APK的正常/重复导出、ZIP/index/分享读回、既有READY清理不退化、检查预算耗尽后的同快照续跑、取消真实退出、半成品不发布、低盘/fault满时诚实等待或失败且不递归放大/不删活引用原件。新增工作快照回收、历史失败快照退役、作业级恢复避免再次复制巨大快照、总盘/共享配额及fault真实排空属于B02；这些子断言在B01记录PENDING_B02并保留原件和交接引用，不阻B01工程交接，也不冒签通过。B02须用自己的实际签名release补验可回收占用/重复制受到约束、原件封存读回、真实pending下降及正常报告读回；B02以后的相关回归保留完整断言。不能把B01已负责的检查预算续跑或原成功导出/清理退化也延期。
 
 依赖缓存只在同snapshot、版本、真实参数与attempt范围内复用typed成功/失败；新fresh run可重试，不永久缓存UNAVAILABLE。取消后确认当前runner真正退出、Cursor关闭再继续，不把cancel调用等同退出。报告读取/压缩/传输不占实时writer。
 
@@ -148,6 +218,10 @@ RollingLearner只消费合法COMPLETED和自己的开发模型，REAL可为0；�
 开发历史分、120行验证early-stop、SELECT/CONFIRM与Future分别履行原角色。冻结时点、校准身份、曝光/alpha账本及永久失败记录保留。不得为提高出手频率降低证书门槛、移植资格、补写旧冻结或重置账本；工程目标不是保证未来获利。
 
 工程合法夹具只签`ENGINEERING_PATH_VERIFIED`，自然不足/不达标保持`NOT_PROVEN`。出现合法自然资格时，核同frozen/model/protocol/certificate由唯一主链在下一合法边界实际决策并精确结算，不止于证书或榜单。
+
+R031必须验首次FREEZE_CANDIDATE真正提交到R958/R967冻结评价，不能只验入队；可保留FROZEN_WAIT_CAPTURE_CAPACITY等待后续容量。R043/R044分别验R27/V1与现代R958/R967→R932预约/原始CAL241→immutable CALIBRATION_QUALIFIED→固定正式窗口/矩阵/alpha→R929签发→UnifiedResearchChoice→R974现代分支。raw CAL按自身合法采集条件推进，不反向等待自身校准质量或证书；CAL241、R27 minActs250、正式窗口机会数及报告支持数不得互换。既有owner与原门保留，工程夹具只签工程路径。
+
+R344-034的正常重启恢复按原回收条件由新进程重新claim同task/version/protocol/input，获得新owner及递增task generation后从已提交cursor/checkpoint继续；旧lease迟到/重放单列必须拒绝的负例。任务租约generation与rolling版本/checkpoint generation分开核CAS，不能为了续算保留过期lease，也不能重复已提交optimizer步。
 
 ## 12. 每批必须完成的实际交付循环
 

@@ -1,0 +1,177 @@
+{
+  "schema": "STARCORE_SECOND_STRATEGY_MERGE_CHECK_1",
+  "scope": "Only merge fidelity and consistency of second_strategy_amendments.json; no expanded audit.",
+  "application_source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "amendments_sha256": "e6027f69534c5abf5f93e1ef34db02d2e7663818eefb4ca1aaa0c1668383f43a",
+  "result": "PASS_NO_MERGE_BLOCKER",
+  "checks": [
+    {
+      "name": "16_card_fields_exact_after",
+      "result": "PASS",
+      "detail": {
+        "checked": 16,
+        "mismatches": []
+      }
+    },
+    {
+      "name": "3_batch_fields_exact_after",
+      "result": "PASS",
+      "detail": {
+        "checked": 3,
+        "mismatches": []
+      }
+    },
+    {
+      "name": "3_contract_replacements_exact_once",
+      "result": "PASS",
+      "detail": [
+        {
+          "path": "contracts/CREATION_TRAINING_AND_QUALITY.md",
+          "exact_after_count": 1,
+          "old_before_count": 0,
+          "old_text_intentionally_retained_inside_after": false,
+          "ok": true
+        },
+        {
+          "path": "contracts/PIPELINE_AND_PRESERVATION.md",
+          "exact_after_count": 1,
+          "old_before_count": 0,
+          "old_text_intentionally_retained_inside_after": false,
+          "ok": true
+        },
+        {
+          "path": "contracts/CREATION_TRAINING_AND_QUALITY.md",
+          "exact_after_count": 1,
+          "old_before_count": 1,
+          "old_text_intentionally_retained_inside_after": true,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "4_acceptance_records_synchronized",
+      "result": "PASS",
+      "detail": {
+        "issues": 4,
+        "mismatches": []
+      }
+    },
+    {
+      "name": "4_current_markdown_cards_synchronized",
+      "result": "PASS",
+      "detail": {
+        "mismatches": []
+      }
+    },
+    {
+      "name": "acceptance_markdown_summary_links_current_full_records",
+      "result": "PASS",
+      "detail": {
+        "representation": "Markdown is an explicit first-acceptance summary; full verbatim clauses live in linked current cards and ACCEPTANCE_MATRIX.json.",
+        "four_current_card_links_and_json_link_present": true,
+        "full_acceptance_records_verified_by_other_checks": true
+      }
+    },
+    {
+      "name": "11_exact_211_anchors_and_issue_links",
+      "result": "PASS",
+      "detail": {
+        "checked": 11,
+        "total_current_anchors": 152,
+        "mismatches": []
+      }
+    },
+    {
+      "name": "baseline_still_1407_exact_211",
+      "result": "PASS",
+      "detail": {
+        "count": 1407,
+        "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+        "scope": "count/source identity and all 11 reviewed source bytes/hashes; not a new full1407 source audit"
+      }
+    },
+    {
+      "name": "obsolete_active_order_and_same_lease_positive_absent",
+      "result": "PASS",
+      "detail": {
+        "mismatches": [],
+        "excluded_historical_evidence": "original_audit_records and archived reviews are preserved and are not active instructions"
+      }
+    },
+    {
+      "name": "codex_and_creation_addendum_sync",
+      "result": "PASS",
+      "detail": {
+        "mismatches": []
+      }
+    },
+    {
+      "name": "4_metric_responsibilities_include_separate_modern_proof",
+      "result": "PASS",
+      "detail": {
+        "metrics": [
+          "M26",
+          "M28",
+          "Q05",
+          "Q07"
+        ],
+        "mismatches": []
+      }
+    },
+    {
+      "name": "B06_B07_B08_B09_dependencies_unchanged",
+      "result": "PASS",
+      "detail": {
+        "expected": {
+          "B06": [
+            "B00",
+            "B03"
+          ],
+          "B07": [
+            "B00",
+            "B06"
+          ],
+          "B08": [
+            "B00",
+            "B05",
+            "B06",
+            "B07"
+          ],
+          "B09": [
+            "B00",
+            "B06",
+            "B07",
+            "B08"
+          ]
+        },
+        "mismatches": []
+      }
+    },
+    {
+      "name": "raw_cal_and_engineering_field_natural_boundaries_preserved",
+      "result": "PASS",
+      "detail": {
+        "B06_actual_freeze_not_natural_certificate": true,
+        "B09_raw_cal_not_own_result_prerequisite": true,
+        "B08_engineering_ready_pending_B09": true,
+        "B09_runtime_B04_not_72h_engineering_lock": true,
+        "R043_engineering_fixture_not_natural_ledger": true,
+        "R044_original_report_format_preserved": true
+      }
+    }
+  ],
+  "blocking_items": [],
+  "new_findings": [],
+  "read_only_publication_and_application": true,
+  "artifact_written": "audit/second_strategy_merge_check.json",
+  "closure": {
+    "S2-ST01": "CONTRACT_CORRECTION_MERGED",
+    "S2-ST02": "OWNER_ACCEPTANCE_AND_METRIC_SCOPE_MERGED",
+    "S2-ST03": "NEW_LEASE_POSITIVE_OLD_LEASE_NEGATIVE_MERGED"
+  },
+  "limitations": [
+    "This verifies plan merge only; it does not mark application/Android/field/natural acceptance passed.",
+    "The unchanged introductory paragraph intentionally retained inside the third contract replacement is not stale contradictory text.",
+    "Historical audit originals remain preserved."
+  ]
+}

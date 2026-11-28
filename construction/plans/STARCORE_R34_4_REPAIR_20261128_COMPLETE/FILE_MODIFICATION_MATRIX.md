@@ -140,3 +140,31 @@
 |`tools/r343/build_identity.py`|R344-001|G01: 从精确5c7f1b36或核验过的后代隔离开工，读本计划SOURCE_ANCHORS和APPLICATION_SOURCE_BASELINE；不在main应用目录套补丁。|
 |`tools/r343/prepare_field_batch.py`|R344-001, R344-046|G01: 从精确5c7f1b36或核验过的后代隔离开工，读本计划SOURCE_ANCHORS和APPLICATION_SOURCE_BASELINE；不在main应用目录套补丁。；G02: 按批次顺序实际施工、构建和回归；每批提交可下载APK及源码/测试/身份。|
 |`tools/r343/rebind_semantic_inputs.py`|R344-002|G03: 逐条继承44个173问题，写清已修代码保留、运行仍缺证、当前新根因；本计划提供继承矩阵。|
+
+## 第二轮补充与扩展定位
+
+原136个源码锚的字节身份保留；当前合计152个锚。下表补充新增路径或原路径新增工单关联；定位不意味着必须修改有效文件。
+
+|文件|当前问题卡|211 SHA256|范围|
+|---|---|---|---|
+|`app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java`|R344-043, R344-044|`72fd66e9a434333a7e23fe4ee5bea0f2a3bb527109ef39f1560bdbf43d29d624`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java`|R344-043, R344-044|`7e07152d224e4342e4a7f95e200f52fd6b12c5bde2022c19393437c440b436e2`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java`|R344-043|`dfb9645ec5c90c75ea5e910fa9f7e8a5fb0e9b48189262f51a1cf8afd8c0329d`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java`|R344-043|`290db4473dce5da2ab70b7224d1f5e37704c534f694be9222787ae0db6a7f872`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java`|R344-031, R344-043|`3dcd69caa13afa46b71e473fd15a60674017bc45b2f439ce10aa7b4568fb6ea7`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java`|R344-043|`97b9a0eccb9fca25fc0da433b667c87a4575b07d2972fa228984748c51969dbc`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java`|R344-005, R344-008, R344-009, R344-013, R344-021|`47456115c7b8a90ca564e2071cf11cdbc5bf63e14a1296bb87f6b74cddf6a00b`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java`|R344-005, R344-009|`b22211438eb03ed372cf22f8233f948409d269e291c70dbbc8a6e86503e1fe0f`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java`|R344-031, R344-043|`4855ca104ecdbd53139188589400d17643a4cc64d8ef56c08baa69140d261081`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java`|R344-043, R344-044|`6ba5d77bdc2eb3424988020f4b2adba538665b1c6bf34a6d5204c5efc2cd9bff`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java`|R344-043, R344-044|`ecdca4ba0956a7accd5749d89400d16b37d681e70fba63041c1ee53a907be2ec`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java`|R344-031, R344-034|`864ccc38ef314c2f28177239d6ad7070825aa3ddf3f19bf42d3d2746ef1995ca`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java`|R344-043|`d8df77be1b214d8f6d3af9d5615bd82a6a44f228a8f3cd3806a1619eeb7da75d`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java`|R344-038|`ae6c9aa19aff3a66d97df34d2eed4ac929b2c0a7db91d255e1803c6280ad754b`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java`|R344-038|`fad6ea58922c483f088aba0e8398bfa57d8dd5ffbc7580db1473b4d1197133fc`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java`|R344-038|`5059bef0754e177fae76efcdd65f342ce4a1b2c8e336ea9c40c29b5592bb1f80`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java`|R344-038|`67fac1464516e3b3a65697f15aa82fb556707d68fa03e551e955aea5a9869145`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java`|R344-036, R344-038|`e540ca4f04bc3161cd4bc3c43610ee7799c6b1fca56f0104a9eb1ebc9b85499a`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java`|R344-038|`fbe0d2073681337507713aad1d903269820dae1ecfc8fb531806569609c234d2`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java`|R344-017, R344-036, R344-038|`6372eeabe2a9586df4cac1c07f0eea839f584a42cd09355cf3e2b6408c74c8ce`|复用、验证现有owner及必要窄修复；不得据定位清单重写|
+|`app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java`|R344-036, R344-038|`5d9f0fa99aa72899be635a62463bf391fc9e36408efaf3e2c8b37a63318486c5`|复用、验证现有owner及必要窄修复；不得据定位清单重写|

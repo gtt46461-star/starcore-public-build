@@ -37,9 +37,9 @@
 2. 恢复固定回放数据集的同一 pin；修补合法历史和输入材料。
 3. 按原任务身份验证恢复资格，保留所有 FAILED_TERMINAL 原记录，新建一次性继任任务。
 4. 先让现有 CP9 TRAIN 真实完成，输出开发模型与回执。
-5. 使用已经实现的 RollingLearnerR343 接收持久结算事件；不得再加并行 online owner。
-6. 使用 RollingFrozenPublisherR343 发布独立冻结版本；旧冻结版本继续原来的未来窗口，新学习头不改写它。
-7. 在独立未来、校准和资格满足后，由原唯一决策门消费。
+5. 首次开发冻结沿既有 FREEZE_CANDIDATE → FrozenCandidateAdapterR958.prepareDevelopmentFreezeCP8/commitDevelopmentFreezeCP8 → ResearchEvaluationRunR967.registerDevelopmentCP8 推进，实际登记同开发 artifact 的不可变评价对象。它不等待 rolling event/version、REAL 或自然证书；目标期、cutoff、原件与租约仍按原规则核验。
+6. 滚动学习是另一条分支：已有开发回执且出现自身合法 COMPLETED 结算事件后，由现有 RollingLearnerR343 训练新版本，再由 RollingFrozenPublisherR343 发布该滚动版本。不新增 online owner，不等待首次冻结的未来窗口结束。无 COMPLETED 时保持真实等待，首次开发冻结和独立 DEV 继续；旧冻结版本及其窗口不被学习头改写。
+7. 每个冻结版本分别经原校准、独立正式未来与资格链验证，再由原唯一决策门消费。首次开发冻结不是证书，滚动冻结也不继承旧版本资格。
 
 上述依赖按具体研究路径适用，不构成“所有旧检查点都恢复才准许任何新训练”的总门。`ColdRebirthR34.prepare` 对已推进旧候选必须读取旧state并校验hash；缺原件时不能删除这项证明硬做冷重生。此时保留并隔离对应旧root，允许从足够可信历史经 `ModernFamilyFactoryCP12.maintain/prepare/register → ResearchDirectorR952 TRAIN` 建立完全独立的新基础实验：新ID、新输入/协议、新计数，不继承旧权重、分数、冻结或资格。旧R27 pin的恢复与此独立实验分别推进。
 
@@ -93,3 +93,11 @@
 至少同时报告：合法机会分母、真实覆盖率、命中率与不确定性、按预登记时间窗的稳定性、同窗口父子/基线比较、模型计算成本和失败/缺失。用户期望的 ≥30% 出手频率、最低 15% 的专攻模式属于既定评价目标；是否启用更低频模式必须沿原配置与资格规则，不能由返修补丁悄悄降门槛。足够证据支持高覆盖时才允许高覆盖出手。
 
 合格证书进入原发布与主链消费入口，在下一合法赛前边界取用同一个 frozen/model/protocol 身份；REAL 决策和精确结算必须反向指到该证书。资格被撤销、原件缺失或模型身份改变时保持原失效规则。软件工程可以修复持续尝试和证据闭环，不能通过代码保证长期高胜率或每一代必然优于父代。
+
+### 7.1 两条现有证据链分别施工和验收
+
+R27 继续走 LiveShadowsR27 / CalibrationRowsR27 / CalibrationR30 → SequentialQualificationR27 / CertificateGateR27 → MainlineAdapterR31 的原合同。现代 AST3 另按 R958/R967 冻结评价 → GlobalResearchScheduleR932 预约 → FrozenCandidateAdapterR958.captureReservedCP12/captureOneCP12 → CandidateCalibrationR932 → FixedResearchWindowR932 / ResearchGatePlanR967 → FixedWindowCertificatePublisherR932 / CertificateBundleServiceR929 → ResearchPlatformStoreR929.putCertificate → UnifiedResearchChoiceR932 → CertifiedPredictionR974 的 R958 分支逐段核输入、提交与读回。以上 owner 在 211 已存在；本次补接线和验收责任，不重新创建发布者。
+
+现代原始 CAL 采集位于正式窗口门之前。合法冻结、预约、champion bundle/selector、PIT/截止与资源条件满足即可收集，不额外等待已合格校准器、正式 Future 或证书。原 CAL241 按前120、间隔1、后120处理，前120内部保留 FIT80/SELECT40/REFIT120；FITTED 与 CALIBRATION_QUALIFIED 分开，缺 immutable quality 或身份不一致不授予资格。R27 的 minActs250、报告支持数与现代 CAL241 不可互换；candidate-only 校准也不是最终混合动作校准。
+
+现代正式窗口与证书仍由各自固定 plan/lifetime、原始机会序列、calibration、matrix proof、exact scope、alpha/曝光和外部门验证。CP4 publisher 的 n<360 → AUDITED_NO_CERTIFICATE 保持，不以 CAL 条数代替正式机会数。R031 验首次实际冻结，R043 验两条资格链的工程正负贯通，R044 为 Q05/M26/Q07/M28 明确各路径来源和分母；自然证据不足可保持 NOT_PROVEN。工程夹具不得进入自然账本，补充投影不得改变原报告格式或破坏导出。

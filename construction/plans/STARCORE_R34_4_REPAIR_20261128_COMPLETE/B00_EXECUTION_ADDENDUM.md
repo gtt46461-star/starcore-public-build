@@ -20,7 +20,7 @@
 |B00-C04|`tools/r343/field_delivery_contract.py:61–82,85–123,164–254`。[S07]|旧driver读取`ACCEPTANCE_MATRIX.json["cases"]`、旧R343 case ID及`release/field173_test_runners.json`；本轮矩阵顶层为`schema/issues/principle`，不是现成可执行runner catalog。|根据本轮卡建立可执行case catalog和提交在源码中的runner，关联issue/batch/level/assertions；保存实际命令、输入、执行上下文、输出和数据库读回。保留旧case回归，不把新case伪装为旧case，不把文字数量当断言。|
 |B00-C05|`.github/workflows/build-apk.yml:328–377,393–413`；`tools/r342/ci_plan_inputs.sh:48–60`。[S08][S09]|签名工作流固定授权ref `construction/r27-20261028`，source须属于固定r342/r343来源允许集合，批次只接B01–B12；输入只增加旧173计划/APK。|在现有授权边界内新增本轮明确source ref、211祖先关系、计划pin及输入恢复。保留指定仓库、授权signing ref、允许列表、祖先检查和原signer preflight；不得删除allowlist或让任意提交借用签名。|
 |B00-C06|`field_delivery_contract.py:13–18,53–58`；`package_ci_candidate.py:269–280`；`ci_candidate_tests.py:282–287`。[S07][S10][S11]|活动field173只认baseline173.apk，现成覆盖安装不证明211→新包，更不证明实际前一批→本批。|新增准确211原签名APK身份，另记录实际当前安装与前一交付批次。保留033/173等历史原件用于原合同验证，但不得把它们冒充本轮升级基线。原211APK缺失必须保留缺件，不能重编译或改名造原件。|
-|B00-C07|`tools/r342/ci_candidate_tests.py:38–63,89–117,286`。[S11]|只有旧`stage == 'B12'`执行`signed_report_campaign`。其他批次CI绿色不能证明该批签名release能实际导出。|每个新批次都执行同一实际交付签名release的UI→报告作业→ZIP→SAF读回；绑定source/APK SHA。B01/B02及后续影响导出的修改执行完整专项回归，不能拿debug或旧B12回执代替。|
+|B00-C07|`tools/r342/ci_candidate_tests.py:38–63,89–117,286`。[S11]|只有旧`stage == 'B12'`执行`signed_report_campaign`。其他批次CI绿色不能证明该批签名release能实际导出。|每个新批次都执行同一实际交付签名release的UI→报告作业→ZIP→SAF读回；绑定source/APK SHA。B01/B02按4.2的阶段归属执行专项回归，B02关闭存储/排空子断言；不能拿debug或旧B12回执代替。|
 |B00-C08|`tools/r342/ci_candidate_tests.py:43–63,66–85,279–281`。[S11]|现成脚本为专用API34模拟器，包含安装旧基线、root、断网、卸载后再安装debug/test包。不能在用户设备照跑。|把可破坏夹具限定于明确的disposable emulator。用户设备覆盖安装并保全原数据、业务原件及引用，不卸载、不清数据、不强制版本降级，不复制模拟器的root/断网清理流程。|
 |B00-C09|`run_release_build.py:13–22,52–89`；`package_ci_candidate.py:282–320,336–356`；`release_delivery.py:34–80,128–140`。[S10][S12][S13][S14]|构建、嵌入身份、原工程证据、source archive/bundle、发布索引和下载读回均有旧身份门；只改前端CLI或只生成APK不能完成交付。|贯通所有生产/消费边界，保存原构建结果、日志、source tree、签名、APK和case证据；新增身份必须被包装和下载读回再次验证。不以删除旧校验解决新schema不兼容。|
 
@@ -144,6 +144,8 @@ B00不要求预先修完B01业务检查失败，也不要求原96检查全绿。
 
 ### 4.2 B01/B02及后续影响导出的修改执行专项10场景
 
+专项10场景按子断言的实现归属签收，不改变原B01→B02依赖。B01必须验证同批签名APK的正常/重复导出、ZIP/index/分享读回、既有READY清理不退化、检查预算耗尽后的同快照续跑、取消真实退出、半成品不发布、低盘/fault满时诚实等待或失败且不递归放大/不删活引用原件。新增工作快照回收、历史失败快照退役、作业级恢复避免再次复制巨大快照、总盘/共享配额及fault真实排空属于B02；这些子断言在B01记录PENDING_B02并保留原件和交接引用，不阻B01工程交接，也不冒签通过。B02须用自己的实际签名release补验可回收占用/重复制受到约束、原件封存读回、真实pending下降及正常报告读回；B02以后的相关回归保留完整断言。不能把B01已负责的检查预算续跑或原成功导出/清理退化也延期。
+
 |场景|必需观察|
 |---|---|
 |连续5次正常导出|每次ZIP/索引/回执可读，可合法退役的工作快照不按次数永久累加。|
@@ -152,7 +154,7 @@ B00不要求预先修完B01业务检查失败，也不要求原96检查全绿。
 |写ZIP中途进程终止|不发布半成品；从持久阶段恢复或明确失败，避免重复复制大快照。|
 |分享后进程退出|既有URI有效期和消费者读引用保留，不提前清理ZIP。|
 |低盘/配额压力|不删活引用或唯一原件，不无限复制；阻断原因与空间恢复后的续跑可核。|
-|fault队列满|关键准入仍遵原规则，排空/归档实际前进，报告遥测不递归放大故障。|
+|fault队列满|B01保全原准入、可取消/诚实等待且遥测不递归放大；B02核真实封存/读回与pending下降，使用B02自己的签名APK关闭交接断言。|
 |当前与历史scope|完整JSON可解析，snapshot/PID/boot/source/database身份可区分，历史不冒充当前。|
 |5GB级大库|目标Android上实际测各项时延、内存、取消及主链影响；小夹具不能代替。|
 |旧新模式与交付路径|默认诊断、FULL_RAW、单卷/分卷、外部SAF和内置分享均按原合同可用。|
@@ -221,3 +223,7 @@ B00不要求预先修完B01业务检查失败，也不要求原96检查全绿。
 - **S16**：[已核报告与存储合同](https://github.com/gtt46461-star/starcore-public-build/blob/9558b6ddbcf9691b2e978bc76b4809fe71163cde/construction/plans/STARCORE_R34_4_REPAIR_20261128/contracts/EXPORT_AND_STORAGE.md)；[已核本轮验收矩阵结构](https://github.com/gtt46461-star/starcore-public-build/blob/9558b6ddbcf9691b2e978bc76b4809fe71163cde/construction/plans/STARCORE_R34_4_REPAIR_20261128/ACCEPTANCE_MATRIX.json)
 
 本附约仅增列实际施工要求与验收门。新工具、APK、设备执行和发布结果须由后续真实施工原件证明，不能凭本文件预先签收。
+
+## 修订2初始化执行要求
+
+以CODEX_EXECUTE第3节的单一Bash执行单元开工：外部预期commit、HEAD、Git对象与真实工作字节一致后才执行计划Python；git status不能代替字节证明。保留用户改动，不自动reset/clean。新基线与施工树关闭继承的稀疏检出后再验完整源。验证输出为计划/source外的新文件，缺必需清单或任何失败必须停下该初始化段。PENDING_B02仅为施工台账的分阶段子断言，不新增应用catalog枚举。

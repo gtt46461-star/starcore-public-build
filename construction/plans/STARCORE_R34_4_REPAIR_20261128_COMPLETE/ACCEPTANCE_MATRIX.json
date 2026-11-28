@@ -98,14 +98,16 @@
         "原index/archive/semantic receipt/share接口及中文报告章节",
         "全部96注册检查",
         "原完整ZIP导出及取消协议",
-        "每检查局部signal与错误引用"
+        "每检查局部signal与错误引用",
+        "ReportJobJournal原CANCELLED终态、资源PAUSED与READY_TO_SHARE资格；不得为满足验收强制发布取消或容量不足的半成品。"
       ],
       "acceptance": [
-        "连续3次导出、导出中取消再恢复、杀diagnostics进程后恢复、低空间/慢盘/共享读取同时发生均可拿到有效ZIP或明确可恢复失败。",
+        "连续3次导出、导出中取消后走合法新作业重试、杀diagnostics进程后恢复、低空间/慢盘/共享读取同时发生均可拿到有效ZIP或明确可恢复失败。",
         "完整报告96项全部保留，SOURCE_EMPTY/UNAVAILABLE/FAIL/PASS分别统计；一项耗时不能压缩无依赖项预算。",
         "固定211快照fixture分别触发009、010、018，比较查询计划/读取量/耗时。",
         "同依赖故障仅执行一次但各依赖检查正确UNKNOWN；下一次新报告重试。",
-        "取消、源错表、单检查timeout后其余合理预算内运行；导出仍可取消/重做。"
+        "取消、源错表、单检查timeout后其余合理预算内运行；导出仍可取消/重做。",
+        "取消生成中未发布作业时CANCELLED持久、worker/Cursor真实退出且无新半成品READY；合法新请求重试完成后才产生新READY。低盘不绕过准入，恢复后续跑；已READY结果按原引用保护不倒退。"
       ],
       "status": {
         "implementation": "NOT_RUN_PRODUCT",
@@ -614,7 +616,8 @@
       "batch": "B06",
       "title": "已恢复现代TRAIN新任务attempt0，现有轮转未形成完整训练",
       "preservation": [
-        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度"
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
+        "保留已存在的首次 FREEZE_CANDIDATE owner、R967 冻结评价注册与同 artifact 幂等身份；首次开发冻结和 R343_ROLLING_FREEZE 是两条已有路径，不另建发布者。"
       ],
       "acceptance": [
         "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
@@ -622,7 +625,9 @@
         "同一冻结 dataset/protocol/seed 在 NORMALIZER、TRAIN、TREE_QUANTILES/TREE_SCAN（相应内核）、VALIDATE 的可达边界中断恢复，与连续运行比较完整状态、optimizerSteps、选定 epoch、预测 tape 和终态 model hash；FIXED_GRAPH 保留真实前向/tape，不强求梯度步。错误 input/protocol/shape/hash/截断 checkpoint 必须拒绝，重放提交不重复学习。",
         "REAL=0、certificate=0、全部结算为NO_PREDRAW_CANONICAL_TERMINAL，但具足量合法历史和catalog：独立fixed graph与一个learned kernel可完成开发receipt；rolling_event继续0且不伪造COMPLETED。",
         "给selected子槽不足预算，cursor不得跳过该待服务owner；下一足量slice推进同任务。FIXED_GRAPH验真实PIT前向/tape，learned kernel验实际optimizer/tree/model状态。",
-        "feature cursor/rows/hash→checkpoint phase→120验证tape→development receipt→artifact→FREEZE enqueue同身份闭合；恢复中断与不中断结果一致。"
+        "feature cursor/rows/hash→checkpoint phase→120验证tape→development receipt→artifact→FREEZE enqueue同身份闭合；恢复中断与不中断结果一致。",
+        "在 REAL=0、certificate=0、rolling_event/version=0 的独立 DEV 正例中，给足合法原件与下一目标期后，实际完成一次 FREEZE_CANDIDATE 提交；r967_frozen_evaluation_v2 中出现同 learner/artifact/AST/model/input 的冻结对象及原生命周期状态。仅入队不算完成；采集容量尚未分配时可保持 FROZEN_WAIT_CAPTURE_CAPACITY，不将其伪报正式 Future 或 REAL。",
+        "同 artifact 的恢复/重放不得登记第二份不一致冻结；prepare 后目标期滚动，commit 按 FreezeTargetChangedCP8/原调度合同让出并在新合法边界重试，不能晚冻、改旧预测或将资源/目标变化误记统计失败。旧 lease 迟到不得越过 R967 owns/CAS。"
       ],
       "status": {
         "implementation": "NOT_RUN_PRODUCT",
@@ -677,11 +682,13 @@
       "batch": "B07",
       "title": "旧在线更新44真实存在，现代rolling停在dev receipt前置",
       "preservation": [
-        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测"
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
+        "保留 ResearchTaskQueueR967 的进程身份、租约到期/回收与 generation/cursor CAS；正常重启恢复用新 lease 续同一任务，FAILED_TERMINAL 原任务的审计继任仍走原专门恢复合同。"
       ],
       "acceptance": [
         "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
-        "在 FEATURES 与 TRAINING 阶段分别杀进程/重开并重复投递同 lease；cursor/prefix、checkpoint hash/generation CAS 保持一致，不多提交 optimizer step 或 outcome；开发模型与 rolling 模型各自独立验，不以一条历史 artifact 通过全链 M20。",
+        "在 FEATURES 与 TRAINING 阶段分别于 prepare 后、提交前、已提交后杀进程并重开；按原租约到期/回收条件由新进程重新 claim 同一非终止 task/version/protocol/input，获得新 lease owner 与递增 task generation，再从已提交 cursor/prefix/checkpoint 恢复。与连续执行比较实际 optimizerSteps、验证 tape、终态 model hash 和 outcome；已提交步不重复，未提交批次不跳过。开发模型与 rolling 模型分别验，不用一条历史 artifact 代表全链 M20。",
+        "另设旧 lease 迟到/重放负例：新进程 claim 后，旧 owner/generation/cursor 的 prepare/commit/complete 不能更新任务、模型、checkpoint、optimizer 计数或新租约；允许记录拒绝原件。区分 task lease generation 与 rolling version/checkpoint generation：按各自 CAS 检验已提交状态，合法新提交可以递增，不要求跨重启维持旧 lease 或把 generation 永久固定。",
         "无REAL但有合法COMPLETED来源和dev receipt时，rolling版本/头按真实标签推进；重复结算同receipt不二次学习，异hash同issue拒绝。",
         "只有NO_PREDRAW、无COMPLETED时rolling不消费/不记假事件，但开发bootstrap仍工作；旧冻结模型/未来窗口不被学习头覆盖。",
         "训练完成的new model/source epoch/cutoff/发布receipt可回读，缺绑定原件只hold对应版本而不隔离全部原策略。"
@@ -771,11 +778,18 @@
       "preservation": [
         "R952旧在线原逻辑与反馈",
         "20矩阵完整注册",
-        "历史矩阵checkpoint及过期原因"
+        "历史矩阵checkpoint及过期原因",
+        "19个R930原ID加1个SU2原ID及既有native R930、SU2、R952各自来源；禁止新增第20个R930 kind替换SU2。",
+        "MatrixTensorR30R1.append的既有同事务三处原件桥接、ResearchStore.paired的真实counterfactual条件、SU2原campaign/committee/checkpoint与提交后可见规则。"
       ],
       "acceptance": [
         "20类型逐一正确维度和原键，source-only不错误等学生；学生型无学生明确不足。",
-        "错角色/目标/ABI/维度/重复提交拒绝或幂等，旧在线矩阵回归保持。"
+        "错角色/目标/ABI/维度/重复提交拒绝或幂等，旧在线矩阵回归保持。",
+        "M25三路正反例：18普通R930按原dependency逐项生产或明确等待；COUNTERFACTUAL仅在RETRAIN_REMOVED实际完成且原blocks条件满足后出现；SU2仅在其原campaign完成且有合法F15 committee时形成checkpoint。缺source/学生/committee的状态逐路明确，某路不足不阻其它可运行路。",
+        "COUNTERFACTUAL负例：未完成runner、MASK_FROZEN、错parent/child或source revision不得成为已生产的正式反事实矩阵；合法已完成配对的原hash、block支持、角色、时间边界逐键读回。",
+        "SU2正反例核genome_key+checkpoint_sequence、原factors/state与提交后available_at；重复publication幂等。maintain只按同genome的已冻结act=1且hit非空的原action有界前进，无action不补计消费；缺history保留__MISSING_SOURCE/解释级状态，source generation变化不得错误推进。",
+        "R930合法typed提交后analysis_run、research_measure和research_matrix_snapshot_r930三处原hash/role/revision一致且ReportObjectIndex可读回；故障发生在提交前不得留下单边已生产，重复提交不增造原件；原native矩阵与R952历史记录保持原作用及身份。",
+        "每个20原ID独立产出M25工程/现场/质量分层结果；只有索引行、缓存或retainedCount不能签消费或有效。真实依赖不足可以保持PENDING且给具体下一动作，不将全部SU2/反事实/自然证据形成设为B09工程开工前置。"
       ],
       "status": {
         "implementation": "NOT_RUN_PRODUCT",
@@ -882,13 +896,18 @@
       "batch": "B09",
       "title": "证书/主链0是上游证据未产出，不能降低门禁换通过",
       "preservation": [
-        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率"
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
+        "并列保留 R27/V1 与 AST3/R958→R932→R929 的已有校准/资格链；不把 R27 minActs250 套给现代 CAL241，也不把现代 241 行当作 R27 资格证据。首次冻结、原始校准采集、校准质量通过、正式 Future 和主链授权是不同状态。",
+        "保留 R932 有界预约/容量、唯一 champion bundle 与 selector、事前截止、完整机会序列、不可变 quality/plan/lifetime、alpha/曝光、矩阵原件与 F05 exact scope；证书发布仍由原 R929 authority 提交，原唯一决策门决定是否 REAL。"
       ],
       "acceptance": [
         "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
         "校准输入晚冻、缺开奖、身份漂移、错误 role/period、重复/冲突行、缺原校准器与不足资格 ACT 的负例不得签 ACTIVE；满足原条件的记录由原证书入口签发并可追溯、撤销。Q07 计数仅来自通过逐资产 Q01/Q03/Q04/Q05 审核的独立有效资产。",
         "高开发分但无FUTURE、晚冻结、错model/calibration hash、旧证书移植、重复confirm/Future标签均拒绝；永久alpha index跨重启/新child不复用。",
-        "合格工程夹具只标ENGINEERING_PATH_VERIFIED；自然达标后必须出现同frozen/model/protocol/certificate的下一合法边界决策与精确结算引用。自然无达标时仍训练/影子且REAL=0，不伪造PASS。"
+        "合格工程夹具只标ENGINEERING_PATH_VERIFIED；自然达标后必须出现同frozen/model/protocol/certificate的下一合法边界决策与精确结算引用。自然无达标时仍训练/影子且REAL=0，不伪造PASS。",
+        "无 REAL、无 rolling event/version、无自然证书时，合法新冻结可在原预约容量和赛前条件下产出真实 raw CAL；容量不足明确等待。重复目标/错 bundle 或 selector/晚冻结/缺开奖/冲突身份不得伪增观察；正式窗口未就绪不得反向卡住其合法上游 raw CAL 采集。",
+        "现代校准对 candidate/frozen structure/model、bundle、selector、study 和 quality-policy 身份逐项回读，241条原始次序与120+1+120分割可复算；前120内部拟合/选择/重拟合照原实现。合格夹具形成 immutable CALIBRATION_QUALIFIED；仅有 FITTED、缺 quality 行、错 policy/hash、非法分割、未来标签混入拟合均不得作为资格通过。",
+        "至少一个隔离工程正例实际贯通正式窗口原件→原 publisher→R929 certificate/gates/history→UnifiedResearchChoice→R974 现代分支；同时测原矩阵/校准/alpha原件缺失、scope或model变更、撤销/过期证书、不同路径证书移植的拒绝。正例只记 ENGINEERING_PATH_VERIFIED；自然消费仍须真实独立样本与 B04 条件，不能把夹具写入自然 ledger 或造 REAL。"
       ],
       "status": {
         "implementation": "NOT_RUN_PRODUCT",
@@ -905,13 +924,15 @@
       "preservation": [
         "全部自然质量门槛",
         "合成与自然来源隔离",
-        "失败轮与负结果"
+        "失败轮与负结果",
+        "校准和资格指标保留路径/contract/consumer/scope 身份；R27 V1、现代 CAL241/CP4 及最终动作校准不得混算支持数、分母、校准器或质量结论。"
       ],
       "acceptance": [
         "错source、未完成trial、单轮高命中、未登记假设不得签收。",
         "原六臂完整工厂的误授证/检出力与额外34/37/40%目标概率对照分别带CI、全分母；原signalStrength=.30是植入参数，不能当命中率；自然资格独立。",
         "Q05/M26 对同一合法 frozen 校准器/目标/ACT 条件复算 ECE（等质量与等宽并列）、BSS、支持覆盖和区间；未来或同期间标签混入 fit、fitThrough 跨越 embargo、错误原件身份必须被排除/拒绝并保留原因。200 是报告支持条件；120 行 fitted 诊断或单条 ACTIVE 都不是资格通过。",
-        "Q06 使用事前注册的完整日历窗原件；相同期缺一方、遗漏失败期、重复 ordinal、开奖后冻结、旧 source、缺配对 CPU、重复消耗 segment 的负例不得 VERIFIED。合法父子对按原 claim 合同复算 mean/lowerBound/cost，只有原下界与成本门均满足才记 VERIFIED；未知或未改进也要如实产出状态，不为验收造出改善。"
+        "Q06 使用事前注册的完整日历窗原件；相同期缺一方、遗漏失败期、重复 ordinal、开奖后冻结、旧 source、缺配对 CPU、重复消耗 segment 的负例不得 VERIFIED。合法父子对按原 claim 合同复算 mean/lowerBound/cost，只有原下界与成本门均满足才记 VERIFIED；未知或未改进也要如实产出状态，不为验收造出改善。",
+        "对 R27 与 AST3 现代路径分别提供来源可追溯的正负夹具及现场状态；相同指标展示必须带 family/path、contract、candidate/frozen/model/calibrator、目标机会范围及分母。现代 FITTED_BUT_NOT_QUALIFIED、缺 immutable quality、错 exact scope、缺 formal-window/matrix/alpha 原件不得计成有效资产；报告支持数或 CAL241 条数不替代真实资格。自然证据不够仍保留 UNKNOWN/NOT_PROVEN，不借该补充修改指标/报告原格式。"
       ],
       "status": {
         "implementation": "NOT_RUN_PRODUCT",

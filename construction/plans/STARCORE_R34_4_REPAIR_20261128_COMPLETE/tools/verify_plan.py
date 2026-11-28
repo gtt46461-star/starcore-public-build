@@ -18,6 +18,9 @@ import sys
 import zipfile
 from pathlib import Path, PurePosixPath
 
+sys.dont_write_bytecode = True
+from plan_tool_safety import fresh_output, write_fresh_text
+
 
 class VerificationError(Exception):
     pass
@@ -411,7 +414,11 @@ class Verifier:
 
     def check_patchset(self):
         data = self.read("PATCHSET.json")
-        require(isinstance(data, (dict, list)), "PATCHSET must be object/list")
+        require(isinstance(data, dict) and data.get("schema") == "STARCORE_R344_CANDIDATES_1",
+                "wrong complete candidate catalog schema")
+        require(isinstance(data.get("patches"), list) and len(data["patches"]) == 5
+                and {row.get("id") for row in data["patches"]} == {"C01", "C02", "C03", "C04", "C05"},
+                "complete publication requires all five unique candidates")
         checked = []
 
         if isinstance(data, dict) and "base_source_commit" in data:
@@ -424,6 +431,9 @@ class Verifier:
             issues = {row["id"]: row for row in self.issues}
             anchors = {row["path"]: row for row in self.anchors}
             for row in rows:
+                require(all(key in row for key in ("id", "issue", "batch", "path", "sha256", "files"))
+                        and isinstance(row["files"], list) and row["files"],
+                        "candidate entry lacks required identity or file scope")
                 if "issue" in row:
                     require(row["issue"] in issues, "candidate references unknown issue")
                     if "batch" in row:
@@ -461,6 +471,11 @@ class Verifier:
 
     def check_manifest(self):
         data = self.read("MANIFEST.json")
+        seal = inside(self.root, "MANIFEST.sha256").read_text(encoding="utf-8")
+        match = re.fullmatch(r"([a-f0-9]{64})  MANIFEST\.json\n?", seal)
+        require(match is not None, "missing/malformed MANIFEST.sha256 seal")
+        require(hash_file(inside(self.root, "MANIFEST.json"))[1] == match.group(1),
+                "MANIFEST.sha256 seal mismatch")
         rows, exclusions = data["files"], data.get("exclude", data.get("excludes", []))
         require(isinstance(exclusions, list) and all(isinstance(x, str) for x in exclusions),
                 "manifest exclude must be a list of relative strings/patterns")
@@ -495,13 +510,14 @@ class Verifier:
             if (self.root / name).is_file():
                 self.run_check(name, function, "OPTIONAL_PACKAGE")
             else:
-                self.record(name, "NOT_RUN", "OPTIONAL_PACKAGE", reason="OPTIONAL_FILE_NOT_PRESENT")
+                self.record(name, "FAIL", "OPTIONAL_PACKAGE", reason="REQUIRED_DISTRIBUTION_FILE_MISSING")
         failures = [x for x in self.checks if x["status"] == "FAIL"]
         plan_pass = all(x["status"] == "PASS" for x in self.checks if x["category"] == "PLAN")
         source_result = next(x["status"] for x in self.checks if x["category"] == "SOURCE")
         return {"schema": "STARCORE_R344_READ_ONLY_PLAN_VERIFICATION_1",
                 "verification_pass": not failures, "plan_integrity_pass": plan_pass,
                 "source_verification": source_result,
+                "required_package_files": ["PATCHSET.json", "MANIFEST.json"],
                 "optional_package_checks_not_run": [x["check"] for x in self.checks
                                                     if x["category"] == "OPTIONAL_PACKAGE" and x["status"] == "NOT_RUN"],
                 "product_acceptance": "NOT_RUN_NOT_IMPLIED_BY_PLAN_PASS",
@@ -517,23 +533,12 @@ def main():
                         help="Optional exact 211 baseline checkout; modified or incomplete trees fail source verification.")
     parser.add_argument("--output", type=Path, help="Optional JSON result; otherwise print JSON to stdout.")
     args = parser.parse_args()
+    protected_roots = [args.plan_root, args.source_root]
+    output = fresh_output(args.output, protected_roots) if args.output else None
     result = Verifier(args.plan_root, args.source_root).run()
     text = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
-    if args.output:
-        output = args.output.resolve()
-        plan_validation = args.plan_root.resolve() / "validation"
-        require(not args.source_root or not output.is_relative_to(args.source_root.resolve())
-                or output.is_relative_to(plan_validation),
-                "output inside the source checkout must use the plan validation directory")
-        if output.is_relative_to(args.plan_root.resolve()):
-            relative = output.relative_to(args.plan_root.resolve()).as_posix()
-            require(relative not in {"PLAN_IDENTITY.json", "ISSUES.json", "BATCHES.json", "ALIAS_MAP.json",
-                                     "SOURCE_ANCHORS.json", "PATCHSET.json", "MANIFEST.json"}
-                    and not relative.startswith(("issues/", "batches/", "contracts/", "coverage/", "inheritance/",
-                                                 "evidence/", "candidates/", "tools/")),
-                    "output must not overwrite plan inputs; use a validation result path")
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(text, encoding="utf-8")
+    if output:
+        write_fresh_text(output, text, protected_roots)
     else:
         sys.stdout.write(text)
     return 0 if result["verification_pass"] else 1
@@ -542,6 +547,6 @@ def main():
 if __name__ == "__main__":
     try:
         sys.exit(main())
-    except (OSError, VerificationError) as error:
+    except (OSError, ValueError, VerificationError) as error:
         print("verify_plan: " + str(error), file=sys.stderr)
         sys.exit(2)

@@ -1,0 +1,280 @@
+{
+  "schema": "R344_SECOND_COVERAGE_AMENDMENTS_1",
+  "reviewed_publication_commit": "7947177eb26a5508e8c34c1159cb179ccbe15a89",
+  "application_source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "status": "PROPOSED_PLAN_ONLY_NO_PUBLICATION_OR_APP_MUTATION",
+  "confirmed_finding_id": "CV2-01",
+  "issues": [
+    {
+      "issue_id": "R344-038",
+      "origin_id": "CV06",
+      "repair_replace": [
+        {
+          "old": "先恢复合法dataset，再逐20类型按dependency/维度/source/revision生产；有学生需求的类型保持明确等待。",
+          "new": "保留原20个注册ID，按18个普通R930 typed、1个R930:COUNTERFACTUAL配对反事实、1个SU2因子/教师checkpoint分路施工和签收；MatrixResearchR30R1.step只负责前18项，不扩成20项统一生产器。前18项先核合法dataset、source/revision及各自SOURCE_ONLY/STUDENT/EVIDENCE输入；某项缺输入只等待该项，保持既有轮转。"
+        }
+      ],
+      "repair_append": [
+        "R930:COUNTERFACTUAL沿ResearchStudyTaskR30R1.step→PairedReplayRunnerR30R1的RETRAIN_REMOVED完成→ResearchStoreR30R1.paired→MatrixTensorR30R1.append；保留原同语义counterfactual、已完成配对研究和实际block条件。MASK_FROZEN只读研究结果不得顶替这条生产路径，不能由普通MatrixResearch伪造反事实矩阵。",
+        "SU2:LEARNED_FACTOR_TEACHER_CHECKPOINT沿LegacyGenerationR26.compute/stepOwned的原固定snapshot与campaign完成条件取得F15 committee→MatrixSnapshotSU2.capture→MatrixStoreSU2.prepareR31→ModelPublicationR31.stageAndPublish/ModelStoreSU2.projectPreparedR31→MatrixStoreSU2.projectPreparedR31，提交后才markAvailable；消费沿MatrixStoreSU2.maintain与MatrixSnapshotSU2.support读取同genome/checkpoint的已冻结action。不得用r27-matrices-r1的分类观察冒充该SU2路径的真实owner或阻断原因。",
+        "保持MatrixTensorR30R1.append已有同一ResearchWriteQueue.Batch的analysis_run、research_measure及research_matrix_snapshot_r930三处原件桥接。ReportSnapshotR30/ReportObjectIndexR30已有native计数能读该桥接；本次不以“typed只写measure导致索引恒0”为理由改投影、重建表或补造行。验收分别核19个R930与1个SU2及其来源，不把retainedCount改成质量或当前source通过。",
+        "在M25和B08实际执行记录为每个原ID留producer、consumer、输入/role/source/revision、artifact hash、提交/读回范围和独立结果；18+1+1不能只填注册数量20。需要后续合法action或真实样本的消费保留WAITING/PENDING，工程正反例可独立完成，不增加B08等待B09自然资格的全局门。"
+      ],
+      "acceptance_append": [
+        "M25三路正反例：18普通R930按原dependency逐项生产或明确等待；COUNTERFACTUAL仅在RETRAIN_REMOVED实际完成且原blocks条件满足后出现；SU2仅在其原campaign完成且有合法F15 committee时形成checkpoint。缺source/学生/committee的状态逐路明确，某路不足不阻其它可运行路。",
+        "COUNTERFACTUAL负例：未完成runner、MASK_FROZEN、错parent/child或source revision不得成为已生产的正式反事实矩阵；合法已完成配对的原hash、block支持、角色、时间边界逐键读回。",
+        "SU2正反例核genome_key+checkpoint_sequence、原factors/state与提交后available_at；重复publication幂等。maintain只按同genome的已冻结act=1且hit非空的原action有界前进，无action不补计消费；缺history保留__MISSING_SOURCE/解释级状态，source generation变化不得错误推进。",
+        "R930合法typed提交后analysis_run、research_measure和research_matrix_snapshot_r930三处原hash/role/revision一致且ReportObjectIndex可读回；故障发生在提交前不得留下单边已生产，重复提交不增造原件；原native矩阵与R952历史记录保持原作用及身份。",
+        "每个20原ID独立产出M25工程/现场/质量分层结果；只有索引行、缓存或retainedCount不能签消费或有效。真实依赖不足可以保持PENDING且给具体下一动作，不将全部SU2/反事实/自然证据形成设为B09工程开工前置。"
+      ],
+      "preserve_append": [
+        "19个R930原ID加1个SU2原ID及既有native R930、SU2、R952各自来源；禁止新增第20个R930 kind替换SU2。",
+        "MatrixTensorR30R1.append的既有同事务三处原件桥接、ResearchStore.paired的真实counterfactual条件、SU2原campaign/committee/checkpoint与提交后可见规则。"
+      ],
+      "source_files_append": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+      ],
+      "source_scope": "增补生产/消费及保全定位；不是要求重写每个既有文件。先按实际可达路验证，只对确认缺陷作窄改动。"
+    }
+  ],
+  "batches": [
+    {
+      "batch_id": "B08",
+      "steps_replace": [
+        {
+          "old": "按20矩阵的ABI与consumer接线，旧R952 snapshot50/feedback48独立保全。",
+          "new": "按20个原矩阵ID的18普通R930+1配对COUNTERFACTUAL+1SU2 checkpoint三路producer/consumer接线并读回；保留MatrixTensor已有同事务native桥接、SU2原发布链及旧R952 snapshot50/feedback48。"
+        }
+      ],
+      "engineering_gate_append": "20矩阵逐路实际依赖和消费原件分别记账，缺后续合法action或自然样本可PENDING，不新增B08依赖B09自然结果的环。"
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "M25",
+      "required_current_proof_replace": "按原20 ID分别记录18个普通R930 typed、1个ResearchStore.paired COUNTERFACTUAL、1个LegacyGeneration SU2 checkpoint的producer→consumer→report读回原件。保留MatrixTensor已有同事务analysis/measure/native桥接；逐键验证role/source/revision/hash/schema/watermark，SU2另验genome/checkpoint和提交后可见及原冻结action消费。记录输入不足、未消费、历史原件和当前原件的不同状态；注册20、缓存存在或统一r27-matrices-r1观察均不能代替三路运行证据。",
+      "source_files_append": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+      ],
+      "issues_unchanged": [
+        "R344-038",
+        "R344-029"
+      ],
+      "original_definition_unchanged": true
+    }
+  ],
+  "coverage_contract": {
+    "suggested_path": "coverage/MATRIX_20_EXECUTION_CONTRACTS.json",
+    "schema": "R344_MATRIX_20_EXECUTION_CONTRACTS_1",
+    "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+    "original_object_ids_unchanged": true,
+    "routes": [
+      {
+        "route_id": "R930_TYPED_18",
+        "object_ids": [
+          "R930:EVIDENCE_TEACHER",
+          "R930:STUDENT_ERROR",
+          "R930:FORWARD_REASONING",
+          "R930:REVERSE_REASONING",
+          "R930:FEEDBACK",
+          "R930:CONTRADICTION",
+          "R930:TEACHER_DIVERSITY",
+          "R930:TEMPORAL_PRECEDENCE",
+          "R930:INVARIANCE",
+          "R930:CAUSAL_SUPPORT",
+          "R930:COUNTER_EVIDENCE",
+          "R930:RESIDUAL_MECHANISM",
+          "R930:NUMBER_POSITION_COMPATIBILITY",
+          "R930:CROSS_POSITION_FLOW",
+          "R930:ACTION_UTILITY",
+          "R930:ALGORITHM_COMPLEMENTARITY",
+          "R930:EVOLUTION_CREDIT",
+          "R930:RESOURCE_EFFICIENCY"
+        ],
+        "producer": [
+          "RuntimeR27.MatrixProductionTask",
+          "MatrixResearchR30R1.step/produceR31/build",
+          "MatrixTensorR30R1.append"
+        ],
+        "consumer": "MatrixRegistryR30.typedConsumers(kind)指定的既有consumer；按角色、原source、ABI和输入实际激活",
+        "input_gate": "原合法不可变SELECT/research输入与revision；SOURCE_ONLY、STUDENT、EVIDENCE各自门禁；不等待另一类型缺件",
+        "artifact_store": [
+          "r30r1_analysis_run",
+          "r30r1_research_measure:MATRIX_<kind>",
+          "research_matrix_snapshot_r930"
+        ],
+        "reader": [
+          "ReportSnapshotR30.matrixObjectIndex",
+          "ReportObjectIndexR30.build"
+        ],
+        "source_evidence": [
+          "MatrixResearchR30R1.java:141-180",
+          "MatrixTensorR30R1.java:47-53",
+          "MatrixRegistryR30.java:22"
+        ],
+        "acceptance_owner": "R344-038 / B08；上游输入按B05/B07原卡；B10只收原件"
+      },
+      {
+        "route_id": "R930_COUNTERFACTUAL_1",
+        "object_ids": [
+          "R930:COUNTERFACTUAL"
+        ],
+        "producer": [
+          "ResearchStudyTaskR30R1.step",
+          "PairedReplayRunnerR30R1.RETRAIN_REMOVED",
+          "ResearchStoreR30R1.paired",
+          "MatrixTensorR30R1.append"
+        ],
+        "consumer": [
+          "ResearchStoreR30R1.ready/consume",
+          "既有R06与真实测得child/建议消费链"
+        ],
+        "input_gate": "实际同语义counterfactual配对；runner.complete；原1..64实际blocks条件；MASK_FROZEN不代替",
+        "artifact_store": [
+          "r30r1_analysis_run",
+          "r30r1_research_measure",
+          "research_matrix_snapshot_r930",
+          "r27_chart_cache:panel_id=matrix-r30-r1,key=COUNTERFACTUAL"
+        ],
+        "reader": [
+          "ReportSnapshotR30.matrixObjectIndex",
+          "ReportObjectIndexR30.build",
+          "R06原frame读取"
+        ],
+        "source_evidence": [
+          "ResearchStudyTaskR30R1.java:51-66",
+          "ResearchStoreR30R1.java:80-92",
+          "MatrixResearchR30R1.java:144-145"
+        ],
+        "acceptance_owner": "R344-038与R344-036/R344-037 / B08"
+      },
+      {
+        "route_id": "SU2_CHECKPOINT_1",
+        "object_ids": [
+          "SU2:LEARNED_FACTOR_TEACHER_CHECKPOINT"
+        ],
+        "producer": [
+          "LegacyGenerationR26.compute/stepOwned",
+          "MatrixSnapshotSU2.capture",
+          "MatrixStoreSU2.prepareR31",
+          "ModelPublicationR31.stageAndPublish",
+          "ModelStoreSU2.projectPreparedR31",
+          "MatrixStoreSU2.projectPreparedR31/markAvailable"
+        ],
+        "consumer": [
+          "MatrixStoreSU2.maintain",
+          "MatrixSnapshotSU2.support"
+        ],
+        "input_gate": "原固定snapshot/campaign完成与F15 committee；原source/ABI/fence/CAS；已冻结同genome的合法动作作为消费输入",
+        "artifact_store": [
+          "su2_matrix_snapshot",
+          "su2_live_decision",
+          "原ModelPublication载荷与checkpoint引用"
+        ],
+        "reader": [
+          "MatrixStoreSU2.report",
+          "ReportSnapshotR30.su2MatrixRows",
+          "ReportObjectIndexR30.build"
+        ],
+        "source_evidence": [
+          "LegacyGenerationR26.java:65-87,101",
+          "MatrixSnapshotSU2.java:41-66",
+          "MatrixStoreSU2.java:21-25,32-65",
+          "ModelStoreSU2.java:68-81"
+        ],
+        "acceptance_owner": "R344-038 / B08；原root/输入保护仍按B05，真实消费缺输入只保持该路PENDING"
+      }
+    ],
+    "original_report_preserved": true,
+    "original_owner_observation_caveat": "FULL_REPORT_COVERAGE的matrix owner_observations是原报告分类观察；SU2不因被标记r27-matrices-r1而改用MatrixResearch作为实际producer。保留原观察，另叠加经源码核实的当前执行合同。"
+  },
+  "source_anchors_append": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+      "sha256": "67fac1464516e3b3a65697f15aa82fb556707d68fa03e551e955aea5a9869145",
+      "bytes": 8252,
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "read_url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+      "local_file": "audit/second_coverage_sources_211/MatrixTensorR30R1.java",
+      "verification": "FETCHED_BYTES_MATCH_PRESERVED_1407_BASELINE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+      "sha256": "ae6c9aa19aff3a66d97df34d2eed4ac929b2c0a7db91d255e1803c6280ad754b",
+      "bytes": 20135,
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "read_url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+      "local_file": "audit/second_coverage_sources_211/LegacyGenerationR26.java",
+      "verification": "FETCHED_BYTES_MATCH_PRESERVED_1407_BASELINE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+      "sha256": "fad6ea58922c483f088aba0e8398bfa57d8dd5ffbc7580db1473b4d1197133fc",
+      "bytes": 10984,
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "read_url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+      "local_file": "audit/second_coverage_sources_211/MatrixSnapshotSU2.java",
+      "verification": "FETCHED_BYTES_MATCH_PRESERVED_1407_BASELINE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java",
+      "sha256": "5059bef0754e177fae76efcdd65f342ce4a1b2c8e336ea9c40c29b5592bb1f80",
+      "bytes": 13581,
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "read_url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java",
+      "local_file": "audit/second_coverage_sources_211/MatrixStoreSU2.java",
+      "verification": "FETCHED_BYTES_MATCH_PRESERVED_1407_BASELINE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+      "sha256": "fbe0d2073681337507713aad1d903269820dae1ecfc8fb531806569609c234d2",
+      "bytes": 14420,
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "read_url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+      "local_file": "audit/second_coverage_sources_211/ModelStoreSU2.java",
+      "verification": "FETCHED_BYTES_MATCH_PRESERVED_1407_BASELINE"
+    }
+  ],
+  "source_evidence_receipt": "audit/second_coverage_sources_211/SOURCE_RECEIPT.json",
+  "synchronization_targets": [
+    "ISSUES.json",
+    "issues/R344-038.md",
+    "ACCEPTANCE_MATRIX.json",
+    "BATCHES.json",
+    "batches/B08.md",
+    "coverage/METRIC_RESPONSIBILITY.json",
+    "coverage/README.md",
+    "SOURCE_ANCHORS.json",
+    "FILE_MODIFICATION_MATRIX.md",
+    "current plan identity/counts and final manifest generated by root"
+  ],
+  "do_not_change": [
+    "原50发现到46卡关系及原审计记录",
+    "原诊断ZIP、原报告字段与继承CSV",
+    "原1407 Java保全基线",
+    "20原矩阵ID及19 R930 + 1 SU2构成",
+    "已有MatrixTensor同事务native桥接",
+    "原R952与SU2有效逻辑",
+    "B08工程/B09自然证据分层"
+  ],
+  "rejected_hypothesis": {
+    "claim": "typed矩阵只写r30r1_research_measure，ReportObjectIndex只读native表，因此producer恢复后索引必为0",
+    "status": "WITHDRAWN_DISPROVED",
+    "counterevidence": "MatrixTensorR30R1.append:50-53已经在同一Batch写analysis_run、research_measure和research_matrix_snapshot_r930。ReportSnapshotR30:287-292及ReportObjectIndexR30:31-35可读其原native桥接。",
+    "action": "禁止根据该已排除假设新增投影修复或重写原表。"
+  }
+}

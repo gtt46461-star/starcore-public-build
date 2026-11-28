@@ -1,6 +1,6 @@
 # STARCORE 最终施工入口
 
-当前完整方案为 **R34.4-211（2026-11-28）**。用户已授权全部资料上传，包括原始诊断、逐条审计、46项问题卡、12批和5组候选。
+当前完整方案为 **R34.4-211 修订2（2026-11-28）**。用户已授权全部资料上传，包括原始诊断、逐条审计、46项问题卡、12批和5组候选。
 
 [完整计划](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/README.md) · [可直接执行的完整施工提示词](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/CODEX_EXECUTE.md) · [B00构建交付附约](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/B00_EXECUTION_ADDENDUM.md) · [创造训练与反馈附约](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/CREATION_EXECUTION_ADDENDUM.md) · [原始完整包](construction/packages/STARCORE_R34_4_211_20261128/README.md)
 
@@ -15,3 +15,5 @@
 所有入口与附录见[CURRENT_FINAL_PLAN.md](CURRENT_FINAL_PLAN.md)。保留旧验收与成熟能力，精确补丁按before/after哈希串行施工；APK继续R34.2系列并绑定field173计划。
 
 该轮10组67步64文件，补齐构建语义身份、滚动等待/回收和逐指标职责；完成方案、补丁准备和24条主机命令范围内的验证；实际应用施工、Android、设备长稳和自然质量分别验收，不假报软件完工。
+
+修订2补漏与实际验证见[REVISION_2.md](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/REVISION_2.md)；原136锚扩展到152锚，原报告、五候选和1407基线保留。

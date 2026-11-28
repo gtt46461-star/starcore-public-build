@@ -1,0 +1,603 @@
+{
+  "schema": "R344_SECOND_COVERAGE_MERGE_CHECK_1",
+  "status": "PASS",
+  "application_source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "baseline_publication_commit": "7947177eb26a5508e8c34c1159cb179ccbe15a89",
+  "scope": "只读核CV2-01合入与46卡当前条款在JSON/卡/ACCEPTANCE之间的同步；不扩源码缺陷审计，不重跑原封包、全链接或产品测试。",
+  "findings": [],
+  "checks": [
+    {
+      "id": "MC01_ALL_CURRENT_ISSUE_TEXT_SYNC",
+      "status": "PASS",
+      "details": "逐条核46卡当前preserve/repair/acceptance、工单正文、ACCEPTANCE preservation/acceptance及源码路径；不是只核卡数。"
+    },
+    {
+      "id": "MC02_038_REQUESTED_ADDITIONS",
+      "status": "PASS",
+      "details": {
+        "repair": [],
+        "acceptance": [],
+        "preserve": [],
+        "source_files": []
+      }
+    },
+    {
+      "id": "MC03_038_REPLACEMENT",
+      "status": "PASS",
+      "details": "18+1+1替换进入当前repair；旧统一20路径措辞不再作为当前施工条目。"
+    },
+    {
+      "id": "MC04_MATRIX_CONTRACT_FAITHFUL",
+      "status": "PASS",
+      "details": {
+        "different_fields": [],
+        "missing_fields": []
+      }
+    },
+    {
+      "id": "MC05_ORIGINAL_20_IDS",
+      "status": "PASS",
+      "details": {
+        "missing": [],
+        "extra": [],
+        "route_sizes": {
+          "R930_TYPED_18": 18,
+          "R930_COUNTERFACTUAL_1": 1,
+          "SU2_CHECKPOINT_1": 1
+        }
+      }
+    },
+    {
+      "id": "MC06_ORIGINAL_FULL_COVERAGE_PRESERVED",
+      "status": "PASS",
+      "details": "原FULL_REPORT_COVERAGE语义不变；SU2旧分类观察由新执行合同解释而非改写。"
+    },
+    {
+      "id": "MC07_M25_PROOF_AND_SOURCES",
+      "status": "PASS",
+      "details": "三路producer→consumer→report、原hash/role/revision、SU2提交后可见/冻结动作及非注册数量验收进入M25。"
+    },
+    {
+      "id": "MC08_M25_ORIGINAL_DEFINITION",
+      "status": "PASS",
+      "details": "原M25定义、target、role、minimumSample未改成新的通过口径。"
+    },
+    {
+      "id": "MC09_B08_CONTRACT_SYNC",
+      "status": "PASS",
+      "details": "B08步骤与工程退出均同步；没有要求B09自然证据先齐。"
+    },
+    {
+      "id": "MC10_FIVE_NEW_211_ANCHORS",
+      "status": "PASS",
+      "details": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+          "status": "PASS",
+          "sha256": "67fac1464516e3b3a65697f15aa82fb556707d68fa03e551e955aea5a9869145",
+          "bytes": 8252,
+          "reference": "audit/second_coverage_sources_211/SOURCE_RECEIPT.json"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+          "status": "PASS",
+          "sha256": "ae6c9aa19aff3a66d97df34d2eed4ac929b2c0a7db91d255e1803c6280ad754b",
+          "bytes": 20135,
+          "reference": "audit/second_coverage_sources_211/SOURCE_RECEIPT.json"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+          "status": "PASS",
+          "sha256": "fad6ea58922c483f088aba0e8398bfa57d8dd5ffbc7580db1473b4d1197133fc",
+          "bytes": 10984,
+          "reference": "audit/second_coverage_sources_211/SOURCE_RECEIPT.json"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java",
+          "status": "PASS",
+          "sha256": "5059bef0754e177fae76efcdd65f342ce4a1b2c8e336ea9c40c29b5592bb1f80",
+          "bytes": 13581,
+          "reference": "audit/second_coverage_sources_211/SOURCE_RECEIPT.json"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+          "status": "PASS",
+          "sha256": "fbe0d2073681337507713aad1d903269820dae1ecfc8fb531806569609c234d2",
+          "bytes": 14420,
+          "reference": "audit/second_coverage_sources_211/SOURCE_RECEIPT.json"
+        }
+      ]
+    },
+    {
+      "id": "MC11_EXISTING_ANCHORS_ASSOCIATED",
+      "status": "PASS",
+      "details": {
+        "required_associations": [
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixTensorR30R1.java",
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixStoreSU2.java",
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+          "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+        ]
+      }
+    },
+    {
+      "id": "MC12_FILE_MATRIX_SCOPE",
+      "status": "PASS",
+      "details": "新源锚用于已有owner核验及必要窄修；不是整文件重写任务。"
+    },
+    {
+      "id": "MC13_EXACT_SOURCE_CONTRACT_EVIDENCE",
+      "status": "PASS",
+      "details": {
+        "matrix_task_excludes_counterfactual": true,
+        "paired_matrix_has_original_block_gate": true,
+        "study_only_completed_retrain_publishes": true,
+        "su2_produced_at_finished_f15": true,
+        "su2_actual_frozen_action_consumer": true,
+        "existing_native_bridge": true,
+        "existing_analysis_measure_bridge": true
+      }
+    },
+    {
+      "id": "MC14_NATIVE_BRIDGE_PRESERVATION",
+      "status": "PASS",
+      "details": "已反证的索引恒0假设未重开；已有桥接已成为显式保全合同。"
+    },
+    {
+      "id": "MC15_COVERAGE_ENTRY",
+      "status": "PASS",
+      "details": "只核本轮新增合同入口，未重跑369个历史相对链接。"
+    },
+    {
+      "id": "MC16_PRODUCT_PENDING_STATUS",
+      "status": "PASS",
+      "details": {
+        "issue_statuses": [
+          "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING"
+        ],
+        "expected_acceptance_status": {
+          "implementation": "NOT_RUN_PRODUCT",
+          "android_migration": "NOT_RUN",
+          "field_runtime": "NOT_RUN",
+          "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+        }
+      }
+    }
+  ],
+  "card_sync_results": [
+    {
+      "issue_id": "R344-001",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-002",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-003",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-004",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-005",
+      "added_or_revised_clauses": 3,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-006",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-007",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-008",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-009",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-010",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-011",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-012",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-013",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-014",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-015",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-016",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-017",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-018",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-019",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-020",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-021",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-022",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-023",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-024",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-025",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-026",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-027",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-028",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-029",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-030",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-031",
+      "added_or_revised_clauses": 4,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-032",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-033",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-034",
+      "added_or_revised_clauses": 5,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-035",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-036",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-037",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-038",
+      "added_or_revised_clauses": 12,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-039",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-040",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-041",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-042",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-043",
+      "added_or_revised_clauses": 8,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-044",
+      "added_or_revised_clauses": 3,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-045",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    },
+    {
+      "issue_id": "R344-046",
+      "added_or_revised_clauses": 0,
+      "card_clauses_missing": [],
+      "acceptance_matrix_mismatches": [],
+      "superseded_clauses_still_in_card": [],
+      "source_path_missing": [],
+      "status": "PASS"
+    }
+  ],
+  "new_clause_summary": {
+    "changed_cards": [
+      "R344-005",
+      "R344-031",
+      "R344-034",
+      "R344-038",
+      "R344-043",
+      "R344-044"
+    ],
+    "added_or_revised_clauses": 35,
+    "scope": "相对于封板7947177的当前preserve/repair/acceptance新增或替换文本；不是新问题数量。"
+  },
+  "source_boundary": "根据已有13个精确211源码证据核合同及本审计5个新增锚。没有宣称重核另11个strategy新锚或完整152/1407源码树；其语义由strategy独立负责。",
+  "native_bridge_rejected_hypothesis": "确认已有三处同Batch桥接；原索引恒0假设继续撤回，保护条款已同步。",
+  "mutations": "只生成本审阅脚本及JSON；publication、应用、远端未改。",
+  "product_validation": "NOT_RUN_PRODUCT"
+}

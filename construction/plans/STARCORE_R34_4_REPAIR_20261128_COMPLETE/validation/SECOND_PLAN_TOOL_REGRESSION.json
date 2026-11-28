@@ -1,0 +1,114 @@
+{
+  "schema": "STARCORE_R344_PLAN_TOOL_REGRESSION_1",
+  "scope": "PLAN_TOOL_IO_AND_REAL_CANDIDATE_APPLICATION_ONLY",
+  "tests": [
+    {
+      "case": "clean_complete_materialized_plan",
+      "status": "PASS"
+    },
+    {
+      "case": "five_real_candidates_and_source_preserved",
+      "status": "PASS",
+      "declared_files": 7
+    },
+    {
+      "case": "candidate_output_inside_source",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "candidate_output_inside_plan",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "verifier_output_inside_plan",
+      "status": "PASS",
+      "observed_exit": 2
+    },
+    {
+      "case": "verifier_output_inside_source",
+      "status": "PASS",
+      "observed_exit": 2
+    },
+    {
+      "case": "existing_result_not_overwritten",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "symlink_result_not_followed",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "corrupt_patch_hash_normal",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "corrupt_patch_hash_optimized",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "empty_candidate_catalog",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "missing_mandatory_distribution_files",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "wrong_manifest_seal",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "corrupt_report_hash_normal",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "corrupt_report_hash_optimized",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "valid_report_optimized_mode_and_56_payload_readback",
+      "status": "PASS"
+    },
+    {
+      "case": "existing_extraction_directory_preserved",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "extraction_inside_frozen_plan",
+      "status": "PASS",
+      "observed_exit": 1
+    },
+    {
+      "case": "no_bytecode_or_source_pollution",
+      "status": "PASS"
+    }
+  ],
+  "passed": 19,
+  "failed": 0,
+  "tested_manifest_sha256": "1f9d1db3470d0400128e9f625a9675905bb695cfe2583d86b87c39df19238771",
+  "tool_sha256": {
+    "check_candidates.py": "1a999681376b088b0a05961f9253d003a6f734c4f350eefc9b4c2d78630391b9",
+    "unpack_report.py": "0d43a0927f9f2daa6ab0d90edf9c27c1cc8fb7d0660dfcd568043352c2a3858b",
+    "verify_plan.py": "74d31b24ee5624ac59157f281e4e53af854c1149d8c2258206eed0e5788d7399",
+    "plan_tool_safety.py": "1fae57fe14ed1f52ca9a4cef9020ef9df2826ee6dc6a2476e221edcc5349ba8d",
+    "test_plan_tools.py": "7015ce2e6205f19c5b76033afe947c807e37e71506007f4aa1f5cacb78fa8821"
+  },
+  "candidate_preimage_files": 6,
+  "full_application_baseline": "NOT_IMPLIED_BY_CANDIDATE_PREIMAGES",
+  "android_build": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "original_inputs_changed": false
+}

@@ -1,0 +1,694 @@
+{
+  "schema": "STARCORE_SECOND_STRATEGY_AMENDMENTS_1",
+  "reviewed_plan_commit": "7947177eb26a5508e8c34c1159cb179ccbe15a89",
+  "application_source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "scope": "Only R031/R034/R043/R044, exact contract paragraphs, and B06/B09 descriptive fields; no application change/new owners/DAG edge change.",
+  "reason_ids": [
+    "S2-ST01",
+    "S2-ST02",
+    "S2-ST03"
+  ],
+  "field_changes": [
+    {
+      "issue_id": "R344-031",
+      "field": "source_files",
+      "before": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java"
+      ],
+      "after": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-031",
+      "field": "preserve",
+      "before": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度"
+      ],
+      "after": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
+        "保留已存在的首次 FREEZE_CANDIDATE owner、R967 冻结评价注册与同 artifact 幂等身份；首次开发冻结和 R343_ROLLING_FREEZE 是两条已有路径，不另建发布者。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-031",
+      "field": "repair",
+      "before": [
+        "先证明各轮转层准入/预算/claim/prepare/commit状态；完成现有PENDING而非再造owner",
+        "将 M20 的现代开发训练恢复验收纳入本工单：沿 DevelopmentTrainerCP9.checkpoint/restore、ResearchTrainingHookRegistryR952.prepareNumericsCP9 和原 DevelopmentProductionCP12 提交链，校验权重、优化器、PRNG、normalizer、phase/row/epoch、未提交 batch、树搜索中间态及验证 tape。保留原 protocol/input/shape/rows hash 与 lease/generation CAS。这里先定位与验证已有实现，不预设 checkpoint 算法须重写。",
+        "先推进已有attempt0 successor，并在六槽/五子槽保留预算、claim、prepare、admission和真实cursor阶段证据；不新增调度owner。",
+        "新增明确开发bootstrap入口合同：现有RuntimeCoordinator→continuity lane13→Director IMPORT/TRAIN可在无REAL、无证书、无predraw/无COMPLETED结算时运行；基础家族只要求其实际合法canonical历史、已验证catalog与资源预算。",
+        "所有旧pin/checkpoint/误终止原件不可恢复时，旧对象继续hold；现有基础工厂用未用过合法variant/新输入创建独立n=0候选，不清旧游标重新计数。至少验证一个无需teacher的学习内核。"
+      ],
+      "after": [
+        "先证明各轮转层准入/预算/claim/prepare/commit状态；完成现有PENDING而非再造owner",
+        "将 M20 的现代开发训练恢复验收纳入本工单：沿 DevelopmentTrainerCP9.checkpoint/restore、ResearchTrainingHookRegistryR952.prepareNumericsCP9 和原 DevelopmentProductionCP12 提交链，校验权重、优化器、PRNG、normalizer、phase/row/epoch、未提交 batch、树搜索中间态及验证 tape。保留原 protocol/input/shape/rows hash 与 lease/generation CAS。这里先定位与验证已有实现，不预设 checkpoint 算法须重写。",
+        "先推进已有attempt0 successor，并在六槽/五子槽保留预算、claim、prepare、admission和真实cursor阶段证据；不新增调度owner。",
+        "新增明确开发bootstrap入口合同：现有RuntimeCoordinator→continuity lane13→Director IMPORT/TRAIN可在无REAL、无证书、无predraw/无COMPLETED结算时运行；基础家族只要求其实际合法canonical历史、已验证catalog与资源预算。",
+        "所有旧pin/checkpoint/误终止原件不可恢复时，旧对象继续hold；现有基础工厂用未用过合法variant/新输入创建独立n=0候选，不清旧游标重新计数。至少验证一个无需teacher的学习内核。",
+        "开发 receipt/artifact 完成后，沿原 FREEZE_CANDIDATE 子槽调用 FrozenCandidateAdapterR958.prepareDevelopmentFreezeCP8/commitDevelopmentFreezeCP8，再由 ResearchEvaluationRunR967.registerDevelopmentCP8 实际登记不可变评价对象；不能以 FREEZE 入队替代冻结提交。自身原件、目标期、cutoff 与 lease 仍逐项校验；不添加 rolling event/version、REAL 或证书前置。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-031",
+      "field": "acceptance",
+      "before": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
+        "REAL=0、certificate=0、旧期全NO_PREDRAW_CANONICAL_TERMINAL且有足够可信历史时，原IMPORT/TRAIN仍可完成独立开发模型；rolling_event允许0，不造COMPLETED。",
+        "同一冻结 dataset/protocol/seed 在 NORMALIZER、TRAIN、TREE_QUANTILES/TREE_SCAN（相应内核）、VALIDATE 的可达边界中断恢复，与连续运行比较完整状态、optimizerSteps、选定 epoch、预测 tape 和终态 model hash；FIXED_GRAPH 保留真实前向/tape，不强求梯度步。错误 input/protocol/shape/hash/截断 checkpoint 必须拒绝，重放提交不重复学习。",
+        "REAL=0、certificate=0、全部结算为NO_PREDRAW_CANONICAL_TERMINAL，但具足量合法历史和catalog：独立fixed graph与一个learned kernel可完成开发receipt；rolling_event继续0且不伪造COMPLETED。",
+        "给selected子槽不足预算，cursor不得跳过该待服务owner；下一足量slice推进同任务。FIXED_GRAPH验真实PIT前向/tape，learned kernel验实际optimizer/tree/model状态。",
+        "feature cursor/rows/hash→checkpoint phase→120验证tape→development receipt→artifact→FREEZE enqueue同身份闭合；恢复中断与不中断结果一致。"
+      ],
+      "after": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
+        "REAL=0、certificate=0、旧期全NO_PREDRAW_CANONICAL_TERMINAL且有足够可信历史时，原IMPORT/TRAIN仍可完成独立开发模型；rolling_event允许0，不造COMPLETED。",
+        "同一冻结 dataset/protocol/seed 在 NORMALIZER、TRAIN、TREE_QUANTILES/TREE_SCAN（相应内核）、VALIDATE 的可达边界中断恢复，与连续运行比较完整状态、optimizerSteps、选定 epoch、预测 tape 和终态 model hash；FIXED_GRAPH 保留真实前向/tape，不强求梯度步。错误 input/protocol/shape/hash/截断 checkpoint 必须拒绝，重放提交不重复学习。",
+        "REAL=0、certificate=0、全部结算为NO_PREDRAW_CANONICAL_TERMINAL，但具足量合法历史和catalog：独立fixed graph与一个learned kernel可完成开发receipt；rolling_event继续0且不伪造COMPLETED。",
+        "给selected子槽不足预算，cursor不得跳过该待服务owner；下一足量slice推进同任务。FIXED_GRAPH验真实PIT前向/tape，learned kernel验实际optimizer/tree/model状态。",
+        "feature cursor/rows/hash→checkpoint phase→120验证tape→development receipt→artifact→FREEZE enqueue同身份闭合；恢复中断与不中断结果一致。",
+        "在 REAL=0、certificate=0、rolling_event/version=0 的独立 DEV 正例中，给足合法原件与下一目标期后，实际完成一次 FREEZE_CANDIDATE 提交；r967_frozen_evaluation_v2 中出现同 learner/artifact/AST/model/input 的冻结对象及原生命周期状态。仅入队不算完成；采集容量尚未分配时可保持 FROZEN_WAIT_CAPTURE_CAPACITY，不将其伪报正式 Future 或 REAL。",
+        "同 artifact 的恢复/重放不得登记第二份不一致冻结；prepare 后目标期滚动，commit 按 FreezeTargetChangedCP8/原调度合同让出并在新合法边界重试，不能晚冻、改旧预测或将资源/目标变化误记统计失败。旧 lease 迟到不得越过 R967 owns/CAS。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-034",
+      "field": "source_files",
+      "before": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "after": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java"
+      ],
+      "reason_ids": [
+        "S2-ST03",
+        "S2-ST01"
+      ]
+    },
+    {
+      "issue_id": "R344-034",
+      "field": "preserve",
+      "before": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测"
+      ],
+      "after": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
+        "保留 ResearchTaskQueueR967 的进程身份、租约到期/回收与 generation/cursor CAS；正常重启恢复用新 lease 续同一任务，FAILED_TERMINAL 原任务的审计继任仍走原专门恢复合同。"
+      ],
+      "reason_ids": [
+        "S2-ST03",
+        "S2-ST01"
+      ]
+    },
+    {
+      "issue_id": "R344-034",
+      "field": "repair",
+      "before": [
+        "完成AST3开发模型/冻结后由现有TRAIN滚动owner消费真实结算",
+        "将 M20 的现代滚动训练恢复验收纳入本工单：RollingLearnerR343 的 FEATURES 与 TRAINING 阶段分别检验 prefix/cursor 与 checkpoint_hash/generation；恢复仍经 prepareNumericsCP9 与同一 DevelopmentTrainerCP9.restore，不以旧 R26 root 可恢复替代 rolling 原件可恢复，也不把所有旧 root 缺件作为全局停机条件。",
+        "rolling训练的可运行前置是自身开发receipt和真实COMPLETED结算来源；不存在必须先有REAL或证书的条件。首个development freeze与rolling训练按各自既有资格独立服务，不人为追加跨lane全局屏障。",
+        "无predraw导致NO_PREDRAW终态不能伪造rolling COMPLETED事件；此时独立开发训练由卡031继续，未来合法冻结与COMPLETED到达后自然接入rolling。"
+      ],
+      "after": [
+        "完成 AST3 开发模型与开发回执后，由既有 rolling TRAIN owner 按自身真实 COMPLETED 来源推进；首次 development freeze 按自己的条件并行，不把首次冻结或其未来窗口完成设为 rolling 训练前置。",
+        "将 M20 的现代滚动训练恢复验收纳入本工单：RollingLearnerR343 的 FEATURES 与 TRAINING 阶段分别检验 prefix/cursor 与 checkpoint_hash/generation；恢复仍经 prepareNumericsCP9 与同一 DevelopmentTrainerCP9.restore，不以旧 R26 root 可恢复替代 rolling 原件可恢复，也不把所有旧 root 缺件作为全局停机条件。",
+        "rolling训练的可运行前置是自身开发receipt和真实COMPLETED结算来源；不存在必须先有REAL或证书的条件。首个development freeze与rolling训练按各自既有资格独立服务，不人为追加跨lane全局屏障。",
+        "无predraw导致NO_PREDRAW终态不能伪造rolling COMPLETED事件；此时独立开发训练由卡031继续，未来合法冻结与COMPLETED到达后自然接入rolling。",
+        "明确正常中断恢复与过期 lease 拒绝是两组验收：新进程按原回收条件 claim 同 task/version 后续算；旧 lease 作为负例不能提交。不得为通过“重开仍同 lease”测试删除 PROCESS、单调到期或 generation/cursor 校验。"
+      ],
+      "reason_ids": [
+        "S2-ST03",
+        "S2-ST01"
+      ]
+    },
+    {
+      "issue_id": "R344-034",
+      "field": "acceptance",
+      "before": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
+        "在 FEATURES 与 TRAINING 阶段分别杀进程/重开并重复投递同 lease；cursor/prefix、checkpoint hash/generation CAS 保持一致，不多提交 optimizer step 或 outcome；开发模型与 rolling 模型各自独立验，不以一条历史 artifact 通过全链 M20。",
+        "无REAL但有合法COMPLETED来源和dev receipt时，rolling版本/头按真实标签推进；重复结算同receipt不二次学习，异hash同issue拒绝。",
+        "只有NO_PREDRAW、无COMPLETED时rolling不消费/不记假事件，但开发bootstrap仍工作；旧冻结模型/未来窗口不被学习头覆盖。",
+        "训练完成的new model/source epoch/cutoff/发布receipt可回读，缺绑定原件只hold对应版本而不隔离全部原策略。"
+      ],
+      "after": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
+        "在 FEATURES 与 TRAINING 阶段分别于 prepare 后、提交前、已提交后杀进程并重开；按原租约到期/回收条件由新进程重新 claim 同一非终止 task/version/protocol/input，获得新 lease owner 与递增 task generation，再从已提交 cursor/prefix/checkpoint 恢复。与连续执行比较实际 optimizerSteps、验证 tape、终态 model hash 和 outcome；已提交步不重复，未提交批次不跳过。开发模型与 rolling 模型分别验，不用一条历史 artifact 代表全链 M20。",
+        "另设旧 lease 迟到/重放负例：新进程 claim 后，旧 owner/generation/cursor 的 prepare/commit/complete 不能更新任务、模型、checkpoint、optimizer 计数或新租约；允许记录拒绝原件。区分 task lease generation 与 rolling version/checkpoint generation：按各自 CAS 检验已提交状态，合法新提交可以递增，不要求跨重启维持旧 lease 或把 generation 永久固定。",
+        "无REAL但有合法COMPLETED来源和dev receipt时，rolling版本/头按真实标签推进；重复结算同receipt不二次学习，异hash同issue拒绝。",
+        "只有NO_PREDRAW、无COMPLETED时rolling不消费/不记假事件，但开发bootstrap仍工作；旧冻结模型/未来窗口不被学习头覆盖。",
+        "训练完成的new model/source epoch/cutoff/发布receipt可回读，缺绑定原件只hold对应版本而不隔离全部原策略。"
+      ],
+      "reason_ids": [
+        "S2-ST03",
+        "S2-ST01"
+      ]
+    },
+    {
+      "issue_id": "R344-043",
+      "field": "source_files",
+      "before": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "after": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-043",
+      "field": "preserve",
+      "before": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率"
+      ],
+      "after": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
+        "并列保留 R27/V1 与 AST3/R958→R932→R929 的已有校准/资格链；不把 R27 minActs250 套给现代 CAL241，也不把现代 241 行当作 R27 资格证据。首次冻结、原始校准采集、校准质量通过、正式 Future 和主链授权是不同状态。",
+        "保留 R932 有界预约/容量、唯一 champion bundle 与 selector、事前截止、完整机会序列、不可变 quality/plan/lifetime、alpha/曝光、矩阵原件与 F05 exact scope；证书发布仍由原 R929 authority 提交，原唯一决策门决定是否 REAL。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-043",
+      "field": "repair",
+      "before": [
+        "按dev→独立confirm→真实Future→证书→主链恢复",
+        "Q05/M26/Q07 的生产责任包含 LiveShadowsR27 校准与 certify → CertificateGateR27.evaluate 原链：保留合法历史 fit、未来只读 validation、事前冻结及原 V1 资格门；证书 ACTIVE 仍须逐资产独立验证，报告支持数 200/1 均不改变原 minActs250 与 ECE≤0.04。",
+        "保持原确认/未来/证书/主链owner接线，当前资格工程验收只要求正负夹具证实原门禁正确；自然未达标可保持NOT_PROVEN，不阻断工程交付或后续持续训练。",
+        "主链自然消费现场验收需B04的真实赛前冻结/结算链可用；这作为明确runtime prerequisite，不以全部图表产出或所有旧root恢复替代。"
+      ],
+      "after": [
+        "按dev→独立confirm→真实Future→证书→主链恢复",
+        "Q05/M26/Q07 的生产责任包含 LiveShadowsR27 校准与 certify → CertificateGateR27.evaluate 原链：保留合法历史 fit、未来只读 validation、事前冻结及原 V1 资格门；证书 ACTIVE 仍须逐资产独立验证，报告支持数 200/1 均不改变原 minActs250 与 ECE≤0.04。",
+        "保持原确认/未来/证书/主链owner接线，当前资格工程验收只要求正负夹具证实原门禁正确；自然未达标可保持NOT_PROVEN，不阻断工程交付或后续持续训练。",
+        "主链自然消费现场验收需B04的真实赛前冻结/结算链可用；这作为明确runtime prerequisite，不以全部图表产出或所有旧root恢复替代。",
+        "补齐现有现代生产链：R031 的 R958/R967 冻结对象 → GlobalResearchScheduleR932.reserveUnscheduledFrozenCP11/dueReservationsCP11 → FrozenCandidateAdapterR958.captureReservedCP12/captureOneCP12 → CandidateCalibrationR932 原始 CAL 观察与校准模型 → FixedResearchWindowR932/ResearchGatePlanR967 的独立正式窗口 → FixedWindowCertificatePublisherR932/CertificateBundleServiceR929 → ResearchPlatformStoreR929.putCertificate → UnifiedResearchChoiceR932 → CertifiedPredictionR974 的 R958 分支。逐段核实际输入、输出、owner、准备/提交/回读；先保留并验证 211 已有实现，不再造这些 owner。",
+        "已就绪候选的原始 CAL 采集位于正式窗口门之前，只要求该采集自己的合法冻结、预约、当前 champion/selector、PIT/截止和资源条件；不得反向要求先有 CALIBRATION_QUALIFIED、正式 Future 或证书才能收集用于拟合的原始 CAL。前120、间隔1、后120共241个预先冻结观察按现有合同处理，前120内部沿原 FIT80/SELECT40/REFIT120 流程；FITTED 不等于 CALIBRATION_QUALIFIED。",
+        "现代正式窗口/签发沿各自固定 plan、calibration、lifetime、matrix proof、multiple-comparison/alpha 与 exact-scope 原规则复算。CP4 prepare 分支 n<360 的 AUDITED_NO_CERTIFICATE 保持，不能用 CAL241 或 R27 ACT 数代替该分支真实机会数。工程正负夹具与自然原件分账，不强求现场立即达标。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-043",
+      "field": "acceptance",
+      "before": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
+        "校准输入晚冻、缺开奖、身份漂移、错误 role/period、重复/冲突行、缺原校准器与不足资格 ACT 的负例不得签 ACTIVE；满足原条件的记录由原证书入口签发并可追溯、撤销。Q07 计数仅来自通过逐资产 Q01/Q03/Q04/Q05 审核的独立有效资产。",
+        "高开发分但无FUTURE、晚冻结、错model/calibration hash、旧证书移植、重复confirm/Future标签均拒绝；永久alpha index跨重启/新child不复用。",
+        "合格工程夹具只标ENGINEERING_PATH_VERIFIED；自然达标后必须出现同frozen/model/protocol/certificate的下一合法边界决策与精确结算引用。自然无达标时仍训练/影子且REAL=0，不伪造PASS。"
+      ],
+      "after": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
+        "校准输入晚冻、缺开奖、身份漂移、错误 role/period、重复/冲突行、缺原校准器与不足资格 ACT 的负例不得签 ACTIVE；满足原条件的记录由原证书入口签发并可追溯、撤销。Q07 计数仅来自通过逐资产 Q01/Q03/Q04/Q05 审核的独立有效资产。",
+        "高开发分但无FUTURE、晚冻结、错model/calibration hash、旧证书移植、重复confirm/Future标签均拒绝；永久alpha index跨重启/新child不复用。",
+        "合格工程夹具只标ENGINEERING_PATH_VERIFIED；自然达标后必须出现同frozen/model/protocol/certificate的下一合法边界决策与精确结算引用。自然无达标时仍训练/影子且REAL=0，不伪造PASS。",
+        "无 REAL、无 rolling event/version、无自然证书时，合法新冻结可在原预约容量和赛前条件下产出真实 raw CAL；容量不足明确等待。重复目标/错 bundle 或 selector/晚冻结/缺开奖/冲突身份不得伪增观察；正式窗口未就绪不得反向卡住其合法上游 raw CAL 采集。",
+        "现代校准对 candidate/frozen structure/model、bundle、selector、study 和 quality-policy 身份逐项回读，241条原始次序与120+1+120分割可复算；前120内部拟合/选择/重拟合照原实现。合格夹具形成 immutable CALIBRATION_QUALIFIED；仅有 FITTED、缺 quality 行、错 policy/hash、非法分割、未来标签混入拟合均不得作为资格通过。",
+        "至少一个隔离工程正例实际贯通正式窗口原件→原 publisher→R929 certificate/gates/history→UnifiedResearchChoice→R974 现代分支；同时测原矩阵/校准/alpha原件缺失、scope或model变更、撤销/过期证书、不同路径证书移植的拒绝。正例只记 ENGINEERING_PATH_VERIFIED；自然消费仍须真实独立样本与 B04 条件，不能把夹具写入自然 ledger 或造 REAL。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-044",
+      "field": "source_files",
+      "before": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "after": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-044",
+      "field": "preserve",
+      "before": [
+        "全部自然质量门槛",
+        "合成与自然来源隔离",
+        "失败轮与负结果"
+      ],
+      "after": [
+        "全部自然质量门槛",
+        "合成与自然来源隔离",
+        "失败轮与负结果",
+        "校准和资格指标保留路径/contract/consumer/scope 身份；R27 V1、现代 CAL241/CP4 及最终动作校准不得混算支持数、分母、校准器或质量结论。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-044",
+      "field": "repair",
+      "before": [
+        "先完成工程同池正负对照，再按当前施工source登记原完整工厂六臂×20种子=120轮（NULL_UNIFORM/NULL_TIME_SHUFFLED/SIGNAL/SIGNAL_DISABLED/DRIFT/GAPS）与功效区间。",
+        "保持自然FUTURE与合成完全分账，继续独立未来确认和正确预算。",
+        "Q01–Q08逐项按原规则报告真实不足，禁止补配额/选择好窗口。",
+        "Q05/M26 沿 LiveShadowsR27.calibrate → CalibrationRowsR27.fitRolling → CalibrationR30.evaluate 核原件与时间隔离；逐 evaluation 保留 fitThroughOrdinal、calibratorHash、冻结时钟、target/ACT 条件、排除原因和分母。先前序 H_SELECT fit 与 FUTURE 只读校验、EMBARGO=1、late/gap/conflict/duplicate 排除逻辑全部保留。滚动校准诊断与被固定绑定的资格校准器分别注明，不将不同身份或不同条件的观测直接合成合格证据。",
+        "Q06 的自然父子改善生产责任明确落到 RuntimeR27 → ImprovementStoreR31.appendRegistration/advance/prepareAt → VerifiedImprovementR31.compareContract/record：恢复事前注册、同历期成对冻结原件、完整机会序列、原结算与每对实测 CPU 成本后形成不可变 claim。保留 source/frozen revision 与 quota 小事务 guard；历史 CONFIRM 的 pairedImprovementR31 或 R11 投影仅作各自角色证据，不能代替自然未来 claim。"
+      ],
+      "after": [
+        "先完成工程同池正负对照，再按当前施工source登记原完整工厂六臂×20种子=120轮（NULL_UNIFORM/NULL_TIME_SHUFFLED/SIGNAL/SIGNAL_DISABLED/DRIFT/GAPS）与功效区间。",
+        "保持自然FUTURE与合成完全分账，继续独立未来确认和正确预算。",
+        "Q01–Q08逐项按原规则报告真实不足，禁止补配额/选择好窗口。",
+        "Q05/M26 沿 LiveShadowsR27.calibrate → CalibrationRowsR27.fitRolling → CalibrationR30.evaluate 核原件与时间隔离；逐 evaluation 保留 fitThroughOrdinal、calibratorHash、冻结时钟、target/ACT 条件、排除原因和分母。先前序 H_SELECT fit 与 FUTURE 只读校验、EMBARGO=1、late/gap/conflict/duplicate 排除逻辑全部保留。滚动校准诊断与被固定绑定的资格校准器分别注明，不将不同身份或不同条件的观测直接合成合格证据。",
+        "Q06 的自然父子改善生产责任明确落到 RuntimeR27 → ImprovementStoreR31.appendRegistration/advance/prepareAt → VerifiedImprovementR31.compareContract/record：恢复事前注册、同历期成对冻结原件、完整机会序列、原结算与每对实测 CPU 成本后形成不可变 claim。保留 source/frozen revision 与 quota 小事务 guard；历史 CONFIRM 的 pairedImprovementR31 或 R11 投影仅作各自角色证据，不能代替自然未来 claim。",
+        "Q05/M26/Q07/M28 的生产责任在原 R27 路径外补列卡043的 AST3/R958→R932→R929 既有链。现代 candidate-only 校准按 CandidateCalibrationR932 的 study/quality-policy/validationUntil 回读，正式资格按其固定 plan/lifetime/证书 gate 回读；原 R27 minActs250 与报告支持条件仍只属于各自合同。不能以一个路径已通过代表另一条已验证，也不能把候选校准冒充最终混合动作校准。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    },
+    {
+      "issue_id": "R344-044",
+      "field": "acceptance",
+      "before": [
+        "错source、未完成trial、单轮高命中、未登记假设不得签收。",
+        "原六臂完整工厂的误授证/检出力与额外34/37/40%目标概率对照分别带CI、全分母；原signalStrength=.30是植入参数，不能当命中率；自然资格独立。",
+        "Q05/M26 对同一合法 frozen 校准器/目标/ACT 条件复算 ECE（等质量与等宽并列）、BSS、支持覆盖和区间；未来或同期间标签混入 fit、fitThrough 跨越 embargo、错误原件身份必须被排除/拒绝并保留原因。200 是报告支持条件；120 行 fitted 诊断或单条 ACTIVE 都不是资格通过。",
+        "Q06 使用事前注册的完整日历窗原件；相同期缺一方、遗漏失败期、重复 ordinal、开奖后冻结、旧 source、缺配对 CPU、重复消耗 segment 的负例不得 VERIFIED。合法父子对按原 claim 合同复算 mean/lowerBound/cost，只有原下界与成本门均满足才记 VERIFIED；未知或未改进也要如实产出状态，不为验收造出改善。"
+      ],
+      "after": [
+        "错source、未完成trial、单轮高命中、未登记假设不得签收。",
+        "原六臂完整工厂的误授证/检出力与额外34/37/40%目标概率对照分别带CI、全分母；原signalStrength=.30是植入参数，不能当命中率；自然资格独立。",
+        "Q05/M26 对同一合法 frozen 校准器/目标/ACT 条件复算 ECE（等质量与等宽并列）、BSS、支持覆盖和区间；未来或同期间标签混入 fit、fitThrough 跨越 embargo、错误原件身份必须被排除/拒绝并保留原因。200 是报告支持条件；120 行 fitted 诊断或单条 ACTIVE 都不是资格通过。",
+        "Q06 使用事前注册的完整日历窗原件；相同期缺一方、遗漏失败期、重复 ordinal、开奖后冻结、旧 source、缺配对 CPU、重复消耗 segment 的负例不得 VERIFIED。合法父子对按原 claim 合同复算 mean/lowerBound/cost，只有原下界与成本门均满足才记 VERIFIED；未知或未改进也要如实产出状态，不为验收造出改善。",
+        "对 R27 与 AST3 现代路径分别提供来源可追溯的正负夹具及现场状态；相同指标展示必须带 family/path、contract、candidate/frozen/model/calibrator、目标机会范围及分母。现代 FITTED_BUT_NOT_QUALIFIED、缺 immutable quality、错 exact scope、缺 formal-window/matrix/alpha 原件不得计成有效资产；报告支持数或 CAL241 条数不替代真实资格。自然证据不够仍保留 UNKNOWN/NOT_PROVEN，不借该补充修改指标/报告原格式。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    }
+  ],
+  "batch_field_changes": [
+    {
+      "batch_id": "B06",
+      "field": "steps",
+      "before": [
+        "按五元组补第5条RULE恢复，现场仍核原.scdev和现有完整证明。",
+        "推进已存在attempt0的FREQUENCY继任任务，逐轮转查budget/claim/prepare/admission/commit。",
+        "保留CP9训练集标准化、验证/embargo、checkpoint和真实损失/梯度/树切分。"
+      ],
+      "after": [
+        "按五元组补第5条RULE恢复，现场仍核原.scdev和现有完整证明。",
+        "推进已存在attempt0的FREQUENCY继任任务，逐轮转查budget/claim/prepare/admission/commit。",
+        "保留CP9训练集标准化、验证/embargo、checkpoint和真实损失/梯度/树切分。",
+        "开发 receipt/artifact 后沿原 FREEZE_CANDIDATE/R958/R967 实际登记首次冻结评价，不以入队代提交，不等 rolling event/version、REAL 或证书；按卡031验原件、目标期与幂等。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ],
+      "depends_on_unchanged": true
+    },
+    {
+      "batch_id": "B06",
+      "field": "exit",
+      "before": [
+        "合格原任务每条至多一个恢复继任；错身份/有未来消费/缺原件/重复恢复均拒绝。",
+        "至少独立验证固定图和一个学习内核的完整开发过程，不用维护任务数代训练完成。",
+        "开发回执与模型/输入/normalizer/检查点一致，重启恢复等价。"
+      ],
+      "after": [
+        "合格原任务每条至多一个恢复继任；错身份/有未来消费/缺原件/重复恢复均拒绝。",
+        "至少独立验证固定图和一个学习内核的完整开发过程，不用维护任务数代训练完成。",
+        "开发回执与模型/输入/normalizer/检查点一致，重启恢复等价。",
+        "首次开发冻结在无 rolling event/version 的合法工程正例实际提交且同 artifact 幂等；目标期变化/旧 lease 反例保持原拒绝或让出，原生命周期可等待后续采集容量。正式 CAL/自然 Future 仍分阶段验，不提前要求自然证书。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ],
+      "depends_on_unchanged": true
+    },
+    {
+      "batch_id": "B09",
+      "field": "steps",
+      "before": [
+        "按dev/SELECT/CONFIRM/Future角色冻结、曝光和alpha账本推进，保持既有门槛。",
+        "分开完整工厂六臂120轮合成能力验证与自然命中/稳定/覆盖；同池父子比较不偷用训练样本。",
+        "达标策略由原发布/唯一决策门在下一合法边界消费；撤销/变更身份立即失效。"
+      ],
+      "after": [
+        "按dev/SELECT/CONFIRM/Future角色冻结、曝光和alpha账本推进，保持既有门槛。",
+        "分开完整工厂六臂120轮合成能力验证与自然命中/稳定/覆盖；同池父子比较不偷用训练样本。",
+        "达标策略由原发布/唯一决策门在下一合法边界消费；撤销/变更身份立即失效。",
+        "R27/V1 与 AST3/R958→R932→R929 资格链分别按卡043/044贯通；现代原始 CAL 收集不等待自身正式窗口或证书，CAL241/不可变质量/固定 plan/正式 Future/矩阵原件/证书与唯一消费逐段核实，不互套两条路径的样本门槛。"
+      ],
+      "reason_ids": [
+        "S2-ST02"
+      ],
+      "depends_on_unchanged": true
+    }
+  ],
+  "text_replacements": [
+    {
+      "path": "contracts/CREATION_TRAINING_AND_QUALITY.md",
+      "before": "4. 先让现有 CP9 TRAIN 真实完成，输出开发模型与回执。\n5. 使用已经实现的 RollingLearnerR343 接收持久结算事件；不得再加并行 online owner。\n6. 使用 RollingFrozenPublisherR343 发布独立冻结版本；旧冻结版本继续原来的未来窗口，新学习头不改写它。\n7. 在独立未来、校准和资格满足后，由原唯一决策门消费。",
+      "after": "4. 先让现有 CP9 TRAIN 真实完成，输出开发模型与回执。\n5. 首次开发冻结沿既有 FREEZE_CANDIDATE → FrozenCandidateAdapterR958.prepareDevelopmentFreezeCP8/commitDevelopmentFreezeCP8 → ResearchEvaluationRunR967.registerDevelopmentCP8 推进，实际登记同开发 artifact 的不可变评价对象。它不等待 rolling event/version、REAL 或自然证书；目标期、cutoff、原件与租约仍按原规则核验。\n6. 滚动学习是另一条分支：已有开发回执且出现自身合法 COMPLETED 结算事件后，由现有 RollingLearnerR343 训练新版本，再由 RollingFrozenPublisherR343 发布该滚动版本。不新增 online owner，不等待首次冻结的未来窗口结束。无 COMPLETED 时保持真实等待，首次开发冻结和独立 DEV 继续；旧冻结版本及其窗口不被学习头改写。\n7. 每个冻结版本分别经原校准、独立正式未来与资格链验证，再由原唯一决策门消费。首次开发冻结不是证书，滚动冻结也不继承旧版本资格。",
+      "expected_occurrences": 1,
+      "reason_ids": [
+        "S2-ST01"
+      ]
+    },
+    {
+      "path": "contracts/PIPELINE_AND_PRESERVATION.md",
+      "before": "|AST3 / R952 现代策略|已有创建/原子/特征和旧在线产物；5 条原 TRAIN 失败，已有 1 条恢复继任任务；rolling owner 已存在，开发训练回执未形成使版本发布为 0|恢复符合原件条件的 TRAIN→CP9 数值完成与开发回执→既有 RollingLearner→独立 FrozenPublisher→未来与证书|",
+      "after": "|AST3 / R952 现代策略|已有创建/原子/特征和旧在线产物；5 条原 TRAIN 失败，已有 1 条恢复继任任务；rolling owner 已存在，开发训练回执未形成使版本发布为 0|符合原件条件的恢复 TRAIN 或独立基础 DEV→CP9 数值完成与开发回执；首次 FREEZE_CANDIDATE 沿 R958/R967 直接登记冻结评价，不等 rolling；另一分支由开发回执+真实 COMPLETED→既有 RollingLearner→RollingFrozenPublisher。各冻结版本分别经 R932 校准/正式未来及原证书链，不互相等待或继承资格|",
+      "expected_occurrences": 1,
+      "reason_ids": [
+        "S2-ST01"
+      ]
+    },
+    {
+      "path": "contracts/CREATION_TRAINING_AND_QUALITY.md",
+      "before": "合格证书进入原发布与主链消费入口，在下一合法赛前边界取用同一个 frozen/model/protocol 身份；REAL 决策和精确结算必须反向指到该证书。资格被撤销、原件缺失或模型身份改变时保持原失效规则。软件工程可以修复持续尝试和证据闭环，不能通过代码保证长期高胜率或每一代必然优于父代。",
+      "after": "合格证书进入原发布与主链消费入口，在下一合法赛前边界取用同一个 frozen/model/protocol 身份；REAL 决策和精确结算必须反向指到该证书。资格被撤销、原件缺失或模型身份改变时保持原失效规则。软件工程可以修复持续尝试和证据闭环，不能通过代码保证长期高胜率或每一代必然优于父代。\n\n### 7.1 两条现有证据链分别施工和验收\n\nR27 继续走 LiveShadowsR27 / CalibrationRowsR27 / CalibrationR30 → SequentialQualificationR27 / CertificateGateR27 → MainlineAdapterR31 的原合同。现代 AST3 另按 R958/R967 冻结评价 → GlobalResearchScheduleR932 预约 → FrozenCandidateAdapterR958.captureReservedCP12/captureOneCP12 → CandidateCalibrationR932 → FixedResearchWindowR932 / ResearchGatePlanR967 → FixedWindowCertificatePublisherR932 / CertificateBundleServiceR929 → ResearchPlatformStoreR929.putCertificate → UnifiedResearchChoiceR932 → CertifiedPredictionR974 的 R958 分支逐段核输入、提交与读回。以上 owner 在 211 已存在；本次补接线和验收责任，不重新创建发布者。\n\n现代原始 CAL 采集位于正式窗口门之前。合法冻结、预约、champion bundle/selector、PIT/截止与资源条件满足即可收集，不额外等待已合格校准器、正式 Future 或证书。原 CAL241 按前120、间隔1、后120处理，前120内部保留 FIT80/SELECT40/REFIT120；FITTED 与 CALIBRATION_QUALIFIED 分开，缺 immutable quality 或身份不一致不授予资格。R27 的 minActs250、报告支持数与现代 CAL241 不可互换；candidate-only 校准也不是最终混合动作校准。\n\n现代正式窗口与证书仍由各自固定 plan/lifetime、原始机会序列、calibration、matrix proof、exact scope、alpha/曝光和外部门验证。CP4 publisher 的 n<360 → AUDITED_NO_CERTIFICATE 保持，不以 CAL 条数代替正式机会数。R031 验首次实际冻结，R043 验两条资格链的工程正负贯通，R044 为 Q05/M26/Q07/M28 明确各路径来源和分母；自然证据不足可保持 NOT_PROVEN。工程夹具不得进入自然账本，补充投影不得改变原报告格式或破坏导出。",
+      "expected_occurrences": 1,
+      "reason_ids": [
+        "S2-ST02"
+      ]
+    }
+  ],
+  "source_anchors_add": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+      "sha256": "3dcd69caa13afa46b71e473fd15a60674017bc45b2f439ce10aa7b4568fb6ea7",
+      "bytes": 70764,
+      "issues": [
+        "R344-031",
+        "R344-043"
+      ],
+      "method_anchors": [
+        "prepareDevelopmentFreezeCP8:68–196",
+        "commitDevelopmentFreezeCP8:197–240",
+        "captureReservedCP12:609 onward",
+        "captureOneCP12:697–770"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+      "sha256": "4855ca104ecdbd53139188589400d17643a4cc64d8ef56c08baa69140d261081",
+      "bytes": 29332,
+      "issues": [
+        "R344-031",
+        "R344-043"
+      ],
+      "method_anchors": [
+        "registerDevelopmentCP8:211–241",
+        "mayCapture/consumerCompatible:243–261"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+      "sha256": "864ccc38ef314c2f28177239d6ad7070825aa3ddf3f19bf42d3d2746ef1995ca",
+      "bytes": 23938,
+      "issues": [
+        "R344-031",
+        "R344-034"
+      ],
+      "method_anchors": [
+        "PROCESS:20",
+        "Lease/claimFor:89–112",
+        "owns/complete/yield:115–145"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java",
+      "sha256": "97b9a0eccb9fca25fc0da433b667c87a4575b07d2972fa228984748c51969dbc",
+      "bytes": 44393,
+      "issues": [
+        "R344-043"
+      ],
+      "method_anchors": [
+        "reserveUnscheduledFrozenCP11:58–165",
+        "dueReservationsCP11:217 onward"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+      "sha256": "72fd66e9a434333a7e23fe4ee5bea0f2a3bb527109ef39f1560bdbf43d29d624",
+      "bytes": 41841,
+      "issues": [
+        "R344-043",
+        "R344-044"
+      ],
+      "method_anchors": [
+        "OBSERVATIONS/QUALITY_POLICY/input and qualification states:8–24",
+        "evaluateQualityCP12/qualificationForStudyCP12:40–64"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+      "sha256": "dfb9645ec5c90c75ea5e910fa9f7e8a5fb0e9b48189262f51a1cf8afd8c0329d",
+      "bytes": 31999,
+      "issues": [
+        "R344-043"
+      ],
+      "method_anchors": [
+        "freezePair:60 onward",
+        "maintain/maintainReviewed:134 onward"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java",
+      "sha256": "6ba5d77bdc2eb3424988020f4b2adba538665b1c6bf34a6d5204c5efc2cd9bff",
+      "bytes": 42069,
+      "issues": [
+        "R344-043",
+        "R344-044"
+      ],
+      "method_anchors": [
+        "installed:129",
+        "forWindow:226 onward"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+      "sha256": "290db4473dce5da2ab70b7224d1f5e37704c534f694be9222787ae0db6a7f872",
+      "bytes": 52861,
+      "issues": [
+        "R344-043"
+      ],
+      "method_anchors": [
+        "maintainReviewed:43–67",
+        "prepareCertificateCP12:273–361"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+      "sha256": "7e07152d224e4342e4a7f95e200f52fd6b12c5bde2022c19393437c440b436e2",
+      "bytes": 51799,
+      "issues": [
+        "R344-043",
+        "R344-044"
+      ],
+      "method_anchors": [
+        "evaluateCp4:353 onward"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+      "sha256": "ecdca4ba0956a7accd5749d89400d16b37d681e70fba63041c1ee53a907be2ec",
+      "bytes": 66351,
+      "issues": [
+        "R344-043",
+        "R344-044"
+      ],
+      "method_anchors": [
+        "putCertificate:377–446"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "sha256": "d8df77be1b214d8f6d3af9d5615bd82a6a44f228a8f3cd3806a1619eeb7da75d",
+      "bytes": 33123,
+      "issues": [
+        "R344-043"
+      ],
+      "method_anchors": [
+        "prepareChoiceCP12:108–179",
+        "existing frozen-choice evidence consumer branches"
+      ],
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/blob/5c7f1b36eaee6036df280e85835bb0fb4ce0b40d/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+      "was_in_active_source_anchors": false,
+      "verification": "EXACT_COMMIT_READ_UTF8_SHA256_AND_BYTES_RECOMPUTED_MATCH_APPLICATION_SOURCE_BASELINE",
+      "implementation_status": "EXISTING_211_OWNER_DO_NOT_RECREATE"
+    }
+  ],
+  "derived_sync": {
+    "ISSUES.json": "Apply exact before→after only after checking current value. Preserve original_audit_records and historical raw audit files.",
+    "issues/R344-031.md,issues/R344-034.md,issues/R344-043.md,issues/R344-044.md": "Regenerate changed current source/preservation/repair/acceptance sections.",
+    "ACCEPTANCE_MATRIX.json/ACCEPTANCE_MATRIX.md": "Regenerate preservation/acceptance from current changed cards; remove obsolete same-lease-after-restart positive wording from current acceptance.",
+    "SOURCE_ANCHORS.json": "Add existing211 source rows with exact baseline SHA/bytes; union issue refs, do not cap counts at136.",
+    "METRIC_RESPONSIBILITY_MATRIX": "Q05/M26/Q07/M28 append modern AST3 producer/source/consumer scope under R043/R044; keep R27/V1 identities and thresholds separate; use S2-ST02, not a duplicate root cause.",
+    "BATCHES.json/BATCH_INDEX.md": "Only B06/B09 step/exit text supplied; preserve depends_on and engineering/field/natural split.",
+    "MANIFEST_AND_SELF_CHECK": "Regenerate derived counts, indices and sealed hashes after all amendments are merged."
+  },
+  "non_changes": [
+    "Do not change application source",
+    "Do not lower qualification/calibration/cutoff/alpha gates",
+    "Do not rewrite historical audit records",
+    "Do not mark implementation/Android/field/natural PASS",
+    "Do not change report export schema or remove existing owner/functions"
+  ],
+  "verification": {
+    "issue_changes": 16,
+    "batch_text_changes": 3,
+    "contract_replacements": 3,
+    "added_exact_source_anchors": 11,
+    "all_contract_before_strings_unique": true,
+    "all_new_source_hashes_and_bytes_recomputed": true
+  }
+}

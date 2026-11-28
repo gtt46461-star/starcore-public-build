@@ -58,3 +58,7 @@
 |Q06 进化提升|INSUFFICIENT|R344-032, R344-033, R344-044|B07, B09|
 |Q07 有效资产产量|RECORDED_UNVALIDATED|R344-032, R344-017, R344-043, R344-044|B03, B07, B09|
 |Q08 空信号与优势检出力|UNKNOWN_STALE_SYNTHETIC_SOURCE|R344-044|B09|
+
+## 第二轮矩阵生产/消费分路
+
+[20矩阵执行合同](MATRIX_20_EXECUTION_CONTRACTS.json)固定原ID并区分18普通R930、1配对COUNTERFACTUAL、1SU2 checkpoint。原报告分类观察保持原值，当前执行owner由精确211源码补充。MatrixTensor已有同事务native桥接予以保全；不能按已排除的“typed只写measure导致索引恒0”假设误修。

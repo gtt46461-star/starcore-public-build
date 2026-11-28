@@ -2,7 +2,7 @@
 
 ## 1. 本轮底座与施工边界
 
-本轮只以报告对应的 **577311211 / 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d** 为应用底座。仓库 main 的应用目录不是该安装版本；本轮公开方案保存于独立plans/r344-211-repair-20261128分支，main及其旧方案保留原状。施工方从该提交或逐文件核验过的后代建立工作树。不得把 main 的旧 app 目录、173 的整文件后态、旧版本压缩包覆盖到 211。
+本轮只以报告对应的 **577311211 / 5c7f1b36eaee6036df280e85835bb0fb4ce0b40d** 为应用底座。仓库 main 的应用目录不是该安装版本；本轮完整资料发布于main及plans/r344-211-repair-20261128，新增_COMPLETE与原包目录并更新入口；main应用源码和旧方案目录保持原内容。施工方从该提交或逐文件核验过的后代建立工作树。不得把 main 的旧 app 目录、173 的整文件后态、旧版本压缩包覆盖到 211。
 
 本计划提供问题处置、代码锚点、若干精确候选补丁及验收合同；各补丁的实际验证范围写在 validation 中。静态可应用、主机等价验证、Android 构建、用户数据库迁移、真机运行和自然未来质量是不同结论。没有执行的层级保持 NOT_RUN / NOT_PROVEN。
 
@@ -50,7 +50,7 @@ flowchart TD
 |---|---|---|
 |R26 旧家族与检查点|有 50 个 candidate/evolution、训练步骤和反馈；冻结/资格未形成，旧数值 ABI 与原件问题仍存在|有原state者按原ColdRebirth合同建冷子代；无原件者隔离旧父代，完全独立基础新实验另走既有工厂，不继承旧资格|
 |R27 固定回放与进化|有 3 条 replay_dataset 记录，但 policy/replay_score/generation/live_shadow/certificate 均为 0|公平准入与错误分类→同一数据集 pin 的物化/恢复→合法历史评价→结构提议→冻结与未来|
-|AST3 / R952 现代策略|已有创建/原子/特征和旧在线产物；5 条原 TRAIN 失败，已有 1 条恢复继任任务；rolling owner 已存在，开发训练回执未形成使版本发布为 0|恢复符合原件条件的 TRAIN→CP9 数值完成与开发回执→既有 RollingLearner→独立 FrozenPublisher→未来与证书|
+|AST3 / R952 现代策略|已有创建/原子/特征和旧在线产物；5 条原 TRAIN 失败，已有 1 条恢复继任任务；rolling owner 已存在，开发训练回执未形成使版本发布为 0|符合原件条件的恢复 TRAIN 或独立基础 DEV→CP9 数值完成与开发回执；首次 FREEZE_CANDIDATE 沿 R958/R967 直接登记冻结评价，不等 rolling；另一分支由开发回执+真实 COMPLETED→既有 RollingLearner→RollingFrozenPublisher。各冻结版本分别经 R932 校准/正式未来及原证书链，不互相等待或继承资格|
 
 不能用旧 R26 的训练条数证明 AST3 训练已完成；不能用维护任务数、输入失效次数或 family 标签数证明新策略已创造；不能为了让 R27 出数而偷换数据集 pin，也不能再增加一套现代 rolling owner。
 

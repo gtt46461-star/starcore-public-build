@@ -4,8 +4,13 @@ import argparse
 import hashlib
 import io
 import json
+import sys
 import zipfile
 from pathlib import Path, PurePosixPath
+
+sys.dont_write_bytecode = True
+from plan_tool_safety import fresh_output, require, safe_relative
+from verify_plan import VerificationError, Verifier
 
 
 def main():
@@ -14,34 +19,46 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     plan = args.plan_root.resolve()
-    destination = args.output.resolve()
-    if destination.exists():
-        raise SystemExit('Output directory already exists; use a new directory to preserve prior evidence.')
+    destination = fresh_output(args.output, [plan])
+    verifier = Verifier(plan, None)
+    verifier.check_identity()
+    verifier.check_original_zip()
     integrity = json.loads((plan / 'evidence/REPORT_INTEGRITY.json').read_text())
     raw = (plan / 'evidence/ORIGINAL_DIAGNOSTIC_211.zip').read_bytes()
-    assert hashlib.sha256(raw).hexdigest() == integrity['outer_sha256']
+    require(hashlib.sha256(raw).hexdigest() == integrity['outer_sha256'], 'outer ZIP SHA mismatch')
     with zipfile.ZipFile(io.BytesIO(raw)) as outer:
-        assert outer.testzip() is None
+        require(outer.testzip() is None, 'outer ZIP CRC mismatch')
         members = [n for n in outer.namelist() if PurePosixPath(n).name == 'STARCORE_FULL_REPORT.zip']
-        assert len(members) == 1
+        require(len(members) == 1, 'missing or ambiguous inner ZIP')
         inner_bytes = outer.read(members[0])
-    assert hashlib.sha256(inner_bytes).hexdigest() == integrity['inner_sha256']
+    require(hashlib.sha256(inner_bytes).hexdigest() == integrity['inner_sha256'], 'inner ZIP SHA mismatch')
     with zipfile.ZipFile(io.BytesIO(inner_bytes)) as inner:
-        assert inner.testzip() is None
+        require(inner.testzip() is None, 'inner ZIP CRC mismatch')
         for member in inner.infolist():
-            path = PurePosixPath(member.filename)
-            assert not path.is_absolute() and '..' not in path.parts
-            assert (member.external_attr >> 16) & 0o170000 != 0o120000, 'symlink rejected'
+            safe_relative(destination, member.filename.rstrip('/'))
+            require((member.external_attr >> 16) & 0o170000 != 0o120000, 'symlink rejected')
         for entry in integrity['member_checks']:
             content = inner.read(entry['name'])
-            assert len(content) == entry['bytes']
-            assert hashlib.sha256(content).hexdigest() == entry['sha256']
+            require(len(content) == entry['bytes'], 'payload length mismatch: ' + entry['name'])
+            require(hashlib.sha256(content).hexdigest() == entry['sha256'], 'payload SHA mismatch: ' + entry['name'])
         destination.mkdir(parents=True)
-        inner.extractall(destination)
+        for member in inner.infolist():
+            target = safe_relative(destination, member.filename.rstrip('/'))
+            if member.is_dir():
+                target.mkdir(parents=True, exist_ok=True)
+            else:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with target.open('xb') as output, inner.open(member) as source:
+                    while data := source.read(1024 * 1024):
+                        output.write(data)
     print(json.dumps({'verified': True, 'payloads_verified': len(integrity['member_checks']),
                       'output': str(destination), 'raw_database_included': False,
                       'installed_apk_included': False, 'model_training_originals_included': False}, ensure_ascii=False))
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except (OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile, VerificationError) as error:
+        print('unpack_report: ' + str(error), file=sys.stderr)
+        sys.exit(1)

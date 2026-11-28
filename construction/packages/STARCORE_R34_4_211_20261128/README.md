@@ -30,3 +30,7 @@ python3 construction/packages/STARCORE_R34_4_211_20261128/restore_package.py --o
 原ZIP保持此前交付的每个字节，其中的旧PUBLICATION_RECEIPT、旧四候选公开版和当时说明是历史记录。它们不替代本次用户对完整公开上传的授权，也不表示当前仍排除C04或原报告。
 
 后续施工以[当前完整执行指令](../../plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/CODEX_EXECUTE.md)及两份新增附约为准。原ZIP提供不可变审计依据；更新指令清晰区分资料上传与后续真实应用施工。本次没有构建新APK或改变用户安装数据。
+
+## 修订2工具入口
+
+原ZIP内的旧验证脚本保留当时审计字节。修订2已加固输出防覆盖、优化模式hash校验和必需清单门；实际施工请使用当前_COMPLETE目录的工具和CODEX_EXECUTE，不从历史ZIP取旧脚本替代。27个原包分片及总SHA没有变化。

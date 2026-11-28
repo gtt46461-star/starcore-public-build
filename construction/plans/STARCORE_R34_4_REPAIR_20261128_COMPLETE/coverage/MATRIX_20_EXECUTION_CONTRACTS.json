@@ -1,0 +1,124 @@
+{
+  "schema": "R344_MATRIX_20_EXECUTION_CONTRACTS_1",
+  "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "original_object_ids_unchanged": true,
+  "routes": [
+    {
+      "route_id": "R930_TYPED_18",
+      "object_ids": [
+        "R930:EVIDENCE_TEACHER",
+        "R930:STUDENT_ERROR",
+        "R930:FORWARD_REASONING",
+        "R930:REVERSE_REASONING",
+        "R930:FEEDBACK",
+        "R930:CONTRADICTION",
+        "R930:TEACHER_DIVERSITY",
+        "R930:TEMPORAL_PRECEDENCE",
+        "R930:INVARIANCE",
+        "R930:CAUSAL_SUPPORT",
+        "R930:COUNTER_EVIDENCE",
+        "R930:RESIDUAL_MECHANISM",
+        "R930:NUMBER_POSITION_COMPATIBILITY",
+        "R930:CROSS_POSITION_FLOW",
+        "R930:ACTION_UTILITY",
+        "R930:ALGORITHM_COMPLEMENTARITY",
+        "R930:EVOLUTION_CREDIT",
+        "R930:RESOURCE_EFFICIENCY"
+      ],
+      "producer": [
+        "RuntimeR27.MatrixProductionTask",
+        "MatrixResearchR30R1.step/produceR31/build",
+        "MatrixTensorR30R1.append"
+      ],
+      "consumer": "MatrixRegistryR30.typedConsumers(kind)指定的既有consumer；按角色、原source、ABI和输入实际激活",
+      "input_gate": "原合法不可变SELECT/research输入与revision；SOURCE_ONLY、STUDENT、EVIDENCE各自门禁；不等待另一类型缺件",
+      "artifact_store": [
+        "r30r1_analysis_run",
+        "r30r1_research_measure:MATRIX_<kind>",
+        "research_matrix_snapshot_r930"
+      ],
+      "reader": [
+        "ReportSnapshotR30.matrixObjectIndex",
+        "ReportObjectIndexR30.build"
+      ],
+      "source_evidence": [
+        "MatrixResearchR30R1.java:141-180",
+        "MatrixTensorR30R1.java:47-53",
+        "MatrixRegistryR30.java:22"
+      ],
+      "acceptance_owner": "R344-038 / B08；上游输入按B05/B07原卡；B10只收原件"
+    },
+    {
+      "route_id": "R930_COUNTERFACTUAL_1",
+      "object_ids": [
+        "R930:COUNTERFACTUAL"
+      ],
+      "producer": [
+        "ResearchStudyTaskR30R1.step",
+        "PairedReplayRunnerR30R1.RETRAIN_REMOVED",
+        "ResearchStoreR30R1.paired",
+        "MatrixTensorR30R1.append"
+      ],
+      "consumer": [
+        "ResearchStoreR30R1.ready/consume",
+        "既有R06与真实测得child/建议消费链"
+      ],
+      "input_gate": "实际同语义counterfactual配对；runner.complete；原1..64实际blocks条件；MASK_FROZEN不代替",
+      "artifact_store": [
+        "r30r1_analysis_run",
+        "r30r1_research_measure",
+        "research_matrix_snapshot_r930",
+        "r27_chart_cache:panel_id=matrix-r30-r1,key=COUNTERFACTUAL"
+      ],
+      "reader": [
+        "ReportSnapshotR30.matrixObjectIndex",
+        "ReportObjectIndexR30.build",
+        "R06原frame读取"
+      ],
+      "source_evidence": [
+        "ResearchStudyTaskR30R1.java:51-66",
+        "ResearchStoreR30R1.java:80-92",
+        "MatrixResearchR30R1.java:144-145"
+      ],
+      "acceptance_owner": "R344-038与R344-036/R344-037 / B08"
+    },
+    {
+      "route_id": "SU2_CHECKPOINT_1",
+      "object_ids": [
+        "SU2:LEARNED_FACTOR_TEACHER_CHECKPOINT"
+      ],
+      "producer": [
+        "LegacyGenerationR26.compute/stepOwned",
+        "MatrixSnapshotSU2.capture",
+        "MatrixStoreSU2.prepareR31",
+        "ModelPublicationR31.stageAndPublish",
+        "ModelStoreSU2.projectPreparedR31",
+        "MatrixStoreSU2.projectPreparedR31/markAvailable"
+      ],
+      "consumer": [
+        "MatrixStoreSU2.maintain",
+        "MatrixSnapshotSU2.support"
+      ],
+      "input_gate": "原固定snapshot/campaign完成与F15 committee；原source/ABI/fence/CAS；已冻结同genome的合法动作作为消费输入",
+      "artifact_store": [
+        "su2_matrix_snapshot",
+        "su2_live_decision",
+        "原ModelPublication载荷与checkpoint引用"
+      ],
+      "reader": [
+        "MatrixStoreSU2.report",
+        "ReportSnapshotR30.su2MatrixRows",
+        "ReportObjectIndexR30.build"
+      ],
+      "source_evidence": [
+        "LegacyGenerationR26.java:65-87,101",
+        "MatrixSnapshotSU2.java:41-66",
+        "MatrixStoreSU2.java:21-25,32-65",
+        "ModelStoreSU2.java:68-81"
+      ],
+      "acceptance_owner": "R344-038 / B08；原root/输入保护仍按B05，真实消费缺输入只保持该路PENDING"
+    }
+  ],
+  "original_report_preserved": true,
+  "original_owner_observation_caveat": "FULL_REPORT_COVERAGE的matrix owner_observations是原报告分类观察；SU2不因被标记r27-matrices-r1而改用MatrixResearch作为实际producer。保留原观察，另叠加经源码核实的当前执行合同。"
+}
