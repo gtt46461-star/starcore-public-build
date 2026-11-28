@@ -1,0 +1,110 @@
+{
+  "schema": "STARCORE_R344_PUBLIC_PLAN_VERIFICATION_1",
+  "scope": "PUBLIC_PLAN_ONLY",
+  "verification_pass": true,
+  "public_plan_integrity_pass": true,
+  "source_verification": "PASS",
+  "private_original_report_verification": "NOT_PERFORMED; ORIGINALS_AND_FULL_COVERAGE_ARE_NOT_IN_THIS_PACKAGE",
+  "private_full_verification": "SEPARATE_PRIVATE_PACKAGE; NOT_REVALIDATED_OR_ATTESTED_BY_THIS_TOOL",
+  "product_acceptance": "NOT_RUN_NOT_IMPLIED_BY_PUBLIC_PLAN_PASS",
+  "android_build": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "candidate_execution": "NOT_RUN",
+  "read_only_inputs": true,
+  "checks": [
+    {
+      "check": "public_scope_and_forbidden_artifacts",
+      "category": "PUBLIC_PLAN",
+      "status": "PASS",
+      "allowed_files": 106,
+      "existing_files": 105,
+      "pending_explicit_output": "validation/PUBLIC_PLAN_CHECK.json",
+      "scope_boundary": "FILE_ALLOWLIST_AND_FORMAT_CHECK; NO_PRIVATE_REPORT_ACCESS"
+    },
+    {
+      "check": "issues_aliases_cards",
+      "category": "PUBLIC_PLAN",
+      "status": "PASS",
+      "issues": 46,
+      "aliases": 50,
+      "issue_cards": 46,
+      "original_report_evidence": "ABSENT_AND_NOT_VERIFIED"
+    },
+    {
+      "check": "batches_cards_dag",
+      "category": "PUBLIC_PLAN",
+      "status": "PASS",
+      "batches": 12,
+      "dag": "ACYCLIC",
+      "topological_order": [
+        "B00",
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11"
+      ],
+      "boundary": "Structural dependencies do not prove runtime liveness."
+    },
+    {
+      "check": "public_source_catalogs",
+      "category": "PUBLIC_PLAN",
+      "status": "PASS",
+      "source_anchor_descriptors": 136,
+      "production_java_descriptors": 1407,
+      "scope": "PUBLIC_SOURCE_HASH_CATALOGS; ACTUAL_BYTES_CHECKED_ONLY_WITH_SOURCE_ROOT"
+    },
+    {
+      "check": "sanitized_responsibility_contracts",
+      "category": "PUBLIC_PLAN",
+      "status": "PASS",
+      "metric_contracts": 44,
+      "check_contracts": 96,
+      "chart_contracts": 18,
+      "object_contract_rows": 165,
+      "scope": "SANITIZED_PUBLIC_RESPONSIBILITIES_ONLY; NO_ORIGINAL_REPORT_COVERAGE_RECHECK"
+    },
+    {
+      "check": "four_public_candidates",
+      "category": "PUBLIC_PLAN",
+      "status": "PASS",
+      "candidate_ids": [
+        "C01",
+        "C02",
+        "C03",
+        "C05"
+      ],
+      "patch_files_hashed": 4,
+      "scope": "PUBLIC_PATCH_BYTES_AND_LINKAGE_ONLY; NOT_APPLIED_OR_EXECUTED"
+    },
+    {
+      "check": "public_manifest",
+      "category": "PUBLIC_PLAN",
+      "status": "PASS",
+      "manifest_files_hashed": 103,
+      "exclude": [
+        "MANIFEST.json",
+        "MANIFEST.sha256",
+        "validation/PUBLIC_PLAN_CHECK.json"
+      ],
+      "scope": "PUBLIC_PACKAGE_BYTES_ONLY"
+    },
+    {
+      "check": "public_source_bytes",
+      "category": "PUBLIC_SOURCE",
+      "status": "PASS",
+      "java_files_verified": 1407,
+      "source_anchors_verified": 136,
+      "unique_files_hashed": 1417,
+      "scope": "PUBLIC_BASELINE_BYTES_NOT_BUILD_OR_PRODUCT_ACCEPTANCE"
+    }
+  ],
+  "failure_count": 0
+}

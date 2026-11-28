@@ -1,0 +1,12 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java
+@@ -498,7 +498,8 @@
+             this.teacher = safe(teacher);
+             this.learning = safe(learning);
+             this.updatedAt = updatedAt;
+-            this.observationScope = safe(observationScope);
++            // Structured identity is consumed by the report and must not use the 300-character UI label cap.
++            this.observationScope = observationScope == null ? "" : observationScope.trim();
+         }
+     }
+ 

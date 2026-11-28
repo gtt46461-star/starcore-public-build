@@ -1,0 +1,77 @@
+{
+  "schema": "STARCORE_R344_CANDIDATES_1",
+  "base_source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "patches": [
+    {
+      "id": "C01",
+      "batch": "B01",
+      "issue": "R344-006",
+      "title": "完整保留业务scope结构字符串",
+      "path": "candidates/runtime/heartbeat_scope_identity.patch",
+      "sha256": "572a408aa849084abab265a8ea26a2ac0278d98674acd82aaf9174f6189168d4",
+      "files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "4408e678b5e7a409ac776146eb0e470fd090fe5724439a3dd20ac87200172f72",
+          "after_sha256": "160f8b8e4ce09e5c040c0db9a6c6564dbb4943d38e3100d8130ff898f80edc7e"
+        }
+      ],
+      "status": "CANDIDATE_ONLY_NOT_APPLIED_TO_APPLICATION"
+    },
+    {
+      "id": "C02",
+      "batch": "B01",
+      "issue": "R344-003",
+      "title": "限定scope先行的等价覆盖读取",
+      "path": "candidates/runtime/coverage_scope_join.patch",
+      "sha256": "24aa153f85f381211607f7560e68640732b5a15ce0e8f2eafbfe4b03c3bd3fa3",
+      "files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+          "before_sha256": "db34f51731ac20d3a610246031906e5d9c378706718dc9adbd5bb7c8732b51be",
+          "after_sha256": "763ea94f2f9e1757973d1ba5427eaafad899f9b8cf90f760410be6714c874bd5"
+        }
+      ],
+      "status": "CANDIDATE_ONLY_NOT_APPLIED_TO_APPLICATION"
+    },
+    {
+      "id": "C03",
+      "batch": "B03",
+      "issue": "R344-015",
+      "title": "仅精确已回滚故障背压分类可等待",
+      "path": "candidates/strategy/ST02_queue_category.patch",
+      "sha256": "b834a7a516682557aad7a90c09205df9dcca6757505b977063bf6f8e557c8173",
+      "files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "before_sha256": "9605291b4de381dd3afd910dd97cea85e1067c2282aa89431a88d68fd3886df3",
+          "after_sha256": "920b96c124e172da71c94c9f1caa6dc0e4f55ad96cf03dae97d3d4d85c798c61"
+        },
+        {
+          "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R31PreparedWriteContractTest.java",
+          "before_sha256": "8d933c1380a9796d896c314400e16ee7abf63d66dcb0b820aab83c94b3f59601",
+          "after_sha256": "f6b7d61ab5b97898f11622e14e52c99da228dc74eaf0b84025932ae1f1b15470"
+        }
+      ],
+      "status": "CANDIDATE_ONLY_NOT_APPLIED_TO_APPLICATION"
+    },
+    {
+      "id": "C05",
+      "batch": "B08",
+      "issue": "R344-040",
+      "title": "R18精确归因显示",
+      "path": "candidates/charts/R18_exact_receipt_projection.patch",
+      "sha256": "c627dadf6812b4f6c9b87a4a7c9ea6fc27c44a5ef8286f4e9def615243fb8cd6",
+      "files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java",
+          "before_sha256": "c067b8ff3280c2e5749f1358fc8e637482651a7ce81e694209638c9a68adbed4",
+          "after_sha256": "fe30790de82bc1dce72bf6767d59ae1166794d6e3a74c767a10a5dbb1be04d0a"
+        }
+      ],
+      "status": "CANDIDATE_ONLY_NOT_APPLIED_TO_APPLICATION"
+    }
+  ],
+  "scope": "4 public candidate patches only; private exact-identity C04 is delivered only in the user full bundle.",
+  "full_android_build": "NOT_RUN"
+}

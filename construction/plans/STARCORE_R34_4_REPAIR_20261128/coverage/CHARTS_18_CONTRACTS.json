@@ -1,0 +1,200 @@
+[
+  {
+    "id": "R01",
+    "title": "多尺度结构状态与可用窗口",
+    "producer": "StructureStudyR30R1.compute",
+    "inputs": "固定多窗口/十位置合法SELECT数据；预先登记结构目标",
+    "consumer": "StructureGeneratorRegistryR30",
+    "formal_read_only": false,
+    "construction_action": "先恢复同源不可变replay数据；保留原结构统计和固定窗口",
+    "acceptance_test": "同输入复算数值/支持期相同；未来标签扰动不得改过去结构",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R02",
+    "title": "结构预测与下一期落地误差",
+    "producer": "StructureStudyR30R1.compute",
+    "inputs": "TRAIN拟合、SELECT下一期真实标签、固定64期块",
+    "consumer": "FailureProfileR30",
+    "formal_read_only": false,
+    "construction_action": "恢复结构预测原件与下一期匹配，不用预测自身当实际值",
+    "acceptance_test": "预测/实际逐目标对应；乱序/错期与不足整块不能补齐",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R03",
+    "title": "号码位置兼容与跨位结构",
+    "producer": "ResearchObservatoryR30R1.compute(R03)",
+    "inputs": "NUMBER_POSITION_COMPATIBILITY/CROSS_POSITION_FLOW矩阵；号码位置维度与滞后窗口",
+    "consumer": "IdeaI04CrossPositionR27",
+    "formal_read_only": false,
+    "construction_action": "恢复来源专属矩阵及原measurement，保留关联而非因果口径",
+    "acceptance_test": "P1-P10维度/置换一致；同一期未来信息或错维度拒绝",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R04",
+    "title": "多位置围号交集与缩减证据",
+    "producer": "ResearchObservatoryR30R1.compute(R04)",
+    "inputs": "短32/长128窗、各位置K3集合、同SELECT目标",
+    "consumer": "SetIntersectionPolicyR30",
+    "formal_read_only": false,
+    "construction_action": "恢复原交集/不足3弃权，不为展示凑足K3",
+    "acceptance_test": "确切集合与命中可复算；<3时弃权、随机基线0.30分列",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R05",
+    "title": "失败簇→假设→可执行子代",
+    "producer": "ResearchObservatoryR30R1.compute(R05)",
+    "inputs": "真实失败父代、FailureProfile、合法windowed leaf与子代AST",
+    "consumer": "ExpertProposalsR27",
+    "formal_read_only": false,
+    "construction_action": "先真实出生与回放，再输出具体leaf-window修改假设；原谱系保留",
+    "acceptance_test": "childHash确为AST变化；文本处方/同hash不能计产出；不宣称全新数学族",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R06",
+    "title": "原子条件边际贡献",
+    "producer": "ResearchStudyTaskR30R1.step / ResearchStoreR30R1.paired",
+    "inputs": "原父代、dataset/revision；合法组件路径与配对回放",
+    "consumer": "MutationOpsR27",
+    "formal_read_only": false,
+    "construction_action": "单独追原研究study owner；保留8父代轮转/256行切片及续跑",
+    "acceptance_test": "原子有/无同目标配对；RETRAIN_REMOVED与MASK_FROZEN分开，不以共享observatory说明根因",
+    "producer_owner_scope": "ResearchStudyTaskR30R1 (not shared observatory)"
+  },
+  {
+    "id": "R07",
+    "title": "分子协同与冗余贡献",
+    "producer": "ResearchObservatoryR30R1.compute(R07)",
+    "inputs": "同父代none/A/B/A+B四臂；TRAIN-only拟合与SELECT",
+    "consumer": "DerivedAtomR27",
+    "formal_read_only": false,
+    "construction_action": "恢复四臂共同数据和分块增益，不拼异期收益",
+    "acceptance_test": "协同=L_A+L_B-L_AB-L_none复算；缺任何臂保持不足",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R08",
+    "title": "思路族行为差异与机制覆盖",
+    "producer": "ResearchObservatoryR30R1.compute(R08)",
+    "inputs": "BirthGate固定TRAIN探针行为签名",
+    "consumer": "BirthGateR27",
+    "formal_read_only": false,
+    "construction_action": "恢复真实族候选与固定probe，不读CONFIRM/FUTURE来去重",
+    "acceptance_test": "签名/Jaccard确定；改将来标签不改变TRAIN签名；不同名字同机制可被发现",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R09",
+    "title": "专家处方落地与归因",
+    "producer": "ResearchObservatoryR30R1.stored(R09)",
+    "inputs": "expert proposal→真实child→lineage父代，同dataset",
+    "consumer": "ExpertProposalsR27",
+    "formal_read_only": false,
+    "construction_action": "恢复处方执行子代链，不把24提案当24成功策略",
+    "acceptance_test": "真实外键配对proper loss；悬空提案/不同父代无法获得收益归因",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R10",
+    "title": "变异算子增益与计算成本",
+    "producer": "ResearchObservatoryR30R1.stored(R10)",
+    "inputs": "原父子同目标SELECT、operator、AST nodeCost",
+    "consumer": "EvolutionLoopR27",
+    "formal_read_only": false,
+    "construction_action": "保留配对增益；实际逐对象CPU目前缺省，应追加同操作原计时后才展示CPU收益比",
+    "acceptance_test": "父子/损失配对复算；没有对象CPU则UNKNOWN，禁止用全池CPU顶替",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R11",
+    "title": "父子同期配对收益与确认",
+    "producer": "ResearchObservatoryR30R1.stored(R11)",
+    "inputs": "r30_frozen_confirm 原任务/注册实验/result_json",
+    "consumer": "FrozenConfirmationR30（只读展示）",
+    "formal_read_only": true,
+    "construction_action": "先恢复独立确认生产；只读呈现原结果与证据",
+    "acceptance_test": "同任务/独立日历可复算；不要求BORN消费，不把确认反馈用于再训练",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R12",
+    "title": "融合互补与共同失败区域",
+    "producer": "ResearchObservatoryR30R1.compute(R12)",
+    "inputs": "两原父代同目标残差相关/共同失败与独立融合子代",
+    "consumer": "FusionOpsR27",
+    "formal_read_only": false,
+    "construction_action": "恢复合法父代和真实融合AST，保留原互补度计算",
+    "acceptance_test": "两个父代/融合均完整；相关不足、相同父代或复制证书不能成为有效融合",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R13",
+    "title": "置信度失准与支持域风险",
+    "producer": "ResearchObservatoryR30R1.compute(R13)",
+    "inputs": "SELECT K3概率/实际，箱计数≥20与Brier",
+    "consumer": "CalibrationRowsR27",
+    "formal_read_only": false,
+    "construction_action": "恢复冻结概率与正确标签，不在图表中拟合正式校准",
+    "acceptance_test": "概率箱支持/计数/Brier可复算；空箱保留未知，未来拟合拒绝",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R14",
+    "title": "梯度→概率面→策略消费",
+    "producer": "ResearchObservatoryR30R1.stored(R14) / ResearchProvenanceGraphR30R1.project",
+    "inputs": "原optimizer step/publication/stateHash→model→surface→call→freeze",
+    "consumer": "IdeaI08NeuralRepresentationR27（此图只读）",
+    "formal_read_only": true,
+    "construction_action": "修真实训练/发布/消费路径；保留所有精确原键和历史缺梯度UNKNOWN",
+    "acceptance_test": "任一model/weights/target/position/probability/frozenAt错键断边；不以同一期替代",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R15",
+    "title": "状态漂移、遗忘与回放价值",
+    "producer": "ResearchObservatoryR30R1.compute(R15) / ModelReplayStudyR30R1",
+    "inputs": "固定256窗输入JS与旧/新模型同机会回放",
+    "consumer": "AtomNetRuntimeR30",
+    "formal_read_only": false,
+    "construction_action": "恢复原模型与配对study；.05只告警，不以漂移直接认定改进",
+    "acceptance_test": "JS重算、模型同机会对比；全池/异期误差不能代替配对遗忘",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R16",
+    "title": "研究探索预算与有效产出",
+    "producer": "ResearchObservatoryR30R1.stored(R16)",
+    "inputs": "真实task CPU、本会话范围、task progress、consume",
+    "consumer": "ResearchPoolR27",
+    "formal_read_only": false,
+    "construction_action": "恢复真实进度回执与预算动作；保留25%探索下限",
+    "acceptance_test": "任务CPU/游标/实际子代独立分母；出生数不等于有效资产，不虚拟CPU",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R17",
+    "title": "失败机制记忆与重复消耗",
+    "producer": "ResearchObservatoryR30R1.stored(R17)",
+    "inputs": "当前源同dataset的原失败配对上下界及parent/run",
+    "consumer": "EvolutionLoopR27",
+    "formal_read_only": false,
+    "construction_action": "恢复真实负贡献记忆和有界剪枝；保留探索且不永久禁整族",
+    "acceptance_test": "upper95<0等原条件才剪枝；对象CPU缺省保持未知，缺证不奖惩",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  },
+  {
+    "id": "R18",
+    "title": "研究动作到主链效果全链",
+    "producer": "ResearchObservatoryR30R1.stored(R18) / ResearchProvenanceGraphR30R1.project",
+    "inputs": "run→proposal→consume child→confirmation→experiment→精确REAL授权/结算",
+    "consumer": "DecisionGateEngine / SettlementEngine（图表只读）",
+    "formal_read_only": true,
+    "construction_action": "先恢复真实链；另修project无条件“REAL缺证”分支，匹配成功/待结算/未知/缺证分别画",
+    "acceptance_test": "合法SETTLED_EXACT才显示结算边；无回执/错实验/错授权/终态未知不能显示成功",
+    "producer_owner_scope": "ResearchObservatoryR30R1"
+  }
+]

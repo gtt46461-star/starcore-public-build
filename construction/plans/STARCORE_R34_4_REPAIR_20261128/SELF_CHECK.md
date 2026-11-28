@@ -1,0 +1,11 @@
+# 公开方案自检与范围
+
+公开版独立重新封包，验证46处置卡/50原发现映射/12批无环DAG、136公开源码锚、1407生产Java基线、4组候选及前后SHA和公开文件白名单。结果见validation/PUBLIC_PLAN_CHECK.json；此工具不读取原始诊断，也不把私有完整包的原件检查冒称本版原件检查。
+
+4候选顺序应用于临时副本见validation/candidate_cumulative.json；SQL100组、writer实际方法抽取30例、R18投影12例的实际主机结果保留在validation。所有候选未应用到产品，Android、完整JUnit/SQLite、设备及自然质量未验。
+
+独立方案审阅已修正训练对全部旧root的错误全局依赖、NO_PREDRAW与COMPLETED混淆、ColdRebirth原件边界、真实native pin回调、原catalog枚举兼容、DIAGNOSTIC工作快照回收门、B08/B09工程与自然回填、AtomNet/校准/父子claim生产责任和最低样本误读。全部详细合同仍在46卡与三份contracts。
+
+本公开版不含诊断ZIP、数据库、逐条事件/任务、内部对象hash、完整原台账/专项审计、C04精确内部任务五元组。完整包保留这些原件与更多验证，不作为公共提交的祖先或删除前历史。公开源码commit和文件SHA用于可重复施工，属于已公开源码身份。
+
+本次通过的层级仅为方案和列明的主机验证；不能承诺长期高胜率、每代必强或真实软件已修好。

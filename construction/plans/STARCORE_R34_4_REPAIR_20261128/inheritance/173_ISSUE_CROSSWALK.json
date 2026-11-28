@@ -1,0 +1,476 @@
+[
+  {
+    "old_id": "R343-001",
+    "title": "施工基线必须从152更新到真实安装173，并承接已完成改动",
+    "current_disposition": "REBASE_TO_211",
+    "reason": "底座从173推进到已安装211；main仍只维护方案",
+    "new_issues": [
+      "R344-001"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-002",
+    "title": "新返修计划要绑定真实构建，继续保留已运行的R34.2版本系列和签名链",
+    "current_disposition": "RETAIN_CURRENT_BUILD_CHAIN",
+    "reason": "保留已有field173/交付/语义工具，补本轮绑定与实际交付",
+    "new_issues": [
+      "R344-001",
+      "R344-046"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-003",
+    "title": "96项执行完成与完整软件验收不是一回事，原DB/APK/训练字节未随报告导出",
+    "current_disposition": "CONTINUE_EVIDENCE_GAP",
+    "reason": "本次40检查读取失败，原DB/APK仍未附，不能承袭旧执行完成",
+    "new_issues": [
+      "R344-007",
+      "R344-005"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-004",
+    "title": "本版研究启动被自身合法 TEMP 表确定性拒绝",
+    "current_disposition": "SOURCE_FIX_PRESENT_KEEP",
+    "reason": "四个精确TEMP表合同已在211；当前启动成本/资源等待另治",
+    "new_issues": [
+      "R344-014",
+      "R344-002"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-005",
+    "title": "同依赖三次BUG熔断没有有界恢复探测，研究可持续STALE",
+    "current_disposition": "SOURCE_FIX_PRESENT_RETEST",
+    "reason": "有界恢复探测已存在，保留并验同依赖恢复",
+    "new_issues": [
+      "R344-014"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-006",
+    "title": "三张能力表未落地；应修迁移所有者链而非在reader补表",
+    "current_disposition": "CONTINUE_OWNER_SCHEMA_VERIFICATION",
+    "reason": "以当前schema/迁移回执核能力表，不在reader补表",
+    "new_issues": [
+      "R344-014"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-007",
+    "title": "资源切片超限声明未注册类别RESOURCE_WAIT，会误计BUG",
+    "current_disposition": "PRODUCER_FIXED_CONSUMER_MISMATCH",
+    "reason": "当前producer使用RESOURCE_QUEUE，研究queue仍只认旧分类",
+    "new_issues": [
+      "R344-015",
+      "R344-011"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-008",
+    "title": "fault队列背压阻断历史回补和研究写入；具体排空卡点未被有效观测",
+    "current_disposition": "CONTINUE_WITH_NEW_DRAIN_EVIDENCE",
+    "reason": "本次35次drain均失败、共享热配额与原件归档阻断可定位",
+    "new_issues": [
+      "R344-011",
+      "R344-012"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-009",
+    "title": "主进程排空真值不可用，控制tick与真实排空尝试时间混淆",
+    "current_disposition": "PARTIAL_SOURCE_PRESENT_CLOCK_GAP",
+    "reason": "已有排空阶段观测仍缺可信snapshot时钟锚，不用新observer冒充main",
+    "new_issues": [
+      "R344-008",
+      "R344-011"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-010",
+    "title": "当前版本赛前冻结覆盖只有8/30，22个已开奖期缺赛前预测",
+    "current_disposition": "CONTINUE_NEW_SCOPE",
+    "reason": "当前119已开奖区间只有2事前冻结；不是旧8/30分母",
+    "new_issues": [
+      "R344-019",
+      "R344-023"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-011",
+    "title": "本版请求到持久提交P95=41672ms，保存阶段及全链时延未闭合",
+    "current_disposition": "CONTINUE_MEASURE_CURRENT",
+    "reason": "使用211本次时序与分段，不沿用173 P95",
+    "new_issues": [
+      "R344-018",
+      "R344-019",
+      "R344-022"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-012",
+    "title": "核心结算与1200动作延后证据闭环分离，FULL仍PENDING",
+    "current_disposition": "CONTINUE_EXACT_DEBT",
+    "reason": "核心结算与FULL延后证据分账；新报告有3099延后任务",
+    "new_issues": [
+      "R344-023"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-013",
+    "title": "四个旧赛前义务缺真实开奖，不能用近5000分母证明全局无待结算",
+    "current_disposition": "CONTINUE_CLASSIFY_OBLIGATIONS",
+    "reason": "本次163 LIVE_RETRY全缺shadow行，不能统称合法待补预测",
+    "new_issues": [
+      "R344-023"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-014",
+    "title": "coveredSettled=0含确定诊断错误：比较了两个不同语义域的hash",
+    "current_disposition": "SOURCE_FIX_PRESENT_KEEP",
+    "reason": "CoverageSettlementR343异域hash修复已在；新慢SQL另修",
+    "new_issues": [
+      "R344-003",
+      "R344-002"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-015",
+    "title": "5000行历史不等于连续5000期；时间窗口与训练输入必须识别缺口",
+    "current_disposition": "CONTINUE_SOURCE_CONTINUITY",
+    "reason": "按真实gap与cutoff，不以5000行代表连续5000期",
+    "new_issues": [
+      "R344-026",
+      "R344-029"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-016",
+    "title": "5000期保留策略未约束全库增长，数据库约4.345GB且freePages=0",
+    "current_disposition": "CONTINUE_LARGER_STORAGE_DEBT",
+    "reason": "31.18GB文件占用与5GB库，报告快照另有24.1GB",
+    "new_issues": [
+      "R344-009",
+      "R344-010"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-017",
+    "title": "检查点原始字节闭包未完成：556缺失，18未验，574未知子集",
+    "current_disposition": "CONTINUE_MISSING_ORIGINALS",
+    "reason": "当前556缺失、19未验、575未知子集仍缺闭包",
+    "new_issues": [
+      "R344-025"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-018",
+    "title": "抓取1秒是目标调度，实际1832槽有536 missed tick",
+    "current_disposition": "CONTINUE_CURRENT_CADENCE",
+    "reason": "当前87槽/23wake/64miss；不再用旧1832槽",
+    "new_issues": [
+      "R344-018"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-019",
+    "title": "后台权限具备但24/72小时设备连续性未验收；owner投影缺失",
+    "current_disposition": "CONTINUE_RUNTIME_PROOF",
+    "reason": "权限齐不等于24/72h业务连续性",
+    "new_issues": [
+      "R344-020",
+      "R344-006",
+      "R344-008"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-020",
+    "title": "历史崩溃与本版卡顿要分开：累计2次crash不等于本版又崩溃",
+    "current_disposition": "CONTINUE_SCOPE_SEPARATION",
+    "reason": "跨版本历史退出和本次稳定性分开",
+    "new_issues": [
+      "R344-021"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-021",
+    "title": "CP12把writer依赖阻断误判为候选输入完整性失败，四个现代候选被错误隔离",
+    "current_disposition": "PARTIAL_RECOVERY_AND_QUEUE_FIX",
+    "reason": "旧分类误终止已有窄恢复，当前producer/consumer又有错配",
+    "new_issues": [
+      "R344-015",
+      "R344-030"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-022",
+    "title": "已错误终结的四个任务必须做具备原始输入证明的单次恢复",
+    "current_disposition": "ONE_RECOVERED_FIFTH_MISSING",
+    "reason": "211已恢复1条；共5条原失败，白名单漏RULE第5条",
+    "new_issues": [
+      "R344-030",
+      "R344-031"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-023",
+    "title": "已有1203条独立验证分子仍因全4200目录门槛阻断五个learned family",
+    "current_disposition": "SOURCE_FIX_PRESENT_KEEP",
+    "reason": "局部验证前缀已可用，当前1303分子；不重套旧4200全量门修复",
+    "new_issues": [
+      "R344-032",
+      "R344-002"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-024",
+    "title": "历史快训需要按族历史需求，不应把5000含缺口和2066合法后缀混为一谈",
+    "current_disposition": "CONTINUE_REAL_TRAINING",
+    "reason": "保持CP9训练/验证与真实连续输入要求",
+    "new_issues": [
+      "R344-031",
+      "R344-026"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-025",
+    "title": "维护任务数量不能替代数值训练完成/策略持续创造",
+    "current_disposition": "CONTINUE_ARTIFACT_RECEIPTS",
+    "reason": "维护次数不是数值训练/策略创造",
+    "new_issues": [
+      "R344-017",
+      "R344-045"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-026",
+    "title": "现代AST3没有持续在线学习owner；43次更新只属于旧bootstrap",
+    "current_disposition": "OWNER_PRESENT_UPSTREAM_BLOCKED",
+    "reason": "RollingLearner已存在；开发回执为0使后续版本0",
+    "new_issues": [
+      "R344-034",
+      "R344-031"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-027",
+    "title": "持续创造有代码但当前生产没有形成独立新机制→训练→确认闭环",
+    "current_disposition": "CONTINUE_STRUCTURAL_EXECUTION",
+    "reason": "保留现有数学机制与typed变异，接真实训练和独立验证",
+    "new_issues": [
+      "R344-032",
+      "R344-033"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-028",
+    "title": "有限typed grammar已经存在，但其真实归纳与迁移产出未被本次报告证明",
+    "current_disposition": "CONTINUE_DONOR_TRANSFER_PROOF",
+    "reason": "供体proof/迁移pair未证明，不能按代码存在签收",
+    "new_issues": [
+      "R344-033"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-029",
+    "title": "基础数学实现/注册保留与当前可用能力必须分别呈现",
+    "current_disposition": "RETAIN_MATH_IMPLEMENTATION",
+    "reason": "15family实际6执行类型，旧F族另行保全",
+    "new_issues": [
+      "R344-032",
+      "R344-035"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-030",
+    "title": "teacher/bound/long/evolution等待是依赖阶梯，不是可通过造行解决的空表",
+    "current_disposition": "CONTINUE_REAL_DEPENDENCIES",
+    "reason": "教师/绑定/长周期按真实前置，不造行",
+    "new_issues": [
+      "R344-035",
+      "R344-029"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-031",
+    "title": "20个类型化矩阵与R952在线快照必须分别闭环，不能相互顶替",
+    "current_disposition": "CONTINUE_SEPARATE_MATRIX_DOMAINS",
+    "reason": "20注册矩阵与R952快照50/反馈48分开",
+    "new_issues": [
+      "R344-038"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-032",
+    "title": "多周期探针有少量新记录但尚未连续运行，同目标融合和机会分母不能混用",
+    "current_disposition": "CONTINUE_SAME_TARGET_RESEARCH",
+    "reason": "多周期与融合按同目标/截止/原件确认，不能混机会分母",
+    "new_issues": [
+      "R344-036",
+      "R344-038"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-033",
+    "title": "冻结—校准—独立Future—证书—主链自然贡献全零",
+    "current_disposition": "CONTINUE_UPSTREAM_TO_CERTIFICATE",
+    "reason": "当前冻结校准Future证书仍未形成，自上游修复",
+    "new_issues": [
+      "R344-043",
+      "R344-034"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-034",
+    "title": "必须以自然独立证据证明质量，合格后由现有唯一主链真实消费",
+    "current_disposition": "CONTINUE_INDEPENDENT_QUALITY",
+    "reason": "门槛保留，合格后由唯一主链真实消费",
+    "new_issues": [
+      "R344-043",
+      "R344-044"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-035",
+    "title": "18研究图的当前源生产/消费字段被报告元数据白名单永久置NULL",
+    "current_disposition": "SOURCE_FIX_PRESENT_KEEP",
+    "reason": "211当前帧计数可观测且明确0，不再是白名单永久NULL",
+    "new_issues": [
+      "R344-002",
+      "R344-036"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-036",
+    "title": "图表和研究帧元数据在768 KiB共享内联预算中被饿死",
+    "current_disposition": "SOURCE_FIX_PRESENT_KEEP",
+    "reason": "chartObjectIndex14/14、repairFrameIndex17/17已有覆盖",
+    "new_issues": [
+      "R344-002",
+      "R344-039"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-037",
+    "title": "仅数PRODUCED input-head会永久漏掉R06及三张正式只读图",
+    "current_disposition": "SOURCE_FIX_PRESENT_KEEP",
+    "reason": "已按COMMITTED frame联查；R06独立生产者保留",
+    "new_issues": [
+      "R344-002",
+      "R344-036"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-038",
+    "title": "非出生动作被标成actualSourceConsumptionReceipts，实际出生消费完全漏计",
+    "current_disposition": "SOURCE_FIX_PRESENT_RUNTIME_EMPTY",
+    "reason": "211已分bornExact/nonBornExact且保留BORN_SQL/ACTION_SQL原hash/child/role验证；读层修复保留，当前真实消费仍0，修生产动作链。",
+    "new_issues": [
+      "R344-037",
+      "R344-036",
+      "R344-002"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-039",
+    "title": "零、未知、历史hash和不适用被混为生产/消费状态",
+    "current_disposition": "CONTINUE_TRUTHFUL_PROJECTION",
+    "reason": "当前/历史/UNKNOWN语义继续保留并验",
+    "new_issues": [
+      "R344-039",
+      "R344-008"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-040",
+    "title": "“只有8张有数据”可证实为16逻辑表的8张非空，不能无证等同47图",
+    "current_disposition": "CONTINUE_UI_OBJECT_REGRESSION",
+    "reason": "16逻辑表8可读不等于47 UI图仅8成功，需逐对象验",
+    "new_issues": [
+      "R344-039"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-041",
+    "title": "冻结数据库中的主writer TTL投影可能被导出当下时钟错误判过期",
+    "current_disposition": "CONTINUE_SNAPSHOT_CLOCK_GAP",
+    "reason": "缺实际SQL pin时点时钟仍UNKNOWN，不把纯helper当producer",
+    "new_issues": [
+      "R344-008"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-042",
+    "title": "施工账本没有已验证完成项，R997局部状态不覆盖父需求",
+    "current_disposition": "CONTINUE_LEDGER_ACCEPTANCE",
+    "reason": "1832/299当前没有已验证完成，不用局部改动核销全体",
+    "new_issues": [
+      "R344-002",
+      "R344-045"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-043",
+    "title": "Owner架构静态PASS不能覆盖部署/模型/业务证据不足",
+    "current_disposition": "CONTINUE_RUNTIME_NOT_STATIC",
+    "reason": "82静态对象和81可调用不是81实际运行",
+    "new_issues": [
+      "R344-045",
+      "R344-035"
+    ],
+    "previous_contract_retained": true
+  },
+  {
+    "old_id": "R343-044",
+    "title": "分批施工必须交付可复核APK和实际原件，不能以计划自检代替软件完成",
+    "current_disposition": "CONTINUE_DELIVERY",
+    "reason": "实际APK/覆盖安装/原报告导出/长跑/未来质量分层交付",
+    "new_issues": [
+      "R344-046"
+    ],
+    "previous_contract_retained": true
+  }
+]

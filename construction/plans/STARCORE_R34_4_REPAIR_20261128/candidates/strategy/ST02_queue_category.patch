@@ -1,0 +1,88 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java
+@@ -242,7 +242,10 @@
+         if (failure instanceof DatabaseCoordinator.WriteRejectedR31) {
+             DatabaseCoordinator.WriteRejectedR31 rejected = (DatabaseCoordinator.WriteRejectedR31) failure;
+             if (rejected.commitOutcome != DatabaseCoordinator.CommitOutcome.ROLLED_BACK) return false;
+-            if ("DEPENDENCY".equals(rejected.category)) {
++            // Older persisted wrappers used DEPENDENCY; the current coordinator emits
++            // RESOURCE_QUEUE for this exact, pre-transaction backlog admission hold.
++            // Do not retry other resource failures, or an unproven commit outcome.
++            if ("DEPENDENCY".equals(rejected.category) || "RESOURCE_QUEUE".equals(rejected.category)) {
+                 Throwable cause = rejected.getCause();
+                 return "ADMISSION".equals(rejected.phase) && cause != null
+                         && "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN".equals(cause.getMessage());
+--- a/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31PreparedWriteContractTest.java
++++ b/app/src/test/java/com/ethk3/novaonepro/strategyv2/R31PreparedWriteContractTest.java
+@@ -96,15 +96,63 @@
+ 
+     @Test public void onlyRolledBackFaultBackpressureYieldsThePreparedSlice() {
+         String wait = "R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN";
+-        for (DatabaseCoordinator.CommitOutcome state :
+-                DatabaseCoordinator.CommitOutcome.values()) {
+-            DatabaseCoordinator.WriteRejectedR31 rejection =
+-                    new DatabaseCoordinator.WriteRejectedR31(
+-                            "DEPENDENCY", "R27_EVOLUTION_STAGING_2_0", "ADMISSION", state,
+-                            new IllegalStateException(wait));
+-            assertEquals(state == DatabaseCoordinator.CommitOutcome.ROLLED_BACK,
+-                    ResearchWriteQueueR27.writerBusy(rejection));
++        for (String category : new String[]{"DEPENDENCY", "RESOURCE_QUEUE"}) {
++            for (DatabaseCoordinator.CommitOutcome state : DatabaseCoordinator.CommitOutcome.values()) {
++                DatabaseCoordinator.WriteRejectedR31 rejection = new DatabaseCoordinator.WriteRejectedR31(
++                        category, "R27_EVOLUTION_STAGING_2_0", "ADMISSION", state,
++                        new IllegalStateException(wait));
++                assertEquals(category + ":" + state,
++                        state == DatabaseCoordinator.CommitOutcome.ROLLED_BACK,
++                        ResearchWriteQueueR27.writerBusy(rejection));
++            }
++            for (String phase : new String[]{"BODY", "END", "READBACK", "SCHEMA_PENDING"}) {
++                assertFalse(ResearchWriteQueueR27.writerBusy(new DatabaseCoordinator.WriteRejectedR31(
++                        category, "R27_EVOLUTION_STAGING_2_0", phase,
++                        DatabaseCoordinator.CommitOutcome.ROLLED_BACK, new IllegalStateException(wait))));
++            }
++            for (Throwable cause : new Throwable[]{null, new IllegalStateException("UNRELATED_QUEUE_CAPACITY"),
++                    new IllegalStateException("database is locked"), new IllegalStateException(wait + ":changed")}) {
++                assertFalse(ResearchWriteQueueR27.writerBusy(new DatabaseCoordinator.WriteRejectedR31(
++                        category, "R27_EVOLUTION_STAGING_2_0", "ADMISSION",
++                        DatabaseCoordinator.CommitOutcome.ROLLED_BACK, cause)));
++            }
+         }
+         assertFalse(ResearchWriteQueueR27.writerBusy(new IllegalStateException(wait)));
++        for (String category : new String[]{"INTEGRITY", "STALE_OWNER", "CANCELLED", "DISK_FULL", "BUG"}) {
++            assertFalse(ResearchWriteQueueR27.writerBusy(new DatabaseCoordinator.WriteRejectedR31(
++                    category, "R27_EVOLUTION_STAGING_2_0", "ADMISSION",
++                    DatabaseCoordinator.CommitOutcome.ROLLED_BACK, new IllegalStateException(wait))));
++        }
++    }
++
++    /** Admission/identity unit contract only: the JDBC suite must separately prove durable exactly-once effects. */
++    @Test public void rolledBackBackpressureRetainsPreparedIdentityAndDoesNotAdvanceCursor() throws Exception {
++        ResearchWriteQueueR27 queue = new ResearchWriteQueueR27((op, batch) -> {}, () -> false);
++        ResearchWriteQueueR27.ImmutableBatch prepared = prepare(new ResearchWriteQueueR27.Batch()
++                .add("UPDATE task SET cursor=? WHERE cursor=?", 11, 10));
++        String hash = prepared.payloadHash, key = prepared.commitKey;
++        DatabaseCoordinator.CommitIdentityR31 identity = prepared.identityR31;
++        AtomicInteger cursor = new AtomicInteger(10), attempts = new AtomicInteger();
++        java.lang.reflect.Method submit = ResearchWriteQueueR27.class.getDeclaredMethod("submitAttemptR31",
++                java.util.function.BooleanSupplier.class, boolean.class, boolean.class, Runnable.class);
++        submit.setAccessible(true);
++        Runnable write = () -> {
++            assertSame(identity, prepared.identityR31);
++            assertEquals(hash, prepared.payloadHash);
++            assertEquals(key, prepared.commitKey);
++            if (attempts.getAndIncrement() == 0) throw new DatabaseCoordinator.WriteRejectedR31(
++                    "RESOURCE_QUEUE", "R27_TEST", "ADMISSION", DatabaseCoordinator.CommitOutcome.ROLLED_BACK,
++                    new IllegalStateException("R31_WRITER_HOLD_FAULT_BACKLOG_PENDING_DURABLE_DRAIN"));
++            assertTrue(cursor.compareAndSet(10, 11));
++        };
++        assertFalse((Boolean) submit.invoke(queue, (java.util.function.BooleanSupplier) () -> false, false, false, write));
++        assertEquals(10, cursor.get());
++        assertEquals(1, attempts.get());
++        assertTrue((Boolean) submit.invoke(queue, (java.util.function.BooleanSupplier) () -> false, false, false, write));
++        assertEquals(11, cursor.get());
++        assertEquals(2, attempts.get());
++        assertSame(identity, prepared.identityR31);
++        assertEquals(hash, prepared.payloadHash);
++        assertEquals(key, prepared.commitKey);
+     }
+ }

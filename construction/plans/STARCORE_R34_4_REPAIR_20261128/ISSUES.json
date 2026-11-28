@@ -1,0 +1,1742 @@
+{
+  "schema": "STARCORE_R344_211_ISSUES_1",
+  "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "count": 46,
+  "issues": [
+    {
+      "origin_id": "G01",
+      "origin_ids": [
+        "G01"
+      ],
+      "batch": "B00",
+      "title": "施工应用底座必须锁定211，main旧应用树不能覆盖安装源码",
+      "priority": "P0",
+      "cause": "应用交付源码与方案维护主分支分离，旧入口仍绑定173。若把main直接当211或强套173后态，会覆盖已经实现的调度、数学内核、训练恢复和导出功能。",
+      "certainty": "EXACT_REPORT_IDENTITY_AND_GIT_TREE_DIFF",
+      "source_files": [
+        "release/release_manifest.json",
+        "release/field173_plan_binding.json",
+        "tools/r343/build_identity.py",
+        "tools/r343/prepare_field_batch.py"
+      ],
+      "preserve": [
+        "211完整源树、包名com.starcore.research.r13、现有签名与历史封印",
+        "main旧应用源保持不动，只更新方案入口"
+      ],
+      "repair": [
+        "从精确5c7f1b36或核验过的后代隔离开工，读本计划SOURCE_ANCHORS和APPLICATION_SOURCE_BASELINE；不在main应用目录套补丁。",
+        "新增本轮补充计划身份/CI校验时复用现有版本与语义重绑定工具，保留field173及旧封印；新元数据必须由构建和报告消费者显式读取，不能只放一个无消费者文件。",
+        "每次遇到源SHA漂移做三方对比并保留后代改进，不使用force/reject或整目录替换。"
+      ],
+      "acceptance": [
+        "错误main基线和旧173after应被拒绝；211精确锚点通过。",
+        "源/计划/APK/版本/签名能互证；新增语义角色已登记，构建不等最后一批才核。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-001",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "G03",
+      "origin_ids": [
+        "G03",
+        "CV11"
+      ],
+      "batch": "B00",
+      "title": "旧修复与1832需求/299卡必须保全并逐项取证，不能按版本号宣告完成",
+      "priority": "P0",
+      "cause": "代码实现、旧补丁落地、运行产出与完成签收是不同层。旧问题不加审查重开会导致回退，而只看版本号或任务数会遗漏仍未跑通的能力。\n\nCV11 补充：main旧app源不能直接作211应用施工底座；当前计划173仍需逐项继承但必须重新核current code。\n\nR343-035白名单已修，036元数据预算已隔离，037已用原committed cache/run计数；当前零产物是运行问题，不是这三处旧读层bug继续存在。\n\n有界payload摘要有意少量展示；researchFrames2/28、runs4/30、measure1/538不得当原表只有2/4/1。",
+      "certainty": "EXACT_OLD_PATCH_COMPARISON_AND_EXPORTED_LEDGERS",
+      "source_files": [
+        "tools/r343/rebind_semantic_inputs.py",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java"
+      ],
+      "preserve": [
+        "旧49文件既有修复及15个后续合法差异",
+        "旧有效8类数据/原图表、所有未核销需求、失败与原始验收记录",
+        "211已成功的035/036/037修复",
+        "原已可导出的报告",
+        "173其余有效条目和8旧图"
+      ],
+      "repair": [
+        "逐条继承44个173问题，写清已修代码保留、运行仍缺证、当前新根因；本计划提供继承矩阵。",
+        "1832/299原合同留存，逐条以实际owner/原件映射核销；未覆盖项目继续未检查，不批量写完成。",
+        "新增文件先进入当前R967/R82语义身份，历史角色与封印不删改；每批检查对原功能的影响。",
+        "只在5c7f精确底座应用最小补丁；给旧项记录IMPLEMENTED/REVERIFY_RUNTIME，不再复制旧全文件。",
+        "保留完整成员和索引专额；进一步优化慢源不删除检查/附件。",
+        "通过现原件检索确认大payload总分母和省略状态，原ZIP本体不改。"
+      ],
+      "acceptance": [
+        "继承44问题、1832需求及299卡集合无丢失无无依据PASS。",
+        "关键旧输入前后可重复，原件与图表有效读数保留，报告导出保持兼容。",
+        "施工前base commit/file hash验证；错误base拒绝应用。",
+        "035明确0不回null；036各元数据索引全覆盖；037R06/formal current frame计数回归。",
+        "升级导出可取消/成功/重做；原报告格式、成员及hash验证保留。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-002",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT01",
+      "origin_ids": [
+        "RT01"
+      ],
+      "batch": "B01",
+      "title": "报告覆盖率查询在全事件联表上超时",
+      "priority": "P0",
+      "cause": "readCoverageR342 先写事件表 JOIN scope，再 min(target_issue)。原件明确卡在此查询；未提供实际 EXPLAIN，不能断言手机必定用了哪个索引。当前安装范围选择可从已有 r341_observation_release 索引驱动，避免优化器优先遍历庞大事件表。",
+      "certainty": "EXACT_STACK_AND_SOURCE; ACTUAL_QUERY_PLAN_PENDING",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java"
+      ],
+      "preserve": [
+        "原 min 语义、游戏/发行版/源码/数据库过滤、合法12位期号、30期分母",
+        "完整报告96项及只读快照"
+      ],
+      "repair": [
+        "readCoverageR342:278–333 的第一条SQL以 scope s CROSS JOIN event e ON e.event_id=s.event_id 定向从当前scope索引取外层；见已写候选patch。",
+        "记录查询实际行数和 EXPLAIN；后续30期相关 EXISTS 也按 event_id/target_issue 与scope键验证执行计划，不把当前范围强裁成最新任意N行。"
+      ],
+      "acceptance": [
+        "候选SQL在50000事件、100组scope夹具返回值逐一等价；此项已运行。",
+        "在原5GB快照上复测 RSEC009；当前安装范围完整保留，超时从原始原因引用可追溯；目标设备性能另验。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-003",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT02",
+      "origin_ids": [
+        "RT02"
+      ],
+      "batch": "B01",
+      "title": "共享诊断依赖失败后被多个检查反复重新构建",
+      "priority": "P0",
+      "cause": "同一报告快照内只缓存成功值，昂贵依赖失败后下游每次重建。不是缓存了旧的取消信号；runCheck:122每项创建新signal并在finally清除。",
+      "certainty": "CONFIRMED_SOURCE_PATH",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java",
+        "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java"
+      ],
+      "preserve": [
+        "新旧scope隔离、取消传播、UNKNOWN不转0、不可变快照",
+        "runCheck在原owner线程同步执行；不启动额外共享连接SQL工作线程"
+      ],
+      "repair": [
+        "引入只在本次ReportReadContext生命期有效的依赖结果：键(snapshotSha,sourceCommit,dependencyName,parameterHash,definitionVersion)，状态 SUCCESS/SOURCE_UNAVAILABLE/CANCELLED，失败带原errorRef与attempt耗时。",
+        "把model/runtime/dashboard按共同事实拆成可独立取数的依赖；一次失败仅使真正依赖该事实的检查输出DEPENDENCY_UNAVAILABLE，不把别的检查短路。",
+        "允许该依赖在新的显式重试/新报告context重算；全局用户取消不得负缓存为普通失败。旧失败对象不得跨快照复用。"
+      ],
+      "acceptance": [
+        "同一失败依赖在同次报告只执行一次；每个原检查仍逐项有ID、状态及真实依赖错误，不能把全部40项都强绑同一依赖。",
+        "一项取消后必须等当前runner实际返回、所有Cursor关闭再开始下一项；若未来引入Future，cancel不等于已退出，未确认退出必须终止该reader并重开只读连接。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-004",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT03",
+      "origin_ids": [
+        "RT03",
+        "CV01"
+      ],
+      "batch": "B01",
+      "title": "报告共享180秒预算耗尽后压缩后续检查为1秒",
+      "priority": "P0",
+      "cause": "早期慢查询/渲染消耗共享预算，后续原本可能正常的检查被降到1秒，造成检查覆盖级联失败。根因包含SQL、渲染/哈希和累计调度，不能把全部40项都归为同一SQL。\n\nCV01 补充：注册覆盖完整与检查结果可用是两件事；67投影来源分母不能替代96检查分母。\n\n共享180秒预算、单项1–20秒与失败依赖未记忆导致后续重复重算和1秒失败扇出。\n\nRSEC009当前scope min(e.target_issue)联表是已定位慢链之一；RSEC010 renderer hash、RSEC018 acceptanceWindow等栈独立，禁止把40项全归咎同一SQL。\n\n每次runCheck创建自己的取消signal并finally清理；没有证据支持沿用旧signal为根因。",
+      "certainty": "CONFIRMED_SOURCE_AND_OUTPUT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java"
+      ],
+      "preserve": [
+        "每项明确超时/取消、总阶段上限、同连接同步执行、96项数量",
+        "原index/archive/semantic receipt/share接口及中文报告章节",
+        "全部96注册检查",
+        "原完整ZIP导出及取消协议",
+        "每检查局部signal与错误引用"
+      ],
+      "repair": [
+        "把全局预算改为“本轮工作时间片+可恢复进度”，每项或依赖有独立budget；全局时间片耗尽时checkpoint到job并PAUSED续跑，不将未运行项伪装READ_ERROR。",
+        "昂贵查询用稳定主键分页与已验证部分产物断点；检查取消后关闭本项renderer，不损坏已完成附件。",
+        "必须先做RT01/RT02，再校准预算；禁止仅增大超时或将失败强写PASS。",
+        "内部UNAVAILABLE/PAUSED/NOT_STARTED不得直接序列化为CheckResult.execution_state；保持EXECUTED/READ_ERROR/CANCELLED枚举，来源失败用READ_ERROR+SOURCE_UNAVAILABLE+UNKNOWN+errorRef，进度独立持久。默认DIAGNOSTIC交付/回收不增加业务全PASS或checksComplete门槛。",
+        "按真实栈分别优化输入范围、必要索引/查询计划与任务级成功/失败依赖记忆；保持取消错误独立。",
+        "为可恢复来源失败保留明确引用与原错误；不能捕获失败返回0/空集。",
+        "保留96检查、原导出成员与完成/失败语义；执行预算整改不砍检查。"
+      ],
+      "acceptance": [
+        "连续3次导出、导出中取消再恢复、杀diagnostics进程后恢复、低空间/慢盘/共享读取同时发生均可拿到有效ZIP或明确可恢复失败。",
+        "完整报告96项全部保留，SOURCE_EMPTY/UNAVAILABLE/FAIL/PASS分别统计；一项耗时不能压缩无依赖项预算。",
+        "固定211快照fixture分别触发009、010、018，比较查询计划/读取量/耗时。",
+        "同依赖故障仅执行一次但各依赖检查正确UNKNOWN；下一次新报告重试。",
+        "取消、源错表、单检查timeout后其余合理预算内运行；导出仍可取消/重做。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-005",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT12",
+      "origin_ids": [
+        "RT12"
+      ],
+      "batch": "B01",
+      "title": "业务scope JSON被300字符展示截断器截坏",
+      "priority": "P0",
+      "cause": "结构化身份字符串错误地使用UI短文本清洗函数，丢失完整databaseIdentity、sample clocks与scopeKind，影响后续同源合并和健康判定。",
+      "certainty": "CONFIRMED_EXACT_DEFECT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java"
+      ],
+      "preserve": [
+        "safe对其他展示字符串的原有限长行为；完整scope的原schema和字段；跨进程边界"
+      ],
+      "repair": [
+        "只替换BusinessTruth.observationScope赋值为完整字符串（null→空、允许trim），见候选patch；解析/验证继续由scope consumer处理。",
+        "结构化原件如需限长必须作为独立附件保存原字节并标UNAVAILABLE，不能输出貌似JSON的截断片段。"
+      ],
+      "acceptance": [
+        "433字符有效scope在赋值/序列化/导出后全部字段一致；原报告300字符反例确定不可JSON解析。",
+        "candidate patch apply --check已过；尚未Android编译或真机验收，不标软件已修好。"
+      ],
+      "boundary": "保全完整JSON不能补造快照pin时点单调时钟锚；主writer冻结投影的独立缺口见RT19。",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-006",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT16",
+      "origin_ids": [
+        "RT16"
+      ],
+      "batch": "B01",
+      "title": "报告是诊断包，不能独立重放全部SQLite/APK/训练原件",
+      "priority": "P1",
+      "cause": "包已成功导出且文件完整，但其profile排除原始数据库/APK/model/training，完整诊断目录不等于全原件可复现。属于证据边界，不可据此指控CRC损坏。",
+      "certainty": "CONFIRMED_PROFILE_BOUNDARY",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java"
+      ],
+      "preserve": [
+        "默认易传输的DIAGNOSTIC模式、原件单独完整备份入口、固定manifest及SHA验证"
+      ],
+      "repair": [
+        "在同一UI/报告同时显示：归档完整性、检查完成率、业务健康、原件覆盖率四个独立结论。",
+        "原始大库验性能/重放需用既有FULL_RAW或目标设备测试提供证据，不能在这份19.7MB内假称存在5GB数据库。",
+        "继续对ZIP及各附件SHA/CRC做独立校验，保留完整排除清单和精确源码身份。"
+      ],
+      "acceptance": [
+        "诊断模式不会因未请求的原件缺失阻塞导出；明确请求FULL_RAW时任何缺件导致真实INCOMPLETE而不是强标完整。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-007",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT19",
+      "origin_ids": [
+        "RT19"
+      ],
+      "batch": "B01",
+      "title": "冻结快照缺主writer单调时钟锚，历史原件不能投影为当时状态",
+      "priority": "P1",
+      "cause": "现有报告job仅记录snapshotWallMs，未独立记录真正SQLite读快照pin的单调时钟区间及生产者身份。WriterFaultSnapshotViewR343因此正确保留原始hash已核验历史行并返回UNKNOWN。RT12修复JSON截断只保全身份字符串，不会生成缺失的pin锚；用旧样本自己的sampleElapsed或导出时刻作为锚会循环自证/跨进程误判。",
+      "certainty": "CONFIRMED_EXACT_SOURCE_CONTRACT_AND_REPORT_BOUNDARY",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/cpp/report_native_cp4.c"
+      ],
+      "preserve": [
+        "旧173方案R343041所保留的历史证据/当时证据/当前在线状态严格区分；UNKNOWN不改0/PASS",
+        "WriterFaultSnapshotViewR343原hash、source、release、database、boot、TTL和pin区间全覆盖校验；报告后台native独立owner、无实时writer长锁",
+        "旧报告无锚时仍可导出原件和明确UNKNOWN，不能为了新附件缺失阻断正常导出"
+      ],
+      "repair": [
+        "沿ReportExportServiceCP4:362–368、copyPinnedSnapshot:979–989与ReportNativeCP4.backup桥，在实际BEGIN+schema读取固定SQLite水位的窄区间独立取elapsedRealtime同域before/after；不要使用整个5GB复制时长，也不从sample本身推算。JNI/native回调需绑定snapshot capture ID并在最终hash可得后以原子sidecar绑定snapshotSha/bytes、source/release/database/boot、diagnostics采集PID/epoch以及主writer生产PID/epoch证据及其取得方式。",
+        "将已验证sidecar作为可选Anchor传入fromSnapshot，校验旧样本sampled<=earliestPinMono且validUntil>=latestPinMono、时钟同boot同域、完整身份和回执hash；失败保留UNKNOWN及具体原因，不拉长12秒TTL掩盖陈旧。",
+        "绑定成功最多输出OBSERVED_AS_OF_SNAPSHOT_INTERVAL；当前在线main健康另走validate的actualProducer+actualEpoch实时证据，不能把冻结SQL行当当前main内存。原先无锚的快照不可事后补造，应继续UNKNOWN或真正新采集快照。",
+        "侧车读取/旧job兼容走现有manifest/附件路径，保持压缩包与share接口；新增采样失败只影响该投影状态，不影响用户拿到诊断包。",
+        "把app/src/main/cpp/report_native_cp4.c的cp4_backup_impl实际BEGIN+schema pin成功窄区间与ReportNativeCP4 JNI绑定纳入修改；旧now_ms使用CLOCK_MONOTONIC，不能与elapsedRealtime样本直接比较。采用Java同域回调或显式CLOCK_BOOTTIME并核boot/source/database/snapshot身份；锚失败仍按原协议导出UNKNOWN。"
+      ],
+      "acceptance": [
+        "空锚、错误snapshot/source/database/boot、进程epoch不匹配、过期样本、逆序pin及中途换owner均保持明确UNKNOWN；原historicalOriginal和SHA照常导出。",
+        "同一boot同一clock、独立pin区间完全在样本TTL内且身份匹配，才得到AS_OF_SNAPSHOT；延后导出和主进程重启不能升级成LIVE_FRESH。",
+        "大库复制超过12秒仍只用实际pin窄区间验证；取消/进程死亡不发布半个锚；重复导出保留旧SHA与原receipt。",
+        "RT12与RT19分别回归：有效完整scope不自动使本项已验收。尚未实现native/Android补丁或真机验证。"
+      ],
+      "boundary": "本次历史样本内容包括pending32等数据可用于审计历史时点与代码路径，但无法证明报告观察时主writer仍堵塞或仍在线。没有真实pin回执不能从其他较晚cohort.sampleMonoAt回推原冻结时点。",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-008",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT04",
+      "origin_ids": [
+        "RT04"
+      ],
+      "batch": "B02",
+      "title": "报告/保留快照占24.1GB，失败快照没有退役闭环",
+      "priority": "P0",
+      "cause": "保护唯一失败输入是有效规则，但缺少“失败快照恢复成已验证产物→安全退役”的状态转移，重复创建新请求可累积整库副本。此次清单未含每份job正文，不能把5份全部判定为FAILED或泄漏；当前活跃快照本来就应存在。",
+      "certainty": "CONFIRMED_STORAGE; CONFIRMED_POTENTIAL_RETENTION_TRAP; PER_JOB_STATUS_PENDING",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java"
+      ],
+      "preserve": [
+        "只读冻结快照、唯一原件保护、活动share锁、已发布ZIP、校验和、原失败回执",
+        "禁止按目录年龄、大小或新报告成功就删除不同hash旧快照"
+      ],
+      "repair": [
+        "先追加只读job清单：jobId、stage、snapshotHash/bytes、原request profile、publication proof、active readers、cleanupReason；作为独立小附件，不能阻塞导出。",
+        "READY_TO_SHARE继续现有verifyPublishedZip+semantic receipt+profile核验，独占share lease后cleanRaw，只清临时workspace；清理失败不得降级READY。",
+        "FAILED的DIAGNOSTIC任务复用同一快照生成完整所请求范围的诊断包并保留失败历史，验证ZIP/manifest/语义回执后转READY并清理；不得生成空壳ZIP作为替代。",
+        "FAILED的FULL_RAW必须验证替代产物含同hash同字节snapshot及所请求原件；尚未获得替代证明就显示具体保护原因与恢复动作，不无限静默保留。",
+        "新请求优先恢复明确匹配同job/同profile的失败任务，不用相近时间或同版本替代snapshot identity；使用相同owner状态机，不新建平行清理器。"
+      ],
+      "acceptance": [
+        "构造5份不同hash失败任务：恢复与清理只处理有精确替代证明者；其余保留且界面列明原因。",
+        "连续3次正常导出后临时快照占用回落，分享链接仍可读取、逐成员CRC/SHA校验通过；取消/进程死亡任一边界不丢唯一原件。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-009",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT05",
+      "origin_ids": [
+        "RT05"
+      ],
+      "batch": "B02",
+      "title": "draws已限5000，但热库大表仍持续膨胀",
+      "priority": "P0",
+      "cause": "5000期限制只覆盖draws，派生动作/事件/修订/图表与待写原件没有同等生命周期终点；freelist_count=0说明不能靠一次VACUUM凭空缩小当前有效页。",
+      "certainty": "CONFIRMED_DATA; TABLE_POLICY_REQUIRES_OWNER_REVIEW",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionRevisionSchemaCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java"
+      ],
+      "preserve": [
+        "待结算/训练引用、checkpoint/CAS闭包、未确认迁移备份、真实出手账本、原始失败证据"
+      ],
+      "repair": [
+        "逐表补充owner、immutable/mutable、期号字段、pin规则、可重建依据和归档证明；按5000期滚动窗口管理可替代派生数据，长期模型只保留必要原始模型及压缩统计。",
+        "对k3动作空间避免每期重复存同一静态1200组合：组合表一次存、每期保留明确候选与必要分数/引用；先证明回放重建等价，再退役旧行。",
+        "deferred jobs只在产物提交并readback后退休原payload；runtime event和row revision在消费ACK及快照pin释放后分批归档。",
+        "逻辑退役后再在现有离线维护窗口压缩；按预检空间/校验/原子替换/恢复证明执行，不在实时writer中全库VACUUM。"
+      ],
+      "acceptance": [
+        "5000期后继续运行，所有表/文件按其声明预算进入稳定区间；新建事件量与回收量均有实测。",
+        "保留回放、当前待结算、活跃训练和报告导出；故障注入回滚不丢历史。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-010",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT06",
+      "origin_ids": [
+        "RT06"
+      ],
+      "batch": "B02",
+      "title": "写耗时故障队列被共享故障热配额卡住，反向抑制研究",
+      "priority": "P0",
+      "cause": "故障热表被其他mutable/未知producer占用时，故障归档器不能退休这些行，新writer故障又无法落库；内存队列≥24触发deferResearch。DatabaseCoordinator:1023仅有公平槽豁免；ColdRebirth/提交队列前置gate仍可能挡住进度。",
+      "certainty": "CONFIRMED_CODE_CYCLE_AND_HISTORICAL_SNAPSHOT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultArchiveB01.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java"
+      ],
+      "preserve": [
+        "单writer、commit identity、原故障字节/hash、pending outbox、P0 freeze优先、未证明不可删"
+      ],
+      "repair": [
+        "把WRITER_HOLD已封存原件写入独立有界durable spool/CAS并持有locator收据，不再与可变故障聚合表争同一热配额；通过原有RESEARCH_CONTROL通道落index，不另开writer。",
+        "可变producer增加seal/rotate合同：旧版本按revision/hash封存并readback后生成retire permit，新occurrence写新版本，不能覆盖未归档原件。",
+        "设置storage recovery控制槽与研究计算/持久化公平槽；明确压力和“正在进行且即将截止的freeze”不同，修复前置gate，避免准入前饿死。",
+        "先恢复durable inflight旧批次，核commit回执；只在原件或CAS读回一致后减pending/释放内存，绝不能清空队列伪恢复。"
+      ],
+      "acceptance": [
+        "混合2000条可变/不可变故障+已有inflight+重启夹具中drain能真实前进、pending降到24以下，研究能产出新artifact。",
+        "不重放已提交业务、不丢故障原件；存储满时保留明确INCOMPLETE，P0调度不被诊断写锁长期阻塞。"
+      ],
+      "boundary": "投影本身 observationState=UNKNOWN、SNAPSHOT_CLOCK_ANCHOR_UNAVAILABLE；这些是快照中hash验证历史行，不能称现在主进程仍是相同32条。",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-011",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT07",
+      "origin_ids": [
+        "RT07"
+      ],
+      "batch": "B02",
+      "title": "故障观测队列已经丢弃41次超限证据",
+      "priority": "P1",
+      "cause": "内存队列最大32，持久化排空不能前进时后续fault observations被拒，统计不再完整；这是故障观测证据损失，不代表业务事务本身丢了41次。",
+      "certainty": "CONFIRMED_RECORDED_EVIDENCE_GAP",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java"
+      ],
+      "preserve": [
+        "显式capacityLoss和不完整状态",
+        "有界内存，不为保全观测无限扩容"
+      ],
+      "repair": [
+        "与RT06同修：有界预留spool提供durable first-write；保留不可恢复观测的序号区间与loss计数，不回填伪异常。",
+        "把业务成功与诊断持久化失败独立，不让已commit业务重跑；故障重复按producer/revision/hash保全原件后聚合。"
+      ],
+      "acceptance": [
+        "压力/低磁盘注入可复现观测失效且UI/报告标INCOMPLETE；恢复后新观测不持续丢失。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-012",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT15",
+      "origin_ids": [
+        "RT15"
+      ],
+      "batch": "B02",
+      "title": "启动观测日志自身容量被保护规则阻塞",
+      "priority": "P1",
+      "cause": "journal封存/归档保留没有及时形成可释放闭包，观察记录容量不足；不能为了记录完整再阻塞业务owner，也不能覆盖未导出的唯一失败原件。",
+      "certainty": "CONFIRMED_OBSERVABILITY_CAPACITY",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/StartupStageJournalR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java"
+      ],
+      "preserve": [
+        "startup token BEGIN/END配对、原异常hash、未闭合token、用户取消语义"
+      ],
+      "repair": [
+        "已闭合token按段封存成hash校验附件并写locator/retire receipt；未闭合token保留在当前日志。",
+        "保留最小emergency槽及丢失区间记录；journal写失败独立观测状态，不把业务已成功阶段回退。",
+        "将4个pending引用在下次导出前补附件回读或明确原因，而不是把referenced数当attached。"
+      ],
+      "acceptance": [
+        "循环故障/反复升级后journal仍可追加；所有已封存段有完整替代原件；已成功业务不会因观测故障被重复执行。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-013",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT08",
+      "origin_ids": [
+        "RT08"
+      ],
+      "batch": "B03",
+      "title": "研究启动经历约53.7秒和5次尝试才就绪",
+      "priority": "P1",
+      "cause": "研究启动依赖迁移/retention/bootstrap写批次与高优先级writer竞争。当前最后已就绪，不能说启动永久失败；主要是脆弱长尾和多次重试。",
+      "certainty": "CONFIRMED_CURRENT_STARTUP_SAMPLES",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "preserve": [
+        "域迁移事务、DDL逐单元收据、重入fence、已完成阶段复用、关键主链先就绪"
+      ],
+      "repair": [
+        "按现有prepareStartupSchemaR34阶段收据跳过已提交单元，依赖尚未变更采用可恢复退避而不是重跑整初始化。",
+        "DDL/初始化数据在事务外准备，保留小批次；写槽统计等候与实际SQL分离，确保迁移fair turn真的能穿过前置gate。"
+      ],
+      "acceptance": [
+        "旧5GB库冷启、覆盖安装、中断每个迁移单元再启均只提交一次；记录主链ready与research ready各自P95。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-014",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST02",
+      "origin_ids": [
+        "ST02"
+      ],
+      "batch": "B03",
+      "title": "writer backlog生产/消费category错配破坏prepared重试",
+      "priority": "P0",
+      "cause": "DatabaseCoordinator对故障积压已返回RESOURCE_QUEUE/ADMISSION/ROLLED_BACK，ResearchWriteQueueR27.writerBusy却仅识别旧DEPENDENCY同因异常。两端分类契约不一致，导致已准备的批次抛出而非保留重试。",
+      "certainty": "B_SOURCE_PROVEN_RISK",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "preserve": [
+        "UNKNOWN/COMMITTED不得自动重试；同batch/identity/cursor保持；完整JDBC/设备仍待验"
+      ],
+      "repair": [
+        "仅为精确ADMISSION/ROLLED_BACK/backlog cause兼容DEPENDENCY与RESOURCE_QUEUE",
+        "使用ST02窄候选；任何其它RESOURCE_QUEUE、非ADMISSION或非ROLLED_BACK结果继续原失败/查询回执路径。禁止在等待分支重建ImmutableBatch、重采RNG或更新cursor。"
+      ],
+      "acceptance": [
+        "UNKNOWN/COMMITTED不得自动重试；同batch/identity/cursor保持；完整JDBC/设备仍待验",
+        "运行当前/旧category×全部CommitOutcome、错phase、错cause和非白名单反例；已运行30例抽取方法测试仅计SOURCE_EXTRACTED_CLASSIFIER，不代签完整JUnit。",
+        "native SQLite夹具先拒绝ADMISSION，再提交同一prepared；比对同payloadHash/commitKey/inputSnapshot，业务cursor只增一次。UNKNOWN提交经receipt回读后不重复推进。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-015",
+      "supplemental_method_anchors": [
+        "ResearchWriteQueueR27.writerBusy:241–253",
+        "ResearchWriteQueueR27.submitAttemptR31:185–203",
+        "DatabaseCoordinator.runWrite:1023–1026"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST03",
+      "origin_ids": [
+        "ST03"
+      ],
+      "batch": "B03",
+      "title": "队列前置broad pressure可挡住已有公平dataset服务",
+      "priority": "P0",
+      "cause": "队列在登记prepared dataset和进入协调器公平槽之前先以broad critical反复等待；只有HISTORY_IMPORT得到有限豁免。连续实时压力下REPLAY_DATASET可能永远到不了已有研究公平服务。现场相容，仍缺当次同owner准入原件，不能说这是唯一已证现场根因。",
+      "certainty": "B_SOURCE_PROVEN_RISK_FIELD_CAUSE_NOT_EXCLUSIVE",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "preserve": [
+        "保留active settlement/freeze优先、单writer、deadline、fence；不按op字符串随意放行"
+      ],
+      "repair": [
+        "绑定真实prepared身份的有界服务票据，统一队列和coordinator公平裁决",
+        "真实payload冻结后、外层队列等待前登记prepared身份；服务票据同时绑定task/owner/fence/input/payload/确切阶段。stage/recovery/final publication按C2合同显式登记，不能靠op名字冒充资格。",
+        "记录准备年龄、请求/授予/提交和拒绝原因；新head不得无故重置已有ready年龄。取消或worker实际退出释放票据；解压/训练留在writer外。"
+      ],
+      "acceptance": [
+        "保留active settlement/freeze优先、单writer、deadline、fence；不按op字符串随意放行",
+        "broad pressure持续30秒、无active settlement/freeze时，真实ready小事务获得原单writer服务并提交artifact；中途加入freeze waiter，freeze先服务且研究让出。真实关键事务持续饱和时诚实SATURATED，不承诺越过物理容量。",
+        "旧fence、取消、错误input/payload和源修正均不得借公平槽提交；每个阶段重投只记同一真实产物一次。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-016",
+      "supplemental_method_anchors": [
+        "ResearchWriteQueueR27.submit(ImmutableBatch):153–173",
+        "ResearchWriteQueueR27.submitAttemptR31:185–203",
+        "RuntimeR27.DatasetTask.step:236–340",
+        "WriteBudgetR341.DatasetService:118–190"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST13",
+      "origin_ids": [
+        "ST13"
+      ],
+      "batch": "B03",
+      "title": "大量task receipt没有绑定artifact，RUNNING不能视为算法推进",
+      "priority": "P1",
+      "cause": "任务运行/维护回执数很大，但许多没有绑定实际artifact。RUNNING/心跳和任务次数不足以证明算法、数值训练或策略代际前进，需要贯通claim/prepare/admission/commit/consumer。",
+      "certainty": "A_REPORT_COUNTER_SEMANTICS",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java"
+      ],
+      "preserve": [
+        "保留原计数口径；不得回填历史artifact；历史异fence故障不当本次唯一原因"
+      ],
+      "repair": [
+        "补attempt→claim→prepared→admission→artifact→consumer漏斗，绑定同源同owner时段",
+        "复用真实提交者的afterOwnedArtifact和任务进度记录，以task/ownerEpoch/fence/input/commitKey关联artifact。WAIT、NO_NEW_EVENT、控制心跳允许没有artifact，不可为填满漏斗伪造hash。"
+      ],
+      "acceptance": [
+        "保留原计数口径；不得回填历史artifact；历史异fence故障不当本次唯一原因",
+        "构造100次等待/心跳不提交产物，artifactWork仍0；随后一次真实artifact事务令其恰增1，重复读取/重复receipt不增长。",
+        "同task换owner/fence后历史fault不归因到当前owner；报表保留源版本与窗口分母。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-017",
+      "supplemental_method_anchors": [
+        "ResearchPoolR27.record:313",
+        "ResearchStoreR30R1.afterOwnedArtifact:34",
+        "RuntimeCoordinatorR26 currentOwnerArtifact/progress projection:259–273"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT09",
+      "origin_ids": [
+        "RT09"
+      ],
+      "batch": "B04",
+      "title": "1秒抓取目标未实现，调度和入库阶段均有长尾",
+      "priority": "P0",
+      "cause": "原件能区分等待slot、网络和ingest；当前目标调度1秒不等于1秒获得新开奖。具体网络失败码与429是否真实发生须读取对应fetch ledger，不从统一scheduleReason推断。",
+      "certainty": "CONFIRMED_CURRENT_SERVICE_WINDOW",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java"
+      ],
+      "preserve": [
+        "防重入、网络退避、开奖验证、同issue幂等、服务器约束"
+      ],
+      "repair": [
+        "复用现有单轮抓取，网络回调与短durable ingest脱离研究重计算/大日志；每槽记录scheduled/wake/network/validated/committed单调时钟。",
+        "将准备好的payload以短原子写落库并发布事件；过期目标与当前下一期分队列，不能让历史补课排在实时冻结前。",
+        "有真实429时尊重退避并记外部限制；平稳正常网络区间独立验收1秒调度。"
+      ],
+      "acceptance": [
+        "至少连续1440期对每个目标槽给分母与missing原因；正常网络调度指标和端到端落库指标分别满足目标；断网恢复不造赛前历史预测。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-018",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT10",
+      "origin_ids": [
+        "RT10"
+      ],
+      "batch": "B04",
+      "title": "赛前冻结大量缺失且推理长尾",
+      "priority": "P0",
+      "cause": "已记录的部分推理在有效时限前未形成durable frozen，后续按原规则进入无赛前终态；但当前发行版cohort已有3次canonical成功，不能写成冻结从未形成。当前代码fastFallback=UNSUPPORTED_UNTIL_PREREGISTERED_QUALIFIED_IMPLEMENTATION，不能临时假装存在快速模型。163条结算待办及2899条延后证据债另见RT18，不能全部归因于实时推理。",
+      "certainty": "CONFIRMED_RECORDED_FAILURE_PATH",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java"
+      ],
+      "preserve": [
+        "PIT、deadline、single flight、冻结与结算hash域、唯一正式意向",
+        "已有3次canonical成功及其不可变原件；正确的无赛前终态排除语义"
+      ],
+      "repair": [
+        "研究训练在后台生产已验证可加载model bundle；实时路径只读当时有效冻结模型和有界feature，移出候选搜索/多模型训练/稳定性回放。",
+        "对ACTION_BUILD_FUNNEL_META_RANK/ACTION_STABILITY具体调用分段计时，先修最重stage，不盲目提高总deadline。",
+        "可用快速fallback须预注册/验证/版本固定且在deadline前可用；无可用模型时明确NO_VALID_MODEL并维持shadow观察的真实失败状态。"
+      ],
+      "acceptance": [
+        "未来120+真实期按服务enabled区间、可预测时窗和实际请求分别列完整分母；每次合法predraw以原冻结hash按同issue结算，缺失有真实原因；不得补造已开奖期的frozen。"
+      ],
+      "boundary": "M04八个观察点、当前发行版有界cohort和跨历史SQL任务总量是不同统计总体；117/119不能直接当完整服务在线机会失败率，3次canonical成功也不能证明长期合格。",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-019",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT11",
+      "origin_ids": [
+        "RT11"
+      ],
+      "batch": "B04",
+      "title": "后台权限具备，业务连续性和长期运行仍未验收",
+      "priority": "P1",
+      "cause": "权限能力、服务心跳、业务产物进展是三类证据；当前有服务运行但owner投影缺失、scope被截断（RT12）、业务链仍缺冻结/研究产物，不能用增加自启动次数代替修复。",
+      "certainty": "CONFIRMED_CAPABILITY_AND_EVIDENCE_GAP",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+      ],
+      "preserve": [
+        "单owner租约、前台服务用户开关、重启fence、任务持久化、系统不可保证force-stop自动恢复的真实边界"
+      ],
+      "repair": [
+        "先修RT12，再让健康判据以相同owner/boot/release/database和产物commit watermark判定，不用UI打开事件驱动研究。",
+        "Service持续调度已有owner，Activity只读投影；onResume不得新增第二套计算。",
+        "后台控制请求需回读业务进度才算恢复；无进度按明确依赖原因修复，禁止无限重启。"
+      ],
+      "acceptance": [
+        "目标vivo Android14熄屏/切后台/断网恢复/进程杀死及升级安装逐场景测试；连续24h和72h分别出真实机会分母、冻结/结算/训练进度，不以心跳达标代替。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-020",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT13",
+      "origin_ids": [
+        "RT13"
+      ],
+      "batch": "B04",
+      "title": "崩溃与退出历史跨版本混合，当前稳定性缺长期证据",
+      "priority": "P1",
+      "cause": "7319是累计异常记录，不能称211发生7319次崩溃；但diagnostics曾低内存退出、长窗口没验收仍为真实可靠性风险。Java OOM0也不等于系统不会因低内存杀进程。",
+      "certainty": "CONFIRMED_SCOPE_BOUNDARY_AND_HISTORICAL_RISK",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java"
+      ],
+      "preserve": [
+        "按boot/release/process分类原异常；流式报告与有界observer线程池；已有低内存退出记录"
+      ],
+      "repair": [
+        "导出保持流式、限内存，重入时复用已验证snapshot/分段产物；所有heavy native阶段close前一阶段连接后执行。",
+        "新崩溃/退出回执带release/source/process/window；旧故障维持历史展示，不参与当前10min分子。",
+        "RSEC-026 同时包含界面帧计时和 crashSummary：当前 release/source/process/window 的稳定性生产证据归本工单；图表投影与报告读取仍归各自原工单。累计历史异常不进入当前窗口崩溃分子。"
+      ],
+      "acceptance": [
+        "大库导出+后台研究同时运行、杀diagnostics后恢复、连续运行真机RSS/PSS/native/heap各自曲线；没有回执不称零崩溃。",
+        "RSEC-026 的帧计时与同版本 crash/exit 原件分别复核；无当前长窗口测量仍 UNKNOWN/待验，历史累计异常不冒充当前版本稳定性结论。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-021",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT17",
+      "origin_ids": [
+        "RT17"
+      ],
+      "batch": "B04",
+      "title": "写锁指标与历史硬超限范围混用，需分别治理",
+      "priority": "P1",
+      "cause": "M07当前展示是当前捕获critical窗口的最大wait_p95=1000，并不是单条SQL恰持锁1000ms；25179是累计全表硬超限，不可套给当前安装。writer分析要按operation/source/session分开等候、SQL、commit、diagnostic耗时。",
+      "certainty": "CONFIRMED_MEASUREMENT_SCOPE",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java"
+      ],
+      "preserve": [
+        "原始直方图、failure与commitOutcome区分、真实超限不能抹零"
+      ],
+      "repair": [
+        "保持旧累计值作为historical，不覆盖；新增当前release/source/process窗口投影并明确scope。",
+        "按两种fetch写operation分别用实际SQL trace拆长事务，编码/排序/哈希/统计置于事务外，P0只执行必要原子落库。",
+        "把wait_p95与hold_p95单独列，不以改变阈值让指标通过。"
+      ],
+      "acceptance": [
+        "同scope当前窗口可重算并与原件一致；既定短写目标在目标设备测试；每条“已commit但诊断失败”不得执行第二次业务。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-022",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT18",
+      "origin_ids": [
+        "RT18"
+      ],
+      "batch": "B04",
+      "title": "精确结算待办与延后证据债未闭环",
+      "priority": "P0",
+      "cause": "结算监督器的已冻结补课只选存在immutable shadow及实际draw的任务；无冻结排除器只选BACKLOG。163条实际待办全为LIVE_RETRY且没有该shadow行，落在两种后台筛选之外；全源码未找到drainCurrent调用点，只有定义。热开奖表已淘汰162个对应实际draw而canonical hash仍保留，恢复不能把hash当号码。延后证据现有hash冻结读取、租约、core/action游标、短事务和catchup都已存在，2899非终态说明实际执行/准入/恢复仍有欠账；分组证据不足以断言1541全为同一异常或117都为失效租约。",
+      "certainty": "CONFIRMED_EXPORTED_METADATA_JOIN_AND_RECOVERY_FILTER_GAP; DEFERRED_PER_ROW_CAUSES_PENDING",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementRecoverySupervisorR906.java",
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java"
+      ],
+      "preserve": [
+        "SettlementEngine核心结算与研究/延后证据侧车隔离；MODEL_INVOCATIONS=0；正式结算唯一owner及draw_hash/lease_generation/process_boot_id栅栏",
+        "真实NO_PREDRAW终态不计预测胜负；原COMPLETED与历史7457无赛前终态不可批量重置",
+        "DeferredEvidenceWriter原snapshot/hash、100 number/1200 action基数、cursor、唯一leaseOwner、幂等事务和结果读回"
+      ],
+      "repair": [
+        "SettlementRecoverySupervisorR906:42–73增加有界的全类别分类机会，复用现有owner；SettlementTaskStoreR36:1238–1303的BACKLOG过滤不能仅粗暴移除，先为LIVE_RETRY核对真实开奖确认、原冻结/归档引用、正式REAL义务、活动owner及lease。只有已证无原冻结且无未处理正式义务，才以独立不可变审计回执进入NO_PREDRAW排除；缺原件则显式SOURCE_MISSING待恢复。",
+        "存在可恢复的原赛前冻结者，以原hash/原deadline证据恢复；所需实际draw从精确原始记录/归档读回，重算DrawHashR36并与canonical/task一致后，交SettlementCoordinatorR815:215与SettlementEngine:109–208原单owner执行。不得开奖后新算预测冒充原冻结。",
+        "对2899延后任务导出target/snapshotHash/bytes/status/leaseOwner/leaseUntil/attempts/coreCursor/actionCursor/lastStage/lastError原件，按真实原因分类；RUNNING仅在lease过期或有同owner退出证明后重领，先核已提交事务游标再续，不能全表重置。",
+        "保留DeferredEvidenceWriterR36:105–143的已开奖catchup、:229–309带租约hash读取、:312–445游标短事务、:461–573精确完成校验；使其有界调度机会在实时分析owner真正空闲时可达，并与RT06/队列公平修复配合。资源等待继续可重试，hash/基数损坏必须隔离不可伪完成。",
+        "完成证据物化后先读回精确基数/每行hash/事件，再按存储owner原件引用合同归档；不得为减1.18GB表体积提前清除未完成snapshot_blob。"
+      ],
+      "acceptance": [
+        "原报告元数据联查脚本已运行，结算四状态和=10928、延后四状态和=3099；非终态分别163/2899，单项原路径可追溯。",
+        "施工后每个旧任务有独立分类和原件依据：完成、真实无赛前排除、原件缺失待恢复或合法重试；163不得无证清零，历史结果和质量分母不得变造。",
+        "重启/租约过期/事务返回不确定测试保证原游标不回退、同一target不双结算、100/1200与hash不被放宽；新增冻结与当前结算不因补课受阻。",
+        "观测连续窗口内非终态净减少和最老欠账年龄；不存在资源可用却同游标无限重试的静默状态。"
+      ],
+      "boundary": "当前shadow热表无行不证明历史从未冻结，归档原件/其他正式义务需逐项核验；162实际draw未在热表也不证明所有归档丢失。COMPLETED3308的terminal_code为STRICT_ACTION_OOS_UNCALIBRATED，任务终态成功不能当概率已校准或正式资格通过。",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-023",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST15",
+      "origin_ids": [
+        "ST15"
+      ],
+      "batch": "B04",
+      "title": "5000行滚动live cache前缀条件导致重复rebuild风险",
+      "priority": "P2",
+      "cause": "live cache增量逻辑依赖前缀保持；滚动5000行删除头部后前缀常改变，可导致重复重建。需测当前次数/成本后仅按issue/hash/source revision复用相同重叠，不允许复用跨截止或改标签的特征。",
+      "certainty": "B_SOURCE_PROVEN_PERFORMANCE_RISK",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java"
+      ],
+      "preserve": [
+        "需逐特征/概率回归一致，源纠正必invalidate；当前未证实其造成某次延迟"
+      ],
+      "repair": [
+        "先测load/feature rebuild时间与次数，必要时按issue+hash+source revision复用重叠",
+        "先量化固定5000行滚动尾的每期load/rebuild次数、耗时和峰值内存；仅在确认收益后实施有源身份的重叠复用。任何状态依赖被淘汰前缀时必须按原窗口语义重建。"
+      ],
+      "acceptance": [
+        "需逐特征/概率回归一致，源纠正必invalidate；当前未证实其造成某次延迟",
+        "4999→5000、5000→5000头部淘汰、同head旧行纠正、晚补录和ABI变化分别比对全量旧算法的每项特征与概率；源变化必须失效，峰值内存受预算约束。",
+        "优化前后分别提供相同输入/设备的rebuild次数和延迟分布，不以单次快测声称解决全部1秒长尾。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-024",
+      "supplemental_method_anchors": [
+        "RuntimeR27.liveCacheWithPlaceholder:686–714",
+        "FeatureCacheR27.extendFromForLiveR31"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "RT14",
+      "origin_ids": [
+        "RT14"
+      ],
+      "batch": "B05",
+      "title": "checkpoint引用缺556个对象，不能验证恢复闭包",
+      "priority": "P0",
+      "cause": "检查点引用存在不代表模型状态可恢复。缺失是报告在其固定根目录看到缺失；19个超预算未验不等于丢失，575未知子集合也不能当作垃圾回收已闭合。",
+      "certainty": "CONFIRMED_REFERENCE_AVAILABILITY_GAP",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+        "app/src/main/java/com/ethk3/novaonepro/CheckpointAuditContinuationR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java"
+      ],
+      "preserve": [
+        "原checkpoint元数据、原state/model/optimizer/seed/source身份、未验证对象保护、GC禁止"
+      ],
+      "repair": [
+        "按缺失对象逐一定位blob hash、root、owner、stage及源安装，恢复已有精确原件；不可恢复的旧模型保持不可用，独立新模型使用新输入和身份。",
+        "按rootSetHash+snapshotHash持久化分页验进度；每页当前字节验hash，过去页验证不直接证明当前字节未变。",
+        "仅该root的恢复训练/续训或旧对象退役需要自身完整引用闭包与恢复验证；不得要求全部556旧缺件补齐才允许不依赖这些root的新基础训练。",
+        "完整root closure仅约束同一旧模型的恢复、继续训练、使用或退役；不得要求556个历史缺件全部恢复后，才允许无关联的新合法输入、新基础图或现代TRAIN开工。",
+        "根级结果区分RECOVERED_VERIFIED、MISSING_PRESERVED、CORRUPT_PRESERVED、NOT_YET_VERIFIED；未恢复旧root继续保护，但不占用其他新模型的质量身份。"
+      ],
+      "acceptance": [
+        "缺失/损坏/预算未验三类均可追踪；未闭合模型不参与实时主链；同seed同数据中断恢复与连续训练状态一致。",
+        "令所有旧checkpoint字节缺失但提供足够可信新历史和已验证catalog：旧模型全部继续不可用/受保护，同时既有基础工厂能创建独立n=0候选并完成开发TRAIN；无旧权重、性能、样本、资格或certificate继承。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-025",
+      "supplemental_method_anchors": [
+        "CheckpointReportAuditR32 / CheckpointAuditContinuationR343 existing per-root verification"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST01",
+      "origin_ids": [
+        "ST01"
+      ],
+      "batch": "B05",
+      "title": "R27固定输入未进入进化cache，导致多消费者等待",
+      "priority": "P0",
+      "cause": "R27数据集仅3条物化记录，evolution依赖固定expectedPin；evoData未准备使多个消费者在同一前置等待。任务游标和依赖可见，但本次没有原SQLite/CAS全字节，不能把所有等待断言为pin文件已经丢失。RuntimeR27的数据集物化、恢复发布和EvolutionTask需要按同一身份串联。",
+      "certainty": "A_DEPENDENCY_CONFIRMED_C_NEAR_CAUSE_UNKNOWN",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java"
+      ],
+      "preserve": [
+        "不得清cursor/原pin/RNG/exposure ledger；冷启动逐字段比对并绑定真实artifact"
+      ],
+      "repair": [
+        "expectedPin需分类核验；先恢复原pin/metadata/evoCache，再执行原九步世代",
+        "按expectedPin核原analysis_run/pin而非借556缺checkpoint推断pin必丢失；记录load结果、源修订、metadata提交状态和cache发布身份。",
+        "有效旧pin恢复后只在原generation边界取新输入；不可恢复旧pin保留其cursor/exposure并标独立等待，不充当现代AST3基础实验的全局开工锁。"
+      ],
+      "acceptance": [
+        "不得清cursor/原pin/RNG/exposure ledger；冷启动逐字段比对并绑定真实artifact",
+        "固定原pin、热尾已删除但原pin完好、原pin损坏、源修正、metadata缺失、提交后进程死亡场景逐一验证；原cursor/RNG/exposure不变，恢复cache与原dataset一致。",
+        "首个R27真实世代由同input/ABI的policy、replay score、lineage和generation snapshot闭合；未恢复原pin时必须显示准确缺因，不伪造进度。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-026",
+      "supplemental_method_anchors": [
+        "RuntimeR27.DatasetTask.step:236–340",
+        "RuntimeR27.publishDatasetInputR335:378–385",
+        "RuntimeR27.EvolutionTask.step:418–455"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST04",
+      "origin_ids": [
+        "ST04"
+      ],
+      "batch": "B05",
+      "title": "pin load原因被null合并，已存在投影仍重复写入",
+      "priority": "P1",
+      "cause": "loadCurrent将malformed hash、invalid返回true、找不到pin、require期间StaleResearch合并为null；schema异常及部分decode/hash异常仍会抛出，不能概括为所有异常均被吞成null。恢复发布即使精确投影已存在仍submit，给已验证恢复多添写者依赖。",
+      "certainty": "B_SOURCE_PROVEN_DIAGNOSTIC_AND_AVAILABILITY_RISK",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java"
+      ],
+      "preserve": [
+        "旧sourceCommit或mode不得命中；缺投影仍原有小事务；无原件绝不补造"
+      ],
+      "repair": [
+        "增加typed load outcome；精确投影已存在且fence/pin复验才允许跳过纯重复写",
+        "在兼容原loadCurrent API下增加typed outcome，保持原取消/fatal/schema/integrity传播；只给已被合并的可识别状态增加原因，不把抛出的完整性错误改成静默缺数据。",
+        "跳过重复写的实现位于RuntimeR27恢复方法：必须payload/mode/sourceCommit/worktree/recordedAt精确匹配，并再次requireFence、pin.require、isPublished；缺投影沿原小事务物化。"
+      ],
+      "acceptance": [
+        "旧sourceCommit或mode不得命中；缺投影仍原有小事务；无原件绝不补造",
+        "相同已提交投影重复恢复不再新增纯metadata事务；不同mode/sourceCommit、缺投影、源修订改变、旧fence分别不能走快路。",
+        "schema pending、取消、坏原件仍按原分类被拒绝或传播；old pin split/role/hash不能因新增诊断接口改变。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-027",
+      "supplemental_method_anchors": [
+        "ResearchInputPinR30R1.loadCurrent:41–47",
+        "ResearchInputPinR30R1.invalid/originalRecoveryValid:34–40",
+        "RuntimeR27.publishRecoveredReplayKnowledgeR31:344–369",
+        "ReplayKnowledgeStoreR31.appendProjectionR31/isPublishedR31:20–35"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST05",
+      "origin_ids": [
+        "ST05"
+      ],
+      "batch": "B05",
+      "title": "50个旧ABI候选停训且冷重生未产出",
+      "priority": "P1",
+      "cause": "旧50候选被BLOCKED_WARM_NUMERICAL_ABI_PRESERVED保护，冷重生任务步骤0；保护旧权重ABI本身正确，缺的是原件核验与独立新孩子的实际执行。不得解除ABI拒绝去继续旧模型。",
+      "certainty": "A_STATE_C_ORIGINAL_AVAILABILITY_UNKNOWN",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java"
+      ],
+      "preserve": [
+        "保留旧权重/ABI/状态/hash；新孩子计数0；F23原教师不在则保持hold"
+      ],
+      "repair": [
+        "先逐旧root验证输入、state、cursor和ABI；已推进候选只有原state可读且hash一致时，才沿ColdRebirth.prepare/step及原唯一映射创建独立子代。",
+        "旧state缺失时保留原候选不可用与失败原因，不删ColdRebirth证明；经ModernFamilyFactoryCP12.maintain/prepare/register→ResearchDirectorR952创建完全独立基础实验，新ID/新协议/新计数，不继承旧权重与证书。",
+        "恢复旧pin和独立新实验分别调度；旧缺原件不得作为全局研究停机条件。",
+        "区分有原件的同谱系冷重生与完全独立基础实验：旧cursor>0时现有prepare必须resolve旧state并验hash；缺失只能保持该parent hold，禁止删此证明。",
+        "无需旧parent的全新数据家族通过卡031/032列出的现有ModernFamilyFactory→Director注册/TRAIN开工，不挂旧parent恢复receipt、不继承旧state/样本/质量/资格。F23或bound/teacher子路径仍独立等待其原件。"
+      ],
+      "acceptance": [
+        "保留旧权重/ABI/状态/hash；新孩子计数0；F23原教师不在则保持hold",
+        "旧state缺失时ColdRebirth继续拒绝；独立基础实验在不同新ID与合法输入下能训练，旧原件和旧资格不继承。",
+        "有原件且hash正确时，只建一个目标ABI冷孩子，旧对象全部字段保留，新dev/Future计数0；错hash或缺state时旧parent继续hold。",
+        "一个或全部旧parent不可恢复时，其他有原件parent及独立data-only新实验仍能获既有轮转服务；不得清retry/曝光/全局alpha索引。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-028",
+      "supplemental_method_anchors": [
+        "ColdRebirthR34.prepare:102–118",
+        "ColdRebirthR34.step:208–240",
+        "ColdRebirthR34.coldGenome:89–100"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST12",
+      "origin_ids": [
+        "ST12"
+      ],
+      "batch": "B05",
+      "title": "长期摘要因真实期号gap变INVALID_SOURCE",
+      "priority": "P1",
+      "cause": "长期摘要发现gap后已INVALID_SOURCE；211的prepare将非ACTIVE head视为fresh并生成新的epoch，保留旧journal/snapshot。核canonical原来源可决定新段重建输入，但不能把旧失效epoch直接改成ACTIVE继续或回写其过去可知时间。",
+      "certainty": "A_STATE_C_GAP_ORIGIN_UNKNOWN",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleSummaryR80.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleCountsR80.java"
+      ],
+      "preserve": [
+        "不得填零/回写可知时间/跳样本冒充连续长窗；旧epoch原件保留"
+      ],
+      "repair": [
+        "核canonical/history原来源，按现有epoch合同修复或从连续新段重建",
+        "沿现有contiguousSuffixStart、每页64行、historyGeneration/canonical token和before-fence准备/提交新epoch；缺口被后来补齐也不重写旧snapshot的来源时钟。"
+      ],
+      "acceptance": [
+        "不得填零/回写可知时间/跳样本冒充连续长窗；旧epoch原件保留",
+        "以报告指定gap及晚到补录构造夹具：旧epoch及已有journal/snapshot记录不被改写，允许追加真实迁移journal；新epoch仅读实际连续合法行，available_at为真实最晚来源可见时间。",
+        "source token在prepare/commit间变化拒绝提交；未积累到1440/10080/43200窗口时输出真实不足，其它短窗data-only家族继续运行。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-029",
+      "supplemental_method_anchors": [
+        "LongScaleSummaryR80.prepare:118–152",
+        "LongScaleSummaryR80.commit:164–179"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST06",
+      "origin_ids": [
+        "ST06"
+      ],
+      "batch": "B06",
+      "title": "第五条现代TRAIN误终止不在现有恢复白名单",
+      "priority": "P1",
+      "cause": "全量任务有5条同原因原FAILED_TERMINAL，211已恢复FREQUENCY一条；已登记恢复白名单只有旧4条，漏掉后来的RULE精确身份。添加该白名单不代表原输入文件必可用，仍需原验证链。",
+      "certainty": "A_REPORT_AND_SOURCE_CONFIRMED",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/TrainingRecoveryR343.java"
+      ],
+      "preserve": [
+        "不泛化解隔离；原scdev不在报告中仍须现场验；旧失败task/cursor不变"
+      ],
+      "repair": [
+        "只新增RULE精确task/candidate/protocol/input/action五元组；所有原件证明继续原流程",
+        "应用ST06精确五元组候选；不要泛化成按相同错误文本恢复所有旧任务。原task=FAILED_TERMINAL及其cursor永久保留，successor由现有owner创建。"
+      ],
+      "acceptance": [
+        "不泛化解隔离；原scdev不在报告中仍须现场验；旧失败task/cursor不变",
+        "RULE正例及任一task/candidate/protocol/input/action/state/reason改变负例；原文件缺失、byte_count/hash/AST/manifest/split错误均hold。",
+        "重复调用、提交后死亡、已有artifact/learning cursor/Future/REAL等情形分别验；每旧任务最多一个successor/receipt，且恢复本身不增加策略质量计数。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-030",
+      "supplemental_method_anchors": [
+        "TrainingRecoveryR343.KNOWN/known:21–44",
+        "TrainingRecoveryR343.verifyAndResume:116–154",
+        "TrainingRecoveryR343.commit:156–180"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST07",
+      "origin_ids": [
+        "ST07"
+      ],
+      "batch": "B06",
+      "title": "已恢复现代TRAIN新任务attempt0，现有轮转未形成完整训练",
+      "priority": "P0",
+      "cause": "已存在合法恢复receipt及PENDING继任，但attempt_count=0；轮转调度、资源准入、claim和prepare均需同一源/owner的阶段证据。现场1100特征行不能替代开发训练回执，当前回执0使后续学习/发布无输入。",
+      "certainty": "A_PENDING_SUCCESSOR_C_UNCLAIMED_REASON_UNKNOWN",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java"
+      ],
+      "preserve": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度"
+      ],
+      "repair": [
+        "先证明各轮转层准入/预算/claim/prepare/commit状态；完成现有PENDING而非再造owner",
+        "将 M20 的现代开发训练恢复验收纳入本工单：沿 DevelopmentTrainerCP9.checkpoint/restore、ResearchTrainingHookRegistryR952.prepareNumericsCP9 和原 DevelopmentProductionCP12 提交链，校验权重、优化器、PRNG、normalizer、phase/row/epoch、未提交 batch、树搜索中间态及验证 tape。保留原 protocol/input/shape/rows hash 与 lease/generation CAS。这里先定位与验证已有实现，不预设 checkpoint 算法须重写。",
+        "先推进已有attempt0 successor，并在六槽/五子槽保留预算、claim、prepare、admission和真实cursor阶段证据；不新增调度owner。",
+        "新增明确开发bootstrap入口合同：现有RuntimeCoordinator→continuity lane13→Director IMPORT/TRAIN可在无REAL、无证书、无predraw/无COMPLETED结算时运行；基础家族只要求其实际合法canonical历史、已验证catalog与资源预算。",
+        "所有旧pin/checkpoint/误终止原件不可恢复时，旧对象继续hold；现有基础工厂用未用过合法variant/新输入创建独立n=0候选，不清旧游标重新计数。至少验证一个无需teacher的学习内核。"
+      ],
+      "acceptance": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
+        "REAL=0、certificate=0、旧期全NO_PREDRAW_CANONICAL_TERMINAL且有足够可信历史时，原IMPORT/TRAIN仍可完成独立开发模型；rolling_event允许0，不造COMPLETED。",
+        "同一冻结 dataset/protocol/seed 在 NORMALIZER、TRAIN、TREE_QUANTILES/TREE_SCAN（相应内核）、VALIDATE 的可达边界中断恢复，与连续运行比较完整状态、optimizerSteps、选定 epoch、预测 tape 和终态 model hash；FIXED_GRAPH 保留真实前向/tape，不强求梯度步。错误 input/protocol/shape/hash/截断 checkpoint 必须拒绝，重放提交不重复学习。",
+        "REAL=0、certificate=0、全部结算为NO_PREDRAW_CANONICAL_TERMINAL，但具足量合法历史和catalog：独立fixed graph与一个learned kernel可完成开发receipt；rolling_event继续0且不伪造COMPLETED。",
+        "给selected子槽不足预算，cursor不得跳过该待服务owner；下一足量slice推进同任务。FIXED_GRAPH验真实PIT前向/tape，learned kernel验实际optimizer/tree/model状态。",
+        "feature cursor/rows/hash→checkpoint phase→120验证tape→development receipt→artifact→FREEZE enqueue同身份闭合；恢复中断与不中断结果一致。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-031",
+      "supplemental_method_anchors": [
+        "RuntimeCoordinatorR26.runModernContinuity:1028–1044",
+        "ResearchLearningContinuityR912.pulseWithinR927:260–284 / runLane case13:357–362",
+        "ResearchDirectorR952.pulse/runDirectorSlotR65:306–365",
+        "ResearchTrainingHookRegistryR952.drainTrainingSlotCP11:137–211",
+        "ModernFamilyFactoryCP12.maintain:165–192 / prepare:33–46"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST08",
+      "origin_ids": [
+        "ST08"
+      ],
+      "batch": "B07",
+      "title": "多机制实现存在但不能把参数变体或family标签算新算法",
+      "priority": "P1",
+      "cause": "15family并非15独立学习内核，固定图、共享线性和共享Hedge须分别识别；已有图变异/交叉/融合代码，但没有当前训练完成、行为差异及独立质量证据，参数变体和新增hash不能算已创造有效新机制。",
+      "certainty": "A_SOURCE_AND_OUTPUT_CLASSIFICATION",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/CreationChangeKindR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "preserve": [
+        "规范身份不同不等于新机制；不执行任意生成Java；attempt/structure/quality分开"
+      ],
+      "repair": [
+        "保留15family/6kernel及typed graph搜索；连真实训练、行为变化、消融/未来评价",
+        "沿现有pure提议→持久化exact proposal→Director child+TRAIN同事务链接线；已登记proposal恢复不能换父代/roster/随机seed。持续性来自现有failure-research/action链，基础40variant游标不归零。"
+      ],
+      "acceptance": [
+        "规范身份不同不等于新机制；不执行任意生成Java；attempt/structure/quality分开",
+        "相同action/seed重放得同规范图；窗口/权重变化归参数，拓扑/算子变化归未验证结构，同构和复制父代NO_OP；两个原冻结父代才允许fusion。",
+        "至少记录一个实际编译结构变异child进入TRAIN及其原父引用/数据/行为探针；开发效果可以为负，不强迫所有生成成为优胜。缺teacher不堵data-only家族。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-032",
+      "supplemental_method_anchors": [
+        "MutationGraphCP12.propose:21–54",
+        "CreationChangeKindR343.receipt:14–50",
+        "EvolutionControllerR952.drainActionCP12:15–80",
+        "ModernFamilyFactoryCP12.prepare/maintain/register"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST09",
+      "origin_ids": [
+        "ST09"
+      ],
+      "batch": "B07",
+      "title": "typed rule代码存在但无供体迁移验证闭环且供体次数未知",
+      "priority": "P1",
+      "cause": "typed rule有代码而本次供体proof、实际pair尝试、迁移与子代验证闭环未产生；缺尝试计量时不能简单说“规则能力没有实现”或将无结果说成已运行无效。",
+      "certainty": "A_OUTPUT_C_DONOR_ATTEMPTS_UNKNOWN",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java"
+      ],
+      "preserve": [
+        "DONOR_PAIR_ATTEMPT_NOT_PERSISTED不能写0；仅更晚不同dataset开发迁移"
+      ],
+      "repair": [
+        "先产生真实供体proof，再附加有界pair尝试/原因/规则/子代得分回执",
+        "pair尝试/拒绝原因回执由原AtomPublicationStore/AtomWorld生产owner写入，复用或显式迁移现有审计结构；不要在纯TypedGenerationRule值对象里加DB写入。最多8供体导致至多28pairs，实际测试的pair次数与拒绝原因精确计量。",
+        "ResearchContext消费时绑定discovery/target dataset、revision、from/through、rule和child；报表仅从真实receipt投影，未知仍null。归纳是可选分支，缺合法供体不阻塞atom/molecule或基础进化。"
+      ],
+      "acceptance": [
+        "DONOR_PAIR_ATTEMPT_NOT_PERSISTED不能写0；仅更晚不同dataset开发迁移",
+        "合法两供体及proof→规则→严格更晚不同dataset两个结构子代→真实dev scores可追溯；同dataset、时间重叠、无proof、类型不符、same-shape均拒绝。",
+        "没有供体/没有尝试/尝试全拒绝三态不同，重复owner重放不重复记同pair；无FUTURE结果不编造转化率。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-033",
+      "supplemental_method_anchors": [
+        "AtomPublicationStoreR31.prepareRuleR342:54–84 / publishRuleR342:87–112 / readRulesR342:115",
+        "ResearchContextR30R1.proposeRuleR342:76–82 / stageRuleTransferR342:85",
+        "ResearchConsumptionStoreR31 typed generation stage projection:174–216",
+        "TypedGenerationRuleR342.induct/instantiate:50–56,101–105"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST10",
+      "origin_ids": [
+        "ST10"
+      ],
+      "batch": "B07",
+      "title": "旧在线更新44真实存在，现代rolling停在dev receipt前置",
+      "priority": "P1",
+      "cause": "旧单一AST1的44个LEGACY_ONLINE产物是真实旧能力；AST3的24结算事件尚不能生成rolling版本，因为planOne JOIN的开发训练receipt为0。211已经有rolling owner，重复加owner会破坏唯一性。",
+      "certainty": "A_REPORT_AND_SOURCE_CONFIRMED",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+      ],
+      "preserve": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测"
+      ],
+      "repair": [
+        "完成AST3开发模型/冻结后由现有TRAIN滚动owner消费真实结算",
+        "将 M20 的现代滚动训练恢复验收纳入本工单：RollingLearnerR343 的 FEATURES 与 TRAINING 阶段分别检验 prefix/cursor 与 checkpoint_hash/generation；恢复仍经 prepareNumericsCP9 与同一 DevelopmentTrainerCP9.restore，不以旧 R26 root 可恢复替代 rolling 原件可恢复，也不把所有旧 root 缺件作为全局停机条件。",
+        "rolling训练的可运行前置是自身开发receipt和真实COMPLETED结算来源；不存在必须先有REAL或证书的条件。首个development freeze与rolling训练按各自既有资格独立服务，不人为追加跨lane全局屏障。",
+        "无predraw导致NO_PREDRAW终态不能伪造rolling COMPLETED事件；此时独立开发训练由卡031继续，未来合法冻结与COMPLETED到达后自然接入rolling。"
+      ],
+      "acceptance": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
+        "在 FEATURES 与 TRAINING 阶段分别杀进程/重开并重复投递同 lease；cursor/prefix、checkpoint hash/generation CAS 保持一致，不多提交 optimizer step 或 outcome；开发模型与 rolling 模型各自独立验，不以一条历史 artifact 通过全链 M20。",
+        "无REAL但有合法COMPLETED来源和dev receipt时，rolling版本/头按真实标签推进；重复结算同receipt不二次学习，异hash同issue拒绝。",
+        "只有NO_PREDRAW、无COMPLETED时rolling不消费/不记假事件，但开发bootstrap仍工作；旧冻结模型/未来窗口不被学习头覆盖。",
+        "训练完成的new model/source epoch/cutoff/发布receipt可回读，缺绑定原件只hold对应版本而不隔离全部原策略。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-034",
+      "supplemental_method_anchors": [
+        "RollingLearnerR343.settled:63–74 / planOne:120–140 / trainSlice:209",
+        "ResearchDirectorR952 completed settlement hook:169",
+        "ResearchTrainingHookRegistryR952.drainTrainingKindR65:150–172"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV03",
+      "origin_ids": [
+        "CV03"
+      ],
+      "batch": "B07",
+      "title": "静态82能力已实现不等于实训；F23原教师绑定真实缺失",
+      "priority": "P1",
+      "cause": "F23原teacher未绑定是具体可调用缺口，其余81只有当前报告进程静态入口存在。\n\n原子catalog25350是定义/发现；不能算25350训练原子、有效策略或新公式。\n\n保留候选状态BLOCKED_WARM_NUMERICAL_ABI_PRESERVED说明旧数值ABI断链；不能用可调用=true绕过旧权重身份。",
+      "certainty": "INTERFACE_GAP_AND_RUNTIME_SCOPE_LIMIT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java"
+      ],
+      "preserve": [
+        "24族/21思路/16专家/20矩阵/AtomNet既有实现",
+        "旧数值权重和原ABI封存",
+        "真实拒绝码"
+      ],
+      "repair": [
+        "按原教师hash/角色/ABI接入F23；教师缺失保持BLOCKED，不虚拟教师。",
+        "先修输入/ABI后沿原候选生成独立子代，分别记录参数变化、游标提交、产物、消费、独立效果。",
+        "不新增空壳族凑覆盖，不覆盖改写旧父代身份。"
+      ],
+      "acceptance": [
+        "F23合法原教师正例；无teacher/错source/错ABI反例。",
+        "全部82项各有静态与运行分层结果；原子定义数不得替代绑定/回放数。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-035",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST11",
+      "origin_ids": [
+        "ST11",
+        "CV04"
+      ],
+      "batch": "B08",
+      "title": "18研究能力无当前产消闭环，publication不等于model publication",
+      "priority": "P1",
+      "cause": "18研究图当前source的生产与消费均0，多数依赖replay/evolution，R06生产归ResearchStudyTask。代码含真实研究算法与同事务出生消费核验，必须修上游并逐对象连producer/consumer，不能伪造帧。\n\nCV04 补充：observatory在evoData==null直接等待IMMUTABLE_REPLAY_DATASET，因此17图及其产物链无法推进；具体输入失效/恢复原因应与策略链原owner证据合并。\n\nR06由ResearchStudyTask写，不在observatory循环；共享owner阻断只能作线索，不能冒充R06独立故障证据。\n\n538测量行中517是输入失效事件；旧17图参考和28缓存行不能证明当前source产出。\n\n现代码已有真正结构/配对/协同/融合/漂移/模型对照等实现，不能以0运行成果推断全部算法不存在。",
+      "certainty": "A_REPORT_CONFIRMED",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java"
+      ],
+      "preserve": [
+        "81 callable不是81项有效产出；capacity范围内不武断归因容量满",
+        "原17历史帧及其HISTORICAL_ABI标识",
+        "原算法/固定块/角色隔离",
+        "每视图有界查询/错误隔离"
+      ],
+      "repair": [
+        "恢复上游后逐能力连接source→consumer→changed child或NO_OP/拒绝",
+        "另按AtomNetRuntimeR30→AtomNetPublicationR31→ModelSurfaceStoreR30→I08冻结调用独立验十位置训练/optimizer/checkpoint/model_hash/surface/call；不能用现代rolling产物或model observation条数代AtomNet成功。",
+        "先恢复有效不可变dataset/pin/revision与原重放任务，保留输入/角色/ABI/hash验证。",
+        "按charts_18_contracts.json逐图producer、原表、consumer及反例施工；R06单独验证切片/恢复。",
+        "R11/R14/R18为FORMAL_READ_ONLY，优化消费标N/A；不能强制他们有BORN回执。",
+        "可为只读formal/预算图单列独立输入诊断，但新增依赖合同需精确来源；不得绕过合法原件生成假点。",
+        "AtomNet 的 publication→model 验收补 AtomNetStoreR30.publicationModelR31 原件锚点；先核训练 session/optimizer/model artifact 是否实际产生，再核 ModelSurfaceStoreR30 的 surface/call 与 I08 冻结引用，禁止把 19 个 atom publication 或现代 rolling model 计成 AtomNet model publication。",
+        "显式区别dataset/sample publication19与trained model publication0；检查实际模型训练/发布owner产物，不把未满的reservation容量当作唯一原因。R11/R14/R18 formal读取源不接入优化消费。"
+      ],
+      "acceptance": [
+        "81 callable不是81项有效产出；capacity范围内不武断归因容量满",
+        "十位置模型训练/发布/冻结调用同modelHash与trainedThrough，错epoch、错位置维度和仅有材料无训练必须拒绝或明确等待。",
+        "从原dataset建链后逐18图当前source frame/run/hash有独立原件，负值/不足/缺来源正确保留。",
+        "输入revision变化和错ABI拒绝旧帧，已成功同identity不重复计算，下一新水位能推进。",
+        "R06合法原子组件配对续跑，无法仅凭observatoryREADY签收。",
+        "AtomNet 原 model artifact / trainedThrough / session / frozen model ref / surface / call 逐键匹配；无训练模型时仍为明确 DEPENDENCY/缺证，atom publication 数量不当模型数；恢复原件后实际调用行可独立追到对应模型与输入。",
+        "给出真实训练模型正例及只有sample-publication无模型负例，model计数只能在真实model原件与receipt闭合后增。",
+        "图表/研究未达条件时显示WAITING/EMPTY；这些状态不反向锁死其它已就绪基础训练、资格工程测试或主链合法消费。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-036",
+      "supplemental_method_anchors": [
+        "ResearchConsumptionStoreR31 actual consumption projections",
+        "ResearchObservatoryR30R1 existing producers",
+        "ResearchStudyTaskR30R1 R06 producer",
+        "AtomWorldR27.atomNetStep"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV05",
+      "origin_ids": [
+        "CV05"
+      ],
+      "batch": "B08",
+      "title": "研究建议到真实动作回执断链，不能靠显示或计数补完成",
+      "priority": "P0",
+      "cause": "当前先缺有效研究输入/原产物，proposal和consume也为0；这些是上游停工的下游症状，不再单列18个新根因。\n\n非BORN预算/剪枝/窗口调整与BORN新子代需要不同原回执；0不等于消费绑定代码全不存在。",
+      "certainty": "DOWNSTREAM_EXECUTION_EVIDENCE_ABSENT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java"
+      ],
+      "preserve": [
+        "原主链唯一owner",
+        "真实事务消费与反泄漏门禁",
+        "BORN/non-BORN分账"
+      ],
+      "repair": [
+        "用原frame/run/contractHash/source/revision/role精确消费；出生与原childPolicy同事务完成回执。",
+        "非出生动作须有真实before/after和下一轮行为影响；FORMAL只读来源不得作优化输入。",
+        "对没有改善的合法动作如实记录负结果，不通过重试多记产量。"
+      ],
+      "acceptance": [
+        "实际建议改变合法子代或有界预算后回读same-source原件；重复执行幂等。",
+        "错hash/错role/错parent/无实际变化/孤立frame均拒绝；CONFIRM/FUTURE不得回流训练。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-037",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV06",
+      "origin_ids": [
+        "CV06"
+      ],
+      "batch": "B08",
+      "title": "20注册矩阵未产出；既有R952与长档案不得被删或混计",
+      "priority": "P1",
+      "cause": "20 canonical typed矩阵与旧R952在线矩阵是不同来源/合同，不能宣称所有矩阵为空或用R952数量填20类型通过。\n\nMatrixResearch.step也在evoData缺失时等待；student依赖和source-only类型不同，需按类型分解。",
+      "certainty": "DOWNSTREAM_TYPED_MATRIX_DEPENDENCY",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java"
+      ],
+      "preserve": [
+        "R952旧在线原逻辑与反馈",
+        "20矩阵完整注册",
+        "历史矩阵checkpoint及过期原因"
+      ],
+      "repair": [
+        "先恢复合法dataset，再逐20类型按dependency/维度/source/revision生产；有学生需求的类型保持明确等待。",
+        "保留R95250份冻结/48份反馈及49checkpoint，不能清表重建。",
+        "过期原输入缺失应记录EXPIRED/WITHOUT_PROJECTION，不能事后造历史矩阵。"
+      ],
+      "acceptance": [
+        "20类型逐一正确维度和原键，source-only不错误等学生；学生型无学生明确不足。",
+        "错角色/目标/ABI/维度/重复提交拒绝或幂等，旧在线矩阵回归保持。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-038",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV07",
+      "origin_ids": [
+        "CV07",
+        "CV12"
+      ],
+      "batch": "B08",
+      "title": "历史图“有缓存行”不等于有真实可用图；既有8图应保全",
+      "priority": "P1",
+      "cause": "legacy produced=stored!=null是缓存存在语义；ChartCache可以写points为空且INSUFFICIENT的panel。14缓存记录不等于14个有效可视图。\n\n报告不能独立确定用户肉眼可用8图的具体id；16逻辑表中8可读也不是这8图。\n\n现UI已有hash/size/schema/source校验、历史标识和单图故障隔离，重写会破坏有效保全。\n\nCV12 补充：T01=30历史analysis run；T08=24专家提案；T16=3376解释均不等于当前有效资产。\n\nT02/T03/T05/T07/T11/T12/T13/T15为明示空集，不必重写查询去制造数据。\n\n现页面/总数同SQL、取消、分页与跨请求水位说明已存在；未知来源/超限不得降级EMPTY。",
+      "certainty": "DISPLAY_EVIDENCE_SEMANTICS_LIMIT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java"
+      ],
+      "preserve": [
+        "旧图id和布局",
+        "已有8图真实交互与数据",
+        "HISTORICAL_FRAME/HISTORICAL_ABI与原hash验证",
+        "原16逻辑查询与同SQL分母",
+        "有界分页/取消/来源版本提示",
+        "历史原件"
+      ],
+      "repair": [
+        "先在真机逐页捕获既有8图id/样式/数据源/交互作为回归基线。",
+        "报告侧必要时增量区分cachePresent/payloadValid/finitePointCount/currentSource/rendered，不替换现图注册布局。",
+        "历史帧继续显示带来源标识；新图只有真实原件时画点。",
+        "按每逻辑表对应的真实生产者恢复源，保留查询/分页/错误处理。",
+        "空表从source/role/filter/读时点定位；不做无差别清表或补零数据。"
+      ],
+      "acceptance": [
+        "全部29旧图入口保留；已有效8图截图/翻页/点击无退化。",
+        "坏hash/超限/空点/历史source分别独立状态，一图坏不能拖垮整页或报告。",
+        "16表当前与新source总分母/翻页一致；table缺失、取消、超限、源变化各给不同状态。",
+        "T15真实proposal/consume联表正例与悬空提案反例；T16有解释无REAL不计闭环。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-039",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV08",
+      "origin_ids": [
+        "CV08"
+      ],
+      "batch": "B08",
+      "title": "R18成功结算仍无条件显示REAL缺证的投影缺陷",
+      "priority": "P1",
+      "cause": "上游精确SQL已读取policy/model/authorization/trade及权威终态，显示层却无条件添加REAL缺证，没有任何成功边。\n\n这是可达成功路径的潜在显示错误，当前没有成功原件，不能解释为何当前未产出/未训练。\n\nnonnull receipt含待结算和终态未知；不能简单判断nonnull就展示成功。",
+      "certainty": "SOURCE_CONFIRMED_LATENT_PROJECTION_DEFECT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java"
+      ],
+      "preserve": [
+        "原exactRealAttributionR34安全校验",
+        "唯一DecisionGate/SettlementEngine授权",
+        "formalReadOnly"
+      ],
+      "repair": [
+        "应用R18_exact_receipt_projection.candidate.patch前以5c7f基线复核，仅更改project显示。",
+        "保持exactRealAttributionR34原SQL、赛前时钟及终态hash验证；只按匹配原键呈现SETTLED_EXACT/WAITING/UNKNOWN/MISSING。",
+        "成功与亏损都是真实结算；单次成功不代表自然质量达标。"
+      ],
+      "acceptance": [
+        "git apply --check在5c7f通过；精确候选helper源Java运行12个正负合同用例通过。",
+        "施工还需集成Android/SQLite真实原件测试：合法成功、缺证、错授权/错实验、待结算、终态未知、不合法时间。",
+        "图表只读，无新授权/结算写入；旧图和导出不变。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-040",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV09",
+      "origin_ids": [
+        "CV09"
+      ],
+      "batch": "B08",
+      "title": "R10/R17每对象CPU原件缺失；不能以全池成本代替",
+      "priority": "P2",
+      "cause": "现显示准确承认对象CPU未知，已有AST复杂度/全任务CPU但它们的范围不等于每个算子真实CPU。\n\n原自然父子观察器r31_improvement_cost有独立calling-thread CPU合同；不可拿来冒充SELECT算子成本。",
+      "certainty": "FEATURE_EVIDENCE_GAP_NOT_CURRENT_STALL_ROOT",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java"
+      ],
+      "preserve": [
+        "原AST复杂度与配对增益",
+        "25%探索下限",
+        "原自然观察器成本独立口径"
+      ],
+      "repair": [
+        "在真实算子执行边界增量记录operation/parent/child/source/input/slice及calling-thread CPU，与wall等待分离。",
+        "slice累加只算已提交独立工作，重试幂等；失败成本保留。",
+        "收集完成前继续展示AST复杂度并标CPU_UNKNOWN，先修P0链路。"
+      ],
+      "acceptance": [
+        "CPU忙计算与故意阻塞sleep区分；多个对象并发不得拿整池CPU均摊。",
+        "重试/切片/失败各自原件可复算；无原件不做收益/CPU排序承诺。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-041",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV13",
+      "origin_ids": [
+        "CV13"
+      ],
+      "batch": "B08",
+      "title": "R11只画verified布尔值，原父子配对收益和区间未投影",
+      "priority": "P2",
+      "cause": "现算法已做配对确认，问题是展示contract丢了数值与原结果详情，不是没有配对算法。\n\nR11登记为LINE/父子同期配对收益与确认，显示只有verified0/1会掩盖负贡献幅度和不确定性。\n\n历史CONFIRM配对与自然未来改善有不同资格范围；二者不得混为自然有效。",
+      "certainty": "SOURCE_CONFIRMED_DISPLAY_CONTENT_GAP",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java"
+      ],
+      "preserve": [
+        "原FrozenConfirmation算法与所有负结果",
+        "只读CONFIRM合同",
+        "原自然父子观察器分账"
+      ],
+      "repair": [
+        "从同原result_json精确投影paired收益/已保存区间与父子hash、日历范围、证据角色；缺少字段保持UNKNOWN。",
+        "保留verified作为独立状态；不把布尔1作为收益，不重跑已使用holdout，不向训练回流。",
+        "详情包含原结果hash/实验id，必要增量保留独立自然pair claim入口。"
+      ],
+      "acceptance": [
+        "原结果正/负/跨零/无父代四例显示相应真实数值和未知；verified不覆盖收益。",
+        "旧无区间结果不虚构上下界；历史CONFIRM不得显示NATURAL_FUTURE通过。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-042",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "ST14",
+      "origin_ids": [
+        "ST14"
+      ],
+      "batch": "B09",
+      "title": "证书/主链0是上游证据未产出，不能降低门禁换通过",
+      "priority": "P1",
+      "cause": "当前冻结、校准、独立未来、证书和主链自然贡献尚无完成证据；现有门禁拒绝缺证是正确行为。先修输入/训练/发布和证书消费接口，不为达到出手频率降低资格或改PASS。",
+      "certainty": "A_REPORT_AND_SOURCE_CONFIRMED",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "preserve": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率"
+      ],
+      "repair": [
+        "按dev→独立confirm→真实Future→证书→主链恢复",
+        "Q05/M26/Q07 的生产责任包含 LiveShadowsR27 校准与 certify → CertificateGateR27.evaluate 原链：保留合法历史 fit、未来只读 validation、事前冻结及原 V1 资格门；证书 ACTIVE 仍须逐资产独立验证，报告支持数 200/1 均不改变原 minActs250 与 ECE≤0.04。",
+        "保持原确认/未来/证书/主链owner接线，当前资格工程验收只要求正负夹具证实原门禁正确；自然未达标可保持NOT_PROVEN，不阻断工程交付或后续持续训练。",
+        "主链自然消费现场验收需B04的真实赛前冻结/结算链可用；这作为明确runtime prerequisite，不以全部图表产出或所有旧root恢复替代。"
+      ],
+      "acceptance": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
+        "校准输入晚冻、缺开奖、身份漂移、错误 role/period、重复/冲突行、缺原校准器与不足资格 ACT 的负例不得签 ACTIVE；满足原条件的记录由原证书入口签发并可追溯、撤销。Q07 计数仅来自通过逐资产 Q01/Q03/Q04/Q05 审核的独立有效资产。",
+        "高开发分但无FUTURE、晚冻结、错model/calibration hash、旧证书移植、重复confirm/Future标签均拒绝；永久alpha index跨重启/新child不复用。",
+        "合格工程夹具只标ENGINEERING_PATH_VERIFIED；自然达标后必须出现同frozen/model/protocol/certificate的下一合法边界决策与精确结算引用。自然无达标时仍训练/影子且REAL=0，不伪造PASS。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-043",
+      "supplemental_method_anchors": [
+        "RuntimeR27.LiveTask.step:645–659",
+        "LiveShadowsR27.freeze/settle/qualify/certify",
+        "CertificateGateR27.evaluate:31–44",
+        "MainlineAdapterR31.prepare/verifyFrozen:15–39"
+      ],
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV10",
+      "origin_ids": [
+        "CV10"
+      ],
+      "batch": "B09",
+      "title": "自然质量无通过依据，旧源小合成不代表当前完整工厂检出力",
+      "priority": "P0",
+      "cause": "有效证书/REAL缺失与工程闭环未完成相符，不能靠图表数量或训练次数推出可用优势。\n\n完整工厂试验当前未完成，来源旧；旧19/20或20/20小合成只属各自实验范围。\n\nREGISTRY_READ_FAILED/UNKNOWN_REGISTRY_UNAVAILABLE_OR_CORRUPT不能当作已无风险。",
+      "certainty": "QUALITY_VALIDATION_NOT_COMPLETED",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+      ],
+      "preserve": [
+        "全部自然质量门槛",
+        "合成与自然来源隔离",
+        "失败轮与负结果"
+      ],
+      "repair": [
+        "先完成工程同池正负对照，再按当前施工source登记原完整工厂六臂×20种子=120轮（NULL_UNIFORM/NULL_TIME_SHUFFLED/SIGNAL/SIGNAL_DISABLED/DRIFT/GAPS）与功效区间。",
+        "保持自然FUTURE与合成完全分账，继续独立未来确认和正确预算。",
+        "Q01–Q08逐项按原规则报告真实不足，禁止补配额/选择好窗口。",
+        "Q05/M26 沿 LiveShadowsR27.calibrate → CalibrationRowsR27.fitRolling → CalibrationR30.evaluate 核原件与时间隔离；逐 evaluation 保留 fitThroughOrdinal、calibratorHash、冻结时钟、target/ACT 条件、排除原因和分母。先前序 H_SELECT fit 与 FUTURE 只读校验、EMBARGO=1、late/gap/conflict/duplicate 排除逻辑全部保留。滚动校准诊断与被固定绑定的资格校准器分别注明，不将不同身份或不同条件的观测直接合成合格证据。",
+        "Q06 的自然父子改善生产责任明确落到 RuntimeR27 → ImprovementStoreR31.appendRegistration/advance/prepareAt → VerifiedImprovementR31.compareContract/record：恢复事前注册、同历期成对冻结原件、完整机会序列、原结算与每对实测 CPU 成本后形成不可变 claim。保留 source/frozen revision 与 quota 小事务 guard；历史 CONFIRM 的 pairedImprovementR31 或 R11 投影仅作各自角色证据，不能代替自然未来 claim。"
+      ],
+      "acceptance": [
+        "错source、未完成trial、单轮高命中、未登记假设不得签收。",
+        "原六臂完整工厂的误授证/检出力与额外34/37/40%目标概率对照分别带CI、全分母；原signalStrength=.30是植入参数，不能当命中率；自然资格独立。",
+        "Q05/M26 对同一合法 frozen 校准器/目标/ACT 条件复算 ECE（等质量与等宽并列）、BSS、支持覆盖和区间；未来或同期间标签混入 fit、fitThrough 跨越 embargo、错误原件身份必须被排除/拒绝并保留原因。200 是报告支持条件；120 行 fitted 诊断或单条 ACTIVE 都不是资格通过。",
+        "Q06 使用事前注册的完整日历窗原件；相同期缺一方、遗漏失败期、重复 ordinal、开奖后冻结、旧 source、缺配对 CPU、重复消耗 segment 的负例不得 VERIFIED。合法父子对按原 claim 合同复算 mean/lowerBound/cost，只有原下界与成本门均满足才记 VERIFIED；未知或未改进也要如实产出状态，不为验收造出改善。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-044",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "CV02",
+      "origin_ids": [
+        "CV02"
+      ],
+      "batch": "B10",
+      "title": "44指标没有完整通过依据；0样本、静态覆盖与行动覆盖不得冒充验收",
+      "priority": "P0",
+      "cause": "34 INSUFFICIENT、5 RECORDED_UNVALIDATED及其余失败/未知状态必须分别保留。M07是已捕获73窗口的最大wait_p95，尚不是完整24h验收。\n\nM06/M22/M27/Q07均0样本的0；M23 81/82只表示可调用绑定；M31 16规则行动字段齐全只表示路由覆盖。\n\nM01安装身份VERIFIED_INSTALLATION与完整构建签名验收不足并不矛盾；M17本次导出成功与40检查失败也不矛盾。\n\nR26 45节全部存在，但37 PARTIAL、6 INSUFFICIENT、1 OBSERVED、1 NOT_RUN；UPGRADE只有1主finding及16规则不是未知软件缺陷穷尽检查。",
+      "certainty": "ACCEPTANCE_EVIDENCE_GAP",
+      "source_files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java"
+      ],
+      "preserve": [
+        "原44指标定义和门槛",
+        "UNKNOWN/NOT_DEPLOYED/RECORDED_UNVALIDATED分离",
+        "原失败窗口及负结果"
+      ],
+      "repair": [
+        "采用coverage_full.json每项独立cause/action/test，按当前版本、角色、时段、分母采集。",
+        "M07先修真正实时写瓶颈，其余缺测项按场景补证；不要把34缺测项等价为34个互不相关新根因。",
+        "保留target与缺证状态，任何自然质量未达标继续真实标不足。"
+      ],
+      "acceptance": [
+        "所有44 ID唯一且有状态、来源、修复、验收；无缺项/重复。",
+        "用0样本、混角色、旧source、同对象重复渲染等反例验证不得PASS。",
+        "修复后证据只能按当前source与指定范围升级，不用成功图表替代质量。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-045",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    },
+    {
+      "origin_id": "G02",
+      "origin_ids": [
+        "G02"
+      ],
+      "batch": "B11",
+      "title": "本轮还须完成APK、覆盖安装、原生证据与完整交付，方案自检不能代签",
+      "priority": "P1",
+      "cause": "静态补丁与小型主机夹具不能证明Android编译、真实大库迁移、后台长跑、原生导出和自然策略质量；没有产物身份链就无法验收。",
+      "certainty": "DELIVERY_REQUIREMENT_AND_DECLARED_EVIDENCE_BOUNDARY",
+      "source_files": [
+        "tools/r33/run_release_build.py",
+        "tools/r33/package_ci_candidate.py",
+        "tools/r341/publish_delivery_manifest.py",
+        "tools/r343/prepare_field_batch.py",
+        ".github/workflows/build-apk.yml"
+      ],
+      "preserve": [
+        "既有干净源码构建、签名隔离、包名与覆盖安装",
+        "历史封印与前批实际日志/APK"
+      ],
+      "repair": [
+        "按批次顺序实际施工、构建和回归；每批提交可下载APK及源码/测试/身份。",
+        "目标设备覆盖211，核数据保留、连续导出5次、息屏重启等；24/72h未运行时独立保留待验，不假造长测。",
+        "发布最终源码commit、APK/SHA/签名/版本、计划hash、原检测报告及新报告和逐项状态；自然未来继续独立累计。"
+      ],
+      "acceptance": [
+        "用户能下载并安装真实新APK；安装后版本与签名匹配源码及计划。",
+        "APK启动、原数据、出号结算及检测报告导出实测；工程与质量结论分开。"
+      ],
+      "boundary": "",
+      "execution_status": "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING",
+      "id": "R344-046",
+      "evidence_summary": "本卡原因来自已完成的检测报告及精确211源码审阅；公开版仅保留施工所需汇总。原始逐条记录、完整诊断和内部对象身份见用户完整交付包同编号。"
+    }
+  ],
+  "edition": "PUBLIC_PLAN_ONLY"
+}
