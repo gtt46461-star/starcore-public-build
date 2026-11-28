@@ -148,6 +148,70 @@ public final class R343TrainingNativeTest {
         });
     }
 
+
+    @Test
+    public void createdFamilyMakesProgressThroughTheExistingTrainingOwner() throws Exception {
+        Field173NativeEvidence.run((app, checks) -> {
+            R342DevelopmentTestCases.independentFamilyRegistration(app);
+            DbStore store = new DbStore(app);
+            try {
+                String candidate;
+                String task;
+                try (Cursor row = store.readable().rawQuery(
+                        "SELECT candidate_id,task_id FROM " + ResearchTaskQueueR967.TABLE
+                                + " WHERE kind='TRAIN_CANDIDATE' AND candidate_id LIKE 'CP12-FAMILY-%'", null)) {
+                    checks.require(row.moveToFirst(), "The original factory must have enqueued a candidate");
+                    candidate = row.getString(0);
+                    task = row.getString(1);
+                }
+                long end = SystemClock.elapsedRealtime() + 100_000L;
+                String status = "", cursor = "", reason = "";
+                while (SystemClock.elapsedRealtime() < end) {
+                    com.ethk3.novaonepro.ResearchWorkBudgetR927.Scope scope =
+                            com.ethk3.novaonepro.ResearchWorkBudgetR927.enter(850);
+                    try {
+                        ResearchTrainingHookRegistryR952.drainTrainingSlotCP11(store,
+                                System.nanoTime() + 850_000_000L);
+                    } finally {
+                        com.ethk3.novaonepro.ResearchWorkBudgetR927.leave(scope);
+                    }
+                    try (Cursor row = store.readable().rawQuery(
+                            "SELECT status,cursor,last_error FROM " + ResearchTaskQueueR967.TABLE + " WHERE task_id=?",
+                            new String[]{task})) {
+                        checks.require(row.moveToFirst(), "The original training task remains addressable");
+                        status = row.getString(0);
+                        cursor = row.getString(1);
+                        reason = row.getString(2);
+                    }
+                    if ("COMPLETED".equals(status) || "FAILED_TERMINAL".equals(status)) break;
+                    SystemClock.sleep(260);
+                }
+                checks.equal("COMPLETED", status, "Family training must commit: " + cursor + "|" + reason);
+                try (Cursor receipt = store.readable().rawQuery(
+                        "SELECT a.numeric_updates,a.validation_sample_n,d.receipt_hash,c.future_n,c.may_create_real,"
+                                + " EXISTS(SELECT 1 FROM " + ResearchTaskQueueR967.TABLE
+                                + " t WHERE t.candidate_id=c.candidate_id AND t.kind='FREEZE_CANDIDATE')"
+                                + " FROM r952_artifact a JOIN research_development_receipt_v2 d ON d.artifact_hash=a.artifact_hash"
+                                + " JOIN r952_candidate c ON c.candidate_id=a.candidate_id"
+                                + " WHERE a.candidate_id=? AND a.training_kind='DEVELOPMENT_AST3'",
+                        new String[]{candidate})) {
+                    checks.require(receipt.moveToFirst(), "The same task must produce its own development receipt");
+                    checks.require(receipt.getInt(0) > 0, "Numerical training updates must be durable");
+                    checks.equal(120, receipt.getInt(1), "Keep the original validation split");
+                    checks.require(receipt.getString(2).matches("[0-9a-f]{64}"), "Bind the actual training receipt");
+                    checks.equal(0, receipt.getInt(3), "Development rows do not confer future evidence");
+                    checks.equal(0, receipt.getInt(4), "Development rows do not confer REAL authority");
+                    checks.equal(1, receipt.getInt(5), "Training completion hands off to the existing freeze queue");
+                    checks.record("numericUpdates", receipt.getInt(0));
+                    checks.record("developmentReceipt", receipt.getString(2));
+                }
+                database(checks, store.readable(), store.getLatestDrawIssue());
+            } finally {
+                store.close();
+            }
+        });
+    }
+
     @Test
     public void originalTerminalMissingCandidateStaysOnHold() throws Exception {
         Field173NativeEvidence.run((app, checks) -> {

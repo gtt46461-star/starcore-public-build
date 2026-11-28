@@ -586,8 +586,11 @@ public final class ResearchDirectorR952 {
             // original six-owner wheel. The normal cursor does not move on a reserve
             // turn, so POST/MATRIX/RESEARCH/EVOLVE/IMPORT retain bounded service.
             // Only existing tasks qualify: an empty queue cannot consume a reserve.
-            boolean trainingReady=ResearchTaskQueueR967.hasReady(db,"TRAIN_CANDIDATE",System.currentTimeMillis())
-                    ||ResearchTaskQueueR967.hasReady(db,"FREEZE_CANDIDATE",System.currentTimeMillis());
+            long readyAt=System.currentTimeMillis();
+            boolean trainingReady=ResearchTaskQueueR967.hasReady(db,"TRAIN_CANDIDATE",readyAt)
+                    ||ResearchTaskQueueR967.hasReady(db,"FREEZE_CANDIDATE",readyAt)
+                    ||ResearchTaskQueueR967.hasReady(db,RollingLearnerR343.KIND,readyAt)
+                    ||ResearchTaskQueueR967.hasReady(db,RollingFrozenPublisherR343.KIND,readyAt);
             // A reservation is an opportunity, not a barrier to a cheaper owner.
             // Preserve it for the next usable slice when POST/MATRIX still fit now.
             boolean trainingTurn="1".equals(reserved)&&trainingReady

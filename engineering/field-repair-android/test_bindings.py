@@ -9,6 +9,7 @@ import sys
 parent = "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
 source = os.environ["REPAIR_INPUT"]
 reasons = {
+  "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java": "Reserve an existing Director turn for already-ready rolling learners and pending frozen publications.",
   "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java": "Check the persisted numerical rule before training and retire it only after an authenticated later settlement.",
   "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java": "Reopen the existing Director lane for pending rolling learner and freeze work on the same draw.",
   "app/src/main/java/com/ethk3/novaonepro/r952/TrainingRecoveryR343.java": "Use the verified sealed field task identity with the original file, protocol, and quarantined-source checks.",
@@ -37,7 +38,7 @@ def sha(raw):
 def document(path,data):
     Path(path).write_text(json.dumps(data,indent=2,sort_keys=True,ensure_ascii=False)+"\n")
 assert git("rev-parse","HEAD").decode().strip() == parent
-for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/Field173CoverageAndroidTest.java","app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java","app/src/androidTest/java/com/ethk3/novaonepro/ResearchContinuationAndroidTest.java","app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java","app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java"]:
+for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/r952/R343TrainingNativeTest.java","app/src/androidTest/java/com/ethk3/novaonepro/Field173CoverageAndroidTest.java","app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java","app/src/androidTest/java/com/ethk3/novaonepro/ResearchContinuationAndroidTest.java","app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java","app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java"]:
     raw=git("show",source+":"+path)
     assert raw != Path(path).read_bytes(), path
     Path(path).write_bytes(raw)
