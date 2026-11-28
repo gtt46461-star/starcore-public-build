@@ -9,6 +9,8 @@ import sys
 parent = "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
 source = os.environ["REPAIR_INPUT"]
 reasons = {
+  "app/src/main/java/com/ethk3/novaonepro/K3ActionSpaceEngine.java": "Reuse the exact immutable action identifiers and skip unused digest serialization for cardinality-only checks.",
+  "app/src/main/java/com/ethk3/novaonepro/StarcoreEvidenceKernel.java": "Use the same UTF-8 evidence SHA-256 without formatting each byte and retain the existing failure disposition.",
   "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java": "Reserve an existing Director turn for already-ready rolling learners and pending frozen publications.",
   "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java": "Check the persisted numerical rule before training and retire it only after an authenticated later settlement.",
   "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java": "Reopen the existing Director lane for pending rolling learner and freeze work on the same draw.",

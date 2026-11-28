@@ -188,8 +188,17 @@ public final class K3ActionSpaceEngine {
         }
     }
 
-    /** Generate all formal identities in position/lexicographic order. */
+    private static final class Universe {
+        static final ActionIdentity[] IDENTITIES = buildIdentityUniverse();
+        static final String HASH = hashIdentities(IDENTITIES);
+    }
+
+    /** Return all formal identities in position/lexicographic order. */
     public static ActionIdentity[] enumerateIdentityUniverse() {
+        return Universe.IDENTITIES.clone();
+    }
+
+    private static ActionIdentity[] buildIdentityUniverse() {
         ActionIdentity[] out = new ActionIdentity[TOTAL_ACTIONS];
         int index = 0;
         for (int position = 1; position <= POSITIONS; position++) {
@@ -220,15 +229,12 @@ public final class K3ActionSpaceEngine {
     public static int combinationOrdinal(int n1, int n2, int n3) {
         if (!validTriple(n1, n2, n3)) return -1;
         int ordinal = 0;
-        for (int a = 1; a <= NUMBERS - 2; a++) {
-            for (int b = a + 1; b <= NUMBERS - 1; b++) {
-                for (int c = b + 1; c <= NUMBERS; c++) {
-                    if (a == n1 && b == n2 && c == n3) return ordinal;
-                    ordinal++;
-                }
-            }
+        for (int a = 1; a < n1; a++) {
+            int remaining = NUMBERS - a;
+            ordinal += remaining * (remaining - 1) / 2;
         }
-        return -1;
+        for (int b = n1 + 1; b < n2; b++) ordinal += NUMBERS - b;
+        return ordinal + n3 - n2 - 1;
     }
 
     public static int globalOrdinal(int position, int n1, int n2, int n3) {
@@ -241,15 +247,19 @@ public final class K3ActionSpaceEngine {
         if (action == null) throw new IllegalArgumentException("B10_ACTION_IDENTITY_NULL");
         int ordinal = globalOrdinal(action.position, action.n1, action.n2, action.n3);
         if (ordinal < 0) throw new IllegalArgumentException("B10_ACTION_IDENTITY_INVALID");
-        return new ActionIdentity(action.position, action.n1, action.n2, action.n3);
+        return Universe.IDENTITIES[ordinal];
     }
 
     public static ValidationReport validateDetailed(V51Models.PositionAction[] actions) {
+        return validate(actions, true);
+    }
+
+    private static ValidationReport validate(V51Models.PositionAction[] actions, boolean hashPayload) {
         ArrayList<ValidationFinding> findings = new ArrayList<ValidationFinding>();
         int rows = actions == null ? 0 : actions.length;
         int[] perPosition = new int[POSITIONS + 1];
         HashSet<String> identities = new HashSet<String>();
-        StringBuilder payload = new StringBuilder(Math.max(4096, rows * 72));
+        StringBuilder payload = hashPayload ? new StringBuilder(Math.max(4096, rows * 72)) : null;
 
         if (actions == null) {
             findings.add(new ValidationFinding(-1, "ACTION_ARRAY_NULL", "Expected 1200 rows"));
@@ -283,8 +293,9 @@ public final class K3ActionSpaceEngine {
                                     action.n1 + "," + action.n2 + "," + action.n3));
                     continue;
                 }
-                ActionIdentity id =
-                        new ActionIdentity(action.position, action.n1, action.n2, action.n3);
+                int ordinal = (action.position - 1) * COMBINATIONS_PER_POSITION
+                        + combinationOrdinal(action.n1, action.n2, action.n3);
+                ActionIdentity id = Universe.IDENTITIES[ordinal];
                 if (!identities.add(id.canonical)) {
                     findings.add(new ValidationFinding(i, "DUPLICATE", id.canonical));
                 }
@@ -300,7 +311,7 @@ public final class K3ActionSpaceEngine {
                             new ValidationFinding(
                                     i, "RAW_ACTION_P", String.valueOf(action.rawActionP)));
                 }
-                payload.append(
+                if (payload != null) payload.append(
                         canonicalPayloadRow(
                                 action.position,
                                 action.n1,
@@ -331,7 +342,7 @@ public final class K3ActionSpaceEngine {
         }
 
         if (identities.size() == TOTAL_ACTIONS) {
-            ActionIdentity[] expected = enumerateIdentityUniverse();
+            ActionIdentity[] expected = Universe.IDENTITIES;
             for (int i = 0; i < expected.length; i++) {
                 if (!identities.contains(expected[i].canonical)) {
                     findings.add(
@@ -346,15 +357,15 @@ public final class K3ActionSpaceEngine {
                 perPosition,
                 findings,
                 expectedIdentityUniverseHash(),
-                V51ChecksumEngine.sha256("B10_ACTION_PAYLOAD|" + payload.toString()));
+                payload == null ? "" : V51ChecksumEngine.sha256("B10_ACTION_PAYLOAD|" + payload));
     }
 
     public static void validateOrThrow(V51Models.PositionAction[] actions) {
-        ValidationReport report = validateDetailed(actions);
+        ValidationReport report = validate(actions, false);
         if (!report.valid) {
             String detail =
                     report.findings.length == 0
-                            ? report.summary()
+                            ? validateDetailed(actions).summary()
                             : report.findings[0].code + '|' + report.findings[0].detail;
             throw new IllegalStateException("B10_ACTION_SPACE_INVALID|" + detail);
         }
@@ -444,7 +455,10 @@ public final class K3ActionSpaceEngine {
 
     /** Hash of identities only; it is stable across model scores and rankings. */
     public static String expectedIdentityUniverseHash() {
-        ActionIdentity[] identities = enumerateIdentityUniverse();
+        return Universe.HASH;
+    }
+
+    private static String hashIdentities(ActionIdentity[] identities) {
         StringBuilder body = new StringBuilder(TOTAL_ACTIONS * 16);
         for (int i = 0; i < identities.length; i++)
             body.append(identities[i].globalOrdinal)

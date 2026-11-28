@@ -1,7 +1,6 @@
 package com.ethk3.novaonepro;
 
 import java.lang.reflect.Field;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -4015,12 +4014,7 @@ public final class StarcoreEvidenceKernel {
 
     private static String hash(String text) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] b = md.digest(safe(text).getBytes("UTF-8"));
-            StringBuilder s = new StringBuilder(64);
-            for (int i = 0; i < b.length; i++)
-                s.append(String.format(Locale.US, "%02x", b[i] & 255));
-            return s.toString();
+            return V51ChecksumEngine.sha256(safe(text));
         } catch (Throwable e) {
             return Integer.toHexString(safe(text).hashCode());
         }
