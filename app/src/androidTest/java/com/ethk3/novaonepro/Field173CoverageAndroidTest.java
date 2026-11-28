@@ -74,7 +74,7 @@ public final class Field173CoverageAndroidTest {
         DbStore store = new DbStore(ApplicationProvider.getApplicationContext());
         try {
             R30FaultMatrixTest.seed(store);
-            R30FaultMatrixTest.freeze(store);
+            R30FaultMatrixTest.freeze(store, true);
             SystemClock.sleep(30L);
             R30FaultMatrixTest.actual(store);
             R30FaultMatrixTest.settle(store);

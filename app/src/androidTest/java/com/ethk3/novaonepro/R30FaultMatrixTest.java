@@ -39,6 +39,9 @@ public final class R30FaultMatrixTest {
     }
     static ArrayList<Models.Draw> history(DbStore store){ArrayList<Models.Draw> out=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT issue,open_time,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE issue<=? AND dirty=0 ORDER BY issue",new String[]{BASE})){while(c.moveToNext()){Models.Draw d=new Models.Draw();d.issue=c.getString(0);d.openTime=c.getLong(1);for(int p=0;p<10;p++)d.numbers[p]=c.getInt(p+2);out.add(d);}}assertEquals(240,out.size());return out;}
     static void freeze(DbStore store)throws Exception{
+        freeze(store, false);
+    }
+    static void freeze(DbStore store, boolean productionPhaseBudgets) throws Exception {
         AnalysisRequestStoreR36 requests=new AnalysisRequestStoreR36(store);AnalysisSingleFlightR36.Request request=requests.ensurePending(BASE,TARGET,TargetIssueResolver.predrawDeadlineWallR20261008(store.getDrawByIssue(BASE)),"SYNTHETIC_R30_FAULT_ONLY");
         // An interrupted process's durable lease expires by its original deadline. Never reset/steal it.
         long lease=n(store.readable(),"SELECT coalesce(lease_until,0) FROM "+DbHelper.TABLE_R36_ANALYSIS_REQUEST+" WHERE target_issue='"+TARGET+"'");
@@ -52,7 +55,33 @@ public final class R30FaultMatrixTest {
         if(lease>System.currentTimeMillis())while(lease>System.currentTimeMillis()){assertTrue("original predraw deadline remains enforceable",System.currentTimeMillis()<request.deadlineAt);SystemClock.sleep(Math.max(1,Math.min(100,lease-System.currentTimeMillis())));}
         AnalysisSingleFlightR36.SubmitResult submitted=AnalysisSingleFlightR36.shared().submit(request);assertTrue(submitted.startNow);assertNotNull(submitted.lease);AnalysisSingleFlightR36.Lease owner=submitted.lease;owner.bindCurrentThread();
         RuntimeResourceAuditR927.Scope resources=null;boolean committed=false;
-        try{request=requests.claim(request,owner.ownerId,System.currentTimeMillis());assertNotNull("claim original durable request",request);owner.token.claimDurablePulse(System.currentTimeMillis(),true);resources=RuntimeResourceAuditR927.begin(store,owner);if(prepared!=null)RuntimeResourceAuditR927.completedBeforeScopeR79("RECOVERY_READONLY_PREPARATION",preparationMs);V51RuntimeInputR36 input=prepared==null?V51RuntimeInputR36.freeze(history(store),request):prepared;request=requests.bindHistoryHash(request,input.historyHash,owner.ownerId);V51RuntimeOrchestrator.OutcomeR36 result=V51AutoFetchBridge.runR36(store,input,request,owner);assertNotNull(result);committed=result.commit!=null&&result.commit.success;assertTrue(result.runtime.success);assertTrue(result.commit.status,result.commit.success);assertEquals("CANONICAL_COMMITTED",requests.status(TARGET));assertEquals(1,count(store,DbHelper.TABLE_R35_SHADOW_OBSERVATION));}
+        try {
+            request = requests.claim(request, owner.ownerId, System.currentTimeMillis());
+            assertNotNull("claim original durable request", request);
+            owner.token.claimDurablePulse(System.currentTimeMillis(), true);
+            if (productionPhaseBudgets)
+                owner.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.PREPARE, 1000L);
+            resources = RuntimeResourceAuditR927.begin(store, owner);
+            if (prepared != null)
+                RuntimeResourceAuditR927.completedBeforeScopeR79("RECOVERY_READONLY_PREPARATION", preparationMs);
+            V51RuntimeInputR36 input = prepared == null ? V51RuntimeInputR36.freeze(history(store), request) : prepared;
+            request = requests.bindHistoryHash(request, input.historyHash, owner.ownerId);
+            if (productionPhaseBudgets)
+                owner.token.beginPhaseR31(AnalysisSingleFlightR36.PhaseR31.INFER, 3000L);
+            V51RuntimeOrchestrator.OutcomeR36 result;
+            try {
+                result = V51AutoFetchBridge.runR36(store, input, request, owner);
+            } finally {
+                if (productionPhaseBudgets)
+                    System.out.println("FIELD173_PREDRAW_PHASES|" + JsonR27.write(owner.token.phaseSnapshotR31()));
+            }
+            assertNotNull(result);
+            committed = result.commit != null && result.commit.success;
+            assertTrue(result.runtime.success);
+            assertTrue(result.commit.status, result.commit.success);
+            assertEquals("CANONICAL_COMMITTED", requests.status(TARGET));
+            assertEquals(1, count(store, DbHelper.TABLE_R35_SHADOW_OBSERVATION));
+        }
         finally{try{RuntimeResourceAuditR927.finish(store,resources,committed,"SYNTHETIC_R30_FAULT_OWNER");}finally{AnalysisSingleFlightR36.shared().releaseAndTakeNext(owner);}}
     }
     static void settle(DbStore store){Models.Draw actual=store.getDrawByIssue(TARGET);assertNotNull(actual);SettlementEngine.SettlementReport result=SettlementCoordinatorR815.closeCurrentExactR906(store,actual,SettlementCoordinatorR815.Reason.AUTHORITATIVE_LATEST);assertEquals(result.detail,1,result.ok);assertEquals(1,count(store,DbHelper.TABLE_R35_OOS_LABEL));SettlementTaskStoreR36.Terminal terminal=SettlementTaskStoreR36.terminal(store,TARGET);assertNotNull(terminal);assertEquals(SettlementTaskStoreR36.COMPLETED,terminal.status);String original=terminal.settlementHash;SettlementEngine.SettlementReport retry=SettlementCoordinatorR815.closeCurrentExactR906(store,actual,SettlementCoordinatorR815.Reason.WATCHDOG);assertEquals(retry.detail,1,retry.ok);assertEquals(0,retry.shadowSettledCount);assertEquals(original,SettlementTaskStoreR36.terminal(store,TARGET).settlementHash);assertEquals(1,count(store,DbHelper.TABLE_R35_OOS_LABEL));}
