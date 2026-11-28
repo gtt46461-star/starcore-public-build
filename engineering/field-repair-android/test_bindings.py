@@ -23,7 +23,11 @@ reasons = {
   "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java": "Keep the most recent valid chart frame while preserving its original source and freshness status.",
   "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java": "Select a valid retained chart frame without treating a stale frame as current evidence.",
   "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java": "Keep a lane reserve within the original four continuation permits while observing worker termination before release.",
-  "app/src/main/java/com/ethk3/novaonepro/ReportSchemaSourceProviderR335.java": "Keep the existing source preparation window available for the original migration owner after one cold Binder timeout."
+  "app/src/main/java/com/ethk3/novaonepro/ReportSchemaSourceProviderR335.java": "Keep the existing source preparation window available for the original migration owner after one cold Binder timeout.",
+  "app/src/main/java/com/ethk3/novaonepro/V51TianshuEvidenceBridge.java": "Reuse identical point-in-time pattern and number evidence within one request.",
+  "app/src/main/java/com/ethk3/novaonepro/TransitionRelationEngine.java": "Consume exact matching evidence computed from the same ordered draw history by the active bridge.",
+  "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java": "Reuse the identical decimal text for repeating action metadata in the same verified snapshot.",
+  "app/src/main/java/com/ethk3/novaonepro/V51ChecksumEngine.java": "Reduce allocation for identical UTF-8 SHA-256 hex bytes using the same provider."
 }
 paths = list(reasons)
 def git(*args):
@@ -33,7 +37,7 @@ def sha(raw):
 def document(path,data):
     Path(path).write_text(json.dumps(data,indent=2,sort_keys=True,ensure_ascii=False)+"\n")
 assert git("rev-parse","HEAD").decode().strip() == parent
-for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java","app/src/androidTest/java/com/ethk3/novaonepro/ResearchContinuationAndroidTest.java","app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java","app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java"]:
+for path in paths + ["app/src/androidTest/java/com/ethk3/novaonepro/Field173CoverageAndroidTest.java","app/src/androidTest/java/com/ethk3/novaonepro/r952/R343RollingNativeTest.java","app/src/androidTest/java/com/ethk3/novaonepro/ResearchContinuationAndroidTest.java","app/src/androidTest/java/com/ethk3/novaonepro/Field173ChartGalleryCapture.java","app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R31FamilyContinuationInstrumentedTest.java"]:
     raw=git("show",source+":"+path)
     assert raw != Path(path).read_bytes(), path
     Path(path).write_bytes(raw)

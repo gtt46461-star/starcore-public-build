@@ -289,6 +289,7 @@ public final class DeferredEvidenceSnapshotR36 {
             }
 
             out.writeInt(1200);
+            MetaFeatureText featureText = new MetaFeatureText();
             for (int i = 0; i < result.actions.length; i++) {
                 V51Models.PositionAction action = result.actions[i];
                 double selectedP =
@@ -318,7 +319,7 @@ public final class DeferredEvidenceSnapshotR36 {
                 out.writeDouble(selectedP);
                 out.writeInt(action.rank);
                 writeUtf(out, safe(action.fingerprint));
-                writeUtf(out, doubles(action.metaFeatures));
+                writeUtf(out, featureText.encode(action.metaFeatures));
                 writeUtf(out, safe(action.checksum));
                 writeUtf(out, actionRecordHash);
             }
@@ -1013,6 +1014,32 @@ public final class DeferredEvidenceSnapshotR36 {
         StringBuilder b = new StringBuilder();
         if (x != null) for (int i = 0; i < x.length; i++) if (x[i] != null) b.append(x[i].checksum);
         return V51ChecksumEngine.sha256(b.toString());
+    }
+
+    /** The action surface reuses many position-level feature values. Keep the
+     * original decimal representation and bound reuse to this snapshot. */
+    static final class MetaFeatureText {
+        private final long[] keys = new long[1024];
+        private final String[] values = new String[keys.length];
+
+        String encode(double[] features) {
+            if (features == null) return "";
+            StringBuilder output = new StringBuilder(features.length * 12);
+            for (int index = 0; index < features.length; index++) {
+                double value = finite(features[index], 0.0d);
+                long bits = Double.doubleToLongBits(value);
+                int slot = (int) (((bits ^ (bits >>> 33)) * 0xff51afd7ed558ccdL) >>> 54);
+                String decimal = values[slot];
+                if (decimal == null || keys[slot] != bits) {
+                    decimal = Double.toString(value);
+                    keys[slot] = bits;
+                    values[slot] = decimal;
+                }
+                if (index > 0) output.append(',');
+                output.append(decimal);
+            }
+            return output.toString();
+        }
     }
 
     private static String doubles(double[] x) {

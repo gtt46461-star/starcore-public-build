@@ -165,6 +165,14 @@ public final class TransitionRelationEngine {
 
     public TransitionRelationResult analyzeCandidate(
             List<Models.Draw> history, Models.ComboCandidate candidate) {
+        return analyzeCandidateWithEvidence(history, candidate, null, null);
+    }
+
+    /** Call with evidence computed from the same ordered, valid input and final issue. */
+    TransitionRelationResult analyzeCandidateWithEvidence(
+            List<Models.Draw> history, Models.ComboCandidate candidate,
+            PatternStateEngine.PatternStateResult pattern,
+            NumberBehaviorEngine.NumberBehaviorResult number) {
         if (candidate == null || !candidate.isValidK3()) {
             TransitionRelationResult r = new TransitionRelationResult();
             r.blockCode = AppConfig.BLOCK_COMBO_WEAK;
@@ -172,7 +180,13 @@ public final class TransitionRelationEngine {
             return r;
         }
 
-        TransitionRelationResult base = analyzePosition(history, candidate.position);
+        TransitionRelationResult base;
+        if (pattern == null || number == null) {
+            base = analyzePosition(history, candidate.position);
+        } else {
+            base = analyzePositionCore(history, candidate.position);
+            attachB06Evidence(base, pattern, number);
+        }
         if (base == null) {
             return null;
         }

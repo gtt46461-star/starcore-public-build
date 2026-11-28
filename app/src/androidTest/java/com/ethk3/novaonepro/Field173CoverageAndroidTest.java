@@ -21,6 +21,55 @@ public final class Field173CoverageAndroidTest {
     private static final String TASKS = DbHelper.TABLE_R36_SETTLEMENT_TASK;
     private static final String[] ISSUE = {TARGET};
 
+    @Test public void reusedTransitionInputsPreserveCandidateEvidence() {
+        java.util.List<Models.Draw> history = new java.util.ArrayList<>();
+        java.util.List<PatternStateEngine.DrawRecord> patterns = new java.util.ArrayList<>();
+        java.util.List<NumberBehaviorEngine.DrawRecord> numbers = new java.util.ArrayList<>();
+        for (int i = 1; i <= 240; i++) {
+            Models.Draw draw = R30FaultMatrixTest.draw(i, 1790000000000L + i * 60000L);
+            history.add(draw);
+            patterns.add(new PatternStateEngine.DrawRecord(draw.issue, draw.toOpenCodeText(), draw.openTime));
+            numbers.add(new NumberBehaviorEngine.DrawRecord(draw.issue, draw.toOpenCodeText(), draw.openTime));
+        }
+        String base = history.get(history.size() - 1).issue;
+        Models.ComboCandidate candidate = new Models.ComboCandidate();
+        candidate.position = 5;
+        candidate.n1 = 2;
+        candidate.n2 = 5;
+        candidate.n3 = 10;
+        candidate.k3Mask = AppConfig.buildK3Mask(candidate.n1, candidate.n2, candidate.n3);
+        assertTrue(candidate.isValidK3());
+        TransitionRelationEngine engine = new TransitionRelationEngine();
+        TransitionRelationEngine.TransitionRelationResult before = engine.analyzeCandidate(history, candidate);
+        TransitionRelationEngine.TransitionRelationResult after = engine.analyzeCandidateWithEvidence(history,
+                candidate, new PatternStateEngine().analyze(patterns, base),
+                new NumberBehaviorEngine().analyze(numbers, base));
+        assertEquals(before.b06PatternFingerprint, after.b06PatternFingerprint);
+        assertEquals(before.b06NumberFingerprint, after.b06NumberFingerprint);
+        assertEquals(before.b06Fingerprint, after.b06Fingerprint);
+        assertEquals(before.summaryText, after.summaryText);
+        assertEquals(before.b06Risk, after.b06Risk, 0.0d);
+        assertEquals(before.candidateRelationScore, after.candidateRelationScore, 0.0d);
+    }
+
+    @Test public void cachedActionMetaTextKeepsExactDecimalEncoding() {
+        DeferredEvidenceSnapshotR36.MetaFeatureText text = new DeferredEvidenceSnapshotR36.MetaFeatureText();
+        assertEquals("", text.encode(null));
+        assertEquals("", text.encode(new double[0]));
+        java.util.Random random = new java.util.Random(343);
+        for (int action = 0; action < 1200; action++) {
+            double[] row = {0.0d, -0.0d, Double.NaN, Double.NEGATIVE_INFINITY,
+                    Double.POSITIVE_INFINITY, Double.MIN_VALUE, Double.MAX_VALUE,
+                    Double.longBitsToDouble(random.nextLong()), action / 1200.0d};
+            StringBuilder exact = new StringBuilder();
+            for (double value : row) {
+                if (exact.length() > 0) exact.append(',');
+                exact.append(Double.toString(Double.isFinite(value) ? value : 0.0d));
+            }
+            assertEquals(exact.toString(), text.encode(row));
+        }
+    }
+
     @Test public void actualSettlementAndScopedCoverageUseSeparateHashes() throws Exception {
         DbStore store = new DbStore(ApplicationProvider.getApplicationContext());
         try {

@@ -41,12 +41,15 @@ public final class V51TianshuEvidenceBridge {
         Models.ComboCandidate c = toCandidate(context, action, state, numberP);
         double sw = 0.0d, rw = 0.0d, cw = 0.0d, w = 0.0d;
         int ready = 0;
+        PatternStateEngine.PatternStateResult pattern = null;
+        NumberBehaviorEngine.NumberBehaviorResult number = null;
+        boolean sameBase = !bounded240.isEmpty()
+                && context.baseIssue != null
+                && context.baseIssue.equals(bounded240.get(bounded240.size() - 1).issue);
         StringBuilder fp = new StringBuilder(2048);
         try {
-            PatternStateEngine.PatternStateResult pr =
-                    new PatternStateEngine().analyze(pattern240, context.baseIssue);
-            PatternStateEngine.B06PatternEvidenceBundle e =
-                    new PatternStateEngine().buildB06Evidence(pr);
+            pattern = new PatternStateEngine().analyze(pattern240, context.baseIssue);
+            PatternStateEngine.B06PatternEvidenceBundle e = pattern.b06Evidence;
             double q = e.confidence;
             sw += e.support * q;
             rw += e.risk * q;
@@ -81,8 +84,14 @@ public final class V51TianshuEvidenceBridge {
         markTiming(timing, "B06_SHAPE", stageBegin);
         stageBegin = System.nanoTime();
         try {
-            TransitionRelationEngine.TransitionRelationResult e =
-                    new TransitionRelationEngine().analyzeCandidate(bounded240, c);
+            TransitionRelationEngine engine = new TransitionRelationEngine();
+            TransitionRelationEngine.TransitionRelationResult e;
+            if (sameBase && pattern != null && c.isValidK3()) {
+                number = new NumberBehaviorEngine().analyze(number240, context.baseIssue);
+                e = engine.analyzeCandidateWithEvidence(bounded240, c, pattern, number);
+            } else {
+                e = engine.analyzeCandidate(bounded240, c);
+            }
             if (e != null) {
                 double q = e.b06Confidence;
                 sw += e.b06Support * q;
@@ -138,10 +147,9 @@ public final class V51TianshuEvidenceBridge {
         }
         stageBegin = System.nanoTime();
         try {
-            NumberBehaviorEngine.NumberBehaviorResult nr =
-                    new NumberBehaviorEngine().analyze(number240, context.baseIssue);
-            NumberBehaviorEngine.B06NumberEvidenceBundle e =
-                    new NumberBehaviorEngine().buildB06Evidence(nr);
+            if (number == null)
+                number = new NumberBehaviorEngine().analyze(number240, context.baseIssue);
+            NumberBehaviorEngine.B06NumberEvidenceBundle e = number.b06Evidence;
             double q = e.confidence;
             sw += e.support * q;
             rw += e.risk * q;
