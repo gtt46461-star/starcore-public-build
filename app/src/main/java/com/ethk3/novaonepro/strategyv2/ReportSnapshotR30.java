@@ -90,7 +90,24 @@ public final class ReportSnapshotR30 {
                 if(t!=null&&t.withoutRowid){Map<String,Object> keys=new LinkedHashMap<>();for(String key:t.pk)keys.put(key,values.get("pk:"+name+":"+key));mark.put("maxPrimaryKeyByColumn",keys);mark.put("rowidReason","WITHOUT_ROWID_NOT_APPLICABLE");}marks.put(name,mark);}
             watermark.put("schemaVersion",schema);watermark.put("captureStartedAt",at);watermark.put("factsReadAt",values.get("factsReadAt"));watermark.put("captureFinishedAt",System.currentTimeMillis());watermark.put("latestIssue",values.get("latestIssue"));watermark.put("tables",marks);watermark.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);watermark.put("reportHostModel",Build.MODEL);
             if(source!=null){Map<String,Object> original=new LinkedHashMap<>(source);data.put("previousSuccessfulReport",original.remove("previousSuccessfulReport"));watermark.put("reportJobId",original.remove("reportJobId"));watermark.put("sourceManifest",original);}
-            List<CapabilityRegistryR30.Definition> definitions=CapabilityRegistryR30.all();facts.put("registeredCapabilities",(long)definitions.size());List<Object> capabilities=new ArrayList<>();for(CapabilityRegistryR30.Definition def:definitions){Map<String,Object> row=new LinkedHashMap<>(def.json());row.put("effective",null);row.put("availabilityScope","CURRENT_REPORT_PROCESS_CODE_BINDINGS; NOT_PERSISTED_RUNTIME_OWNER_BINDINGS");row.put("evidenceState","SEPARATE_PERSISTED_SOURCE_REQUIRED");capabilities.add(row);}data.put("capabilities",capabilities);
+            List<CapabilityRegistryR30.Definition> definitions = CapabilityRegistryR30.all();
+            facts.put("registeredCapabilities", (long) definitions.size());
+            List<Object> capabilities = new ArrayList<>();
+            for (CapabilityRegistryR30.Definition definition : definitions) {
+                Map<String,Object> row = new LinkedHashMap<>(definition.json());
+                row.put("effective", null);
+                row.put("availabilityScope", "CURRENT_REPORT_PROCESS_CODE_BINDINGS; NOT_PERSISTED_RUNTIME_OWNER_BINDINGS");
+                row.put("evidenceState", "SEPARATE_PERSISTED_SOURCE_REQUIRED");
+                if ("F23".equals(definition.id)) {
+                    row.put("runtimeRegistrationState", values.get("teacherRegistryState"));
+                    row.put("runtimeRegistrationImplementation", values.get("teacherRegistryImplementation"));
+                    row.put("runtimeRegistrationAbi", values.get("teacherRegistryAbi"));
+                    row.put("runtimeRegistrationLastProgress", values.get("teacherRegistryLastProgress"));
+                    row.put("runtimeRegistrationScope", "SAME_SQL_SNAPSHOT_R26_CAPABILITY_F23");
+                }
+                capabilities.add(row);
+            }
+            data.put("capabilities", capabilities);
             data.put("capabilityRuntimeEvidenceR33",CapabilityRuntimeEvidenceR33.captured(values,watermark));
             data.put("capturedFaultSourcesR335",DiagnosisTraceReaderR33.captureSingleSelect(watermark,data,cancellation));
             Object hotCold=source==null?null:source.get("runtimeFaultHotColdR335");
@@ -293,6 +310,15 @@ public final class ReportSnapshotR30 {
         }
     }
     static void rowsets(Query q){
+        String teacher = " FROM r26_capability WHERE mechanism='F23' AND kind='FAMILY')";
+        q.add("teacherRegistryState", q.has("r26_capability", "mechanism", "kind", "state")
+                ? "(SELECT state" + teacher : "NULL", false);
+        q.add("teacherRegistryImplementation", q.has("r26_capability", "mechanism", "kind", "implementation")
+                ? "(SELECT implementation" + teacher : "NULL", false);
+        q.add("teacherRegistryLastProgress", q.has("r26_capability", "mechanism", "kind", "last_progress")
+                ? "(SELECT NULLIF(last_progress,0)" + teacher : "NULL", true);
+        q.add("teacherRegistryAbi", q.has("r26_capability_source", "singleton", "numerical_abi")
+                ? "(SELECT numerical_abi FROM r26_capability_source WHERE singleton=1)" : "NULL", false);
         q.rows("r335S5RefitOriginals","r335_s5_refit_original",new String[]{"case_id","singleton","original_hash","checkpoint_hash","raw_bytes","compressed_hash","created_at"},"case_id",2,null,512);
         q.rows("r31FeedbackEvents","r31_feedback_event",new String[]{"event_id","kind","issue","issue_ordinal","source_hash","canonical_hash","legacy_event_id","payload_hash","producer","created_at"},"created_at DESC,event_id",32,null,512);
         q.rows("r31FeedbackReceipts","r31_feedback_receipt",new String[]{"consumer_version","event_id","source_hash","checkpoint_hash","artifact_hash","policy_hash","scope","committed_at"},"committed_at DESC,event_id",32,null,512);

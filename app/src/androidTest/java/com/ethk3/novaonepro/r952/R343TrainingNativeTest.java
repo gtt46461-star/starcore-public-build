@@ -12,6 +12,7 @@ import com.ethk3.novaonepro.DatabaseCoordinator;
 import com.ethk3.novaonepro.DbStore;
 import com.ethk3.novaonepro.Field173NativeEvidence;
 import com.ethk3.novaonepro.Models;
+import com.ethk3.novaonepro.ResearchEvaluationRunR967;
 import com.ethk3.novaonepro.ResearchSchemaCoordinatorR926;
 import com.ethk3.novaonepro.ResearchTaskQueueR967;
 import com.ethk3.novaonepro.RuntimeObservationScopeR341;
@@ -165,7 +166,7 @@ public final class R343TrainingNativeTest {
                     task = row.getString(1);
                 }
                 long end = SystemClock.elapsedRealtime() + 100_000L;
-                String status = "", cursor = "", reason = "";
+                String status = "", cursor = "", reason = "", freezeStatus = "", freezeReason = "";
                 while (SystemClock.elapsedRealtime() < end) {
                     com.ethk3.novaonepro.ResearchWorkBudgetR927.Scope scope =
                             com.ethk3.novaonepro.ResearchWorkBudgetR927.enter(850);
@@ -183,7 +184,16 @@ public final class R343TrainingNativeTest {
                         cursor = row.getString(1);
                         reason = row.getString(2);
                     }
-                    if ("COMPLETED".equals(status) || "FAILED_TERMINAL".equals(status)) break;
+                    try (Cursor row = store.readable().rawQuery(
+                            "SELECT status,last_error FROM " + ResearchTaskQueueR967.TABLE
+                                    + " WHERE candidate_id=? AND kind='FREEZE_CANDIDATE'", new String[]{candidate})) {
+                        if (row.moveToFirst()) {
+                            freezeStatus = row.getString(0);
+                            freezeReason = row.getString(1);
+                        }
+                    }
+                    if ("FAILED_TERMINAL".equals(status) || "FAILED_TERMINAL".equals(freezeStatus)
+                            || ("COMPLETED".equals(status) && "COMPLETED".equals(freezeStatus))) break;
                     SystemClock.sleep(260);
                 }
                 checks.equal("COMPLETED", status, "Family training must commit: " + cursor + "|" + reason);
@@ -204,6 +214,19 @@ public final class R343TrainingNativeTest {
                     checks.equal(1, receipt.getInt(5), "Training completion hands off to the existing freeze queue");
                     checks.record("numericUpdates", receipt.getInt(0));
                     checks.record("developmentReceipt", receipt.getString(2));
+                }
+                checks.equal("COMPLETED", freezeStatus, "The trained candidate must be frozen: " + freezeReason);
+                try (Cursor evaluation = store.readable().rawQuery(
+                        "SELECT f.structural_hash,f.trained_until_issue,f.created_issue,f.update_endpoint"
+                                + " FROM " + ResearchEvaluationRunR967.EVAL + " f"
+                                + " JOIN research_development_receipt_v2 d ON d.artifact_hash=f.source_artifact"
+                                + " WHERE f.learner_id=?", new String[]{candidate})) {
+                    checks.require(evaluation.moveToFirst(), "The freeze is bound to the actual development artifact");
+                    checks.require(evaluation.getString(1).compareTo(evaluation.getString(2)) < 0,
+                            "The frozen evaluation must start after the last development row");
+                    checks.equal(0, evaluation.getInt(3), "Independent evaluation begins at its original baseline");
+                    checks.record("evaluationFreeze", evaluation.getString(0));
+                    checks.require(!evaluation.moveToNext(), "The same task cannot publish a second freeze");
                 }
                 database(checks, store.readable(), store.getLatestDrawIssue());
             } finally {
@@ -234,7 +257,7 @@ public final class R343TrainingNativeTest {
                 long deadline = System.nanoTime() + 30_000_000_000L;
                 checks.equal(false, TrainingRecoveryR343.drainOne(store, deadline), "Missing original cannot be resumed");
                 String hold = store.getState("r343_recovery_hold_" + original, "");
-                checks.require(hold.endsWith("|WAIT_ORIGINAL_CANDIDATE"), "Hold identifies the missing original candidate");
+                checks.require(hold.endsWith("|WAIT_ORIGINAL_CANDIDATE"), "Hold identifies the missing original candidate: " + hold);
                 checks.equal(false, TrainingRecoveryR343.drainOne(store, deadline), "Immediate retry keeps the same hold");
                 checks.equal(hold, store.getState("r343_recovery_hold_" + original, ""), "Retry does not rewrite the hold");
                 try (Cursor row = store.readable().rawQuery("SELECT status,cursor,generation,input_hash,last_error FROM "

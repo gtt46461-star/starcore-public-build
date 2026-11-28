@@ -84,12 +84,9 @@ public final class RuntimeObservabilityR925 {
             long durable,
             long compute,
             long commit, String attemptId, long requestedMono, long enteredMono, long durableMono) {
-        long count =
-                Long.parseLong(
-                        scalar(
-                                db,
-                                "SELECT COUNT(*) FROM v57_prediction_timing_r925 WHERE process_id=?",
-                                new String[] {PROCESS_ID}));
+        boolean firstSample = requestedMono >= 0L && "0".equals(scalar(db,
+                "SELECT EXISTS(SELECT 1 FROM v57_prediction_timing_r925 WHERE process_id=?)",
+                new String[] {PROCESS_ID}));
         db.execSQL(
                 "INSERT OR IGNORE INTO v57_prediction_timing_r925(target_issue,process_id,release_code,request_at,runtime_at,durable_at,queue_ms,compute_ms,commit_ms,total_ms,sample_class,attempt_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                 new Object[] {
@@ -103,7 +100,7 @@ public final class RuntimeObservabilityR925 {
                     Math.max(0L, compute),
                     Math.max(0L, commit),
                     requestedMono < 0L ? -1L : Math.max(0L, durableMono - requestedMono),
-                    requestedMono < 0L ? "REHYDRATED_UNMEASURED" : count == 0L ? "COLD_MONOTONIC" : "WARM_MONOTONIC",
+                    requestedMono < 0L ? "REHYDRATED_UNMEASURED" : firstSample ? "COLD_MONOTONIC" : "WARM_MONOTONIC",
                     attemptId
                 });
     }

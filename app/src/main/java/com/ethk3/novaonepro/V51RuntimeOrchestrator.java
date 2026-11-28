@@ -466,7 +466,7 @@ public final class V51RuntimeOrchestrator {
                 final String observedTargetR33=request.targetIssue,observedAttemptR33=request.attemptId();
                 final long observedRequestWallR33=request.requestAt;
                 final int observedActiveR33=AnalysisSingleFlightR36.shared().activeCount(),observedMaximumR33=AnalysisSingleFlightR36.shared().maximumObserved();
-                PostCanonicalObservationR33.offer(()->store.coordinatorR36().runWrite("R923_POST_COMMIT_TELEMETRY",
+                PostCanonicalObservationR33.offer(()->store.coordinatorR36().runAtomicWrite("R923_POST_COMMIT_TELEMETRY",
                         new DatabaseCoordinator.WriteRunnable() {
                             @Override public void run(android.database.sqlite.SQLiteDatabase db) {
                                 RuntimeHealthLedgerR36.recordWithinTransaction(db, "R335_CANONICAL_RETURN_BOUND",
