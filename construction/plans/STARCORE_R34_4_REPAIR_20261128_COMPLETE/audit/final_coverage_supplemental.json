@@ -1,0 +1,237 @@
+{
+  "schema": "R344_COVERAGE_SUPPLEMENTAL_1",
+  "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "scope": "PLAN_SOURCE_ROUTING_AND_ACCEPTANCE_ONLY; NO_APPLICATION_EDIT; NO_PRODUCT_PASS",
+  "merge_notes": [
+    "source_files 供生产/读取核查锚点，不表示每个文件必须修改；实施前定位最小必要改动。",
+    "保留现有 issue、repair/test/preserve、original audit 及原 metrics→checks 映射；check_producer_map 是新增业务生产责任，不覆盖原读路径错误责任。",
+    "为 CHECK_RESPONSIBILITY 增加 read_path_issues 与 producer_issues 后可合成 issues 并汇总 production_batches；96 原检查注册保持完整，COMPOSITION_INDEX/N/A 不强配伪业务指标。",
+    "本文件新增验收均是待施工合同；纯 Java 候选测试、报告解析与计划自检不构成 Android/真机/自然未来通过。"
+  ],
+  "extra_sources": {
+    "ST07": [
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java"
+    ],
+    "ST10": [
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java"
+    ],
+    "ST14": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java"
+    ],
+    "CV10": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+    ],
+    "CV04": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java"
+    ],
+    "RT13": [
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java"
+    ]
+  },
+  "extra_repair": {
+    "ST07": [
+      "将 M20 的现代开发训练恢复验收纳入本工单：沿 DevelopmentTrainerCP9.checkpoint/restore、ResearchTrainingHookRegistryR952.prepareNumericsCP9 和原 DevelopmentProductionCP12 提交链，校验权重、优化器、PRNG、normalizer、phase/row/epoch、未提交 batch、树搜索中间态及验证 tape。保留原 protocol/input/shape/rows hash 与 lease/generation CAS。这里先定位与验证已有实现，不预设 checkpoint 算法须重写。"
+    ],
+    "ST10": [
+      "将 M20 的现代滚动训练恢复验收纳入本工单：RollingLearnerR343 的 FEATURES 与 TRAINING 阶段分别检验 prefix/cursor 与 checkpoint_hash/generation；恢复仍经 prepareNumericsCP9 与同一 DevelopmentTrainerCP9.restore，不以旧 R26 root 可恢复替代 rolling 原件可恢复，也不把所有旧 root 缺件作为全局停机条件。"
+    ],
+    "ST14": [
+      "Q05/M26/Q07 的生产责任包含 LiveShadowsR27 校准与 certify → CertificateGateR27.evaluate 原链：保留合法历史 fit、未来只读 validation、事前冻结及原 V1 资格门；证书 ACTIVE 仍须逐资产独立验证，报告支持数 200/1 均不改变原 minActs250 与 ECE≤0.04。"
+    ],
+    "CV10": [
+      "Q05/M26 沿 LiveShadowsR27.calibrate → CalibrationRowsR27.fitRolling → CalibrationR30.evaluate 核原件与时间隔离；逐 evaluation 保留 fitThroughOrdinal、calibratorHash、冻结时钟、target/ACT 条件、排除原因和分母。先前序 H_SELECT fit 与 FUTURE 只读校验、EMBARGO=1、late/gap/conflict/duplicate 排除逻辑全部保留。滚动校准诊断与被固定绑定的资格校准器分别注明，不将不同身份或不同条件的观测直接合成合格证据。",
+      "Q06 的自然父子改善生产责任明确落到 RuntimeR27 → ImprovementStoreR31.appendRegistration/advance/prepareAt → VerifiedImprovementR31.compareContract/record：恢复事前注册、同历期成对冻结原件、完整机会序列、原结算与每对实测 CPU 成本后形成不可变 claim。保留 source/frozen revision 与 quota 小事务 guard；历史 CONFIRM 的 pairedImprovementR31 或 R11 投影仅作各自角色证据，不能代替自然未来 claim。"
+    ],
+    "CV04": [
+      "AtomNet 的 publication→model 验收补 AtomNetStoreR30.publicationModelR31 原件锚点；先核训练 session/optimizer/model artifact 是否实际产生，再核 ModelSurfaceStoreR30 的 surface/call 与 I08 冻结引用，禁止把 19 个 atom publication 或现代 rolling model 计成 AtomNet model publication。"
+    ],
+    "RT13": [
+      "RSEC-026 同时包含界面帧计时和 crashSummary：当前 release/source/process/window 的稳定性生产证据归本工单；图表投影与报告读取仍归各自原工单。累计历史异常不进入当前窗口崩溃分子。"
+    ]
+  },
+  "extra_acceptance": {
+    "ST07": [
+      "同一冻结 dataset/protocol/seed 在 NORMALIZER、TRAIN、TREE_QUANTILES/TREE_SCAN（相应内核）、VALIDATE 的可达边界中断恢复，与连续运行比较完整状态、optimizerSteps、选定 epoch、预测 tape 和终态 model hash；FIXED_GRAPH 保留真实前向/tape，不强求梯度步。错误 input/protocol/shape/hash/截断 checkpoint 必须拒绝，重放提交不重复学习。"
+    ],
+    "ST10": [
+      "在 FEATURES 与 TRAINING 阶段分别杀进程/重开并重复投递同 lease；cursor/prefix、checkpoint hash/generation CAS 保持一致，不多提交 optimizer step 或 outcome；开发模型与 rolling 模型各自独立验，不以一条历史 artifact 通过全链 M20。"
+    ],
+    "ST14": [
+      "校准输入晚冻、缺开奖、身份漂移、错误 role/period、重复/冲突行、缺原校准器与不足资格 ACT 的负例不得签 ACTIVE；满足原条件的记录由原证书入口签发并可追溯、撤销。Q07 计数仅来自通过逐资产 Q01/Q03/Q04/Q05 审核的独立有效资产。"
+    ],
+    "CV10": [
+      "Q05/M26 对同一合法 frozen 校准器/目标/ACT 条件复算 ECE（等质量与等宽并列）、BSS、支持覆盖和区间；未来或同期间标签混入 fit、fitThrough 跨越 embargo、错误原件身份必须被排除/拒绝并保留原因。200 是报告支持条件；120 行 fitted 诊断或单条 ACTIVE 都不是资格通过。",
+      "Q06 使用事前注册的完整日历窗原件；相同期缺一方、遗漏失败期、重复 ordinal、开奖后冻结、旧 source、缺配对 CPU、重复消耗 segment 的负例不得 VERIFIED。合法父子对按原 claim 合同复算 mean/lowerBound/cost，只有原下界与成本门均满足才记 VERIFIED；未知或未改进也要如实产出状态，不为验收造出改善。"
+    ],
+    "CV04": [
+      "AtomNet 原 model artifact / trainedThrough / session / frozen model ref / surface / call 逐键匹配；无训练模型时仍为明确 DEPENDENCY/缺证，atom publication 数量不当模型数；恢复原件后实际调用行可独立追到对应模型与输入。"
+    ],
+    "RT13": [
+      "RSEC-026 的帧计时与同版本 crash/exit 原件分别复核；无当前长窗口测量仍 UNKNOWN/待验，历史累计异常不冒充当前版本稳定性结论。"
+    ]
+  },
+  "metric_map_add": {
+    "M20": [
+      "ST07",
+      "ST10"
+    ],
+    "M24": [
+      "CV04"
+    ],
+    "M26": [
+      "ST14",
+      "CV10"
+    ],
+    "Q05": [
+      "ST14",
+      "CV10"
+    ],
+    "Q06": [
+      "CV10"
+    ],
+    "M14": [
+      "RT13"
+    ]
+  },
+  "check_producer_map": {
+    "RSEC-004": [
+      "ST07",
+      "ST10",
+      "ST08",
+      "ST14",
+      "CV10"
+    ],
+    "RSEC-026": [
+      "RT13",
+      "CV04",
+      "CV07",
+      "CV08",
+      "CV13"
+    ],
+    "RSEC-307": [
+      "ST07",
+      "ST08",
+      "ST09",
+      "ST10",
+      "CV04",
+      "CV05",
+      "ST14",
+      "CV10"
+    ],
+    "RSEC-309": [
+      "ST10",
+      "ST14",
+      "CV10"
+    ]
+  },
+  "metric_contracts": {
+    "M20": {
+      "required_current_proof": "按每个现用训练内核/协议分别提供连续运行与中断恢复的完整状态对照及原件 hash：R26 root、CP9 开发训练、现代 rolling 三条生产链分别验。权重/优化器/PRNG/normalizer/cursor/phase/batch/tree/tape 同原登记浮点容差一致，幂等提交不重复学习；旧 root 缺件不得阻断不依赖它的新基础模型。",
+      "producer_origins": [
+        "RT14",
+        "ST07",
+        "ST10"
+      ],
+      "minimum_sample_scope": "原 minimumSample=1 仅表示已检查恢复证据记录；不免除现用内核及可达阶段的中断恢复与错身份反例。"
+    },
+    "M26": {
+      "required_current_proof": "LiveShadowsR27.calibrate 产生的每个 calibration evaluation 与原冻结校准器绑定可定位，H_SELECT fit 与 FUTURE validation 不混角色，fitThrough 早于 validation 且满足原 embargo，apply 时校准器版本已可见；每条排除/无可用 fit 的机会有原因和分母，零模型不能算全部通过。",
+      "producer_origins": [
+        "ST14",
+        "CV10"
+      ]
+    },
+    "Q05": {
+      "required_current_proof": "以原 Q05 固定校准器、同目标和同 ACT 条件的自然未来原件复算等质量 ECE、等宽 ECE、BSS、支持覆盖及区间，并可回溯 CalibrationRowsR27/CalibrationR30 的每条输入和校准器 hash；rolling 只读诊断与固定资格绑定分别表述。报告 minimumSample200/支持覆盖≥90% 不改变 V1 minActs250 与 ECE≤0.04。",
+      "producer_origins": [
+        "ST14",
+        "CV10"
+      ]
+    },
+    "Q06": {
+      "required_current_proof": "来自 ImprovementStoreR31 的事前注册、同历期父子冻结与结算原件、完整机会分母、独立 segment 与每对 CPU 成本；由 VerifiedImprovementR31 原合同复算单侧下界及成本条件，仅合法 VERIFIED claim 计验证改善；R11 历史 CONFIRM paired 数据或结构/训练完成不替代 NATURAL_FUTURE 原件。",
+      "producer_origins": [
+        "CV10"
+      ]
+    }
+  },
+  "source_validation": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+      "sha256": "8b8fb626ecf3ec29f187db2628838ec073450b8cb894318d9545336751628039",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+      "sha256": "9d715c67e9f140aba58d691564eb5c26c81a726d79c18c80b1bd1aabe92cebd0",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "sha256": "96c9b80b9b5510c555492301ac467da65bd0593c04101bb0b9bf99142e4e1ee7",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "sha256": "f15b80492a437d030972ef774de48fda7d1b9c40c01b48e780d483882763d202",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "sha256": "24bab7a500fd340bced51508157da8f5bdc601e748a95c3ac7b5e121f3649bbe",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+      "sha256": "2ac3094a481deb7fa99164476348cf96137c0613c457ba58115d2ad3ec0f02a4",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "sha256": "0c1572d4f8cf1e16bef1cde09f96e423b73a026e017e4da7e4b4614e30a4ec1b",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "sha256": "7cebe37ca9fcd89d0fd16482f3ef1640628e0b6e156f1a85e0c93ee2989fe0b0",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "sha256": "67f17219474f6be6d30bed5a6c49541783c889f39c7c39fb486ca0705866597a",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "sha256": "ee8e5096624c2936a0cb285f098fbb7ee73343f6f4e1df508ea93252f79b5909",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "sha256": "7f6918607d702faf5eccf96a8bfac89a6b82237aa6d72af807de45f55d67a4eb",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "sha256": "0ee789e680463045ec5bb962c565d85d223f0e16a2322931bff5a8710e1d8f0c",
+      "exists_in_211": true
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java",
+      "sha256": "f9af6b53c931613c237c62059d31b2e1f597c1b3b298e6aac6f6c6ad3edb9e76",
+      "exists_in_211": true
+    }
+  ]
+}

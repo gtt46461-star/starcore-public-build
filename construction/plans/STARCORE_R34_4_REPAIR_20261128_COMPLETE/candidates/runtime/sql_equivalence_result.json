@@ -1,0 +1,13 @@
+{
+  "scope": "SYNTHETIC_SQL_EQUIVALENCE_ONLY",
+  "sqlite": "3.53.1",
+  "cases": 100,
+  "rows": 50000,
+  "equivalent": true,
+  "candidateQueryPlan": [
+    "SEARCH s USING INDEX r341_observation_release (release_id=? AND source_commit=? AND database_identity=?)",
+    "SEARCH e USING INDEX sqlite_autoindex_event_1 (event_id=?)"
+  ],
+  "androidCompiled": false,
+  "deviceMeasured": false
+}

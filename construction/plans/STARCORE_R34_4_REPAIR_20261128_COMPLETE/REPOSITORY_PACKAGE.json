@@ -1,0 +1,18 @@
+{
+  "schema": "STARCORE_R344_REPOSITORY_MATERIALIZATION_1",
+  "original_package_path": "construction/packages/STARCORE_R34_4_211_20261128",
+  "original_package_sha256": "4770e865a14cb3c4411e24d180368077c4585cdaa40255945a72742d615f9915",
+  "original_package_bytes": 20814251,
+  "original_package_parts": 27,
+  "original_package_members": 263,
+  "materialized_evidence": {
+    "path": "evidence/ORIGINAL_DIAGNOSTIC_211.zip",
+    "archive_member": "STARCORE_R34_4_211_Delivery/complete_plan/evidence/ORIGINAL_DIAGNOSTIC_211.zip",
+    "bytes": 19471817,
+    "sha256": "e0e3ffdb5a58a33175d6ee305d788bfaea3bd6186495c1828a0e1edddb6112b0"
+  },
+  "tracked_as_standalone_blob": false,
+  "reason": "The exact original is included once in repository package parts; prepare_evidence restores its pinned member before the unchanged verifier checks it.",
+  "prepare_command": "python3 tools/prepare_evidence.py --repo-root /absolute/path/to/plan-checkout",
+  "manifest_contract": "MANIFEST covers the complete materialized plan including the original diagnostic. The repository file set lacks only that generated, gitignored member."
+}

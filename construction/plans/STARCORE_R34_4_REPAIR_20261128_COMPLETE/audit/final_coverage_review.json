@@ -1,0 +1,787 @@
+{
+  "schema": "STARCORE_R344_FINAL_COVERAGE_REVIEW_V2",
+  "reviewed_at_utc": "2026-11-28T03:02:02.208794+00:00",
+  "status": "PASS_PLAN_COVERAGE_AND_SEMANTICS_ONLY",
+  "product_acceptance": "NOT_RUN_NOT_CLAIMED",
+  "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "summary": {
+    "issue_count": 46,
+    "original_finding_count": 50,
+    "batch_count": 12,
+    "source_anchor_count": 136,
+    "metrics": 44,
+    "checks": 96,
+    "old173_issues": 44,
+    "cv_13_all_preserved": true,
+    "all_assertions_passed": 68,
+    "batch_dag_acyclic": true,
+    "topological_order": [
+      "B00",
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B09",
+      "B10",
+      "B11"
+    ],
+    "current_execution_states": {
+      "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING": 46
+    },
+    "original_check_states": {
+      "EXECUTED": 56,
+      "READ_ERROR": 40
+    },
+    "original_metric_states": {
+      "INSUFFICIENT": 34,
+      "RECORDED_UNVALIDATED": 5,
+      "FAIL": 1,
+      "BLOCKED": 1,
+      "UNKNOWN_SOURCE_MISSING": 1,
+      "NOT_DEPLOYED": 1,
+      "UNKNOWN_STALE_SYNTHETIC_SOURCE": 1
+    }
+  },
+  "files": [
+    {
+      "path": "ISSUES.json",
+      "sha256": "8600211614cb96c0c6314afee333a9e77ffde9b8b1aadd4ee85af779ee18da48"
+    },
+    {
+      "path": "BATCHES.json",
+      "sha256": "9d98ed3516ada93221f2b54c52801635a55d9b5512a01be1883630c9273493f7"
+    },
+    {
+      "path": "coverage/METRIC_RESPONSIBILITY.json",
+      "sha256": "66b9f5f2110ffc78822101663348fec342fd1c8f754af2b6999f2a91d490e2a0"
+    },
+    {
+      "path": "coverage/CHECK_RESPONSIBILITY.json",
+      "sha256": "e2e3cdafdf3adc9194f156912234628402f796c8c49bc52ced21c86682d4331e"
+    },
+    {
+      "path": "inheritance/173_ISSUE_CROSSWALK.json",
+      "sha256": "85d0614d2d6152b08246298ef995ea3436607524f4057c71d611cf2629416e91"
+    },
+    {
+      "path": "SOURCE_ANCHORS.json",
+      "sha256": "9fd3e38c5829920918da8ef9601f13ea2de55a3415200acf42752602ef679b11"
+    },
+    {
+      "path": "ALIAS_MAP.json",
+      "sha256": "2eeacdf245215fbd76927961d85d4bd45d65b5fe7ccc0f138c2c81662f2400a3"
+    },
+    {
+      "path": "contracts/CREATION_TRAINING_AND_QUALITY.md",
+      "sha256": "784a6730efca7dbfcb11c94640864b960aee0ee69a11d1ce1362ee03afe2b982"
+    },
+    {
+      "path": "contracts/PIPELINE_AND_PRESERVATION.md",
+      "sha256": "c54c770062aded92e8e2ff885a70c935a45ac6894faee9690e5d64772152d3d4"
+    }
+  ],
+  "cv_coverage": [
+    {
+      "origin": "CV01",
+      "merged_issue": "R344-005",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV02",
+      "merged_issue": "R344-045",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV03",
+      "merged_issue": "R344-035",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV04",
+      "merged_issue": "R344-036",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV05",
+      "merged_issue": "R344-037",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV06",
+      "merged_issue": "R344-038",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV07",
+      "merged_issue": "R344-039",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV08",
+      "merged_issue": "R344-040",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV09",
+      "merged_issue": "R344-041",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV10",
+      "merged_issue": "R344-044",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV11",
+      "merged_issue": "R344-002",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV12",
+      "merged_issue": "R344-039",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    },
+    {
+      "origin": "CV13",
+      "merged_issue": "R344-042",
+      "original_record_identical": true,
+      "repair_preserved": true,
+      "tests_preserved": true,
+      "preserve_contracts_retained": true
+    }
+  ],
+  "closed_findings": [
+    {
+      "id": "FCR01",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "Q07加入B09资格/证书责任及CertificateGate原owner；003/013/014/308同步含真实资格producer。"
+    },
+    {
+      "id": "FCR02",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "M18/M32原测量文字保留为original_measurement_source，当前proof分别要求标签扰动反证及独立SQL/账本对照，不再以拒绝数0/同对象重复渲染签收。"
+    },
+    {
+      "id": "FCR03",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "44项完整original_definition逐对象保留；role/target/minimum_sample_scope/sample_unit及Q05/Q07/Q08特殊充分性限制可见，Q08自然资格false不变。"
+    },
+    {
+      "id": "FCR04",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "AtomNet独立训练→model/surface/call锚点、M20 CP9与rolling恢复、Q05/M26原校准链、Q06自然pair claim均归入现工单并有对应反例验收。"
+    },
+    {
+      "id": "FCR05",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "96项保留original_metric_crosswalk，新增read_path_issues/producer_issues/verification_owner；004/026/307/309业务责任补齐；三类composition不虚造producer。"
+    },
+    {
+      "id": "FCR06",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "旧173-038标SOURCE_FIX_PRESENT_RUNTIME_EMPTY，明确bornExact/nonBornExact及原SQL/hash/role/child验证已在211，保留读层，继续真实消费0。"
+    },
+    {
+      "id": "FCR07",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "B08工程退出与PENDING_B09自然原件回填显式分层，R11/R14/R18只读且不要求BORN，未知CPU不强造；B09沿B04工程门而非全部72h长测开工。"
+    },
+    {
+      "id": "FCR08_INTEGRATION",
+      "status": "RESOLVED_IN_PLAN",
+      "resolution": "合入时4项required_current_proof嵌套对象已拆为44项一致字符串，M20精确样本范围已落地，指标issue别名合并后已去重。"
+    }
+  ],
+  "open_findings": [],
+  "assertions": [
+    {
+      "name": "46 issues / 50 original origins / 12 batches",
+      "passed": true
+    },
+    {
+      "name": "44 metrics unique and complete",
+      "passed": true
+    },
+    {
+      "name": "96 checks unique and complete",
+      "passed": true
+    },
+    {
+      "name": "44 old173 issues retained",
+      "passed": true
+    },
+    {
+      "name": "original metric statuses and entire definitions preserved",
+      "passed": true
+    },
+    {
+      "name": "96 original checks exactly preserved",
+      "passed": true
+    },
+    {
+      "name": "CV01 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV01 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV02 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV02 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV03 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV03 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV04 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV04 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV05 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV05 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV06 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV06 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV07 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV07 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV08 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV08 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV09 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV09 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV10 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV10 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV11 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV11 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV12 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV12 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "CV13 maps exactly once",
+      "passed": true
+    },
+    {
+      "name": "CV13 original / repair / tests / preservation intact",
+      "passed": true
+    },
+    {
+      "name": "all metric and check issue references exist",
+      "passed": true
+    },
+    {
+      "name": "all metric issue lists unique after alias merge",
+      "passed": true
+    },
+    {
+      "name": "all required_current_proof are nonempty strings",
+      "passed": true
+    },
+    {
+      "name": "all application acceptance remains pending",
+      "passed": true
+    },
+    {
+      "name": "source commit exact211",
+      "passed": true
+    },
+    {
+      "name": "all source anchors exist and hashes match exact211",
+      "passed": true,
+      "detail": 136
+    },
+    {
+      "name": "DAG progress at 0",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 1",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 2",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 3",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 4",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 7",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 8",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 9",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 10",
+      "passed": true
+    },
+    {
+      "name": "DAG progress at 11",
+      "passed": true
+    },
+    {
+      "name": "all supplemental source anchors integrated",
+      "passed": true
+    },
+    {
+      "name": "all supplemental repair actions integrated",
+      "passed": true
+    },
+    {
+      "name": "all supplemental acceptance integrated",
+      "passed": true
+    },
+    {
+      "name": "all supplemental metric owner additions integrated",
+      "passed": true
+    },
+    {
+      "name": "all supplemental check producers integrated",
+      "passed": true
+    },
+    {
+      "name": "all supplemental metric proof strings integrated",
+      "passed": true
+    },
+    {
+      "name": "M20 phase scope integrated",
+      "passed": true
+    },
+    {
+      "name": "Q07 qualification producers include B09 and CertificateGate",
+      "passed": true
+    },
+    {
+      "name": "Q07 supporting checks include qualification owners",
+      "passed": true
+    },
+    {
+      "name": "M18 counterexample receipt and M32 independent source receipt",
+      "passed": true
+    },
+    {
+      "name": "Q05/Q07/Q08 retain units and sufficiency boundaries",
+      "passed": true
+    },
+    {
+      "name": "M20 includes B05 B06 B07",
+      "passed": true
+    },
+    {
+      "name": "critical checks separate read and production responsibility",
+      "passed": true
+    },
+    {
+      "name": "three composition checks do not invent independent producers",
+      "passed": true
+    },
+    {
+      "name": "old038 source fix retained and runtime work separate",
+      "passed": true
+    },
+    {
+      "name": "B08 engineering exit explicit and natural data later",
+      "passed": true
+    },
+    {
+      "name": "B09 natural mainline has B04 engineering gate without full long-wait global block",
+      "passed": true
+    },
+    {
+      "name": "repo application tracked files unchanged",
+      "passed": true
+    },
+    {
+      "name": "repo-installed application tracked files unchanged",
+      "passed": true
+    },
+    {
+      "name": "reviewed files stable during validation",
+      "passed": true
+    }
+  ],
+  "initial_review_history": {
+    "schema": "STARCORE_R344_FINAL_COVERAGE_REVIEW_V1",
+    "reviewed_at_utc": "2026-11-28T02:55:12.444401+00:00",
+    "status": "TARGETED_CORRECTIONS_REQUIRED",
+    "summary": {
+      "issue_count": 46,
+      "original_finding_count": 50,
+      "batch_count": 12,
+      "source_anchor_count": 119,
+      "metrics": 44,
+      "checks": 96,
+      "old173_issues": 44,
+      "cv_13_all_preserved": true,
+      "no_dangling_references": true,
+      "batch_dag_acyclic": true,
+      "topological_order": [
+        "B00",
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11"
+      ],
+      "current_execution_states": {
+        "PLAN_DEFINED_PRODUCT_ACCEPTANCE_PENDING": 46
+      },
+      "original_check_states": {
+        "EXECUTED": 56,
+        "READ_ERROR": 40
+      }
+    },
+    "files": [
+      {
+        "path": "ISSUES.json",
+        "sha256": "939eed9e5eb3b2c9d67c1b79ec35f91be5ea73b4b68130b08d074e3fde1d8ace"
+      },
+      {
+        "path": "BATCHES.json",
+        "sha256": "b0ed21ccf7ec5a0e315a3289383af80e1d82e3df8faeeaa0908823573378bc14"
+      },
+      {
+        "path": "coverage/METRIC_RESPONSIBILITY.json",
+        "sha256": "5bc56d094cad8f1c232af7d7a81c882053e4513767b42afe3d931cc2e80b3874"
+      },
+      {
+        "path": "coverage/CHECK_RESPONSIBILITY.json",
+        "sha256": "a0035a60ac40b0a025ce701a5b28eb5a4bb7de79a244362eec3c8d0a7f289942"
+      },
+      {
+        "path": "inheritance/173_ISSUE_CROSSWALK.json",
+        "sha256": "85d0614d2d6152b08246298ef995ea3436607524f4057c71d611cf2629416e91"
+      },
+      {
+        "path": "SOURCE_ANCHORS.json",
+        "sha256": "0a6611d27933769498303373cde4e9ed94f8be52efb6524d7166478f2bde493e"
+      }
+    ],
+    "cv_coverage": [
+      {
+        "origin": "CV01",
+        "merged_issue": "R344-005",
+        "pointer": "ISSUES.json#/issues/4",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV02",
+        "merged_issue": "R344-045",
+        "pointer": "ISSUES.json#/issues/44",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV03",
+        "merged_issue": "R344-035",
+        "pointer": "ISSUES.json#/issues/34",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV04",
+        "merged_issue": "R344-036",
+        "pointer": "ISSUES.json#/issues/35",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV05",
+        "merged_issue": "R344-037",
+        "pointer": "ISSUES.json#/issues/36",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV06",
+        "merged_issue": "R344-038",
+        "pointer": "ISSUES.json#/issues/37",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV07",
+        "merged_issue": "R344-039",
+        "pointer": "ISSUES.json#/issues/38",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV08",
+        "merged_issue": "R344-040",
+        "pointer": "ISSUES.json#/issues/39",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV09",
+        "merged_issue": "R344-041",
+        "pointer": "ISSUES.json#/issues/40",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV10",
+        "merged_issue": "R344-044",
+        "pointer": "ISSUES.json#/issues/43",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV11",
+        "merged_issue": "R344-002",
+        "pointer": "ISSUES.json#/issues/1",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV12",
+        "merged_issue": "R344-039",
+        "pointer": "ISSUES.json#/issues/38",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      },
+      {
+        "origin": "CV13",
+        "merged_issue": "R344-042",
+        "pointer": "ISSUES.json#/issues/41",
+        "original_record_identical": true,
+        "repair_preserved": true,
+        "tests_preserved": true,
+        "preserve_contracts_retained": true
+      }
+    ],
+    "findings": [
+      {
+        "id": "FCR01",
+        "priority": "P1",
+        "location": [
+          "coverage/METRIC_RESPONSIBILITY.json#/42"
+        ],
+        "issue": "Q07自然有效资产的生产职责遗漏资格/证书owner",
+        "current": "issues=R344-032/R344-017；batches=B03/B07；receipt=ACTIVE证书资产数",
+        "fix": "保留候选生成前置，并加入R344-043/R344-044及B09；明确LiveShadowsR27.certify、CertificateGateR27.evaluate及逐资产Q01/Q03/Q04/Q05独立原件验收。更新由该metric派生的RSEC003/013/014/308业务责任；不可用BORN/结构变化/ACTIVE单计数签有效产出。"
+      },
+      {
+        "id": "FCR02",
+        "priority": "P1",
+        "location": [
+          "coverage/METRIC_RESPONSIBILITY.json#/17/receipt_required",
+          "coverage/METRIC_RESPONSIBILITY.json#/31/receipt_required"
+        ],
+        "issue": "M18/M32把旧measurementSource文字当成充分证据合同",
+        "current": "M18仅r30_pit_violation非注入行数；M32仅同快照两章冲突数",
+        "fix": "保留旧文字为original_measurement_source；current_acceptance_receipt改为M18当前/未来标签扰动且固定既有PIT输入的原件与输出差分、M32同source/role/watermark独立源SQL与JSON/HTML/UI对照。保留当前报告missingReason，不得以计数0或复制同对象签PASS。"
+      },
+      {
+        "id": "FCR03",
+        "priority": "P1",
+        "location": [
+          "coverage/METRIC_RESPONSIBILITY.json#/40",
+          "coverage/METRIC_RESPONSIBILITY.json#/42",
+          "coverage/METRIC_RESPONSIBILITY.json#/43"
+        ],
+        "issue": "仅保留minimum_sample数值，遗漏已登记样本单位/角色/充分性限定",
+        "current": "Q05=200；Q07=1；Q08=120，无minimumSampleScope/sampleUnit/role/denominator/requiredEvidence字段",
+        "fix": "从原r31Definition带入target、role、window、sampleUnit、denominator、minimumSampleScope、requiredEvidence、naturalQualityEligible及missingPolicy；Q05的200是报告校准支持，不改逐资产V1≥250ACT；Q07一个资产原件只是报告支持；Q08必须六臂20seed与CI、同source完整搜索，120不是120自然期。工程样本1也不替代24h/72h等场景目标。旧B11/B10批次文案应标原合同命名空间，避免与本计划批次同名混淆。"
+      },
+      {
+        "id": "FCR04",
+        "priority": "P1",
+        "location": [
+          "ISSUES.json#/issues/35",
+          "coverage/METRIC_RESPONSIBILITY.json#/19",
+          "coverage/METRIC_RESPONSIBILITY.json#/23",
+          "coverage/METRIC_RESPONSIBILITY.json#/25",
+          "coverage/METRIC_RESPONSIBILITY.json#/40",
+          "coverage/METRIC_RESPONSIBILITY.json#/41",
+          "SOURCE_ANCHORS.json"
+        ],
+        "issue": "部分指标只列图表读者/旧路径/创造前置，缺少实际产物owner的验收职责",
+        "current": "M24没有AtomNetRuntime/Publication/ModelSurfaceStore；M20仅B05；Q06缺自然父子claim owner；Q05/M26缺实际校准source",
+        "fix": "在现有工单补生产/回读子职责，不创造无证新根因。M24加AtomNetRuntimeR30.step/forecast→AtomNetPublicationR31.prepare→AtomNetStoreR30.publicationModelR31→ModelSurfaceStoreR30.surface/calls→ModelConsumptionCensusR30R1.report；M20加B06 CP9 encode/decode、B07 rolling续训；Q06加ImprovementStoreR31/VerifiedImprovementR31原自然pair claim；Q05/M26加CalibrationRowsR27/CalibrationR30及冻结绑定。区分producer_files、readback_files、candidate_edit_files，避免为了覆盖列表无差别修改有效源文件。"
+      },
+      {
+        "id": "FCR05",
+        "priority": "P1",
+        "location": [
+          "coverage/CHECK_RESPONSIBILITY.json#/3",
+          "coverage/CHECK_RESPONSIBILITY.json#/24",
+          "coverage/CHECK_RESPONSIBILITY.json#/78",
+          "coverage/CHECK_RESPONSIBILITY.json#/80"
+        ],
+        "issue": "检查读取修复责任与业务原件生产责任混成一组，旧metric映射吞掉业务范围",
+        "current": "RSEC004只M20旧检查点；RSEC026只M33图表；RSEC307/309只M17导出",
+        "fix": "保留原metric crosswalk另列原始映射；新加read_path_issues/producer_issues/verification_owner。004含训练/outbox/冻结/校准/谱系/证书/REAL，接B06/B07/B09及现有主链工单；026卡顿/退出补M14/R344-021；307/309保留B01读超时责任同时补训练/进化/真实消费owner。044/304/311确是COMPOSITION_INDEX/N/A，可只汇总子检查，不强行要求生产。"
+      },
+      {
+        "id": "FCR06",
+        "priority": "P2",
+        "location": [
+          "inheritance/173_ISSUE_CROSSWALK.json#/37"
+        ],
+        "issue": "173的038已有读层修复，继承处置尚未明确保留",
+        "current": "R343-038=CONTINUE_REAL_CONSUMPTION，仅说明分别核验",
+        "fix": "细分为SOURCE_FIX_PRESENT_RUNTIME_CONSUMPTION_PENDING：ReportObjectIndexR30:29已将actualSourceConsumptionReceipts映射bornExact、NonBorn映射nonBornExact，ReportResearchConsumptionR343已有独立原BORN/ACTION SQL和验证。保留此读层修复，仅继续R344-037真实动作/回执0的问题。"
+      },
+      {
+        "id": "FCR07",
+        "priority": "P2",
+        "location": [
+          "BATCHES.json#/batches/8",
+          "BATCHES.json#/batches/9",
+          "ISSUES.json#/issues/35/acceptance"
+        ],
+        "issue": "B08/B09无结构循环，但需把图表工程退出与自然原件回填写成显式层级",
+        "current": "DAG B09依赖B08；批文已有外部原件不足只阻对应验收，且FORMAL只读约束存在",
+        "fix": "无需倒转依赖。显式B08_ENGINEERING_READY：原件缺失状态/隔离fixture正负路径/UI保全/合法研究动作可验；R11/R14/R18当前真实确认/冻结/REAL原件结果留PENDING_B09，不阻B09开工；B09产生原件后回填B08业务验收，保持B08工程完成不等于真实产出/质量通过。CPU原件功能补齐不得强迫改CPU_UNKNOWN为数值来退出。"
+      }
+    ]
+  },
+  "boundaries": [
+    "This review verifies evidence preservation, producer routing, acceptance semantics and exact211 source anchors; it is not an Android, migration, live-device or natural-quality result.",
+    "Source files are investigation/producer/readback anchors; their listing does not mandate modification of every file.",
+    "The 8 readable logical tables are not evidence that the user previous 8 useful charts are identical; existing chart identity and display behavior must be preserved separately.",
+    "R18 candidate remains a pure Java projection contract tested in isolation; exact upstream REAL attribution guards remain authoritative.",
+    "Historical report unknown/zero/readonly states remain unchanged; no historical data was promoted into current natural evidence."
+  ]
+}

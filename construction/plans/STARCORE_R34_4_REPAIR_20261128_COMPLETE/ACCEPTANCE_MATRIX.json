@@ -1,0 +1,968 @@
+{
+  "schema": "STARCORE_R344_ACCEPTANCE_1",
+  "issues": [
+    {
+      "issue_id": "R344-001",
+      "batch": "B00",
+      "title": "施工应用底座必须锁定211，main旧应用树不能覆盖安装源码",
+      "preservation": [
+        "211完整源树、包名com.starcore.research.r13、现有签名与历史封印",
+        "本轮仅发布完整资料与更新入口，不改main应用源码；施工在准确211或经审查后代的独立分支进行"
+      ],
+      "acceptance": [
+        "错误main基线和旧173after应被拒绝；211精确锚点通过。",
+        "源/计划/APK/版本/签名能互证；新增语义角色已登记，构建不等最后一批才核。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-002",
+      "batch": "B00",
+      "title": "旧修复与1832需求/299卡必须保全并逐项取证，不能按版本号宣告完成",
+      "preservation": [
+        "旧49文件既有修复及15个后续合法差异",
+        "旧有效8类数据/原图表、所有未核销需求、失败与原始验收记录",
+        "211已成功的035/036/037修复",
+        "原已可导出的报告",
+        "173其余有效条目和8旧图"
+      ],
+      "acceptance": [
+        "继承44问题、1832需求及299卡集合无丢失无无依据PASS。",
+        "关键旧输入前后可重复，原件与图表有效读数保留，报告导出保持兼容。",
+        "施工前base commit/file hash验证；错误base拒绝应用。",
+        "035明确0不回null；036各元数据索引全覆盖；037R06/formal current frame计数回归。",
+        "升级导出可取消/成功/重做；原报告格式、成员及hash验证保留。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-003",
+      "batch": "B01",
+      "title": "报告覆盖率查询在全事件联表上超时",
+      "preservation": [
+        "原 min 语义、游戏/发行版/源码/数据库过滤、合法12位期号、30期分母",
+        "完整报告96项及只读快照"
+      ],
+      "acceptance": [
+        "候选SQL在50000事件、100组scope夹具返回值逐一等价；此项已运行。",
+        "在原5GB快照上复测 RSEC009；当前安装范围完整保留，超时从原始原因引用可追溯；目标设备性能另验。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": [
+        "C02"
+      ]
+    },
+    {
+      "issue_id": "R344-004",
+      "batch": "B01",
+      "title": "共享诊断依赖失败后被多个检查反复重新构建",
+      "preservation": [
+        "新旧scope隔离、取消传播、UNKNOWN不转0、不可变快照",
+        "runCheck在原owner线程同步执行；不启动额外共享连接SQL工作线程"
+      ],
+      "acceptance": [
+        "同一失败依赖在同次报告只执行一次；每个原检查仍逐项有ID、状态及真实依赖错误，不能把全部40项都强绑同一依赖。",
+        "一项取消后必须等当前runner实际返回、所有Cursor关闭再开始下一项；若未来引入Future，cancel不等于已退出，未确认退出必须终止该reader并重开只读连接。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-005",
+      "batch": "B01",
+      "title": "报告共享180秒预算耗尽后压缩后续检查为1秒",
+      "preservation": [
+        "每项明确超时/取消、总阶段上限、同连接同步执行、96项数量",
+        "原index/archive/semantic receipt/share接口及中文报告章节",
+        "全部96注册检查",
+        "原完整ZIP导出及取消协议",
+        "每检查局部signal与错误引用"
+      ],
+      "acceptance": [
+        "连续3次导出、导出中取消再恢复、杀diagnostics进程后恢复、低空间/慢盘/共享读取同时发生均可拿到有效ZIP或明确可恢复失败。",
+        "完整报告96项全部保留，SOURCE_EMPTY/UNAVAILABLE/FAIL/PASS分别统计；一项耗时不能压缩无依赖项预算。",
+        "固定211快照fixture分别触发009、010、018，比较查询计划/读取量/耗时。",
+        "同依赖故障仅执行一次但各依赖检查正确UNKNOWN；下一次新报告重试。",
+        "取消、源错表、单检查timeout后其余合理预算内运行；导出仍可取消/重做。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-006",
+      "batch": "B01",
+      "title": "业务scope JSON被300字符展示截断器截坏",
+      "preservation": [
+        "safe对其他展示字符串的原有限长行为；完整scope的原schema和字段；跨进程边界"
+      ],
+      "acceptance": [
+        "433字符有效scope在赋值/序列化/导出后全部字段一致；原报告300字符反例确定不可JSON解析。",
+        "candidate patch apply --check已过；尚未Android编译或真机验收，不标软件已修好。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": [
+        "C01"
+      ]
+    },
+    {
+      "issue_id": "R344-007",
+      "batch": "B01",
+      "title": "报告是诊断包，不能独立重放全部SQLite/APK/训练原件",
+      "preservation": [
+        "默认易传输的DIAGNOSTIC模式、原件单独完整备份入口、固定manifest及SHA验证"
+      ],
+      "acceptance": [
+        "诊断模式不会因未请求的原件缺失阻塞导出；明确请求FULL_RAW时任何缺件导致真实INCOMPLETE而不是强标完整。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-008",
+      "batch": "B01",
+      "title": "冻结快照缺主writer单调时钟锚，历史原件不能投影为当时状态",
+      "preservation": [
+        "旧173方案R343041所保留的历史证据/当时证据/当前在线状态严格区分；UNKNOWN不改0/PASS",
+        "WriterFaultSnapshotViewR343原hash、source、release、database、boot、TTL和pin区间全覆盖校验；报告后台native独立owner、无实时writer长锁",
+        "旧报告无锚时仍可导出原件和明确UNKNOWN，不能为了新附件缺失阻断正常导出"
+      ],
+      "acceptance": [
+        "空锚、错误snapshot/source/database/boot、进程epoch不匹配、过期样本、逆序pin及中途换owner均保持明确UNKNOWN；原historicalOriginal和SHA照常导出。",
+        "同一boot同一clock、独立pin区间完全在样本TTL内且身份匹配，才得到AS_OF_SNAPSHOT；延后导出和主进程重启不能升级成LIVE_FRESH。",
+        "大库复制超过12秒仍只用实际pin窄区间验证；取消/进程死亡不发布半个锚；重复导出保留旧SHA与原receipt。",
+        "RT12与RT19分别回归：有效完整scope不自动使本项已验收。尚未实现native/Android补丁或真机验证。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-009",
+      "batch": "B02",
+      "title": "报告/保留快照占24.1GB，失败快照没有退役闭环",
+      "preservation": [
+        "只读冻结快照、唯一原件保护、活动share锁、已发布ZIP、校验和、原失败回执",
+        "禁止按目录年龄、大小或新报告成功就删除不同hash旧快照"
+      ],
+      "acceptance": [
+        "构造5份不同hash失败任务：恢复与清理只处理有精确替代证明者；其余保留且界面列明原因。",
+        "连续3次正常导出后临时快照占用回落，分享链接仍可读取、逐成员CRC/SHA校验通过；取消/进程死亡任一边界不丢唯一原件。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-010",
+      "batch": "B02",
+      "title": "draws已限5000，但热库大表仍持续膨胀",
+      "preservation": [
+        "待结算/训练引用、checkpoint/CAS闭包、未确认迁移备份、真实出手账本、原始失败证据"
+      ],
+      "acceptance": [
+        "5000期后继续运行，所有表/文件按其声明预算进入稳定区间；新建事件量与回收量均有实测。",
+        "保留回放、当前待结算、活跃训练和报告导出；故障注入回滚不丢历史。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-011",
+      "batch": "B02",
+      "title": "写耗时故障队列被共享故障热配额卡住，反向抑制研究",
+      "preservation": [
+        "单writer、commit identity、原故障字节/hash、pending outbox、P0 freeze优先、未证明不可删"
+      ],
+      "acceptance": [
+        "混合2000条可变/不可变故障+已有inflight+重启夹具中drain能真实前进、pending降到24以下，研究能产出新artifact。",
+        "不重放已提交业务、不丢故障原件；存储满时保留明确INCOMPLETE，P0调度不被诊断写锁长期阻塞。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-012",
+      "batch": "B02",
+      "title": "故障观测队列已经丢弃41次超限证据",
+      "preservation": [
+        "显式capacityLoss和不完整状态",
+        "有界内存，不为保全观测无限扩容"
+      ],
+      "acceptance": [
+        "压力/低磁盘注入可复现观测失效且UI/报告标INCOMPLETE；恢复后新观测不持续丢失。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-013",
+      "batch": "B02",
+      "title": "启动观测日志自身容量被保护规则阻塞",
+      "preservation": [
+        "startup token BEGIN/END配对、原异常hash、未闭合token、用户取消语义"
+      ],
+      "acceptance": [
+        "循环故障/反复升级后journal仍可追加；所有已封存段有完整替代原件；已成功业务不会因观测故障被重复执行。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-014",
+      "batch": "B03",
+      "title": "研究启动经历约53.7秒和5次尝试才就绪",
+      "preservation": [
+        "域迁移事务、DDL逐单元收据、重入fence、已完成阶段复用、关键主链先就绪"
+      ],
+      "acceptance": [
+        "旧5GB库冷启、覆盖安装、中断每个迁移单元再启均只提交一次；记录主链ready与research ready各自P95。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-015",
+      "batch": "B03",
+      "title": "writer backlog生产/消费category错配破坏prepared重试",
+      "preservation": [
+        "UNKNOWN/COMMITTED不得自动重试；同batch/identity/cursor保持；完整JDBC/设备仍待验"
+      ],
+      "acceptance": [
+        "UNKNOWN/COMMITTED不得自动重试；同batch/identity/cursor保持；完整JDBC/设备仍待验",
+        "运行当前/旧category×全部CommitOutcome、错phase、错cause和非白名单反例；已运行30例抽取方法测试仅计SOURCE_EXTRACTED_CLASSIFIER，不代签完整JUnit。",
+        "native SQLite夹具先拒绝ADMISSION，再提交同一prepared；比对同payloadHash/commitKey/inputSnapshot，业务cursor只增一次。UNKNOWN提交经receipt回读后不重复推进。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": [
+        "C03"
+      ]
+    },
+    {
+      "issue_id": "R344-016",
+      "batch": "B03",
+      "title": "队列前置broad pressure可挡住已有公平dataset服务",
+      "preservation": [
+        "保留active settlement/freeze优先、单writer、deadline、fence；不按op字符串随意放行"
+      ],
+      "acceptance": [
+        "保留active settlement/freeze优先、单writer、deadline、fence；不按op字符串随意放行",
+        "broad pressure持续30秒、无active settlement/freeze时，真实ready小事务获得原单writer服务并提交artifact；中途加入freeze waiter，freeze先服务且研究让出。真实关键事务持续饱和时诚实SATURATED，不承诺越过物理容量。",
+        "旧fence、取消、错误input/payload和源修正均不得借公平槽提交；每个阶段重投只记同一真实产物一次。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-017",
+      "batch": "B03",
+      "title": "大量task receipt没有绑定artifact，RUNNING不能视为算法推进",
+      "preservation": [
+        "保留原计数口径；不得回填历史artifact；历史异fence故障不当本次唯一原因"
+      ],
+      "acceptance": [
+        "保留原计数口径；不得回填历史artifact；历史异fence故障不当本次唯一原因",
+        "构造100次等待/心跳不提交产物，artifactWork仍0；随后一次真实artifact事务令其恰增1，重复读取/重复receipt不增长。",
+        "同task换owner/fence后历史fault不归因到当前owner；报表保留源版本与窗口分母。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-018",
+      "batch": "B04",
+      "title": "1秒抓取目标未实现，调度和入库阶段均有长尾",
+      "preservation": [
+        "防重入、网络退避、开奖验证、同issue幂等、服务器约束"
+      ],
+      "acceptance": [
+        "至少连续1440期对每个目标槽给分母与missing原因；正常网络调度指标和端到端落库指标分别满足目标；断网恢复不造赛前历史预测。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-019",
+      "batch": "B04",
+      "title": "赛前冻结大量缺失且推理长尾",
+      "preservation": [
+        "PIT、deadline、single flight、冻结与结算hash域、唯一正式意向",
+        "已有3次canonical成功及其不可变原件；正确的无赛前终态排除语义"
+      ],
+      "acceptance": [
+        "未来120+真实期按服务enabled区间、可预测时窗和实际请求分别列完整分母；每次合法predraw以原冻结hash按同issue结算，缺失有真实原因；不得补造已开奖期的frozen。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-020",
+      "batch": "B04",
+      "title": "后台权限具备，业务连续性和长期运行仍未验收",
+      "preservation": [
+        "单owner租约、前台服务用户开关、重启fence、任务持久化、系统不可保证force-stop自动恢复的真实边界"
+      ],
+      "acceptance": [
+        "目标vivo Android14熄屏/切后台/断网恢复/进程杀死及升级安装逐场景测试；连续24h和72h分别出真实机会分母、冻结/结算/训练进度，不以心跳达标代替。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-021",
+      "batch": "B04",
+      "title": "崩溃与退出历史跨版本混合，当前稳定性缺长期证据",
+      "preservation": [
+        "按boot/release/process分类原异常；流式报告与有界observer线程池；已有低内存退出记录"
+      ],
+      "acceptance": [
+        "大库导出+后台研究同时运行、杀diagnostics后恢复、连续运行真机RSS/PSS/native/heap各自曲线；没有回执不称零崩溃。",
+        "RSEC-026 的帧计时与同版本 crash/exit 原件分别复核；无当前长窗口测量仍 UNKNOWN/待验，历史累计异常不冒充当前版本稳定性结论。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-022",
+      "batch": "B04",
+      "title": "写锁指标与历史硬超限范围混用，需分别治理",
+      "preservation": [
+        "原始直方图、failure与commitOutcome区分、真实超限不能抹零"
+      ],
+      "acceptance": [
+        "同scope当前窗口可重算并与原件一致；既定短写目标在目标设备测试；每条“已commit但诊断失败”不得执行第二次业务。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-023",
+      "batch": "B04",
+      "title": "精确结算待办与延后证据债未闭环",
+      "preservation": [
+        "SettlementEngine核心结算与研究/延后证据侧车隔离；MODEL_INVOCATIONS=0；正式结算唯一owner及draw_hash/lease_generation/process_boot_id栅栏",
+        "真实NO_PREDRAW终态不计预测胜负；原COMPLETED与历史7457无赛前终态不可批量重置",
+        "DeferredEvidenceWriter原snapshot/hash、100 number/1200 action基数、cursor、唯一leaseOwner、幂等事务和结果读回"
+      ],
+      "acceptance": [
+        "原报告元数据联查脚本已运行，结算四状态和=10928、延后四状态和=3099；非终态分别163/2899，单项原路径可追溯。",
+        "施工后每个旧任务有独立分类和原件依据：完成、真实无赛前排除、原件缺失待恢复或合法重试；163不得无证清零，历史结果和质量分母不得变造。",
+        "重启/租约过期/事务返回不确定测试保证原游标不回退、同一target不双结算、100/1200与hash不被放宽；新增冻结与当前结算不因补课受阻。",
+        "观测连续窗口内非终态净减少和最老欠账年龄；不存在资源可用却同游标无限重试的静默状态。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-024",
+      "batch": "B04",
+      "title": "5000行滚动live cache前缀条件导致重复rebuild风险",
+      "preservation": [
+        "需逐特征/概率回归一致，源纠正必invalidate；当前未证实其造成某次延迟"
+      ],
+      "acceptance": [
+        "需逐特征/概率回归一致，源纠正必invalidate；当前未证实其造成某次延迟",
+        "4999→5000、5000→5000头部淘汰、同head旧行纠正、晚补录和ABI变化分别比对全量旧算法的每项特征与概率；源变化必须失效，峰值内存受预算约束。",
+        "优化前后分别提供相同输入/设备的rebuild次数和延迟分布，不以单次快测声称解决全部1秒长尾。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-025",
+      "batch": "B05",
+      "title": "checkpoint引用缺556个对象，不能验证恢复闭包",
+      "preservation": [
+        "原checkpoint元数据、原state/model/optimizer/seed/source身份、未验证对象保护、GC禁止"
+      ],
+      "acceptance": [
+        "缺失/损坏/预算未验三类均可追踪；未闭合模型不参与实时主链；同seed同数据中断恢复与连续训练状态一致。",
+        "令所有旧checkpoint字节缺失但提供足够可信新历史和已验证catalog：旧模型全部继续不可用/受保护，同时既有基础工厂能创建独立n=0候选并完成开发TRAIN；无旧权重、性能、样本、资格或certificate继承。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-026",
+      "batch": "B05",
+      "title": "R27固定输入未进入进化cache，导致多消费者等待",
+      "preservation": [
+        "不得清cursor/原pin/RNG/exposure ledger；冷启动逐字段比对并绑定真实artifact"
+      ],
+      "acceptance": [
+        "不得清cursor/原pin/RNG/exposure ledger；冷启动逐字段比对并绑定真实artifact",
+        "固定原pin、热尾已删除但原pin完好、原pin损坏、源修正、metadata缺失、提交后进程死亡场景逐一验证；原cursor/RNG/exposure不变，恢复cache与原dataset一致。",
+        "首个R27真实世代由同input/ABI的policy、replay score、lineage和generation snapshot闭合；未恢复原pin时必须显示准确缺因，不伪造进度。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-027",
+      "batch": "B05",
+      "title": "pin load原因被null合并，已存在投影仍重复写入",
+      "preservation": [
+        "旧sourceCommit或mode不得命中；缺投影仍原有小事务；无原件绝不补造"
+      ],
+      "acceptance": [
+        "旧sourceCommit或mode不得命中；缺投影仍原有小事务；无原件绝不补造",
+        "相同已提交投影重复恢复不再新增纯metadata事务；不同mode/sourceCommit、缺投影、源修订改变、旧fence分别不能走快路。",
+        "schema pending、取消、坏原件仍按原分类被拒绝或传播；old pin split/role/hash不能因新增诊断接口改变。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-028",
+      "batch": "B05",
+      "title": "50个旧ABI候选停训且冷重生未产出",
+      "preservation": [
+        "保留旧权重/ABI/状态/hash；新孩子计数0；F23原教师不在则保持hold"
+      ],
+      "acceptance": [
+        "保留旧权重/ABI/状态/hash；新孩子计数0；F23原教师不在则保持hold",
+        "旧state缺失时ColdRebirth继续拒绝；独立基础实验在不同新ID与合法输入下能训练，旧原件和旧资格不继承。",
+        "有原件且hash正确时，只建一个目标ABI冷孩子，旧对象全部字段保留，新dev/Future计数0；错hash或缺state时旧parent继续hold。",
+        "一个或全部旧parent不可恢复时，其他有原件parent及独立data-only新实验仍能获既有轮转服务；不得清retry/曝光/全局alpha索引。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-029",
+      "batch": "B05",
+      "title": "长期摘要因真实期号gap变INVALID_SOURCE",
+      "preservation": [
+        "不得填零/回写可知时间/跳样本冒充连续长窗；旧epoch原件保留"
+      ],
+      "acceptance": [
+        "不得填零/回写可知时间/跳样本冒充连续长窗；旧epoch原件保留",
+        "以报告指定gap及晚到补录构造夹具：旧epoch及已有journal/snapshot记录不被改写，允许追加真实迁移journal；新epoch仅读实际连续合法行，available_at为真实最晚来源可见时间。",
+        "source token在prepare/commit间变化拒绝提交；未积累到1440/10080/43200窗口时输出真实不足，其它短窗data-only家族继续运行。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-030",
+      "batch": "B06",
+      "title": "第五条现代TRAIN误终止不在现有恢复白名单",
+      "preservation": [
+        "不泛化解隔离；原scdev不在报告中仍须现场验；旧失败task/cursor不变"
+      ],
+      "acceptance": [
+        "不泛化解隔离；原scdev不在报告中仍须现场验；旧失败task/cursor不变",
+        "RULE正例及任一task/candidate/protocol/input/action/state/reason改变负例；原文件缺失、byte_count/hash/AST/manifest/split错误均hold。",
+        "重复调用、提交后死亡、已有artifact/learning cursor/Future/REAL等情形分别验；每旧任务最多一个successor/receipt，且恢复本身不增加策略质量计数。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": [
+        "C04"
+      ]
+    },
+    {
+      "issue_id": "R344-031",
+      "batch": "B06",
+      "title": "已恢复现代TRAIN新任务attempt0，现有轮转未形成完整训练",
+      "preservation": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度"
+      ],
+      "acceptance": [
+        "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
+        "REAL=0、certificate=0、旧期全NO_PREDRAW_CANONICAL_TERMINAL且有足够可信历史时，原IMPORT/TRAIN仍可完成独立开发模型；rolling_event允许0，不造COMPLETED。",
+        "同一冻结 dataset/protocol/seed 在 NORMALIZER、TRAIN、TREE_QUANTILES/TREE_SCAN（相应内核）、VALIDATE 的可达边界中断恢复，与连续运行比较完整状态、optimizerSteps、选定 epoch、预测 tape 和终态 model hash；FIXED_GRAPH 保留真实前向/tape，不强求梯度步。错误 input/protocol/shape/hash/截断 checkpoint 必须拒绝，重放提交不重复学习。",
+        "REAL=0、certificate=0、全部结算为NO_PREDRAW_CANONICAL_TERMINAL，但具足量合法历史和catalog：独立fixed graph与一个learned kernel可完成开发receipt；rolling_event继续0且不伪造COMPLETED。",
+        "给selected子槽不足预算，cursor不得跳过该待服务owner；下一足量slice推进同任务。FIXED_GRAPH验真实PIT前向/tape，learned kernel验实际optimizer/tree/model状态。",
+        "feature cursor/rows/hash→checkpoint phase→120验证tape→development receipt→artifact→FREEZE enqueue同身份闭合；恢复中断与不中断结果一致。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-032",
+      "batch": "B07",
+      "title": "多机制实现存在但不能把参数变体或family标签算新算法",
+      "preservation": [
+        "规范身份不同不等于新机制；不执行任意生成Java；attempt/structure/quality分开"
+      ],
+      "acceptance": [
+        "规范身份不同不等于新机制；不执行任意生成Java；attempt/structure/quality分开",
+        "相同action/seed重放得同规范图；窗口/权重变化归参数，拓扑/算子变化归未验证结构，同构和复制父代NO_OP；两个原冻结父代才允许fusion。",
+        "至少记录一个实际编译结构变异child进入TRAIN及其原父引用/数据/行为探针；开发效果可以为负，不强迫所有生成成为优胜。缺teacher不堵data-only家族。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-033",
+      "batch": "B07",
+      "title": "typed rule代码存在但无供体迁移验证闭环且供体次数未知",
+      "preservation": [
+        "DONOR_PAIR_ATTEMPT_NOT_PERSISTED不能写0；仅更晚不同dataset开发迁移"
+      ],
+      "acceptance": [
+        "DONOR_PAIR_ATTEMPT_NOT_PERSISTED不能写0；仅更晚不同dataset开发迁移",
+        "合法两供体及proof→规则→严格更晚不同dataset两个结构子代→真实dev scores可追溯；同dataset、时间重叠、无proof、类型不符、same-shape均拒绝。",
+        "没有供体/没有尝试/尝试全拒绝三态不同，重复owner重放不重复记同pair；无FUTURE结果不编造转化率。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-034",
+      "batch": "B07",
+      "title": "旧在线更新44真实存在，现代rolling停在dev receipt前置",
+      "preservation": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测"
+      ],
+      "acceptance": [
+        "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
+        "在 FEATURES 与 TRAINING 阶段分别杀进程/重开并重复投递同 lease；cursor/prefix、checkpoint hash/generation CAS 保持一致，不多提交 optimizer step 或 outcome；开发模型与 rolling 模型各自独立验，不以一条历史 artifact 通过全链 M20。",
+        "无REAL但有合法COMPLETED来源和dev receipt时，rolling版本/头按真实标签推进；重复结算同receipt不二次学习，异hash同issue拒绝。",
+        "只有NO_PREDRAW、无COMPLETED时rolling不消费/不记假事件，但开发bootstrap仍工作；旧冻结模型/未来窗口不被学习头覆盖。",
+        "训练完成的new model/source epoch/cutoff/发布receipt可回读，缺绑定原件只hold对应版本而不隔离全部原策略。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-035",
+      "batch": "B07",
+      "title": "静态82能力已实现不等于实训；F23原教师绑定真实缺失",
+      "preservation": [
+        "24族/21思路/16专家/20矩阵/AtomNet既有实现",
+        "旧数值权重和原ABI封存",
+        "真实拒绝码"
+      ],
+      "acceptance": [
+        "F23合法原教师正例；无teacher/错source/错ABI反例。",
+        "全部82项各有静态与运行分层结果；原子定义数不得替代绑定/回放数。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-036",
+      "batch": "B08",
+      "title": "18研究能力无当前产消闭环，publication不等于model publication",
+      "preservation": [
+        "81 callable不是81项有效产出；capacity范围内不武断归因容量满",
+        "原17历史帧及其HISTORICAL_ABI标识",
+        "原算法/固定块/角色隔离",
+        "每视图有界查询/错误隔离"
+      ],
+      "acceptance": [
+        "81 callable不是81项有效产出；capacity范围内不武断归因容量满",
+        "十位置模型训练/发布/冻结调用同modelHash与trainedThrough，错epoch、错位置维度和仅有材料无训练必须拒绝或明确等待。",
+        "从原dataset建链后逐18图当前source frame/run/hash有独立原件，负值/不足/缺来源正确保留。",
+        "输入revision变化和错ABI拒绝旧帧，已成功同identity不重复计算，下一新水位能推进。",
+        "R06合法原子组件配对续跑，无法仅凭observatoryREADY签收。",
+        "AtomNet 原 model artifact / trainedThrough / session / frozen model ref / surface / call 逐键匹配；无训练模型时仍为明确 DEPENDENCY/缺证，atom publication 数量不当模型数；恢复原件后实际调用行可独立追到对应模型与输入。",
+        "给出真实训练模型正例及只有sample-publication无模型负例，model计数只能在真实model原件与receipt闭合后增。",
+        "图表/研究未达条件时显示WAITING/EMPTY；这些状态不反向锁死其它已就绪基础训练、资格工程测试或主链合法消费。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-037",
+      "batch": "B08",
+      "title": "研究建议到真实动作回执断链，不能靠显示或计数补完成",
+      "preservation": [
+        "原主链唯一owner",
+        "真实事务消费与反泄漏门禁",
+        "BORN/non-BORN分账"
+      ],
+      "acceptance": [
+        "实际建议改变合法子代或有界预算后回读same-source原件；重复执行幂等。",
+        "错hash/错role/错parent/无实际变化/孤立frame均拒绝；CONFIRM/FUTURE不得回流训练。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-038",
+      "batch": "B08",
+      "title": "20注册矩阵未产出；既有R952与长档案不得被删或混计",
+      "preservation": [
+        "R952旧在线原逻辑与反馈",
+        "20矩阵完整注册",
+        "历史矩阵checkpoint及过期原因"
+      ],
+      "acceptance": [
+        "20类型逐一正确维度和原键，source-only不错误等学生；学生型无学生明确不足。",
+        "错角色/目标/ABI/维度/重复提交拒绝或幂等，旧在线矩阵回归保持。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-039",
+      "batch": "B08",
+      "title": "历史图“有缓存行”不等于有真实可用图；既有8图应保全",
+      "preservation": [
+        "旧图id和布局",
+        "已有8图真实交互与数据",
+        "HISTORICAL_FRAME/HISTORICAL_ABI与原hash验证",
+        "原16逻辑查询与同SQL分母",
+        "有界分页/取消/来源版本提示",
+        "历史原件"
+      ],
+      "acceptance": [
+        "全部29旧图入口保留；已有效8图截图/翻页/点击无退化。",
+        "坏hash/超限/空点/历史source分别独立状态，一图坏不能拖垮整页或报告。",
+        "16表当前与新source总分母/翻页一致；table缺失、取消、超限、源变化各给不同状态。",
+        "T15真实proposal/consume联表正例与悬空提案反例；T16有解释无REAL不计闭环。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-040",
+      "batch": "B08",
+      "title": "R18成功结算仍无条件显示REAL缺证的投影缺陷",
+      "preservation": [
+        "原exactRealAttributionR34安全校验",
+        "唯一DecisionGate/SettlementEngine授权",
+        "formalReadOnly"
+      ],
+      "acceptance": [
+        "git apply --check在5c7f通过；精确候选helper源Java运行12个正负合同用例通过。",
+        "施工还需集成Android/SQLite真实原件测试：合法成功、缺证、错授权/错实验、待结算、终态未知、不合法时间。",
+        "图表只读，无新授权/结算写入；旧图和导出不变。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": [
+        "C05"
+      ]
+    },
+    {
+      "issue_id": "R344-041",
+      "batch": "B08",
+      "title": "R10/R17每对象CPU原件缺失；不能以全池成本代替",
+      "preservation": [
+        "原AST复杂度与配对增益",
+        "25%探索下限",
+        "原自然观察器成本独立口径"
+      ],
+      "acceptance": [
+        "CPU忙计算与故意阻塞sleep区分；多个对象并发不得拿整池CPU均摊。",
+        "重试/切片/失败各自原件可复算；无原件不做收益/CPU排序承诺。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-042",
+      "batch": "B08",
+      "title": "R11只画verified布尔值，原父子配对收益和区间未投影",
+      "preservation": [
+        "原FrozenConfirmation算法与所有负结果",
+        "只读CONFIRM合同",
+        "原自然父子观察器分账"
+      ],
+      "acceptance": [
+        "原结果正/负/跨零/无父代四例显示相应真实数值和未知；verified不覆盖收益。",
+        "旧无区间结果不虚构上下界；历史CONFIRM不得显示NATURAL_FUTURE通过。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-043",
+      "batch": "B09",
+      "title": "证书/主链0是上游证据未产出，不能降低门禁换通过",
+      "preservation": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率"
+      ],
+      "acceptance": [
+        "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
+        "校准输入晚冻、缺开奖、身份漂移、错误 role/period、重复/冲突行、缺原校准器与不足资格 ACT 的负例不得签 ACTIVE；满足原条件的记录由原证书入口签发并可追溯、撤销。Q07 计数仅来自通过逐资产 Q01/Q03/Q04/Q05 审核的独立有效资产。",
+        "高开发分但无FUTURE、晚冻结、错model/calibration hash、旧证书移植、重复confirm/Future标签均拒绝；永久alpha index跨重启/新child不复用。",
+        "合格工程夹具只标ENGINEERING_PATH_VERIFIED；自然达标后必须出现同frozen/model/protocol/certificate的下一合法边界决策与精确结算引用。自然无达标时仍训练/影子且REAL=0，不伪造PASS。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-044",
+      "batch": "B09",
+      "title": "自然质量无通过依据，旧源小合成不代表当前完整工厂检出力",
+      "preservation": [
+        "全部自然质量门槛",
+        "合成与自然来源隔离",
+        "失败轮与负结果"
+      ],
+      "acceptance": [
+        "错source、未完成trial、单轮高命中、未登记假设不得签收。",
+        "原六臂完整工厂的误授证/检出力与额外34/37/40%目标概率对照分别带CI、全分母；原signalStrength=.30是植入参数，不能当命中率；自然资格独立。",
+        "Q05/M26 对同一合法 frozen 校准器/目标/ACT 条件复算 ECE（等质量与等宽并列）、BSS、支持覆盖和区间；未来或同期间标签混入 fit、fitThrough 跨越 embargo、错误原件身份必须被排除/拒绝并保留原因。200 是报告支持条件；120 行 fitted 诊断或单条 ACTIVE 都不是资格通过。",
+        "Q06 使用事前注册的完整日历窗原件；相同期缺一方、遗漏失败期、重复 ordinal、开奖后冻结、旧 source、缺配对 CPU、重复消耗 segment 的负例不得 VERIFIED。合法父子对按原 claim 合同复算 mean/lowerBound/cost，只有原下界与成本门均满足才记 VERIFIED；未知或未改进也要如实产出状态，不为验收造出改善。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-045",
+      "batch": "B10",
+      "title": "44指标没有完整通过依据；0样本、静态覆盖与行动覆盖不得冒充验收",
+      "preservation": [
+        "原44指标定义和门槛",
+        "UNKNOWN/NOT_DEPLOYED/RECORDED_UNVALIDATED分离",
+        "原失败窗口及负结果"
+      ],
+      "acceptance": [
+        "所有44 ID唯一且有状态、来源、修复、验收；无缺项/重复。",
+        "用0样本、混角色、旧source、同对象重复渲染等反例验证不得PASS。",
+        "修复后证据只能按当前source与指定范围升级，不用成功图表替代质量。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    },
+    {
+      "issue_id": "R344-046",
+      "batch": "B11",
+      "title": "本轮还须完成APK、覆盖安装、原生证据与完整交付，方案自检不能代签",
+      "preservation": [
+        "既有干净源码构建、签名隔离、包名与覆盖安装",
+        "历史封印与前批实际日志/APK"
+      ],
+      "acceptance": [
+        "用户能下载并安装真实新APK；安装后版本与签名匹配源码及计划。",
+        "APK启动、原数据、出号结算及检测报告导出实测；工程与质量结论分开。"
+      ],
+      "status": {
+        "implementation": "NOT_RUN_PRODUCT",
+        "android_migration": "NOT_RUN",
+        "field_runtime": "NOT_RUN",
+        "natural_quality": "NOT_PROVEN_WHERE_APPLICABLE"
+      },
+      "candidate_host_evidence": []
+    }
+  ],
+  "principle": "Host candidates and plan validation do not satisfy product acceptance"
+}

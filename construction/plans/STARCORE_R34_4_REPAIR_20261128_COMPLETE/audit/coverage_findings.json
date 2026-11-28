@@ -1,0 +1,1112 @@
+{
+  "schema": "STARCORE_COVERAGE_CHART_FINDINGS_V1",
+  "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+  "findings": [
+    {
+      "id": "CV01",
+      "title": "96项完整登记但40项读取失败；UNKNOWN不得签为通过",
+      "priority": "P0",
+      "classification": "CONFIRMED_OBSERVABILITY_FAILURE",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R31_SEMANTIC_RECEIPT.json#/checks",
+          "value": {
+            "count": 96,
+            "EXECUTED": 56,
+            "READ_ERROR": 40
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/sourceHealthR341",
+          "value": {
+            "sourceCount": 67,
+            "ok": 11,
+            "empty": 16,
+            "unavailable": 40
+          }
+        },
+        {
+          "file_and_json_path": "REPORT_DETAILS.txt/check_result",
+          "value": {
+            "RSEC-009/010_budgetMs": 20000,
+            "other_timeout_count": 38,
+            "other_budgetMs": 1000
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "method": "export",
+          "lines": [
+            340
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+          "method": "runCheck / memo",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+          "method": "readCoverageR342",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+          "method": "checks / run",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "注册覆盖完整与检查结果可用是两件事；67投影来源分母不能替代96检查分母。",
+        "共享180秒预算、单项1–20秒与失败依赖未记忆导致后续重复重算和1秒失败扇出。",
+        "RSEC009当前scope min(e.target_issue)联表是已定位慢链之一；RSEC010 renderer hash、RSEC018 acceptanceWindow等栈独立，禁止把40项全归咎同一SQL。",
+        "每次runCheck创建自己的取消signal并finally清理；没有证据支持沿用旧signal为根因。"
+      ],
+      "construction_actions": [
+        "按真实栈分别优化输入范围、必要索引/查询计划与任务级成功/失败依赖记忆；保持取消错误独立。",
+        "为可恢复来源失败保留明确引用与原错误；不能捕获失败返回0/空集。",
+        "保留96检查、原导出成员与完成/失败语义；执行预算整改不砍检查。"
+      ],
+      "verification": [
+        "固定211快照fixture分别触发009、010、018，比较查询计划/读取量/耗时。",
+        "同依赖故障仅执行一次但各依赖检查正确UNKNOWN；下一次新报告重试。",
+        "取消、源错表、单检查timeout后其余合理预算内运行；导出仍可取消/重做。"
+      ],
+      "must_preserve": [
+        "全部96注册检查",
+        "原完整ZIP导出及取消协议",
+        "每检查局部signal与错误引用"
+      ],
+      "related_workstreams": [
+        "runtime_export_audit"
+      ],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV02",
+      "title": "44指标没有完整通过依据；0样本、静态覆盖与行动覆盖不得冒充验收",
+      "priority": "P0",
+      "classification": "ACCEPTANCE_EVIDENCE_GAP",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults",
+          "value": {
+            "INSUFFICIENT": 34,
+            "RECORDED_UNVALIDATED": 5,
+            "FAIL": 1,
+            "BLOCKED": 1,
+            "UNKNOWN_SOURCE_MISSING": 1,
+            "NOT_DEPLOYED": 1,
+            "UNKNOWN_STALE_SYNTHETIC_SOURCE": 1
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults/6",
+          "value": {
+            "id": "M07",
+            "value": 1000.0,
+            "sampleCount": 73,
+            "target": "P95≤200ms；24h失败0"
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults/22",
+          "value": {
+            "id": "M23",
+            "numerator": 81,
+            "denominator": 82
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults/30",
+          "value": {
+            "id": "M31",
+            "value": 1.0,
+            "sampleCount": 16
+          }
+        },
+        {
+          "file_and_json_path": "R26_REPORT.json#/sections",
+          "value": {
+            "PARTIAL": 37,
+            "INSUFFICIENT": 6,
+            "OBSERVED": 1,
+            "NOT_RUN": 1
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+          "method": "currentR30 / r31Definitions",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+          "method": "document / fromSnapshotR30",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "method": "build",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "34 INSUFFICIENT、5 RECORDED_UNVALIDATED及其余失败/未知状态必须分别保留。M07是已捕获73窗口的最大wait_p95，尚不是完整24h验收。",
+        "M06/M22/M27/Q07均0样本的0；M23 81/82只表示可调用绑定；M31 16规则行动字段齐全只表示路由覆盖。",
+        "M01安装身份VERIFIED_INSTALLATION与完整构建签名验收不足并不矛盾；M17本次导出成功与40检查失败也不矛盾。",
+        "R26 45节全部存在，但37 PARTIAL、6 INSUFFICIENT、1 OBSERVED、1 NOT_RUN；UPGRADE只有1主finding及16规则不是未知软件缺陷穷尽检查。"
+      ],
+      "construction_actions": [
+        "采用coverage_full.json每项独立cause/action/test，按当前版本、角色、时段、分母采集。",
+        "M07先修真正实时写瓶颈，其余缺测项按场景补证；不要把34缺测项等价为34个互不相关新根因。",
+        "保留target与缺证状态，任何自然质量未达标继续真实标不足。"
+      ],
+      "verification": [
+        "所有44 ID唯一且有状态、来源、修复、验收；无缺项/重复。",
+        "用0样本、混角色、旧source、同对象重复渲染等反例验证不得PASS。",
+        "修复后证据只能按当前source与指定范围升级，不用成功图表替代质量。"
+      ],
+      "must_preserve": [
+        "原44指标定义和门槛",
+        "UNKNOWN/NOT_DEPLOYED/RECORDED_UNVALIDATED分离",
+        "原失败窗口及负结果"
+      ],
+      "related_workstreams": [],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV03",
+      "title": "静态82能力已实现不等于实训；F23原教师绑定真实缺失",
+      "priority": "P1",
+      "classification": "INTERFACE_GAP_AND_RUNTIME_SCOPE_LIMIT",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/capabilities",
+          "value": {
+            "count": 82,
+            "FAMILY": 24,
+            "IDEA": 21,
+            "EXPERT": 16,
+            "MATRIX": 20,
+            "MODEL": 1,
+            "callable": 81
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/capabilities/objects/22",
+          "value": {
+            "id": "F23",
+            "callable": false,
+            "executionBlockedReason": "F23_ORIGINAL_TEACHER_NOT_BOUND"
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/419",
+          "value": {
+            "table": "research_atom_spec_v2",
+            "rows": 25350,
+            "DISCOVERED": 25220,
+            "REQUIRES_BINDING": 130
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/120",
+          "value": {
+            "table": "r26_task",
+            "rows": 64,
+            "BLOCKED": 45,
+            "NEEDS_FIX": 2,
+            "READY": 11,
+            "RUNNING": 4,
+            "YIELDED": 2
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+          "method": "build",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+          "method": "step",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "method": "build",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+          "method": "capture",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "F23原teacher未绑定是具体可调用缺口，其余81只有当前报告进程静态入口存在。",
+        "原子catalog25350是定义/发现；不能算25350训练原子、有效策略或新公式。",
+        "保留候选状态BLOCKED_WARM_NUMERICAL_ABI_PRESERVED说明旧数值ABI断链；不能用可调用=true绕过旧权重身份。"
+      ],
+      "construction_actions": [
+        "按原教师hash/角色/ABI接入F23；教师缺失保持BLOCKED，不虚拟教师。",
+        "先修输入/ABI后沿原候选生成独立子代，分别记录参数变化、游标提交、产物、消费、独立效果。",
+        "不新增空壳族凑覆盖，不覆盖改写旧父代身份。"
+      ],
+      "verification": [
+        "F23合法原教师正例；无teacher/错source/错ABI反例。",
+        "全部82项各有静态与运行分层结果；原子定义数不得替代绑定/回放数。"
+      ],
+      "must_preserve": [
+        "24族/21思路/16专家/20矩阵/AtomNet既有实现",
+        "旧数值权重和原ABI封存",
+        "真实拒绝码"
+      ],
+      "related_workstreams": [
+        "strategy_pipeline_audit"
+      ],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV04",
+      "title": "18研究图当前来源产物全零；先恢复合法数据，再分producer验证",
+      "priority": "P0",
+      "classification": "CONFIRMED_DEPENDENCY_BLOCK_WITH_MULTIPLE_OWNERS",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/researchCharts/objects",
+          "value": {
+            "count": 18,
+            "each_currentSourceProducedFrames": 0,
+            "each_actualSourceConsumptionReceipts": 0,
+            "each_actualSourceNonBornActionReceipts": 0,
+            "historical_latest_view_references": 17
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/researchCharts/objects/*/verifiedFaultTraceR33",
+          "value": {
+            "shared_owner": "r27-observatory-r1",
+            "state": "BLOCKED",
+            "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(IMMUTABLE_REPLAY_DATASET))",
+            "scope": "SHARED_OWNER_TASK_NOT_OBJECT_ROOT_CAUSE"
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/252",
+          "value": {
+            "research_measure": 538,
+            "INPUT_INVALIDATION": 517,
+            "other_measure_rows": 21
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "method": "step",
+          "lines": [
+            232,
+            244,
+            248,
+            269
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+          "method": "acquire",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+          "method": "step",
+          "lines": [
+            41
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+          "method": "paired",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "method": "readFrame",
+          "lines": [
+            68,
+            99
+          ],
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "observatory在evoData==null直接等待IMMUTABLE_REPLAY_DATASET，因此17图及其产物链无法推进；具体输入失效/恢复原因应与策略链原owner证据合并。",
+        "R06由ResearchStudyTask写，不在observatory循环；共享owner阻断只能作线索，不能冒充R06独立故障证据。",
+        "538测量行中517是输入失效事件；旧17图参考和28缓存行不能证明当前source产出。",
+        "现代码已有真正结构/配对/协同/融合/漂移/模型对照等实现，不能以0运行成果推断全部算法不存在。"
+      ],
+      "construction_actions": [
+        "先恢复有效不可变dataset/pin/revision与原重放任务，保留输入/角色/ABI/hash验证。",
+        "按charts_18_contracts.json逐图producer、原表、consumer及反例施工；R06单独验证切片/恢复。",
+        "R11/R14/R18为FORMAL_READ_ONLY，优化消费标N/A；不能强制他们有BORN回执。",
+        "可为只读formal/预算图单列独立输入诊断，但新增依赖合同需精确来源；不得绕过合法原件生成假点。"
+      ],
+      "verification": [
+        "从原dataset建链后逐18图当前source frame/run/hash有独立原件，负值/不足/缺来源正确保留。",
+        "输入revision变化和错ABI拒绝旧帧，已成功同identity不重复计算，下一新水位能推进。",
+        "R06合法原子组件配对续跑，无法仅凭observatoryREADY签收。"
+      ],
+      "must_preserve": [
+        "原17历史帧及其HISTORICAL_ABI标识",
+        "原算法/固定块/角色隔离",
+        "每视图有界查询/错误隔离"
+      ],
+      "related_workstreams": [
+        "strategy_pipeline_audit"
+      ],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV05",
+      "title": "研究建议到真实动作回执断链，不能靠显示或计数补完成",
+      "priority": "P0",
+      "classification": "DOWNSTREAM_EXECUTION_EVIDENCE_ABSENT",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/251",
+          "value": {
+            "table": "r30r1_proposal",
+            "rows": 0
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/250",
+          "value": {
+            "table": "r30r1_consume",
+            "rows": 0
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/332",
+          "value": {
+            "table": "r33_research_input_head",
+            "rows": 0
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/331",
+          "value": {
+            "table": "r33_research_applied",
+            "rows": 0
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+          "method": "read / stageBoundR31 / stage",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+          "method": "stageResearchHypotheses",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+          "method": "completeWithin",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+          "method": "consumptionKindOf / validateForConsumption",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "当前先缺有效研究输入/原产物，proposal和consume也为0；这些是上游停工的下游症状，不再单列18个新根因。",
+        "非BORN预算/剪枝/窗口调整与BORN新子代需要不同原回执；0不等于消费绑定代码全不存在。"
+      ],
+      "construction_actions": [
+        "用原frame/run/contractHash/source/revision/role精确消费；出生与原childPolicy同事务完成回执。",
+        "非出生动作须有真实before/after和下一轮行为影响；FORMAL只读来源不得作优化输入。",
+        "对没有改善的合法动作如实记录负结果，不通过重试多记产量。"
+      ],
+      "verification": [
+        "实际建议改变合法子代或有界预算后回读same-source原件；重复执行幂等。",
+        "错hash/错role/错parent/无实际变化/孤立frame均拒绝；CONFIRM/FUTURE不得回流训练。"
+      ],
+      "must_preserve": [
+        "原主链唯一owner",
+        "真实事务消费与反泄漏门禁",
+        "BORN/non-BORN分账"
+      ],
+      "related_workstreams": [
+        "strategy_pipeline_audit"
+      ],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV06",
+      "title": "20注册矩阵未产出；既有R952与长档案不得被删或混计",
+      "priority": "P1",
+      "classification": "DOWNSTREAM_TYPED_MATRIX_DEPENDENCY",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/matrices/objects",
+          "value": {
+            "count": 20,
+            "each_retainedCount": 0,
+            "each_inputAvailable": false,
+            "each_produced": false
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/368",
+          "value": {
+            "r952_matrix_snapshot": 50
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/367",
+          "value": {
+            "r952_matrix_feedback": 48
+          }
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/501",
+          "value": {
+            "research_matrix_checkpoint_v2": 49
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java",
+          "method": "step / produceR31 / build",
+          "lines": [
+            12,
+            42,
+            99,
+            142
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+          "method": "all / Definition.json",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+          "method": "settle",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "20 canonical typed矩阵与旧R952在线矩阵是不同来源/合同，不能宣称所有矩阵为空或用R952数量填20类型通过。",
+        "MatrixResearch.step也在evoData缺失时等待；student依赖和source-only类型不同，需按类型分解。"
+      ],
+      "construction_actions": [
+        "先恢复合法dataset，再逐20类型按dependency/维度/source/revision生产；有学生需求的类型保持明确等待。",
+        "保留R95250份冻结/48份反馈及49checkpoint，不能清表重建。",
+        "过期原输入缺失应记录EXPIRED/WITHOUT_PROJECTION，不能事后造历史矩阵。"
+      ],
+      "verification": [
+        "20类型逐一正确维度和原键，source-only不错误等学生；学生型无学生明确不足。",
+        "错角色/目标/ABI/维度/重复提交拒绝或幂等，旧在线矩阵回归保持。"
+      ],
+      "must_preserve": [
+        "R952旧在线原逻辑与反馈",
+        "20矩阵完整注册",
+        "历史矩阵checkpoint及过期原因"
+      ],
+      "related_workstreams": [
+        "strategy_pipeline_audit"
+      ],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV07",
+      "title": "历史图“有缓存行”不等于有真实可用图；既有8图应保全",
+      "priority": "P1",
+      "classification": "DISPLAY_EVIDENCE_SEMANTICS_LIMIT",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/legacyCharts",
+          "value": {
+            "registered": 29,
+            "produced_true_cache_present": 14,
+            "other_produced_unknown": 15
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/researchCharts",
+          "value": {
+            "historical_references": 17,
+            "current_source_frames_all": 0
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+          "method": "build legacyCharts",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+          "method": "panel / build",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+          "method": "cached / snapshotPanelR30",
+          "lines": [
+            88,
+            116,
+            179
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "method": "readFrame / panel",
+          "lines": [
+            68,
+            139
+          ],
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "legacy produced=stored!=null是缓存存在语义；ChartCache可以写points为空且INSUFFICIENT的panel。14缓存记录不等于14个有效可视图。",
+        "报告不能独立确定用户肉眼可用8图的具体id；16逻辑表中8可读也不是这8图。",
+        "现UI已有hash/size/schema/source校验、历史标识和单图故障隔离，重写会破坏有效保全。"
+      ],
+      "construction_actions": [
+        "先在真机逐页捕获既有8图id/样式/数据源/交互作为回归基线。",
+        "报告侧必要时增量区分cachePresent/payloadValid/finitePointCount/currentSource/rendered，不替换现图注册布局。",
+        "历史帧继续显示带来源标识；新图只有真实原件时画点。"
+      ],
+      "verification": [
+        "全部29旧图入口保留；已有效8图截图/翻页/点击无退化。",
+        "坏hash/超限/空点/历史source分别独立状态，一图坏不能拖垮整页或报告。"
+      ],
+      "must_preserve": [
+        "旧图id和布局",
+        "已有8图真实交互与数据",
+        "HISTORICAL_FRAME/HISTORICAL_ABI与原hash验证"
+      ],
+      "related_workstreams": [],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV08",
+      "title": "R18成功结算仍无条件显示REAL缺证的投影缺陷",
+      "priority": "P1",
+      "classification": "SOURCE_CONFIRMED_LATENT_PROJECTION_DEFECT",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/researchCharts/objects/17",
+          "value": {
+            "id": "R18",
+            "currentSourceProducedFrames": 0,
+            "current_real_success_path_observed": false
+          }
+        },
+        {
+          "file_and_json_path": "source:ResearchProvenanceGraphR30R1.java:76",
+          "value": {
+            "unconditional_node": "REAL缺证",
+            "read_attributedRealSettlement": false
+          }
+        },
+        {
+          "file_and_json_path": "source:ResearchObservatoryR30R1.java:121",
+          "value": {
+            "row_fields": [
+              "realAuthorization",
+              "attributedRealSettlement",
+              "attributionReason"
+            ]
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java",
+          "method": "project",
+          "lines": [
+            76
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "method": "stored(R18)",
+          "lines": [
+            103,
+            121
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+          "method": "exactRealAttributionR34",
+          "lines": [
+            95,
+            133
+          ],
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "上游精确SQL已读取policy/model/authorization/trade及权威终态，显示层却无条件添加REAL缺证，没有任何成功边。",
+        "这是可达成功路径的潜在显示错误，当前没有成功原件，不能解释为何当前未产出/未训练。",
+        "nonnull receipt含待结算和终态未知；不能简单判断nonnull就展示成功。"
+      ],
+      "construction_actions": [
+        "应用R18_exact_receipt_projection.candidate.patch前以5c7f基线复核，仅更改project显示。",
+        "保持exactRealAttributionR34原SQL、赛前时钟及终态hash验证；只按匹配原键呈现SETTLED_EXACT/WAITING/UNKNOWN/MISSING。",
+        "成功与亏损都是真实结算；单次成功不代表自然质量达标。"
+      ],
+      "verification": [
+        "git apply --check在5c7f通过；精确候选helper源Java运行12个正负合同用例通过。",
+        "施工还需集成Android/SQLite真实原件测试：合法成功、缺证、错授权/错实验、待结算、终态未知、不合法时间。",
+        "图表只读，无新授权/结算写入；旧图和导出不变。"
+      ],
+      "must_preserve": [
+        "原exactRealAttributionR34安全校验",
+        "唯一DecisionGate/SettlementEngine授权",
+        "formalReadOnly"
+      ],
+      "related_workstreams": [],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV09",
+      "title": "R10/R17每对象CPU原件缺失；不能以全池成本代替",
+      "priority": "P2",
+      "classification": "FEATURE_EVIDENCE_GAP_NOT_CURRENT_STALL_ROOT",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "source:ResearchObservatoryR30R1.java:81",
+          "value": {
+            "R10": "perObjectCpuNs=null",
+            "costScope": "AST_NODE_COMPLEXITY_ONLY_CPU_UNKNOWN_NOT_POOL_CPU"
+          }
+        },
+        {
+          "file_and_json_path": "source:ResearchObservatoryR30R1.java:83",
+          "value": {
+            "R17": "perObjectCpuNs=null",
+            "costReason": "NO_OBJECT_CPU_RECEIPT_WHOLE_POOL_CPU_NOT_SUBSTITUTED"
+          }
+        },
+        {
+          "file_and_json_path": "source:ResearchObservatoryR30R1.java:262-264",
+          "value": {
+            "frame_cost": "System.nanoTime elapsed; frame production, not child operator CPU"
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "method": "stored(R10/R17) / step",
+          "lines": [
+            81,
+            83,
+            262
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "method": "researchCosts",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+          "method": "appendFreezeCost / outerReceipt",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "现显示准确承认对象CPU未知，已有AST复杂度/全任务CPU但它们的范围不等于每个算子真实CPU。",
+        "原自然父子观察器r31_improvement_cost有独立calling-thread CPU合同；不可拿来冒充SELECT算子成本。"
+      ],
+      "construction_actions": [
+        "在真实算子执行边界增量记录operation/parent/child/source/input/slice及calling-thread CPU，与wall等待分离。",
+        "slice累加只算已提交独立工作，重试幂等；失败成本保留。",
+        "收集完成前继续展示AST复杂度并标CPU_UNKNOWN，先修P0链路。"
+      ],
+      "verification": [
+        "CPU忙计算与故意阻塞sleep区分；多个对象并发不得拿整池CPU均摊。",
+        "重试/切片/失败各自原件可复算；无原件不做收益/CPU排序承诺。"
+      ],
+      "must_preserve": [
+        "原AST复杂度与配对增益",
+        "25%探索下限",
+        "原自然观察器成本独立口径"
+      ],
+      "related_workstreams": [],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV10",
+      "title": "自然质量无通过依据，旧源小合成不代表当前完整工厂检出力",
+      "priority": "P0",
+      "classification": "QUALITY_VALIDATION_NOT_COMPLETED",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults/36",
+          "value": {
+            "Q01": "INSUFFICIENT"
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults/37",
+          "value": {
+            "Q02": "NOT_DEPLOYED"
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults/42",
+          "value": {
+            "Q07": 0,
+            "sampleCount": 0
+          }
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/metricResults/43/observations/factoryCapabilityExperiment/payload",
+          "value": {
+            "Q08": "UNKNOWN_STALE_SYNTHETIC_SOURCE",
+            "oldSource": "ab2695b1b7e764fe4fd057183d2007f35a720a63",
+            "plannedTrials": 120,
+            "completedTrials": 0,
+            "scheduler": "WAIT_REALTIME_WINDOW"
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+          "method": "advance / advanceIsolated",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+          "method": "protocol / summary",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+          "method": "qualification",
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+          "method": "effectiveness",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "有效证书/REAL缺失与工程闭环未完成相符，不能靠图表数量或训练次数推出可用优势。",
+        "完整工厂试验当前未完成，来源旧；旧19/20或20/20小合成只属各自实验范围。",
+        "REGISTRY_READ_FAILED/UNKNOWN_REGISTRY_UNAVAILABLE_OR_CORRUPT不能当作已无风险。"
+      ],
+      "construction_actions": [
+        "先完成工程同池正负对照，再按当前施工source登记原完整工厂六臂×20种子=120轮（NULL_UNIFORM/NULL_TIME_SHUFFLED/SIGNAL/SIGNAL_DISABLED/DRIFT/GAPS）与功效区间。",
+        "保持自然FUTURE与合成完全分账，继续独立未来确认和正确预算。",
+        "Q01–Q08逐项按原规则报告真实不足，禁止补配额/选择好窗口。"
+      ],
+      "verification": [
+        "错source、未完成trial、单轮高命中、未登记假设不得签收。",
+        "原六臂完整工厂的误授证/检出力与额外34/37/40%目标概率对照分别带CI、全分母；原signalStrength=.30是植入参数，不能当命中率；自然资格独立。"
+      ],
+      "must_preserve": [
+        "全部自然质量门槛",
+        "合成与自然来源隔离",
+        "失败轮与负结果"
+      ],
+      "related_workstreams": [
+        "strategy_pipeline_audit"
+      ],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV11",
+      "title": "173旧方案三项读层修复已进入211，不能重新覆盖回退",
+      "priority": "P0",
+      "classification": "PRESERVATION_AND_BASELINE_GUARD",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "source-manifest.json#/sourceCommit",
+          "value": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d"
+        },
+        {
+          "file_and_json_path": "repo-main",
+          "value": "6e762807be3b36affccaeab230d44d540a16f8c8"
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/331",
+          "value": "r33_research_applied=0, no longer null"
+        },
+        {
+          "file_and_json_path": "DIAGNOSTIC_SCOPE.json#/tables/332",
+          "value": "r33_research_input_head=0, no longer null"
+        },
+        {
+          "file_and_json_path": "R30_REPORT.json#/objectIndex/boundedPayloads",
+          "value": {
+            "chartObjectIndex": "14/14",
+            "repairFrameIndex": "17/17",
+            "omitted": 0
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+          "method": "TABLES / capture",
+          "lines": [
+            18,
+            337,
+            358
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java",
+          "method": "<init> / take",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "main旧app源不能直接作211应用施工底座；当前计划173仍需逐项继承但必须重新核current code。",
+        "R343-035白名单已修，036元数据预算已隔离，037已用原committed cache/run计数；当前零产物是运行问题，不是这三处旧读层bug继续存在。",
+        "有界payload摘要有意少量展示；researchFrames2/28、runs4/30、measure1/538不得当原表只有2/4/1。"
+      ],
+      "construction_actions": [
+        "只在5c7f精确底座应用最小补丁；给旧项记录IMPLEMENTED/REVERIFY_RUNTIME，不再复制旧全文件。",
+        "保留完整成员和索引专额；进一步优化慢源不删除检查/附件。",
+        "通过现原件检索确认大payload总分母和省略状态，原ZIP本体不改。"
+      ],
+      "verification": [
+        "施工前base commit/file hash验证；错误base拒绝应用。",
+        "035明确0不回null；036各元数据索引全覆盖；037R06/formal current frame计数回归。",
+        "升级导出可取消/成功/重做；原报告格式、成员及hash验证保留。"
+      ],
+      "must_preserve": [
+        "211已成功的035/036/037修复",
+        "原已可导出的报告",
+        "173其余有效条目和8旧图"
+      ],
+      "related_workstreams": [
+        "runtime_export_audit"
+      ],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV12",
+      "title": "16逻辑表的空集和可读不能错算成图表成功或底层全部缺失",
+      "priority": "P1",
+      "classification": "TABLE_READING_SCOPE_AND_ACCEPTANCE",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "R30_REPORT.json#/researchTables",
+          "value": {
+            "READ_OK": 8,
+            "EMPTY_NO_ROWS": 8,
+            "counts": {
+              "T01": 30,
+              "T02": 0,
+              "T03": 0,
+              "T04": 3,
+              "T05": 0,
+              "T06": 1,
+              "T07": 0,
+              "T08": 24,
+              "T09": 4,
+              "T10": 1,
+              "T11": 0,
+              "T12": 0,
+              "T13": 0,
+              "T14": 20,
+              "T15": 0,
+              "T16": 3376
+            }
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+          "method": "query / readPageR31",
+          "lines": [
+            6,
+            42,
+            145
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+          "method": "asynchronous page load",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "T01=30历史analysis run；T08=24专家提案；T16=3376解释均不等于当前有效资产。",
+        "T02/T03/T05/T07/T11/T12/T13/T15为明示空集，不必重写查询去制造数据。",
+        "现页面/总数同SQL、取消、分页与跨请求水位说明已存在；未知来源/超限不得降级EMPTY。"
+      ],
+      "construction_actions": [
+        "按每逻辑表对应的真实生产者恢复源，保留查询/分页/错误处理。",
+        "空表从source/role/filter/读时点定位；不做无差别清表或补零数据。"
+      ],
+      "verification": [
+        "16表当前与新source总分母/翻页一致；table缺失、取消、超限、源变化各给不同状态。",
+        "T15真实proposal/consume联表正例与悬空提案反例；T16有解释无REAL不计闭环。"
+      ],
+      "must_preserve": [
+        "原16逻辑查询与同SQL分母",
+        "有界分页/取消/来源版本提示",
+        "历史原件"
+      ],
+      "related_workstreams": [],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    },
+    {
+      "id": "CV13",
+      "title": "R11只画verified布尔值，原父子配对收益和区间未投影",
+      "priority": "P2",
+      "classification": "SOURCE_CONFIRMED_DISPLAY_CONTENT_GAP",
+      "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "snapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+      "evidence": [
+        {
+          "file_and_json_path": "source:ResearchObservatoryR30R1.java:85",
+          "value": {
+            "point.value": "verified 0/1",
+            "numeric_result": "stored in row.result, not point lower/upper"
+          }
+        },
+        {
+          "file_and_json_path": "source:FrozenConfirmationR30.java:113-132",
+          "value": {
+            "original_fields": [
+              "pairedLcbVsPrevious",
+              "pairedLcbVsI00",
+              "pairedLcbVsNull",
+              "pairedImprovementR31"
+            ]
+          }
+        },
+        {
+          "file_and_json_path": "source:ResearchWorkbenchRepositoryR30R1.java:145-153",
+          "value": {
+            "consumed_fields": [
+              "value",
+              "lower",
+              "upper",
+              "n",
+              "details"
+            ],
+            "row.result_displayed": false
+          }
+        }
+      ],
+      "source": [
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+          "method": "stored(R11)",
+          "lines": [
+            84,
+            85
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+          "method": "evaluate",
+          "lines": [
+            113,
+            132
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+          "method": "panel",
+          "lines": [
+            145,
+            153
+          ],
+          "file_exists_at_base": true
+        },
+        {
+          "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+          "method": "outerReceipt",
+          "file_exists_at_base": true
+        }
+      ],
+      "root_cause_analysis": [
+        "现算法已做配对确认，问题是展示contract丢了数值与原结果详情，不是没有配对算法。",
+        "R11登记为LINE/父子同期配对收益与确认，显示只有verified0/1会掩盖负贡献幅度和不确定性。",
+        "历史CONFIRM配对与自然未来改善有不同资格范围；二者不得混为自然有效。"
+      ],
+      "construction_actions": [
+        "从同原result_json精确投影paired收益/已保存区间与父子hash、日历范围、证据角色；缺少字段保持UNKNOWN。",
+        "保留verified作为独立状态；不把布尔1作为收益，不重跑已使用holdout，不向训练回流。",
+        "详情包含原结果hash/实验id，必要增量保留独立自然pair claim入口。"
+      ],
+      "verification": [
+        "原结果正/负/跨零/无父代四例显示相应真实数值和未知；verified不覆盖收益。",
+        "旧无区间结果不虚构上下界；历史CONFIRM不得显示NATURAL_FUTURE通过。"
+      ],
+      "must_preserve": [
+        "原FrozenConfirmation算法与所有负结果",
+        "只读CONFIRM合同",
+        "原自然父子观察器分账"
+      ],
+      "related_workstreams": [],
+      "status": "AUDITED_PLAN_ONLY_NOT_APPLICATION_REPAIRED"
+    }
+  ]
+}

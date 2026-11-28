@@ -1,0 +1,57 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java
+@@ -73,10 +73,53 @@
+     Map<String,Object> r=(Map<String,Object>)records.get(i);String key=String.valueOf(i+1);if(view.equals("R05")){
+      String a=key+" 失败/处方",b=key+" 子代",c=key+" SELECT回放";out.add(node(a,null,String.valueOf(r.get("details"))));if(r.get("childHash")!=null){out.add(node(b,1,"hash="+r.get("childHash")+"; AST="+r.get("actualAst")+"; admission="+r.get("admissionState")));edge(f,a,b,"EXPERT_PROPOSAL_EXACT_CHILD_HASH");if(r.get("selectBinaryBrier") instanceof Number){out.add(node(c,r.get("selectBinaryBrier"),"开发回放，不能从出生产量推断有效"));edge(f,b,c,"EXACT_CHILD_DATASET_SELECT");}}
+     }else{
+-     String a=key+" 分析",b=key+" 提案",c=key+" 子代",d=key+" 独立确认",e=key+" 实验/资格",z=key+" REAL缺证";out.add(node(a,null,"run="+r.get("analysisRun")));out.add(node(b,null,"proposal="+r.get("proposal")));edge(f,a,b,"EXACT_RUN_ID");if(r.get("childHash")!=null){out.add(node(c,1,"child="+r.get("childHash")+"; "+r.get("admissionState")));edge(f,b,c,"ORIGINAL_CONSUME_CHILD_HASH");}if(r.get("confirmationTask")!=null){out.add(node(d,r.get("verified"),"task="+r.get("confirmationTask")+"; "+r.get("confirmationState")));edge(f,c,d,"EXACT_POLICY_HASH");}if(r.get("experiment")!=null){out.add(node(e,null,"experiment="+r.get("experiment")+"; certificate="+r.get("certificateStatus")+"; sequential="+r.get("sequentialState")));edge(f,d,e,"EXACT_REGISTERED_EXPERIMENT_ID");}out.add(node(z,null,String.valueOf(r.get("attributionReason"))));
++     String a=key+" 分析",b=key+" 提案",c=key+" 子代",d=key+" 独立确认",e=key+" 实验/资格",z=key+" REAL缺证";out.add(node(a,null,"run="+r.get("analysisRun")));out.add(node(b,null,"proposal="+r.get("proposal")));edge(f,a,b,"EXACT_RUN_ID");if(r.get("childHash")!=null){out.add(node(c,1,"child="+r.get("childHash")+"; "+r.get("admissionState")));edge(f,b,c,"ORIGINAL_CONSUME_CHILD_HASH");}if(r.get("confirmationTask")!=null){out.add(node(d,r.get("verified"),"task="+r.get("confirmationTask")+"; "+r.get("confirmationState")));edge(f,c,d,"EXACT_POLICY_HASH");}if(r.get("experiment")!=null){out.add(node(e,null,"experiment="+r.get("experiment")+"; certificate="+r.get("certificateStatus")+"; sequential="+r.get("sequentialState")));edge(f,d,e,"EXACT_REGISTERED_EXPERIMENT_ID");}appendRealAttributionR343(f,r,key,e);
+     }
+    }
+   }
+   if(out.isEmpty()){f.put("status","INSUFFICIENT");f.put("reason","NO_EXACT_ORIGINAL_GRAPH_KEYS_YET");}
+  }
++
++ /** Display-only projection of the exact receipt already verified by
++  * ResearchMainlineContributionAuditR922.exactRealAttributionR34.
++  * This method does not create authorization, settle trades, or infer quality. */
++ static void appendRealAttributionR343(Map<String,Object> frame,Map<String,Object> row,
++         String key,String experimentNode){
++  List<Object> out=ResearchObservatoryR30R1.points(frame);
++  Object raw=row.get("attributedRealSettlement"),experiment=row.get("experiment");
++  Map<?,?> receipt=raw instanceof Map?(Map<?,?>)raw:null;
++  Object authorization=row.get("realAuthorization");
++  boolean bound=receipt!=null&&experiment instanceof String&&!((String)experiment).isEmpty()
++      &&row.get("childHash")!=null&&row.get("confirmationTask")!=null
++      &&"MATCHED_ORIGINAL_POLICY_MODEL_AUTHORIZATION_AND_TRADE_KEYS".equals(row.get("attributionReason"))
++      &&(MainlineFreezeProofR31.PREFIX+experiment).equals(receipt.get("policy"))
++      &&authorization instanceof String&&!((String)authorization).isEmpty()
++      &&authorization.equals(receipt.get("authorizationHash"))
++      &&receipt.get("tradeId") instanceof Number&&((Number)receipt.get("tradeId")).longValue()>0;
++  if(!bound){
++   out.add(node(key+" REAL缺证",null,receipt==null?String.valueOf(row.get("attributionReason"))
++       :"REAL_PROJECTION_BINDING_MISMATCH"));
++   return;
++  }
++  String authorizationNode=key+" REAL原始授权";
++  out.add(node(authorizationNode,1,"authorizationHash="+authorization+"; tradeId="
++      +receipt.get("tradeId")+"; targetIssue="+receipt.get("targetIssue")
++      +"; predrawClock="+receipt.get("predrawClock")));
++  edge(frame,experimentNode,authorizationNode,"EXACT_EXPERIMENT_POLICY_AND_AUTHORIZATION_TRADE_KEYS");
++  String state=String.valueOf(receipt.get("state"));
++  Object hit=receipt.get("hit"),settlement=receipt.get("settlementHash");
++  boolean settled="SETTLED_EXACT".equals(state)&&"VERIFIED".equals(receipt.get("predrawClock"))
++      &&settlement instanceof String&&!((String)settlement).isEmpty()
++      &&hit instanceof Number&&(((Number)hit).doubleValue()==0.0||((Number)hit).doubleValue()==1.0);
++  if(settled){
++   String settledNode=key+" REAL结算";
++   out.add(node(settledNode,hit,"settlementHash="+settlement+"; tradeId="+receipt.get("tradeId")
++       +"; targetIssue="+receipt.get("targetIssue")+"; pnl="+receipt.get("pnl")
++       +"; state=SETTLED_EXACT; 单次真实结算不代表统计优势"));
++   edge(frame,authorizationNode,settledNode,"EXACT_AUTHORITATIVE_SETTLEMENT_RECEIPT");
++  }else{
++   out.add(node(key+("BET_AWAITING_SETTLEMENT".equals(state)?" REAL待结算":" REAL结算未验证"),
++       null,"state="+state+"; settlement requires verified original terminal receipt"));
++  }
++ }
+ }

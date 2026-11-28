@@ -1,0 +1,26 @@
+{
+  "baseCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "type": "CANDIDATE_ONLY_NOT_APPLIED",
+  "originalRowEvidence": "DIAGNOSTIC_SCOPE.recentEvidence[table=v57_research_task_r967].rows[task_id=678d059b7207c6f2ec712c0cdd906dbc201357a61632236b8019af0c67ce740f]",
+  "changes": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/TrainingRecoveryR343.java",
+      "beforeSha256": "b503c155642c13672d7b134fd246bc59a20fc60be7bff2cfd5ea60116e638f20",
+      "afterSha256": "b3d418bebf37e091b9f0bb4004abd69f881e382bc53c1643064c5039ed02aded"
+    },
+    {
+      "path": "app/src/test/java/com/ethk3/novaonepro/r952/TrainingRecoveryR343AdmissionTest.java",
+      "beforeSha256": null,
+      "afterSha256": "79bd3e983cc6f8d492126a19073fa954037da34512bd6b84db94916cae7db513"
+    }
+  ],
+  "originalCasVerified": false,
+  "effect": "Only adds exact original identity to eligibility. Every existing read/compile/CAS-byte/hash/input-split/lifecycle/fence/capacity proof remains mandatory. Does not itself resume anything.",
+  "testStatus": "PATCH_APPLICABILITY_ONLY; JUNIT_NOT_EXECUTED_NO_JAVAC_OR_ANDROID_SDK",
+  "requiredRemaining": [
+    "JUnit admission positive and all changed-identity negatives",
+    "Native SQLite verified original file + missing/corrupted file tests",
+    "Recovery repeat idempotence + crash boundary + originals unchanged",
+    "Device original .scdev proof before allowing recovery"
+  ]
+}

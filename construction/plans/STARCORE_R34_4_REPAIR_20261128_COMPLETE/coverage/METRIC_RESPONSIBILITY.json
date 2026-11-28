@@ -1,0 +1,2894 @@
+[
+  {
+    "metric_id": "M01",
+    "name": "源码与安装身份",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-001",
+      "R344-046"
+    ],
+    "production_batches": [
+      "B00",
+      "B11"
+    ],
+    "source_files": [
+      ".github/workflows/build-apk.yml",
+      "release/field173_plan_binding.json",
+      "release/release_manifest.json",
+      "tools/r33/package_ci_candidate.py",
+      "tools/r33/run_release_build.py",
+      "tools/r341/publish_delivery_manifest.py",
+      "tools/r343/build_identity.py",
+      "tools/r343/prepare_field_batch.py"
+    ],
+    "original_measurement_source": "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "G01",
+      "G02"
+    ],
+    "original_definition": {
+      "cards": "B00/B12",
+      "collectionSource": "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M01",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "源码与安装身份",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "source/APK/签名/plan可互证",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-009",
+        "RSEC-027",
+        "RSEC-076",
+        "RSEC-078"
+      ],
+      "target": "全部一致",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "全部一致",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/0",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M02",
+    "name": "功能保全覆盖",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-002"
+    ],
+    "production_batches": [
+      "B00"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "tools/r343/rebind_semantic_inputs.py"
+    ],
+    "original_measurement_source": "保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "G03"
+    ],
+    "original_definition": {
+      "cards": "B00/B12",
+      "collectionSource": "保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M02",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "功能保全覆盖",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "1832要求及299卡逐项有状态、Owner与证据路径",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-025",
+        "RSEC-028",
+        "RSEC-043",
+        "RSEC-070",
+        "RSEC-071"
+      ],
+      "target": "100%有记录；无凭空VERIFIED",
+      "uncoveredConditions": [
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "100%有记录；无凭空VERIFIED",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/1",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M03",
+    "name": "准时预测持久化",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-019",
+      "R344-024"
+    ],
+    "production_batches": [
+      "B04"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+    ],
+    "original_measurement_source": "r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT10",
+      "ST15"
+    ],
+    "original_definition": {
+      "cards": "B03",
+      "collectionSource": "r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M03",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "准时预测持久化",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "request→durable，近1440可用期；缺失单列",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-021",
+        "RSEC-030",
+        "RSEC-031",
+        "RSEC-048",
+        "RSEC-312",
+        "RSEC-313"
+      ],
+      "target": "P95≤5000ms",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "P95≤5000ms",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/2",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M04",
+    "name": "抓到后正式结算",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-018",
+      "R344-023"
+    ],
+    "production_batches": [
+      "B04"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+      "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementRecoverySupervisorR906.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java"
+    ],
+    "original_measurement_source": "r30_issue_timeline：observe_to_settled 段 P95",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT09",
+      "RT18"
+    ],
+    "original_definition": {
+      "cards": "B03",
+      "collectionSource": "r30_issue_timeline：observe_to_settled 段 P95",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M04",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "抓到后正式结算",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "first valid observed→draw+settlement commit",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-029",
+        "RSEC-031",
+        "RSEC-305",
+        "RSEC-306",
+        "RSEC-312",
+        "RSEC-313",
+        "RSEC-315"
+      ],
+      "target": "P95≤1000ms",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "P95≤1000ms",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/3",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M05",
+    "name": "赛前有效覆盖",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-019",
+      "R344-023"
+    ],
+    "production_batches": [
+      "B04"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementRecoverySupervisorR906.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java"
+    ],
+    "original_measurement_source": "r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT10",
+      "RT18"
+    ],
+    "original_definition": {
+      "cards": "B03",
+      "collectionSource": "r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M05",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "赛前有效覆盖",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "截止前5秒合法冻结/全部应有期，缺网仍列全分母",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-030"
+      ],
+      "target": "目标100%；受支持健康场景≥99.5%",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "目标100%；受支持健康场景≥99.5%",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/4",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M06",
+    "name": "唯一正式结算",
+    "original_status": "RECORDED_UNVALIDATED",
+    "issues": [
+      "R344-023"
+    ],
+    "production_batches": [
+      "B04"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementRecoverySupervisorR906.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java"
+    ],
+    "original_measurement_source": "结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT18"
+    ],
+    "original_definition": {
+      "cards": "B03/B10",
+      "collectionSource": "结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M06",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "唯一正式结算",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "同issue REAL重复、非法补冻结与结算重复",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-029",
+        "RSEC-038",
+        "RSEC-053"
+      ],
+      "target": "均为0",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "均为0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/5",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M07",
+    "name": "实时写事务",
+    "original_status": "FAIL",
+    "issues": [
+      "R344-022",
+      "R344-011",
+      "R344-015"
+    ],
+    "production_batches": [
+      "B02",
+      "B03",
+      "B04"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultArchiveB01.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeFaultOriginalStoreR335.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldFaultsR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java"
+    ],
+    "original_measurement_source": "r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT17",
+      "RT06",
+      "ST02"
+    ],
+    "original_definition": {
+      "cards": "B02",
+      "collectionSource": "r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M07",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "实时写事务",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "单次事务wall time及busy失败",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-033"
+      ],
+      "target": "P95≤200ms；24h失败0",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "P95≤200ms；24h失败0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/6",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M08",
+    "name": "分库隔离",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-010",
+      "R344-016"
+    ],
+    "production_batches": [
+      "B02",
+      "B03"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionRevisionSchemaCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
+      "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+    ],
+    "original_measurement_source": "单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+    "required_current_proof": "保留单库模式既有所有者合同，实测research写realtime表与跨域持锁等待，核同表双写者与准入日志；仅静态SCHEDULER_OWNERS或容量预算通过不能签收。未做实际分库不得声称物理隔离已完成。",
+    "producer_origins": [
+      "RT05",
+      "ST03"
+    ],
+    "original_definition": {
+      "cards": "B02",
+      "collectionSource": "单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M08",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "分库隔离",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "research写realtime表与跨库持锁等待计数",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [],
+      "target": "0",
+      "uncoveredConditions": [
+        "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/7",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M09",
+    "name": "迁移一致性",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-014",
+      "R344-002"
+    ],
+    "production_batches": [
+      "B00",
+      "B03"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+      "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportInlineBudgetR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionMigrationR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "tools/r343/rebind_semantic_inputs.py"
+    ],
+    "original_measurement_source": "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT08",
+      "G03"
+    ],
+    "original_definition": {
+      "cards": "B05/B12",
+      "collectionSource": "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M09",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "迁移一致性",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "主键行hash/事件watermark/中断恢复",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-005",
+        "RSEC-078"
+      ],
+      "target": "全部一致；丢失/重复0",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "全部一致；丢失/重复0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/8",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M10",
+    "name": "每期训练投递",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-034",
+      "R344-023"
+    ],
+    "production_batches": [
+      "B04",
+      "B07"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementRecoverySupervisorR906.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java"
+    ],
+    "original_measurement_source": "每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST10",
+      "RT18"
+    ],
+    "original_definition": {
+      "cards": "B06",
+      "collectionSource": "每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M10",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "每期训练投递",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "结果事件数与训练inbox唯一事件数",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-001"
+      ],
+      "target": "100%；重复消费0",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "100%；重复消费0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/9",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M11",
+    "name": "训练完成新鲜度",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-031",
+      "R344-034"
+    ],
+    "production_batches": [
+      "B06",
+      "B07"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+    ],
+    "original_measurement_source": "TaskLivenessR30：最老积压期数（pending 最大任务）",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST07",
+      "ST10"
+    ],
+    "original_definition": {
+      "cards": "B01/B06",
+      "collectionSource": "TaskLivenessR30：最老积压期数（pending 最大任务）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M11",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "训练完成新鲜度",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "有样本ready任务的已提交学习游标",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-001"
+      ],
+      "target": "正常负载最老积压≤5期；超限必须FAIL",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "正常负载最老积压≤5期；超限必须FAIL",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/10",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M12",
+    "name": "任务活性",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-026",
+      "R344-016",
+      "R344-017"
+    ],
+    "production_batches": [
+      "B03",
+      "B05"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "app/src/main/java/com/ethk3/novaonepro/WriteBudgetR341.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java"
+    ],
+    "original_measurement_source": "TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST01",
+      "ST03",
+      "ST13"
+    ],
+    "original_definition": {
+      "cards": "B01",
+      "collectionSource": "TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M12",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "任务活性",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "有ready积压但连续5期无提交的任务",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-032",
+        "RSEC-036",
+        "RSEC-052",
+        "RSEC-074"
+      ],
+      "target": "0；等依赖/等数据单列",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "0；等依赖/等数据单列",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/11",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M13",
+    "name": "前后台连续性",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-020",
+      "R344-006",
+      "R344-008"
+    ],
+    "production_batches": [
+      "B01",
+      "B04"
+    ],
+    "source_files": [
+      "app/src/main/cpp/report_native_cp4.c",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+      "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+      "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+    ],
+    "original_measurement_source": "B10 场景：前后台切换前后已投递任务数差",
+    "required_current_proof": "TARGET_DEVICE_SCENARIO_RECEIPT",
+    "producer_origins": [
+      "RT11",
+      "RT12",
+      "RT19"
+    ],
+    "original_definition": {
+      "cards": "B04/B12",
+      "collectionSource": "B10 场景：前后台切换前后已投递任务数差",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M13",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "前后台连续性",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "前台60min、息屏6h、连续72h的业务游标和缺期",
+      "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-036",
+        "RSEC-041",
+        "RSEC-042"
+      ],
+      "target": "受支持场景不丢已投递任务；缺口全记录",
+      "uncoveredConditions": [
+        "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "受支持场景不丢已投递任务；缺口全记录",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/12",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M14",
+    "name": "进程稳定性",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-021",
+      "R344-010"
+    ],
+    "production_batches": [
+      "B02",
+      "B04"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionRevisionSchemaCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+      "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java"
+    ],
+    "original_measurement_source": "进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+    "required_current_proof": "TARGET_DEVICE_SCENARIO_RECEIPT",
+    "producer_origins": [
+      "RT13",
+      "RT05"
+    ],
+    "original_definition": {
+      "cards": "B04/B12",
+      "collectionSource": "进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M14",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "进程稳定性",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "测试窗口OOM/ANR/crash",
+      "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-042"
+      ],
+      "target": "0",
+      "uncoveredConditions": [
+        "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/13",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M15",
+    "name": "热库与总磁盘",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-009",
+      "R344-010"
+    ],
+    "production_batches": [
+      "B02"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCleanupR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionRevisionSchemaCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java"
+    ],
+    "original_measurement_source": "draws 热库行数 + 应用数据目录总字节",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT04",
+      "RT05"
+    ],
+    "original_definition": {
+      "cards": "B05",
+      "collectionSource": "draws 热库行数 + 应用数据目录总字节",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M15",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "热库与总磁盘",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "开奖热表及所有文件分类预算",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-006"
+      ],
+      "target": "draws≤5000；未超配置总预算且可恢复",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "draws≤5000；未超配置总预算且可恢复",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/14",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M16",
+    "name": "报告取消",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-005"
+    ],
+    "production_batches": [
+      "B01"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java"
+    ],
+    "original_measurement_source": "ReportTaskControlR69 取消到释放耗时",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT03"
+    ],
+    "original_definition": {
+      "cards": "B05/B11",
+      "collectionSource": "ReportTaskControlR69 取消到释放耗时",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M16",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "报告取消",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "cancel request→job停止且清本job临时文件",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [],
+      "target": "≤2000ms",
+      "uncoveredConditions": [
+        "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "≤2000ms",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/15",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M17",
+    "name": "报告完整性",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-003",
+      "R344-004",
+      "R344-005",
+      "R344-007"
+    ],
+    "production_batches": [
+      "B01"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportPhaseBudgetR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java"
+    ],
+    "original_measurement_source": "报告索引覆盖率 + ZIP 大小/分卷",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT01",
+      "RT02",
+      "RT03",
+      "RT16"
+    ],
+    "original_definition": {
+      "cards": "B11",
+      "collectionSource": "报告索引覆盖率 + ZIP 大小/分卷",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M17",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "报告完整性",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "registered对象与导出对象、expected/exported/omitted",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-010",
+        "RSEC-011",
+        "RSEC-016",
+        "RSEC-018",
+        "RSEC-022",
+        "RSEC-302",
+        "RSEC-303",
+        "RSEC-307",
+        "RSEC-309",
+        "RSEC-318",
+        "RSEC-319",
+        "RSEC-320",
+        "RSEC-324"
+      ],
+      "target": "全量索引100%；默认ZIP≤20MiB或明确分卷",
+      "uncoveredConditions": [
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "全量索引100%；默认ZIP≤20MiB或明确分卷",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/16",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M18",
+    "name": "PIT泄漏反证",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-026",
+      "R344-031",
+      "R344-043"
+    ],
+    "production_batches": [
+      "B05",
+      "B06",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
+    ],
+    "original_measurement_source": "r30_pit_violation 非注入行数",
+    "required_current_proof": "在固定事前输入、模型与水位下扰动当前/未来标签，重新执行真实predraw链并比较输出/原件；合法过去标签控制组按原协议处理，注入故意泄漏实现必须被反例抓到。PIT拒绝计数为0不是标签扰动反证。",
+    "producer_origins": [
+      "ST01",
+      "ST07",
+      "ST14"
+    ],
+    "original_definition": {
+      "cards": "B06/B12",
+      "collectionSource": "r30_pit_violation 非注入行数",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M18",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "PIT泄漏反证",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "改当前/未来标签后既有predraw输出差异",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-057"
+      ],
+      "target": "0",
+      "uncoveredConditions": [
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/17",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M19",
+    "name": "训练分割污染",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-031",
+      "R344-034",
+      "R344-043"
+    ],
+    "production_batches": [
+      "B06",
+      "B07",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
+    ],
+    "original_measurement_source": "HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST07",
+      "ST10",
+      "ST14"
+    ],
+    "original_definition": {
+      "cards": "B06/B07",
+      "collectionSource": "HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M19",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "训练分割污染",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "CONFIRM进入生成/调参/原子权重的未记账次数",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-057"
+      ],
+      "target": "0",
+      "uncoveredConditions": [
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/18",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M20",
+    "name": "全状态续训恢复",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-025",
+      "R344-027",
+      "R344-028",
+      "R344-031",
+      "R344-034"
+    ],
+    "production_batches": [
+      "B05",
+      "B06",
+      "B07"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CheckpointAuditContinuationR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayKnowledgeStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java"
+    ],
+    "original_measurement_source": "ModelArtifactR29 中断/恢复一致性测试结果",
+    "required_current_proof": "按每个现用训练内核/协议分别提供连续运行与中断恢复的完整状态对照及原件 hash：R26 root、CP9 开发训练、现代 rolling 三条生产链分别验。权重/优化器/PRNG/normalizer/cursor/phase/batch/tree/tape 同原登记浮点容差一致，幂等提交不重复学习；旧 root 缺件不得阻断不依赖它的新基础模型。",
+    "producer_origins": [
+      "RT14",
+      "ST07",
+      "ST10"
+    ],
+    "original_definition": {
+      "cards": "B06",
+      "collectionSource": "ModelArtifactR29 中断/恢复一致性测试结果",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M20",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "全状态续训恢复",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "权重、优化器、RNG、cursor断点前后差异",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-004"
+      ],
+      "target": "按已登记浮点容差一致；不重复学习",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "原 minimumSample=1 仅表示已检查恢复证据记录；不免除现用内核及可达阶段的中断恢复与错身份反例。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "按已登记浮点容差一致；不重复学习",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/19",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M21",
+    "name": "策略完整合同",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-032",
+      "R344-033"
+    ],
+    "production_batches": [
+      "B07"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/CreationChangeKindR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java"
+    ],
+    "original_measurement_source": "BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST08",
+      "ST09"
+    ],
+    "original_definition": {
+      "cards": "B07",
+      "collectionSource": "BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M21",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "策略完整合同",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "出生候选的必要字段、可执行图、hash",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-003",
+        "RSEC-024",
+        "RSEC-069",
+        "RSEC-079",
+        "RSEC-317",
+        "RSEC-321",
+        "RSEC-322",
+        "RSEC-323"
+      ],
+      "target": "100%；空壳拒绝",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "100%；空壳拒绝",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/20",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M22",
+    "name": "结构与行为去重",
+    "original_status": "RECORDED_UNVALIDATED",
+    "issues": [
+      "R344-032"
+    ],
+    "production_batches": [
+      "B07"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/CreationChangeKindR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java"
+    ],
+    "original_measurement_source": "r30_behavior_dup 行数与报告去重计数一致",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST08"
+    ],
+    "original_definition": {
+      "cards": "B07",
+      "collectionSource": "r30_behavior_dup 行数与报告去重计数一致",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M22",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "结构与行为去重",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "结构/行为/参数计数分列且可复算",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-024"
+      ],
+      "target": "计数与ledger一致",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "计数与ledger一致",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/21",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M23",
+    "name": "族专家覆盖",
+    "original_status": "BLOCKED",
+    "issues": [
+      "R344-035",
+      "R344-032"
+    ],
+    "production_batches": [
+      "B07"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/CreationChangeKindR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityNeedDiagnosticsR335.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyRegistryR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java"
+    ],
+    "original_measurement_source": "CapabilityRegistryR30 对象可执行率",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "CV03",
+      "ST08"
+    ],
+    "original_definition": {
+      "cards": "B07/B08",
+      "collectionSource": "CapabilityRegistryR30 对象可执行率",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M23",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "族专家覆盖",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "F24/E16/I20全量对象有producer/consumer/ready/status",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-014",
+        "RSEC-015",
+        "RSEC-017",
+        "RSEC-317",
+        "RSEC-321",
+        "RSEC-322",
+        "RSEC-323"
+      ],
+      "target": "全部注册与可执行；没有证据不标有效",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "全部注册与可执行；没有证据不标有效",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/22",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M24",
+    "name": "模型实际消费",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-034",
+      "R344-036",
+      "R344-037"
+    ],
+    "production_batches": [
+      "B07",
+      "B08"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingFrozenPublisherR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java"
+    ],
+    "original_measurement_source": "r30_model_call 与冻结行匹配率",
+    "required_current_proof": "AtomNetRuntimeR30/AtomNetPublicationR31/ModelSurfaceStoreR30的实际model artifact、trainedThrough、surface、r30_model_call与I08冻结身份逐键匹配；现代rolling另按自己的协议验，不相互顶替。",
+    "producer_origins": [
+      "ST10",
+      "ST11",
+      "CV05",
+      "CV04"
+    ],
+    "original_definition": {
+      "cards": "B07/B10",
+      "collectionSource": "r30_model_call 与冻结行匹配率",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M24",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "模型实际消费",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "I08冻结引用model artifact且trainedThrough合法",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-001",
+        "RSEC-007",
+        "RSEC-054",
+        "RSEC-055",
+        "RSEC-056",
+        "RSEC-058"
+      ],
+      "target": "100%匹配或明确BLOCKED；不得伪造调用",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "100%匹配或明确BLOCKED；不得伪造调用",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/23",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M25",
+    "name": "矩阵接线",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-038",
+      "R344-029"
+    ],
+    "production_batches": [
+      "B05",
+      "B08"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/HistoryContinuityR341.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleCountsR80.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleSummaryR80.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixResearchR30R1.java"
+    ],
+    "original_measurement_source": "MatrixRegistryR30 20 项可追溯率",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "CV06",
+      "ST12"
+    ],
+    "original_definition": {
+      "cards": "B08",
+      "collectionSource": "MatrixRegistryR30 20 项可追溯率",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M25",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "矩阵接线",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "20矩阵producer→consumer、schema与watermark",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [],
+      "target": "全部可追溯；未产出有明确原因",
+      "uncoveredConditions": [
+        "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "全部可追溯；未产出有明确原因",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/24",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M26",
+    "name": "校准时间隔离",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-043",
+      "R344-044"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "校准样本时间隔离检查通过率",
+    "required_current_proof": "LiveShadowsR27.calibrate 产生的每个 calibration evaluation 与原冻结校准器绑定可定位，H_SELECT fit 与 FUTURE validation 不混角色，fitThrough 早于 validation 且满足原 embargo，apply 时校准器版本已可见；每条排除/无可用 fit 的机会有原因和分母，零模型不能算全部通过。",
+    "producer_origins": [
+      "ST14",
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B07/B10",
+      "collectionSource": "校准样本时间隔离检查通过率",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M26",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "校准时间隔离",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "fitEnd<validateStart及apply时版本可见",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-001",
+        "RSEC-019"
+      ],
+      "target": "100%；零模型需可定位原因",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "100%；零模型需可定位原因",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/25",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M27",
+    "name": "资格预算连续",
+    "original_status": "RECORDED_UNVALIDATED",
+    "issues": [
+      "R344-043",
+      "R344-044"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "SequentialQualificationR27 全局序号连续、无重置",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST14",
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B10",
+      "collectionSource": "SequentialQualificationR27 全局序号连续、无重置",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M27",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "资格预算连续",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "永久index唯一、旧观察不回填、重启预算不重置",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-001",
+        "RSEC-012",
+        "RSEC-023"
+      ],
+      "target": "全部通过",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "全部通过",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/26",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M28",
+    "name": "主链闭环",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-043",
+      "R344-023"
+    ],
+    "production_batches": [
+      "B04",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementRecoverySupervisorR906.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
+    ],
+    "original_measurement_source": "androidTest 正对照贯通 + 非法/过期拦截",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST14",
+      "RT18"
+    ],
+    "original_definition": {
+      "cards": "B10/B12",
+      "collectionSource": "androidTest 正对照贯通 + 非法/过期拦截",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M28",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "主链闭环",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "证书→projection→当期intent→REAL→结算",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-012",
+        "RSEC-021",
+        "RSEC-023",
+        "RSEC-035",
+        "RSEC-039",
+        "RSEC-053",
+        "RSEC-059",
+        "RSEC-060",
+        "RSEC-072",
+        "RSEC-073",
+        "RSEC-308",
+        "RSEC-310",
+        "RSEC-314"
+      ],
+      "target": "合法正对照贯通；非法/过期全部拦截",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "合法正对照贯通；非法/过期全部拦截",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/27",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M29",
+    "name": "确认队列连续",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-043"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
+    ],
+    "original_measurement_source": "确认队列被挤出次数",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST14"
+    ],
+    "original_definition": {
+      "cards": "B07",
+      "collectionSource": "确认队列被挤出次数",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M29",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "确认队列连续",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "锁定候选被仅因榜单变化驱逐次数",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [],
+      "target": "0",
+      "uncoveredConditions": [
+        "NO_SUPPORTING_CHECK:SIGNED_HASHED_MEASUREMENT_RECEIPT",
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/28",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M30",
+    "name": "主链选择器身份",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-043",
+      "R344-001"
+    ],
+    "production_batches": [
+      "B00",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "release/field173_plan_binding.json",
+      "release/release_manifest.json",
+      "tools/r343/build_identity.py",
+      "tools/r343/prepare_field_batch.py"
+    ],
+    "original_measurement_source": "r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST14",
+      "G01"
+    ],
+    "original_definition": {
+      "cards": "B10",
+      "collectionSource": "r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M30",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "主链选择器身份",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "多成员择优作为完整meta-policy冻结评价",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-037",
+        "RSEC-316"
+      ],
+      "target": "未确认组合不能REAL",
+      "uncoveredConditions": [
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "未确认组合不能REAL",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/29",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M31",
+    "name": "诊断可追溯",
+    "original_status": "RECORDED_UNVALIDATED",
+    "issues": [
+      "R344-006",
+      "R344-008",
+      "R344-017",
+      "R344-037"
+    ],
+    "production_batches": [
+      "B01",
+      "B03",
+      "B08"
+    ],
+    "source_files": [
+      "app/src/main/cpp/report_native_cp4.c",
+      "app/src/main/java/com/ethk3/novaonepro/MainWriterFaultProjectionR342.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeObservationScopeR341.java",
+      "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "app/src/main/java/com/ethk3/novaonepro/WriterFaultSnapshotViewR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java"
+    ],
+    "original_measurement_source": "DiagnosisRulesR30 规则行动覆盖率",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "RT12",
+      "RT19",
+      "ST13",
+      "CV05"
+    ],
+    "original_definition": {
+      "cards": "B11",
+      "collectionSource": "DiagnosisRulesR30 规则行动覆盖率",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M31",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "诊断可追溯",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "每条缺陷含证据、强度、代码位置、卡号与验证",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-002",
+        "RSEC-061",
+        "RSEC-062",
+        "RSEC-063",
+        "RSEC-064",
+        "RSEC-065",
+        "RSEC-074",
+        "RSEC-075",
+        "RSEC-077",
+        "RSEC-301"
+      ],
+      "target": "100%或UNKNOWN并给采集动作",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "100%或UNKNOWN并给采集动作",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/30",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M32",
+    "name": "报告口径一致",
+    "original_status": "UNKNOWN_SOURCE_MISSING",
+    "issues": [
+      "R344-007",
+      "R344-045"
+    ],
+    "production_batches": [
+      "B01",
+      "B10"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "app/src/main/java/com/ethk3/novaonepro/ReportSemanticVerifierR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
+    ],
+    "original_measurement_source": "同快照两章同指标冲突数",
+    "required_current_proof": "同role/metric/snapshot下以独立原SQL/账本读取对照JSON/HTML/UI投影及null/单位/分母；故意改变一端值必须报冲突。同一个内存对象渲染两次或同章复制不能当独立一致证据。",
+    "producer_origins": [
+      "RT16",
+      "CV02"
+    ],
+    "original_definition": {
+      "cards": "B11",
+      "collectionSource": "同快照两章同指标冲突数",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M32",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "报告口径一致",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "JSON/HTML/UI同metric同snapshot值差异",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-032",
+        "RSEC-305"
+      ],
+      "target": "0",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "0",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/31",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M33",
+    "name": "图表回归",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-039",
+      "R344-040",
+      "R344-042",
+      "R344-036"
+    ],
+    "production_batches": [
+      "B08"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchTablesActivityR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/ResearchWorkbenchRepositoryR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelPublicationR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportObjectIndexR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputContextR33.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchObservatoryR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchProvenanceGraphR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStudyTaskR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java"
+    ],
+    "original_measurement_source": "图表页面 androidTest 截图通过数",
+    "required_current_proof": "TARGET_DEVICE_SCENARIO_RECEIPT",
+    "producer_origins": [
+      "CV07",
+      "CV08",
+      "CV13",
+      "ST11"
+    ],
+    "original_definition": {
+      "cards": "B09/B12",
+      "collectionSource": "图表页面 androidTest 截图通过数",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M33",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "图表回归",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "原图表入口、排行榜、谱系、BSS/覆盖与空态",
+      "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-026"
+      ],
+      "target": "全部场景可打开且口径一致",
+      "uncoveredConditions": [
+        "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "全部场景可打开且口径一致",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/32",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M34",
+    "name": "签名覆盖安装",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-046"
+    ],
+    "production_batches": [
+      "B11"
+    ],
+    "source_files": [
+      ".github/workflows/build-apk.yml",
+      "tools/r33/package_ci_candidate.py",
+      "tools/r33/run_release_build.py",
+      "tools/r341/publish_delivery_manifest.py",
+      "tools/r343/prepare_field_batch.py"
+    ],
+    "original_measurement_source": "覆盖安装首启/二启无崩溃（两证书）",
+    "required_current_proof": "TARGET_DEVICE_SCENARIO_RECEIPT",
+    "producer_origins": [
+      "G02"
+    ],
+    "original_definition": {
+      "cards": "B12",
+      "collectionSource": "覆盖安装首启/二启无崩溃（两证书）",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M34",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "签名覆盖安装",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "保持公有版签名及包名，版本递增且保留数据库",
+      "requiredEvidence": "TARGET_DEVICE_SCENARIO_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [],
+      "target": "成功；首启/二启无崩溃",
+      "uncoveredConditions": [
+        "NO_SUPPORTING_CHECK:TARGET_DEVICE_SCENARIO_RECEIPT",
+        "STRUCTURE_ONLY_NEEDS_RUNTIME_MEASUREMENT",
+        "DEVICE_NEEDS:TARGET_DEVICE_SCENARIO_RECEIPT"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "成功；首启/二启无崩溃",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/33",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M35",
+    "name": "失效模型撤销",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-043",
+      "R344-025"
+    ],
+    "production_batches": [
+      "B05",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/CheckpointAuditContinuationR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/CheckpointReportAuditR32.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointRecoveryR335.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
+    ],
+    "original_measurement_source": "证书撤销到 DecisionGate 拒绝的耗时",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "ST14",
+      "RT14"
+    ],
+    "original_definition": {
+      "cards": "B10",
+      "collectionSource": "证书撤销到 DecisionGate 拒绝的耗时",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M35",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "失效模型撤销",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "模型撤销到主链不再采纳的耗时",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-072",
+        "RSEC-073"
+      ],
+      "target": "目标≤5000ms；不含APK回滚",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "目标≤5000ms；不含APK回滚",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/34",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "M36",
+    "name": "同池对照",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-044",
+      "R344-033"
+    ],
+    "production_batches": [
+      "B07",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "NullEvolutionR27 同池对照输出可复算",
+    "required_current_proof": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+    "producer_origins": [
+      "CV10",
+      "ST09"
+    ],
+    "original_definition": {
+      "cards": "B07/B12",
+      "collectionSource": "NullEvolutionR27 同池对照输出可复算",
+      "denominator": "MEASURED_EVENTS_IN_SCOPE",
+      "id": "M36",
+      "kind": "ENGINEERING",
+      "minimumSample": 1,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "同池对照",
+      "numerator": "MEASURED_EVENTS_MEETING_TARGET",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "每个实验有同预算负对照和合法正对照",
+      "requiredEvidence": "SIGNED_HASHED_MEASUREMENT_RECEIPT",
+      "role": "ENGINEERING_RUNTIME",
+      "supportingChecks": [
+        "RSEC-067",
+        "RSEC-068"
+      ],
+      "target": "有可复算输出；合成不计真实质量",
+      "uncoveredConditions": [],
+      "version": "R31_METRICS_20261108",
+      "window": "CURRENT_REPORT_SNAPSHOT"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "ENGINEERING_RUNTIME",
+    "target": "有可复算输出；合成不计真实质量",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/35",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q01",
+    "name": "自然ACT命中",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-044",
+      "R344-043"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "真机 FUTURE ACT 命中率（事前登记策略）",
+    "required_current_proof": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+    "producer_origins": [
+      "CV10",
+      "ST14"
+    ],
+    "original_definition": {
+      "cards": "B10/B12",
+      "collectionSource": "真机 FUTURE ACT 命中率（事前登记策略）",
+      "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+      "id": "Q01",
+      "kind": "QUALITY",
+      "minimumSample": 250,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "自然ACT命中",
+      "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "注册后合法ACT命中/已结算ACT",
+      "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+      "role": "NATURAL_FUTURE_ONLY",
+      "supportingChecks": [
+        "RSEC-020",
+        "RSEC-034",
+        "RSEC-039",
+        "RSEC-066",
+        "RSEC-306",
+        "RSEC-310"
+      ],
+      "target": "≥34%，优先≥37%；未达不得宣称达标",
+      "uncoveredConditions": [
+        "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_FUTURE_WINDOW"
+    },
+    "minimum_sample": 250,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "NATURAL_FUTURE_ONLY",
+    "target": "≥34%，优先≥37%；未达不得宣称达标",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/36",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q02",
+    "name": "真实频率",
+    "original_status": "NOT_DEPLOYED",
+    "issues": [
+      "R344-043",
+      "R344-019"
+    ],
+    "production_batches": [
+      "B04",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+      "app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java"
+    ],
+    "original_measurement_source": "真机实际出手频率（不补配额）",
+    "required_current_proof": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+    "producer_origins": [
+      "ST14",
+      "RT10"
+    ],
+    "original_definition": {
+      "cards": "B10/B12",
+      "collectionSource": "真机实际出手频率（不补配额）",
+      "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+      "id": "Q02",
+      "kind": "QUALITY",
+      "minimumSample": 250,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "真实频率",
+      "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "部署后REAL期数/部署后全部应有期；部署前另列FUTURE_ACT_RATE",
+      "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+      "role": "NATURAL_FUTURE_ONLY",
+      "supportingChecks": [
+        "RSEC-020",
+        "RSEC-040"
+      ],
+      "target": "目标≥15%；质量支持扩大；不得补配额",
+      "uncoveredConditions": [
+        "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_FUTURE_WINDOW"
+    },
+    "minimum_sample": 250,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "NATURAL_FUTURE_ONLY",
+    "target": "目标≥15%；质量支持扩大；不得补配额",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/37",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q03",
+    "name": "真实统计优势",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-044"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+    "required_current_proof": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+    "producer_origins": [
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B10/B12",
+      "collectionSource": "SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+      "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+      "id": "Q03",
+      "kind": "QUALITY",
+      "minimumSample": 250,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "真实统计优势",
+      "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "有效序贯证据相对预登记p0",
+      "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+      "role": "NATURAL_FUTURE_ONLY",
+      "supportingChecks": [
+        "RSEC-034"
+      ],
+      "target": "e≥1/alpha，假设与预算成立",
+      "uncoveredConditions": [
+        "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_FUTURE_WINDOW"
+    },
+    "minimum_sample": 250,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "NATURAL_FUTURE_ONLY",
+    "target": "e≥1/alpha，假设与预算成立",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/38",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q04",
+    "name": "跨块稳定",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-044"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "事前冻结窗口规则下各块命中率",
+    "required_current_proof": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+    "producer_origins": [
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B10/B12",
+      "collectionSource": "事前冻结窗口规则下各块命中率",
+      "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+      "id": "Q04",
+      "kind": "QUALITY",
+      "minimumSample": 250,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "跨块稳定",
+      "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "预登记时间块命中/区间/回撤/漂移",
+      "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+      "role": "NATURAL_FUTURE_ONLY",
+      "supportingChecks": [],
+      "target": "窗口规则事前冻结；不得事后选好块",
+      "uncoveredConditions": [
+        "NO_SUPPORTING_CHECK:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+        "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_FUTURE_WINDOW"
+    },
+    "minimum_sample": 250,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "NATURAL_FUTURE_ONLY",
+    "target": "窗口规则事前冻结；不得事后选好块",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/39",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q05",
+    "name": "校准与BSS",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-044",
+      "R344-043"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+    "required_current_proof": "以原 Q05 固定校准器、同目标和同 ACT 条件的自然未来原件复算等质量 ECE、等宽 ECE、BSS、支持覆盖及区间，并可回溯 CalibrationRowsR27/CalibrationR30 的每条输入和校准器 hash；rolling 只读诊断与固定资格绑定分别表述。报告 minimumSample200/支持覆盖≥90% 不改变 V1 minActs250 与 ECE≤0.04。",
+    "producer_origins": [
+      "ST14",
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B10/B12",
+      "collectionSource": "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+      "denominator": "FIXED_CALIBRATOR_SAME_TARGET_AND_ACT_CONDITION_VALIDATION_OBSERVATIONS",
+      "diagnosticSupportRevision": "R32_5_REPORT_UNIT_1",
+      "id": "Q05",
+      "kind": "QUALITY",
+      "minimumSample": 200,
+      "minimumSampleScope": "ORIGINAL_Q05_REPORT_SUPPORT_200_AND_SUPPORTED_BIN_COVERAGE_GE_90_PERCENT; NOT_A_CHANGE_TO_PER_ASSET_V1_MIN_ACTS_250_OR_ECE_LE_0.04",
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "校准与BSS",
+      "numerator": "WEIGHTED_CALIBRATION_ERROR_ON_FROZEN_VALIDATION_OBSERVATIONS",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "同一目标同一ACT条件、固定校准器的验证样本；ECE按全部样本加权",
+      "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+      "role": "NATURAL_FUTURE_ONLY",
+      "sampleUnit": "CALIBRATION_VALIDATION_OBSERVATIONS",
+      "supportingChecks": [
+        "RSEC-019"
+      ],
+      "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+      "uncoveredConditions": [
+        "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_FUTURE_WINDOW"
+    },
+    "minimum_sample": 200,
+    "minimum_sample_scope": "ORIGINAL_Q05_REPORT_SUPPORT_200_AND_SUPPORTED_BIN_COVERAGE_GE_90_PERCENT; NOT_A_CHANGE_TO_PER_ASSET_V1_MIN_ACTS_250_OR_ECE_LE_0.04",
+    "sample_unit": "CALIBRATION_VALIDATION_OBSERVATIONS",
+    "role": "NATURAL_FUTURE_ONLY",
+    "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/40",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q06",
+    "name": "进化提升",
+    "original_status": "INSUFFICIENT",
+    "issues": [
+      "R344-032",
+      "R344-033",
+      "R344-044"
+    ],
+    "production_batches": [
+      "B07",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/CreationChangeKindR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomPublicationStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "父子配对差单侧95%下界",
+    "required_current_proof": "来自 ImprovementStoreR31 的事前注册、同历期父子冻结与结算原件、完整机会分母、独立 segment 与每对 CPU 成本；由 VerifiedImprovementR31 原合同复算单侧下界及成本条件，仅合法 VERIFIED claim 计验证改善；R11 历史 CONFIRM paired 数据或结构/训练完成不替代 NATURAL_FUTURE 原件。",
+    "producer_origins": [
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B07/B12",
+      "collectionSource": "父子配对差单侧95%下界",
+      "denominator": "REGISTERED_ELIGIBLE_OPPORTUNITIES_IN_WINDOW",
+      "id": "Q06",
+      "kind": "QUALITY",
+      "minimumSample": 250,
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "进化提升",
+      "numerator": "QUALIFYING_NATURAL_OUTCOMES_IN_WINDOW",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "父子同一期机会收益配对差",
+      "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+      "role": "NATURAL_FUTURE_ONLY",
+      "supportingChecks": [
+        "RSEC-007",
+        "RSEC-079"
+      ],
+      "target": "有效区间下界>0才计验证改善",
+      "uncoveredConditions": [
+        "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_FUTURE_WINDOW"
+    },
+    "minimum_sample": 250,
+    "minimum_sample_scope": "按原role/window/target与未覆盖条件解释；最小计数不是完整验收或资格证明。",
+    "sample_unit": null,
+    "role": "NATURAL_FUTURE_ONLY",
+    "target": "有效区间下界>0才计验证改善",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/41",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q07",
+    "name": "有效资产产量",
+    "original_status": "RECORDED_UNVALIDATED",
+    "issues": [
+      "R344-032",
+      "R344-017",
+      "R344-043",
+      "R344-044"
+    ],
+    "production_batches": [
+      "B03",
+      "B07",
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+      "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/CandidateCompilerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/CreationChangeKindR343.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+      "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineFreezeProofR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "ACTIVE 证书资产数",
+    "required_current_proof": "按原V1 ACTIVE证书逐资产核Q01/Q03/Q04/Q05、原件、资格/撤销及独立身份。1条记录仅报告支持；出生数、维护任务数和ACTIVE计数本身均不能签有效资产产量。",
+    "producer_origins": [
+      "ST08",
+      "ST13",
+      "ST14",
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B10/B12",
+      "collectionSource": "ACTIVE 证书资产数",
+      "denominator": "QUALIFIED_EXPERIMENT_RECORDS_INSPECTED_IN_THIS_SNAPSHOT",
+      "diagnosticSupportRevision": "R32_5_REPORT_UNIT_1",
+      "id": "Q07",
+      "kind": "QUALITY",
+      "minimumSample": 1,
+      "minimumSampleScope": "ONE_INSPECTED_ASSET_RECORD_IS_REPORT_SUPPORT_ONLY; Q01_Q03_Q04_Q05_AND_ORIGINAL_V1_GATES_STILL_REQUIRED_PER_ASSET; ACTIVE_COUNT_ALONE_IS_RECORDED_UNVALIDATED",
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "有效资产产量",
+      "numerator": "CURRENT_ORIGINAL_V1_ACTIVE_CERTIFICATES_REQUIRING_INDEPENDENT_ASSET_AUDIT",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "同时满足Q01/03/04/05的独立资产数",
+      "requiredEvidence": "NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION",
+      "role": "NATURAL_FUTURE_ONLY",
+      "sampleUnit": "ASSET_QUALIFICATION_RECORDS_NOT_FUTURE_ACT_PERIODS",
+      "supportingChecks": [
+        "RSEC-003",
+        "RSEC-013",
+        "RSEC-014",
+        "RSEC-308"
+      ],
+      "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+      "uncoveredConditions": [
+        "NATURAL_QUALITY_NEEDS:NATURAL_FUTURE_EVIDENCE_REGISTERED_BEFORE_OBSERVATION"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_FUTURE_WINDOW"
+    },
+    "minimum_sample": 1,
+    "minimum_sample_scope": "ONE_INSPECTED_ASSET_RECORD_IS_REPORT_SUPPORT_ONLY; Q01_Q03_Q04_Q05_AND_ORIGINAL_V1_GATES_STILL_REQUIRED_PER_ASSET; ACTIVE_COUNT_ALONE_IS_RECORDED_UNVALIDATED",
+    "sample_unit": "ASSET_QUALIFICATION_RECORDS_NOT_FUTURE_ACT_PERIODS",
+    "role": "NATURAL_FUTURE_ONLY",
+    "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/42",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  },
+  {
+    "metric_id": "Q08",
+    "name": "空信号与优势检出力",
+    "original_status": "UNKNOWN_STALE_SYNTHETIC_SOURCE",
+    "issues": [
+      "R344-044"
+    ],
+    "production_batches": [
+      "B09"
+    ],
+    "source_files": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityExperimentR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FactoryCapabilityStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ImprovementStoreR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchResultContractR31.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/VerifiedImprovementR31.java"
+    ],
+    "original_measurement_source": "R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27",
+    "required_current_proof": "完整工厂六臂×20 seeds=120原trial仅完整性，按原注册协议核每臂误授证/功效区间与控制；signalStrength .30不是策略命中率，34/37/40%对照另分层，全部不得当自然未来资格。",
+    "producer_origins": [
+      "CV10"
+    ],
+    "original_definition": {
+      "cards": "B07/B12",
+      "collectionSource": "R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27",
+      "denominator": "REGISTERED_SYNTHETIC_ARM_SEED_PAIRS_6_X_20",
+      "diagnosticRoleRevision": "R32_4_Q08_SYNTHETIC_TRIALS_1",
+      "id": "Q08",
+      "kind": "QUALITY",
+      "minimumSample": 120,
+      "minimumSampleScope": "120_ORIGINAL_TRIAL_RECORDS_IS_COMPLETENESS_ONLY; PER_ARM_20_SEEDS_AND_NULL_FALSE_ALARM_CI_SIGNAL_POWER_CI_MUST_PASS_THE_ORIGINAL_REGISTERED_PROTOCOL; NOT_120_NATURAL_PERIODS",
+      "missingPolicy": "UNKNOWN_NOT_ZERO",
+      "name": "空信号与优势检出力",
+      "naturalQualityEligible": false,
+      "numerator": "COMPLETED_VALIDATED_SYNTHETIC_TRIAL_RECORDS",
+      "owner": "MetricEvaluatorR29.evaluateR31",
+      "r30Definition": "全搜索/选择/停止管线试验",
+      "requiredEvidence": "REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS",
+      "role": "SYNTHETIC_ONLY",
+      "supportingChecks": [],
+      "target": "报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收",
+      "uncoveredConditions": [
+        "NO_SUPPORTING_CHECK:REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS",
+        "SYNTHETIC_PROTOCOL_NEEDS:REGISTERED_SYNTHETIC_FULL_FACTORY_6_ARMS_20_SEEDS_WITH_CI_AND_ORIGINAL_CONTROLS"
+      ],
+      "version": "R31_METRICS_20261108",
+      "window": "PREREGISTERED_COMPLETE_SYNTHETIC_PROTOCOL"
+    },
+    "minimum_sample": 120,
+    "minimum_sample_scope": "120_ORIGINAL_TRIAL_RECORDS_IS_COMPLETENESS_ONLY; PER_ARM_20_SEEDS_AND_NULL_FALSE_ALARM_CI_SIGNAL_POWER_CI_MUST_PASS_THE_ORIGINAL_REGISTERED_PROTOCOL; NOT_120_NATURAL_PERIODS",
+    "sample_unit": null,
+    "role": "SYNTHETIC_ONLY",
+    "target": "报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收",
+    "original_evidence_ref": "R30_REPORT.json#/metricResults/43",
+    "acceptance_status": "NOT_RUN_PRODUCT"
+  }
+]

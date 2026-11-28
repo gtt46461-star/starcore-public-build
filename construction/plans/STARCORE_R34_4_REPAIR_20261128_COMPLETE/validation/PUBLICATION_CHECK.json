@@ -1,0 +1,55 @@
+{
+  "schema": "STARCORE_R344_PUBLICATION_CHECK_1",
+  "scope": "PACKAGE_RESTORATION_AND_EVIDENCE_MATERIALIZATION_ONLY",
+  "original_zip_sha256": "4770e865a14cb3c4411e24d180368077c4585cdaa40255945a72742d615f9915",
+  "checks": [
+    {
+      "case": "27_parts_restore_exact_original",
+      "status": "PASS",
+      "bytes": 20814251,
+      "sha256": "4770e865a14cb3c4411e24d180368077c4585cdaa40255945a72742d615f9915",
+      "zip_members_crc_verified": 263
+    },
+    {
+      "case": "existing_correct_archive_reused",
+      "status": "PASS"
+    },
+    {
+      "case": "existing_different_archive_rejected_and_preserved",
+      "status": "PASS"
+    },
+    {
+      "case": "corrupt_part_rejected_no_output_or_temp_leak",
+      "status": "PASS"
+    },
+    {
+      "case": "missing_part_rejected_no_false_success",
+      "status": "PASS"
+    },
+    {
+      "case": "fresh_exact_diagnostic_member_materialized",
+      "status": "PASS",
+      "bytes": 19471817,
+      "sha256": "e0e3ffdb5a58a33175d6ee305d788bfaea3bd6186495c1828a0e1edddb6112b0"
+    },
+    {
+      "case": "existing_correct_diagnostic_reused",
+      "status": "PASS"
+    },
+    {
+      "case": "differing_diagnostic_rejected_and_preserved",
+      "status": "PASS"
+    },
+    {
+      "case": "shipped_script_syntax_and_help",
+      "status": "PASS",
+      "scripts": 2
+    }
+  ],
+  "failure_count": 0,
+  "source_bytes_this_turn": "NOT_RUN",
+  "candidate_application_this_turn": "NOT_RUN",
+  "android_build": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN"
+}

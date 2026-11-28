@@ -1,0 +1,125 @@
+package com.ethk3.novaonepro.strategyv2;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.BuildConfig;
+import java.util.*;
+/** Bounded graph projections. Edges require the original key, never a shared issue number alone. */
+final class ResearchProvenanceGraphR30R1 {
+ private ResearchProvenanceGraphR30R1(){}
+ static Map<String,Object> node(String id,Object value,String detail){return ResearchObservatoryR30R1.point(id,value,-1,detail);}
+ @SuppressWarnings("unchecked") static void edge(Map<String,Object> f,String a,String b,String proof){Map<String,Object> e=new LinkedHashMap<>();e.put("from",a);e.put("to",b);e.put("label",proof);((List<Object>)f.get("edges")).add(e);}
+ static String shortId(String s){return s==null?"缺证":s.substring(0,Math.min(10,s.length()));}
+ static void gradient(ResearchWriteQueueR27.Batch b,AtomNetSessionR30 s,String checkpoint,long now){
+  if(!s.consumableR31())return;String weights=StatsR27.sha256(s.trainer.net.encode()),run=StatsR27.sha256("GRADIENT_PUBLICATION1|"+checkpoint+"|"+BuildConfig.SOURCE_COMMIT_R26);Map<String,Object> p=new LinkedHashMap<>();p.put("checkpointHash",checkpoint);p.put("weightsHash",weights);p.put("gradientPrimarySamplesCommitted",s.pretrainSamples+s.trainer.onlineSteps);p.put("throughOrdinal",s.trainedThroughOrdinal());p.put("featureAbi",AtomNetSessionR30.ABI);p.put("learningProtocol",AtomNetSessionR30.LEARNING_PROTOCOL);p.put("publication","ORIGINAL_IMMUTABLE_MODEL_AFTER_THIS_TRANSACTION_COMMITS");p.put("publicationAvailableAt",null);p.put("naturalQuality","NOT_PROVEN");String payload=JsonR27.write(p);String role=s.trainer.onlineSteps==0?"SELECT":"ONLINE_RESEARCH";
+  b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,s.datasetHash,weights,role,BuildConfig.SOURCE_COMMIT_R26,-1,s.trainedThroughOrdinal(),s.trainedThroughOrdinal(),StatsR27.sha256(payload),"COMMITTED",payload,now);
+  b.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,weights,"NEURAL_GRADIENT_PUBLICATION",checkpoint,"ORIGINAL_CHECKPOINT_SAME_COMMIT_WEIGHTS_HASH",s.trainedThroughOrdinal(),s.trainedThroughOrdinal(),0,null,null,null,payload);
+ }
+ static void onlineInputsR341(ResearchWriteQueueR27.Batch batch,AtomNetSessionR30 state,String publication,
+         String stateHash,String labelPin,String trainingKey,String optimizerInput,long now){
+  List<Object> ordered=new ArrayList<>();
+  for(AtomNetTrainerR27.Sample sample:state.trainer.lastOnlineInputsR341()){
+   String key=sample.issue;
+   if(key==null||!key.matches("[0-9]{12}@P(0[1-9]|10)"))throw new IllegalStateException("R341_ONLINE_SAMPLE_KEY");
+   String issue=key.substring(0,12);
+   String role=issue.compareTo(state.observedThrough)<=0?SplitR27.TRAIN:"ONLINE_RESEARCH";
+   String digest=HashingSU1.fields(key,StatsR27.sha256(AtomNetStoreR30.features(sample.x)),Integer.toString(sample.y),Integer.toString(sample.cls));
+   ordered.add(Arrays.asList(key,role,digest));
+  }
+  if(ordered.isEmpty()||ordered.size()>64)throw new IllegalStateException("R341_ONLINE_INPUT_COUNT");
+  Map<String,Object> proof=new LinkedHashMap<>();
+  proof.put("publication",publication);proof.put("stateHash",stateHash);proof.put("dataset",state.datasetHash);
+  proof.put("labelPin",labelPin);proof.put("optimizerInputHash",optimizerInput);proof.put("orderedSampleKeysRolesAndDigests",ordered);
+  String json=JsonR27.write(proof),hash=StatsR27.sha256(json),run=HashingSU1.fields("R341_ATOMNET_REPLAY_MANIFEST",publication);
+  long ordinal=state.trainedThroughOrdinal();
+  batch.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,state.datasetHash,publication,"ONLINE_RESEARCH",BuildConfig.SOURCE_COMMIT_R26,-1,ordinal,ordinal,hash,"COMMITTED_REPLAY_INPUTS",json,now);
+  batch.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,trainingKey,"NEURAL_REPLAY_ORDER",publication,"EXACT_SAMPLE_KEYS_AND_OPTIMIZER_PUBLICATION",ordinal,ordinal,1,null,null,null,json);
+ }
+ static void optimizerParametersR342(ResearchWriteQueueR27.Batch batch,AtomNetSessionR30 state,
+         AtomNetR27.OptimizerStep step,String publication,String previous,String next,String role,
+         String sourceKey,String inputHash,long now){
+  Map<String,Object> proof=new LinkedHashMap<>();
+  proof.put("publication",publication);proof.put("optimizerStep",step.adamStep);
+  proof.put("scope","LAST_ACTUAL_OPTIMIZER_STEP_OF_COMMITTED_SLICE");
+  proof.put("beforeParameters",step.parametersBefore);proof.put("afterParameters",step.parametersAfter);
+  proof.put("parametersChanged",!step.parametersBefore.equals(step.parametersAfter));
+  proof.put("gradientNorm",step.gradientNorm);proof.put("parameterDelta",step.parameterChange);
+  proof.put("batchCount",step.batchSize);proof.put("role",role);proof.put("sourceKey",sourceKey);
+  proof.put("inputHash",inputHash);proof.put("previousCheckpoint",previous);proof.put("checkpoint",next);
+  String original=JsonR27.write(proof);
+  String run=HashingSU1.fields("R342_ATOMNET_PARAMETER_TRANSITION",publication);
+  long through=state.trainedThroughOrdinal();
+  batch.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+          run,state.datasetHash,publication,"H_TRAIN".equals(role)?"TRAIN":role,BuildConfig.SOURCE_COMMIT_R26,
+          -1,through,through,StatsR27.sha256(original),"COMMITTED_PARAMETER_TRANSITION",original,now);
+  batch.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+          run,publication,"NEURAL_PARAMETER_TRANSITION",next,"ACTUAL_ADAM_PARAMETER_BYTES",
+          through,through,0,null,null,null,original);
+ }
+ @SuppressWarnings("unchecked") static void project(String view,Map<String,Object> f,SQLiteDatabase db){
+  if(!Arrays.asList("R05","R14","R18").contains(view))return;
+  List<Object> records=new ArrayList<>(ResearchObservatoryR30R1.points(f));f.put("sourceRecords",records);ResearchObservatoryR30R1.points(f).clear();List<Object> out=ResearchObservatoryR30R1.points(f);
+  if(view.equals("R14")){
+   try(Cursor q=db.rawQuery("SELECT c.call_key,c.policy_hash,c.model_hash,c.target_ordinal,c.position,c.probability_hash,a.weights,s.probability_hash,f.hit,f.settled_at,f.frozen_at,c.frozen_at FROM r30_model_call c JOIN r30_model_artifact a ON a.model_hash=c.model_hash JOIN r30_model_surface s ON s.model_hash=c.model_hash AND s.target_ordinal=c.target_ordinal AND s.position=c.position AND s.probability_hash=c.probability_hash JOIN r27_live_frozen f ON f.policy_hash=c.policy_hash AND f.target_ordinal=c.target_ordinal AND f.frozen_at=c.frozen_at WHERE c.status='MATCHED' AND f.status='FROZEN' AND a.feature_abi=? ORDER BY c.called_at DESC,c.call_key LIMIT 8",new String[]{AtomNetSessionR30.ABI})){
+    while(q.moveToNext()){String key=shortId(q.getString(0))+":"+q.getLong(3)+":P"+q.getInt(4),weights=StatsR27.sha256(CheckpointArtifactsR26.resolveSerializedR31(db,q.getBlob(6))),gradient=null;try(Cursor g=db.rawQuery("SELECT payload_json FROM r30r1_research_measure WHERE kind='NEURAL_GRADIENT_PUBLICATION' AND measure_key=? ORDER BY rowid DESC LIMIT 1",new String[]{weights})){if(g.moveToFirst())gradient=g.getString(0);}
+     String delta=null;
+     try(Cursor exact=db.rawQuery("SELECT m.payload_json FROM r31_atomnet_publication p JOIN r30r1_research_measure m ON m.measure_key=p.publication_id AND m.kind='NEURAL_PARAMETER_TRANSITION' WHERE p.model_hash=? AND p.weights_hash=? AND p.status='PUBLISHED' ORDER BY p.published_at DESC LIMIT 1",new String[]{q.getString(2),weights})){
+      if(exact.moveToFirst())delta=exact.getString(0);
+     }
+     String a=key+" 梯度",b=key+" 模型",c=key+" 概率面",d=key+" AST调用",e=key+" 冻结",z=key+" 结算";out.add(node(a,gradient==null?null:1,delta!=null?delta:gradient==null?"旧模型未保存梯度→权重原键；UNKNOWN":gradient+"|EXACT_PARAMETER_TRANSITION_UNAVAILABLE"));out.add(node(b,1,"modelHash="+q.getString(2)+"; weightsHash="+weights));out.add(node(c,1,"probabilityHash="+q.getString(5)+"; 原目标/位置/模型/概率hash全匹配"));out.add(node(d,1,"policy="+q.getString(1)+"; call="+q.getString(0)));out.add(node(e,1,"原frozen_at精确相同="+q.getLong(10)));out.add(node(z,q.getInt(8)<0?null:q.getInt(8),"原冻结hit="+q.getInt(8)+"; settled_at="+q.getLong(9)+"; 非REAL结算"));if(gradient!=null)edge(f,a,b,"EXACT_WEIGHTS_HASH");edge(f,b,c,"EXACT_MODEL_HASH");edge(f,c,d,"EXACT_TARGET_POSITION_PROBABILITY_HASH");edge(f,d,e,"EXACT_POLICY_TARGET_FROZEN_AT");if(q.getInt(8)>=0&&q.getLong(9)>0)edge(f,e,z,"ORIGINAL_FROZEN_ROW_SETTLED");
+    }
+   }f.put("chainScope","LATEST_8_EXACT_CALL_CHAINS; FULL_DENOMINATOR_IN_CONSUMPTION; MISSING_GRADIENT_RECEIPTS_STAY_UNKNOWN");
+  }else{
+   for(int i=0;i<Math.min(view.equals("R18")?10:16,records.size());i++){
+    Map<String,Object> r=(Map<String,Object>)records.get(i);String key=String.valueOf(i+1);if(view.equals("R05")){
+     String a=key+" 失败/处方",b=key+" 子代",c=key+" SELECT回放";out.add(node(a,null,String.valueOf(r.get("details"))));if(r.get("childHash")!=null){out.add(node(b,1,"hash="+r.get("childHash")+"; AST="+r.get("actualAst")+"; admission="+r.get("admissionState")));edge(f,a,b,"EXPERT_PROPOSAL_EXACT_CHILD_HASH");if(r.get("selectBinaryBrier") instanceof Number){out.add(node(c,r.get("selectBinaryBrier"),"开发回放，不能从出生产量推断有效"));edge(f,b,c,"EXACT_CHILD_DATASET_SELECT");}}
+    }else{
+     String a=key+" 分析",b=key+" 提案",c=key+" 子代",d=key+" 独立确认",e=key+" 实验/资格",z=key+" REAL缺证";out.add(node(a,null,"run="+r.get("analysisRun")));out.add(node(b,null,"proposal="+r.get("proposal")));edge(f,a,b,"EXACT_RUN_ID");if(r.get("childHash")!=null){out.add(node(c,1,"child="+r.get("childHash")+"; "+r.get("admissionState")));edge(f,b,c,"ORIGINAL_CONSUME_CHILD_HASH");}if(r.get("confirmationTask")!=null){out.add(node(d,r.get("verified"),"task="+r.get("confirmationTask")+"; "+r.get("confirmationState")));edge(f,c,d,"EXACT_POLICY_HASH");}if(r.get("experiment")!=null){out.add(node(e,null,"experiment="+r.get("experiment")+"; certificate="+r.get("certificateStatus")+"; sequential="+r.get("sequentialState")));edge(f,d,e,"EXACT_REGISTERED_EXPERIMENT_ID");}appendRealAttributionR343(f,r,key,e);
+    }
+   }
+  }
+  if(out.isEmpty()){f.put("status","INSUFFICIENT");f.put("reason","NO_EXACT_ORIGINAL_GRAPH_KEYS_YET");}
+ }
+
+ /** Display-only projection of the exact receipt already verified by
+  * ResearchMainlineContributionAuditR922.exactRealAttributionR34.
+  * This method does not create authorization, settle trades, or infer quality. */
+ static void appendRealAttributionR343(Map<String,Object> frame,Map<String,Object> row,
+         String key,String experimentNode){
+  List<Object> out=ResearchObservatoryR30R1.points(frame);
+  Object raw=row.get("attributedRealSettlement"),experiment=row.get("experiment");
+  Map<?,?> receipt=raw instanceof Map?(Map<?,?>)raw:null;
+  Object authorization=row.get("realAuthorization");
+  boolean bound=receipt!=null&&experiment instanceof String&&!((String)experiment).isEmpty()
+      &&row.get("childHash")!=null&&row.get("confirmationTask")!=null
+      &&"MATCHED_ORIGINAL_POLICY_MODEL_AUTHORIZATION_AND_TRADE_KEYS".equals(row.get("attributionReason"))
+      &&(MainlineFreezeProofR31.PREFIX+experiment).equals(receipt.get("policy"))
+      &&authorization instanceof String&&!((String)authorization).isEmpty()
+      &&authorization.equals(receipt.get("authorizationHash"))
+      &&receipt.get("tradeId") instanceof Number&&((Number)receipt.get("tradeId")).longValue()>0;
+  if(!bound){
+   out.add(node(key+" REAL缺证",null,receipt==null?String.valueOf(row.get("attributionReason"))
+       :"REAL_PROJECTION_BINDING_MISMATCH"));
+   return;
+  }
+  String authorizationNode=key+" REAL原始授权";
+  out.add(node(authorizationNode,1,"authorizationHash="+authorization+"; tradeId="
+      +receipt.get("tradeId")+"; targetIssue="+receipt.get("targetIssue")
+      +"; predrawClock="+receipt.get("predrawClock")));
+  edge(frame,experimentNode,authorizationNode,"EXACT_EXPERIMENT_POLICY_AND_AUTHORIZATION_TRADE_KEYS");
+  String state=String.valueOf(receipt.get("state"));
+  Object hit=receipt.get("hit"),settlement=receipt.get("settlementHash");
+  boolean settled="SETTLED_EXACT".equals(state)&&"VERIFIED".equals(receipt.get("predrawClock"))
+      &&settlement instanceof String&&!((String)settlement).isEmpty()
+      &&hit instanceof Number&&(((Number)hit).doubleValue()==0.0||((Number)hit).doubleValue()==1.0);
+  if(settled){
+   String settledNode=key+" REAL结算";
+   out.add(node(settledNode,hit,"settlementHash="+settlement+"; tradeId="+receipt.get("tradeId")
+       +"; targetIssue="+receipt.get("targetIssue")+"; pnl="+receipt.get("pnl")
+       +"; state=SETTLED_EXACT; 单次真实结算不代表统计优势"));
+   edge(frame,authorizationNode,settledNode,"EXACT_AUTHORITATIVE_SETTLEMENT_RECEIPT");
+  }else{
+   out.add(node(key+("BET_AWAITING_SETTLEMENT".equals(state)?" REAL待结算":" REAL结算未验证"),
+       null,"state="+state+"; settlement requires verified original terminal receipt"));
+  }
+ }
+}

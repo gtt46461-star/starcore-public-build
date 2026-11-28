@@ -1,0 +1,124 @@
+{
+  "schema": "STARCORE_R344_READ_ONLY_PLAN_VERIFICATION_1",
+  "verification_pass": true,
+  "plan_integrity_pass": true,
+  "source_verification": "NOT_RUN",
+  "optional_package_checks_not_run": [],
+  "product_acceptance": "NOT_RUN_NOT_IMPLIED_BY_PLAN_PASS",
+  "android_build": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "natural_quality": "NOT_PROVEN",
+  "candidate_execution": "NOT_RUN",
+  "read_only": true,
+  "checks": [
+    {
+      "check": "plan_identity",
+      "category": "PLAN",
+      "status": "PASS",
+      "source_commit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+      "scope": "PLAN_IDENTITY_ONLY_NOT_APK_IDENTITY"
+    },
+    {
+      "check": "issues_aliases_cards",
+      "category": "PLAN",
+      "status": "PASS",
+      "issues": 46,
+      "unique_original_findings": 50,
+      "issue_cards": 46
+    },
+    {
+      "check": "batches_cards_dag",
+      "category": "PLAN",
+      "status": "PASS",
+      "batches": 12,
+      "dag": "ACYCLIC",
+      "topological_order": [
+        "B00",
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11"
+      ],
+      "boundary": "Structural DAG check does not prove runtime liveness."
+    },
+    {
+      "check": "source_anchor_catalogs",
+      "category": "PLAN",
+      "status": "PASS",
+      "source_anchor_files": 136,
+      "baseline_java_inventory": 1407,
+      "scope": "DESCRIPTOR_UNION_ONLY; ACTUAL_BYTES_HAVE_A_SEPARATE_SOURCE_CHECK"
+    },
+    {
+      "check": "coverage_inventories",
+      "category": "PLAN",
+      "status": "PASS",
+      "checks": 96,
+      "metrics": 44,
+      "indexed_object_rows": 165,
+      "database_tables": 826,
+      "research_chart_contracts": 18,
+      "object_count_boundary": "20 matrix aliases overlap capabilities; 165 is not 165 independent capabilities."
+    },
+    {
+      "check": "inherited_contracts",
+      "category": "PLAN",
+      "status": "PASS",
+      "old_issues": 44,
+      "requirement_id": 1832,
+      "card_id": 299
+    },
+    {
+      "check": "original_zip_integrity",
+      "category": "PLAN",
+      "status": "PASS",
+      "outer_sha256": "e0e3ffdb5a58a33175d6ee305d788bfaea3bd6186495c1828a0e1edddb6112b0",
+      "inner_sha256": "7a1bfecfb1499e511d1dabf7d01bc70d291464da07d17433f477672faae73f94",
+      "manifest_payloads_verified": 56,
+      "crc": "ALL_OUTER_AND_INNER_FILE_MEMBERS_READ_TO_EOF_WITH_ZIP_CRC_CHECK",
+      "archive_part_boundary": "Original zstd part descriptors are retained; absent original part bytes are not claimed to be replayed.",
+      "original_checks_complete": false,
+      "original_all_checks_passed": false
+    },
+    {
+      "check": "coverage_matches_original_report",
+      "category": "PLAN",
+      "status": "PASS",
+      "original_report_coverage_matched": true,
+      "business_results_preserved": "No FAIL/UNKNOWN/READ_ERROR was converted into product PASS."
+    },
+    {
+      "check": "source_bytes",
+      "category": "SOURCE",
+      "status": "NOT_RUN",
+      "reason": "SOURCE_ROOT_NOT_PROVIDED"
+    },
+    {
+      "check": "PATCHSET.json",
+      "category": "OPTIONAL_PACKAGE",
+      "status": "PASS",
+      "available_file_descriptors_checked": 5,
+      "scope": "JSON_AND_DECLARED_FILE_HASHES_ONLY; PATCHES_NOT_APPLIED_OR_EXECUTED"
+    },
+    {
+      "check": "MANIFEST.json",
+      "category": "OPTIONAL_PACKAGE",
+      "status": "PASS",
+      "files_verified": 167,
+      "exclude": [
+        "MANIFEST.json",
+        "MANIFEST.sha256",
+        "validation/PLAN_CHECK.json"
+      ],
+      "scope": "CURRENT_PLAN_PACKAGE_BYTES_ONLY"
+    }
+  ],
+  "failure_count": 0
+}

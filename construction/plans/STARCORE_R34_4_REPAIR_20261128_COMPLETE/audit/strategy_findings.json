@@ -1,0 +1,317 @@
+{
+  "scope": "STRATEGY_TRAINING_FEEDBACK_EVOLUTION_QUALIFICATION_READ_ONLY_AUDIT",
+  "sourceCommit": "5c7f1b36eaee6036df280e85835bb0fb4ce0b40d",
+  "versionCode": 577311211,
+  "reportSnapshotSha256": "64bf0b335c6204de44da467026ce6d75b5218fbbb86bf8b5ff7cc340cce8b0a3",
+  "sourceRoot": "/workspace/scratch/189d5130b5de/repo-installed",
+  "reportRoot": "/workspace/scratch/189d5130b5de/evidence/report",
+  "findingCount": 15,
+  "findings": [
+    {
+      "id": "ST01",
+      "priority": "P0",
+      "title": "R27固定输入未进入进化cache，导致多消费者等待",
+      "confidence": "A_DEPENDENCY_CONFIRMED_C_NEAR_CAUSE_UNKNOWN",
+      "evidence": [
+        "R26_REPORT.sections[BACKGROUND]",
+        "R30_REPORT.lifecycleEvidenceR31.replayKnowledgeR31"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "method": "DatasetTask.step / publishRecoveredReplayKnowledgeR31 / EvolutionTask.step",
+        "lines": "236–369,418–455",
+        "sha256": "0ee789e680463045ec5bb962c565d85d223f0e16a2322931bff5a8710e1d8f0c"
+      },
+      "repair": "expectedPin需分类核验；先恢复原pin/metadata/evoCache，再执行原九步世代",
+      "preserve_and_acceptance": "不得清cursor/原pin/RNG/exposure ledger；冷启动逐字段比对并绑定真实artifact",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST02",
+      "priority": "P0",
+      "title": "writer backlog生产/消费category错配破坏prepared重试",
+      "confidence": "B_SOURCE_PROVEN_RISK",
+      "evidence": [
+        "DatabaseCoordinator.java:1023–1026"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "method": "writerBusy / submitAttemptR31",
+        "lines": "185–203,241–253",
+        "sha256": "9605291b4de381dd3afd910dd97cea85e1067c2282aa89431a88d68fd3886df3"
+      },
+      "repair": "仅为精确ADMISSION/ROLLED_BACK/backlog cause兼容DEPENDENCY与RESOURCE_QUEUE",
+      "preserve_and_acceptance": "UNKNOWN/COMMITTED不得自动重试；同batch/identity/cursor保持；完整JDBC/设备仍待验",
+      "candidatePatch": "strategy_candidates/ST02_queue_category.patch"
+    },
+    {
+      "id": "ST03",
+      "priority": "P0",
+      "title": "队列前置broad pressure可挡住已有公平dataset服务",
+      "confidence": "B_SOURCE_PROVEN_RISK_FIELD_CAUSE_NOT_EXCLUSIVE",
+      "evidence": [
+        "DatabaseCoordinator.java:191–203,1009–1045",
+        "runtime-observation.json"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "method": "submit(ImmutableBatch) / submitAttemptR31",
+        "lines": "153–203",
+        "sha256": "9605291b4de381dd3afd910dd97cea85e1067c2282aa89431a88d68fd3886df3"
+      },
+      "repair": "绑定真实prepared身份的有界服务票据，统一队列和coordinator公平裁决",
+      "preserve_and_acceptance": "保留active settlement/freeze优先、单writer、deadline、fence；不按op字符串随意放行",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST04",
+      "priority": "P1",
+      "title": "pin load原因被null合并，已存在投影仍重复写入",
+      "confidence": "B_SOURCE_PROVEN_DIAGNOSTIC_AND_AVAILABILITY_RISK",
+      "evidence": [
+        "RuntimeR27.java:344–369",
+        "R30_REPORT.lifecycleEvidenceR31.replayKnowledgeR31"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchInputPinR30R1.java",
+        "method": "loadCurrent / invalid / decode",
+        "lines": "34–47,93–101",
+        "sha256": "365851c3016c56314e0df02e6cbc8121625a043bac06028722b0545d6c779043"
+      },
+      "repair": "增加typed load outcome；精确投影已存在且fence/pin复验才允许跳过纯重复写",
+      "preserve_and_acceptance": "旧sourceCommit或mode不得命中；缺投影仍原有小事务；无原件绝不补造",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST05",
+      "priority": "P1",
+      "title": "50个旧ABI候选停训且冷重生未产出",
+      "confidence": "A_STATE_C_ORIGINAL_AVAILABILITY_UNKNOWN",
+      "evidence": [
+        "R26_REPORT.sections[TRAINING]",
+        "R26_REPORT.sections[BACKGROUND]",
+        "DIAGNOSTIC_SCOPE.tables[r34_cold_rebirth]"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ColdRebirthR34.java",
+        "method": "prepare / step",
+        "lines": "1–243",
+        "sha256": "285c0023b6472380c36c68e33f14ad6ac937266a15cfded632e1508ebdebb8ca"
+      },
+      "repair": "先恢复既有服务；逐个核原件并经现有冷重生唯一映射创建新孩子",
+      "preserve_and_acceptance": "保留旧权重/ABI/状态/hash；新孩子计数0；F23原教师不在则保持hold",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST06",
+      "priority": "P1",
+      "title": "第五条现代TRAIN误终止不在现有恢复白名单",
+      "confidence": "A_REPORT_AND_SOURCE_CONFIRMED",
+      "evidence": [
+        "DIAGNOSTIC_SCOPE.recentEvidence[v57_research_task_r967]",
+        "DIAGNOSTIC_SCOPE.recentEvidence[research_training_recovery_r343]",
+        "DIAGNOSTIC_SCOPE.recentEvidence[research_training_protocol_v2]"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/r952/TrainingRecoveryR343.java",
+        "method": "KNOWN / known / verifyAndResume / commit",
+        "lines": "21–26,39–52,116–180",
+        "sha256": "b503c155642c13672d7b134fd246bc59a20fc60be7bff2cfd5ea60116e638f20"
+      },
+      "repair": "只新增RULE精确task/candidate/protocol/input/action五元组；所有原件证明继续原流程",
+      "preserve_and_acceptance": "不泛化解隔离；原scdev不在报告中仍须现场验；旧失败task/cursor不变",
+      "candidatePatch": "strategy_candidates/ST06_fifth_training_recovery.patch"
+    },
+    {
+      "id": "ST07",
+      "priority": "P0",
+      "title": "已恢复现代TRAIN新任务attempt0，现有轮转未形成完整训练",
+      "confidence": "A_PENDING_SUCCESSOR_C_UNCLAIMED_REASON_UNKNOWN",
+      "evidence": [
+        "DIAGNOSTIC_SCOPE.recentEvidence[v57_research_task_r967]",
+        "DIAGNOSTIC_SCOPE.researchSchedulerState",
+        "r952/ResearchDirectorR952.java:306–332,576–612"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "method": "drainTrainingSlotCP11 / advanceTrainingSlotCP11",
+        "lines": "137–211",
+        "sha256": "f15b80492a437d030972ef774de48fda7d1b9c40c01b48e780d483882763d202"
+      },
+      "repair": "先证明各轮转层准入/预算/claim/prepare/commit状态；完成现有PENDING而非再造owner",
+      "preserve_and_acceptance": "保留现有六槽/五子槽/训练预留；FIXED_GRAPH按真实前向与tape验，不伪造梯度",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST08",
+      "priority": "P1",
+      "title": "多机制实现存在但不能把参数变体或family标签算新算法",
+      "confidence": "A_SOURCE_AND_OUTPUT_CLASSIFICATION",
+      "evidence": [
+        "r952/ModernFamilyFactoryCP12.java:33–166",
+        "r952/CandidateCompilerR952.java:74",
+        "r952/CreationChangeKindR343.java:14–50"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
+        "method": "propose / CreationChangeKindR343.receipt",
+        "lines": "21–54",
+        "sha256": "46e7a3a046aa4772e43a7612c0c43547adf44d5c28e345dfee0de7c58314ca1f"
+      },
+      "repair": "保留15family/6kernel及typed graph搜索；连真实训练、行为变化、消融/未来评价",
+      "preserve_and_acceptance": "规范身份不同不等于新机制；不执行任意生成Java；attempt/structure/quality分开",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST09",
+      "priority": "P1",
+      "title": "typed rule代码存在但无供体迁移验证闭环且供体次数未知",
+      "confidence": "A_OUTPUT_C_DONOR_ATTEMPTS_UNKNOWN",
+      "evidence": [
+        "R30_REPORT.lifecycleEvidenceR31.researchConsumptionR31",
+        "ResearchConsumptionStoreR31.java:174",
+        "AtomPublicationStoreR31.java:54–124"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedGenerationRuleR342.java",
+        "method": "induct / instantiate",
+        "lines": "22–105",
+        "sha256": "575d731c61cb8899ab9280ecb151827dbae07bdee6e1098ded5fcb7aa6d05e77"
+      },
+      "repair": "先产生真实供体proof，再附加有界pair尝试/原因/规则/子代得分回执",
+      "preserve_and_acceptance": "DONOR_PAIR_ATTEMPT_NOT_PERSISTED不能写0；仅更晚不同dataset开发迁移",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST10",
+      "priority": "P1",
+      "title": "旧在线更新44真实存在，现代rolling停在dev receipt前置",
+      "confidence": "A_REPORT_AND_SOURCE_CONFIRMED",
+      "evidence": [
+        "DIAGNOSTIC_SCOPE.recentEvidence[r952_artifact]",
+        "DIAGNOSTIC_SCOPE.tables[research_rolling_*]",
+        "DIAGNOSTIC_SCOPE.recentEvidence[research_development_receipt_v2]"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/r952/RollingLearnerR343.java",
+        "method": "settled / planOne / trainSlice",
+        "lines": "63–74,120–159,209–281",
+        "sha256": "24bab7a500fd340bced51508157da8f5bdc601e748a95c3ac7b5e121f3649bbe"
+      },
+      "repair": "完成AST3开发模型/冻结后由现有TRAIN滚动owner消费真实结算",
+      "preserve_and_acceptance": "旧AST1产物保留；学习与冻结评价不同版本；不将评价标签反改其预测",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST11",
+      "priority": "P1",
+      "title": "18研究能力无当前产消闭环，publication不等于model publication",
+      "confidence": "A_REPORT_CONFIRMED",
+      "evidence": [
+        "R30_REPORT.objectIndex.researchCharts.objects",
+        "R30_REPORT.objectIndex.capabilities.objects",
+        "R30_REPORT.lifecycleEvidenceR31.atomNetPublicationCapacityR33"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchConsumptionStoreR31.java",
+        "method": "typedRuleStageR343 / report",
+        "lines": "1–205",
+        "sha256": "52c997bb42ff5f86a598b49077473057b1e34fe2c35d127b3cc686706a2acbb7"
+      },
+      "repair": "恢复上游后逐能力连接source→consumer→changed child或NO_OP/拒绝",
+      "preserve_and_acceptance": "81 callable不是81项有效产出；capacity范围内不武断归因容量满",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST12",
+      "priority": "P1",
+      "title": "长期摘要因真实期号gap变INVALID_SOURCE",
+      "confidence": "A_STATE_C_GAP_ORIGIN_UNKNOWN",
+      "evidence": [
+        "DIAGNOSTIC_SCOPE.recentEvidence[research_long_head_r80]",
+        "DIAGNOSTIC_SCOPE.recentEvidence[research_long_epoch_r80]"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/r952/LongScaleSummaryR80.java",
+        "method": "prepare / commit / source token",
+        "lines": "14,118–180",
+        "sha256": "39a54164af676d965e31fc02cf902b6d6a21080a568ed9b342ec57b4e75d1509"
+      },
+      "repair": "核canonical/history原来源，按现有epoch合同修复或从连续新段重建",
+      "preserve_and_acceptance": "不得填零/回写可知时间/跳样本冒充连续长窗；旧epoch原件保留",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST13",
+      "priority": "P1",
+      "title": "大量task receipt没有绑定artifact，RUNNING不能视为算法推进",
+      "confidence": "A_REPORT_COUNTER_SEMANTICS",
+      "evidence": [
+        "R30_REPORT.chapters[3].data.tasks",
+        "R26_REPORT.sections[R27_03_CONTINUOUS_RUNTIME]"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "method": "loop / record / next",
+        "lines": "216–329",
+        "sha256": "59977547d03b1526ffd535b07dd8984561fae3ff734098873cee95b0122ed957"
+      },
+      "repair": "补attempt→claim→prepared→admission→artifact→consumer漏斗，绑定同源同owner时段",
+      "preserve_and_acceptance": "保留原计数口径；不得回填历史artifact；历史异fence故障不当本次唯一原因",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST14",
+      "priority": "P1",
+      "title": "证书/主链0是上游证据未产出，不能降低门禁换通过",
+      "confidence": "A_REPORT_AND_SOURCE_CONFIRMED",
+      "evidence": [
+        "DIAGNOSTIC_SCOPE.tables[r27_live_*]",
+        "DIAGNOSTIC_SCOPE.tables[r27_certificate]",
+        "SequentialQualificationR27.java:6–87",
+        "CertificateGateR27.java:16–44"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "method": "freeze / settle / qualify / certify",
+        "lines": "58,132,160,292",
+        "sha256": "7f6918607d702faf5eccf96a8bfac89a6b82237aa6d72af807de45f55d67a4eb"
+      },
+      "repair": "按dev→独立confirm→真实Future→证书→主链恢复",
+      "preserve_and_acceptance": "保留永久alpha/曝光/冻结/版本校准；host/历史/早停验证不当Future，不承诺高胜率",
+      "candidatePatch": null
+    },
+    {
+      "id": "ST15",
+      "priority": "P2",
+      "title": "5000行滚动live cache前缀条件导致重复rebuild风险",
+      "confidence": "B_SOURCE_PROVEN_PERFORMANCE_RISK",
+      "evidence": [
+        "DIAGNOSTIC_SCOPE.researchSchedulerState[cp12_draw_tail_eviction]"
+      ],
+      "source": {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "method": "liveCacheWithPlaceholder",
+        "lines": "681–720",
+        "sha256": "0ee789e680463045ec5bb962c565d85d223f0e16a2322931bff5a8710e1d8f0c"
+      },
+      "repair": "先测load/feature rebuild时间与次数，必要时按issue+hash+source revision复用重叠",
+      "preserve_and_acceptance": "需逐特征/概率回归一致，源纠正必invalidate；当前未证实其造成某次延迟",
+      "candidatePatch": null
+    }
+  ],
+  "verification": {
+    "patchApplyCheck": "PASS_BOTH_ON_EXACT_211",
+    "sourceExtractedClassifier": {
+      "status": "PASS",
+      "cases": 30,
+      "baselineExpectedFailures": 1,
+      "candidateFailures": 0,
+      "scope": "ACTUAL_WRITER_BUSY_METHOD_BODIES_WITH_TYPED_CATEGORY_ADAPTER_NOT_ANDROID_DB_OR_DEVICE"
+    },
+    "fullJUnit": "NOT_RUN",
+    "androidBuild": "NOT_RUN",
+    "device": "NOT_RUN",
+    "appSourceMutation": "NONE"
+  }
+}

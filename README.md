@@ -1,4 +1,8 @@
-> **当前施工方案：[STARCORE R34.2 · 152底座完整返修（2026-11-25）](construction/plans/STARCORE_R34_2_REPAIR_20261125/CONSTRUCTION_PLAN.md)。** [57项详细问题](construction/plans/STARCORE_R34_2_REPAIR_20261125/ISSUES.md) · [12批施工](construction/plans/STARCORE_R34_2_REPAIR_20261125/BATCH_INDEX.md) · [唯一Codex任务书](construction/plans/STARCORE_R34_2_REPAIR_20261125/CODEX_EXECUTE.md) · [全量覆盖](construction/plans/STARCORE_R34_2_REPAIR_20261125/coverage/README.md) · [实际自检](construction/plans/STARCORE_R34_2_REPAIR_20261125/SELF_CHECK.md)。应用基线为`eb8f82a8bda8db22f1f122095217132f07053bcb` / 577311152；main本次只更新方案和入口。方案自检不代签应用修复、APK、真机或自然质量。
+> **当前完整施工方案：[STARCORE R34.4 · 211底座完整返修（2026-11-28）](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/README.md)。** [完整施工指令](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/CODEX_EXECUTE.md) · [46项问题](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/ISSUES.md) · [12批施工](construction/plans/STARCORE_R34_4_REPAIR_20261128_COMPLETE/BATCH_INDEX.md) · [原始完整包/自动还原](construction/packages/STARCORE_R34_4_211_20261128/README.md) · [当前入口](CURRENT_FINAL_PLAN.md)。用户已授权原始诊断、全部审计和5组候选完整上传；应用底座为 `5c7f1b36eaee6036df280e85835bb0fb4ce0b40d` / 577311211 或经审查的合法后代。此次仅更新资料和入口，尚未施工生成新APK。main应用树不是211源码底座。
+
+## 历史R34.2方案入口（保留）
+
+> **历史施工方案：[STARCORE R34.2 · 152底座完整返修（2026-11-25）](construction/plans/STARCORE_R34_2_REPAIR_20261125/CONSTRUCTION_PLAN.md)。** [57项详细问题](construction/plans/STARCORE_R34_2_REPAIR_20261125/ISSUES.md) · [12批施工](construction/plans/STARCORE_R34_2_REPAIR_20261125/BATCH_INDEX.md) · [唯一Codex任务书](construction/plans/STARCORE_R34_2_REPAIR_20261125/CODEX_EXECUTE.md) · [全量覆盖](construction/plans/STARCORE_R34_2_REPAIR_20261125/coverage/README.md) · [实际自检](construction/plans/STARCORE_R34_2_REPAIR_20261125/SELF_CHECK.md)。应用基线为`eb8f82a8bda8db22f1f122095217132f07053bcb` / 577311152；main本次只更新方案和入口。方案自检不代签应用修复、APK、真机或自然质量。
 
 ## 历史发布记录
 
@@ -14,7 +18,7 @@
 
 ## 历史工程档案 · 星核创研 R13 公有独立版
 
-下列版本、功能、构建说明和验证结果对应 R13 历史交付。相应操作与证据按历史版本档案追溯；本轮执行页首R34.2入口。
+下列版本、功能、构建说明和验证结果对应 R13 历史交付。相应操作与证据按历史版本档案追溯；当前施工执行页首R34.4完整入口。
 
 公有仓库的独立 Android 应用。包名 `com.starcore.research.r13`，显示名称“星核创研 R13”，版本 `R13-5.4.3.03-2026.10.24`，versionCode `577251062`。使用独立固定签名，可与私有原版 `com.ethk3.novaonepro` 及旧公有 SU1 同时安装；数据分别保存在各自应用目录。
 
