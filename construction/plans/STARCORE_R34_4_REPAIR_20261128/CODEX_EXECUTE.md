@@ -6,9 +6,9 @@
 
 ## 先锁定底座与读取方案
 
-1. 仓库为 `gtt46461-star/starcore-public-build`，本计划路径为 `construction/plans/STARCORE_R34_4_REPAIR_20261128`。main只存本轮计划，应用底座必须是 `5c7f1b36eaee6036df280e85835bb0fb4ce0b40d` / versionCode `577311211`，或已逐文件核验的合法后代。
+1. 仓库为 `gtt46461-star/starcore-public-build`，本计划路径为 `construction/plans/STARCORE_R34_4_REPAIR_20261128`。本轮公开计划位于plans/r344-211-repair-20261128分支，main保留原状，应用底座必须是 `5c7f1b36eaee6036df280e85835bb0fb4ce0b40d` / versionCode `577311211`，或已逐文件核验的合法后代。
 2. 读取 README、CONSTRUCTION_PLAN、ISSUES及46张卡、12个batch、三份contracts、ACCEPTANCE_MATRIX、PATCHSET、SELF_CHECK、SOURCE_ANCHORS、coverage和inheritance索引。旧173数学说明仅作历史合同，当前实现以211源码和本轮合同为准。
-3. 从211建立隔离工作树；先运行本包只读验证器、候选累计检查和原报告验证。保留干净基线，不在main旧应用目录上试修，不重套173整文件后态。
+3. 从211建立隔离工作树；先运行本公开包只读验证器和4候选累计检查；原报告验证从用户完整包执行。保留干净基线，不在main旧应用目录上试修，不重套173整文件后态。
 
 可用命令如下，`PLAN_DIR`为新计划目录的绝对路径，`APP_DIR`为211工作树绝对路径：
 
